@@ -1,112 +1,45 @@
 ---
 uid: migration_dsharp
-title: Migration Dsharp
+title: Migration From DiscordSharp
 ---
 
-# Halp! I left my cave and the red light hurts my eyes!
+## Migration From DiscordSharp
 
-DSharpPlus is a continuation of DiscordSharp made by Luigifan / Suicvne. The two libraries are quite similar, however a 
-lot has changed since we've continued the lib. Here's a migration guide for those who still need it.
-
-## Connecting
-
-Due to some changes in Discord's API and in the library itself, connecting to Discord goes a bit differently. Instead 
-of constructing a DiscordClient object with just a token and a boolean, we now have to provide a whole 
-DiscordConfiguration object.
-
-Before this change your code would've looked like this:
-
+### Connecting
 ```cs
-DiscordClient client = new DiscordClient("your token", true); // true is for isbot.
-// these two lines were used for logging in with email and password,
-// though Discord does not allow this anymore. Doing so will now flag your account.
-client.ClientPrivateInformation.Email = "email";
-client.ClientPrivateInformation.Password = "pass";
-// You'll rather want to connect with a token.
-client.SendLoginRequest();
-client.Connect();
+// Old.
+var discord = new DiscordClient("My First Token", true);
+
+discord.SendLoginRequest();
+discord.Connect();
 ```
-
-Now, your code should look more like this:
-
+The constructor of the `DiscordClient` now requires a `DiscordConfiguration` object instead of a simple string token and boolean.
 ```cs
-DiscordClient client = new DiscordClient(new DiscordConfiguration
+// New.
+var discord = new DiscordClient(new DiscordConfiguration
 {
     Token = "your token",
     TokenType = TokenType.Bot
 });
 
-// All code is now async. You'll want to move your code to an async method.
-await client.ConnectAsync();
+await discord.ConnectAsync();
 await Task.Delay(-1);
-// We add a little delay because your code will no longer run on the main thread.
-// Not doing this will exit the program and shut down your bot.
 ```
+New versions of DSharpPlus implement [TAP](https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/task-based-asynchronous-pattern-tap), 
+and the all DSharpPlus methods ending with *async* will need to be `await`ed within an asynchronous method.
 
-## Events
-
-Events are now quite different. All events are now an `AsyncEvent`. These run asynchronously, as the name implies.
-
-Your old events would've looked like this:
+### Events
+While the signature will look similar, many changes have been done to events behind the scenes.
 
 ```cs
-client.MessageReceived += (sender, e) =>
+discord.MessageReceived += async (sender, arg) =>
 {
-  // Code here
+    // Code here
 };
 ```
+We have a small article covering DSharpPlus events [here](xref:beyond_basics_events).
 
-Now they should look like this:
-
-```cs
-client.MessageCreated += async e =>
-{
-  // Code here
-}
-```
-
-Complete event guide is available in the [event reference](xref:beyond_basics_events "Events") article.
-
-Event names were also changed. A list of changed event names is to be found at the bottom of this article, along with 
-some new events not yet available in DiscordSharp.
-
-## Changed Event names
-
-* MessageReceived -> MessageCreated
-* Connected -> Ready
-* SocketOpened -> SocketOpened
-* SocketClosed -> SocketClosed
-* ChannelCreated -> ChannelCreated
-* PrivateChannelCreated -> DmChannelCreated
-* PrivateMessageReceived -> Not in DSharpPlus, use MessageCreated
-* MentionReceived -> Not in DSharpPlus, Use MessageCreated.
-* UserTypingStart -> TypingStarted
-* MessageEdited -> MessageUpdated
-* PresenceUpdated -> PresenceUpdated
-* URLMessageAutoUpdate -> this is dispatched via regular MessageUpdate event
-* VoiceStateUpdate -> VoiceStateUpdated
-* UnknownMessageTypeReceived -> Not in DSharpPlus, Use MessageCreated.
-* MessageDeleted -> MessageDeleted
-* UserUpdate -> UserUpdated
-* UserAddedToServer -> GuildMemberAdded
-* UserRemovedFromServer -> GuildMemberRemoved
-* GuildCreated -> GuildCreated
-* GuildAvailable -> GuildAvailable
-* GuildDeleted -> GuildDeleted
-* ChannelUpdated -> ChannelUpdated
-* TextClientDebugMessageReceived
-* VoiceClientDebugMessageReceived
-* ChannelDeleted -> ChannelDeleted
-* GuildUpdated -> GuildUpdated
-* RoleDeleted -> GuildRoleDeleted
-* RoleUpdated -> GuildRoleUpdated
-* GuildMemberUpdated -> GuildMemberUpdated
-* GuildMemberBanned -> GuildBanAdded
-* PrivateChannelDeleted -> DMChannelDeleted
-* BanRemoved -> GuildBanRemoved
-* PrivateMessageDeleted -> Not in DSharpPlus, use MessageDeleted.
-
-### New events
+#### New events
 
 * ChannelPinsUpdated
 * ClientErrored
@@ -126,3 +59,30 @@ some new events not yet available in DiscordSharp.
 * UserSettingsUpdated
 * VoiceServerUpdated
 * WebhooksUpdated
+
+#### Removed Events
+* TextClientDebugMessageReceived
+* VoiceClientDebugMessageReceived
+
+#### Changed Event names
+
+Old DiscordSharp Event|DSharpPlus Equivalent
+:---:|:---:
+MessageReceived|MessageCreated
+Connected|Ready
+PrivateChannelCreated|DmChannelCreated
+PrivateMessageReceived|MessageCreated
+MentionReceived|MessageCreated
+UserTypingStart|TypingStarted
+MessageEdited|MessageUpdated
+URLMessageAutoUpdate|MessageUpdate
+VoiceStateUpdate|VoiceStateUpdated
+UserUpdate|UserUpdated
+UserAddedToServer|GuildMemberAdded
+UserRemovedFromServer|GuildMemberRemoved
+RoleDeleted|GuildRoleDeleted
+RoleUpdated|GuildRoleUpdated
+GuildMemberBanned|GuildBanAdded
+PrivateChannelDeleted|DMChannelDeleted
+BanRemoved|GuildBanRemoved
+PrivateMessageDeleted|MessageDeleted.
