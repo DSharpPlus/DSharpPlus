@@ -34,13 +34,19 @@ namespace DSharpPlus.Test
 		public async Task Test2(CommandContext ctx)
         {
 			for (int i = 0; i < 200; i++)
-				_ = ctx.RespondAsync(ctx.Message.Content);
+			{
+				var msg = await ctx.RespondAsync(ctx.Message.Content);
+				await msg.ModifyAsync("test5");
+				await msg.DeleteAsync();
+			}
 
+			/*
 			for (int i = 0; i < 100; i++)
             {
-				await ctx.RespondAsync(ctx.Message.Content);
+				await (await ctx.RespondAsync(ctx.Message.Content)).ModifyAsync("test2");
             }
-        }
+			*/
+		}
 
 		[Command("crosspost")]
 		public async Task CrosspostAsync(CommandContext ctx, DiscordChannel chn, DiscordMessage msg)

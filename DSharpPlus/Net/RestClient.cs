@@ -521,7 +521,7 @@ namespace DSharpPlus.Net
             {
                 if(newHash != oldHash)
                 {
-                    request.Discord.Logger.LogDebug("Updating hash in {0}: \"{1}\" -> \"{2}\"", hashKey, oldHash, newHash);
+                    request.Discord.Logger.LogDebug(LoggerEvents.RestHashMover, "Updating hash in {0}: \"{1}\" -> \"{2}\"", hashKey, oldHash, newHash);
                     bucket.Hash = newHash;
 
                     var oldBucketId = RateLimitBucket.GenerateBucketId(oldHash, bucket.GuildId, bucket.ChannelId, bucket.WebhookId);
@@ -580,7 +580,7 @@ namespace DSharpPlus.Net
                 }
 
                 if (removedBuckets > 0)
-                    this.Discord.Logger.LogDebug("Removed {0} unused buckets.", removedBuckets);
+                    this.Discord.Logger.LogDebug(LoggerEvents.RestCleaner, "Removed {0} unused buckets.", removedBuckets);
 
                 if (this.HashesToBuckets.Count == 0)
                     break;
@@ -592,7 +592,6 @@ namespace DSharpPlus.Net
             this._cleanerRunning = false;
             Console.WriteLine("Stopped cleaner.");
         }
-
 
         ~RestClient()
             => this.Dispose();

@@ -132,9 +132,13 @@ namespace DSharpPlus
         /// </summary>
         public static EventId RestTx { get; } = new EventId(124, "REST ↑");
 
+        public static EventId RestCleaner { get; } = new EventId(125, nameof(RestCleaner));
+
+        public static EventId RestHashMover { get; } = new EventId(126, nameof(RestHashMover));
+
         /// <summary>
         /// Events pertaining to Discord API requests from the <see cref="DiscordShardedClient"/>.
         /// </summary>
-        public static EventId ShardRest { get; } = new EventId(125, nameof(ShardRest));
+        public static EventId ShardRest { get; } = new EventId(127, nameof(ShardRest));
     }
 }
