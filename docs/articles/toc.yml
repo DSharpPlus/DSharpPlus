@@ -17,8 +17,6 @@
       href: beyond_basics/logging/default.md
     - name: Third Party Loggers
       href: beyond_basics/logging/third_party.md
-    - name: Writing a Logger
-      href: beyond_basics/logging/user.md
   - name: Sharding
     href: beyond_basics/sharding.md
 - name: Commands
