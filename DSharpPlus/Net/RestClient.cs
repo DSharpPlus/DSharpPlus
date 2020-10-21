@@ -24,8 +24,8 @@ namespace DSharpPlus.Net
         private static Regex RouteArgumentRegex { get; } = new Regex(@":([a-z_]+)");
         private HttpClient HttpClient { get; }
         private BaseDiscordClient Discord { get; }
-        private ConcurrentDictionary<string, string> RoutesToHashes { get; set; }
-        private ConcurrentDictionary<string, RateLimitBucket> HashesToBuckets { get; set; }
+        private ConcurrentDictionary<string, string> RoutesToHashes { get; }
+        private ConcurrentDictionary<string, RateLimitBucket> HashesToBuckets { get; }
         private AsyncManualResetEvent GlobalRateLimitEvent { get; }
         private bool UseResetAfter { get; }
 
@@ -93,15 +93,24 @@ namespace DSharpPlus.Net
             var channel_id = rparams.ContainsKey("channel_id") ? rparams["channel_id"] : "";
             var webhook_id = rparams.ContainsKey("webhook_id") ? rparams["webhook_id"] : "";
 
+            // Create a generic route (minus major params) key
+            // ex: POST:/channels/channel_id/messages
             var hashKey = RateLimitBucket.GenerateHashKey(method, route);
 
-            if(!this.RoutesToHashes.TryGetValue(hashKey, out var hash))
+            // We check if the hash is present first, using our generic route (without major params)
+            // ex: in POST:/channels/channel_id/messages, out 80c17d2f203122d936070c88c8d10f33
+            if (!this.RoutesToHashes.TryGetValue(hashKey, out var hash))
             {
+                // If it doesn't exist, we create an unlimited hash as our initial key in the form of the hash key + the unlimited constant
+                // and assign this to the route to hash cache
+                // ex: this.RoutesToHashes[POST:/channels/channel_id/messages] = POST:/channels/channel_id/messages:unlimited
                 hash = RateLimitBucket.GenerateUnlimitedHash(method, route);
 
                 this.RoutesToHashes[hashKey] = hash;
             }
 
+            // Next we use the hash to generate the key to obtain the bucket.
+            // ex: 
             var bucketId = RateLimitBucket.GenerateBucketId(hash, guild_id, channel_id, webhook_id);
 
             if (!this.HashesToBuckets.TryGetValue(bucketId, out var bucket))
@@ -187,7 +196,6 @@ namespace DSharpPlus.Net
                 else
                     request.Discord?.Logger.LogDebug(LoggerEvents.RatelimitDiag, "Initial request for {0} is allowed", bucket.ToString());
 
-                bucket.IsCurrentlyUsed = false;
                 var req = this.BuildRequest(request);
                 var response = new RestResponse();
                 try
@@ -498,7 +506,7 @@ namespace DSharpPlus.Net
                     bucket._nextReset = newReset.UtcTicks;
             }
 
-            this.UpdateHashCaches(request, bucket, hash);
+            this.UpdateHashCaches(request, bucket, hash);            
         }
 
         private void UpdateHashCaches(BaseRestRequest request, RateLimitBucket bucket, string newHash = null)
@@ -532,7 +540,6 @@ namespace DSharpPlus.Net
             });
 
             _ = this.HashesToBuckets.AddOrUpdate(bucketId, bucket, (key, oldBucket) => { return oldBucket; });
-            bucket.IsCurrentlyUsed = false;
         }
 
         private async Task CleanupBucketsAsync()
