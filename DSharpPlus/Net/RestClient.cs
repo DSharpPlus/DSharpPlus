@@ -117,7 +117,7 @@ namespace DSharpPlus.Net
                 this._cleanerRunning = true;
                 this._bucketCleanerTokenSource = new CancellationTokenSource();
                 this._cleanerTask = Task.Run(this.CleanupBucketsAsync, this._bucketCleanerTokenSource.Token);
-                Console.WriteLine("Cleaner started");
+                this.Discord.Logger.LogDebug(LoggerEvents.RestCleaner, "Bucket cleaner task started.");
             }
 
             url = RouteArgumentRegex.Replace(route, xm => rparams[xm.Groups[1].Value]);
@@ -552,15 +552,15 @@ namespace DSharpPlus.Net
                     return;
 
                 int removedBuckets = 0;
+                StringBuilder bucketIdStrBuilder = default;
 
-                Console.WriteLine("\nScan:\n");
-
-                foreach(var kvp in this.HashesToBuckets)
+                foreach (var kvp in this.HashesToBuckets)
                 {
+                    if (bucketIdStrBuilder == null)
+                        bucketIdStrBuilder = new StringBuilder();
+
                     var key = kvp.Key;
                     var value = kvp.Value;
-
-                    Console.WriteLine($"bucket scanned: {value.BucketId}");
 
                     // Don't remove the bucket if it's currently being handled by the rest client.
                     if (value.IsCurrentlyUsed)
@@ -574,13 +574,11 @@ namespace DSharpPlus.Net
 
                     _ = this.HashesToBuckets.TryRemove(key, out _);
                     removedBuckets++;
-
-                    Console.WriteLine($"bucket removed: {value.BucketId}");
-                    
+                    bucketIdStrBuilder.Append(value.BucketId + ", ");
                 }
 
                 if (removedBuckets > 0)
-                    this.Discord.Logger.LogDebug(LoggerEvents.RestCleaner, "Removed {0} unused buckets.", removedBuckets);
+                    this.Discord.Logger.LogDebug(LoggerEvents.RestCleaner, "Removed {0} unused bucket{1}: [{2}]", removedBuckets, removedBuckets > 1 ? "s" : string.Empty, bucketIdStrBuilder.ToString().TrimEnd(',', ' '));
 
                 if (this.HashesToBuckets.Count == 0)
                     break;
@@ -590,7 +588,7 @@ namespace DSharpPlus.Net
                 this._bucketCleanerTokenSource.Cancel();
 
             this._cleanerRunning = false;
-            Console.WriteLine("Stopped cleaner.");
+            this.Discord.Logger.LogDebug(LoggerEvents.RestCleaner, "Bucket cleaner task stopped.");
         }
 
         ~RestClient()
@@ -608,7 +606,6 @@ namespace DSharpPlus.Net
 
             try
             {
-
                 this._cleanerTask.Dispose();
             }
             catch { }
