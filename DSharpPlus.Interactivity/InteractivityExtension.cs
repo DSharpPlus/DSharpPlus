@@ -11,55 +11,6 @@ using Emzi0767.Utilities;
 
 namespace DSharpPlus.Interactivity
 {
-    #region Extensions
-    public static partial class InteractivityExtensionMethods
-    {
-        public static InteractivityExtension UseInteractivity(this DiscordClient c, InteractivityConfiguration cfg)
-        {
-            if (c.GetExtension<InteractivityExtension>() != null)
-                throw new Exception("Interactivity module is already enabled for this client!");
-
-            var m = new InteractivityExtension(cfg);
-            c.AddExtension(m);
-            return m;
-        }
-
-        public static async Task<IReadOnlyDictionary<int, InteractivityExtension>> UseInteractivityAsync(this DiscordShardedClient c, InteractivityConfiguration cfg)
-        {
-            var modules = new Dictionary<int, InteractivityExtension>();
-            await c.InitializeShardsAsync().ConfigureAwait(false);
-
-            foreach (var shard in c.ShardClients.Select(xkvp => xkvp.Value))
-            {
-                var m = shard.GetExtension<InteractivityExtension>();
-                if (m == null)
-                    m = shard.UseInteractivity(cfg);
-
-                modules[shard.ShardId] = m;
-            }
-
-            return new ReadOnlyDictionary<int, InteractivityExtension>(modules);
-        }
-
-        public static InteractivityExtension GetInteractivity(this DiscordClient c)
-        {
-            return c.GetExtension<InteractivityExtension>();
-        }
-
-        public static IReadOnlyDictionary<int, InteractivityExtension> GetInteractivity(this DiscordShardedClient c)
-        {
-            var modules = new Dictionary<int, InteractivityExtension>();
-
-            c.InitializeShardsAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-
-            foreach (var shard in c.ShardClients.Select(xkvp => xkvp.Value))
-                modules.Add(shard.ShardId, shard.GetExtension<InteractivityExtension>());
-
-            return new ReadOnlyDictionary<int, InteractivityExtension>(modules);
-        }
-    }
-    #endregion
-
     /// <summary>
     /// Extension class for DSharpPlus.Interactivity
     /// </summary>
@@ -103,7 +54,7 @@ namespace DSharpPlus.Interactivity
         /// <param name="behaviour">What to do when the poll ends.</param>
         /// <param name="timeout">override timeout period.</param>
         /// <returns></returns>
-        public async Task<ReadOnlyCollection<PollEmoji>> DoPollAsync(DiscordMessage m, DiscordEmoji[] emojis, PollBehaviour? behaviour = default, TimeSpan? timeout = null)
+        public async Task<ReadOnlyCollection<PollEmoji>> DoPollAsync(DiscordMessage m, IEnumerable<DiscordEmoji> emojis, PollBehaviour? behaviour = default, TimeSpan? timeout = null)
         {
             if (!Utilities.HasReactionIntents(this.Client.Configuration.Intents))
                 throw new InvalidOperationException("No reaction intents are enabled.");
@@ -255,7 +206,7 @@ namespace DSharpPlus.Interactivity
         /// <summary>
         /// Collects reactions on a specific message.
         /// </summary>
-        /// <param name="m">Message to colelct reactions on.</param>
+        /// <param name="m">Message to collect reactions on.</param>
         /// <param name="timeoutoverride">Override timeout period.</param>
         /// <returns></returns>
         public async Task<ReadOnlyCollection<Reaction>> CollectReactionsAsync(DiscordMessage m, TimeSpan? timeoutoverride = null)
@@ -340,9 +291,9 @@ namespace DSharpPlus.Interactivity
         /// <param name="input">Input string.</param>
         /// <param name="splittype">How to split input string.</param>
         /// <returns></returns>
-        public Page[] GeneratePagesInContent(string input, SplitType splittype = SplitType.Character)
+        public IEnumerable<Page> GeneratePagesInContent(string input, SplitType splittype = SplitType.Character)
         {
-            if (String.IsNullOrEmpty(input))
+            if (string.IsNullOrEmpty(input))
                 throw new ArgumentException("You must provide a string that is not null or empty!");
 
             List<Page> result = new List<Page>();
@@ -380,7 +331,7 @@ namespace DSharpPlus.Interactivity
                 page++;
             }
 
-            return result.ToArray();
+            return result;
         }
 
         /// <summary>
@@ -390,9 +341,9 @@ namespace DSharpPlus.Interactivity
         /// <param name="splittype">How to split input string.</param>
         /// <param name="embedbase">Base embed for output embeds.</param>
         /// <returns></returns>
-        public Page[] GeneratePagesInEmbed(string input, SplitType splittype = SplitType.Character, DiscordEmbedBuilder embedbase = null)
+        public IEnumerable<Page> GeneratePagesInEmbed(string input, SplitType splittype = SplitType.Character, DiscordEmbedBuilder embedbase = null)
         {
-            if (String.IsNullOrEmpty(input))
+            if (string.IsNullOrEmpty(input))
                 throw new ArgumentException("You must provide a string that is not null or empty!");
 
             var embed = embedbase ?? new DiscordEmbedBuilder();
@@ -433,7 +384,7 @@ namespace DSharpPlus.Interactivity
                 page++;
             }
 
-            return result.ToArray();
+            return result;
         }
 
         private List<string> SplitString(string str, int chunkSize)
@@ -452,20 +403,4 @@ namespace DSharpPlus.Interactivity
             return res;
         }
     }
-
-    /// <summary>
-    /// Way to split strings.
-    /// </summary>
-    public enum SplitType
-    {
-        /// <summary>
-        /// Splits string per 500 characters.
-        /// </summary>
-        Character,
-        /// <summary>
-        /// Splits string per 15 lines.
-        /// </summary>
-        Line
-    }
 }
-// the one true InteractivityNext

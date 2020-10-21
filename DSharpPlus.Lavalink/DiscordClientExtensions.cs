@@ -62,6 +62,24 @@ namespace DSharpPlus.Lavalink
             => client.GetExtension<LavalinkExtension>();
 
         /// <summary>
+        /// Retrieves a <see cref="LavalinkExtension"/> instance for each shard.
+        /// </summary>
+        /// <param name="client">The shard client to retrieve <see cref="LavalinkExtension"/> instances from.</param>
+        /// <returns>A dictionary containing <see cref="LavalinkExtension"/> instances for each shard.</returns>
+        public static async Task<IReadOnlyDictionary<int, LavalinkExtension>> GetLavalinkAsync(this DiscordShardedClient client)
+        {
+            await client.InitializeShardsAsync().ConfigureAwait(false);
+            var extensions = new Dictionary<int, LavalinkExtension>();
+
+            foreach (var shard in client.ShardClients.Values)
+            {
+                extensions.Add(shard.ShardId, shard.GetExtension<LavalinkExtension>());
+            }
+
+            return new ReadOnlyDictionary<int, LavalinkExtension>(extensions);
+        }
+
+        /// <summary>
         /// Connects to this voice channel using Lavalink.
         /// </summary>
         /// <param name="channel">Channel to connect to.</param>

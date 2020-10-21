@@ -280,7 +280,12 @@ namespace DSharpPlus
 
                 case "typing_start":
                     cid = (ulong)dat["channel_id"];
-                    await OnTypingStartEventAsync((ulong)dat["user_id"], this.InternalGetCachedChannel(cid), (ulong?)dat["guild_id"], Utilities.GetDateTimeOffset((long)dat["timestamp"])).ConfigureAwait(false);
+                    rawMbr = dat["member"];
+
+                    if (rawMbr != null)
+                        mbr = rawMbr.ToObject<TransportMember>();
+
+                    await OnTypingStartEventAsync((ulong)dat["user_id"], this.InternalGetCachedChannel(cid), (ulong?)dat["guild_id"], Utilities.GetDateTimeOffset((long)dat["timestamp"]), mbr).ConfigureAwait(false);
                     break;
 
                 case "webhooks_update":
@@ -1755,13 +1760,34 @@ namespace DSharpPlus
 
         #region Misc
 
-        internal async Task OnTypingStartEventAsync(ulong userId, DiscordChannel channel, ulong? guildId, DateTimeOffset started)
+        internal async Task OnTypingStartEventAsync(ulong userId, DiscordChannel channel, ulong? guildId, DateTimeOffset started, TransportMember mbr)
         {
+            DiscordUser user = default;
+
             if (channel == null)
                 return;
 
-            if (!this.UserCache.TryGetValue(userId, out var user))
-                user = new DiscordUser { Id = userId, Discord = this };
+            if (mbr != null)
+            {
+                user = new DiscordUser(mbr.User) { Discord = this };
+
+                this.UserCache.AddOrUpdate(userId, user, (id, old) =>
+                {
+                    old.Username = user.Username;
+                    old.Discriminator = user.Discriminator;
+                    old.AvatarHash = user.AvatarHash;
+                    return old;
+                });
+
+                user = new DiscordMember(mbr) { Discord = this, _guild_id = guildId.Value };
+            }
+            else
+            {
+                if (!this.UserCache.TryGetValue(userId, out user))
+                {
+                    user = new DiscordUser { Id = userId, Discord = this };
+                }
+            }
 
             if (channel.Guild != null)
                 user = channel.Guild.Members.TryGetValue(userId, out var member)

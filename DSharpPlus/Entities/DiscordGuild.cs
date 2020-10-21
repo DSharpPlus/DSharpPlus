@@ -365,12 +365,18 @@ namespace DSharpPlus.Entities
         public DiscordRole EveryoneRole
             => this.GetRole(this.Id);
 
+        [JsonIgnore]
+        internal bool _isOwner;
+
         /// <summary>
         /// Gets whether the current user is the guild's owner.
         /// </summary>
-        [JsonProperty("is_owner", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("owner", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsOwner
-            => this.OwnerId == this.Discord.CurrentUser.Id;
+        {
+            get => this._isOwner || this.OwnerId == this.Discord.CurrentUser.Id;
+            internal set => this._isOwner = value;
+        }
 
         /// <summary>
         /// Gets vanity URL code for this guild, when applicable.
@@ -1932,6 +1938,30 @@ namespace DSharpPlus.Entities
                 .OrderBy(xc => xc.Position)
                 .FirstOrDefault(xc => (xc.PermissionsFor(this.CurrentMember) & DSharpPlus.Permissions.AccessChannels) == DSharpPlus.Permissions.AccessChannels);
         }
+
+        /// <summary>
+        /// Gets the guild's widget
+        /// </summary>
+        /// <returns>The guild's widget</returns>
+        public Task<DiscordWidget> GetWidgetAsync()
+            => this.Discord.ApiClient.GetGuildWidgetAsync(this.Id);
+
+        /// <summary>
+        /// Gets the guild's widget settings
+        /// </summary>
+        /// <returns>The guild's widget settings</returns>
+        public Task<DiscordWidgetSettings> GetWidgetSettingsAsync()
+            => this.Discord.ApiClient.GetGuildWidgetSettingsAsync(this.Id);
+
+        /// <summary>
+        /// Modifies the guild's widget settings
+        /// </summary>
+        /// <param name="isEnabled">If the widget is enabled or not</param>
+        /// <param name="channel">Widget channel</param>
+        /// <param name="reason">Reason the widget settings were modified</param>
+        /// <returns>The newly modified widget settings</returns>
+        public Task<DiscordWidgetSettings> ModifyWidgetSettingsAsync(bool? isEnabled = null, DiscordChannel channel = null, string reason = null)
+            => this.Discord.ApiClient.ModifyGuildWidgetSettingsAsync(this.Id, isEnabled, channel?.Id, reason);
         #endregion
 
         /// <summary>
