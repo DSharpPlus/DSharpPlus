@@ -95,7 +95,7 @@ namespace DSharpPlus.Net
 
             var hashKey = RateLimitBucket.GenerateHashKey(method, route);
 
-            if(!RoutesToHashes.TryGetValue(hashKey, out var hash))
+            if(!this.RoutesToHashes.TryGetValue(hashKey, out var hash))
             {
                 hash = RateLimitBucket.GenerateUnlimitedHash(method, route);
 
@@ -104,7 +104,7 @@ namespace DSharpPlus.Net
 
             var bucketId = RateLimitBucket.GenerateBucketId(hash, guild_id, channel_id, webhook_id);
 
-            if (!HashesToBuckets.TryGetValue(bucketId, out var bucket))
+            if (!this.HashesToBuckets.TryGetValue(bucketId, out var bucket))
             {
                 bucket = new RateLimitBucket(hash, guild_id, channel_id, webhook_id);
 
@@ -117,7 +117,7 @@ namespace DSharpPlus.Net
                 this._cleanerRunning = true;
                 this._bucketCleanerTokenSource = new CancellationTokenSource();
                 this._cleanerTask = Task.Run(this.CleanupBucketsAsync, this._bucketCleanerTokenSource.Token);
-                this.Discord.Logger.LogDebug(LoggerEvents.RestCleaner, "Bucket cleaner task started.");
+                this.Discord?.Logger.LogDebug(LoggerEvents.RestCleaner, "Bucket cleaner task started.");
             }
 
             url = RouteArgumentRegex.Replace(route, xm => rparams[xm.Groups[1].Value]);
@@ -521,7 +521,7 @@ namespace DSharpPlus.Net
             {
                 if(newHash != oldHash)
                 {
-                    request.Discord.Logger.LogDebug(LoggerEvents.RestHashMover, "Updating hash in {0}: \"{1}\" -> \"{2}\"", hashKey, oldHash, newHash);
+                    request?.Discord.Logger.LogDebug(LoggerEvents.RestHashMover, "Updating hash in {0}: \"{1}\" -> \"{2}\"", hashKey, oldHash, newHash);
                     bucket.Hash = newHash;
 
                     var oldBucketId = RateLimitBucket.GenerateBucketId(oldHash, bucket.GuildId, bucket.ChannelId, bucket.WebhookId);
@@ -531,11 +531,8 @@ namespace DSharpPlus.Net
                 return newHash;
             });
 
-            _ = this.HashesToBuckets.AddOrUpdate(bucketId, bucket, (key, oldBucket) =>
-            {
-                bucket.IsCurrentlyUsed = false;
-                return bucket;
-            });
+            _ = this.HashesToBuckets.AddOrUpdate(bucketId, bucket, (key, oldBucket) => { return oldBucket; });
+            bucket.IsCurrentlyUsed = false;
         }
 
         private async Task CleanupBucketsAsync()
@@ -578,7 +575,7 @@ namespace DSharpPlus.Net
                 }
 
                 if (removedBuckets > 0)
-                    this.Discord.Logger.LogDebug(LoggerEvents.RestCleaner, "Removed {0} unused bucket{1}: [{2}]", removedBuckets, removedBuckets > 1 ? "s" : string.Empty, bucketIdStrBuilder.ToString().TrimEnd(',', ' '));
+                    this.Discord?.Logger.LogDebug(LoggerEvents.RestCleaner, "Removed {0} unused bucket{1}: [{2}]", removedBuckets, removedBuckets > 1 ? "s" : string.Empty, bucketIdStrBuilder.ToString().TrimEnd(',', ' '));
 
                 if (this.HashesToBuckets.Count == 0)
                     break;
