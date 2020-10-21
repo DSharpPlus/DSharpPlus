@@ -4,9 +4,11 @@ title: Your First Bot
 ---
 
 # Your First Bot
- >[!IMPORTANT] 
- > This article assumes you have [created a bot account](xref:basics_bot_account "Creating a Bot Account") and have a bot token.<br/>
- > It is also assumed that [Visual Studio 2019](https://visualstudio.microsoft.com/vs/) is installed on your computer.
+ >[!NOTE] 
+ > This article assumes the following:
+ > * You have [created a bot account](xref:basics_bot_account "Creating a Bot Account") and have a bot token.
+ > * You have [Visual Studio 2019](https://visualstudio.microsoft.com/vs/) installed on your computer.
+ 
 
 ## Create a Project
 Open up Visual Studio and click on `Create a new project` towards the bottom right.
