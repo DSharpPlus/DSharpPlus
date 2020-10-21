@@ -2,6 +2,7 @@
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
+using DSharpPlus.Interactivity.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;

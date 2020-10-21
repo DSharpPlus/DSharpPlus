@@ -429,7 +429,7 @@ namespace DSharpPlus.Net
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET).ConfigureAwait(false);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
 
             var ret = JsonConvert.DeserializeObject<DiscordWidget>(res.Response);
             ret.Discord = this.Discord;
@@ -464,7 +464,7 @@ namespace DSharpPlus.Net
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET).ConfigureAwait(false);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
 
             var ret = JsonConvert.DeserializeObject<DiscordWidgetSettings>(res.Response);
             ret.Guild = this.Discord.Guilds[guild_id];
@@ -488,7 +488,7 @@ namespace DSharpPlus.Net
             var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, headers, DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, headers, DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
 
             var ret = JsonConvert.DeserializeObject<DiscordWidgetSettings>(res.Response);
             ret.Guild = this.Discord.Guilds[guild_id];
