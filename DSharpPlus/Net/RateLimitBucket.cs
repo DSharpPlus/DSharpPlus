@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -44,13 +45,27 @@ namespace DSharpPlus.Net
                     this.IsUnlimited = false;
 
                 if (this.BucketId != null && !this.BucketId.StartsWith(value))
-                    this.BucketId = GenerateBucketId(value, this.GuildId, this.ChannelId, this.WebhookId);
+                {
+                    var id = GenerateBucketId(value, this.GuildId, this.ChannelId, this.WebhookId);
+                    this.BucketId = id;
+                    this.RouteHashes.Add(id);
+                }
 
                 Volatile.Write(ref this._hash, value);
             }
         }
 
         private string _hash;
+
+        /// <summary>
+        /// Gets the past route hashes associated with this bucket.
+        /// </summary>
+        public ConcurrentBag<string> RouteHashes { get; }
+
+        /// <summary>
+        /// Gets when this bucket was last called in a request.
+        /// </summary>
+        public DateTimeOffset LastAttemptAt { get; internal set; }
 
         /// <summary>
         /// Gets the number of uses left before pre-emptive rate limit is triggered.
@@ -81,11 +96,6 @@ namespace DSharpPlus.Net
         /// <para>This will be <see langword="false"/> if the ratelimit is determined.</para>
         /// </summary>
         internal volatile bool IsUnlimited;
-
-        /// <summary>
-        /// Gets whether the bucket is currently being processed by the rest client.
-        /// </summary>
-        internal volatile bool IsCurrentlyUsed;
 
         /// <summary>
         /// If the initial request for this bucket that is deterternining the rate limits is currently executing
@@ -126,6 +136,7 @@ namespace DSharpPlus.Net
             this.WebhookId = webhook_id;
 
             this.BucketId = GenerateBucketId(hash, guild_id, channel_id, webhook_id);
+            this.RouteHashes = new ConcurrentBag<string>();
         }
 
         /// <summary>

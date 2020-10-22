@@ -26,6 +26,7 @@ namespace DSharpPlus.Net
         private BaseDiscordClient Discord { get; }
         private ConcurrentDictionary<string, string> RoutesToHashes { get; }
         private ConcurrentDictionary<string, RateLimitBucket> HashesToBuckets { get; }
+        private ConcurrentDictionary<string, int> RequestQueue { get; }
         private AsyncManualResetEvent GlobalRateLimitEvent { get; }
         private bool UseResetAfter { get; }
 
@@ -63,6 +64,7 @@ namespace DSharpPlus.Net
 
             this.RoutesToHashes = new ConcurrentDictionary<string, string>();
             this.HashesToBuckets = new ConcurrentDictionary<string, RateLimitBucket>();
+            this.RequestQueue = new ConcurrentDictionary<string, int>();
 
             this.GlobalRateLimitEvent = new AsyncManualResetEvent(true);
             this.UseResetAfter = useRelativeRatelimit;
@@ -110,16 +112,30 @@ namespace DSharpPlus.Net
             }
 
             // Next we use the hash to generate the key to obtain the bucket.
-            // ex: 
+            // ex: 80c17d2f203122d936070c88c8d10f33:guild_id:506128773926879242:webhook_id
+            // or if unlimited: POST:/channels/channel_id/messages:unlimited:guild_id:506128773926879242:webhook_id
             var bucketId = RateLimitBucket.GenerateBucketId(hash, guild_id, channel_id, webhook_id);
 
             if (!this.HashesToBuckets.TryGetValue(bucketId, out var bucket))
             {
+                // If it's not in cache, create a new bucket and index it by its bucket id.
                 bucket = new RateLimitBucket(hash, guild_id, channel_id, webhook_id);
 
                 this.HashesToBuckets[bucketId] = bucket;
             }
-            bucket.IsCurrentlyUsed = true;
+
+            bucket.LastAttemptAt = DateTimeOffset.UtcNow;
+
+            // Cache the routes for each bucket so it can be used for GC later.
+            if (!bucket.RouteHashes.Contains(bucketId))
+                bucket.RouteHashes.Add(bucketId);
+
+            // Add the current route to the request queue, which indexes the amount 
+            // of requests occurring to the bucket id.
+            _ = this.RequestQueue.TryGetValue(bucketId, out var count);
+
+            // Increment by one atomically due to concurrency
+            this.RequestQueue[bucketId] = Interlocked.Increment(ref count);
 
             if (!this._cleanerRunning)
             {
@@ -280,6 +296,20 @@ namespace DSharpPlus.Net
                     case 500:
                         ex = new ServerErrorException(request, response);
                         break;
+                }
+
+                _ = this.RequestQueue.TryGetValue(bucket.BucketId, out var count);
+                this.RequestQueue[bucket.BucketId] = Interlocked.Decrement(ref count);
+
+                if(count <= 0)
+                {
+                    foreach (var r in bucket.RouteHashes)
+                    {
+                        if (this.RequestQueue.ContainsKey(r))
+                        {
+                            _ = this.RequestQueue.TryRemove(r, out _);
+                        }
+                    }
                 }
 
                 if (ex != null)
@@ -513,7 +543,6 @@ namespace DSharpPlus.Net
         {
             //For the delete messages, we may have to wait until the bucket can be properly assigned, as there are currently a few 429s hit.
             var hashKey = RateLimitBucket.GenerateHashKey(request.Method, request.Route);
-            var bucketId = RateLimitBucket.GenerateBucketId(newHash, bucket.GuildId, bucket.ChannelId, bucket.WebhookId);
 
             if (!this.RoutesToHashes.TryGetValue(hashKey, out var oldHash))
                 return;
@@ -524,6 +553,8 @@ namespace DSharpPlus.Net
                 _ = this.HashesToBuckets.TryRemove(bucket.BucketId, out _);
                 return;
             }
+
+            var bucketId = RateLimitBucket.GenerateBucketId(newHash, bucket.GuildId, bucket.ChannelId, bucket.WebhookId);
 
             _ = this.RoutesToHashes.AddOrUpdate(hashKey, newHash, (key, oldHash) =>
             {
@@ -555,6 +586,18 @@ namespace DSharpPlus.Net
                 if (this._disposed)
                     return;
 
+                //Check and clean request queue first in case it wasn't removed properly during requests.
+                foreach (var key in this.RequestQueue.Keys)
+                {
+                    var bucket = this.HashesToBuckets.Values.FirstOrDefault(x => x.RouteHashes.Contains(key));
+
+                    if(bucket != null && bucket.LastAttemptAt.AddSeconds(5) < DateTimeOffset.UtcNow)
+                        _ = this.RequestQueue.TryRemove(key, out _);
+
+                    else if (bucket == null)
+                        _ = this.RequestQueue.TryRemove(key, out _);
+                }
+
                 int removedBuckets = 0;
                 StringBuilder bucketIdStrBuilder = default;
 
@@ -567,7 +610,7 @@ namespace DSharpPlus.Net
                     var value = kvp.Value;
 
                     // Don't remove the bucket if it's currently being handled by the rest client.
-                    if (value.IsCurrentlyUsed)
+                    if (this.RequestQueue.ContainsKey(value.BucketId) && !value.IsUnlimited)
                         continue;
 
                     var resetOffset = this.UseResetAfter ? value._resetAfterOffset : value.Reset;
