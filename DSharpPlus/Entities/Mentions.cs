@@ -12,8 +12,8 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Allows @everyone and @here pings to mention in the message.
     /// </summary>
-    public readonly struct EveryoneMention : IMention {
-
+    public readonly struct EveryoneMention : IMention 
+    {
         //This is pointless because new EveryoneMention() will work, but it is here for consistency with the other mentionables.
         /// <summary>
         /// Allow the mentioning of @everyone and @here. Alias to <see cref="EveryoneMention()"/> constructor.
@@ -81,5 +81,19 @@ namespace DSharpPlus.Entities
         public static implicit operator RoleMention(DiscordRole role) => new RoleMention(role.Id);
     }
 
+    /// <summary>
+    /// Contains static instances of common mention patterns.
+    /// </summary>
+    public static class Mentions
+    {
+        /// <summary>
+        /// All possible mentions - @everyone + @here, users, and roles.
+        /// </summary>
+        public static IEnumerable<IMention> All { get; } = new IMention[] { EveryoneMention.All, UserMention.All, RoleMention.All };
 
+        /// <summary>
+        /// No mentions allowed.
+        /// </summary>
+        public static IEnumerable<IMention> None { get; } = Array.Empty<IMention>();
+    }
 }
