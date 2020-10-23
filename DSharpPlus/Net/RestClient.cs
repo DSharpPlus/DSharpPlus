@@ -591,10 +591,7 @@ namespace DSharpPlus.Net
                 {
                     var bucket = this.HashesToBuckets.Values.FirstOrDefault(x => x.RouteHashes.Contains(key));
 
-                    if(bucket != null && bucket.LastAttemptAt.AddSeconds(5) < DateTimeOffset.UtcNow)
-                        _ = this.RequestQueue.TryRemove(key, out _);
-
-                    else if (bucket == null)
+                    if(bucket == null || bucket != null && bucket.LastAttemptAt.AddSeconds(5) < DateTimeOffset.UtcNow)
                         _ = this.RequestQueue.TryRemove(key, out _);
                 }
 
@@ -616,7 +613,7 @@ namespace DSharpPlus.Net
                     var resetOffset = this.UseResetAfter ? value._resetAfterOffset : value.Reset;
 
                     // Don't remove the bucket if it's reset date is less than now + the additional wait time, unless it's an unlimited bucket.
-                    if (resetOffset != null && !value.IsUnlimited && (DateTimeOffset.UtcNow - resetOffset) < this._bucketCleanupDelay)
+                    if (resetOffset != null && !value.IsUnlimited && (resetOffset > DateTimeOffset.UtcNow || (DateTimeOffset.UtcNow - resetOffset) < this._bucketCleanupDelay))
                         continue;
 
                     _ = this.HashesToBuckets.TryRemove(key, out _);

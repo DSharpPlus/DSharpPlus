@@ -20,14 +20,18 @@ namespace DSharpPlus.Test
 			//This hits quite a few 429s with the previous system.
 			for (int i = 0; i < 10; i++)
 			{
-				await ctx.Message.DeleteAllReactionsAsync();
+				_ = ctx.Message.DeleteAllReactionsAsync();
 
-				await ctx.Message.CreateReactionAsync(e);
+				_ = ctx.Message.CreateReactionAsync(e);
+
+				var msg = await ctx.RespondAsync(ctx.Message.Content);
+				await msg.ModifyAsync("test5");
+				await msg.DeleteAsync();
 			}
 
 			var msgs = await ctx.Channel.GetMessagesAsync();
 
-			msgs.ToList().ForEach(x => x.DeleteAsync());
+			//msgs.ToList().ForEach(x => x.DeleteAsync());
 		}
 
 		[Command]
@@ -35,9 +39,7 @@ namespace DSharpPlus.Test
         {
 			for (int i = 0; i < 200; i++)
 			{
-				var msg = await ctx.RespondAsync(ctx.Message.Content);
-				await msg.ModifyAsync("test5");
-				await msg.DeleteAsync();
+				
 			}
 
 			/*
