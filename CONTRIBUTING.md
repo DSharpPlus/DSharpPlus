@@ -4,9 +4,6 @@ We're really happy to accept contributions. However we also ask that you follow 
 # Proper base
 When opening a PR, please make sure your branch is even with the target branch, to avoid unnecessary surprises.
 
-Please note that this is not required, so long as it does not introduce problems (i.e. duplicating commits or 
-re-introducing reverted changes).
-
 # Proper titles
 When opening issues, make sure the title reflects the purpose of the issue or the pull request. Prefer past tense, and 
 be brief. Further description belongs inside the issue or PR.
@@ -40,7 +37,7 @@ Examples of bad commit messages:
 We use [Microsoft C# Coding Conventions](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/inside-a-program/coding-conventions) 
 throughout the repository, with several exceptions:
 
-* Preference of `this`. While this one is not required, it's ill-advised to remove the existing instances of thereof.
+* Preference of `this`. While this one is not required, it's ill-advised to remove the existing instances thereof.
 * When working with async code, and your method consists of a single `await` statement not in any `if`, `while`, etc. 
   blocks, pass the task through instead of awaiting it. For example:
   
@@ -48,7 +45,7 @@ throughout the repository, with several exceptions:
   public Task DoSomethingAsync() =>
       this.DoAnotherThingAsync();
       
-  public Task DoAnotherThingAsync() =>
+  public Task DoAnotherThingAsync()
   {
       Console.WriteLine("42");
       return this.DoYetAnotherThingAsync(42);
