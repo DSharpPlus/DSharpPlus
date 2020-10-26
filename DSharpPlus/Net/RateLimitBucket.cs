@@ -55,7 +55,7 @@ namespace DSharpPlus.Net
             }
         }
 
-        private string _hash;
+        internal string _hash;
 
         /// <summary>
         /// Gets the past route hashes associated with this bucket.
@@ -70,12 +70,14 @@ namespace DSharpPlus.Net
         /// <summary>
         /// Gets the number of uses left before pre-emptive rate limit is triggered.
         /// </summary>
-        public int Remaining => _remaining;
+        public int Remaining 
+            => this._remaining;
 
         /// <summary>
         /// Gets the maximum number of uses within a single bucket.
         /// </summary>
-        public int Maximum { get; internal set; }
+        public int Maximum 
+            => this._maximum;
 
         /// <summary>
         /// Gets the timestamp at which the rate limit resets.
@@ -89,6 +91,7 @@ namespace DSharpPlus.Net
 
         internal DateTimeOffset _resetAfterOffset { get; set; }
 
+        internal volatile int _maximum;
         internal volatile int _remaining;
 
         /// <summary>
@@ -230,8 +233,9 @@ namespace DSharpPlus.Net
 
         internal void SetInitialValues(int usesLeft, DateTimeOffset newReset)
         {
-            this._remaining = usesLeft;
-            this._nextReset = newReset.UtcTicks;
+            Interlocked.Exchange(ref this._remaining, usesLeft);
+            Interlocked.Exchange(ref this._nextReset, newReset.UtcTicks);
+
             this._limitValid = true;
             this._limitTestFinished = null;
             this._limitTesting = 0;

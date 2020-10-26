@@ -48,7 +48,7 @@ namespace DSharpPlus.Test
                 ShardId = shardid,
                 ShardCount = this.Config.ShardCount,
                 MessageCacheSize = 2048,
-                LogTimestampFormat = "dd-MM-yyyy HH:mm:ss zzz"
+                LogTimestampFormat = "dd-MM-yyyy HH:mm:ss zzz",
             };
             Discord = new DiscordClient(dcfg);
 
@@ -64,8 +64,7 @@ namespace DSharpPlus.Test
             Discord.ChannelDeleted += this.Discord_ChannelDeleted;
 
             // New bucket testing.
-
-            /*
+          
             Discord.MessageCreated += async (sender, e) =>
             {
                 Task.Run(async () =>
@@ -73,7 +72,7 @@ namespace DSharpPlus.Test
                     await e.Message.RespondAsync(e.Message.Content);
                 });
             };
-            */
+            
 
             // For event timeout testing
             //Discord.GuildDownloadCompleted += async (s, e) =>

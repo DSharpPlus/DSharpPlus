@@ -99,30 +99,20 @@ namespace DSharpPlus.Net
             // ex: POST:/channels/channel_id/messages
             var hashKey = RateLimitBucket.GenerateHashKey(method, route);
 
-            // We check if the hash is present first, using our generic route (without major params)
+            // We check if the hash is present, using our generic route (without major params)
             // ex: in POST:/channels/channel_id/messages, out 80c17d2f203122d936070c88c8d10f33
-            if (!this.RoutesToHashes.TryGetValue(hashKey, out var hash))
-            {
-                // If it doesn't exist, we create an unlimited hash as our initial key in the form of the hash key + the unlimited constant
-                // and assign this to the route to hash cache
-                // ex: this.RoutesToHashes[POST:/channels/channel_id/messages] = POST:/channels/channel_id/messages:unlimited
-                hash = RateLimitBucket.GenerateUnlimitedHash(method, route);
-
-                this.RoutesToHashes[hashKey] = hash;
-            }
+            // If it doesn't exist, we create an unlimited hash as our initial key in the form of the hash key + the unlimited constant
+            // and assign this to the route to hash cache
+            // ex: this.RoutesToHashes[POST:/channels/channel_id/messages] = POST:/channels/channel_id/messages:unlimited
+            var hash = this.RoutesToHashes.GetOrAdd(hashKey, RateLimitBucket.GenerateUnlimitedHash(method, route));
 
             // Next we use the hash to generate the key to obtain the bucket.
             // ex: 80c17d2f203122d936070c88c8d10f33:guild_id:506128773926879242:webhook_id
             // or if unlimited: POST:/channels/channel_id/messages:unlimited:guild_id:506128773926879242:webhook_id
             var bucketId = RateLimitBucket.GenerateBucketId(hash, guild_id, channel_id, webhook_id);
 
-            if (!this.HashesToBuckets.TryGetValue(bucketId, out var bucket))
-            {
-                // If it's not in cache, create a new bucket and index it by its bucket id.
-                bucket = new RateLimitBucket(hash, guild_id, channel_id, webhook_id);
-
-                this.HashesToBuckets[bucketId] = bucket;
-            }
+            // If it's not in cache, create a new bucket and index it by its bucket id.
+            var bucket = this.HashesToBuckets.GetOrAdd(bucketId, new RateLimitBucket(hash, guild_id, channel_id, webhook_id));
 
             bucket.LastAttemptAt = DateTimeOffset.UtcNow;
 
@@ -344,8 +334,8 @@ namespace DSharpPlus.Net
             //Reset to initial values.
             if(resetToInitial)
             {
-                this.UpdateHashCaches(request, bucket);
-                bucket.Maximum = 0;
+                _ = this.UpdateHashCaches(request, bucket);
+                bucket._maximum = 0;
                 bucket._remaining = 0;
                 return;
             }
@@ -454,7 +444,7 @@ namespace DSharpPlus.Net
 
         private void UpdateBucket(BaseRestRequest request, RestResponse response, TaskCompletionSource<bool> ratelimitTcs)
         {
-            var bucket = request.RateLimitBucket;
+            var requestBucket = request.RateLimitBucket;
 
             if (response.Headers == null)
             {
@@ -488,6 +478,12 @@ namespace DSharpPlus.Net
                 return;
             }
 
+            //TODO: If a bucket has a different hash, create a new bucket with the new values rather than updating the existing one
+
+            var newBucket = this.UpdateHashCaches(request, requestBucket, hash);
+
+            var bucket = newBucket ?? requestBucket;
+
             var clienttime = DateTimeOffset.UtcNow;
             var resettime = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).AddSeconds(double.Parse(reset, CultureInfo.InvariantCulture));
             var servertime = clienttime;
@@ -497,7 +493,7 @@ namespace DSharpPlus.Net
             var resetdelta = resettime - servertime;
             //var difference = clienttime - servertime;
             //if (Math.Abs(difference.TotalSeconds) >= 1)
-            //    request.Discord.Logger.LogMessage(LogLevel.DebugBaseDiscordClient.RestEventId,  $"Difference between machine and server time: {difference.TotalMilliseconds.ToString("#,##0.00", CultureInfo.InvariantCulture)}ms", DateTime.Now);
+            ////    request.Discord.Logger.LogMessage(LogLevel.DebugBaseDiscordClient.RestEventId,  $"Difference between machine and server time: {difference.TotalMilliseconds.ToString("#,##0.00", CultureInfo.InvariantCulture)}ms", DateTime.Now);
             //else
             //    difference = TimeSpan.Zero;
 
@@ -519,13 +515,15 @@ namespace DSharpPlus.Net
             var maximum = int.Parse(usesmax, CultureInfo.InvariantCulture);
             var remaining = int.Parse(usesleft, CultureInfo.InvariantCulture);
 
-            bucket.Maximum = maximum;
+            var oldmax = Interlocked.Exchange(ref bucket._maximum, maximum);
 
-            if (ratelimitTcs != null)
+            if (oldmax != maximum || newBucket != null)
             {
                 // initial population of the ratelimit data
                 bucket.SetInitialValues(remaining, newReset);
-                _ = Task.Run(() => ratelimitTcs.TrySetResult(true));
+
+                if(ratelimitTcs != null)
+                    _ = Task.Run(() => ratelimitTcs.TrySetResult(true));
             }
             else
             {
@@ -535,42 +533,52 @@ namespace DSharpPlus.Net
                 if (bucket._nextReset == 0)
                     bucket._nextReset = newReset.UtcTicks;
             }
-
-            this.UpdateHashCaches(request, bucket, hash);            
         }
 
-        private void UpdateHashCaches(BaseRestRequest request, RateLimitBucket bucket, string newHash = null)
+        private RateLimitBucket UpdateHashCaches(BaseRestRequest request, RateLimitBucket bucket, string newHash = null)
         {
             //For the delete messages, we may have to wait until the bucket can be properly assigned, as there are currently a few 429s hit.
             var hashKey = RateLimitBucket.GenerateHashKey(request.Method, request.Route);
 
             if (!this.RoutesToHashes.TryGetValue(hashKey, out var oldHash))
-                return;
+                return null;
 
             if(newHash == null)
             {
                 _ = this.RoutesToHashes.TryRemove(hashKey, out _);
                 _ = this.HashesToBuckets.TryRemove(bucket.BucketId, out _);
-                return;
+                return null;
             }
 
-            var bucketId = RateLimitBucket.GenerateBucketId(newHash, bucket.GuildId, bucket.ChannelId, bucket.WebhookId);
-
-            _ = this.RoutesToHashes.AddOrUpdate(hashKey, newHash, (key, oldHash) =>
+            if(newHash != oldHash)
             {
-                if(newHash != oldHash)
+                request?.Discord.Logger.LogDebug(LoggerEvents.RestHashMover, "Updating hash in {0}: \"{1}\" -> \"{2}\"", hashKey, oldHash, newHash);
+                var bucketId = RateLimitBucket.GenerateBucketId(newHash, bucket.GuildId, bucket.ChannelId, bucket.WebhookId);
+
+                if (bucket.IsUnlimited)
                 {
-                    request?.Discord.Logger.LogDebug(LoggerEvents.RestHashMover, "Updating hash in {0}: \"{1}\" -> \"{2}\"", hashKey, oldHash, newHash);
-                    bucket.Hash = newHash;
+                    _ = this.RoutesToHashes.AddOrUpdate(hashKey, newHash, (key, oldHash) =>
+                    {
+                        bucket.Hash = newHash;
 
-                    var oldBucketId = RateLimitBucket.GenerateBucketId(oldHash, bucket.GuildId, bucket.ChannelId, bucket.WebhookId);
-                    _ = this.HashesToBuckets.TryRemove(oldBucketId, out _);
+                        var oldBucketId = RateLimitBucket.GenerateBucketId(oldHash, bucket.GuildId, bucket.ChannelId, bucket.WebhookId);
+
+                        _ = this.HashesToBuckets.TryRemove(oldBucketId, out _);
+                        _ = this.HashesToBuckets.AddOrUpdate(bucketId, bucket, (key, oldBucket) => { return bucket; });
+
+                        return newHash;
+                    });
                 }
+                else
+                {
+                    var newBucket = new RateLimitBucket(newHash, bucket.GuildId, bucket.ChannelId, bucket.WebhookId);
+                    _ = this.RoutesToHashes.AddOrUpdate(hashKey, newHash, (key, oldHash) => { return newHash; });
+                    _ = this.HashesToBuckets.AddOrUpdate(bucketId, newBucket, (key, oldBucket) => { return newBucket; });
+                    return newBucket;
+                }
+            }
 
-                return newHash;
-            });
-
-            _ = this.HashesToBuckets.AddOrUpdate(bucketId, bucket, (key, oldBucket) => { return oldBucket; });
+            return null;
         }
 
         private async Task CleanupBucketsAsync()

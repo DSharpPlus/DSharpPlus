@@ -18,18 +18,18 @@ namespace DSharpPlus.Test
 			var e = DiscordEmoji.FromUnicode("❌");
 
 			//This hits quite a few 429s with the previous system.
-			for (int i = 0; i < 10; i++)
+			for (int i = 0; i < 100; i++)
 			{
-				_ = ctx.Message.DeleteAllReactionsAsync();
+				//await ctx.Message.DeleteAllReactionsAsync();
 
-				_ = ctx.Message.CreateReactionAsync(e);
+				//await ctx.Message.CreateReactionAsync(e);
 
 				var msg = await ctx.RespondAsync(ctx.Message.Content);
 				await msg.ModifyAsync("test5");
 				await msg.DeleteAsync();
 			}
 
-			var msgs = await ctx.Channel.GetMessagesAsync();
+			//var msgs = await ctx.Channel.GetMessagesAsync();
 
 			//msgs.ToList().ForEach(x => x.DeleteAsync());
 		}
@@ -37,17 +37,7 @@ namespace DSharpPlus.Test
 		[Command]
 		public async Task Test2(CommandContext ctx)
         {
-			for (int i = 0; i < 200; i++)
-			{
-				
-			}
-
-			/*
-			for (int i = 0; i < 100; i++)
-            {
-				await (await ctx.RespondAsync(ctx.Message.Content)).ModifyAsync("test2");
-            }
-			*/
+			await ctx.Message.DeleteAsync();
 		}
 
 		[Command("crosspost")]
