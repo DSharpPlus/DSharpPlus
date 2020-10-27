@@ -20,12 +20,12 @@ namespace DSharpPlus.Test
 			//This hits quite a few 429s with the previous system.
 			for (int i = 0; i < 100; i++)
 			{
-				//await ctx.Message.DeleteAllReactionsAsync();
+				//_ = ctx.Message.DeleteAllReactionsAsync();
 
-				//await ctx.Message.CreateReactionAsync(e);
+				//_ = ctx.Message.CreateReactionAsync(e);
 
 				var msg = await ctx.RespondAsync(ctx.Message.Content);
-				await msg.ModifyAsync("test5");
+			    await msg.ModifyAsync("test5");
 				await msg.DeleteAsync();
 			}
 
@@ -37,7 +37,7 @@ namespace DSharpPlus.Test
 		[Command]
 		public async Task Test2(CommandContext ctx)
         {
-			await ctx.Message.DeleteAsync();
+			ctx.Client.Dispose();
 		}
 
 		[Command("crosspost")]

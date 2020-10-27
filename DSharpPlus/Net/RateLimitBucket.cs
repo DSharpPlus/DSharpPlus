@@ -76,8 +76,7 @@ namespace DSharpPlus.Net
         /// <summary>
         /// Gets the maximum number of uses within a single bucket.
         /// </summary>
-        public int Maximum 
-            => this._maximum;
+        public int Maximum { get; set; }
 
         /// <summary>
         /// Gets the timestamp at which the rate limit resets.
@@ -91,7 +90,6 @@ namespace DSharpPlus.Net
 
         internal DateTimeOffset _resetAfterOffset { get; set; }
 
-        internal volatile int _maximum;
         internal volatile int _remaining;
 
         /// <summary>
@@ -231,10 +229,11 @@ namespace DSharpPlus.Net
             this._limitResetting = 0;
         }
 
-        internal void SetInitialValues(int usesLeft, DateTimeOffset newReset)
+        internal void SetInitialValues(int max, int usesLeft, DateTimeOffset newReset)
         {
-            Interlocked.Exchange(ref this._remaining, usesLeft);
-            Interlocked.Exchange(ref this._nextReset, newReset.UtcTicks);
+            this.Maximum = max;
+            this._remaining = usesLeft;
+            this._nextReset = newReset.UtcTicks;
 
             this._limitValid = true;
             this._limitTestFinished = null;

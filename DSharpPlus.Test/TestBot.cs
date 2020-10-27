@@ -64,7 +64,8 @@ namespace DSharpPlus.Test
             Discord.ChannelDeleted += this.Discord_ChannelDeleted;
 
             // New bucket testing.
-          
+            
+            /*
             Discord.MessageCreated += async (sender, e) =>
             {
                 Task.Run(async () =>
@@ -72,7 +73,7 @@ namespace DSharpPlus.Test
                     await e.Message.RespondAsync(e.Message.Content);
                 });
             };
-            
+            */
 
             // For event timeout testing
             //Discord.GuildDownloadCompleted += async (s, e) =>
