@@ -371,7 +371,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Updates the channel position
         /// </summary>
-        /// <param name="position">Position you want the Channel moved to.</param>
+        /// <param name="position">Position the channel should be moved to.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
@@ -494,7 +494,7 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Deletes multiple messages that are less than 14 days old.  If they are, none of the messages will be deleted and you will recieve a <see cref="Exceptions.ServerErrorException"/> error.
+        /// Deletes multiple messages if they are less than 14 days old.  If they are older, none of the messages will be deleted and you will receive a <see cref="Exceptions.BadRequestException"/> error.
         /// </summary>
         /// <param name="messages">A collection of messages to delete.</param>
         /// <param name="reason">Reason for audit logs.</param>
@@ -569,8 +569,8 @@ namespace DSharpPlus.Entities
         /// Adds a channel permission overwrite for specified member.
         /// </summary>
         /// <param name="member">The member to have the permission added.</param>
-        /// <param name="allow">The Permissions to allow.</param>
-        /// <param name="deny">The Permission to deny.</param>
+        /// <param name="allow">The permissions to allow.</param>
+        /// <param name="deny">The permissions to deny.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
@@ -584,8 +584,8 @@ namespace DSharpPlus.Entities
         /// Adds a channel permission overwrite for specified role.
         /// </summary>
         /// <param name="role">The role to have the permission added.</param>
-        /// <param name="allow">The Permissions to allow.</param>
-        /// <param name="deny">The Permission to deny.</param>
+        /// <param name="allow">The permissions to allow.</param>
+        /// <param name="deny">The permissions to deny.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
