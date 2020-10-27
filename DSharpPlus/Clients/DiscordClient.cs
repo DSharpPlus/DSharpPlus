@@ -218,9 +218,9 @@ namespace DSharpPlus
         /// Connects to the gateway
         /// </summary>
         /// <returns></returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the token provided is bad.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter exists.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when an invalid token was provided.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task ConnectAsync(DiscordActivity activity = null, UserStatus? status = null, DateTimeOffset? idlesince = null)
         {
             // Check if connection lock is already set, and set it if it isn't
@@ -329,8 +329,8 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="userId">Id of the user</param>
         /// <returns></returns>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter exists.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task<DiscordUser> GetUserAsync(ulong userId)
         {
             if (this.TryGetCachedUserInternal(userId, out var usr))
@@ -351,19 +351,19 @@ namespace DSharpPlus
         /// <summary>
         /// Gets a channel
         /// </summary>
-        /// <param name="id">The id of the Channel to get.</param>
+        /// <param name="id">The id of the channel to get.</param>
         /// <returns></returns>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter exists.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task<DiscordChannel> GetChannelAsync(ulong id)
             => this.InternalGetCachedChannel(id) ?? await this.ApiClient.GetChannelAsync(id).ConfigureAwait(false);
 
         /// <summary>
         /// Sends a message
         /// </summary>
-        /// <param name="channel">The Channel to send to.</param>
-        /// <param name="content">Content of the message to send.</param>
+        /// <param name="channel">Channel to send to.</param>
+        /// <param name="content">Message content to send.</param>
         /// <param name="isTTS">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <param name="mentions">Allowed mentions in the message</param>

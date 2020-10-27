@@ -47,7 +47,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Only use for Group DMs! Whitelised bots only. Requires user's oauth2 access token
         /// </summary>
-        /// <param name="user_id">The id of the User to add.</param>
+        /// <param name="user_id">The id of the user to add.</param>
         /// <param name="accesstoken">The OAuth2 access token.</param>
         /// <param name="nickname">The nickname to give to the user.</param>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exists.</exception>
