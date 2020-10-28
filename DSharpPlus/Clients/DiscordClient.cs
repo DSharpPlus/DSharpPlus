@@ -484,7 +484,9 @@ namespace DSharpPlus
 
         internal DiscordChannel InternalGetCachedChannel(ulong channelId)
         {
-            if (this._privateChannels.TryGetValue(channelId, out var foundDmChannel))
+            DiscordDmChannel foundDmChannel = default;
+
+            if (this._privateChannels?.TryGetValue(channelId, out foundDmChannel) == true)
                 return foundDmChannel;
 
             foreach (var guild in this.Guilds.Values)
@@ -496,15 +498,19 @@ namespace DSharpPlus
 
         internal DiscordGuild InternalGetCachedGuild(ulong? guildId)
         {
-            if (guildId.HasValue)
-                if (this._guilds.TryGetValue(guildId.Value, out var foundGuild))
-                    return foundGuild;
+            DiscordGuild foundGuild = default;
 
-            return null;
+            if (guildId.HasValue)
+                foundGuild = this._guilds?[guildId.Value];
+
+            return foundGuild;
         }
 
         internal void UpdateCachedGuild(DiscordGuild newGuild, JArray rawMembers)
         {
+            if (this._disposed)
+                return;
+
             if (!this._guilds.ContainsKey(newGuild.Id))
                 this._guilds[newGuild.Id] = newGuild;
 
@@ -625,6 +631,7 @@ namespace DSharpPlus
             GC.SuppressFinalize(this);
 
             this.DisconnectAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+            this.ApiClient.Rest.Dispose();
             this.CurrentUser = null;
 
             var extensions = this._extensions; // prevent _extensions being modified during dispose
