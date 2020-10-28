@@ -1223,6 +1223,7 @@ namespace DSharpPlus
                 return;
             disposed = true;
             _guilds = null;
+            this.ApiClient.Rest.Dispose();
         }
     }
 }
