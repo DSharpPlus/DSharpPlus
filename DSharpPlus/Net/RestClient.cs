@@ -34,7 +34,7 @@ namespace DSharpPlus.Net
         private TimeSpan _bucketCleanupDelay = TimeSpan.FromSeconds(60);
         private volatile bool _cleanerRunning;
         private Task _cleanerTask;
-        private bool _disposed;
+        private volatile bool _disposed;
 
         internal RestClient(BaseDiscordClient client)
             : this(client.Configuration.Proxy, client.Configuration.HttpTimeout, client.Configuration.UseRelativeRatelimit)
@@ -127,6 +127,7 @@ namespace DSharpPlus.Net
             // Increment by one atomically due to concurrency
             this.RequestQueue[bucketId] = Interlocked.Increment(ref count);
 
+            // Start bucket cleaner if not already running.
             if (!this._cleanerRunning)
             {
                 this._cleanerRunning = true;
@@ -294,20 +295,6 @@ namespace DSharpPlus.Net
                         break;
                 }
 
-                _ = this.RequestQueue.TryGetValue(bucket.BucketId, out var count);
-                this.RequestQueue[bucket.BucketId] = Interlocked.Decrement(ref count);
-
-                if(count <= 0)
-                {
-                    foreach (var r in bucket.RouteHashes)
-                    {
-                        if (this.RequestQueue.ContainsKey(r))
-                        {
-                            _ = this.RequestQueue.TryRemove(r, out _);
-                        }
-                    }
-                }
-
                 if (ex != null)
                     request.SetFaulted(ex);
                 else
@@ -323,6 +310,25 @@ namespace DSharpPlus.Net
 
                 if (!request.TrySetFaulted(ex))
                     throw;
+            }
+            finally
+            {
+                // Get and decrement active requests in this bucket by 1.
+                _ = this.RequestQueue.TryGetValue(bucket.BucketId, out var count);
+                this.RequestQueue[bucket.BucketId] = Interlocked.Decrement(ref count);
+
+                // If it's 0 or less, we can remove the bucket from the active request queue, 
+                // along with any of its past routes.
+                if (count <= 0)
+                {
+                    foreach (var r in bucket.RouteHashes)
+                    {
+                        if (this.RequestQueue.ContainsKey(r))
+                        {
+                            _ = this.RequestQueue.TryRemove(r, out _);
+                        }
+                    }
+                }
             }
         }
 
@@ -536,12 +542,12 @@ namespace DSharpPlus.Net
 
         private void UpdateHashCaches(BaseRestRequest request, RateLimitBucket bucket, string newHash = null)
         {
-            //For the delete messages, we may have to wait until the bucket can be properly assigned, as there are currently a few 429s hit.
             var hashKey = RateLimitBucket.GenerateHashKey(request.Method, request.Route);
 
             if (!this.RoutesToHashes.TryGetValue(hashKey, out var oldHash))
                 return;
 
+            // This is an unlimited bucket, which we don't need to keep track of.
             if(newHash == null)
             {
                 _ = this.RoutesToHashes.TryRemove(hashKey, out _);
@@ -549,6 +555,9 @@ namespace DSharpPlus.Net
                 return;
             }
 
+            // Only update the hash once, due to a bug on Discord's end. 
+            // This will cause issues if the bucket hashes are dynamically changed from the API while running, 
+            // in which case, Dispose will need to be called to clear the caches.
             if (bucket.IsUnlimited && newHash != oldHash)
             {
                 request?.Discord.Logger.LogDebug(LoggerEvents.RestHashMover, "Updating hash in {0}: \"{1}\" -> \"{2}\"", hashKey, oldHash, newHash);
@@ -560,6 +569,7 @@ namespace DSharpPlus.Net
 
                     var oldBucketId = RateLimitBucket.GenerateBucketId(oldHash, bucket.GuildId, bucket.ChannelId, bucket.WebhookId);
 
+                    // Remove the old unlimited bucket.
                     _ = this.HashesToBuckets.TryRemove(oldBucketId, out _);
                     _ = this.HashesToBuckets.AddOrUpdate(bucketId, bucket, (key, oldBucket) => { return bucket; });
 
@@ -603,7 +613,7 @@ namespace DSharpPlus.Net
                     var key = kvp.Key;
                     var value = kvp.Value;
 
-                    // Don't remove the bucket if it's currently being handled by the rest client.
+                    // Don't remove the bucket if it's currently being handled by the rest client, unless it's an unlimited bucket.
                     if (this.RequestQueue.ContainsKey(value.BucketId) && !value.IsUnlimited)
                         continue;
 

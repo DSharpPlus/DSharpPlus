@@ -12,27 +12,6 @@ namespace DSharpPlus.Test
 	{
 		public static ConcurrentDictionary<ulong, string> PrefixSettings { get; } = new ConcurrentDictionary<ulong, string>();
 
-		[Command("test")]
-		public async Task test(CommandContext ctx)
-		{
-			var e = DiscordEmoji.FromUnicode("❌");
-
-			//This hits quite a few 429s with the previous system.
-			for (int i = 0; i < 100; i++)
-			{
-				//_ = ctx.Message.DeleteAllReactionsAsync();
-
-				//_ = ctx.Message.CreateReactionAsync(e);
-
-				var msg = await ctx.RespondAsync(ctx.Message.Content);
-			    await msg.ModifyAsync("test5");
-				await msg.DeleteAsync();
-			}
-
-			//var msgs = await ctx.Channel.GetMessagesAsync();
-
-			//msgs.ToList().ForEach(x => x.DeleteAsync());
-		}
 
 		[Command]
 		public async Task Test2(CommandContext ctx)
