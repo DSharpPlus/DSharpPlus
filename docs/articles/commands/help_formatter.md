@@ -4,7 +4,8 @@ title: Help Formatter
 ---
 
 ## Custom Help Formatter
-The built-in help command provided by CommandsNext is generated with a *help formatter*.This simple mechanism is given a command and its subcommands then returns a formatted help message.
+The built-in help command provided by CommandsNext is generated with a *help formatter*.
+This simple mechanism is given a command and its subcommands then returns a formatted help message.
 If you're not happy with the default help formatter, you're able to write your own and customize the output to your liking.
 
 <br/>
