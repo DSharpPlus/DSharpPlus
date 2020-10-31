@@ -19,13 +19,14 @@ Many issues can be resolved with Intellisense by searching for similarly named m
 As mentioned in the [preamble](xref:preamble), the Mono runtime is inherently unstable and has numerous flaws.<br/>
 Because of this we do not support Mono in any way, nor will we support any other projects which use it.
 
-Instead, we recommend using the latest LTS release of [.NET Core](https://dotnet.microsoft.com/download). 
+Instead, we recommend using either the latest LTS release or most recent stable version of [.NET Core](https://dotnet.microsoft.com/download). 
 
 ### Connecting to a voice channel with VoiceNext will either hang or throw an exception.
 To troubleshoot, please ensure that:
 
 * You are using the latest version of DSharpPlus.
 * You have properly enabled VoiceNext with your instance of `DiscordClient`.
+* You are *not* using VoiceNext in an event handler.
 * You have [opus and libsodium](xref:voicenext_prerequisites) available in your target environment.
 
 
@@ -43,8 +44,8 @@ Please take a look at our short article on [handling DSharpPlus exceptions](xref
 ### Why am I getting a 4XX error and how can I fix it?
 HTTP Error Code|Cause|Resolution
 :---:|:---|:---
-`401`|Invalid token.|Verify your token and make sure no errors were made.
-`403`|Not enough permissions.|Verify permissions and ensure your bot account has a role higher than the target user.
+`401`|Invalid token.|Verify your token and make sure no errors were made.<br/>The client secret found on the 'general information' tab of your application page *is not* your token.
+`403`|Not enough permissions.|Verify permissions and ensure your bot account has a role higher than the target user.<br/>Administrator permissions *do not* bypass the role hierarchy.
 `404`|Requested object not found.|This usually means the entity does not exist. You should reattempt then inform your user.
 
 ### I cannot modify a specific user or role. Why is this?

@@ -3,7 +3,7 @@ uid: migration_2_3
 title: Migration 2.x - 3.x
 ---
 
-# Migration From 2.X to 3.X.
+# Migration From 2.x to 3.x
 
 Major breaking changes:
 

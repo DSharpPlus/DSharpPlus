@@ -131,15 +131,13 @@ commands.RegisterCommands(Assembly.GetExecutingAssembly());
 <br/>
 Your main method should look similar to the following:
 ```cs
-using System.Threading.Tasks;
-using DSharpPlus;
-using DSharpPlus.CommandsNext;
-using MyFirstBot.Commands;
-
 internal static async Task MainAsync()
 {
     var discord = new DiscordClient(new DiscordConfiguration());
-    var commands = discord.UseCommandsNext(new CommandsNextConfiguration());
+    var commands = discord.UseCommandsNext(new CommandsNextConfiguration()
+    { 
+        StringPrefixes = new[] { "!" }
+    });
 
     commands.RegisterCommands<MyFirstModule>();
 
@@ -213,7 +211,7 @@ public async Task GreetCommand(CommandContext ctx, string firstName, string last
 Lastly, you can use the `RemainingText` attribute on your parameter.<br/>
 This attribute will instruct CommandsNext to parse all remaining arguments into that parameter. 
 ```cs
-public async Task GreetCommand(CommandContext ctx, [RemainingText]string name)
+public async Task GreetCommand(CommandContext ctx, [RemainingText] string name)
 ```
 
 <br/>

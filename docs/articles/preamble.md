@@ -22,7 +22,7 @@ Implementation|Support|Notes
 [.NET Core](https://en.wikipedia.org/wiki/.NET_Core)|✔️|LTS versions 2.1 and 3.1 are supported.
 [.NET Framework](https://en.wikipedia.org/wiki/.NET_Framework)|⚠️|Versions 4.6.1 through 4.8 *should* work fine.<br/>However, we do not directly support .NET Framework.<br/>We recommend that you use the latest LTS version of .NET Core.
 [Mono](https://en.wikipedia.org/wiki/Mono_(software))|❌️|Has numerous flaws which can break things without warning.<br/>If you need a cross platform runtime, use .NET Core.
-[Unity](https://en.wikipedia.org/wiki/Unity_(game_engine))|❌️|Despite having support for C#, Unity is a game engine.<br/>As such, it will *never* be supported by DSharpPlus.
+[Unity](https://en.wikipedia.org/wiki/Unity_(game_engine))|❌️|Game engines with C# support will never be supported by DSharpPlus. You should consider using the official [Discord GameSDK](https://discord.com/developers/docs/game-sdk/sdk-starter-guide) instead.
 
 If you use an unsupported implementation and encounter issues, you'll be on your own.
 

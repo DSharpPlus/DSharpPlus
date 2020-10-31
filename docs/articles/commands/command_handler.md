@@ -62,7 +62,7 @@ var ctx = cnext.CreateContext(msg, prefix, command, args);
 
 And pass the context to `CommandsNextExtension#ExecuteCommandAsync` to execute the command.
 ```cs
-Task.Run(async () => await cnext.ExecuteCommandAsync(ctx));
+_ = Task.Run(async () => await cnext.ExecuteCommandAsync(ctx));
 // Wrapped in Task.Run() to prevent deadlocks.
 ```
 

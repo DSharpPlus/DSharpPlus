@@ -3,7 +3,7 @@ uid: migration_3_4
 title: Migration 3.x - 4.x
 ---
 
-## Migration From 3.X to 4.X.
+## Migration From 3.x to 4.x
 
 
 ### Proxy Support
@@ -174,4 +174,4 @@ VoiceNext went through a substantial rewrite.  Below are some of the key highlig
 The library now comes with a Lavalink client, which supports both Lavalink 2.x and 3.x.
 
 Lavalink is a standalone lightweight Java application, which handles downloading, transcoding, and transmitting audio to Discord.
-For more information, see [Lavalink](xref:audio_lavalink_setup) article.
+For more information, see the [Lavalink](xref:audio_lavalink_setup) article.

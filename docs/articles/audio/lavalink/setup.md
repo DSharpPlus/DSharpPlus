@@ -66,6 +66,8 @@ logging:
     root: INFO
     lavalink: INFO
 ```
+YAML is whitespace-sensitive. Make sure you are using a text editor which properly handles this.
+
 
 There are a few values to keep in mind.
 

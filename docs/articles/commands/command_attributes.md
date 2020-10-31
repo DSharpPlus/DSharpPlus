@@ -41,15 +41,9 @@ public class RequireYearAttribute : CheckBaseAttribute
         AllowedYear = year;
     }
 
-    public override async Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
+    public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
     {
-        if (AllowedYear != DateTime.Now.Year)
-        {
-            await ctx.RespondAsync($"Only usable during year {AllowedYear}.");
-            return false; // if non-async method: Task.FromResult(false)
-        }
-		
-        return true; // if non-async method: Task.FromResult(true)
+        return Task.FromResult(AllowedYear == DateTime.Now.Year);
     }
 }
 ```
@@ -62,6 +56,30 @@ For our example attribute, we'll set it to only be usable once on methods.
 public class RequireYearAttribute : CheckBaseAttribute
 {
     // ...
+}
+```
+
+You can provide feedback to the user using the `CommandsNextExtension#CommandErrored` event.
+```cs
+private async Task MainAsync()
+{
+    var discord = new DiscordClient();
+	var commands = discord.UseCommandsNext();
+	
+	commands.CommandErrored += CmdErroredHandler;
+}
+
+private async Task CmdErroredHandler(CommandsNextExtension _, CommandErrorEventArgs e)
+{
+    var failedChecks = ((ChecksFailedException)e.Exception).FailedChecks;
+    foreach (var failedCheck in failedChecks)
+    {
+        if (failedCheck is RequireYearAttribute) 
+        {
+            var yearAttribute = (RequireYearAttribute)failedCheck;
+            await e.Context.RespondAsync($"Only usable during year {yearAttribute.AllowedYear}.");
+        } 
+    }
 }
 ```
 

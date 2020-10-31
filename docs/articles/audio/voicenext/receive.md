@@ -35,7 +35,7 @@ Writing the logic for this event handler will depend on your overall goal.
 The event arguments will contain a PCM audio packet for you to make use of.
 You can convert each packet to another format, concatenate them all together, feed them into an external program, or process the packets any way that'll suit your needs.
 
-When a user is speaking, `VoiceReceived` will be fired once every twenty milliseconds and its packet will contain twenty milliseconds worth of audio.
+When a user is speaking, `VoiceReceived` should fire once every twenty milliseconds and its packet will contain around twenty milliseconds worth of audio; this can vary due to differences in client settings.
 To help keep track of the torrent of packets for each user, you can use user IDs in combination the synchronization value (SSRC) sent by Discord to determine the source of each packet.
 
 This short-and-simple example will use [ffmpeg](https://ffmpeg.org/about.html) to convert each packet to a *wav* file.

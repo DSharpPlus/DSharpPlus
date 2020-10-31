@@ -64,7 +64,7 @@ To prevent such issues, any event handler that has the potential to take more th
 ```cs
 discord.MessageCreated += (s, e) =>
 {
-    Task.Run(async () =>
+    _ = Task.Run(async () =>
     {
         // Pretend this takes many, many seconds to execute.
         var response = await QuerySlowWebServiceAsync(e.Message.Content);

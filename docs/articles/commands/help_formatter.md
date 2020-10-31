@@ -4,8 +4,7 @@ title: Help Formatter
 ---
 
 ## Custom Help Formatter
-The built-in help command provided by CommandsNext is generated with a *help formatter*.
-This simple mechanism is given a command and its subcommands then returns a formatted help message.
+The built-in help command provided by CommandsNext is generated with a *help formatter*.This simple mechanism is given a command and its subcommands then returns a formatted help message.
 If you're not happy with the default help formatter, you're able to write your own and customize the output to your liking.
 
 <br/>
@@ -20,8 +19,11 @@ public class CustomHelpFormatter : BaseHelpFormatter
     {
         // _embed = new DiscordEmbedBuilder();
         // _strBuilder = new StringBuilder();
+		
+		// Help formatters do support dependency injection.
+		// Any required services can be specified by declaring constructor parameters. 
 
-        // Any other required initialization ...
+        // Other required initialization here ...
     }
 
     public override BaseHelpFormatter WithCommand(Command command)

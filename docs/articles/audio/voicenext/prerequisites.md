@@ -35,18 +35,3 @@ Distributions|Terminal Command
 Ubuntu 20.04, Ubuntu 18.04, Debian 10|`sudo apt install libsodium23 libsodium-dev`
 Linux Mint, Ubuntu 16.04, Debian 9 |`sudo apt install libsodium18 libsodium-dev`
 Debian 8|`sudo apt-get install libsodium13 libsodium-dev`
-
-#### Arch
-```console 
-$ sudo pacman -S opus libsodium
-```
-
-#### Gentoo
-```console
-$ sudo emerge -atv opus libsodium
-```
-
-#### Fedora
-```console 
-$ sudo dnf install opus libsodium opus-devel libsodium-devel
-```
