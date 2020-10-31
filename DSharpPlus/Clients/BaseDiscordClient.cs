@@ -156,7 +156,7 @@ namespace DSharpPlus
         /// Gets a list of regions
         /// </summary>
         /// <returns></returns>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+/// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<IReadOnlyList<DiscordVoiceRegion>> ListVoiceRegionsAsync() 
             => this.ApiClient.ListVoiceRegionsAsync();
 

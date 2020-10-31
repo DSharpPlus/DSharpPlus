@@ -45,10 +45,10 @@ namespace DSharpPlus.Entities
         /// <param name="deny">Permissions that are denied.</param>
         /// <param name="reason">Reason as to why you made this change.</param>
         /// <returns></returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the overwrite does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter exists.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the overwrite does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task UpdateAsync(Permissions? allow = null, Permissions? deny = null, string reason = null)
             => this.Discord.ApiClient.EditChannelPermissionsAsync(this._channel_id, this.Id, allow ?? this.Allowed, deny ?? this.Denied, this.Type.ToString().ToLowerInvariant(), reason);
         #endregion
@@ -57,10 +57,10 @@ namespace DSharpPlus.Entities
         /// Gets the DiscordMember that is affected by this overwrite.
         /// </summary>
         /// <returns>The DiscordMember that is affected by this overwrite</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the bot does not have the <see cref="Permissions.AccessChannels"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the overwrite does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter exists.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.AccessChannels"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the overwrite does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task<DiscordMember> GetMemberAsync()
         {
             if (this.Type != OverwriteType.Member)
@@ -72,9 +72,9 @@ namespace DSharpPlus.Entities
         /// Gets the DiscordRole that is affected by this overwrite.
         /// </summary>
         /// <returns>The DiscordRole that is affected by this overwrite</returns>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the role does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter exists.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when something unexpected happens on the Discord side.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the role does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task<DiscordRole> GetRoleAsync()
         {
             if (this.Type != OverwriteType.Role)
