@@ -202,16 +202,20 @@ CommandsNext will parse this as one argument, allowing your command to be execut
 !greet "Luke Smith"
 ```
 
-A more obvious solution is to add additional parameters to the method signature of your command method.<br/>
-```cs
-public async Task GreetCommand(CommandContext ctx, string firstName, string lastName)
-```
-
-
-Lastly, you can use the `RemainingText` attribute on your parameter.<br/>
+If you would prefer not to use quotes, you can use the `RemainingText` attribute on your parameter.<br/>
 This attribute will instruct CommandsNext to parse all remaining arguments into that parameter. 
 ```cs
 public async Task GreetCommand(CommandContext ctx, [RemainingText] string name)
+```
+
+Alternatively, you can use the `params` keyword to have all remaining arguments parsed into an array.
+```cs
+public async Task GreetCommand(CommandContext ctx, params string[] names)
+```
+
+A more obvious solution is to add additional parameters to the method signature of your command method.<br/>
+```cs
+public async Task GreetCommand(CommandContext ctx, string firstName, string lastName)
 ```
 
 <br/>
