@@ -12,7 +12,7 @@ using DSharpPlus.Net;
 
 namespace DSharpPlus.Test
 {
-    [Group("lavalink"), Description("Provides audio playback via lavalink."), Aliases("lava", "ll")]
+    [Group("lavalink"), Description("Provides audio playback via lavalink."), Aliases("lava", "ll"), ModuleLifespan(ModuleLifespan.Singleton)]
     public class TestBotLavaCommands : BaseCommandModule
     {
         private LavalinkNodeConnection Lavalink { get; set; }
@@ -44,8 +44,11 @@ namespace DSharpPlus.Test
 
         private Task Lavalink_Disconnected(LavalinkNodeConnection ll, NodeDisconnectedEventArgs e)
         {
-            this.Lavalink = null;
-            this.LavalinkVoice = null;
+            if (e.IsCleanClose)
+            {
+                this.Lavalink = null;
+                this.LavalinkVoice = null;
+            }
             return Task.CompletedTask;
         }
 

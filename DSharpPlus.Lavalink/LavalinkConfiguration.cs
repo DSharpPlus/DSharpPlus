@@ -21,6 +21,12 @@ namespace DSharpPlus.Lavalink
         public ConnectionEndpoint SocketEndpoint { internal get; set; } = new ConnectionEndpoint("127.0.0.1", 2333);
 
         /// <summary>
+        /// Sets whether the connection wrapper should attempt automatic reconnects should the connection drop.
+        /// <para>Defaults to true.</para>
+        /// </summary>
+        public bool SocketAutoReconnect { internal get; set; } = true;
+
+        /// <summary>
         /// Sets the password for the Lavalink connection.
         /// <para>Defaults to "youshallnotpass".</para>
         /// </summary>

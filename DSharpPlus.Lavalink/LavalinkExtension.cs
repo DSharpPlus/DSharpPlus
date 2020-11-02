@@ -61,7 +61,7 @@ namespace DSharpPlus.Lavalink
             if (this._connectedNodes.ContainsKey(config.SocketEndpoint))
                 return this._connectedNodes[config.SocketEndpoint];
 
-            var con = new LavalinkNodeConnection(this.Client, config);
+            var con = new LavalinkNodeConnection(this.Client, this, config);
             con.NodeDisconnected += this.Con_NodeDisconnected;
             con.Disconnected += this.Con_Disconnected;
             this._connectedNodes[con.NodeEndpoint] = con;

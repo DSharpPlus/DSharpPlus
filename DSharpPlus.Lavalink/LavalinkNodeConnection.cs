@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using DSharpPlus.Exceptions;
 using DSharpPlus.Lavalink.Entities;
 using DSharpPlus.Lavalink.EventArgs;
 using DSharpPlus.Net;
@@ -116,6 +117,9 @@ namespace DSharpPlus.Lavalink
         /// </summary>
         public bool IsConnected => !Volatile.Read(ref this._isDisposed);
         private bool _isDisposed = false;
+        private int _backoff = 0;
+        private const int MinimumBackoff = 7500;
+        private const int MaximumBackoff = 120000;
 
         /// <summary>
         /// Gets the current resource usage statistics.
@@ -133,7 +137,16 @@ namespace DSharpPlus.Lavalink
         /// </summary>
         public LavalinkRestClient Rest { get; }
 
-        internal DiscordClient Discord { get; }
+        /// <summary>
+        /// Gets the parent extension which this node connection belongs to.
+        /// </summary>
+        public LavalinkExtension Parent { get; }
+
+        /// <summary>
+        /// Gets the Discord client this node connection belongs to.
+        /// </summary>
+        public DiscordClient Discord { get; }
+
         internal LavalinkConfiguration Configuration { get; }
         internal DiscordVoiceRegion Region { get; }
 
@@ -142,9 +155,10 @@ namespace DSharpPlus.Lavalink
         private ConcurrentDictionary<ulong, TaskCompletionSource<VoiceStateUpdateEventArgs>> VoiceStateUpdates { get; }
         private ConcurrentDictionary<ulong, TaskCompletionSource<VoiceServerUpdateEventArgs>> VoiceServerUpdates { get; }
 
-        internal LavalinkNodeConnection(DiscordClient client, LavalinkConfiguration config)
+        internal LavalinkNodeConnection(DiscordClient client, LavalinkExtension extension, LavalinkConfiguration config)
         {
             this.Discord = client;
+            this.Parent = extension;
             this.Configuration = new LavalinkConfiguration(config);
 
             if (config.Region != null && this.Discord.VoiceRegions.Values.Contains(config.Region))
@@ -169,12 +183,6 @@ namespace DSharpPlus.Lavalink
 
             this.Rest = new LavalinkRestClient(this.Configuration, this.Discord);
 
-            this.WebSocket = client.Configuration.WebSocketClientFactory(client.Configuration.Proxy);
-            this.WebSocket.Connected += this.WebSocket_OnConnect;
-            this.WebSocket.Disconnected += this.WebSocket_OnDisconnect;
-            this.WebSocket.ExceptionThrown += this.WebSocket_OnException;
-            this.WebSocket.MessageReceived += this.WebSocket_OnMessage;
-
             Volatile.Write(ref this._isDisposed, false);
         }
 
@@ -182,10 +190,16 @@ namespace DSharpPlus.Lavalink
         /// Establishes a connection to the Lavalink node.
         /// </summary>
         /// <returns></returns>
-        internal Task StartAsync()
+        internal async Task StartAsync()
         {
             if (this.Discord?.CurrentUser?.Id == null || this.Discord?.ShardCount == null)
                 throw new InvalidOperationException("This operation requires the Discord client to be fully initialized.");
+
+            this.WebSocket = this.Discord.Configuration.WebSocketClientFactory(this.Discord.Configuration.Proxy);
+            this.WebSocket.Connected += this.WebSocket_OnConnect;
+            this.WebSocket.Disconnected += this.WebSocket_OnDisconnect;
+            this.WebSocket.ExceptionThrown += this.WebSocket_OnException;
+            this.WebSocket.MessageReceived += this.WebSocket_OnMessage;
 
             this.WebSocket.AddDefaultHeader("Authorization", this.Configuration.Password);
             this.WebSocket.AddDefaultHeader("Num-Shards", this.Discord.ShardCount.ToString(CultureInfo.InvariantCulture));
@@ -193,7 +207,33 @@ namespace DSharpPlus.Lavalink
             if (this.Configuration.ResumeKey != null)
                 this.WebSocket.AddDefaultHeader("Resume-Key", this.Configuration.ResumeKey);
 
-            return this.WebSocket.ConnectAsync(new Uri(this.Configuration.SocketEndpoint.ToWebSocketString()));
+            do
+            {
+                try
+                {
+                    if (_backoff != 0)
+                    {
+                        await Task.Delay(this._backoff).ConfigureAwait(false);
+                        this._backoff = Math.Min(this._backoff * 2, MaximumBackoff);
+                    }
+                    else
+                    {
+                        this._backoff = MinimumBackoff;
+                    }
+
+                    await this.WebSocket.ConnectAsync(new Uri(this.Configuration.SocketEndpoint.ToWebSocketString()));
+                    break;
+                }
+                catch (PlatformNotSupportedException)
+                { throw; }
+                catch (NotImplementedException)
+                { throw; }
+                catch (Exception ex)
+                {
+                    this.Discord.Logger.LogCritical(LavalinkEvents.LavalinkConnectionError, ex, "Failed to connect to Lavalink");
+                }
+            }
+            while (this.Configuration.SocketAutoReconnect);
         }
 
         /// <summary>
@@ -209,7 +249,8 @@ namespace DSharpPlus.Lavalink
 
             Volatile.Write(ref this._isDisposed, true);
             await this.WebSocket.DisconnectAsync().ConfigureAwait(false);
-            await this._disconnected.InvokeAsync(this, new NodeDisconnectedEventArgs(this)).ConfigureAwait(false);
+            // this should not be here, no?
+            //await this._disconnected.InvokeAsync(this, new NodeDisconnectedEventArgs(this)).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -361,25 +402,16 @@ namespace DSharpPlus.Lavalink
             if (this.IsConnected && e.CloseCode != 1001 && e.CloseCode != -1)
             {
                 this.Discord.Logger.LogWarning(LavalinkEvents.LavalinkConnectionClosed, "Connection broken ({0}, '{1}'), reconnecting", e.CloseCode, e.CloseMessage);
-                this.WebSocket = this.Discord.Configuration.WebSocketClientFactory(this.Discord.Configuration.Proxy);
-                this.WebSocket.Connected += this.WebSocket_OnConnect;
-                this.WebSocket.Disconnected += this.WebSocket_OnDisconnect;
-                this.WebSocket.ExceptionThrown += this.WebSocket_OnException;
-                this.WebSocket.MessageReceived += this.WebSocket_OnMessage;
+                await this._disconnected.InvokeAsync(this, new NodeDisconnectedEventArgs(this, false)).ConfigureAwait(false);
 
-                this.WebSocket.AddDefaultHeader("Authorization", this.Configuration.Password);
-                this.WebSocket.AddDefaultHeader("Num-Shards", this.Discord.ShardCount.ToString(CultureInfo.InvariantCulture));
-                this.WebSocket.AddDefaultHeader("User-Id", this.Discord.CurrentUser.Id.ToString(CultureInfo.InvariantCulture));
-                if (this.Configuration.ResumeKey != null)
-                    this.WebSocket.AddDefaultHeader("Resume-Key", this.Configuration.ResumeKey);
-
-                await this.WebSocket.ConnectAsync(new Uri(this.Configuration.SocketEndpoint.ToWebSocketString()));
+                if (this.Configuration.SocketAutoReconnect)
+                    await this.StartAsync().ConfigureAwait(false);
             }
             else if (e.CloseCode != 1001 && e.CloseCode != -1)
             {
                 this.Discord.Logger.LogInformation(LavalinkEvents.LavalinkConnectionClosed, "Connection closed ({0}, '{1}')", e.CloseCode, e.CloseMessage);
                 this.NodeDisconnected?.Invoke(this);
-                await this._disconnected.InvokeAsync(this, new NodeDisconnectedEventArgs(this)).ConfigureAwait(false);
+                await this._disconnected.InvokeAsync(this, new NodeDisconnectedEventArgs(this, true)).ConfigureAwait(false);
             }
             else
             {
@@ -391,13 +423,17 @@ namespace DSharpPlus.Lavalink
                     _ = this._connectedGuilds.TryRemove(kvp.Key, out _);
                 }
                 this.NodeDisconnected?.Invoke(this);
-                await this._disconnected.InvokeAsync(this, new NodeDisconnectedEventArgs(this)).ConfigureAwait(false);
+                await this._disconnected.InvokeAsync(this, new NodeDisconnectedEventArgs(this, false)).ConfigureAwait(false);
+
+                if (this.Configuration.SocketAutoReconnect)
+                    await this.StartAsync().ConfigureAwait(false);
             }
         }
 
         private async Task WebSocket_OnConnect(IWebSocketClient client, SocketEventArgs ea)
         {
             this.Discord.Logger.LogDebug(LavalinkEvents.LavalinkConnected, "Connection to Lavalink node established");
+            this._backoff = 0;
 
             if (this.Configuration.ResumeKey != null)
                 await this.SendPayloadAsync(new LavalinkConfigureResume(this.Configuration.ResumeKey, this.Configuration.ResumeTimeout)).ConfigureAwait(false);
@@ -470,3 +506,4 @@ namespace DSharpPlus.Lavalink
 
 // Kinda think this deserves another pack of instant noodles :^) -Emzi
 // No I did it before in sai- alright then.
+// Coroned noodles

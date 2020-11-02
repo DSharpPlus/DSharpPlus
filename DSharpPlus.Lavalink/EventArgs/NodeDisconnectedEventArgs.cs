@@ -12,9 +12,15 @@ namespace DSharpPlus.Lavalink.EventArgs
         /// </summary>
         public LavalinkNodeConnection LavalinkNode { get; }
 
-        internal NodeDisconnectedEventArgs(LavalinkNodeConnection node)
+        /// <summary>
+        /// Gets whether disconnect was clean.
+        /// </summary>
+        public bool IsCleanClose { get; }
+
+        internal NodeDisconnectedEventArgs(LavalinkNodeConnection node, bool isClean)
         {
             this.LavalinkNode = node;
+            this.IsCleanClose = isClean;
         }
     }
 }
