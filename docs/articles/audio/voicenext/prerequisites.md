@@ -24,14 +24,14 @@ $ brew install opus libsodium
 
 #### Debian and Derivatives 
 Opus package naming is consistent across Debian, Ubuntu, and Linux Mint.
-```terminal 
-$ sudo apt install libopus0 libopus-dev
+```bash 
+sudo apt-get install libopus0 libopus-dev
 ```
 
 Package naming for *libsodium* will vary depending on your distro and version:
 
 Distributions|Terminal Command
 :---:|:---:
-Ubuntu 20.04, Ubuntu 18.04, Debian 10|`sudo apt install libsodium23 libsodium-dev`
-Linux Mint, Ubuntu 16.04, Debian 9 |`sudo apt install libsodium18 libsodium-dev`
+Ubuntu 20.04, Ubuntu 18.04, Debian 10|`sudo apt-get install libsodium23 libsodium-dev`
+Linux Mint, Ubuntu 16.04, Debian 9 |`sudo apt-get install libsodium18 libsodium-dev`
 Debian 8|`sudo apt-get install libsodium13 libsodium-dev`
