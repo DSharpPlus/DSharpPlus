@@ -1,2 +1,0 @@
-# Custom command handlers
-TODO

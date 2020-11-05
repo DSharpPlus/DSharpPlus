@@ -31,6 +31,7 @@
           "articles/**.md",
           "articles/**/toc.yml",
           "natives/**.md",
+          "faq/**.md",
           "toc.yml",
           "*.md"
         ],
@@ -64,7 +65,7 @@
     ],
     "dest": "_site",
     "globalMetadata": {
-      "_appFooter": "© 2017-2019 DSharpPlus development team",
+      "_appFooter": "© 2017-2020 DSharpPlus Contributors",
       "_enableSearch": "true"
     },
     "globalMetadataFiles": [],

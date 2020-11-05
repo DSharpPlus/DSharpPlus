@@ -1,24 +1,20 @@
-<h1 class="delet-this">DSharpPlus documentation</h1>
-<h1 class="logo-center">![DSharpPlus Logo](/logobig.png "DSharpPlus documentation")</h1>
-# DSharpPlus documentation
+---
+uid: index
+title: DSharpPlus Documentation
+---
 
-DSharpPlus is an unofficial .NET wrapper for the [Discord API](https://discordapp.com/developers/docs/intro "Discord API"). 
-It was originally a fork of [DiscordSharp by Suicvne](https://github.com/suicvne/DiscordSharp), but has since been rewritten 
-to fit quality and API standards, as well as target wider range of .NET implementations.
+<h1 class="delet-this">DSharpPlus Documentation</h1>
+<h1 class="logo-center">![DSharpPlus Logo](/logobig.png "DSharpPlus Documentation")</h1>
+## DSharpPlus Documentation
+[DSharpPlus](https://github.com/DSharpPlus/DSharpPlus) (D#+) is an unofficial .NET wrapper for the [Discord API](https://discordapp.com/developers/docs/intro "Discord API") which was originally a fork of [DiscordSharp](https://github.com/suicvne/DiscordSharp).<br/>
+The library has since been rewritten to fit quality and API standards as well as target wider range of .NET implementations.
 
-## License, source, and contributors
+## Getting Started
+New users will want to take a look through the [articles](xref:preamble) for quick start guides, tutorials, and examples of use.<br/>
+Once you've gotten through the articles, head on over to the [API Documentation](/api/index.html) for all classes and methods provided by this library.
 
-Source code for DSharpPlus is available in its [GitHub repository](https://github.com/NaamloosDT/DSharpPlus).
+## Source and Contributors
+DSharpPlus is licensed under MIT License, as detailed in the [license](https://github.com/DSharpPlus/DSharpPlus/blob/master/LICENSE) found in the repository.<br/>
+The repository containing the source code for this library can be found [here](https://github.com/DSharpPlus/DSharpPlus). Contributions are welcomed.
 
-DSharpPlus is licensed under MIT License, as detailed in the [LICENSE in the repository](https://github.com/NaamloosDT/DSharpPlus/blob/master/LICENSE).
-
-DSharpPlus consists of [Naamloos](https://github.com/NaamloosDT), [afroraydude](https://github.com/afroraydude), 
-[DrCreo](https://github.com/DrCreo), [Death](https://github.com/DeathGameDev), [TiaqoY0](https://github.com/nick-strohm), [Axiom](https://github.com/suicvne), [Emzi0767](https://github.com/Emzi0767)
-and other contributors.
-
-## Where to start?
-
-Head over to the [Articles](/articles/intro.html) section if you're looking for tutorials, quick start guides, example bots, 
-and examples of use.
-
-If you're looking for the API reference, header over to [Api Documentation](/api/index.html) section.
+Some contributors of DSharpPlus include [Naamloos](https://github.com/NaamloosDT), [Emzi0767](https://github.com/Emzi0767), [Axiom](https://github.com/suicvne), [afroraydude](https://github.com/afroraydude), [DrCreo](https://github.com/DrCreo), [TiaqoY0](https://github.com/nick-strohm), [Neuheit] (https://github.com/Neuheit/), and [SSG/Maxine] (https://github.com/uwx/).

@@ -1,52 +1,63 @@
-- name: Introduction
-  href: intro.md
-- name: Getting started
+- name: Preamble
+  href: preamble.md
+- name: The Basics
   items:
-  - name: Bot application
-    href: getting_started/bot_application.md
-  - name: Basic bot
-    href: getting_started/basic_bot.md
-  - name: Alternate WebSocket clients
-    href: getting_started/alternate_ws.md
-  - name: Event reference
-    href: getting_started/event_reference.md
-  - name: Notes about using Mono
-    href: getting_started/mono.md
+  - name: Creating a Bot Account
+    href: basics/bot_account.md
+  - name: Writing Your First Bot
+    href: basics/first_bot.md
+- name: Beyond Basics
+  items:
+  - name: Events
+    href: beyond_basics/events.md
+  - name: Logging
+    href: beyond_basics/logging/default.md
+    items:
+    - name: The Default Logger
+      href: beyond_basics/logging/default.md
+    - name: Third Party Loggers
+      href: beyond_basics/logging/third_party.md
+  - name: Sharding
+    href: beyond_basics/sharding.md
 - name: Commands
-  items:
+  items:  
   - name: Introduction
     href: commands/intro.md
-  - name: Argument converters
-    href: commands/argument_converters.md
-  - name: Dependency injection
+  - name: Command Attributes
+    href: commands/command_attributes.md
+  - name: Dependency Injection
     href: commands/dependency_injection.md
-  - name: Module lifespans
-    href: commands/module_lifespans.md
-  - name: Custom command handlers
-    href: commands/custom_handler.md
+  - name: Customization
+    items:
+    - name: Help Formatter
+      href: commands/help_formatter.md
+    - name: Argument Converters
+      href: commands/argument_converters.md
+    - name: Command Handler
+      href: commands/command_handler.md
+- name: Audio
+  items:
+  - name: Lavalink
+    items:
+    - name: Setup
+      href: audio/lavalink/setup.md
+    - name: Configuration
+      href: audio/lavalink/configuration.md
+    - name: Music Commands
+      href: audio/lavalink/music_commands.md
+  - name: VoiceNext
+    items:
+    - name: Prerequisites
+      href: audio/voicenext/prerequisites.md
+    - name: Transmitting
+      href: audio/voicenext/transmit.md
+    - name: Receiving
+      href: audio/voicenext/receive.md
 - name: Interactivity
-  items:
-  - name: Introduction
-    href: interactivity/intro.md
-- name: Voice
-  items:
-  - name: Setup
-    href: voice/setup.md
-  - name: Sending
-    href: voice/send.md
-  - name: Receiving
-    href: voice/receive.md
-- name: Lavalink
-  items:
-  - name: Introduction
-    href: lavalink/intro.md
+  href: interactivity.md
 - name: Hosting
-  items:
-  - name: Running your bot 24/7
-    href: hosting/options.md
-  - name: Hosting on Raspbery Pi
-    href: hosting/raspberry_pi.md
-- name: Migrating after major updates
+  href: hosting.md
+- name: Version Migration
   items:
   - name: DiscordSharp to DSharpPlus
     href: migration/dsharp.md
@@ -54,13 +65,11 @@
     href: migration/2x_to_3x.md
   - name: 3.x to 4.x
     href: migration/3x_to_4x.md
-- name: Advanced topics
+- name: Miscellaneous
   items:
-  - name: Sharding
-    href: advanced/sharding.md
-  - name: Nightly builds
-    href: advanced/nightly_builds.md
-  - name: Debug symbols
-    href: advanced/debug_symbols.md
-  - name: Reporting issues
-    href: advanced/reporting_issues.md
+  - name: Nightly Builds
+    href: misc/nightly_builds.md
+  - name: Debug Symbols
+    href: misc/debug_symbols.md
+  - name: Reporting Issues
+    href: misc/reporting_issues.md

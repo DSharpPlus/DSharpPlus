@@ -27,6 +27,10 @@ namespace DSharpPlus.Entities
         /// <param name="roles">Roles for which this emoji will be available. This works only if your application is whitelisted as integration.</param>
         /// <param name="reason">Reason for audit log.</param>
         /// <returns>The modified emoji.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageEmojis"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordGuildEmoji> ModifyAsync(string name, IEnumerable<DiscordRole> roles = null, string reason = null) 
             => this.Guild.ModifyEmojiAsync(this, name, roles, reason);
 
@@ -35,6 +39,10 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="reason">Reason for audit log.</param>
         /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageEmojis"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task DeleteAsync(string reason = null) 
             => this.Guild.DeleteEmojiAsync(this, reason);
     }

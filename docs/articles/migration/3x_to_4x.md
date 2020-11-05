@@ -1,30 +1,23 @@
-# I updated the library and now I'm drowning in red underline!
-Much like 2.0 to 3.0, 3.0 to 4.0 introduces some breaking changes. As with 
-previous major version bump, you will need to update your code.
+---
+uid: migration_3_4
+title: Migration 3.x - 4.x
+---
 
-## Basics
-Default client implementation saw a huge number of fixes, as well as 
-functional updates.
+## Migration From 3.x to 4.x
 
-### WebSocket implementation changes
-WebSocket implementations are now instantiated via factory delegates. This is 
-now also a configuration setting, rather than method. For more information, 
-see [Alternate WebSocket client implementations](/articles/getting_started/aternate_ws.html) 
-page.
 
-### Client changes
-The client now supports proxies for both WebSocket and HTTP traffic. To proxy 
-your traffic, create a new instance of `System.Net.WebProxy` and assign it to 
-@DSharpPlus.DiscordConfiguration.Proxy property.
+### Proxy Support
+The client now supports proxies for both WebSocket and HTTP traffic.<br/>
+To proxy your traffic, create a new instance of `System.Net.WebProxy` and assign it to 
+`Proxy` property.
 
-### Module to Extension rename
-Extension classes were renamed. Instead of being called `SomethingModule` they 
-are now `SomethingExtension`. This means that the following changed:
-
-- `CommandsNextModule` -> `CommandsNextExtension`
-- `InteractivityModule` -> `InteractivityExtension`
-- `VoiceNextClient` -> `VoiceNextExtension`
-- `BaseModule` -> `BaseExtension`
+### Module Rename
+3.X|4.X|
+:---:|:---:
+`CommandsNextModule`|`CommandsNextExtension`
+`InteractivityModule`|`InteractivityExtension`
+`VoiceNextClient`|`VoiceNextExtension`
+`BaseModule`|`BaseExtension`
 
 ### Entity mutation changes
 Entity updating methods now take an action which mutates the state of the 
@@ -86,7 +79,7 @@ Furthermore, native support for `System.Uri` type now exists as well.
 ### Dependency Injection changes
 CommandsNext now uses Microsoft's Dependency Injection abstractions, which 
 greatly enhances flexibility, as well as allows 3rd party service containers 
-to be used. For more information, see [Dependency injection](/articles/commands/dependency_injection.html) 
+to be used. For more information, see [Dependency injection](xref:commands_dependency_injection) 
 page.
 
 ### Command overloads and group commands
@@ -119,7 +112,7 @@ instantiated before every command call, and are disposed shortly after.
 Combined with dependency injection changes, this enables the usage of 
 transient and scoped modules.
 
-For more information, see [Module lifespans](/articles/commands/module_lifespans.html) 
+For more information, see [Module lifespans](xref:commands_dependency_injection#modules) 
 page.
 
 ### Help formatter changes
@@ -130,9 +123,11 @@ injection, receiving services and command context via DI.
 Default help module is also transient, allowing it to take advantage of more 
 advanced DI usages.
 
+If you need to implement a custom help formatter, see [Custom Help Formatter](xref:commands_help_formatter)
+
 ### Custom command handlers
 You can now disabe the built-in command handler, and create your own. For more 
-information, see [Custom Command Handlers](/articles/commands/custom_handler.html).
+information, see [Custom Command Handlers](xref:commands_command_handler).
 
 ### Minor changes
 - **Case-insensitivity changes** - case insensitivity now applies to command 
@@ -146,17 +141,37 @@ information, see [Custom Command Handlers](/articles/commands/custom_handler.htm
   in converters.
 
 ## Interactivity
-TODO
+Interactivity went through an extensive rewrite and many methods were changed:
+
+
+Method|Change
+:---:|:---:
+`CollectReactionsAsync`|Different return value
+`CreatePollAsync`|Changed to `DoPollAsync`.
+`SendPaginatedMessage`|Changed to `SendPaginatedMessageAsync`.
+`GeneratePagesInEmbeds`|New parameter.
+`GeneratePagesInStrings`|New parameter.
+`GeneratePaginationReactions`|Removed.
+`DoPagination`|Removed.
+`WaitForMessageReactionAsync`|Changed to `WaitForReactionAsync`.
+`WaitForTypingUserAsync`|Changed to `WaitForUserTypingAsync`.
+`WaitForTypingChannelAsync`| Changed to `WaitForTypingAsync`.
 
 ## VoiceNext
-TODO
+VoiceNext went through a substantial rewrite.  Below are some of the key highlights:
+- Implemented support for Voice Gateway v4
+- Implemented support for lite and suffix encryption mode
+- Improved performance
+- Replaced old voice sending API with new stream-based transmit API that is non-blocking and has built-in support for Changing volume levels.
+- Automatic sending of silence packets on connection to enable incoming voice
+- Incoming voice now properly maintains an Opus decoder per source
+- Packet loss is now concealed via Opus FEC (if possible) or silence packets
+- VoiceNext will now properly send and process UDP keepalive packets
+- UDP and WebSocket ping values are now exposed on VoiceNextConnection objects
+- Voice OP12 and 13 (user join and leave respectively) are now supported and exposed on VoiceNextConnection objects.
 
 ## Lavalink
-The library now comes with a Lavalink client, which supports both Lavalink 2.x 
-and 3.x.
+The library now comes with a Lavalink client, which supports both Lavalink 2.x and 3.x.
 
-Lavalink is the preferred method for playing music from sources such as 
-YouTube or SoundCloud. It's a standalone lightweight Java application, which 
-handles downloading, transcoding, and transmitting audio to Discord.
-
-For more information, see [Lavalink](/articles/lavalink/intro.html) page.
+Lavalink is a standalone lightweight Java application, which handles downloading, transcoding, and transmitting audio to Discord.
+For more information, see the [Lavalink](xref:audio_lavalink_setup) article.
