@@ -5,7 +5,7 @@ title: Native Libraries
 
 #### Downloads
 Operating System|Download|Checksums|GPG Signatures 
----|---|---
+---|---|---|---
 64-bit Windows|[Click Here](/natives/vnext_natives_win32_x64.zip)|[Click Here](/natives/vnext_natives_win32_x64.zip.checksums)|[Click Here](/natives/vnext_natives_win32_x64.zip.checksums.sig)
 32-bit Windows|[Click Here](/natives/vnext_natives_win32_x86.zip)|[Click Here](/natives/vnext_natives_win32_x86.zip.checksums)|[Click Here](/natives/vnext_natives_win32_x86.zip.checksums.sig)
 
