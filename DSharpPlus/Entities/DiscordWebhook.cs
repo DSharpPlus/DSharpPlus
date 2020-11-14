@@ -49,7 +49,7 @@ namespace DSharpPlus.Entities
         /// Gets the default avatar url for this webhook.
         /// </summary>
         public string AvatarUrl 
-            => $"https://cdn.discordapp.com/avatars/{this.Id}/{this.AvatarHash}.png?size=1024";
+            => !string.IsNullOrWhiteSpace(this.AvatarHash) ? $"https://cdn.discordapp.com/avatars/{this.Id}/{this.AvatarHash}.png?size=1024" : null;
 
         /// <summary>
         /// Gets the secure token of this webhook.
@@ -104,7 +104,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> ExecuteAsync(DiscordWebhookBuilder builder)
             => (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookAsync(this.Id, this.Token, builder.Content,
-                builder.Username.HasValue ? builder.Username.Value : this.Name, builder.AvatarUrl.HasValue ? builder.AvatarUrl.Value : this.AvatarUrl, 
+                builder.Username.HasValue ? builder.Username.Value : this.Name, 
+                builder.AvatarUrl.HasValue ? builder.AvatarUrl.Value : this.AvatarUrl, 
                 builder.IsTTS, builder.Embeds, builder.Files, builder.Mentions);
 
         /// <summary>
