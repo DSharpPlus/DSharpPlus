@@ -48,8 +48,8 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the default avatar url for this webhook.
         /// </summary>
-        public string AvatarUrl 
-            => $"https://cdn.discordapp.com/avatars/{this.Id}/{this.AvatarHash}.png?size=1024";
+        public string AvatarUrl
+            => !string.IsNullOrWhiteSpace(this.AvatarHash) ? $"https://cdn.discordapp.com/avatars/{this.Id}/{this.AvatarHash}.png?size=1024" : null;
 
         /// <summary>
         /// Gets the secure token of this webhook.
@@ -92,7 +92,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the webhook does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task DeleteAsync() 
+        public Task DeleteAsync()
             => this.Discord.ApiClient.DeleteWebhookAsync(this.Id, Token);
 
         /// <summary>
@@ -104,7 +104,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> ExecuteAsync(DiscordWebhookBuilder builder)
             => (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookAsync(this.Id, this.Token, builder.Content,
-                builder.Username.HasValue ? builder.Username.Value : this.Name, builder.AvatarUrl.HasValue ? builder.AvatarUrl.Value : this.AvatarUrl, 
+                builder.Username.HasValue ? builder.Username.Value : this.Name,
+                builder.AvatarUrl.HasValue ? builder.AvatarUrl.Value : this.AvatarUrl,
                 builder.IsTTS, builder.Embeds, builder.Files, builder.Mentions);
 
         /// <summary>
@@ -115,7 +116,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the webhook does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task ExecuteSlackAsync(string json) 
+        public Task ExecuteSlackAsync(string json)
             => (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookSlackAsync(Id, Token, json);
 
         /// <summary>
@@ -126,7 +127,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the webhook does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task ExecuteGithubAsync(string json) 
+        public Task ExecuteGithubAsync(string json)
             => (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookGithubAsync(Id, Token, json);
 
         /// <summary>
@@ -190,7 +191,7 @@ namespace DSharpPlus.Entities
         /// <param name="e1">First webhook to compare.</param>
         /// <param name="e2">Second webhook to compare.</param>
         /// <returns>Whether the two webhooks are not equal.</returns>
-        public static bool operator !=(DiscordWebhook e1, DiscordWebhook e2) 
+        public static bool operator !=(DiscordWebhook e1, DiscordWebhook e2)
             => !(e1 == e2);
     }
 }

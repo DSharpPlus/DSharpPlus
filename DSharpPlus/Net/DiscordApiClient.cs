@@ -1796,8 +1796,8 @@ namespace DSharpPlus.Net
             var pld = new RestWebhookExecutePayload
             {
                 Content = content,
-                Username = username.HasValue && !string.IsNullOrWhiteSpace(username.Value) ? username.Value : null,
-                AvatarUrl = avatar_url.HasValue && !string.IsNullOrWhiteSpace(avatar_url.Value) ? avatar_url.Value : null,
+                Username = username.HasValue ? username.Value : null,
+                AvatarUrl = avatar_url.HasValue ? avatar_url.Value : null,
                 IsTTS = tts,
                 Embeds = embeds
             };
