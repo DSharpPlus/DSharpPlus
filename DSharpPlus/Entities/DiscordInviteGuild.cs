@@ -15,6 +15,19 @@ namespace DSharpPlus.Entities
         public string Name { get; internal set; }
 
         /// <summary>
+        /// Gets the guild icon's hash.
+        /// </summary>
+        [JsonProperty("icon", NullValueHandling = NullValueHandling.Ignore)]
+        public string IconHash { get; internal set; }
+
+        /// <summary>
+        /// Gets the guild icon's url.
+        /// </summary>
+        [JsonIgnore]
+        public string IconUrl
+            => !string.IsNullOrWhiteSpace(this.IconHash) ? $"https://cdn.discordapp.com/icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{IconHash}.jpg" : null;
+
+        /// <summary>
         /// Gets the hash of guild's invite splash.
         /// </summary>
         [JsonProperty("splash_name", NullValueHandling = NullValueHandling.Ignore)]

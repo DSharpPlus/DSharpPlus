@@ -8,7 +8,7 @@ namespace DSharpPlus.EventArgs
     public class MessageReactionRemoveEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// Gets the message for which the update occured.
+        /// Gets the message for which the update occurred.
         /// </summary>
         public DiscordMessage Message { get; internal set; }
 

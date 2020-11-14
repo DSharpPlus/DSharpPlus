@@ -5,11 +5,13 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Serialization;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -31,9 +33,9 @@ namespace DSharpPlus.Net
             this.Rest = new RestClient(client);
         }
 
-        internal DiscordApiClient(IWebProxy proxy, TimeSpan timeout) // This is for meta-clients, such as the webhook client
+        internal DiscordApiClient(IWebProxy proxy, TimeSpan timeout, bool useRelativeRateLimit) // This is for meta-clients, such as the webhook client
         {
-            this.Rest = new RestClient(proxy, timeout);
+            this.Rest = new RestClient(proxy, timeout, useRelativeRateLimit);
         }
 
         private static string BuildQueryString(IDictionary<string, string> values, bool post = false)
@@ -105,7 +107,7 @@ namespace DSharpPlus.Net
             var req = new RestRequest(client, bucket, url, method, headers, payload, ratelimitWaitOverride);
 
             if (this.Discord != null)
-                this.Discord.DebugLogger.LogTaskFault(this.Rest.ExecuteRequestAsync(req), LogLevel.Error, "REST", "Error while executing request: ");
+                this.Rest.ExecuteRequestAsync(req).LogTaskFault(this.Discord.Logger, LogLevel.Error, LoggerEvents.RestError, "Error while executing request");
             else
                 _ = this.Rest.ExecuteRequestAsync(req);
 
@@ -118,7 +120,7 @@ namespace DSharpPlus.Net
             var req = new MultipartWebRequest(client, bucket, url, method, headers, values, files, ratelimitWaitOverride);
 
             if (this.Discord != null)
-                Discord.DebugLogger.LogTaskFault(this.Rest.ExecuteRequestAsync(req), LogLevel.Error, "REST", "Error while executing request: ");
+                this.Rest.ExecuteRequestAsync(req).LogTaskFault(this.Discord.Logger, LogLevel.Error, LoggerEvents.RestError, "Error while executing request");
             else
                 _ = this.Rest.ExecuteRequestAsync(req);
 
@@ -253,7 +255,7 @@ namespace DSharpPlus.Net
             };
             if (reason != null)
                 urlparams["reason"] = reason;
-
+            
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.BANS}/:user_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PUT, route, new { guild_id, user_id }, out var path);
 
@@ -1110,13 +1112,17 @@ namespace DSharpPlus.Net
             return new ReadOnlyCollection<DiscordRole>(new List<DiscordRole>(roles_raw));
         }
 
-        internal async Task<DiscordGuild> GetGuildAsync(ulong guildId)
+        internal async Task<DiscordGuild> GetGuildAsync(ulong guildId, bool? with_counts)
         {
+            var urlparams = new Dictionary<string, string>();
+            if (with_counts.HasValue)
+                urlparams["with_counts"] = with_counts?.ToString();
+
             var route = $"{Endpoints.GUILDS}/:guild_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id = guildId }, out var path);
 
-            var url = Utilities.GetApiUriFor(path);
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET).ConfigureAwait(false);
+            var url = Utilities.GetApiUriFor(path, urlparams.Any() ? BuildQueryString(urlparams) : "");
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, urlparams).ConfigureAwait(false);
 
             var json = JObject.Parse(res.Response);
             var rawMembers = (JArray)json["members"];
@@ -1207,7 +1213,7 @@ namespace DSharpPlus.Net
         #endregion
 
         #region Prune
-        internal async Task<int> GetGuildPruneCountAsync(ulong guild_id, int days)
+        internal async Task<int> GetGuildPruneCountAsync(ulong guild_id, int days, IEnumerable<ulong> include_roles)
         {
             if (days < 0 || days > 30)
                 throw new ArgumentException("Prune inactivity days must be a number between 0 and 30.", nameof(days));
@@ -1217,37 +1223,56 @@ namespace DSharpPlus.Net
                 ["days"] = days.ToString(CultureInfo.InvariantCulture)
             };
 
+            var sb = new StringBuilder();
+
+            if(include_roles != null)
+            {
+                var roleArray = include_roles.ToArray();
+                var roleArrayCount = roleArray.Count();
+
+                for (int i = 0; i < roleArrayCount; i++)
+                    sb.Append($"&include_roles={roleArray[i]}");
+            }
+
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.PRUNE}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
-
-            var url = Utilities.GetApiUriFor(path, BuildQueryString(urlparams));
+            var url = Utilities.GetApiUriFor(path, $"{BuildQueryString(urlparams)}{sb}");
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET).ConfigureAwait(false);
 
             var pruned = JsonConvert.DeserializeObject<RestGuildPruneResultPayload>(res.Response);
 
-            return pruned.Pruned;
+            return pruned.Pruned.Value;
         }
 
-        internal async Task<int> BeginGuildPruneAsync(ulong guild_id, int days, string reason)
+        internal async Task<int?> BeginGuildPruneAsync(ulong guild_id, int days, bool compute_prune_count, IEnumerable<ulong> include_roles, string reason)
         {
             if (days < 0 || days > 30)
                 throw new ArgumentException("Prune inactivity days must be a number between 0 and 30.", nameof(days));
 
             var urlparams = new Dictionary<string, string>
             {
-                ["days"] = days.ToString(CultureInfo.InvariantCulture)
+                ["days"] = days.ToString(CultureInfo.InvariantCulture),
+                ["compute_prune_count"] = compute_prune_count.ToString()
             };
+
+            var sb = new StringBuilder();
+
+            if (include_roles != null)
+            {
+                var roleArray = include_roles.ToArray();
+                var roleArrayCount = roleArray.Count();
+
+                for (int i = 0; i < roleArrayCount; i++)
+                    sb.Append($"&include_roles={roleArray[i]}");
+            }
+
             if (reason != null)
                 urlparams["reason"] = reason;
-
-            var headers = Utilities.GetBaseHeaders();
-            if (!string.IsNullOrWhiteSpace(reason))
-                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.PRUNE}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { guild_id }, out var path);
 
-            var url = Utilities.GetApiUriFor(path, BuildQueryString(urlparams));
+            var url = Utilities.GetApiUriFor(path, $"{BuildQueryString(urlparams)}{sb}");
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST).ConfigureAwait(false);
 
             var pruned = JsonConvert.DeserializeObject<RestGuildPruneResultPayload>(res.Response);
@@ -1572,13 +1597,14 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordWebhook> ModifyWebhookAsync(ulong webhook_id, string name, Optional<string> base64_avatar, string reason)
+        internal async Task<DiscordWebhook> ModifyWebhookAsync(ulong webhook_id, ulong channelId, string name, Optional<string> base64_avatar, string reason)
         {
             var pld = new RestWebhookPayload
             {
                 Name = name,
                 AvatarBase64 = base64_avatar.HasValue ? base64_avatar.Value : null,
-                AvatarSet = base64_avatar.HasValue
+                AvatarSet = base64_avatar.HasValue,
+                ChannelId = channelId
             };
 
             var headers = new Dictionary<string, string>();
@@ -1717,7 +1743,7 @@ namespace DSharpPlus.Net
             var bucket = this.Rest.GetBucket(RestRequestMethod.PUT, route, new { channel_id, message_id, emoji }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PUT, ratelimitWaitOverride: 0.26);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PUT, ratelimitWaitOverride: this.Discord.Configuration.UseRelativeRatelimit ? null : (double?)0.26);
         }
 
         internal Task DeleteOwnReactionAsync(ulong channel_id, ulong message_id, string emoji)
@@ -1726,7 +1752,7 @@ namespace DSharpPlus.Net
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { channel_id, message_id, emoji }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, ratelimitWaitOverride: 0.26);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, ratelimitWaitOverride: this.Discord.Configuration.UseRelativeRatelimit ? null : (double?)0.26);
         }
 
         internal Task DeleteUserReactionAsync(ulong channel_id, ulong message_id, ulong user_id, string emoji, string reason)
@@ -1739,7 +1765,7 @@ namespace DSharpPlus.Net
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { channel_id, message_id, emoji, user_id }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, headers, ratelimitWaitOverride: 0.26);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, headers, ratelimitWaitOverride: this.Discord.Configuration.UseRelativeRatelimit ? null : (double?)0.26);
         }
 
         internal async Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(ulong channel_id, ulong message_id, string emoji, ulong? after_id = null, int limit = 25)
@@ -1785,7 +1811,7 @@ namespace DSharpPlus.Net
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { channel_id, message_id }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, headers, ratelimitWaitOverride: 0.26);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, headers, ratelimitWaitOverride: this.Discord.Configuration.UseRelativeRatelimit ? null : (double?)0.26);
         }
 
         internal Task DeleteReactionsEmojiAsync(ulong channel_id, ulong message_id, string emoji)
@@ -1794,7 +1820,7 @@ namespace DSharpPlus.Net
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { channel_id, message_id, emoji }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, ratelimitWaitOverride: 0.26);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, ratelimitWaitOverride: this.Discord.Configuration.UseRelativeRatelimit ? null : (double?)0.26);
         }
         #endregion
 
@@ -1969,6 +1995,22 @@ namespace DSharpPlus.Net
             }
 
             return new ReadOnlyCollection<DiscordApplicationAsset>(new List<DiscordApplicationAsset>(assets));
+        }
+
+        internal async Task<GatewayInfo> GetGatewayInfoAsync()
+        {
+            var headers = Utilities.GetBaseHeaders();
+            var route = Endpoints.GATEWAY;
+            if (this.Discord.Configuration.TokenType == TokenType.Bot)
+                route += Endpoints.BOT;
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, headers).ConfigureAwait(false);
+
+            var info = JObject.Parse(res.Response).ToObject<GatewayInfo>();
+            info.SessionBucket.ResetAfter = DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(info.SessionBucket.resetAfter);
+            return info;
         }
         #endregion
     }

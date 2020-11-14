@@ -14,11 +14,14 @@ using DSharpPlus.Interactivity;
 using DSharpPlus.Lavalink;
 using DSharpPlus.VoiceNext;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.Test
 {
     internal sealed class TestBot
     {
+        internal static EventId TestBotEventId { get; } = new EventId(1000, "TestBot");
+
         private TestBotConfig Config { get; }
         public DiscordClient Discord { get; }
         private TestBotCommands Commands { get; }
@@ -38,19 +41,17 @@ namespace DSharpPlus.Test
             {
                 AutoReconnect = true,
                 LargeThreshold = 250,
-                LogLevel = LogLevel.Debug,
+                MinimumLogLevel = LogLevel.Debug,
                 Token = this.Config.Token,
                 TokenType = TokenType.Bot,
-                UseInternalLogHandler = false,
                 ShardId = shardid,
                 ShardCount = this.Config.ShardCount,
                 MessageCacheSize = 2048,
-                DateTimeFormat = "dd-MM-yyyy HH:mm:ss zzz"
+                LogTimestampFormat = "dd-MM-yyyy HH:mm:ss zzz"
             };
             Discord = new DiscordClient(dcfg);
 
             // events
-            Discord.DebugLogger.LogMessageReceived += this.DebugLogger_LogMessageReceived;
             Discord.Ready += this.Discord_Ready;
             Discord.GuildAvailable += this.Discord_GuildAvailable;
             Discord.ClientErrored += this.Discord_ClientErrored;
@@ -97,6 +98,14 @@ namespace DSharpPlus.Test
 
             this.InteractivityService = Discord.UseInteractivity(icfg);
             this.LavalinkService = Discord.UseLavalink();
+
+            //this.Discord.MessageCreated += async e =>
+            //{
+            //    if (e.Message.Author.IsBot)
+            //        return;
+
+            //    _ = Task.Run(async () => await e.Message.RespondAsync(e.Message.Content));
+            //};
         }
 
         public async Task RunAsync()
@@ -110,50 +119,6 @@ namespace DSharpPlus.Test
             await Discord.DisconnectAsync().ConfigureAwait(false);
         }
 
-        private void DebugLogger_LogMessageReceived(object sender, DebugLogMessageEventArgs e)
-        {
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.Write("[{0:yyyy-MM-dd HH:mm:ss zzz}] ", e.Timestamp.ToLocalTime());
-
-            var tag = e.Application;
-            if (tag.Length > 12)
-                tag = tag.Substring(0, 12);
-            if (tag.Length < 12)
-                tag = tag.PadLeft(12, ' ');
-            Console.Write("[{0}] ", tag);
-
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.Write("[{0}] ", string.Concat("SHARD ", this.Discord.ShardId.ToString("00")));
-
-            switch (e.Level)
-            {
-                case LogLevel.Critical:
-                case LogLevel.Error:
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    break;
-
-                case LogLevel.Warning:
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    break;
-
-                case LogLevel.Info:
-                    Console.ForegroundColor = ConsoleColor.Cyan;
-                    break;
-
-                case LogLevel.Debug:
-                    Console.ForegroundColor = ConsoleColor.Magenta;
-                    break;
-                    
-                default:
-                    Console.ForegroundColor = ConsoleColor.DarkGreen;
-                    break;
-            }
-            Console.Write("[{0}] ", e.Level.ToString().PadLeft(8));
-
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine(e.Message);
-        }
-
         private Task Discord_Ready(ReadyEventArgs e)
         {
             return Task.CompletedTask;
@@ -161,38 +126,38 @@ namespace DSharpPlus.Test
 
         private Task Discord_GuildAvailable(GuildCreateEventArgs e)
         {
-            Discord.DebugLogger.LogMessage(LogLevel.Info, "DSP Test", $"Guild available: {e.Guild.Name}", DateTime.Now);
+            e.Client.Logger.LogInformation(TestBotEventId, "Guild available: '{0}'", e.Guild.Name);
             return Task.CompletedTask;
         }
 
         private Task Discord_GuildCreated(GuildCreateEventArgs e)
         {
-            Discord.DebugLogger.LogMessage(LogLevel.Info, "DSP Test", $"Guild created: {e.Guild.Name}", DateTime.Now);
+            e.Client.Logger.LogInformation(TestBotEventId, "Guild created: '{0}'", e.Guild.Name);
             return Task.CompletedTask;
         }
 
         private Task Discord_ClientErrored(ClientErrorEventArgs e)
         {
-            this.Discord.DebugLogger.LogMessage(LogLevel.Error, "DSP Test", $"Client threw an exception: {e.Exception.GetType()}", DateTime.Now, e.Exception);
+            e.Client.Logger.LogError(TestBotEventId, e.Exception, "Client threw an exception");
             return Task.CompletedTask;
         }
 
         private Task Discord_SocketError(SocketErrorEventArgs e)
         {
             var ex = e.Exception is AggregateException ae ? ae.InnerException : e.Exception;
-            this.Discord.DebugLogger.LogMessage(LogLevel.Error, "DSP Test", $"WS threw an exception: {ex.GetType()}", DateTime.Now, ex);
+            e.Client.Logger.LogError(TestBotEventId, ex, "WebSocket threw an exception");
             return Task.CompletedTask;
         }
 
         private Task Discord_VoiceStateUpdated(VoiceStateUpdateEventArgs e)
         {
-            this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "DSP Test", $"Voice state change for {e.User}: {e.Before?.IsServerMuted}->{e.After.IsServerMuted} {e.Before?.IsServerDeafened}->{e.After.IsServerDeafened}", DateTime.Now);
+            e.Client.Logger.LogDebug(TestBotEventId, "Voice state changed for '{0}' (mute: {1} -> {2}; deaf: {3} -> {4})", e.User, e.Before?.IsServerMuted, e.After.IsServerMuted, e.Before?.IsServerDeafened, e.After.IsServerDeafened);
             return Task.CompletedTask;
         }
 
         private Task Discord_GuildDownloadCompleted(GuildDownloadCompletedEventArgs e)
         {
-            this.Discord.DebugLogger.LogMessage(LogLevel.Debug, "DPS Test", "All guilds are now downloaded.", DateTime.Now);
+            e.Client.Logger.LogDebug(TestBotEventId, "Guild download completed");
             return Task.CompletedTask;
         }
 
@@ -201,7 +166,7 @@ namespace DSharpPlus.Test
             if (e.Exception is CommandNotFoundException && (e.Command == null || e.Command.QualifiedName != "help"))
                 return;
 
-            Discord.DebugLogger.LogMessage(LogLevel.Error, "DSP Test", $"An exception occured during {e.Context.User.Username}'s invocation of '{e.Context.Command.QualifiedName}': {e.Exception.GetType()}", DateTime.Now.Date, e.Exception);
+            e.Context.Client.Logger.LogError(TestBotEventId, e.Exception, "Exception occurred during {0}'s invocation of '{1}'", e.Context.User.Username, e.Context.Command.QualifiedName);
 
             var exs = new List<Exception>();
             if (e.Exception is AggregateException ae)
@@ -217,8 +182,8 @@ namespace DSharpPlus.Test
                 var embed = new DiscordEmbedBuilder
                 {
                     Color = new DiscordColor("#FF0000"),
-                    Title = "An exception occured when executing a command",
-                    Description = $"`{e.Exception.GetType()}` occured when executing `{e.Command.QualifiedName}`.",
+                    Title = "An exception occurred when executing a command",
+                    Description = $"`{e.Exception.GetType()}` occurred when executing `{e.Command.QualifiedName}`.",
                     Timestamp = DateTime.UtcNow
                 };
                 embed.WithFooter(Discord.CurrentUser.Username, Discord.CurrentUser.AvatarUrl)
@@ -229,7 +194,7 @@ namespace DSharpPlus.Test
 
         private Task CommandsNextService_CommandExecuted(CommandExecutionEventArgs e)
         {
-            Discord.DebugLogger.LogMessage(LogLevel.Info, "DSP Test", $"{e.Context.User.Username} executed '{e.Command.QualifiedName}' in {e.Context.Channel.Name}.", DateTime.Now);
+            e.Context.Client.Logger.LogInformation(TestBotEventId, "User {0} executed '{1}' in {2}", e.Context.User.Username, e.Command.QualifiedName, e.Context.Channel.Name);
             return Task.CompletedTask;
         }
 
@@ -248,12 +213,12 @@ namespace DSharpPlus.Test
 
                     if (bfr is null)
                     {
-                        Discord.DebugLogger.LogMessage(LogLevel.Debug, "GuildUpdated", $"Property {prop.Name} in before was null.", DateTime.Now);
+                        e.Client.Logger.LogDebug(TestBotEventId, "Guild update: property {0} in before was null", prop.Name);
                     }
 
                     if (aft is null)
                     {
-                        Discord.DebugLogger.LogMessage(LogLevel.Debug, "GuildUpdated", $"Property {prop.Name} in after was null.", DateTime.Now);
+                        e.Client.Logger.LogDebug(TestBotEventId, "Guild update: property {0} in after was null", prop.Name);
                     }
 
                     if (bfr is null || aft is null)
@@ -270,7 +235,7 @@ namespace DSharpPlus.Test
                 }
                 catch (Exception ex)
                 {
-                    Discord.DebugLogger.LogMessage(LogLevel.Debug, "GuildUpdated", $"An exception occurred: {ex.GetType()}", DateTime.Now, ex);
+                    e.Client.Logger.LogError(TestBotEventId, ex, "Exception occurred during guild update");
                 }
             }
 

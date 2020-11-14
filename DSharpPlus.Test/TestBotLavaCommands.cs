@@ -12,7 +12,7 @@ using DSharpPlus.Net;
 
 namespace DSharpPlus.Test
 {
-    [Group("lavalink"), Description("Provides audio playback via lavalink."), Aliases("lava")]
+    [Group("lavalink"), Description("Provides audio playback via lavalink."), Aliases("lava", "ll")]
     public class TestBotLavaCommands : BaseCommandModule
     {
         private LavalinkNodeConnection Lavalink { get; set; }
@@ -85,6 +85,7 @@ namespace DSharpPlus.Test
 
             this.LavalinkVoice = await this.Lavalink.ConnectAsync(vc);
             this.LavalinkVoice.PlaybackFinished += this.LavalinkVoice_PlaybackFinished;
+            this.LavalinkVoice.DiscordWebSocketClosed += e => ctx.RespondAsync("discord websocket close event");
             await ctx.RespondAsync("Connected.").ConfigureAwait(false);
         }
 

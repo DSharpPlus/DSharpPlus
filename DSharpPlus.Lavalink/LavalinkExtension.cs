@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using DSharpPlus.Entities;
 using DSharpPlus.Lavalink.EventArgs;
 using DSharpPlus.Net;
 
@@ -18,14 +21,18 @@ namespace DSharpPlus.Lavalink
         }
         private AsyncEvent<NodeDisconnectedEventArgs> _nodeDisconnected;
 
-        private ConcurrentDictionary<ConnectionEndpoint, LavalinkNodeConnection> ConnectedNodes { get; }
+        /// <summary>
+        /// Gets a dictionary of connected Lavalink nodes for the extension.
+        /// </summary>
+        public IReadOnlyDictionary<ConnectionEndpoint, LavalinkNodeConnection> ConnectedNodes { get; }
+        private ConcurrentDictionary<ConnectionEndpoint, LavalinkNodeConnection> _connectedNodes = new ConcurrentDictionary<ConnectionEndpoint, LavalinkNodeConnection>();
 
         /// <summary>
         /// Creates a new instance of this Lavalink extension.
         /// </summary>
         internal LavalinkExtension()
         {
-            this.ConnectedNodes = new ConcurrentDictionary<ConnectionEndpoint, LavalinkNodeConnection>();
+            this.ConnectedNodes = new ReadOnlyConcurrentDictionary<ConnectionEndpoint, LavalinkNodeConnection>(this._connectedNodes);
         }
 
         /// <summary>
@@ -50,13 +57,13 @@ namespace DSharpPlus.Lavalink
         /// <returns>The established Lavalink connection.</returns>
         public async Task<LavalinkNodeConnection> ConnectAsync(LavalinkConfiguration config)
         {
-            if (this.ConnectedNodes.ContainsKey(config.SocketEndpoint))
-                return this.ConnectedNodes[config.SocketEndpoint];
+            if (this._connectedNodes.ContainsKey(config.SocketEndpoint))
+                return this._connectedNodes[config.SocketEndpoint];
 
             var con = new LavalinkNodeConnection(this.Client, config);
             con.NodeDisconnected += this.Con_NodeDisconnected;
             con.Disconnected += this.Con_Disconnected;
-            this.ConnectedNodes[con.NodeEndpoint] = con;
+            this._connectedNodes[con.NodeEndpoint] = con;
             try
             {
                 await con.StartAsync().ConfigureAwait(false);
@@ -71,15 +78,97 @@ namespace DSharpPlus.Lavalink
         }
 
         /// <summary>
-        /// Gets the lavalink node connection for specified endpoint.
+        /// Gets the Lavalink node connection for the specified endpoint.
         /// </summary>
         /// <param name="endpoint">Endpoint at which the node resides.</param>
         /// <returns>Lavalink node connection.</returns>
         public LavalinkNodeConnection GetNodeConnection(ConnectionEndpoint endpoint)
-            => this.ConnectedNodes.ContainsKey(endpoint) ? this.ConnectedNodes[endpoint] : null;
+            => this._connectedNodes.ContainsKey(endpoint) ? this._connectedNodes[endpoint] : null;
+
+        /// <summary>
+        /// Gets a Lavalink node connection based on load balancing and an optional voice region.
+        /// </summary>
+        /// <param name="region">The region to compare with the node's <see cref="LavalinkConfiguration.Region"/>, if any.</param>
+        /// <returns>The least load affected node connection, or null if no nodes are present.</returns>
+        public LavalinkNodeConnection GetIdealNodeConnection(DiscordVoiceRegion region = null)
+        {
+            if (this._connectedNodes.Count <= 1)
+                return this._connectedNodes.Values.FirstOrDefault();
+
+            var nodes = this._connectedNodes.Values.ToArray();
+
+            if (region != null)
+            {
+                var regionPredicate = new Func<LavalinkNodeConnection, bool>(x => x.Region == region);
+
+                if (nodes.Any(regionPredicate))
+                    nodes = nodes.Where(regionPredicate).ToArray();
+
+                if (nodes.Count() <= 1)
+                    return nodes.FirstOrDefault();
+            }
+
+            return this.FilterByLoad(nodes);
+        }
+
+        /// <summary>
+        /// Gets a Lavalink guild connection from a <see cref="DiscordGuild"/>.
+        /// </summary>
+        /// <param name="guild">The guild the connection is on.</param>
+        /// <returns>The found guild connection, or null if one could not be found.</returns>
+        public LavalinkGuildConnection GetGuildConnection(DiscordGuild guild)
+        {
+            var nodes = this._connectedNodes.Values;
+            var node = nodes.FirstOrDefault(x => x._connectedGuilds.ContainsKey(guild.Id));
+            return node?.GetGuildConnection(guild);
+        }
+
+        private LavalinkNodeConnection FilterByLoad(LavalinkNodeConnection[] nodes)
+        {
+            Array.Sort(nodes, (a, b) =>
+            {
+                if (!a.Statistics.Updated || !b.Statistics.Updated)
+                    return 0;
+
+                //https://github.com/FredBoat/Lavalink-Client/blob/48bc27784f57be5b95d2ff2eff6665451b9366f5/src/main/java/lavalink/client/io/LavalinkLoadBalancer.java#L122
+                //https://github.com/briantanner/eris-lavalink/blob/master/src/PlayerManager.js#L329
+
+                //player count
+                var aPenaltyCount = a.Statistics.ActivePlayers;
+                var bPenaltyCount = b.Statistics.ActivePlayers;
+
+                //cpu load
+                aPenaltyCount += (int)Math.Pow(1.05d, 100 * (a.Statistics.CpuSystemLoad / a.Statistics.CpuCoreCount) * 10 - 10);
+                bPenaltyCount += (int)Math.Pow(1.05d, 100 * (b.Statistics.CpuSystemLoad / a.Statistics.CpuCoreCount) * 10 - 10);
+
+                //frame load
+                if (a.Statistics.AverageDeficitFramesPerMinute > 0)
+                {
+                    //deficit frame load
+                    aPenaltyCount += (int)(Math.Pow(1.03d, 500f * (a.Statistics.AverageDeficitFramesPerMinute / 3000f)) * 600 - 600);
+
+                    //null frame load
+                    aPenaltyCount += (int)(Math.Pow(1.03d, 500f * (a.Statistics.AverageNulledFramesPerMinute / 3000f)) * 300 - 300);
+                }
+
+                //frame load
+                if (b.Statistics.AverageDeficitFramesPerMinute > 0)
+                {
+                    //deficit frame load
+                    bPenaltyCount += (int)(Math.Pow(1.03d, 500f * (b.Statistics.AverageDeficitFramesPerMinute / 3000f)) * 600 - 600);
+
+                    //null frame load
+                    bPenaltyCount += (int)(Math.Pow(1.03d, 500f * (b.Statistics.AverageNulledFramesPerMinute / 3000f)) * 300 - 300);
+                }
+
+                return aPenaltyCount - bPenaltyCount;
+            });
+
+            return nodes[0];
+        }
 
         private void Con_NodeDisconnected(LavalinkNodeConnection node)
-            => this.ConnectedNodes.TryRemove(node.NodeEndpoint, out _);
+            => this._connectedNodes.TryRemove(node.NodeEndpoint, out _);
 
         private Task Con_Disconnected(NodeDisconnectedEventArgs e)
             => this._nodeDisconnected.InvokeAsync(e);

@@ -70,26 +70,21 @@ namespace DSharpPlus.Entities
             set => this._imageUri = string.IsNullOrEmpty(value) ? null : new DiscordUri(value);
         }
         private DiscordUri _imageUri;
-
+        
         /// <summary>
-        /// Gets or sets the thumbnail's image url.
-        /// </summary>
-        public string ThumbnailUrl
-        {
-            get => this._thumbnailUri?.ToString();
-            set => this._thumbnailUri = string.IsNullOrEmpty(value) ? null : new DiscordUri(value);
-        }
-        private DiscordUri _thumbnailUri;
-
-        /// <summary>
-        /// Gets the embed's author.
+        /// Gets or sets the embed's author.
         /// </summary>
         public EmbedAuthor Author { get; set; }
 
         /// <summary>
-        /// Gets the embed's footer.
+        /// Gets or sets the embed's footer.
         /// </summary>
         public EmbedFooter Footer { get; set; }
+
+        /// <summary>
+        /// Gets or sets the embed's thumbnail.
+        /// </summary>
+        public EmbedThumbnail Thumbnail { get; set; }
 
         /// <summary>
         /// Gets the embed's fields.
@@ -117,7 +112,14 @@ namespace DSharpPlus.Entities
             this.Url = original.Url?.ToString();
             this.Color = original.Color;
             this.Timestamp = original.Timestamp;
-            this.ThumbnailUrl = original.Thumbnail?.Url?.ToString();
+
+            if (original.Thumbnail != null)
+                this.Thumbnail = new EmbedThumbnail
+                {
+                    Url = original.Thumbnail.Url?.ToString(),
+                    Height = original.Thumbnail.Height,
+                    Width = original.Thumbnail.Width
+                };
 
             if (original.Author != null)
                 this.Author = new EmbedAuthor
@@ -255,24 +257,40 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Sets the embed's thumbnail url.
+        /// Sets the embed's thumbnail.
         /// </summary>
         /// <param name="url">Thumbnail url to set.</param>
+        /// <param name="height">The height of the thumbnail to set.</param>
+        /// <param name="width">The width of the thumbnail to set.</param>
         /// <returns>This embed builder.</returns>
-        public DiscordEmbedBuilder WithThumbnailUrl(string url)
+        public DiscordEmbedBuilder WithThumbnail(string url, int height = 0, int width = 0)
         {
-            this.ThumbnailUrl = url;
+            this.Thumbnail = new EmbedThumbnail
+            {
+                Url = url,
+                Height = height,
+                Width = width
+            };
+
             return this;
         }
 
         /// <summary>
-        /// Sets the embed's thumbnail url.
+        /// Sets the embed's thumbnail.
         /// </summary>
         /// <param name="url">Thumbnail url to set.</param>
+        /// <param name="height">The height of the thumbnail to set.</param>
+        /// <param name="width">The width of the thumbnail to set.</param>
         /// <returns>This embed builder.</returns>
-        public DiscordEmbedBuilder WithThumbnailUrl(Uri url)
+        public DiscordEmbedBuilder WithThumbnail(Uri url, int height = 0, int width = 0)
         {
-            this._thumbnailUri = new DiscordUri(url);
+            this.Thumbnail = new EmbedThumbnail
+            {
+                _uri = new DiscordUri(url),
+                Height = height,
+                Width = width
+            };
+
             return this;
         }
 
@@ -359,6 +377,29 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Removes a field of the specified index from this embed.
+        /// </summary>
+        /// <param name="index">Index of the field to remove.</param>
+        /// <returns>This embed builder.</returns>
+        public DiscordEmbedBuilder RemoveFieldAt(int index)
+        {
+            this._fields.RemoveAt(index);
+            return this;
+        }
+
+        /// <summary>
+        /// Removes fields of the specified range from this embed.
+        /// </summary>
+        /// <param name="index">Index of the first field to remove.</param>
+        /// <param name="count">Number of fields to remove.</param>
+        /// <returns>This embed builder.</returns>
+        public DiscordEmbedBuilder RemoveFieldRange(int index, int count)
+        {
+            this._fields.RemoveRange(index, count);
+            return this;
+        }
+
+        /// <summary>
         /// Removes all fields from this embed.
         /// </summary>
         /// <returns>This embed builder.</returns>
@@ -387,21 +428,26 @@ namespace DSharpPlus.Entities
                 embed.Footer = new DiscordEmbedFooter
                 {
                     Text = this.Footer.Text,
-                    IconUrl = this.Footer.IconUrl != null ? new DiscordUri(this.Footer.IconUrl) : null
+                    IconUrl = this.Footer._iconUri
                 };
 
             if (this.Author != null)
                 embed.Author = new DiscordEmbedAuthor
                 {
                     Name = this.Author.Name,
-                    Url = this.Author.Url != null ? new Uri(this.Author.Url) : null,
-                    IconUrl = this.Author.IconUrl != null ? new DiscordUri(this.Author.IconUrl) : null
+                    Url = this.Author._uri,
+                    IconUrl = this.Author._iconUri
                 };
 
             if (this._imageUri != null)
                 embed.Image = new DiscordEmbedImage { Url = this._imageUri };
-            if (this._thumbnailUri != null)
-                embed.Thumbnail = new DiscordEmbedThumbnail { Url = this._thumbnailUri };
+            if (this.Thumbnail != null)
+                embed.Thumbnail = new DiscordEmbedThumbnail
+                {
+                    Url = this.Thumbnail._uri,
+                    Height = this.Thumbnail.Height,
+                    Width =  this.Thumbnail.Width
+                };
 
             embed.Fields = new ReadOnlyCollection<DiscordEmbedField>(new List<DiscordEmbedField>(this._fields)); // copy the list, don't wrap it, prevents mutation
 
@@ -415,6 +461,9 @@ namespace DSharpPlus.Entities
         public static implicit operator DiscordEmbed(DiscordEmbedBuilder builder)
             => builder?.Build();
 
+        /// <summary>
+        /// Represents an embed author.
+        /// </summary>
         public class EmbedAuthor
         {
             /// <summary>
@@ -440,7 +489,7 @@ namespace DSharpPlus.Entities
                 get => this._uri?.ToString();
                 set => this._uri = string.IsNullOrEmpty(value) ? null : new Uri(value);
             }
-            private Uri _uri;
+            internal Uri _uri;
 
             /// <summary>
             /// Gets or sets the Author's icon url.
@@ -450,9 +499,12 @@ namespace DSharpPlus.Entities
                 get => this._iconUri?.ToString();
                 set => this._iconUri = string.IsNullOrEmpty(value) ? null : new DiscordUri(value);
             }
-            private DiscordUri _iconUri;
+            internal DiscordUri _iconUri;
         }
 
+        /// <summary>
+        /// Represents an embed footer.
+        /// </summary>
         public class EmbedFooter
         {
             /// <summary>
@@ -478,7 +530,43 @@ namespace DSharpPlus.Entities
                 get => this._iconUri?.ToString();
                 set => this._iconUri = string.IsNullOrEmpty(value) ? null : new DiscordUri(value);
             }
-            private DiscordUri _iconUri;
+            internal DiscordUri _iconUri;
+        }
+
+        /// <summary>
+        /// Represents an embed thumbnail.
+        /// </summary>
+        public class EmbedThumbnail
+        {
+            /// <summary>
+            /// Gets or sets the thumbnail's image url.
+            /// </summary>
+            public string Url
+            {
+                get => this._uri?.ToString();
+                set => this._uri = string.IsNullOrEmpty(value) ? null : new DiscordUri(value);
+            }
+            internal DiscordUri _uri;
+
+            /// <summary>
+            /// Gets or sets the thumbnail's height.
+            /// </summary>
+            public int Height
+            {
+                get => this._height;
+                set => this._height = value >= 0 ? value : 0;
+            }
+            private int _height;
+
+            /// <summary>
+            /// Gets or sets the thumbnail's width.
+            /// </summary>
+            public int Width
+            {
+                get => this._width;
+                set => this._width = value >= 0 ? value : 0;
+            }
+            private int _width;
         }
     }
 }

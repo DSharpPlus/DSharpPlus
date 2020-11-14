@@ -14,12 +14,14 @@ namespace DSharpPlus.Net.WebSocket
         private CancellationTokenSource TimeoutCancelSource { get; set; }
         private CancellationToken TimeoutCancel => this.TimeoutCancelSource.Token;
         private Task UnlockTask { get; set; }
+        private int MaxConcurrency { get; set; }
 
-        public SocketLock(ulong appId)
+        public SocketLock(ulong appId, int maxConcurrency)
         {
             this.ApplicationId = appId;
             this.TimeoutCancelSource = null;
-            this.LockSemaphore = new SemaphoreSlim(1);
+            this.MaxConcurrency = maxConcurrency;
+            this.LockSemaphore = new SemaphoreSlim(maxConcurrency);
         }
 
         public async Task LockAsync()
@@ -62,6 +64,6 @@ namespace DSharpPlus.Net.WebSocket
         }
 
         private void InternalUnlock(Task t)
-            => this.LockSemaphore.Release();
+            => this.LockSemaphore.Release(this.MaxConcurrency);
     }
 }

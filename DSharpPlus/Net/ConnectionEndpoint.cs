@@ -1,4 +1,6 @@
-﻿namespace DSharpPlus.Net
+﻿using System;
+
+namespace DSharpPlus.Net
 {
     /// <summary>
     /// Represents a network connection endpoint.
@@ -16,14 +18,21 @@
         public int Port { get; set; }
 
         /// <summary>
+        /// Gets or sets the secured status of this connection.
+        /// </summary>
+        public bool Secured { get; set; }
+
+        /// <summary>
         /// Creates a new endpoint structure.
         /// </summary>
         /// <param name="hostname">Hostname to connect to.</param>
         /// <param name="port">Port to use for connection.</param>
-        public ConnectionEndpoint(string hostname, int port)
+        /// <param name="secured">Whether the connection should be secured (https/wss).</param>
+        public ConnectionEndpoint(string hostname, int port, bool secured = false)
         {
             this.Hostname = hostname;
             this.Port = port;
+            this.Secured = secured;
         }
 
         /// <summary>
@@ -42,6 +51,18 @@
         public override string ToString()
         {
             return $"{this.Hostname}:{this.Port}";
+        }
+
+        internal string ToHttpString()
+        {
+            var secure = this.Secured ? "s" : "";
+            return $"http{secure}://{this}";
+        }
+
+        internal string ToWebSocketString()
+        {
+            var secure = this.Secured ? "s" : "";
+            return $"ws{secure}://{this}/";
         }
     }
 }

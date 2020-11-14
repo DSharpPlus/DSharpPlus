@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="../DSharpPlus.targets" />
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard1.3;netstandard2.0</TargetFrameworks>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
+    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>DSharpPlus.VoiceNext.Natives</PackageId>
+    <Description>Win32 Voice Natives for DSharpPlus.</Description>
+    <PackageTags>discord, discord-api, bots, discord-bots, chat, dsharp, dsharpplus, csharp, dotnet, vb-net, fsharp, audio, voice, radio, music</PackageTags>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <Content Include="runtimes/**/*.*">
+      <Pack>true</Pack>
+      <PackagePath>runtimes</PackagePath>
+    </Content>
+  </ItemGroup>
+
+</Project>

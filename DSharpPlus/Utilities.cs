@@ -5,8 +5,10 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.Net;
+using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus
 {
@@ -54,12 +56,6 @@ namespace DSharpPlus
             VersionHeader = $"DiscordBot (https://github.com/DSharpPlus/DSharpPlus, v{vs})";
         }
 
-        internal static int CalculateIntegrity(int ping, DateTimeOffset timestamp, int heartbeat_interval)
-        {
-            Random r = new Random();
-            return r.Next(ping, int.MaxValue);
-        }
-
         internal static string GetApiBaseUri() 
             => Endpoints.BASE_URI;
 
@@ -82,17 +78,13 @@ namespace DSharpPlus
             switch (config.TokenType)
             {
                 case TokenType.Bearer:
-                    {
-                        return $"Bearer {config.Token}";
-                    }
+                    return $"Bearer {config.Token}";
+
                 case TokenType.Bot:
-                    {
-                        return $"Bot {config.Token}";
-                    }
+                    return $"Bot {config.Token}";
+
                 default:
-                    {
-                        return config.Token;
-                    }
+                    throw new ArgumentException("Invalid token type specified.", nameof(config.Token));
             }
         }
 
@@ -168,6 +160,40 @@ namespace DSharpPlus
             foreach (Match match in matches)
                 yield return ulong.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
         }
+        
+        internal static bool HasMessageIntents(DiscordIntents? intents)
+        {
+            if (intents.HasValue)
+                return intents.Value.HasIntent(DiscordIntents.GuildMessages) || intents.Value.HasIntent(DiscordIntents.DirectMessages);
+
+            return true; //Will be false in the future.
+        }
+
+        internal static bool HasReactionIntents(DiscordIntents? intents)
+        {
+            if (intents.HasValue)
+                return intents.Value.HasIntent(DiscordIntents.GuildMessageReactions) || intents.Value.HasIntent(DiscordIntents.DirectMessageReactions);
+
+            return true; //Will be false in the future.
+        }
+
+        internal static bool HasTypingIntents(DiscordIntents? intents)
+        {
+            if (intents.HasValue)
+                return intents.Value.HasIntent(DiscordIntents.GuildMessageTyping) || intents.Value.HasIntent(DiscordIntents.DirectMessageTyping);
+
+            return true; //Will be false in the future.
+        }
+      
+        // https://discord.com/developers/docs/topics/gateway#sharding-sharding-formula
+        /// <summary>
+        /// Gets a shard id from a guild id and total shard count.
+        /// </summary>
+        /// <param name="guildId">The guild id the shard is on.</param>
+        /// <param name="shardCount">The total amount of shards.</param>
+        /// <returns>The shard id.</returns>
+        public static int GetShardId(ulong guildId, int shardCount)
+            => (int)(guildId >> 22) % shardCount;
 
         /// <summary>
         /// Helper method to create a <see cref="DateTimeOffset"/> from Unix time seconds for targets that do not support this natively.
@@ -251,6 +277,44 @@ namespace DSharpPlus
                     return true;
 
             return false;
+        }
+
+        internal static void LogTaskFault(this Task task, ILogger<BaseDiscordClient> logger, LogLevel level, EventId eventId, string message)
+        {
+            if (task == null)
+                throw new ArgumentNullException(nameof(task));
+
+            if (logger == null)
+                return;
+
+#if NETSTANDARD1_3
+            task.ContinueWith(t =>
+            {
+                switch (level)
+                {
+                    case LogLevel.Trace:
+                        logger.LogTrace(eventId, t.Exception, message);
+                        break;
+                    case LogLevel.Debug:
+                        logger.LogCritical(eventId, t.Exception, message);
+                        break;
+                    case LogLevel.Information:
+                        logger.LogInformation(eventId, t.Exception, message);
+                        break;
+                    case LogLevel.Warning:
+                        logger.LogWarning(eventId, t.Exception, message);
+                        break;
+                    case LogLevel.Error:
+                        logger.LogError(eventId, t.Exception, message);
+                        break;
+                    case LogLevel.Critical:
+                        logger.LogCritical(eventId, t.Exception, message);
+                        break;
+                }
+            });
+#else
+            task.ContinueWith(t => logger.Log(level, eventId, t.Exception, message), TaskContinuationOptions.OnlyOnFaulted);
+#endif 
         }
 
         internal static void Deconstruct<TKey, TValue>(this KeyValuePair<TKey, TValue> kvp, out TKey key, out TValue value)

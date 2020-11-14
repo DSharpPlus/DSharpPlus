@@ -88,7 +88,7 @@ namespace DSharpPlus.VoiceNext
                 }
             };
             var vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
-            await (channel.Discord as DiscordClient)._webSocketClient.SendMessageAsync(vsj).ConfigureAwait(false);
+            await (channel.Discord as DiscordClient).WsSendAsync(vsj).ConfigureAwait(false);
             
             var vstu = await vstut.Task.ConfigureAwait(false);
             var vstup = new VoiceStateUpdatePayload
@@ -141,7 +141,7 @@ namespace DSharpPlus.VoiceNext
                 }
             };
             var vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
-            await (guild.Discord as DiscordClient)._webSocketClient.SendMessageAsync(vsj).ConfigureAwait(false);
+            await (guild.Discord as DiscordClient).WsSendAsync(vsj).ConfigureAwait(false);
         }
 
         private Task Client_VoiceStateUpdate(VoiceStateUpdateEventArgs e)

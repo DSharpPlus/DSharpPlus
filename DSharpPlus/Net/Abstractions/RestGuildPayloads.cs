@@ -149,8 +149,8 @@ namespace DSharpPlus.Net.Abstractions
 
     internal sealed class RestGuildPruneResultPayload
     {
-        [JsonProperty("pruned")]
-        public int Pruned { get; set; }
+        [JsonProperty("pruned", NullValueHandling = NullValueHandling.Ignore)]
+        public int? Pruned { get; set; }
     }
 
     internal sealed class RestGuildIntegrationAttachPayload
