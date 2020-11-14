@@ -78,7 +78,7 @@ namespace DSharpPlus.Test
                 return;
             }
 
-            var transmitStream = vnc.GetTransmitStream();
+            var transmitStream = vnc.GetTransmitSink();
             transmitStream.VolumeModifier = vol;
 
             await ctx.RespondAsync($"Volume set to {(vol * 100).ToString("0.00")}%").ConfigureAwait(false);
@@ -183,15 +183,14 @@ namespace DSharpPlus.Test
                 var ffmpeg_inf = new ProcessStartInfo
                 {
                     FileName = "ffmpeg",
-                    Arguments = $"-i \"{snd}\" -ac 2 -f s16le -ar 48000 pipe:1",
+                    Arguments = $"-i \"{snd}\" -ac 2 -f s16le -ar 48000 -",
                     UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true
+                    RedirectStandardOutput = true
                 };
                 var ffmpeg = Process.Start(ffmpeg_inf);
                 var ffout = ffmpeg.StandardOutput.BaseStream;
 
-                var transmitStream = vnc.GetTransmitStream();
+                var transmitStream = vnc.GetTransmitSink();
                 await ffout.CopyToAsync(transmitStream).ConfigureAwait(false);
                 await transmitStream.FlushAsync().ConfigureAwait(false);
 
@@ -255,7 +254,7 @@ namespace DSharpPlus.Test
                     var ffmpeg = Process.Start(ffmpeg_inf);
                     var ffout = ffmpeg.StandardOutput.BaseStream;
                     
-                    var transmitStream = vnc.GetTransmitStream();
+                    var transmitStream = vnc.GetTransmitSink();
                     await ffout.CopyToAsync(transmitStream).ConfigureAwait(false);
                     await transmitStream.FlushAsync().ConfigureAwait(false);
 
@@ -338,7 +337,7 @@ namespace DSharpPlus.Test
                 var ffmpeg = Process.Start(ffmpeg_inf);
                 var ffout = ffmpeg.StandardOutput.BaseStream;
                 
-                var transmitStream = vnc.GetTransmitStream();
+                var transmitStream = vnc.GetTransmitSink();
                 await ffout.CopyToAsync(transmitStream).ConfigureAwait(false);
                 await transmitStream.FlushAsync().ConfigureAwait(false);
 

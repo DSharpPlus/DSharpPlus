@@ -18,6 +18,12 @@
         public bool EnableIncoming { internal get; set; } = false;
 
         /// <summary>
+        /// <para>Sets the size of the packet queue.</para>
+        /// <para>Defaults to 25 or ~500ms.</para>
+        /// </summary>
+        public int PacketQueueSize { internal get; set; } = 25;
+
+        /// <summary>
         /// Creates a new instance of <see cref="VoiceNextConfiguration"/>.
         /// </summary>
         public VoiceNextConfiguration() { }

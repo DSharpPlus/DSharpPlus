@@ -3,7 +3,7 @@
 namespace DSharpPlus.VoiceNext
 {
     /// <summary>
-    /// Represents a filter for PCM data. PCM data submitted through a <see cref="VoiceTransmitStream"/> will be sent through all installed instances of <see cref="IVoiceFilter"/> first.
+    /// Represents a filter for PCM data. PCM data submitted through a <see cref="VoiceTransmitSink"/> will be sent through all installed instances of <see cref="IVoiceFilter"/> first.
     /// </summary>
     public interface IVoiceFilter
     {

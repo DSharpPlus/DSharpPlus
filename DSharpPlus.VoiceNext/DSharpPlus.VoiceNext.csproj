@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <PackageReference Include="DSharpPlus.VoiceNext.Natives" Version="1.0.0" />
+    <PackageReference Include="System.Threading.Channels" Version="4.7.0" />
   </ItemGroup>
   
   <ItemGroup>

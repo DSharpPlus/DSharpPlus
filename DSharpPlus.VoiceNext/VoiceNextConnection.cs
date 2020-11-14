@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
@@ -124,8 +125,8 @@ namespace DSharpPlus.VoiceNext
         private TaskCompletionSource<bool> PlayingWait { get; set; }
 
         private AsyncManualResetEvent PauseEvent { get; }
-        private ConcurrentQueue<VoicePacket> PacketQueue { get; }
-        private VoiceTransmitStream TransmitStream { get; set; }
+        private VoiceTransmitSink TransmitStream { get; set; }
+        private Channel<RawVoicePacket> TransmitChannel { get; }
         private ConcurrentDictionary<ulong, long> KeepaliveTimestamps { get; }
         private ulong _lastKeepalive = 0;
 
@@ -171,16 +172,18 @@ namespace DSharpPlus.VoiceNext
             => Volatile.Read(ref this._udpPing);
         private int _udpPing = 0;
 
+        private int _queueCount;
+
         /// <summary>
         /// Gets the channel this voice client is connected to.
         /// </summary>
-        public DiscordChannel Channel { get; internal set; }
+        public DiscordChannel TargetChannel { get; internal set; }
 
         internal VoiceNextConnection(DiscordClient client, DiscordGuild guild, DiscordChannel channel, VoiceNextConfiguration config, VoiceServerUpdatePayload server, VoiceStateUpdatePayload state)
         {
             this.Discord = client;
             this.Guild = guild;
-            this.Channel = channel;
+            this.TargetChannel = channel;
             this.TransmittingSSRCs = new ConcurrentDictionary<uint, AudioSender>();
 
             this._userSpeaking = new AsyncEvent<VoiceNextConnection, UserSpeakingEventArgs>("VNEXT_USER_SPEAKING", TimeSpan.Zero, this.Discord.EventErrorHandler);
@@ -218,7 +221,7 @@ namespace DSharpPlus.VoiceNext
             this.IsDisposed = false;
 
             this.PlayingWait = null;
-            this.PacketQueue = new ConcurrentQueue<VoicePacket>();
+            this.TransmitChannel = Channel.CreateBounded<RawVoicePacket>(new BoundedChannelOptions(Configuration.PacketQueueSize));
             this.KeepaliveTimestamps = new ConcurrentDictionary<ulong, long>();
             this.PauseEvent = new AsyncManualResetEvent(true);
 
@@ -288,10 +291,19 @@ namespace DSharpPlus.VoiceNext
         internal Task WaitForReadyAsync()
             => this.ReadyWait.Task;
 
-        internal void PreparePacket(ReadOnlySpan<byte> pcm, ref Memory<byte> target)
+        internal async Task EnqueuePacketAsync(RawVoicePacket packet, CancellationToken token = default)
         {
+            await this.TransmitChannel.Writer.WriteAsync(packet, token);
+            this._queueCount++;
+        }
+
+        internal bool PreparePacket(ReadOnlySpan<byte> pcm, out byte[] target, out int length)
+        {
+            target = null;
+            length = 0;
+
             if (this.IsDisposed)
-                return;
+                return false;
 
             var audioFormat = this.AudioFormat;
 
@@ -331,19 +343,19 @@ namespace DSharpPlus.VoiceNext
             packet = packet.Slice(0, this.Rtp.CalculatePacketSize(encrypted.Length, this.SelectedEncryptionMode));
             this.Sodium.AppendNonce(nonce, packet, this.SelectedEncryptionMode);
 
-            target = target.Slice(0, packet.Length);
-            packet.CopyTo(target.Span);
-            ArrayPool<byte>.Shared.Return(packetArray);
+            target = packetArray;
+            length = packet.Length;
+            return true;
         }
-
-        internal void EnqueuePacket(VoicePacket packet)
-            => this.PacketQueue.Enqueue(packet);
 
         private async Task VoiceSenderTask()
         {
             var token = this.SenderToken;
             var client = this.UdpClient;
-            var queue = this.PacketQueue;
+            var reader = this.TransmitChannel.Reader;
+
+            byte[] data = null;
+            int length = 0;
 
             var synchronizerTicks = (double)Stopwatch.GetTimestamp();
             var synchronizerResolution = (Stopwatch.Frequency * 0.005);
@@ -354,15 +366,13 @@ namespace DSharpPlus.VoiceNext
             {
                 await this.PauseEvent.WaitAsync().ConfigureAwait(false);
 
-                var hasPacket = queue.TryDequeue(out var packet);
-
-                byte[] packetArray = null;
+                var hasPacket = reader.TryRead(out var rawPacket);
                 if (hasPacket)
                 {
+                    this._queueCount--;
+
                     if (this.PlayingWait == null || this.PlayingWait.Task.IsCompleted)
                         this.PlayingWait = new TaskCompletionSource<bool>();
-
-                    packetArray = packet.Bytes.ToArray();
                 }
 
                 // Provided by Laura#0090 (214796473689178133); this is Python, but adaptable:
@@ -378,7 +388,14 @@ namespace DSharpPlus.VoiceNext
                 // time.time()
                 //   DateTime.Now
 
-                var durationModifier = hasPacket ? packet.MillisecondDuration / 5 : 4;
+                if (hasPacket)
+                {
+                    hasPacket = PreparePacket(rawPacket.Bytes.Span, out data, out length);
+                    if (rawPacket.RentedBuffer != null)
+                        ArrayPool<byte>.Shared.Return(rawPacket.RentedBuffer);
+                }
+
+                var durationModifier = hasPacket ? rawPacket.Duration / 5 : 4;
                 var cts = Math.Max(Stopwatch.GetTimestamp() - synchronizerTicks, 0);
                 if (cts < synchronizerResolution * durationModifier)
                     await Task.Delay(TimeSpan.FromTicks((long)(((synchronizerResolution * durationModifier) - cts) * tickResolution))).ConfigureAwait(false);
@@ -389,21 +406,20 @@ namespace DSharpPlus.VoiceNext
                     continue;
 
                 await this.SendSpeakingAsync(true).ConfigureAwait(false);
-                await client.SendAsync(packetArray, packetArray.Length).ConfigureAwait(false);
+                await client.SendAsync(data, length).ConfigureAwait(false);
+                ArrayPool<byte>.Shared.Return(data);
 
-                if (!packet.IsSilence && queue.Count == 0)
+                if (!rawPacket.Silence && _queueCount == 0)
                 {
                     var nullpcm = new byte[this.AudioFormat.CalculateSampleSize(20)];
                     for (var i = 0; i < 3; i++)
                     {
                         var nullpacket = new byte[nullpcm.Length];
                         var nullpacketmem = nullpacket.AsMemory();
-
-                        this.PreparePacket(nullpcm, ref nullpacketmem);
-                        this.EnqueuePacket(new VoicePacket(nullpacketmem, 20, true));
+                        await this.EnqueuePacketAsync(new RawVoicePacket(nullpacketmem, 20, true));
                     }
                 }
-                else if (queue.Count == 0)
+                else if (_queueCount == 0)
                 {
                     await this.SendSpeakingAsync(false).ConfigureAwait(false);
                     this.PlayingWait?.SetResult(true);
@@ -415,6 +431,7 @@ namespace DSharpPlus.VoiceNext
         {
             voiceSender = null;
             outputFormat = default;
+
             if (!this.Rtp.IsRtpHeader(data))
                 return false;
 
@@ -628,13 +645,13 @@ namespace DSharpPlus.VoiceNext
         /// </summary>
         /// <param name="sampleDuration">Duration, in ms, to use for audio packets.</param>
         /// <returns>Transmit stream.</returns>
-        public VoiceTransmitStream GetTransmitStream(int sampleDuration = 20)
+        public VoiceTransmitSink GetTransmitSink(int sampleDuration = 20)
         {
             if (!AudioFormat.AllowedSampleDurations.Contains(sampleDuration))
                 throw new ArgumentOutOfRangeException(nameof(sampleDuration), "Invalid PCM sample duration specified.");
 
             if (this.TransmitStream == null)
-                this.TransmitStream = new VoiceTransmitStream(this, sampleDuration);
+                this.TransmitStream = new VoiceTransmitSink(this, sampleDuration);
 
             return this.TransmitStream;
         }
@@ -821,7 +838,7 @@ namespace DSharpPlus.VoiceNext
             this.ReceiverTask = Task.Run(this.UdpReceiverTask, this.ReceiverToken);
         }
 
-        private Task Stage2(VoiceSessionDescriptionPayload voiceSessionDescription)
+        private async Task Stage2(VoiceSessionDescriptionPayload voiceSessionDescription)
         {
             this.SelectedEncryptionMode = Sodium.SupportedModes[voiceSessionDescription.Mode.ToLowerInvariant()];
             this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceHandshake, "Discord updated encryption mode - new mode is {0}", this.SelectedEncryptionMode);
@@ -834,16 +851,13 @@ namespace DSharpPlus.VoiceNext
             var nullpcm = new byte[this.AudioFormat.CalculateSampleSize(20)];
             for (var i = 0; i < 3; i++)
             {
-                var nullopus = new byte[nullpcm.Length];
-                var nullopusmem = nullopus.AsMemory();
-                this.PreparePacket(nullpcm, ref nullopusmem);
-                this.EnqueuePacket(new VoicePacket(nullopusmem, 20));
+                var nullPcm = new byte[nullpcm.Length];
+                var nullpacketmem = nullPcm.AsMemory();
+                await this.EnqueuePacketAsync(new RawVoicePacket(nullpacketmem, 20, true));
             }
 
             this.IsInitialized = true;
             this.ReadyWait.SetResult(true);
-
-            return Task.CompletedTask;
         }
 
         private async Task HandleDispatch(JObject jo)
