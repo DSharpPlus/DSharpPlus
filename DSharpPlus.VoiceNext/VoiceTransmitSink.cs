@@ -13,47 +13,25 @@ using DSharpPlus.VoiceNext.Entities;
 namespace DSharpPlus.VoiceNext
 {
     /// <summary>
-    /// Stream used to transmit audio data via <see cref="VoiceNextConnection"/>.
+    /// Sink used to transmit audio data via <see cref="VoiceNextConnection"/>.
     /// </summary>
-    public sealed class VoiceTransmitStream : Stream
+    public sealed class VoiceTransmitSink : IDisposable
     {
         /// <summary>
-        /// Gets whether this stream can be read from. Always false.
-        /// </summary>
-        public override bool CanRead => false;
-
-        /// <summary>
-        /// Gets whether this stream can be seeked. Always false.
-        /// </summary>
-        public override bool CanSeek => false;
-
-        /// <summary>
-        /// Gets whether this stream can be written to. Always false.
-        /// </summary>
-        public override bool CanWrite => true;
-
-        /// <summary>
-        /// Gets the length of the data in this stream. Always throws <see cref="InvalidOperationException"/>.
-        /// </summary>
-        public override long Length => throw new InvalidOperationException($"{this.GetType()} cannot have a length.");
-
-        /// <summary>
-        /// Gets the position in this stream. Always throws <see cref="InvalidOperationException"/>.
-        /// </summary>
-        public override long Position
-        {
-            get => throw new InvalidOperationException($"Cannot get position of {this.GetType()}.");
-            set => throw new InvalidOperationException($"Cannot seek {this.GetType()}.");
-        }
-
-        /// <summary>
-        /// Gets the PCM sample duration for this stream.
+        /// Gets the PCM sample duration for this sink.
         /// </summary>
         public int SampleDuration
             => this.PcmBufferDuration;
 
         /// <summary>
-        /// Gets or sets the volume modifier for this stream. Changing this will alter the volume of the output. 1.0 is 100%.
+        /// Gets the length of the PCM buffer for this sink. 
+        /// Written packets should adhere to this size, but the sink will adapt to fit.
+        /// </summary>
+        public int SampleLength
+            => this.PcmBuffer.Length;
+
+        /// <summary>
+        /// Gets or sets the volume modifier for this sink. Changing this will alter the volume of the output. 1.0 is 100%.
         /// </summary>
         public double VolumeModifier
         {
@@ -74,10 +52,9 @@ namespace DSharpPlus.VoiceNext
         private Memory<byte> PcmMemory { get; }
         private int PcmBufferLength { get; set; }
         private SemaphoreSlim WriteSemaphore { get; }
-
         private List<IVoiceFilter> Filters { get; }
 
-        internal VoiceTransmitStream(VoiceNextConnection vnc, int pcmBufferDuration)
+        internal VoiceTransmitSink(VoiceNextConnection vnc, int pcmBufferDuration)
         {
             this.Connection = vnc;
             this.PcmBufferDuration = pcmBufferDuration;
@@ -89,69 +66,22 @@ namespace DSharpPlus.VoiceNext
         }
 
         /// <summary>
-        /// Reads from the stream. Throws <see cref="InvalidOperationException"/>.
-        /// </summary>
-        /// <param name="buffer">Buffer to read to.</param>
-        /// <param name="offset">Offset to read to.</param>
-        /// <param name="count">Number of bytes to read.</param>
-        /// <returns>Number of bytes read.</returns>
-        public override int Read(byte[] buffer, int offset, int count)
-        {
-            throw new InvalidOperationException($"Cannot read from {this.GetType()}.");
-        }
-
-        /// <summary>
-        /// Seeks the stream. Throws <see cref="InvalidOperationException"/>.
-        /// </summary>
-        /// <param name="offset">Offset to seek to.</param>
-        /// <param name="origin">Origin of seeking.</param>
-        /// <returns>New position in the stream.</returns>
-        public override long Seek(long offset, SeekOrigin origin)
-        {
-            throw new InvalidOperationException($"Cannot seek {this.GetType()}.");
-        }
-
-        /// <summary>
-        /// Sets length of this stream. Throws <see cref="InvalidOperationException"/>.
-        /// </summary>
-        /// <param name="value">Length to set.</param>
-        public override void SetLength(long value)
-        {
-            throw new InvalidOperationException($"Cannot set length of {this.GetType()}.");
-        }
-
-        /// <summary>
-        /// DON'T USE THIS, USE <see cref="WriteAsync(byte[], int, int, CancellationToken)"/>!
-        /// </summary>
-        public override void Write(byte[] buffer, int offset, int count)
-        {
-            WriteAsync(buffer, offset, count, default).GetAwaiter().GetResult();
-        }
-
-        /// <summary>
-        /// DON'T USE THIS, USE <see cref="FlushAsync(CancellationToken)"/>!
-        /// </summary>
-        public override void Flush()
-        {
-            FlushAsync().GetAwaiter().GetResult();
-        }
-
-        /// <summary>
-        /// Writes PCM data to the stream. The data is prepared for transmission, and enqueued.
+        /// Writes PCM data to the sink. The data is prepared for transmission, and enqueued.
         /// </summary>
         /// <param name="buffer">PCM data buffer to send.</param>
         /// <param name="offset">Start of the data in the buffer.</param>
         /// <param name="count">Number of bytes from the buffer.</param>
-        public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        public async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default)
         {
             await WriteAsync(new ReadOnlyMemory<byte>(buffer, offset, count), cancellationToken);
         }
 
         /// <summary>
-        /// Writes PCM data to the stream. The data is prepared for transmission, and enqueued.
+        /// Writes PCM data to the sink. The data is prepared for transmission, and enqueued.
         /// </summary>
         /// <param name="buffer">PCM data buffer to send.</param>
-        /// <param name="cancellationToken"></param>
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         public async Task WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
         {
             await this.WriteSemaphore.WaitAsync(cancellationToken);
@@ -192,7 +122,8 @@ namespace DSharpPlus.VoiceNext
         /// <summary>
         /// Flushes the rest of the PCM data in this buffer to VoiceNext packet queue.
         /// </summary>
-        public override async Task FlushAsync(CancellationToken cancellationToken = default)
+        /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+        public async Task FlushAsync(CancellationToken cancellationToken = default)
         {
             var pcm = this.PcmMemory;
             Helpers.ZeroFill(pcm.Slice(this.PcmBufferLength).Span);
@@ -233,7 +164,7 @@ namespace DSharpPlus.VoiceNext
         /// Installs a new PCM filter, with specified execution order.
         /// </summary>
         /// <param name="filter">Filter to install.</param>
-        /// <param name="order">Order of the new filter. This determines where the filter will be inserted in the filter stream.</param>
+        /// <param name="order">Order of the new filter. This determines where the filter will be inserted in the filter pipeline.</param>
         public void InstallFilter(IVoiceFilter filter, int order = int.MaxValue)
         {
             if (filter == null)
@@ -293,5 +224,7 @@ namespace DSharpPlus.VoiceNext
                     pcm16[i] = (short)(pcm16[i] * this.VolumeModifier);
             }
         }
+
+        public void Dispose() => throw new NotImplementedException();
     }
 }

@@ -124,7 +124,7 @@ namespace DSharpPlus.VoiceNext
         private TaskCompletionSource<bool> PlayingWait { get; set; }
 
         private AsyncManualResetEvent PauseEvent { get; }
-        private VoiceTransmitStream TransmitStream { get; set; }
+        private VoiceTransmitSink TransmitStream { get; set; }
         private Channel<RawVoicePacket> TransmitChannel { get; }
         private ConcurrentDictionary<ulong, long> KeepaliveTimestamps { get; }
         private ulong _lastKeepalive = 0;
@@ -390,11 +390,8 @@ namespace DSharpPlus.VoiceNext
                 if (hasPacket)
                 {
                     hasPacket = PreparePacket(rawPacket.Bytes.Span, out data, out length);
-
-                    if (rawPacket.ReturnToArrayPool)
-                    {
-                        ArrayPool<byte>.Shared.Return(rawPacket.ArrayPoolData);
-                    }
+                    if (rawPacket.RentedBuffer != null)
+                        ArrayPool<byte>.Shared.Return(rawPacket.RentedBuffer);
                 }
 
                 var durationModifier = hasPacket ? rawPacket.Duration / 5 : 4;
@@ -637,13 +634,13 @@ namespace DSharpPlus.VoiceNext
         /// </summary>
         /// <param name="sampleDuration">Duration, in ms, to use for audio packets.</param>
         /// <returns>Transmit stream.</returns>
-        public VoiceTransmitStream GetTransmitStream(int sampleDuration = 20)
+        public VoiceTransmitSink GetTransmitSink(int sampleDuration = 20)
         {
             if (!AudioFormat.AllowedSampleDurations.Contains(sampleDuration))
                 throw new ArgumentOutOfRangeException(nameof(sampleDuration), "Invalid PCM sample duration specified.");
 
             if (this.TransmitStream == null)
-                this.TransmitStream = new VoiceTransmitStream(this, sampleDuration);
+                this.TransmitStream = new VoiceTransmitSink(this, sampleDuration);
 
             return this.TransmitStream;
         }

@@ -78,7 +78,7 @@ namespace DSharpPlus.Test
                 return;
             }
 
-            var transmitStream = vnc.GetTransmitStream();
+            var transmitStream = vnc.GetTransmitSink();
             transmitStream.VolumeModifier = vol;
 
             await ctx.RespondAsync($"Volume set to {(vol * 100).ToString("0.00")}%").ConfigureAwait(false);
@@ -190,8 +190,8 @@ namespace DSharpPlus.Test
                 var ffmpeg = Process.Start(ffmpeg_inf);
                 var ffout = ffmpeg.StandardOutput.BaseStream;
 
-                var transmitStream = vnc.GetTransmitStream();
-                ffout.CopyTo(transmitStream);
+                var transmitStream = vnc.GetTransmitSink();
+                await ffout.CopyToAsync(transmitStream).ConfigureAwait(false);
                 await transmitStream.FlushAsync().ConfigureAwait(false);
 
                 await vnc.WaitForPlaybackFinishAsync().ConfigureAwait(false);
@@ -254,7 +254,7 @@ namespace DSharpPlus.Test
                     var ffmpeg = Process.Start(ffmpeg_inf);
                     var ffout = ffmpeg.StandardOutput.BaseStream;
                     
-                    var transmitStream = vnc.GetTransmitStream();
+                    var transmitStream = vnc.GetTransmitSink();
                     await ffout.CopyToAsync(transmitStream).ConfigureAwait(false);
                     await transmitStream.FlushAsync().ConfigureAwait(false);
 
@@ -337,7 +337,7 @@ namespace DSharpPlus.Test
                 var ffmpeg = Process.Start(ffmpeg_inf);
                 var ffout = ffmpeg.StandardOutput.BaseStream;
                 
-                var transmitStream = vnc.GetTransmitStream();
+                var transmitStream = vnc.GetTransmitSink();
                 await ffout.CopyToAsync(transmitStream).ConfigureAwait(false);
                 await transmitStream.FlushAsync().ConfigureAwait(false);
 

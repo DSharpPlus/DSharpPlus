@@ -11,23 +11,19 @@ namespace DSharpPlus.VoiceNext
             Bytes = bytes;
             Duration = duration;
             Silence = silence;
-
-            ArrayPoolData = null;
-            ReturnToArrayPool = false;
+            RentedBuffer = null;
         }
 
-        public RawVoicePacket(Memory<byte> bytes, int duration, bool silence, byte[] array)
+        public RawVoicePacket(Memory<byte> bytes, int duration, bool silence, byte[] rentedBuffer)
             : this(bytes, duration, silence)
         {
-            ArrayPoolData = array;
-            ReturnToArrayPool = true;
+            RentedBuffer = rentedBuffer;
         }
 
         public readonly Memory<byte> Bytes;
         public readonly int Duration;
         public readonly bool Silence;
 
-        public readonly byte[] ArrayPoolData;
-        public readonly bool ReturnToArrayPool;
+        public readonly byte[] RentedBuffer;
     }
 }
