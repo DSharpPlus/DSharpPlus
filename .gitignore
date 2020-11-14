@@ -303,5 +303,3 @@ opus.dll
 ffmpeg.exe
 *.pcm
 appveyor-test.ps1
-
-!DSharpPlus.VoiceNext.Natives/runtimes/**
