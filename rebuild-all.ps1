@@ -42,7 +42,7 @@ if ($Configuration -ne "Debug" -and $Configuration -ne "Release")
 }
 
 # Check if we have a version prefix
-if (-not $VersionSuffix -or -not $BuildNumber -or $BuildNumber -eq -1)
+if (-not $VersionSuffix)
 {
     # Nope
     Write-Host "Building production packages"
@@ -53,8 +53,14 @@ if (-not $VersionSuffix -or -not $BuildNumber -or $BuildNumber -eq -1)
 else
 {
     # Yup
-    Write-Host "Building nightly packages"
-
+    Write-Host "Building pre-production packages"
+    
+    # Check if numeric suffix
+    if (-not $BuildNumber -or $BuildNumber -lt 0)
+    {
+        $BuildNumber = -1
+    }
+    
     # Invoke the build script
     & .\rebuild-lib.ps1 -ArtifactLocation "$ArtifactLocation" -Configuration "$Configuration" -VersionSuffix "$VersionSuffix" -BuildNumber $BuildNumber | Out-Host
 }

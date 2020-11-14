@@ -100,10 +100,14 @@ function Build-All([string] $target_dir_path, [string] $version_suffix, [string]
     
     # Build in specified configuration
     Write-Host "Building everything"
-    if (-not $version_suffix -or -not $build_number_string)
+    if (-not $version_suffix)
     {
         & dotnet build -v minimal -c "$bcfg" | Out-Host
     }
+	elseif (-not $build_number_string)
+	{
+		& dotnet build -v minimal -c "$bcfg" --version-suffix "$version_suffix" | Out-Host
+	}
     else
     {
         & dotnet build -v minimal -c "$bcfg" --version-suffix "$version_suffix" -p:BuildNumber="$build_number_string" | Out-Host
@@ -116,9 +120,13 @@ function Build-All([string] $target_dir_path, [string] $version_suffix, [string]
         
     # Package for NuGet
     Write-Host "Creating NuGet packages"
-    if (-not $version_suffix -or -not $build_number_string)
+    if (-not $version_suffix)
     {
         & dotnet pack -v minimal -c "$bcfg" --no-build -o "$target_dir" --include-symbols | Out-Host
+    }
+	elseif (-not $build_number_string)
+	{
+        & dotnet pack -v minimal -c "$bcfg" --version-suffix "$version_suffix" --no-build -o "$target_dir" --include-symbols | Out-Host
     }
     else
     {
@@ -133,10 +141,16 @@ function Build-All([string] $target_dir_path, [string] $version_suffix, [string]
     Return 0
 }
 
-# Check if building a nightly package
-if ($VersionSuffix -and $BuildNumber -and $BuildNumber -ne -1)
+# Check if building a pre-production package
+if ($VersionSuffix -and $BuildNumber -ge 0)
 {
-    Write-Host "Building nightly package with version suffix of `"$VersionSuffix-$($BuildNumber.ToString("00000"))`""
+    Write-Host "Building pre-production package with version suffix of `"$VersionSuffix-$($BuildNumber.ToString("00000"))`""
+}
+elseif ($VersionSuffix -and (-not $BuildNumber -or $BuildNumber -lt 0))
+{
+	Write-Host "Building pre-production package with version suffix of `"$VersionSuffix`""
+	Remove-Variable BuildNumber
+	$BuildNumber = $null
 }
 
 # Prepare environment
