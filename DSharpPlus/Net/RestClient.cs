@@ -24,6 +24,7 @@ namespace DSharpPlus.Net
         private static Regex RouteArgumentRegex { get; } = new Regex(@":([a-z_]+)");
         private HttpClient HttpClient { get; }
         private BaseDiscordClient Discord { get; }
+        private ILogger Logger { get; }
         private ConcurrentDictionary<string, string> RoutesToHashes { get; }
         private ConcurrentDictionary<string, RateLimitBucket> HashesToBuckets { get; }
         private ConcurrentDictionary<string, int> RequestQueue { get; }
@@ -37,15 +38,18 @@ namespace DSharpPlus.Net
         private volatile bool _disposed;
 
         internal RestClient(BaseDiscordClient client)
-            : this(client.Configuration.Proxy, client.Configuration.HttpTimeout, client.Configuration.UseRelativeRatelimit)
+            : this(client.Configuration.Proxy, client.Configuration.HttpTimeout, client.Configuration.UseRelativeRatelimit, client.Logger)
         {
             this.Discord = client;
             this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(client));
             this.HttpClient.DefaultRequestHeaders.Add("X-RateLimit-Precision", "millisecond");
         }
 
-        internal RestClient(IWebProxy proxy, TimeSpan timeout, bool useRelativeRatelimit) // This is for meta-clients, such as the webhook client
+        internal RestClient(IWebProxy proxy, TimeSpan timeout, bool useRelativeRatelimit, 
+            ILogger logger) // This is for meta-clients, such as the webhook client
         {
+            this.Logger = logger;
+
             var httphandler = new HttpClientHandler
             {
                 UseCookies = false,
@@ -133,7 +137,7 @@ namespace DSharpPlus.Net
                 this._cleanerRunning = true;
                 this._bucketCleanerTokenSource = new CancellationTokenSource();
                 this._cleanerTask = Task.Run(this.CleanupBucketsAsync, this._bucketCleanerTokenSource.Token);
-                this.Discord?.Logger.LogDebug(LoggerEvents.RestCleaner, "Bucket cleaner task started.");
+                this.Logger.LogDebug(LoggerEvents.RestCleaner, "Bucket cleaner task started.");
             }
 
             url = RouteArgumentRegex.Replace(route, xm => rparams[xm.Groups[1].Value]);
@@ -175,7 +179,7 @@ namespace DSharpPlus.Net
                     if (Interlocked.Decrement(ref bucket._remaining) < 0)
 #pragma warning restore 420 // blaze it
                     {
-                        request.Discord?.Logger.LogDebug(LoggerEvents.RatelimitDiag, "Request for {0} is blocked", bucket.ToString());
+                        this.Logger.LogDebug(LoggerEvents.RatelimitDiag, "Request for {0} is blocked", bucket.ToString());
                         var delay = bucket.Reset - now;
                         var resetDate = bucket.Reset;
 
@@ -187,24 +191,24 @@ namespace DSharpPlus.Net
 
                         if (delay < new TimeSpan(-TimeSpan.TicksPerMinute))
                         {
-                            request.Discord?.Logger.LogError(LoggerEvents.RatelimitDiag, "Failed to retrieve ratelimits - giving up and allowing next request for bucket");
+                            this.Logger.LogError(LoggerEvents.RatelimitDiag, "Failed to retrieve ratelimits - giving up and allowing next request for bucket");
                             bucket._remaining = 1;
                         }
 
                         if (delay < TimeSpan.Zero)
                             delay = TimeSpan.FromMilliseconds(100);
 
-                        request.Discord?.Logger.LogWarning(LoggerEvents.RatelimitPreemptive, "Pre-emptive ratelimit triggered - waiting until {0:yyyy-MM-dd HH:mm:ss zzz} ({1:c}).", resetDate, delay);
+                        this.Logger.LogWarning(LoggerEvents.RatelimitPreemptive, "Pre-emptive ratelimit triggered - waiting until {0:yyyy-MM-dd HH:mm:ss zzz} ({1:c}).", resetDate, delay);
                         Task.Delay(delay)
                             .ContinueWith(_ => this.ExecuteRequestAsync(request, null, null))
-                            .LogTaskFault(request.Discord?.Logger, LogLevel.Error, LoggerEvents.RestError, "Error while executing request");
+                            .LogTaskFault(this.Logger, LogLevel.Error, LoggerEvents.RestError, "Error while executing request");
 
                         return;
                     }
-                    request.Discord?.Logger.LogDebug(LoggerEvents.RatelimitDiag, "Request for {0} is allowed", bucket.ToString());
+                    this.Logger.LogDebug(LoggerEvents.RatelimitDiag, "Request for {0} is allowed", bucket.ToString());
                 }
                 else
-                    request.Discord?.Logger.LogDebug(LoggerEvents.RatelimitDiag, "Initial request for {0} is allowed", bucket.ToString());
+                    this.Logger.LogDebug(LoggerEvents.RatelimitDiag, "Initial request for {0} is allowed", bucket.ToString());
 
                 var req = this.BuildRequest(request);
                 var response = new RestResponse();
@@ -218,7 +222,7 @@ namespace DSharpPlus.Net
                     var bts = await res.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
                     var txt = Utilities.UTF8.GetString(bts, 0, bts.Length);
 
-                    request.Discord?.Logger.LogTrace(LoggerEvents.RestRx, txt);
+                    this.Logger.LogTrace(LoggerEvents.RestRx, txt);
 
                     response.Headers = res.Headers.ToDictionary(xh => xh.Key, xh => string.Join("\n", xh.Value), StringComparer.OrdinalIgnoreCase);
                     response.Response = txt;
@@ -226,7 +230,7 @@ namespace DSharpPlus.Net
                 }
                 catch (HttpRequestException httpex)
                 {
-                    request.Discord?.Logger.LogError(LoggerEvents.RestError, httpex, "Request to {0} triggered an HttpException", request.Url);
+                    this.Logger.LogError(LoggerEvents.RestError, httpex, "Request to {0} triggered an HttpException", request.Url);
                     request.SetFaulted(httpex);
                     this.FailInitialRateLimitTest(request, ratelimitTcs);
                     return;
@@ -264,7 +268,7 @@ namespace DSharpPlus.Net
                         {
                             if (global)
                             {
-                                request.Discord?.Logger.LogError(LoggerEvents.RatelimitHit, "Global ratelimit hit, cooling down");
+                                this.Logger.LogError(LoggerEvents.RatelimitHit, "Global ratelimit hit, cooling down");
                                 try
                                 {
                                     this.GlobalRateLimitEvent.Reset();
@@ -276,14 +280,14 @@ namespace DSharpPlus.Net
                                     _ = this.GlobalRateLimitEvent.SetAsync();
                                 }
                                 this.ExecuteRequestAsync(request, bucket, ratelimitTcs)
-                                    .LogTaskFault(request.Discord?.Logger, LogLevel.Error, LoggerEvents.RestError, "Error while retrying request");
+                                    .LogTaskFault(this.Logger, LogLevel.Error, LoggerEvents.RestError, "Error while retrying request");
                             }
                             else
                             {
-                                request.Discord?.Logger.LogError(LoggerEvents.RatelimitHit, "Ratelimit hit, requeueing request to {0}", request.Url);
+                                this.Logger.LogError(LoggerEvents.RatelimitHit, "Ratelimit hit, requeueing request to {0}", request.Url);
                                 await wait.ConfigureAwait(false);
                                 this.ExecuteRequestAsync(request, bucket, ratelimitTcs)
-                                    .LogTaskFault(request.Discord?.Logger, LogLevel.Error, LoggerEvents.RestError, "Error while retrying request");
+                                    .LogTaskFault(this.Logger, LogLevel.Error, LoggerEvents.RestError, "Error while retrying request");
                             }
 
                             return;
@@ -302,7 +306,7 @@ namespace DSharpPlus.Net
             }
             catch (Exception ex)
             {
-                request.Discord?.Logger.LogError(LoggerEvents.RestError, ex, "Request to {0} triggered an exception", request.Url);
+                this.Logger.LogError(LoggerEvents.RestError, ex, "Request to {0} triggered an exception", request.Url);
 
                 // if something went wrong and we couldn't get rate limits for the first request here, allow the next request to run
                 if (bucket != null && ratelimitTcs != null && bucket._limitTesting != 0)
@@ -397,7 +401,7 @@ namespace DSharpPlus.Net
 
             if (request is RestRequest nmprequest && !string.IsNullOrWhiteSpace(nmprequest.Payload))
             {
-                request.Discord?.Logger.LogTrace(LoggerEvents.RestTx, nmprequest.Payload);
+                this.Logger.LogTrace(LoggerEvents.RestTx, nmprequest.Payload);
 
                 req.Content = new StringContent(nmprequest.Payload);
                 req.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
@@ -405,7 +409,7 @@ namespace DSharpPlus.Net
 
             if (request is MultipartWebRequest mprequest)
             {
-                request.Discord?.Logger.LogTrace(LoggerEvents.RestTx, "<multipart request>");
+                this.Logger.LogTrace(LoggerEvents.RestTx, "<multipart request>");
 
                 string boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x");
 
@@ -499,7 +503,7 @@ namespace DSharpPlus.Net
             var resetdelta = resettime - servertime;
             //var difference = clienttime - servertime;
             //if (Math.Abs(difference.TotalSeconds) >= 1)
-            ////    request.Discord.Logger.LogMessage(LogLevel.DebugBaseDiscordClient.RestEventId,  $"Difference between machine and server time: {difference.TotalMilliseconds.ToString("#,##0.00", CultureInfo.InvariantCulture)}ms", DateTime.Now);
+            ////    this.Logger.LogMessage(LogLevel.DebugBaseDiscordClient.RestEventId,  $"Difference between machine and server time: {difference.TotalMilliseconds.ToString("#,##0.00", CultureInfo.InvariantCulture)}ms", DateTime.Now);
             //else
             //    difference = TimeSpan.Zero;
 
@@ -560,7 +564,7 @@ namespace DSharpPlus.Net
             // in which case, Dispose will need to be called to clear the caches.
             if (bucket.IsUnlimited && newHash != oldHash)
             {
-                request?.Discord.Logger.LogDebug(LoggerEvents.RestHashMover, "Updating hash in {0}: \"{1}\" -> \"{2}\"", hashKey, oldHash, newHash);
+                this.Logger.LogDebug(LoggerEvents.RestHashMover, "Updating hash in {0}: \"{1}\" -> \"{2}\"", hashKey, oldHash, newHash);
                 var bucketId = RateLimitBucket.GenerateBucketId(newHash, bucket.GuildId, bucket.ChannelId, bucket.WebhookId);
 
                 _ = this.RoutesToHashes.AddOrUpdate(hashKey, newHash, (key, oldHash) =>
@@ -629,7 +633,7 @@ namespace DSharpPlus.Net
                 }
 
                 if (removedBuckets > 0)
-                    this.Discord?.Logger.LogDebug(LoggerEvents.RestCleaner, "Removed {0} unused bucket{1}: [{2}]", removedBuckets, removedBuckets > 1 ? "s" : string.Empty, bucketIdStrBuilder.ToString().TrimEnd(',', ' '));
+                    this.Logger.LogDebug(LoggerEvents.RestCleaner, "Removed {0} unused bucket{1}: [{2}]", removedBuckets, removedBuckets > 1 ? "s" : string.Empty, bucketIdStrBuilder.ToString().TrimEnd(',', ' '));
 
                 if (this.HashesToBuckets.Count == 0)
                     break;
@@ -639,7 +643,7 @@ namespace DSharpPlus.Net
                 this._bucketCleanerTokenSource.Cancel();
 
             this._cleanerRunning = false;
-            this.Discord.Logger.LogDebug(LoggerEvents.RestCleaner, "Bucket cleaner task stopped.");
+            this.Logger.LogDebug(LoggerEvents.RestCleaner, "Bucket cleaner task stopped.");
         }
 
         ~RestClient()
@@ -657,7 +661,7 @@ namespace DSharpPlus.Net
             if (!this._bucketCleanerTokenSource.IsCancellationRequested)
             {
                 this._bucketCleanerTokenSource.Cancel();
-                this.Discord.Logger.LogDebug(LoggerEvents.RestCleaner, "Bucket cleaner task stopped.");
+                this.Logger.LogDebug(LoggerEvents.RestCleaner, "Bucket cleaner task stopped.");
             }
 
             try
