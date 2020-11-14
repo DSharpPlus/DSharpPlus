@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using DSharpPlus.VoiceNext.Codec;
 using DSharpPlus.VoiceNext.Entities;
@@ -71,7 +73,8 @@ namespace DSharpPlus.VoiceNext
         private byte[] PcmBuffer { get; }
         private Memory<byte> PcmMemory { get; }
         private int PcmBufferLength { get; set; }
-        
+        private SemaphoreSlim WriteSemaphore { get; }
+
         private List<IVoiceFilter> Filters { get; }
 
         internal VoiceTransmitStream(VoiceNextConnection vnc, int pcmBufferDuration)
@@ -81,6 +84,7 @@ namespace DSharpPlus.VoiceNext
             this.PcmBuffer = new byte[vnc.AudioFormat.CalculateSampleSize(pcmBufferDuration)];
             this.PcmMemory = this.PcmBuffer.AsMemory();
             this.PcmBufferLength = 0;
+            this.WriteSemaphore = new SemaphoreSlim(1, 1);
             this.Filters = new List<IVoiceFilter>();
         }
 
@@ -117,109 +121,89 @@ namespace DSharpPlus.VoiceNext
         }
 
         /// <summary>
+        /// DON'T USE THIS, USE <see cref="WriteAsync(byte[], int, int, CancellationToken)"/>!
+        /// </summary>
+        public override void Write(byte[] buffer, int offset, int count)
+        {
+            WriteAsync(buffer, offset, count, default).GetAwaiter().GetResult();
+        }
+
+        /// <summary>
+        /// DON'T USE THIS, USE <see cref="FlushAsync(CancellationToken)"/>!
+        /// </summary>
+        public override void Flush()
+        {
+            FlushAsync().GetAwaiter().GetResult();
+        }
+
+        /// <summary>
         /// Writes PCM data to the stream. The data is prepared for transmission, and enqueued.
         /// </summary>
         /// <param name="buffer">PCM data buffer to send.</param>
         /// <param name="offset">Start of the data in the buffer.</param>
         /// <param name="count">Number of bytes from the buffer.</param>
-        public override void Write(byte[] buffer, int offset, int count)
+        public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
-            Write(new ReadOnlySpan<byte>(buffer, offset, count));
+            await WriteAsync(new ReadOnlyMemory<byte>(buffer, offset, count), cancellationToken);
         }
-
 
         /// <summary>
         /// Writes PCM data to the stream. The data is prepared for transmission, and enqueued.
         /// </summary>
         /// <param name="buffer">PCM data buffer to send.</param>
-#if NETSTANDARD2_1 // this seems useless currently
-        public override void Write(ReadOnlySpan<byte> buffer)
-#else
-        public void Write(ReadOnlySpan<byte> buffer)
-#endif
+        /// <param name="cancellationToken"></param>
+        public async Task WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
         {
-            lock (this.PcmBuffer)
+            await this.WriteSemaphore.WaitAsync(cancellationToken);
+
+            var remaining = buffer.Length;
+            var buffSpan = buffer;
+            var pcmSpan = this.PcmMemory;
+
+            while (remaining > 0)
             {
-                var remaining = buffer.Length;
-                var buffSpan = buffer;
-                var pcmSpan = this.PcmMemory.Span;
+                var len = Math.Min(pcmSpan.Length - this.PcmBufferLength, remaining);
 
-                while (remaining > 0)
+                var tgt = pcmSpan.Slice(this.PcmBufferLength);
+                var src = buffSpan.Slice(0, len);
+
+                src.CopyTo(tgt);
+                this.PcmBufferLength += len;
+                remaining -= len;
+                buffSpan = buffSpan.Slice(len);
+
+                if (this.PcmBufferLength == this.PcmBuffer.Length)
                 {
-                    var len = Math.Min(pcmSpan.Length - this.PcmBufferLength, remaining);
+                    ApplyFiltersSync(pcmSpan);
 
-                    var tgt = pcmSpan.Slice(this.PcmBufferLength);
-                    var src = buffSpan.Slice(0, len);
+                    this.PcmBufferLength = 0;
 
-                    src.CopyTo(tgt);
-                    this.PcmBufferLength += len;
-                    remaining -= len;
-                    buffSpan = buffSpan.Slice(len);
+                    var packet = ArrayPool<byte>.Shared.Rent(PcmMemory.Length);
+                    var packetMemory = packet.AsMemory().Slice(0, PcmMemory.Length);
+                    PcmMemory.CopyTo(packetMemory);
 
-                    if (this.PcmBufferLength == this.PcmBuffer.Length)
-                    {
-                        var pcm16 = MemoryMarshal.Cast<byte, short>(pcmSpan);
-
-                        // pass through any filters, if applicable
-                        lock (this.Filters)
-                        {
-                            if (this.Filters.Any())
-                            {
-                                foreach (var filter in this.Filters)
-                                    filter.Transform(pcm16, this.Connection.AudioFormat, this.SampleDuration);
-                            }
-                        }
-
-                        if (this.VolumeModifier != 1)
-                        {
-                            // alter volume
-                            for (var i = 0; i < pcm16.Length; i++)
-                                pcm16[i] = (short)(pcm16[i] * this.VolumeModifier);
-                        }
-
-                        this.PcmBufferLength = 0;
-
-                        var packet = ArrayPool<byte>.Shared.Rent(PcmMemory.Length);
-                        var packetMemory = packet.AsMemory().Slice(0, PcmMemory.Length);
-                        PcmMemory.CopyTo(packetMemory);
-
-                        this.Connection.EnqueuePacket(new RawVoicePacket(packetMemory, PcmBufferDuration, false, packet));
-                    }
+                    await Connection.EnqueuePacketAsync(new RawVoicePacket(packetMemory, PcmBufferDuration, false, packet), cancellationToken);
                 }
             }
+
+            this.WriteSemaphore.Release();
         }
 
         /// <summary>
         /// Flushes the rest of the PCM data in this buffer to VoiceNext packet queue.
         /// </summary>
-        public override void Flush()
+        public override async Task FlushAsync(CancellationToken cancellationToken = default)
         {
-            var pcm = this.PcmMemory.Span;
-            Helpers.ZeroFill(pcm.Slice(this.PcmBufferLength));
+            var pcm = this.PcmMemory;
+            Helpers.ZeroFill(pcm.Slice(this.PcmBufferLength).Span);
 
-            var pcm16 = MemoryMarshal.Cast<byte, short>(pcm);
-
-            // pass through any filters, if applicable
-            lock (this.Filters)
-            {
-                if (this.Filters.Any())
-                {
-                    foreach (var filter in this.Filters)
-                        filter.Transform(pcm16, this.Connection.AudioFormat, this.SampleDuration);
-                }
-            }
-
-            if (this.VolumeModifier != 1)
-            {
-                // alter volume
-                for (var i = 0; i < pcm16.Length; i++)
-                    pcm16[i] = (short)(pcm16[i] * this.VolumeModifier);
-            }
+            ApplyFiltersSync(pcm);
 
             var packet = ArrayPool<byte>.Shared.Rent(pcm.Length);
             var packetMemory = packet.AsMemory().Slice(0, pcm.Length);
-            pcm.CopyTo(packetMemory.Span);
-            this.Connection.EnqueuePacket(new RawVoicePacket(packetMemory, PcmBufferDuration, false, packet));
+            pcm.CopyTo(packetMemory);
+
+            await Connection.EnqueuePacketAsync(new RawVoicePacket(packetMemory, PcmBufferDuration, false, packet), cancellationToken);
         }
 
         /// <summary>
@@ -285,6 +269,28 @@ namespace DSharpPlus.VoiceNext
                     return false;
 
                 return filters.Remove(filter);
+            }
+        }
+
+        private void ApplyFiltersSync(Memory<byte> pcmSpan)
+        {
+            var pcm16 = MemoryMarshal.Cast<byte, short>(pcmSpan.Span);
+
+            // pass through any filters, if applicable
+            lock (this.Filters)
+            {
+                if (this.Filters.Any())
+                {
+                    foreach (var filter in this.Filters)
+                        filter.Transform(pcm16, this.Connection.AudioFormat, this.SampleDuration);
+                }
+            }
+
+            if (this.VolumeModifier != 1)
+            {
+                // alter volume
+                for (var i = 0; i < pcm16.Length; i++)
+                    pcm16[i] = (short)(pcm16[i] * this.VolumeModifier);
             }
         }
     }

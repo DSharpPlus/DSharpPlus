@@ -159,7 +159,7 @@ namespace DSharpPlus.VoiceNext
                     ac.Disconnect();
 
                 if (this.ActiveConnections.TryGetValue(e.Guild.Id, out var vnc))
-                    vnc.Channel = e.Channel;
+                    vnc.TargetChannel = e.Channel;
 
                 if (!string.IsNullOrWhiteSpace(e.SessionId) && e.Channel != null && this.VoiceStateUpdates.TryRemove(gld.Id, out var xe))
                     xe.SetResult(e);

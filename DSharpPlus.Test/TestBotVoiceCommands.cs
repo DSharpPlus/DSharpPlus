@@ -191,7 +191,7 @@ namespace DSharpPlus.Test
                 var ffout = ffmpeg.StandardOutput.BaseStream;
 
                 var transmitStream = vnc.GetTransmitStream();
-                await ffout.CopyToAsync(transmitStream).ConfigureAwait(false);
+                ffout.CopyTo(transmitStream);
                 await transmitStream.FlushAsync().ConfigureAwait(false);
 
                 await vnc.WaitForPlaybackFinishAsync().ConfigureAwait(false);
