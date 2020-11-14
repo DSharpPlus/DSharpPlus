@@ -19,8 +19,8 @@ namespace DSharpPlus
             if (this._isDisposed)
                 throw new InvalidOperationException("This logger factory is already disposed.");
 
-            if (categoryName != typeof(BaseDiscordClient).FullName)
-                throw new ArgumentException($"This factory can only provide instances of loggers for {typeof(BaseDiscordClient).FullName}.", nameof(categoryName));
+            if (categoryName != typeof(BaseDiscordClient).FullName && categoryName != typeof(DiscordWebhookClient).FullName)
+                throw new ArgumentException($"This factory can only provide instances of loggers for {typeof(BaseDiscordClient).FullName} or {typeof(DiscordWebhookClient).FullName}.", nameof(categoryName));
 
             return new CompositeDefaultLogger(this.Providers);
         }
