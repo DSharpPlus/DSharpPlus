@@ -49,7 +49,7 @@ namespace DSharpPlus.Entities
         /// Gets the default avatar url for this webhook.
         /// </summary>
         public string AvatarUrl 
-            => !string.IsNullOrWhiteSpace(this.AvatarHash) ? $"https://cdn.discordapp.com/avatars/{this.Id}/{this.AvatarHash}.png?size=1024" : nu;
+            => !string.IsNullOrWhiteSpace(this.AvatarHash) ? $"https://cdn.discordapp.com/avatars/{this.Id}/{this.AvatarHash}.png?size=1024" : null;
 
         /// <summary>
         /// Gets the secure token of this webhook.
