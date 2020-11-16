@@ -10,7 +10,7 @@ to subscribe to any type of event, they are going to have to be defined **BOTH**
 
 ### Discord Application
 On the [Discord Application under the Bot Page](https://discord.com/developers/applications) you will have to specify if your bot requires special intents.  
-![Bot Page](/images/intents.png)
+![Bot Page](/images/Intents.png)
 
 ### Discord Configuration
 Within your Discord Configuration you will have to specify all the Intents you will be needing.  You can specify just one or many.  Here is a listing of all the
