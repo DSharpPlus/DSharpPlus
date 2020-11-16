@@ -43,4 +43,4 @@ var config = new DiscordConfiguration()
 ```
 
 
-Please Note, if you specify an Privileged Intent within your Discord Configuration that you have not signed up for on the Discord Application page, an error will be thrown on the Connection. 
+Please Note, if you specify a Privileged Intent within your Discord Configuration that you have not signed up for on the Discord Application page, an error will be thrown on the Connection. 
