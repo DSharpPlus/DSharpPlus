@@ -110,7 +110,7 @@ namespace MyFirstMusicBot
                 return;
             }
 
-            var conn = node.GetConnection(channel.Guild);
+            var conn = node.GetGuildConnection(channel.Guild);
 
             if (conn == null)
             {
