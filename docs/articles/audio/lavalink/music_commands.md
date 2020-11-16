@@ -86,6 +86,12 @@ namespace MyFirstMusicBot
         public async Task Join(CommandContext ctx, DiscordChannel channel)
         {
             var lava = ctx.Client.GetLavalink();
+            if (!lava.ConnectedNodes.Any())
+            {
+                await ctx.RespondAsync("The Lavalink connection is not established");
+                return;
+            }
+
             var node = lava.ConnectedNodes.Values.First();
 
             if (channel.Type != ChannelType.Voice)
@@ -102,6 +108,12 @@ namespace MyFirstMusicBot
         public async Task Leave(CommandContext ctx, DiscordChannel channel)
         {
             var lava = ctx.Client.GetLavalink();
+            if (!lava.ConnectedNodes.Any())
+            {
+                await ctx.RespondAsync("The Lavalink connection is not established");
+                return;
+            }
+
             var node = lava.ConnectedNodes.Values.First();
 
             if (channel.Type != ChannelType.Voice)
@@ -110,7 +122,7 @@ namespace MyFirstMusicBot
                 return;
             }
 
-            var conn = node.GetConnection(channel.Guild);
+            var conn = node.GetGuildConnection(channel.Guild);
 
             if (conn == null)
             {
