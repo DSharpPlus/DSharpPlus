@@ -19,6 +19,12 @@ To proxy your traffic, create a new instance of `System.Net.WebProxy` and assign
 `VoiceNextClient`|`VoiceNextExtension`
 `BaseModule`|`BaseExtension`
 
+### Intents
+In certain circumstances intents will have to be enabled to receive certain events in both the 
+@DSharpPlus.DiscordConfiguration and the Discord Application Portal.  We have an
+[article](xref:beyond_basics_intents) that covers all that has to be done to set
+this up.
+
 ### Entity mutation changes
 Entity updating methods now take an action which mutates the state of the 
 object, instead of taking large lists of arguments. This means that instead of 
