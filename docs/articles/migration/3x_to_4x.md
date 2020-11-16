@@ -20,7 +20,7 @@ To proxy your traffic, create a new instance of `System.Net.WebProxy` and assign
 `BaseModule`|`BaseExtension`
 
 ### Intents
-In certain circumstances intents will have to be enabled to recieved in both the 
+In certain circumstances intents will have to be enabled to receive certain events in both the 
 @DSharpPlus.DiscordConfiguration and the Discord Application Portal.  We have an
 [article](xref:beyond_basics_intents) that covers all that has to be done to set
 this up.
