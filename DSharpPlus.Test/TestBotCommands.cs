@@ -10,6 +10,12 @@ namespace DSharpPlus.Test
 	{
 		public static ConcurrentDictionary<ulong, string> PrefixSettings { get; } = new ConcurrentDictionary<ulong, string>();
 
+		[Command("test")]
+		public async Task Test(CommandContext ctx)
+        {
+			var x = ctx.Member;
+        }
+
 		[Command("crosspost")]
 		public async Task CrosspostAsync(CommandContext ctx, DiscordChannel chn, DiscordMessage msg)
 		{

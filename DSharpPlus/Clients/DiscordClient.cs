@@ -541,7 +541,43 @@ namespace DSharpPlus
             return foundGuild;
         }
 
-        internal void UpdateCachedGuild(DiscordGuild newGuild, JArray rawMembers)
+        private void UpdateMessage(DiscordMessage message, TransportUser author, DiscordGuild guild, TransportMember member)
+        {
+            if (author != null)
+            {
+                var usr = new DiscordUser(author) { Discord = this };
+                usr = this.UserCache.AddOrUpdate(author.Id, usr, (id, old) =>
+                {
+                    old.Username = usr.Username;
+                    old.Discriminator = usr.Discriminator;
+                    old.AvatarHash = usr.AvatarHash;
+                    return old;
+                });
+
+                if (member != null)
+                {
+                    if (!guild.Members.TryGetValue(author.Id, out var mbr))
+                    {
+                        member.User = author;
+                        usr = new DiscordMember(member) { Discord = this, _guild_id = guild.Id };
+
+                        var intents = this.Configuration.Intents;
+                        if (intents.HasValue && intents.Value.HasIntent(DiscordIntents.GuildMembers))
+                        {
+                            guild._members[author.Id] = (DiscordMember)usr;
+                        }
+                    }
+                    else
+                    {
+                        usr = mbr.Update(member);
+                    }
+                }
+
+                message.Author = usr;
+            }
+        }
+
+        private void UpdateCachedGuild(DiscordGuild newGuild, JArray rawMembers)
         {
             if (this._disposed)
                 return;
