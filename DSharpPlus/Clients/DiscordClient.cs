@@ -546,35 +546,73 @@ namespace DSharpPlus
             if (author != null)
             {
                 var usr = new DiscordUser(author) { Discord = this };
-                usr = this.UserCache.AddOrUpdate(author.Id, usr, (id, old) =>
-                {
-                    old.Username = usr.Username;
-                    old.Discriminator = usr.Discriminator;
-                    old.AvatarHash = usr.AvatarHash;
-                    return old;
-                });
 
                 if (member != null)
-                {
-                    if (!guild.Members.TryGetValue(author.Id, out var mbr))
-                    {
-                        member.User = author;
-                        usr = new DiscordMember(member) { Discord = this, _guild_id = guild.Id };
+                    member.User = author;
 
-                        var intents = this.Configuration.Intents;
-                        if (intents.HasValue && intents.Value.HasIntent(DiscordIntents.GuildMembers))
-                        {
-                            guild._members[author.Id] = (DiscordMember)usr;
-                        }
-                    }
-                    else
+                message.Author = this.UpdateUser(usr, guild?.Id, guild, member);
+            }
+        }
+
+        private DiscordUser UpdateUser(DiscordUser usr, ulong? guildId, DiscordGuild guild, TransportMember mbr)
+        {
+            if (mbr != null)
+            {
+                if (mbr.User != null)
+                {
+                    usr = new DiscordUser(mbr.User) { Discord = this };
+
+                    _ = this.UserCache.AddOrUpdate(usr.Id, usr, (id, old) =>
                     {
-                        usr = mbr.Update(member);
-                    }
+                        old.Username = usr.Username;
+                        old.Discriminator = usr.Discriminator;
+                        old.AvatarHash = usr.AvatarHash;
+                        return old;
+                    });
+
+                    usr = new DiscordMember(mbr) { Discord = this, _guild_id = guildId.Value };
+                }
+                else
+                {
+                    _ = this.UserCache.TryAdd(usr.Id, usr);
+                    usr = new DiscordMember(usr) { Discord = this, _guild_id = guildId.Value };
                 }
 
-                message.Author = usr;
+                var intents = this.Configuration.Intents;
+
+                DiscordMember member = default;
+
+                if (guild?._members.TryGetValue(usr.Id, out member) == false)
+                {
+                    if (intents?.HasIntent(DiscordIntents.GuildMembers) == true)
+                    {
+                        guild._members[usr.Id] = (DiscordMember)usr;
+                    }
+                }
+                else if(intents?.HasIntent(DiscordIntents.GuildMembers) == false)
+                {
+                    usr = member.Update(mbr);
+                }
             }
+            else
+            {
+                if (usr.Username != null)
+                {
+                    _ = this.UserCache.AddOrUpdate(usr.Id, usr, (id, old) =>
+                    {
+                        old.Username = usr.Username;
+                        old.Discriminator = usr.Discriminator;
+                        old.AvatarHash = usr.AvatarHash;
+                        return old;
+                    });
+                }
+                else
+                {
+                    _ = this.UserCache.TryAdd(usr.Id, usr);
+                }
+            }
+
+            return usr;
         }
 
         private void UpdateCachedGuild(DiscordGuild newGuild, JArray rawMembers)

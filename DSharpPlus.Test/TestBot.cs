@@ -49,7 +49,7 @@ namespace DSharpPlus.Test
                 ShardCount = this.Config.ShardCount,
                 MessageCacheSize = 2048,
                 LogTimestampFormat = "dd-MM-yyyy HH:mm:ss zzz",
-                Intents = DiscordIntents.All.RemoveIntent(DiscordIntents.GuildPresences)
+                Intents = DiscordIntents.AllUnprivileged
             };
             Discord = new DiscordClient(dcfg);
 
