@@ -511,24 +511,6 @@ namespace DSharpPlus.Entities
         public Permissions PermissionsIn(DiscordChannel channel) 
             => channel.PermissionsFor(this);
 
-        internal DiscordMember Update(TransportMember mbr)
-        {
-            this.IsDeafened = mbr.IsDeafened;
-            this.IsMuted = mbr.IsMuted;
-            this.JoinedAt = mbr.JoinedAt;
-            this.Nickname = mbr.Nickname;
-            this.PremiumSince = mbr.PremiumSince;
-
-            if (mbr.Roles != null)
-            {
-                this._role_ids.Clear();
-                this._role_ids.AddRange(mbr.Roles);
-            }
-
-            this._role_ids_lazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(this._role_ids));
-            return this;
-        }
-
         /// <summary>
         /// Returns a string representation of this member.
         /// </summary>

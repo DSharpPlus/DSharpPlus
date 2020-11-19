@@ -572,11 +572,6 @@ namespace DSharpPlus
 
                     usr = new DiscordMember(mbr) { Discord = this, _guild_id = guildId.Value };
                 }
-                else
-                {
-                    _ = this.UserCache.TryAdd(usr.Id, usr);
-                    usr = new DiscordMember(usr) { Discord = this, _guild_id = guildId.Value };
-                }
 
                 var intents = this.Configuration.Intents;
 
@@ -584,32 +579,25 @@ namespace DSharpPlus
 
                 if (guild?._members.TryGetValue(usr.Id, out member) == false)
                 {
-                    if (intents?.HasIntent(DiscordIntents.GuildMembers) == true)
+                    if (intents?.HasIntent(DiscordIntents.GuildMembers) == true) // member can be updated by events, so cache it
                     {
                         guild._members[usr.Id] = (DiscordMember)usr;
                     }
                 }
-                else if(intents?.HasIntent(DiscordIntents.GuildMembers) == false)
+                else if (intents?.HasIntent(DiscordIntents.GuildPresences) == true) // we can attempt to update it if it's already in cache.
                 {
-                    usr = member.Update(mbr);
+                    guild._members.TryUpdate(usr.Id, (DiscordMember)usr, member);
                 }
             }
-            else
+            else if(usr.Username != null) // check if not a skeleton user
             {
-                if (usr.Username != null)
+                _ = this.UserCache.AddOrUpdate(usr.Id, usr, (id, old) =>
                 {
-                    _ = this.UserCache.AddOrUpdate(usr.Id, usr, (id, old) =>
-                    {
-                        old.Username = usr.Username;
-                        old.Discriminator = usr.Discriminator;
-                        old.AvatarHash = usr.AvatarHash;
-                        return old;
-                    });
-                }
-                else
-                {
-                    _ = this.UserCache.TryAdd(usr.Id, usr);
-                }
+                    old.Username = usr.Username;
+                    old.Discriminator = usr.Discriminator;
+                    old.AvatarHash = usr.AvatarHash;
+                    return old;
+                });
             }
 
             return usr;
