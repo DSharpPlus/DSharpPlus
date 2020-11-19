@@ -295,6 +295,9 @@ namespace DSharpPlus.Net
                         break;
 
                     case 500:
+                    case 502:
+                    case 503:
+                    case 504:
                         ex = new ServerErrorException(request, response);
                         break;
                 }
