@@ -49,7 +49,6 @@ namespace DSharpPlus.Test
                 ShardCount = this.Config.ShardCount,
                 MessageCacheSize = 2048,
                 LogTimestampFormat = "dd-MM-yyyy HH:mm:ss zzz",
-                Intents = DiscordIntents.All
             };
             Discord = new DiscordClient(dcfg);
 
@@ -63,10 +62,6 @@ namespace DSharpPlus.Test
             Discord.GuildDownloadCompleted += this.Discord_GuildDownloadCompleted;
             Discord.GuildUpdated += this.Discord_GuildUpdated;
             Discord.ChannelDeleted += this.Discord_ChannelDeleted;
-            Discord.MessageCreated += async (s, e) =>
-            {
-                Console.WriteLine(e.Author);
-            };
 
             // For event timeout testing
             //Discord.GuildDownloadCompleted += async (s, e) =>

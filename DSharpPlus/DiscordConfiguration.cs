@@ -114,7 +114,7 @@ namespace DSharpPlus
         /// Sets whether the client should attempt to cache members if exclusively using unprivileged intents.
         /// <para>
         ///     This will only take effect if there are no <see cref="DiscordIntents.GuildMembers"/> or <see cref="DiscordIntents.GuildPresences"/>
-        ///     intents specified. Otherwise, this will always be overrided to true.
+        ///     intents specified. Otherwise, this will always be overwritten to true.
         /// </para>
         /// <para>Defaults to true.</para>
         /// </summary>
