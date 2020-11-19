@@ -111,6 +111,16 @@ namespace DSharpPlus
         public bool ReconnectIndefinitely { internal get; set; } = false;
 
         /// <summary>
+        /// Sets whether the client should attempt to cache members if exclusively using unprivileged intents.
+        /// <para>
+        ///     This will only take effect if there are no <see cref="DiscordIntents.GuildMembers"/> or <see cref="DiscordIntents.GuildPresences"/>
+        ///     intents specified. Otherwise, this will always be overrided to true.
+        /// </para>
+        /// <para>Defaults to true.</para>
+        /// </summary>
+        public bool AlwaysCacheMembers { internal get; set; } = true;
+
+        /// <summary>
         /// <para>Sets the gateway intents for this client.</para>
         /// <para>If set, the client will only receive events that they specify with intents.</para>
         /// <para>Defaults to null.</para>

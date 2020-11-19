@@ -577,16 +577,22 @@ namespace DSharpPlus
 
                 DiscordMember member = default;
 
-                if (guild?._members.TryGetValue(usr.Id, out member) == false)
+                if (intents?.HasIntent(DiscordIntents.All) == false) // we have all events, no need to worry about caching here
                 {
-                    if (intents?.HasIntent(DiscordIntents.GuildMembers) == true) // member can be updated by events, so cache it
+                    if (guild?._members.TryGetValue(usr.Id, out member) == false)
                     {
-                        guild._members[usr.Id] = (DiscordMember)usr;
+                        if (intents?.HasIntent(DiscordIntents.GuildMembers) == true || this.Configuration.AlwaysCacheMembers) // member can be updated by events, so cache it
+                        {
+                            guild._members.TryAdd(usr.Id, (DiscordMember)usr);
+                        }
                     }
-                }
-                else if (intents?.HasIntent(DiscordIntents.GuildPresences) == true) // we can attempt to update it if it's already in cache.
-                {
-                    guild._members.TryUpdate(usr.Id, (DiscordMember)usr, member);
+                    else if ((intents?.HasIntent(DiscordIntents.GuildPresences) == true) || this.Configuration.AlwaysCacheMembers) // we can attempt to update it if it's already in cache.
+                    {
+                        if (intents?.HasIntent(DiscordIntents.GuildMembers) == false) // no need to update if we already have the member events
+                        {
+                            _ = guild._members.TryUpdate(usr.Id, (DiscordMember)usr, member);
+                        }
+                    }
                 }
             }
             else if(usr.Username != null) // check if not a skeleton user
