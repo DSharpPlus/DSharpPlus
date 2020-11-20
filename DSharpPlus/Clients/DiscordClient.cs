@@ -541,7 +541,75 @@ namespace DSharpPlus
             return foundGuild;
         }
 
-        internal void UpdateCachedGuild(DiscordGuild newGuild, JArray rawMembers)
+        private void UpdateMessage(DiscordMessage message, TransportUser author, DiscordGuild guild, TransportMember member)
+        {
+            if (author != null)
+            {
+                var usr = new DiscordUser(author) { Discord = this };
+
+                if (member != null)
+                    member.User = author;
+
+                message.Author = this.UpdateUser(usr, guild?.Id, guild, member);
+            }
+        }
+
+        private DiscordUser UpdateUser(DiscordUser usr, ulong? guildId, DiscordGuild guild, TransportMember mbr)
+        {
+            if (mbr != null)
+            {
+                if (mbr.User != null)
+                {
+                    usr = new DiscordUser(mbr.User) { Discord = this };
+
+                    _ = this.UserCache.AddOrUpdate(usr.Id, usr, (id, old) =>
+                    {
+                        old.Username = usr.Username;
+                        old.Discriminator = usr.Discriminator;
+                        old.AvatarHash = usr.AvatarHash;
+                        return old;
+                    });
+
+                    usr = new DiscordMember(mbr) { Discord = this, _guild_id = guildId.Value };
+                }
+
+                var intents = this.Configuration.Intents;
+
+                DiscordMember member = default;
+
+                if (intents?.HasAllPrivilegedIntents() == false || guild.IsLarge) // we have the necessary privileged intents, no need to worry about caching here unless guild is large.
+                {
+                    if (guild?._members.TryGetValue(usr.Id, out member) == false)
+                    {
+                        if (intents?.HasIntent(DiscordIntents.GuildMembers) == true || this.Configuration.AlwaysCacheMembers) // member can be updated by events, so cache it
+                        {
+                            guild._members.TryAdd(usr.Id, (DiscordMember)usr);
+                        }
+                    }
+                    else if ((intents?.HasIntent(DiscordIntents.GuildPresences) == true) || this.Configuration.AlwaysCacheMembers) // we can attempt to update it if it's already in cache.
+                    {
+                        if (intents?.HasIntent(DiscordIntents.GuildMembers) == false) // no need to update if we already have the member events
+                        {
+                            _ = guild._members.TryUpdate(usr.Id, (DiscordMember)usr, member);
+                        }
+                    }
+                }
+            }
+            else if(usr.Username != null) // check if not a skeleton user
+            {
+                _ = this.UserCache.AddOrUpdate(usr.Id, usr, (id, old) =>
+                {
+                    old.Username = usr.Username;
+                    old.Discriminator = usr.Discriminator;
+                    old.AvatarHash = usr.AvatarHash;
+                    return old;
+                });
+            }
+
+            return usr;
+        }
+
+        private void UpdateCachedGuild(DiscordGuild newGuild, JArray rawMembers)
         {
             if (this._disposed)
                 return;

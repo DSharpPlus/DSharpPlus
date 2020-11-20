@@ -30,6 +30,9 @@ namespace DSharpPlus
         /// <returns></returns>
         public static DiscordIntents RemoveIntent(this DiscordIntents intents, DiscordIntents toRemove)
             => intents &= ~toRemove;
+
+        internal static bool HasAllPrivilegedIntents(this DiscordIntents intents)
+            => intents.HasIntent(DiscordIntents.GuildMembers | DiscordIntents.GuildPresences);
     }
 
     /// <summary>
