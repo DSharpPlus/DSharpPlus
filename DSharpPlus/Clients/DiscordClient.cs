@@ -577,7 +577,7 @@ namespace DSharpPlus
 
                 DiscordMember member = default;
 
-                if (intents?.HasIntent(DiscordIntents.All) == false) // we have all events, no need to worry about caching here
+                if (intents?.HasAllPrivilegedIntents() == false || guild.IsLarge) // we have the necessary privileged intents, no need to worry about caching here unless guild is large.
                 {
                     if (guild?._members.TryGetValue(usr.Id, out member) == false)
                     {
