@@ -104,7 +104,7 @@ namespace DSharpPlus.Entities
 		/// Gets whether this user is using the Go Live feature.
 		/// </summary>
 		[JsonProperty("self_stream", NullValueHandling = NullValueHandling.Ignore)]
-		public bool IsSelfStream { get; internal set; }
+		public bool? IsSelfStream { get; internal set; }
 
 		/// <summary>
 		/// Gets whether the current user has suppressed this user.
