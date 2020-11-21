@@ -25,7 +25,7 @@ Instead, we recommend using either the latest LTS release or most recent stable 
 To troubleshoot, please ensure that:
 
 * You are using the latest version of DSharpPlus.
-* You have properly enabled VoiceNext with your instance of @DSharpPlus.DiscordClient .
+* You have properly enabled VoiceNext with your instance of @DSharpPlus.DiscordClient.
 * You are *not* using VoiceNext in an event handler.
 * You have [opus and libsodium](xref:voicenext_prerequisites) available in your target environment.
 
