@@ -95,6 +95,18 @@ namespace DSharpPlus.Entities
 		public bool IsSelfMuted { get; internal set; }
 
 		/// <summary>
+		/// Gets whether this user's camera is enabled.
+		/// </summary>
+		[JsonProperty("self_video", NullValueHandling = NullValueHandling.Ignore)]
+		public bool IsSelfVideo { get; internal set; }
+
+		/// <summary>
+		/// Gets whether this user is using the Go Live feature.
+		/// </summary>
+		[JsonProperty("self_stream", NullValueHandling = NullValueHandling.Ignore)]
+		public bool IsSelfStream { get; internal set; }
+
+		/// <summary>
 		/// Gets whether the current user has suppressed this user.
 		/// </summary>
 		[JsonProperty("suppress", NullValueHandling = NullValueHandling.Ignore)]
@@ -116,6 +128,8 @@ namespace DSharpPlus.Entities
 			this.IsSuppressed = other.IsSuppressed;
 			this.IsSelfDeafened = other.IsSelfDeafened;
 			this.IsSelfMuted = other.IsSelfMuted;
+			this.IsSelfStream = other.IsSelfStream;
+			this.IsSelfVideo = other.IsSelfVideo;
 
 			this.SessionId = other.SessionId;
 		}
