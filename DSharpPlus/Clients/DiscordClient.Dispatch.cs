@@ -1659,20 +1659,15 @@ namespace DSharpPlus
             var uid = (ulong)raw["user_id"];
             var gld = this._guilds[gid];
 
-            var vstateHasNew = gld._voiceStates.TryGetValue(uid, out var vstateNew);
-            DiscordVoiceState vstateOld;
-            if (vstateHasNew)
-            {
-                vstateOld = new DiscordVoiceState(vstateNew);
-                DiscordJson.PopulateObject(raw, vstateNew);
-            }
-            else
+            var vstateNew = raw.ToObject<DiscordVoiceState>();
+            vstateNew.Discord = this;
+
+            if (!gld._voiceStates.TryGetValue(uid, out var vstateOld))
             {
                 vstateOld = null;
-                vstateNew = raw.ToObject<DiscordVoiceState>();
-                vstateNew.Discord = this;
-                gld._voiceStates[vstateNew.UserId] = vstateNew;
             }
+
+            gld._voiceStates[vstateNew.UserId] = vstateNew;
 
             if (gld._members.TryGetValue(uid, out var mbr))
             {
