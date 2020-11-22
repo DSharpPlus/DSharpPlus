@@ -185,7 +185,7 @@ namespace DSharpPlus
                     else
                         await this.ConnectAsync(this._status._activity, this._status.Status).ConfigureAwait(false);
                 }
-                else if(e.CloseCode != 4014 || e.CloseCode != 4013)
+                else
                 {
                     this.Logger.LogCritical(LoggerEvents.ConnectionClose, "Connection terminated ({0}, '{1}')", e.CloseCode, e.CloseMessage);
                 }
