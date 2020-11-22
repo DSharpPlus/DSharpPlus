@@ -1662,10 +1662,7 @@ namespace DSharpPlus
             var vstateNew = raw.ToObject<DiscordVoiceState>();
             vstateNew.Discord = this;
 
-            if (!gld._voiceStates.TryGetValue(uid, out var vstateOld))
-            {
-                vstateOld = null;
-            }
+            gld._voiceStates.TryGetValue(uid, out var vstateOld);
 
             gld._voiceStates[vstateNew.UserId] = vstateNew;
 
