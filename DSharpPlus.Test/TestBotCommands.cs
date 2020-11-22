@@ -75,5 +75,38 @@ namespace DSharpPlus.Test
             await ctx.Channel.SendMessageAsync("❌ UserMention(SomeoneElse): " + content, mentions: new IMention[] { new UserMention(545836271960850454L) });                  //Should ping no one (@user was not pinged)
             await ctx.Channel.SendMessageAsync("❌ Everyone(): " + content, mentions: new IMention[] { new EveryoneMention() });                                               //Should ping no one (@everyone was not pinged)
         }
+
+        [Command("editMention"), Description("Attempts to mention a user via edit message")]
+        public async Task EditMentionablesAsync(CommandContext ctx, DiscordUser user)
+        {
+            string origcontent = $"Hey, silly! Listen!";
+            string newContent = $"Hey, {user.Mention}! Listen!";
+
+            await ctx.Channel.SendMessageAsync("✔ should ping, ❌ should not ping.");
+
+            var test1Msg = await ctx.Channel.SendMessageAsync("✔ Default Behaviour: " + origcontent);
+            await test1Msg.ModifyAsync("✔ Default Behaviour: " + newContent);                                                                                                   //Should ping User
+                                    
+            var test2Msg = await ctx.Channel.SendMessageAsync("✔ UserMention(user): " + origcontent);                                                                           
+            await test2Msg.ModifyAsync("✔ UserMention(user): " + newContent, mentions: new IMention[] { new UserMention(user) });                                               //Should ping user
+
+            var test3Msg = await ctx.Channel.SendMessageAsync("✔ UserMention(): " + origcontent);                                                                               
+            await test3Msg.ModifyAsync("✔ UserMention(): " + newContent, mentions: new IMention[] { new UserMention() });                                                       //Should ping user
+
+            var test4Msg = await ctx.Channel.SendMessageAsync("✔ User Mention Everyone & Self: " + origcontent);
+            await test4Msg.ModifyAsync("✔ User Mention Everyone & Self: " + newContent, mentions: new IMention[] { new UserMention(), new UserMention(user) });                 //Should ping user
+
+            var test5Msg = await ctx.Channel.SendMessageAsync("✔ UserMention.All: " + origcontent);
+            await test5Msg.ModifyAsync("✔ UserMention.All: " + newContent, mentions: new IMention[] { UserMention.All });                                                       //Should ping user
+                                                          
+            var test6Msg = await ctx.Channel.SendMessageAsync("❌ Empty Mention Array: " + origcontent);
+            await test6Msg.ModifyAsync("❌ Empty Mention Array: " + newContent, mentions: new IMention[0]);                                                                      //Should ping no one
+             
+            var test7Msg = await ctx.Channel.SendMessageAsync("❌ UserMention(SomeoneElse): " + origcontent);
+            await test7Msg.ModifyAsync("❌ UserMention(SomeoneElse): " + newContent, mentions: new IMention[] { new UserMention(777677298316214324) });                          //Should ping no one (@user was not pinged)
+                                       
+            var test8Msg = await ctx.Channel.SendMessageAsync("❌ Everyone(): " + origcontent);
+            await test8Msg.ModifyAsync("❌ Everyone(): " + newContent, mentions: new IMention[] { new EveryoneMention() });                                                      //Should ping no one (@everyone was not pinged)
+        }
     }
 }
