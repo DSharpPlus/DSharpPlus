@@ -31,6 +31,7 @@ namespace DSharpPlus.Entities
             });
             this._mentionedUsersLazy = new Lazy<IReadOnlyList<DiscordUser>>(() => new ReadOnlyCollection<DiscordUser>(this._mentionedUsers));
             this._reactionsLazy = new Lazy<IReadOnlyList<DiscordReaction>>(() => new ReadOnlyCollection<DiscordReaction>(this._reactions));
+            this._stickersLazy = new Lazy<IReadOnlyList<DiscordMessageSticker>>(() => new ReadOnlyCollection<DiscordMessageSticker>(this._stickers));
             this._jumpLink = new Lazy<Uri>(() =>
             {
                 var gid = this.Channel is DiscordDmChannel ? "@me" : this.Channel.GuildId.ToString(CultureInfo.InvariantCulture);
@@ -55,6 +56,7 @@ namespace DSharpPlus.Entities
                 this._mentionedRoles = new List<DiscordRole>(other._mentionedRoles);
             this._mentionedUsers = new List<DiscordUser>(other._mentionedUsers);
             this._reactions = new List<DiscordReaction>(other._reactions);
+            this._stickers = new List<DiscordMessageSticker>(other._stickers);
 
             this.Author = other.Author;
             this.ChannelId = other.ChannelId;
@@ -275,6 +277,18 @@ namespace DSharpPlus.Entities
         [JsonIgnore]
         public Uri JumpLink => this._jumpLink.Value;
         private Lazy<Uri> _jumpLink;
+
+        /// <summary>
+        /// Gets stickers for this message.
+        /// </summary>
+        [JsonIgnore]
+        public IReadOnlyList<DiscordMessageSticker> Stickers
+            => this._stickersLazy.Value;
+
+        [JsonProperty("stickers", NullValueHandling = NullValueHandling.Ignore)]
+        internal List<DiscordMessageSticker> _stickers = new List<DiscordMessageSticker>();
+        [JsonIgnore]
+        private Lazy<IReadOnlyList<DiscordMessageSticker>> _stickersLazy;
 
         internal DiscordMessageReference InternalBuildMessageReference()
         {
