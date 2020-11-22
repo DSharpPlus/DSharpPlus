@@ -73,7 +73,7 @@ However, if you meant an activity like this:
 You can use either of the following
 
 * The overload for @DSharpPlus.DiscordClient.ConnectAsync(DiscordActivity,System.Nullable{UserStatus},System.Nullable{DateTimeOffset}) which accepts a @DSharpPlus.Entities.DiscordActivity.
-* @DSharpPlus.DiscordClient.ConnectAsync(DiscordActivity,System.Nullable{UserStatus},System.Nullable{DateTimeOffset}) at any point after `Ready` has been fired.
+* @DSharpPlus.DiscordClient.UpdateStatusAsync(DiscordActivity,System.Nullable{UserStatus},System.Nullable{DateTimeOffset}) OR @DSharpPlus.DiscordShardedClient.UpdateStatusAsync(DiscordActivity,System.Nullable{UserStatus},System.Nullable{DateTimeOffset}) (for the sharded client) at any point after `Ready` has been fired.
 
 ### Am I able to retrieve a @DSharpPlus.Entities.DiscordRole by name?
 Yes. Use LINQ on the `Roles` property of your instance of @DSharpPlus.Entities.DiscordGuild and compare against the `Name` of  each @DSharpPlus.Entities.DiscordRole.
