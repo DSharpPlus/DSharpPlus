@@ -64,6 +64,9 @@ namespace DSharpPlus.Entities
             }
         }
 
+        [JsonProperty("available", NullValueHandling = NullValueHandling.Ignore)]
+        public bool IsAvailable { get; internal set; }
+
         internal DiscordEmoji()
         {
             this._rolesLazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(this._roles));
