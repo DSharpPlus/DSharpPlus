@@ -340,7 +340,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordMessage> ModifyAsync(Optional<string> content = default, Optional<DiscordEmbed> embed = default,IEnumerable<IMention> mentions = null) 
+        public Task<DiscordMessage> ModifyAsync(Optional<string> content = default, Optional<DiscordEmbed> embed = default, IEnumerable<IMention> mentions = null) 
             => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embed, mentions);
 
         /// <summary>
