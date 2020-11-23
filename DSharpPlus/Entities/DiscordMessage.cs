@@ -348,13 +348,14 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="content">New content.</param>
         /// <param name="embed">New embed.</param>
+        /// <param name="mentions">Allowed mentions in the message.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client tried to modify a message not sent by them.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordMessage> ModifyAsync(Optional<string> content = default, Optional<DiscordEmbed> embed = default) 
-            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embed);
+        public Task<DiscordMessage> ModifyAsync(Optional<string> content = default, Optional<DiscordEmbed> embed = default, IEnumerable<IMention> mentions = null) 
+            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embed, mentions);
 
         /// <summary>
         /// Deletes the message.

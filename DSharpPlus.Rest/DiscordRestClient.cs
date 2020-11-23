@@ -461,8 +461,8 @@ namespace DSharpPlus
         /// <param name="content">New message content</param>
         /// <param name="embed">New message embed</param>
         /// <returns></returns>
-        public Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content, Optional<DiscordEmbed> embed)
-            => this.ApiClient.EditMessageAsync(channel_id, message_id, content, embed);
+        public Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content, Optional<DiscordEmbed> embed, IEnumerable<IMention> mentions)
+            => this.ApiClient.EditMessageAsync(channel_id, message_id, content, embed, mentions);
 
         /// <summary>
         /// Deletes a message
