@@ -64,6 +64,13 @@ namespace DSharpPlus.Entities
             }
         }
 
+        /// <summary>
+        /// Gets whether the emoji is available for use.  
+        /// An emoji may not be available due to loss of server boost.
+        /// </summary>
+        [JsonProperty("available", NullValueHandling = NullValueHandling.Ignore)]
+        public bool IsAvailable { get; internal set; }
+
         internal DiscordEmoji()
         {
             this._rolesLazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(this._roles));
