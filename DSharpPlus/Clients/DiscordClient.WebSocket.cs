@@ -171,7 +171,9 @@ namespace DSharpPlus
                 this.Logger.LogDebug(LoggerEvents.ConnectionClose, "Connection closed ({0}, '{1}')", e.CloseCode, e.CloseMessage);
                 await this._socketClosed.InvokeAsync(this, e).ConfigureAwait(false);
 
-                if (this.Configuration.AutoReconnect)
+
+                
+                if (this.Configuration.AutoReconnect && (e.CloseCode < 4001 || e.CloseCode >= 5000))
                 {
                     this.Logger.LogCritical(LoggerEvents.ConnectionClose, "Connection terminated ({0}, '{1}'), reconnecting", e.CloseCode, e.CloseMessage);
 
@@ -182,6 +184,10 @@ namespace DSharpPlus
                         await this.ConnectAsync(this._status._activity, this._status.Status, Utilities.GetDateTimeOffsetFromMilliseconds(this._status.IdleSince.Value)).ConfigureAwait(false);
                     else
                         await this.ConnectAsync(this._status._activity, this._status.Status).ConfigureAwait(false);
+                }
+                else
+                {
+                    this.Logger.LogCritical(LoggerEvents.ConnectionClose, "Connection terminated ({0}, '{1}')", e.CloseCode, e.CloseMessage);
                 }
             }
         }
