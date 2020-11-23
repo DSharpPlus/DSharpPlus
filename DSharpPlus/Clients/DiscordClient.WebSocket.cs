@@ -172,8 +172,8 @@ namespace DSharpPlus
                 await this._socketClosed.InvokeAsync(this, e).ConfigureAwait(false);
 
 
-                //CloseCode 4014 is disallowed Intent and CloseCode 4013 is invalid Intent.  We Should not continuously reconnect per issue 682
-                if (this.Configuration.AutoReconnect && e.CloseCode != 4014 && e.CloseCode != 4013)
+                
+                if (this.Configuration.AutoReconnect && (e.CloseCode < 4001 || e.CloseCode >= 5000))
                 {
                     this.Logger.LogCritical(LoggerEvents.ConnectionClose, "Connection terminated ({0}, '{1}'), reconnecting", e.CloseCode, e.CloseMessage);
 
