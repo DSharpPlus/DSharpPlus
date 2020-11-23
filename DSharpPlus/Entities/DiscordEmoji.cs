@@ -64,6 +64,9 @@ namespace DSharpPlus.Entities
             }
         }
 
+        /// <summary>
+        /// Gets whether the emoji is available for use.
+        /// </summary>
         [JsonProperty("available", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsAvailable { get; internal set; }
 
