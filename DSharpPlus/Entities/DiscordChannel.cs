@@ -181,6 +181,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        [Obsolete("Please use the new DiscordMessage Builder.  This method will be removed in a future version", false)]
         public Task<DiscordMessage> SendMessageAsync(string content = null, bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
@@ -203,6 +204,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        [Obsolete("Please use the new DiscordMessage Builder.  This method will be removed in a future version", false)]
         public Task<DiscordMessage> SendFileAsync(string fileName, Stream fileData, string content = null, bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
@@ -246,6 +248,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        [Obsolete("Please use the new DiscordMessage Builder.  This method will be removed in a future version", false)]
         public async Task<DiscordMessage> SendFileAsync(string filePath, string content = null, bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
@@ -268,6 +271,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        [Obsolete("Please use the new DiscordMessage Builder.  This method will be removed in a future version", false)]
         public Task<DiscordMessage> SendMultipleFilesAsync(Dictionary<string, Stream> files, string content = "", bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
@@ -277,6 +281,31 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
             return this.Discord.ApiClient.UploadFilesAsync(this.Id, files, content, tts, embed, mentions);
+        }
+
+        /// <summary>
+        /// Sends a Message.
+        /// </summary>
+        /// <param name="content">The content to send.</param>
+        /// <returns></returns>
+        public Task<DiscordMessage> SendMessageAsync(string content)
+        {
+            if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
+                throw new ArgumentException("Cannot send a text message to a non-text channel.");
+
+            return this.Discord.ApiClient.CreateMessageAsync(this.Id, content, null, null, null);
+        }
+
+        /// <summary>
+        /// Sends a Message
+        /// </summary>
+        /// <param name="builder">The builder with all the items to send.</param>
+        /// <returns></returns>
+        public Task<DiscordMessage> SendMessageAsync(DiscordMessageBuilder builder)
+        {
+            if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
+                throw new ArgumentException("Cannot send a text message to a non-text channel.");
+            return this.Discord.ApiClient.CreateMessageAsync(this.Id, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions);
         }
 
         // Please send memes to Naamloos#2887 at discord <3 thank you
