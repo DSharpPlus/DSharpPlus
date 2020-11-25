@@ -628,7 +628,7 @@ namespace DSharpPlus.Net
                 embed.Timestamp = embed.Timestamp.Value.ToUniversalTime();
             
             var isReply = !(message_id is null);
-            var serpld = string.Empty;
+            var serpld = "";
             
             var pld =  !isReply ? 
                 new RestChannelMessageCreatePayload
@@ -646,8 +646,9 @@ namespace DSharpPlus.Net
                     IsTTS = tts,
                     HasEmbed = embed != null,
                     Embed = embed,
-                    MessageReference = new InternalDiscordMessageReference { messageId = message_id, channelId = channel_id }
+                    MessageReference = new InternalDiscordMessageReference { messageId = message_id, /* channelId = channel_id */ }
                 };
+            
             if (isReply) serpld = DiscordJson.SerializeObject((RestChannelMessageCreatePayloadWithReply) pld);
             else serpld = DiscordJson.SerializeObject((RestChannelMessageCreatePayload)pld);
 

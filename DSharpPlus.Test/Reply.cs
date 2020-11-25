@@ -11,7 +11,7 @@ namespace DSharpPlus.Test
         {
             _ = response is ""
                 ? await ctx.RespondAsync("This is a reply! :)", message_id: ctx.Message.Id)
-                : await ctx.RespondAsync($"You requested me to say {response}", message_id: ctx.Message.Id);
+                : await ctx.RespondAsync($"You requested me to say \"{response}\"", message_id: ctx.Message.Id);
         }
     }
 }
