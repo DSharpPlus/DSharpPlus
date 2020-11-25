@@ -626,31 +626,17 @@ namespace DSharpPlus.Net
 
             if (embed?.Timestamp != null)
                 embed.Timestamp = embed.Timestamp.Value.ToUniversalTime();
-            
-            var isReply = !(message_id is null);
-            var serpld = "";
-            
-            var pld =  !isReply ? 
-                new RestChannelMessageCreatePayload
-                {
-                    HasContent = content != null,
-                    Content = content,
-                    IsTTS = tts,
-                    HasEmbed = embed != null,
-                    Embed = embed,
-                } :
-                (RestChannelMessageEditPayload) new RestChannelMessageCreatePayloadWithReply
-                {
-                    HasContent = content != null,
-                    Content = content,
-                    IsTTS = tts,
-                    HasEmbed = embed != null,
-                    Embed = embed,
-                    MessageReference = new InternalDiscordMessageReference { messageId = message_id, /* channelId = channel_id */ }
-                };
-            
-            if (isReply) serpld = DiscordJson.SerializeObject((RestChannelMessageCreatePayloadWithReply) pld);
-            else serpld = DiscordJson.SerializeObject((RestChannelMessageCreatePayload)pld);
+
+            var pld = new RestChannelMessageCreatePayload
+            {
+                HasContent = content != null,
+                Content = content,
+                IsTTS = tts,
+                HasEmbed = embed != null,
+                Embed = embed
+            };
+
+            if (message_id != null) pld.MessageReference = new InternalDiscordMessageReference {messageId = message_id};
 
             if (mentions != null)
                 pld.Mentions = new DiscordMentions(mentions);
@@ -662,7 +648,7 @@ namespace DSharpPlus.Net
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: serpld).ConfigureAwait(false);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
 
             var ret = this.PrepareMessage(JObject.Parse(res.Response));
 

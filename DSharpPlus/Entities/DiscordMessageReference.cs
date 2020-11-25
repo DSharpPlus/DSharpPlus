@@ -34,7 +34,7 @@ namespace DSharpPlus.Entities
         internal ulong? messageId { get; set; }
 
         [JsonProperty("channel_id")]
-        internal ulong channelId { get; set; }
+        internal ulong? channelId { get; set; }
 
         [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
         internal ulong? guildId { get; set; }

@@ -315,13 +315,13 @@ namespace DSharpPlus.Entities
                     Discord = client
                 };
 
-            var channel = client.InternalGetCachedChannel(channelId);
+            var channel = client.InternalGetCachedChannel((ulong)channelId);
 
             if (channel == null)
             {
                 reference.Channel = new DiscordChannel
                 {
-                    Id = channelId,
+                    Id = (ulong)channelId,
                     Discord = client
                 };
 
