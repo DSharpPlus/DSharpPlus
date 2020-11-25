@@ -89,11 +89,17 @@ namespace DSharpPlus.Net.Abstractions
     {
         [JsonProperty("tts", NullValueHandling = NullValueHandling.Ignore)]
         public bool? IsTTS { get; set; }
+        
+    }
+    
+    internal sealed class RestChannelMessageCreatePayloadWithReply : RestChannelMessageEditPayload
+    {
+        [JsonProperty("tts", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? IsTTS { get; set; }
 
         [JsonProperty("message_reference")]
         public InternalDiscordMessageReference MessageReference { get; set; }
         
-
     }
 
     internal sealed class RestChannelMessageCreateMultipartPayload

@@ -609,7 +609,8 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content, bool? tts, DiscordEmbed embed, IEnumerable<IMention> mentions, ulong? message_id)
+        internal async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content, bool? tts,
+            DiscordEmbed embed, IEnumerable<IMention> mentions, ulong? message_id)
         {
             if (content != null && content.Length > 2000)
                 throw new ArgumentException("Message content length cannot exceed 2000 characters.");
@@ -622,40 +623,45 @@ namespace DSharpPlus.Net
                 if (content == "")
                     throw new ArgumentException("Message content must not be empty.");
             }
-    
+
             if (embed?.Timestamp != null)
                 embed.Timestamp = embed.Timestamp.Value.ToUniversalTime();
-
-            var pld = new RestChannelMessageCreatePayload
-            {
-                HasContent = content != null,
-                Content = content,
-                IsTTS = tts,
-                HasEmbed = embed != null,
-                Embed = embed,
-            };
+            
+            var isReply = !(message_id is null);
+            var serpld = string.Empty;
+            
+            var pld =  !isReply ? 
+                new RestChannelMessageCreatePayload
+                {
+                    HasContent = content != null,
+                    Content = content,
+                    IsTTS = tts,
+                    HasEmbed = embed != null,
+                    Embed = embed,
+                } :
+                (RestChannelMessageEditPayload) new RestChannelMessageCreatePayloadWithReply
+                {
+                    HasContent = content != null,
+                    Content = content,
+                    IsTTS = tts,
+                    HasEmbed = embed != null,
+                    Embed = embed,
+                    MessageReference = new InternalDiscordMessageReference { messageId = message_id, channelId = channel_id }
+                };
+            if (isReply) serpld = DiscordJson.SerializeObject((RestChannelMessageCreatePayloadWithReply) pld);
+            else serpld = DiscordJson.SerializeObject((RestChannelMessageCreatePayload)pld);
 
             if (mentions != null)
                 pld.Mentions = new DiscordMentions(mentions);
 
-            if (message_id != null)
-                pld.MessageReference = new InternalDiscordMessageReference()
-                {
-                    // channelId = channel_id,
-                    // guildId = this.Discord.Guilds.Values.FirstOrDefault(g => g.Channels.ContainsKey(channel_id))?.Id,
-                    messageId = message_id
-                };
-            else pld.MessageReference = default;
-
-
-
-
+            
+            
 
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: serpld).ConfigureAwait(false);
 
             var ret = this.PrepareMessage(JObject.Parse(res.Response));
 
