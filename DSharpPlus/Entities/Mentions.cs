@@ -8,6 +8,7 @@ namespace DSharpPlus.Entities
     /// Interface for mentionables
     /// </summary>
     public interface IMention { }
+    
 
     /// <summary>
     /// Allows @everyone and @here pings to mention in the message.

@@ -415,14 +415,16 @@ namespace DSharpPlus.Entities
         /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <param name="mentions">Allowed mentions in the message</param>
-        /// <param name="message_id">The Id of a message to reply to.</param>
+        /// <param name="message_id">The Id of the message to reply to.</param>
+        /// <param name="mention">Whether or not to mention the user in the reply.</param>
         /// <returns>The sent message.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordMessage> RespondAsync(string content = null, bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null, ulong? message_id = null) 
-            => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, content, tts, embed, mentions, message_id);
+        public Task<DiscordMessage> RespondAsync(string content = null, bool tts = false, DiscordEmbed embed = null, 
+            IEnumerable<IMention> mentions = null, ulong? message_id = null, bool mention = false) 
+            => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, content, tts, embed, mentions, message_id, mention);
 
         /// <summary>
         /// Responds to the message with a file.

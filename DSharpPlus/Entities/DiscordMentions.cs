@@ -33,21 +33,26 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("parse", NullValueHandling = NullValueHandling.Ignore)]
         public IEnumerable<string> Parse { get; }
+        
+        [JsonProperty("replied_user", NullValueHandling = NullValueHandling.Ignore)]
+        public bool MentionInReply { get; }
 
-        internal DiscordMentions(IEnumerable<IMention> mentions)
+        internal DiscordMentions(IEnumerable<IMention> mentions, bool mention = false)
         {
             //Null check just to be safe
             if (mentions == null) return;
-
+            
             //If we have no item in our mentions, its likely to be a empty array. 
             // This is a special case were we want parse to be a empty array
             // Doing this allows for "no parsing"
             if (!mentions.Any())
             {
                 Parse = new string[0];
+                MentionInReply = mention;
                 return;
             }
-
+            
+            
             //Prepare a list of allowed IDs. We will be adding to these IDs.
             HashSet<ulong> roles = new HashSet<ulong>();
             HashSet<ulong> users = new HashSet<ulong>();
@@ -89,6 +94,8 @@ namespace DSharpPlus.Entities
             //If we have a empty parse aray, we don't want to add it.
             if (parse.Count > 0)
                 Parse = parse;
+            
+            this.MentionInReply = mention;
         }
     }
 }
