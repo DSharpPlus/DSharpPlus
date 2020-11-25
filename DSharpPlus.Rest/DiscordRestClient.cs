@@ -394,8 +394,8 @@ namespace DSharpPlus
         /// <param name="embed">Embed to attach</param>
         /// <param name="mentions">Allowed mentions in the message</param>
         /// <returns></returns>
-        public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content, bool? tts, DiscordEmbed embed, IEnumerable<IMention> mentions)
-            => this.ApiClient.CreateMessageAsync(channel_id, content, tts, embed, mentions);
+        public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content, bool? tts, DiscordEmbed embed, IEnumerable<IMention> mentions, ulong? message_id)
+            => this.ApiClient.CreateMessageAsync(channel_id, content, tts, embed, mentions, message_id);
 
         /// <summary>
         /// Uploads a file

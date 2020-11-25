@@ -609,7 +609,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content, bool? tts, DiscordEmbed embed, IEnumerable<IMention> mentions)
+        internal async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content, bool? tts, DiscordEmbed embed, IEnumerable<IMention> mentions, ulong? message_id)
         {
             if (content != null && content.Length > 2000)
                 throw new ArgumentException("Message content length cannot exceed 2000 characters.");
@@ -622,7 +622,7 @@ namespace DSharpPlus.Net
                 if (content == "")
                     throw new ArgumentException("Message content must not be empty.");
             }
-
+    
             if (embed?.Timestamp != null)
                 embed.Timestamp = embed.Timestamp.Value.ToUniversalTime();
 
@@ -632,11 +632,24 @@ namespace DSharpPlus.Net
                 Content = content,
                 IsTTS = tts,
                 HasEmbed = embed != null,
-                Embed = embed
+                Embed = embed,
             };
 
             if (mentions != null)
                 pld.Mentions = new DiscordMentions(mentions);
+
+            if (message_id != null)
+                pld.MessageReference = new InternalDiscordMessageReference()
+                {
+                    // channelId = channel_id,
+                    // guildId = this.Discord.Guilds.Values.FirstOrDefault(g => g.Channels.ContainsKey(channel_id))?.Id,
+                    messageId = message_id
+                };
+            else pld.MessageReference = default;
+
+
+
+
 
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id }, out var path);

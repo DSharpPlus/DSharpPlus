@@ -92,7 +92,8 @@ namespace DSharpPlus.CommandsNext
         {
             this._lazyAssMember = new Lazy<DiscordMember>(() => this.Guild != null && this.Guild.Members.TryGetValue(this.User.Id, out var member) ? member : this.Guild?.GetMemberAsync(this.User.Id).ConfigureAwait(false).GetAwaiter().GetResult());
         }
-
+        
+        // TODO Add message_id to remaining classes, but we're just testing it right now, so RespondAsync is fine.
         /// <summary>
         /// Quickly respond to the message that triggered the command.
         /// </summary>
@@ -100,9 +101,10 @@ namespace DSharpPlus.CommandsNext
         /// <param name="isTTS">Whether the message is to be spoken aloud.</param>
         /// <param name="embed">Embed to attach.</param>
         /// <param name="mentions">A list of mentions permitted to trigger a ping.</param>
+        /// <param name="message_id">The Id of a message to reply to.</param>
         /// <returns></returns>
-        public Task<DiscordMessage> RespondAsync(string content = null, bool isTTS = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null) 
-            => this.Message.RespondAsync(content, isTTS, embed, mentions);
+        public Task<DiscordMessage> RespondAsync(string content = null, bool isTTS = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null, ulong? message_id = null) 
+            => this.Message.RespondAsync(content, isTTS, embed, mentions, message_id);
 
         /// <summary>
         /// Quickly respond with a file to the message that triggered the command.
