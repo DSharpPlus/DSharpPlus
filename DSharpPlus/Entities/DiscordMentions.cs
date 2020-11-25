@@ -35,7 +35,7 @@ namespace DSharpPlus.Entities
         public IEnumerable<string> Parse { get; }
         
         [JsonProperty("replied_user", NullValueHandling = NullValueHandling.Ignore)]
-        public bool MentionInReply { get; }
+        public bool? RepliedUser { get; }
 
         internal DiscordMentions(IEnumerable<IMention> mentions, bool mention = false)
         {
@@ -48,7 +48,7 @@ namespace DSharpPlus.Entities
             if (!mentions.Any())
             {
                 Parse = new string[0];
-                MentionInReply = mention;
+                this.RepliedUser = mention;
                 return;
             }
             
@@ -81,6 +81,10 @@ namespace DSharpPlus.Entities
                     case EveryoneMention e:
                         parse.Add(ParseEveryone);
                         break;
+                    
+                    case RepliedUserMention _:
+                        this.RepliedUser = mention;
+                        break;
                 }
             }
 
@@ -94,8 +98,6 @@ namespace DSharpPlus.Entities
             //If we have a empty parse aray, we don't want to add it.
             if (parse.Count > 0)
                 Parse = parse;
-            
-            this.MentionInReply = mention;
         }
     }
 }

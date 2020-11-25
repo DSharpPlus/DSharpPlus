@@ -103,8 +103,9 @@ namespace DSharpPlus.CommandsNext
         /// <param name="mentions">A list of mentions permitted to trigger a ping.</param>
         /// <param name="message_id">The Id of a message to reply to.</param>
         /// <returns></returns>
-        public Task<DiscordMessage> RespondAsync(string content = null, bool isTTS = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null, ulong? message_id = null) 
-            => this.Message.RespondAsync(content, isTTS, embed, mentions, message_id);
+        public Task<DiscordMessage> RespondAsync(string content = null, bool isTTS = false, DiscordEmbed embed = null, 
+            IEnumerable<IMention> mentions = null, ulong? message_id = null, bool mention = false) 
+            => this.Message.RespondAsync(content, isTTS, embed, mentions, message_id, mention);
 
         /// <summary>
         /// Quickly respond with a file to the message that triggered the command.

@@ -639,8 +639,8 @@ namespace DSharpPlus.Net
             if (message_id != null) 
                 pld.MessageReference = new InternalDiscordMessageReference {messageId = message_id};
 
-            if (mentions != null)
-                pld.Mentions = new DiscordMentions(mentions, mention);
+            if (mentions != null || message_id != null)
+                pld.Mentions = new DiscordMentions(mentions ?? Mentions.None, mention);
 
             
             

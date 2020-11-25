@@ -33,7 +33,7 @@ namespace DSharpPlus.Entities
         [JsonProperty("message_id", NullValueHandling = NullValueHandling.Ignore)]
         internal ulong? messageId { get; set; }
 
-        [JsonProperty("channel_id")]
+        [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
         internal ulong? channelId { get; set; }
 
         [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
