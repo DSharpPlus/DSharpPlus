@@ -1165,10 +1165,30 @@ namespace DSharpPlus
 
         internal async Task OnMessageCreateEventAsync(DiscordMessage message, TransportUser author, TransportMember member)
         {
-            PopulateDiscordMessage(message, author, member);
+            message.Discord = this;
+            PopulateMessageReactionsAndCache(message, author, member);
+            PopulateMessageMentions(message, message.Channel?.Guild);
+
+            if (message.Channel == null)
+                this.Logger.LogWarning(LoggerEvents.WebSocketReceive, "Channel which the last message belongs to is not in cache - cache state might be invalid!");
+            else
+                message.Channel.LastMessageId = message.Id;
 
             if (message.ReferencedMessage != null)
-                PopulateDiscordMessage(message.ReferencedMessage, null, null);
+            {
+                message.ReferencedMessage.Discord = this;
+                if (this.Configuration.MessageCacheSize == 0
+                    || this.MessageCache == null
+                    || !this.MessageCache.TryGet(xm => xm.Id == message.ReferencedMessage.Id && xm.ChannelId == message.ReferencedMessage.ChannelId, out DiscordMessage cachedMessage))
+                {
+                    PopulateMessageReactionsAndCache(message.ReferencedMessage, null, null);
+                    PopulateMessageMentions(message, message.ReferencedMessage.Channel?.Guild);
+                }
+                else
+                {
+                    message.ReferencedMessage = cachedMessage;
+                }
+            }
 
             var ea = new MessageCreateEventArgs
             {
@@ -1181,22 +1201,25 @@ namespace DSharpPlus
             await this._messageCreated.InvokeAsync(this, ea).ConfigureAwait(false);
         }
 
-        private void PopulateDiscordMessage(DiscordMessage message, TransportUser author, TransportMember member)
+        // TODO: I ducking hate this name so much. Halp. 
+        private void PopulateMessageReactionsAndCache(DiscordMessage message, TransportUser author, TransportMember member)
         {
-            message.Discord = this;
+            this.UpdateMessage(message, author, message.Channel?.Guild, member);
 
-            if (message.Channel == null)
-                this.Logger.LogWarning(LoggerEvents.WebSocketReceive, "Channel which the last message belongs to is not in cache - cache state might be invalid!");
-            else
-                message.Channel.LastMessageId = message.Id;
+            if (message._reactions == null)
+                message._reactions = new List<DiscordReaction>();
+            foreach (var xr in message._reactions)
+                xr.Emoji.Discord = this;
 
-            var guild = message.Channel?.Guild;
+            if (this.Configuration.MessageCacheSize > 0 && message.Channel != null)
+                this.MessageCache?.Add(message);
+        }
 
-            this.UpdateMessage(message, author, guild, member);
-
-            List<DiscordUser> mentionedUsers = new List<DiscordUser>();
-            List<DiscordRole> mentionedRoles = guild != null ? new List<DiscordRole>() : null;
-            List<DiscordChannel> mentionedChannels = guild != null ? new List<DiscordChannel>() : null;
+        private void PopulateMessageMentions(DiscordMessage message, DiscordGuild guild)
+        {
+            var mentionedUsers = new List<DiscordUser>();
+            var mentionedRoles = guild != null ? new List<DiscordRole>() : null;
+            var mentionedChannels = guild != null ? new List<DiscordChannel>() : null;
             if (!string.IsNullOrWhiteSpace(message.Content))
             {
                 if (guild != null)
@@ -1214,16 +1237,6 @@ namespace DSharpPlus
             message._mentionedUsers = mentionedUsers;
             message._mentionedRoles = mentionedRoles;
             message._mentionedChannels = mentionedChannels;
-
-            if (message._reactions == null)
-                message._reactions = new List<DiscordReaction>();
-            foreach (var xr in message._reactions)
-                xr.Emoji.Discord = this;
-
-            if (this.Configuration.MessageCacheSize > 0 && message.Channel != null)
-                this.MessageCache?.Add(message);
-
-            return;
         }
 
         internal async Task OnMessageUpdateEventAsync(DiscordMessage message, TransportUser author, TransportMember member)
@@ -1239,14 +1252,8 @@ namespace DSharpPlus
                 || !this.MessageCache.TryGet(xm => xm.Id == event_message.Id && xm.ChannelId == event_message.ChannelId, out message))
             {
                 message = event_message;
+                PopulateMessageReactionsAndCache(message, author, member);
                 guild = message.Channel?.Guild;
-
-                this.UpdateMessage(message, author, guild, member);
-
-                if (message._reactions == null)
-                    message._reactions = new List<DiscordReaction>();
-                foreach (var xr in message._reactions)
-                    xr.Emoji.Discord = this;
             }
             else
             {
@@ -1262,35 +1269,15 @@ namespace DSharpPlus
                 message.IsTTS = event_message.IsTTS;
             }
 
-            var mentioned_users = new List<DiscordUser>();
-            var mentioned_roles = guild != null ? new List<DiscordRole>() : null;
-            var mentioned_channels = guild != null ? new List<DiscordChannel>() : null;
-
-            if (!string.IsNullOrWhiteSpace(message.Content))
-            {
-                if (guild != null)
-                {
-                    mentioned_users = Utilities.GetUserMentions(message).Select(xid => guild._members.TryGetValue(xid, out var member) ? member : null).Cast<DiscordUser>().ToList();
-                    mentioned_roles = Utilities.GetRoleMentions(message).Select(xid => guild.GetRole(xid)).ToList();
-                    mentioned_channels = Utilities.GetChannelMentions(message).Select(xid => guild.GetChannel(xid)).ToList();
-                }
-                else
-                {
-                    mentioned_users = Utilities.GetUserMentions(message).Select(this.GetCachedOrEmptyUserInternal).ToList();
-                }
-            }
-
-            message._mentionedUsers = mentioned_users;
-            message._mentionedRoles = mentioned_roles;
-            message._mentionedChannels = mentioned_channels;
+            PopulateMessageMentions(message, guild);
 
             var ea = new MessageUpdateEventArgs
             {
                 Message = message,
                 MessageBefore = oldmsg,
-                MentionedUsers = new ReadOnlyCollection<DiscordUser>(mentioned_users),
-                MentionedRoles = mentioned_roles != null ? new ReadOnlyCollection<DiscordRole>(mentioned_roles) : null,
-                MentionedChannels = mentioned_channels != null ? new ReadOnlyCollection<DiscordChannel>(mentioned_channels) : null
+                MentionedUsers = new ReadOnlyCollection<DiscordUser>(message._mentionedUsers),
+                MentionedRoles = message._mentionedRoles != null ? new ReadOnlyCollection<DiscordRole>(message._mentionedRoles) : null,
+                MentionedChannels = message._mentionedChannels != null ? new ReadOnlyCollection<DiscordChannel>(message._mentionedChannels) : null
             };
             await this._messageUpdated.InvokeAsync(this, ea).ConfigureAwait(false);
         }
