@@ -252,7 +252,7 @@ namespace DSharpPlus.Entities
         internal InternalDiscordMessageReference? _reference { get; set; }
 
         /// <summary>
-        /// Gets the original message reference from the crossposted message.
+        /// Gets the original message reference from the crossposted or replied message.
         /// </summary>
         [JsonIgnore]
         public DiscordMessageReference Reference
@@ -289,6 +289,12 @@ namespace DSharpPlus.Entities
         internal List<DiscordMessageSticker> _stickers = new List<DiscordMessageSticker>();
         [JsonIgnore]
         private Lazy<IReadOnlyList<DiscordMessageSticker>> _stickersLazy;
+
+        /// <summary>
+        /// Gets the message object for the referenced message
+        /// </summary>
+        [JsonProperty("referenced_message", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordMessage ReferencedMessage { get; internal set;  }
 
         internal DiscordMessageReference InternalBuildMessageReference()
         {

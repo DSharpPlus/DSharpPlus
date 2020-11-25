@@ -1165,6 +1165,24 @@ namespace DSharpPlus
 
         internal async Task OnMessageCreateEventAsync(DiscordMessage message, TransportUser author, TransportMember member)
         {
+            PopulateDiscordMessage(message, author, member);
+
+            if (message.ReferencedMessage != null)
+                PopulateDiscordMessage(message.ReferencedMessage, null, null);
+
+            var ea = new MessageCreateEventArgs
+            {
+                Message = message,
+
+                MentionedUsers = new ReadOnlyCollection<DiscordUser>(message._mentionedUsers),
+                MentionedRoles = message._mentionedRoles != null ? new ReadOnlyCollection<DiscordRole>(message._mentionedRoles) : null,
+                MentionedChannels = message._mentionedChannels != null ? new ReadOnlyCollection<DiscordChannel>(message._mentionedChannels) : null
+            };
+            await this._messageCreated.InvokeAsync(this, ea).ConfigureAwait(false);
+        }
+
+        private void PopulateDiscordMessage(DiscordMessage message, TransportUser author, TransportMember member)
+        {
             message.Discord = this;
 
             if (message.Channel == null)
@@ -1176,10 +1194,9 @@ namespace DSharpPlus
 
             this.UpdateMessage(message, author, guild, member);
 
-            var mentionedUsers = new List<DiscordUser>();
-            var mentionedRoles = guild != null ? new List<DiscordRole>() : null;
-            var mentionedChannels = guild != null ? new List<DiscordChannel>() : null;
-
+            List<DiscordUser> mentionedUsers = new List<DiscordUser>();
+            List<DiscordRole> mentionedRoles = guild != null ? new List<DiscordRole>() : null;
+            List<DiscordChannel> mentionedChannels = guild != null ? new List<DiscordChannel>() : null;
             if (!string.IsNullOrWhiteSpace(message.Content))
             {
                 if (guild != null)
@@ -1206,15 +1223,7 @@ namespace DSharpPlus
             if (this.Configuration.MessageCacheSize > 0 && message.Channel != null)
                 this.MessageCache?.Add(message);
 
-            var ea = new MessageCreateEventArgs
-            {
-                Message = message,
-
-                MentionedUsers = new ReadOnlyCollection<DiscordUser>(mentionedUsers),
-                MentionedRoles = mentionedRoles != null ? new ReadOnlyCollection<DiscordRole>(mentionedRoles) : null,
-                MentionedChannels = mentionedChannels != null ? new ReadOnlyCollection<DiscordChannel>(mentionedChannels) : null
-            };
-            await this._messageCreated.InvokeAsync(this, ea).ConfigureAwait(false);
+            return;
         }
 
         internal async Task OnMessageUpdateEventAsync(DiscordMessage message, TransportUser author, TransportMember member)
