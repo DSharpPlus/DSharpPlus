@@ -661,16 +661,16 @@ namespace DSharpPlus.Net
 
             this.GlobalRateLimitEvent.Reset();
 
-            if (!this._bucketCleanerTokenSource.IsCancellationRequested)
+            if (this._bucketCleanerTokenSource?.IsCancellationRequested == false)
             {
-                this._bucketCleanerTokenSource.Cancel();
+                this._bucketCleanerTokenSource?.Cancel();
                 this.Logger.LogDebug(LoggerEvents.RestCleaner, "Bucket cleaner task stopped.");
             }
 
             try
             {
-                this._cleanerTask.Dispose();
-                this.HttpClient.Dispose();
+                this._cleanerTask?.Dispose();
+                this.HttpClient?.Dispose();
             }
             catch { }
 
