@@ -511,30 +511,31 @@ namespace DSharpPlus
                     IsNSFW = channel_new.IsNSFW,
                     PerUserRateLimit = channel_new.PerUserRateLimit
                 };
+
+                channel_new.Bitrate = channel.Bitrate;
+                channel_new.Name = channel.Name;
+                channel_new.Position = channel.Position;
+                channel_new.Topic = channel.Topic;
+                channel_new.UserLimit = channel.UserLimit;
+                channel_new.ParentId = channel.ParentId;
+                channel_new.IsNSFW = channel.IsNSFW;
+                channel_new.PerUserRateLimit = channel.PerUserRateLimit;
+                channel_new.Type = channel.Type;
+
+                channel_new._permissionOverwrites.Clear();
+
+                foreach (var po in channel._permissionOverwrites)
+                {
+                    po.Discord = this;
+                    po._channel_id = channel.Id;
+                }
+
+                channel_new._permissionOverwrites.AddRange(channel._permissionOverwrites);
             }
-            else
+            else if(gld != null)
             {
                 gld._channels[channel.Id] = channel;
             }
-
-            channel_new.Bitrate = channel.Bitrate;
-            channel_new.Name = channel.Name;
-            channel_new.Position = channel.Position;
-            channel_new.Topic = channel.Topic;
-            channel_new.UserLimit = channel.UserLimit;
-            channel_new.ParentId = channel.ParentId;
-            channel_new.IsNSFW = channel.IsNSFW;
-            channel_new.PerUserRateLimit = channel.PerUserRateLimit;
-
-            channel_new._permissionOverwrites.Clear();
-
-            foreach (var po in channel._permissionOverwrites)
-            {
-                po.Discord = this;
-                po._channel_id = channel.Id;
-            }
-
-            channel_new._permissionOverwrites.AddRange(channel._permissionOverwrites);
 
             await this._channelUpdated.InvokeAsync(this, new ChannelUpdateEventArgs { ChannelAfter = channel_new, Guild = gld, ChannelBefore = channel_old }).ConfigureAwait(false);
         }
