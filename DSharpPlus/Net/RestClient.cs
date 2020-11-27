@@ -642,7 +642,7 @@ namespace DSharpPlus.Net
                     break;
             }
 
-            if(!this._bucketCleanerTokenSource.IsCancellationRequested)
+            if (!this._bucketCleanerTokenSource.IsCancellationRequested)
                 this._bucketCleanerTokenSource.Cancel();
 
             this._cleanerRunning = false;
@@ -670,6 +670,7 @@ namespace DSharpPlus.Net
             try
             {
                 this._cleanerTask?.Dispose();
+                this._bucketCleanerTokenSource?.Dispose();
                 this.HttpClient?.Dispose();
             }
             catch { }
