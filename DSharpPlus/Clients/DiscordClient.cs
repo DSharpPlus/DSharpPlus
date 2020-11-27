@@ -533,12 +533,13 @@ namespace DSharpPlus
 
         internal DiscordGuild InternalGetCachedGuild(ulong? guildId)
         {
-            DiscordGuild foundGuild = default;
+            if(this._guilds != null && guildId.HasValue)
+            {
+                if (this._guilds.TryGetValue(guildId.Value, out var guild))
+                    return guild;
+            }
 
-            if (guildId.HasValue)
-                foundGuild = this._guilds?[guildId.Value];
-
-            return foundGuild;
+            return null;
         }
 
         private void UpdateMessage(DiscordMessage message, TransportUser author, DiscordGuild guild, TransportMember member)
