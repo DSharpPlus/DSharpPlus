@@ -39,6 +39,8 @@ namespace DSharpPlus
             ulong cid;
             TransportUser usr = default;
             TransportMember mbr = default;
+            TransportUser refUsr = default;
+            TransportMember refMbr = default;
             JToken rawMbr = default;
 
             switch (payload.EventName.ToLowerInvariant())
@@ -206,7 +208,10 @@ namespace DSharpPlus
                     if (rawMbr != null)
                         mbr = rawMbr.ToObject<TransportMember>();
 
-                    await OnMessageCreateEventAsync(dat.ToDiscordObject<DiscordMessage>(), dat["author"].ToObject<TransportUser>(), mbr).ConfigureAwait(false);
+                    refUsr = dat["referenced_message"]?["author"]?.ToObject<TransportUser>();
+                    refMbr = dat["referenced_message"] != null && dat["referenced_message"]["member"] != null ? dat["referenced_message"]["member"].ToObject<TransportMember>() : default;
+
+                    await OnMessageCreateEventAsync(dat.ToDiscordObject<DiscordMessage>(), dat["author"].ToObject<TransportUser>(), mbr, refUsr, refMbr).ConfigureAwait(false);
                     break;
 
                 case "message_update":
@@ -215,7 +220,10 @@ namespace DSharpPlus
                     if (rawMbr != null)
                         mbr = rawMbr.ToObject<TransportMember>();
 
-                    await OnMessageUpdateEventAsync(dat.ToDiscordObject<DiscordMessage>(), dat["author"]?.ToObject<TransportUser>(), mbr).ConfigureAwait(false);
+                    refUsr = dat["referenced_message"]?["author"]?.ToObject<TransportUser>();
+                    refMbr = dat["referenced_message"] != null && dat["referenced_message"]["member"] != null ? dat["referenced_message"]["member"].ToObject<TransportMember>() : default;
+
+                    await OnMessageUpdateEventAsync(dat.ToDiscordObject<DiscordMessage>(), dat["author"]?.ToObject<TransportUser>(), mbr, refUsr, refMbr).ConfigureAwait(false);
                     break;
 
                 // delete event does *not* include message object 
@@ -1163,7 +1171,7 @@ namespace DSharpPlus
             await this._messageAcknowledged.InvokeAsync(this, new MessageAcknowledgeEventArgs { Message = msg }).ConfigureAwait(false);
         }
 
-        internal async Task OnMessageCreateEventAsync(DiscordMessage message, TransportUser author, TransportMember member)
+        internal async Task OnMessageCreateEventAsync(DiscordMessage message, TransportUser author, TransportMember member, TransportUser referenceAuthor, TransportMember referenceMember)
         {
             message.Discord = this;
             PopulateMessageReactionsAndCache(message, author, member);
@@ -1177,17 +1185,8 @@ namespace DSharpPlus
             if (message.ReferencedMessage != null)
             {
                 message.ReferencedMessage.Discord = this;
-                if (this.Configuration.MessageCacheSize == 0
-                    || this.MessageCache == null
-                    || !this.MessageCache.TryGet(xm => xm.Id == message.ReferencedMessage.Id && xm.ChannelId == message.ReferencedMessage.ChannelId, out DiscordMessage cachedMessage))
-                {
-                    PopulateMessageReactionsAndCache(message.ReferencedMessage, null, null);
-                    PopulateMessageMentions(message, message.ReferencedMessage.Channel?.Guild);
-                }
-                else
-                {
-                    message.ReferencedMessage = cachedMessage;
-                }
+                PopulateMessageReactionsAndCache(message.ReferencedMessage, referenceAuthor, referenceMember);
+                PopulateMessageMentions(message, message.ReferencedMessage.Channel?.Guild);
             }
 
             var ea = new MessageCreateEventArgs
@@ -1239,7 +1238,7 @@ namespace DSharpPlus
             message._mentionedChannels = mentionedChannels;
         }
 
-        internal async Task OnMessageUpdateEventAsync(DiscordMessage message, TransportUser author, TransportMember member)
+        internal async Task OnMessageUpdateEventAsync(DiscordMessage message, TransportUser author, TransportMember member, TransportUser referenceAuthor, TransportMember referenceMember)
         {
             DiscordGuild guild;
 
@@ -1254,6 +1253,13 @@ namespace DSharpPlus
                 message = event_message;
                 PopulateMessageReactionsAndCache(message, author, member);
                 guild = message.Channel?.Guild;
+
+                if (message.ReferencedMessage != null)
+                {
+                    message.ReferencedMessage.Discord = this;
+                    PopulateMessageReactionsAndCache(message.ReferencedMessage, referenceAuthor, referenceMember);
+                    PopulateMessageMentions(message.ReferencedMessage, guild);
+                }
             }
             else
             {

@@ -53,6 +53,20 @@ namespace DSharpPlus.Net
             var ret = msg_raw.ToDiscordObject<DiscordMessage>();
             ret.Discord = this.Discord;
 
+            PopulateMessage(author, ret);
+
+            if (ret.Reference != null)
+            {
+                author = msg_raw["referenced_message"]["author"].ToObject<TransportUser>();
+                ret.ReferencedMessage.Discord = this.Discord;
+                PopulateMessage(author, ret.ReferencedMessage);
+            }
+
+            return ret;
+        }
+
+        private void PopulateMessage(TransportUser author, DiscordMessage ret)
+        {
             var guild = ret.Channel?.Guild;
 
             //If this is a webhook, it shouldn't be in the user cache.
@@ -105,8 +119,6 @@ namespace DSharpPlus.Net
                 ret._reactions = new List<DiscordReaction>();
             foreach (var xr in ret._reactions)
                 xr.Emoji.Discord = this.Discord;
-
-            return ret;
         }
 
         private Task<RestResponse> DoRequestAsync(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, string route, IReadOnlyDictionary<string, string> headers = null, string payload = null, double? ratelimitWaitOverride = null)
@@ -610,7 +622,7 @@ namespace DSharpPlus.Net
         }
 
         internal async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content, bool? tts,
-            DiscordEmbed embed, IEnumerable<IMention> mentions, ulong? message_id = null, bool mention = false)
+            DiscordEmbed embed, IEnumerable<IMention> mentions, ulong? replyMessageId = null, bool mention = false)
         {
             if (content != null && content.Length > 2000)
                 throw new ArgumentException("Message content length cannot exceed 2000 characters.");
@@ -636,10 +648,10 @@ namespace DSharpPlus.Net
                 Embed = embed,
             };
 
-            if (message_id != null) 
-                pld.MessageReference = new InternalDiscordMessageReference {messageId = message_id};
+            if (replyMessageId != null) 
+                pld.MessageReference = new InternalDiscordMessageReference {messageId = replyMessageId};
 
-            if (mentions != null || message_id != null)
+            if (mentions != null || replyMessageId != null)
                 pld.Mentions = new DiscordMentions(mentions ?? Mentions.None, mention);
 
             
