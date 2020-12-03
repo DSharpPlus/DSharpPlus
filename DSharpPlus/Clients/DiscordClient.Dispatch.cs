@@ -1200,44 +1200,6 @@ namespace DSharpPlus
             await this._messageCreated.InvokeAsync(this, ea).ConfigureAwait(false);
         }
 
-        // TODO: I ducking hate this name so much. Halp. 
-        private void PopulateMessageReactionsAndCache(DiscordMessage message, TransportUser author, TransportMember member)
-        {
-            this.UpdateMessage(message, author, message.Channel?.Guild, member);
-
-            if (message._reactions == null)
-                message._reactions = new List<DiscordReaction>();
-            foreach (var xr in message._reactions)
-                xr.Emoji.Discord = this;
-
-            if (this.Configuration.MessageCacheSize > 0 && message.Channel != null)
-                this.MessageCache?.Add(message);
-        }
-
-        private void PopulateMessageMentions(DiscordMessage message, DiscordGuild guild)
-        {
-            var mentionedUsers = new List<DiscordUser>();
-            var mentionedRoles = guild != null ? new List<DiscordRole>() : null;
-            var mentionedChannels = guild != null ? new List<DiscordChannel>() : null;
-            if (!string.IsNullOrWhiteSpace(message.Content))
-            {
-                if (guild != null)
-                {
-                    mentionedUsers = Utilities.GetUserMentions(message).Select(xid => guild._members.TryGetValue(xid, out var member) ? member : new DiscordUser { Id = xid, Discord = this }).Cast<DiscordUser>().ToList();
-                    mentionedRoles = Utilities.GetRoleMentions(message).Select(xid => guild.GetRole(xid)).ToList();
-                    mentionedChannels = Utilities.GetChannelMentions(message).Select(xid => guild.GetChannel(xid)).ToList();
-                }
-                else
-                {
-                    mentionedUsers = Utilities.GetUserMentions(message).Select(this.GetCachedOrEmptyUserInternal).ToList();
-                }
-            }
-
-            message._mentionedUsers = mentionedUsers;
-            message._mentionedRoles = mentionedRoles;
-            message._mentionedChannels = mentionedChannels;
-        }
-
         internal async Task OnMessageUpdateEventAsync(DiscordMessage message, TransportUser author, TransportMember member, TransportUser referenceAuthor, TransportMember referenceMember)
         {
             DiscordGuild guild;
