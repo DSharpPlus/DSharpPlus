@@ -209,7 +209,7 @@ namespace DSharpPlus
                         mbr = rawMbr.ToObject<TransportMember>();
 
                     refUsr = dat["referenced_message"]?["author"]?.ToObject<TransportUser>();
-                    refMbr = dat["referenced_message"] != null && dat["referenced_message"]["member"] != null ? dat["referenced_message"]["member"].ToObject<TransportMember>() : default;
+                    refMbr = dat["referenced_message"]?["member"]?.ToObject<TransportMember>();
 
                     await OnMessageCreateEventAsync(dat.ToDiscordObject<DiscordMessage>(), dat["author"].ToObject<TransportUser>(), mbr, refUsr, refMbr).ConfigureAwait(false);
                     break;
@@ -221,7 +221,7 @@ namespace DSharpPlus
                         mbr = rawMbr.ToObject<TransportMember>();
 
                     refUsr = dat["referenced_message"]?["author"]?.ToObject<TransportUser>();
-                    refMbr = dat["referenced_message"] != null && dat["referenced_message"]["member"] != null ? dat["referenced_message"]["member"].ToObject<TransportMember>() : default;
+                    refMbr = dat["referenced_message"]?["member"]?.ToObject<TransportMember>();
 
                     await OnMessageUpdateEventAsync(dat.ToDiscordObject<DiscordMessage>(), dat["author"]?.ToObject<TransportUser>(), mbr, refUsr, refMbr).ConfigureAwait(false);
                     break;
@@ -1174,8 +1174,8 @@ namespace DSharpPlus
         internal async Task OnMessageCreateEventAsync(DiscordMessage message, TransportUser author, TransportMember member, TransportUser referenceAuthor, TransportMember referenceMember)
         {
             message.Discord = this;
-            PopulateMessageReactionsAndCache(message, author, member);
-            PopulateMessageMentions(message, message.Channel?.Guild);
+            this.PopulateMessageReactionsAndCache(message, author, member);
+            this.PopulateMessageMentions(message, message.Channel?.Guild);
 
             if (message.Channel == null)
                 this.Logger.LogWarning(LoggerEvents.WebSocketReceive, "Channel which the last message belongs to is not in cache - cache state might be invalid!");
@@ -1275,7 +1275,7 @@ namespace DSharpPlus
                 message.IsTTS = event_message.IsTTS;
             }
 
-            PopulateMessageMentions(message, guild);
+            this.PopulateMessageMentions(message, guild);
 
             var ea = new MessageUpdateEventArgs
             {
