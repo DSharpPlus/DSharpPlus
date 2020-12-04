@@ -8,6 +8,9 @@ namespace DSharpPlus.Entities
     /// </summary>
     public class DiscordMessageSticker : SnowflakeObject, IEquatable<DiscordMessageSticker>
     {
+        [JsonProperty("tags", NullValueHandling = NullValueHandling.Ignore)]
+        private string _tags;
+
         /// <summary>
         /// Gets the Pack ID of this sticker.
         /// </summary>
@@ -29,8 +32,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the list of tags for the sticker.
         /// </summary>
-        [JsonProperty("tags", NullValueHandling = NullValueHandling.Ignore)]
-        public string[] Tags { get; set; }
+        public string[] Tags => _tags.Split(',');
 
         /// <summary>
         /// Gets the asset hash of the sticker.
