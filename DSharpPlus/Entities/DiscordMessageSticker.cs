@@ -32,7 +32,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the list of tags for the sticker.
         /// </summary>
-        public string[] Tags => _internalTags.Split(',');
+        public string[] Tags => this._internalTags.Split(',');
 
         /// <summary>
         /// Gets the asset hash of the sticker.
