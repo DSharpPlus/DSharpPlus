@@ -390,39 +390,32 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="channel_id">Channel id</param>
         /// <param name="content">Message (text) content</param>
-        /// <param name="tts">Whether this message is a text-to-speech message</param>
-        /// <param name="embed">Embed to attach</param>
-        /// <param name="mentions">Allowed mentions in the message</param>
         /// <returns></returns>
-        public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content, bool? tts, DiscordEmbed embed, IEnumerable<IMention> mentions)
-            => this.ApiClient.CreateMessageAsync(channel_id, content, tts, embed, mentions);
+        public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content)
+            => this.ApiClient.CreateMessageAsync(channel_id, content, false, null, null);
 
         /// <summary>
-        /// Uploads a file
+        /// Sends a message
         /// </summary>
         /// <param name="channel_id">Channel id</param>
-        /// <param name="file_data">File data</param>
-        /// <param name="file_name">File name</param>
-        /// <param name="content">Message (text) content</param>
-        /// <param name="tts">Whether this message is a text-to-speech message</param>
         /// <param name="embed">Embed to attach</param>
-        /// <param name="mentions">Allowed mentions in the message</param>
         /// <returns></returns>
-        public Task<DiscordMessage> UploadFileAsync(ulong channel_id, Stream file_data, string file_name, string content, bool? tts, DiscordEmbed embed, IEnumerable<IMention> mentions)
-            => this.ApiClient.UploadFileAsync(channel_id, file_data, file_name, content, tts, embed, mentions);
+        public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, DiscordEmbed embed)
+            => this.ApiClient.CreateMessageAsync(channel_id, null, null, embed, null);
 
         /// <summary>
-        /// Uploads multiple files
+        /// Sends a message
         /// </summary>
         /// <param name="channel_id">Channel id</param>
-        /// <param name="files">Files to attach (filename, data)</param>
-        /// <param name="content">Message (text) content</param>
-        /// <param name="tts">Whether this message is a text-to-speech message</param>
-        /// <param name="embed">Embed to attach</param>
-        /// <param name="mentions">Allowed mentions in the message</param>
+        /// <param name="builder">The Discord Mesage builder.</param>
         /// <returns></returns>
-        public Task<DiscordMessage> UploadFilesAsync(ulong channel_id, Dictionary<string, Stream> files, string content, bool? tts, DiscordEmbed embed, IEnumerable<IMention> mentions)
-            => this.ApiClient.UploadFilesAsync(channel_id, files, content, tts, embed, mentions);
+        public async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, DiscordMessageBuilder builder)
+        {
+            if (builder.Files.Count() > 0)
+                return await this.ApiClient.UploadFilesAsync(channel_id, builder.Files, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions);
+            else
+                return await this.ApiClient.CreateMessageAsync(channel_id, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions);
+        }
 
         /// <summary>
         /// Gets channels from a guild

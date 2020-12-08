@@ -22,7 +22,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets if the message should be TTS.
         /// </summary>
-        public bool IsTTS { get; private set; }
+        public bool IsTTS { get; private set; } = false;
 
         /// <summary>
         /// Gets the Allowed Mentions for the message to be sent. 
@@ -32,7 +32,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the Files to be sent in the Message.
         /// </summary>
-        public Dictionary<string, Stream> Files { get; private set; }
+        public Dictionary<string, Stream> Files { get; private set; } = new Dictionary<string, Stream>();
 
         /// <summary>
         /// Sets the Content of the Message.

@@ -97,61 +97,25 @@ namespace DSharpPlus.CommandsNext
         /// Quickly respond to the message that triggered the command.
         /// </summary>
         /// <param name="content">Message to respond with.</param>
-        /// <param name="isTTS">Whether the message is to be spoken aloud.</param>
-        /// <param name="embed">Embed to attach.</param>
-        /// <param name="mentions">A list of mentions permitted to trigger a ping.</param>
         /// <returns></returns>
-        public Task<DiscordMessage> RespondAsync(string content = null, bool isTTS = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null) 
-            => this.Message.RespondAsync(content, isTTS, embed, mentions);
+        public Task<DiscordMessage> RespondAsync(string content)
+            => this.Message.RespondAsync(content);
 
         /// <summary>
-        /// Quickly respond with a file to the message that triggered the command.
+        /// Quickly respond to the message that triggered the command.
         /// </summary>
-        /// <param name="fileName">Name of the file to send.</param>
-        /// <param name="fileData">Stream containing the data to attach as a file.</param>
-        /// <param name="content">Message to respond with.</param>
-        /// <param name="isTTS">Whether the message is to be spoken aloud.</param>
-        /// <param name="embed">Embed to attach to the message.</param>
-        /// <param name="mentions">A list of mentions permitted to trigger a ping.</param>
-        /// <returns>Message that was sent.</returns>
-        public Task<DiscordMessage> RespondWithFileAsync(string fileName, Stream fileData, string content = null, bool isTTS = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null) 
-            => this.Message.RespondWithFileAsync(fileName, fileData, content, isTTS, embed, mentions);
+        /// <param name="embed">Embed to attach.</param>
+        /// <returns></returns>
+        public Task<DiscordMessage> RespondAsync(DiscordEmbed embed)
+            => this.Message.RespondAsync(embed);
 
         /// <summary>
-        /// Quickly respond with a file to the message that triggered the command.
+        /// Quickly respond to the message that triggered the command.
         /// </summary>
-        /// <param name="fileData">Stream containing the data to attach as a file.</param>
-        /// <param name="content">Message to respond with.</param>
-        /// <param name="isTTS">Whether the message is to be spoken aloud.</param>
-        /// <param name="embed">Embed to attach to the message.</param>
-        /// <param name="mentions">A list of mentions permitted to trigger a ping.</param>
-        /// <returns>Message that was sent.</returns>
-        public Task<DiscordMessage> RespondWithFileAsync(FileStream fileData, string content = null, bool isTTS = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null)
-            => this.Message.RespondWithFileAsync(fileData, content, isTTS, embed, mentions);
-
-        /// <summary>
-        /// Quickly respond with a file to the message that triggered the command.
-        /// </summary>
-        /// <param name="filePath">Path to the file to be attached to the message.</param>
-        /// <param name="content">Message to respond with.</param>
-        /// <param name="isTTS">Whether the message is to be spoken aloud.</param>
-        /// <param name="embed">Embed to attach to the message.</param>
-        /// <param name="mentions">A list of mentions permitted to trigger a ping.</param>
-        /// <returns>Message that was sent.</returns>
-        public Task<DiscordMessage> RespondWithFileAsync(string filePath, string content = null, bool isTTS = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null)
-            => this.Message.RespondWithFileAsync(filePath, content, isTTS, embed, mentions);
-
-        /// <summary>
-        /// Quickly respond with multiple files to the message that triggered the command.
-        /// </summary>
-        /// <param name="content">Message to respond with.</param>
-        /// <param name="files">Files to send.</param>
-        /// <param name="isTTS">Whether the message is to be spoken aloud.</param>
-        /// <param name="embed">Embed to attach to the message.</param>
-        /// <param name="mentions">A list of mentions permitted to trigger a ping.</param>
-        /// <returns>Message that was sent.</returns>
-        public Task<DiscordMessage> RespondWithFilesAsync(Dictionary<string, Stream> files, string content = null, bool isTTS = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null)
-            => this.Message.RespondWithFilesAsync(files, content, isTTS, embed, mentions);
+        /// <param name="builder">The Discord Mesage builder.</param>
+        /// <returns></returns>
+        public Task<DiscordMessage> RespondAsync(DiscordMessageBuilder builder) 
+            => this.Message.RespondAsync(builder);
 
         /// <summary>
         /// Triggers typing in the channel containing the message that triggered the command.
