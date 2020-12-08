@@ -1,47 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.Entities
 {
+    /// <summary>
+    /// Constructs a Message to be sent.
+    /// </summary>
     public sealed class DiscordMessageBuilder
     {
         /// <summary>
         /// Gets the Message to be sent.
         /// </summary>
-        public string Content { get => _content; private set => _content = value; }
-
-        private string _content;
+        public string Content { get; private set; }
 
         /// <summary>
         /// Gets the Embed to be sent.
         /// </summary>
-        public DiscordEmbedBuilder Embed { get => _embed; private set => _embed = value; }
-
-        private DiscordEmbedBuilder _embed;
+        public DiscordEmbed Embed { get; private set; }
 
         /// <summary>
         /// Gets if the message should be TTS.
         /// </summary>
-        public bool IsTTS { get => _isTTS; private set => _isTTS = value; }
-
-        private bool _isTTS = false;
+        public bool IsTTS { get; private set; }
 
         /// <summary>
         /// Gets the Allowed Mentions for the message to be sent. 
         /// </summary>
-        public IEnumerable<IMention> Mentions { get => _mentions; private set => _mentions = value; }
-
-        private IEnumerable<IMention> _mentions;
+        public IEnumerable<IMention> Mentions { get; private set; }
 
         /// <summary>
         /// Gets the Files to be sent in the Message.
         /// </summary>
-        public Dictionary<string, Stream> Files { get => _files; private set => _files = value; }
-
-        private Dictionary<string, Stream> _files;
+        public Dictionary<string, Stream> Files { get; private set; }
 
         /// <summary>
         /// Sets the Content of the Message.
@@ -68,18 +59,18 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Sets if the message will have an Embed.
         /// </summary>
-        /// <param name="embedBuilder"></param>
+        /// <param name="embed">The embed that should be sent.</param>
         /// <returns></returns>
-        public DiscordMessageBuilder WithEmbed(DiscordEmbedBuilder embedBuilder)
+        public DiscordMessageBuilder WithEmbed(DiscordEmbed embed)
         {
-            this.Embed = embedBuilder;
+            this.Embed = embed;
             return this;
         }
 
         /// <summary>
         /// Sets if the message has allowed mentions.
         /// </summary>
-        /// <param name="allowedMentions"></param>
+        /// <param name="allowedMentions">The allowed Mentions that should be sent.</param>
         /// <returns></returns>
         public DiscordMessageBuilder HasAllowedMentions(IEnumerable<IMention> allowedMentions)
         {
@@ -90,7 +81,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Sets if the message has files to be sent.
         /// </summary>
-        /// <param name="files"></param>
+        /// <param name="files">The Files that should be sent.</param>
         /// <returns></returns>
         public DiscordMessageBuilder WithFiles(Dictionary<string, Stream> files)
         {
@@ -101,12 +92,11 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Sends the Message to a specific channel
         /// </summary>
-        /// <param name="channel">The c</param>
+        /// <param name="channel">The channel the message should be sent to.</param>
         /// <returns></returns>
-        public async Task SendMessageToChannel(DiscordChannel channel)
+        public async Task<DiscordMessage> SendMessageToChannelAsync(DiscordChannel channel)
         {
-            await channel.SendMessageAsync(this);
+            return await channel.SendMessageAsync(this);
         }
-
     }
 }

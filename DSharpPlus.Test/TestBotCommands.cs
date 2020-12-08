@@ -66,14 +66,42 @@ namespace DSharpPlus.Test
             await ctx.Channel.SendMessageAsync("✔ should ping, ❌ should not ping.");                                                                                           
 
             await ctx.Channel.SendMessageAsync("✔ Default Behaviour: " + content);                                                                                            //Should ping User
-            await ctx.Channel.SendMessageAsync("✔ UserMention(user): " + content, mentions: new IMention[] { new UserMention(user) });                                        //Should ping user
-            await ctx.Channel.SendMessageAsync("✔ UserMention(): " + content, mentions: new IMention[] { new UserMention() });                                                //Should ping user
-            await ctx.Channel.SendMessageAsync("✔ User Mention Everyone & Self: " + content, mentions: new IMention[] { new UserMention(), new UserMention(user) });          //Should ping user
-            await ctx.Channel.SendMessageAsync("✔ UserMention.All: " + content, mentions: new IMention[] { UserMention.All });                                                //Should ping user
-            
-            await ctx.Channel.SendMessageAsync("❌ Empty Mention Array: " + content, mentions: new IMention[0]);                                                               //Should ping no one
-            await ctx.Channel.SendMessageAsync("❌ UserMention(SomeoneElse): " + content, mentions: new IMention[] { new UserMention(545836271960850454L) });                  //Should ping no one (@user was not pinged)
-            await ctx.Channel.SendMessageAsync("❌ Everyone(): " + content, mentions: new IMention[] { new EveryoneMention() });                                               //Should ping no one (@everyone was not pinged)
+
+            await new DiscordMessageBuilder()
+                .WithContent("✔ UserMention(user): " + content)
+                .HasAllowedMentions(new IMention[] { new UserMention(user) })
+                .SendMessageToChannelAsync(ctx.Channel);                                                                                                                      //Should ping user
+
+            await new DiscordMessageBuilder()
+                .WithContent("✔ UserMention(): " + content)
+                .HasAllowedMentions(new IMention[] { new UserMention() })
+                .SendMessageToChannelAsync(ctx.Channel);                                                                                                                      //Should ping user
+
+            await new DiscordMessageBuilder()
+                .WithContent("✔ User Mention Everyone & Self: " + content)
+                .HasAllowedMentions(new IMention[] { new UserMention(), new UserMention(user) })
+                .SendMessageToChannelAsync(ctx.Channel);                                                                                                                      //Should ping user
+
+
+            await new DiscordMessageBuilder()
+               .WithContent("✔ UserMention.All: " + content)
+               .HasAllowedMentions(new IMention[] { UserMention.All })
+               .SendMessageToChannelAsync(ctx.Channel);                                                                                                                       //Should ping user
+
+            await new DiscordMessageBuilder()
+               .WithContent("❌ Empty Mention Array: " + content)
+               .HasAllowedMentions(new IMention[0])
+               .SendMessageToChannelAsync(ctx.Channel);                                                                                                                       //Should ping no one
+
+            await new DiscordMessageBuilder()
+               .WithContent("❌ UserMention(SomeoneElse): " + content)
+               .HasAllowedMentions(new IMention[] { new UserMention(545836271960850454L) })
+               .SendMessageToChannelAsync(ctx.Channel);                                                                                                                       //Should ping no one (@user was not pinged)
+
+            await new DiscordMessageBuilder()
+               .WithContent("❌ Everyone():" + content)
+               .HasAllowedMentions(new IMention[] { new EveryoneMention() })
+               .SendMessageToChannelAsync(ctx.Channel);                                                                                                                       //Should ping no one (@everyone was not pinged)
         }
 
         [Command("editMention"), Description("Attempts to mention a user via edit message")]

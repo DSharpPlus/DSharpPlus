@@ -709,9 +709,15 @@ namespace DSharpPlus.CommandsNext
                 var helpMessage = helpBuilder.Build();
 
                 if (!ctx.Config.DmHelp || ctx.Channel is DiscordDmChannel || ctx.Guild == null)
+                {
                     await ctx.RespondAsync(helpMessage.Content, embed: helpMessage.Embed).ConfigureAwait(false);
+                }
                 else
-                    await ctx.Member.SendMessageAsync(helpMessage.Content, embed: helpMessage.Embed).ConfigureAwait(false);
+                {
+                    var builder = new DiscordMessageBuilder().WithContent(helpMessage.Content).WithEmbed(helpMessage.Embed);
+                    await ctx.Member.SendMessageAsync(builder).ConfigureAwait(false);
+                }
+                    
             }
         }
         #endregion

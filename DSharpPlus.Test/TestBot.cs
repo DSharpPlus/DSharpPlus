@@ -42,19 +42,21 @@ namespace DSharpPlus.Test
             {
                 AutoReconnect = true,
                 LargeThreshold = 250,
-                MinimumLogLevel = LogLevel.Debug,
+                MinimumLogLevel = LogLevel.Warning,
                 Token = this.Config.Token,
                 TokenType = TokenType.Bot,
                 ShardId = shardid,
                 ShardCount = this.Config.ShardCount,
                 MessageCacheSize = 2048,
-                LogTimestampFormat = "dd-MM-yyyy HH:mm:ss zzz"
+                LogTimestampFormat = "dd-MM-yyyy HH:mm:ss zzz",
+                Intents = DiscordIntents.All
             };
             Discord = new DiscordClient(dcfg);
 
             // events
             Discord.Ready += this.Discord_Ready;
             Discord.GuildAvailable += this.Discord_GuildAvailable;
+            Discord.PresenceUpdated += this.Discord_PresenceUpdated;
             //Discord.ClientErrored += this.Discord_ClientErrored;
             Discord.SocketErrored += this.Discord_SocketError;
             Discord.GuildCreated += this.Discord_GuildCreated;
@@ -114,6 +116,12 @@ namespace DSharpPlus.Test
 
             //    _ = Task.Run(async () => await e.Message.RespondAsync(e.Message.Content));
             //};
+        }
+
+        private Task Discord_PresenceUpdated(DiscordClient client, PresenceUpdateEventArgs e)
+        {
+            client.Logger.LogInformation(TestBotEventId, "Presence updated: '{0}'", e.Activity.Name);
+            return Task.CompletedTask;
         }
 
         public async Task RunAsync()
