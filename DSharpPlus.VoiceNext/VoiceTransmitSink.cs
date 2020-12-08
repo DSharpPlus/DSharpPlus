@@ -86,37 +86,42 @@ namespace DSharpPlus.VoiceNext
         {
             await this.WriteSemaphore.WaitAsync(cancellationToken);
 
-            var remaining = buffer.Length;
-            var buffSpan = buffer;
-            var pcmSpan = this.PcmMemory;
-
-            while (remaining > 0)
+            try
             {
-                var len = Math.Min(pcmSpan.Length - this.PcmBufferLength, remaining);
+                var remaining = buffer.Length;
+                var buffSpan = buffer;
+                var pcmSpan = this.PcmMemory;
 
-                var tgt = pcmSpan.Slice(this.PcmBufferLength);
-                var src = buffSpan.Slice(0, len);
-
-                src.CopyTo(tgt);
-                this.PcmBufferLength += len;
-                remaining -= len;
-                buffSpan = buffSpan.Slice(len);
-
-                if (this.PcmBufferLength == this.PcmBuffer.Length)
+                while (remaining > 0)
                 {
-                    ApplyFiltersSync(pcmSpan);
+                    var len = Math.Min(pcmSpan.Length - this.PcmBufferLength, remaining);
 
-                    this.PcmBufferLength = 0;
+                    var tgt = pcmSpan.Slice(this.PcmBufferLength);
+                    var src = buffSpan.Slice(0, len);
 
-                    var packet = ArrayPool<byte>.Shared.Rent(PcmMemory.Length);
-                    var packetMemory = packet.AsMemory().Slice(0, PcmMemory.Length);
-                    PcmMemory.CopyTo(packetMemory);
+                    src.CopyTo(tgt);
+                    this.PcmBufferLength += len;
+                    remaining -= len;
+                    buffSpan = buffSpan.Slice(len);
 
-                    await Connection.EnqueuePacketAsync(new RawVoicePacket(packetMemory, PcmBufferDuration, false, packet), cancellationToken);
+                    if (this.PcmBufferLength == this.PcmBuffer.Length)
+                    {
+                        ApplyFiltersSync(pcmSpan);
+
+                        this.PcmBufferLength = 0;
+
+                        var packet = ArrayPool<byte>.Shared.Rent(PcmMemory.Length);
+                        var packetMemory = packet.AsMemory().Slice(0, PcmMemory.Length);
+                        PcmMemory.CopyTo(packetMemory);
+
+                        await Connection.EnqueuePacketAsync(new RawVoicePacket(packetMemory, PcmBufferDuration, false, packet), cancellationToken);
+                    }
                 }
             }
-
-            this.WriteSemaphore.Release();
+            finally
+            {
+                this.WriteSemaphore.Release();
+            }
         }
 
         /// <summary>
