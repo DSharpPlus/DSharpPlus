@@ -347,15 +347,42 @@ namespace DSharpPlus.Entities
         /// Edits the message.
         /// </summary>
         /// <param name="content">New content.</param>
-        /// <param name="embed">New embed.</param>
-        /// <param name="mentions">Allowed mentions in the message.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client tried to modify a message not sent by them.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordMessage> ModifyAsync(Optional<string> content = default, Optional<DiscordEmbed> embed = default, IEnumerable<IMention> mentions = null) 
-            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embed, mentions);
+        public Task<DiscordMessage> ModifyAsync(Optional<string> content) 
+            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, default, default);
+
+        /// <summary>
+        /// Edits the message.
+        /// </summary>
+        /// <param name="embed">New embed.</param>
+        /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client tried to modify a message not sent by them.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordMessage> ModifyAsync(Optional<DiscordEmbed> embed = default)
+            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, default, embed, default);
+
+        /// <summary>
+        /// Edits the message.
+        /// </summary>
+        /// <param name="builder">The builder of the message to edit.</param>
+        /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client tried to modify a message not sent by them.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<DiscordMessage> ModifyAsync(DiscordMessageBuilder builder)
+        {
+            if (builder.Files.Any())
+                throw new ArgumentException("You cannot add files when modifing a message.");
+
+            return await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, builder.Content, builder.Embed, builder.Mentions);
+        }
 
         /// <summary>
         /// Deletes the message.

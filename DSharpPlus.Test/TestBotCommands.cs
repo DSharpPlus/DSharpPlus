@@ -113,28 +113,51 @@ namespace DSharpPlus.Test
             await ctx.Channel.SendMessageAsync("✔ should ping, ❌ should not ping.");
 
             var test1Msg = await ctx.Channel.SendMessageAsync("✔ Default Behaviour: " + origcontent);
-            await test1Msg.ModifyAsync("✔ Default Behaviour: " + newContent);                                                                                                   //Should ping User
-                                    
-            var test2Msg = await ctx.Channel.SendMessageAsync("✔ UserMention(user): " + origcontent);                                                                           
-            await test2Msg.ModifyAsync("✔ UserMention(user): " + newContent, mentions: new IMention[] { new UserMention(user) });                                               //Should ping user
+            await new DiscordMessageBuilder()
+               .WithContent("✔ Default Behaviour: " + newContent)
+               .ModifyMessageAsync(test1Msg);                                                                                                                               //Should ping User
 
-            var test3Msg = await ctx.Channel.SendMessageAsync("✔ UserMention(): " + origcontent);                                                                               
-            await test3Msg.ModifyAsync("✔ UserMention(): " + newContent, mentions: new IMention[] { new UserMention() });                                                       //Should ping user
+            var test2Msg = await ctx.Channel.SendMessageAsync("✔ UserMention(user): " + origcontent);      
+            await new DiscordMessageBuilder()
+               .WithContent("✔ UserMention(user): " + newContent)
+               .HasAllowedMentions(new IMention[] { new UserMention(user) })
+               .ModifyMessageAsync(test2Msg);                                                                                                                               //Should ping user
+
+            var test3Msg = await ctx.Channel.SendMessageAsync("✔ UserMention(): " + origcontent);
+            await new DiscordMessageBuilder()
+               .WithContent("✔ UserMention(): " + newContent)
+               .HasAllowedMentions(new IMention[] { new UserMention() })
+               .ModifyMessageAsync(test3Msg);                                                                                                                               //Should ping user
 
             var test4Msg = await ctx.Channel.SendMessageAsync("✔ User Mention Everyone & Self: " + origcontent);
-            await test4Msg.ModifyAsync("✔ User Mention Everyone & Self: " + newContent, mentions: new IMention[] { new UserMention(), new UserMention(user) });                 //Should ping user
+            await new DiscordMessageBuilder()
+               .WithContent("✔ User Mention Everyone & Self: " + newContent)
+               .HasAllowedMentions(new IMention[] { new UserMention(), new UserMention(user) })
+               .ModifyMessageAsync(test4Msg);                                                                                                                               //Should ping user
 
             var test5Msg = await ctx.Channel.SendMessageAsync("✔ UserMention.All: " + origcontent);
-            await test5Msg.ModifyAsync("✔ UserMention.All: " + newContent, mentions: new IMention[] { UserMention.All });                                                       //Should ping user
-                                                          
+            await new DiscordMessageBuilder()
+               .WithContent("✔ UserMention.All: " + newContent)
+               .HasAllowedMentions(new IMention[] { UserMention.All })
+               .ModifyMessageAsync(test5Msg);                                                                                                                               //Should ping user
+
             var test6Msg = await ctx.Channel.SendMessageAsync("❌ Empty Mention Array: " + origcontent);
-            await test6Msg.ModifyAsync("❌ Empty Mention Array: " + newContent, mentions: new IMention[0]);                                                                      //Should ping no one
-             
+            await new DiscordMessageBuilder()
+               .WithContent("❌ Empty Mention Array: " + newContent)
+               .HasAllowedMentions(new IMention[0])
+               .ModifyMessageAsync(test6Msg);                                                                                                                               //Should ping no one
+
             var test7Msg = await ctx.Channel.SendMessageAsync("❌ UserMention(SomeoneElse): " + origcontent);
-            await test7Msg.ModifyAsync("❌ UserMention(SomeoneElse): " + newContent, mentions: new IMention[] { new UserMention(777677298316214324) });                          //Should ping no one (@user was not pinged)
-                                       
+            await new DiscordMessageBuilder()
+               .WithContent("❌ UserMention(SomeoneElse): " + newContent)
+               .HasAllowedMentions(new IMention[] { new UserMention(777677298316214324) })
+               .ModifyMessageAsync(test7Msg);                                                                                                                               //Should ping no one (@user was not pinged)
+
             var test8Msg = await ctx.Channel.SendMessageAsync("❌ Everyone(): " + origcontent);
-            await test8Msg.ModifyAsync("❌ Everyone(): " + newContent, mentions: new IMention[] { new EveryoneMention() });                                                      //Should ping no one (@everyone was not pinged)
+            await new DiscordMessageBuilder()
+               .WithContent("❌ Everyone(): " + newContent)
+               .HasAllowedMentions(new IMention[] { new EveryoneMention() })
+               .ModifyMessageAsync(test8Msg);                                                                                                                               //Should ping no one (@everyone was not pinged)
         }
     }
 }

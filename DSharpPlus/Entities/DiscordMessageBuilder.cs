@@ -98,5 +98,15 @@ namespace DSharpPlus.Entities
         {
             return await channel.SendMessageAsync(this);
         }
+
+        /// <summary>
+        /// Sends the modified message.
+        /// </summary>
+        /// <param name="msg">The original Message to modify.</param>
+        /// <returns></returns>
+        public async Task<DiscordMessage> ModifyMessageAsync(DiscordMessage msg)
+        {
+            return await msg.ModifyAsync(this);
+        }
     }
 }
