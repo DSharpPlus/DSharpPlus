@@ -1,4 +1,6 @@
 ﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -158,6 +160,18 @@ namespace DSharpPlus.Test
                .WithContent("❌ Everyone(): " + newContent)
                .HasAllowedMentions(new IMention[] { new EveryoneMention() })
                .ModifyMessageAsync(test8Msg);                                                                                                                               //Should ping no one (@everyone was not pinged)
+        }
+
+        [Command("SendSomeFile")]
+        public async Task SendSomeFile(CommandContext ctx)
+        {
+            using (var fs = new FileStream("ADumbFile.txt", FileMode.Open, FileAccess.Read))
+            {
+                await new DiscordMessageBuilder()
+                    .WithContent("Here is a really dumb file that i am testing with.")
+                    .WithFiles(new Dictionary<string, Stream>() { { "ADumbFile.txt", fs } })
+                    .SendMessageToChannelAsync(ctx.Channel);
+            }
         }
     }
 }

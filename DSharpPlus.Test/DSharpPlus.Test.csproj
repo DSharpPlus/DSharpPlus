@@ -31,6 +31,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="ADumbFile.txt" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
+    <Content Include="ADumbFile.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="2.3.2" />
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="2.0.0" />
   </ItemGroup>
