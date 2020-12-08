@@ -108,6 +108,11 @@ namespace DSharpPlus
 
                 case "guild_integrations_update":
                     gid = (ulong)dat["guild_id"];
+
+                    // discord fires this event inconsistently if the current user leaves a guild.
+                    if (!this._guilds.ContainsKey(gid))
+                        return;
+
                     await OnGuildIntegrationsUpdateEventAsync(this._guilds[gid]).ConfigureAwait(false);
                     break;
 
@@ -138,12 +143,17 @@ namespace DSharpPlus
 
                 case "guild_member_remove":
                     gid = (ulong)dat["guild_id"];
+                    usr = dat["user"].ToObject<TransportUser>();
+
                     if (!this._guilds.ContainsKey(gid))
                     {
-                        this.Logger.LogError(LoggerEvents.WebSocketReceive, "Could not find {0} in guild cache", gid);
+                        // discord fires this event inconsistently if the current user leaves a guild.
+                        if (usr.Id != this.CurrentUser.Id)
+                            this.Logger.LogError(LoggerEvents.WebSocketReceive, "Could not find {0} in guild cache", gid);
                         return;
                     }
-                    await OnGuildMemberRemoveEventAsync(dat["user"].ToObject<TransportUser>(), this._guilds[gid]).ConfigureAwait(false);
+
+                    await OnGuildMemberRemoveEventAsync(usr, this._guilds[gid]).ConfigureAwait(false);
                     break;
 
                 case "guild_member_update":
