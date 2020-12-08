@@ -218,7 +218,10 @@ namespace DSharpPlus.Entities
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
                 throw new ArgumentException("Cannot send a text message to a non-text channel.");
 
-            return this.Discord.ApiClient.CreateMessageAsync(this.Id, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions);
+            if (builder.Files.Count() > 0)
+                return this.Discord.ApiClient.UploadFilesAsync(this.Id, builder.Files, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions);
+            else
+                return this.Discord.ApiClient.CreateMessageAsync(this.Id, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions);
         }
 
         // Please send memes to Naamloos#2887 at discord <3 thank you
