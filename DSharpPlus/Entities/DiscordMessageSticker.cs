@@ -32,6 +32,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the list of tags for the sticker.
         /// </summary>
+        [JsonIgnore]
         public string[] Tags => this._internalTags.Split(',');
 
         /// <summary>
