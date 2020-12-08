@@ -88,7 +88,7 @@ namespace DSharpPlus.VoiceNext
                 }
             };
             var vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
-            await (channel.Discord as DiscordClient).WsSendAsync(vsj).ConfigureAwait(false);
+            await this.Client.WsSendAsync(vsj).ConfigureAwait(false);
             
             var vstu = await vstut.Task.ConfigureAwait(false);
             var vstup = new VoiceStateUpdatePayload
