@@ -465,83 +465,10 @@ namespace DSharpPlus.Entities
         public async Task<DiscordMessage> RespondAsync(DiscordMessageBuilder builder)
         {
             if (builder.Files.Count() > 0)
-                return await this.Discord.ApiClient.UploadFilesAsync(this.ChannelId, builder.Files, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions);
+                return await this.Discord.ApiClient.UploadFilesAsync(this.ChannelId, builder.Files.GroupBy(g => g.Key).ToDictionary(g => g.Key, g=> g.First().Value), builder.Content, builder.IsTTS, builder.Embed, builder.Mentions);
             else
                 return await this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions);
         }
-
-        ///// <summary>
-        ///// Responds to the message with a file.
-        ///// </summary>
-        ///// <param name="fileName">Name of the file to be attached.</param>
-        ///// <param name="fileData">Stream containing the data to attach to the message as a file.</param>
-        ///// <param name="content">Message content to respond with.</param>
-        ///// <param name="tts">Whether the message is to be read using TTS.</param>
-        ///// <param name="embed">Embed to attach to the message.</param>
-        ///// <param name="mentions">Allowed mentions in the message</param>
-        ///// <returns>The sent message.</returns>
-        ///// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission.</exception>
-        ///// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
-        ///// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        ///// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        //public Task<DiscordMessage> RespondWithFileAsync(string fileName, Stream fileData, string content = null, bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null)
-        //    => this.Discord.ApiClient.UploadFileAsync(this.ChannelId, fileData, fileName, content, tts, embed, mentions);
-
-        ///// <summary>
-        ///// Responds to the message with a file.
-        ///// </summary>
-        ///// <param name="fileData">Stream containing the data to attach to the message as a file.</param>
-        ///// <param name="content">Message content to respond with.</param>
-        ///// <param name="tts">Whether the message is to be read using TTS.</param>
-        ///// <param name="embed">Embed to attach to the message.</param>
-        ///// <param name="mentions">Allowed mentions in the message</param>
-        ///// <returns>The sent message.</returns>
-        ///// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission.</exception>
-        ///// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
-        ///// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        ///// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        //public Task<DiscordMessage> RespondWithFileAsync(FileStream fileData, string content = null, bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null)
-        //    => this.Discord.ApiClient.UploadFileAsync(this.ChannelId, fileData, Path.GetFileName(fileData.Name), content, tts, embed, mentions);
-
-        ///// <summary>
-        ///// Responds to the message with a file.
-        ///// </summary>
-        ///// <param name="filePath">Path to the file to be attached to the message.</param>
-        ///// <param name="content">Message content to respond with.</param>
-        ///// <param name="tts">Whether the message is to be read using TTS.</param>
-        ///// <param name="embed">Embed to attach to the message.</param>
-        ///// <param name="mentions">Allowed mentions in the message</param>
-        ///// <returns>The sent message.</returns>
-        ///// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission.</exception>
-        ///// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
-        ///// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        ///// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        //public async Task<DiscordMessage> RespondWithFileAsync(string filePath, string content = null, bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null)
-        //{
-        //    using (var fs = File.OpenRead(filePath))
-        //        return await this.Discord.ApiClient.UploadFileAsync(this.ChannelId, fs, Path.GetFileName(fs.Name), content, tts, embed, mentions).ConfigureAwait(false);
-        //}
-
-        ///// <summary>
-        ///// Responds to the message with several files.
-        ///// </summary>
-        ///// <param name="files">A filename to data stream mapping.</param>
-        ///// <param name="content">Message content to respond with.</param>
-        ///// <param name="tts">Whether the message is to be read using TTS.</param>
-        ///// <param name="embed">Embed to attach to the message.</param>
-        ///// <param name="mentions">Allowed mentions in the message</param>
-        ///// <returns>The sent message.</returns>
-        ///// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission.</exception>
-        ///// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
-        ///// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        ///// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        //public Task<DiscordMessage> RespondWithFilesAsync(Dictionary<string, Stream> files, string content = null, bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null)
-        //{
-        //    if (files.Count > 10)
-        //        throw new ArgumentException("Cannot send more than 10 files with a single message.");
-
-        //    return this.Discord.ApiClient.UploadFilesAsync(this.ChannelId, files, content, tts, embed, mentions);
-        //}
 
         /// <summary>
         /// Creates a reaction to this message
