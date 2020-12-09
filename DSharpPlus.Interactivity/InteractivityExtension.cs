@@ -263,7 +263,7 @@ namespace DSharpPlus.Interactivity
             PaginationBehaviour? behaviour = default, PaginationDeletion? deletion = default, TimeSpan? timeoutoverride = null)
         {
             //var m = await c.SendMessageAsync(pages.First().Content, false, pages.First().Embed);
-            var m = await new DiscordMessageBuilder().WithContent(pages.First().Content).WithEmbed(pages.First().Embed).SendMessageToChannelAsync(c);
+            var m = await new DiscordMessageBuilder().WithContent(pages.First().Content).WithEmbed(pages.First().Embed).SendAsync(c);
             var timeout = timeoutoverride ?? Config.Timeout;
 
             var bhv = behaviour ?? this.Config.PaginationBehaviour;
