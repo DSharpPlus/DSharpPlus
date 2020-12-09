@@ -72,7 +72,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="allowedMentions">The allowed Mentions that should be sent.</param>
         /// <returns></returns>
-        public DiscordMessageBuilder HasAllowedMentions(IEnumerable<IMention> allowedMentions)
+        public DiscordMessageBuilder WithAllowedMentions(IEnumerable<IMention> allowedMentions)
         {
             this.Mentions = allowedMentions;
             return this;
@@ -94,7 +94,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="channel">The channel the message should be sent to.</param>
         /// <returns></returns>
-        public async Task<DiscordMessage> SendMessageToChannelAsync(DiscordChannel channel)
+        public async Task<DiscordMessage> SendAsync(DiscordChannel channel)
         {
             return await channel.SendMessageAsync(this);
         }
@@ -104,7 +104,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="msg">The original Message to modify.</param>
         /// <returns></returns>
-        public async Task<DiscordMessage> ModifyMessageAsync(DiscordMessage msg)
+        public async Task<DiscordMessage> ModifyAsync(DiscordMessage msg)
         {
             return await msg.ModifyAsync(this);
         }
