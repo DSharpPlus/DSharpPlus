@@ -42,14 +42,13 @@ namespace DSharpPlus.Test
             {
                 AutoReconnect = true,
                 LargeThreshold = 250,
-                MinimumLogLevel = LogLevel.Warning,
+                MinimumLogLevel = LogLevel.Debug,
                 Token = this.Config.Token,
                 TokenType = TokenType.Bot,
                 ShardId = shardid,
                 ShardCount = this.Config.ShardCount,
                 MessageCacheSize = 2048,
-                LogTimestampFormat = "dd-MM-yyyy HH:mm:ss zzz",
-                Intents = DiscordIntents.All
+                LogTimestampFormat = "dd-MM-yyyy HH:mm:ss zzz"
             };
             Discord = new DiscordClient(dcfg);
 
