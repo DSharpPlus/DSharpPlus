@@ -465,7 +465,7 @@ namespace DSharpPlus.Entities
         public async Task<DiscordMessage> RespondAsync(DiscordMessageBuilder builder)
         {
             if (builder.Files.Count() > 0)
-                return await this.Discord.ApiClient.UploadFilesAsync(this.ChannelId, builder.Files.GroupBy(g => g.Key).ToDictionary(g => g.Key, g=> g.First().Value), builder.Content, builder.IsTTS, builder.Embed, builder.Mentions);
+                return await this.Discord.ApiClient.UploadFilesAsync(this.ChannelId, builder._files, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions);
             else
                 return await this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions);
         }

@@ -219,7 +219,7 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("Cannot send a text message to a non-text channel.");
 
             if (builder.Files.Count() > 0)
-                return this.Discord.ApiClient.UploadFilesAsync(this.Id, builder.Files.GroupBy(g => g.Key).ToDictionary(g => g.Key, g => g.First().Value), builder.Content, builder.IsTTS, builder.Embed, builder.Mentions);
+                return this.Discord.ApiClient.UploadFilesAsync(this.Id, builder._files, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions);
             else
                 return this.Discord.ApiClient.CreateMessageAsync(this.Id, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions);
         }

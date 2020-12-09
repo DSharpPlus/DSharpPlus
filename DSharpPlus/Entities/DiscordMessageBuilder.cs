@@ -47,6 +47,8 @@ namespace DSharpPlus.Entities
         /// </summary>
         public IReadOnlyDictionary<string, Stream> Files => this._files;
 
+        internal Dictionary<string, Stream> _files = new Dictionary<string, Stream>();
+
         /// <summary>
         /// Sets the Content of the Message.
         /// </summary>
@@ -108,9 +110,7 @@ namespace DSharpPlus.Entities
                 this.Mentions = allowedMentions.ToList();
 
             return this;
-        }
-
-        private Dictionary<string, Stream> _files = new Dictionary<string, Stream>();        
+        }               
 
         /// <summary>
         /// Sets if the message has files to be sent.
