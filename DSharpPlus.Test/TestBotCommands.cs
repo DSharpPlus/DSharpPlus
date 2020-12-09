@@ -169,9 +169,28 @@ namespace DSharpPlus.Test
             {
                 await new DiscordMessageBuilder()
                     .WithContent("Here is a really dumb file that i am testing with.")
-                    .WithFiles(new Dictionary<string, Stream>() { { "ADumbFile.txt", fs } })
+                    .WithFiles(new Dictionary<string, Stream>() { { "ADumbFile1.txt", fs } })
                     .SendAsync(ctx.Channel);
+
+                fs.Position = 0;
+
+                await new DiscordMessageBuilder()
+                    .WithContent("Here is a really dumb file that i am testing with.")
+                    .WithFile(fs)
+                    .SendAsync(ctx.Channel);
+
+                fs.Position = 0;
+
+                await new DiscordMessageBuilder()
+                    .WithContent("Here is a really dumb file that i am testing with.")
+                    .WithFile("ADumbFile2.txt", fs)
+                    .SendAsync(ctx.Channel);               
             }
+
+            await new DiscordMessageBuilder()
+                   .WithContent("Here is a really dumb file that i am testing with.")
+                   .WithFile("./ADumbFile.txt")
+                   .SendAsync(ctx.Channel);
         }
     }
 }

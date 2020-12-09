@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.Entities
@@ -10,24 +12,34 @@ namespace DSharpPlus.Entities
     public sealed class DiscordMessageBuilder
     {
         /// <summary>
-        /// Gets the Message to be sent.
+        /// Gets or Sets the Message to be sent.
         /// </summary>
-        public string Content { get; private set; }
+        public string Content
+        {
+            get => this._content;
+            set
+            {
+                if (value != null && value.Length > 2000)
+                    throw new ArgumentException("Content cannot exceed 2000 characters.", nameof(value));
+                this._content = value;
+            }
+        }
+        private string _content;
 
         /// <summary>
-        /// Gets the Embed to be sent.
+        /// Gets or Sets the Embed to be sent.
         /// </summary>
-        public DiscordEmbed Embed { get; private set; }
+        public DiscordEmbed Embed { get; set; }
 
         /// <summary>
-        /// Gets if the message should be TTS.
+        /// Gets or Sets if the message should be TTS.
         /// </summary>
-        public bool IsTTS { get; private set; } = false;
+        public bool IsTTS { get; set; } = false;
 
         /// <summary>
         /// Gets the Allowed Mentions for the message to be sent. 
         /// </summary>
-        public IEnumerable<IMention> Mentions { get; private set; }
+        public List<IMention> Mentions { get; private set; } = null;
 
         /// <summary>
         /// Gets the Files to be sent in the Message.
@@ -70,11 +82,76 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Sets if the message has allowed mentions.
         /// </summary>
+        /// <param name="allowedMention">The allowed Mention that should be sent.</param>
+        /// <returns></returns>
+        public DiscordMessageBuilder WithAllowedMention(IMention allowedMention)
+        {
+            if (this.Mentions != null)
+                this.Mentions.Add(allowedMention);
+            else
+                this.Mentions = new List<IMention> { allowedMention };
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets if the message has allowed mentions.
+        /// </summary>
         /// <param name="allowedMentions">The allowed Mentions that should be sent.</param>
         /// <returns></returns>
         public DiscordMessageBuilder WithAllowedMentions(IEnumerable<IMention> allowedMentions)
         {
-            this.Mentions = allowedMentions;
+            if (this.Mentions != null)
+                this.Mentions.AddRange(allowedMentions);
+            else
+                this.Mentions = allowedMentions.ToList();
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets if the message has files to be sent.
+        /// </summary>
+        /// <param name="fileName">The fileName that the file should be sent as.</param>
+        /// <param name="stream">The Stream to the file.</param>
+        /// <returns></returns>
+        public DiscordMessageBuilder WithFile(string fileName, Stream stream)
+        {
+            if(this.Files.Count() + 1 > 10)
+                throw new ArgumentException("Cannot send more than 10 files with a single message.");
+            this.Files.Add(fileName, stream);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets if the message has files to be sent.
+        /// </summary>
+        /// <param name="stream">The Stream to the file.</param>
+        /// <returns></returns>
+        public DiscordMessageBuilder WithFile(FileStream stream)
+        {
+            if (this.Files.Count() + 1 > 10)
+                throw new ArgumentException("Cannot send more than 10 files with a single message.");
+
+            this.Files.Add(stream.Name, stream);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets if the message has files to be sent.
+        /// </summary>
+        /// <param name="filePath">The path to the file.</param>
+        /// <returns></returns>
+        public DiscordMessageBuilder WithFile(string filePath)
+        {
+            if (this.Files.Count() + 1 > 10)
+                throw new ArgumentException("Cannot send more than 10 files with a single message.");
+
+            var fs = File.OpenRead(filePath);
+            this.Files.Add(fs.Name, fs);
+
             return this;
         }
 
@@ -85,6 +162,9 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         public DiscordMessageBuilder WithFiles(Dictionary<string, Stream> files)
         {
+            if (this.Files.Count() + files.Count() > 10)
+                throw new ArgumentException("Cannot send more than 10 files with a single message.");
+
             this.Files = files;
             return this;
         }
