@@ -47,7 +47,7 @@ namespace DSharpPlus.Lavalink.Entities
         [JsonProperty("startTime")]
         public long StartTime { get; }
 
-        [JsonProperty("stopTime")]
+        [JsonProperty("endTime")]
         public long StopTime { get; }
 
         public LavalinkPlayPartial(LavalinkGuildConnection lvl, LavalinkTrack track, TimeSpan start, TimeSpan stop)
