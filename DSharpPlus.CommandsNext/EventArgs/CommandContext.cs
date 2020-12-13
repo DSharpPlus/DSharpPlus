@@ -93,7 +93,6 @@ namespace DSharpPlus.CommandsNext
             this._lazyAssMember = new Lazy<DiscordMember>(() => this.Guild != null && this.Guild.Members.TryGetValue(this.User.Id, out var member) ? member : this.Guild?.GetMemberAsync(this.User.Id).ConfigureAwait(false).GetAwaiter().GetResult());
         }
         
-        // TODO Add message_id to remaining classes, but we're just testing it right now, so RespondAsync is fine.
         /// <summary>
         /// Quickly respond to the message that triggered the command.
         /// </summary>
