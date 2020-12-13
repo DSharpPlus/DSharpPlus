@@ -376,8 +376,8 @@ namespace DSharpPlus
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, string content = null, bool isTTS = false, 
-                DiscordEmbed embed = null, IEnumerable<IMention> mentions = null, ulong? replyMessageId = null, bool mention = false)
-            => this.ApiClient.CreateMessageAsync(channel.Id, content, isTTS, embed, mentions, replyMessageId);
+                DiscordEmbed embed = null, IEnumerable<IMention> mentions = null, bool mention = false, ulong? replyMessageId = null)
+            => this.ApiClient.CreateMessageAsync(channel.Id, content, isTTS, embed, mentions, mention, replyMessageId);
 
         /// <summary>
         /// Creates a guild. This requires the bot to be in less than 10 guilds total.

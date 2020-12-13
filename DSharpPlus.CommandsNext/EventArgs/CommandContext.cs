@@ -101,11 +101,12 @@ namespace DSharpPlus.CommandsNext
         /// <param name="isTTS">Whether the message is to be spoken aloud.</param>
         /// <param name="embed">Embed to attach.</param>
         /// <param name="mentions">A list of mentions permitted to trigger a ping.</param>
-        /// <param name="message_id">The Id of a message to reply to.</param>
+        /// <param name="mention">Whether to mention the user in the reply.</param>
+        /// <param name="replyMessageId">The Id of a message to reply to.</param>
         /// <returns></returns>
         public Task<DiscordMessage> RespondAsync(string content = null, bool isTTS = false, DiscordEmbed embed = null, 
-            IEnumerable<IMention> mentions = null, ulong? message_id = null, bool mention = false) 
-            => this.Message.RespondAsync(content, isTTS, embed, mentions, message_id, mention);
+            IEnumerable<IMention> mentions = null, ulong? replyMessageId = null, bool mention = false) 
+            => this.Message.RespondAsync(content, isTTS, embed, mentions, mention, replyMessageId);
 
         /// <summary>
         /// Quickly respond with a file to the message that triggered the command.
@@ -117,8 +118,8 @@ namespace DSharpPlus.CommandsNext
         /// <param name="embed">Embed to attach to the message.</param>
         /// <param name="mentions">A list of mentions permitted to trigger a ping.</param>
         /// <returns>Message that was sent.</returns>
-        public Task<DiscordMessage> RespondWithFileAsync(string fileName, Stream fileData, string content = null, bool isTTS = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null) 
-            => this.Message.RespondWithFileAsync(fileName, fileData, content, isTTS, embed, mentions);
+        public Task<DiscordMessage> RespondWithFileAsync(string fileName, Stream fileData, string content = null, bool isTTS = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null, bool mention = false, ulong? replyMessageId = null) 
+            => this.Message.RespondWithFileAsync(fileName, fileData, content, isTTS, embed, mentions, mention, replyMessageId);
 
         /// <summary>
         /// Quickly respond with a file to the message that triggered the command.

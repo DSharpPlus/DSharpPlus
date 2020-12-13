@@ -393,12 +393,12 @@ namespace DSharpPlus
         /// <param name="tts">Whether this message is a text-to-speech message</param>
         /// <param name="embed">Embed to attach</param>
         /// <param name="mentions">Allowed mentions in the message</param>
-        /// <param name="message_id">Id of the message to reply to.</param>
         /// <param name="mention">Whether or not to mention the user in the reply.</param>
+        /// <param name="replyMessageId">The Id of the message to reply to.</param>
         /// <returns></returns>
         public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content, bool? tts, DiscordEmbed embed, 
-            IEnumerable<IMention> mentions, ulong? message_id = null, bool mention = false)
-            => this.ApiClient.CreateMessageAsync(channel_id, content, tts, embed, mentions, message_id, mention);
+            IEnumerable<IMention> mentions, bool mention = false, ulong? replyMessageId = null)
+            => this.ApiClient.CreateMessageAsync(channel_id, content, tts, embed, mentions, mention, replyMessageId);
 
         /// <summary>
         /// Uploads a file
@@ -409,10 +409,11 @@ namespace DSharpPlus
         /// <param name="content">Message (text) content</param>
         /// <param name="tts">Whether this message is a text-to-speech message</param>
         /// <param name="embed">Embed to attach</param>
-        /// <param name="mentions">Allowed mentions in the message</param>
+        /// <param name="mention">Whether or not to mention the user in the reply.</param>
+        /// <param name="replyMessageId">The Id of the message to reply to.</param>
         /// <returns></returns>
-        public Task<DiscordMessage> UploadFileAsync(ulong channel_id, Stream file_data, string file_name, string content, bool? tts, DiscordEmbed embed, IEnumerable<IMention> mentions)
-            => this.ApiClient.UploadFileAsync(channel_id, file_data, file_name, content, tts, embed, mentions);
+        public Task<DiscordMessage> UploadFileAsync(ulong channel_id, Stream file_data, string file_name, string content, bool? tts, DiscordEmbed embed, IEnumerable<IMention> mentions, bool mention, ulong? replyMessageId)
+            => this.ApiClient.UploadFileAsync(channel_id, file_data, file_name, content, tts, embed, mentions, mention, replyMessageId);
 
         /// <summary>
         /// Uploads multiple files
@@ -423,9 +424,11 @@ namespace DSharpPlus
         /// <param name="tts">Whether this message is a text-to-speech message</param>
         /// <param name="embed">Embed to attach</param>
         /// <param name="mentions">Allowed mentions in the message</param>
+        /// <param name="mention">Whether or not to mention the user in the reply.</param>
+        /// <param name="messageReplyId">The Id of the message to reply to.</param>
         /// <returns></returns>
-        public Task<DiscordMessage> UploadFilesAsync(ulong channel_id, Dictionary<string, Stream> files, string content, bool? tts, DiscordEmbed embed, IEnumerable<IMention> mentions)
-            => this.ApiClient.UploadFilesAsync(channel_id, files, content, tts, embed, mentions);
+        public Task<DiscordMessage> UploadFilesAsync(ulong channel_id, Dictionary<string, Stream> files, string content, bool? tts, DiscordEmbed embed, IEnumerable<IMention> mentions, bool mention = false, ulong? messageReplyId = null)
+            => this.ApiClient.UploadFilesAsync(channel_id, files, content, tts, embed, mentions, mention, messageReplyId);
 
         /// <summary>
         /// Gets channels from a guild
