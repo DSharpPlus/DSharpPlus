@@ -81,7 +81,7 @@ namespace DSharpPlus.Entities
 
             var newChannelId = channelId.HasValue ? channelId.Value : this.ChannelId;
 
-            return this.Discord.ApiClient.ModifyWebhookAsync(newChannelId, this.Id, name, avatarb64, Token);
+            return this.Discord.ApiClient.ModifyWebhookAsync(this.Id, newChannelId, name, avatarb64, Token);
         }
 
         /// <summary>
