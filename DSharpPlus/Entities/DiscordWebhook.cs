@@ -65,12 +65,13 @@ namespace DSharpPlus.Entities
         /// <param name="name">New default name for this webhook.</param>
         /// <param name="avatar">New avatar for this webhook.</param>
         /// <param name="channelId">The new channel id to move the webhook to.</param>
+        /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The modified webhook.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageWebhooks"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the webhook does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordWebhook> ModifyAsync(string name = null, Optional<Stream> avatar = default, ulong? channelId = null)
+        public Task<DiscordWebhook> ModifyAsync(string name = null, Optional<Stream> avatar = default, ulong? channelId = null, string reason = null)
         {
             var avatarb64 = Optional.FromNoValue<string>();
             if (avatar.HasValue && avatar.Value != null)
@@ -81,7 +82,7 @@ namespace DSharpPlus.Entities
 
             var newChannelId = channelId.HasValue ? channelId.Value : this.ChannelId;
 
-            return this.Discord.ApiClient.ModifyWebhookAsync(this.Id, newChannelId, name, avatarb64, Token);
+            return this.Discord.ApiClient.ModifyWebhookAsync(this.Id, newChannelId, name, avatarb64, reason);
         }
 
         /// <summary>
