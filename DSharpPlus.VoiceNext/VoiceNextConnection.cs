@@ -4,6 +4,7 @@ using System.Buffers.Binary;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -1006,16 +1007,28 @@ namespace DSharpPlus.VoiceNext
             }
         }
 
-        private Task VoiceWS_SocketMessage(IWebSocketClient client, SocketMessageEventArgs e)
+        private async Task VoiceWS_SocketMessage(IWebSocketClient client, SocketMessageEventArgs e)
         {
             if (!(e is SocketTextMessageEventArgs et))
             {
                 this.Discord.Logger.LogCritical(VoiceNextEvents.VoiceGatewayError, "Discord Voice Gateway sent binary data - unable to process");
-                return Task.CompletedTask;
+                return;
             }
 
-            this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceWsRx, et.Message);
-            return this.HandleDispatch(JObject.Parse(et.Message));
+            using var sr = new StreamReader(et.Message, Utilities.UTF8);
+            using var jr = new JsonTextReader(sr);
+
+            if (this.Discord.Configuration.MinimumLogLevel == LogLevel.Trace)
+            {
+                string msg = null;
+
+                msg = await sr.ReadToEndAsync();
+
+                this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceWsRx, msg);
+
+            }
+
+            await this.HandleDispatch(await JObject.LoadAsync(jr));
         }
 
         private Task VoiceWS_SocketOpened(IWebSocketClient client, SocketEventArgs e)

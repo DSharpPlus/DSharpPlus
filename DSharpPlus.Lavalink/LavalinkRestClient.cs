@@ -261,16 +261,18 @@ namespace DSharpPlus.Lavalink
             using (var req = await this._http.GetAsync(uri).ConfigureAwait(false))
             using (var res = await req.Content.ReadAsStreamAsync().ConfigureAwait(false))
             using (var sr = new StreamReader(res, Utilities.UTF8))
+            using (var jr = new JsonTextReader(sr))
             {
-                var json = await sr.ReadToEndAsync().ConfigureAwait(false);
                 if (!req.IsSuccessStatusCode)
                 {
-                    var jsonError = JToken.Parse(json) as JObject;
+                    var jsonError = await JObject.LoadAsync(jr);
                     this._logger?.LogError(LavalinkEvents.LavalinkDecodeError, "Unable to decode track strings: {0}", jsonError["message"]);
 
                     return null;
                 }
-                var track = JsonConvert.DeserializeObject<LavalinkTrack>(json);
+
+                var serializer = new JsonSerializer();
+                var track = serializer.Deserialize<LavalinkTrack>(jr);
                 return track;
             }
         }
@@ -282,16 +284,16 @@ namespace DSharpPlus.Lavalink
             using (var req = await this._http.PostAsync(uri, content).ConfigureAwait(false))
             using (var res = await req.Content.ReadAsStreamAsync().ConfigureAwait(false))
             using (var sr = new StreamReader(res, Utilities.UTF8))
+            using (var jr = new JsonTextReader(sr))
             {
-                var jsonIn = await sr.ReadToEndAsync().ConfigureAwait(false);
                 if (!req.IsSuccessStatusCode)
                 {
-                    var jsonError = JToken.Parse(jsonIn) as JObject;
+                    var jsonError = await JObject.LoadAsync(jr);
                     this._logger?.LogError(LavalinkEvents.LavalinkDecodeError, "Unable to decode track strings", jsonError["message"]);
                     return null;
                 }
 
-                var jarr = JToken.Parse(jsonIn) as JArray;
+                var jarr = await JArray.LoadAsync(jr);
                 var decodedTracks = new LavalinkTrack[jarr.Count];
 
                 for (var i = 0; i < decodedTracks.Length; i++)
@@ -315,10 +317,11 @@ namespace DSharpPlus.Lavalink
             using (var req = await this._http.GetAsync(uri).ConfigureAwait(false))
             using (var res = await req.Content.ReadAsStreamAsync().ConfigureAwait(false))
             using (var sr = new StreamReader(res, Utilities.UTF8))
+            using (var jr = new JsonTextReader(sr))
             {
-                var json = await sr.ReadToEndAsync().ConfigureAwait(false);
-                var status = JsonConvert.DeserializeObject<LavalinkRouteStatus>(json);
-                return status;
+
+                var serializer = new JsonSerializer();
+                return serializer.Deserialize<LavalinkRouteStatus>(jr);
             }
         }
 

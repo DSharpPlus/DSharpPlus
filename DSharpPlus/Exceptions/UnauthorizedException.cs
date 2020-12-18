@@ -31,7 +31,7 @@ namespace DSharpPlus.Exceptions
 
             try
             {
-                JObject j = JObject.Parse(response.Response);
+                JObject j = DiscordApiClient.LoadJObject(response.Response);
 
                 if (j["message"] != null)
                     JsonMessage = j["message"].ToString();

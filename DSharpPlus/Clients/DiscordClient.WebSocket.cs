@@ -10,6 +10,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.WebSocket;
+using DSharpPlus.Net;
 
 namespace DSharpPlus
 {
@@ -124,30 +125,33 @@ namespace DSharpPlus
 
             async Task SocketOnMessage(IWebSocketClient sender, SocketMessageEventArgs e)
             {
-                string msg = null;
+                MemoryStream msg = default;
                 if (e is SocketTextMessageEventArgs etext)
                 {
                     msg = etext.Message;
                 }
                 else if (e is SocketBinaryMessageEventArgs ebin) // :DDDD
                 {
-                    using (var ms = new MemoryStream())
+                    msg = new MemoryStream();
+                    if (!this._payloadDecompressor.TryDecompress(new ArraySegment<byte>(ebin.Message), msg))
                     {
-                        if (!this._payloadDecompressor.TryDecompress(new ArraySegment<byte>(ebin.Message), ms))
-                        {
-                            this.Logger.LogError(LoggerEvents.WebSocketReceiveFailure, "Payload decompression failed");
-                            return;
-                        }
+                        this.Logger.LogError(LoggerEvents.WebSocketReceiveFailure, "Payload decompression failed");
+                        return;
+                    }
 
-                        ms.Position = 0;
-                        using (var sr = new StreamReader(ms, Utilities.UTF8))
-                            msg = sr.ReadToEnd();
+                    msg.Position = 0;
+
+                    if (this.Configuration.MinimumLogLevel == LogLevel.Trace)
+                    {
+                        using (var sr = new StreamReader(msg, Utilities.UTF8))
+                        {
+                            this.Logger.LogTrace(LoggerEvents.GatewayWsRx, sr.ReadToEnd());
+                        }
                     }
                 }
 
                 try
                 {
-                    this.Logger.LogTrace(LoggerEvents.GatewayWsRx, msg);
                     await this.HandleSocketMessageAsync(msg);
                 }
                 catch (Exception ex)
@@ -196,9 +200,9 @@ namespace DSharpPlus
 
         #region WebSocket (Events)
 
-        internal async Task HandleSocketMessageAsync(string data)
+        internal async Task HandleSocketMessageAsync(Stream data)
         {
-            var payload = JsonConvert.DeserializeObject<GatewayPayload>(data);
+            var payload = DiscordApiClient.Deserialize<GatewayPayload>(data);
             switch (payload.OpCode)
             {
                 case GatewayOpCode.Dispatch:

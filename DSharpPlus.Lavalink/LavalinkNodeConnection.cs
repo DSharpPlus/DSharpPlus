@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -319,10 +320,15 @@ namespace DSharpPlus.Lavalink
                 return;
             }
 
-            this.Discord.Logger.LogTrace(LavalinkEvents.LavalinkWsRx, et.Message);
+            if (this.Discord.Configuration.MinimumLogLevel == LogLevel.Trace)
+            {
+                using var sr = new StreamReader(et.Message, Utilities.UTF8);
+
+                this.Discord.Logger.LogTrace(LavalinkEvents.LavalinkWsRx, await sr.ReadToEndAsync());
+            }
 
             var json = et.Message;
-            var jsonData = JObject.Parse(json);
+            var jsonData =  DiscordApiClient.LoadJObject(json);
             switch (jsonData["op"].ToString())
             {
                 case "playerUpdate":

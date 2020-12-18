@@ -8,7 +8,7 @@ namespace DSharpPlus.Test
 {
     public class TestBotCommands : BaseCommandModule
 	{
-		public static ConcurrentDictionary<ulong, string> PrefixSettings { get; } = new ConcurrentDictionary<ulong, string>();
+        public static ConcurrentDictionary<ulong, string> PrefixSettings { get; } = new ConcurrentDictionary<ulong, string>();
 
 		[Command("crosspost")]
 		public async Task CrosspostAsync(CommandContext ctx, DiscordChannel chn, DiscordMessage msg)
@@ -108,5 +108,16 @@ namespace DSharpPlus.Test
             var test8Msg = await ctx.Channel.SendMessageAsync("❌ Everyone(): " + origcontent);
             await test8Msg.ModifyAsync("❌ Everyone(): " + newContent, mentions: new IMention[] { new EveryoneMention() });                                                      //Should ping no one (@everyone was not pinged)
         }
+    }
+
+    [Group("tag")]
+    public class Tags : BaseCommandModule
+    {
+        [RequireGuild]
+        [Description("Gets a tag's content.")]
+        [GroupCommand]
+        [Command("get")]
+        [Aliases("retrieve")]
+        public async Task Get(CommandContext context, [RemainingText] string tagTitle) => context.RespondAsync("Hello world!");
     }
 }

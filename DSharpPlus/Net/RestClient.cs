@@ -219,13 +219,16 @@ namespace DSharpPlus.Net
 
                     var res = await HttpClient.SendAsync(req, CancellationToken.None).ConfigureAwait(false);
 
-                    var bts = await res.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
-                    var txt = Utilities.UTF8.GetString(bts, 0, bts.Length);
+                    if (this.Discord.Configuration.MinimumLogLevel == LogLevel.Trace)
+                    {
+                        var bts = await res.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+                        var txt = Utilities.UTF8.GetString(bts, 0, bts.Length);
 
-                    this.Logger.LogTrace(LoggerEvents.RestRx, txt);
+                        this.Logger.LogTrace(LoggerEvents.RestRx, txt);
+                    }
 
                     response.Headers = res.Headers.ToDictionary(xh => xh.Key, xh => string.Join("\n", xh.Value), StringComparer.OrdinalIgnoreCase);
-                    response.Response = txt;
+                    response.Response = await res.Content.ReadAsStreamAsync().ConfigureAwait(false);
                     response.ResponseCode = (int)res.StatusCode;
                 }
                 catch (HttpRequestException httpex)

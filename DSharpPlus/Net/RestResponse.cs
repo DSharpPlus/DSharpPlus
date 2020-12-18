@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.IO;
+using System.Collections.Generic;
 
 namespace DSharpPlus.Net
 {
@@ -20,7 +21,7 @@ namespace DSharpPlus.Net
         /// <summary>
         /// Gets the contents of the response sent by the remote party.
         /// </summary>
-        public string Response { get; internal set; }
+        public Stream Response { get; internal set; }
 
         internal RestResponse() { }
     }

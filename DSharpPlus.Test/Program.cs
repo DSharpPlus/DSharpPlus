@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Test
@@ -20,7 +21,6 @@ namespace DSharpPlus.Test
         public static async Task MainAsync(string[] args)
         {
             Console.CancelKeyPress += Console_CancelKeyPress;
-
             var cfg = new TestBotConfig();
             var json = string.Empty;
             if (!File.Exists("config.json"))
@@ -47,6 +47,22 @@ namespace DSharpPlus.Test
             
             await Task.WhenAll(tskl).ConfigureAwait(false);
 
+
+            /*
+
+            var dcfg = new DiscordConfiguration
+            {
+                AutoReconnect = true,
+                LargeThreshold = 250,
+                MinimumLogLevel = LogLevel.Debug,
+                TokenType = TokenType.Bot,
+                MessageCacheSize = 2048,
+                LogTimestampFormat = "dd-MM-yyyy HH:mm:ss zzz"
+            };
+            var Discord = new DiscordShardedClient(dcfg);
+
+            await Discord.StartAsync();
+            */
             try
             {
                 await Task.Delay(-1, CancelToken).ConfigureAwait(false);

@@ -254,7 +254,7 @@ namespace DSharpPlus
             var timer = new Stopwatch();
             timer.Start();
 
-            var jo = JObject.Parse(await resp.Content.ReadAsStringAsync().ConfigureAwait(false));
+            var jo = await DiscordApiClient.LoadJObjectAsync(await resp.Content.ReadAsStreamAsync().ConfigureAwait(false));
             var info = jo.ToObject<GatewayInfo>();
 
             //There is a delay from parsing here.

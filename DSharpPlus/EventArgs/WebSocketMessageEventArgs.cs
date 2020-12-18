@@ -1,4 +1,5 @@
 ﻿using Emzi0767.Utilities;
+using System.IO;
 
 namespace DSharpPlus.EventArgs
 {
@@ -16,13 +17,13 @@ namespace DSharpPlus.EventArgs
         /// <summary>
         /// Gets the received message string.
         /// </summary>
-        public string Message { get; }
+        public MemoryStream Message { get; }
 
         /// <summary>
         /// Creates a new instance of text message event arguments.
         /// </summary>
         /// <param name="message">Received message string.</param>
-        public SocketTextMessageEventArgs(string message)
+        public SocketTextMessageEventArgs(MemoryStream message)
         {
             this.Message = message;
         }
