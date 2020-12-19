@@ -77,7 +77,7 @@ namespace DSharpPlus.Entities
         /// Gets the ID of the guild's owner.
         /// </summary>
         [JsonProperty("owner_id", NullValueHandling = NullValueHandling.Ignore)]
-        internal ulong OwnerId { get; set; }
+        public ulong OwnerId { get; internal set; }
 
         /// <summary>
         /// Gets permissions for the user in the guild (does not include channel overrides)
