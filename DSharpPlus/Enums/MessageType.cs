@@ -73,6 +73,6 @@
         /// <summary>
         /// Message when a user replies to another user
         /// </summary>
-        Reply = 19,
+        Reply = 19
     }
 }
