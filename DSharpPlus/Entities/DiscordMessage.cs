@@ -314,7 +314,7 @@ namespace DSharpPlus.Entities
                     Id = guildId.Value,
                     Discord = client
                 };
-            if (channelId.HasValue) return null;
+            
             
             var channel = client.InternalGetCachedChannel(channelId.Value);
 
