@@ -140,7 +140,7 @@ namespace DSharpPlus
                         return;
                     }
 
-                    msg.Position = 0;
+                    msg.Seek(0, SeekOrigin.Begin);
 
                     if (this.Configuration.MinimumLogLevel == LogLevel.Trace)
                     {
