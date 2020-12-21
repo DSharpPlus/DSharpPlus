@@ -11,6 +11,7 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.WebSocket;
 using DSharpPlus.Net;
+using DSharpPlus.Net.Serialization;
 
 namespace DSharpPlus
 {
@@ -202,7 +203,7 @@ namespace DSharpPlus
 
         internal async Task HandleSocketMessageAsync(Stream data)
         {
-            var payload = DiscordApiClient.Deserialize<GatewayPayload>(data);
+            var payload = DiscordJson.Deserialize<GatewayPayload>(data);
             switch (payload.OpCode)
             {
                 case GatewayOpCode.Dispatch:

@@ -12,6 +12,7 @@ using DSharpPlus.Exceptions;
 using DSharpPlus.Lavalink.Entities;
 using DSharpPlus.Lavalink.EventArgs;
 using DSharpPlus.Net;
+using DSharpPlus.Net.Serialization;
 using DSharpPlus.Net.WebSocket;
 using Emzi0767.Utilities;
 using Microsoft.Extensions.Logging;
@@ -328,7 +329,7 @@ namespace DSharpPlus.Lavalink
             }
 
             var json = et.Message;
-            var jsonData =  DiscordApiClient.LoadJObject(json);
+            var jsonData =  DiscordJson.LoadJObject(json);
             switch (jsonData["op"].ToString())
             {
                 case "playerUpdate":
