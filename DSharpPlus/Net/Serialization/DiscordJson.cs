@@ -67,8 +67,6 @@ namespace DSharpPlus.Net.Serialization
             using var sr = new StreamReader(stream);
             using var jtr = new JsonTextReader(sr);
 
-            var serializer = new JsonSerializer();
-
             return Serializer.Deserialize<T>(jtr);
         }
 
