@@ -147,6 +147,7 @@ namespace DSharpPlus
                         using (var sr = new StreamReader(msg, Utilities.UTF8))
                         {
                             this.Logger.LogTrace(LoggerEvents.GatewayWsRx, sr.ReadToEnd());
+                            msg.Seek(0, SeekOrigin.Begin);
                         }
                     }
                 }
