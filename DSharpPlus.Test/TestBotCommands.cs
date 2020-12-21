@@ -109,15 +109,4 @@ namespace DSharpPlus.Test
             await test8Msg.ModifyAsync("❌ Everyone(): " + newContent, mentions: new IMention[] { new EveryoneMention() });                                                      //Should ping no one (@everyone was not pinged)
         }
     }
-
-    [Group("tag")]
-    public class Tags : BaseCommandModule
-    {
-        [RequireGuild]
-        [Description("Gets a tag's content.")]
-        [GroupCommand]
-        [Command("get")]
-        [Aliases("retrieve")]
-        public async Task Get(CommandContext context, [RemainingText] string tagTitle) => context.RespondAsync("Hello world!");
-    }
 }

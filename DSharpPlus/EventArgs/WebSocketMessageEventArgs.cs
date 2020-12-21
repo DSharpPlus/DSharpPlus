@@ -15,7 +15,7 @@ namespace DSharpPlus.EventArgs
     public sealed class SocketTextMessageEventArgs : SocketMessageEventArgs
     {
         /// <summary>
-        /// Gets the received message string.
+        /// Gets the received message stream.
         /// </summary>
         public MemoryStream Message { get; }
 
