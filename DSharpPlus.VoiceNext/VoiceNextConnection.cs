@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Net;
+using DSharpPlus.Net.Serialization;
 using DSharpPlus.Net.Udp;
 using DSharpPlus.Net.WebSocket;
 using DSharpPlus.VoiceNext.Codec;
@@ -1015,20 +1016,22 @@ namespace DSharpPlus.VoiceNext
                 return;
             }
 
-            using var sr = new StreamReader(et.Message, Utilities.UTF8);
-            using var jr = new JsonTextReader(sr);
-
             if (this.Discord.Configuration.MinimumLogLevel == LogLevel.Trace)
             {
-                string msg = null;
+                var cs = new MemoryStream();
 
-                msg = await sr.ReadToEndAsync();
+                await et.Message.CopyToAsync(cs).ConfigureAwait(false);
 
-                this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceWsRx, msg);
+                cs.Seek(0, SeekOrigin.Begin);
+                et.Message.Seek(0, SeekOrigin.Begin);
 
+                using var sr = new StreamReader(cs, Utilities.UTF8);
+
+                this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceWsRx, await sr.ReadToEndAsync().ConfigureAwait(false));
             }
 
-            await this.HandleDispatch(await JObject.LoadAsync(jr));
+            var j = await DiscordJson.LoadJObjectAsync(et.Message).ConfigureAwait(false);
+            await this.HandleDispatch(j).ConfigureAwait(false);
         }
 
         private Task VoiceWS_SocketOpened(IWebSocketClient client, SocketEventArgs e)

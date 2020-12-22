@@ -323,7 +323,14 @@ namespace DSharpPlus.Lavalink
 
             if (this.Discord.Configuration.MinimumLogLevel == LogLevel.Trace)
             {
-                using var sr = new StreamReader(et.Message, Utilities.UTF8);
+                var cs = new MemoryStream();
+
+                await et.Message.CopyToAsync(cs).ConfigureAwait(false);
+
+                cs.Seek(0, SeekOrigin.Begin);
+                et.Message.Seek(0, SeekOrigin.Begin);
+
+                using var sr = new StreamReader(cs, Utilities.UTF8);
 
                 this.Discord.Logger.LogTrace(LavalinkEvents.LavalinkWsRx, await sr.ReadToEndAsync());
             }

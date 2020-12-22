@@ -249,7 +249,13 @@ namespace DSharpPlus.Net.WebSocket
                         }
                         else if (result.MessageType == WebSocketMessageType.Text)
                         {
-                            await this._messageReceived.InvokeAsync(this, new SocketTextMessageEventArgs(bs)).ConfigureAwait(false);
+                            bs.Seek(0, SeekOrigin.Begin);
+                            var cs = new MemoryStream();
+
+                            await bs.CopyToAsync(cs).ConfigureAwait(false);
+                            cs.Seek(0, SeekOrigin.Begin);
+
+                            await this._messageReceived.InvokeAsync(this, new SocketTextMessageEventArgs(cs)).ConfigureAwait(false);
                         }
                         else // close
                         {

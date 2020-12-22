@@ -146,7 +146,9 @@ namespace DSharpPlus
                     {
                         var cs = new MemoryStream();
                         await msg.CopyToAsync(cs).ConfigureAwait(false);
+
                         msg.Seek(0, SeekOrigin.Begin);
+                        cs.Seek(0, SeekOrigin.Begin);
 
                         using (var sr = new StreamReader(cs, Utilities.UTF8))
                         {
