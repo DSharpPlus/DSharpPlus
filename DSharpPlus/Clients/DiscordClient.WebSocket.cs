@@ -144,17 +144,20 @@ namespace DSharpPlus
 
                     if (this.Configuration.MinimumLogLevel == LogLevel.Trace)
                     {
-                        using (var sr = new StreamReader(msg, Utilities.UTF8))
+                        var cs = new MemoryStream();
+                        await msg.CopyToAsync(cs).ConfigureAwait(false);
+                        msg.Seek(0, SeekOrigin.Begin);
+
+                        using (var sr = new StreamReader(cs, Utilities.UTF8))
                         {
-                            this.Logger.LogTrace(LoggerEvents.GatewayWsRx, sr.ReadToEnd());
-                            msg.Seek(0, SeekOrigin.Begin);
+                            this.Logger.LogTrace(LoggerEvents.GatewayWsRx, await sr.ReadToEndAsync().ConfigureAwait(false));
                         }
                     }
                 }
 
                 try
                 {
-                    await this.HandleSocketMessageAsync(msg);
+                    await this.HandleSocketMessageAsync(msg).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
