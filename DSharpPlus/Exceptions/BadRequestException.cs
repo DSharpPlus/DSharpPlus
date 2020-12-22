@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using DSharpPlus.Net;
 using Newtonsoft.Json;
+using DSharpPlus.Net.Serialization;
 
 namespace DSharpPlus.Exceptions
 {
@@ -33,10 +34,7 @@ namespace DSharpPlus.Exceptions
 
             try
             {
-                using var sr = new StreamReader(response.Response);
-                using var jr = new JsonTextReader(sr);
-
-                var j = JObject.Load(jr);
+                var j = DiscordJson.LoadJObject(response.Response);
 
                 if (j["message"] != null)
                     JsonMessage = j["message"].ToString();

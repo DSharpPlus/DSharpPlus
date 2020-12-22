@@ -336,7 +336,7 @@ namespace DSharpPlus.Lavalink
             }
 
             var json = et.Message;
-            var jsonData =  DiscordJson.LoadJObject(json);
+            var jsonData =  await DiscordJson.LoadJObjectAsync(json).ConfigureAwait(false);
             switch (jsonData["op"].ToString())
             {
                 case "playerUpdate":

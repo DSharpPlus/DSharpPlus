@@ -32,7 +32,7 @@ namespace DSharpPlus.Exceptions
 
             try
             {
-                JObject j = DiscordJson.LoadJObject(response.Response);
+                var j = DiscordJson.LoadJObject(response.Response);
 
                 if (j["message"] != null)
                     JsonMessage = j["message"].ToString();
