@@ -250,7 +250,8 @@ namespace DSharpPlus.Net.WebSocket
                         else if (result.MessageType == WebSocketMessageType.Text)
                         {
                             bs.Seek(0, SeekOrigin.Begin);
-                            var cs = new MemoryStream();
+
+                            using var cs = new MemoryStream();
 
                             await bs.CopyToAsync(cs).ConfigureAwait(false);
                             cs.Seek(0, SeekOrigin.Begin);
