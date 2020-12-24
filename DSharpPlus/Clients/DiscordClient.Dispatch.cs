@@ -1701,6 +1701,8 @@ namespace DSharpPlus
             interaction.Member = new DiscordMember(member);
             interaction.ChannelId = channelId;
             interaction.GuildId = guildId;
+            interaction.Discord = this;
+            interaction.Data.Discord = this;
 
             var ea = new InteractionCreateEventArgs
             {
