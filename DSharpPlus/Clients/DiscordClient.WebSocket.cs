@@ -37,6 +37,9 @@ namespace DSharpPlus
         #region Connection Semaphore
 
         private static ConcurrentDictionary<ulong, SocketLock> SocketLocks { get; } = new ConcurrentDictionary<ulong, SocketLock>();
+        
+        private static SocketLock SocketLock = new SocketLock(0, 1);
+        
         private ManualResetEventSlim SessionLock { get; } = new ManualResetEventSlim(true);
         
         #endregion
@@ -477,8 +480,17 @@ namespace DSharpPlus
 
         #region Semaphore Methods
 
-        private SocketLock GetSocketLock()
-            => SocketLocks.GetOrAdd(this.CurrentApplication.Id, appId => new SocketLock(appId, this.GatewayInfo.SessionBucket.MaxConcurrency));
+         private SocketLock GetSocketLock()
+        {
+            if(this.CurrentApplication != null)
+            {
+                return SocketLocks.GetOrAdd(this.CurrentApplication.Id, appId => new SocketLock(appId, this.GatewayInfo?.SessionBucket?.MaxConcurrency?? 1));
+            }
+            else
+            {
+                return SocketLock;
+            }
+        }
 
         #endregion
     }

@@ -283,6 +283,22 @@ namespace DSharpPlus.Net
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route);
         }
 
+        internal async Task JoinGuildAsync(string code)
+        {
+            var route = $"{Endpoints.INVITES}/{code}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { code }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, null, "{}").ConfigureAwait(false);
+            var jsonResponse = JsonConvert.DeserializeObject<JObject>(res.Response);
+            Console.WriteLine(res.Response);
+            if(jsonResponse.ContainsKey("message"))
+            {
+                throw new AccessViolationException((string) jsonResponse["message"]);
+            }
+        }
+
+
         internal Task LeaveGuildAsync(ulong guild_id)
         {
             var route = $"{Endpoints.USERS}{Endpoints.ME}{Endpoints.GUILDS}/:guild_id";
@@ -2119,7 +2135,15 @@ namespace DSharpPlus.Net
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route, headers).ConfigureAwait(false);
 
             var info = JObject.Parse(res.Response).ToObject<GatewayInfo>();
-            info.SessionBucket.ResetAfter = DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(info.SessionBucket.resetAfter);
+
+            try
+            {
+                info.SessionBucket.ResetAfter = DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(info.SessionBucket.resetAfter);
+            }
+            catch(NullReferenceException)
+            {
+
+            }
             return info;
         }
         #endregion

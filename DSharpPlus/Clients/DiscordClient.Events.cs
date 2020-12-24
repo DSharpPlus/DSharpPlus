@@ -2,6 +2,7 @@
 using DSharpPlus.EventArgs;
 using Emzi0767.Utilities;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus
 {
@@ -511,6 +512,22 @@ namespace DSharpPlus
         private AsyncEvent<DiscordClient, VoiceServerUpdateEventArgs> _voiceServerUpdated;
 
         #endregion
+
+        public event AsyncEventHandler<DiscordClient, StreamUpdateEventArgs> StreamServerUpdated
+        {
+            add => this._streamServerUpdated.Register(value);
+            remove => this._streamServerUpdated.Unregister(value);
+        }
+
+        private AsyncEvent<DiscordClient, StreamUpdateEventArgs> _streamServerUpdated;
+
+        public event AsyncEventHandler<DiscordClient, StreamCreateEventArgs> StreamCreated
+        {
+            add => this._streamCreated.Register(value);
+            remove => this._streamCreated.Unregister(value);
+        }
+
+        private AsyncEvent<DiscordClient, StreamCreateEventArgs> _streamCreated;
 
         #region Misc
 

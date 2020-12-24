@@ -84,6 +84,9 @@ namespace DSharpPlus
                 case TokenType.Bot:
                     return $"Bot {config.Token}";
 
+                case TokenType.User:
+                    return config.Token;
+
                 default:
                     throw new ArgumentException("Invalid token type specified.", nameof(config.Token));
             }

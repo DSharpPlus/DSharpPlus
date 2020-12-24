@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -72,6 +73,8 @@ namespace DSharpPlus.Net.Udp
             catch (Exception) { }
 #endif
 
+            
+            
             // dequeue all the packets
             this.PacketQueue.Dispose();
         }

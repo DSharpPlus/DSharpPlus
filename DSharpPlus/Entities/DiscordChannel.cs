@@ -725,6 +725,10 @@ namespace DSharpPlus.Entities
             // =>
             // user allow > user deny > role allow > role deny > everyone allow > everyone deny
             // thanks to meew0
+            if (this.Discord.Configuration.TokenType == TokenType.User)
+                return Permissions.All;
+            
+            //TODO: implement FULL permissions checks!
 
             if (this.IsPrivate || this.Guild == null)
                 return Permissions.None;

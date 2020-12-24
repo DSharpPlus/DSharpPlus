@@ -27,6 +27,20 @@ namespace DSharpPlus
         }
         private string _token = "";
 
+        public string Password
+        {
+            internal get => this._password;
+
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                    throw new ArgumentNullException(nameof(value), "Password cannot be null, empty, or all whitespace when using a user token!");
+
+                this._password = value.Trim();
+            }
+        }
+        private string _password;
+
         /// <summary>
         /// <para>Sets the type of the token used to identify the client.</para>
         /// <para>Defaults to <see cref="TokenType.Bot"/>.</para>

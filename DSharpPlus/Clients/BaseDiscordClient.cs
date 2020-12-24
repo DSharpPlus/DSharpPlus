@@ -191,8 +191,6 @@ namespace DSharpPlus
         /// <returns>A gateway info object.</returns>
         public async Task<GatewayInfo> GetGatewayInfoAsync(string token = null)
         {
-            if (this.Configuration.TokenType != TokenType.Bot)
-                throw new InvalidOperationException("Only bot tokens can access this info.");
 
             if (string.IsNullOrEmpty(this.Configuration.Token))
             {

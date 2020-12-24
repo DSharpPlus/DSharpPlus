@@ -43,6 +43,17 @@ namespace DSharpPlus.Net
             this.Discord = client;
             this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(client));
             this.HttpClient.DefaultRequestHeaders.Add("X-RateLimit-Precision", "millisecond");
+            if(client.Configuration.TokenType == TokenType.User)
+            {
+                this.HttpClient.DefaultRequestHeaders.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) discord/0.0.309 Chrome/83.0.4103.122 Electron/9.3.5 Safari/537.36");
+                this.HttpClient.DefaultRequestHeaders.Add("sec-fetch-site", "same-origin");
+                this.HttpClient.DefaultRequestHeaders.Add("sec-fetch-mode", "cors");
+                this.HttpClient.DefaultRequestHeaders.Add("sec-fetch-dest", "empty");
+                this.HttpClient.DefaultRequestHeaders.Add("x-super-properties", "eyJvcyI6IldpbmRvd3MiLCJicm93c2VyIjoiRGlzY29yZCBDbGllbnQiLCJyZWxlYXNlX2NoYW5uZWwiOiJzdGFibGUiLCJjbGllbnRfdmVyc2lvbiI6IjAuMC4zMDkiLCJvc192ZXJzaW9uIjoiMTAuMC4xODM2MyIsIm9zX2FyY2giOiJ4NjQiLCJjbGllbnRfYnVpbGRfbnVtYmVyIjo3MzM0OSwiY2xpZW50X2V2ZW50X3NvdXJjZSI6bnVsbH0=");
+                this.HttpClient.DefaultRequestHeaders.Add("accept", "*/*");
+                this.HttpClient.DefaultRequestHeaders.Add("accept-language", "en-US");
+                //this.HttpClient.DefaultRequestHeaders.Add("referrer", "https://discord.com/app?_=1607747468390");
+            }
         }
 
         internal RestClient(IWebProxy proxy, TimeSpan timeout, bool useRelativeRatelimit, 
@@ -63,8 +74,6 @@ namespace DSharpPlus.Net
                 BaseAddress = new Uri(Utilities.GetApiBaseUri()),
                 Timeout = timeout
             };
-
-            this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", Utilities.GetUserAgent());
 
             this.RoutesToHashes = new ConcurrentDictionary<string, string>();
             this.HashesToBuckets = new ConcurrentDictionary<string, RateLimitBucket>();
@@ -211,6 +220,7 @@ namespace DSharpPlus.Net
                     this.Logger.LogDebug(LoggerEvents.RatelimitDiag, "Initial request for {0} is allowed", bucket.ToString());
 
                 var req = this.BuildRequest(request);
+                req.Headers.Add("referrer", req.RequestUri.AbsoluteUri);
                 var response = new RestResponse();
                 try
                 {
