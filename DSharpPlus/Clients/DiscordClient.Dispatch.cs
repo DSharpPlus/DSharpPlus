@@ -322,6 +322,15 @@ namespace DSharpPlus
 
                 #endregion
 
+                #region Interaction 
+
+                case "interaction_create":
+                    mbr = dat.ToObject<TransportMember>();
+                    await OnInteractionCreateAsync(mbr, dat.ToObject<DiscordInteraction>()).ConfigureAwait(false);
+                    break;
+
+                #endregion
+
                 #region Misc
 
                 case "gift_code_update": //Not supposed to be dispatched to bots
@@ -1684,6 +1693,18 @@ namespace DSharpPlus
         #endregion
 
         #region Misc
+
+        internal async Task OnInteractionCreateAsync(TransportMember member, DiscordInteraction interaction)
+        {
+            interaction.Member = new DiscordMember(member);
+
+            var ea = new InteractionCreateEventArgs
+            {
+                Interaction = interaction
+            };
+
+            await this._interactionCreated.InvokeAsync(this, ea).ConfigureAwait(false);
+        }
 
         internal async Task OnTypingStartEventAsync(ulong userId, ulong channelId, DiscordChannel channel, ulong? guildId, DateTimeOffset started, TransportMember mbr)
         {

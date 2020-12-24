@@ -539,6 +539,16 @@ namespace DSharpPlus
         #region Misc
 
         /// <summary>
+        /// Fired when a guild uses a slash command. 
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, InteractionCreateEventArgs> InteractionCreated
+        {
+            add => this._interactionCreated.Register(value);
+            remove => this._interactionCreated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, InteractionCreateEventArgs> _interactionCreated;
+
+        /// <summary>
         /// Fired when a user starts typing in a channel.
         /// </summary>
         public event AsyncEventHandler<DiscordClient, TypingStartEventArgs> TypingStarted
