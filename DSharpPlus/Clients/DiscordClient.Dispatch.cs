@@ -293,18 +293,6 @@ namespace DSharpPlus
 
                 #endregion
 
-                #region Video
-              
-                case "stream_create":
-                    await OnStreamCreateEventAsync(dat).ConfigureAwait(false);
-                    break;
-
-                case "stream_server_update":
-                    await OnStreamServerUpdateEventAsync(dat).ConfigureAwait(false);
-                    break;
-
-                #endregion
-
                 #region Misc
 
                 case "gift_code_update": //Not supposed to be dispatched to bots
@@ -358,36 +346,33 @@ namespace DSharpPlus
             var raw_guild_index = rawGuilds.ToDictionary(xt => (ulong)xt["id"], xt => (JObject)xt);
 
             this._privateChannels.Clear();
-            if(rawDmChannels != null)
+            foreach (var rawChannel in rawDmChannels)
             {
-                foreach (var rawChannel in rawDmChannels)
+                var channel = rawChannel.ToObject<DiscordDmChannel>();
+
+                channel.Discord = this;
+
+                //xdc._recipients = 
+                //    .Select(xtu => this.InternalGetCachedUser(xtu.Id) ?? new DiscordUser(xtu) { Discord = this })
+                //    .ToList();
+
+                var recips_raw = rawChannel["recipients"].ToObject<IEnumerable<TransportUser>>();
+                channel._recipients = new List<DiscordUser>();
+                foreach (var xr in recips_raw)
                 {
-                    var channel = rawChannel.ToObject<DiscordDmChannel>();
-
-                    channel.Discord = this;
-
-                    //xdc._recipients = 
-                    //    .Select(xtu => this.InternalGetCachedUser(xtu.Id) ?? new DiscordUser(xtu) { Discord = this })
-                    //    .ToList();
-
-                    var recips_raw = rawChannel["recipients"].ToObject<IEnumerable<TransportUser>>();
-                    channel._recipients = new List<DiscordUser>();
-                    foreach (var xr in recips_raw)
+                    var xu = new DiscordUser(xr) { Discord = this };
+                    xu = this.UserCache.AddOrUpdate(xr.Id, xu, (id, old) =>
                     {
-                        var xu = new DiscordUser(xr) { Discord = this };
-                        xu = this.UserCache.AddOrUpdate(xr.Id, xu, (id, old) =>
-                        {
-                            old.Username = xu.Username;
-                            old.Discriminator = xu.Discriminator;
-                            old.AvatarHash = xu.AvatarHash;
-                            return old;
-                        });
+                        old.Username = xu.Username;
+                        old.Discriminator = xu.Discriminator;
+                        old.AvatarHash = xu.AvatarHash;
+                        return old;
+                    });
 
-                        channel._recipients.Add(xu);
-                    }
-
-                    this._privateChannels[channel.Id] = channel;
+                    channel._recipients.Add(xu);
                 }
+
+                this._privateChannels[channel.Id] = channel;
             }
 
             this._guilds.Clear();
@@ -1720,44 +1705,6 @@ namespace DSharpPlus
                 Guild = guild
             };
             await this._voiceServerUpdated.InvokeAsync(this, ea).ConfigureAwait(false);
-        }
-        
-        /// <summary>
-        /// This event is invoked whenever there is a stream update.
-        /// </summary>
-        /// <param name="raw">The raw json payload of the event.</param>
-        internal async Task OnStreamServerUpdateEventAsync(JObject raw)
-        {
-            var endpoint = (string)raw["endpoint"];
-            var token = (string)raw["token"];
-            var stream_key = (string)raw["stream_key"];
-    
-            var payload = new StreamUpdateEventArgs {
-                Key = stream_key,
-                Token = token,
-                Endpoint = endpoint
-            };
-
-            await this._streamServerUpdated.InvokeAsync(this, payload).ConfigureAwait(false);
-        }
-        
-        internal async Task OnStreamCreateEventAsync(JObject raw)
-        {
-            List<ulong> viewers = new List<ulong>();
-            var viewerList = raw["viewer_ids"].ToArray();
-            foreach (var val in viewerList)
-            {
-                viewers.Add(ulong.Parse((string) val));
-            }
-
-            var payload = new StreamCreateEventArgs {
-                Region = (string)raw["region"],
-                RtcServerId = (string)raw["rtc_server_id"],
-                Key = (string)raw["stream_key"],
-                Viewers = viewers.ToArray()
-            };
-
-            await this._streamCreated.InvokeAsync(this, payload).ConfigureAwait(false);
         }
 
         #endregion

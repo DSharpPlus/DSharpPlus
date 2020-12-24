@@ -1024,7 +1024,7 @@ namespace DSharpPlus.VoiceNext
         private Task VoiceWs_SocketException(IWebSocketClient client, SocketErrorEventArgs e)
             => this._voiceSocketError.InvokeAsync(this, new SocketErrorEventArgs { Exception = e.Exception });
 
-        internal async Task WsSendAsync(string payload)
+        private async Task WsSendAsync(string payload)
         {
             this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceWsTx, payload);
             await this.VoiceWs.SendMessageAsync(payload).ConfigureAwait(false);

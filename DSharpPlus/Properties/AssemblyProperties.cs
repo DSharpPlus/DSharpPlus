@@ -8,5 +8,3 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("DSharpPlus.Rest")]
 
 [assembly: InternalsVisibleTo("DSharpPlus.MSTest")]
-
-[assembly: InternalsVisibleTo("DSharpPlus.VideoNext")]

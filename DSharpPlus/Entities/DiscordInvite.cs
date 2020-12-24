@@ -121,16 +121,6 @@ namespace DSharpPlus.Entities
          *     => this.Discord._rest_client.InternalAcceptInvite(Code);
          */
 
-         public async Task JoinAsync()
-         {
-             if(!this.Discord.Guilds.ContainsKey(ulong.Parse(this.Code)) && Discord.Configuration.TokenType == TokenType.User)
-             {
-                await this.Discord.ApiClient.JoinGuildAsync(this.Code);
-             }
-            throw new InvalidOperationException("Either the current user is a Bot or the user is already a member of the specified guild.");
-         }
-            
-
         /// <summary>
         /// Converts this invite into an invite link.
         /// </summary>

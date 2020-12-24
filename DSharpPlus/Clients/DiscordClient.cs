@@ -174,8 +174,6 @@ namespace DSharpPlus
             this._userUpdated = new AsyncEvent<DiscordClient, UserUpdateEventArgs>("USER_UPDATED", EventExecutionLimit, this.EventErrorHandler);
             this._voiceStateUpdated = new AsyncEvent<DiscordClient, VoiceStateUpdateEventArgs>("VOICE_STATE_UPDATED", EventExecutionLimit, this.EventErrorHandler);
             this._voiceServerUpdated = new AsyncEvent<DiscordClient, VoiceServerUpdateEventArgs>("VOICE_SERVER_UPDATED", EventExecutionLimit, this.EventErrorHandler);
-            this._streamCreated = new AsyncEvent<DiscordClient, StreamCreateEventArgs>("VIDEO_STREAM_CREATED", EventExecutionLimit, this.EventErrorHandler);
-            this._streamServerUpdated = new AsyncEvent<DiscordClient, StreamUpdateEventArgs>("VIDEO_STATE_UPDATED", EventExecutionLimit, this.EventErrorHandler);
             this._guildMembersChunked = new AsyncEvent<DiscordClient, GuildMembersChunkEventArgs>("GUILD_MEMBERS_CHUNKED", EventExecutionLimit, this.EventErrorHandler);
             this._unknownEvent = new AsyncEvent<DiscordClient, UnknownEventArgs>("UNKNOWN_EVENT", EventExecutionLimit, this.EventErrorHandler);
             this._messageReactionAdded = new AsyncEvent<DiscordClient, MessageReactionAddEventArgs>("MESSAGE_REACTION_ADDED", EventExecutionLimit, this.EventErrorHandler);
@@ -401,20 +399,6 @@ namespace DSharpPlus
                 iconb64 = null;
 
             return this.ApiClient.CreateGuildAsync(name, region, iconb64, verificationLevel, defaultMessageNotifications);
-        }
-
-        public async Task JoinGuildAsync(DiscordInvite invite)
-        {
-            await invite.JoinAsync();
-        }
-
-        public async Task JoinGuildAsync(string invite)
-        {
-            invite = invite.Replace("https://discord.gg", "");
-            invite = invite.Replace("https://discord.com/invite", "");
-
-            var i = await this.GetInviteByCodeAsync(invite);
-            await i.JoinAsync();
         }
 
         /// <summary>
