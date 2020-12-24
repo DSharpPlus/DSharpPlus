@@ -325,7 +325,7 @@ namespace DSharpPlus
                 #region Interaction 
 
                 case "interaction_create":
-                    mbr = dat.ToObject<TransportMember>();
+                    mbr = dat["member"].ToObject<TransportMember>();
                     await OnInteractionCreateAsync(mbr, dat.ToObject<DiscordInteraction>()).ConfigureAwait(false);
                     break;
 
