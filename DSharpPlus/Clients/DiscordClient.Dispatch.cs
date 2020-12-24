@@ -297,7 +297,9 @@ namespace DSharpPlus
 
                 case "interaction_create":
                     mbr = dat["member"].ToObject<TransportMember>();
-                    await OnInteractionCreateAsync(mbr, dat.ToObject<DiscordInteraction>()).ConfigureAwait(false);
+                    cid = (ulong)dat["channel_id"];
+                    gid = (ulong)dat["guild_id"];
+                    await OnInteractionCreateAsync(gid, cid, mbr, dat.ToObject<DiscordInteraction>()).ConfigureAwait(false);
                     break;
 
                 #endregion
@@ -1720,9 +1722,11 @@ namespace DSharpPlus
 
         #region Misc
 
-        internal async Task OnInteractionCreateAsync(TransportMember member, DiscordInteraction interaction)
+        internal async Task OnInteractionCreateAsync(ulong guildId, ulong channelId, TransportMember member, DiscordInteraction interaction)
         {
             interaction.Member = new DiscordMember(member);
+            interaction.ChannelId = channelId;
+            interaction.GuildId = guildId;
 
             var ea = new InteractionCreateEventArgs
             {

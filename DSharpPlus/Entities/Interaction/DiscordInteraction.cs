@@ -21,8 +21,8 @@ namespace DSharpPlus.Entities
         [JsonProperty("data", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordInteractionData Data { get; internal set; }
 
-        [JsonProperty("guild_id")]
-        internal ulong GuildId { get; }
+        [JsonIgnore]
+        public ulong GuildId { get; internal set; }
 
         /// <summary>
         /// Gets the guild that invoked this interaction.
@@ -31,8 +31,8 @@ namespace DSharpPlus.Entities
         public DiscordGuild Guild
             => (this.Discord as DiscordClient).InternalGetCachedGuild(this.GuildId);
 
-        [JsonProperty("channel_id")]
-        internal ulong ChannelId { get; }
+        [JsonIgnore]
+        public ulong ChannelId { get; internal set; }
         
         /// <summary>
         /// Gets the channel that invoked this interaction.
