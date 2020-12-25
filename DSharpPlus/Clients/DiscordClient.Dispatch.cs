@@ -293,13 +293,22 @@ namespace DSharpPlus
 
                 #endregion
 
-                #region Interaction 
+                #region Interaction/Integration 
 
                 case "interaction_create":
                     mbr = dat["member"].ToObject<TransportMember>();
                     cid = (ulong)dat["channel_id"];
                     gid = (ulong)dat["guild_id"];
                     await OnInteractionCreateAsync(gid, cid, mbr, dat.ToObject<DiscordInteraction>()).ConfigureAwait(false);
+                    break;
+
+                case "integration_create":
+                    break;
+
+                case "integration_update":
+                    break;
+
+                case "integration_delete":
                     break;
 
                 #endregion
