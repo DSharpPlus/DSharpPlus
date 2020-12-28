@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ using DSharpPlus.Exceptions;
 using DSharpPlus.Lavalink.Entities;
 using DSharpPlus.Lavalink.EventArgs;
 using DSharpPlus.Net;
+using DSharpPlus.Net.Serialization;
 using DSharpPlus.Net.WebSocket;
 using Emzi0767.Utilities;
 using Microsoft.Extensions.Logging;
@@ -319,10 +321,22 @@ namespace DSharpPlus.Lavalink
                 return;
             }
 
-            this.Discord.Logger.LogTrace(LavalinkEvents.LavalinkWsRx, et.Message);
+            if (this.Discord.Configuration.MinimumLogLevel == LogLevel.Trace)
+            {
+                var cs = new MemoryStream();
+
+                await et.Message.CopyToAsync(cs).ConfigureAwait(false);
+
+                cs.Seek(0, SeekOrigin.Begin);
+                et.Message.Seek(0, SeekOrigin.Begin);
+
+                using var sr = new StreamReader(cs, Utilities.UTF8);
+
+                this.Discord.Logger.LogTrace(LavalinkEvents.LavalinkWsRx, await sr.ReadToEndAsync());
+            }
 
             var json = et.Message;
-            var jsonData = JObject.Parse(json);
+            var jsonData =  await DiscordJson.LoadJObjectAsync(json).ConfigureAwait(false);
             switch (jsonData["op"].ToString())
             {
                 case "playerUpdate":
