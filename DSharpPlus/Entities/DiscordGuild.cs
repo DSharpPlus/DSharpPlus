@@ -2073,6 +2073,48 @@ namespace DSharpPlus.Entities
         /// <returns>The newly modified widget settings</returns>
         public Task<DiscordWidgetSettings> ModifyWidgetSettingsAsync(bool? isEnabled = null, DiscordChannel channel = null, string reason = null)
             => this.Discord.ApiClient.ModifyGuildWidgetSettingsAsync(this.Id, isEnabled, channel?.Id, reason);
+
+        /// <summary>
+        /// Gets all of this guild's templates.
+        /// </summary>
+        /// <returns>All of the guild's templates.</returns>
+        public Task<IReadOnlyList<DiscordGuildTemplate>> GetTemplatesAsync()
+            => this.Discord.ApiClient.GetGuildTemplatesAsync(this.Id);
+
+        /// <summary>
+        /// Creates a guild template.
+        /// </summary>
+        /// <param name="name">Name of the template.</param>
+        /// <param name="description">Description of the template.</param>
+        /// <returns>The template created.</returns>
+        public Task<DiscordGuildTemplate> CreateTemplateAsync(string name, string description = null)
+            => this.Discord.ApiClient.CreateGuildTemplateAsync(this.Id, name, description);
+
+        /// <summary>
+        /// Syncs the template to the current guild's state.
+        /// </summary>
+        /// <param name="code">The code of the template to sync.</param>
+        /// <returns>The template synced.</returns>
+        public Task<DiscordGuildTemplate> SyncTemplateAsync(string code)
+            => this.Discord.ApiClient.SyncGuildTemplateAsync(this.Id, code);
+
+        /// <summary>
+        /// Modifies the template's metadata.
+        /// </summary>
+        /// <param name="code">The template's code.</param>
+        /// <param name="name">Name of the template.</param>
+        /// <param name="description">Description of the template.</param>
+        /// <returns>The template modified.</returns>
+        public Task<DiscordGuildTemplate> ModifyTemplateAsync(string code, string name = null, string description = null)
+            => this.Discord.ApiClient.ModifyGuildTemplateAsync(this.Id, code, name, description);
+
+        /// <summary>
+        /// Deletes the template.
+        /// </summary>
+        /// <param name="code">The code of the template to delete.</param>
+        /// <returns>The deleted template.</returns>
+        public Task<DiscordGuildTemplate> DeleteTemplateAsync(string code)
+            => this.Discord.ApiClient.DeleteGuildTemplateAsync(this.Id, code);
         #endregion
 
         /// <summary>

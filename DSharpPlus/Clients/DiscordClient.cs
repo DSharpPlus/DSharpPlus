@@ -402,6 +402,25 @@ namespace DSharpPlus
         }
 
         /// <summary>
+        /// Creates a guild from a template. This requires the bot to be in less than 10 guilds total.
+        /// </summary>
+        /// <param name="code">The template code.</param>
+        /// <param name="name">Name of the guild.</param>
+        /// <param name="icon">Stream containing the icon for the guild.</param>
+        /// <returns>The created guild.</returns>
+        public Task<DiscordGuild> CreateGuildFromTemplateAsync(string code, string name, Optional<Stream> icon = default)
+        {
+            var iconb64 = Optional.FromNoValue<string>();
+            if (icon.HasValue && icon.Value != null)
+                using (var imgtool = new ImageTool(icon.Value))
+                    iconb64 = imgtool.GetBase64();
+            else if (icon.HasValue)
+                iconb64 = null;
+
+            return this.ApiClient.CreateGuildFromTemplateAsync(code, name, iconb64);
+        }
+
+        /// <summary>
         /// Gets a guild.
         /// <para>Setting <paramref name="withCounts"/> to true will make a REST request.</para>
         /// </summary>
@@ -513,6 +532,14 @@ namespace DSharpPlus
             this.CurrentUser.AvatarHash = usr.AvatarHash;
             return this.CurrentUser;
         }
+
+        /// <summary>
+        /// Gets a guild template by the code.
+        /// </summary>
+        /// <param name="code">The code of the template.</param>
+        /// <returns>The guild template for the code.</returns>
+        public Task<DiscordGuildTemplate> GetTemplateAsync(string code)
+            => this.ApiClient.GetTemplateAsync(code);
         #endregion
 
         #region Internal Caching Methods
