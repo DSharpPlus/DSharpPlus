@@ -2070,21 +2070,6 @@ namespace DSharpPlus.Net
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route, headers);
         }
         #endregion
-            
-        #region Templates
-        internal async Task<DiscordGuildTemplate> GetTemplateAsync(string code)
-        {
-            var route = $"{Endpoints.GUILDS}/templates/:code";
-            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { code }, out var path);
-
-            var url = Utilities.GetApiUriFor(path);
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
-
-            var template = JsonConvert.DeserializeObject<DiscordGuildTemplate>(res.Response);
-
-            return template;
-        }
-        #endregion
 
         #region Misc
         internal Task<TransportApplication> GetCurrentApplicationInfoAsync()
