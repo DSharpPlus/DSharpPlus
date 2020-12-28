@@ -326,17 +326,6 @@ namespace DSharpPlus
 
         #region Public REST Methods
         /// <summary>
-        /// Gets a guild template by the code.
-        /// </summary>
-        /// <param name="code">The code of the template</param>
-        /// <returns></returns>
-        public async Task<DiscordGuildTemplate> GetTemplateAsync(string code)
-        {
-            var template = await this.ApiClient.GetTemplateAsync(code);
-            return template;
-        }
-        
-        /// <summary>
         /// Gets a user
         /// </summary>
         /// <param name="userId">Id of the user</param>
