@@ -2073,6 +2073,62 @@ namespace DSharpPlus.Entities
         /// <returns>The newly modified widget settings</returns>
         public Task<DiscordWidgetSettings> ModifyWidgetSettingsAsync(bool? isEnabled = null, DiscordChannel channel = null, string reason = null)
             => this.Discord.ApiClient.ModifyGuildWidgetSettingsAsync(this.Id, isEnabled, channel?.Id, reason);
+
+        /// <summary>
+        /// Gets all of this guild's templates.
+        /// </summary>
+        /// <returns>All of the guild's templates.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Throws when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<IReadOnlyList<DiscordGuildTemplate>> GetTemplatesAsync()
+            => this.Discord.ApiClient.GetGuildTemplatesAsync(this.Id);
+
+        /// <summary>
+        /// Creates a guild template.
+        /// </summary>
+        /// <param name="name">Name of the template.</param>
+        /// <param name="description">Description of the template.</param>
+        /// <returns>The template created.</returns>
+        /// <exception cref="Exceptions.BadRequestException">Throws when a template already exists for the guild or a null parameter is provided for the name.</exception>
+        /// <exception cref="Exceptions.UnauthorizedException">Throws when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordGuildTemplate> CreateTemplateAsync(string name, string description = null)
+            => this.Discord.ApiClient.CreateGuildTemplateAsync(this.Id, name, description);
+
+        /// <summary>
+        /// Syncs the template to the current guild's state.
+        /// </summary>
+        /// <param name="code">The code of the template to sync.</param>
+        /// <returns>The template synced.</returns>
+        /// <exception cref="Exceptions.NotFoundException">Throws when the template for the code cannot be found</exception>
+        /// <exception cref="Exceptions.UnauthorizedException">Throws when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordGuildTemplate> SyncTemplateAsync(string code)
+            => this.Discord.ApiClient.SyncGuildTemplateAsync(this.Id, code);
+
+        /// <summary>
+        /// Modifies the template's metadata.
+        /// </summary>
+        /// <param name="code">The template's code.</param>
+        /// <param name="name">Name of the template.</param>
+        /// <param name="description">Description of the template.</param>
+        /// <returns>The template modified.</returns>
+        /// <exception cref="Exceptions.NotFoundException">Throws when the template for the code cannot be found</exception>
+        /// <exception cref="Exceptions.UnauthorizedException">Throws when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordGuildTemplate> ModifyTemplateAsync(string code, string name = null, string description = null)
+            => this.Discord.ApiClient.ModifyGuildTemplateAsync(this.Id, code, name, description);
+
+        /// <summary>
+        /// Deletes the template.
+        /// </summary>
+        /// <param name="code">The code of the template to delete.</param>
+        /// <returns>The deleted template.</returns>
+        /// <exception cref="Exceptions.NotFoundException">Throws when the template for the code cannot be found</exception>
+        /// <exception cref="Exceptions.UnauthorizedException">Throws when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordGuildTemplate> DeleteTemplateAsync(string code)
+            => this.Discord.ApiClient.DeleteGuildTemplateAsync(this.Id, code);
         #endregion
 
         /// <summary>
