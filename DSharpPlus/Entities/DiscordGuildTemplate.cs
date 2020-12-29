@@ -63,7 +63,7 @@ namespace DSharpPlus.Entities
         /// Gets the source guild.
         /// </summary>
         [JsonProperty("serialized_source_guild", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordGuild SourceGuild { get; internal set; }
+        public DiscordTemplateGuild SourceGuild { get; internal set; }
 
         /// <summary>
         /// Gets whether the template has unsynced changes.
