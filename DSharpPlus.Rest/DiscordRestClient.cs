@@ -1226,7 +1226,9 @@ namespace DSharpPlus
         /// Gets a guild template by the code.
         /// </summary>
         /// <param name="code">The code of the template.</param>
-        /// <returns>The guild template for the code.</returns>
+        /// <returns>The guild template for the code.</returns>\
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordGuildTemplate> GetTemplateAsync(string code)
             => this.ApiClient.GetTemplateAsync(code);
         #endregion

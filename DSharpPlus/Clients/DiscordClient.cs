@@ -408,6 +408,8 @@ namespace DSharpPlus
         /// <param name="name">Name of the guild.</param>
         /// <param name="icon">Stream containing the icon for the guild.</param>
         /// <returns>The created guild.</returns>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordGuild> CreateGuildFromTemplateAsync(string code, string name, Optional<Stream> icon = default)
         {
             var iconb64 = Optional.FromNoValue<string>();
@@ -538,6 +540,8 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="code">The code of the template.</param>
         /// <returns>The guild template for the code.</returns>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordGuildTemplate> GetTemplateAsync(string code)
             => this.ApiClient.GetTemplateAsync(code);
         #endregion
