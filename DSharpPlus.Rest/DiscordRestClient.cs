@@ -966,7 +966,7 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="guild_id">Guild id</param>
         /// <returns>All of the guild's templates.</returns>
-        public Task<IReadOnlyList<DiscordGuildTemplate>> GetTemplatesAsync(ulong guild_id)
+        public Task<IReadOnlyList<DiscordGuildTemplate>> GetGuildTemplatesAsync(ulong guild_id)
             => this.ApiClient.GetGuildTemplatesAsync(guild_id);
 
         /// <summary>
@@ -976,7 +976,7 @@ namespace DSharpPlus
         /// <param name="name">Name of the template.</param>
         /// <param name="description">Description of the template.</param>
         /// <returns>The template created.</returns>
-        public Task<DiscordGuildTemplate> CreateTemplateAsync(ulong guild_id, string name, string description = null)
+        public Task<DiscordGuildTemplate> CreateGuildTemplateAsync(ulong guild_id, string name, string description = null)
             => this.ApiClient.CreateGuildTemplateAsync(guild_id, name, description);
 
         /// <summary>
@@ -985,7 +985,7 @@ namespace DSharpPlus
         /// <param name="guild_id">Guild id</param>
         /// <param name="code">The code of the template to sync.</param>
         /// <returns>The template synced.</returns>
-        public Task<DiscordGuildTemplate> SyncTemplateAsync(ulong guild_id, string code)
+        public Task<DiscordGuildTemplate> SyncGuildTemplateAsync(ulong guild_id, string code)
             => this.ApiClient.SyncGuildTemplateAsync(guild_id, code);
 
         /// <summary>
@@ -996,7 +996,7 @@ namespace DSharpPlus
         /// <param name="name">Name of the template.</param>
         /// <param name="description">Description of the template.</param>
         /// <returns>The template modified.</returns>
-        public Task<DiscordGuildTemplate> ModifyTemplateAsync(ulong guild_id, string code, string name = null, string description = null)
+        public Task<DiscordGuildTemplate> ModifyGuildTemplateAsync(ulong guild_id, string code, string name = null, string description = null)
             => this.ApiClient.ModifyGuildTemplateAsync(guild_id, code, name, description);
 
         /// <summary>
@@ -1005,7 +1005,7 @@ namespace DSharpPlus
         /// <param name="guild_id">Guild id</param>
         /// <param name="code">The code of the template to delete.</param>
         /// <returns>The deleted template.</returns>
-        public Task<DiscordGuildTemplate> DeleteTemplateAsync(ulong guild_id, string code)
+        public Task<DiscordGuildTemplate> DeleteGuildTemplateAsync(ulong guild_id, string code)
             => this.ApiClient.DeleteGuildTemplateAsync(guild_id, code);
         #endregion
 
