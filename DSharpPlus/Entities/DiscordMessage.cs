@@ -456,6 +456,19 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Responds to the message.
         /// </summary>
+        /// <param name="content">Message content to respond with.</param>
+        /// <param name="embed">Embed to attach to the message.</param>
+        /// <returns>The sent message.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordMessage> RespondAsync(string content, DiscordEmbed embed)
+            => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, content, null, embed, null);
+
+        /// <summary>
+        /// Responds to the message.
+        /// </summary>
         /// <param name="builder">The Discord Mesage builder.</param>
         /// <returns>The sent message.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission.</exception>

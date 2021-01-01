@@ -112,6 +112,15 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Quickly respond to the message that triggered the command.
         /// </summary>
+        /// <param name="content">Message to respond with.</param>
+        /// <param name="embed">Embed to attach.</param>
+        /// <returns></returns>
+        public Task<DiscordMessage> RespondAsync(string content, DiscordEmbed embed)
+            => this.Message.RespondAsync(content, embed);
+
+        /// <summary>
+        /// Quickly respond to the message that triggered the command.
+        /// </summary>
         /// <param name="builder">The Discord Mesage builder.</param>
         /// <returns></returns>
         public Task<DiscordMessage> RespondAsync(DiscordMessageBuilder builder) 
