@@ -293,6 +293,25 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Sends a direct message to this member. Creates a direct message channel if one does not exist already.
         /// </summary>
+        /// <param name="content">Content of the message to send.</param>
+        /// <param name="embed">Embed to attach to the message.</param>
+        /// <returns>The sent message.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the member has the bot blocked, the member is no longer in the guild, or if the member has Allow DM from server members off.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<DiscordMessage> SendMessageAsync(string content, DiscordEmbed embed)
+        {
+            if (this.IsBot && this.Discord.CurrentUser.IsBot)
+                throw new ArgumentException("Bots cannot DM each other.");
+
+            var chn = await this.CreateDmChannelAsync().ConfigureAwait(false);
+            return await chn.SendMessageAsync(content, embed).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Sends a direct message to this member. Creates a direct message channel if one does not exist already.
+        /// </summary>
         /// <param name="message">Builder to with the message.</param>
         /// <returns>The sent message.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the member has the bot blocked, the member is no longer in the guild, or if the member has Allow DM from server members off.</exception>

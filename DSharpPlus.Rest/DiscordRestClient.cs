@@ -407,6 +407,16 @@ namespace DSharpPlus
         /// Sends a message
         /// </summary>
         /// <param name="channel_id">Channel id</param>
+        /// <param name="content">Message (text) content</param>
+        /// <param name="embed">Embed to attach</param>
+        /// <returns></returns>
+        public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content, DiscordEmbed embed)
+            => this.ApiClient.CreateMessageAsync(channel_id, content, null, embed, null);
+
+        /// <summary>
+        /// Sends a message
+        /// </summary>
+        /// <param name="channel_id">Channel id</param>
         /// <param name="builder">The Discord Mesage builder.</param>
         /// <returns></returns>
         public async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, DiscordMessageBuilder builder)
