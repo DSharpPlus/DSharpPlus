@@ -42,6 +42,7 @@ namespace DSharpPlus
             TransportUser refUsr = default;
             TransportMember refMbr = default;
             JToken rawMbr = default;
+            var rawRefMsg = dat["referenced_message"];
 
             switch (payload.EventName.ToLowerInvariant())
             {
@@ -216,10 +217,20 @@ namespace DSharpPlus
                     rawMbr = dat["member"];
 
                     if (rawMbr != null)
-                        mbr = rawMbr.ToObject<TransportMember>();
+                        mbr = rawMbr.ToObject<TransportMember>();                   
 
-                    refUsr = dat["referenced_message"]?["author"]?.ToObject<TransportUser>();
-                    refMbr = dat["referenced_message"]?["member"]?.ToObject<TransportMember>();
+                    if (rawRefMsg.HasValues)
+                    {
+                        if(rawRefMsg.SelectToken("author") != null)
+                        {
+                            refUsr = rawRefMsg.SelectToken("author").ToObject<TransportUser>();
+                        }
+
+                        if(rawRefMsg.SelectToken("member") != null)
+                        {
+                            refMbr = rawRefMsg.SelectToken("member").ToObject<TransportMember>();
+                        }
+                    }
 
                     await OnMessageCreateEventAsync(dat.ToDiscordObject<DiscordMessage>(), dat["author"].ToObject<TransportUser>(), mbr, refUsr, refMbr).ConfigureAwait(false);
                     break;
@@ -230,8 +241,18 @@ namespace DSharpPlus
                     if (rawMbr != null)
                         mbr = rawMbr.ToObject<TransportMember>();
 
-                    refUsr = dat["referenced_message"]?["author"]?.ToObject<TransportUser>();
-                    refMbr = dat["referenced_message"]?["member"]?.ToObject<TransportMember>();
+                    if (rawRefMsg != null && rawRefMsg.HasValues)
+                    {
+                        if (rawRefMsg.SelectToken("author") != null)
+                        {
+                            refUsr = rawRefMsg.SelectToken("author").ToObject<TransportUser>();
+                        }
+
+                        if (rawRefMsg.SelectToken("member") != null)
+                        {
+                            refMbr = rawRefMsg.SelectToken("member").ToObject<TransportMember>();
+                        }
+                    }
 
                     await OnMessageUpdateEventAsync(dat.ToDiscordObject<DiscordMessage>(), dat["author"]?.ToObject<TransportUser>(), mbr, refUsr, refMbr).ConfigureAwait(false);
                     break;

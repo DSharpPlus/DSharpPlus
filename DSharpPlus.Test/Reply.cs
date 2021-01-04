@@ -10,15 +10,19 @@ namespace DSharpPlus.Test
         [Command, Priority(0)]
         public async Task ReplyAsync(CommandContext ctx, [RemainingText]string response = "")
         {
-            _ = response is ""
-                ? await new DiscordMessageBuilder()
-                    .WithContent("This is a reply! :)")
-                    .WithReply(ctx.Message.Id, true)
-                    .SendAsync(ctx.Channel)
-                : await new DiscordMessageBuilder()
-                    .WithContent($"You requested me to say \"{response}\"")
-                    .WithReply(ctx.Message.Id, true)
-                    .SendAsync(ctx.Channel);
+            var builder = new DiscordMessageBuilder();
+
+            if (string.IsNullOrEmpty(response))
+            {                
+                builder.WithContent("This is a reply! :)");   
+            }
+            else
+            {
+                builder.WithContent($"You requested me to say \"{response}\"");
+            }
+
+            builder.WithReply(ctx.Message.Id, true);
+            await builder.SendAsync(ctx.Channel);
         }
 
         [Command, Priority(2)]
@@ -38,15 +42,19 @@ namespace DSharpPlus.Test
         [Command, Priority(1)]
         public async Task ReplyAsync(CommandContext ctx, bool mention, [RemainingText]string response = "")
         {
-            _ = response is ""
-               ? await new DiscordMessageBuilder()
-                   .WithContent("This is a reply! :)")
-                   .WithReply(ctx.Message.Id, mention)
-                   .SendAsync(ctx.Channel)
-               : await new DiscordMessageBuilder()
-                   .WithContent($"You requested me to say \"{response}\"")
-                   .WithReply(ctx.Message.Id, mention)
-                   .SendAsync(ctx.Channel);
+            var builder = new DiscordMessageBuilder();
+
+            if (string.IsNullOrEmpty(response))
+            {
+                builder.WithContent("This is a reply! :)");
+            }
+            else
+            {
+                builder.WithContent($"You requested me to say \"{response}\"");
+            }
+
+            builder.WithReply(ctx.Message.Id, mention);
+            await builder.SendAsync(ctx.Channel);
         }
     }
 }
