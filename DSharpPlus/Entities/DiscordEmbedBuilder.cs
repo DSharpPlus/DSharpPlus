@@ -344,7 +344,7 @@ namespace DSharpPlus.Entities
         /// <param name="value">Value of the field to add.</param>
         /// <param name="inline">Whether the field is to be inline or not.</param>
         /// <returns>This embed builder.</returns>
-        public DiscordEmbedBuilder AddField(string name, string value, bool inline = false)
+        public DiscordEmbedBuilder WithField(string name, string value, bool inline = false)
         {
             if (string.IsNullOrWhiteSpace(name))
             {

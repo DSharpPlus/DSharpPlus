@@ -202,7 +202,7 @@ namespace DSharpPlus.Test
                     Timestamp = DateTime.UtcNow
                 };
                 embed.WithFooter(Discord.CurrentUser.Username, Discord.CurrentUser.AvatarUrl)
-                    .AddField("Message", ex.Message);
+                    .WithField("Message", ex.Message);
                 await e.Context.RespondAsync(embed: embed.Build());
             }
         }

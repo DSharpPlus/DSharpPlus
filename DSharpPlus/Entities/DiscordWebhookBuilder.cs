@@ -112,7 +112,7 @@ namespace DSharpPlus.Entities
         /// Adds an embed to send at the execution of the webhook.
         /// </summary>
         /// <param name="embed">Embed to add.</param>
-        public DiscordWebhookBuilder AddEmbed(DiscordEmbed embed)
+        public DiscordWebhookBuilder WithEmbed(DiscordEmbed embed)
         {
             this._embeds.Add(embed);
             return this;
@@ -122,7 +122,7 @@ namespace DSharpPlus.Entities
         /// Adds the given embeds to send at the execution of the webhook.
         /// </summary>
         /// <param name="embeds">Embeds to add.</param>
-        public DiscordWebhookBuilder AddEmbeds(IEnumerable<DiscordEmbed> embeds)
+        public DiscordWebhookBuilder WithEmbeds(IEnumerable<DiscordEmbed> embeds)
         {
             this._embeds.AddRange(embeds);
             return this;
@@ -133,7 +133,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="filename">Name of the file.</param>
         /// <param name="data">File data.</param>
-        public DiscordWebhookBuilder AddFile(string filename, Stream data)
+        public DiscordWebhookBuilder WithFile(string filename, Stream data)
         {
             this._files[filename] = data;
             return this;
@@ -143,7 +143,7 @@ namespace DSharpPlus.Entities
         /// Adds the given files to send at the execution of the webhook.
         /// </summary>
         /// <param name="files">Dictionary of file name and file data.</param>
-        public DiscordWebhookBuilder AddFiles(Dictionary<string, Stream> files)
+        public DiscordWebhookBuilder WithFiles(Dictionary<string, Stream> files)
         {
             foreach (var file in files)
             {
@@ -156,7 +156,7 @@ namespace DSharpPlus.Entities
         /// Adds the mention to the mentions to parse, etc. at the execution of the webhook.
         /// </summary>
         /// <param name="mention">Mention to add.</param>
-        public DiscordWebhookBuilder AddMention(IMention mention)
+        public DiscordWebhookBuilder WithMention(IMention mention)
         {
             this._mentions.Add(mention);
             return this;
@@ -166,7 +166,7 @@ namespace DSharpPlus.Entities
         /// Adds the mentions to the mentions to parse, etc. at the execution of the webhook.
         /// </summary>
         /// <param name="mentions">Mentions to add.</param>
-        public DiscordWebhookBuilder AddMentions(IEnumerable<IMention> mentions)
+        public DiscordWebhookBuilder WithMentions(IEnumerable<IMention> mentions)
         {
             this._mentions.AddRange(mentions);
             return this;

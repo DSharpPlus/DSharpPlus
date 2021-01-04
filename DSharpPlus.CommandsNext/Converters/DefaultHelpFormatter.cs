@@ -41,7 +41,7 @@ namespace DSharpPlus.CommandsNext.Converters
                 this.EmbedBuilder.WithDescription($"{this.EmbedBuilder.Description}\n\nThis group can be executed as a standalone command.");
 
             if (command.Aliases?.Any() == true)
-                this.EmbedBuilder.AddField("Aliases", string.Join(", ", command.Aliases.Select(Formatter.InlineCode)), false);
+                this.EmbedBuilder.WithField("Aliases", string.Join(", ", command.Aliases.Select(Formatter.InlineCode)), false);
 
             if (command.Overloads?.Any() == true)
             {
@@ -62,7 +62,7 @@ namespace DSharpPlus.CommandsNext.Converters
                     sb.Append('\n');
                 }
 
-                this.EmbedBuilder.AddField("Arguments", sb.ToString().Trim(), false);
+                this.EmbedBuilder.WithField("Arguments", sb.ToString().Trim(), false);
             }
 
             return this;
@@ -75,7 +75,7 @@ namespace DSharpPlus.CommandsNext.Converters
         /// <returns>This help formatter.</returns>
         public override BaseHelpFormatter WithSubcommands(IEnumerable<Command> subcommands)
         {
-            this.EmbedBuilder.AddField(this.Command != null ? "Subcommands" : "Commands", string.Join(", ", subcommands.Select(x => Formatter.InlineCode(x.Name))), false);
+            this.EmbedBuilder.WithField(this.Command != null ? "Subcommands" : "Commands", string.Join(", ", subcommands.Select(x => Formatter.InlineCode(x.Name))), false);
 
             return this;
         }
