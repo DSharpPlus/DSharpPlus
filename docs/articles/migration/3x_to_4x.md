@@ -44,6 +44,23 @@ await role.UpdateAsync(x =>
 });
 ```
 
+###SendMessageAsync and SendFileAsync Methods
+We now have a message builder that will handle any advanced creating and modifing of messages.  Below are the overloads for
+sending and modifing messages:
+
+1. Sending Messages
+	* @DSharpPlus.DiscordClient.SendMessageAsync(DiscordChannel,DiscordEmbed)
+	* @DSharpPlus.DiscordClient.SendMessageAsync(DiscordChannel,System.String)
+	* @DSharpPlus.DiscordClient.SendMessageAsync(DiscordChannel,System.String,DiscordEmbed)
+	* @DSharpPlus.DiscordClient.SendMessageAsync(DiscordChannel,DiscordMessageBuilder)
+
+1. Modifying Messages
+	* @DSharpPlus.Entities.DiscordMessage.ModifyAsync(DSharpPlus.Entities.Optional{DSharpPlus.Entities.DiscordEmbed})
+	* @DSharpPlus.Entities.DiscordMessage.ModifyAsync(DSharpPlus.Entities.Optional{System.String})
+	* @DSharpPlus.Entities.DiscordMessage.ModifyAsync(DSharpPlus.Entities.Optional{System.String},DSharpPlus.Entities.Optional{DSharpPlus.Entities.DiscordEmbed})
+	* @DSharpPlus.Entities.DiscordMessage.ModifyAsync(DSharpPlus.Entities.DiscordMessageBuilder)
+
+
 ### Logging Changes
 Logging was overhauled and now some of the Properties on @DSharpPlus.DiscordConfiguration along with 
 some of the events on @DSharpPlus.DiscordClient are Gone/Modified/Added.  Below is a listing of what changed:
