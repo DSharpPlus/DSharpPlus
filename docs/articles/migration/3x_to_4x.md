@@ -60,6 +60,8 @@ sending and modifing messages:
 	* @DSharpPlus.Entities.DiscordMessage.ModifyAsync(DSharpPlus.Entities.Optional{System.String},DSharpPlus.Entities.Optional{DSharpPlus.Entities.DiscordEmbed})
 	* @DSharpPlus.Entities.DiscordMessage.ModifyAsync(DSharpPlus.Entities.DiscordMessageBuilder)
 
+Using the @DSharpPlus.Entities.DiscordMessageBuilder can be found [here](xref:beyond_basics_messagebuilder)
+
 
 ### Logging Changes
 Logging was overhauled and now some of the Properties on @DSharpPlus.DiscordConfiguration along with 
