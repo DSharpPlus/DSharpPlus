@@ -262,7 +262,11 @@ namespace DSharpPlus.Interactivity
         public async Task SendPaginatedMessageAsync(DiscordChannel c, DiscordUser u, IEnumerable<Page> pages, PaginationEmojis emojis = null,
             PaginationBehaviour? behaviour = default, PaginationDeletion? deletion = default, TimeSpan? timeoutoverride = null)
         {
-            var m = await c.SendMessageAsync(pages.First().Content, false, pages.First().Embed);
+            var builder = new DiscordMessageBuilder()
+                .WithContent(pages.First().Content)
+                .WithEmbed(pages.First().Embed);
+            var m = await builder.SendAsync(c);
+
             var timeout = timeoutoverride ?? Config.Timeout;
 
             var bhv = behaviour ?? this.Config.PaginationBehaviour;

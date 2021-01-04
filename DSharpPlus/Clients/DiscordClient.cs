@@ -365,16 +365,58 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="channel">Channel to send to.</param>
         /// <param name="content">Message content to send.</param>
-        /// <param name="isTTS">Whether the message is to be read using TTS.</param>
-        /// <param name="embed">Embed to attach to the message.</param>
-        /// <param name="mentions">Allowed mentions in the message</param>
         /// <returns>The Discord Message that was sent.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission if <paramref name="isTTS"/> is false and <see cref="Permissions.SendTtsMessages"/> if <paramref name="isTTS"/> is true.</exception>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, string content = null, bool isTTS = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null)
-            => this.ApiClient.CreateMessageAsync(channel.Id, content, isTTS, embed, mentions);
+        public Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, string content = null)
+            => this.ApiClient.CreateMessageAsync(channel.Id, content, null, null, null);
+
+        /// <summary>
+        /// Sends a message
+        /// </summary>
+        /// <param name="channel">Channel to send to.</param>
+        /// <param name="embed">Embed to attach to the message.</param>
+        /// <returns>The Discord Message that was sent.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, DiscordEmbed embed = null)
+            => this.ApiClient.CreateMessageAsync(channel.Id, null, null, embed, null);
+
+        /// <summary>
+        /// Sends a message
+        /// </summary>
+        /// <param name="channel">Channel to send to.</param>
+        /// <param name="content">Message content to send.</param>
+        /// <param name="embed">Embed to attach to the message.</param>
+        /// <returns>The Discord Message that was sent.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, string content = null, DiscordEmbed embed = null)
+            => this.ApiClient.CreateMessageAsync(channel.Id, null, null, embed, null);
+
+        /// <summary>
+        /// Sends a message
+        /// </summary>
+        /// <param name="channel">Channel to send to.</param>
+        /// <param name="builder">The Discord Mesage builder.</param>
+        /// <returns>The Discord Message that was sent.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission if TTS is false and <see cref="Permissions.SendTtsMessages"/> if TTS is true.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, DiscordMessageBuilder builder)
+        {
+            if (builder.Files.Count() > 0)
+                return await this.ApiClient.UploadFilesAsync(channel.Id, builder._files, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions);
+            else
+                return await this.ApiClient.CreateMessageAsync(channel.Id, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions);
+        }
 
         /// <summary>
         /// Creates a guild. This requires the bot to be in less than 10 guilds total.
