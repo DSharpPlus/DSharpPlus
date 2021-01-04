@@ -31,7 +31,7 @@ namespace DSharpPlus.Test
             // I hate this
             cs = $"[ModuleLifespan(ModuleLifespan.Transient)]\npublic sealed class DynamicCommands : BaseCommandModule\n{{\n{cs}\n}}";
 
-            msg = await ctx.RespondAsync("", embed: new DiscordEmbedBuilder()
+            msg = await ctx.RespondAsync(new DiscordEmbedBuilder()
                 .WithColor(new DiscordColor("#FF007F"))
                 .WithDescription("Compiling...")
                 .Build()).ConfigureAwait(false);

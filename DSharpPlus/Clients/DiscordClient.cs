@@ -365,19 +365,58 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="channel">Channel to send to.</param>
         /// <param name="content">Message content to send.</param>
-        /// <param name="isTTS">Whether the message is to be read using TTS.</param>
-        /// <param name="embed">Embed to attach to the message.</param>
-        /// <param name="mentions">Allowed mentions in the message</param>
-        /// <param name="mention">Whether or not to mention the user in the reply.</param>
-        /// <param name="replyMessageId">Message ID of message to reply to</param>
         /// <returns>The Discord Message that was sent.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission if <paramref name="isTTS"/> is false and <see cref="Permissions.SendTtsMessages"/> if <paramref name="isTTS"/> is true.</exception>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, string content = null, bool isTTS = false, 
-                DiscordEmbed embed = null, IEnumerable<IMention> mentions = null, bool mention = false, ulong? replyMessageId = null)
-            => this.ApiClient.CreateMessageAsync(channel.Id, content, isTTS, embed, mentions, mention, replyMessageId);
+        public Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, string content = null)
+            => this.ApiClient.CreateMessageAsync(channel.Id, content, null, null, null);
+
+        /// <summary>
+        /// Sends a message
+        /// </summary>
+        /// <param name="channel">Channel to send to.</param>
+        /// <param name="embed">Embed to attach to the message.</param>
+        /// <returns>The Discord Message that was sent.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, DiscordEmbed embed = null)
+            => this.ApiClient.CreateMessageAsync(channel.Id, null, null, embed, null);
+
+        /// <summary>
+        /// Sends a message
+        /// </summary>
+        /// <param name="channel">Channel to send to.</param>
+        /// <param name="content">Message content to send.</param>
+        /// <param name="embed">Embed to attach to the message.</param>
+        /// <returns>The Discord Message that was sent.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, string content = null, DiscordEmbed embed = null)
+            => this.ApiClient.CreateMessageAsync(channel.Id, null, null, embed, null);
+
+        /// <summary>
+        /// Sends a message
+        /// </summary>
+        /// <param name="channel">Channel to send to.</param>
+        /// <param name="builder">The Discord Mesage builder.</param>
+        /// <returns>The Discord Message that was sent.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission if TTS is false and <see cref="Permissions.SendTtsMessages"/> if TTS is true.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, DiscordMessageBuilder builder)
+        {
+            if (builder.Files.Count() > 0)
+                return await this.ApiClient.UploadFilesAsync(channel.Id, builder._files, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions);
+            else
+                return await this.ApiClient.CreateMessageAsync(channel.Id, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions);
+        }
 
         /// <summary>
         /// Creates a guild. This requires the bot to be in less than 10 guilds total.
@@ -536,12 +575,13 @@ namespace DSharpPlus
 
         internal DiscordGuild InternalGetCachedGuild(ulong? guildId)
         {
-            DiscordGuild foundGuild = default;
+            if(this._guilds != null && guildId.HasValue)
+            {
+                if (this._guilds.TryGetValue(guildId.Value, out var guild))
+                    return guild;
+            }
 
-            if (guildId.HasValue)
-                foundGuild = this._guilds?[guildId.Value];
-
-            return foundGuild;
+            return null;
         }
 
         private void UpdateMessage(DiscordMessage message, TransportUser author, DiscordGuild guild, TransportMember member)
@@ -712,44 +752,6 @@ namespace DSharpPlus
             // - guild.Large = new_guild.Large;
             // - guild.MemberCount = Math.Max(new_guild.MemberCount, guild._members.Count);
             // - guild.Unavailable = new_guild.Unavailable;
-        }
-
-
-        private void PopulateMessageReactionsAndCache(DiscordMessage message, TransportUser author, TransportMember member)
-        {
-            this.UpdateMessage(message, author, message.Channel?.Guild, member);
-
-            if (message._reactions == null)
-                message._reactions = new List<DiscordReaction>();
-            foreach (var xr in message._reactions)
-                xr.Emoji.Discord = this;
-
-            if (this.Configuration.MessageCacheSize > 0 && message.Channel != null)
-                this.MessageCache?.Add(message);
-        }
-
-        private void PopulateMessageMentions(DiscordMessage message, DiscordGuild guild)
-        {
-            var mentionedUsers = new List<DiscordUser>();
-            var mentionedRoles = guild != null ? new List<DiscordRole>() : null;
-            var mentionedChannels = guild != null ? new List<DiscordChannel>() : null;
-            if (!string.IsNullOrWhiteSpace(message.Content))
-            {
-                if (guild != null)
-                {
-                    mentionedUsers = Utilities.GetUserMentions(message).Select(xid => guild._members.TryGetValue(xid, out var member) ? member : new DiscordUser { Id = xid, Discord = this }).Cast<DiscordUser>().ToList();
-                    mentionedRoles = Utilities.GetRoleMentions(message).Select(xid => guild.GetRole(xid)).ToList();
-                    mentionedChannels = Utilities.GetChannelMentions(message).Select(xid => guild.GetChannel(xid)).ToList();
-                }
-                else
-                {
-                    mentionedUsers = Utilities.GetUserMentions(message).Select(this.GetCachedOrEmptyUserInternal).ToList();
-                }
-            }
-
-            message._mentionedUsers = mentionedUsers;
-            message._mentionedRoles = mentionedRoles;
-            message._mentionedChannels = mentionedChannels;
         }
 
         #endregion

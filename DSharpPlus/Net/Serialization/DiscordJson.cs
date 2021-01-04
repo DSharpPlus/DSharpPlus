@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -59,6 +60,38 @@ namespace DSharpPlus.Net.Serialization
                 jsonSerializer.Serialize(jsonTextWriter, value, type);
             }
             return stringWriter.ToString();
+        }
+
+        internal static T Deserialize<T>(Stream stream)
+        {
+            using var sr = new StreamReader(stream);
+            using var jtr = new JsonTextReader(sr);
+
+            return Serializer.Deserialize<T>(jtr);
+        }
+
+        internal static Task<JObject> LoadJObjectAsync(Stream stream)
+        {
+            using var sr = new StreamReader(stream);
+            using var jtr = new JsonTextReader(sr);
+
+            return JObject.LoadAsync(jtr);
+        }
+
+        internal static JObject LoadJObject(Stream stream)
+        {
+            using var sr = new StreamReader(stream);
+            using var jtr = new JsonTextReader(sr);
+
+            return JObject.Load(jtr);
+        }
+
+        internal static Task<JArray> LoadJArrayAsync(Stream stream)
+        {
+            using var sr = new StreamReader(stream);
+            using var jtr = new JsonTextReader(sr);
+
+            return JArray.LoadAsync(jtr);
         }
     }
 }

@@ -77,7 +77,7 @@ namespace DSharpPlus.Entities
         /// Gets the ID of the guild's owner.
         /// </summary>
         [JsonProperty("owner_id", NullValueHandling = NullValueHandling.Ignore)]
-        internal ulong OwnerId { get; set; }
+        public ulong OwnerId { get; internal set; }
 
         /// <summary>
         /// Gets permissions for the user in the guild (does not include channel overrides)
@@ -431,7 +431,7 @@ namespace DSharpPlus.Entities
 
         internal DiscordGuild()
         { 
-            this._current_member_lazy = new Lazy<DiscordMember>(() => this._members.TryGetValue(this.Discord.CurrentUser.Id, out var member) ? member : null);
+            this._current_member_lazy = new Lazy<DiscordMember>(() => (this._members != null && this._members.TryGetValue(this.Discord.CurrentUser.Id, out var member)) ? member : null);
             this._invites = new ConcurrentDictionary<string, DiscordInvite>();
         }
 
@@ -895,14 +895,14 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Gets a member of this guild by his user ID.
+        /// Gets a member of this guild by their user ID.
         /// </summary>
         /// <param name="userId">ID of the member to get.</param>
         /// <returns>The requested member.</returns>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task<DiscordMember> GetMemberAsync(ulong userId)
         {
-            if (this._members.TryGetValue(userId, out var mbr))
+            if (this._members != null && this._members.TryGetValue(userId, out var mbr))
                 return mbr;
 
             mbr = await this.Discord.ApiClient.GetGuildMemberAsync(Id, userId).ConfigureAwait(false);
@@ -910,7 +910,12 @@ namespace DSharpPlus.Entities
             var intents = this.Discord.Configuration.Intents;
 
             if (!intents.HasValue || (intents.HasValue && intents.Value.HasIntent(DiscordIntents.GuildMembers)))
-                this._members[userId] = mbr;
+            {
+                if (this._members != null)
+                {
+                    this._members[userId] = mbr;
+                }
+            }
 
             return mbr;
         }
@@ -1038,7 +1043,7 @@ namespace DSharpPlus.Entities
         /// <returns>Requested channel.</returns>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public DiscordChannel GetChannel(ulong id)
-            => this._channels.TryGetValue(id, out var channel) ? channel : null;
+            => (this._channels != null && this._channels.TryGetValue(id, out var channel)) ? channel : null;
 
         /// <summary>
         /// Gets audit log entries for this guild.
@@ -1100,7 +1105,7 @@ namespace DSharpPlus.Entities
                 .GroupBy(xh => xh.Id)
                 .Select(xgh => xgh.First());
 
-            var ams = amr.Select(xau => this._members.TryGetValue(xau.Id, out var member) ? member : new DiscordMember { Discord = this.Discord, Id = xau.Id, _guild_id = this.Id });
+            var ams = amr.Select(xau => (this._members != null && this._members.TryGetValue(xau.Id, out var member)) ? member : new DiscordMember { Discord = this.Discord, Id = xau.Id, _guild_id = this.Id });
             var amd = ams.ToDictionary(xm => xm.Id, xm => xm);
 
             Dictionary<ulong, DiscordWebhook> ahd = null;
@@ -1145,8 +1150,8 @@ namespace DSharpPlus.Entities
                                 case "owner_id":
                                     entrygld.OwnerChange = new PropertyChange<DiscordMember>
                                     {
-                                        Before = this._members.TryGetValue(xc.OldValueUlong, out var oldMember) ? oldMember : await this.GetMemberAsync(xc.OldValueUlong).ConfigureAwait(false),
-                                        After = this._members.TryGetValue(xc.NewValueUlong, out var newMember) ? newMember : await this.GetMemberAsync(xc.NewValueUlong).ConfigureAwait(false)
+                                        Before = (this._members != null && this._members.TryGetValue(xc.OldValueUlong, out var oldMember)) ? oldMember : await this.GetMemberAsync(xc.OldValueUlong).ConfigureAwait(false),
+                                        After = (this._members != null && this._members.TryGetValue(xc.NewValueUlong, out var newMember)) ? newMember : await this.GetMemberAsync(xc.NewValueUlong).ConfigureAwait(false)
                                     };
                                     break;
 
@@ -2035,9 +2040,14 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public DiscordChannel GetDefaultChannel()
         {
-            return this._channels.Values.Where(xc => xc.Type == ChannelType.Text)
-                .OrderBy(xc => xc.Position)
-                .FirstOrDefault(xc => (xc.PermissionsFor(this.CurrentMember) & DSharpPlus.Permissions.AccessChannels) == DSharpPlus.Permissions.AccessChannels);
+            if (this._channels != null)
+            {
+                return this._channels.Values.Where(xc => xc.Type == ChannelType.Text)
+                    .OrderBy(xc => xc.Position)
+                    .FirstOrDefault(xc => (xc.PermissionsFor(this.CurrentMember) & DSharpPlus.Permissions.AccessChannels) == DSharpPlus.Permissions.AccessChannels);
+            }
+
+            return null;
         }
 
         /// <summary>

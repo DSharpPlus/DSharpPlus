@@ -25,7 +25,7 @@ Instead, we recommend using either the latest LTS release or most recent stable 
 To troubleshoot, please ensure that:
 
 * You are using the latest version of DSharpPlus.
-* You have properly enabled VoiceNext with your instance of `DiscordClient`.
+* You have properly enabled VoiceNext with your instance of @DSharpPlus.DiscordClient.
 * You are *not* using VoiceNext in an event handler.
 * You have [opus and libsodium](xref:voicenext_prerequisites) available in your target environment.
 
@@ -72,11 +72,15 @@ However, if you meant an activity like this:
 
 You can use either of the following
 
-* The overload for `DiscordClient#ConnectAsync()` which accepts a `Discord​Activity`.
-* `DiscordClient#UpdateStatusAsync()` at any point after `Ready` has been fired.
+* The overload for @DSharpPlus.DiscordClient.ConnectAsync(DiscordActivity,System.Nullable{UserStatus},System.Nullable{DateTimeOffset}) which accepts a @DSharpPlus.Entities.DiscordActivity.
+* @DSharpPlus.DiscordClient.UpdateStatusAsync(DiscordActivity,System.Nullable{UserStatus},System.Nullable{DateTimeOffset}) OR @DSharpPlus.DiscordShardedClient.UpdateStatusAsync(DiscordActivity,System.Nullable{UserStatus},System.Nullable{DateTimeOffset}) (for the sharded client) at any point after `Ready` has been fired.
 
-### Am I able to retrieve a `DiscordRole` by name?
-Yes. Use LINQ on the `Roles` property of your instance of `DiscordGuild` and compare against the `Name` of  each `DiscordRole`.
+### Am I able to retrieve a @DSharpPlus.Entities.DiscordRole by name?
+Yes. Use LINQ on the `Roles` property of your instance of @DSharpPlus.Entities.DiscordGuild and compare against the `Name` of  each @DSharpPlus.Entities.DiscordRole.
+
+### Why are you using Newtonsoft.Json when System.Text.Json is available
+Yes `System.Text.Json` is available to use but it still doesnt stand up to what we currently need which is why we still use Newtonsoft.Json.
+Maybe in time we can switch to your favorite Json Deserializer but for right now we will be using Newtonsoft.Json for the forseeable future.  
 
 ### Where are my pictures of spiderman?
 ![GOD DAMN IT PETER](/images/faq_03.png)

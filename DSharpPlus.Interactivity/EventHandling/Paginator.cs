@@ -171,7 +171,11 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
 
             var page = await p.GetPageAsync();
-            await msg.ModifyAsync(page.Content, page.Embed);
+            var builder = new DiscordMessageBuilder()
+                .WithContent(page.Content)
+                .WithEmbed(page.Embed);
+
+            await builder.ModifyAsync(msg);
         }
 
         ~Paginator()

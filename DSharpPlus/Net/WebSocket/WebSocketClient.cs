@@ -219,7 +219,6 @@ namespace DSharpPlus.Net.WebSocket
                         // for explanation on the cancellation token
 
                         WebSocketReceiveResult result;
-                        byte[] resultBytes;
                         do
                         {
                             result = await this._ws.ReceiveAsync(buffer, CancellationToken.None).ConfigureAwait(false);
@@ -231,12 +230,6 @@ namespace DSharpPlus.Net.WebSocket
                         }
                         while (!result.EndOfMessage);
 
-                        resultBytes = new byte[bs.Length];
-                        bs.Position = 0;
-                        bs.Read(resultBytes, 0, resultBytes.Length);
-                        bs.Position = 0;
-                        bs.SetLength(0);
-
                         if (!this._isConnected && result.MessageType != WebSocketMessageType.Close)
                         {
                             this._isConnected = true;
@@ -245,11 +238,25 @@ namespace DSharpPlus.Net.WebSocket
 
                         if (result.MessageType == WebSocketMessageType.Binary)
                         {
+                            var resultBytes = new byte[bs.Length];
+                            bs.Seek(0, SeekOrigin.Begin);
+                            bs.Read(resultBytes, 0, resultBytes.Length);
+
+                            bs.Seek(0, SeekOrigin.Begin);
+                            bs.SetLength(0);
+
                             await this._messageReceived.InvokeAsync(this, new SocketBinaryMessageEventArgs(resultBytes)).ConfigureAwait(false);
                         }
                         else if (result.MessageType == WebSocketMessageType.Text)
                         {
-                            await this._messageReceived.InvokeAsync(this, new SocketTextMessageEventArgs(Utilities.UTF8.GetString(resultBytes))).ConfigureAwait(false);
+                            bs.Seek(0, SeekOrigin.Begin);
+
+                            using var cs = new MemoryStream();
+
+                            await bs.CopyToAsync(cs).ConfigureAwait(false);
+                            cs.Seek(0, SeekOrigin.Begin);
+
+                            await this._messageReceived.InvokeAsync(this, new SocketTextMessageEventArgs(cs)).ConfigureAwait(false);
                         }
                         else // close
                         {

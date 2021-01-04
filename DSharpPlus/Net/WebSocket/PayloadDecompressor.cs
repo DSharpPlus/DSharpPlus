@@ -38,7 +38,7 @@ namespace DSharpPlus.Net.WebSocket
                 this.CompressedStream.Write(compressed.Array, compressed.Offset, compressed.Count);
 
             this.CompressedStream.Flush();
-            this.CompressedStream.Position = 0;
+            this.CompressedStream.Seek(0, SeekOrigin.Begin);
 
             var cspan = compressed.AsSpan();
             var suffix = BinaryPrimitives.ReadUInt32BigEndian(cspan.Slice(cspan.Length - 4));
@@ -58,7 +58,7 @@ namespace DSharpPlus.Net.WebSocket
             catch { return false; }
             finally
             {
-                this.CompressedStream.Position = 0;
+                this.CompressedStream.Seek(0, SeekOrigin.Begin);
                 this.CompressedStream.SetLength(0);
 
                 if (this.CompressionLevel == GatewayCompressionLevel.Payload)

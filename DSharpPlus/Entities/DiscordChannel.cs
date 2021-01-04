@@ -169,124 +169,77 @@ namespace DSharpPlus.Entities
         }
 
         #region Methods
+
         /// <summary>
         /// Sends a message to this channel.
         /// </summary>
         /// <param name="content">Content of the message to send.</param>
-        /// <param name="tts">Whether the message is to be read using TTS.</param>
-        /// <param name="embed">Embed to attach to the message.</param>
-        /// <param name="mentions">Allowed mentions in the message</param>
-        /// <param name="message_id">The Id of a message to reply to.</param>
-        /// <param name="mention">Whether or not to mention the user in the reply.</param>
         /// <returns>The sent message.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission if <paramref name="tts"/> is false and <see cref="Permissions.SendTtsMessages"/> if <paramref name="tts"/> is true.</exception>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission if TTS is true and <see cref="Permissions.SendTtsMessages"/> if TTS is true.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordMessage> SendMessageAsync(string content = null, bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null, ulong? replyMessageId = null, bool mention = false)
+        public Task<DiscordMessage> SendMessageAsync(string content)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
                 throw new ArgumentException("Cannot send a text message to a non-text channel.");
-            
-            return this.Discord.ApiClient.CreateMessageAsync(this.Id, content, tts, embed, mentions, mention, replyMessageId);
+
+            return this.Discord.ApiClient.CreateMessageAsync(this.Id, content, null, null, null);
         }
 
         /// <summary>
-        /// Sends a message containing an attached file to this channel.
+        /// Sends a message to this channel.
         /// </summary>
-        /// <param name="fileData">Stream containing the data to attach to the message as a file.</param>
-        /// <param name="fileName">Name of the file to attach to the message.</param>
-        /// <param name="content">Content of the message to send.</param>
-        /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
-        /// <param name="mentions">Allowed mentions in the message</param>
-        /// <param name="mention">Whether or not to mention the user in the reply.</param>
-        /// <param name="messageReplyId">The Id of the message to reply to.</param>
         /// <returns>The sent message.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission if <paramref name="tts"/> is false and <see cref="Permissions.SendTtsMessages"/> if <paramref name="tts"/> is true.</exception>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission if TTS is true and <see cref="Permissions.SendTtsMessages"/> if TTS is true.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordMessage> SendFileAsync(string fileName, Stream fileData, string content = null, bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null, bool mention = false, ulong? messageReplyId = null)
+        public Task<DiscordMessage> SendMessageAsync(DiscordEmbed embed)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
-                throw new ArgumentException("Cannot send a file to a non-text channel.");
+                throw new ArgumentException("Cannot send a text message to a non-text channel.");
 
-            return this.Discord.ApiClient.UploadFileAsync(this.Id, fileData, fileName, content, tts, embed, mentions, mention, messageReplyId);
+            return this.Discord.ApiClient.CreateMessageAsync(this.Id, null, null, embed, null);
         }
 
         /// <summary>
-        /// Sends a message containing an attached file to this channel.
+        /// Sends a message to this channel.
         /// </summary>
-        /// <param name="fileData">Stream containing the data to attach to the message as a file.</param>
-        /// <param name="content">Content of the message to send.</param>
-        /// <param name="tts">Whether the message is to be read using TTS.</param>
         /// <param name="embed">Embed to attach to the message.</param>
-        /// <param name="mentions">Allowed mentions in the message</param>
-        /// <param name="mention">Whether or not to mention the user in the reply.</param>
-        /// <param name="messageReplyId">The Id of the message to reply to.</param>
+        /// <param name="content">Content of the message to send.</param>
         /// <returns>The sent message.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission if <paramref name="tts"/> is false and <see cref="Permissions.SendTtsMessages"/> if <paramref name="tts"/> is true.</exception>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission if TTS is true and <see cref="Permissions.SendTtsMessages"/> if TTS is true.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordMessage> SendFileAsync(FileStream fileData, string content = null, bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null, bool mention = false, ulong? messageReplyId = null)
+        public Task<DiscordMessage> SendMessageAsync(string content, DiscordEmbed embed)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
-                throw new ArgumentException("Cannot send a file to a non-text channel.");
-            
-            return this.Discord.ApiClient.UploadFileAsync(this.Id, fileData, Path.GetFileName(fileData.Name), content,
-                tts, embed, mentions, mention, messageReplyId);
+                throw new ArgumentException("Cannot send a text message to a non-text channel.");
+
+            return this.Discord.ApiClient.CreateMessageAsync(this.Id, content, null, embed, null);
         }
 
         /// <summary>
-        /// Sends a message containing an attached file to this channel.
+        /// Sends a message to this channel.
         /// </summary>
-        /// <param name="filePath">Path to the file to be attached to the message.</param>
-        /// <param name="content">Content of the message to send.</param>
-        /// <param name="tts">Whether the message is to be read using TTS.</param>
-        /// <param name="embed">Embed to attach to the message.</param>
-        /// <param name="mentions">Allowed mentions in the message</param>
-        /// <param name="mention">Whether or not to mention the user in the reply.</param>
-        /// <param name="messageReplyId">The Id of the message to reply to.</param>
+        /// <param name="builder">The builder with all the items to send.</param>
         /// <returns>The sent message.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission if <paramref name="tts"/> is false and <see cref="Permissions.SendTtsMessages"/> if <paramref name="tts"/> is true.</exception>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission TTS is true and <see cref="Permissions.SendTtsMessages"/> if TTS is true.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordMessage> SendFileAsync(string filePath, string content = null, bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null, bool mention = false, ulong? messageReplyId = null)
+        public Task<DiscordMessage> SendMessageAsync(DiscordMessageBuilder builder)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
-                throw new ArgumentException("Cannot send a file to a non-text channel.");
+                throw new ArgumentException("Cannot send a text message to a non-text channel.");
 
-            using (var fs = File.OpenRead(filePath))
-                return await this.Discord.ApiClient.UploadFileAsync(this.Id, fs, Path.GetFileName(fs.Name), content, tts, embed, mentions, mention, messageReplyId).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// Sends a message with several attached files to this channel.
-        /// </summary>
-        /// <param name="files">A filename to data stream mapping.</param>
-        /// <param name="content">Content of the message to send.</param>
-        /// <param name="tts">Whether the message is to be read using TTS.</param>
-        /// <param name="embed">Embed to attach to the message.</param>
-        /// <param name="mentions">Allowed mentions in the message</param>
-        /// <param name="mention">Whether or not to mention the user in the reply.</param>
-        /// <param name="messageReplyId">The Id of the message to reply to.</param>
-        /// <returns>The sent message.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission if <paramref name="tts"/> is false and <see cref="Permissions.SendTtsMessages"/> if <paramref name="tts"/> is true.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordMessage> SendMultipleFilesAsync(Dictionary<string, Stream> files, string content = "", bool tts = false, DiscordEmbed embed = null, IEnumerable<IMention> mentions = null, bool mention = false, ulong? messageReplyId = null)
-        {
-            if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
-                throw new ArgumentException("Cannot send a file to a non-text channel.");
-
-            if (files.Count > 10)
-                throw new ArgumentException("Cannot send more than 10 files with a single message.");
-
-            return this.Discord.ApiClient.UploadFilesAsync(this.Id, files, content, tts, embed, mentions, mention, messageReplyId);
+            if (builder.Files.Count() > 0)
+                return this.Discord.ApiClient.UploadFilesAsync(this.Id, builder._files, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions);
+            else
+                return this.Discord.ApiClient.CreateMessageAsync(this.Id, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions);
         }
 
         // Please send memes to Naamloos#2887 at discord <3 thank you
