@@ -52,7 +52,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the Reply Message ID.
         /// </summary>
-        public ulong? ReplyID { get; private set; } = null;
+        public ulong? ReplyId { get; private set; } = null;
 
         /// <summary>
         /// Gets if the Reply should mention the user.
@@ -188,12 +188,12 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Sets if the message is a reply
         /// </summary>
-        /// <param name="messageID">The ID of the message to reply to.</param>
+        /// <param name="messageId">The ID of the message to reply to.</param>
         /// <param name="mention">If we should mention the user in the reply.</param>
         /// <returns></returns>
-        public DiscordMessageBuilder WithReply(ulong messageID, bool mention = false)
+        public DiscordMessageBuilder WithReply(ulong messageId, bool mention = false)
         {
-            this.ReplyID = messageID;
+            this.ReplyId = messageId;
             this.MentionOnReply = mention;
 
             return this;

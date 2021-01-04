@@ -237,9 +237,9 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("Cannot send a text message to a non-text channel.");
 
             if (builder.Files.Count() > 0)
-                return this.Discord.ApiClient.UploadFilesAsync(this.Id, builder._files, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions, builder.MentionOnReply, builder.ReplyID);
+                return this.Discord.ApiClient.UploadFilesAsync(this.Id, builder._files, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions, builder.MentionOnReply, builder.ReplyId);
             else
-                return this.Discord.ApiClient.CreateMessageAsync(this.Id, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions, builder.MentionOnReply, builder.ReplyID);
+                return this.Discord.ApiClient.CreateMessageAsync(this.Id, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions, builder.MentionOnReply, builder.ReplyId);
         }
 
         // Please send memes to Naamloos#2887 at discord <3 thank you

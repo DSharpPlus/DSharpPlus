@@ -422,9 +422,9 @@ namespace DSharpPlus
         public async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, DiscordMessageBuilder builder)
         {
             if (builder.Files.Count() > 0)
-                return await this.ApiClient.UploadFilesAsync(channel_id, builder._files, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions, builder.MentionOnReply, builder.ReplyID);
+                return await this.ApiClient.UploadFilesAsync(channel_id, builder._files, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions, builder.MentionOnReply, builder.ReplyId);
             else
-                return await this.ApiClient.CreateMessageAsync(channel_id, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions, builder.MentionOnReply, builder.ReplyID);
+                return await this.ApiClient.CreateMessageAsync(channel_id, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions, builder.MentionOnReply, builder.ReplyId);
         }
 
         /// <summary>
