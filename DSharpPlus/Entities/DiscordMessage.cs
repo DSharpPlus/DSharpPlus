@@ -290,6 +290,12 @@ namespace DSharpPlus.Entities
         [JsonIgnore]
         private Lazy<IReadOnlyList<DiscordMessageSticker>> _stickersLazy;
 
+        /// <summary>
+        /// Gets the message object for the referenced message
+        /// </summary>
+        [JsonProperty("referenced_message", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordMessage ReferencedMessage { get; internal set; }
+
         internal DiscordMessageReference InternalBuildMessageReference()
         {
             var client = this.Discord as DiscordClient;
@@ -309,13 +315,13 @@ namespace DSharpPlus.Entities
                     Discord = client
                 };
 
-            var channel = client.InternalGetCachedChannel(channelId);
+            var channel = client.InternalGetCachedChannel(channelId.Value);
 
             if (channel == null)
             {
                 reference.Channel = new DiscordChannel
                 {
-                    Id = channelId,
+                    Id = channelId.Value,
                     Discord = client
                 };
 
@@ -491,9 +497,9 @@ namespace DSharpPlus.Entities
         public async Task<DiscordMessage> RespondAsync(DiscordMessageBuilder builder)
         {
             if (builder.Files.Count() > 0)
-                return await this.Discord.ApiClient.UploadFilesAsync(this.ChannelId, builder._files, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions);
+                return await this.Discord.ApiClient.UploadFilesAsync(this.ChannelId, builder._files, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions, builder.MentionOnReply, builder.ReplyID);
             else
-                return await this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions);
+                return await this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions, builder.MentionOnReply, builder.ReplyID);
         }
 
         /// <summary>

@@ -50,6 +50,16 @@ namespace DSharpPlus.Entities
         internal Dictionary<string, Stream> _files = new Dictionary<string, Stream>();
 
         /// <summary>
+        /// Gets the Reply Message ID.
+        /// </summary>
+        public ulong? ReplyID { get; private set; } = null;
+
+        /// <summary>
+        /// Gets if the Reply should mention the user.
+        /// </summary>
+        public bool MentionOnReply { get; private set; } = false;
+
+        /// <summary>
         /// Sets the Content of the Message.
         /// </summary>
         /// <param name="content">The content to be set.</param>
@@ -171,6 +181,20 @@ namespace DSharpPlus.Entities
 
             foreach (var file in files)
                 this._files.Add(file.Key, file.Value);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets if the message is a reply
+        /// </summary>
+        /// <param name="messageID">The ID of the message to reply to.</param>
+        /// <param name="mention">If we should mention the user in the reply.</param>
+        /// <returns></returns>
+        public DiscordMessageBuilder WithReply(ulong messageID, bool mention = false)
+        {
+            this.ReplyID = messageID;
+            this.MentionOnReply = mention;
 
             return this;
         }
