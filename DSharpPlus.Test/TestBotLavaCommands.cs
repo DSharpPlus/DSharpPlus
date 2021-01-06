@@ -122,7 +122,7 @@ namespace DSharpPlus.Test
 
             var trackLoad = await this.Lavalink.Rest.GetTracksAsync(uri);
             var track = trackLoad.Tracks.First();
-            await this.LavalinkVoice.PlayAsync(track);
+            await this.LavalinkVoice.PlayAsync(track).ConfigureAwait(false);
 
             await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))}.").ConfigureAwait(false);
         }
@@ -135,7 +135,7 @@ namespace DSharpPlus.Test
 
             var trackLoad = await this.Lavalink.Rest.GetTracksAsync(new FileInfo(path));
             var track = trackLoad.Tracks.First();
-            await this.LavalinkVoice.PlayAsync(track);
+            await this.LavalinkVoice.PlayAsync(track).ConfigureAwait(false);
 
             await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))}.").ConfigureAwait(false);
         }
@@ -148,9 +148,9 @@ namespace DSharpPlus.Test
 
             var result = await this.Lavalink.Rest.GetTracksAsync(search, LavalinkSearchType.SoundCloud);
             var track = result.Tracks.First();
-            await this.LavalinkVoice.PlayAsync(track);
+            await this.LavalinkVoice.PlayAsync(track).ConfigureAwait(false);
 
-            await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))}.");
+            await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))}.").ConfigureAwait(false);
         }
 
         [Command, Description("Queues tracks for playback.")]
@@ -161,7 +161,7 @@ namespace DSharpPlus.Test
 
             var trackLoad = await this.Lavalink.Rest.GetTracksAsync(uri);
             var track = trackLoad.Tracks.First();
-            await this.LavalinkVoice.PlayPartialAsync(track, start, stop);
+            await this.LavalinkVoice.PlayPartialAsync(track, start, stop).ConfigureAwait(false);
 
             await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))}.").ConfigureAwait(false);
         }
@@ -172,7 +172,7 @@ namespace DSharpPlus.Test
             if (this.LavalinkVoice == null)
                 return;
 
-            await this.LavalinkVoice.PauseAsync();
+            await this.LavalinkVoice.PauseAsync().ConfigureAwait(false);
             await ctx.RespondAsync("Paused.").ConfigureAwait(false);
         }
 
@@ -182,7 +182,7 @@ namespace DSharpPlus.Test
             if (this.LavalinkVoice == null)
                 return;
 
-            await this.LavalinkVoice.ResumeAsync();
+            await this.LavalinkVoice.ResumeAsync().ConfigureAwait(false);
             await ctx.RespondAsync("Resumed.").ConfigureAwait(false);
         }
 
@@ -192,7 +192,7 @@ namespace DSharpPlus.Test
             if (this.LavalinkVoice == null)
                 return;
 
-            await this.LavalinkVoice.StopAsync();
+            await this.LavalinkVoice.StopAsync().ConfigureAwait(false);
             await ctx.RespondAsync("Stopped.").ConfigureAwait(false);
         }
 
@@ -202,7 +202,7 @@ namespace DSharpPlus.Test
             if (this.LavalinkVoice == null)
                 return;
 
-            await this.LavalinkVoice.SeekAsync(position);
+            await this.LavalinkVoice.SeekAsync(position).ConfigureAwait(false);
             await ctx.RespondAsync($"Seeking to {position}.").ConfigureAwait(false);
         }
 
@@ -212,7 +212,7 @@ namespace DSharpPlus.Test
             if (this.LavalinkVoice == null)
                 return;
 
-            await this.LavalinkVoice.SetVolumeAsync(volume);
+            await this.LavalinkVoice.SetVolumeAsync(volume).ConfigureAwait(false);
             await ctx.RespondAsync($"Volume set to {volume}%.").ConfigureAwait(false);
         }
 
@@ -233,7 +233,7 @@ namespace DSharpPlus.Test
             if (this.LavalinkVoice == null)
                 return;
 
-            await this.LavalinkVoice.ResetEqualizerAsync();
+            await this.LavalinkVoice.ResetEqualizerAsync().ConfigureAwait(false);
             await ctx.RespondAsync("All equalizer bands were reset.").ConfigureAwait(false);
         }
 
@@ -243,7 +243,7 @@ namespace DSharpPlus.Test
             if (this.LavalinkVoice == null)
                 return;
 
-            await this.LavalinkVoice.AdjustEqualizerAsync(new LavalinkBandAdjustment(band, gain));
+            await this.LavalinkVoice.AdjustEqualizerAsync(new LavalinkBandAdjustment(band, gain)).ConfigureAwait(false);
             await ctx.RespondAsync($"Band {band} adjusted by {gain}").ConfigureAwait(false);
         }
 

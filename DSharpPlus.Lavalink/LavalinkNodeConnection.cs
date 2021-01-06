@@ -223,7 +223,7 @@ namespace DSharpPlus.Lavalink
                         this._backoff = MinimumBackoff;
                     }
 
-                    await this.WebSocket.ConnectAsync(new Uri(this.Configuration.SocketEndpoint.ToWebSocketString()));
+                    await this.WebSocket.ConnectAsync(new Uri(this.Configuration.SocketEndpoint.ToWebSocketString())).ConfigureAwait(false);
                     break;
                 }
                 catch (PlatformNotSupportedException)

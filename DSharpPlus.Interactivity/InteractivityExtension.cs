@@ -64,7 +64,7 @@ namespace DSharpPlus.Interactivity
 
             foreach(var em in emojis)
             {
-                await m.CreateReactionAsync(em);
+                await m.CreateReactionAsync(em).ConfigureAwait(false);
             }
             var res = await Poller.DoPollAsync(new PollRequest(m, timeout ?? this.Config.Timeout, emojis));
 
@@ -72,7 +72,7 @@ namespace DSharpPlus.Interactivity
             var thismember = await m.Channel.Guild.GetMemberAsync(Client.CurrentUser.Id);
 
             if (pollbehaviour == PollBehaviour.DeleteEmojis && m.Channel.PermissionsFor(thismember).HasPermission(Permissions.ManageMessages))
-                await m.DeleteAllReactionsAsync();
+                await m.DeleteAllReactionsAsync().ConfigureAwait(false);
 
             return new ReadOnlyCollection<PollEmoji>(res.ToList());
         }
@@ -275,7 +275,7 @@ namespace DSharpPlus.Interactivity
 
             var prequest = new PaginationRequest(m, u, bhv, del, ems, timeout, pages.ToArray());
 
-            await Paginator.DoPaginationAsync(prequest);
+            await Paginator.DoPaginationAsync(prequest).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -286,7 +286,7 @@ namespace DSharpPlus.Interactivity
         /// <returns></returns>
         public async Task WaitForCustomPaginationAsync(IPaginationRequest request)
         {
-            await Paginator.DoPaginationAsync(request);
+            await Paginator.DoPaginationAsync(request).ConfigureAwait(false);
         }
 
         /// <summary>

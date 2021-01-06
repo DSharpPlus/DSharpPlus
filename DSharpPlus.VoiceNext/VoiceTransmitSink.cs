@@ -74,7 +74,7 @@ namespace DSharpPlus.VoiceNext
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         public async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default)
         {
-            await WriteAsync(new ReadOnlyMemory<byte>(buffer, offset, count), cancellationToken);
+            await WriteAsync(new ReadOnlyMemory<byte>(buffer, offset, count), cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace DSharpPlus.VoiceNext
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         public async Task WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
         {
-            await this.WriteSemaphore.WaitAsync(cancellationToken);
+            await this.WriteSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
 
             try
             {
@@ -114,7 +114,7 @@ namespace DSharpPlus.VoiceNext
                         var packetMemory = packet.AsMemory().Slice(0, PcmMemory.Length);
                         PcmMemory.CopyTo(packetMemory);
 
-                        await Connection.EnqueuePacketAsync(new RawVoicePacket(packetMemory, PcmBufferDuration, false, packet), cancellationToken);
+                        await Connection.EnqueuePacketAsync(new RawVoicePacket(packetMemory, PcmBufferDuration, false, packet), cancellationToken).ConfigureAwait(false);
                     }
                 }
             }
@@ -139,7 +139,7 @@ namespace DSharpPlus.VoiceNext
             var packetMemory = packet.AsMemory().Slice(0, pcm.Length);
             pcm.CopyTo(packetMemory);
 
-            await Connection.EnqueuePacketAsync(new RawVoicePacket(packetMemory, PcmBufferDuration, false, packet), cancellationToken);
+            await Connection.EnqueuePacketAsync(new RawVoicePacket(packetMemory, PcmBufferDuration, false, packet), cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>

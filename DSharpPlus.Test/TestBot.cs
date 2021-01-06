@@ -67,7 +67,7 @@ namespace DSharpPlus.Test
             // For event timeout testing
             //Discord.GuildDownloadCompleted += async (s, e) =>
             //{
-            //    await Task.Delay(TimeSpan.FromSeconds(2));
+            //    await Task.Delay(TimeSpan.FromSeconds(2)).ConfigureAwait(false);
             //    throw new Exception("Flippin' tables");
             //};
 
@@ -113,7 +113,7 @@ namespace DSharpPlus.Test
             //    if (e.Message.Author.IsBot)
             //        return;
 
-            //    _ = Task.Run(async () => await e.Message.RespondAsync(e.Message.Content));
+            //    _ = Task.Run(async () => await e.Message.RespondAsync(e.Message.Content)).ConfigureAwait(false);
             //};
         }
 
@@ -203,7 +203,7 @@ namespace DSharpPlus.Test
                 };
                 embed.WithFooter(Discord.CurrentUser.Username, Discord.CurrentUser.AvatarUrl)
                     .AddField("Message", ex.Message);
-                await e.Context.RespondAsync(embed: embed.Build());
+                await e.Context.RespondAsync(embed: embed.Build()).ConfigureAwait(false);
             }
         }
 
