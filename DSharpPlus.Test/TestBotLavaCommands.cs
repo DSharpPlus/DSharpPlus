@@ -86,7 +86,7 @@ namespace DSharpPlus.Test
                 return;
             }
 
-            this.LavalinkVoice = await this.Lavalink.ConnectAsync(vc);
+            this.LavalinkVoice = await this.Lavalink.ConnectAsync(vc).ConfigureAwait(false);
             this.LavalinkVoice.PlaybackFinished += this.LavalinkVoice_PlaybackFinished;
             this.LavalinkVoice.DiscordWebSocketClosed += (s, e) => ctx.RespondAsync("discord websocket close event");
             await ctx.RespondAsync("Connected.").ConfigureAwait(false);
@@ -120,7 +120,7 @@ namespace DSharpPlus.Test
 
             this.ContextChannel = ctx.Channel;
 
-            var trackLoad = await this.Lavalink.Rest.GetTracksAsync(uri);
+            var trackLoad = await this.Lavalink.Rest.GetTracksAsync(uri).ConfigureAwait(false);
             var track = trackLoad.Tracks.First();
             await this.LavalinkVoice.PlayAsync(track).ConfigureAwait(false);
 
@@ -133,7 +133,7 @@ namespace DSharpPlus.Test
             if (this.LavalinkVoice == null)
                 return;
 
-            var trackLoad = await this.Lavalink.Rest.GetTracksAsync(new FileInfo(path));
+            var trackLoad = await this.Lavalink.Rest.GetTracksAsync(new FileInfo(path)).ConfigureAwait(false);
             var track = trackLoad.Tracks.First();
             await this.LavalinkVoice.PlayAsync(track).ConfigureAwait(false);
 
@@ -146,7 +146,7 @@ namespace DSharpPlus.Test
             if (this.Lavalink == null)
                 return;
 
-            var result = await this.Lavalink.Rest.GetTracksAsync(search, LavalinkSearchType.SoundCloud);
+            var result = await this.Lavalink.Rest.GetTracksAsync(search, LavalinkSearchType.SoundCloud).ConfigureAwait(false);
             var track = result.Tracks.First();
             await this.LavalinkVoice.PlayAsync(track).ConfigureAwait(false);
 
@@ -159,7 +159,7 @@ namespace DSharpPlus.Test
             if (this.LavalinkVoice == null)
                 return;
 
-            var trackLoad = await this.Lavalink.Rest.GetTracksAsync(uri);
+            var trackLoad = await this.Lavalink.Rest.GetTracksAsync(uri).ConfigureAwait(false);
             var track = trackLoad.Tracks.First();
             await this.LavalinkVoice.PlayPartialAsync(track, start, stop).ConfigureAwait(false);
 

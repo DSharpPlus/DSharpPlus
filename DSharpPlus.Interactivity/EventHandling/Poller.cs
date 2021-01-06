@@ -64,7 +64,7 @@ namespace DSharpPlus.Interactivity.EventHandling
                     }
                     else
                     {
-                        var member = await eventargs.Channel.Guild.GetMemberAsync(client.CurrentUser.Id);
+                        var member = await eventargs.Channel.Guild.GetMemberAsync(client.CurrentUser.Id).ConfigureAwait(false);
                         if(eventargs.Channel.PermissionsFor(member).HasPermission(Permissions.ManageMessages))
                             await eventargs.Message.DeleteReactionAsync(eventargs.Emoji, eventargs.User).ConfigureAwait(false);
                     }

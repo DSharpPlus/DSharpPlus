@@ -66,10 +66,10 @@ namespace DSharpPlus.Interactivity
             {
                 await m.CreateReactionAsync(em).ConfigureAwait(false);
             }
-            var res = await Poller.DoPollAsync(new PollRequest(m, timeout ?? this.Config.Timeout, emojis));
+            var res = await Poller.DoPollAsync(new PollRequest(m, timeout ?? this.Config.Timeout, emojis)).ConfigureAwait(false);
 
             var pollbehaviour = behaviour ?? this.Config.PollBehaviour;
-            var thismember = await m.Channel.Guild.GetMemberAsync(Client.CurrentUser.Id);
+            var thismember = await m.Channel.Guild.GetMemberAsync(Client.CurrentUser.Id).ConfigureAwait(false);
 
             if (pollbehaviour == PollBehaviour.DeleteEmojis && m.Channel.PermissionsFor(thismember).HasPermission(Permissions.ManageMessages))
                 await m.DeleteAllReactionsAsync().ConfigureAwait(false);
@@ -90,7 +90,7 @@ namespace DSharpPlus.Interactivity
                 throw new InvalidOperationException("No message intents are enabled.");
 
             var timeout = timeoutoverride ?? Config.Timeout;
-            var returns = await this.MessageCreatedWaiter.WaitForMatch(new MatchRequest<MessageCreateEventArgs>(x => predicate(x.Message), timeout));
+            var returns = await this.MessageCreatedWaiter.WaitForMatch(new MatchRequest<MessageCreateEventArgs>(x => predicate(x.Message), timeout)).ConfigureAwait(false);
 
             return new InteractivityResult<DiscordMessage>(returns == null, returns?.Message);
         }
@@ -108,7 +108,7 @@ namespace DSharpPlus.Interactivity
                 throw new InvalidOperationException("No reaction intents are enabled.");
 
             var timeout = timeoutoverride ?? Config.Timeout;
-            var returns = await this.MessageReactionAddWaiter.WaitForMatch(new MatchRequest<MessageReactionAddEventArgs>(x => predicate(x), timeout));
+            var returns = await this.MessageReactionAddWaiter.WaitForMatch(new MatchRequest<MessageReactionAddEventArgs>(x => predicate(x), timeout)).ConfigureAwait(false);
 
             return new InteractivityResult<MessageReactionAddEventArgs>(returns == null, returns);
         }
@@ -122,7 +122,7 @@ namespace DSharpPlus.Interactivity
         /// <returns></returns>
         public async Task<InteractivityResult<MessageReactionAddEventArgs>> WaitForReactionAsync(DiscordMessage message, DiscordUser user,
             TimeSpan? timeoutoverride = null)
-            => await WaitForReactionAsync(x => x.User.Id == user.Id && x.Message.Id == message.Id, timeoutoverride);
+            => await WaitForReactionAsync(x => x.User.Id == user.Id && x.Message.Id == message.Id, timeoutoverride).ConfigureAwait(false);
 
         /// <summary>
         /// Waits for a specific reaction.
@@ -134,7 +134,7 @@ namespace DSharpPlus.Interactivity
         /// <returns></returns>
         public async Task<InteractivityResult<MessageReactionAddEventArgs>> WaitForReactionAsync(Func<MessageReactionAddEventArgs, bool> predicate, 
             DiscordMessage message, DiscordUser user, TimeSpan? timeoutoverride = null)
-            => await WaitForReactionAsync(x => predicate(x) && x.User.Id == user.Id && x.Message.Id == message.Id, timeoutoverride);
+            => await WaitForReactionAsync(x => predicate(x) && x.User.Id == user.Id && x.Message.Id == message.Id, timeoutoverride).ConfigureAwait(false);
 
         /// <summary>
         /// Waits for a specific reaction.
@@ -145,7 +145,7 @@ namespace DSharpPlus.Interactivity
         /// <returns></returns>
         public async Task<InteractivityResult<MessageReactionAddEventArgs>> WaitForReactionAsync(Func<MessageReactionAddEventArgs, bool> predicate,
             DiscordUser user, TimeSpan? timeoutoverride = null)
-            => await WaitForReactionAsync(x => predicate(x) && x.User.Id == user.Id, timeoutoverride);
+            => await WaitForReactionAsync(x => predicate(x) && x.User.Id == user.Id, timeoutoverride).ConfigureAwait(false);
 
         /// <summary>
         /// Waits for a user to start typing.
@@ -162,7 +162,8 @@ namespace DSharpPlus.Interactivity
 
             var timeout = timeoutoverride ?? Config.Timeout;
             var returns = await this.TypingStartWaiter.WaitForMatch(
-                new MatchRequest<TypingStartEventArgs>(x => x.User.Id == user.Id && x.Channel.Id == channel.Id, timeout));
+                new MatchRequest<TypingStartEventArgs>(x => x.User.Id == user.Id && x.Channel.Id == channel.Id, timeout))
+                .ConfigureAwait(false);
 
             return new InteractivityResult<TypingStartEventArgs>(returns == null, returns);
         }
@@ -180,7 +181,8 @@ namespace DSharpPlus.Interactivity
 
             var timeout = timeoutoverride ?? Config.Timeout;
             var returns = await this.TypingStartWaiter.WaitForMatch(
-                new MatchRequest<TypingStartEventArgs>(x => x.User.Id == user.Id, timeout));
+                new MatchRequest<TypingStartEventArgs>(x => x.User.Id == user.Id, timeout))
+                .ConfigureAwait(false);
 
             return new InteractivityResult<TypingStartEventArgs>(returns == null, returns);
         }
@@ -198,7 +200,8 @@ namespace DSharpPlus.Interactivity
 
             var timeout = timeoutoverride ?? Config.Timeout;
             var returns = await this.TypingStartWaiter.WaitForMatch(
-                new MatchRequest<TypingStartEventArgs>(x => x.Channel.Id == channel.Id, timeout));
+                new MatchRequest<TypingStartEventArgs>(x => x.Channel.Id == channel.Id, timeout))
+                .ConfigureAwait(false);
 
             return new InteractivityResult<TypingStartEventArgs>(returns == null, returns);
         }
@@ -215,7 +218,7 @@ namespace DSharpPlus.Interactivity
                 throw new InvalidOperationException("No reaction intents are enabled.");
 
             var timeout = timeoutoverride ?? Config.Timeout;
-            var collection = await ReactionCollector.CollectAsync(new ReactionCollectRequest(m, timeout));
+            var collection = await ReactionCollector.CollectAsync(new ReactionCollectRequest(m, timeout)).ConfigureAwait(false);
             return new ReadOnlyCollection<Reaction>(collection.ToList());
         }
 
@@ -232,7 +235,7 @@ namespace DSharpPlus.Interactivity
 
             using (var waiter = new EventWaiter<T>(this.Client))
             {
-                var res = await waiter.WaitForMatch(new MatchRequest<T>(predicate, timeout));
+                var res = await waiter.WaitForMatch(new MatchRequest<T>(predicate, timeout)).ConfigureAwait(false);
                 return new InteractivityResult<T>(res == null, res);
             }
         }
@@ -243,7 +246,7 @@ namespace DSharpPlus.Interactivity
 
             using (var waiter = new EventWaiter<T>(this.Client))
             {
-                var res = await waiter.CollectMatches(new CollectRequest<T>(predicate, timeout));
+                var res = await waiter.CollectMatches(new CollectRequest<T>(predicate, timeout)).ConfigureAwait(false);
                 return res;
             }
         }
@@ -265,7 +268,7 @@ namespace DSharpPlus.Interactivity
             var builder = new DiscordMessageBuilder()
                 .WithContent(pages.First().Content)
                 .WithEmbed(pages.First().Embed);
-            var m = await builder.SendAsync(c);
+            var m = await builder.SendAsync(c).ConfigureAwait(false);
 
             var timeout = timeoutoverride ?? Config.Timeout;
 

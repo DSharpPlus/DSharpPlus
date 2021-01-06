@@ -153,7 +153,7 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
 
-            var json = await DiscordJson.LoadJObjectAsync(res.Response);
+            var json = await DiscordJson.LoadJObjectAsync(res.Response).ConfigureAwait(false);
             var raw_members = (JArray)json["members"];
             var guild = DiscordJson.Deserialize<DiscordGuild>(res.Response);
 
@@ -210,7 +210,7 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, headers, DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
 
-            var json = await DiscordJson.LoadJObjectAsync(res.Response);
+            var json = await DiscordJson.LoadJObjectAsync(res.Response).ConfigureAwait(false);
             var rawMembers = (JArray)json["members"];
             var guild = DiscordJson.Deserialize<DiscordGuild>(res.Response);
             foreach (var r in guild._roles.Values)
@@ -435,7 +435,7 @@ namespace DSharpPlus.Net
             ret.Discord = this.Discord;
             ret.Guild = this.Discord.Guilds[guild_id];
 
-            var json = await DiscordJson.LoadJObjectAsync(res.Response);
+            var json = await DiscordJson.LoadJObjectAsync(res.Response).ConfigureAwait(false);
             var rawChannels = (JArray)json["channels"];
             if (ret.Guild == null)
             {
@@ -604,7 +604,7 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
 
-            var ret = this.PrepareMessage(await DiscordJson.LoadJObjectAsync(res.Response));
+            var ret = this.PrepareMessage(await DiscordJson.LoadJObjectAsync(res.Response)).ConfigureAwait(false);
 
             return ret;
         }
@@ -644,7 +644,7 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
 
-            var ret = this.PrepareMessage(await DiscordJson.LoadJObjectAsync(res.Response));
+            var ret = this.PrepareMessage(await DiscordJson.LoadJObjectAsync(res.Response)).ConfigureAwait(false);
 
             return ret;
         }
@@ -679,7 +679,7 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, values: values, files: file).ConfigureAwait(false);
 
-            var ret = this.PrepareMessage(await DiscordJson.LoadJObjectAsync(res.Response));
+            var ret = this.PrepareMessage(await DiscordJson.LoadJObjectAsync(res.Response).ConfigureAwait(false));
 
             return ret;
         }
@@ -715,7 +715,7 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, values: values, files: files).ConfigureAwait(false);
 
-            var ret = this.PrepareMessage(await DiscordJson.LoadJObjectAsync(res.Response));
+            var ret = this.PrepareMessage(await DiscordJson.LoadJObjectAsync(res.Response).ConfigureAwait(false));
 
             return ret;
         }
@@ -758,7 +758,7 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path, urlparams.Any() ? BuildQueryString(urlparams) : "");
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
 
-            var msgs_raw = await DiscordJson.LoadJArrayAsync(res.Response);
+            var msgs_raw = await DiscordJson.LoadJArrayAsync(res.Response).ConfigureAwait(false);
             var msgs = new List<DiscordMessage>();
             foreach (var xj in msgs_raw)
                 msgs.Add(this.PrepareMessage(xj));
@@ -774,7 +774,7 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
 
-            var ret = this.PrepareMessage(await DiscordJson.LoadJObjectAsync(res.Response));
+            var ret = this.PrepareMessage(await DiscordJson.LoadJObjectAsync(res.Response).ConfigureAwait(false));
 
             return ret;
         }
@@ -815,7 +815,7 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
 
-            var ret = this.PrepareMessage(await DiscordJson.LoadJObjectAsync(res.Response));
+            var ret = this.PrepareMessage(await DiscordJson.LoadJObjectAsync(res.Response).ConfigureAwait(false));
 
             return ret;
         }
@@ -940,7 +940,7 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
 
-            var msgs_raw = await DiscordJson.LoadJArrayAsync(res.Response);
+            var msgs_raw = await DiscordJson.LoadJArrayAsync(res.Response).ConfigureAwait(false);
             var msgs = new List<DiscordMessage>();
             foreach (var xj in msgs_raw)
                 msgs.Add(this.PrepareMessage(xj));
@@ -1040,7 +1040,7 @@ namespace DSharpPlus.Net
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new {channel_id}, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            var response = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld));
+            var response = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
             
             return DiscordJson.Deserialize<DiscordFollowedChannel>(response.Response);
         }
@@ -1051,7 +1051,7 @@ namespace DSharpPlus.Net
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new {channel_id, message_id}, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            var response = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route);
+            var response = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route).ConfigureAwait(false);
             return DiscordJson.Deserialize<DiscordMessage>(response.Response);
         }
         
@@ -1234,7 +1234,7 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path, urlparams.Any() ? BuildQueryString(urlparams) : "");
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route, urlparams).ConfigureAwait(false);
 
-            var json = await DiscordJson.LoadJObjectAsync(res.Response);
+            var json = await DiscordJson.LoadJObjectAsync(res.Response).ConfigureAwait(false);
             var rawMembers = (JArray)json["members"];
             var guildRest = DiscordJson.Deserialize<DiscordGuild>(res.Response);
             foreach (var r in guildRest._roles.Values)
@@ -1827,7 +1827,7 @@ namespace DSharpPlus.Net
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { webhook_id, webhook_token }, out var path);
 
             var url = Utilities.GetApiUriBuilderFor(path).AddParameter("wait", "true").Build();
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: json_payload);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: json_payload).ConfigureAwait(false);
             var ret = DiscordJson.Deserialize<DiscordMessage>(res.Response);
             ret.Discord = this.Discord;
             return ret;
@@ -1839,7 +1839,7 @@ namespace DSharpPlus.Net
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { webhook_id, webhook_token }, out var path);
 
             var url = Utilities.GetApiUriBuilderFor(path).AddParameter("wait", "true").Build();
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: json_payload);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: json_payload).ConfigureAwait(false);
             var ret = DiscordJson.Deserialize<DiscordMessage>(res.Response);
             ret.Discord = this.Discord;
             return ret;
@@ -1981,7 +1981,7 @@ namespace DSharpPlus.Net
 
             this.Discord.Guilds.TryGetValue(guild_id, out var gld);
 
-            var emoji_raw = await DiscordJson.LoadJObjectAsync(res.Response);
+            var emoji_raw = await DiscordJson.LoadJObjectAsync(res.Response).ConfigureAwait(false);
             var emoji = emoji_raw.ToObject<DiscordGuildEmoji>();
             emoji.Guild = gld;
 
@@ -2013,7 +2013,7 @@ namespace DSharpPlus.Net
 
             this.Discord.Guilds.TryGetValue(guild_id, out var gld);
 
-            var emoji_raw = await DiscordJson.LoadJObjectAsync(res.Response);
+            var emoji_raw = await DiscordJson.LoadJObjectAsync(res.Response).ConfigureAwait(false);
             var emoji = emoji_raw.ToObject<DiscordGuildEmoji>();
             emoji.Guild = gld;
 
@@ -2046,7 +2046,7 @@ namespace DSharpPlus.Net
 
             this.Discord.Guilds.TryGetValue(guild_id, out var gld);
 
-            var emoji_raw = await DiscordJson.LoadJObjectAsync(res.Response);
+            var emoji_raw = await DiscordJson.LoadJObjectAsync(res.Response).ConfigureAwait(false);
             var emoji = emoji_raw.ToObject<DiscordGuildEmoji>();
             emoji.Guild = gld;
 
@@ -2118,7 +2118,7 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route, headers).ConfigureAwait(false);
 
-            var info = (await DiscordJson.LoadJObjectAsync(res.Response)).ToObject<GatewayInfo>();
+            var info = (await DiscordJson.LoadJObjectAsync(res.Response).ConfigureAwait(false)).ToObject<GatewayInfo>();
             info.SessionBucket.ResetAfter = DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(info.SessionBucket.resetAfter);
             return info;
         }

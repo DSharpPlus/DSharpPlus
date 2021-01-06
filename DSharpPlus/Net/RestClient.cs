@@ -166,7 +166,7 @@ namespace DSharpPlus.Net
                     bucket = request.RateLimitBucket;
 
                 if (ratelimitTcs == null)
-                    ratelimitTcs = await this.WaitForInitialRateLimit(bucket);
+                    ratelimitTcs = await this.WaitForInitialRateLimit(bucket).ConfigureAwait(false);
 
                 if (ratelimitTcs == null) // ckeck rate limit only if we are not the probe request
                 {

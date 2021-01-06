@@ -32,7 +32,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             this._requests.Add(request);
             try
             {
-                var tcs = await request.GetTaskCompletionSourceAsync();
+                var tcs = await request.GetTaskCompletionSourceAsync().ConfigureAwait(false);
                 await tcs.Task.ConfigureAwait(false);
                 await request.DoCleanupAsync().ConfigureAwait(false);
             }
@@ -51,9 +51,9 @@ namespace DSharpPlus.Interactivity.EventHandling
             await Task.Yield();
             foreach (var req in _requests)
             {
-                var emojis = await req.GetEmojisAsync();
-                var msg = await req.GetMessageAsync();
-                var usr = await req.GetUserAsync();
+                var emojis = await req.GetEmojisAsync().ConfigureAwait(false);
+                var msg = await req.GetMessageAsync().ConfigureAwait(false);
+                var usr = await req.GetUserAsync().ConfigureAwait(false);
 
                 if (msg.Id == eventargs.Message.Id)
                 {
@@ -81,9 +81,9 @@ namespace DSharpPlus.Interactivity.EventHandling
             await Task.Yield();
             foreach (var req in _requests)
             {
-                var emojis = await req.GetEmojisAsync();
-                var msg = await req.GetMessageAsync();
-                var usr = await req.GetUserAsync();
+                var emojis = await req.GetEmojisAsync().ConfigureAwait(false);
+                var msg = await req.GetMessageAsync().ConfigureAwait(false);
+                var usr = await req.GetUserAsync().ConfigureAwait(false);
 
                 if (msg.Id == eventargs.Message.Id)
                 {
@@ -108,7 +108,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             await Task.Yield();
             foreach (var req in _requests)
             {
-                var msg = await req.GetMessageAsync();
+                var msg = await req.GetMessageAsync().ConfigureAwait(false);
 
                 if (msg.Id == eventargs.Message.Id)
                 {
@@ -119,8 +119,8 @@ namespace DSharpPlus.Interactivity.EventHandling
 
         async Task ResetReactionsAsync(IPaginationRequest p)
         {
-            var msg = await p.GetMessageAsync();
-            var emojis = await p.GetEmojisAsync();
+            var msg = await p.GetMessageAsync().ConfigureAwait(false);
+            var emojis = await p.GetEmojisAsync().ConfigureAwait(false);
 
             // Test permissions to avoid a 403:
             // https://totally-not.a-sketchy.site/3pXpRLK.png
@@ -152,8 +152,8 @@ namespace DSharpPlus.Interactivity.EventHandling
 
         async Task PaginateAsync(IPaginationRequest p, DiscordEmoji emoji)
         {
-            var emojis = await p.GetEmojisAsync();
-            var msg = await p.GetMessageAsync();
+            var emojis = await p.GetEmojisAsync().ConfigureAwait(false);
+            var msg = await p.GetMessageAsync().ConfigureAwait(false);
 
             if (emoji == emojis.SkipLeft)
                 await p.SkipLeftAsync().ConfigureAwait(false);
@@ -165,12 +165,12 @@ namespace DSharpPlus.Interactivity.EventHandling
                 await p.SkipRightAsync().ConfigureAwait(false);
             else if (emoji == emojis.Stop)
             {
-                var tcs = await p.GetTaskCompletionSourceAsync();
+                var tcs = await p.GetTaskCompletionSourceAsync().ConfigureAwait(false);
                 tcs.TrySetResult(true);
                 return;
             }
 
-            var page = await p.GetPageAsync();
+            var page = await p.GetPageAsync().ConfigureAwait(false);
             var builder = new DiscordMessageBuilder()
                 .WithContent(page.Content)
                 .WithEmbed(page.Embed);
