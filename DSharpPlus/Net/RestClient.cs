@@ -158,6 +158,8 @@ namespace DSharpPlus.Net
             if (this._disposed)
                 return;
 
+            HttpResponseMessage res = default;
+
             try
             {
                 await this.GlobalRateLimitEvent.WaitAsync();
@@ -217,7 +219,7 @@ namespace DSharpPlus.Net
                     if (this._disposed)
                         return;
 
-                    var res = await HttpClient.SendAsync(req, CancellationToken.None).ConfigureAwait(false);
+                    res = await HttpClient.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, CancellationToken.None).ConfigureAwait(false);
 
                     if (this.Discord.Configuration.MinimumLogLevel == LogLevel.Trace)
                     {
@@ -323,6 +325,8 @@ namespace DSharpPlus.Net
             }
             finally
             {
+                res?.Dispose();
+
                 // Get and decrement active requests in this bucket by 1.
                 _ = this.RequestQueue.TryGetValue(bucket.BucketId, out var count);
                 this.RequestQueue[bucket.BucketId] = Interlocked.Decrement(ref count);
