@@ -153,9 +153,9 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
 
-            var json = await DiscordJson.LoadJObjectAsync(res.Response);
+            var json = await DiscordJson.LoadJObjectAsync(res.Response).ConfigureAwait(false);
             var raw_members = (JArray)json["members"];
-            var guild = DiscordJson.Deserialize<DiscordGuild>(res.Response);
+            var guild = json.ToDiscordObject<DiscordGuild>();
 
             if (this.Discord is DiscordClient dc)
                 await dc.OnGuildCreateEventAsync(guild, raw_members, null).ConfigureAwait(false);
@@ -210,7 +210,7 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, headers, DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
 
-            var json = await DiscordJson.LoadJObjectAsync(res.Response);
+            var json = await DiscordJson.LoadJObjectAsync(res.Response).ConfigureAwait(false);
             var rawMembers = (JArray)json["members"];
             var guild = DiscordJson.Deserialize<DiscordGuild>(res.Response);
             foreach (var r in guild._roles.Values)
@@ -431,12 +431,13 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
 
-            var ret = DiscordJson.Deserialize<DiscordWidget>(res.Response);
+            var json = await DiscordJson.LoadJObjectAsync(res.Response).ConfigureAwait(false);
+            var rawChannels = (JArray)json["channels"];
+
+            var ret = json.ToDiscordObject<DiscordWidget>();
             ret.Discord = this.Discord;
             ret.Guild = this.Discord.Guilds[guild_id];
 
-            var json = await DiscordJson.LoadJObjectAsync(res.Response);
-            var rawChannels = (JArray)json["channels"];
             if (ret.Guild == null)
             {
                 ret.Channels = rawChannels.Select(r => new DiscordChannel {
@@ -1234,15 +1235,14 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path, urlparams.Any() ? BuildQueryString(urlparams) : "");
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route, urlparams).ConfigureAwait(false);
 
-            var json = await DiscordJson.LoadJObjectAsync(res.Response);
-            var rawMembers = (JArray)json["members"];
             var guildRest = DiscordJson.Deserialize<DiscordGuild>(res.Response);
+
             foreach (var r in guildRest._roles.Values)
                 r._guild_id = guildRest.Id;
 
             if (this.Discord is DiscordClient dc)
             {
-                await dc.OnGuildUpdateEventAsync(guildRest, rawMembers).ConfigureAwait(false);
+                await dc.OnGuildUpdateEventAsync(guildRest, null).ConfigureAwait(false);
                 return dc._guilds[guildRest.Id];
             }
             else
