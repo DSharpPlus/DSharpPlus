@@ -21,6 +21,8 @@
     href: beyond_basics/intents.md
   - name: Sharding
     href: beyond_basics/sharding.md
+  - name: Message Builder
+    href: beyond_basics/messagebuilder.md
 - name: Commands
   items:  
   - name: Introduction
