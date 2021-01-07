@@ -36,7 +36,7 @@ namespace DSharpPlus.Test
 
         public async Task DoCleanupAsync()
         {
-            await this._msg.DeleteAsync();
+            await this._msg.DeleteAsync().ConfigureAwait(false);
         }
 
         public async Task<PaginationEmojis> GetEmojisAsync()
