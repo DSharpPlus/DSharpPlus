@@ -295,7 +295,7 @@ namespace DSharpPlus.VoiceNext
 
         internal async Task EnqueuePacketAsync(RawVoicePacket packet, CancellationToken token = default)
         {
-            await this.TransmitChannel.Writer.WriteAsync(packet, token);
+            await this.TransmitChannel.Writer.WriteAsync(packet, token).ConfigureAwait(false);
             this._queueCount++;
         }
 
@@ -418,7 +418,7 @@ namespace DSharpPlus.VoiceNext
                     {
                         var nullpacket = new byte[nullpcm.Length];
                         var nullpacketmem = nullpacket.AsMemory();
-                        await this.EnqueuePacketAsync(new RawVoicePacket(nullpacketmem, 20, true));
+                        await this.EnqueuePacketAsync(new RawVoicePacket(nullpacketmem, 20, true)).ConfigureAwait(false);
                     }
                 }
                 else if (_queueCount == 0)
@@ -770,7 +770,7 @@ namespace DSharpPlus.VoiceNext
 
                 await client.SendAsync(packet, packet.Length).ConfigureAwait(false);
 
-                await Task.Delay(5000, token);
+                await Task.Delay(5000, token).ConfigureAwait(false);
             }
         }
 
@@ -855,7 +855,7 @@ namespace DSharpPlus.VoiceNext
             {
                 var nullPcm = new byte[nullpcm.Length];
                 var nullpacketmem = nullPcm.AsMemory();
-                await this.EnqueuePacketAsync(new RawVoicePacket(nullpacketmem, 20, true));
+                await this.EnqueuePacketAsync(new RawVoicePacket(nullpacketmem, 20, true)).ConfigureAwait(false);
             }
 
             this.IsInitialized = true;

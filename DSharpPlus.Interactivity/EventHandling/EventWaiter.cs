@@ -51,7 +51,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             this._matchrequests.Add(request);
             try
             {
-                result = await request._tcs.Task;
+                result = await request._tcs.Task.ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -71,7 +71,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             this._collectrequests.Add(request);
             try
             {
-                await request._tcs.Task;
+                await request._tcs.Task.ConfigureAwait(false);
             }
             catch (Exception ex)
             {

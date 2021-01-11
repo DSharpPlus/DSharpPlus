@@ -265,7 +265,7 @@ namespace DSharpPlus.Lavalink
             {
                 if (!req.IsSuccessStatusCode)
                 {
-                    var jsonError = await JObject.LoadAsync(jr);
+                    var jsonError = await JObject.LoadAsync(jr).ConfigureAwait(false);
                     this._logger?.LogError(LavalinkEvents.LavalinkDecodeError, "Unable to decode track strings: {0}", jsonError["message"]);
 
                     return null;
@@ -288,12 +288,12 @@ namespace DSharpPlus.Lavalink
             {
                 if (!req.IsSuccessStatusCode)
                 {
-                    var jsonError = await JObject.LoadAsync(jr);
+                    var jsonError = await JObject.LoadAsync(jr).ConfigureAwait(false);
                     this._logger?.LogError(LavalinkEvents.LavalinkDecodeError, "Unable to decode track strings", jsonError["message"]);
                     return null;
                 }
 
-                var jarr = await JArray.LoadAsync(jr);
+                var jarr = await JArray.LoadAsync(jr).ConfigureAwait(false);
                 var decodedTracks = new LavalinkTrack[jarr.Count];
 
                 for (var i = 0; i < decodedTracks.Length; i++)

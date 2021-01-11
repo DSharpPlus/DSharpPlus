@@ -206,7 +206,7 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         public async Task<DiscordMessage> SendAsync(DiscordChannel channel)
         {
-            return await channel.SendMessageAsync(this);
+            return await channel.SendMessageAsync(this).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -216,7 +216,7 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         public async Task<DiscordMessage> ModifyAsync(DiscordMessage msg)
         {
-            return await msg.ModifyAsync(this);
+            return await msg.ModifyAsync(this).ConfigureAwait(false);
         }
     }
 }

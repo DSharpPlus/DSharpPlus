@@ -422,9 +422,9 @@ namespace DSharpPlus
         public async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, DiscordMessageBuilder builder)
         {
             if (builder.Files.Count() > 0)
-                return await this.ApiClient.UploadFilesAsync(channel_id, builder._files, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions, builder.MentionOnReply, builder.ReplyId);
+                return await this.ApiClient.UploadFilesAsync(channel_id, builder._files, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions, builder.MentionOnReply, builder.ReplyId).ConfigureAwait(false);
             else
-                return await this.ApiClient.CreateMessageAsync(channel_id, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions, builder.MentionOnReply, builder.ReplyId);
+                return await this.ApiClient.CreateMessageAsync(channel_id, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions, builder.MentionOnReply, builder.ReplyId).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -489,7 +489,7 @@ namespace DSharpPlus
             if (builder.Files.Any())
                 throw new ArgumentException("You cannot add files when modifing a message.");
 
-            return await this.ApiClient.EditMessageAsync(channel_id, message_id, builder.Content, builder.Embed, builder.Mentions);
+            return await this.ApiClient.EditMessageAsync(channel_id, message_id, builder.Content, builder.Embed, builder.Mentions).ConfigureAwait(false);
         }
 
         /// <summary>

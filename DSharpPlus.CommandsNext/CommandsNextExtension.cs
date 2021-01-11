@@ -214,7 +214,7 @@ namespace DSharpPlus.CommandsNext
                 return;
             }
 
-            _ = Task.Run(async () => await this.ExecuteCommandAsync(ctx));
+            _ = Task.Run(async () => await this.ExecuteCommandAsync(ctx).ConfigureAwait(false));
         }
 
         /// <summary>
