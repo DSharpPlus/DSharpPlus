@@ -534,7 +534,7 @@ namespace DSharpPlus.Net
 
         internal async Task<DiscordGuildTemplate> CreateGuildTemplateAsync(ulong guild_id, string name, string description)
         {
-            var pld = new RestGuildTemplateCreatePayload
+            var pld = new RestGuildTemplateCreateOrModifyPayload
             {
                 Name = name,
                 Description = description
@@ -567,7 +567,7 @@ namespace DSharpPlus.Net
 
         internal async Task<DiscordGuildTemplate> ModifyGuildTemplateAsync(ulong guild_id, string template_code, string name, string description)
         {
-            var pld = new RestGuildTemplateCreatePayload
+            var pld = new RestGuildTemplateCreateOrModifyPayload
             {
                 Name = name,
                 Description = description

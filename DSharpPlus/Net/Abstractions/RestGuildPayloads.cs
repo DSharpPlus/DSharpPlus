@@ -207,7 +207,7 @@ namespace DSharpPlus.Net.Abstractions
         public ulong? ChannelId { get; set; }
     }
 
-    internal class RestGuildTemplateCreatePayload
+    internal class RestGuildTemplateCreateOrModifyPayload
     {
         [JsonProperty("name", NullValueHandling = NullValueHandling.Include)]
         public string Name { get; set; }
