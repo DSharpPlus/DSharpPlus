@@ -472,7 +472,6 @@ namespace DSharpPlus
         /// <param name="channel_id">Channel id</param>
         /// <param name="message_id">Message id</param>
         /// <param name="embed">New message embed</param>
-        /// <param name="mentions">The roles/users to mention.</param>
         /// <returns></returns>
         public Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<DiscordEmbed> embed)
             => this.ApiClient.EditMessageAsync(channel_id, message_id, default, embed, default);
