@@ -653,10 +653,7 @@ namespace DSharpPlus.Net
 
             if (mentions != null || replyMessageId != null)
                 pld.Mentions = new DiscordMentions(mentions ?? Mentions.None, mention);
-
             
-            
-
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id }, out var path);
 
