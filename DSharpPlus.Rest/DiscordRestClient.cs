@@ -56,6 +56,16 @@ namespace DSharpPlus
             => this.ApiClient.CreateGuildAsync(name, region_id, iconb64, verification_level, default_message_notifications);
 
         /// <summary>
+        /// Creates a guild from a template. This requires the bot to be in less than 10 guilds total.
+        /// </summary>
+        /// <param name="code">The template code.</param>
+        /// <param name="name">Name of the guild.</param>
+        /// <param name="icon">Stream containing the icon for the guild.</param>
+        /// <returns>The created guild.</returns>
+        public Task<DiscordGuild> CreateGuildFromTemplateAsync(string code, string name, string icon)
+            => this.ApiClient.CreateGuildFromTemplateAsync(code, name, icon);
+
+        /// <summary>
         /// Deletes a guild
         /// </summary>
         /// <param name="id">guild id</param>
@@ -976,6 +986,53 @@ namespace DSharpPlus
         /// <returns></returns>
         public Task<IReadOnlyList<DiscordInvite>> GetGuildInvitesAsync(ulong guild_id)
             => this.ApiClient.GetGuildInvitesAsync(guild_id);
+
+        /// <summary>
+        /// Gets a guild's templates.
+        /// </summary>
+        /// <param name="guild_id">Guild id</param>
+        /// <returns>All of the guild's templates.</returns>
+        public Task<IReadOnlyList<DiscordGuildTemplate>> GetGuildTemplatesAsync(ulong guild_id)
+            => this.ApiClient.GetGuildTemplatesAsync(guild_id);
+
+        /// <summary>
+        /// Creates a guild template.
+        /// </summary>
+        /// <param name="guild_id">Guild id</param>
+        /// <param name="name">Name of the template.</param>
+        /// <param name="description">Description of the template.</param>
+        /// <returns>The template created.</returns>
+        public Task<DiscordGuildTemplate> CreateGuildTemplateAsync(ulong guild_id, string name, string description = null)
+            => this.ApiClient.CreateGuildTemplateAsync(guild_id, name, description);
+
+        /// <summary>
+        /// Syncs the template to the current guild's state.
+        /// </summary>
+        /// <param name="guild_id">Guild id</param>
+        /// <param name="code">The code of the template to sync.</param>
+        /// <returns>The template synced.</returns>
+        public Task<DiscordGuildTemplate> SyncGuildTemplateAsync(ulong guild_id, string code)
+            => this.ApiClient.SyncGuildTemplateAsync(guild_id, code);
+
+        /// <summary>
+        /// Modifies the template's metadata.
+        /// </summary>
+        /// <param name="guild_id">Guild id</param>
+        /// <param name="code">The template's code.</param>
+        /// <param name="name">Name of the template.</param>
+        /// <param name="description">Description of the template.</param>
+        /// <returns>The template modified.</returns>
+        public Task<DiscordGuildTemplate> ModifyGuildTemplateAsync(ulong guild_id, string code, string name = null, string description = null)
+            => this.ApiClient.ModifyGuildTemplateAsync(guild_id, code, name, description);
+
+        /// <summary>
+        /// Deletes the template.
+        /// </summary>
+        /// <param name="guild_id">Guild id</param>
+        /// <param name="code">The code of the template to delete.</param>
+        /// <returns>The deleted template.</returns>
+        public Task<DiscordGuildTemplate> DeleteGuildTemplateAsync(ulong guild_id, string code)
+            => this.ApiClient.DeleteGuildTemplateAsync(guild_id, code);
         #endregion
 
         #region Invites
@@ -1238,6 +1295,14 @@ namespace DSharpPlus
         /// <returns></returns>
         public Task<IReadOnlyList<DiscordApplicationAsset>> GetApplicationAssetsAsync(DiscordApplication application)
             => this.ApiClient.GetApplicationAssetsAsync(application);
+
+        /// <summary>
+        /// Gets a guild template by the code.
+        /// </summary>
+        /// <param name="code">The code of the template.</param>
+        /// <returns>The guild template for the code.</returns>\
+        public Task<DiscordGuildTemplate> GetTemplateAsync(string code)
+            => this.ApiClient.GetTemplateAsync(code);
         #endregion
 
         private bool disposed;

@@ -162,6 +162,29 @@ namespace DSharpPlus.Net
             return guild;
         }
 
+        internal async Task<DiscordGuild> CreateGuildFromTemplateAsync(string template_code, string name, Optional<string> iconb64)
+        {
+            var pld = new RestGuildCreateFromTemplatePayload
+            {
+                Name = name,
+                IconBase64 = iconb64
+            };
+
+            var route = $"{Endpoints.GUILDS}{Endpoints.TEMPLATES}/:template_code";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { template_code }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
+
+            var json = await DiscordJson.LoadJObjectAsync(res.Response).ConfigureAwait(false);
+            var raw_members = (JArray)json["members"];
+            var guild = DiscordJson.Deserialize<DiscordGuild>(res.Response);
+
+            if (this.Discord is DiscordClient dc)
+                await dc.OnGuildCreateEventAsync(guild, raw_members, null).ConfigureAwait(false);
+            return guild;
+        }
+
         internal async Task DeleteGuildAsync(ulong guild_id)
         {
             var route = $"{Endpoints.GUILDS}/:guild_id";
@@ -494,6 +517,83 @@ namespace DSharpPlus.Net
             ret.Guild = this.Discord.Guilds[guild_id];
 
             return ret;
+        }
+
+        internal async Task<IReadOnlyList<DiscordGuildTemplate>> GetGuildTemplatesAsync(ulong guild_id)
+        {
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.TEMPLATES}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
+
+            var templates_raw = DiscordJson.Deserialize<IEnumerable<DiscordGuildTemplate>>(res.Response);
+
+            return new ReadOnlyCollection<DiscordGuildTemplate>(new List<DiscordGuildTemplate>(templates_raw));
+        }
+
+        internal async Task<DiscordGuildTemplate> CreateGuildTemplateAsync(ulong guild_id, string name, string description)
+        {
+            var pld = new RestGuildTemplateCreateOrModifyPayload
+            {
+                Name = name,
+                Description = description
+            };
+
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.TEMPLATES}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { guild_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
+
+            var ret = DiscordJson.Deserialize<DiscordGuildTemplate>(res.Response);
+
+            return ret;
+        }
+
+        internal async Task<DiscordGuildTemplate> SyncGuildTemplateAsync(ulong guild_id, string template_code)
+        {
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.TEMPLATES}/:template_code";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.PUT, route, new { guild_id, template_code }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PUT, route).ConfigureAwait(false);
+
+            var template_raw = DiscordJson.Deserialize<DiscordGuildTemplate>(res.Response);
+
+            return template_raw;
+        }
+
+        internal async Task<DiscordGuildTemplate> ModifyGuildTemplateAsync(ulong guild_id, string template_code, string name, string description)
+        {
+            var pld = new RestGuildTemplateCreateOrModifyPayload
+            {
+                Name = name,
+                Description = description
+            };
+
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.TEMPLATES}/:template_code";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id, template_code }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
+
+            var template_raw = DiscordJson.Deserialize<DiscordGuildTemplate>(res.Response);
+
+            return template_raw;
+        }
+
+        internal async Task<DiscordGuildTemplate> DeleteGuildTemplateAsync(ulong guild_id, string template_code)
+        {
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.TEMPLATES}/:template_code";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { guild_id, template_code }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route).ConfigureAwait(false);
+
+            var template_raw = DiscordJson.Deserialize<DiscordGuildTemplate>(res.Response);
+
+            return template_raw;
         }
         #endregion
 
@@ -1392,6 +1492,19 @@ namespace DSharpPlus.Net
         #endregion
 
         #region GuildVarious
+        internal async Task<DiscordGuildTemplate> GetTemplateAsync(string code)
+        {
+            var route = $"{Endpoints.GUILDS}{Endpoints.TEMPLATES}/:code";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { code }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
+
+            var templates_raw = DiscordJson.Deserialize<DiscordGuildTemplate>(res.Response);
+
+            return templates_raw;
+        }
+
         internal async Task<IReadOnlyList<DiscordIntegration>> GetGuildIntegrationsAsync(ulong guild_id)
         {
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.INTEGRATIONS}";

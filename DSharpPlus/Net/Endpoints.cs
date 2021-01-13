@@ -51,5 +51,6 @@
         public const string CROSSPOST = "/crosspost";
         public const string WIDGET = "/widget";
         public const string WIDGET_JSON = "/widget.json";
+        public const string TEMPLATES = "/templates";
     }
 }
