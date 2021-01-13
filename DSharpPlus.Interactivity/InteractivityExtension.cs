@@ -115,6 +115,7 @@ namespace DSharpPlus.Interactivity
 
         /// <summary>
         /// Wait for a specific reaction.
+        /// For this Event you need the <see cref="DiscordIntents.GuildMessageReactions"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
         /// </summary>
         /// <param name="message">Message reaction was added to.</param>
         /// <param name="user">User that made the reaction.</param>
@@ -126,6 +127,7 @@ namespace DSharpPlus.Interactivity
 
         /// <summary>
         /// Waits for a specific reaction.
+        /// For this Event you need the <see cref="DiscordIntents.GuildMessageReactions"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
         /// </summary>
         /// <param name="predicate">Predicate to match.</param>
         /// <param name="message">Message reaction was added to.</param>
@@ -138,6 +140,7 @@ namespace DSharpPlus.Interactivity
 
         /// <summary>
         /// Waits for a specific reaction.
+        /// For this Event you need the <see cref="DiscordIntents.GuildMessageReactions"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
         /// </summary>
         /// <param name="predicate">predicate to match.</param>
         /// <param name="user">User that made the reaction.</param>
@@ -253,6 +256,7 @@ namespace DSharpPlus.Interactivity
 
         /// <summary>
         /// Sends a paginated message.
+        /// For this Event you need the <see cref="DiscordIntents.GuildMessageReactions"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
         /// </summary>
         /// <param name="c">Channel to send paginated message in.</param>
         /// <param name="u">User to give control.</param>
