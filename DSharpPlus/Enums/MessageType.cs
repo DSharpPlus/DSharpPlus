@@ -68,6 +68,11 @@
         /// <summary>
         /// Message when a user follows a news channel.
         /// </summary>
-        ChannelFollowAdd = 12
+        ChannelFollowAdd = 12,
+
+        /// <summary>
+        /// Message when a user replies to another user
+        /// </summary>
+        Reply = 19
     }
 }

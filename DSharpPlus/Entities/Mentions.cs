@@ -8,7 +8,20 @@ namespace DSharpPlus.Entities
     /// Interface for mentionables
     /// </summary>
     public interface IMention { }
+    
 
+    /// <summary>
+    /// Allows a reply to ping the user being replied to.
+    /// </summary>
+    public readonly struct RepliedUserMention : IMention
+    {
+        //This is pointless because new RepliedUserMention() will work, but it is here for consistency with the other mentionables.
+        /// <summary>
+        /// Mention the user being replied to.  Alias to <see cref="RepliedUserMention()"/> constructor.
+        /// </summary>
+        public static readonly RepliedUserMention All = new RepliedUserMention();
+    }
+    
     /// <summary>
     /// Allows @everyone and @here pings to mention in the message.
     /// </summary>

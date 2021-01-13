@@ -53,6 +53,20 @@ namespace DSharpPlus.Net
             var ret = msg_raw.ToDiscordObject<DiscordMessage>();
             ret.Discord = this.Discord;
 
+            PopulateMessage(author, ret);
+
+            if (ret.Reference != null)
+            {
+                author = msg_raw["referenced_message"]["author"].ToObject<TransportUser>();
+                ret.ReferencedMessage.Discord = this.Discord;
+                PopulateMessage(author, ret.ReferencedMessage);
+            }
+
+            return ret;
+        }
+
+        private void PopulateMessage(TransportUser author, DiscordMessage ret)
+        {
             var guild = ret.Channel?.Guild;
 
             //If this is a webhook, it shouldn't be in the user cache.
@@ -105,8 +119,6 @@ namespace DSharpPlus.Net
                 ret._reactions = new List<DiscordReaction>();
             foreach (var xr in ret._reactions)
                 xr.Emoji.Discord = this.Discord;
-
-            return ret;
         }
 
         private Task<RestResponse> DoRequestAsync(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, string route, IReadOnlyDictionary<string, string> headers = null, string payload = null, double? ratelimitWaitOverride = null)
@@ -709,7 +721,8 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content, bool? tts, DiscordEmbed embed, IEnumerable<IMention> mentions)
+        internal async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content, bool? tts,
+            DiscordEmbed embed, IEnumerable<IMention> mentions, bool mention = false, ulong? replyMessageId = null)
         {
             if (content != null && content.Length > 2000)
                 throw new ArgumentException("Message content length cannot exceed 2000 characters.");
@@ -735,9 +748,12 @@ namespace DSharpPlus.Net
                 Embed = embed
             };
 
-            if (mentions != null)
-                pld.Mentions = new DiscordMentions(mentions);
+            if (replyMessageId != null) 
+                pld.MessageReference = new InternalDiscordMessageReference {messageId = replyMessageId};
 
+            if (mentions != null || replyMessageId != null)
+                pld.Mentions = new DiscordMentions(mentions ?? Mentions.None, mention);
+            
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id }, out var path);
 
@@ -749,7 +765,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessage> UploadFileAsync(ulong channel_id, Stream file_data, string file_name, string content, bool? tts, DiscordEmbed embed, IEnumerable<IMention> mentions)
+        internal async Task<DiscordMessage> UploadFileAsync(ulong channel_id, Stream file_data, string file_name, string content, bool? tts, DiscordEmbed embed, IEnumerable<IMention> mentions, bool mention, ulong? replyMessageId)
         {
             var file = new Dictionary<string, Stream> { { file_name, file_data } };
 
@@ -770,6 +786,9 @@ namespace DSharpPlus.Net
             if (mentions != null)
                 pld.Mentions = new DiscordMentions(mentions);
 
+            if (replyMessageId != null) 
+                pld.MessageReference = new InternalDiscordMessageReference {messageId = replyMessageId};
+            
             if (!string.IsNullOrEmpty(content) || embed != null || tts == true || mentions != null)
                 values["payload_json"] = DiscordJson.SerializeObject(pld);
 
@@ -784,7 +803,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessage> UploadFilesAsync(ulong channel_id, Dictionary<string, Stream> files, string content, bool? tts, DiscordEmbed embed, IEnumerable<IMention> mentions)
+        internal async Task<DiscordMessage> UploadFilesAsync(ulong channel_id, Dictionary<string, Stream> files, string content, bool? tts, DiscordEmbed embed, IEnumerable<IMention> mentions, bool mention, ulong? replyMessageId)
         {
             if (embed?.Timestamp != null)
                 embed.Timestamp = embed.Timestamp.Value.ToUniversalTime();
@@ -806,6 +825,9 @@ namespace DSharpPlus.Net
             if (mentions != null)
                 pld.Mentions = new DiscordMentions(mentions);
 
+            if (replyMessageId != null) 
+                pld.MessageReference = new InternalDiscordMessageReference {messageId = replyMessageId};
+            
             if (!string.IsNullOrWhiteSpace(content) || embed != null || tts == true || mentions != null)
                 values["payload_json"] = DiscordJson.SerializeObject(pld);
 
