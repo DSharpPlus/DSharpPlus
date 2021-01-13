@@ -422,9 +422,9 @@ namespace DSharpPlus
         public async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, DiscordMessageBuilder builder)
         {
             if (builder.Files.Count() > 0)
-                return await this.ApiClient.UploadFilesAsync(channel_id, builder._files, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions);
+                return await this.ApiClient.UploadFilesAsync(channel_id, builder._files, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions).ConfigureAwait(false);
             else
-                return await this.ApiClient.CreateMessageAsync(channel_id, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions);
+                return await this.ApiClient.CreateMessageAsync(channel_id, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -472,7 +472,6 @@ namespace DSharpPlus
         /// <param name="channel_id">Channel id</param>
         /// <param name="message_id">Message id</param>
         /// <param name="embed">New message embed</param>
-        /// <param name="mentions">The roles/users to mention.</param>
         /// <returns></returns>
         public Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<DiscordEmbed> embed)
             => this.ApiClient.EditMessageAsync(channel_id, message_id, default, embed, default);
@@ -489,7 +488,7 @@ namespace DSharpPlus
             if (builder.Files.Any())
                 throw new ArgumentException("You cannot add files when modifing a message.");
 
-            return await this.ApiClient.EditMessageAsync(channel_id, message_id, builder.Content, builder.Embed, builder.Mentions);
+            return await this.ApiClient.EditMessageAsync(channel_id, message_id, builder.Content, builder.Embed, builder.Mentions).ConfigureAwait(false);
         }
 
         /// <summary>

@@ -160,19 +160,19 @@ namespace DSharpPlus.Net
 
             try
             {
-                await this.GlobalRateLimitEvent.WaitAsync();
+                await this.GlobalRateLimitEvent.WaitAsync().ConfigureAwait(false);
 
                 if (bucket == null)
                     bucket = request.RateLimitBucket;
 
                 if (ratelimitTcs == null)
-                    ratelimitTcs = await this.WaitForInitialRateLimit(bucket);
+                    ratelimitTcs = await this.WaitForInitialRateLimit(bucket).ConfigureAwait(false);
 
                 if (ratelimitTcs == null) // ckeck rate limit only if we are not the probe request
                 {
                     var now = DateTimeOffset.UtcNow;
 
-                    await bucket.TryResetLimitAsync(now);
+                    await bucket.TryResetLimitAsync(now).ConfigureAwait(false);
 
                     // Decrement the remaining number of requests as there can be other concurrent requests before this one finishes and has a chance to update the bucket
 #pragma warning disable 420 // interlocked access is always volatile
@@ -391,7 +391,7 @@ namespace DSharpPlus.Net
                 while (bucket._limitTesting != 0 && (waitTask = bucket._limitTestFinished) == null)
                     await Task.Yield(); 
                 if (waitTask != null)
-                    await waitTask;
+                    await waitTask.ConfigureAwait(false);
 
                 // if the request failed and the response did not have rate limit headers we have allow the next request and wait again, thus this is a loop here
             }

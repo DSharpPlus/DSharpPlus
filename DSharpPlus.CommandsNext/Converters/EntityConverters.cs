@@ -242,7 +242,7 @@ namespace DSharpPlus.CommandsNext.Converters
                 if (chn == null)
                     return Optional.FromNoValue<DiscordMessage>();
 
-                var msg = await chn.GetMessageAsync(mid);
+                var msg = await chn.GetMessageAsync(mid).ConfigureAwait(false);
                 return msg != null ? Optional.FromValue(msg) : Optional.FromNoValue<DiscordMessage>();
             }
 
