@@ -176,7 +176,7 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
 
-            var json = await DiscordJson.LoadJObjectAsync(res.Response);
+            var json = await DiscordJson.LoadJObjectAsync(res.Response).ConfigureAwait(false);
             var raw_members = (JArray)json["members"];
             var guild = DiscordJson.Deserialize<DiscordGuild>(res.Response);
 
