@@ -547,7 +547,6 @@ namespace DSharpPlus.Net
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
 
             var ret = DiscordJson.Deserialize<DiscordGuildTemplate>(res.Response);
-            ret.Discord = this.Discord;
 
             return ret;
         }
