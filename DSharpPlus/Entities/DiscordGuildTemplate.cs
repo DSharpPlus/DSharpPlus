@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
 {
-    public class DiscordGuildTemplate : SnowflakeObject
+    public class DiscordGuildTemplate
     {
         /// <summary>
         /// Gets the template code.
