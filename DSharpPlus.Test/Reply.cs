@@ -21,8 +21,10 @@ namespace DSharpPlus.Test
                 builder.WithContent($"You requested me to say \"{response}\"");
             }
 
+            builder.WithAllowedMention(UserMention.All);
+
             builder.WithReply(ctx.Message.Id, true);
-            await builder.SendAsync(ctx.Channel);
+            await ctx.RespondAsync(builder);
         }
 
         [Command, Priority(2)]
