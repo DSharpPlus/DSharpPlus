@@ -26,5 +26,8 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("premium_since", NullValueHandling = NullValueHandling.Ignore)]
         public DateTime? PremiumSince { get; internal set; }
+
+        [JsonProperty("pending", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? IsPending { get; internal set; }
     }
 }
