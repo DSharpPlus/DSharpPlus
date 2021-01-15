@@ -217,16 +217,16 @@ namespace DSharpPlus
                     rawMbr = dat["member"];
 
                     if (rawMbr != null)
-                        mbr = rawMbr.ToObject<TransportMember>();                   
+                        mbr = rawMbr.ToObject<TransportMember>();
 
-                    if (rawRefMsg.HasValues)
+                    if (rawRefMsg != null && rawRefMsg.HasValues)
                     {
-                        if(rawRefMsg.SelectToken("author") != null)
+                        if (rawRefMsg.SelectToken("author") != null)
                         {
                             refUsr = rawRefMsg.SelectToken("author").ToObject<TransportUser>();
                         }
 
-                        if(rawRefMsg.SelectToken("member") != null)
+                        if (rawRefMsg.SelectToken("member") != null)
                         {
                             refMbr = rawRefMsg.SelectToken("member").ToObject<TransportMember>();
                         }
