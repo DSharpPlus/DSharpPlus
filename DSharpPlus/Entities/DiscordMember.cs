@@ -38,6 +38,7 @@ namespace DSharpPlus.Entities
             this.JoinedAt = mbr.JoinedAt;
             this.Nickname = mbr.Nickname;
             this.PremiumSince = mbr.PremiumSince;
+            this.IsPending = mbr.IsPending;
 
             this._role_ids = mbr.Roles ?? new List<ulong>();
             this._role_ids_lazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(this._role_ids));
@@ -113,6 +114,12 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("is_muted", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsMuted { get; internal set; }
+
+        /// <summary>
+        /// If the user has passed the guild's Membership Screening requirements
+        /// </summary>
+        [JsonProperty("pending", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? IsPending { get; internal set; }
 
         /// <summary>
         /// Gets this member's voice state.
