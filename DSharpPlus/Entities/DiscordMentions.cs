@@ -51,6 +51,11 @@ namespace DSharpPlus.Entities
                 this.RepliedUser = mention;
                 return;
             }
+
+            if (mention)
+            {
+                this.RepliedUser = mention;
+            }
             
             
             //Prepare a list of allowed IDs. We will be adding to these IDs.
