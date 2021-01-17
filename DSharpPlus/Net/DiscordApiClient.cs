@@ -167,7 +167,7 @@ namespace DSharpPlus.Net
 
             var json = await DiscordJson.LoadJObjectAsync(res.Response).ConfigureAwait(false);
             var raw_members = (JArray)json["members"];
-            var guild = DiscordJson.Deserialize<DiscordGuild>(res.Response);
+            var guild = json.ToDiscordObject<DiscordGuild>();
 
             if (this.Discord is DiscordClient dc)
                 await dc.OnGuildCreateEventAsync(guild, raw_members, null).ConfigureAwait(false);
@@ -190,7 +190,7 @@ namespace DSharpPlus.Net
 
             var json = await DiscordJson.LoadJObjectAsync(res.Response).ConfigureAwait(false);
             var raw_members = (JArray)json["members"];
-            var guild = DiscordJson.Deserialize<DiscordGuild>(res.Response);
+            var guild = json.ToDiscordObject<DiscordGuild>();
 
             if (this.Discord is DiscordClient dc)
                 await dc.OnGuildCreateEventAsync(guild, raw_members, null).ConfigureAwait(false);
@@ -247,7 +247,7 @@ namespace DSharpPlus.Net
 
             var json = await DiscordJson.LoadJObjectAsync(res.Response).ConfigureAwait(false);
             var rawMembers = (JArray)json["members"];
-            var guild = DiscordJson.Deserialize<DiscordGuild>(res.Response);
+            var guild = json.ToDiscordObject<DiscordGuild>();
             foreach (var r in guild._roles.Values)
                 r._guild_id = guild.Id;
 
@@ -466,11 +466,12 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
 
-            var ret = DiscordJson.Deserialize<DiscordWidget>(res.Response);
+            var json = await DiscordJson.LoadJObjectAsync(res.Response).ConfigureAwait(false);
+
+            var ret = json.ToDiscordObject<DiscordWidget>();
             ret.Discord = this.Discord;
             ret.Guild = this.Discord.Guilds[guild_id];
 
-            var json = await DiscordJson.LoadJObjectAsync(res.Response).ConfigureAwait(false);
             var rawChannels = (JArray)json["channels"];
             if (ret.Guild == null)
             {
@@ -1358,7 +1359,7 @@ namespace DSharpPlus.Net
 
             var json = await DiscordJson.LoadJObjectAsync(res.Response).ConfigureAwait(false);
             var rawMembers = (JArray)json["members"];
-            var guildRest = DiscordJson.Deserialize<DiscordGuild>(res.Response);
+            var guildRest = json.ToDiscordObject<DiscordGuild>();
             foreach (var r in guildRest._roles.Values)
                 r._guild_id = guildRest.Id;
 
