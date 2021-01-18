@@ -184,7 +184,7 @@ namespace DSharpPlus.Entities
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
                 throw new ArgumentException("Cannot send a text message to a non-text channel.");
 
-            return this.Discord.ApiClient.CreateMessageAsync(this.Id, content, null, null, null);
+            return this.Discord.ApiClient.CreateMessageAsync(this.Id, content, null);
         }
 
         /// <summary>
@@ -201,7 +201,7 @@ namespace DSharpPlus.Entities
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
                 throw new ArgumentException("Cannot send a text message to a non-text channel.");
 
-            return this.Discord.ApiClient.CreateMessageAsync(this.Id, null, null, embed, null);
+            return this.Discord.ApiClient.CreateMessageAsync(this.Id, null, embed);
         }
 
         /// <summary>
@@ -219,7 +219,7 @@ namespace DSharpPlus.Entities
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
                 throw new ArgumentException("Cannot send a text message to a non-text channel.");
 
-            return this.Discord.ApiClient.CreateMessageAsync(this.Id, content, null, embed, null);
+            return this.Discord.ApiClient.CreateMessageAsync(this.Id, content, embed);
         }
 
         /// <summary>
@@ -232,15 +232,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> SendMessageAsync(DiscordMessageBuilder builder)
-        {
-            if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
-                throw new ArgumentException("Cannot send a text message to a non-text channel.");
-
-            if (builder.Files.Count() > 0)
-                return this.Discord.ApiClient.UploadFilesAsync(this.Id, builder._files, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions, builder.MentionOnReply, builder.ReplyId);
-            else
-                return this.Discord.ApiClient.CreateMessageAsync(this.Id, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions, builder.MentionOnReply, builder.ReplyId);
-        }
+            => this.Discord.ApiClient.CreateMessageAsync(this.Id, builder);
 
         // Please send memes to Naamloos#2887 at discord <3 thank you
 

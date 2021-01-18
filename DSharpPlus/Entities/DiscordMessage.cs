@@ -458,7 +458,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> RespondAsync(string content) 
-            => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, content, null, null, null);
+            => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, content, null);
 
         /// <summary>
         /// Responds to the message.
@@ -470,7 +470,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> RespondAsync(DiscordEmbed embed)
-            => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, null, null, embed, null);
+            => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, null, embed);
 
         /// <summary>
         /// Responds to the message.
@@ -483,7 +483,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> RespondAsync(string content, DiscordEmbed embed)
-            => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, content, null, embed, null);
+            => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, content, embed);
 
         /// <summary>
         /// Responds to the message.
@@ -494,13 +494,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordMessage> RespondAsync(DiscordMessageBuilder builder)
-        {
-            if (builder.Files.Count() > 0)
-                return await this.Discord.ApiClient.UploadFilesAsync(this.ChannelId, builder._files, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions, builder.MentionOnReply, builder.ReplyId).ConfigureAwait(false);
-            else
-                return await this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions, builder.MentionOnReply, builder.ReplyId).ConfigureAwait(false);
-        }
+        public Task<DiscordMessage> RespondAsync(DiscordMessageBuilder builder)
+            => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, builder);
 
         /// <summary>
         /// Creates a reaction to this message

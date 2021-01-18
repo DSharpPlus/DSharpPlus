@@ -722,8 +722,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content, bool? tts,
-            DiscordEmbed embed, IEnumerable<IMention> mentions, bool mention = false, ulong? replyMessageId = null)
+        internal async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content, DiscordEmbed embed)
         {
             if (content != null && content.Length > 2000)
                 throw new ArgumentException("Message content length cannot exceed 2000 characters.");
@@ -744,16 +743,10 @@ namespace DSharpPlus.Net
             {
                 HasContent = content != null,
                 Content = content,
-                IsTTS = tts,
+                IsTTS = false,
                 HasEmbed = embed != null,
                 Embed = embed
             };
-
-            if (replyMessageId != null) 
-                pld.MessageReference = new InternalDiscordMessageReference {messageId = replyMessageId};
-
-            if (mentions != null || replyMessageId != null)
-                pld.Mentions = new DiscordMentions(mentions ?? Mentions.None, mention);
             
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id }, out var path);
@@ -766,81 +759,64 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessage> UploadFileAsync(ulong channel_id, Stream file_data, string file_name, string content, bool? tts, DiscordEmbed embed, IEnumerable<IMention> mentions, bool mention, ulong? replyMessageId)
+        internal async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, DiscordMessageBuilder builder)
         {
-            var file = new Dictionary<string, Stream> { { file_name, file_data } };
-
-            if (content != null && content.Length > 2000)
+            if (builder.Content != null && builder.Content.Length > 2000)
                 throw new ArgumentException("Message content length cannot exceed 2000 characters.");
 
-            if (embed?.Timestamp != null)
-                embed.Timestamp = embed.Timestamp.Value.ToUniversalTime();
-
-            var values = new Dictionary<string, string>();
-            var pld = new RestChannelMessageCreateMultipartPayload
+            if (builder.Embed == null && !builder.Files.Any())
             {
-                Embed = embed,
-                Content = content,
-                IsTTS = tts
+                if (builder.Content == null)
+                    throw new ArgumentException("You must specify message content or an embed.");
+
+                if (builder.Content == "")
+                    throw new ArgumentException("Message content must not be empty.");
+            }
+
+            if (builder.Embed?.Timestamp != null)
+                builder.Embed.Timestamp = builder.Embed.Timestamp.Value.ToUniversalTime();
+
+            var pld = new RestChannelMessageCreatePayload
+            {
+                HasContent = builder.Content != null,
+                Content = builder.Content,
+                IsTTS = builder.IsTTS,
+                HasEmbed = builder.Embed != null,
+                Embed = builder.Embed
             };
 
-            if (mentions != null)
-                pld.Mentions = new DiscordMentions(mentions);
+            if (builder.ReplyId != null)
+                pld.MessageReference = new InternalDiscordMessageReference { messageId = builder.ReplyId };
 
-            if (replyMessageId != null) 
-                pld.MessageReference = new InternalDiscordMessageReference {messageId = replyMessageId};
-            
-            if (!string.IsNullOrEmpty(content) || embed != null || tts == true || mentions != null)
-                values["payload_json"] = DiscordJson.SerializeObject(pld);
+            if (builder.Mentions != null || builder.ReplyId != null)
+                pld.Mentions = new DiscordMentions(builder.Mentions ?? Mentions.None, builder.MentionOnReply);
 
-            var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}";
-            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id }, out var path);
-
-            var url = Utilities.GetApiUriFor(path);
-            var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, values: values, files: file).ConfigureAwait(false);
-
-            var ret = this.PrepareMessage(await DiscordJson.LoadJObjectAsync(res.Response).ConfigureAwait(false));
-
-            return ret;
-        }
-
-        internal async Task<DiscordMessage> UploadFilesAsync(ulong channel_id, Dictionary<string, Stream> files, string content, bool? tts, DiscordEmbed embed, IEnumerable<IMention> mentions, bool mention, ulong? replyMessageId)
-        {
-            if (embed?.Timestamp != null)
-                embed.Timestamp = embed.Timestamp.Value.ToUniversalTime();
-
-            if (content != null && content.Length > 2000)
-                throw new ArgumentException("Message content length cannot exceed 2000 characters.");
-
-            if (files.Count == 0 && string.IsNullOrEmpty(content) && embed == null)
-                throw new ArgumentException("You must specify content, an embed, or at least one file.");
-
-            var values = new Dictionary<string, string>();
-            var pld = new RestChannelMessageCreateMultipartPayload
+            if (builder.Files.Count == 0)
             {
-                Embed = embed,
-                Content = content,
-                IsTTS = tts
-            };
+                var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}";
+                var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id }, out var path);
 
-            if (mentions != null)
-                pld.Mentions = new DiscordMentions(mentions);
+                var url = Utilities.GetApiUriFor(path);
+                var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
 
-            if (replyMessageId != null) 
-                pld.MessageReference = new InternalDiscordMessageReference {messageId = replyMessageId};
-            
-            if (!string.IsNullOrWhiteSpace(content) || embed != null || tts == true || mentions != null)
+                var ret = this.PrepareMessage(await DiscordJson.LoadJObjectAsync(res.Response).ConfigureAwait(false));
+                return ret;
+            }
+            else
+            {
+                var values = new Dictionary<string, string>();
                 values["payload_json"] = DiscordJson.SerializeObject(pld);
 
-            var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}";
-            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id }, out var path);
+                var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}";
+                var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id }, out var path);
 
-            var url = Utilities.GetApiUriFor(path);
-            var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, values: values, files: files).ConfigureAwait(false);
+                var url = Utilities.GetApiUriFor(path);
+                var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, values: values, files: builder.Files).ConfigureAwait(false);
 
-            var ret = this.PrepareMessage(await DiscordJson.LoadJObjectAsync(res.Response).ConfigureAwait(false));
+                var ret = this.PrepareMessage(await DiscordJson.LoadJObjectAsync(res.Response).ConfigureAwait(false));
 
-            return ret;
+                return ret;
+            }           
         }
 
         internal async Task<IReadOnlyList<DiscordChannel>> GetGuildChannelsAsync(ulong guild_id)

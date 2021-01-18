@@ -402,7 +402,7 @@ namespace DSharpPlus
         /// <param name="content">Message (text) content</param>
         /// <returns></returns>
         public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content)
-            => this.ApiClient.CreateMessageAsync(channel_id, content, false, null, null);
+            => this.ApiClient.CreateMessageAsync(channel_id, content, null);
 
         /// <summary>
         /// Sends a message
@@ -411,7 +411,7 @@ namespace DSharpPlus
         /// <param name="embed">Embed to attach</param>
         /// <returns></returns>
         public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, DiscordEmbed embed)
-            => this.ApiClient.CreateMessageAsync(channel_id, null, null, embed, null);
+            => this.ApiClient.CreateMessageAsync(channel_id, null, embed);
 
         /// <summary>
         /// Sends a message
@@ -421,7 +421,7 @@ namespace DSharpPlus
         /// <param name="embed">Embed to attach</param>
         /// <returns></returns>
         public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content, DiscordEmbed embed)
-            => this.ApiClient.CreateMessageAsync(channel_id, content, null, embed, null);
+            => this.ApiClient.CreateMessageAsync(channel_id, content, embed);
 
         /// <summary>
         /// Sends a message
@@ -429,13 +429,8 @@ namespace DSharpPlus
         /// <param name="channel_id">Channel id</param>
         /// <param name="builder">The Discord Mesage builder.</param>
         /// <returns></returns>
-        public async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, DiscordMessageBuilder builder)
-        {
-            if (builder.Files.Count() > 0)
-                return await this.ApiClient.UploadFilesAsync(channel_id, builder._files, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions, builder.MentionOnReply, builder.ReplyId).ConfigureAwait(false);
-            else
-                return await this.ApiClient.CreateMessageAsync(channel_id, builder.Content, builder.IsTTS, builder.Embed, builder.Mentions, builder.MentionOnReply, builder.ReplyId).ConfigureAwait(false);
-        }
+        public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, DiscordMessageBuilder builder)
+            => this.ApiClient.CreateMessageAsync(channel_id, builder);
 
         /// <summary>
         /// Gets channels from a guild
