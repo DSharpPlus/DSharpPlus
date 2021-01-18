@@ -1,4 +1,4 @@
-﻿---
+---
 uid: beyond_basics_messagebuilder
 title: Message Builder
 ---
@@ -51,4 +51,18 @@ var msg = await new DiscordMessageBuilder()
     .WithContent($"This is a dumb message")
     .HasTTS(true)
     .SendAsync(ctx.Channel);      
+```
+### Sending An Inline Reply
+With sending an inline reply, you'll have to use the MessageBuilder to construct your message, see exemple below:
+```cs
+var msg = await new DiscordMessageBuilder()
+    .WithConent($"I'm talking to *you*!")
+    .WithReply(ctx.Message.Id)
+    .SendAsync(ctx.Channel);
+```
+By default, replies do not mention. To make a reply mention, simply pass true as the second parameter:
+```cs
+// ...
+    .WithReply(ctx.Message.Id, true);
+// ...
 ```
