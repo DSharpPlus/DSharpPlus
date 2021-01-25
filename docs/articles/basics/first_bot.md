@@ -116,7 +116,8 @@ Create an object initializer for `DiscordConfiguration` and populate the `Token`
 var discord = new DiscordClient(new DiscordConfiguration()
 {
     Token = "My First Token",
-    TokenType = TokenType.Bot       
+    TokenType = TokenType.Bot,
+    UseInternalLogHandler = true       
 });
 ```
 
@@ -189,7 +190,8 @@ namespace MyFirstBot
             var discord = new DiscordClient(new DiscordConfiguration()
             {
                 Token = "My First Token",
-                TokenType = TokenType.Bot
+                TokenType = TokenType.Bot,
+    		UseInternalLogHandler = true
             });
 
             discord.MessageCreated += async (s, e) =>
