@@ -42,7 +42,6 @@ namespace DSharpPlus.Net
         {
             this.Discord = client;
             this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(client));
-            this.HttpClient.DefaultRequestHeaders.Add("X-RateLimit-Precision", "millisecond");
         }
 
         internal RestClient(IWebProxy proxy, TimeSpan timeout, bool useRelativeRatelimit, 
@@ -456,7 +455,7 @@ namespace DSharpPlus.Net
             // handle the wait
             if (hs.TryGetValue("Retry-After", out var retry_after_raw))
             {
-                var retry_after = int.Parse(retry_after_raw, CultureInfo.InvariantCulture);
+                var retry_after = TimeSpan.FromSeconds(int.Parse(retry_after_raw, CultureInfo.InvariantCulture));
                 wait_task = Task.Delay(retry_after);
             }
 
