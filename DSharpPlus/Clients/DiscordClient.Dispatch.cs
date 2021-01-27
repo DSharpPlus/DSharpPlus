@@ -1536,14 +1536,6 @@ namespace DSharpPlus
             {
                 old = new DiscordPresence(presence);
                 DiscordJson.PopulateObject(rawPresence, presence);
-
-                if (rawPresence["game"] == null || rawPresence["game"].Type == JTokenType.Null)
-                    presence.RawActivity = null;
-
-                if (presence.Activity != null)
-                    presence.Activity.UpdateWith(presence.RawActivity);
-                else
-                    presence.Activity = new DiscordActivity(presence.RawActivity);
             }
             else
             {
@@ -1565,6 +1557,16 @@ namespace DSharpPlus
 
                 for (var i = 0; i < presence.InternalActivities.Length; i++)
                     presence.InternalActivities[i] = new DiscordActivity(presence.RawActivities[i]);
+
+                if (presence.InternalActivities.Length > 0)
+                {
+                    presence.RawActivity = presence.RawActivities[0];
+
+                    if (presence.Activity != null)
+                        presence.Activity.UpdateWith(presence.RawActivity);
+                    else
+                        presence.Activity = new DiscordActivity(presence.RawActivity);
+                }
             }
 
             if (this.UserCache.TryGetValue(uid, out var usr))
