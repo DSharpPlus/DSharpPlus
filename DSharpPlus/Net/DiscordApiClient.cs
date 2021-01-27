@@ -293,7 +293,7 @@ namespace DSharpPlus.Net
 
             var urlparams = new Dictionary<string, string>
             {
-                ["delete-message-days"] = delete_message_days.ToString(CultureInfo.InvariantCulture)
+                ["delete_message_days"] = delete_message_days.ToString(CultureInfo.InvariantCulture)
             };
             if (reason != null)
                 urlparams["reason"] = reason;
