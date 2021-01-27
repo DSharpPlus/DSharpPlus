@@ -737,8 +737,6 @@ namespace DSharpPlus
             guild.AfkChannelId = newGuild.AfkChannelId;
             guild.AfkTimeout = newGuild.AfkTimeout;
             guild.DefaultMessageNotifications = newGuild.DefaultMessageNotifications;
-            guild.EmbedChannelId = newGuild.EmbedChannelId;
-            guild.EmbedEnabled = newGuild.EmbedEnabled;
             guild.Features = newGuild.Features;
             guild.IconHash = newGuild.IconHash;
             guild.MfaLevel = newGuild.MfaLevel;

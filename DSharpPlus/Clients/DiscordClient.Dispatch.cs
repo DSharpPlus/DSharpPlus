@@ -730,8 +730,6 @@ namespace DSharpPlus
                     AfkChannelId = gld.AfkChannelId,
                     AfkTimeout = gld.AfkTimeout,
                     DefaultMessageNotifications = gld.DefaultMessageNotifications,
-                    EmbedChannelId = gld.EmbedChannelId,
-                    EmbedEnabled = gld.EmbedEnabled,
                     ExplicitContentFilter = gld.ExplicitContentFilter,
                     Features = gld.Features,
                     IconHash = gld.IconHash,

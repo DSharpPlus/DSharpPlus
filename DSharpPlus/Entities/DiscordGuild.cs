@@ -127,25 +127,6 @@ namespace DSharpPlus.Entities
         public int AfkTimeout { get; internal set; }
 
         /// <summary>
-        /// Gets whether this guild has the guild embed enabled.
-        /// </summary>
-        [JsonProperty("embed_enabled", NullValueHandling = NullValueHandling.Ignore)]
-        public bool EmbedEnabled { get; internal set; }
-
-        /// <summary>
-        /// Gets the ID of the channel from the guild's embed.
-        /// </summary>
-        [JsonProperty("embed_channel_id", NullValueHandling = NullValueHandling.Ignore)]
-        internal ulong EmbedChannelId { get; set; }
-
-        /// <summary>
-        /// Gets the channel from the guild's embed.
-        /// </summary>
-        [JsonIgnore]
-        public DiscordChannel EmbedChannel
-            => this.GetChannel(this.EmbedChannelId);
-
-        /// <summary>
         /// Gets the guild's verification level.
         /// </summary>
         [JsonProperty("verification_level", NullValueHandling = NullValueHandling.Ignore)]
