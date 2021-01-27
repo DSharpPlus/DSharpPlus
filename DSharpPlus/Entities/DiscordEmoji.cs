@@ -237,8 +237,9 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="client"><see cref="BaseDiscordClient"/> to attach to the object.</param>
         /// <param name="name">Name of the emote to find, including colons (eg. :thinking:).</param>
+        /// <param name="includeGuilds">Should guild emojis be included in the search.</param>
         /// <returns>Create <see cref="DiscordEmoji"/> object.</returns>
-        public static DiscordEmoji FromName(BaseDiscordClient client, string name)
+        public static DiscordEmoji FromName(BaseDiscordClient client, string name, bool includeGuilds = true)
         {
             if (client == null)
                 throw new ArgumentNullException(nameof(client), "Client cannot be null.");
@@ -249,12 +250,15 @@ namespace DSharpPlus.Entities
             if (UnicodeEmojis.ContainsKey(name))
                 return new DiscordEmoji { Discord = client, Name = UnicodeEmojis[name] };
 
-            var allEmojis = client.Guilds.Values.SelectMany(xg => xg.Emojis.Values).OrderBy(xe => xe.Name);
+            if (includeGuilds)
+            {
+                var allEmojis = client.Guilds.Values.SelectMany(xg => xg.Emojis.Values).OrderBy(xe => xe.Name);
             
-            var ek = name.Substring(1, name.Length - 2);
-            foreach (var emoji in allEmojis)
-                if (emoji.Name == ek)
-                    return emoji;
+                var ek = name.Substring(1, name.Length - 2);
+                foreach (var emoji in allEmojis)
+                    if (emoji.Name == ek)
+                        return emoji;
+            }
 
             throw new ArgumentException("Invalid emoji name specified.", nameof(name));
         }
