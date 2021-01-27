@@ -256,6 +256,9 @@ namespace DSharpPlus.Net.WebSocket
                             await bs.CopyToAsync(cs).ConfigureAwait(false);
                             cs.Seek(0, SeekOrigin.Begin);
 
+                            bs.Seek(0, SeekOrigin.Begin);
+                            bs.SetLength(0);
+
                             await this._messageReceived.InvokeAsync(this, new SocketTextMessageEventArgs(cs)).ConfigureAwait(false);
                         }
                         else // close
