@@ -113,7 +113,7 @@ namespace DSharpPlus
             this._webSocketClient.ExceptionThrown += SocketOnException;
 
             var gwuri = new QueryUriBuilder(this.GatewayUri)
-                .AddParameter("v", "6")
+                .AddParameter("v", "8")
                 .AddParameter("encoding", "json");
 
             if (this.Configuration.GatewayCompressionLevel == GatewayCompressionLevel.Stream)
