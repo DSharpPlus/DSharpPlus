@@ -450,8 +450,7 @@ namespace DSharpPlus
             var payloadstr = JsonConvert.SerializeObject(payload);
             await this.WsSendAsync(payloadstr).ConfigureAwait(false);
 
-            if (this.Configuration.Intents.HasValue)
-                this.Logger.LogDebug(LoggerEvents.Intents, "Registered gateway intents ({0})", this.Configuration.Intents.Value);
+            this.Logger.LogDebug(LoggerEvents.Intents, "Registered gateway intents ({0})", this.Configuration.Intents);
         }
 
         internal async Task SendResumeAsync()

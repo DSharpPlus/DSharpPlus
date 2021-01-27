@@ -125,7 +125,7 @@ namespace DSharpPlus
         /// <para>If set, the client will only receive events that they specify with intents.</para>
         /// <para>Defaults to null.</para>
         /// </summary>
-        public DiscordIntents? Intents { internal get; set; } = null;
+        public DiscordIntents Intents { internal get; set; } = DiscordIntents.AllUnprivileged;
 
         /// <summary>
         /// <para>Sets the factory method used to create instances of WebSocket clients.</para>

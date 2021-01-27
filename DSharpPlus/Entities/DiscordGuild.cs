@@ -831,7 +831,7 @@ namespace DSharpPlus.Entities
 
             var intents = this.Discord.Configuration.Intents;
 
-            if (!intents.HasValue || (intents.HasValue && intents.Value.HasIntent(DiscordIntents.GuildInvites)))
+            if (!intents.HasIntent(DiscordIntents.GuildInvites))
             {
                 for (var i = 0; i < res.Count; i++)
                     this._invites[res[i].Code] = res[i];
@@ -909,7 +909,7 @@ namespace DSharpPlus.Entities
 
             var intents = this.Discord.Configuration.Intents;
 
-            if (!intents.HasValue || (intents.HasValue && intents.Value.HasIntent(DiscordIntents.GuildMembers)))
+            if (intents.HasIntent(DiscordIntents.GuildMembers))
             {
                 if (this._members != null)
                 {
@@ -942,7 +942,7 @@ namespace DSharpPlus.Entities
 
                     var intents = this.Discord.Configuration.Intents;
 
-                    if (!intents.HasValue || (intents.HasValue && intents.Value.HasIntent(DiscordIntents.GuildMembers)))
+                    if (intents.HasIntent(DiscordIntents.GuildMembers))
                     {
                         usr = this.Discord.UserCache.AddOrUpdate(xtm.User.Id, usr, (id, old) =>
                         {

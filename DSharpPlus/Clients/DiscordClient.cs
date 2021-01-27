@@ -67,7 +67,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets the intents configured for this client.
         /// </summary>
-        public DiscordIntents? Intents
+        public DiscordIntents Intents
             => this.Configuration.Intents;
 
         /// <summary>
@@ -116,13 +116,9 @@ namespace DSharpPlus
             if (this.Configuration.MessageCacheSize > 0)
             {
                 var intents = this.Configuration.Intents;
-
-                if (intents.HasValue)
-                    this.MessageCache = intents.Value.HasIntent(DiscordIntents.GuildMessages) || intents.Value.HasIntent(DiscordIntents.DirectMessages)
+                this.MessageCache = intents.HasIntent(DiscordIntents.GuildMessages) || intents.HasIntent(DiscordIntents.DirectMessages)
                         ? new RingBuffer<DiscordMessage>(this.Configuration.MessageCacheSize)
                         : null;
-                else
-                    this.MessageCache = new RingBuffer<DiscordMessage>(this.Configuration.MessageCacheSize); //This will need to be changed once intents become mandatory.
             }
 
             this.InternalSetup();
@@ -646,18 +642,18 @@ namespace DSharpPlus
 
                 DiscordMember member = default;
 
-                if (intents?.HasAllPrivilegedIntents() == false || guild.IsLarge) // we have the necessary privileged intents, no need to worry about caching here unless guild is large.
+                if (!intents.HasAllPrivilegedIntents() || guild.IsLarge) // we have the necessary privileged intents, no need to worry about caching here unless guild is large.
                 {
                     if (guild?._members.TryGetValue(usr.Id, out member) == false)
                     {
-                        if (intents?.HasIntent(DiscordIntents.GuildMembers) == true || this.Configuration.AlwaysCacheMembers) // member can be updated by events, so cache it
+                        if (intents.HasIntent(DiscordIntents.GuildMembers) || this.Configuration.AlwaysCacheMembers) // member can be updated by events, so cache it
                         {
                             guild._members.TryAdd(usr.Id, (DiscordMember)usr);
                         }
                     }
-                    else if ((intents?.HasIntent(DiscordIntents.GuildPresences) == true) || this.Configuration.AlwaysCacheMembers) // we can attempt to update it if it's already in cache.
+                    else if ((intents.HasIntent(DiscordIntents.GuildPresences)) || this.Configuration.AlwaysCacheMembers) // we can attempt to update it if it's already in cache.
                     {
-                        if (intents?.HasIntent(DiscordIntents.GuildMembers) == false) // no need to update if we already have the member events
+                        if (!intents.HasIntent(DiscordIntents.GuildMembers)) // no need to update if we already have the member events
                         {
                             _ = guild._members.TryUpdate(usr.Id, (DiscordMember)usr, member);
                         }
