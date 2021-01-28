@@ -1592,34 +1592,6 @@ namespace DSharpPlus.Net
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route);
         }
 
-        internal async Task<DiscordGuildEmbed> GetGuildEmbedAsync(ulong guild_id)
-        {
-            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.EMBED}";
-            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
-
-            var url = Utilities.GetApiUriFor(path);
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
-
-            var embed = DiscordJson.Deserialize<DiscordGuildEmbed>(res.Response);
-
-            return embed;
-        }
-
-        internal async Task<DiscordGuildEmbed> ModifyGuildEmbedAsync(ulong guild_id, DiscordGuildEmbed embed)
-        {
-            var pld = embed;
-
-            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.EMBED}";
-            var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id }, out var path);
-
-            var url = Utilities.GetApiUriFor(path);
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, payload: DiscordJson.SerializeObject(embed)).ConfigureAwait(false);
-
-            var embed_rest = DiscordJson.Deserialize<DiscordGuildEmbed>(res.Response);
-
-            return embed_rest;
-        }
-
         internal async Task<IReadOnlyList<DiscordVoiceRegion>> GetGuildVoiceRegionsAsync(ulong guild_id)
         {
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.REGIONS}";
