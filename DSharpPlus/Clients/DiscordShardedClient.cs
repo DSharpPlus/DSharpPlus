@@ -460,7 +460,6 @@ namespace DSharpPlus
             client.Ready += this.Client_Ready;
             client.Resumed += this.Client_Resumed;
             client.ChannelCreated += this.Client_ChannelCreated;
-            client.DmChannelCreated += this.Client_DMChannelCreated;
             client.ChannelUpdated += this.Client_ChannelUpdated;
             client.ChannelDeleted += this.Client_ChannelDeleted;
             client.DmChannelDeleted += this.Client_DMChannelDeleted;
@@ -512,7 +511,6 @@ namespace DSharpPlus
             client.Ready -= this.Client_Ready;
             client.Resumed -= this.Client_Resumed;
             client.ChannelCreated -= this.Client_ChannelCreated;
-            client.DmChannelCreated -= this.Client_DMChannelCreated;
             client.ChannelUpdated -= this.Client_ChannelUpdated;
             client.ChannelDeleted -= this.Client_ChannelDeleted;
             client.DmChannelDeleted -= this.Client_DMChannelDeleted;

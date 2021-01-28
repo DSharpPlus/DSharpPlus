@@ -64,7 +64,7 @@ namespace DSharpPlus
 
                 case "channel_create":
                     chn = dat.ToObject<DiscordChannel>();
-                    await OnChannelCreateEventAsync(chn.IsPrivate ? dat.ToObject<DiscordDmChannel>() : chn, dat["recipients"] as JArray).ConfigureAwait(false);
+                    await OnChannelCreateEventAsync(chn).ConfigureAwait(false);
                     break;
 
                 case "channel_update":
@@ -487,35 +487,18 @@ namespace DSharpPlus
 
         #region Channel
 
-        internal async Task OnChannelCreateEventAsync(DiscordChannel channel, JArray rawRecipients)
+        internal async Task OnChannelCreateEventAsync(DiscordChannel channel)
         {
             channel.Discord = this;
-
-            if (channel.Type == ChannelType.Group || channel.Type == ChannelType.Private)
+            foreach (var xo in channel._permissionOverwrites)
             {
-                var dmChannel = channel as DiscordDmChannel;
-
-                var recips = rawRecipients.ToObject<IEnumerable<TransportUser>>()
-                    .Select(xtu => this.TryGetCachedUserInternal(xtu.Id, out var usr) ? usr : new DiscordUser(xtu) { Discord = this });
-                dmChannel._recipients = recips.ToList();
-
-                this._privateChannels[dmChannel.Id] = dmChannel;
-
-                await this._dmChannelCreated.InvokeAsync(this, new DmChannelCreateEventArgs { Channel = dmChannel }).ConfigureAwait(false);
+                xo.Discord = this;
+                xo._channel_id = channel.Id;
             }
-            else
-            {
-                channel.Discord = this;
-                foreach (var xo in channel._permissionOverwrites)
-                {
-                    xo.Discord = this;
-                    xo._channel_id = channel.Id;
-                }
 
-                this._guilds[channel.GuildId]._channels[channel.Id] = channel;
+            this._guilds[channel.GuildId]._channels[channel.Id] = channel;
 
-                await this._channelCreated.InvokeAsync(this, new ChannelCreateEventArgs { Channel = channel, Guild = channel.Guild }).ConfigureAwait(false);
-            }
+            await this._channelCreated.InvokeAsync(this, new ChannelCreateEventArgs { Channel = channel, Guild = channel.Guild }).ConfigureAwait(false);
         }
 
         internal async Task OnChannelUpdateEventAsync(DiscordChannel channel)
@@ -1207,10 +1190,8 @@ namespace DSharpPlus
             this.PopulateMessageReactionsAndCache(message, author, member);
             this.PopulateMessageMentions(message, message.Channel?.Guild);
 
-            if (message.Channel == null)
+            if (message.Channel == null && message.ChannelId == default)
                 this.Logger.LogWarning(LoggerEvents.WebSocketReceive, "Channel which the last message belongs to is not in cache - cache state might be invalid!");
-            else
-                message.Channel.LastMessageId = message.Id;
 
             if (message.ReferencedMessage != null)
             {

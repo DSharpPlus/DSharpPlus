@@ -136,7 +136,6 @@ namespace DSharpPlus
             this._ready = new AsyncEvent<DiscordClient, ReadyEventArgs>("READY", EventExecutionLimit, this.EventErrorHandler);
             this._resumed = new AsyncEvent<DiscordClient, ReadyEventArgs>("RESUMED", EventExecutionLimit, this.EventErrorHandler);
             this._channelCreated = new AsyncEvent<DiscordClient, ChannelCreateEventArgs>("CHANNEL_CREATED", EventExecutionLimit, this.EventErrorHandler);
-            this._dmChannelCreated = new AsyncEvent<DiscordClient, DmChannelCreateEventArgs>("DM_CHANNEL_CREATED", EventExecutionLimit, this.EventErrorHandler);
             this._channelUpdated = new AsyncEvent<DiscordClient, ChannelUpdateEventArgs>("CHANNEL_UPDATED", EventExecutionLimit, this.EventErrorHandler);
             this._channelDeleted = new AsyncEvent<DiscordClient, ChannelDeleteEventArgs>("CHANNEL_DELETED", EventExecutionLimit, this.EventErrorHandler);
             this._dmChannelDeleted = new AsyncEvent<DiscordClient, DmChannelDeleteEventArgs>("DM_CHANNEL_DELETED", EventExecutionLimit, this.EventErrorHandler);
