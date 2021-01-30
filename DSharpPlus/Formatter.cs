@@ -47,6 +47,14 @@ namespace DSharpPlus
             => $"*{content}*";
 
         /// <summary>
+        /// Creates spoiler from text.
+        /// </summary>
+        /// <param name="content">Text to spoilerize.</param>
+        /// <returns>Formatted text.</returns>
+        public static string Spoiler(string content)
+            => $"||{content}||";
+
+        /// <summary>
         /// Creates underlined text.
         /// </summary>
         /// <param name="content">Text to underline.</param>
