@@ -961,6 +961,8 @@ namespace DSharpPlus
                 mbr = new DiscordMember(new DiscordUser(user)) { Discord = this, _guild_id = guild.Id };
             guild.MemberCount--;
 
+            _ = this.UserCache.AddOrUpdate(user.Id, mbr, (old, @new) => @new);
+
             var ea = new GuildMemberRemoveEventArgs
             {
                 Guild = guild,
