@@ -3,23 +3,23 @@ uid: beyond_basics_messagebuilder
 title: Message Builder
 ---
 
-##Background
-Before the message builder was put into place, we have 1 large method for sending messages along with 3 additional methods for sending files.  This
-was becoming a major code smell and was hard to maintain and add more params onto it.  Now we just support sending a simple message, an embed, a simple
-message with an embed, or a full fledge message builder.
+## Background
+Before the message builder was put into place, we had one large method for sending messages along with 3 additional methods for sending files. This
+was becoming a major code smell and it was hard to maintain and add more params onto it. Now we support just sending a simple message, an embed, a simple
+message with an embed, or a full fledged message builder.
 
-##Using the Message Builder
-The API Documentation for the message builder can be found @DSharpPlus.Entities.DiscordMessageBuilder but here we will go over some concepts of using the
+## Using the Message Builder
+The API Documentation for the message builder can be found at @DSharpPlus.Entities.DiscordMessageBuilder but here we'll go over some of the concepts of using the
 message builder:
 
-###Adding a File:
-With sending a file(s), you will have to use the MessageBuilder to construct your message, see example below:
+### Adding a File:
+For sending files, you'll have to use the MessageBuilder to construct your message, see example below:
 
 ```cs
  using (var fs = new FileStream("ADumbFile.txt", FileMode.Open, FileAccess.Read))
  {
     var msg = await new DiscordMessageBuilder()
-        .WithContent("Here is a really dumb file that i am testing with.")
+        .WithContent("Here is a really dumb file that I am testing with.")
         .WithFiles(new Dictionary<string, Stream>() { { "ADumbFile1.txt", fs } })
         .SendAsync(ctx.Channel);           
 }
@@ -28,13 +28,13 @@ OR
 
 ```cs
 var msg = await new DiscordMessageBuilder()
-    .WithContent("Here is a really dumb file that i am testing with.")
+    .WithContent("Here is a really dumb file that I am testing with.")
     .WithFile("./ADumbFile.txt")
     .SendAsync(ctx.Channel);
 ```
 
-###Adding Mentions
-With sending a mention(s), you will have to use the MessageBuilder to construct your message, see example below:
+### Adding Mentions
+For sending mentions, you'll have to use the MessageBuilder to construct your message, see example below:
 
 ```cs
 var msg = await new DiscordMessageBuilder()
@@ -44,7 +44,7 @@ var msg = await new DiscordMessageBuilder()
 ```
 
 ### Sending TTS Messages
-With sending a TTS, you will have to use the MessageBuilder to construct your message, see example below:
+For sending a TTS message, you'll have to use the MessageBuilder to construct your message, see example below:
 
 ```cs
 var msg = await new DiscordMessageBuilder()
@@ -52,11 +52,11 @@ var msg = await new DiscordMessageBuilder()
     .HasTTS(true)
     .SendAsync(ctx.Channel);      
 ```
-### Sending An Inline Reply
-With sending an inline reply, you'll have to use the MessageBuilder to construct your message, see exemple below:
+### Sending an Inline Reply
+For sending an inline reply, you'll have to use the MessageBuilder to construct your message, see example below:
 ```cs
 var msg = await new DiscordMessageBuilder()
-    .WithConent($"I'm talking to *you*!")
+    .WithContent($"I'm talking to *you*!")
     .WithReply(ctx.Message.Id)
     .SendAsync(ctx.Channel);
 ```
