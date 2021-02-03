@@ -33,6 +33,10 @@ namespace DSharpPlus.EventArgs
         /// </summary>
         public string NicknameBefore { get; internal set; }
 
+        public bool? PendingBefore { get; internal set; }
+
+        public bool? PendingAfter { get; internal set; }
+
         /// <summary>
         /// Gets the member that was updated.
         /// </summary>
