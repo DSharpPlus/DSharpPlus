@@ -34,6 +34,16 @@ namespace DSharpPlus.EventArgs
         public string NicknameBefore { get; internal set; }
 
         /// <summary>
+        /// Gets whether the member had passed membership screening before the update
+        /// </summary>
+        public bool? PendingBefore { get; internal set; }
+
+        /// <summary>
+        /// Gets whether the member had passed membership screening after the update
+        /// </summary>
+        public bool? PendingAfter { get; internal set; }
+
+        /// <summary>
         /// Gets the member that was updated.
         /// </summary>
         public DiscordMember Member { get; internal set; }
