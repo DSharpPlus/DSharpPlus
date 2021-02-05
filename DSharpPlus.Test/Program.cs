@@ -4,7 +4,6 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Test
@@ -21,6 +20,7 @@ namespace DSharpPlus.Test
         public static async Task MainAsync(string[] args)
         {
             Console.CancelKeyPress += Console_CancelKeyPress;
+
             var cfg = new TestBotConfig();
             var json = string.Empty;
             if (!File.Exists("config.json"))

@@ -15,7 +15,6 @@ using DSharpPlus.Net;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Emzi0767.Utilities;
-using DSharpPlus.Net.Serialization;
 
 namespace DSharpPlus
 {
@@ -255,7 +254,7 @@ namespace DSharpPlus
             var timer = new Stopwatch();
             timer.Start();
 
-            var jo = await DiscordJson.LoadJObjectAsync(await resp.Content.ReadAsStreamAsync().ConfigureAwait(false)).ConfigureAwait(false);
+            var jo = await DiscordJson.LoadJObjectAsync(await resp.Content.ReadAsStreamAsync().ConfigureAwait(false));
             var info = jo.ToObject<GatewayInfo>();
 
             //There is a delay from parsing here.
