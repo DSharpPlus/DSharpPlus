@@ -86,17 +86,6 @@ namespace DSharpPlus
         private AsyncEvent<DiscordClient, ChannelCreateEventArgs> _channelCreated;
 
         /// <summary>
-        /// Fired when a new direct message channel is created.
-        /// For this Event you need the <see cref="DiscordIntents.DirectMessages"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
-        /// </summary>
-        public event AsyncEventHandler<DiscordClient, DmChannelCreateEventArgs> DmChannelCreated
-        {
-            add => this._dmChannelCreated.Register(value);
-            remove => this._dmChannelCreated.Unregister(value);
-        }
-        private AsyncEvent<DiscordClient, DmChannelCreateEventArgs> _dmChannelCreated;
-
-        /// <summary>
         /// Fired when a channel is updated.
         /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
         /// </summary>
@@ -613,9 +602,6 @@ namespace DSharpPlus
 
         private Task Client_ChannelCreated(DiscordClient client, ChannelCreateEventArgs e)
             => this._channelCreated.InvokeAsync(client, e);
-
-        private Task Client_DMChannelCreated(DiscordClient client, DmChannelCreateEventArgs e)
-            => this._dmChannelCreated.InvokeAsync(client, e);
 
         private Task Client_ChannelUpdated(DiscordClient client, ChannelUpdateEventArgs e)
             => this._channelUpdated.InvokeAsync(client, e);
