@@ -321,11 +321,6 @@ namespace DSharpPlus.Lavalink
 
             this.Discord.Logger.LogTrace(LavalinkEvents.LavalinkWsRx, et.Message);
 
-                using var sr = new StreamReader(cs, Utilities.UTF8);
-
-                this.Discord.Logger.LogTrace(LavalinkEvents.LavalinkWsRx, await sr.ReadToEndAsync());
-            }
-
             var json = et.Message;
             var jsonData = JObject.Parse(json);
             switch (jsonData["op"].ToString())
