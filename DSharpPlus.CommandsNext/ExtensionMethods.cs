@@ -23,14 +23,11 @@ namespace DSharpPlus.CommandsNext
             if (client.GetExtension<CommandsNextExtension>() != null)
                 throw new InvalidOperationException("CommandsNext is already enabled for that client.");
 
-            if(client.Configuration.Intents.HasValue)
-            {
-                if (!Utilities.HasMessageIntents(client.Configuration.Intents))
-                    client.Logger.LogCritical(CommandsNextEvents.Intents, "The CommandsNext extension is registered but there are no message intents enabled. It is highly recommended to enable them.");
+            if (!Utilities.HasMessageIntents(client.Configuration.Intents))
+                client.Logger.LogCritical(CommandsNextEvents.Intents, "The CommandsNext extension is registered but there are no message intents enabled. It is highly recommended to enable them.");
 
-                if (!client.Configuration.Intents.Value.HasIntent(DiscordIntents.Guilds))
-                    client.Logger.LogCritical(CommandsNextEvents.Intents, "The CommandsNext extension is registered but the guilds intent is not enabled. It is highly recommended to enable it.");
-            }
+            if (!client.Configuration.Intents.HasIntent(DiscordIntents.Guilds))
+                client.Logger.LogCritical(CommandsNextEvents.Intents, "The CommandsNext extension is registered but the guilds intent is not enabled. It is highly recommended to enable it.");
 
             var cnext = new CommandsNextExtension(cfg);
             client.AddExtension(cnext);

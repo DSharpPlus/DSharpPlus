@@ -48,7 +48,8 @@ namespace DSharpPlus.Test
                 ShardId = shardid,
                 ShardCount = this.Config.ShardCount,
                 MessageCacheSize = 2048,
-                LogTimestampFormat = "dd-MM-yyyy HH:mm:ss zzz"
+                LogTimestampFormat = "dd-MM-yyyy HH:mm:ss zzz",
+                Intents = DiscordIntents.All // if 4013 is received, change to DiscordIntents.AllUnprivileged
             };
             Discord = new DiscordClient(dcfg);
 

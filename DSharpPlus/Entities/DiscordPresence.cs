@@ -29,7 +29,6 @@ namespace DSharpPlus.Entities
         [JsonIgnore]
         public DiscordActivity Activity { get; internal set; }
 
-        [JsonProperty("game", NullValueHandling = NullValueHandling.Ignore)]
         internal TransportActivity RawActivity { get; set; }
 
         /// <summary>

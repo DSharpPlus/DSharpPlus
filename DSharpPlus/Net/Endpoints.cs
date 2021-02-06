@@ -2,7 +2,7 @@
 {
     internal static class Endpoints
     {
-        public const string BASE_URI = "https://discord.com/api/v7";
+        public const string BASE_URI = "https://discord.com/api/v8";
 
         public const string OAUTH2 = "/oauth2";
         public const string APPLICATIONS = "/applications";
@@ -11,7 +11,6 @@
         public const string PERMISSIONS = "/permissions";
         public const string RECIPIENTS = "/recipients";
         public const string BULK_DELETE = "/bulk-delete";
-        public const string EMBED = "/embed";
         public const string INTEGRATIONS = "/integrations";
         public const string SYNC = "/sync";
         public const string PRUNE = "/prune";
@@ -27,7 +26,6 @@
         public const string USERS = "/users";
         public const string GUILDS = "/guilds";
         public const string INVITES = "/invites";
-        public const string INVITE = "/invite";
         public const string ROLES = "/roles";
         public const string MEMBERS = "/members";
         public const string TYPING = "/typing";

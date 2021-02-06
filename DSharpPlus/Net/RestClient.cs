@@ -42,7 +42,6 @@ namespace DSharpPlus.Net
         {
             this.Discord = client;
             this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(client));
-            this.HttpClient.DefaultRequestHeaders.Add("X-RateLimit-Precision", "millisecond");
         }
 
         internal RestClient(IWebProxy proxy, TimeSpan timeout, bool useRelativeRatelimit, 
@@ -219,18 +218,15 @@ namespace DSharpPlus.Net
                     if (this._disposed)
                         return;
 
-                    res = await HttpClient.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, CancellationToken.None).ConfigureAwait(false);
+                    res = await HttpClient.SendAsync(req, HttpCompletionOption.ResponseContentRead, CancellationToken.None).ConfigureAwait(false);
 
-                    if (this.Discord.Configuration.MinimumLogLevel == LogLevel.Trace)
-                    {
-                        var bts = await res.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
-                        var txt = Utilities.UTF8.GetString(bts, 0, bts.Length);
+                    var bts = await res.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+                    var txt = Utilities.UTF8.GetString(bts, 0, bts.Length);
 
-                        this.Logger.LogTrace(LoggerEvents.RestRx, txt);
-                    }
+                    this.Logger.LogTrace(LoggerEvents.RestRx, txt);
 
                     response.Headers = res.Headers.ToDictionary(xh => xh.Key, xh => string.Join("\n", xh.Value), StringComparer.OrdinalIgnoreCase);
-                    response.Response = await res.Content.ReadAsStreamAsync().ConfigureAwait(false);
+                    response.Response = txt;
                     response.ResponseCode = (int)res.StatusCode;
                 }
                 catch (HttpRequestException httpex)
@@ -456,7 +452,7 @@ namespace DSharpPlus.Net
             // handle the wait
             if (hs.TryGetValue("Retry-After", out var retry_after_raw))
             {
-                var retry_after = int.Parse(retry_after_raw, CultureInfo.InvariantCulture);
+                var retry_after = TimeSpan.FromSeconds(int.Parse(retry_after_raw, CultureInfo.InvariantCulture));
                 wait_task = Task.Delay(retry_after);
             }
 

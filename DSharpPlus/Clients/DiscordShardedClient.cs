@@ -15,7 +15,6 @@ using DSharpPlus.Net;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Emzi0767.Utilities;
-using DSharpPlus.Net.Serialization;
 
 namespace DSharpPlus
 {
@@ -255,7 +254,7 @@ namespace DSharpPlus
             var timer = new Stopwatch();
             timer.Start();
 
-            var jo = await DiscordJson.LoadJObjectAsync(await resp.Content.ReadAsStreamAsync().ConfigureAwait(false)).ConfigureAwait(false);
+            var jo = JObject.Parse(await resp.Content.ReadAsStringAsync().ConfigureAwait(false));
             var info = jo.ToObject<GatewayInfo>();
 
             //There is a delay from parsing here.
@@ -408,7 +407,6 @@ namespace DSharpPlus
             this._ready = new AsyncEvent<DiscordClient, ReadyEventArgs>("READY", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._resumed = new AsyncEvent<DiscordClient, ReadyEventArgs>("RESUMED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._channelCreated = new AsyncEvent<DiscordClient, ChannelCreateEventArgs>("CHANNEL_CREATED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
-            this._dmChannelCreated = new AsyncEvent<DiscordClient, DmChannelCreateEventArgs>("DM_CHANNEL_CREATED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._channelUpdated = new AsyncEvent<DiscordClient, ChannelUpdateEventArgs>("CHANNEL_UPDATED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._channelDeleted = new AsyncEvent<DiscordClient, ChannelDeleteEventArgs>("CHANNEL_DELETED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._dmChannelDeleted = new AsyncEvent<DiscordClient, DmChannelDeleteEventArgs>("DM_CHANNEL_DELETED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
@@ -460,7 +458,6 @@ namespace DSharpPlus
             client.Ready += this.Client_Ready;
             client.Resumed += this.Client_Resumed;
             client.ChannelCreated += this.Client_ChannelCreated;
-            client.DmChannelCreated += this.Client_DMChannelCreated;
             client.ChannelUpdated += this.Client_ChannelUpdated;
             client.ChannelDeleted += this.Client_ChannelDeleted;
             client.DmChannelDeleted += this.Client_DMChannelDeleted;
@@ -512,7 +509,6 @@ namespace DSharpPlus
             client.Ready -= this.Client_Ready;
             client.Resumed -= this.Client_Resumed;
             client.ChannelCreated -= this.Client_ChannelCreated;
-            client.DmChannelCreated -= this.Client_DMChannelCreated;
             client.ChannelUpdated -= this.Client_ChannelUpdated;
             client.ChannelDeleted -= this.Client_ChannelDeleted;
             client.DmChannelDeleted -= this.Client_DMChannelDeleted;

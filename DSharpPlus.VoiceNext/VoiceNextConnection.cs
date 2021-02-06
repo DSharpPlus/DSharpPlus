@@ -4,7 +4,6 @@ using System.Buffers.Binary;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -13,7 +12,6 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Net;
-using DSharpPlus.Net.Serialization;
 using DSharpPlus.Net.Udp;
 using DSharpPlus.Net.WebSocket;
 using DSharpPlus.VoiceNext.Codec;
@@ -1008,30 +1006,16 @@ namespace DSharpPlus.VoiceNext
             }
         }
 
-        private async Task VoiceWS_SocketMessage(IWebSocketClient client, SocketMessageEventArgs e)
+        private Task VoiceWS_SocketMessage(IWebSocketClient client, SocketMessageEventArgs e)
         {
             if (!(e is SocketTextMessageEventArgs et))
             {
                 this.Discord.Logger.LogCritical(VoiceNextEvents.VoiceGatewayError, "Discord Voice Gateway sent binary data - unable to process");
-                return;
+                return Task.CompletedTask;
             }
 
-            if (this.Discord.Configuration.MinimumLogLevel == LogLevel.Trace)
-            {
-                var cs = new MemoryStream();
-
-                await et.Message.CopyToAsync(cs).ConfigureAwait(false);
-
-                cs.Seek(0, SeekOrigin.Begin);
-                et.Message.Seek(0, SeekOrigin.Begin);
-
-                using var sr = new StreamReader(cs, Utilities.UTF8);
-
-                this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceWsRx, await sr.ReadToEndAsync().ConfigureAwait(false));
-            }
-
-            var j = await DiscordJson.LoadJObjectAsync(et.Message).ConfigureAwait(false);
-            await this.HandleDispatch(j).ConfigureAwait(false);
+            this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceWsRx, et.Message);
+            return this.HandleDispatch(JObject.Parse(et.Message));
         }
 
         private Task VoiceWS_SocketOpened(IWebSocketClient client, SocketEventArgs e)

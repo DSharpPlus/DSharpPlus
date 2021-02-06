@@ -47,8 +47,8 @@ namespace DSharpPlus.Net.Abstractions
         /// <summary>
         /// Gets or sets the intent flags for this connection.
         /// </summary>
-        [JsonProperty("intents", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordIntents? Intents { get; set; } = null;
+        [JsonProperty("intents")]
+        public DiscordIntents Intents { get; set; }
     }
 
     /// <summary>

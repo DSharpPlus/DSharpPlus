@@ -10,8 +10,6 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.WebSocket;
-using DSharpPlus.Net;
-using DSharpPlus.Net.Serialization;
 
 namespace DSharpPlus
 {
@@ -113,7 +111,7 @@ namespace DSharpPlus
             this._webSocketClient.ExceptionThrown += SocketOnException;
 
             var gwuri = new QueryUriBuilder(this.GatewayUri)
-                .AddParameter("v", "6")
+                .AddParameter("v", "8")
                 .AddParameter("encoding", "json");
 
             if (this.Configuration.GatewayCompressionLevel == GatewayCompressionLevel.Stream)
@@ -126,40 +124,31 @@ namespace DSharpPlus
 
             async Task SocketOnMessage(IWebSocketClient sender, SocketMessageEventArgs e)
             {
-                MemoryStream msg = default;
+                string msg = null;
                 if (e is SocketTextMessageEventArgs etext)
                 {
                     msg = etext.Message;
                 }
                 else if (e is SocketBinaryMessageEventArgs ebin) // :DDDD
                 {
-                    msg = new MemoryStream();
-                    if (!this._payloadDecompressor.TryDecompress(new ArraySegment<byte>(ebin.Message), msg))
+                    using (var ms = new MemoryStream())
                     {
-                        this.Logger.LogError(LoggerEvents.WebSocketReceiveFailure, "Payload decompression failed");
-                        return;
-                    }
-
-                    msg.Seek(0, SeekOrigin.Begin);
-
-                    if (this.Configuration.MinimumLogLevel == LogLevel.Trace)
-                    {
-                        var cs = new MemoryStream();
-                        await msg.CopyToAsync(cs).ConfigureAwait(false);
-
-                        msg.Seek(0, SeekOrigin.Begin);
-                        cs.Seek(0, SeekOrigin.Begin);
-
-                        using (var sr = new StreamReader(cs, Utilities.UTF8))
+                        if (!this._payloadDecompressor.TryDecompress(new ArraySegment<byte>(ebin.Message), ms))
                         {
-                            this.Logger.LogTrace(LoggerEvents.GatewayWsRx, await sr.ReadToEndAsync().ConfigureAwait(false));
+                            this.Logger.LogError(LoggerEvents.WebSocketReceiveFailure, "Payload decompression failed");
+                            return;
                         }
+
+                        ms.Position = 0;
+                        using (var sr = new StreamReader(ms, Utilities.UTF8))
+                            msg = await sr.ReadToEndAsync().ConfigureAwait(false);
                     }
                 }
 
                 try
                 {
-                    await this.HandleSocketMessageAsync(msg).ConfigureAwait(false);
+                    this.Logger.LogTrace(LoggerEvents.GatewayWsRx, msg);
+                    await this.HandleSocketMessageAsync(msg);
                 }
                 catch (Exception ex)
                 {
@@ -207,9 +196,9 @@ namespace DSharpPlus
 
         #region WebSocket (Events)
 
-        internal async Task HandleSocketMessageAsync(Stream data)
+        internal async Task HandleSocketMessageAsync(string data)
         {
-            var payload = DiscordJson.Deserialize<GatewayPayload>(data);
+            var payload = JsonConvert.DeserializeObject<GatewayPayload>(data);
             switch (payload.OpCode)
             {
                 case GatewayOpCode.Dispatch:
@@ -450,8 +439,7 @@ namespace DSharpPlus
             var payloadstr = JsonConvert.SerializeObject(payload);
             await this.WsSendAsync(payloadstr).ConfigureAwait(false);
 
-            if (this.Configuration.Intents.HasValue)
-                this.Logger.LogDebug(LoggerEvents.Intents, "Registered gateway intents ({0})", this.Configuration.Intents.Value);
+            this.Logger.LogDebug(LoggerEvents.Intents, "Registered gateway intents ({0})", this.Configuration.Intents);
         }
 
         internal async Task SendResumeAsync()

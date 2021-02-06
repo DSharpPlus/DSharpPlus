@@ -950,23 +950,6 @@ namespace DSharpPlus
             => this.ApiClient.SyncGuildIntegrationAsync(guild_id, integration_id);
 
         /// <summary>
-        /// Gets guild embed
-        /// </summary>
-        /// <param name="guild_id">Guild id</param>
-        /// <returns></returns>
-        public Task<DiscordGuildEmbed> GetGuildEmbedAsync(ulong guild_id)
-            => this.ApiClient.GetGuildEmbedAsync(guild_id);
-
-        /// <summary>
-        /// Modifies a guild embed
-        /// </summary>
-        /// <param name="guild_id">Guild id</param>
-        /// <param name="embed">New guild embed</param>
-        /// <returns></returns>
-        public Task<DiscordGuildEmbed> ModifyGuildEmbedAsync(ulong guild_id, DiscordGuildEmbed embed)
-            => this.ApiClient.ModifyGuildEmbedAsync(guild_id, embed);
-
-        /// <summary>
         /// Get a guild's voice region
         /// </summary>
         /// <param name="guild_id">Guild id</param>

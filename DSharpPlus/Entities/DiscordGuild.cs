@@ -127,25 +127,6 @@ namespace DSharpPlus.Entities
         public int AfkTimeout { get; internal set; }
 
         /// <summary>
-        /// Gets whether this guild has the guild embed enabled.
-        /// </summary>
-        [JsonProperty("embed_enabled", NullValueHandling = NullValueHandling.Ignore)]
-        public bool EmbedEnabled { get; internal set; }
-
-        /// <summary>
-        /// Gets the ID of the channel from the guild's embed.
-        /// </summary>
-        [JsonProperty("embed_channel_id", NullValueHandling = NullValueHandling.Ignore)]
-        internal ulong EmbedChannelId { get; set; }
-
-        /// <summary>
-        /// Gets the channel from the guild's embed.
-        /// </summary>
-        [JsonIgnore]
-        public DiscordChannel EmbedChannel
-            => this.GetChannel(this.EmbedChannelId);
-
-        /// <summary>
         /// Gets the guild's verification level.
         /// </summary>
         [JsonProperty("verification_level", NullValueHandling = NullValueHandling.Ignore)]
@@ -788,17 +769,6 @@ namespace DSharpPlus.Entities
             => this.Discord.ApiClient.SyncGuildIntegrationAsync(Id, integration.Id);
 
         /// <summary>
-        /// Gets the guild widget.
-        /// </summary>
-        /// <returns>This guild's widget.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the guild does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordGuildEmbed> GetEmbedAsync()
-            => this.Discord.ApiClient.GetGuildEmbedAsync(Id);
-
-        /// <summary>
         /// Gets the voice regions for this guild.
         /// </summary>
         /// <returns>Voice regions available for this guild.</returns>
@@ -831,7 +801,7 @@ namespace DSharpPlus.Entities
 
             var intents = this.Discord.Configuration.Intents;
 
-            if (!intents.HasValue || (intents.HasValue && intents.Value.HasIntent(DiscordIntents.GuildInvites)))
+            if (!intents.HasIntent(DiscordIntents.GuildInvites))
             {
                 for (var i = 0; i < res.Count; i++)
                     this._invites[res[i].Code] = res[i];
@@ -909,7 +879,7 @@ namespace DSharpPlus.Entities
 
             var intents = this.Discord.Configuration.Intents;
 
-            if (!intents.HasValue || (intents.HasValue && intents.Value.HasIntent(DiscordIntents.GuildMembers)))
+            if (intents.HasIntent(DiscordIntents.GuildMembers))
             {
                 if (this._members != null)
                 {
@@ -942,7 +912,7 @@ namespace DSharpPlus.Entities
 
                     var intents = this.Discord.Configuration.Intents;
 
-                    if (!intents.HasValue || (intents.HasValue && intents.Value.HasIntent(DiscordIntents.GuildMembers)))
+                    if (intents.HasIntent(DiscordIntents.GuildMembers))
                     {
                         usr = this.Discord.UserCache.AddOrUpdate(xtm.User.Id, usr, (id, old) =>
                         {
