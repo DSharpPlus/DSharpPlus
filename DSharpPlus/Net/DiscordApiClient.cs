@@ -167,7 +167,7 @@ namespace DSharpPlus.Net
 
             var json = JObject.Parse(res.Response);
             var raw_members = (JArray)json["members"];
-            var guild = JsonConvert.DeserializeObject<DiscordGuild>(res.Response);
+            var guild = json.ToDiscordObject<DiscordGuild>();
 
             if (this.Discord is DiscordClient dc)
                 await dc.OnGuildCreateEventAsync(guild, raw_members, null).ConfigureAwait(false);
@@ -247,7 +247,7 @@ namespace DSharpPlus.Net
 
             var json = JObject.Parse(res.Response);
             var rawMembers = (JArray)json["members"];
-            var guild = JsonConvert.DeserializeObject<DiscordGuild>(res.Response);
+            var guild = json.ToDiscordObject<DiscordGuild>();
             foreach (var r in guild._roles.Values)
                 r._guild_id = guild.Id;
 
@@ -466,12 +466,13 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
 
-            var ret = JsonConvert.DeserializeObject<DiscordWidget>(res.Response);
+            var json = JObject.Parse(res.Response);
+            var rawChannels = (JArray)json["channels"];
+
+            var ret = json.ToDiscordObject<DiscordWidget>();
             ret.Discord = this.Discord;
             ret.Guild = this.Discord.Guilds[guild_id];
 
-            var json = JObject.Parse(res.Response);
-            var rawChannels = (JArray)json["channels"];
             if (ret.Guild == null)
             {
                 ret.Channels = rawChannels.Select(r => new DiscordChannel {
@@ -1334,7 +1335,7 @@ namespace DSharpPlus.Net
 
             var json = JObject.Parse(res.Response);
             var rawMembers = (JArray)json["members"];
-            var guildRest = JsonConvert.DeserializeObject<DiscordGuild>(res.Response);
+            var guildRest = json.ToDiscordObject<DiscordGuild>();
             foreach (var r in guildRest._roles.Values)
                 r._guild_id = guildRest.Id;
 
