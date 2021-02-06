@@ -74,8 +74,13 @@ namespace DSharpPlus.Entities
         /// Gets the channel in which the message was sent.
         /// </summary>
         [JsonIgnore]
-        public DiscordChannel Channel 
-            => (this.Discord as DiscordClient)?.InternalGetCachedChannel(this.ChannelId);
+        public DiscordChannel Channel
+        { 
+            get => (this.Discord as DiscordClient)?.InternalGetCachedChannel(this.ChannelId) ?? this._channel;
+            internal set => this._channel = value;
+        }
+
+        private DiscordChannel _channel; 
 
         /// <summary>
         /// Gets the ID of the channel in which the message was sent.
@@ -289,6 +294,9 @@ namespace DSharpPlus.Entities
         internal List<DiscordMessageSticker> _stickers = new List<DiscordMessageSticker>();
         [JsonIgnore]
         private Lazy<IReadOnlyList<DiscordMessageSticker>> _stickersLazy;
+
+        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        internal ulong? GuildId { get; set; }
 
         /// <summary>
         /// Gets the message object for the referenced message

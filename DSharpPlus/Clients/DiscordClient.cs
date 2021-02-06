@@ -616,6 +616,22 @@ namespace DSharpPlus
 
                 message.Author = this.UpdateUser(usr, guild?.Id, guild, member);
             }
+
+            var channel = this.InternalGetCachedChannel(message.ChannelId);
+
+            if (channel == null)
+            {
+                channel = new DiscordChannel
+                {
+                    Id = message.ChannelId,
+                    Discord = this
+                };
+
+                if (!message.GuildId.HasValue)
+                    channel.Type = ChannelType.Private;
+
+                message.Channel = channel;
+            }
         }
 
         private DiscordUser UpdateUser(DiscordUser usr, ulong? guildId, DiscordGuild guild, TransportMember mbr)
@@ -650,7 +666,7 @@ namespace DSharpPlus
                             guild._members.TryAdd(usr.Id, (DiscordMember)usr);
                         }
                     }
-                    else if ((intents.HasIntent(DiscordIntents.GuildPresences)) || this.Configuration.AlwaysCacheMembers) // we can attempt to update it if it's already in cache.
+                    else if (intents.HasIntent(DiscordIntents.GuildPresences) || this.Configuration.AlwaysCacheMembers) // we can attempt to update it if it's already in cache.
                     {
                         if (!intents.HasIntent(DiscordIntents.GuildMembers)) // no need to update if we already have the member events
                         {
