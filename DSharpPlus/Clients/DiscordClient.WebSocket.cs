@@ -141,7 +141,7 @@ namespace DSharpPlus
 
                         ms.Position = 0;
                         using (var sr = new StreamReader(ms, Utilities.UTF8))
-                            msg = sr.ReadToEnd();
+                            msg = await sr.ReadToEndAsync().ConfigureAwait(false);
                     }
                 }
 
