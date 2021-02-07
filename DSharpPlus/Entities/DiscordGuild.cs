@@ -396,6 +396,9 @@ namespace DSharpPlus.Entities
         [JsonProperty("premium_subscription_count", NullValueHandling = NullValueHandling.Ignore)]
         public int? PremiumSubscriptionCount { get; internal set; }
 
+        [JsonProperty("welcome_screen", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordGuildWelcomeScreen WelcomeScreen { get; internal set; }
+
         // Seriously discord?
 
         // I need to work on this
