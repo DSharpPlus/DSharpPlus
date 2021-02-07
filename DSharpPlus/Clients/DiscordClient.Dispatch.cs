@@ -938,11 +938,13 @@ namespace DSharpPlus
 
         internal async Task OnGuildMemberRemoveEventAsync(TransportUser user, DiscordGuild guild)
         {
+            var usr = new DiscordUser(user);
+
             if (!guild._members.TryRemove(user.Id, out var mbr))
-                mbr = new DiscordMember(new DiscordUser(user)) { Discord = this, _guild_id = guild.Id };
+                mbr = new DiscordMember(usr) { Discord = this, _guild_id = guild.Id };
             guild.MemberCount--;
 
-            _ = this.UserCache.AddOrUpdate(user.Id, mbr, (old, @new) => @new);
+            _ = this.UserCache.AddOrUpdate(user.Id, usr, (old, @new) => @new);
 
             var ea = new GuildMemberRemoveEventArgs
             {
