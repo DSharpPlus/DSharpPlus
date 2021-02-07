@@ -67,6 +67,12 @@ namespace DSharpPlus.Entities
         public IReadOnlyList<string> Features { get; internal set; }
 
         /// <summary>
+        /// Gets the guild's verification level.
+        /// </summary>
+        [JsonProperty("verification_level", NullValueHandling = NullValueHandling.Ignore)]
+        public VerificationLevel VerificationLevel { get; internal set; }
+
+        /// <summary>
         /// Gets vanity URL code for this guild, when applicable.
         /// </summary>
         [JsonProperty("vanity_url_code")]
