@@ -78,6 +78,12 @@ namespace DSharpPlus.Entities
         [JsonProperty("vanity_url_code")]
         public string VanityUrlCode { get; internal set; }
 
+        /// <summary>
+        /// Gets the guild's welcome screen, when applicable.
+        /// </summary>
+        [JsonProperty("welcome_screen", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordGuildWelcomeScreen WelcomeScreen { get; internal set; }
+
         internal DiscordInviteGuild() { }
     }
 }
