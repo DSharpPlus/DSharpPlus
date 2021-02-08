@@ -608,6 +608,39 @@ namespace DSharpPlus.Net
 
             return template_raw;
         }
+
+        internal async Task<DiscordGuildMembershipScreening> GetGuildMembershipScreeningForm(ulong guild_id)
+        {
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.MEMBER_VERIFICATION}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
+
+            var screening_raw = JsonConvert.DeserializeObject<DiscordGuildMembershipScreening>(res.Response);
+
+            return screening_raw;
+        }
+
+        internal async Task<DiscordGuildMembershipScreening> ModifyGuildMembershipScreeningForm(ulong guild_id, bool? enabled, DiscordGuildMembershipScreeningField[] fields, string description)
+        {
+            var pld = new RestGuildMembershipScreeningFormModifyPayload
+            {
+                Enabled = enabled,
+                Description = description,
+                Fields = JsonConvert.SerializeObject(fields)
+            };
+
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.MEMBER_VERIFICATION}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
+
+            var screening_raw = JsonConvert.DeserializeObject<DiscordGuildMembershipScreening>(res.Response);
+
+            return screening_raw;
+        }
         #endregion
 
         #region Channel
