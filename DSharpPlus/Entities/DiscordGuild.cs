@@ -2106,17 +2106,36 @@ namespace DSharpPlus.Entities
         /// <returns>This guild's membership screening form.</returns>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordGuildMembershipScreening> GetMembershipScreeningFormAsync()
-            => this.Discord.ApiClient.GetGuildMembershipScreeningForm(this.Id);
+            => this.Discord.ApiClient.GetGuildMembershipScreeningFormAsync(this.Id);
 
         /// <summary>
         /// Modifies this guild's membership screening form.
         /// </summary>
-        /// <param name="builder">The builder with the membership screening form.</param>
+        /// <param name="action">Action to perform</param>
         /// <returns>The modified screening form.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client doesn't have the <see cref="Permissions.ManageGuild"/> permission, or community is not enabled on this guild.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordGuildMembershipScreening> ModifyMembershipScreeningFormAsync(DiscordMembershipScreeningBuilder builder)
-            => this.Discord.ApiClient.ModifyGuildMembershipScreeningForm(this.Id, builder.Enabled, builder.Fields, builder.Description);
+        public async Task<DiscordGuildMembershipScreening> ModifyMembershipScreeningFormAsync(Action<MembershipScreeningEditModel> action)
+        {
+            var mdl = new MembershipScreeningEditModel();
+            action(mdl);
+            if(mdl.Terms != null)
+            {
+                var terms = new DiscordGuildMembershipScreeningField()
+                {
+                    Type = "TERMS",
+                    Label = mdl.Terms.Label,
+                    IsRequired = mdl.Terms.IsRequired,
+                    Values = mdl.Terms.Values.ToArray()
+                };
+                var fields = new Optional<DiscordGuildMembershipScreeningField>[] { terms };
+                return await this.Discord.ApiClient.ModifyGuildMembershipScreeningFormAsync(this.Id, mdl.Enabled, fields, mdl.Description);
+            }
+            else
+            {
+                return await this.Discord.ApiClient.ModifyGuildMembershipScreeningFormAsync(this.Id, mdl.Enabled, null, mdl.Description);
+            }
+        }
         #endregion
 
         /// <summary>

@@ -609,7 +609,7 @@ namespace DSharpPlus.Net
             return template_raw;
         }
 
-        internal async Task<DiscordGuildMembershipScreening> GetGuildMembershipScreeningForm(ulong guild_id)
+        internal async Task<DiscordGuildMembershipScreening> GetGuildMembershipScreeningFormAsync(ulong guild_id)
         {
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.MEMBER_VERIFICATION}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
@@ -622,13 +622,13 @@ namespace DSharpPlus.Net
             return screening_raw;
         }
 
-        internal async Task<DiscordGuildMembershipScreening> ModifyGuildMembershipScreeningForm(ulong guild_id, bool? enabled, DiscordGuildMembershipScreeningField[] fields, string description)
+        internal async Task<DiscordGuildMembershipScreening> ModifyGuildMembershipScreeningFormAsync(ulong guild_id, bool? enabled, Optional<DiscordGuildMembershipScreeningField>[] fields, Optional<string> description)
         {
             var pld = new RestGuildMembershipScreeningFormModifyPayload
             {
                 Enabled = enabled,
                 Description = description,
-                Fields = JsonConvert.SerializeObject(fields)
+                Fields = fields
             };
 
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.MEMBER_VERIFICATION}";

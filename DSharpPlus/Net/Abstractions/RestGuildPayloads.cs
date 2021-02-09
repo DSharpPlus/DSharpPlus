@@ -218,13 +218,13 @@ namespace DSharpPlus.Net.Abstractions
 
     internal class RestGuildMembershipScreeningFormModifyPayload
     {
-        [JsonProperty("enabled")]
+        [JsonProperty("enabled", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<bool?> Enabled { get; set; }
 
-        [JsonProperty("form_fields")]
-        public Optional<string> Fields { get; set; }
+        [JsonProperty("form_fields", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<DiscordGuildMembershipScreeningField>[] Fields { get; set; }
 
-        [JsonProperty("description")]
+        [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<string> Description { get; set; }
     }
 }

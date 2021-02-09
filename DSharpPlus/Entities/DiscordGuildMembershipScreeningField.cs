@@ -11,26 +11,33 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the type of the field. Currently defualts to TERMS.
         /// </summary>
-        [JsonProperty("field_type")]
+        [JsonProperty("field_type", NullValueHandling = NullValueHandling.Ignore)]
         public string Type { get; internal set; }
 
         /// <summary>
         /// Gets the title of the field.
         /// </summary>
-        [JsonProperty("label")]
+        [JsonProperty("label", NullValueHandling = NullValueHandling.Ignore)]
         public string Label { get; internal set; }
 
         /// <summary>
         /// Gets the list of rules
         /// </summary>
-        [JsonProperty("values")]
+        [JsonProperty("values", NullValueHandling = NullValueHandling.Ignore)]
         public IReadOnlyList<string> Values { get; internal set; }
 
         /// <summary>
         /// Gets whether the user has to fill out this field
         /// </summary>
-        [JsonProperty("required")]
-        public bool IsRequired { get; internal set; }
+        [JsonProperty("required", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? IsRequired { get; internal set; }
+
+        public DiscordGuildMembershipScreeningField(string label, string[] values, bool? required = true)
+        {
+            this.Label = label;
+            this.Values = values;
+            this.IsRequired = required;
+        }
 
         internal DiscordGuildMembershipScreeningField() { }
     }

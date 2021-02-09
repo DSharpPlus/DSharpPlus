@@ -317,16 +317,35 @@ namespace DSharpPlus
         /// <param name="guild_id">Guild id</param>
         /// <returns>The guild's membership screening form.</returns>
         public Task<DiscordGuildMembershipScreening> GetGuildMembershipScreeningFormAsync(ulong guild_id)
-            => this.ApiClient.GetGuildMembershipScreeningForm(guild_id);
+            => this.ApiClient.GetGuildMembershipScreeningFormAsync(guild_id);
 
         /// <summary>
         /// Modifies a guild's membership screening form.
         /// </summary>
         /// <param name="guild_id">Guild id</param>
-        /// <param name="builder">The builder with the membership screening form.</param>
+        /// <param name="action">Action to perform</param>
         /// <returns>The modified screening form.</returns>
-        public Task<DiscordGuildMembershipScreening> ModifyMembershipScreeningFormAsync(ulong guild_id, DiscordMembershipScreeningBuilder builder)
-            => this.ApiClient.ModifyGuildMembershipScreeningForm(guild_id, builder.Enabled, builder.Fields, builder.Description);
+        public async Task<DiscordGuildMembershipScreening> ModifyMembershipScreeningFormAsync(ulong guild_id, Action<MembershipScreeningEditModel> action)
+        {
+            var mdl = new MembershipScreeningEditModel();
+            action(mdl);
+            if (mdl.Terms != null)
+            {
+                var terms = new DiscordGuildMembershipScreeningField() 
+                { 
+                    Type = "TERMS",
+                    Label = mdl.Terms.Label,
+                    IsRequired = mdl.Terms.IsRequired,
+                    Values = mdl.Terms.Values.ToArray()
+                };
+                var fields = new Optional<DiscordGuildMembershipScreeningField>[] { terms };
+                return await this.ApiClient.ModifyGuildMembershipScreeningFormAsync(guild_id, mdl.Enabled, fields, mdl.Description);
+            }
+            else
+            {
+                return await this.ApiClient.ModifyGuildMembershipScreeningFormAsync(guild_id, mdl.Enabled, null, mdl.Description);
+            }
+        }
         #endregion
 
         #region Channel
