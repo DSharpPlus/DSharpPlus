@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace DSharpPlus.Entities
 {
     /// <summary>
-    /// Represents a guild's membership screening form
+    /// Represents a guild's membership screening form.
     /// </summary>
     public class DiscordGuildMembershipScreening
     {
