@@ -622,7 +622,7 @@ namespace DSharpPlus.Net
             return screening_raw;
         }
 
-        internal async Task<DiscordGuildMembershipScreening> ModifyGuildMembershipScreeningFormAsync(ulong guild_id, bool enabled, Optional<DiscordGuildMembershipScreeningField[]> fields, Optional<string> description)
+        internal async Task<DiscordGuildMembershipScreening> ModifyGuildMembershipScreeningFormAsync(ulong guild_id, Optional<bool> enabled, Optional<DiscordGuildMembershipScreeningField[]> fields, Optional<string> description)
         {
             var pld = new RestGuildMembershipScreeningFormModifyPayload
             {

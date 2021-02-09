@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace DSharpPlus.Entities
 {
@@ -32,11 +33,11 @@ namespace DSharpPlus.Entities
         [JsonProperty("required", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsRequired { get; internal set; }
 
-        public DiscordGuildMembershipScreeningField(MembershipScreeningFieldType type, string label, string[] values, bool required = true)
+        public DiscordGuildMembershipScreeningField(MembershipScreeningFieldType type, string label, IEnumerable<string> values, bool required = true)
         {
             this.Type = type;
             this.Label = label;
-            this.Values = values;
+            this.Values = values.ToList();
             this.IsRequired = required;
         }
 

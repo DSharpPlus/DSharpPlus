@@ -7,7 +7,7 @@ namespace DSharpPlus.Net.Models
         /// <summary>
         /// Sets whether membership screening should be enabled for this guild
         /// </summary>
-        public bool Enabled { internal get; set; }
+        public Optional<bool> Enabled { internal get; set; }
 
         /// <summary>
         /// Sets the server description shown in the membership screening form
