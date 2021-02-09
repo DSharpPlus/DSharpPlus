@@ -215,4 +215,16 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("description", NullValueHandling = NullValueHandling.Include)]
         public string Description { get; set; }
     }
+
+    internal class RestGuildMembershipScreeningFormModifyPayload
+    {
+        [JsonProperty("enabled", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<bool> Enabled { get; set; }
+
+        [JsonProperty("form_fields", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<DiscordGuildMembershipScreeningField[]> Fields { get; set; }
+
+        [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<string> Description { get; set; }
+    }
 }

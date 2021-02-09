@@ -310,6 +310,27 @@ namespace DSharpPlus
         /// <returns></returns>
         public Task<DiscordWidgetSettings> ModifyGuildWidgetSettingsAsync(ulong guild_id, bool? enabled = null, ulong? channel_id = null, string reason = null)
             => this.ApiClient.ModifyGuildWidgetSettingsAsync(guild_id, enabled, channel_id, reason);
+
+        /// <summary>
+        /// Gets a guild's membership screening form.
+        /// </summary>
+        /// <param name="guild_id">Guild id</param>
+        /// <returns>The guild's membership screening form.</returns>
+        public Task<DiscordGuildMembershipScreening> GetGuildMembershipScreeningFormAsync(ulong guild_id)
+            => this.ApiClient.GetGuildMembershipScreeningFormAsync(guild_id);
+
+        /// <summary>
+        /// Modifies a guild's membership screening form.
+        /// </summary>
+        /// <param name="guild_id">Guild id</param>
+        /// <param name="action">Action to perform</param>
+        /// <returns>The modified screening form.</returns>
+        public async Task<DiscordGuildMembershipScreening> ModifyGuildMembershipScreeningFormAsync(ulong guild_id, Action<MembershipScreeningEditModel> action)
+        {
+            var mdl = new MembershipScreeningEditModel();
+            action(mdl);
+            return await this.ApiClient.ModifyGuildMembershipScreeningFormAsync(guild_id, mdl.Enabled, mdl.Fields, mdl.Description);
+        }
         #endregion
 
         #region Channel

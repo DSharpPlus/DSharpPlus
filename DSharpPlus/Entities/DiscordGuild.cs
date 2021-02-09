@@ -2099,6 +2099,28 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordGuildTemplate> DeleteTemplateAsync(string code)
             => this.Discord.ApiClient.DeleteGuildTemplateAsync(this.Id, code);
+
+        /// <summary>
+        /// Gets this guild's membership screening form.
+        /// </summary>
+        /// <returns>This guild's membership screening form.</returns>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordGuildMembershipScreening> GetMembershipScreeningFormAsync()
+            => this.Discord.ApiClient.GetGuildMembershipScreeningFormAsync(this.Id);
+
+        /// <summary>
+        /// Modifies this guild's membership screening form.
+        /// </summary>
+        /// <param name="action">Action to perform</param>
+        /// <returns>The modified screening form.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client doesn't have the <see cref="Permissions.ManageGuild"/> permission, or community is not enabled on this guild.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<DiscordGuildMembershipScreening> ModifyMembershipScreeningFormAsync(Action<MembershipScreeningEditModel> action)
+        {
+            var mdl = new MembershipScreeningEditModel();
+            action(mdl);
+            return await this.Discord.ApiClient.ModifyGuildMembershipScreeningFormAsync(this.Id, mdl.Enabled, mdl.Fields, mdl.Description);
+        }
         #endregion
 
         /// <summary>

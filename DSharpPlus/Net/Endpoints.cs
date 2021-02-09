@@ -50,5 +50,6 @@
         public const string WIDGET = "/widget";
         public const string WIDGET_JSON = "/widget.json";
         public const string TEMPLATES = "/templates";
+        public const string MEMBER_VERIFICATION = "/member-verification";
     }
 }
