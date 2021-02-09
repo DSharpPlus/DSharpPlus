@@ -30,10 +30,11 @@ namespace DSharpPlus.Entities
         /// Gets whether the user has to fill out this field
         /// </summary>
         [JsonProperty("required", NullValueHandling = NullValueHandling.Ignore)]
-        public bool? IsRequired { get; internal set; }
+        public bool IsRequired { get; internal set; }
 
-        public DiscordGuildMembershipScreeningField(string label, string[] values, bool? required = true)
+        public DiscordGuildMembershipScreeningField(MembershipScreeningFieldType type, string label, string[] values, bool required = true)
         {
+            this.Type = type;
             this.Label = label;
             this.Values = values;
             this.IsRequired = required;

@@ -329,22 +329,7 @@ namespace DSharpPlus
         {
             var mdl = new MembershipScreeningEditModel();
             action(mdl);
-            if (mdl.Terms != null)
-            {
-                var terms = new DiscordGuildMembershipScreeningField() 
-                { 
-                    Type = MembershipScreeningFieldType.Terms,
-                    Label = mdl.Terms.Label,
-                    IsRequired = mdl.Terms.IsRequired,
-                    Values = mdl.Terms.Values.ToArray()
-                };
-                var fields = new Optional<DiscordGuildMembershipScreeningField>[] { terms };
-                return await this.ApiClient.ModifyGuildMembershipScreeningFormAsync(guild_id, mdl.Enabled, fields, mdl.Description);
-            }
-            else
-            {
-                return await this.ApiClient.ModifyGuildMembershipScreeningFormAsync(guild_id, mdl.Enabled, null, mdl.Description);
-            }
+            return await this.ApiClient.ModifyGuildMembershipScreeningFormAsync(guild_id, mdl.Enabled, mdl.Fields, mdl.Description);
         }
         #endregion
 

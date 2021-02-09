@@ -1,7 +1,4 @@
 ﻿using DSharpPlus.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DSharpPlus.Net.Models
 {
@@ -10,7 +7,7 @@ namespace DSharpPlus.Net.Models
         /// <summary>
         /// Sets whether membership screening should be enabled for this guild
         /// </summary>
-        public bool? Enabled { internal get; set; } = null;
+        public bool Enabled { internal get; set; }
 
         /// <summary>
         /// Sets the server description shown in the membership screening form
@@ -18,9 +15,10 @@ namespace DSharpPlus.Net.Models
         public Optional<string> Description { internal get; set; }
 
         /// <summary>
-        /// Sets the server rules shown in the membership screening form
+        /// Sets the fields in this membership screening form
         /// </summary>
-        public DiscordGuildMembershipScreeningField Terms { internal get; set; } = null;
+        public Optional<DiscordGuildMembershipScreeningField[]> Fields { internal get; set; }
+
         internal MembershipScreeningEditModel() { }
     }
 }
