@@ -325,7 +325,7 @@ namespace DSharpPlus
         /// <param name="guild_id">Guild id</param>
         /// <param name="action">Action to perform</param>
         /// <returns>The modified screening form.</returns>
-        public async Task<DiscordGuildMembershipScreening> ModifyMembershipScreeningFormAsync(ulong guild_id, Action<MembershipScreeningEditModel> action)
+        public async Task<DiscordGuildMembershipScreening> ModifyGuildMembershipScreeningFormAsync(ulong guild_id, Action<MembershipScreeningEditModel> action)
         {
             var mdl = new MembershipScreeningEditModel();
             action(mdl);
