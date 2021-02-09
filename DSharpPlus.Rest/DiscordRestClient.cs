@@ -333,7 +333,7 @@ namespace DSharpPlus
             {
                 var terms = new DiscordGuildMembershipScreeningField() 
                 { 
-                    Type = "TERMS",
+                    Type = MembershipScreeningFieldType.Terms,
                     Label = mdl.Terms.Label,
                     IsRequired = mdl.Terms.IsRequired,
                     Values = mdl.Terms.Values.ToArray()

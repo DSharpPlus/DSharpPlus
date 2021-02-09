@@ -9,10 +9,10 @@ namespace DSharpPlus.Entities
     public class DiscordGuildMembershipScreeningField
     {
         /// <summary>
-        /// Gets the type of the field. Currently defualts to TERMS.
+        /// Gets the type of the field.
         /// </summary>
         [JsonProperty("field_type", NullValueHandling = NullValueHandling.Ignore)]
-        public string Type { get; internal set; }
+        public MembershipScreeningFieldType Type { get; internal set; }
 
         /// <summary>
         /// Gets the title of the field.
