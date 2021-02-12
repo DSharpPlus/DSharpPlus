@@ -6,6 +6,12 @@ namespace DSharpPlus.Interactivity.EventHandling
     public interface IPaginationRequest
     {
         /// <summary>
+        /// Returns the number of pages.
+        /// </summary>
+        /// <returns></returns>
+        int PageCount { get; }
+        
+        /// <summary>
         /// Returns the current page.
         /// </summary>
         /// <returns></returns>

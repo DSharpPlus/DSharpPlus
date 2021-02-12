@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using ConcurrentCollections;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using DSharpPlus.Interactivity.Enums;
 using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.Interactivity.EventHandling
@@ -138,16 +139,24 @@ namespace DSharpPlus.Interactivity.EventHandling
                 await msg.DeleteAllReactionsAsync("Pagination").ConfigureAwait(false);
             // ENDOF: 403 fix
 
-            if (emojis.SkipLeft != null)
-                await msg.CreateReactionAsync(emojis.SkipLeft).ConfigureAwait(false);
-            if (emojis.Left != null)
-                await msg.CreateReactionAsync(emojis.Left).ConfigureAwait(false);
-            if (emojis.Right != null)
-                await msg.CreateReactionAsync(emojis.Right).ConfigureAwait(false);
-            if (emojis.SkipRight != null)
-                await msg.CreateReactionAsync(emojis.SkipRight).ConfigureAwait(false);
-            if (emojis.Stop != null)
-                await msg.CreateReactionAsync(emojis.Stop).ConfigureAwait(false);
+            if (p.PageCount > 1)
+            {
+                if (emojis.SkipLeft != null)
+                    await msg.CreateReactionAsync(emojis.SkipLeft).ConfigureAwait(false);
+                if (emojis.Left != null)
+                    await msg.CreateReactionAsync(emojis.Left).ConfigureAwait(false);
+                if (emojis.Right != null)
+                    await msg.CreateReactionAsync(emojis.Right).ConfigureAwait(false);
+                if (emojis.SkipRight != null)
+                    await msg.CreateReactionAsync(emojis.SkipRight).ConfigureAwait(false);
+                if (emojis.Stop != null)
+                    await msg.CreateReactionAsync(emojis.Stop).ConfigureAwait(false);
+            }
+            else
+            {
+                if (emojis.Stop != null && p is PaginationRequest paginationRequest && paginationRequest.PaginationDeletion == PaginationDeletion.DeleteMessage)
+                    await msg.CreateReactionAsync(emojis.Stop).ConfigureAwait(false);
+            }
         }
 
         async Task PaginateAsync(IPaginationRequest p, DiscordEmoji emoji)

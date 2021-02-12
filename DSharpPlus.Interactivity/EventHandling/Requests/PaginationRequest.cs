@@ -51,6 +51,10 @@ namespace DSharpPlus.Interactivity.EventHandling
                 this._pages.Add(p);
             }
         }
+        
+        public int PageCount => _pages.Count;
+
+        public PaginationDeletion PaginationDeletion => _deletion;
 
         public async Task<Page> GetPageAsync()
         {
