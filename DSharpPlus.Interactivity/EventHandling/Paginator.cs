@@ -152,10 +152,9 @@ namespace DSharpPlus.Interactivity.EventHandling
                 if (emojis.Stop != null)
                     await msg.CreateReactionAsync(emojis.Stop).ConfigureAwait(false);
             }
-            else
+            else if (emojis.Stop != null && p is PaginationRequest paginationRequest && paginationRequest.PaginationDeletion == PaginationDeletion.DeleteMessage)
             {
-                if (emojis.Stop != null && p is PaginationRequest paginationRequest && paginationRequest.PaginationDeletion == PaginationDeletion.DeleteMessage)
-                    await msg.CreateReactionAsync(emojis.Stop).ConfigureAwait(false);
+                await msg.CreateReactionAsync(emojis.Stop).ConfigureAwait(false);
             }
         }
 
