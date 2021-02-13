@@ -629,7 +629,6 @@ namespace DSharpPlus
                     Discord = this,
                     Type = ChannelType.Private
                 };
-                
             }
             else {
                 channel = new DiscordChannel
