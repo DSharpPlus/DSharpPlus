@@ -10,7 +10,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Constructs a Message to be sent.
     /// </summary>
-    public sealed class DiscordMessageBuilder
+    public sealed class DiscordMessageBuilder : IDisposable
     {
         /// <summary>
         /// Gets or Sets the Message to be sent.
@@ -48,6 +48,7 @@ namespace DSharpPlus.Entities
         public IReadOnlyDictionary<string, Stream> Files => this._files;
 
         internal Dictionary<string, Stream> _files = new Dictionary<string, Stream>();
+        private bool disposedValue;
 
         /// <summary>
         /// Gets the Reply Message ID.
@@ -217,6 +218,38 @@ namespace DSharpPlus.Entities
         public async Task<DiscordMessage> ModifyAsync(DiscordMessage msg)
         {
             return await msg.ModifyAsync(this).ConfigureAwait(false);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    foreach (var file in this.Files)
+                    {
+                        file.Value.Dispose();
+                    }
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                // TODO: set large fields to null
+                disposedValue = true;
+            }
+        }
+
+        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~DiscordMessageBuilder()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }
