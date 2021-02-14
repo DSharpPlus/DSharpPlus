@@ -619,19 +619,27 @@ namespace DSharpPlus
 
             var channel = this.InternalGetCachedChannel(message.ChannelId);
 
-            if (channel == null)
+            if (channel != null) return;
+            
+            if (!message.GuildId.HasValue)
+            {
+                channel = new DiscordDmChannel
+                {
+                    Id = message.ChannelId,
+                    Discord = this,
+                    Type = ChannelType.Private
+                };
+            }
+            else 
             {
                 channel = new DiscordChannel
                 {
                     Id = message.ChannelId,
                     Discord = this
                 };
-
-                if (!message.GuildId.HasValue)
-                    channel.Type = ChannelType.Private;
-
-                message.Channel = channel;
             }
+            
+            message.Channel = channel;
         }
 
         private DiscordUser UpdateUser(DiscordUser usr, ulong? guildId, DiscordGuild guild, TransportMember mbr)
