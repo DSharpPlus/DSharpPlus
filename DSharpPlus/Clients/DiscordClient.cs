@@ -630,7 +630,8 @@ namespace DSharpPlus
                     Type = ChannelType.Private
                 };
             }
-            else {
+            else 
+            {
                 channel = new DiscordChannel
                 {
                     Id = message.ChannelId,
