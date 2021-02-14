@@ -60,7 +60,25 @@ namespace DSharpPlus.Interactivity.EventHandling
                 {
                     if (eventargs.User.Id == usr.Id)
                     {
-                        await PaginateAsync(req, eventargs.Emoji).ConfigureAwait(false);
+                        if (req.PageCount > 1 &&
+                            (eventargs.Emoji == emojis.Left || 
+                             eventargs.Emoji == emojis.SkipLeft || 
+                             eventargs.Emoji == emojis.Right || 
+                             eventargs.Emoji == emojis.SkipRight ||
+                             eventargs.Emoji == emojis.Stop))
+                        {
+                            await PaginateAsync(req, eventargs.Emoji).ConfigureAwait(false);
+                        }
+                        else if (eventargs.Emoji == emojis.Stop &&
+                                 req is PaginationRequest paginationRequest &&
+                                 paginationRequest.PaginationDeletion == PaginationDeletion.DeleteMessage)
+                        {
+                            await PaginateAsync(req, eventargs.Emoji).ConfigureAwait(false);
+                        }
+                        else
+                        {
+                            await msg.DeleteReactionAsync(eventargs.Emoji, eventargs.User).ConfigureAwait(false);
+                        }
                     }
                     else if (eventargs.User.Id != _client.CurrentUser.Id)
                     {
@@ -90,15 +108,21 @@ namespace DSharpPlus.Interactivity.EventHandling
                 {
                     if (eventargs.User.Id == usr.Id)
                     {
-                        await PaginateAsync(req, eventargs.Emoji).ConfigureAwait(false);
-                    }
-                    if (eventargs.Emoji != emojis.Left &&
-                           eventargs.Emoji != emojis.SkipLeft &&
-                           eventargs.Emoji != emojis.Right &&
-                           eventargs.Emoji != emojis.SkipRight &&
-                           eventargs.Emoji != emojis.Stop)
-                    {
-                        await msg.DeleteReactionAsync(eventargs.Emoji, eventargs.User).ConfigureAwait(false);
+                        if (req.PageCount > 1 &&
+                            (eventargs.Emoji == emojis.Left || 
+                             eventargs.Emoji == emojis.SkipLeft || 
+                             eventargs.Emoji == emojis.Right || 
+                             eventargs.Emoji == emojis.SkipRight ||
+                             eventargs.Emoji == emojis.Stop))
+                        {
+                            await PaginateAsync(req, eventargs.Emoji).ConfigureAwait(false);
+                        }
+                        else if (eventargs.Emoji == emojis.Stop &&
+                                 req is PaginationRequest paginationRequest &&
+                                 paginationRequest.PaginationDeletion == PaginationDeletion.DeleteMessage)
+                        {
+                            await PaginateAsync(req, eventargs.Emoji).ConfigureAwait(false);
+                        }
                     }
                 }
             }
