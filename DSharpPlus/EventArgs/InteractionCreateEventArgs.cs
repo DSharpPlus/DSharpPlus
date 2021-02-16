@@ -3,7 +3,7 @@
 namespace DSharpPlus.EventArgs
 {
     /// <summary>
-    /// Represents arguments for <see cref="DiscordClient.InternalConnectAsync"/>
+    /// Represents arguments for <see cref="DiscordClient.InteractionCreated"/>
     /// </summary>
     public class InteractionCreateEventArgs : DiscordEventArgs
     {
