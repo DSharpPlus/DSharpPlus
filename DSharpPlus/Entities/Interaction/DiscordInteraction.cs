@@ -1,6 +1,4 @@
-﻿using System;
-using Newtonsoft.Json;
-using DSharpPlus.Net.Abstractions;
+﻿using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
 {
