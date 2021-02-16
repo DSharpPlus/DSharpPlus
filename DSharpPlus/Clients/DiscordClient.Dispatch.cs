@@ -322,6 +322,38 @@ namespace DSharpPlus
 
                 #endregion
 
+                #region Interaction/Integration/Application
+
+                case "interaction_create":
+                    mbr = dat["member"].ToObject<TransportMember>();
+                    cid = (ulong)dat["channel_id"];
+                    gid = (ulong)dat["guild_id"];
+                    await OnInteractionCreateAsync(gid, cid, mbr, dat.ToObject<DiscordInteraction>()).ConfigureAwait(false);
+                    break;
+                
+                // The following are not documented and thus ignored for the time being.
+                // Please update these if they are documented :)
+
+                case "integration_create":
+                    break;
+
+                case "integration_update":
+                    break;
+
+                case "integration_delete":
+                    break;
+
+                case "application_command_create":
+                    break;
+
+                case "application_command_update":
+                    break;
+
+                case "application_command_delete":
+                    break;
+
+                #endregion
+
                 #region Misc
 
                 case "gift_code_update": //Not supposed to be dispatched to bots
@@ -1684,6 +1716,22 @@ namespace DSharpPlus
         #endregion
 
         #region Misc
+
+        internal async Task OnInteractionCreateAsync(ulong guildId, ulong channelId, TransportMember member, DiscordInteraction interaction)
+        {
+            interaction.Member = new DiscordMember(member);
+            interaction.ChannelId = channelId;
+            interaction.GuildId = guildId;
+            interaction.Discord = this;
+            interaction.Data.Discord = this;
+
+            var ea = new InteractionCreateEventArgs
+            {
+                Interaction = interaction
+            };
+
+            await this._interactionCreated.InvokeAsync(this, ea).ConfigureAwait(false);
+        }
 
         internal async Task OnTypingStartEventAsync(ulong userId, ulong channelId, DiscordChannel channel, ulong? guildId, DateTimeOffset started, TransportMember mbr)
         {

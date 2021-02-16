@@ -15,6 +15,8 @@ namespace DSharpPlus.Test
     /// </summary>
     public class TestBotPaginator : IPaginationRequest
     {
+        public int PageCount { get; }
+
         private List<Page> pages;
         private TaskCompletionSource<bool> _tcs;
         private CancellationTokenSource _cts;
@@ -29,6 +31,7 @@ namespace DSharpPlus.Test
         public TestBotPaginator(DiscordClient client, DiscordUser usr, DiscordMessage msg, List<Page> pages)
         {
             this.pages = pages;
+            this.PageCount = pages.Count;
             this._tcs = new TaskCompletionSource<bool>();
             this._cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
             this._cts.Token.Register(() => this._tcs.TrySetResult(true));
@@ -36,6 +39,7 @@ namespace DSharpPlus.Test
             this._emojis = new PaginationEmojis();
             this._usr = usr;
         }
+
 
         public async Task DoCleanupAsync()
         {
