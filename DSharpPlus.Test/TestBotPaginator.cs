@@ -40,7 +40,6 @@ namespace DSharpPlus.Test
             this._usr = usr;
         }
 
-
         public async Task DoCleanupAsync()
         {
             await this._msg.DeleteAsync().ConfigureAwait(false);
