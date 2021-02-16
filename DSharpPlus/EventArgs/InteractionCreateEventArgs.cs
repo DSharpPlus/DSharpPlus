@@ -8,7 +8,7 @@ namespace DSharpPlus.EventArgs
     public class InteractionCreateEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// Gets the slash command data that was invoked. 
+        /// Gets the interaction data that was invoked. 
         /// </summary>
         public DiscordInteraction Interaction { get; internal set; }
     }
