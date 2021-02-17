@@ -36,7 +36,7 @@ namespace DSharpPlus.Net.Models
         public int? Bitrate { internal get; set; }
 
         /// <summary>
-        /// Sets the voice channel's new bitrate.
+        /// Sets the voice channel's new user limit.
         /// </summary>
         public int? Userlimit { internal get; set; }
 
