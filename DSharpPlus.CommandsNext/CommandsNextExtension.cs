@@ -414,13 +414,15 @@ namespace DSharpPlus.CommandsNext
             var ti = t.GetTypeInfo();
 
             var lifespan = ti.GetCustomAttribute<ModuleLifespanAttribute>();
+            var moduleLifespan = lifespan != null ? lifespan.Lifespan : ModuleLifespan.Singleton;
+
             var module = new CommandModuleBuilder()
                 .WithType(t)
-                .WithLifespan(lifespan != null ? lifespan.Lifespan : ModuleLifespan.Singleton)
+                .WithLifespan(moduleLifespan)
                 .Build(this.Services);
 
             // restrict parent lifespan to more or equally restrictive
-            if (currentParent?.Module is TransientCommandModule && lifespan.Lifespan != ModuleLifespan.Transient)
+            if (currentParent?.Module is TransientCommandModule && moduleLifespan != ModuleLifespan.Transient)
                 throw new InvalidOperationException("In a transient module, child modules can only be transient.");
 
             // check if we are anything
