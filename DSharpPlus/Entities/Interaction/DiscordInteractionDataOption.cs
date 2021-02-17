@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
@@ -16,9 +17,10 @@ namespace DSharpPlus.Entities
 
         /// <summary>
         /// Gets the option type of this interaction parameter. 
-        /// <para>This can be cast to an <see langword="int"></see>, <see langword="bool"></see>, or <see langword="string"></see> depending on the <see cref="DiscordInteractionDataOption.Name"/></para>
+        /// <para>This can be cast to an <see langword="int"></see>, <see langword="bool"></see>, <see langword="string"></see> or <see langword="ulong"/> depending on the <see cref="DiscordInteractionDataOption.Name"/></para>
         /// </summary>
-        [JsonProperty("value", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("value")]
+        [JsonConverter(typeof(DiscordInteractionOptionTypeConverter))]
         public object OptionType { get; internal set; }
 
         /// <summary>
@@ -26,5 +28,27 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("options", NullValueHandling = NullValueHandling.Ignore)]
         public IEnumerable<DiscordInteractionDataOption> Options { get; internal set; }
+    }
+
+    internal sealed class DiscordInteractionOptionTypeConverter : JsonConverter
+    {
+        public override bool CanConvert(Type objectType)
+            => objectType == typeof(string) || objectType == typeof(int) || objectType == typeof(bool);
+
+        public override object ReadJson(JsonReader reader, Type objectType, object value, JsonSerializer serializer)
+        {
+            if (reader.Value is string str)
+            {
+                if (ulong.TryParse(str, out var ul))
+                    return ul;
+                else
+                    return str;
+            }
+
+            return reader.Value;
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+            => serializer.Serialize(writer, value);
     }
 }
