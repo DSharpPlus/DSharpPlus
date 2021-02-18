@@ -37,7 +37,7 @@ namespace DSharpPlus.Net.Models
 
         /// <summary>
         /// <para>Sets the voice channel's new user limit.</para>
-        /// <para>Setting this to 0 will disable user limit.</para>
+        /// <para>Setting this to 0 will disable the user limit.</para>
         /// </summary>
         public int? Userlimit { internal get; set; }
 
