@@ -519,6 +519,40 @@ namespace DSharpPlus
 
         #endregion
 
+        #region Application
+
+        /// <summary>
+        /// Fired when a new application command is registered. 
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, ApplicationCommandEventArgs> ApplicationCommandCreated
+        {
+            add => this._applicationCommandCreated.Register(value);
+            remove => this._applicationCommandCreated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ApplicationCommandEventArgs> _applicationCommandCreated;
+
+        /// <summary>
+        /// Fired when an application command is updated. 
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, ApplicationCommandEventArgs> ApplicationCommandUpdated
+        {
+            add => this._applicationCommandUpdated.Register(value);
+            remove => this._applicationCommandUpdated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ApplicationCommandEventArgs> _applicationCommandUpdated;
+
+        /// <summary>
+        /// Fired when an application command is deleted. 
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, ApplicationCommandEventArgs> ApplicationCommandDeleted
+        {
+            add => this._applicationCommandDeleted.Register(value);
+            remove => this._applicationCommandDeleted.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ApplicationCommandEventArgs> _applicationCommandDeleted;
+
+        #endregion
+
         #region Misc
 
         /// <summary>
@@ -741,6 +775,15 @@ namespace DSharpPlus
 
         private Task Client_HeartBeated(DiscordClient client, HeartbeatEventArgs e)
             => this._heartbeated.InvokeAsync(client, e);
+
+        private Task Client_ApplicationCommandCreated(DiscordClient client, ApplicationCommandEventArgs e)
+            => this._applicationCommandCreated.InvokeAsync(client, e);
+
+        private Task Client_ApplicationCommandUpdated(DiscordClient client, ApplicationCommandEventArgs e)
+            => this._applicationCommandUpdated.InvokeAsync(client, e);
+
+        private Task Client_ApplicationCommandDeleted(DiscordClient client, ApplicationCommandEventArgs e)
+            => this._applicationCommandDeleted.InvokeAsync(client, e);
 
         #endregion
     }

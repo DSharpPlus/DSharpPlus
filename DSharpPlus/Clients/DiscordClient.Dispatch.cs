@@ -330,7 +330,19 @@ namespace DSharpPlus
                     gid = (ulong)dat["guild_id"];
                     await OnInteractionCreateAsync(gid, cid, mbr, dat.ToObject<DiscordInteraction>()).ConfigureAwait(false);
                     break;
-                
+
+                case "application_command_create":
+                    await OnApplicationCommandCreateAsync(dat.ToObject<DiscordApplicationCommand>(), (ulong?)dat["guild_id"]).ConfigureAwait(false);
+                    break;
+
+                case "application_command_update":
+                    await OnApplicationCommandUpdateAsync(dat.ToObject<DiscordApplicationCommand>(), (ulong?)dat["guild_id"]).ConfigureAwait(false);
+                    break;
+
+                case "application_command_delete":
+                    await OnApplicationCommandDeleteAsync(dat.ToObject<DiscordApplicationCommand>(), (ulong?)dat["guild_id"]).ConfigureAwait(false);
+                    break;
+
                 // The following are not documented and thus ignored for the time being.
                 // Please update these if they are documented :)
 
@@ -341,15 +353,6 @@ namespace DSharpPlus
                     break;
 
                 case "integration_delete":
-                    break;
-
-                case "application_command_create":
-                    break;
-
-                case "application_command_update":
-                    break;
-
-                case "application_command_delete":
                     break;
 
                 #endregion
@@ -1711,6 +1714,76 @@ namespace DSharpPlus
                 Guild = guild
             };
             await this._voiceServerUpdated.InvokeAsync(this, ea).ConfigureAwait(false);
+        }
+
+        #endregion
+
+        #region Commands
+
+        internal async Task OnApplicationCommandCreateAsync(DiscordApplicationCommand cmd, ulong? guild_id)
+        {
+            var guild = this.InternalGetCachedGuild(guild_id);
+
+            if(guild == null && guild_id.HasValue)
+            {
+                guild = new DiscordGuild
+                {
+                    Id = guild_id.Value,
+                    Discord = this
+                };
+            }
+
+            var ea = new ApplicationCommandEventArgs
+            {
+                Guild = guild,
+                Command = cmd
+            };
+
+            await this._applicationCommandCreated.InvokeAsync(this, ea).ConfigureAwait(false);
+        }
+
+        internal async Task OnApplicationCommandUpdateAsync(DiscordApplicationCommand cmd, ulong? guild_id)
+        {
+            var guild = this.InternalGetCachedGuild(guild_id);
+
+            if (guild == null && guild_id.HasValue)
+            {
+                guild = new DiscordGuild
+                {
+                    Id = guild_id.Value,
+                    Discord = this
+                };
+            }
+
+            var ea = new ApplicationCommandEventArgs
+            {
+                Guild = guild,
+                Command = cmd
+            };
+
+            await this._applicationCommandUpdated.InvokeAsync(this, ea).ConfigureAwait(false);
+        }
+
+        internal async Task OnApplicationCommandDeleteAsync(DiscordApplicationCommand cmd, ulong? guild_id)
+        {
+            var guild = this.InternalGetCachedGuild(guild_id);
+
+            if (guild == null && guild_id.HasValue)
+            {
+                guild = new DiscordGuild
+                {
+                    Id = guild_id.Value,
+                    Discord = this
+                };
+            }
+
+            var ea = new ApplicationCommandEventArgs
+            {
+                Guild = guild,
+                Command = cmd
+            };
+
+            await this._applicationCommandDeleted.InvokeAsync(this, ea).ConfigureAwait(false);
         }
 
         #endregion

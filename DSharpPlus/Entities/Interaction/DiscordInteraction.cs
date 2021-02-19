@@ -5,7 +5,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents an interaction that was invoked.
     /// </summary>
-    public class DiscordInteraction : SnowflakeObject
+    public sealed class DiscordInteraction : SnowflakeObject
     {
         /// <summary>
         /// Gets the type of interaction invoked. 
