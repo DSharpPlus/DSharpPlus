@@ -6,7 +6,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents the inner data payload of an interaction.
     /// </summary>
-    public class DiscordInteractionData : SnowflakeObject
+    public sealed class DiscordInteractionData : SnowflakeObject
     {
         /// <summary>
         /// Gets the name of the invoked interaction.

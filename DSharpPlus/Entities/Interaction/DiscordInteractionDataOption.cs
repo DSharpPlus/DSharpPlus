@@ -7,7 +7,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents parameters for interaction commands. 
     /// </summary>
-    public class DiscordInteractionDataOption
+    public sealed class DiscordInteractionDataOption
     {
         /// <summary>
         /// Gets the name of this interaction parameter.
@@ -41,8 +41,6 @@ namespace DSharpPlus.Entities
             {
                 if (ulong.TryParse(str, out var ul))
                     return ul;
-                else
-                    return str;
             }
 
             return reader.Value;

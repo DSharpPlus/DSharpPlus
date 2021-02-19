@@ -448,6 +448,9 @@ namespace DSharpPlus
             this._messageReactionRemovedEmoji = new AsyncEvent<DiscordClient, MessageReactionRemoveEmojiEventArgs>("MESSAGE_REACTION_REMOVED_EMOJI", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._webhooksUpdated = new AsyncEvent<DiscordClient, WebhooksUpdateEventArgs>("WEBHOOKS_UPDATED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._heartbeated = new AsyncEvent<DiscordClient, HeartbeatEventArgs>("HEARTBEATED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
+            this._applicationCommandCreated = new AsyncEvent<DiscordClient, ApplicationCommandEventArgs>("APPLICATION_COMMAND_CREATED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
+            this._applicationCommandUpdated = new AsyncEvent<DiscordClient, ApplicationCommandEventArgs>("APPLICATION_COMMAND_UPDATED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
+            this._applicationCommandDeleted = new AsyncEvent<DiscordClient, ApplicationCommandEventArgs>("APPLICATION_COMMAND_DELETED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
         }
 
         private void HookEventHandlers(DiscordClient client)
@@ -500,6 +503,9 @@ namespace DSharpPlus
             client.MessageReactionRemovedEmoji += this.Client_MessageReactionRemovedEmoji;
             client.WebhooksUpdated += this.Client_WebhooksUpdate;
             client.Heartbeated += this.Client_HeartBeated;
+            client.ApplicationCommandCreated += this.Client_ApplicationCommandCreated;
+            client.ApplicationCommandUpdated += this.Client_ApplicationCommandUpdated;
+            client.ApplicationCommandDeleted += this.Client_ApplicationCommandDeleted;
         }
 
         private void UnhookEventHandlers(DiscordClient client)
@@ -552,6 +558,9 @@ namespace DSharpPlus
             client.MessageReactionRemovedEmoji -= this.Client_MessageReactionRemovedEmoji;
             client.WebhooksUpdated -= this.Client_WebhooksUpdate;
             client.Heartbeated -= this.Client_HeartBeated;
+            client.ApplicationCommandCreated -= this.Client_ApplicationCommandCreated;
+            client.ApplicationCommandUpdated -= this.Client_ApplicationCommandUpdated;
+            client.ApplicationCommandDeleted -= this.Client_ApplicationCommandDeleted;
         }
 
         #endregion
