@@ -221,15 +221,27 @@ namespace DSharpPlus.Test
                 await sw.WriteAsync(fileBody);
             }
 
-            using (var builder = new DiscordMessageBuilder())
+            using (var fs = new FileStream($"another {fileName}", FileMode.Create, FileAccess.ReadWrite))
+            using (var sw = new StreamWriter(fs))
             {
-                builder.WithContent("Here is a really dumb file that i am testing with.");
-                builder.WithFile(fileName);
+                sw.AutoFlush = true;
+                await sw.WriteLineAsync(fileBody);
+                fs.Position = 0;
+                using (var builder = new DiscordMessageBuilder())
+                {
+                    
+                    builder.WithContent("Here is a really dumb file that i am testing with.");
+                    builder.WithFile(fileName);
+                    builder.WithFile(fs);
 
-                await builder.SendAsync(ctx.Channel);
+                    await builder.SendAsync(ctx.Channel);
+                }
+                //Testing to make sure the stream sent in is not disposed.
+
+                await sw.WriteLineAsync("Another" + fileBody);
             }
-
             File.Delete(fileName);
+            File.Delete("another " + fileName);
         }
     }
 }

@@ -45,9 +45,10 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the Files to be sent in the Message.
         /// </summary>
-        public IReadOnlyDictionary<string, Stream> Files => this._files;
+        public IReadOnlyDictionary<string, Stream> Files => this._UserStreamFiles.Concat(_internalStreamFiles).ToDictionary(x => x.Key, x => x.Value);
 
-        internal Dictionary<string, Stream> _files = new Dictionary<string, Stream>();
+        internal Dictionary<string, Stream> _UserStreamFiles = new Dictionary<string, Stream>();
+        internal Dictionary<string, Stream> _internalStreamFiles = new Dictionary<string, Stream>();
         private bool disposedValue;
 
         /// <summary>
@@ -134,7 +135,7 @@ namespace DSharpPlus.Entities
             if(this.Files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
-            this._files.Add(fileName, stream);
+            this._UserStreamFiles.Add(fileName, stream);
 
             return this;
         }
@@ -149,7 +150,7 @@ namespace DSharpPlus.Entities
             if (this.Files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
-            this._files.Add(stream.Name, stream);
+            this._UserStreamFiles.Add(stream.Name, stream);
 
             return this;
         }
@@ -165,7 +166,7 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
             var fs = File.OpenRead(filePath);
-            this._files.Add(fs.Name, fs);
+            this._internalStreamFiles.Add(fs.Name, fs);
 
             return this;
         }
@@ -181,7 +182,7 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
             foreach (var file in files)
-                this._files.Add(file.Key, file.Value);
+                this._UserStreamFiles.Add(file.Key, file.Value);
 
             return this;
         }
@@ -226,7 +227,7 @@ namespace DSharpPlus.Entities
             {
                 if (disposing)
                 {
-                    foreach (var file in this.Files)
+                    foreach (var file in this._internalStreamFiles)
                     {
                         file.Value.Dispose();
                     }
