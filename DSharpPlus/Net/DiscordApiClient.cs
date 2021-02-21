@@ -797,7 +797,7 @@ namespace DSharpPlus.Net
             if (builder.Content != null && builder.Content.Length > 2000)
                 throw new ArgumentException("Message content length cannot exceed 2000 characters.");
 
-            if (builder.Embed == null && !builder.Files.Any())
+            if (builder.Embed == null && !builder.StreamFiles.Any() && !builder.FileNames.Any())
             {
                 if (builder.Content == null)
                     throw new ArgumentException("You must specify message content or an embed.");
@@ -824,7 +824,7 @@ namespace DSharpPlus.Net
             if (builder.Mentions != null || builder.ReplyId != null)
                 pld.Mentions = new DiscordMentions(builder.Mentions ?? Mentions.None, builder.MentionOnReply);
 
-            if (builder.Files.Count == 0)
+            if (builder.StreamFiles.Count == 0 && builder.FileNames.Count == 0)
             {
                 var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}";
                 var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id }, out var path);
@@ -843,10 +843,23 @@ namespace DSharpPlus.Net
                 var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}";
                 var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id }, out var path);
 
+                var nonStreamedFiles = new Dictionary<string, Stream>();
+
+                foreach (var file in builder.FileNames)
+                {
+                    var fs = File.OpenRead(file);
+                    nonStreamedFiles.Add(file, fs);
+                }
+
                 var url = Utilities.GetApiUriFor(path);
-                var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, values: values, files: builder.Files).ConfigureAwait(false);
+                var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, values: values, files: builder.StreamFiles.Concat(nonStreamedFiles).ToDictionary(x => x.Key, x => x.Value)).ConfigureAwait(false);
 
                 var ret = this.PrepareMessage(JObject.Parse(res.Response));
+
+                foreach (var file in nonStreamedFiles)
+                {
+                    file.Value.Dispose();
+                }
 
                 return ret;
             }

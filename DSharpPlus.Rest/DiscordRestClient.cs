@@ -511,7 +511,7 @@ namespace DSharpPlus
         /// <returns></returns>
         public async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, DiscordMessageBuilder builder)
         {
-            if (builder.Files.Any())
+            if (builder.StreamFiles.Any() && builder.FileNames.Any())
                 throw new ArgumentException("You cannot add files when modifing a message.");
 
             return await this.ApiClient.EditMessageAsync(channel_id, message_id, builder.Content, builder.Embed, builder.Mentions).ConfigureAwait(false);
