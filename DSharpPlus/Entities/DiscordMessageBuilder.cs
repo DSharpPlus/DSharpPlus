@@ -10,7 +10,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Constructs a Message to be sent.
     /// </summary>
-    public sealed class DiscordMessageBuilder : IDisposable
+    public sealed class DiscordMessageBuilder
     {
         /// <summary>
         /// Gets or Sets the Message to be sent.
@@ -45,11 +45,10 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the Files to be sent in the Message.
         /// </summary>
-        public IReadOnlyDictionary<string, Stream> Files => this._UserStreamFiles.Concat(_internalStreamFiles).ToDictionary(x => x.Key, x => x.Value);
+        public IReadOnlyDictionary<string, DiscordFileBuilder> Files => this._UserStreamFiles.Concat(_internalStreamFiles).ToDictionary(x => x.Key, x => x.Value);
 
-        internal Dictionary<string, Stream> _UserStreamFiles = new Dictionary<string, Stream>();
-        internal Dictionary<string, Stream> _internalStreamFiles = new Dictionary<string, Stream>();
-        private bool disposedValue;
+        internal Dictionary<string, DiscordFileBuilder> _UserStreamFiles = new Dictionary<string, DiscordFileBuilder>();
+        internal Dictionary<string, DiscordFileBuilder> _internalStreamFiles = new Dictionary<string, DiscordFileBuilder>();
 
         /// <summary>
         /// Gets the Reply Message ID.
@@ -135,7 +134,7 @@ namespace DSharpPlus.Entities
             if(this.Files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
-            this._UserStreamFiles.Add(fileName, stream);
+            this._UserStreamFiles.Add(fileName, new DiscordFileBuilder(stream, true));
 
             return this;
         }
@@ -150,7 +149,7 @@ namespace DSharpPlus.Entities
             if (this.Files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
-            this._UserStreamFiles.Add(stream.Name, stream);
+            this._UserStreamFiles.Add(stream.Name, new DiscordFileBuilder(stream, true));
 
             return this;
         }
@@ -166,7 +165,7 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
             var fs = File.OpenRead(filePath);
-            this._internalStreamFiles.Add(fs.Name, fs);
+            this._internalStreamFiles.Add(fs.Name, new DiscordFileBuilder(fs, false));
 
             return this;
         }
@@ -182,7 +181,7 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
             foreach (var file in files)
-                this._UserStreamFiles.Add(file.Key, file.Value);
+                this._UserStreamFiles.Add(file.Key, new DiscordFileBuilder(file.Value, true));
 
             return this;
         }
@@ -220,37 +219,17 @@ namespace DSharpPlus.Entities
         {
             return await msg.ModifyAsync(this).ConfigureAwait(false);
         }
+    }
 
-        private void Dispose(bool disposing)
+    public struct DiscordFileBuilder
+    {
+        public DiscordFileBuilder(Stream stream, bool wasUserStream)
         {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    foreach (var file in this._internalStreamFiles)
-                    {
-                        file.Value.Dispose();
-                    }
-                }
-
-                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-                // TODO: set large fields to null
-                disposedValue = true;
-            }
+            Stream = stream;
+            WasUserStream = wasUserStream;
         }
 
-        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-        // ~DiscordMessageBuilder()
-        // {
-        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-        //     Dispose(disposing: false);
-        // }
-
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
+        public Stream Stream { get; set; }
+        internal bool WasUserStream { get; set; }
     }
 }

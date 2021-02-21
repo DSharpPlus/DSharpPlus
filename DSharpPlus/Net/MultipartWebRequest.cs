@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DSharpPlus.Entities;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -18,10 +19,10 @@ namespace DSharpPlus.Net
         /// <summary>
         /// Gets the dictionary of files attached to this request.
         /// </summary>
-        public IReadOnlyDictionary<string, Stream> Files { get; }
+        public IReadOnlyDictionary<string, DiscordFileBuilder> Files { get; }
 
         internal MultipartWebRequest(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, string route, IReadOnlyDictionary<string, string> headers = null, IReadOnlyDictionary<string, string> values = null, 
-            IReadOnlyDictionary<string, Stream> files = null, double? ratelimit_wait_override = null)
+            IReadOnlyDictionary<string, DiscordFileBuilder> files = null, double? ratelimit_wait_override = null)
             : base(client, bucket, url, method, route, headers, ratelimit_wait_override)
         {
             this.Values = values;

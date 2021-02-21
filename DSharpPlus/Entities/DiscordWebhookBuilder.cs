@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 
 namespace DSharpPlus.Entities
 {
@@ -49,8 +50,10 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Files to send on this webhook request.
         /// </summary>
-        public IReadOnlyDictionary<string, Stream> Files { get; }
-        private readonly Dictionary<string, Stream> _files = new Dictionary<string, Stream>();
+        public IReadOnlyDictionary<string, DiscordFileBuilder> Files => this._UserStreamFiles.Concat(_internalStreamFiles).ToDictionary(x => x.Key, x => x.Value);
+
+        internal Dictionary<string, DiscordFileBuilder> _UserStreamFiles = new Dictionary<string, DiscordFileBuilder>();
+        internal Dictionary<string, DiscordFileBuilder> _internalStreamFiles = new Dictionary<string, DiscordFileBuilder>();
 
         /// <summary>
         /// Mentions to send on this webhook request.
@@ -64,7 +67,6 @@ namespace DSharpPlus.Entities
         public DiscordWebhookBuilder()
         {
             this.Embeds = new ReadOnlyCollection<DiscordEmbed>(this._embeds);
-            this.Files = new ReadOnlyDictionary<string, Stream>(this._files);
             this.Mentions = new ReadOnlyCollection<IMention>(this._mentions);
         }
 
@@ -135,7 +137,11 @@ namespace DSharpPlus.Entities
         /// <param name="data">File data.</param>
         public DiscordWebhookBuilder AddFile(string filename, Stream data)
         {
-            this._files[filename] = data;
+            if (this.Files.Count() >= 10)
+                throw new ArgumentException("Cannot send more than 10 files with a single message.");
+
+            this._UserStreamFiles.Add(filename, new DiscordFileBuilder(data, true));
+
             return this;
         }
 
@@ -145,10 +151,12 @@ namespace DSharpPlus.Entities
         /// <param name="files">Dictionary of file name and file data.</param>
         public DiscordWebhookBuilder AddFiles(Dictionary<string, Stream> files)
         {
+            if (this.Files.Count() + files.Count() >= 10)
+                throw new ArgumentException("Cannot send more than 10 files with a single message.");
+
             foreach (var file in files)
-            {
-                this._files[file.Key] = file.Value;
-            }
+                this._UserStreamFiles.Add(file.Key, new DiscordFileBuilder(file.Value, true));
+
             return this;
         }
 
