@@ -45,10 +45,9 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the Files to be sent in the Message.
         /// </summary>
-        public IReadOnlyDictionary<string, DiscordFileBuilder> Files => this._UserStreamFiles.Concat(_internalStreamFiles).ToDictionary(x => x.Key, x => x.Value);
+        public IReadOnlyDictionary<string, DiscordFileBuilder> Files => this._files;
 
-        internal Dictionary<string, DiscordFileBuilder> _UserStreamFiles = new Dictionary<string, DiscordFileBuilder>();
-        internal Dictionary<string, DiscordFileBuilder> _internalStreamFiles = new Dictionary<string, DiscordFileBuilder>();
+        internal Dictionary<string, DiscordFileBuilder> _files = new Dictionary<string, DiscordFileBuilder>();
 
         /// <summary>
         /// Gets the Reply Message ID.
@@ -134,7 +133,7 @@ namespace DSharpPlus.Entities
             if(this.Files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
-            this._UserStreamFiles.Add(fileName, new DiscordFileBuilder(stream, true));
+            this._files.Add(fileName, new DiscordFileBuilder(stream, true));
 
             return this;
         }
@@ -149,7 +148,7 @@ namespace DSharpPlus.Entities
             if (this.Files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
-            this._UserStreamFiles.Add(stream.Name, new DiscordFileBuilder(stream, true));
+            this._files.Add(stream.Name, new DiscordFileBuilder(stream, true));
 
             return this;
         }
@@ -165,7 +164,7 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
             var fs = File.OpenRead(filePath);
-            this._internalStreamFiles.Add(fs.Name, new DiscordFileBuilder(fs, false));
+            this._files.Add(fs.Name, new DiscordFileBuilder(fs, false));
 
             return this;
         }
@@ -181,7 +180,7 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
             foreach (var file in files)
-                this._UserStreamFiles.Add(file.Key, new DiscordFileBuilder(file.Value, true));
+                this._files.Add(file.Key, new DiscordFileBuilder(file.Value, true));
 
             return this;
         }
