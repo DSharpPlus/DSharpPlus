@@ -232,6 +232,11 @@ namespace DSharpPlus.Test
                 builder.WithFile(fileName);
                 builder.WithFile(fs);
 
+                foreach (var file in builder.Files)
+                {
+
+                }
+
                 await builder.SendAsync(ctx.Channel);
                 //Testing to make sure the stream sent in is not disposed.
 

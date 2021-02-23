@@ -431,7 +431,7 @@ namespace DSharpPlus.Net
                 {
                     var i = 1;
                     foreach (var f in mprequest.Files)
-                        content.Add(new StreamContent(f.Value.Stream), $"file{(i++).ToString(CultureInfo.InvariantCulture)}", f.Key);
+                        content.Add(new StreamContent(f.Value), $"file{(i++).ToString(CultureInfo.InvariantCulture)}", f.Key);
                 }
 
                 req.Content = content;

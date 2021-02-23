@@ -45,9 +45,9 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the Files to be sent in the Message.
         /// </summary>
-        public IReadOnlyDictionary<string, Stream> Files => this._files.ToDictionary(x => x.Key, x => x.Value.Stream);
+        public IReadOnlyCollection<DiscordMessageFile> Files => this._files;
 
-        internal Dictionary<string, DiscordFileBuilder> _files = new Dictionary<string, DiscordFileBuilder>();
+        internal List<DiscordMessageFile> _files = new List<DiscordMessageFile>();
 
         /// <summary>
         /// Gets the Reply Message ID.
@@ -133,7 +133,7 @@ namespace DSharpPlus.Entities
             if(this.Files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
-            this._files.Add(fileName, new DiscordFileBuilder(stream, true));
+            this._files.Add(new DiscordMessageFile(fileName, stream, true));
 
             return this;
         }
@@ -148,7 +148,7 @@ namespace DSharpPlus.Entities
             if (this.Files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
-            this._files.Add(stream.Name, new DiscordFileBuilder(stream, true));
+            this._files.Add(new DiscordMessageFile(stream.Name, stream, true));
 
             return this;
         }
@@ -164,7 +164,7 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
             var fs = File.OpenRead(filePath);
-            this._files.Add(fs.Name, new DiscordFileBuilder(fs, false));
+            this._files.Add(new DiscordMessageFile(fs.Name, fs, false));
 
             return this;
         }
@@ -180,7 +180,7 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
             foreach (var file in files)
-                this._files.Add(file.Key, new DiscordFileBuilder(file.Value, true));
+                this._files.Add(new DiscordMessageFile(file.Key, file.Value, true));
 
             return this;
         }
@@ -218,17 +218,5 @@ namespace DSharpPlus.Entities
         {
             return await msg.ModifyAsync(this).ConfigureAwait(false);
         }
-    }
-
-    public struct DiscordFileBuilder
-    {
-        public DiscordFileBuilder(Stream stream, bool wasUserStream)
-        {
-            Stream = stream;
-            WasUserStream = wasUserStream;
-        }
-
-        public Stream Stream { get; set; }
-        internal bool WasUserStream { get; set; }
     }
 }

@@ -50,9 +50,9 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Files to send on this webhook request.
         /// </summary>
-        public IReadOnlyDictionary<string, Stream> Files => this._files.ToDictionary(x => x.Key, x => x.Value.Stream);
+        public IReadOnlyCollection<DiscordMessageFile> Files => this._files;
 
-        internal Dictionary<string, DiscordFileBuilder> _files = new Dictionary<string, DiscordFileBuilder>();
+        internal List<DiscordMessageFile> _files = new List<DiscordMessageFile>();
 
         /// <summary>
         /// Mentions to send on this webhook request.
@@ -139,7 +139,7 @@ namespace DSharpPlus.Entities
             if (this.Files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
-            this._files.Add(filename, new DiscordFileBuilder(data, true));
+            this._files.Add(new DiscordMessageFile(filename, data, true));
 
             return this;
         }
@@ -154,7 +154,7 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
             foreach (var file in files)
-                this._files.Add(file.Key, new DiscordFileBuilder(file.Value, true));
+                this._files.Add(new DiscordMessageFile(file.Key, file.Value, true));
 
             return this;
         }
