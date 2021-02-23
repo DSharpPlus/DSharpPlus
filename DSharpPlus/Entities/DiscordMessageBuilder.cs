@@ -45,7 +45,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the Files to be sent in the Message.
         /// </summary>
-        public IReadOnlyDictionary<string, DiscordFileBuilder> Files => this._files;
+        public IReadOnlyDictionary<string, Stream> Files => this._files.ToDictionary(x => x.Key, x => x.Value.Stream);
 
         internal Dictionary<string, DiscordFileBuilder> _files = new Dictionary<string, DiscordFileBuilder>();
 

@@ -50,7 +50,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Files to send on this webhook request.
         /// </summary>
-        public IReadOnlyDictionary<string, DiscordFileBuilder> Files => this._files;
+        public IReadOnlyDictionary<string, Stream> Files => this._files.ToDictionary(x => x.Key, x => x.Value.Stream);
 
         internal Dictionary<string, DiscordFileBuilder> _files = new Dictionary<string, DiscordFileBuilder>();
 

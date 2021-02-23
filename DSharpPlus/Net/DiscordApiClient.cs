@@ -844,11 +844,11 @@ namespace DSharpPlus.Net
                 var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id }, out var path);
 
                 var url = Utilities.GetApiUriFor(path);
-                var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, values: values, files: builder.Files).ConfigureAwait(false);
+                var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, values: values, files: builder._files).ConfigureAwait(false);
 
                 var ret = this.PrepareMessage(JObject.Parse(res.Response));
 
-                foreach (var file in builder.Files.Where(x => !x.Value.WasUserStream))
+                foreach (var file in builder._files.Where(x => !x.Value.WasUserStream))
                 {
                     file.Value.Stream.Dispose();
                 }

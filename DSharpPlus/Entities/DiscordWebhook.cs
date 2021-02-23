@@ -107,7 +107,7 @@ namespace DSharpPlus.Entities
             => (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookAsync(this.Id, this.Token, builder.Content,
                 builder.Username.HasValue ? builder.Username.Value : this.Name, 
                 builder.AvatarUrl.HasValue ? builder.AvatarUrl.Value : this.AvatarUrl, 
-                builder.IsTTS, builder.Embeds, builder.Files, builder.Mentions);
+                builder.IsTTS, builder.Embeds, builder._files, builder.Mentions);
 
         /// <summary>
         /// Executes this webhook in Slack compatibility mode.
