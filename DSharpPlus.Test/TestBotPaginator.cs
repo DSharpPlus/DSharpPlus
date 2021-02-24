@@ -23,6 +23,9 @@ namespace DSharpPlus.Test
         private PaginationEmojis _emojis;
         private DiscordUser _usr;
 
+        public int PageCount
+            => this.pages.Count;
+
         public TestBotPaginator(DiscordClient client, DiscordUser usr, DiscordMessage msg, List<Page> pages)
         {
             this.pages = pages;
