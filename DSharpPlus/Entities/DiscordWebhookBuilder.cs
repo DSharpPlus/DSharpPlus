@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 
 namespace DSharpPlus.Entities
 {
@@ -49,8 +50,9 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Files to send on this webhook request.
         /// </summary>
-        public IReadOnlyDictionary<string, Stream> Files { get; }
-        private readonly Dictionary<string, Stream> _files = new Dictionary<string, Stream>();
+        public IReadOnlyCollection<DiscordMessageFile> Files => this._files;
+
+        internal List<DiscordMessageFile> _files = new List<DiscordMessageFile>();
 
         /// <summary>
         /// Mentions to send on this webhook request.
@@ -64,7 +66,6 @@ namespace DSharpPlus.Entities
         public DiscordWebhookBuilder()
         {
             this.Embeds = new ReadOnlyCollection<DiscordEmbed>(this._embeds);
-            this.Files = new ReadOnlyDictionary<string, Stream>(this._files);
             this.Mentions = new ReadOnlyCollection<IMention>(this._mentions);
         }
 
@@ -135,7 +136,14 @@ namespace DSharpPlus.Entities
         /// <param name="data">File data.</param>
         public DiscordWebhookBuilder AddFile(string filename, Stream data)
         {
-            this._files[filename] = data;
+            if (this.Files.Count() >= 10)
+                throw new ArgumentException("Cannot send more than 10 files with a single message.");
+
+            if (this._files.Any(x => x.FileName == filename))
+                throw new ArgumentException("A File with that filename already exists");
+
+            this._files.Add(new DiscordMessageFile(filename, data, false));
+
             return this;
         }
 
@@ -145,10 +153,18 @@ namespace DSharpPlus.Entities
         /// <param name="files">Dictionary of file name and file data.</param>
         public DiscordWebhookBuilder AddFiles(Dictionary<string, Stream> files)
         {
+            if (this.Files.Count() + files.Count() >= 10)
+                throw new ArgumentException("Cannot send more than 10 files with a single message.");
+
             foreach (var file in files)
             {
-                this._files[file.Key] = file.Value;
+                if (this._files.Any(x => x.FileName == file.Key))
+                    throw new ArgumentException("A File with that filename already exists");
+
+                this._files.Add(new DiscordMessageFile(file.Key, file.Value, false));
             }
+                
+
             return this;
         }
 

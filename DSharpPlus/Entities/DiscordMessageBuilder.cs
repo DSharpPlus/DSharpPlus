@@ -45,9 +45,9 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the Files to be sent in the Message.
         /// </summary>
-        public IReadOnlyDictionary<string, Stream> Files => this._files;
+        public IReadOnlyCollection<DiscordMessageFile> Files => this._files;
 
-        internal Dictionary<string, Stream> _files = new Dictionary<string, Stream>();
+        internal List<DiscordMessageFile> _files = new List<DiscordMessageFile>();
 
         /// <summary>
         /// Gets the Reply Message ID.
@@ -133,7 +133,10 @@ namespace DSharpPlus.Entities
             if(this.Files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
-            this._files.Add(fileName, stream);
+            if (this._files.Any(x => x.FileName == fileName))
+                throw new ArgumentException("A File with that filename already exists");
+
+            this._files.Add(new DiscordMessageFile(fileName, stream, false));
 
             return this;
         }
@@ -148,7 +151,10 @@ namespace DSharpPlus.Entities
             if (this.Files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
-            this._files.Add(stream.Name, stream);
+            if (this._files.Any(x => x.FileName == stream.Name))
+                throw new ArgumentException("A File with that filename already exists");
+
+            this._files.Add(new DiscordMessageFile(stream.Name, stream, false));
 
             return this;
         }
@@ -164,7 +170,11 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
             var fs = File.OpenRead(filePath);
-            this._files.Add(fs.Name, fs);
+
+            if (this._files.Any(x => x.FileName == fs.Name))
+                throw new ArgumentException("A File with that filename already exists");
+
+            this._files.Add(new DiscordMessageFile(fs.Name, fs, true));
 
             return this;
         }
@@ -180,7 +190,13 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
             foreach (var file in files)
-                this._files.Add(file.Key, file.Value);
+            {
+                if (this._files.Any(x => x.FileName == file.Key))
+                    throw new ArgumentException("A File with that filename already exists");
+
+                this._files.Add(new DiscordMessageFile(file.Key, file.Value, false));
+            }
+                
 
             return this;
         }

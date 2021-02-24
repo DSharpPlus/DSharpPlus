@@ -211,5 +211,39 @@ namespace DSharpPlus.Test
                    .SendAsync(ctx.Channel)
                    .ConfigureAwait(false);
         }
+
+        [Command("CreateSomeFile")]
+        public async Task CreateSomeFile(CommandContext ctx, string fileName, [RemainingText]string fileBody)
+        {
+            using (var fs = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite))
+            using (var sw = new StreamWriter(fs))
+            {
+                await sw.WriteAsync(fileBody);
+            }
+
+            using (var fs = new FileStream($"another {fileName}", FileMode.Create, FileAccess.ReadWrite))
+            using (var sw = new StreamWriter(fs))
+            {
+                sw.AutoFlush = true;
+                await sw.WriteLineAsync(fileBody);
+                fs.Position = 0;
+                var builder = new DiscordMessageBuilder();
+                builder.WithContent("Here is a really dumb file that i am testing with.");
+                builder.WithFile(fileName);
+                builder.WithFile(fs);
+
+                foreach (var file in builder.Files)
+                {
+
+                }
+
+                await builder.SendAsync(ctx.Channel);
+                //Testing to make sure the stream sent in is not disposed.
+
+                await sw.WriteLineAsync("Another" + fileBody);
+            }
+            File.Delete(fileName);
+            File.Delete("another " + fileName);
+        }
     }
 }

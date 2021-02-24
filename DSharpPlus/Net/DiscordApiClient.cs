@@ -134,7 +134,7 @@ namespace DSharpPlus.Net
         }
 
         private Task<RestResponse> DoMultipartAsync(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, string route, IReadOnlyDictionary<string, string> headers = null, IReadOnlyDictionary<string, string> values = null,
-            IReadOnlyDictionary<string, Stream> files = null, double? ratelimitWaitOverride = null)
+            IReadOnlyCollection<DiscordMessageFile> files = null, double? ratelimitWaitOverride = null)
         {
             var req = new MultipartWebRequest(client, bucket, url, method, route, headers, values, files, ratelimitWaitOverride);
 
@@ -847,6 +847,11 @@ namespace DSharpPlus.Net
                 var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, values: values, files: builder.Files).ConfigureAwait(false);
 
                 var ret = this.PrepareMessage(JObject.Parse(res.Response));
+
+                foreach (var file in builder._files.Where(x => x.IsDisposedInternally))
+                {
+                    file.Stream.Dispose();
+                }
 
                 return ret;
             }
@@ -1902,7 +1907,7 @@ namespace DSharpPlus.Net
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route, headers);
         }
 
-        internal async Task<DiscordMessage> ExecuteWebhookAsync(ulong webhook_id, string webhook_token, string content, Optional<string> username, Optional<string> avatar_url, bool? tts, IEnumerable<DiscordEmbed> embeds, IReadOnlyDictionary<string, Stream> files, IEnumerable<IMention> mentions)
+        internal async Task<DiscordMessage> ExecuteWebhookAsync(ulong webhook_id, string webhook_token, string content, Optional<string> username, Optional<string> avatar_url, bool? tts, IEnumerable<DiscordEmbed> embeds, IReadOnlyCollection<DiscordMessageFile> files, IEnumerable<IMention> mentions)
         {
             if (files?.Count == 0 && string.IsNullOrEmpty(content) && embeds == null)
                 throw new ArgumentException("You must specify content, an embed, or at least one file.");
@@ -1934,6 +1939,12 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriBuilderFor(path).AddParameter("wait", "true").Build();
             var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, values: values, files: files).ConfigureAwait(false);
             var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
+
+            foreach (var file in files.Where(x => x.IsDisposedInternally))
+            {
+                file.Stream.Dispose();
+            }
+
             ret.Discord = this.Discord;
             return ret;
         }
