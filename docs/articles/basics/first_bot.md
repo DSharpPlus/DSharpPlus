@@ -43,7 +43,7 @@ Locate the *solution explorer* on the right side, then right click on `Dependenc
 <br/>
 You'll then be greeted by the NuGet package manager.
 
-Select the `Browse` tab towards the top left, then type `DSharpPlus` into the search text box.
+Select the `Browse` tab towards the top left, then type `DSharpPlus` into the search text box with the Pre-release checkbox checked **ON**.
 
 ![NuGet Package Search](/images/basics_first_bot_06.png)
 
@@ -62,7 +62,7 @@ Package|Description
 
 <br/>
 We'll only need the `DSharpPlus` package for the basic bot we'll be writing in this article.<br/>
-Select it from the list then click the `Install` button to the right.
+Select it from the list then click the `Install` button to the right (after verifing that you will be installing the 4.x RC version).
 
 ![Install DSharpPlus](/images/basics_first_bot_08.png)
 
