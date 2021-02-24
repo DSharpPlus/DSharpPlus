@@ -844,7 +844,7 @@ namespace DSharpPlus.Net
                 var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id }, out var path);
 
                 var url = Utilities.GetApiUriFor(path);
-                var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, values: values, files: builder._files).ConfigureAwait(false);
+                var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, values: values, files: builder.Files).ConfigureAwait(false);
 
                 var ret = this.PrepareMessage(JObject.Parse(res.Response));
 
