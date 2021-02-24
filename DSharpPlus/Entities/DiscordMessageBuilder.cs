@@ -133,7 +133,10 @@ namespace DSharpPlus.Entities
             if(this.Files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
-            this._files.Add(new DiscordMessageFile(fileName, stream, true));
+            if (this._files.Any(x => x.FileName == fileName))
+                throw new ArgumentException("A File with that filename already exists");
+
+            this._files.Add(new DiscordMessageFile(fileName, stream, false));
 
             return this;
         }
@@ -148,7 +151,10 @@ namespace DSharpPlus.Entities
             if (this.Files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
-            this._files.Add(new DiscordMessageFile(stream.Name, stream, true));
+            if (this._files.Any(x => x.FileName == stream.Name))
+                throw new ArgumentException("A File with that filename already exists");
+
+            this._files.Add(new DiscordMessageFile(stream.Name, stream, false));
 
             return this;
         }
@@ -164,7 +170,11 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
             var fs = File.OpenRead(filePath);
-            this._files.Add(new DiscordMessageFile(fs.Name, fs, false));
+
+            if (this._files.Any(x => x.FileName == fs.Name))
+                throw new ArgumentException("A File with that filename already exists");
+
+            this._files.Add(new DiscordMessageFile(fs.Name, fs, true));
 
             return this;
         }
@@ -180,7 +190,13 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
             foreach (var file in files)
-                this._files.Add(new DiscordMessageFile(file.Key, file.Value, true));
+            {
+                if (this._files.Any(x => x.FileName == file.Key))
+                    throw new ArgumentException("A File with that filename already exists");
+
+                this._files.Add(new DiscordMessageFile(file.Key, file.Value, false));
+            }
+                
 
             return this;
         }

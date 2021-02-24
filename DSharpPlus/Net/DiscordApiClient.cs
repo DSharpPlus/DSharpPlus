@@ -848,7 +848,7 @@ namespace DSharpPlus.Net
 
                 var ret = this.PrepareMessage(JObject.Parse(res.Response));
 
-                foreach (var file in builder._files.Where(x => !x.WasUserStream))
+                foreach (var file in builder._files.Where(x => x.IsDisposedInternally))
                 {
                     file.Stream.Dispose();
                 }
@@ -1940,7 +1940,7 @@ namespace DSharpPlus.Net
             var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, values: values, files: files).ConfigureAwait(false);
             var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
 
-            foreach (var file in files.Where(x => !x.WasUserStream))
+            foreach (var file in files.Where(x => x.IsDisposedInternally))
             {
                 file.Stream.Dispose();
             }

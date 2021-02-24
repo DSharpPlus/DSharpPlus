@@ -2,17 +2,31 @@
 
 namespace DSharpPlus.Entities
 {
-    public struct DiscordMessageFile
+    /// <summary>
+    /// Represents the File that should be sent to Discord from the <see cref="DiscordMessageBuilder"/>.
+    /// </summary>
+    public class DiscordMessageFile
     {
-        public DiscordMessageFile(string fileName, Stream stream, bool wasUserStream)
+        internal DiscordMessageFile(string fileName, Stream stream, bool isDisposedInternally)
         {
             this.FileName = fileName;
             this.Stream = stream;
-            this.WasUserStream = wasUserStream;
+            this.IsDisposedInternally = isDisposedInternally;
         }
 
-        public string FileName { get; set; }
-        public Stream Stream { get; set; }
-        internal bool WasUserStream { get; set; }
+        /// <summary>
+        /// Gets or Sets the FileName of the File.
+        /// </summary>
+        public string FileName { get; internal set; }
+
+        /// <summary>
+        /// Gets or Sets the stream of the File.
+        /// </summary>
+        public Stream Stream { get; internal set; }
+
+        /// <summary>
+        /// Gets or Sets if the stream should be disposed by the library.
+        /// </summary>
+        internal bool IsDisposedInternally { get; set; }
     }
 }
