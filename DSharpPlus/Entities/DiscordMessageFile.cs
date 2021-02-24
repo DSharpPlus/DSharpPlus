@@ -15,17 +15,17 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Gets or Sets the FileName of the File.
+        /// Gets the FileName of the File.
         /// </summary>
         public string FileName { get; internal set; }
 
         /// <summary>
-        /// Gets or Sets the stream of the File.
+        /// Gets the stream of the File.
         /// </summary>
         public Stream Stream { get; internal set; }
 
         /// <summary>
-        /// Gets or Sets if the stream should be disposed by the library.
+        /// Gets if the stream should be disposed by the library.
         /// </summary>
         internal bool IsDisposedInternally { get; set; }
     }
