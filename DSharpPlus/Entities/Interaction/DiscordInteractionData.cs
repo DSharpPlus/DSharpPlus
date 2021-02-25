@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 namespace DSharpPlus.Entities
 {
     /// <summary>
-    /// Represents the inner data payload of an interaction.
+    /// Represents the inner data payload of a <see cref="DiscordInteraction"/>.
     /// </summary>
     public sealed class DiscordInteractionData : SnowflakeObject
     {
