@@ -1,5 +1,7 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
 {
@@ -43,5 +45,25 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("options", NullValueHandling = NullValueHandling.Ignore)]
         public IReadOnlyCollection<DiscordApplicationCommandOption> Options { get; internal set; }
+
+        /// <summary>
+        /// Creates a new instance of a <see cref="DiscordApplicationCommandOption"/>.
+        /// </summary>
+        /// <param name="name">The name of this parameter.</param>
+        /// <param name="description">The description of the parameter.</param>
+        /// <param name="required">Whether the parameter is required.</param>
+        /// <param name="choices">The optional choice selection for this parameter.</param>
+        /// <param name="options">The optional subcommands for this parameter.</param>
+        public DiscordApplicationCommandOption(string name, string description, bool? required = null, IEnumerable<DiscordApplicationCommandOptionChoice> choices = null, IEnumerable<DiscordApplicationCommandOption> options = null)
+        {
+            var choiceList = choices != null ? new ReadOnlyCollection<DiscordApplicationCommandOptionChoice>(choices.ToList()) : null;
+            var optionList = options != null ? new ReadOnlyCollection<DiscordApplicationCommandOption>(options.ToList()) : null;
+
+            this.Name = name;
+            this.Description = description;
+            this.Required = required;
+            this.Choices = choiceList;
+            this.Options = optionList;
+        }
     }
 }

@@ -327,7 +327,7 @@ namespace DSharpPlus
                 case "interaction_create":
                     mbr = dat["member"].ToObject<TransportMember>();
                     cid = (ulong)dat["channel_id"];
-                    gid = (ulong)dat["guild_id"];
+                    gid = (ulong)dat["guild_id"]; //todo: check if fired in DMs
                     await OnInteractionCreateAsync(gid, cid, mbr, dat.ToObject<DiscordInteraction>()).ConfigureAwait(false);
                     break;
 
