@@ -46,20 +46,20 @@ namespace DSharpPlus.Entities
         /// Embeds to send on this webhook request.
         /// </summary>
         public IReadOnlyList<DiscordEmbed> Embeds { get; }
-        private List<DiscordEmbed> _embeds = new List<DiscordEmbed>();
+        private readonly List<DiscordEmbed> _embeds = new List<DiscordEmbed>();
 
         /// <summary>
         /// Files to send on this webhook request.
         /// </summary>
         public IReadOnlyCollection<DiscordMessageFile> Files => this._files;
 
-        internal List<DiscordMessageFile> _files = new List<DiscordMessageFile>();
+        internal readonly List<DiscordMessageFile> _files = new List<DiscordMessageFile>();
 
         /// <summary>
         /// Mentions to send on this webhook request.
         /// </summary>
         public IEnumerable<IMention> Mentions { get; }
-        private List<IMention> _mentions = new List<IMention>();
+        private readonly List<IMention> _mentions = new List<IMention>();
 
         /// <summary>
         /// Constructs a new empty webhook request builder.
@@ -231,10 +231,10 @@ namespace DSharpPlus.Entities
         public void ClearWebhookBuilder()
         {
             this.Content = "";
-            this._embeds = new List<DiscordEmbed>();
+            this._embeds.Clear();
             this.IsTTS = false;
-            this._mentions = new List<IMention>();
-            this._files = new List<DiscordMessageFile>();
+            this._mentions.Clear();
+            this._files.Clear();
         }
     }
 }

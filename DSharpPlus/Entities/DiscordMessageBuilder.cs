@@ -235,7 +235,7 @@ namespace DSharpPlus.Entities
             this.Embed = null;
             this.IsTTS = false;
             this.Mentions = null;
-            this._files = new List<DiscordMessageFile>();
+            this._files.Clear();
             this.ReplyId = null;
             this.MentionOnReply = false;
         }
