@@ -111,7 +111,7 @@ We'll now create a new `DiscordClient` instance in our brand new asynchronous me
 
 Create a new variable in `MainAsync` and assign it a new `DiscordClient` instance, then pass an instance of `DiscordConfiguration` to its constructor.
 Create an object initializer for `DiscordConfiguration` and populate the `Token` property with your bot token then set the `TokenType` property to `TokenType.Bot`.
-Next add the `Intents` Property and Populated it with the @DSharpPlus.DiscordIntents.GuildMessages and @DSharpPlus.DiscordIntents.DirectMessages values.  These Intents 
+Next add the `Intents` Property and Populated it with the @DSharpPlus.DiscordIntents.AllUnprivileged value.  These Intents 
 are required for certain Events to be fired.  Please visit this [article](xref:beyond_basics_intents) for more information.
 
 ```cs
@@ -119,7 +119,7 @@ var discord = new DiscordClient(new DiscordConfiguration()
 {
     Token = "My First Token",
     TokenType = TokenType.Bot,
-    Intents = DiscordIntents.GuildMessages | DiscordIntents.DirectMessages       
+    Intents = DiscordIntents.AllUnprivileged     
 });
 ```
 
