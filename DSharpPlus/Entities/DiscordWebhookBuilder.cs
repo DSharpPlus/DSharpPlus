@@ -130,68 +130,28 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Sets if the message has files to be sent.
+        /// Adds a file to send at the execution of the webhook.
         /// </summary>
-        /// <param name="fileName">The fileName that the file should be sent as.</param>
-        /// <param name="stream">The Stream to the file.</param>
-        /// <returns></returns>
-        public DiscordWebhookBuilder WithFile(string fileName, Stream stream)
+        /// <param name="filename">Name of the file.</param>
+        /// <param name="data">File data.</param>
+        public DiscordWebhookBuilder AddFile(string filename, Stream data)
         {
             if (this.Files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
-            if (this._files.Any(x => x.FileName == fileName))
+            if (this._files.Any(x => x.FileName == filename))
                 throw new ArgumentException("A File with that filename already exists");
 
-            this._files.Add(new DiscordMessageFile(fileName, stream, false));
+            this._files.Add(new DiscordMessageFile(filename, data, false));
 
             return this;
         }
 
         /// <summary>
-        /// Sets if the message has files to be sent.
+        /// Adds the given files to send at the execution of the webhook.
         /// </summary>
-        /// <param name="stream">The Stream to the file.</param>
-        /// <returns></returns>
-        public DiscordWebhookBuilder WithFile(FileStream stream)
-        {
-            if (this.Files.Count() >= 10)
-                throw new ArgumentException("Cannot send more than 10 files with a single message.");
-
-            if (this._files.Any(x => x.FileName == stream.Name))
-                throw new ArgumentException("A File with that filename already exists");
-
-            this._files.Add(new DiscordMessageFile(stream.Name, stream, false));
-
-            return this;
-        }
-
-        /// <summary>
-        /// Sets if the message has files to be sent.
-        /// </summary>
-        /// <param name="filePath">The path to the file.</param>
-        /// <returns></returns>
-        public DiscordWebhookBuilder WithFile(string filePath)
-        {
-            if (this.Files.Count() >= 10)
-                throw new ArgumentException("Cannot send more than 10 files with a single message.");
-
-            var fs = File.OpenRead(filePath);
-
-            if (this._files.Any(x => x.FileName == fs.Name))
-                throw new ArgumentException("A File with that filename already exists");
-
-            this._files.Add(new DiscordMessageFile(fs.Name, fs, true));
-
-            return this;
-        }
-
-        /// <summary>
-        /// Sets if the message has files to be sent.
-        /// </summary>
-        /// <param name="files">The Files that should be sent.</param>
-        /// <returns></returns>
-        public DiscordWebhookBuilder WithFiles(Dictionary<string, Stream> files)
+        /// <param name="files">Dictionary of file name and file data.</param>
+        public DiscordWebhookBuilder AddFiles(Dictionary<string, Stream> files)
         {
             if (this.Files.Count() + files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
@@ -203,7 +163,7 @@ namespace DSharpPlus.Entities
 
                 this._files.Add(new DiscordMessageFile(file.Key, file.Value, false));
             }
-
+                
 
             return this;
         }
