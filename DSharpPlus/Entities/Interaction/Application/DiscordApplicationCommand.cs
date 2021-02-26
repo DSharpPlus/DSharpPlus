@@ -76,6 +76,11 @@ namespace DSharpPlus.Entities
         public static bool operator !=(DiscordApplicationCommand e1, DiscordApplicationCommand e2)
             => !(e1 == e2);
 
+        /// <summary>
+        /// Determines if a <see cref="object"/> is equal to the current <see cref="DiscordApplicationCommand"/>.
+        /// </summary>
+        /// <param name="other">The object to compare to.</param>
+        /// <returns>Whether the two <see cref="DiscordApplicationCommand"/> objects are not equal.</returns>
         public override bool Equals(object other)
         {
             if (other is DiscordApplicationCommand dac)
@@ -84,6 +89,10 @@ namespace DSharpPlus.Entities
             return false;
         }
 
+        /// <summary>
+        /// Gets the hash code for this <see cref="DiscordApplicationCommand"/>.
+        /// </summary>
+        /// <returns>The hash code for this <see cref="DiscordApplicationCommand"/>.</returns>
         public override int GetHashCode()
             => this.Id.GetHashCode();
     }
