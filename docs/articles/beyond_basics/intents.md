@@ -5,7 +5,9 @@ title: Intents
 
 ## Intents
 Intents were added to Discord to help the service not have to push so many events to the bots that were not using them.  If you are going to be needing
-to subscribe to any type of event, they are going to have to be defined **BOTH** within the [Discord Application under the Bot Page](https://discord.com/developers/applications) on Discords Site and also within the @DSharpPlus.DiscordConfiguration.  
+to subscribe to any type of event, they are going to have to be defined **BOTH** within the 
+[Discord Application under the Bot Page](https://discord.com/developers/applications) on Discords Site and also within the @DSharpPlus.DiscordConfiguration.  However
+if you need to have all of the events sent to your bot, please feel free to set the Intents as `DiscordIntents.All`  
 
 
 ### Discord Application
