@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
 using DSharpPlus.Net.Abstractions;
@@ -291,5 +293,18 @@ namespace DSharpPlus.Entities
         /// <returns>Whether the two users are not equal.</returns>
         public static bool operator !=(DiscordUser e1, DiscordUser e2) 
             => !(e1 == e2);
+    }
+
+    internal class DiscordUserComparer : IEqualityComparer<DiscordUser>
+    {
+        public bool Equals(DiscordUser x, DiscordUser y)
+        {
+            return x.Equals(y);
+        }
+
+        public int GetHashCode(DiscordUser obj)
+        {
+            return obj.Id.GetHashCode();
+        }
     }
 }

@@ -810,28 +810,40 @@ namespace DSharpPlus
                 this.MessageCache?.Add(message);
         }
 
-        private void PopulateMessageMentions(DiscordMessage message, DiscordGuild guild)
+        private void PopulateMentions(DiscordMessage message, DiscordGuild guild)
         {
-            var mentionedUsers = new List<DiscordUser>();
-            var mentionedRoles = guild != null ? new List<DiscordRole>() : null;
-            var mentionedChannels = guild != null ? new List<DiscordChannel>() : null;
+            message._mentionedUsers ??= new List<DiscordUser>();
+            message._mentionedRoles ??= new List<DiscordRole>();
+            message._mentionedChannels ??= new List<DiscordChannel>();
+
+            HashSet<DiscordUser> mentionedUsers = new HashSet<DiscordUser>(new DiscordUserComparer());
+            if (guild != null)
+            {
+                foreach (DiscordUser usr in message._mentionedUsers)
+                {
+                    usr.Discord = this;
+                    this.UserCache.AddOrUpdate(usr.Id, usr, (id, old) =>
+                    {
+                        old.Username = usr.Username;
+                        old.Discriminator = usr.Discriminator;
+                        old.AvatarHash = usr.AvatarHash;
+                        return old;
+                    });
+
+                    mentionedUsers.Add(guild._members.TryGetValue(usr.Id, out var member) ? member : usr);
+                }
+            }
             if (!string.IsNullOrWhiteSpace(message.Content))
             {
+                mentionedUsers.UnionWith(Utilities.GetUserMentions(message).Select(this.GetCachedOrEmptyUserInternal));
                 if (guild != null)
                 {
-                    mentionedUsers = Utilities.GetUserMentions(message).Select(xid => guild._members.TryGetValue(xid, out var member) ? member : new DiscordUser { Id = xid, Discord = this }).Cast<DiscordUser>().ToList();
-                    mentionedRoles = Utilities.GetRoleMentions(message).Select(xid => guild.GetRole(xid)).ToList();
-                    mentionedChannels = Utilities.GetChannelMentions(message).Select(xid => guild.GetChannel(xid)).ToList();
-                }
-                else
-                {
-                    mentionedUsers = Utilities.GetUserMentions(message).Select(this.GetCachedOrEmptyUserInternal).ToList();
+                    message._mentionedRoles = message._mentionedRoles.Union(Utilities.GetRoleMentions(message).Select(xid => guild.GetRole(xid))).ToList();
+                    message._mentionedChannels = message._mentionedChannels.Union(Utilities.GetChannelMentions(message).Select(xid => guild.GetChannel(xid))).ToList();
                 }
             }
 
-            message._mentionedUsers = mentionedUsers;
-            message._mentionedRoles = mentionedRoles;
-            message._mentionedChannels = mentionedChannels;
+            message._mentionedUsers = mentionedUsers.ToList();
         }
 
 

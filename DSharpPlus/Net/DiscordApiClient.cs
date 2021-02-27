@@ -93,27 +93,38 @@ namespace DSharpPlus.Net
                 }
             }
 
-            var mentioned_users = new List<DiscordUser>();
-            var mentioned_roles = guild != null ? new List<DiscordRole>() : null;
-            var mentioned_channels = guild != null ? new List<DiscordChannel>() : null;
+            ret._mentionedUsers ??= new List<DiscordUser>();
+            ret._mentionedRoles ??= new List<DiscordRole>();
+            ret._mentionedChannels ??= new List<DiscordChannel>();
 
+            HashSet<DiscordUser> mentionedUsers = new HashSet<DiscordUser>(new DiscordUserComparer());
+            if (guild != null)
+            {
+                foreach (DiscordUser usr in ret._mentionedUsers)
+                {
+                    usr.Discord = this.Discord;
+                    this.Discord.UserCache.AddOrUpdate(usr.Id, usr, (id, old) =>
+                    {
+                        old.Username = usr.Username;
+                        old.Discriminator = usr.Discriminator;
+                        old.AvatarHash = usr.AvatarHash;
+                        return old;
+                    });
+
+                    mentionedUsers.Add(guild._members.TryGetValue(usr.Id, out var member) ? member : usr);
+                }
+            }
             if (!string.IsNullOrWhiteSpace(ret.Content))
             {
+                mentionedUsers.UnionWith(Utilities.GetUserMentions(ret).Select(this.Discord.GetCachedOrEmptyUserInternal));
                 if (guild != null)
                 {
-                    mentioned_users = Utilities.GetUserMentions(ret).Select(xid => guild._members.TryGetValue(xid, out var member) ? member : null).Cast<DiscordUser>().ToList();
-                    mentioned_roles = Utilities.GetRoleMentions(ret).Select(xid => guild.GetRole(xid)).ToList();
-                    mentioned_channels = Utilities.GetChannelMentions(ret).Select(xid => guild.GetChannel(xid)).ToList();
-                }
-                else
-                {
-                    mentioned_users = Utilities.GetUserMentions(ret).Select(this.Discord.GetCachedOrEmptyUserInternal).ToList();
+                    ret._mentionedRoles = ret._mentionedRoles.Union(Utilities.GetRoleMentions(ret).Select(xid => guild.GetRole(xid))).ToList();
+                    ret._mentionedChannels = ret._mentionedChannels.Union(Utilities.GetChannelMentions(ret).Select(xid => guild.GetChannel(xid))).ToList();
                 }
             }
 
-            ret._mentionedUsers = mentioned_users;
-            ret._mentionedRoles = mentioned_roles;
-            ret._mentionedChannels = mentioned_channels;
+            ret._mentionedUsers = mentionedUsers.ToList();
 
             if (ret._reactions == null)
                 ret._reactions = new List<DiscordReaction>();
