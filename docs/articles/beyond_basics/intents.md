@@ -24,7 +24,7 @@ var config = new DiscordConfiguration()
 };
 ```
 
-Here is an example of specifing many:
+Here is an example of specifying many:
 
 ```csharp
 var config = new DiscordConfiguration()

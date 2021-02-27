@@ -8,7 +8,7 @@ title: Hosting Solutions
 ### Free hosting
 If you're looking for free hosts, you've likely considered using [Heroku](https://www.heroku.com/) or [Glitch](https://glitch.com/). 
 We advise against using these platforms as they are designed to host web services, not Discord bots, and instances from either of these companies will shut down if there isn't enough internet traffic.
-Save youself the headache and don't bother.
+Save yourself the headache and don't bother.
 
 Outside of persuading somebody to host your bot, you won't find any good free hosting solutions.
 
@@ -68,11 +68,11 @@ a whole VM.
 
 ### Making your publishing life easier
 Now that we have covered where you can possibly host your application, now lets cover how to make your life easier publishing it. Many different
-source control solutions out there are free and also offer some type of CI/CD intergration (paid and free).  Below are some of the 
+source control solutions out there are free and also offer some type of CI/CD integration (paid and free).  Below are some of the 
 solutions that we recommend:
 
-* [**Azure Devops**](https://azure.microsoft.com/en-us/services/devops/?nav=min "Azure Devops"):  Allows for GIT source control hosting along with intergrated CI/CD
+* [**Azure Devops**](https://azure.microsoft.com/en-us/services/devops/?nav=min "Azure Devops"):  Allows for GIT source control hosting along with integrated CI/CD
   pipelines to auto compile and publish your applications.  You can also use their CI/CD service if your code is hosted in a different source control enviorment like Github.
 * [**Github**](https://github.com/ "GitHub") Allows for GIT source control hosting.  From here you can leverage many different CI/CD options to compile and publish your 
   applications.
-* [**Bitbucket**](https://bitbucket.org/ "Bitbucket"):  Allows for GIT source control hosting along with intergrated CI/CD pipelines to auto compile and publish your applications.
+* [**Bitbucket**](https://bitbucket.org/ "Bitbucket"):  Allows for GIT source control hosting along with integrated CI/CD pipelines to auto compile and publish your applications.
