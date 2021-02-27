@@ -286,7 +286,7 @@ namespace DSharpPlus.Test
         [Command("mentionusers")]
         public async Task MentionAllMentionedUsers(CommandContext ctx, [RemainingText][Description("Just a string so that DSharpPlus will parse no matter what I say")] string mentionedUsers)
         {
-            string content = "You didn't have any users to mention";
+            var content = "You didn't have any users to mention";
             if (ctx.Message.MentionedUsers.Any())
                 content = string.Join(", ", ctx.Message.MentionedUsers.Select(usr => usr.Mention));
 
@@ -296,7 +296,7 @@ namespace DSharpPlus.Test
         [Command("mentionroles")]
         public async Task MentionAllMentionedRoles(CommandContext ctx, [RemainingText][Description("Just a string so that DSharpPlus will parse no matter what I say")] string mentionedRoles)
         {
-            string content = "You didn't have any roles to mention";
+            var content = "You didn't have any roles to mention";
             if (ctx.Message.MentionedRoles.Any())
                 content = string.Join(", ", ctx.Message.MentionedRoles.Select(role => role.Mention));
 
@@ -306,7 +306,7 @@ namespace DSharpPlus.Test
         [Command("mentionchannels")]
         public async Task MentionChannels(CommandContext ctx, [RemainingText][Description("Just a string so that DSharpPlus will parse no matter what I say")] string mentionedChannels)
         {
-            string content = "You didn't have any roles to mention";
+            var content = "You didn't have any channels to mention";
             if (ctx.Message.MentionedChannels.Any())
                 content = string.Join(", ", ctx.Message.MentionedChannels.Select(role => role.Mention));
 
@@ -316,8 +316,8 @@ namespace DSharpPlus.Test
         [Command("getmessagementions")]
         public async Task GetMessageMentions(CommandContext ctx, ulong msgId)
         {
-            DiscordMessage msg = await ctx.Channel.GetMessageAsync(msgId);
-            StringBuilder contentBuilder = new StringBuilder("You didn't mention any user, channel, or role.");
+            var msg = await ctx.Channel.GetMessageAsync(msgId);
+            var contentBuilder = new StringBuilder("You didn't mention any user, channel, or role.");
 
             if (msg.MentionedUsers.Any() || msg.MentionedRoles.Any() || msg.MentionedChannels.Any())
             {

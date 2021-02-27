@@ -93,38 +93,7 @@ namespace DSharpPlus.Net
                 }
             }
 
-            ret._mentionedUsers ??= new List<DiscordUser>();
-            ret._mentionedRoles ??= new List<DiscordRole>();
-            ret._mentionedChannels ??= new List<DiscordChannel>();
-
-            HashSet<DiscordUser> mentionedUsers = new HashSet<DiscordUser>(new DiscordUserComparer());
-            if (guild != null)
-            {
-                foreach (DiscordUser usr in ret._mentionedUsers)
-                {
-                    usr.Discord = this.Discord;
-                    this.Discord.UserCache.AddOrUpdate(usr.Id, usr, (id, old) =>
-                    {
-                        old.Username = usr.Username;
-                        old.Discriminator = usr.Discriminator;
-                        old.AvatarHash = usr.AvatarHash;
-                        return old;
-                    });
-
-                    mentionedUsers.Add(guild._members.TryGetValue(usr.Id, out var member) ? member : usr);
-                }
-            }
-            if (!string.IsNullOrWhiteSpace(ret.Content))
-            {
-                mentionedUsers.UnionWith(Utilities.GetUserMentions(ret).Select(this.Discord.GetCachedOrEmptyUserInternal));
-                if (guild != null)
-                {
-                    ret._mentionedRoles = ret._mentionedRoles.Union(Utilities.GetRoleMentions(ret).Select(xid => guild.GetRole(xid))).ToList();
-                    ret._mentionedChannels = ret._mentionedChannels.Union(Utilities.GetChannelMentions(ret).Select(xid => guild.GetChannel(xid))).ToList();
-                }
-            }
-
-            ret._mentionedUsers = mentionedUsers.ToList();
+            ret.PopulateMentions();
 
             if (ret._reactions == null)
                 ret._reactions = new List<DiscordReaction>();
