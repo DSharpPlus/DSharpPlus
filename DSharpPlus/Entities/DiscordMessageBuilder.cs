@@ -119,14 +119,14 @@ namespace DSharpPlus.Entities
                 this.Mentions = allowedMentions.ToList();
 
             return this;
-        }               
+        }
 
         /// <summary>
         /// Sets if the message has files to be sent.
         /// </summary>
         /// <param name="fileName">The fileName that the file should be sent as.</param>
         /// <param name="stream">The Stream to the file.</param>
-        /// <param name="resetStreamPosition">Tells the API Client to reset the stream poition to what it was after the file is sent.</param>
+        /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
         /// <returns></returns>
         public DiscordMessageBuilder WithFile(string fileName, Stream stream, bool resetStreamPosition = false)
         {
@@ -148,7 +148,7 @@ namespace DSharpPlus.Entities
         /// Sets if the message has files to be sent.
         /// </summary>
         /// <param name="stream">The Stream to the file.</param>
-        /// <param name="resetStreamPosition">Tells the API Client to reset the stream poition to what it was after the file is sent.</param>
+        /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
         /// <returns></returns>
         public DiscordMessageBuilder WithFile(FileStream stream, bool resetStreamPosition = false)
         {
@@ -170,7 +170,7 @@ namespace DSharpPlus.Entities
         /// Sets if the message has files to be sent.
         /// </summary>
         /// <param name="files">The Files that should be sent.</param>
-        /// <param name="resetStreamPosition">Tells the API Client to reset the stream poition to what it was after the file is sent.</param>
+        /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
         /// <returns></returns>
         public DiscordMessageBuilder WithFiles(Dictionary<string, Stream> files, bool resetStreamPosition = false)
         {
@@ -229,7 +229,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Allows for clearing the Message Builder so that it can be used again to send a new message.
         /// </summary>
-        public void ClearMessageBuilder()
+        public void Clear()
         {
             this.Content = "";
             this.Embed = null;
