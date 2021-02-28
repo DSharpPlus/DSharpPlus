@@ -216,7 +216,7 @@ namespace DSharpPlus.Entities
                 }
             }
 
-            throw new ArgumentException("Invalid emoji name specified.", nameof(raw));
+            throw new ArgumentException("Invalid emoji specified.", nameof(raw));
         }
 
         /// <summary>
