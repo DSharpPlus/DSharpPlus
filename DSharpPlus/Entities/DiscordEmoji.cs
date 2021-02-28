@@ -178,15 +178,27 @@ namespace DSharpPlus.Entities
         /// <param name="e1">First emoji to compare.</param>
         /// <param name="e2">Second emoji to compare.</param>
         /// <returns>Whether the two emoji are not equal.</returns>
-        public static bool operator !=(DiscordEmoji e1, DiscordEmoji e2) 
+        public static bool operator !=(DiscordEmoji e1, DiscordEmoji e2)
             => !(e1 == e2);
 
         /// <summary>
         /// Implicitly converts this emoji to its string representation.
         /// </summary>
         /// <param name="e1">Emoji to convert.</param>
-        public static implicit operator string(DiscordEmoji e1) 
+        public static implicit operator string(DiscordEmoji e1)
             => e1.ToString();
+
+        /// <summary>
+        /// Implicitly converts this string to its emoji instance representation.
+        /// </summary>
+        /// <param name="s1">String to convert.</param>
+        public static implicit operator DiscordEmoji(string s1)
+        {
+            if (UnicodeEmojis.TryGetValue(s1, out var unicode_entity))
+                return new DiscordEmoji { Name = unicode_entity, Discord = null };
+
+            return FromUnicode(s1);
+        }
 
         /// <summary>
         /// Creates an emoji object from a unicode entity.
@@ -228,8 +240,24 @@ namespace DSharpPlus.Entities
                 if (guild.Emojis.TryGetValue(id, out var found))
                     return found;
             }
-            
+
             throw new KeyNotFoundException("Given emote was not found.");
+        }
+
+        /// <summary>
+        /// Creates a DiscordEmoji from emote name that includes colons (eg. :thinking:). This method also supports skin tone variations (eg. :ok_hand::skin-tone-2:), standard emoticons (eg. :D), as well as guild emoji (still specified by :name:).
+        /// </summary>
+        /// <param name="name">Name of the emote to find, including colons (eg. :thinking:).</param>
+        /// <returns>Create <see cref="DiscordEmoji"/> object.</returns>
+        public static DiscordEmoji FromName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentNullException(nameof(name), "Name cannot be empty or null.");
+
+            if (UnicodeEmojis.ContainsKey(name))
+                return new DiscordEmoji { Discord = null, Name = UnicodeEmojis[name] };
+
+            throw new ArgumentException("Invalid emoji name specified.", nameof(name));
         }
 
         /// <summary>
@@ -253,7 +281,7 @@ namespace DSharpPlus.Entities
             if (includeGuilds)
             {
                 var allEmojis = client.Guilds.Values.SelectMany(xg => xg.Emojis.Values).OrderBy(xe => xe.Name);
-            
+
                 var ek = name.Substring(1, name.Length - 2);
                 foreach (var emoji in allEmojis)
                     if (emoji.Name == ek)
