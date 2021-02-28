@@ -184,34 +184,64 @@ namespace DSharpPlus.Test
         {
             using (var fs = new FileStream("ADumbFile.txt", FileMode.Open, FileAccess.Read))
             {
-                await new DiscordMessageBuilder()
-                    .WithContent("Here is a really dumb file that i am testing with.")
-                    .WithFiles(new Dictionary<string, Stream>() { { "ADumbFile1.txt", fs } })
-                    .SendAsync(ctx.Channel)
-                    .ConfigureAwait(false);
+
+                // Verify that the lib resets the position when asked
+                var builder = new DiscordMessageBuilder()
+                    .WithContent("Testing the `Dictionary<string, stream>` Overload with resetting the postion turned on.")
+                    .WithFiles(new Dictionary<string, Stream>() { { "ADumbFile1.txt", fs } }, true);
+
+                await builder.SendAsync(ctx.Channel);
+                await builder.SendAsync(ctx.Channel);
+
+                builder.Clear();
+
+                //Verify the lib doesnt reset the position.  THe file sent should have 0 bytes.
+                builder.WithContent("Testing the `WithFile(Dictionary<string, stream> files)` Overload with resetting the postion turned off  The 2nd file sent should have 0 bytes.")
+                    .WithFiles(new Dictionary<string, Stream>() { { "ADumbFile1.txt", fs } }, false);
+
+                await builder.SendAsync(ctx.Channel);
+                await builder.SendAsync(ctx.Channel);
+
+                builder.Clear();
 
                 fs.Position = 0;
 
-                await new DiscordMessageBuilder()
-                    .WithContent("Here is a really dumb file that i am testing with.")
-                    .WithFile(fs)
-                    .SendAsync(ctx.Channel)
-                    .ConfigureAwait(false);
+                // Verify that the lib resets the position when asked
+                builder.WithContent("Testing the `WithFile(Stream stream)` Overload with resetting the postion turned on.")
+                    .WithFile(fs, true);
 
+                await builder.SendAsync(ctx.Channel);
+                await builder.SendAsync(ctx.Channel);
+
+                builder.Clear();
+
+                //Verify the lib doesnt reset the position.  THe file sent should have 0 bytes.
+                builder.WithContent("Testing the `WithFile(Stream stream)` Overload with resetting the postion turned off.  The 2nd file sent should have 0 bytes.")
+                    .WithFile(fs, false);
+
+                await builder.SendAsync(ctx.Channel);
+                await builder.SendAsync(ctx.Channel);
+
+                builder.Clear();
                 fs.Position = 0;
 
-                await new DiscordMessageBuilder()
-                    .WithContent("Here is a really dumb file that i am testing with.")
-                    .WithFile("ADumbFile2.txt", fs)
-                    .SendAsync(ctx.Channel)
-                    .ConfigureAwait(false);               
+
+                // Verify that the lib resets the position when asked
+                builder.WithContent("Testing the `WithFile(string fileName, Stream stream)` Overload with resetting the postion turned on.")
+                    .WithFile("ADumbFile2.txt", fs, true);
+
+                await builder.SendAsync(ctx.Channel);
+                await builder.SendAsync(ctx.Channel);
+
+                builder.Clear();
+
+                //Verify the lib doesnt reset the position.  THe file sent should have 0 bytes.
+                builder.WithContent("Testing the `WithFile(string fileName, Stream stream)` Overload with resetting the postion turned off.  The 2nd file sent should have 0 bytes.")
+                    .WithFile("ADumbFile2.txt", fs, false);
+
+                await builder.SendAsync(ctx.Channel);
+                await builder.SendAsync(ctx.Channel);
             }
-
-            await new DiscordMessageBuilder()
-                   .WithContent("Here is a really dumb file that i am testing with.")
-                   .WithFile("./ADumbFile.txt")
-                   .SendAsync(ctx.Channel)
-                   .ConfigureAwait(false);
         }
 
         [Command("CreateSomeFile")]
@@ -231,7 +261,7 @@ namespace DSharpPlus.Test
                 fs.Position = 0;
                 var builder = new DiscordMessageBuilder();
                 builder.WithContent("Here is a really dumb file that i am testing with.");
-                builder.WithFile(fileName);
+                //builder.WithFile(fileName);
                 builder.WithFile(fs);
 
                 foreach (var file in builder.Files)
@@ -248,7 +278,76 @@ namespace DSharpPlus.Test
             File.Delete("another " + fileName);
         }
 
-        [Command("chainreply")]
+        [Command("SendWebhookFiles")]
+        public async Task SendWebhookFiles(CommandContext ctx)
+        {
+            var webhook = await ctx.Channel.CreateWebhookAsync("webhook-test");
+
+            using (var fs = new FileStream("ADumbFile.txt", FileMode.Open, FileAccess.Read))
+            {
+
+                // Verify that the lib resets the position when asked
+                var builder = new DiscordWebhookBuilder()
+                    .WithContent("Testing the `AddFile(Dictionary<string, stream>)` Overload with resetting the postion turned on.")
+                    .AddFiles(new Dictionary<string, Stream>() { { "ADumbFile1.txt", fs } }, true);
+
+                await builder.SendAsync(webhook);
+                await builder.SendAsync(webhook);
+
+                builder.Clear();
+
+                //Verify the lib doesnt reset the position.  THe file sent should have 0 bytes.
+                builder.WithContent("Testing the `AddFile(Dictionary<string, stream> files)` Overload with resetting the postion turned off  The 2nd file sent should have 0 bytes.")
+                    .AddFiles(new Dictionary<string, Stream>() { { "ADumbFile1.txt", fs } }, false);
+
+                await builder.SendAsync(webhook);
+                await builder.SendAsync(webhook);
+
+                builder.Clear();
+
+                fs.Position = 0;
+
+                // Verify that the lib resets the position when asked
+                builder.WithContent("Testing the `AddFile(Stream stream)` Overload with resetting the postion turned on.")
+                    .AddFile(fs, true);
+
+                await builder.SendAsync(webhook);
+                await builder.SendAsync(webhook);
+
+                builder.Clear();
+
+                //Verify the lib doesnt reset the position.  THe file sent should have 0 bytes.
+                builder.WithContent("Testing the `AddFile(Stream stream)` Overload with resetting the postion turned off.  The 2nd file sent should have 0 bytes.")
+                    .AddFile(fs, false);
+
+                await builder.SendAsync(webhook);
+                await builder.SendAsync(webhook);
+
+                builder.Clear();
+                fs.Position = 0;
+
+
+                // Verify that the lib resets the position when asked
+                builder.WithContent("Testing the `AddFile(string fileName, Stream stream)` Overload with resetting the postion turned on.")
+                    .AddFile("ADumbFile2.txt", fs, true);
+
+                await builder.SendAsync(webhook);
+                await builder.SendAsync(webhook);
+
+                builder.Clear();
+
+                //Verify the lib doesnt reset the position.  THe file sent should have 0 bytes.
+                builder.WithContent("Testing the `AddFile(string fileName, Stream stream)` Overload with resetting the postion turned off.  The 2nd file sent should have 0 bytes.")
+                    .AddFile("ADumbFile2.txt", fs, false);
+
+                await builder.SendAsync(webhook);
+                await builder.SendAsync(webhook);
+            }
+
+            await webhook.DeleteAsync();
+        }
+
+            [Command("chainreply")]
         public async Task ChainReplyAsync(CommandContext ctx)
         {
             DiscordMessageBuilder builder = new DiscordMessageBuilder();

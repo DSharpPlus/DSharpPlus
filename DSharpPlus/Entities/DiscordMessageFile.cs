@@ -7,11 +7,11 @@ namespace DSharpPlus.Entities
     /// </summary>
     public class DiscordMessageFile
     {
-        internal DiscordMessageFile(string fileName, Stream stream, bool isDisposedInternally)
+        internal DiscordMessageFile(string fileName, Stream stream, long? resetPositionTo)
         {
             this.FileName = fileName;
             this.Stream = stream;
-            this.IsDisposedInternally = isDisposedInternally;
+            this.ResetPositionTo = resetPositionTo;
         }
 
         /// <summary>
@@ -25,8 +25,8 @@ namespace DSharpPlus.Entities
         public Stream Stream { get; internal set; }
 
         /// <summary>
-        /// Gets if the stream should be disposed by the library.
+        /// Gets the position the File should be reset to.
         /// </summary>
-        internal bool IsDisposedInternally { get; set; }
+        internal long? ResetPositionTo { get; set; }
     }
 }
