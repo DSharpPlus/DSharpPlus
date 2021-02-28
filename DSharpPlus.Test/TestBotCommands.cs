@@ -428,5 +428,25 @@ namespace DSharpPlus.Test
 
             await ctx.RespondAsync(contentBuilder.ToString());
         }
+
+        [Command("reactwithrawemojistring")]
+        public async Task ReactWithRawEmojiString(CommandContext ctx, string rawEmoji)
+        {
+            await ctx.Message.CreateReactionAsync(rawEmoji);
+        }
+
+        [Command("replywithrawemojistring")]
+        public async Task ReplyWithRawEmojiString(CommandContext ctx, ulong msgId = default)
+        {
+            if (msgId == 0)
+                msgId = ctx.Message.Id;
+
+            var emojisToReply = new DiscordEmoji[] { ":ok_hand:", ":thumbsup:", ":thumbsdown:", ":x:" };
+
+            foreach (var item in emojisToReply)
+                await ctx.RespondAsync(new DiscordMessageBuilder()
+                    .WithContent(item)
+                    .WithReply(msgId));
+        }
     }
 }
