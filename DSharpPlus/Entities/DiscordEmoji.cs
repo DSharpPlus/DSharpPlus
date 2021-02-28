@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
@@ -188,16 +189,34 @@ namespace DSharpPlus.Entities
         public static implicit operator string(DiscordEmoji e1)
             => e1.ToString();
 
+
+        static readonly Regex EmoteRegex = new Regex(@"^<(?<animated>a)?:(?<name>[a-zA-Z0-9_]+?):(?<id>\d+?)>$", RegexOptions.ECMAScript | RegexOptions.Compiled);
+
         /// <summary>
         /// Implicitly converts this string to its emoji instance representation.
         /// </summary>
-        /// <param name="s1">String to convert.</param>
-        public static implicit operator DiscordEmoji(string s1)
+        /// <param name="raw">String to convert.</param>
+        /// <exception cref="ArgumentException">When cannot convert raw emoji string to discord emoji object.</exception>
+        public static implicit operator DiscordEmoji(string raw)
         {
-            if (UnicodeEmojis.TryGetValue(s1, out var unicode_entity))
+            if (UnicodeEmojis.TryGetValue(raw, out var unicode_entity))
                 return new DiscordEmoji { Name = unicode_entity, Discord = null };
+            else
+            {
+                var m = EmoteRegex.Match(raw);
+                if (m.Success)
+                {
+                    var sid = m.Groups["id"].Value;
+                    var name = m.Groups["name"].Value;
+                    var anim = m.Groups["animated"].Success;
 
-            return FromUnicode(s1);
+                    if (ulong.TryParse(sid, NumberStyles.Integer, CultureInfo.InvariantCulture, out var id) // Must be both valid, name and id for guild emotes 'parsing'.
+                        && !string.IsNullOrEmpty(name))
+                        return new DiscordEmoji { Id = id, Name = name, IsAnimated = anim, Discord = null };
+                }
+            }
+
+            throw new ArgumentException("Invalid emoji name specified.", nameof(raw));
         }
 
         /// <summary>
