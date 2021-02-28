@@ -810,30 +810,6 @@ namespace DSharpPlus
                 this.MessageCache?.Add(message);
         }
 
-        private void PopulateMessageMentions(DiscordMessage message, DiscordGuild guild)
-        {
-            var mentionedUsers = new List<DiscordUser>();
-            var mentionedRoles = guild != null ? new List<DiscordRole>() : null;
-            var mentionedChannels = guild != null ? new List<DiscordChannel>() : null;
-            if (!string.IsNullOrWhiteSpace(message.Content))
-            {
-                if (guild != null)
-                {
-                    mentionedUsers = Utilities.GetUserMentions(message).Select(xid => guild._members.TryGetValue(xid, out var member) ? member : new DiscordUser { Id = xid, Discord = this }).Cast<DiscordUser>().ToList();
-                    mentionedRoles = Utilities.GetRoleMentions(message).Select(xid => guild.GetRole(xid)).ToList();
-                    mentionedChannels = Utilities.GetChannelMentions(message).Select(xid => guild.GetChannel(xid)).ToList();
-                }
-                else
-                {
-                    mentionedUsers = Utilities.GetUserMentions(message).Select(this.GetCachedOrEmptyUserInternal).ToList();
-                }
-            }
-
-            message._mentionedUsers = mentionedUsers;
-            message._mentionedRoles = mentionedRoles;
-            message._mentionedChannels = mentionedChannels;
-        }
-
 
         #endregion
 

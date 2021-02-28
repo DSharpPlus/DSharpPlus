@@ -1,7 +1,8 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -187,21 +188,21 @@ namespace DSharpPlus.Test
                 // Verify that the lib resets the position when asked
                 var builder = new DiscordMessageBuilder()
                     .WithContent("Testing the `Dictionary<string, stream>` Overload with resetting the postion turned on.")
-                    .WithFiles(new Dictionary<string, Stream>() { { "ADumbFile1.txt", fs }}, true);
+                    .WithFiles(new Dictionary<string, Stream>() { { "ADumbFile1.txt", fs } }, true);
 
                 await builder.SendAsync(ctx.Channel);
                 await builder.SendAsync(ctx.Channel);
 
-                builder.ClearMessageBuilder();
+                builder.Clear();
 
                 //Verify the lib doesnt reset the position.  THe file sent should have 0 bytes.
                 builder.WithContent("Testing the `WithFile(Dictionary<string, stream> files)` Overload with resetting the postion turned off  The 2nd file sent should have 0 bytes.")
                     .WithFiles(new Dictionary<string, Stream>() { { "ADumbFile1.txt", fs } }, false);
-                
+
                 await builder.SendAsync(ctx.Channel);
                 await builder.SendAsync(ctx.Channel);
 
-                builder.ClearMessageBuilder();
+                builder.Clear();
 
                 fs.Position = 0;
 
@@ -212,7 +213,7 @@ namespace DSharpPlus.Test
                 await builder.SendAsync(ctx.Channel);
                 await builder.SendAsync(ctx.Channel);
 
-                builder.ClearMessageBuilder();
+                builder.Clear();
 
                 //Verify the lib doesnt reset the position.  THe file sent should have 0 bytes.
                 builder.WithContent("Testing the `WithFile(Stream stream)` Overload with resetting the postion turned off.  The 2nd file sent should have 0 bytes.")
@@ -221,7 +222,7 @@ namespace DSharpPlus.Test
                 await builder.SendAsync(ctx.Channel);
                 await builder.SendAsync(ctx.Channel);
 
-                builder.ClearMessageBuilder();
+                builder.Clear();
                 fs.Position = 0;
 
 
@@ -232,14 +233,14 @@ namespace DSharpPlus.Test
                 await builder.SendAsync(ctx.Channel);
                 await builder.SendAsync(ctx.Channel);
 
-                builder.ClearMessageBuilder();
+                builder.Clear();
 
                 //Verify the lib doesnt reset the position.  THe file sent should have 0 bytes.
                 builder.WithContent("Testing the `WithFile(string fileName, Stream stream)` Overload with resetting the postion turned off.  The 2nd file sent should have 0 bytes.")
                     .WithFile("ADumbFile2.txt", fs, false);
 
                 await builder.SendAsync(ctx.Channel);
-                await builder.SendAsync(ctx.Channel);         
+                await builder.SendAsync(ctx.Channel);
             }
         }
 
@@ -293,7 +294,7 @@ namespace DSharpPlus.Test
                 await builder.SendWebhook(webhook);
                 await builder.SendWebhook(webhook);
 
-                builder.ClearWebhookBuilder();
+                builder.Clear();
 
                 //Verify the lib doesnt reset the position.  THe file sent should have 0 bytes.
                 builder.WithContent("Testing the `AddFile(Dictionary<string, stream> files)` Overload with resetting the postion turned off  The 2nd file sent should have 0 bytes.")
@@ -302,7 +303,7 @@ namespace DSharpPlus.Test
                 await builder.SendWebhook(webhook);
                 await builder.SendWebhook(webhook);
 
-                builder.ClearWebhookBuilder();
+                builder.Clear();
 
                 fs.Position = 0;
 
@@ -313,7 +314,7 @@ namespace DSharpPlus.Test
                 await builder.SendWebhook(webhook);
                 await builder.SendWebhook(webhook);
 
-                builder.ClearWebhookBuilder();
+                builder.Clear();
 
                 //Verify the lib doesnt reset the position.  THe file sent should have 0 bytes.
                 builder.WithContent("Testing the `AddFile(Stream stream)` Overload with resetting the postion turned off.  The 2nd file sent should have 0 bytes.")
@@ -322,7 +323,7 @@ namespace DSharpPlus.Test
                 await builder.SendWebhook(webhook);
                 await builder.SendWebhook(webhook);
 
-                builder.ClearWebhookBuilder();
+                builder.Clear();
                 fs.Position = 0;
 
 
@@ -333,7 +334,7 @@ namespace DSharpPlus.Test
                 await builder.SendWebhook(webhook);
                 await builder.SendWebhook(webhook);
 
-                builder.ClearWebhookBuilder();
+                builder.Clear();
 
                 //Verify the lib doesnt reset the position.  THe file sent should have 0 bytes.
                 builder.WithContent("Testing the `AddFile(string fileName, Stream stream)` Overload with resetting the postion turned off.  The 2nd file sent should have 0 bytes.")
@@ -344,6 +345,88 @@ namespace DSharpPlus.Test
             }
 
             await webhook.DeleteAsync();
+        }
+
+            [Command("chainreply")]
+        public async Task ChainReplyAsync(CommandContext ctx)
+        {
+            DiscordMessageBuilder builder = new DiscordMessageBuilder();
+
+            StringBuilder contentBuilder = new StringBuilder();
+
+            ulong reply = ctx.Message.Id;
+            bool ping = false;
+
+            if (ctx.Message.MessageType == MessageType.Reply)
+            {
+                contentBuilder.AppendLine("Chaining a reply");
+                reply = ctx.Message.ReferencedMessage.Id;
+                if (ping = ctx.Message.MentionedUsers.Contains(ctx.Message.ReferencedMessage.Author))
+                {
+                    contentBuilder.AppendLine("Pinging the user with the reply as it appears that is what you did.");
+                }
+                else
+                {
+                    contentBuilder.AppendLine("Not pinging the user as that does not appear to be what you did.");
+                }
+            }
+            else
+            {
+                contentBuilder.AppendLine("I mean, ok, you just tried to chain a non-existent reply but whatever.");
+            }
+
+            builder
+                .WithContent(contentBuilder.ToString())
+                .WithReply(reply, ping);
+
+            await ctx.RespondAsync(builder);
+        }
+
+        [Command("mentionusers")]
+        public async Task MentionAllMentionedUsers(CommandContext ctx, [RemainingText][Description("Just a string so that DSharpPlus will parse no matter what I say")] string mentionedUsers)
+        {
+            var content = "You didn't have any users to mention";
+            if (ctx.Message.MentionedUsers.Any())
+                content = string.Join(", ", ctx.Message.MentionedUsers.Select(usr => usr.Mention));
+
+            await ctx.RespondAsync(content);
+        }
+
+        [Command("mentionroles")]
+        public async Task MentionAllMentionedRoles(CommandContext ctx, [RemainingText][Description("Just a string so that DSharpPlus will parse no matter what I say")] string mentionedRoles)
+        {
+            var content = "You didn't have any roles to mention";
+            if (ctx.Message.MentionedRoles.Any())
+                content = string.Join(", ", ctx.Message.MentionedRoles.Select(role => role.Mention));
+
+            await ctx.RespondAsync(content);
+        }
+
+        [Command("mentionchannels")]
+        public async Task MentionChannels(CommandContext ctx, [RemainingText][Description("Just a string so that DSharpPlus will parse no matter what I say")] string mentionedChannels)
+        {
+            var content = "You didn't have any channels to mention";
+            if (ctx.Message.MentionedChannels.Any())
+                content = string.Join(", ", ctx.Message.MentionedChannels.Select(role => role.Mention));
+
+            await ctx.RespondAsync(content);
+        }
+
+        [Command("getmessagementions")]
+        public async Task GetMessageMentions(CommandContext ctx, ulong msgId)
+        {
+            var msg = await ctx.Channel.GetMessageAsync(msgId);
+            var contentBuilder = new StringBuilder("You didn't mention any user, channel, or role.");
+
+            if (msg.MentionedUsers.Any() || msg.MentionedRoles.Any() || msg.MentionedChannels.Any())
+            {
+                contentBuilder.Clear();
+                contentBuilder.AppendLine(msg.MentionedUsers.Any() ? string.Join(", ", msg.MentionedUsers.Select(usr => usr.Mention)) : string.Empty);
+                contentBuilder.AppendLine(msg.MentionedChannels.Any() ? string.Join(", ", msg.MentionedChannels.Select(usr => usr.Mention)) : string.Empty);
+                contentBuilder.AppendLine(msg.MentionedRoles.Any() ? string.Join(", ", msg.MentionedRoles.Select(usr => usr.Mention)) : string.Empty);
+            }
+
+            await ctx.RespondAsync(contentBuilder.ToString());
         }
     }
 }
