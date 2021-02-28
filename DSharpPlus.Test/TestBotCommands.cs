@@ -291,8 +291,8 @@ namespace DSharpPlus.Test
                     .WithContent("Testing the `AddFile(Dictionary<string, stream>)` Overload with resetting the postion turned on.")
                     .AddFiles(new Dictionary<string, Stream>() { { "ADumbFile1.txt", fs } }, true);
 
-                await builder.SendWebhook(webhook);
-                await builder.SendWebhook(webhook);
+                await builder.SendAsync(webhook);
+                await builder.SendAsync(webhook);
 
                 builder.Clear();
 
@@ -300,8 +300,8 @@ namespace DSharpPlus.Test
                 builder.WithContent("Testing the `AddFile(Dictionary<string, stream> files)` Overload with resetting the postion turned off  The 2nd file sent should have 0 bytes.")
                     .AddFiles(new Dictionary<string, Stream>() { { "ADumbFile1.txt", fs } }, false);
 
-                await builder.SendWebhook(webhook);
-                await builder.SendWebhook(webhook);
+                await builder.SendAsync(webhook);
+                await builder.SendAsync(webhook);
 
                 builder.Clear();
 
@@ -311,8 +311,8 @@ namespace DSharpPlus.Test
                 builder.WithContent("Testing the `AddFile(Stream stream)` Overload with resetting the postion turned on.")
                     .AddFile(fs, true);
 
-                await builder.SendWebhook(webhook);
-                await builder.SendWebhook(webhook);
+                await builder.SendAsync(webhook);
+                await builder.SendAsync(webhook);
 
                 builder.Clear();
 
@@ -320,8 +320,8 @@ namespace DSharpPlus.Test
                 builder.WithContent("Testing the `AddFile(Stream stream)` Overload with resetting the postion turned off.  The 2nd file sent should have 0 bytes.")
                     .AddFile(fs, false);
 
-                await builder.SendWebhook(webhook);
-                await builder.SendWebhook(webhook);
+                await builder.SendAsync(webhook);
+                await builder.SendAsync(webhook);
 
                 builder.Clear();
                 fs.Position = 0;
@@ -331,8 +331,8 @@ namespace DSharpPlus.Test
                 builder.WithContent("Testing the `AddFile(string fileName, Stream stream)` Overload with resetting the postion turned on.")
                     .AddFile("ADumbFile2.txt", fs, true);
 
-                await builder.SendWebhook(webhook);
-                await builder.SendWebhook(webhook);
+                await builder.SendAsync(webhook);
+                await builder.SendAsync(webhook);
 
                 builder.Clear();
 
@@ -340,8 +340,8 @@ namespace DSharpPlus.Test
                 builder.WithContent("Testing the `AddFile(string fileName, Stream stream)` Overload with resetting the postion turned off.  The 2nd file sent should have 0 bytes.")
                     .AddFile("ADumbFile2.txt", fs, false);
 
-                await builder.SendWebhook(webhook);
-                await builder.SendWebhook(webhook);
+                await builder.SendAsync(webhook);
+                await builder.SendAsync(webhook);
             }
 
             await webhook.DeleteAsync();

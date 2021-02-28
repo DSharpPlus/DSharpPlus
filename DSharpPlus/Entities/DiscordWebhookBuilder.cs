@@ -220,7 +220,7 @@ namespace DSharpPlus.Entities
         }
 
 
-        public async Task<DiscordMessage> SendWebhook(DiscordWebhook webhook)
+        public async Task<DiscordMessage> SendAsync(DiscordWebhook webhook)
         {
             return await webhook.ExecuteAsync(this);
         }
