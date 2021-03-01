@@ -1231,13 +1231,13 @@ namespace DSharpPlus
             => this.ApiClient.EditWebhookMessageAsync(webhook_id, webhook_token, messageId, content, embeds, mentions);
 
         /// <summary>
-        /// Deletes a message that was created by the webhook.
+        /// Deletes a message that was created by a webhook.
         /// </summary>
         /// <param name="webhook_id">Webhook id</param>
         /// <param name="webhook_token">Webhook token</param>
         /// <param name="messageId">The id of the message to delete</param>
         /// <returns></returns>
-        public Task DeleteMessageAsync(ulong webhook_id, string webhook_token, ulong messageId)
+        public Task DeleteWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong messageId)
             => this.ApiClient.DeleteWebhookMessageAsync(webhook_id, webhook_token, messageId);
         #endregion
 
