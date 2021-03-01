@@ -84,7 +84,7 @@ Maybe in time we can switch to your favorite Json Deserializer but for right now
 
 ### Why the hell are my events not firing?
 This is because in the Discord V8 API, they require @DSharpPlus.DiscordIntents to be enabled on @DSharpPlus.DiscordConfiguration and the 
-Discord Application Portal.  We have an [article](xref:beyond_basics_intents) that covers all that has to be done to set this up.
+Discord Application Portal. We have an [article](xref:beyond_basics_intents) that covers all that has to be done to set this up.
 
 ### Where are my pictures of spiderman?
 ![GOD DAMN IT PETER](/images/faq_03.png)
