@@ -16,12 +16,12 @@ namespace DSharpPlus.Entities
         public string Name { get; internal set; }
 
         /// <summary>
-        /// Gets the option type of this interaction parameter. 
+        /// Gets the value of this interaction parameter. 
         /// <para>This can be cast to an <see langword="int"></see>, <see langword="bool"></see>, <see langword="string"></see> or <see langword="ulong"/> depending on the <see cref="DiscordInteractionDataOption.Name"/></para>
         /// </summary>
         [JsonProperty("value")]
         [JsonConverter(typeof(DiscordInteractionOptionTypeConverter))]
-        public object OptionType { get; internal set; }
+        public object Value { get; internal set; }
 
         /// <summary>
         /// Gets the additional parameters if this parameter is a subcommand.

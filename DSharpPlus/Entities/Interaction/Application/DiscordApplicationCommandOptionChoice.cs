@@ -15,7 +15,7 @@ namespace DSharpPlus.Entities
         public string Name { get; set; }
 
         /// <summary>
-        /// Gets the value of this choice parameter. 
+        /// Gets the value of this choice parameter. This will either be a type of <see cref="int"/> or <see cref="string"/>.
         /// </summary>
         [JsonProperty("value")]
         public object Value { get; set; }
