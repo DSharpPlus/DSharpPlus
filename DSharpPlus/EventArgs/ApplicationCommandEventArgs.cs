@@ -3,7 +3,7 @@
 namespace DSharpPlus.EventArgs
 {
     /// <summary>
-    /// Represents event arguments for application command events.
+    /// Represents arguments for application command events.
     /// </summary>
     public sealed class ApplicationCommandEventArgs : DiscordEventArgs
     {
