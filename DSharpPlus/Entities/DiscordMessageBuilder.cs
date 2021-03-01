@@ -9,7 +9,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Constructs a Message to be sent.
     /// </summary>
-    public sealed class DiscordMessageBuilder
+    public sealed class DiscordMessageBuilder : BaseDiscordBuilder
     {
         /// <summary>
         /// Gets or Sets the Message to be sent.
@@ -238,6 +238,27 @@ namespace DSharpPlus.Entities
             this._files.Clear();
             this.ReplyId = null;
             this.MentionOnReply = false;
+        }
+
+        /// <summary>
+        /// Does the validation before we send a the Create/Modify request.
+        /// </summary>
+        /// <param name="isModify">Tells the method to perform the Modify Validation or Create Validation.</param>
+        internal override void Validate(bool isModify = false)
+        {
+            if (isModify)
+            {
+                if (this.Files.Any())
+                    throw new ArgumentException("You cannot add files when modifing a message.");
+
+                if (this.ReplyId.HasValue)
+                    throw new ArgumentException("You cannot change the ReplyID when modifying a message");
+            }
+            else
+            {
+                if (this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && this.Embed == null)
+                    throw new ArgumentException("You must specify content, an embed, or at least one file.");
+            }
         }
     }
 }

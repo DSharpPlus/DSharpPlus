@@ -774,17 +774,7 @@ namespace DSharpPlus.Net
 
         internal async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, DiscordMessageBuilder builder)
         {
-            if (builder.Content != null && builder.Content.Length > 2000)
-                throw new ArgumentException("Message content length cannot exceed 2000 characters.");
-
-            if (builder.Embed == null && !builder.Files.Any())
-            {
-                if (builder.Content == null)
-                    throw new ArgumentException("You must specify message content or an embed.");
-
-                if (builder.Content == "")
-                    throw new ArgumentException("Message content must not be empty.");
-            }
+            builder.Validate();
 
             if (builder.Embed?.Timestamp != null)
                 builder.Embed.Timestamp = builder.Embed.Timestamp.Value.ToUniversalTime();
@@ -1889,8 +1879,7 @@ namespace DSharpPlus.Net
 
         internal async Task<DiscordMessage> ExecuteWebhookAsync(ulong webhook_id, string webhook_token, DiscordWebhookBuilder builder)
         {
-            if (builder.Files?.Count == 0 && string.IsNullOrEmpty(builder.Content) && builder.Embeds == null)
-                throw new ArgumentException("You must specify content, an embed, or at least one file.");
+            builder.Validate();
 
             if (builder.Embeds != null)
                 foreach (var embed in builder.Embeds)

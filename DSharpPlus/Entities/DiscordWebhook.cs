@@ -139,8 +139,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task<DiscordMessage> EditMessageAsync(ulong messageId, DiscordWebhookBuilder builder)
         {
-            if (builder.Files.Any())
-                throw new ArgumentException("You cannot add files when modifing a message.");
+            builder.Validate();
 
             return await(this.Discord?.ApiClient ?? this.ApiClient).EditWebhookMessageAsync(this.Id, this.Token, messageId, builder).ConfigureAwait(false);
         }
