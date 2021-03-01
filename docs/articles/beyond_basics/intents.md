@@ -21,7 +21,7 @@ On the [Discord Application under the Bot Page](https://discord.com/developers/a
  > Please read this [blog post](https://support.discord.com/hc/en-us/articles/360040720412-Bot-Verification-and-Data-Whitelisting) for more information and how to apply.
 
 ### Discord Configuration
-Within your Discord Configuration you will have to specify all the Intents you will be needing. Here is a list of all the
+Within your `DiscordConfiguration` you will have to specify all the intents you will need. Here is a list of all the
 [Intents](xref:DSharpPlus.DiscordIntents) DSharpPlus Supports. By default, the configuration will use `DiscordIntents.AllUnprivileged` as the default value. Like above however, we recommend having all intents enabled at first, so you should specify `DiscordIntents.All` in your configuration which will include the privleged intents you enabled in your application: 
 
 ```csharp
@@ -59,4 +59,4 @@ var config = new DiscordConfiguration()
 };
 ```
 
-Please Note, if you specify a Privileged Intent within your Discord Configuration that you have not signed up for on the Discord Application page, an error will be thrown on the Connection. 
+Please Note, if you specify a privileged intent within your `DiscordConfiguration` that you have not signed up for on the Discord Application page, an error will be thrown on the connection. 
