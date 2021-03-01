@@ -1722,6 +1722,8 @@ namespace DSharpPlus
 
         internal async Task OnApplicationCommandCreateAsync(DiscordApplicationCommand cmd, ulong? guild_id)
         {
+            cmd.Discord = this;
+
             var guild = this.InternalGetCachedGuild(guild_id);
 
             if(guild == null && guild_id.HasValue)
@@ -1744,6 +1746,8 @@ namespace DSharpPlus
 
         internal async Task OnApplicationCommandUpdateAsync(DiscordApplicationCommand cmd, ulong? guild_id)
         {
+            cmd.Discord = this;
+
             var guild = this.InternalGetCachedGuild(guild_id);
 
             if (guild == null && guild_id.HasValue)
@@ -1766,6 +1770,8 @@ namespace DSharpPlus
 
         internal async Task OnApplicationCommandDeleteAsync(DiscordApplicationCommand cmd, ulong? guild_id)
         {
+            cmd.Discord = this;
+
             var guild = this.InternalGetCachedGuild(guild_id);
 
             if (guild == null && guild_id.HasValue)
