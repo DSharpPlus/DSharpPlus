@@ -1216,6 +1216,29 @@ namespace DSharpPlus
         /// <returns></returns>
         public Task<DiscordMessage> ExecuteWebhookAsync(ulong webhook_id, string webhook_token, DiscordWebhookBuilder builder)
             => this.ApiClient.ExecuteWebhookAsync(webhook_id, webhook_token, builder);
+
+        /// <summary>
+        /// Edits a previously-sent webhook message.
+        /// </summary>
+        /// <param name="webhook_id">Webhook id</param>
+        /// <param name="webhook_token">Webhook token</param>
+        /// <param name="messageId">The id of the message to edit.</param>
+        /// <param name="content">The content of the message.</param>
+        /// <param name="embeds">The embeds in the message.</param>
+        /// <param name="mentions">The allowed mentions in the message.</param>
+        /// <returns>The modified <see cref="DiscordMessage"/></returns>
+        public Task<DiscordMessage> EditWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong messageId, Optional<string> content, IEnumerable<DiscordEmbed> embeds = null, IEnumerable<IMention> mentions = null)
+            => this.ApiClient.EditWebhookMessageAsync(webhook_id, webhook_token, messageId, content, embeds, mentions);
+
+        /// <summary>
+        /// Deletes a message that was created by the webhook.
+        /// </summary>
+        /// <param name="webhook_id">Webhook id</param>
+        /// <param name="webhook_token">Webhook token</param>
+        /// <param name="messageId">The id of the message to delete</param>
+        /// <returns></returns>
+        public Task DeleteMessageAsync(ulong webhook_id, string webhook_token, ulong messageId)
+            => this.ApiClient.DeleteWebhookMessageAsync(webhook_id, webhook_token, messageId);
         #endregion
 
         #region Reactions
