@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -120,15 +119,16 @@ namespace DSharpPlus.Entities
                 this.Mentions = allowedMentions.ToList();
 
             return this;
-        }               
+        }
 
         /// <summary>
         /// Sets if the message has files to be sent.
         /// </summary>
         /// <param name="fileName">The fileName that the file should be sent as.</param>
         /// <param name="stream">The Stream to the file.</param>
+        /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
         /// <returns></returns>
-        public DiscordMessageBuilder WithFile(string fileName, Stream stream)
+        public DiscordMessageBuilder WithFile(string fileName, Stream stream, bool resetStreamPosition = false)
         {
             if(this.Files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
@@ -136,7 +136,10 @@ namespace DSharpPlus.Entities
             if (this._files.Any(x => x.FileName == fileName))
                 throw new ArgumentException("A File with that filename already exists");
 
-            this._files.Add(new DiscordMessageFile(fileName, stream, false));
+            if(resetStreamPosition)
+                this._files.Add(new DiscordMessageFile(fileName, stream, stream.Position));
+            else
+                this._files.Add(new DiscordMessageFile(fileName, stream, null));            
 
             return this;
         }
@@ -145,8 +148,9 @@ namespace DSharpPlus.Entities
         /// Sets if the message has files to be sent.
         /// </summary>
         /// <param name="stream">The Stream to the file.</param>
+        /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
         /// <returns></returns>
-        public DiscordMessageBuilder WithFile(FileStream stream)
+        public DiscordMessageBuilder WithFile(FileStream stream, bool resetStreamPosition = false)
         {
             if (this.Files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
@@ -154,27 +158,10 @@ namespace DSharpPlus.Entities
             if (this._files.Any(x => x.FileName == stream.Name))
                 throw new ArgumentException("A File with that filename already exists");
 
-            this._files.Add(new DiscordMessageFile(stream.Name, stream, false));
-
-            return this;
-        }
-
-        /// <summary>
-        /// Sets if the message has files to be sent.
-        /// </summary>
-        /// <param name="filePath">The path to the file.</param>
-        /// <returns></returns>
-        public DiscordMessageBuilder WithFile(string filePath)
-        {
-            if (this.Files.Count() >= 10)
-                throw new ArgumentException("Cannot send more than 10 files with a single message.");
-
-            var fs = File.OpenRead(filePath);
-
-            if (this._files.Any(x => x.FileName == fs.Name))
-                throw new ArgumentException("A File with that filename already exists");
-
-            this._files.Add(new DiscordMessageFile(fs.Name, fs, true));
+            if (resetStreamPosition)
+                this._files.Add(new DiscordMessageFile(stream.Name, stream, stream.Position));
+            else
+                this._files.Add(new DiscordMessageFile(stream.Name, stream, null));
 
             return this;
         }
@@ -183,8 +170,9 @@ namespace DSharpPlus.Entities
         /// Sets if the message has files to be sent.
         /// </summary>
         /// <param name="files">The Files that should be sent.</param>
+        /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
         /// <returns></returns>
-        public DiscordMessageBuilder WithFiles(Dictionary<string, Stream> files)
+        public DiscordMessageBuilder WithFiles(Dictionary<string, Stream> files, bool resetStreamPosition = false)
         {
             if (this.Files.Count() + files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
@@ -194,7 +182,10 @@ namespace DSharpPlus.Entities
                 if (this._files.Any(x => x.FileName == file.Key))
                     throw new ArgumentException("A File with that filename already exists");
 
-                this._files.Add(new DiscordMessageFile(file.Key, file.Value, false));
+                if (resetStreamPosition)
+                    this._files.Add(new DiscordMessageFile(file.Key, file.Value, file.Value.Position));
+                else
+                    this._files.Add(new DiscordMessageFile(file.Key, file.Value, null));
             }
                 
 
@@ -233,6 +224,20 @@ namespace DSharpPlus.Entities
         public async Task<DiscordMessage> ModifyAsync(DiscordMessage msg)
         {
             return await msg.ModifyAsync(this).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Allows for clearing the Message Builder so that it can be used again to send a new message.
+        /// </summary>
+        public void Clear()
+        {
+            this.Content = "";
+            this.Embed = null;
+            this.IsTTS = false;
+            this.Mentions = null;
+            this._files.Clear();
+            this.ReplyId = null;
+            this.MentionOnReply = false;
         }
     }
 }

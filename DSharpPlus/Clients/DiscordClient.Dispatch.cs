@@ -1231,7 +1231,7 @@ namespace DSharpPlus
         {
             message.Discord = this;
             this.PopulateMessageReactionsAndCache(message, author, member);
-            this.PopulateMessageMentions(message, message.Channel?.Guild);
+            message.PopulateMentions();
 
             if (message.Channel == null && message.ChannelId == default)
                 this.Logger.LogWarning(LoggerEvents.WebSocketReceive, "Channel which the last message belongs to is not in cache - cache state might be invalid!");
@@ -1240,7 +1240,7 @@ namespace DSharpPlus
             {
                 message.ReferencedMessage.Discord = this;
                 PopulateMessageReactionsAndCache(message.ReferencedMessage, referenceAuthor, referenceMember);
-                PopulateMessageMentions(message, message.ReferencedMessage.Channel?.Guild);
+                message.ReferencedMessage.PopulateMentions();
             }
 
             var ea = new MessageCreateEventArgs
@@ -1274,7 +1274,7 @@ namespace DSharpPlus
                 {
                     message.ReferencedMessage.Discord = this;
                     PopulateMessageReactionsAndCache(message.ReferencedMessage, referenceAuthor, referenceMember);
-                    PopulateMessageMentions(message.ReferencedMessage, guild);
+                    message.ReferencedMessage.PopulateMentions();
                 }
             }
             else
@@ -1291,7 +1291,7 @@ namespace DSharpPlus
                 message.IsTTS = event_message.IsTTS;
             }
 
-            this.PopulateMessageMentions(message, guild);
+            message.PopulateMentions();
 
             var ea = new MessageUpdateEventArgs
             {

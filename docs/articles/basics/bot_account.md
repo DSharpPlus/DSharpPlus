@@ -88,4 +88,4 @@ Go ahead and copy your bot token and save it somewhere. You'll be using it soon!
 
 ## Write Some Code
 You've got a bot account set up and a token ready for use.<br/>
-Sounds like its time for you to [write your first bot](xref:basics_first_bot)! 
+Sounds like it's time for you to [write your first bot](xref:basics_first_bot)! 

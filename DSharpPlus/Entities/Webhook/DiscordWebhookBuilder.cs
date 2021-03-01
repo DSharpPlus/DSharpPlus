@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace DSharpPlus.Entities
 {
@@ -52,7 +53,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         public IReadOnlyCollection<DiscordMessageFile> Files => this._files;
 
-        internal List<DiscordMessageFile> _files = new List<DiscordMessageFile>();
+        internal readonly List<DiscordMessageFile> _files = new List<DiscordMessageFile>();
 
         /// <summary>
         /// Mentions to send on this webhook request.
@@ -134,7 +135,8 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="filename">Name of the file.</param>
         /// <param name="data">File data.</param>
-        public DiscordWebhookBuilder AddFile(string filename, Stream data)
+        /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
+        public DiscordWebhookBuilder AddFile(string filename, Stream data, bool resetStreamPosition = false)
         {
             if (this.Files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
@@ -142,7 +144,32 @@ namespace DSharpPlus.Entities
             if (this._files.Any(x => x.FileName == filename))
                 throw new ArgumentException("A File with that filename already exists");
 
-            this._files.Add(new DiscordMessageFile(filename, data, false));
+            if (resetStreamPosition)
+                this._files.Add(new DiscordMessageFile(filename, data, data.Position));
+            else
+                this._files.Add(new DiscordMessageFile(filename, data, null));
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets if the message has files to be sent.
+        /// </summary>
+        /// <param name="stream">The Stream to the file.</param>
+        /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
+        /// <returns></returns>
+        public DiscordWebhookBuilder AddFile(FileStream stream, bool resetStreamPosition = false)
+        {
+            if (this.Files.Count() >= 10)
+                throw new ArgumentException("Cannot send more than 10 files with a single message.");
+
+            if (this._files.Any(x => x.FileName == stream.Name))
+                throw new ArgumentException("A File with that filename already exists");
+
+            if (resetStreamPosition)
+                this._files.Add(new DiscordMessageFile(stream.Name, stream, stream.Position));
+            else
+                this._files.Add(new DiscordMessageFile(stream.Name, stream, null));
 
             return this;
         }
@@ -151,7 +178,8 @@ namespace DSharpPlus.Entities
         /// Adds the given files to send at the execution of the webhook.
         /// </summary>
         /// <param name="files">Dictionary of file name and file data.</param>
-        public DiscordWebhookBuilder AddFiles(Dictionary<string, Stream> files)
+        /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
+        public DiscordWebhookBuilder AddFiles(Dictionary<string, Stream> files, bool resetStreamPosition = false)
         {
             if (this.Files.Count() + files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
@@ -161,7 +189,10 @@ namespace DSharpPlus.Entities
                 if (this._files.Any(x => x.FileName == file.Key))
                     throw new ArgumentException("A File with that filename already exists");
 
-                this._files.Add(new DiscordMessageFile(file.Key, file.Value, false));
+                if (resetStreamPosition)
+                    this._files.Add(new DiscordMessageFile(file.Key, file.Value, file.Value.Position));
+                else
+                    this._files.Add(new DiscordMessageFile(file.Key, file.Value, null));
             }
                 
 
@@ -186,6 +217,24 @@ namespace DSharpPlus.Entities
         {
             this._mentions.AddRange(mentions);
             return this;
+        }
+
+
+        public async Task<DiscordMessage> SendAsync(DiscordWebhook webhook)
+        {
+            return await webhook.ExecuteAsync(this);
+        }
+
+        /// <summary>
+        /// Allows for clearing the Message Builder so that it can be used again to send a new message.
+        /// </summary>
+        public void Clear()
+        {
+            this.Content = "";
+            this._embeds.Clear();
+            this.IsTTS = false;
+            this._mentions.Clear();
+            this._files.Clear();
         }
     }
 }

@@ -353,8 +353,47 @@ namespace DSharpPlus.Entities
                 if (messageId.HasValue)
                     reference.Message.Id = messageId.Value;
             }
-
+            
             return reference;
+        }
+
+
+
+        internal void PopulateMentions()
+        {
+            DiscordGuild guild = this.Channel?.Guild;
+            this._mentionedUsers ??= new List<DiscordUser>();
+            this._mentionedRoles ??= new List<DiscordRole>();
+            this._mentionedChannels ??= new List<DiscordChannel>();
+
+            var mentionedUsers = new HashSet<DiscordUser>(new DiscordUserComparer());
+            if (guild != null)
+            {
+                foreach (var usr in this._mentionedUsers)
+                {
+                    usr.Discord = this.Discord;
+                    this.Discord.UserCache.AddOrUpdate(usr.Id, usr, (id, old) =>
+                    {
+                        old.Username = usr.Username;
+                        old.Discriminator = usr.Discriminator;
+                        old.AvatarHash = usr.AvatarHash;
+                        return old;
+                    });
+
+                    mentionedUsers.Add(guild._members.TryGetValue(usr.Id, out var member) ? member : usr);
+                }
+            }
+            if (!string.IsNullOrWhiteSpace(this.Content))
+            {
+                mentionedUsers.UnionWith(Utilities.GetUserMentions(this).Select(this.Discord.GetCachedOrEmptyUserInternal));
+                if (guild != null)
+                {
+                    this._mentionedRoles = this._mentionedRoles.Union(Utilities.GetRoleMentions(this).Select(xid => guild.GetRole(xid))).ToList();
+                    this._mentionedChannels = this._mentionedChannels.Union(Utilities.GetChannelMentions(this).Select(xid => guild.GetChannel(xid))).ToList();
+                }
+            }
+
+            this._mentionedUsers = mentionedUsers.ToList();
         }
 
         /// <summary>

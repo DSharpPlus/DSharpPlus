@@ -9,7 +9,7 @@ Before attempting to write a Discord bot, you should be familiar with the concep
 If you're brand new to C#, or programming in general, this library may prove difficult for you to use.</br>
 Fortunately, there are resources that can help you get started with the language! 
 
-An exellent tutorial series to go through would be [C# Fundamentals for Absolute Beginners](https://channel9.msdn.com/Series/C-Fundamentals-for-Absolute-Beginners) by Bob Tabor.
+An excellent tutorial series to go through would be [C# Fundamentals for Absolute Beginners](https://channel9.msdn.com/Series/CSharp-Fundamentals-for-Absolute-Beginners) by Bob Tabor.
 His videos go through all the basics, from setting up your development environment up to some of the more advanced concepts. 
 If you're not sure what to do first, Bob's tutorial series should be your starting point!
 

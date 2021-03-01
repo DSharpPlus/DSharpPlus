@@ -104,10 +104,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> ExecuteAsync(DiscordWebhookBuilder builder)
-            => (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookAsync(this.Id, this.Token, builder.Content,
-                builder.Username.HasValue ? builder.Username.Value : this.Name, 
-                builder.AvatarUrl.HasValue ? builder.AvatarUrl.Value : this.AvatarUrl, 
-                builder.IsTTS, builder.Embeds, builder._files, builder.Mentions);
+            => (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookAsync(this.Id, this.Token, builder);
 
         /// <summary>
         /// Executes this webhook in Slack compatibility mode.

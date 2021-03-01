@@ -93,27 +93,7 @@ namespace DSharpPlus.Net
                 }
             }
 
-            var mentioned_users = new List<DiscordUser>();
-            var mentioned_roles = guild != null ? new List<DiscordRole>() : null;
-            var mentioned_channels = guild != null ? new List<DiscordChannel>() : null;
-
-            if (!string.IsNullOrWhiteSpace(ret.Content))
-            {
-                if (guild != null)
-                {
-                    mentioned_users = Utilities.GetUserMentions(ret).Select(xid => guild._members.TryGetValue(xid, out var member) ? member : null).Cast<DiscordUser>().ToList();
-                    mentioned_roles = Utilities.GetRoleMentions(ret).Select(xid => guild.GetRole(xid)).ToList();
-                    mentioned_channels = Utilities.GetChannelMentions(ret).Select(xid => guild.GetChannel(xid)).ToList();
-                }
-                else
-                {
-                    mentioned_users = Utilities.GetUserMentions(ret).Select(this.Discord.GetCachedOrEmptyUserInternal).ToList();
-                }
-            }
-
-            ret._mentionedUsers = mentioned_users;
-            ret._mentionedRoles = mentioned_roles;
-            ret._mentionedChannels = mentioned_channels;
+            ret.PopulateMentions();
 
             if (ret._reactions == null)
                 ret._reactions = new List<DiscordReaction>();
@@ -848,9 +828,9 @@ namespace DSharpPlus.Net
 
                 var ret = this.PrepareMessage(JObject.Parse(res.Response));
 
-                foreach (var file in builder._files.Where(x => x.IsDisposedInternally))
+                foreach (var file in builder._files.Where(x => x.ResetPositionTo.HasValue))
                 {
-                    file.Stream.Dispose();
+                    file.Stream.Position = file.ResetPositionTo.Value;
                 }
 
                 return ret;
@@ -1907,42 +1887,42 @@ namespace DSharpPlus.Net
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route, headers);
         }
 
-        internal async Task<DiscordMessage> ExecuteWebhookAsync(ulong webhook_id, string webhook_token, string content, Optional<string> username, Optional<string> avatar_url, bool? tts, IEnumerable<DiscordEmbed> embeds, IReadOnlyCollection<DiscordMessageFile> files, IEnumerable<IMention> mentions)
+        internal async Task<DiscordMessage> ExecuteWebhookAsync(ulong webhook_id, string webhook_token, DiscordWebhookBuilder builder)
         {
-            if (files?.Count == 0 && string.IsNullOrEmpty(content) && embeds == null)
+            if (builder.Files?.Count == 0 && string.IsNullOrEmpty(builder.Content) && builder.Embeds == null)
                 throw new ArgumentException("You must specify content, an embed, or at least one file.");
 
-            if (embeds != null)
-                foreach (var embed in embeds)
+            if (builder.Embeds != null)
+                foreach (var embed in builder.Embeds)
                     if (embed.Timestamp != null)
                         embed.Timestamp = embed.Timestamp.Value.ToUniversalTime();
 
             var values = new Dictionary<string, string>();
             var pld = new RestWebhookExecutePayload
             {
-                Content = content,
-                Username = username.HasValue ? username.Value : null,
-                AvatarUrl = avatar_url.HasValue ? avatar_url.Value : null,
-                IsTTS = tts,
-                Embeds = embeds
+                Content = builder.Content,
+                Username = builder.Username.HasValue ? builder.Username.Value : null,
+                AvatarUrl = builder.AvatarUrl.HasValue ? builder.AvatarUrl.Value : null,
+                IsTTS = builder.IsTTS,
+                Embeds = builder.Embeds
             };
 
-            if (mentions != null)
-                pld.Mentions = new DiscordMentions(mentions);
+            if (builder.Mentions != null)
+                pld.Mentions = new DiscordMentions(builder.Mentions);
 
-            if (!string.IsNullOrEmpty(content) || embeds?.Count() > 0 || tts == true || mentions != null)
+            if (!string.IsNullOrEmpty(builder.Content) || builder.Embeds?.Count() > 0 || builder.IsTTS == true || builder.Mentions != null)
                 values["payload_json"] = DiscordJson.SerializeObject(pld);
 
             var route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { webhook_id, webhook_token }, out var path);
 
             var url = Utilities.GetApiUriBuilderFor(path).AddParameter("wait", "true").Build();
-            var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, values: values, files: files).ConfigureAwait(false);
+            var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, values: values, files: builder.Files).ConfigureAwait(false);
             var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
 
-            foreach (var file in files.Where(x => x.IsDisposedInternally))
+            foreach (var file in builder.Files.Where(x => x.ResetPositionTo.HasValue))
             {
-                file.Stream.Dispose();
+                file.Stream.Position = file.ResetPositionTo.Value;
             }
 
             ret.Discord = this.Discord;
