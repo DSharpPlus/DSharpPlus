@@ -573,7 +573,7 @@ namespace DSharpPlus
         #region Misc
 
         /// <summary>
-        /// Fired when a guild uses an interaction. 
+        /// Fired when an interaction is invoked. 
         /// </summary>
         public event AsyncEventHandler<DiscordClient, InteractionCreateEventArgs> InteractionCreated
         {
