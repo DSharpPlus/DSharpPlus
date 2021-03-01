@@ -1953,13 +1953,13 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessage> EditWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong message_id, Optional<string> content, IEnumerable<DiscordEmbed> embeds, IEnumerable<IMention> allowed_mentions)
+        internal async Task<DiscordMessage> EditWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong message_id, DiscordWebhookBuilder builder)
         {
             var pld = new RestWebhookMessageEditPayload
             {
-                Content = content,
-                Embeds = embeds,
-                Mentions = allowed_mentions
+                Content = builder.Content,
+                Embeds = builder.Embeds,
+                Mentions = builder.Mentions
             };
 
             var route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token{Endpoints.MESSAGES}/:message_id";

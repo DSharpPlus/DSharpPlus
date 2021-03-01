@@ -1226,7 +1226,7 @@ namespace DSharpPlus
         /// <param name="builder">The builder of the message to edit.</param>
         /// <returns>The modified <see cref="DiscordMessage"/></returns>
         public Task<DiscordMessage> EditWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong messageId, DiscordWebhookBuilder builder)
-            => this.ApiClient.EditWebhookMessageAsync(webhook_id, webhook_token, messageId, builder.Content, builder.Embeds, builder.Mentions);
+            => this.ApiClient.EditWebhookMessageAsync(webhook_id, webhook_token, messageId, builder);
 
         /// <summary>
         /// Deletes a message that was created by a webhook.

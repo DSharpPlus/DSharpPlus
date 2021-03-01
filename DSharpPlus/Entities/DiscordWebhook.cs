@@ -138,7 +138,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> EditMessageAsync(ulong messageId, DiscordWebhookBuilder builder)
-            => (this.Discord?.ApiClient ?? this.ApiClient).EditWebhookMessageAsync(this.Id, this.Token, messageId, builder.Content, builder.Embeds, builder.Mentions);
+            => (this.Discord?.ApiClient ?? this.ApiClient).EditWebhookMessageAsync(this.Id, this.Token, messageId, builder);
 
         /// <summary>
         /// Deletes a message that was created by the webhook.
