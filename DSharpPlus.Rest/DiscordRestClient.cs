@@ -1226,8 +1226,7 @@ namespace DSharpPlus
         /// <returns>The modified <see cref="DiscordMessage"/></returns>
         public async Task<DiscordMessage> EditWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong messageId, DiscordWebhookBuilder builder)
         {
-            if (builder.Files.Any())
-                throw new ArgumentException("You cannot add files when modifing a message.");
+            builder.Validate();
 
             return await this.ApiClient.EditWebhookMessageAsync(webhook_id, webhook_token, messageId, builder).ConfigureAwait(false);
         }
