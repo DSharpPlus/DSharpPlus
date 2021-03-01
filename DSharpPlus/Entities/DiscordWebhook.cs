@@ -132,15 +132,13 @@ namespace DSharpPlus.Entities
         /// Edits a previously-sent webhook message.
         /// </summary>
         /// <param name="messageId">The id of the message to edit.</param>
-        /// <param name="content">The content of the message.</param>
-        /// <param name="embeds">The embeds in the message.</param>
-        /// <param name="mentions">The allowed mentions in the message.</param>
+        /// <param name="builder">The builder of the message to edit.</param>
         /// <returns>The modified <see cref="DiscordMessage"/></returns>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the webhook does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordMessage> EditMessageAsync(ulong messageId, Optional<string> content, IEnumerable<DiscordEmbed> embeds = null, IEnumerable<IMention> mentions = null)
-            => (this.Discord?.ApiClient ?? this.ApiClient).EditWebhookMessageAsync(this.Id, this.Token, messageId, content, embeds, mentions);
+        public Task<DiscordMessage> EditMessageAsync(ulong messageId, DiscordWebhookBuilder builder)
+            => (this.Discord?.ApiClient ?? this.ApiClient).EditWebhookMessageAsync(this.Id, this.Token, messageId, builder.Content, builder.Embeds, builder.Mentions);
 
         /// <summary>
         /// Deletes a message that was created by the webhook.
