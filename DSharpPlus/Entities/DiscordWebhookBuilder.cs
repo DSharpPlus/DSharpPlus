@@ -219,14 +219,39 @@ namespace DSharpPlus.Entities
             return this;
         }
 
-
+        /// <summary>
+        /// Executes a webhook.
+        /// </summary>
+        /// <param name="webhook">The webhook that should be executed.</param>
+        /// <returns>The message sent</returns>
         public async Task<DiscordMessage> SendAsync(DiscordWebhook webhook)
         {
             return await webhook.ExecuteAsync(this);
         }
 
         /// <summary>
-        /// Allows for clearing the Message Builder so that it can be used again to send a new message.
+        /// Sends the modified webhook message.
+        /// </summary>
+        /// <param name="webhook">The webhook that should be executed.</param>
+        /// <param name="message">The message to modify.</param>
+        /// <returns>The modified message</returns>
+        public async Task<DiscordMessage> ModifyAsync(DiscordWebhook webhook, DiscordMessage message)
+        {
+            return await webhook.EditMessageAsync(message.Id, this);
+        }
+        /// <summary>
+        /// Sends the modified webhook message.
+        /// </summary>
+        /// <param name="webhook">The webhook that should be executed.</param>
+        /// <param name="messageId">The id of the message to modify.</param>
+        /// <returns>The modified message</returns>
+        public async Task<DiscordMessage> ModifyAsync(DiscordWebhook webhook, ulong messageId)
+        {
+            return await webhook.EditMessageAsync(messageId, this);
+        }
+
+        /// <summary>
+        /// Allows for clearing the Webhook Builder so that it can be used again to send a new message.
         /// </summary>
         public void Clear()
         {

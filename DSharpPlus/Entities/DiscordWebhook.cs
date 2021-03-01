@@ -129,6 +129,29 @@ namespace DSharpPlus.Entities
             => (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookGithubAsync(Id, Token, json);
 
         /// <summary>
+        /// Edits a previously-sent webhook message.
+        /// </summary>
+        /// <param name="messageId">The id of the message to edit.</param>
+        /// <param name="builder">The builder of the message to edit.</param>
+        /// <returns>The modified <see cref="DiscordMessage"/></returns>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the webhook does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordMessage> EditMessageAsync(ulong messageId, DiscordWebhookBuilder builder)
+            => (this.Discord?.ApiClient ?? this.ApiClient).EditWebhookMessageAsync(this.Id, this.Token, messageId, builder);
+
+        /// <summary>
+        /// Deletes a message that was created by the webhook.
+        /// </summary>
+        /// <param name="messageId">The id of the message to delete</param>
+        /// <returns></returns>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the webhook does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task DeleteMessageAsync(ulong messageId)
+            => (this.Discord?.ApiClient ?? this.ApiClient).DeleteWebhookMessageAsync(this.Id, this.Token, messageId);
+
+        /// <summary>
         /// Checks whether this <see cref="DiscordWebhook"/> is equal to another object.
         /// </summary>
         /// <param name="obj">Object to compare to.</param>
