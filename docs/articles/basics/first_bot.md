@@ -43,7 +43,7 @@ Locate the *solution explorer* on the right side, then right click on `Dependenc
 <br/>
 You'll then be greeted by the NuGet package manager.
 
-Select the `Browse` tab towards the top left, then type `DSharpPlus` into the search text box.
+Select the `Browse` tab towards the top left, then type `DSharpPlus` into the search text box with the Pre-release checkbox checked **ON**.
 
 ![NuGet Package Search](/images/basics_first_bot_06.png)
 
@@ -62,7 +62,7 @@ Package|Description
 
 <br/>
 We'll only need the `DSharpPlus` package for the basic bot we'll be writing in this article.<br/>
-Select it from the list then click the `Install` button to the right.
+Select it from the list then click the `Install` button to the right (after verifing that you will be installing the **latest 4.0 version**).
 
 ![Install DSharpPlus](/images/basics_first_bot_08.png)
 
@@ -111,12 +111,15 @@ We'll now create a new `DiscordClient` instance in our brand new asynchronous me
 
 Create a new variable in `MainAsync` and assign it a new `DiscordClient` instance, then pass an instance of `DiscordConfiguration` to its constructor.
 Create an object initializer for `DiscordConfiguration` and populate the `Token` property with your bot token then set the `TokenType` property to `TokenType.Bot`.
+Next add the `Intents` Property and Populated it with the @DSharpPlus.DiscordIntents.AllUnprivileged value. These Intents 
+are required for certain Events to be fired.  Please visit this [article](xref:beyond_basics_intents) for more information.
 
 ```cs
 var discord = new DiscordClient(new DiscordConfiguration()
 {
     Token = "My First Token",
-    TokenType = TokenType.Bot       
+    TokenType = TokenType.Bot,
+    Intents = DiscordIntents.AllUnprivileged     
 });
 ```
 
