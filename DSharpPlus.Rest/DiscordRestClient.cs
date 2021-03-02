@@ -511,7 +511,7 @@ namespace DSharpPlus
         /// <returns></returns>
         public async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, DiscordMessageBuilder builder)
         {
-            builder.Validate();
+            builder.Validate(true);
 
             return await this.ApiClient.EditMessageAsync(channel_id, message_id, builder.Content, builder.Embed, builder.Mentions).ConfigureAwait(false);
         }
@@ -1226,7 +1226,7 @@ namespace DSharpPlus
         /// <returns>The modified <see cref="DiscordMessage"/></returns>
         public async Task<DiscordMessage> EditWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong messageId, DiscordWebhookBuilder builder)
         {
-            builder.Validate();
+            builder.Validate(true);
 
             return await this.ApiClient.EditWebhookMessageAsync(webhook_id, webhook_token, messageId, builder).ConfigureAwait(false);
         }
