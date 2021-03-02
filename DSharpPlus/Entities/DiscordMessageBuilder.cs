@@ -249,7 +249,7 @@ namespace DSharpPlus.Entities
             if (isModify)
             {
                 if (this.Files.Any())
-                    throw new ArgumentException("You cannot add files when modifing a message.");
+                    throw new ArgumentException("You cannot add files when modifying a message.");
 
                 if (this.ReplyId.HasValue)
                     throw new ArgumentException("You cannot change the ReplyID when modifying a message");
