@@ -239,5 +239,26 @@ namespace DSharpPlus.Entities
             this.ReplyId = null;
             this.MentionOnReply = false;
         }
+
+        /// <summary>
+        /// Does the validation before we send a the Create/Modify request.
+        /// </summary>
+        /// <param name="isModify">Tells the method to perform the Modify Validation or Create Validation.</param>
+        internal void Validate(bool isModify = false)
+        {
+            if (isModify)
+            {
+                if (this.Files.Any())
+                    throw new ArgumentException("You cannot add files when modifying a message.");
+
+                if (this.ReplyId.HasValue)
+                    throw new ArgumentException("You cannot change the ReplyID when modifying a message");
+            }
+            else
+            {
+                if (this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && this.Embed == null)
+                    throw new ArgumentException("You must specify content, an embed, or at least one file.");
+            }
+        }
     }
 }

@@ -226,7 +226,7 @@ namespace DSharpPlus.Entities
         /// <returns>The message sent</returns>
         public async Task<DiscordMessage> SendAsync(DiscordWebhook webhook)
         {
-            return await webhook.ExecuteAsync(this);
+            return await webhook.ExecuteAsync(this).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -237,7 +237,7 @@ namespace DSharpPlus.Entities
         /// <returns>The modified message</returns>
         public async Task<DiscordMessage> ModifyAsync(DiscordWebhook webhook, DiscordMessage message)
         {
-            return await webhook.EditMessageAsync(message.Id, this);
+            return await this.ModifyAsync(webhook, message.Id).ConfigureAwait(false);
         }
         /// <summary>
         /// Sends the modified webhook message.
@@ -247,7 +247,7 @@ namespace DSharpPlus.Entities
         /// <returns>The modified message</returns>
         public async Task<DiscordMessage> ModifyAsync(DiscordWebhook webhook, ulong messageId)
         {
-            return await webhook.EditMessageAsync(messageId, this);
+            return await webhook.EditMessageAsync(messageId, this).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -260,6 +260,30 @@ namespace DSharpPlus.Entities
             this.IsTTS = false;
             this._mentions.Clear();
             this._files.Clear();
+        }
+
+        /// <summary>
+        /// Does the validation before we send a the Create/Modify request.
+        /// </summary>
+        /// <param name="isModify">Tells the method to perform the Modify Validation or Create Validation.</param>
+        internal void Validate(bool isModify = false)
+        {
+            if (isModify)
+            {
+                if (this.Files.Any())
+                    throw new ArgumentException("You cannot add files when modifying a message.");
+
+                if (this.Username.HasValue)
+                    throw new ArgumentException("You cannot change the username of a message.");
+
+                if (this.AvatarUrl.HasValue)
+                    throw new ArgumentException("You cannot change the avatar of a message.");
+            }
+            else
+            {
+                if (this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && !this.Embeds.Any())
+                    throw new ArgumentException("You must specify content, an embed, or at least one file.");
+            }
         }
     }
 }
