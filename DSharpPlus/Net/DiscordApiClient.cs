@@ -151,6 +151,8 @@ namespace DSharpPlus.Net
 
         internal async Task<DiscordGuild> CreateGuildAsync(DiscordGuildBuilder builder)
         {
+            builder.Validate();
+
             var pld = new RestGuildCreatePayload
             {
                 Name = builder.Name,
@@ -244,6 +246,8 @@ namespace DSharpPlus.Net
 
         internal async Task<DiscordGuild> ModifyGuildAsync(ulong guildId, DiscordGuildBuilder builder)
         {
+            builder.Validate(true); 
+
             var splashb64 = Optional.FromNoValue<string>();
             if (builder.Splash.HasValue && builder.Splash.Value != null)
                 using (var imgtool = new ImageTool(builder.Splash.Value))

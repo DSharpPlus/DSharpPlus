@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.Entities
@@ -10,7 +9,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents the Guild that will be Created or Modified.
     /// </summary>
-    public class DiscordGuildBuilder
+    public class DiscordGuildBuilder : BaseDiscordBuilder<DiscordGuild, DiscordClient>
     {
         /// <summary>
         /// <para>Gets or Sets the Name of the guild to be sent.</para>
@@ -359,7 +358,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="client">The DiscordClient to use.</param>
         /// <returns></returns>
-        public async Task<DiscordGuild> SendAsync(DiscordClient client)
+        public override async Task<DiscordGuild> SendAsync(DiscordClient client)
         {
             return await client.CreateGuildAsync(this).ConfigureAwait(false);
         }
@@ -369,7 +368,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="guild">The guild to modify.</param>
         /// <returns></returns>
-        public async Task<DiscordGuild> ModifyAsync(DiscordGuild guild)
+        public override async Task<DiscordGuild> ModifyAsync(DiscordGuild guild)
         {
             return await guild.ModifyAsync(this).ConfigureAwait(false);
         }
@@ -476,7 +475,7 @@ namespace DSharpPlus.Entities
             }
         }
 
-        public void Validate(bool isModify)
+        internal override void Validate(bool isModify = false)
         {
             if (isModify)
             {
@@ -506,6 +505,28 @@ namespace DSharpPlus.Entities
                 if (this.AuditLogReason.HasValue)
                     throw new ArgumentException("An Audit log reason can only be used during modify.");
             }
+        }
+
+        /// <summary>
+        /// Clears the Builder to be used again.
+        /// </summary>
+        public override void Clear()
+        {
+            this._name = "";
+            this.VoiceRegionId = Optional.FromNoValue<string>();
+            this.Icon = Optional.FromNoValue<string>();
+            this.VerificationLevel = Optional.FromNoValue<VerificationLevel>();
+            this.MfaLevel = Optional.FromNoValue<MfaLevel>(); 
+            this.ExplicitContentFilterLevel = Optional.FromNoValue<ExplicitContentFilter>();
+            this.NewOwner = Optional.FromNoValue<DiscordMember>();
+            this.Splash = Optional.FromNoValue<Stream>();
+            this._Roles.Clear();
+            this._Channels.Clear();
+            this.AfkChannelId = Optional.FromNoValue<ulong>();
+            this.AfkTimeout = Optional.FromNoValue<int>();
+            this.SystemChannelId = Optional.FromNoValue<ulong>();
+            this.RulesChannel = Optional.FromNoValue<DiscordChannel>();
+            this.PublicUpdatesChannel = Optional.FromNoValue<DiscordChannel>();
         }
     }
 }
