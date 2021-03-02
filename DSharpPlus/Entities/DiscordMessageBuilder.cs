@@ -9,7 +9,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Constructs a Message to be sent.
     /// </summary>
-    public sealed class DiscordMessageBuilder : BaseDiscordBuilder
+    public sealed class DiscordMessageBuilder
     {
         /// <summary>
         /// Gets or Sets the Message to be sent.
@@ -244,7 +244,7 @@ namespace DSharpPlus.Entities
         /// Does the validation before we send a the Create/Modify request.
         /// </summary>
         /// <param name="isModify">Tells the method to perform the Modify Validation or Create Validation.</param>
-        internal override void Validate(bool isModify = false)
+        internal void Validate(bool isModify = false)
         {
             if (isModify)
             {
