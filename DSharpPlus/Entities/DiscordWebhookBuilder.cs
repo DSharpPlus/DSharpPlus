@@ -277,7 +277,7 @@ namespace DSharpPlus.Entities
                     throw new ArgumentException("You cannot change the username of a message.");
 
                 if (this.AvatarUrl.HasValue)
-                    throw new ArgumentException("You cannot change the Avatar of a message.");
+                    throw new ArgumentException("You cannot change the avatar of a message.");
             }
             else
             {
