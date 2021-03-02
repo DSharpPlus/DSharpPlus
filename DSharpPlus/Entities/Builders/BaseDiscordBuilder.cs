@@ -6,7 +6,7 @@ namespace DSharpPlus.Entities
     {
         public abstract Task<ReturnType> SendAsync(SendType type);
 
-        public abstract Task<ReturnType> ModifyAsync(ReturnType type);
+        //public abstract Task<ReturnType> ModifyAsync(ReturnType type);
 
         public abstract void Clear();
 

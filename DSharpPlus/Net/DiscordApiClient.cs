@@ -174,10 +174,10 @@ namespace DSharpPlus.Net
                     Id = x.Id,
                     Name = x.Name,
                     Type = x.Type,
-                    Parent = x.ParentId,
+                    Parent = x.ParentId.HasValue ? x.ParentId.Value : Optional.FromNoValue<ulong>(),
                     Topic = x.Topic,
-                    Nsfw = x.Nsfw,
-                    Bitrate = x.Bitrare,
+                    Nsfw = x.Nsfw.HasValue ? x.Nsfw.Value : Optional.FromNoValue<bool>(),
+                    Bitrate = x.Bitrate.HasValue ? x.Bitrate.Value : Optional.FromNoValue<int>(),
                     PermissionOverwrites = x.PermissionOverwrites.Select(y => new DiscordRestOverwrite
                     {
                         Id = y.Id,
@@ -683,29 +683,29 @@ namespace DSharpPlus.Net
         #endregion
 
         #region Channel
-        internal async Task<DiscordChannel> CreateGuildChannelAsync(ulong guild_id, string name, ChannelType type, ulong? parent, Optional<string> topic, int? bitrate, int? user_limit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, Optional<int?> perUserRateLimit, string reason)
+        internal async Task<DiscordChannel> CreateGuildChannelAsync(ulong guild_id, DiscordChannelBuilder builder)
         {
             var restoverwrites = new List<DiscordRestOverwrite>();
-            if (overwrites != null)
-                foreach (var ow in overwrites)
-                    restoverwrites.Add(ow.Build());
+
+            foreach (var ow in builder._Overwrites)
+                restoverwrites.Add(ow.Build());
 
             var pld = new RestChannelCreatePayload
             {
-                Name = name,
-                Type = type,
-                Parent = parent,
-                Topic = topic,
-                Bitrate = bitrate,
-                UserLimit = user_limit,
+                Name = builder.Name,
+                Type = builder.Type.Value,
+                Parent = builder.ParentId,
+                Topic = builder.Topic,
+                Bitrate = builder.Bitrate,
+                UserLimit = builder.UserLimit,
                 PermissionOverwrites = restoverwrites,
-                Nsfw = nsfw,
-                PerUserRateLimit = perUserRateLimit
+                Nsfw = builder.Nsfw,
+                PerUserRateLimit = builder.RateLimit
             };
 
             var headers = Utilities.GetBaseHeaders();
-            if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+            if (builder.AuditLogReason.HasValue && !string.IsNullOrWhiteSpace(builder.AuditLogReason.Value))
+                headers.Add(REASON_HEADER_NAME, builder.AuditLogReason.Value);
 
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.CHANNELS}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { guild_id }, out var path);
@@ -724,23 +724,23 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal Task ModifyChannelAsync(ulong channel_id, string name, int? position, Optional<string> topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? user_limit, Optional<int?> perUserRateLimit, string reason)
+        internal Task ModifyChannelAsync(ulong channel_id, DiscordChannelBuilder builder)
         {
             var pld = new RestChannelModifyPayload
             {
-                Name = name,
-                Position = position,
-                Topic = topic,
-                Nsfw = nsfw,
-                Parent = parent,
-                Bitrate = bitrate,
-                UserLimit = user_limit,
-                PerUserRateLimit = perUserRateLimit
+                Name = builder.Name,
+                Position = builder.Position,
+                Topic = builder.Topic,
+                Nsfw = builder.Nsfw,
+                Parent = builder.ParentId,
+                Bitrate = builder.Bitrate,
+                UserLimit = builder.UserLimit,
+                PerUserRateLimit = builder.RateLimit
             };
 
             var headers = Utilities.GetBaseHeaders();
-            if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+            if (builder.AuditLogReason.HasValue && !string.IsNullOrWhiteSpace(builder.AuditLogReason.Value))
+                headers.Add(REASON_HEADER_NAME, builder.AuditLogReason.Value);
 
             var route = $"{Endpoints.CHANNELS}/:channel_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { channel_id }, out var path);

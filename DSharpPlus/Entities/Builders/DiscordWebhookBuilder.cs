@@ -230,17 +230,6 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="msg"></param>
-        /// <returns></returns>
-        [Obsolete("This method no longer works, please use the ModifyAsync(DiscordWebhook, DiscordMessage) overload.", true)]
-        public override Task<DiscordMessage> ModifyAsync(DiscordMessage msg)
-        {
-            throw new Exception("This method no longer works, please use the ModifyAsync(DiscordWebhook, DiscordMessage) overload.");
-        }
-
-        /// <summary>
         /// Sends the modified webhook message.
         /// </summary>
         /// <param name="webhook">The webhook that should be executed.</param>

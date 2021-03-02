@@ -368,7 +368,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="guild">The guild to modify.</param>
         /// <returns></returns>
-        public override async Task<DiscordGuild> ModifyAsync(DiscordGuild guild)
+        public async Task<DiscordGuild> ModifyAsync(DiscordGuild guild)
         {
             return await guild.ModifyAsync(this).ConfigureAwait(false);
         }
@@ -441,7 +441,7 @@ namespace DSharpPlus.Entities
             /// <summary>
             /// Gets or Sets the bitrate of the channel
             /// </summary>
-            public int? Bitrare { get; set; }
+            public int? Bitrate { get; set; }
 
             /// <summary>
             /// Gets or Sets if the channel is nsfw

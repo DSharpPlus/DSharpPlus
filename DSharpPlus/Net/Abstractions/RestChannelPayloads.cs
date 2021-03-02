@@ -16,25 +16,25 @@ namespace DSharpPlus.Net.Abstractions
         public ChannelType Type { get; set; }
 
         [JsonProperty("parent_id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong? Parent { get; set; }
+        public Optional<ulong> Parent { get; set; }
 
         [JsonProperty("topic")]
         public Optional<string> Topic { get; set; }
 
         [JsonProperty("bitrate", NullValueHandling = NullValueHandling.Ignore)]
-        public int? Bitrate { get; set; }
+        public Optional<int> Bitrate { get; set; }
 
         [JsonProperty("user_limit", NullValueHandling = NullValueHandling.Ignore)]
-        public int? UserLimit { get; set; }
+        public Optional<int> UserLimit { get; set; }
 
         [JsonProperty("permission_overwrites", NullValueHandling = NullValueHandling.Ignore)]
         public IEnumerable<DiscordRestOverwrite> PermissionOverwrites { get; set; }
 
         [JsonProperty("nsfw", NullValueHandling = NullValueHandling.Ignore)]
-        public bool? Nsfw { get; set; }
+        public Optional<bool> Nsfw { get; set; }
 
         [JsonProperty("rate_limit_per_user")]
-        public Optional<int?> PerUserRateLimit { get; set; }
+        public Optional<int> PerUserRateLimit { get; set; }
     }
 
     internal sealed class RestChannelModifyPayload
@@ -43,25 +43,25 @@ namespace DSharpPlus.Net.Abstractions
         public string Name { get; set; }
 
         [JsonProperty("position", NullValueHandling = NullValueHandling.Ignore)]
-        public int? Position { get; set; }
+        public Optional<int> Position { get; set; }
         
         [JsonProperty("topic")]
         public Optional<string> Topic { get; set; }
 
         [JsonProperty("nsfw", NullValueHandling = NullValueHandling.Ignore)]
-        public bool? Nsfw { get; set; }
+        public Optional<bool> Nsfw { get; set; }
 
         [JsonProperty("parent_id")]
-        public Optional<ulong?> Parent { get; set; }
+        public Optional<ulong> Parent { get; set; }
 
         [JsonProperty("bitrate", NullValueHandling = NullValueHandling.Ignore)]
-        public int? Bitrate { get; set; }
+        public Optional<int> Bitrate { get; set; }
 
         [JsonProperty("user_limit", NullValueHandling = NullValueHandling.Ignore)]
-        public int? UserLimit { get; set; }
+        public Optional<int> UserLimit { get; set; }
 
         [JsonProperty("rate_limit_per_user")]
-        public Optional<int?> PerUserRateLimit { get; set; }
+        public Optional<int> PerUserRateLimit { get; set; }
     }
 
     internal class RestChannelMessageEditPayload

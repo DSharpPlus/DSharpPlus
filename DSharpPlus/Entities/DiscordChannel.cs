@@ -266,21 +266,22 @@ namespace DSharpPlus.Entities
             foreach (var ovr in this._permissionOverwrites)
                 ovrs.Add(await new DiscordOverwriteBuilder().FromAsync(ovr).ConfigureAwait(false));
 
-            int? bitrate = this.Bitrate;
-            int? userLimit = this.UserLimit;
-            Optional<int?> perUserRateLimit = this.PerUserRateLimit;
+            var builder = new DiscordChannelBuilder()
+                .WithName(this.Name)
+                .WithType(this.Type)
+                .WithNsfw(this.IsNSFW)
+                .WithAuditLogReason(reason);
 
-            if (this.Type != ChannelType.Voice)
+            if (this.Type == ChannelType.Voice)
             {
-                bitrate = null;
-                userLimit = null;
+                builder.WithBitrate(this.Bitrate).WithUserLimit(this.UserLimit);
             }
-            if (this.Type != ChannelType.Text)
+            else if (this.Type == ChannelType.Text && this.PerUserRateLimit.HasValue)
             {
-                perUserRateLimit = Optional.FromNoValue<int?>();
+                builder.WithRateLimit(this.PerUserRateLimit.Value);
             }
 
-            return await this.Guild.CreateChannelAsync(this.Name, this.Type, this.Parent, this.Topic, bitrate, userLimit, ovrs, this.IsNSFW, perUserRateLimit, reason).ConfigureAwait(false);
+            return await this.Guild.CreateChannelAsync(builder).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -314,13 +315,9 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task ModifyAsync(Action<ChannelEditModel> action)
+        public Task ModifyAsync(DiscordChannelBuilder builder)
         {
-            var mdl = new ChannelEditModel();
-            action(mdl);
-            return this.Discord.ApiClient.ModifyChannelAsync(this.Id, mdl.Name, mdl.Position, mdl.Topic, mdl.Nsfw,
-                mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.PerUserRateLimit, 
-                mdl.AuditLogReason);
+            return this.Discord.ApiClient.ModifyChannelAsync(this.Id, builder);
         }
 
         /// <summary>

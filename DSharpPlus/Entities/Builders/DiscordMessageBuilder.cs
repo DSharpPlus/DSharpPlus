@@ -221,7 +221,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="msg">The original Message to modify.</param>
         /// <returns></returns>
-        public override async Task<DiscordMessage> ModifyAsync(DiscordMessage msg)
+        public async Task<DiscordMessage> ModifyAsync(DiscordMessage msg)
         {
             return await msg.ModifyAsync(this).ConfigureAwait(false);
         }
