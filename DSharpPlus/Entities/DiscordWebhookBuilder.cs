@@ -281,7 +281,7 @@ namespace DSharpPlus.Entities
             }
             else
             {
-                if (this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && this.Embeds.Any())
+                if (this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && !this.Embeds.Any())
                     throw new ArgumentException("You must specify content, an embed, or at least one file.");
             }
         }
