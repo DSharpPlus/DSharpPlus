@@ -447,37 +447,15 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Modifies this guild.
         /// </summary>
-        /// <param name="action">Action to perform on this guild..</param>
+        /// <param name="builder">The builder to modify the Guild.</param>
         /// <returns>The modified guild object.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the guild does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordGuild> ModifyAsync(Action<GuildEditModel> action)
+        public async Task<DiscordGuild> ModifyAsync(DiscordGuildBuilder builder)
         {
-            var mdl = new GuildEditModel();
-            action(mdl);
-            if (mdl.AfkChannel.HasValue && mdl.AfkChannel.Value.Type != ChannelType.Voice)
-                throw new ArgumentException("AFK channel needs to be a voice channel.");
-
-            var iconb64 = Optional.FromNoValue<string>();
-            if (mdl.Icon.HasValue && mdl.Icon.Value != null)
-                using (var imgtool = new ImageTool(mdl.Icon.Value))
-                    iconb64 = imgtool.GetBase64();
-            else if (mdl.Icon.HasValue)
-                iconb64 = null;
-
-            var splashb64 = Optional.FromNoValue<string>();
-            if (mdl.Splash.HasValue && mdl.Splash.Value != null)
-                using (var imgtool = new ImageTool(mdl.Splash.Value))
-                    splashb64 = imgtool.GetBase64();
-            else if (mdl.Splash.HasValue)
-                splashb64 = null;
-
-            return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, mdl.Name, mdl.Region.IfPresent(e => e.Id),
-                mdl.VerificationLevel, mdl.DefaultMessageNotifications, mdl.MfaLevel, mdl.ExplicitContentFilter,
-                mdl.AfkChannel.IfPresent(e => e?.Id), mdl.AfkTimeout, iconb64, mdl.Owner.IfPresent(e => e.Id), splashb64,
-                mdl.SystemChannel.IfPresent(e => e?.Id), mdl.AuditLogReason).ConfigureAwait(false);
+            return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, builder).ConfigureAwait(false);
         }
 
         /// <summary>

@@ -47,13 +47,20 @@ namespace DSharpPlus
         /// Creates a new guild
         /// </summary>
         /// <param name="name">New guild's name</param>
-        /// <param name="region_id">New guild's region ID</param>
-        /// <param name="iconb64">New guild's icon (base64)</param>
-        /// <param name="verification_level">New guild's verification level</param>
-        /// <param name="default_message_notifications">New guild's default message notification level</param>
         /// <returns></returns>
-        public Task<DiscordGuild> CreateGuildAsync(string name, string region_id, string iconb64, VerificationLevel? verification_level, DefaultMessageNotifications? default_message_notifications)
-            => this.ApiClient.CreateGuildAsync(name, region_id, iconb64, verification_level, default_message_notifications);
+        public Task<DiscordGuild> CreateGuildAsync(string name)
+            => this.ApiClient.CreateGuildAsync(name);
+
+        /// <summary>
+        /// Creates a guild. This requires the bot to be in less than 10 guilds total.
+        /// </summary>
+        /// <param name="builder">The builder to create all the guild options.</param>
+        /// <returns>The created guild.</returns>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordGuild> CreateGuildAsync(DiscordGuildBuilder builder)
+            => this.ApiClient.CreateGuildAsync(builder);
 
         /// <summary>
         /// Creates a guild from a template. This requires the bot to be in less than 10 guilds total.
@@ -77,62 +84,10 @@ namespace DSharpPlus
         /// Modifies a guild
         /// </summary>
         /// <param name="guild_id">Guild ID</param>
-        /// <param name="name">New guild Name</param>
-        /// <param name="region">New guild voice region</param>
-        /// <param name="verification_level">New guild verification level</param>
-        /// <param name="default_message_notifications">New guild default message notification level</param>
-        /// <param name="mfa_level">New guild MFA level</param>
-        /// <param name="explicit_content_filter">New guild explicit content filter level</param>
-        /// <param name="afk_channel_id">New guild AFK channel id</param>
-        /// <param name="afk_timeout">New guild AFK timeout in seconds</param>
-        /// <param name="iconb64">New guild icon (base64)</param>
-        /// <param name="owner_id">New guild owner id</param>
-        /// <param name="splashb64">New guild spalsh (base64)</param>
-        /// <param name="systemChannelId">New guild system channel id</param>
-        /// <param name="reason">Modify reason</param>
+        /// <param name="builder">The builder which will modify the guild.</param>
         /// <returns></returns>
-        public Task<DiscordGuild> ModifyGuildAsync(ulong guild_id, Optional<string> name,
-            Optional<string> region, Optional<VerificationLevel> verification_level,
-            Optional<DefaultMessageNotifications> default_message_notifications, Optional<MfaLevel> mfa_level,
-            Optional<ExplicitContentFilter> explicit_content_filter, Optional<ulong?> afk_channel_id,
-            Optional<int> afk_timeout, Optional<string> iconb64, Optional<ulong> owner_id, Optional<string> splashb64,
-            Optional<ulong?> systemChannelId, string reason)
-            => this.ApiClient.ModifyGuildAsync(guild_id, name, region, verification_level, default_message_notifications, mfa_level, explicit_content_filter, afk_channel_id, afk_timeout, iconb64,
-                owner_id, splashb64, systemChannelId, reason);
-
-        /// <summary>
-        /// Modifies a guild
-        /// </summary>
-        /// <param name="guild_id">Guild id</param>
-        /// <param name="action">Guild modifications</param>
-        /// <returns></returns>
-        public async Task<DiscordGuild> ModifyGuildAsync(ulong guild_id, Action<GuildEditModel> action)
-        {
-            var mdl = new GuildEditModel();
-            action(mdl);
-
-            if (mdl.AfkChannel.HasValue)
-                if (mdl.AfkChannel.Value.Type != ChannelType.Voice)
-                    throw new ArgumentException("AFK channel needs to be a voice channel!");
-
-            var iconb64 = Optional.FromNoValue<string>();
-            if (mdl.Icon.HasValue && mdl.Icon.Value != null)
-                using (var imgtool = new ImageTool(mdl.Icon.Value))
-                    iconb64 = imgtool.GetBase64();
-            else if (mdl.Icon.HasValue)
-                iconb64 = null;
-
-            var splashb64 = Optional.FromNoValue<string>();
-            if (mdl.Splash.HasValue && mdl.Splash.Value != null)
-                using (var imgtool = new ImageTool(mdl.Splash.Value))
-                    splashb64 = imgtool.GetBase64();
-            else if (mdl.Splash.HasValue)
-                splashb64 = null;
-
-            return await this.ApiClient.ModifyGuildAsync(guild_id, mdl.Name, mdl.Region.IfPresent(x => x.Id), mdl.VerificationLevel, mdl.DefaultMessageNotifications,
-                mdl.MfaLevel, mdl.ExplicitContentFilter, mdl.AfkChannel.IfPresent(x => x?.Id), mdl.AfkTimeout, iconb64, mdl.Owner.IfPresent(x => x.Id),
-                splashb64, mdl.SystemChannel.IfPresent(x => x?.Id), mdl.AuditLogReason).ConfigureAwait(false);
-        }
+        public Task<DiscordGuild> ModifyGuildAsync(ulong guild_id, DiscordGuildBuilder builder)
+            => this.ApiClient.ModifyGuildAsync(guild_id, builder);
 
         /// <summary>
         /// Gets guild bans

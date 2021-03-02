@@ -6,6 +6,9 @@ namespace DSharpPlus.Net.Abstractions
 {
     internal sealed class RestChannelCreatePayload
     {
+        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        public ulong Id { get; set; }
+        
         [JsonProperty("name")]
         public string Name { get; set; }
 

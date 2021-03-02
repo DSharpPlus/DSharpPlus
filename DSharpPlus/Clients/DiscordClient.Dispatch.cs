@@ -658,7 +658,8 @@ namespace DSharpPlus
             guild.VanityUrlCode = eventGuild.VanityUrlCode;
             guild.Description = eventGuild.Description;
 
-            foreach (var kvp in eventGuild._voiceStates) guild._voiceStates[kvp.Key] = kvp.Value;
+            if(eventGuild._voiceStates != null)
+                foreach (var kvp in eventGuild._voiceStates) guild._voiceStates[kvp.Key] = kvp.Value;
 
             foreach (var xc in guild._channels.Values)
             {

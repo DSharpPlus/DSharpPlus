@@ -127,16 +127,66 @@ namespace DSharpPlus.Net
         }
 
         #region Guild
-        internal async Task<DiscordGuild> CreateGuildAsync(string name, string region_id, Optional<string> iconb64, VerificationLevel? verification_level,
-            DefaultMessageNotifications? default_message_notifications)
+        internal async Task<DiscordGuild> CreateGuildAsync(string name)
         {
             var pld = new RestGuildCreatePayload
             {
                 Name = name,
-                RegionId = region_id,
-                DefaultMessageNotifications = default_message_notifications,
-                VerificationLevel = verification_level,
-                IconBase64 = iconb64
+            };
+
+            var route = $"{Endpoints.GUILDS}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
+
+            var json = JObject.Parse(res.Response);
+            var raw_members = (JArray)json["members"];
+            var guild = json.ToDiscordObject<DiscordGuild>();
+
+            if (this.Discord is DiscordClient dc)
+                await dc.OnGuildCreateEventAsync(guild, raw_members, null).ConfigureAwait(false);
+            return guild;
+        }
+
+        internal async Task<DiscordGuild> CreateGuildAsync(DiscordGuildBuilder builder)
+        {
+            var pld = new RestGuildCreatePayload
+            {
+                Name = builder.Name,
+                RegionId = builder.VoiceRegionId,
+                IconBase64 = builder.Icon,
+                VerificationLevel = builder.VerificationLevel,
+                DefaultMessageNotifications = builder.DefaultMessageNotificationLevel,
+                ExplicitContentFilter = builder.ExplicitContentFilterLevel,
+                Roles = builder._Roles.Any() ? builder._Roles.Select(x => new DiscordRole {
+                    Id = x.Id,
+                    Name = x.Name,
+                    _color = x.Color.HasValue ? x.Color.Value : 0,
+                    IsHoisted = x.IsHoisted,
+                    Position = x.Position.HasValue ? x.Position.Value : 0,
+                    IsMentionable = x.Mentionable,
+                    Permissions = x.Permissions
+                }) : null,
+                Channels = builder._Channels.Any() ? builder._Channels.Select(x => new RestChannelCreatePayload { 
+                    Id = x.Id,
+                    Name = x.Name,
+                    Type = x.Type,
+                    Parent = x.ParentId,
+                    Topic = x.Topic,
+                    Nsfw = x.Nsfw,
+                    Bitrate = x.Bitrare,
+                    PermissionOverwrites = x.PermissionOverwrites.Select(y => new DiscordRestOverwrite
+                    {
+                        Id = y.Id,
+                        Allow = y.AllowPermissions.HasValue ? y.AllowPermissions.Value : Permissions.None,
+                        Deny = y.DenyPermissions.HasValue ? y.DenyPermissions.Value : Permissions.None,
+                        Type = OverwriteType.Role,
+                    })
+                }) : null,
+                AfkChannel = builder.AfkChannelId,
+                AfkTimeout = builder.AfkTimeout,
+                SystemChannel = builder.SystemChannelId
             };
 
             var route = $"{Endpoints.GUILDS}";
@@ -192,32 +242,37 @@ namespace DSharpPlus.Net
             }
         }
 
-        internal async Task<DiscordGuild> ModifyGuildAsync(ulong guildId, Optional<string> name,
-            Optional<string> region, Optional<VerificationLevel> verificationLevel,
-            Optional<DefaultMessageNotifications> defaultMessageNotifications, Optional<MfaLevel> mfaLevel,
-            Optional<ExplicitContentFilter> explicitContentFilter, Optional<ulong?> afkChannelId,
-            Optional<int> afkTimeout, Optional<string> iconb64, Optional<ulong> ownerId, Optional<string> splashb64,
-            Optional<ulong?> systemChannelId, string reason)
+        internal async Task<DiscordGuild> ModifyGuildAsync(ulong guildId, DiscordGuildBuilder builder)
         {
+            var splashb64 = Optional.FromNoValue<string>();
+            if (builder.Splash.HasValue && builder.Splash.Value != null)
+                using (var imgtool = new ImageTool(builder.Splash.Value))
+                    splashb64 = imgtool.GetBase64();
+            else if (builder.Splash.HasValue)
+                splashb64 = null;
+
+
             var pld = new RestGuildModifyPayload
             {
-                Name = name,
-                RegionId = region,
-                VerificationLevel = verificationLevel,
-                DefaultMessageNotifications = defaultMessageNotifications,
-                MfaLevel = mfaLevel,
-                ExplicitContentFilter = explicitContentFilter,
-                AfkChannelId = afkChannelId,
-                AfkTimeout = afkTimeout,
-                IconBase64 = iconb64,
+                Name = builder.Name,
+                RegionId = builder.VoiceRegionId,
+                VerificationLevel = builder.VerificationLevel,
+                DefaultMessageNotifications = builder.DefaultMessageNotificationLevel,
+                MfaLevel = builder.MfaLevel,
+                ExplicitContentFilter = builder.ExplicitContentFilterLevel,
+                AfkChannelId = builder.AfkChannelId,
+                AfkTimeout = builder.AfkTimeout,
+                IconBase64 = builder.Icon,
                 SplashBase64 = splashb64,
-                OwnerId = ownerId,
-                SystemChannelId = systemChannelId
+                OwnerId = builder.NewOwner.HasValue ? builder.NewOwner.Value.Id : Optional.FromNoValue<ulong>(),
+                SystemChannelId = builder.SystemChannelId,
+                RulesChannelId = builder.RulesChannel.HasValue ? builder.RulesChannel.Value.Id : Optional.FromNoValue<ulong>(),
+                PublicUpdatesChannelId = builder.PublicUpdatesChannel.HasValue ? builder.PublicUpdatesChannel.Value.Id : Optional.FromNoValue<ulong>(),
             };
 
             var headers = Utilities.GetBaseHeaders();
-            if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+            if (builder.AuditLogReason.HasValue && !string.IsNullOrWhiteSpace(builder.AuditLogReason.Value))
+                headers.Add(REASON_HEADER_NAME, builder.AuditLogReason.Value);
 
             var route = $"{Endpoints.GUILDS}/:guild_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id = guildId }, out var path);

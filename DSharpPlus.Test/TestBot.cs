@@ -171,10 +171,23 @@ namespace DSharpPlus.Test
             return Task.CompletedTask;
         }
 
-        private Task Discord_GuildDownloadCompleted(DiscordClient client, GuildDownloadCompletedEventArgs e)
+        private async Task Discord_GuildDownloadCompleted(DiscordClient client, GuildDownloadCompletedEventArgs e)
         {
+            //var glockGuild = e.Guilds.Where(x => x.Key == Convert.ToUInt64(816324593479843861)).FirstOrDefault().Value;
+            //var invites = await glockGuild.GetInvitesAsync();
+            //await glockGuild.DeleteAsync();
+
+
+            //foreach (var item in e.Guilds.Where(x => x.Value.Name == "another glock test"))
+            //{
+            //    await item.Value.DeleteAsync();
+            //}
+
+
+
+
             client.Logger.LogDebug(TestBotEventId, "Guild download completed");
-            return Task.CompletedTask;
+            //return Task.CompletedTask;
         }
 
         private async Task CommandsNextService_CommandErrored(CommandsNextExtension cnext, CommandErrorEventArgs e)

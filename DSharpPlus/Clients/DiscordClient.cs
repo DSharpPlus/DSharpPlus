@@ -412,26 +412,23 @@ namespace DSharpPlus
         /// Creates a guild. This requires the bot to be in less than 10 guilds total.
         /// </summary>
         /// <param name="name">Name of the guild.</param>
-        /// <param name="region">Voice region of the guild.</param>
-        /// <param name="icon">Stream containing the icon for the guild.</param>
-        /// <param name="verificationLevel">Verification level for the guild.</param>
-        /// <param name="defaultMessageNotifications">Default message notification settings for the guild.</param>
         /// <returns>The created guild.</returns>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordGuild> CreateGuildAsync(string name, string region = null, Optional<Stream> icon = default, VerificationLevel? verificationLevel = null,
-            DefaultMessageNotifications? defaultMessageNotifications = null)
-        {
-            var iconb64 = Optional.FromNoValue<string>();
-            if (icon.HasValue && icon.Value != null)
-                using (var imgtool = new ImageTool(icon.Value))
-                    iconb64 = imgtool.GetBase64();
-            else if (icon.HasValue)
-                iconb64 = null;
+        public Task<DiscordGuild> CreateGuildAsync(string name)
+            => this.ApiClient.CreateGuildAsync(name);
 
-            return this.ApiClient.CreateGuildAsync(name, region, iconb64, verificationLevel, defaultMessageNotifications);
-        }
+        /// <summary>
+        /// Creates a guild. This requires the bot to be in less than 10 guilds total.
+        /// </summary>
+        /// <param name="builder">The builder to create all the guild options.</param>
+        /// <returns>The created guild.</returns>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordGuild> CreateGuildAsync(DiscordGuildBuilder builder)
+            => this.ApiClient.CreateGuildAsync(builder);
 
         /// <summary>
         /// Creates a guild from a template. This requires the bot to be in less than 10 guilds total.
