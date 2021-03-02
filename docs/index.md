@@ -1,11 +1,11 @@
 ---
 uid: index
-title: DSharpPlus Documentation
+title: DSharpPlus 4.0 Documentation
 ---
 
-<h1 class="delet-this">DSharpPlus Documentation</h1>
+<h1 class="delet-this">DSharpPlus 4.0 Documentation</h1>
 <h1 class="logo-center">![DSharpPlus Logo](/logobig.png "DSharpPlus Documentation")</h1>
-## DSharpPlus Documentation
+## DSharpPlus 4.0 Documentation
 [DSharpPlus](https://github.com/DSharpPlus/DSharpPlus) (D#+) is an unofficial .NET wrapper for the [Discord API](https://discordapp.com/developers/docs/intro "Discord API") which was originally a fork of [DiscordSharp](https://github.com/suicvne/DiscordSharp).<br/>
 The library has since been rewritten to fit quality and API standards as well as target wider range of .NET implementations.
 

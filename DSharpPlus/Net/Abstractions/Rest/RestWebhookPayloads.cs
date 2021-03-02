@@ -42,4 +42,16 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("allowed_mentions", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordMentions Mentions { get; set; }
     }
+
+    internal sealed class RestWebhookMessageEditPayload
+    {
+        [JsonProperty("content", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<string> Content { get; set; }
+
+        [JsonProperty("embeds", NullValueHandling = NullValueHandling.Ignore)]
+        public IEnumerable<DiscordEmbed> Embeds { get; set; }
+
+        [JsonProperty("allowed_mentions", NullValueHandling = NullValueHandling.Ignore)]
+        public IEnumerable<IMention> Mentions { get; set; }
+    }
 }

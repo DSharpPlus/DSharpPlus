@@ -774,17 +774,7 @@ namespace DSharpPlus.Net
 
         internal async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, DiscordMessageBuilder builder)
         {
-            if (builder.Content != null && builder.Content.Length > 2000)
-                throw new ArgumentException("Message content length cannot exceed 2000 characters.");
-
-            if (builder.Embed == null && !builder.Files.Any())
-            {
-                if (builder.Content == null)
-                    throw new ArgumentException("You must specify message content or an embed.");
-
-                if (builder.Content == "")
-                    throw new ArgumentException("Message content must not be empty.");
-            }
+            builder.Validate();
 
             if (builder.Embed?.Timestamp != null)
                 builder.Embed.Timestamp = builder.Embed.Timestamp.Value.ToUniversalTime();
@@ -1889,8 +1879,7 @@ namespace DSharpPlus.Net
 
         internal async Task<DiscordMessage> ExecuteWebhookAsync(ulong webhook_id, string webhook_token, DiscordWebhookBuilder builder)
         {
-            if (builder.Files?.Count == 0 && string.IsNullOrEmpty(builder.Content) && builder.Embeds == null)
-                throw new ArgumentException("You must specify content, an embed, or at least one file.");
+            builder.Validate();
 
             if (builder.Embeds != null)
                 foreach (var embed in builder.Embeds)
@@ -1951,6 +1940,35 @@ namespace DSharpPlus.Net
             var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
             ret.Discord = this.Discord;
             return ret;
+        }
+
+        internal async Task<DiscordMessage> EditWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong message_id, DiscordWebhookBuilder builder)
+        {
+            var pld = new RestWebhookMessageEditPayload
+            {
+                Content = builder.Content,
+                Embeds = builder.Embeds,
+                Mentions = builder.Mentions
+            };
+
+            var route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token{Endpoints.MESSAGES}/:message_id";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { webhook_id, webhook_token, message_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, payload: DiscordJson.SerializeObject(pld));
+
+            var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
+            ret.Discord = this.Discord;
+            return ret;
+        }
+
+        internal async Task DeleteWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong message_id)
+        {
+            var route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token{Endpoints.MESSAGES}/:message_id";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { webhook_id, webhook_token, message_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route);
         }
         #endregion
 

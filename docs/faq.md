@@ -82,5 +82,9 @@ Yes. Use LINQ on the `Roles` property of your instance of @DSharpPlus.Entities.D
 Yes `System.Text.Json` is available to use but it still doesnt stand up to what we currently need which is why we still use Newtonsoft.Json.
 Maybe in time we can switch to your favorite Json Deserializer but for right now we will be using Newtonsoft.Json for the forseeable future.  
 
+### Why the hell are my events not firing?
+This is because in the Discord V8 API, they require @DSharpPlus.DiscordIntents to be enabled on @DSharpPlus.DiscordConfiguration and the 
+Discord Application Portal. We have an [article](xref:beyond_basics_intents) that covers all that has to be done to set this up.
+
 ### Where are my pictures of spiderman?
 ![GOD DAMN IT PETER](/images/faq_03.png)
