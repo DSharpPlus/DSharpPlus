@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.Exceptions;
 using DSharpPlus.Net.Abstractions;
-using DSharpPlus.Net.Models;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities

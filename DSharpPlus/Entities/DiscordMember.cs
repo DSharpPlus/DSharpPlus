@@ -6,7 +6,6 @@ using System.Linq;
 using System.Collections.ObjectModel;
 using System.IO;
 using DSharpPlus.Net.Abstractions;
-using DSharpPlus.Net.Models;
 
 namespace DSharpPlus.Entities
 {

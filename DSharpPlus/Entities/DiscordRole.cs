@@ -3,7 +3,6 @@ using Newtonsoft.Json;
 using System.Threading.Tasks;
 using DSharpPlus.Net.Abstractions;
 using System.Linq;
-using DSharpPlus.Net.Models;
 
 namespace DSharpPlus.Entities
 {

@@ -7,7 +7,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System;
 using DSharpPlus.Exceptions;
-using DSharpPlus.Net.Models;
 
 namespace DSharpPlus
 {
