@@ -10,7 +10,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Constructs ready-to-send webhook requests.
     /// </summary>
-    public sealed class DiscordWebhookBuilder : BaseDiscordBuilder<DiscordMessage, DiscordWebhook>
+    public sealed class DiscordWebhookBuilder
     {
         /// <summary>
         /// Username to use for this webhook request.
@@ -224,7 +224,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="webhook">The webhook that should be executed.</param>
         /// <returns>The message sent</returns>
-        public override async Task<DiscordMessage> SendAsync(DiscordWebhook webhook)
+        public async Task<DiscordMessage> SendAsync(DiscordWebhook webhook)
         {
             return await webhook.ExecuteAsync(this).ConfigureAwait(false);
         }
@@ -253,7 +253,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Allows for clearing the Webhook Builder so that it can be used again to send a new message.
         /// </summary>
-        public override void Clear()
+        public void Clear()
         {
             this.Content = "";
             this._embeds.Clear();
@@ -266,7 +266,7 @@ namespace DSharpPlus.Entities
         /// Does the validation before we send a the Create/Modify request.
         /// </summary>
         /// <param name="isModify">Tells the method to perform the Modify Validation or Create Validation.</param>
-        internal override void Validate(bool isModify = false)
+        internal void Validate(bool isModify = false)
         {
             if (isModify)
             {

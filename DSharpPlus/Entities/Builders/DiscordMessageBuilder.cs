@@ -9,7 +9,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Constructs a Message to be sent.
     /// </summary>
-    public sealed class DiscordMessageBuilder : BaseDiscordBuilder<DiscordMessage, DiscordChannel>
+    public sealed class DiscordMessageBuilder
     {
         /// <summary>
         /// Gets or Sets the Message to be sent.
@@ -211,7 +211,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="channel">The channel the message should be sent to.</param>
         /// <returns></returns>
-        public override async Task<DiscordMessage> SendAsync(DiscordChannel channel)
+        public async Task<DiscordMessage> SendAsync(DiscordChannel channel)
         {
             return await channel.SendMessageAsync(this).ConfigureAwait(false);
         }
@@ -229,7 +229,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Allows for clearing the Message Builder so that it can be used again to send a new message.
         /// </summary>
-        public override void Clear()
+        public void Clear()
         {
             this.Content = "";
             this.Embed = null;
@@ -244,7 +244,7 @@ namespace DSharpPlus.Entities
         /// Does the validation before we send a the Create/Modify request.
         /// </summary>
         /// <param name="isModify">Tells the method to perform the Modify Validation or Create Validation.</param>
-        internal override void Validate(bool isModify = false)
+        internal void Validate(bool isModify = false)
         {
             if (isModify)
             {

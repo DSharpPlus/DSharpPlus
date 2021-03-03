@@ -685,6 +685,8 @@ namespace DSharpPlus.Net
         #region Channel
         internal async Task<DiscordChannel> CreateGuildChannelAsync(ulong guild_id, DiscordChannelBuilder builder)
         {
+            builder.Validate();
+
             var restoverwrites = new List<DiscordRestOverwrite>();
 
             foreach (var ow in builder._Overwrites)
@@ -726,6 +728,8 @@ namespace DSharpPlus.Net
 
         internal Task ModifyChannelAsync(ulong channel_id, DiscordChannelBuilder builder)
         {
+            builder.Validate(true);
+
             var pld = new RestChannelModifyPayload
             {
                 Name = builder.Name,

@@ -34,8 +34,8 @@ namespace DSharpPlus.Test.Tests
                             new DiscordGuildBuilder.GuildBuilderRole{ Id = Convert.ToUInt64(000000000000000003), Mentionable = true, Name = "Role 2" },
                         })
                         .WithChannels(new DiscordGuildBuilder.GuildBuilderChannel[] {
-                            new DiscordGuildBuilder.GuildBuilderChannel { Id = Convert.ToUInt64(000000000000000004), Name = "Glock General", Type = ChannelType.Category, PermissionOverwrites = new DiscordGuildBuilder.GuildBuilderChannel.ChannelOverwrite[]{ } },
-                            new DiscordGuildBuilder.GuildBuilderChannel { Id = Convert.ToUInt64(000000000000000005), Name = "Glock text General", Type = ChannelType.Text, ParentId = Convert.ToUInt64(000000000000000004), Nsfw = true, Topic = "Some dumb topic", PermissionOverwrites = new DiscordGuildBuilder.GuildBuilderChannel.ChannelOverwrite[] {
+                            new DiscordGuildBuilder.GuildBuilderChannel { Id = Convert.ToUInt64(000000000000000004), Name = "test General", Type = ChannelType.Category, PermissionOverwrites = new DiscordGuildBuilder.GuildBuilderChannel.ChannelOverwrite[]{ } },
+                            new DiscordGuildBuilder.GuildBuilderChannel { Id = Convert.ToUInt64(000000000000000005), Name = "test text General", Type = ChannelType.Text, ParentId = Convert.ToUInt64(000000000000000004), Nsfw = true, Topic = "Some dumb topic", PermissionOverwrites = new DiscordGuildBuilder.GuildBuilderChannel.ChannelOverwrite[] {
                                 new DiscordGuildBuilder.GuildBuilderChannel.ChannelOverwrite { Id = Convert.ToUInt64(000000000000000002), DenyPermissions = Permissions.All, AllowPermissions = Permissions.None },
                                 new DiscordGuildBuilder.GuildBuilderChannel.ChannelOverwrite { Id = Convert.ToUInt64(000000000000000003), AllowPermissions = Permissions.All, DenyPermissions = Permissions.None }
                             }}
@@ -43,7 +43,7 @@ namespace DSharpPlus.Test.Tests
                         //.WithSystemChannelId(Convert.ToUInt64(000000000000000003));
 
 
-                var guild = await builder.SendAsync(ctx.Client);
+                var guild = await builder.CreateAsync(ctx.Client);
 
                 var channels = await guild.GetChannelsAsync();
                 var invite = await channels.Where(x => !x.IsCategory && x.Type == ChannelType.Text).FirstOrDefault().CreateInviteAsync();

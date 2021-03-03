@@ -9,7 +9,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents the Guild that will be Created or Modified.
     /// </summary>
-    public class DiscordGuildBuilder : BaseDiscordBuilder<DiscordGuild, DiscordClient>
+    public class DiscordGuildBuilder
     {
         /// <summary>
         /// <para>Gets or Sets the Name of the guild to be sent.</para>
@@ -358,7 +358,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="client">The DiscordClient to use.</param>
         /// <returns></returns>
-        public override async Task<DiscordGuild> SendAsync(DiscordClient client)
+        public async Task<DiscordGuild> CreateAsync(DiscordClient client)
         {
             return await client.CreateGuildAsync(this).ConfigureAwait(false);
         }
@@ -475,7 +475,7 @@ namespace DSharpPlus.Entities
             }
         }
 
-        internal override void Validate(bool isModify = false)
+        internal void Validate(bool isModify = false)
         {
             if (isModify)
             {
@@ -510,7 +510,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Clears the Builder to be used again.
         /// </summary>
-        public override void Clear()
+        public void Clear()
         {
             this._name = "";
             this.VoiceRegionId = Optional.FromNoValue<string>();

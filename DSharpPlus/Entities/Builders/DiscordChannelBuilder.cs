@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace DSharpPlus.Entities
 {
-    public class DiscordChannelBuilder : BaseDiscordBuilder<DiscordChannel, DiscordGuild>
+    public class DiscordChannelBuilder
     {
         /// <summary>
         /// <para>Gets or Sets the Name of the channel to be sent.</para>
@@ -88,7 +88,8 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Sets the Type of the channel.
+        /// <para>Sets the Type of the channel.</para>
+        /// <para>This can only be set during creation.</para>
         /// </summary>
         /// <param name="type">The type of the Channel</param>
         /// <returns></returns>
@@ -238,7 +239,7 @@ namespace DSharpPlus.Entities
             return this;
         }
 
-        public override void Clear()
+        public void Clear()
         {
             this._name = "";
             this.Topic = "";
@@ -262,16 +263,17 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="guild">The guild to create the channel in.</param>
         /// <returns></returns>
-        public override async Task<DiscordChannel> SendAsync(DiscordGuild guild)
+        public async Task<DiscordChannel> CreateAsync(DiscordGuild guild)
         {
             return await guild.CreateChannelAsync(this).ConfigureAwait(false);
         }
 
-        internal override void Validate(bool isModify = false)
+        internal void Validate(bool isModify = false)
         {
             if (isModify)
             {
-
+                if (this.Type.HasValue)
+                    throw new ArgumentException("You cannot modify the Channel type.");
             }
             else
             {
