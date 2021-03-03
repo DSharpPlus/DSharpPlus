@@ -747,17 +747,10 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="guild_id">Guild id</param>
         /// <param name="user_id">User id</param>
-        /// <param name="nick">New nickname</param>
-        /// <param name="role_ids">New roles</param>
-        /// <param name="mute">Whether this user should be muted</param>
-        /// <param name="deaf">Whether this user should be deafened</param>
-        /// <param name="voice_channel_id">Voice channel to move this user to</param>
-        /// <param name="reason">Reason this user was modified</param>
+        /// <param name="builder">the builder with the modifications.</param>
         /// <returns></returns>
-        public Task ModifyGuildMemberAsync(ulong guild_id, ulong user_id, Optional<string> nick,
-            Optional<IEnumerable<ulong>> role_ids, Optional<bool> mute, Optional<bool> deaf,
-            Optional<ulong?> voice_channel_id, string reason)
-            => this.ApiClient.ModifyGuildMemberAsync(guild_id, user_id, nick, role_ids, mute, deaf, voice_channel_id, reason);
+        public Task ModifyGuildMemberAsync(ulong guild_id, ulong user_id, DiscordMemberModifyBuilder builder)
+            => this.ApiClient.ModifyGuildMemberAsync(guild_id, user_id, builder);
 
         /// <summary>
         /// Modifies a member
@@ -766,27 +759,25 @@ namespace DSharpPlus
         /// <param name="guild_id">Guild id</param>
         /// <param name="action">Modifications</param>
         /// <returns></returns>
-        public async Task ModifyAsync(ulong member_id, ulong guild_id, Action<MemberEditModel> action)
+        public async Task ModifyAsync(ulong member_id, ulong guild_id, Action<DiscordMemberModifyBuilder> action)
         {
-            var mdl = new MemberEditModel();
-            action(mdl);
+            var builder = new DiscordMemberModifyBuilder();
+            action(builder);
 
-            if (mdl.VoiceChannel.HasValue && mdl.VoiceChannel.Value != null && mdl.VoiceChannel.Value.Type != ChannelType.Voice)
-                throw new ArgumentException("Given channel is not a voice channel.", nameof(mdl.VoiceChannel));
+            await this.ModifyGuildMemberAsync(guild_id, member_id, builder).ConfigureAwait(false);
 
-            if (mdl.Nickname.HasValue && this.CurrentUser.Id == member_id)
+            if (builder.Nickname.HasValue && this.CurrentUser.Id == member_id)
             {
-                await this.ApiClient.ModifyCurrentMemberNicknameAsync(guild_id, mdl.Nickname.Value,
-                    mdl.AuditLogReason).ConfigureAwait(false);
-                await this.ApiClient.ModifyGuildMemberAsync(guild_id, member_id, Optional.FromNoValue<string>(),
-                    mdl.Roles.IfPresent(e => e.Select(xr => xr.Id)), mdl.Muted, mdl.Deafened,
-                    mdl.VoiceChannel.IfPresent(e => e?.Id), mdl.AuditLogReason).ConfigureAwait(false);
+                await this.ApiClient.ModifyCurrentMemberNicknameAsync(guild_id, builder.Nickname.Value,
+                    builder.AuditLogReason.Value).ConfigureAwait(false);
+
+                builder.ClearNickname();
+
+                await this.ModifyGuildMemberAsync(guild_id, member_id, builder).ConfigureAwait(false);
             }
             else
             {
-                await this.ApiClient.ModifyGuildMemberAsync(guild_id, member_id, mdl.Nickname,
-                    mdl.Roles.IfPresent(e => e.Select(xr => xr.Id)), mdl.Muted, mdl.Deafened,
-                    mdl.VoiceChannel.IfPresent(e => e?.Id), mdl.AuditLogReason).ConfigureAwait(false);
+                await this.ModifyGuildMemberAsync(guild_id, member_id, builder).ConfigureAwait(false);
             }
         }
 

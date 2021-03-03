@@ -344,8 +344,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task SetMuteAsync(bool mute, string reason = null) 
-            => this.Discord.ApiClient.ModifyGuildMemberAsync(_guild_id, this.Id, default, default, mute, default, default, reason);
+        public Task SetMuteAsync(bool mute, string reason = null)
+            => this.ModifyAsync(m => { m.WithMute(mute).WithAuditLogReason(reason); });
 
         /// <summary>
         /// Sets this member's voice deaf status.
@@ -357,8 +357,35 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task SetDeafAsync(bool deaf, string reason = null) 
-            => this.Discord.ApiClient.ModifyGuildMemberAsync(_guild_id, this.Id, default, default, default, deaf, default, reason);
+        public Task SetDeafAsync(bool deaf, string reason = null)
+            => this.ModifyAsync(m => { m.WithDeafned(deaf).WithAuditLogReason(reason); });
+        //=> this.Discord.ApiClient.ModifyGuildMemberAsync(_guild_id, this.Id, default, default, default, deaf, default, reason);
+
+        /// <summary>
+        /// Modifies this member.
+        /// </summary>
+        /// <param name="builder">builder to edit this member.</param>
+        /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageNicknames"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task ModifyAsync(DiscordMemberModifyBuilder builder)
+        {
+            if (builder.Nickname.HasValue && this.Discord.CurrentUser.Id == this.Id)
+            {
+                await this.Discord.ApiClient.ModifyCurrentMemberNicknameAsync(this.Guild.Id, builder.Nickname.Value,
+                    builder.AuditLogReason.Value).ConfigureAwait(false);
+
+                builder.ClearNickname();
+
+                await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, builder).ConfigureAwait(false);
+            }
+            else
+            {
+                await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, builder).ConfigureAwait(false);
+            }
+        }
 
         /// <summary>
         /// Modifies this member.
@@ -369,29 +396,12 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task ModifyAsync(Action<MemberEditModel> action)
+        public async Task ModifyAsync(Action<DiscordMemberModifyBuilder> action)
         {
-            var mdl = new MemberEditModel();
-            action(mdl);
+            var builder = new DiscordMemberModifyBuilder();
+            action(builder);
 
-            if (mdl.VoiceChannel.HasValue && mdl.VoiceChannel.Value != null && mdl.VoiceChannel.Value.Type != ChannelType.Voice)
-                throw new ArgumentException("Given channel is not a voice channel.", nameof(mdl.VoiceChannel));
-
-            if (mdl.Nickname.HasValue && this.Discord.CurrentUser.Id == this.Id)
-            {
-                await this.Discord.ApiClient.ModifyCurrentMemberNicknameAsync(this.Guild.Id, mdl.Nickname.Value,
-                    mdl.AuditLogReason).ConfigureAwait(false);
-
-                await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, Optional.FromNoValue<string>(),
-                    mdl.Roles.IfPresent(e => e.Select(xr => xr.Id)), mdl.Muted, mdl.Deafened,
-                    mdl.VoiceChannel.IfPresent(e => e?.Id), mdl.AuditLogReason).ConfigureAwait(false);
-            }
-            else
-            {
-                await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, mdl.Nickname,
-                    mdl.Roles.IfPresent(e => e.Select(xr => xr.Id)), mdl.Muted, mdl.Deafened,
-                    mdl.VoiceChannel.IfPresent(e => e?.Id), mdl.AuditLogReason).ConfigureAwait(false);
-            }
+            await this.ModifyAsync(builder).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -431,8 +441,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task ReplaceRolesAsync(IEnumerable<DiscordRole> roles, string reason = null) 
-            => this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, default,
-                new Optional<IEnumerable<ulong>>(roles.Select(xr => xr.Id)), default, default, default, reason);
+            => this.ModifyAsync(m => { m.WithRoles(roles); });
 
         /// <summary>
         /// Bans a this member from their guild.

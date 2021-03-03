@@ -1335,22 +1335,22 @@ namespace DSharpPlus.Net
             }
         }
 
-        internal Task ModifyGuildMemberAsync(ulong guild_id, ulong user_id, Optional<string> nick,
-            Optional<IEnumerable<ulong>> role_ids, Optional<bool> mute, Optional<bool> deaf,
-            Optional<ulong?> voice_channel_id, string reason)
+        internal Task ModifyGuildMemberAsync(ulong guild_id, ulong user_id, DiscordMemberModifyBuilder builder)
         {
-            var headers = Utilities.GetBaseHeaders();
-            if (!string.IsNullOrWhiteSpace(reason))
-                headers[REASON_HEADER_NAME] = reason;
+            builder.Validate();
 
             var pld = new RestGuildMemberModifyPayload
             {
-                Nickname = nick,
-                RoleIds = role_ids,
-                Deafen = deaf,
-                Mute = mute,
-                VoiceChannelId = voice_channel_id
+                Nickname = builder.Nickname,
+                RoleIds = builder._Roles.IfPresent(e => e.Select(xr => xr.Id)),
+                Deafen = builder.Deafened,
+                Mute = builder.Muted,
+                VoiceChannelId = builder.VoiceChannel.IfPresent(e => e?.Id)
             };
+
+            var headers = Utilities.GetBaseHeaders();
+            if (builder.AuditLogReason.HasValue && !string.IsNullOrWhiteSpace(builder.AuditLogReason.Value))
+                headers.Add(REASON_HEADER_NAME, builder.AuditLogReason.Value);
 
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.MEMBERS}/:user_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id, user_id }, out var path);
