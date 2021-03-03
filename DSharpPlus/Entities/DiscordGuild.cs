@@ -453,7 +453,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the guild does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordGuild> ModifyAsync(DiscordGuildBuilder builder)
+        public async Task<DiscordGuild> ModifyAsync(DiscordGuildModifyBuilder builder)
         {
             return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, builder).ConfigureAwait(false);
         }
@@ -467,9 +467,9 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the guild does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordGuild> ModifyAsync(Action<DiscordGuildBuilder> action)
+        public async Task<DiscordGuild> ModifyAsync(Action<DiscordGuildModifyBuilder> action)
         {
-            var builder = new DiscordGuildBuilder();
+            var builder = new DiscordGuildModifyBuilder();
 
             action(builder);
 
@@ -556,7 +556,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the guild does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordChannel> CreateChannelAsync(DiscordChannelBuilder builder)
+        public Task<DiscordChannel> CreateChannelAsync(DiscordChannelCreateBuilder builder)
             => this.Discord.ApiClient.CreateGuildChannelAsync(this.Id, builder);
 
         /// <summary>
@@ -568,9 +568,9 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the guild does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordChannel> CreateChannelAsync(Action<DiscordChannelBuilder> action)
+        public async Task<DiscordChannel> CreateChannelAsync(Action<DiscordChannelCreateBuilder> action)
         {
-            var builder = new DiscordChannelBuilder();
+            var builder = new DiscordChannelCreateBuilder();
 
             action(builder);
 

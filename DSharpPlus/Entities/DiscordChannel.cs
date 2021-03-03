@@ -231,7 +231,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordMessage> SendMessageAsync(DiscordMessageBuilder builder)
+        public Task<DiscordMessage> SendMessageAsync(DiscordMessageCreateBuilder builder)
             => this.Discord.ApiClient.CreateMessageAsync(this.Id, builder);
 
         /// <summary>
@@ -243,9 +243,9 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordMessage> SendMessageAsync(Action<DiscordMessageBuilder> action)
+        public async Task<DiscordMessage> SendMessageAsync(Action<DiscordMessageCreateBuilder> action)
         {
-            var builder = new DiscordMessageBuilder();
+            var builder = new DiscordMessageCreateBuilder();
 
             action(builder);
 
@@ -284,7 +284,7 @@ namespace DSharpPlus.Entities
             foreach (var ovr in this._permissionOverwrites)
                 ovrs.Add(await new DiscordOverwriteBuilder().FromAsync(ovr).ConfigureAwait(false));
 
-            var builder = new DiscordChannelBuilder()
+            var builder = new DiscordChannelCreateBuilder()
                 .WithName(this.Name)
                 .WithType(this.Type)
                 .WithNsfw(this.IsNSFW)
@@ -333,7 +333,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task ModifyAsync(DiscordChannelBuilder builder)
+        public Task ModifyAsync(DiscordChannelModifyBuilder builder)
         {
             return this.Discord.ApiClient.ModifyChannelAsync(this.Id, builder);
         }
@@ -347,9 +347,9 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task ModifyAsync(Action<DiscordChannelBuilder> action)
+        public async Task ModifyAsync(Action<DiscordChannelModifyBuilder> action)
         {
-            var builder = new DiscordChannelBuilder();
+            var builder = new DiscordChannelModifyBuilder();
 
             action(builder);
 

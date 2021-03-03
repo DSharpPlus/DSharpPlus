@@ -149,7 +149,7 @@ namespace DSharpPlus.Net
             return guild;
         }
 
-        internal async Task<DiscordGuild> CreateGuildAsync(DiscordGuildBuilder builder)
+        internal async Task<DiscordGuild> CreateGuildAsync(DiscordGuildCreateBuilder builder)
         {
             builder.Validate();
 
@@ -244,9 +244,9 @@ namespace DSharpPlus.Net
             }
         }
 
-        internal async Task<DiscordGuild> ModifyGuildAsync(ulong guildId, DiscordGuildBuilder builder)
+        internal async Task<DiscordGuild> ModifyGuildAsync(ulong guildId, DiscordGuildModifyBuilder builder)
         {
-            builder.Validate(true); 
+            builder.Validate(); 
 
             var splashb64 = Optional.FromNoValue<string>();
             if (builder.Splash.HasValue && builder.Splash.Value != null)
@@ -683,7 +683,7 @@ namespace DSharpPlus.Net
         #endregion
 
         #region Channel
-        internal async Task<DiscordChannel> CreateGuildChannelAsync(ulong guild_id, DiscordChannelBuilder builder)
+        internal async Task<DiscordChannel> CreateGuildChannelAsync(ulong guild_id, DiscordChannelCreateBuilder builder)
         {
             builder.Validate();
 
@@ -726,9 +726,9 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal Task ModifyChannelAsync(ulong channel_id, DiscordChannelBuilder builder)
+        internal Task ModifyChannelAsync(ulong channel_id, DiscordChannelModifyBuilder builder)
         {
-            builder.Validate(true);
+            builder.Validate();
 
             var pld = new RestChannelModifyPayload
             {
@@ -835,7 +835,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, DiscordMessageBuilder builder)
+        internal async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, DiscordMessageCreateBuilder builder)
         {
             builder.Validate();
 
@@ -1940,7 +1940,7 @@ namespace DSharpPlus.Net
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route, headers);
         }
 
-        internal async Task<DiscordMessage> ExecuteWebhookAsync(ulong webhook_id, string webhook_token, DiscordWebhookMessageBuilder builder)
+        internal async Task<DiscordMessage> ExecuteWebhookAsync(ulong webhook_id, string webhook_token, DiscordWebhookMessageCreateBuilder builder)
         {
             builder.Validate();
 
@@ -2005,9 +2005,9 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessage> EditWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong message_id, DiscordWebhookMessageBuilder builder)
+        internal async Task<DiscordMessage> EditWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong message_id, DiscordWebhookMessageModifyBuilder builder)
         {
-            builder.Validate(true);
+            builder.Validate();
 
             var pld = new RestWebhookMessageEditPayload
             {

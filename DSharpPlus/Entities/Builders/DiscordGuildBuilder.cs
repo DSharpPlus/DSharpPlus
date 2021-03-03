@@ -9,7 +9,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents the Guild that will be Created or Modified.
     /// </summary>
-    public class DiscordGuildBuilder
+    public abstract class DiscordGuildBuilder<T>
     {
         /// <summary>
         /// <para>Gets or Sets the Name of the guild to be sent.</para>
@@ -43,11 +43,6 @@ namespace DSharpPlus.Entities
         public Optional<VerificationLevel> VerificationLevel { get; internal set; }
 
         /// <summary>
-        /// Gets or Sets the new guild MFA level.
-        /// </summary>
-        public Optional<MfaLevel> MfaLevel { get; internal set; }
-
-        /// <summary>
         /// Gets the Default Message Notification Level of the guild.
         /// </summary>
         public Optional<DefaultMessageNotifications> DefaultMessageNotificationLevel { get; internal set; }
@@ -56,30 +51,6 @@ namespace DSharpPlus.Entities
         /// Gets the Explicit Content Filter Level of the guild.
         /// </summary>
         public Optional<ExplicitContentFilter> ExplicitContentFilterLevel { get; internal set; }
-
-        /// <summary>
-        /// Gets the new Owner of the Guild.
-        /// </summary>
-        public Optional<DiscordMember> NewOwner { get; internal set; }
-
-        /// <summary>
-        /// Gets The new guild splash.
-        /// </summary>
-        public Optional<Stream> Splash { get; internal set; }
-
-        /// <summary>
-        /// <para>Gets The list of Roles to be added.</para>
-        /// </summary>
-        public IReadOnlyCollection<GuildBuilderRole> Roles => this._Roles;
-
-        internal List<GuildBuilderRole> _Roles = new List<GuildBuilderRole>();
-
-        /// <summary>
-        /// Gets the list of Channels to be added.
-        /// </summary>
-        public IReadOnlyCollection<GuildBuilderChannel> Channels => this.Channels; 
-
-        internal List<GuildBuilderChannel> _Channels = new List<GuildBuilderChannel>();
 
         /// <summary>
         /// Gets the Afk Channel Id of the guild.
@@ -97,16 +68,6 @@ namespace DSharpPlus.Entities
         public Optional<ulong> SystemChannelId { get; internal set; }
 
         /// <summary>
-        /// Gets the new guild rules channel.
-        /// </summary>
-        public Optional<DiscordChannel> RulesChannel { get; internal set; }
-
-        /// <summary>
-        /// Gets the new guild public updates channel.
-        /// </summary>
-        public Optional<DiscordChannel> PublicUpdatesChannel { get; internal set; }
-
-        /// <summary>
         /// Gets the AuditLog Reason for modifing the guild.
         /// </summary>
         public Optional<string> AuditLogReason { get; internal set; }
@@ -117,11 +78,11 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="name">The name of the guild.</param>
         /// <returns></returns>
-        public DiscordGuildBuilder WithName(string name)
+        public T WithName(string name)
         {
             this.Name = name;
 
-            return this;
+            return (T)Convert.ChangeType(this, typeof(T));
         }
 
         /// <summary>
@@ -129,11 +90,11 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="region">The region the guild should be set in.</param>
         /// <returns></returns>
-        public DiscordGuildBuilder WithVoiceRegion(DiscordVoiceRegion region)
+        public T WithVoiceRegion(DiscordVoiceRegion region)
         {
             this.VoiceRegionId = region.Id;
 
-            return this;
+            return (T)Convert.ChangeType(this, typeof(T));
         }
 
         /// <summary>
@@ -141,11 +102,11 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="icon">The icon for the guild.</param>
         /// <returns></returns>
-        public DiscordGuildBuilder WithIcon(string icon)
+        public T WithIcon(string icon)
         {
             this.Icon = icon;
 
-            return this;
+            return (T)Convert.ChangeType(this, typeof(T));
         }
 
         /// <summary>
@@ -153,24 +114,11 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="verificationLevel">The verification level.</param>
         /// <returns></returns>
-        public DiscordGuildBuilder WithVerificationLevel(VerificationLevel verificationLevel)
+        public T WithVerificationLevel(VerificationLevel verificationLevel)
         {
             this.VerificationLevel = verificationLevel;
 
-            return this;
-        }
-
-        /// <summary>
-        /// <para>Sets the Mfa Level of the guild.</para>
-        /// <para>This can only be set during modifing a guild.</para>
-        /// </summary>
-        /// <param name="level"></param>
-        /// <returns></returns>
-        public DiscordGuildBuilder WithMfaLevel(MfaLevel level)
-        {
-            this.MfaLevel = level;
-
-            return this;
+            return (T)Convert.ChangeType(this, typeof(T));
         }
 
         /// <summary>
@@ -178,11 +126,11 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="defaultMessageNotifications">The Default Notification Level</param>
         /// <returns></returns>
-        public DiscordGuildBuilder WithDefaultMessageNotificationLevel(DefaultMessageNotifications defaultMessageNotifications)
+        public T WithDefaultMessageNotificationLevel(DefaultMessageNotifications defaultMessageNotifications)
         {
             this.DefaultMessageNotificationLevel = defaultMessageNotifications;
 
-            return this;
+            return (T)Convert.ChangeType(this, typeof(T));
         }
 
         /// <summary>
@@ -190,38 +138,94 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="explicitContentFilter">The Explicit Content Filter</param>
         /// <returns></returns>
-        public DiscordGuildBuilder WithExplicitContentFilterLevel(ExplicitContentFilter explicitContentFilter)
+        public T WithExplicitContentFilterLevel(ExplicitContentFilter explicitContentFilter)
         {
             this.ExplicitContentFilterLevel = explicitContentFilter;
 
-            return this;
+            return (T)Convert.ChangeType(this, typeof(T));
         }
 
         /// <summary>
-        /// <para>Sets the new Discord Owner of the guild.</para>
-        /// <para>This can only be set during modifing a guild.</para>
+        /// Sets the Afk channel of the guild. 
         /// </summary>
-        /// <param name="owner">the new owner of the guild</param>
+        /// <param name="channelId">the Id of the channel.</param>
         /// <returns></returns>
-        public DiscordGuildBuilder WithNewOwener(DiscordMember owner)
+        public T WithAfkChannelId(ulong channelId)
         {
-            this.NewOwner = owner;
+            this.AfkChannelId = channelId;
 
-            return this;
+            return (T)Convert.ChangeType(this, typeof(T));
         }
 
         /// <summary>
-        /// <para>Sets the new Splash of the Guild.</para>  
-        /// <para>This can only be set during modify.</para>
+        /// Sets the Afk timeout of the guild.
         /// </summary>
-        /// <param name="stream">The stream of the new splash screen.</param>
+        /// <param name="timeout">The timeout value.</param>
         /// <returns></returns>
-        public DiscordGuildBuilder WithSplash(Stream stream)
+        public T WithAfkTimeout(int timeout)
         {
-            this.Splash = stream;
+            this.AfkTimeout = timeout;
 
-            return this;
+            return (T)Convert.ChangeType(this, typeof(T));
         }
+
+        /// <summary>
+        /// Sets the System Channel Id of the guild.
+        /// </summary>
+        /// <param name="channelId">The Id of the channel.</param>
+        /// <returns></returns>
+        public T WithSystemChannelId(ulong channelId)
+        {
+            this.SystemChannelId = channelId;
+
+            return (T)Convert.ChangeType(this, typeof(T));
+        }
+
+        /// <summary>
+        /// Sets the reason for the Change.
+        /// </summary>
+        /// <param name="reason">The reason.</param>
+        /// <returns></returns>
+        public T WithAuditLogReason(string reason)
+        {
+            this.AuditLogReason = reason;
+
+            return (T)Convert.ChangeType(this, typeof(T));
+        }
+
+        internal abstract void Validate();
+
+        /// <summary>
+        /// Clears the Builder to be used again.
+        /// </summary>
+        public virtual void Clear()
+        {
+            this._name = "";
+            this.VoiceRegionId = Optional.FromNoValue<string>();
+            this.Icon = Optional.FromNoValue<string>();
+            this.VerificationLevel = Optional.FromNoValue<VerificationLevel>();
+            this.ExplicitContentFilterLevel = Optional.FromNoValue<ExplicitContentFilter>();
+            this.AfkChannelId = Optional.FromNoValue<ulong>();
+            this.AfkTimeout = Optional.FromNoValue<int>();
+            this.SystemChannelId = Optional.FromNoValue<ulong>();
+        }
+    }
+
+    public sealed class DiscordGuildCreateBuilder : DiscordGuildBuilder<DiscordGuildCreateBuilder>
+    {
+        /// <summary>
+        /// <para>Gets The list of Roles to be added.</para>
+        /// </summary>
+        public IReadOnlyCollection<GuildBuilderRole> Roles => this._Roles;
+
+        internal List<GuildBuilderRole> _Roles = new List<GuildBuilderRole>();
+
+        /// <summary>
+        /// Gets the list of Channels to be added.
+        /// </summary>
+        public IReadOnlyCollection<GuildBuilderChannel> Channels => this.Channels;
+
+        internal List<GuildBuilderChannel> _Channels = new List<GuildBuilderChannel>();
 
         /// <summary>
         /// <para>Sets the roles to be used in the Guild. If you are to add overwrites to the <see cref="Channels"/>, you must supply the Id in <seealso cref="GuildBuilderRole"/> and use it there.</para>
@@ -230,7 +234,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="role">The Role to be added.</param>
         /// <returns></returns>
-        public DiscordGuildBuilder WithRole(GuildBuilderRole role)
+        public DiscordGuildCreateBuilder WithRole(GuildBuilderRole role)
         {
             this._Roles.Add(role);
 
@@ -244,7 +248,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="roles">The roles to be added.</param>
         /// <returns></returns>
-        public DiscordGuildBuilder WithRoles(IEnumerable<GuildBuilderRole> roles)
+        public DiscordGuildCreateBuilder WithRoles(IEnumerable<GuildBuilderRole> roles)
         {
             this._Roles.AddRange(roles);
 
@@ -258,7 +262,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="channel">The channel to be added.</param>
         /// <returns></returns>
-        public DiscordGuildBuilder WithChannel(GuildBuilderChannel channel)
+        public DiscordGuildCreateBuilder WithChannel(GuildBuilderChannel channel)
         {
             this._Channels.Add(channel);
 
@@ -272,83 +276,9 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="channels">The channels to be added.</param>
         /// <returns></returns>
-        public DiscordGuildBuilder WithChannels(IEnumerable<GuildBuilderChannel> channels)
+        public DiscordGuildCreateBuilder WithChannels(IEnumerable<GuildBuilderChannel> channels)
         {
             this._Channels.AddRange(channels);
-
-            return this;
-        }
-
-        /// <summary>
-        /// <para>Sets the new Rules channel.</para>
-        /// <para>This can only be done when modifing a guild.</para>
-        /// </summary>
-        /// <param name="channel">The channel to set as the rules channel.</param>
-        /// <returns></returns>
-        public DiscordGuildBuilder WithRulesChannel(DiscordChannel channel)
-        {
-            this.RulesChannel = channel;
-
-            return this;
-        }
-
-        /// <summary>
-        /// <para>Sets the new public updates channel.</para>
-        /// <para>This can only be done when modifing a guild.</para>
-        /// </summary>
-        /// <param name="channel">The channel to set as the public updates channel.</param>
-        /// <returns></returns>
-        public DiscordGuildBuilder WithPublicUpdatesChannel(DiscordChannel channel)
-        {
-            this.PublicUpdatesChannel = channel;
-
-            return this;
-        }
-
-        /// <summary>
-        /// Sets the Afk channel of the guild. 
-        /// </summary>
-        /// <param name="channelId">the Id of the channel.</param>
-        /// <returns></returns>
-        public DiscordGuildBuilder WithAfkChannelId(ulong channelId)
-        {
-            this.AfkChannelId = channelId;
-
-            return this;
-        }
-
-        /// <summary>
-        /// Sets the Afk timeout of the guild.
-        /// </summary>
-        /// <param name="timeout">The timeout value.</param>
-        /// <returns></returns>
-        public DiscordGuildBuilder WithAfkTimeout(int timeout)
-        {
-            this.AfkTimeout = timeout;
-
-            return this;
-        }
-
-        /// <summary>
-        /// Sets the System Channel Id of the guild.
-        /// </summary>
-        /// <param name="channelId">The Id of the channel.</param>
-        /// <returns></returns>
-        public DiscordGuildBuilder WithSystemChannelId(ulong channelId)
-        {
-            this.SystemChannelId = channelId;
-
-            return this;
-        }
-
-        /// <summary>
-        /// Sets the reason for the Change.
-        /// </summary>
-        /// <param name="reason">The reason.</param>
-        /// <returns></returns>
-        public DiscordGuildBuilder WithAuditLogReason(string reason)
-        {
-            this.AuditLogReason = reason;
 
             return this;
         }
@@ -364,13 +294,19 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Sends the builder to the guild to modify it.
+        /// Clears the Builder to be used again.
         /// </summary>
-        /// <param name="guild">The guild to modify.</param>
-        /// <returns></returns>
-        public async Task<DiscordGuild> ModifyAsync(DiscordGuild guild)
+        public override void Clear()
         {
-            return await guild.ModifyAsync(this).ConfigureAwait(false);
+            base.Clear();
+            this._Roles.Clear();
+            this._Channels.Clear();
+        }
+
+        internal override void Validate()
+        {
+            if (string.IsNullOrEmpty(this.Name))
+                throw new ArgumentException("You must specify a Name of the guild.");
         }
 
         /// <summary>
@@ -417,7 +353,7 @@ namespace DSharpPlus.Entities
             /// Gets or Sets the User Generated Id if they need to reference the channel to a channel or elsewhere
             /// </summary>
             public ulong Id { get; set; }
-            
+
             /// <summary>
             /// Gets or Sets the name of the Channel
             /// </summary>
@@ -474,59 +410,127 @@ namespace DSharpPlus.Entities
                 public Permissions? DenyPermissions { get; set; }
             }
         }
+    }
 
-        internal void Validate(bool isModify = false)
+    public sealed class DiscordGuildModifyBuilder : DiscordGuildBuilder<DiscordGuildModifyBuilder>
+    {
+        /// <summary>
+        /// Gets the new Owner of the Guild.
+        /// </summary>
+        public Optional<DiscordMember> NewOwner { get; internal set; }
+
+        /// <summary>
+        /// Gets The new guild splash.
+        /// </summary>
+        public Optional<Stream> Splash { get; internal set; }
+
+        /// <summary>
+        /// Gets or Sets the new guild MFA level.
+        /// </summary>
+        public Optional<MfaLevel> MfaLevel { get; internal set; }
+
+        /// <summary>
+        /// Gets the new guild rules channel.
+        /// </summary>
+        public Optional<DiscordChannel> RulesChannel { get; internal set; }
+
+        /// <summary>
+        /// Gets the new guild public updates channel.
+        /// </summary>
+        public Optional<DiscordChannel> PublicUpdatesChannel { get; internal set; }
+
+        /// <summary>
+        /// <para>Sets the Mfa Level of the guild.</para>
+        /// <para>This can only be set during modifing a guild.</para>
+        /// </summary>
+        /// <param name="level"></param>
+        /// <returns></returns>
+        public DiscordGuildModifyBuilder WithMfaLevel(MfaLevel level)
         {
-            if (isModify)
-            {
-                if (this._Roles.Any() || this._Channels.Any())
-                    throw new ArgumentException("You cannot pass Roles or Channels when modifying a guild.");
-            }
-            else
-            {
-                if (string.IsNullOrEmpty(this.Name))
-                    throw new ArgumentException("You must specify a Name of the guild.");
+            this.MfaLevel = level;
 
-                if (this.MfaLevel.HasValue)
-                    throw new ArgumentException("Mfa level can only be set during modify.");
+            return this;
+        }
 
-                if (this.NewOwner.HasValue)
-                    throw new ArgumentException("A New Owner can only be set during modify.");
+        /// <summary>
+        /// <para>Sets the new Discord Owner of the guild.</para>
+        /// <para>This can only be set during modifing a guild.</para>
+        /// </summary>
+        /// <param name="owner">the new owner of the guild</param>
+        /// <returns></returns>
+        public DiscordGuildModifyBuilder WithNewOwener(DiscordMember owner)
+        {
+            this.NewOwner = owner;
 
-                if (this.Splash.HasValue)
-                    throw new ArgumentException("A new Splash can only be set during modify.");
+            return this;
+        }
 
-                if (this.RulesChannel.HasValue)
-                    throw new ArgumentException("A Rules channel can only be set during modify.");
+        /// <summary>
+        /// <para>Sets the new Splash of the Guild.</para>  
+        /// <para>This can only be set during modify.</para>
+        /// </summary>
+        /// <param name="stream">The stream of the new splash screen.</param>
+        /// <returns></returns>
+        public DiscordGuildModifyBuilder WithSplash(Stream stream)
+        {
+            this.Splash = stream;
 
-                if (this.PublicUpdatesChannel.HasValue)
-                    throw new ArgumentException("A public updates channel can only be set during modify.");
+            return this;
+        }
 
-                if (this.AuditLogReason.HasValue)
-                    throw new ArgumentException("An Audit log reason can only be used during modify.");
-            }
+        /// <summary>
+        /// <para>Sets the new Rules channel.</para>
+        /// <para>This can only be done when modifing a guild.</para>
+        /// </summary>
+        /// <param name="channel">The channel to set as the rules channel.</param>
+        /// <returns></returns>
+        public DiscordGuildModifyBuilder WithRulesChannel(DiscordChannel channel)
+        {
+            this.RulesChannel = channel;
+
+            return this;
+        }
+
+        /// <summary>
+        /// <para>Sets the new public updates channel.</para>
+        /// <para>This can only be done when modifing a guild.</para>
+        /// </summary>
+        /// <param name="channel">The channel to set as the public updates channel.</param>
+        /// <returns></returns>
+        public DiscordGuildModifyBuilder WithPublicUpdatesChannel(DiscordChannel channel)
+        {
+            this.PublicUpdatesChannel = channel;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sends the builder to the guild to modify it.
+        /// </summary>
+        /// <param name="guild">The guild to modify.</param>
+        /// <returns></returns>
+        public async Task<DiscordGuild> ModifyAsync(DiscordGuild guild)
+        {
+            return await guild.ModifyAsync(this).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Clears the Builder to be used again.
         /// </summary>
-        public void Clear()
+        public override void Clear()
         {
-            this._name = "";
-            this.VoiceRegionId = Optional.FromNoValue<string>();
-            this.Icon = Optional.FromNoValue<string>();
-            this.VerificationLevel = Optional.FromNoValue<VerificationLevel>();
-            this.MfaLevel = Optional.FromNoValue<MfaLevel>(); 
-            this.ExplicitContentFilterLevel = Optional.FromNoValue<ExplicitContentFilter>();
+            base.Clear();
+            this.MfaLevel = Optional.FromNoValue<MfaLevel>();
             this.NewOwner = Optional.FromNoValue<DiscordMember>();
             this.Splash = Optional.FromNoValue<Stream>();
-            this._Roles.Clear();
-            this._Channels.Clear();
-            this.AfkChannelId = Optional.FromNoValue<ulong>();
-            this.AfkTimeout = Optional.FromNoValue<int>();
-            this.SystemChannelId = Optional.FromNoValue<ulong>();
             this.RulesChannel = Optional.FromNoValue<DiscordChannel>();
             this.PublicUpdatesChannel = Optional.FromNoValue<DiscordChannel>();
+        }
+
+        internal override void Validate()
+        {
+            if (string.IsNullOrEmpty(this.Name))
+                throw new ArgumentException("You must specify a Name of the guild.");
         }
     }
 }

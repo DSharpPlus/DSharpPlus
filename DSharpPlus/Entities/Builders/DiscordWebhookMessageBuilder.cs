@@ -10,18 +10,8 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Constructs ready-to-send webhook requests.
     /// </summary>
-    public sealed class DiscordWebhookMessageBuilder
-    {
-        /// <summary>
-        /// Username to use for this webhook request.
-        /// </summary>
-        public Optional<string> Username { get; set; }
-        
-        /// <summary>
-        /// Avatar url to use for this webhook request.
-        /// </summary>
-        public Optional<string> AvatarUrl { get; set; }
-        
+    public abstract class DiscordWebhookMessageBuilder<T>
+    {        
         /// <summary>
         /// Whether this webhook request is text-to-speech.
         /// </summary>
@@ -40,26 +30,19 @@ namespace DSharpPlus.Entities
                 this._content = value;
             }
         }
-        private string _content;
+        internal string _content;
         
         /// <summary>
         /// Embeds to send on this webhook request.
         /// </summary>
         public IReadOnlyList<DiscordEmbed> Embeds { get; }
-        private readonly List<DiscordEmbed> _embeds = new List<DiscordEmbed>();
-
-        /// <summary>
-        /// Files to send on this webhook request.
-        /// </summary>
-        public IReadOnlyCollection<DiscordMessageFile> Files => this._files;
-
-        internal readonly List<DiscordMessageFile> _files = new List<DiscordMessageFile>();
+        internal readonly List<DiscordEmbed> _embeds = new List<DiscordEmbed>();
 
         /// <summary>
         /// Mentions to send on this webhook request.
         /// </summary>
         public IEnumerable<IMention> Mentions { get; }
-        private readonly List<IMention> _mentions = new List<IMention>();
+        internal readonly List<IMention> _mentions = new List<IMention>();
 
         /// <summary>
         /// Constructs a new empty webhook request builder.
@@ -71,10 +54,101 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Indicates if the webhook must use text-to-speech.
+        /// </summary>
+        /// <param name="tts">Text-to-speech</param>
+        public T WithTTS(bool tts)
+        {
+            this.IsTTS = tts;
+            return (T)Convert.ChangeType(this, typeof(T));
+        }
+
+        /// <summary>
+        /// Sets the message to send at the execution of the webhook.
+        /// </summary>
+        /// <param name="content">Message to send.</param>
+        public T WithContent(string content)
+        {
+            this.Content = content;
+            return (T)Convert.ChangeType(this, typeof(T));
+        }
+
+        /// <summary>
+        /// Adds an embed to send at the execution of the webhook.
+        /// </summary>
+        /// <param name="embed">Embed to add.</param>
+        public T AddEmbed(DiscordEmbed embed)
+        {
+            this._embeds.Add(embed);
+            return (T)Convert.ChangeType(this, typeof(T));
+        }
+
+        /// <summary>
+        /// Adds the given embeds to send at the execution of the webhook.
+        /// </summary>
+        /// <param name="embeds">Embeds to add.</param>
+        public T AddEmbeds(IEnumerable<DiscordEmbed> embeds)
+        {
+            this._embeds.AddRange(embeds);
+            return (T)Convert.ChangeType(this, typeof(T));
+        }
+
+        /// <summary>
+        /// Adds the mention to the mentions to parse, etc. at the execution of the webhook.
+        /// </summary>
+        /// <param name="mention">Mention to add.</param>
+        public T AddMention(IMention mention)
+        {
+            this._mentions.Add(mention);
+            return (T)Convert.ChangeType(this, typeof(T));
+        }
+
+        /// <summary>
+        /// Adds the mentions to the mentions to parse, etc. at the execution of the webhook.
+        /// </summary>
+        /// <param name="mentions">Mentions to add.</param>
+        public T AddMentions(IEnumerable<IMention> mentions)
+        {
+            this._mentions.AddRange(mentions);
+            return (T)Convert.ChangeType(this, typeof(T));
+        }
+
+        /// <summary>
+        /// Allows for clearing the Webhook Builder so that it can be used again to send a new message.
+        /// </summary>
+        public abstract void Clear();
+
+        /// <summary>
+        /// Does the validation before we send a the Create/Modify request.
+        /// </summary>
+        internal abstract void Validate();
+        
+    }
+
+    public sealed class DiscordWebhookMessageCreateBuilder : DiscordWebhookMessageBuilder<DiscordWebhookMessageCreateBuilder>
+    {
+        /// <summary>
+        /// Username to use for this webhook request.
+        /// </summary>
+        public Optional<string> Username { get; set; }
+
+        /// <summary>
+        /// Avatar url to use for this webhook request.
+        /// </summary>
+        public Optional<string> AvatarUrl { get; set; }
+
+        /// <summary>
+        /// Files to send on this webhook request.
+        /// </summary>
+        public IReadOnlyCollection<DiscordMessageFile> Files => this._files;
+
+        internal readonly List<DiscordMessageFile> _files = new List<DiscordMessageFile>();
+
+        /// <summary>
         /// Sets the username for this webhook builder.
         /// </summary>
         /// <param name="username">Username of the webhook</param>
-        public DiscordWebhookMessageBuilder WithUsername(string username)
+        public DiscordWebhookMessageCreateBuilder WithUsername(string username)
         {
             this.Username = username;
             return this;
@@ -84,49 +158,9 @@ namespace DSharpPlus.Entities
         /// Sets the avatar of this webhook builder from its url.
         /// </summary>
         /// <param name="avatarUrl">Avatar url of the webhook</param>
-        public DiscordWebhookMessageBuilder WithAvatarUrl(string avatarUrl)
+        public DiscordWebhookMessageCreateBuilder WithAvatarUrl(string avatarUrl)
         {
             this.AvatarUrl = avatarUrl;
-            return this;
-        }
-
-        /// <summary>
-        /// Indicates if the webhook must use text-to-speech.
-        /// </summary>
-        /// <param name="tts">Text-to-speech</param>
-        public DiscordWebhookMessageBuilder WithTTS(bool tts)
-        {
-            this.IsTTS = tts;
-            return this;
-        }
-
-        /// <summary>
-        /// Sets the message to send at the execution of the webhook.
-        /// </summary>
-        /// <param name="content">Message to send.</param>
-        public DiscordWebhookMessageBuilder WithContent(string content)
-        {
-            this.Content = content;
-            return this;
-        }
-
-        /// <summary>
-        /// Adds an embed to send at the execution of the webhook.
-        /// </summary>
-        /// <param name="embed">Embed to add.</param>
-        public DiscordWebhookMessageBuilder AddEmbed(DiscordEmbed embed)
-        {
-            this._embeds.Add(embed);
-            return this;
-        }
-
-        /// <summary>
-        /// Adds the given embeds to send at the execution of the webhook.
-        /// </summary>
-        /// <param name="embeds">Embeds to add.</param>
-        public DiscordWebhookMessageBuilder AddEmbeds(IEnumerable<DiscordEmbed> embeds)
-        {
-            this._embeds.AddRange(embeds);
             return this;
         }
 
@@ -136,7 +170,7 @@ namespace DSharpPlus.Entities
         /// <param name="filename">Name of the file.</param>
         /// <param name="data">File data.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
-        public DiscordWebhookMessageBuilder AddFile(string filename, Stream data, bool resetStreamPosition = false)
+        public DiscordWebhookMessageCreateBuilder AddFile(string filename, Stream data, bool resetStreamPosition = false)
         {
             if (this.Files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
@@ -158,7 +192,7 @@ namespace DSharpPlus.Entities
         /// <param name="stream">The Stream to the file.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
         /// <returns></returns>
-        public DiscordWebhookMessageBuilder AddFile(FileStream stream, bool resetStreamPosition = false)
+        public DiscordWebhookMessageCreateBuilder AddFile(FileStream stream, bool resetStreamPosition = false)
         {
             if (this.Files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
@@ -179,7 +213,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="files">Dictionary of file name and file data.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
-        public DiscordWebhookMessageBuilder AddFiles(Dictionary<string, Stream> files, bool resetStreamPosition = false)
+        public DiscordWebhookMessageCreateBuilder AddFiles(Dictionary<string, Stream> files, bool resetStreamPosition = false)
         {
             if (this.Files.Count() + files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
@@ -194,28 +228,8 @@ namespace DSharpPlus.Entities
                 else
                     this._files.Add(new DiscordMessageFile(file.Key, file.Value, null));
             }
-                
 
-            return this;
-        }
 
-        /// <summary>
-        /// Adds the mention to the mentions to parse, etc. at the execution of the webhook.
-        /// </summary>
-        /// <param name="mention">Mention to add.</param>
-        public DiscordWebhookMessageBuilder AddMention(IMention mention)
-        {
-            this._mentions.Add(mention);
-            return this;
-        }
-
-        /// <summary>
-        /// Adds the mentions to the mentions to parse, etc. at the execution of the webhook.
-        /// </summary>
-        /// <param name="mentions">Mentions to add.</param>
-        public DiscordWebhookMessageBuilder AddMentions(IEnumerable<IMention> mentions)
-        {
-            this._mentions.AddRange(mentions);
             return this;
         }
 
@@ -229,6 +243,24 @@ namespace DSharpPlus.Entities
             return await webhook.ExecuteAsync(this).ConfigureAwait(false);
         }
 
+        public override void Clear()
+        {
+            this.Content = "";
+            this._embeds.Clear();
+            this.IsTTS = false;
+            this._mentions.Clear();
+            this._files.Clear();
+        }
+
+        internal override void Validate()
+        {
+            if (this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && !this.Embeds.Any())
+                throw new ArgumentException("You must specify content, an embed, or at least one file.");
+        }
+    }
+
+    public sealed class DiscordWebhookMessageModifyBuilder : DiscordWebhookMessageBuilder<DiscordWebhookMessageModifyBuilder>
+    {
         /// <summary>
         /// Sends the modified webhook message.
         /// </summary>
@@ -239,6 +271,7 @@ namespace DSharpPlus.Entities
         {
             return await this.ModifyAsync(webhook, message.Id).ConfigureAwait(false);
         }
+
         /// <summary>
         /// Sends the modified webhook message.
         /// </summary>
@@ -250,40 +283,18 @@ namespace DSharpPlus.Entities
             return await webhook.EditMessageAsync(messageId, this).ConfigureAwait(false);
         }
 
-        /// <summary>
-        /// Allows for clearing the Webhook Builder so that it can be used again to send a new message.
-        /// </summary>
-        public void Clear()
+        public override void Clear()
         {
             this.Content = "";
             this._embeds.Clear();
             this.IsTTS = false;
             this._mentions.Clear();
-            this._files.Clear();
         }
 
-        /// <summary>
-        /// Does the validation before we send a the Create/Modify request.
-        /// </summary>
-        /// <param name="isModify">Tells the method to perform the Modify Validation or Create Validation.</param>
-        internal void Validate(bool isModify = false)
+        internal override void Validate()
         {
-            if (isModify)
-            {
-                if (this.Files.Any())
-                    throw new ArgumentException("You cannot add files when modifying a message.");
-
-                if (this.Username.HasValue)
-                    throw new ArgumentException("You cannot change the username of a message.");
-
-                if (this.AvatarUrl.HasValue)
-                    throw new ArgumentException("You cannot change the avatar of a message.");
-            }
-            else
-            {
-                if (this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && !this.Embeds.Any())
-                    throw new ArgumentException("You must specify content, an embed, or at least one file.");
-            }
+            if (string.IsNullOrEmpty(this.Content) && !this.Embeds.Any())
+                throw new ArgumentException("You must specify content, an embed, or at least one file.");
         }
     }
 }

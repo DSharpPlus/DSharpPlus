@@ -325,7 +325,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordMessage> SendMessageAsync(DiscordMessageBuilder message)
+        public async Task<DiscordMessage> SendMessageAsync(DiscordMessageCreateBuilder message)
         {
             if (this.IsBot && this.Discord.CurrentUser.IsBot)
                 throw new ArgumentException("Bots cannot DM each other.");

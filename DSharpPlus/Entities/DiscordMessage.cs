@@ -442,9 +442,9 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordMessage> ModifyAsync(DiscordMessageBuilder builder)
+        public async Task<DiscordMessage> ModifyAsync(DiscordMessageModifyBuilder builder)
         {
-            builder.Validate(true);
+            builder.Validate();
             return await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, builder.Content, builder.Embed, builder.Mentions).ConfigureAwait(false);
         }
 
@@ -539,7 +539,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordMessage> RespondAsync(DiscordMessageBuilder builder)
+        public Task<DiscordMessage> RespondAsync(DiscordMessageCreateBuilder builder)
             => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, builder);
 
         /// <summary>
@@ -551,9 +551,9 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordMessage> RespondAsync(Action<DiscordMessageBuilder> action)
+        public async Task<DiscordMessage> RespondAsync(Action<DiscordMessageCreateBuilder> action)
         {
-            var builder = new DiscordMessageBuilder();
+            var builder = new DiscordMessageCreateBuilder();
 
             action(builder);
 

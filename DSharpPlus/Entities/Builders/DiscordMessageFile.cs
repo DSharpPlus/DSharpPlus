@@ -3,7 +3,7 @@
 namespace DSharpPlus.Entities
 {
     /// <summary>
-    /// Represents the File that should be sent to Discord from the <see cref="DiscordMessageBuilder"/>.
+    /// Represents the File that should be sent to Discord from the <see cref="DiscordMessageCreateBuilder"/>.
     /// </summary>
     public class DiscordMessageFile
     {

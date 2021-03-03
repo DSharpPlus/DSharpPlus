@@ -10,7 +10,7 @@ namespace DSharpPlus.Test
         [Command, Priority(0)]
         public async Task ReplyAsync(CommandContext ctx, [RemainingText]string response = "")
         {
-            var builder = new DiscordMessageBuilder();
+            var builder = new DiscordMessageCreateBuilder();
 
             if (string.IsNullOrEmpty(response))
             {                
@@ -34,7 +34,7 @@ namespace DSharpPlus.Test
                 await ctx.RespondAsync("You need to reply to a message for this :(");
             else
             {
-                await new DiscordMessageBuilder()
+                await new DiscordMessageCreateBuilder()
                     .WithContent(":)")
                     .WithReply(ctx.Message.Reference.Message.Id, true)
                     .SendAsync(ctx.Channel);
@@ -44,7 +44,7 @@ namespace DSharpPlus.Test
         [Command, Priority(1)]
         public async Task ReplyAsync(CommandContext ctx, bool mention, [RemainingText]string response = "")
         {
-            var builder = new DiscordMessageBuilder();
+            var builder = new DiscordMessageCreateBuilder();
 
             if (string.IsNullOrEmpty(response))
             {

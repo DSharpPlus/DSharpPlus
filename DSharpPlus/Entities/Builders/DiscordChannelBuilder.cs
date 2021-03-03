@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace DSharpPlus.Entities
 {
-    public class DiscordChannelBuilder
+    public abstract class DiscordChannelBuilder<T>
     {
         /// <summary>
         /// <para>Gets or Sets the Name of the channel to be sent.</para>
@@ -22,11 +22,6 @@ namespace DSharpPlus.Entities
             }
         }
         private string _name;
-
-        /// <summary>
-        /// Gets the type of channel that you want to set.
-        /// </summary>
-        public Optional<ChannelType> Type { get; internal set; }
 
         /// <summary>
         /// Gets the topic of the channel.
@@ -80,24 +75,11 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="name">The name to give.</param>
         /// <returns></returns>
-        public DiscordChannelBuilder WithName(string name)
+        public T WithName(string name)
         {
             this.Name = name;
 
-            return this;
-        }
-
-        /// <summary>
-        /// <para>Sets the Type of the channel.</para>
-        /// <para>This can only be set during creation.</para>
-        /// </summary>
-        /// <param name="type">The type of the Channel</param>
-        /// <returns></returns>
-        public DiscordChannelBuilder WithType(ChannelType type)
-        {
-            this.Type = type;
-
-            return this;
+            return (T)Convert.ChangeType(this, typeof(T));
         }
 
         /// <summary>
@@ -106,11 +88,11 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="topic">The topic</param>
         /// <returns></returns>
-        public DiscordChannelBuilder WithTopic(string topic)
+        public T WithTopic(string topic)
         {
             this.Topic = topic;
 
-            return this;
+            return (T)Convert.ChangeType(this, typeof(T));
         }
 
         /// <summary>
@@ -119,11 +101,11 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="bit">The bitrate</param>
         /// <returns></returns>
-        public DiscordChannelBuilder WithBitrate(int bit)
+        public T WithBitrate(int bit)
         {
             this.Bitrate = bit;
 
-            return this;
+            return (T)Convert.ChangeType(this, typeof(T));
         }
 
         /// <summary>
@@ -132,11 +114,11 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="users">The amount of users</param>
         /// <returns></returns>
-        public DiscordChannelBuilder WithUserLimit(int users)
+        public T WithUserLimit(int users)
         {
             this.UserLimit = users;
 
-            return this;
+            return (T)Convert.ChangeType(this, typeof(T));
         }
 
         /// <summary>
@@ -145,11 +127,11 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="rate"></param>
         /// <returns></returns>
-        public DiscordChannelBuilder WithRateLimit(int rate)
+        public T WithRateLimit(int rate)
         {
             this.RateLimit = rate;
 
-            return this;
+            return (T)Convert.ChangeType(this, typeof(T));
         }
 
         /// <summary>
@@ -157,11 +139,11 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="position">Sets the position of the channel.</param>
         /// <returns></returns>
-        public DiscordChannelBuilder WithPosition(int position)
+        public T WithPosition(int position)
         {
             this.Position = position;
 
-            return this;
+            return (T)Convert.ChangeType(this, typeof(T));
         }
 
         /// <summary>
@@ -169,11 +151,11 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="builder"></param>
         /// <returns></returns>
-        public DiscordChannelBuilder WithOverwrite(DiscordOverwriteBuilder builder)
+        public T WithOverwrite(DiscordOverwriteBuilder builder)
         {
             this._Overwrites.Add(builder);
 
-            return this;
+            return (T)Convert.ChangeType(this, typeof(T));
         }
 
         /// <summary>
@@ -181,11 +163,11 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="builders"></param>
         /// <returns></returns>
-        public DiscordChannelBuilder WithOverwrites(IEnumerable<DiscordOverwriteBuilder> builders)
+        public T WithOverwrites(IEnumerable<DiscordOverwriteBuilder> builders)
         {
             this._Overwrites.AddRange(builders);
 
-            return this;
+            return (T)Convert.ChangeType(this, typeof(T));
         }
 
         /// <summary>
@@ -194,11 +176,11 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="parent">The parent.</param>
         /// <returns></returns>
-        public DiscordChannelBuilder WithParentId(ulong parent)
+        public T WithParentId(ulong parent)
         {
             this.ParentId = parent;
 
-            return this;
+            return (T)Convert.ChangeType(this, typeof(T));
         }
 
         /// <summary>
@@ -207,11 +189,11 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="parent">The parent.</param>
         /// <returns></returns>
-        public DiscordChannelBuilder WithParentId(DiscordChannel parent)
+        public T WithParentId(DiscordChannel parent)
         {
             this.ParentId = parent.Id;
 
-            return this;
+            return (T)Convert.ChangeType(this, typeof(T));
         }
 
         /// <summary>
@@ -220,11 +202,11 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="nsfw"></param>
         /// <returns></returns>
-        public DiscordChannelBuilder WithNsfw(bool nsfw)
+        public T WithNsfw(bool nsfw)
         {
             this.Nsfw = nsfw;
 
-            return this;
+            return (T)Convert.ChangeType(this, typeof(T));
         }
 
         /// <summary>
@@ -232,18 +214,17 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="reason">The reason.</param>
         /// <returns></returns>
-        public DiscordChannelBuilder WithAuditLogReason(string reason)
+        public T WithAuditLogReason(string reason)
         {
             this.AuditLogReason = reason;
 
-            return this;
+            return (T)Convert.ChangeType(this, typeof(T));
         }
 
-        public void Clear()
+        public virtual void Clear()
         {
             this._name = "";
             this.Topic = "";
-            this.Type = Optional.FromNoValue<ChannelType>();
             this.Position = Optional.FromNoValue<int>();
             this.RateLimit = Optional.FromNoValue<int>();
             this.Bitrate = Optional.FromNoValue<int>();
@@ -253,9 +234,27 @@ namespace DSharpPlus.Entities
             this.Nsfw = false;
         }
 
-        public async Task ModifyAsync(DiscordChannel channel)
+        internal abstract void Validate();
+    }
+
+    public sealed class DiscordChannelCreateBuilder : DiscordChannelBuilder<DiscordChannelCreateBuilder>
+    {
+        /// <summary>
+        /// Gets the type of channel that you want to set.
+        /// </summary>
+        public Optional<ChannelType> Type { get; internal set; }
+
+        /// <summary>
+        /// <para>Sets the Type of the channel.</para>
+        /// <para>This can only be set during creation.</para>
+        /// </summary>
+        /// <param name="type">The type of the Channel</param>
+        /// <returns></returns>
+        public DiscordChannelCreateBuilder WithType(ChannelType type)
         {
-            await channel.ModifyAsync(this).ConfigureAwait(false);
+            this.Type = type;
+
+            return this;
         }
 
         /// <summary>
@@ -268,21 +267,32 @@ namespace DSharpPlus.Entities
             return await guild.CreateChannelAsync(this).ConfigureAwait(false);
         }
 
-        internal void Validate(bool isModify = false)
+        internal override void Validate()
         {
-            if (isModify)
-            {
-                if (this.Type.HasValue)
-                    throw new ArgumentException("You cannot modify the Channel type.");
-            }
-            else
-            {
-                if (this.Type != ChannelType.Text && this.Type != ChannelType.Voice && this.Type != ChannelType.Category && this.Type != ChannelType.News && this.Type != ChannelType.Store)
-                    throw new ArgumentException("Channel type must be text, voice, or category.", nameof(this.Type));
+            if (this.Type != ChannelType.Text && this.Type != ChannelType.Voice && this.Type != ChannelType.Category && this.Type != ChannelType.News && this.Type != ChannelType.Store)
+                throw new ArgumentException("Channel type must be text, voice, or category.", nameof(this.Type));
 
-                if (this.Type == ChannelType.Category && this.ParentId != null)
-                    throw new ArgumentException("Cannot specify parent of a channel category.", nameof(ParentId));
-            }
+            if (this.Type == ChannelType.Category && this.ParentId != null)
+                throw new ArgumentException("Cannot specify parent of a channel category.", nameof(ParentId));
+        }
+
+        public override void Clear()
+        {
+            base.Clear();
+            this.Type = Optional.FromNoValue<ChannelType>();
+        }
+    }
+
+    public sealed class DiscordChannelModifyBuilder : DiscordChannelBuilder<DiscordChannelModifyBuilder>
+    {
+        public async Task ModifyAsync(DiscordChannel channel)
+        {
+            await channel.ModifyAsync(this).ConfigureAwait(false);
+        }
+
+        internal override void Validate()
+        {
+            
         }
     }
 }

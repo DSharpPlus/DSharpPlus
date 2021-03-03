@@ -9,7 +9,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Constructs a Message to be sent.
     /// </summary>
-    public sealed class DiscordMessageBuilder
+    public abstract class DiscordMessageBuilder<T>
     {
         /// <summary>
         /// Gets or Sets the Message to be sent.
@@ -39,8 +39,85 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the Allowed Mentions for the message to be sent. 
         /// </summary>
-        public List<IMention> Mentions { get; private set; } = null;
+        public List<IMention> Mentions { get; internal set; } = null;
 
+        /// <summary>
+        /// Sets the Content of the Message.
+        /// </summary>
+        /// <param name="content">The content to be set.</param>
+        /// <returns></returns>
+        public T WithContent(string content)
+        {
+            this.Content = content;
+            return (T)Convert.ChangeType(this, typeof(T));
+        } 
+
+        /// <summary>
+        /// Sets if the message should be TTS.
+        /// </summary>
+        /// <param name="isTTS">If TTS should be set.</param>
+        /// <returns></returns>
+        public T HasTTS(bool isTTS)
+        {
+            this.IsTTS = isTTS;
+            return (T)Convert.ChangeType(this, typeof(T));
+        }
+
+        /// <summary>
+        /// Sets if the message will have an Embed.
+        /// </summary>
+        /// <param name="embed">The embed that should be sent.</param>
+        /// <returns></returns>
+        public T WithEmbed(DiscordEmbed embed)
+        {
+            this.Embed = embed;
+            return (T)Convert.ChangeType(this, typeof(T));
+        }
+
+        /// <summary>
+        /// Sets if the message has allowed mentions.
+        /// </summary>
+        /// <param name="allowedMention">The allowed Mention that should be sent.</param>
+        /// <returns></returns>
+        public T WithAllowedMention(IMention allowedMention)
+        {
+            if (this.Mentions != null)
+                this.Mentions.Add(allowedMention);
+            else
+                this.Mentions = new List<IMention> { allowedMention };
+
+            return (T)Convert.ChangeType(this, typeof(T));
+        }
+
+        /// <summary>
+        /// Sets if the message has allowed mentions.
+        /// </summary>
+        /// <param name="allowedMentions">The allowed Mentions that should be sent.</param>
+        /// <returns></returns>
+        public T WithAllowedMentions(IEnumerable<IMention> allowedMentions)
+        {
+            if (this.Mentions != null)
+                this.Mentions.AddRange(allowedMentions);
+            else
+                this.Mentions = allowedMentions.ToList();
+
+            return (T)Convert.ChangeType(this, typeof(T));
+        }
+
+        /// <summary>
+        /// Allows for clearing the Message Builder so that it can be used again to send a new message.
+        /// </summary>
+        public abstract void Clear();
+
+        /// <summary>
+        /// Does the validation before we send a the Create/Modify request.
+        /// </summary>
+        internal abstract void Validate();
+        
+    }
+
+    public sealed class DiscordMessageCreateBuilder : DiscordMessageBuilder<DiscordMessageCreateBuilder>
+    {
         /// <summary>
         /// Gets the Files to be sent in the Message.
         /// </summary>
@@ -59,87 +136,24 @@ namespace DSharpPlus.Entities
         public bool MentionOnReply { get; private set; } = false;
 
         /// <summary>
-        /// Sets the Content of the Message.
-        /// </summary>
-        /// <param name="content">The content to be set.</param>
-        /// <returns></returns>
-        public DiscordMessageBuilder WithContent(string content)
-        {
-            this.Content = content;
-            return this;
-        } 
-
-        /// <summary>
-        /// Sets if the message should be TTS.
-        /// </summary>
-        /// <param name="isTTS">If TTS should be set.</param>
-        /// <returns></returns>
-        public DiscordMessageBuilder HasTTS(bool isTTS)
-        {
-            this.IsTTS = isTTS;
-            return this;
-        }
-
-        /// <summary>
-        /// Sets if the message will have an Embed.
-        /// </summary>
-        /// <param name="embed">The embed that should be sent.</param>
-        /// <returns></returns>
-        public DiscordMessageBuilder WithEmbed(DiscordEmbed embed)
-        {
-            this.Embed = embed;
-            return this;
-        }
-
-        /// <summary>
-        /// Sets if the message has allowed mentions.
-        /// </summary>
-        /// <param name="allowedMention">The allowed Mention that should be sent.</param>
-        /// <returns></returns>
-        public DiscordMessageBuilder WithAllowedMention(IMention allowedMention)
-        {
-            if (this.Mentions != null)
-                this.Mentions.Add(allowedMention);
-            else
-                this.Mentions = new List<IMention> { allowedMention };
-
-            return this;
-        }
-
-        /// <summary>
-        /// Sets if the message has allowed mentions.
-        /// </summary>
-        /// <param name="allowedMentions">The allowed Mentions that should be sent.</param>
-        /// <returns></returns>
-        public DiscordMessageBuilder WithAllowedMentions(IEnumerable<IMention> allowedMentions)
-        {
-            if (this.Mentions != null)
-                this.Mentions.AddRange(allowedMentions);
-            else
-                this.Mentions = allowedMentions.ToList();
-
-            return this;
-        }
-
-        /// <summary>
         /// Sets if the message has files to be sent.
         /// </summary>
         /// <param name="fileName">The fileName that the file should be sent as.</param>
         /// <param name="stream">The Stream to the file.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
         /// <returns></returns>
-        public DiscordMessageBuilder WithFile(string fileName, Stream stream, bool resetStreamPosition = false)
+        public DiscordMessageCreateBuilder WithFile(string fileName, Stream stream, bool resetStreamPosition = false)
         {
-            if(this.Files.Count() >= 10)
+            if (this.Files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
             if (this._files.Any(x => x.FileName == fileName))
                 throw new ArgumentException("A File with that filename already exists");
 
-            if(resetStreamPosition)
+            if (resetStreamPosition)
                 this._files.Add(new DiscordMessageFile(fileName, stream, stream.Position));
             else
-                this._files.Add(new DiscordMessageFile(fileName, stream, null));            
+                this._files.Add(new DiscordMessageFile(fileName, stream, null));
 
             return this;
         }
@@ -150,7 +164,7 @@ namespace DSharpPlus.Entities
         /// <param name="stream">The Stream to the file.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
         /// <returns></returns>
-        public DiscordMessageBuilder WithFile(FileStream stream, bool resetStreamPosition = false)
+        public DiscordMessageCreateBuilder WithFile(FileStream stream, bool resetStreamPosition = false)
         {
             if (this.Files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
@@ -172,7 +186,7 @@ namespace DSharpPlus.Entities
         /// <param name="files">The Files that should be sent.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
         /// <returns></returns>
-        public DiscordMessageBuilder WithFiles(Dictionary<string, Stream> files, bool resetStreamPosition = false)
+        public DiscordMessageCreateBuilder WithFiles(Dictionary<string, Stream> files, bool resetStreamPosition = false)
         {
             if (this.Files.Count() + files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
@@ -187,7 +201,7 @@ namespace DSharpPlus.Entities
                 else
                     this._files.Add(new DiscordMessageFile(file.Key, file.Value, null));
             }
-                
+
 
             return this;
         }
@@ -198,7 +212,7 @@ namespace DSharpPlus.Entities
         /// <param name="messageId">The ID of the message to reply to.</param>
         /// <param name="mention">If we should mention the user in the reply.</param>
         /// <returns></returns>
-        public DiscordMessageBuilder WithReply(ulong messageId, bool mention = false)
+        public DiscordMessageCreateBuilder WithReply(ulong messageId, bool mention = false)
         {
             this.ReplyId = messageId;
             this.MentionOnReply = mention;
@@ -216,20 +230,7 @@ namespace DSharpPlus.Entities
             return await channel.SendMessageAsync(this).ConfigureAwait(false);
         }
 
-        /// <summary>
-        /// Sends the modified message.
-        /// </summary>
-        /// <param name="msg">The original Message to modify.</param>
-        /// <returns></returns>
-        public async Task<DiscordMessage> ModifyAsync(DiscordMessage msg)
-        {
-            return await msg.ModifyAsync(this).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// Allows for clearing the Message Builder so that it can be used again to send a new message.
-        /// </summary>
-        public void Clear()
+        public override void Clear()
         {
             this.Content = "";
             this.Embed = null;
@@ -240,25 +241,37 @@ namespace DSharpPlus.Entities
             this.MentionOnReply = false;
         }
 
-        /// <summary>
-        /// Does the validation before we send a the Create/Modify request.
-        /// </summary>
-        /// <param name="isModify">Tells the method to perform the Modify Validation or Create Validation.</param>
-        internal void Validate(bool isModify = false)
+        internal override void Validate()
         {
-            if (isModify)
-            {
-                if (this.Files.Any())
-                    throw new ArgumentException("You cannot add files when modifying a message.");
+            if (this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && this.Embed == null)
+                throw new ArgumentException("You must specify content, an embed, or at least one file.");
+        }
+    }
 
-                if (this.ReplyId.HasValue)
-                    throw new ArgumentException("You cannot change the ReplyID when modifying a message");
-            }
-            else
-            {
-                if (this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && this.Embed == null)
-                    throw new ArgumentException("You must specify content, an embed, or at least one file.");
-            }
+    public sealed class DiscordMessageModifyBuilder : DiscordMessageBuilder<DiscordMessageModifyBuilder>
+    {
+        public override void Clear()
+        {
+            this.Content = "";
+            this.Embed = null;
+            this.IsTTS = false;
+            this.Mentions = null;
+        }
+
+        internal override void Validate()
+        {
+            if (string.IsNullOrEmpty(this.Content) && this.Embed == null)
+                throw new ArgumentException("You must specify content, an embed, or at least one file.");
+        }
+
+        /// <summary>
+        /// Sends the modified message.
+        /// </summary>
+        /// <param name="msg">The original Message to modify.</param>
+        /// <returns></returns>
+        public async Task<DiscordMessage> ModifyAsync(DiscordMessage msg)
+        {
+            return await msg.ModifyAsync(this).ConfigureAwait(false);
         }
     }
 }
