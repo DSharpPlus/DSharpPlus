@@ -97,14 +97,30 @@ namespace DSharpPlus.Entities
             => this.Discord.ApiClient.DeleteWebhookAsync(this.Id, Token);
 
         /// <summary>
-        /// Executes this webhook with the given <see cref="DiscordWebhookBuilder"/>.
+        /// Executes this webhook with the given <see cref="DiscordWebhookMessageBuilder"/>.
         /// </summary>
         /// <param name="builder">Webhook builder filled with data to send.</param>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the webhook does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordMessage> ExecuteAsync(DiscordWebhookBuilder builder)
+        public Task<DiscordMessage> ExecuteAsync(DiscordWebhookMessageBuilder builder)
             => (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookAsync(this.Id, this.Token, builder);
+
+        /// <summary>
+        /// Executes this webhook with the given <see cref="DiscordWebhookMessageBuilder"/>.
+        /// </summary>
+        /// <param name="action">Webhook builder filled with data to send.</param>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the webhook does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<DiscordMessage> ExecuteAsync(Action<DiscordWebhookMessageBuilder> action)
+        {
+            var builder = new DiscordWebhookMessageBuilder();
+
+            action(builder);
+
+            return await (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookAsync(this.Id, this.Token, builder).ConfigureAwait(false);
+        }
 
         /// <summary>
         /// Executes this webhook in Slack compatibility mode.
@@ -137,9 +153,23 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the webhook does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordMessage> EditMessageAsync(ulong messageId, DiscordWebhookBuilder builder)
+        public Task<DiscordMessage> EditMessageAsync(ulong messageId, DiscordWebhookMessageBuilder builder)
+            => (this.Discord?.ApiClient ?? this.ApiClient).EditWebhookMessageAsync(this.Id, this.Token, messageId, builder);
+
+        /// <summary>
+        /// Edits a previously-sent webhook message.
+        /// </summary>
+        /// <param name="messageId">The id of the message to edit.</param>
+        /// <param name="action">The builder of the message to edit.</param>
+        /// <returns>The modified <see cref="DiscordMessage"/></returns>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the webhook does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<DiscordMessage> EditMessageAsync(ulong messageId, Action<DiscordWebhookMessageBuilder> action)
         {
-            builder.Validate(true);
+            var builder = new DiscordWebhookMessageBuilder();
+
+            action(builder);
 
             return await(this.Discord?.ApiClient ?? this.ApiClient).EditWebhookMessageAsync(this.Id, this.Token, messageId, builder).ConfigureAwait(false);
         }

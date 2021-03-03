@@ -219,7 +219,7 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="builder">Webhook builder filled with data to send.</param>
         /// <returns></returns>
-        public async Task<Dictionary<DiscordWebhook, DiscordMessage>> BroadcastMessageAsync(DiscordWebhookBuilder builder)
+        public async Task<Dictionary<DiscordWebhook, DiscordMessage>> BroadcastMessageAsync(DiscordWebhookMessageBuilder builder)
         {
             var deadhooks = new List<DiscordWebhook>();
             var messages = new Dictionary<DiscordWebhook, DiscordMessage>();

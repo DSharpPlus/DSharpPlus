@@ -287,7 +287,7 @@ namespace DSharpPlus.Test
             {
 
                 // Verify that the lib resets the position when asked
-                var builder = new DiscordWebhookBuilder()
+                var builder = new DiscordWebhookMessageBuilder()
                     .WithContent("Testing the `AddFile(Dictionary<string, stream>)` Overload with resetting the postion turned on.")
                     .AddFiles(new Dictionary<string, Stream>() { { "ADumbFile1.txt", fs } }, true);
 

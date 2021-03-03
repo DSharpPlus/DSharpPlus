@@ -543,6 +543,24 @@ namespace DSharpPlus.Entities
             => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, builder);
 
         /// <summary>
+        /// Responds to the message.
+        /// </summary>
+        /// <param name="action">The Discord Mesage builder.</param>
+        /// <returns>The sent message.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<DiscordMessage> RespondAsync(Action<DiscordMessageBuilder> action)
+        {
+            var builder = new DiscordMessageBuilder();
+
+            action(builder);
+
+            return await this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, builder).ConfigureAwait(false);
+        }
+
+        /// <summary>
         /// Creates a reaction to this message
         /// </summary>
         /// <param name="emoji">The emoji you want to react with, either an emoji or name:id</param>

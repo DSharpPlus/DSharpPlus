@@ -459,6 +459,24 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Modifies this guild.
+        /// </summary>
+        /// <param name="action">The builder to modify the Guild.</param>
+        /// <returns>The modified guild object.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the guild does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<DiscordGuild> ModifyAsync(Action<DiscordGuildBuilder> action)
+        {
+            var builder = new DiscordGuildBuilder();
+
+            action(builder);
+
+            return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, builder).ConfigureAwait(false);
+        }
+
+        /// <summary>
         /// Bans a specified member from this guild.
         /// </summary>
         /// <param name="member">Member to ban.</param>
@@ -539,8 +557,24 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordChannel> CreateChannelAsync(DiscordChannelBuilder builder)
+            => this.Discord.ApiClient.CreateGuildChannelAsync(this.Id, builder);
+
+        /// <summary>
+        /// Creates a new channel in this guild.
+        /// </summary>
+        /// <param name="action">The builder of the channel.</param>
+        /// <returns>The newly-created channel.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the guild does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<DiscordChannel> CreateChannelAsync(Action<DiscordChannelBuilder> action)
         {
-            return this.Discord.ApiClient.CreateGuildChannelAsync(this.Id, builder);
+            var builder = new DiscordChannelBuilder();
+
+            action(builder);
+
+            return await this.Discord.ApiClient.CreateGuildChannelAsync(this.Id, builder).ConfigureAwait(false);
         }
 
         // this is to commemorate the Great DAPI Channel Massacre of 2017-11-19.

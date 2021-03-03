@@ -57,6 +57,30 @@ namespace DSharpPlus.Test.Tests
         }
 
         [Command]
+        public async Task CreateGuildWithActionBuilder(CommandContext ctx, [RemainingText] string name)
+        {
+            var guild = await ctx.Client.CreateGuildAsync(x => {
+                x.WithName(name)
+                    .WithDefaultMessageNotificationLevel(DefaultMessageNotifications.MentionsOnly)
+                    .WithExplicitContentFilterLevel(ExplicitContentFilter.MembersWithoutRoles)
+                    .WithVerificationLevel(VerificationLevel.Low)
+                    .WithRoles(new DiscordGuildBuilder.GuildBuilderRole[] {
+                            new DiscordGuildBuilder.GuildBuilderRole{ Id = Convert.ToUInt64(1), Mentionable = true, Name = "Everyone", Permissions = Permissions.Administrator },
+                            new DiscordGuildBuilder.GuildBuilderRole{ Id = Convert.ToUInt64(2), Mentionable = true, Name = "Role 1" },
+                            new DiscordGuildBuilder.GuildBuilderRole{ Id = Convert.ToUInt64(3), Mentionable = true, Name = "Role 2" },
+                    })
+                    .WithChannels(new DiscordGuildBuilder.GuildBuilderChannel[] {
+                            new DiscordGuildBuilder.GuildBuilderChannel { Id = Convert.ToUInt64(4), Name = "test General", Type = ChannelType.Category, PermissionOverwrites = new DiscordGuildBuilder.GuildBuilderChannel.ChannelOverwrite[]{ } },
+                            new DiscordGuildBuilder.GuildBuilderChannel { Id = Convert.ToUInt64(5), Name = "test text General", Type = ChannelType.Text, ParentId = Convert.ToUInt64(4), Nsfw = true, Topic = "Some dumb topic", PermissionOverwrites = new DiscordGuildBuilder.GuildBuilderChannel.ChannelOverwrite[] {
+                                new DiscordGuildBuilder.GuildBuilderChannel.ChannelOverwrite { Id = Convert.ToUInt64(2), DenyPermissions = Permissions.All, AllowPermissions = Permissions.None },
+                                new DiscordGuildBuilder.GuildBuilderChannel.ChannelOverwrite { Id = Convert.ToUInt64(3), AllowPermissions = Permissions.All, DenyPermissions = Permissions.None }
+                            }}
+                    });
+
+            });
+        }
+
+        [Command]
         public async Task ModifyGuild(CommandContext ctx)
         {
             try
