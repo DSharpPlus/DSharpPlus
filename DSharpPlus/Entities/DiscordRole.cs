@@ -98,30 +98,25 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Updates this role.
         /// </summary>
-        /// <param name="name">New role name</param>
-        /// <param name="permissions">New role permissions</param>
-        /// <param name="color">New role color</param>
-        /// <param name="hoist">New role hoist</param>
-        /// <param name="mentionable">Whether this role is mentionable</param>
-        /// <param name="reason">Reason why we made this change</param>
+        /// <param name="builder">Builder with all the modifications.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the role does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task ModifyAsync(string name = null, Permissions? permissions = null, DiscordColor? color = null, bool? hoist = null, bool? mentionable = null, string reason = null)
-            => this.Discord.ApiClient.ModifyGuildRoleAsync(this._guild_id, Id, name, permissions, color?.Value, hoist, mentionable, reason);
+        public Task ModifyAsync(DiscordRoleModifyBuilder builder)
+            => this.Discord.ApiClient.ModifyGuildRoleAsync(this._guild_id, Id, builder);
 
         /// <exception cref = "Exceptions.UnauthorizedException" > Thrown when the client does not have the<see cref="Permissions.ManageRoles"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the role does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task ModifyAsync(Action<RoleEditModel> action)
+        public Task ModifyAsync(Action<DiscordRoleModifyBuilder> action)
 		{
-			var mdl = new RoleEditModel();
+			var mdl = new DiscordRoleModifyBuilder();
 			action(mdl);
 
-			return this.ModifyAsync(mdl.Name, mdl.Permissions, mdl.Color, mdl.Hoist, mdl.Mentionable, mdl.AuditLogReason);
+			return this.ModifyAsync(mdl);
 		}
 
         /// <summary>

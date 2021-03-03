@@ -824,15 +824,10 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="guild_id">Guild id</param>
         /// <param name="role_id">Role id</param>
-        /// <param name="name">New role name</param>
-        /// <param name="permissions">New role permissions</param>
-        /// <param name="color">New role color</param>
-        /// <param name="hoist">Whether this role should be hoisted</param>
-        /// <param name="mentionable">Whether this role should be mentionable</param>
-        /// <param name="reason">Why this role was modified</param>
+        /// <param name="builder">The builder of the role</param>
         /// <returns></returns>
-        public Task<DiscordRole> ModifyGuildRoleAsync(ulong guild_id, ulong role_id, string name, Permissions? permissions, DiscordColor? color, bool? hoist, bool? mentionable, string reason)
-            => this.ApiClient.ModifyGuildRoleAsync(guild_id, role_id, name, permissions, (color.HasValue? (int?)color.Value.Value : null), hoist, mentionable, reason);
+        public Task<DiscordRole> ModifyGuildRoleAsync(ulong guild_id, ulong role_id, DiscordRoleModifyBuilder builder)
+            => this.ApiClient.ModifyGuildRoleAsync(guild_id, role_id, builder);
 
         /// <summary>
         /// Modifies a role
@@ -841,12 +836,12 @@ namespace DSharpPlus
         /// <param name="guild_id">Guild id</param>
         /// <param name="action">Modifications</param>
         /// <returns></returns>
-        public Task ModifyGuildRoleAsync(ulong role_id, ulong guild_id, Action<RoleEditModel> action)
+        public Task ModifyGuildRoleAsync(ulong role_id, ulong guild_id, Action<DiscordRoleModifyBuilder> action)
         {
-            var mdl = new RoleEditModel();
-            action(mdl);
+            var builder = new DiscordRoleModifyBuilder();
+            action(builder);
 
-            return ModifyGuildRoleAsync(guild_id, role_id, mdl.Name, mdl.Permissions, mdl.Color, mdl.Hoist, mdl.Mentionable, mdl.AuditLogReason);
+            return ModifyGuildRoleAsync(guild_id, role_id, builder);
         }
 
         /// <summary>
@@ -863,15 +858,24 @@ namespace DSharpPlus
         /// Creates a new role
         /// </summary>
         /// <param name="guild_id">Guild id</param>
-        /// <param name="name">Role name</param>
-        /// <param name="permissions">Role permissions</param>
-        /// <param name="color">Role color</param>
-        /// <param name="hoist">Whether this role should be hoisted</param>
-        /// <param name="mentionable">Whether this role should be mentionable</param>
-        /// <param name="reason">Reason why this role was created</param>
+        /// <param name="builder">The builder of the Role.</param>
         /// <returns></returns>
-        public Task<DiscordRole> CreateGuildRoleAsync(ulong guild_id, string name, Permissions? permissions, int? color, bool? hoist, bool? mentionable, string reason)
-            => this.ApiClient.CreateGuildRoleAsync(guild_id, name, permissions, color, hoist, mentionable, reason);
+        public Task<DiscordRole> CreateGuildRoleAsync(ulong guild_id, DiscordRoleCreateBuilder builder)
+            => this.ApiClient.CreateGuildRoleAsync(guild_id, builder);
+
+        /// <summary>
+        /// Creates a new role
+        /// </summary>
+        /// <param name="guild_id">Guild id</param>
+        /// <param name="action">The builder of the Role.</param>
+        /// <returns></returns>
+        public Task<DiscordRole> CreateGuildRoleAsync(ulong guild_id, Action<DiscordRoleCreateBuilder> action)
+        {
+            var builder = new DiscordRoleCreateBuilder();
+            action(builder);
+
+            return CreateGuildRoleAsync(guild_id, builder);
+        }
         #endregion
 
         #region Prune

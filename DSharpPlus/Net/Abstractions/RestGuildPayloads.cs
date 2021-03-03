@@ -162,16 +162,16 @@ namespace DSharpPlus.Net.Abstractions
         public string Name { get; set; }
 
         [JsonProperty("permissions", NullValueHandling = NullValueHandling.Ignore)]
-        public Permissions? Permissions { get; set; }
+        public Optional<Permissions> Permissions { get; set; }
 
         [JsonProperty("color", NullValueHandling = NullValueHandling.Ignore)]
-        public int? Color { get; set; }
+        public Optional<int> Color { get; set; }
 
         [JsonProperty("hoist", NullValueHandling = NullValueHandling.Ignore)]
-        public bool? Hoist { get; set; }
+        public Optional<bool> Hoist { get; set; }
 
         [JsonProperty("mentionable", NullValueHandling = NullValueHandling.Ignore)]
-        public bool? Mentionable { get; set; }
+        public Optional<bool> Mentionable { get; set; }
     }
 
     internal sealed class RestGuildPruneResultPayload

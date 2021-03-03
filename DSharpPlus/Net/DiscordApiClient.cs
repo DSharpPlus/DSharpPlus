@@ -1422,20 +1422,22 @@ namespace DSharpPlus.Net
             }
         }
 
-        internal async Task<DiscordRole> ModifyGuildRoleAsync(ulong guild_id, ulong role_id, string name, Permissions? permissions, int? color, bool? hoist, bool? mentionable, string reason)
+        internal async Task<DiscordRole> ModifyGuildRoleAsync(ulong guild_id, ulong role_id, DiscordRoleModifyBuilder builder)
         {
+            builder.Validate();
+
             var pld = new RestGuildRolePayload
             {
-                Name = name,
-                Permissions = permissions & PermissionMethods.FULL_PERMS,
-                Color = color,
-                Hoist = hoist,
-                Mentionable = mentionable
+                Name = builder.Name,
+                Permissions = builder.Permissions,
+                Color = builder.Color.HasValue ? (int)builder.Color.Value.Value : Optional.FromNoValue<int>(),
+                Hoist = builder.Hoist,
+                Mentionable = builder.Mentionable
             };
 
             var headers = Utilities.GetBaseHeaders();
-            if (!string.IsNullOrWhiteSpace(reason))
-                headers[REASON_HEADER_NAME] = reason;
+            if (builder.AuditLogReason.HasValue && !string.IsNullOrWhiteSpace(builder.AuditLogReason.Value))
+                headers[REASON_HEADER_NAME] = builder.AuditLogReason.Value;
 
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.ROLES}/:role_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id, role_id }, out var path);
@@ -1463,20 +1465,22 @@ namespace DSharpPlus.Net
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route, headers);
         }
 
-        internal async Task<DiscordRole> CreateGuildRoleAsync(ulong guild_id, string name, Permissions? permissions, int? color, bool? hoist, bool? mentionable, string reason)
+        internal async Task<DiscordRole> CreateGuildRoleAsync(ulong guild_id, DiscordRoleCreateBuilder builder)
         {
+            builder.Validate();
+
             var pld = new RestGuildRolePayload
             {
-                Name = name,
-                Permissions = permissions & PermissionMethods.FULL_PERMS,
-                Color = color,
-                Hoist = hoist,
-                Mentionable = mentionable
+                Name = builder.Name,
+                Permissions = builder.Permissions,
+                Color = builder.Color.HasValue ? (int)builder.Color.Value.Value : Optional.FromNoValue<int>(),
+                Hoist = builder.Hoist,
+                Mentionable = builder.Mentionable
             };
 
             var headers = Utilities.GetBaseHeaders();
-            if (!string.IsNullOrWhiteSpace(reason))
-                headers[REASON_HEADER_NAME] = reason;
+            if (builder.AuditLogReason.HasValue && !string.IsNullOrWhiteSpace(builder.AuditLogReason.Value))
+                headers[REASON_HEADER_NAME] = builder.AuditLogReason.Value;
 
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.ROLES}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { guild_id }, out var path);
