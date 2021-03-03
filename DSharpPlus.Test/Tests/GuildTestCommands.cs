@@ -10,12 +10,12 @@ namespace DSharpPlus.Test.Tests
     public class GuildTestCommands : BaseCommandModule
     {
         [Command]
-        public async Task CreateGuild(CommandContext ctx, [RemainingText]string name)
+        public async Task CreateGuild(CommandContext ctx, [RemainingText] string name)
         {
             var guild = await ctx.Client.CreateGuildAsync(name);
             var channels = await guild.GetChannelsAsync();
             var invite = await channels.Where(x => !x.IsCategory && x.Type == ChannelType.Text).FirstOrDefault().CreateInviteAsync();
-            await ctx.RespondAsync(invite.Code);
+            await ctx.RespondAsync(invite.ToString());
         }
 
         [Command]
@@ -40,14 +40,14 @@ namespace DSharpPlus.Test.Tests
                                 new DiscordGuildCreateBuilder.GuildBuilderChannel.ChannelOverwrite { Id = Convert.ToUInt64(000000000000000003), AllowPermissions = Permissions.All, DenyPermissions = Permissions.None }
                             }}
                         });
-                        //.WithSystemChannelId(Convert.ToUInt64(000000000000000003));
+                //.WithSystemChannelId(Convert.ToUInt64(000000000000000003));
 
 
                 var guild = await builder.CreateAsync(ctx.Client);
 
                 var channels = await guild.GetChannelsAsync();
                 var invite = await channels.Where(x => !x.IsCategory && x.Type == ChannelType.Text).FirstOrDefault().CreateInviteAsync();
-                await ctx.RespondAsync(invite.Code);
+                await ctx.RespondAsync(invite.ToString());
             }
             catch (Exception ex)
             {
@@ -78,6 +78,10 @@ namespace DSharpPlus.Test.Tests
                     });
 
             });
+
+            var channels = await guild.GetChannelsAsync();
+            var invite = await channels.Where(x => !x.IsCategory && x.Type == ChannelType.Text).FirstOrDefault().CreateInviteAsync();
+            await ctx.RespondAsync(invite.ToString());
         }
 
         [Command]
@@ -86,10 +90,29 @@ namespace DSharpPlus.Test.Tests
             try
             {
                 var builder = new DiscordGuildModifyBuilder()
-                    .WithName("Glocks Awesome Test Guild")
+                    .WithName("My Awesome Test Guild")
                     .WithAuditLogReason("Cause i can")
                     .WithNewOwener(ctx.Member)
                     .ModifyAsync(ctx.Guild);
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+        [Command]
+        public async Task ModifyGuildAction(CommandContext ctx)
+        {
+            try
+            {
+                await ctx.Guild.ModifyAsync(g =>
+                {
+                    g.WithName("My Awesome Test Guild")
+                    .WithAuditLogReason("Cause i can")
+                    .WithNewOwener(ctx.Member);
+                });
             }
             catch (Exception ex)
             {
