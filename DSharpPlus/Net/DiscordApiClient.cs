@@ -661,20 +661,24 @@ namespace DSharpPlus.Net
             return screening_raw;
         }
 
-        internal async Task<DiscordGuildMembershipScreening> ModifyGuildMembershipScreeningFormAsync(ulong guild_id, Optional<bool> enabled, Optional<DiscordGuildMembershipScreeningField[]> fields, Optional<string> description)
+        internal async Task<DiscordGuildMembershipScreening> ModifyGuildMembershipScreeningFormAsync(ulong guild_id, DiscordGuildMembershipModifyBuilder builder)
         {
             var pld = new RestGuildMembershipScreeningFormModifyPayload
             {
-                Enabled = enabled,
-                Description = description,
-                Fields = fields
+                Enabled = builder.Enabled,
+                Description = builder.Description,
+                Fields = builder._Fields.IfPresent(f => f.ToArray())
             };
+
+            var headers = Utilities.GetBaseHeaders();
+            if (builder.AuditLogReason.HasValue && !string.IsNullOrWhiteSpace(builder.AuditLogReason.Value))
+                headers.Add(REASON_HEADER_NAME, builder.AuditLogReason.Value);
 
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.MEMBER_VERIFICATION}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, headers, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
 
             var screening_raw = JsonConvert.DeserializeObject<DiscordGuildMembershipScreening>(res.Response);
 

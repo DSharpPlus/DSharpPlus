@@ -2069,15 +2069,29 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Modifies this guild's membership screening form.
         /// </summary>
-        /// <param name="action">Action to perform</param>
+        /// <param name="builder">Builder to perform the modification.</param>
         /// <returns>The modified screening form.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client doesn't have the <see cref="Permissions.ManageGuild"/> permission, or community is not enabled on this guild.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordGuildMembershipScreening> ModifyMembershipScreeningFormAsync(Action<MembershipScreeningEditModel> action)
+        public async Task<DiscordGuildMembershipScreening> ModifyMembershipScreeningFormAsync(DiscordGuildMembershipModifyBuilder builder)
         {
-            var mdl = new MembershipScreeningEditModel();
-            action(mdl);
-            return await this.Discord.ApiClient.ModifyGuildMembershipScreeningFormAsync(this.Id, mdl.Enabled, mdl.Fields, mdl.Description);
+            return await this.Discord.ApiClient.ModifyGuildMembershipScreeningFormAsync(this.Id, builder);
+        }
+
+        /// <summary>
+        /// Modifies this guild's membership screening form.
+        /// </summary>
+        /// <param name="action">Builder to perform the modification.</param>
+        /// <returns>The modified screening form.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client doesn't have the <see cref="Permissions.ManageGuild"/> permission, or community is not enabled on this guild.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<DiscordGuildMembershipScreening> ModifyMembershipScreeningFormAsync(Action<DiscordGuildMembershipModifyBuilder> action)
+        {
+            var builder = new DiscordGuildMembershipModifyBuilder();
+
+            action(builder);
+
+            return await this.ModifyMembershipScreeningFormAsync(builder).ConfigureAwait(false);
         }
         #endregion
 

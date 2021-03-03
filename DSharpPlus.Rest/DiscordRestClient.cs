@@ -309,13 +309,24 @@ namespace DSharpPlus
         /// Modifies a guild's membership screening form.
         /// </summary>
         /// <param name="guild_id">Guild id</param>
+        /// <param name="builder">The builder to perform the modification.</param>
+        /// <returns>The modified screening form.</returns>
+        public async Task<DiscordGuildMembershipScreening> ModifyGuildMembershipScreeningFormAsync(ulong guild_id, DiscordGuildMembershipModifyBuilder builder)
+        {
+            return await this.ApiClient.ModifyGuildMembershipScreeningFormAsync(guild_id, builder).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Modifies a guild's membership screening form.
+        /// </summary>
+        /// <param name="guild_id">Guild id</param>
         /// <param name="action">Action to perform</param>
         /// <returns>The modified screening form.</returns>
-        public async Task<DiscordGuildMembershipScreening> ModifyGuildMembershipScreeningFormAsync(ulong guild_id, Action<MembershipScreeningEditModel> action)
+        public async Task<DiscordGuildMembershipScreening> ModifyGuildMembershipScreeningFormAsync(ulong guild_id, Action<DiscordGuildMembershipModifyBuilder> action)
         {
-            var mdl = new MembershipScreeningEditModel();
-            action(mdl);
-            return await this.ApiClient.ModifyGuildMembershipScreeningFormAsync(guild_id, mdl.Enabled, mdl.Fields, mdl.Description);
+            var builder = new DiscordGuildMembershipModifyBuilder();
+            action(builder);
+            return await this.ModifyGuildMembershipScreeningFormAsync(guild_id, builder).ConfigureAwait(false);
         }
         #endregion
 
