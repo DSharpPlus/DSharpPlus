@@ -269,7 +269,7 @@ namespace DSharpPlus.Entities
 
         internal override void Validate()
         {
-            if (this.Type != ChannelType.Text && this.Type != ChannelType.Voice && this.Type != ChannelType.Category && this.Type != ChannelType.News && this.Type != ChannelType.Store)
+            if(this.Type == ChannelType.Group || this.Type == ChannelType.Unknown)
                 throw new ArgumentException("Channel type must be text, voice, or category.", nameof(this.Type));
 
             if (this.Type == ChannelType.Category && this.ParentId != null)
