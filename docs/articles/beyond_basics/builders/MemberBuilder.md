@@ -4,7 +4,7 @@ title: Member Builder
 ---
 
 ## Background
-Before the Member builder was put into place, many methods for modifing.  This was becoming a major code smell and it was hard to maintain and add more params onto it. Now we support either sending a prebuilt 
+Before the Member builder was put into place, there were many methods for modifing with many params.  This was becoming a major code smell and it was hard to maintain and add more params onto it. Now we support either sending a prebuilt 
 builder OR an action of a builder.  
 
 ## Using the Builder

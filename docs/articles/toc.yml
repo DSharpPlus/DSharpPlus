@@ -22,12 +22,14 @@
     items:
      - name: Intro
        href: beyond_basics/builders/intro.md
-     - name: Message Builder
-       href: beyond_basics/builders/messagebuilder.md
-     - name: Guild Builder
-       href: beyond_basics/builders/GuildBuilder.md
      - name: Channel Builder
        href: beyond_basics/builders/ChannelBuilder.md
+     - name: Guild Builder
+       href: beyond_basics/builders/GuildBuilder.md
+     - name: Guild Membership Screening Builder
+       href: beyond_basics/builders/GuildMembershipBuilder.md
+     - name: Message Builder
+       href: beyond_basics/builders/messagebuilder.md     
      - name: Role Builder
        href: beyond_basics/builders/RoleBuilder.md
      - name: Member Builder

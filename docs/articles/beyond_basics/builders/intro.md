@@ -24,3 +24,5 @@ will share a common base for code that is shared between the two.  Below is a li
 	1.  There is a dedicated @DSharpPlus.Entities.DiscordRoleCreateBuilder and a @DSharpPlus.Entities.DiscordRoleModifyBuilder
 4.  [Member Builder](xref:beyond_basics_builder_memberbuilder)
 	1.  There is a dedicated @DSharpPlus.Entities.DiscordMemberModifyBuilder
+5.  [Guild Membership Screening Builder](xref:beyond_basics_builder_guildmembershipbuilder)
+	1.  There is a dedicated @DSharpPlus.Entities.DiscordGuildMembershipModifyBuilder
