@@ -30,6 +30,8 @@
        href: beyond_basics/builders/ChannelBuilder.md
      - name: Role Builder
        href: beyond_basics/builders/RoleBuilder.md
+     - name: Member Builder
+       href: beyond_basics/builders/MemberBuilder.md
   - name: Intents
     href: beyond_basics/intents.md
   - name: Sharding
