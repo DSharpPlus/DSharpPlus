@@ -29,42 +29,11 @@ that has to be done to set this up.
 The signitures for all the event handlers have changed to have 2 parameters instead of one.  Please
 refer to this [article](xref:beyond_basics_events) for the changes.
 
-### Entity mutation changes
-Entity updating methods now take an action which mutates the state of the 
-object, instead of taking large lists of arguments. This means that instead of 
-updating e.g. a role like this:
-
-```cs
-await role.UpdateAsync(name: "Modified Role", color: new DiscordColor(0xFF00FF));
-```
-
-you will update it like this:
-
-```cs
-await role.UpdateAsync(x =>
-{
-	x.Name = "Modified Role";
-	x.Color = new DiscordColor(0xFF00FF);
-});
-```
-
-###SendMessageAsync and SendFileAsync Methods
-We now have a message builder that will handle any advanced creating and modifing of messages.  Below are the overloads for
-sending and modifing messages:
-
-1. Sending Messages
-	* @DSharpPlus.DiscordClient.SendMessageAsync(DiscordChannel,DiscordEmbed)
-	* @DSharpPlus.DiscordClient.SendMessageAsync(DiscordChannel,System.String)
-	* @DSharpPlus.DiscordClient.SendMessageAsync(DiscordChannel,System.String,DiscordEmbed)
-	* @DSharpPlus.DiscordClient.SendMessageAsync(DiscordChannel,DiscordMessageCreateBuilder)
-
-1. Modifying Messages
-	* @DSharpPlus.Entities.DiscordMessage.ModifyAsync(DSharpPlus.Entities.Optional{DSharpPlus.Entities.DiscordEmbed})
-	* @DSharpPlus.Entities.DiscordMessage.ModifyAsync(DSharpPlus.Entities.Optional{System.String})
-	* @DSharpPlus.Entities.DiscordMessage.ModifyAsync(DSharpPlus.Entities.Optional{System.String},DSharpPlus.Entities.Optional{DSharpPlus.Entities.DiscordEmbed})
-	* @DSharpPlus.Entities.DiscordMessage.ModifyAsync(DSharpPlus.Entities.DiscordMessageModifyBuilder)
-
-Using the builder can be found [here](xref:beyond_basics_builder_messagebuilder)
+### Entity Creation and Modification changes
+Entity Creation and Modifications will now take a builder to help with reducing the overall 
+maintenance cost both of the library and the people consuming it.  To Create/Modify something, 
+you can now either pass a builder OR pass an action of a builder.  All the documentation on this
+can be found at [here](xref:beyond_basics_builder_intro) 
 
 
 ### Logging Changes
