@@ -20,7 +20,7 @@ var builder = await new DiscordChannelCreateBuilder()
     .WithName("Awesome Category")
     .CreateAsync(ctx.Guild);
 ```
-OR u can create the guild by using an action
+OR u can create the channel by using an action
 
 ```cs
 await ctx.Guild.CreateChannelAsync(x =>
@@ -41,7 +41,7 @@ await new DiscordChannelModifyBuilder()
     .ModifyAsync(ctx.Channel);
 ```
 
-OR u can modify the guild by using an action
+OR u can modify the channel by using an action
 
 ```cs
 await channel.ModifyAsync(x =>
