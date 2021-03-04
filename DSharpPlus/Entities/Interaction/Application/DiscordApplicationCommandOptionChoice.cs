@@ -15,7 +15,7 @@ namespace DSharpPlus.Entities
         public string Name { get; set; }
 
         /// <summary>
-        /// Gets the value of this choice parameter. This will either be a type of <see cref="int"/> or <see cref="string"/>.
+        /// Gets the value of this choice parameter. This will either be a type of <see cref="int"/> / <see cref="long"/> or <see cref="string"/>.
         /// </summary>
         [JsonProperty("value")]
         public object Value { get; set; }
@@ -27,8 +27,8 @@ namespace DSharpPlus.Entities
         /// <param name="value">The value of the parameter choice.</param>
         public DiscordApplicationCommandOptionChoice(string name, object value)
         {
-            if (!(value is string || value is int))
-                throw new InvalidOperationException($"Only {typeof(string)} or {typeof(int)} types may be passed to a command option choice.");
+            if (!(value is string || value is long || value is int))
+                throw new InvalidOperationException($"Only {typeof(string)}, {typeof(long)} or {typeof(int)} types may be passed to a command option choice.");
 
             this.Name = name;
             this.Value = value;
