@@ -16,7 +16,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         public IReadOnlyCollection<DiscordRole> Roles => this._Roles.Value;
 
-        internal Optional<List<DiscordRole>> _Roles = new Optional<List<DiscordRole>>();
+        internal Optional<List<DiscordRole>> _Roles = new List<DiscordRole>();
 
         /// <summary>
         /// Gets whether this user should be muted
