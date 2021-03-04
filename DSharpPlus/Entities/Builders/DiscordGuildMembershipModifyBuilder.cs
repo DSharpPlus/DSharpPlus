@@ -22,7 +22,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         public IReadOnlyCollection<DiscordGuildMembershipScreeningField> Fields => this._Fields.Value;
 
-        internal Optional<List<DiscordGuildMembershipScreeningField>> _Fields = new Optional<List<DiscordGuildMembershipScreeningField>>();
+        internal Optional<List<DiscordGuildMembershipScreeningField>> _Fields = new List<DiscordGuildMembershipScreeningField>();
 
         /// <summary>
         /// Gets the AuditLog Reason for modifing the Membership screening.
