@@ -21,17 +21,51 @@ var guild = await new DiscordGuildCreateBuilder()
     .WithExplicitContentFilterLevel(ExplicitContentFilter.MembersWithoutRoles)
     .WithVerificationLevel(VerificationLevel.Low)
     .WithRoles(new DiscordGuildCreateBuilder.GuildBuilderRole[] {
-        new DiscordGuildCreateBuilder.GuildBuilderRole{ Id = Convert.ToUInt64(1), Mentionable = true, Name = "Everyone", Permissions = Permissions.AccessChannels | Permissions.ReadMessageHistory | Permissions.SendMessages },
-        new DiscordGuildCreateBuilder.GuildBuilderRole{ Id = Convert.ToUInt64(2), Mentionable = true, Name = "Role 1" },
-        new DiscordGuildCreateBuilder.GuildBuilderRole{ Id = Convert.ToUInt64(3), Mentionable = true, Name = "Role 2" },
+            new DiscordGuildCreateBuilder.GuildBuilderRole { 
+                Id = Convert.ToUInt64(1), 
+                Mentionable = true, 
+                Name = "Everyone", 
+                Permissions = Permissions.Administrator 
+            },
+            new DiscordGuildCreateBuilder.GuildBuilderRole { 
+                Id = Convert.ToUInt64(2), 
+                Mentionable = true, 
+                Name = "Role 1" 
+            },
+            new DiscordGuildCreateBuilder.GuildBuilderRole { 
+                Id = Convert.ToUInt64(3), 
+                Mentionable = true, 
+                Name = "Role 2" 
+            },
     })
     .WithChannels(new DiscordGuildCreateBuilder.GuildBuilderChannel[] {
-        new DiscordGuildCreateBuilder.GuildBuilderChannel { Id = Convert.ToUInt64(4), Name = "General Category", Type = ChannelType.Category, PermissionOverwrites = new DiscordGuildCreateBuilder.GuildBuilderChannel.ChannelOverwrite[]{ } },
-        new DiscordGuildCreateBuilder.GuildBuilderChannel { Id = Convert.ToUInt64(5), Name = "Text General", Type = ChannelType.Text, ParentId = Convert.ToUInt64(4), Nsfw = true, Topic = "Some dumb topic", PermissionOverwrites = new DiscordGuildCreateBuilder.GuildBuilderChannel.ChannelOverwrite[] {
-            new DiscordGuildCreateBuilder.GuildBuilderChannel.ChannelOverwrite { Id = Convert.ToUInt64(2), DenyPermissions = Permissions.All, AllowPermissions = Permissions.None },
-            new DiscordGuildCreateBuilder.GuildBuilderChannel.ChannelOverwrite { Id = Convert.ToUInt64(3), AllowPermissions = Permissions.All, DenyPermissions = Permissions.None }
-        }}
-    })
+            new DiscordGuildCreateBuilder.GuildBuilderChannel { 
+                Id = Convert.ToUInt64(4), 
+                Name = "test General", 
+                Type = ChannelType.Category, 
+                PermissionOverwrites = new DiscordGuildCreateBuilder.GuildBuilderChannel.ChannelOverwrite[] { } 
+            },
+            new DiscordGuildCreateBuilder.GuildBuilderChannel { 
+                Id = Convert.ToUInt64(5), 
+                Name = "test text General", 
+                Type = ChannelType.Text, 
+                ParentId = Convert.ToUInt64(4), 
+                Nsfw = true, 
+                Topic = "Some dumb topic", 
+                PermissionOverwrites = new DiscordGuildCreateBuilder.GuildBuilderChannel.ChannelOverwrite[] {
+                    new DiscordGuildCreateBuilder.GuildBuilderChannel.ChannelOverwrite { 
+                        Id = Convert.ToUInt64(2), 
+                        DenyPermissions = Permissions.All, 
+                        AllowPermissions = Permissions.None 
+                    },
+                    new DiscordGuildCreateBuilder.GuildBuilderChannel.ChannelOverwrite { 
+                        Id = Convert.ToUInt64(3), 
+                        AllowPermissions = Permissions.All, 
+                        DenyPermissions = Permissions.None 
+                    }
+                }
+            }
+        })
     .CreateAsync(ctx.Client);
 ```
 OR u can create the guild by using an action
@@ -43,17 +77,51 @@ var guild = await ctx.Client.CreateGuildAsync(x => {
     .WithExplicitContentFilterLevel(ExplicitContentFilter.MembersWithoutRoles)
     .WithVerificationLevel(VerificationLevel.Low)
     .WithRoles(new DiscordGuildCreateBuilder.GuildBuilderRole[] {
-        new DiscordGuildCreateBuilder.GuildBuilderRole{ Id = Convert.ToUInt64(1), Mentionable = true, Name = "Everyone", Permissions = Permissions.AccessChannels | Permissions.ReadMessageHistory | Permissions.SendMessages },
-        new DiscordGuildCreateBuilder.GuildBuilderRole{ Id = Convert.ToUInt64(2), Mentionable = true, Name = "Role 1" },
-        new DiscordGuildCreateBuilder.GuildBuilderRole{ Id = Convert.ToUInt64(3), Mentionable = true, Name = "Role 2" },
+            new DiscordGuildCreateBuilder.GuildBuilderRole { 
+                Id = Convert.ToUInt64(1), 
+                Mentionable = true, 
+                Name = "Everyone", 
+                Permissions = Permissions.Administrator 
+            },
+            new DiscordGuildCreateBuilder.GuildBuilderRole { 
+                Id = Convert.ToUInt64(2), 
+                Mentionable = true, 
+                Name = "Role 1" 
+            },
+            new DiscordGuildCreateBuilder.GuildBuilderRole { 
+                Id = Convert.ToUInt64(3), 
+                Mentionable = true, 
+                Name = "Role 2" 
+            },
     })
     .WithChannels(new DiscordGuildCreateBuilder.GuildBuilderChannel[] {
-        new DiscordGuildCreateBuilder.GuildBuilderChannel { Id = Convert.ToUInt64(4), Name = "General Category", Type = ChannelType.Category, PermissionOverwrites = new DiscordGuildCreateBuilder.GuildBuilderChannel.ChannelOverwrite[]{ } },
-        new DiscordGuildCreateBuilder.GuildBuilderChannel { Id = Convert.ToUInt64(5), Name = "Text General", Type = ChannelType.Text, ParentId = Convert.ToUInt64(4), Nsfw = true, Topic = "Some dumb topic", PermissionOverwrites = new DiscordGuildCreateBuilder.GuildBuilderChannel.ChannelOverwrite[] {
-            new DiscordGuildCreateBuilder.GuildBuilderChannel.ChannelOverwrite { Id = Convert.ToUInt64(2), DenyPermissions = Permissions.All, AllowPermissions = Permissions.None },
-            new DiscordGuildCreateBuilder.GuildBuilderChannel.ChannelOverwrite { Id = Convert.ToUInt64(3), AllowPermissions = Permissions.All, DenyPermissions = Permissions.None }
-        }}
-    })
+            new DiscordGuildCreateBuilder.GuildBuilderChannel { 
+                Id = Convert.ToUInt64(4), 
+                Name = "test General", 
+                Type = ChannelType.Category, 
+                PermissionOverwrites = new DiscordGuildCreateBuilder.GuildBuilderChannel.ChannelOverwrite[] { } 
+            },
+            new DiscordGuildCreateBuilder.GuildBuilderChannel { 
+                Id = Convert.ToUInt64(5), 
+                Name = "test text General", 
+                Type = ChannelType.Text, 
+                ParentId = Convert.ToUInt64(4), 
+                Nsfw = true, 
+                Topic = "Some dumb topic", 
+                PermissionOverwrites = new DiscordGuildCreateBuilder.GuildBuilderChannel.ChannelOverwrite[] {
+                    new DiscordGuildCreateBuilder.GuildBuilderChannel.ChannelOverwrite { 
+                        Id = Convert.ToUInt64(2), 
+                        DenyPermissions = Permissions.All, 
+                        AllowPermissions = Permissions.None 
+                    },
+                    new DiscordGuildCreateBuilder.GuildBuilderChannel.ChannelOverwrite { 
+                        Id = Convert.ToUInt64(3), 
+                        AllowPermissions = Permissions.All, 
+                        DenyPermissions = Permissions.None 
+                    }
+                }
+            }
+        });
 });
 ```
 
