@@ -18,3 +18,5 @@ will share a common base for code that is shared between the two.  Below is a li
 	1.  There is a dedicated @DSharpPlus.Entities.DiscordMessageCreateBuilder and a @DSharpPlus.Entities.DiscordMessageModifyBuilder
 2.  [Guild Builder](xref:beyond_basics_builder_guildbuilder)
 	1.  There is a dedicated @DSharpPlus.Entities.DiscordGuildCreateBuilder and a @DSharpPlus.Entities.DiscordGuildModifyBuilder
+3.  [Channel Builder](xref:beyond_basics_builder_channelbuilder)
+	1.  There is a dedicated @DSharpPlus.Entities.DiscordChannelCreateBuilder and a @DSharpPlus.Entities.DiscordChannelModifyBuilder

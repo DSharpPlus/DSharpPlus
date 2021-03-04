@@ -26,6 +26,8 @@
        href: beyond_basics/builders/messagebuilder.md
      - name: Guild Builder
        href: beyond_basics/builders/GuildBuilder.md
+     - name: Channel Builder
+       href: beyond_basics/builders/ChannelBuilder.md
   - name: Intents
     href: beyond_basics/intents.md
   - name: Sharding

@@ -8,7 +8,7 @@ Before the guild builder was put into place, we had one large method for creatin
 was becoming a major code smell and it was hard to maintain and add more params onto it. Now we support either sending a prebuilt 
 builder OR an action of a builder.  
 
-## Using the Message Builder
+## Using the Builder
 The API Documentation for the guild builder can be found at @DSharpPlus.Entities.DiscordGuildCreateBuilder and @DSharpPlus.Entities.DiscordGuildModifyBuilder but here we'll go over some of the concepts of using the
 guild builder:
 
