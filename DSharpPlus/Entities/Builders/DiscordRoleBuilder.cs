@@ -155,6 +155,16 @@ namespace DSharpPlus.Entities
 
     public sealed class DiscordRoleModifyBuilder : DiscordRoleBuilder<DiscordRoleModifyBuilder>
     {
+        /// <summary>
+        /// Modify a role utilizing what was specified to the builder.
+        /// </summary>
+        /// <param name="role">The role to modift.</param>
+        /// <returns></returns>
+        public async Task ModifyAsync(DiscordRole role)
+        {
+            await role.ModifyAsync(this).ConfigureAwait(false);
+        }
+
         public override void Validate()
         {
             
