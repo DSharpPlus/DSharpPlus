@@ -56,15 +56,15 @@ sending and modifing messages:
 	* @DSharpPlus.DiscordClient.SendMessageAsync(DiscordChannel,DiscordEmbed)
 	* @DSharpPlus.DiscordClient.SendMessageAsync(DiscordChannel,System.String)
 	* @DSharpPlus.DiscordClient.SendMessageAsync(DiscordChannel,System.String,DiscordEmbed)
-	* @DSharpPlus.DiscordClient.SendMessageAsync(DiscordChannel,DiscordMessageBuilder)
+	* @DSharpPlus.DiscordClient.SendMessageAsync(DiscordChannel,DiscordMessageCreateBuilder)
 
 1. Modifying Messages
 	* @DSharpPlus.Entities.DiscordMessage.ModifyAsync(DSharpPlus.Entities.Optional{DSharpPlus.Entities.DiscordEmbed})
 	* @DSharpPlus.Entities.DiscordMessage.ModifyAsync(DSharpPlus.Entities.Optional{System.String})
 	* @DSharpPlus.Entities.DiscordMessage.ModifyAsync(DSharpPlus.Entities.Optional{System.String},DSharpPlus.Entities.Optional{DSharpPlus.Entities.DiscordEmbed})
-	* @DSharpPlus.Entities.DiscordMessage.ModifyAsync(DSharpPlus.Entities.DiscordMessageBuilder)
+	* @DSharpPlus.Entities.DiscordMessage.ModifyAsync(DSharpPlus.Entities.DiscordMessageModifyBuilder)
 
-Using the @DSharpPlus.Entities.DiscordMessageBuilder can be found [here](xref:beyond_basics_messagebuilder)
+Using the builder can be found [here](xref:beyond_basics_builder_messagebuilder)
 
 
 ### Logging Changes
