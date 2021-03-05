@@ -81,7 +81,7 @@
         GuildDiscoveryRequalified = 15,
 
         /// <summary>
-        /// Message indicating a user replied to another user
+        /// Message indicating a user replied to another user.
         /// </summary>
         Reply = 19,
 
