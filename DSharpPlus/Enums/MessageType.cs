@@ -36,43 +36,58 @@
         ChannelIconChange = 5,
 
         /// <summary>
-        /// USER pinned a message to this channel.
+        /// Message indiciating a user pinned a message to a channel.
         /// </summary>
         ChannelPinnedMessage = 6,
 
         /// <summary>
-        /// Message when a guild member joins. Most frequently seen in newer, smaller guilds.
+        /// Message indicating a guild member joined. Most frequently seen in newer, smaller guilds.
         /// </summary>
         GuildMemberJoin = 7,
 
         /// <summary>
-        /// Message when a member nitro boosts the guild.
+        /// Message indicating a member nitro boosted a guild.
         /// </summary>
         UserPremiumGuildSubscription = 8,
 
         /// <summary>
-        /// Message when the guild reaches tier one of nitro boosts.
+        /// Message indicating a guild reached tier one of nitro boosts.
         /// </summary>
         TierOneUserPremiumGuildSubscription = 9,
 
         /// <summary>
-        /// Message when the guild reaches tier two of nitro boosts.
+        /// Message indicating a guild reached tier two of nitro boosts.
         /// </summary>
         TierTwoUserPremiumGuildSubscription = 10,
 
         /// <summary>
-        /// Message when the guild reaches tier three of nitro boosts.
+        /// Message indicating a guild reached tier three of nitro boosts.
         /// </summary>
         TierThreeUserPremiumGuildSubscription = 11,
 
         /// <summary>
-        /// Message when a user follows a news channel.
+        /// Message indicating a user followed a news channel.
         /// </summary>
         ChannelFollowAdd = 12,
 
         /// <summary>
-        /// Message when a user replies to another user
+        /// Message indicating a guild was removed from guild discovery.
         /// </summary>
-        Reply = 19
+        GuildDiscoveryDisqualified = 14,
+
+        /// <summary>
+        /// Message indicating a guild was readded to guild discovery.
+        /// </summary>
+        GuildDiscoveryRequalified = 15,
+
+        /// <summary>
+        /// Message indicating a user replied to another user
+        /// </summary>
+        Reply = 19,
+
+        /// <summary>
+        /// Message indicating an application command was invoked.
+        /// </summary>
+        ApplicationCommand = 20
     }
 }
