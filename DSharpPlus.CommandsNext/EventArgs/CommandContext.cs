@@ -127,6 +127,14 @@ namespace DSharpPlus.CommandsNext
             => this.Message.RespondAsync(builder);
 
         /// <summary>
+        /// Quickly respond to the message that triggered the command.
+        /// </summary>
+        /// <param name="action">The Discord Mesage builder.</param>
+        /// <returns></returns>
+        public Task<DiscordMessage> RespondAsync(Action<DiscordMessageCreateBuilder> action)
+            => this.Message.RespondAsync(action);
+
+        /// <summary>
         /// Triggers typing in the channel containing the message that triggered the command.
         /// </summary>
         /// <returns></returns>
