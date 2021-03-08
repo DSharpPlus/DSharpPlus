@@ -663,6 +663,8 @@ namespace DSharpPlus.Net
 
         internal async Task<DiscordGuildMembershipScreening> ModifyGuildMembershipScreeningFormAsync(ulong guild_id, DiscordGuildMembershipModifyBuilder builder)
         {
+            builder.Validate();
+
             var pld = new RestGuildMembershipScreeningFormModifyPayload
             {
                 Enabled = builder.Enabled,

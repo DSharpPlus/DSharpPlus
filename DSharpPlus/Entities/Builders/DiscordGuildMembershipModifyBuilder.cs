@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.Entities
 {
+    /// <summary>
+    /// Represents the Membership Screening that should be performed.
+    /// </summary>
     public sealed class DiscordGuildMembershipModifyBuilder
     {
         /// <summary>
@@ -90,9 +91,9 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// 
+        /// Sends the changes of the membership screening to Discord
         /// </summary>
-        /// <param name="guild"></param>
+        /// <param name="guild">The Guild the builder should be executed against.</param>
         /// <returns></returns>
         public async Task<DiscordGuildMembershipScreening> ModifyAsync(DiscordGuild guild)
         {
@@ -110,6 +111,9 @@ namespace DSharpPlus.Entities
             this.AuditLogReason = Optional.FromNoValue<string>();
         }
 
+        /// <summary>
+        /// Performs validation logic to verify all the input is valid before sending it off to discord.
+        /// </summary>
         internal void Validate()
         {
 
