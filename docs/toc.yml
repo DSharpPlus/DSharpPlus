@@ -5,5 +5,8 @@
 - name: API Documentation
   href: api/
   homepage: api/index.md
+- name: Developers Guide
+  href: developers_guide/
+  homepage: developers_guide/index.md
 - name: Voice Natives
   href: natives/index.md
