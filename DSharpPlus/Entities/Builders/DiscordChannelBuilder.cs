@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.Entities
@@ -221,6 +220,9 @@ namespace DSharpPlus.Entities
             return (T)Convert.ChangeType(this, typeof(T));
         }
 
+        /// <summary>
+        /// Clears the contents of this builder.
+        /// </summary>
         public virtual void Clear()
         {
             this._name = "";
@@ -234,9 +236,15 @@ namespace DSharpPlus.Entities
             this.Nsfw = false;
         }
 
+        /// <summary>
+        /// Performs validation logic to verify all the input is valid before sending it off to discord.
+        /// </summary>
         internal abstract void Validate();
     }
 
+    /// <summary>
+    /// Represents the builder that will be used to Create a Channel.
+    /// </summary>
     public sealed class DiscordChannelCreateBuilder : DiscordChannelBuilder<DiscordChannelCreateBuilder>
     {
         /// <summary>
@@ -267,6 +275,7 @@ namespace DSharpPlus.Entities
             return await guild.CreateChannelAsync(this).ConfigureAwait(false);
         }
 
+        /// <inheritdoc />
         internal override void Validate()
         {
             if(this.Type == ChannelType.Group || this.Type == ChannelType.Unknown)
@@ -276,6 +285,7 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("Cannot specify parent of a channel category.", nameof(ParentId));
         }
 
+        /// <inheritdoc />
         public override void Clear()
         {
             base.Clear();
@@ -283,13 +293,22 @@ namespace DSharpPlus.Entities
         }
     }
 
+    /// <summary>
+    /// Represents the builder that will be used to Modify a Channel.
+    /// </summary>
     public sealed class DiscordChannelModifyBuilder : DiscordChannelBuilder<DiscordChannelModifyBuilder>
     {
+        /// <summary>
+        /// Sends the changes of the channel to Discord.
+        /// </summary>
+        /// <param name="channel">The channel the builder should be executed against.</param>
+        /// <returns></returns>
         public async Task ModifyAsync(DiscordChannel channel)
         {
             await channel.ModifyAsync(this).ConfigureAwait(false);
         }
 
+        /// <inheritdoc />
         internal override void Validate()
         {
             
