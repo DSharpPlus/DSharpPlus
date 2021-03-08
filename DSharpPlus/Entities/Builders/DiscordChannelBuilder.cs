@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 
 namespace DSharpPlus.Entities
 {
+    /// <summary>
+    /// Represents the Channel that will be Created or Modified.
+    /// </summary>
     public abstract class DiscordChannelBuilder<T>
     {
         /// <summary>

@@ -193,6 +193,9 @@ namespace DSharpPlus.Entities
             return (T)Convert.ChangeType(this, typeof(T));
         }
 
+        /// <summary>
+        /// Performs validation logic to verify all the input is valid before sending it off to discord.
+        /// </summary>
         internal abstract void Validate();
 
         /// <summary>
@@ -211,6 +214,9 @@ namespace DSharpPlus.Entities
         }
     }
 
+    /// <summary>
+    /// Represents the builder that will be used to Create a Guild.
+    /// </summary>
     public sealed class DiscordGuildCreateBuilder : DiscordGuildBuilder<DiscordGuildCreateBuilder>
     {
         /// <summary>
@@ -293,9 +299,7 @@ namespace DSharpPlus.Entities
             return await client.CreateGuildAsync(this).ConfigureAwait(false);
         }
 
-        /// <summary>
-        /// Clears the Builder to be used again.
-        /// </summary>
+        /// <inheritdoc />
         public override void Clear()
         {
             base.Clear();
@@ -303,6 +307,7 @@ namespace DSharpPlus.Entities
             this._Channels.Clear();
         }
 
+        /// <inheritdoc />
         internal override void Validate()
         {
             if (string.IsNullOrEmpty(this.Name))
@@ -412,6 +417,9 @@ namespace DSharpPlus.Entities
         }
     }
 
+    /// <summary>
+    /// Represents the builder that will be used to Modify a Guild.
+    /// </summary>
     public sealed class DiscordGuildModifyBuilder : DiscordGuildBuilder<DiscordGuildModifyBuilder>
     {
         /// <summary>
@@ -514,9 +522,7 @@ namespace DSharpPlus.Entities
             return await guild.ModifyAsync(this).ConfigureAwait(false);
         }
 
-        /// <summary>
-        /// Clears the Builder to be used again.
-        /// </summary>
+        /// <inheritdoc />
         public override void Clear()
         {
             base.Clear();
@@ -527,6 +533,7 @@ namespace DSharpPlus.Entities
             this.PublicUpdatesChannel = Optional.FromNoValue<DiscordChannel>();
         }
 
+        /// <inheritdoc />
         internal override void Validate()
         {
             if (string.IsNullOrEmpty(this.Name))
