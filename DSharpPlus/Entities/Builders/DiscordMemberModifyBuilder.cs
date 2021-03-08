@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 
 namespace DSharpPlus.Entities
 {
+    /// <summary>
+    /// Represents what the member should be changed to.
+    /// </summary>
     public class DiscordMemberModifyBuilder
     {
         /// <summary>
