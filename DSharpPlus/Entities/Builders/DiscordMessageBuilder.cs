@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace DSharpPlus.Entities
 {
     /// <summary>
-    /// Constructs a Message to be sent.
+    /// Represents the message.
     /// </summary>
     public abstract class DiscordMessageBuilder<T>
     {
@@ -116,6 +116,9 @@ namespace DSharpPlus.Entities
         
     }
 
+    /// <summary>
+    /// Represents the message that will be sent.
+    /// </summary>
     public sealed class DiscordMessageCreateBuilder : DiscordMessageBuilder<DiscordMessageCreateBuilder>
     {
         /// <summary>
@@ -230,6 +233,7 @@ namespace DSharpPlus.Entities
             return await channel.SendMessageAsync(this).ConfigureAwait(false);
         }
 
+        /// <inheritdoc />
         public override void Clear()
         {
             this.Content = "";
@@ -241,6 +245,7 @@ namespace DSharpPlus.Entities
             this.MentionOnReply = false;
         }
 
+        /// <inheritdoc />
         internal override void Validate()
         {
             if (this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && this.Embed == null)
@@ -248,8 +253,12 @@ namespace DSharpPlus.Entities
         }
     }
 
+    /// <summary>
+    /// Represents the changes that should be made to the message.
+    /// </summary>
     public sealed class DiscordMessageModifyBuilder : DiscordMessageBuilder<DiscordMessageModifyBuilder>
     {
+        /// <inheritdoc />
         public override void Clear()
         {
             this.Content = "";
@@ -258,6 +267,7 @@ namespace DSharpPlus.Entities
             this.Mentions = null;
         }
 
+        /// <inheritdoc />
         internal override void Validate()
         {
             if (string.IsNullOrEmpty(this.Content) && this.Embed == null)

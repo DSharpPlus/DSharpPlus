@@ -3,6 +3,10 @@ using System.Threading.Tasks;
 
 namespace DSharpPlus.Entities
 {
+    /// <summary>
+    /// Represents a Role that will be Created or Modified
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public abstract class DiscordRoleBuilder<T>
     {
         /// <summary>
@@ -131,9 +135,15 @@ namespace DSharpPlus.Entities
             this.AuditLogReason = Optional.FromNoValue<string>();
         }
 
+        /// <summary>
+        /// Performs validation logic to verify all the input is valid before sending it off to discord.
+        /// </summary>
         public abstract void Validate();
     }
 
+    /// <summary>
+    /// Represents a Role that will be created.
+    /// </summary>
     public sealed class DiscordRoleCreateBuilder : DiscordRoleBuilder<DiscordRoleCreateBuilder>
     {
         /// <summary>
@@ -146,6 +156,7 @@ namespace DSharpPlus.Entities
             return await guild.CreateRoleAsync(this).ConfigureAwait(false);
         }
 
+        /// <inheritdoc />
         public override void Validate()
         {
             if (string.IsNullOrEmpty(this.Name))
@@ -153,6 +164,9 @@ namespace DSharpPlus.Entities
         }
     }
 
+    /// <summary>
+    /// Represents the modifications to a role.
+    /// </summary>
     public sealed class DiscordRoleModifyBuilder : DiscordRoleBuilder<DiscordRoleModifyBuilder>
     {
         /// <summary>
@@ -165,6 +179,7 @@ namespace DSharpPlus.Entities
             await role.ModifyAsync(this).ConfigureAwait(false);
         }
 
+        /// <inheritdoc/>
         public override void Validate()
         {
             

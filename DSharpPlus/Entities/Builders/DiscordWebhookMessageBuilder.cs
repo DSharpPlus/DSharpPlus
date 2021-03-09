@@ -125,6 +125,9 @@ namespace DSharpPlus.Entities
         
     }
 
+    /// <summary>
+    /// Represents the Message to be sent to discord via webhook.
+    /// </summary>
     public sealed class DiscordWebhookMessageCreateBuilder : DiscordWebhookMessageBuilder<DiscordWebhookMessageCreateBuilder>
     {
         /// <summary>
@@ -243,6 +246,7 @@ namespace DSharpPlus.Entities
             return await webhook.ExecuteAsync(this).ConfigureAwait(false);
         }
 
+        /// <inheritdoc/>
         public override void Clear()
         {
             this.Content = "";
@@ -252,6 +256,7 @@ namespace DSharpPlus.Entities
             this._files.Clear();
         }
 
+        /// <inheritdoc/>
         internal override void Validate()
         {
             if (this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && !this.Embeds.Any())
@@ -259,6 +264,9 @@ namespace DSharpPlus.Entities
         }
     }
 
+    /// <summary>
+    /// Represents the changes that will be made to a message via webhook.
+    /// </summary>
     public sealed class DiscordWebhookMessageModifyBuilder : DiscordWebhookMessageBuilder<DiscordWebhookMessageModifyBuilder>
     {
         /// <summary>
@@ -283,6 +291,7 @@ namespace DSharpPlus.Entities
             return await webhook.EditMessageAsync(messageId, this).ConfigureAwait(false);
         }
 
+        /// <inheritdoc/>
         public override void Clear()
         {
             this.Content = "";
@@ -291,6 +300,7 @@ namespace DSharpPlus.Entities
             this._mentions.Clear();
         }
 
+        /// <inheritdoc/>
         internal override void Validate()
         {
             if (string.IsNullOrEmpty(this.Content) && !this.Embeds.Any())
