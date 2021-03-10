@@ -47,102 +47,112 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
         }
 
-        async Task HandleReactionAdd(DiscordClient client, MessageReactionAddEventArgs eventargs)
+        private Task HandleReactionAdd(DiscordClient client, MessageReactionAddEventArgs eventargs)
         {
-            await Task.Yield();
-            foreach (var req in _requests)
+            _ = Task.Run(async () =>
             {
-                var emojis = await req.GetEmojisAsync().ConfigureAwait(false);
-                var msg = await req.GetMessageAsync().ConfigureAwait(false);
-                var usr = await req.GetUserAsync().ConfigureAwait(false);
-
-                if (msg.Id == eventargs.Message.Id)
+                foreach (var req in _requests)
                 {
-                    if (eventargs.User.Id == usr.Id)
-                    {
-                        if (req.PageCount > 1 &&
-                            (eventargs.Emoji == emojis.Left || 
-                             eventargs.Emoji == emojis.SkipLeft || 
-                             eventargs.Emoji == emojis.Right || 
-                             eventargs.Emoji == emojis.SkipRight ||
-                             eventargs.Emoji == emojis.Stop))
-                        {
-                            await PaginateAsync(req, eventargs.Emoji).ConfigureAwait(false);
-                        }
-                        else if (eventargs.Emoji == emojis.Stop &&
-                                 req is PaginationRequest paginationRequest &&
-                                 paginationRequest.PaginationDeletion == PaginationDeletion.DeleteMessage)
-                        {
-                            await PaginateAsync(req, eventargs.Emoji).ConfigureAwait(false);
-                        }
-                        else
-                        {
-                            await msg.DeleteReactionAsync(eventargs.Emoji, eventargs.User).ConfigureAwait(false);
-                        }
-                    }
-                    else if (eventargs.User.Id != _client.CurrentUser.Id)
-                    {
-                        if (eventargs.Emoji != emojis.Left &&
-                           eventargs.Emoji != emojis.SkipLeft &&
-                           eventargs.Emoji != emojis.Right &&
-                           eventargs.Emoji != emojis.SkipRight &&
-                           eventargs.Emoji != emojis.Stop)
-                        {
-                            await msg.DeleteReactionAsync(eventargs.Emoji, eventargs.User).ConfigureAwait(false);
-                        }
-                    }
-                }
-            }
-        }
+                    var emojis = await req.GetEmojisAsync().ConfigureAwait(false);
+                    var msg = await req.GetMessageAsync().ConfigureAwait(false);
+                    var usr = await req.GetUserAsync().ConfigureAwait(false);
 
-        async Task HandleReactionRemove(DiscordClient client, MessageReactionRemoveEventArgs eventargs)
-        {
-            await Task.Yield();
-            foreach (var req in _requests)
-            {
-                var emojis = await req.GetEmojisAsync().ConfigureAwait(false);
-                var msg = await req.GetMessageAsync().ConfigureAwait(false);
-                var usr = await req.GetUserAsync().ConfigureAwait(false);
-
-                if (msg.Id == eventargs.Message.Id)
-                {
-                    if (eventargs.User.Id == usr.Id)
+                    if (msg.Id == eventargs.Message.Id)
                     {
-                        if (req.PageCount > 1 &&
-                            (eventargs.Emoji == emojis.Left || 
-                             eventargs.Emoji == emojis.SkipLeft || 
-                             eventargs.Emoji == emojis.Right || 
-                             eventargs.Emoji == emojis.SkipRight ||
-                             eventargs.Emoji == emojis.Stop))
+                        if (eventargs.User.Id == usr.Id)
                         {
-                            await PaginateAsync(req, eventargs.Emoji).ConfigureAwait(false);
+                            if (req.PageCount > 1 &&
+                                (eventargs.Emoji == emojis.Left ||
+                                 eventargs.Emoji == emojis.SkipLeft ||
+                                 eventargs.Emoji == emojis.Right ||
+                                 eventargs.Emoji == emojis.SkipRight ||
+                                 eventargs.Emoji == emojis.Stop))
+                            {
+                                await PaginateAsync(req, eventargs.Emoji).ConfigureAwait(false);
+                            }
+                            else if (eventargs.Emoji == emojis.Stop &&
+                                     req is PaginationRequest paginationRequest &&
+                                     paginationRequest.PaginationDeletion == PaginationDeletion.DeleteMessage)
+                            {
+                                await PaginateAsync(req, eventargs.Emoji).ConfigureAwait(false);
+                            }
+                            else
+                            {
+                                await msg.DeleteReactionAsync(eventargs.Emoji, eventargs.User).ConfigureAwait(false);
+                            }
                         }
-                        else if (eventargs.Emoji == emojis.Stop &&
-                                 req is PaginationRequest paginationRequest &&
-                                 paginationRequest.PaginationDeletion == PaginationDeletion.DeleteMessage)
+                        else if (eventargs.User.Id != _client.CurrentUser.Id)
                         {
-                            await PaginateAsync(req, eventargs.Emoji).ConfigureAwait(false);
+                            if (eventargs.Emoji != emojis.Left &&
+                               eventargs.Emoji != emojis.SkipLeft &&
+                               eventargs.Emoji != emojis.Right &&
+                               eventargs.Emoji != emojis.SkipRight &&
+                               eventargs.Emoji != emojis.Stop)
+                            {
+                                await msg.DeleteReactionAsync(eventargs.Emoji, eventargs.User).ConfigureAwait(false);
+                            }
                         }
                     }
                 }
-            }
+            });
+            return Task.CompletedTask;
         }
 
-        async Task HandleReactionClear(DiscordClient client, MessageReactionsClearEventArgs eventargs)
+        private Task HandleReactionRemove(DiscordClient client, MessageReactionRemoveEventArgs eventargs)
         {
-            await Task.Yield();
-            foreach (var req in _requests)
+            _ = Task.Run(async () =>
             {
-                var msg = await req.GetMessageAsync().ConfigureAwait(false);
-
-                if (msg.Id == eventargs.Message.Id)
+                foreach (var req in _requests)
                 {
-                    await ResetReactionsAsync(req).ConfigureAwait(false);
+                    var emojis = await req.GetEmojisAsync().ConfigureAwait(false);
+                    var msg = await req.GetMessageAsync().ConfigureAwait(false);
+                    var usr = await req.GetUserAsync().ConfigureAwait(false);
+
+                    if (msg.Id == eventargs.Message.Id)
+                    {
+                        if (eventargs.User.Id == usr.Id)
+                        {
+                            if (req.PageCount > 1 &&
+                                (eventargs.Emoji == emojis.Left ||
+                                 eventargs.Emoji == emojis.SkipLeft ||
+                                 eventargs.Emoji == emojis.Right ||
+                                 eventargs.Emoji == emojis.SkipRight ||
+                                 eventargs.Emoji == emojis.Stop))
+                            {
+                                await PaginateAsync(req, eventargs.Emoji).ConfigureAwait(false);
+                            }
+                            else if (eventargs.Emoji == emojis.Stop &&
+                                     req is PaginationRequest paginationRequest &&
+                                     paginationRequest.PaginationDeletion == PaginationDeletion.DeleteMessage)
+                            {
+                                await PaginateAsync(req, eventargs.Emoji).ConfigureAwait(false);
+                            }
+                        }
+                    }
                 }
-            }
+            });
+            return Task.CompletedTask;
         }
 
-        async Task ResetReactionsAsync(IPaginationRequest p)
+        private Task HandleReactionClear(DiscordClient client, MessageReactionsClearEventArgs eventargs)
+        {
+            _ = Task.Run(async () =>
+            {
+                foreach (var req in _requests)
+                {
+                    var msg = await req.GetMessageAsync().ConfigureAwait(false);
+
+                    if (msg.Id == eventargs.Message.Id)
+                    {
+                        await ResetReactionsAsync(req).ConfigureAwait(false);
+                    }
+                }
+            });
+
+            return Task.CompletedTask;
+        }
+
+        private async Task ResetReactionsAsync(IPaginationRequest p)
         {
             var msg = await p.GetMessageAsync().ConfigureAwait(false);
             var emojis = await p.GetEmojisAsync().ConfigureAwait(false);
@@ -182,7 +192,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
         }
 
-        async Task PaginateAsync(IPaginationRequest p, DiscordEmoji emoji)
+        private async Task PaginateAsync(IPaginationRequest p, DiscordEmoji emoji)
         {
             var emojis = await p.GetEmojisAsync().ConfigureAwait(false);
             var msg = await p.GetMessageAsync().ConfigureAwait(false);

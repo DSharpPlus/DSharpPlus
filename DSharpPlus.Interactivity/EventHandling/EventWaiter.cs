@@ -86,9 +86,8 @@ namespace DSharpPlus.Interactivity.EventHandling
             return result;
         }
 
-        async Task HandleEvent(DiscordClient client, T eventargs)
+        private Task HandleEvent(DiscordClient client, T eventargs)
         {
-            await Task.Yield();
             if (!disposed)
             {
                 foreach (var req in _matchrequests)
@@ -110,6 +109,8 @@ namespace DSharpPlus.Interactivity.EventHandling
                     }
                 }
             }
+
+            return Task.CompletedTask;
         }
 
         ~EventWaiter()
