@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace DSharpPlus.Entities
 {
     /// <summary>
-    /// Represents the message.
+    /// Represents the message that will be Created or Modified.
     /// </summary>
     public abstract class DiscordMessageBuilder<T>
     {

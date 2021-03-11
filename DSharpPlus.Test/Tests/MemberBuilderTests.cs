@@ -22,7 +22,7 @@ namespace DSharpPlus.Test.Tests
             var vcahnnel = ctx.Guild.Channels.Where(x => x.Value.Type == ChannelType.Voice).FirstOrDefault();
             await user.ModifyAsync(m => {
                 m.WithVoiceChannel(vcahnnel.Value)
-                .WithDeafned(true)
+                .WithDeafened(true)
                 .WithMute(true);
             });
 

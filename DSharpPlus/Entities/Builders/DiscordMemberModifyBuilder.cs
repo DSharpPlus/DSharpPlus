@@ -94,7 +94,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="deafen">The deafen value.</param>
         /// <returns></returns>
-        public DiscordMemberModifyBuilder WithDeafned(bool deafen)
+        public DiscordMemberModifyBuilder WithDeafened(bool deafen)
         {
             this.Deafened = deafen;
 

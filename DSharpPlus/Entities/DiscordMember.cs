@@ -357,7 +357,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task SetDeafAsync(bool deaf, string reason = null)
-            => this.ModifyAsync(m => { m.WithDeafned(deaf).WithAuditLogReason(reason); });
+            => this.ModifyAsync(m => { m.WithDeafened(deaf).WithAuditLogReason(reason); });
         //=> this.Discord.ApiClient.ModifyGuildMemberAsync(_guild_id, this.Id, default, default, default, deaf, default, reason);
 
         /// <summary>
