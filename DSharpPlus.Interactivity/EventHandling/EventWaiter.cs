@@ -97,10 +97,7 @@ namespace DSharpPlus.Interactivity.EventHandling
                         req._tcs.TrySetResult(eventargs);
                     }
                 }
-            }
 
-            if (!disposed)
-            {
                 foreach (var req in _collectrequests)
                 {
                     if (req._predicate(eventargs))
