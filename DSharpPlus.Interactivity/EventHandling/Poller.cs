@@ -51,6 +51,9 @@ namespace DSharpPlus.Interactivity.EventHandling
 
         private Task HandleReactionAdd(DiscordClient client, MessageReactionAddEventArgs eventargs)
         {
+            if (_requests.Count == 0)
+                return Task.CompletedTask;
+
             _ = Task.Run(async () =>
             {
                 foreach (var req in _requests)
