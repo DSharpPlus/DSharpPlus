@@ -85,9 +85,8 @@ namespace DSharpPlus.Interactivity.EventHandling
             return result;
         }
 
-        async Task HandleReactionAdd(DiscordClient client, MessageReactionAddEventArgs eventargs)
+        private Task HandleReactionAdd(DiscordClient client, MessageReactionAddEventArgs eventargs)
         {
-            await Task.Yield();
             // foreach request add
             foreach(var req in _requests)
             {
@@ -110,11 +109,11 @@ namespace DSharpPlus.Interactivity.EventHandling
                     }
                 }
             }
+            return Task.CompletedTask;
         }
 
-        async Task HandleReactionRemove(DiscordClient client, MessageReactionRemoveEventArgs eventargs)
+        private Task HandleReactionRemove(DiscordClient client, MessageReactionRemoveEventArgs eventargs)
         {
-            await Task.Yield();
             // foreach request remove
             foreach (var req in _requests)
             {
@@ -130,11 +129,11 @@ namespace DSharpPlus.Interactivity.EventHandling
                     }
                 }
             }
+            return Task.CompletedTask;
         }
 
-        async Task HandleReactionClear(DiscordClient client, MessageReactionsClearEventArgs eventargs)
+        private Task HandleReactionClear(DiscordClient client, MessageReactionsClearEventArgs eventargs)
         {
-            await Task.Yield();
             // foreach request add
             foreach (var req in _requests)
             {
@@ -143,6 +142,7 @@ namespace DSharpPlus.Interactivity.EventHandling
                     req._collected.Clear();
                 }
             }
+            return Task.CompletedTask;
         }
 
         ~ReactionCollector()

@@ -856,19 +856,14 @@ namespace DSharpPlus.Entities
                 {
                     var usr = new DiscordUser(xtm.User) { Discord = this.Discord };
 
-                    var intents = this.Discord.Configuration.Intents;
-
-                    if (intents.HasIntent(DiscordIntents.GuildMembers))
+                    usr = this.Discord.UserCache.AddOrUpdate(xtm.User.Id, usr, (id, old) =>
                     {
-                        usr = this.Discord.UserCache.AddOrUpdate(xtm.User.Id, usr, (id, old) =>
-                        {
-                            old.Username = usr.Username;
-                            old.Discord = usr.Discord;
-                            old.AvatarHash = usr.AvatarHash;
+                        old.Username = usr.Username;
+                        old.Discord = usr.Discord;
+                        old.AvatarHash = usr.AvatarHash;
 
-                            return old;
-                        });
-                    }
+                        return old;
+                    });
 
                     recmbr.Add(new DiscordMember(xtm) { Discord = this.Discord, _guild_id = this.Id });
                 }

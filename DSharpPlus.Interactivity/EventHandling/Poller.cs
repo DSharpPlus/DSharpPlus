@@ -49,32 +49,37 @@ namespace DSharpPlus.Interactivity.EventHandling
             return result;
         }
 
-        async Task HandleReactionAdd(DiscordClient client, MessageReactionAddEventArgs eventargs)
+        private Task HandleReactionAdd(DiscordClient client, MessageReactionAddEventArgs eventargs)
         {
-            await Task.Yield();
-            foreach (var req in _requests)
+            if (_requests.Count == 0)
+                return Task.CompletedTask;
+
+            _ = Task.Run(async () =>
             {
-                // match message
-                if (req._message.Id == eventargs.Message.Id && req._message.ChannelId == eventargs.Channel.Id)
+                foreach (var req in _requests)
                 {
-                    if (req._emojis.Contains(eventargs.Emoji) && !req._collected.Any(x => x.Voted.Contains(eventargs.User)))
+                    // match message
+                    if (req._message.Id == eventargs.Message.Id && req._message.ChannelId == eventargs.Channel.Id)
                     {
-                        if (eventargs.User.Id != _client.CurrentUser.Id)
-                            req.AddReaction(eventargs.Emoji, eventargs.User);
-                    }
-                    else
-                    {
-                        var member = await eventargs.Channel.Guild.GetMemberAsync(client.CurrentUser.Id).ConfigureAwait(false);
-                        if(eventargs.Channel.PermissionsFor(member).HasPermission(Permissions.ManageMessages))
-                            await eventargs.Message.DeleteReactionAsync(eventargs.Emoji, eventargs.User).ConfigureAwait(false);
+                        if (req._emojis.Contains(eventargs.Emoji) && !req._collected.Any(x => x.Voted.Contains(eventargs.User)))
+                        {
+                            if (eventargs.User.Id != _client.CurrentUser.Id)
+                                req.AddReaction(eventargs.Emoji, eventargs.User);
+                        }
+                        else
+                        {
+                            var member = await eventargs.Channel.Guild.GetMemberAsync(client.CurrentUser.Id).ConfigureAwait(false);
+                            if (eventargs.Channel.PermissionsFor(member).HasPermission(Permissions.ManageMessages))
+                                await eventargs.Message.DeleteReactionAsync(eventargs.Emoji, eventargs.User).ConfigureAwait(false);
+                        }
                     }
                 }
-            }
+            });
+            return Task.CompletedTask;
         }
 
-        async Task HandleReactionRemove(DiscordClient client, MessageReactionRemoveEventArgs eventargs)
+        private Task HandleReactionRemove(DiscordClient client, MessageReactionRemoveEventArgs eventargs)
         {
-            await Task.Yield();
             foreach (var req in _requests)
             {
                 // match message
@@ -84,11 +89,11 @@ namespace DSharpPlus.Interactivity.EventHandling
                         req.RemoveReaction(eventargs.Emoji, eventargs.User);
                 }
             }
+            return Task.CompletedTask;
         }
 
-        async Task HandleReactionClear(DiscordClient client, MessageReactionsClearEventArgs eventargs)
+        private Task HandleReactionClear(DiscordClient client, MessageReactionsClearEventArgs eventargs)
         {
-            await Task.Yield();
             foreach (var req in _requests)
             {
                 // match message
@@ -97,6 +102,7 @@ namespace DSharpPlus.Interactivity.EventHandling
                     req.ClearCollected();
                 }
             }
+            return Task.CompletedTask;
         }
 
         ~Poller()
