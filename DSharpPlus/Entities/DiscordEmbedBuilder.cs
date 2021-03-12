@@ -110,6 +110,7 @@ namespace DSharpPlus.Entities
             this.Title = original.Title;
             this.Description = original.Description;
             this.Url = original.Url?.ToString();
+            this.ImageUrl = original.Image?.Url?.ToString();
             this.Color = original.Color;
             this.Timestamp = original.Timestamp;
 
