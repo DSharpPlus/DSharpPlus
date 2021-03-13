@@ -114,7 +114,7 @@ namespace DSharpPlus.CommandsNext
         /// </summary>
         /// <param name="builder">The Discord Mesage builder.</param>
         /// <returns></returns>
-        public Task<DiscordMessage> RespondAsync(DiscordMessageCreateBuilder builder) 
+        public Task<DiscordMessage> RespondAsync(MessageCreateBuilder builder) 
             => this.Message.RespondAsync(builder);
 
         /// <summary>
@@ -122,7 +122,7 @@ namespace DSharpPlus.CommandsNext
         /// </summary>
         /// <param name="action">The Discord Mesage builder.</param>
         /// <returns></returns>
-        public Task<DiscordMessage> RespondAsync(Action<DiscordMessageCreateBuilder> action)
+        public Task<DiscordMessage> RespondAsync(Action<MessageCreateBuilder> action)
             => this.Message.RespondAsync(action);
 
         /// <summary>

@@ -10,7 +10,7 @@ namespace DSharpPlus.Test.Tests
         [Command]
         public async Task CreateCategory(CommandContext ctx, [RemainingText] string name)
         {
-            var builder = await new DiscordChannelCreateBuilder()
+            var builder = await new ChannelCreateBuilder()
                 .WithType(ChannelType.Category)
                 .WithName(name)
                 .CreateAsync(ctx.Guild);

@@ -726,7 +726,7 @@ namespace DSharpPlus.CommandsNext
 
                 var helpMessage = helpBuilder.Build();
 
-                var builder = new DiscordMessageCreateBuilder().WithContent(helpMessage.Content).WithEmbed(helpMessage.Embed);
+                var builder = new MessageCreateBuilder().WithContent(helpMessage.Content).WithEmbed(helpMessage.Embed);
 
                 if (!ctx.Config.DmHelp || ctx.Channel is DiscordDmChannel || ctx.Guild == null) 
                     await ctx.RespondAsync(builder).ConfigureAwait(false);

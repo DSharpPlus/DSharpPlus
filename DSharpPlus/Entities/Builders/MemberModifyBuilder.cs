@@ -7,7 +7,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents what the member should be changed to.
     /// </summary>
-    public class DiscordMemberModifyBuilder
+    public class MemberModifyBuilder
     {
         /// <summary>
         /// Gets the new nickname
@@ -46,7 +46,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="name">the nickname to give.</param>
         /// <returns></returns>
-        public DiscordMemberModifyBuilder WithNickname(string name)
+        public MemberModifyBuilder WithNickname(string name)
         {
             this.Nickname = name;
 
@@ -58,7 +58,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="role">the role to give.</param>
         /// <returns></returns>
-        public DiscordMemberModifyBuilder WithRole(DiscordRole role)
+        public MemberModifyBuilder WithRole(DiscordRole role)
         {
             this._Roles.Value.Add(role);
 
@@ -70,7 +70,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="roles">the roles to give.</param>
         /// <returns></returns>
-        public DiscordMemberModifyBuilder WithRoles(IEnumerable<DiscordRole> roles)
+        public MemberModifyBuilder WithRoles(IEnumerable<DiscordRole> roles)
         {
             this._Roles.Value.AddRange(roles);
 
@@ -82,7 +82,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="mute">the mute value,</param>
         /// <returns></returns>
-        public DiscordMemberModifyBuilder WithMute(bool mute)
+        public MemberModifyBuilder WithMute(bool mute)
         {
             this.Muted = mute;
 
@@ -94,7 +94,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="deafen">The deafen value.</param>
         /// <returns></returns>
-        public DiscordMemberModifyBuilder WithDeafened(bool deafen)
+        public MemberModifyBuilder WithDeafened(bool deafen)
         {
             this.Deafened = deafen;
 
@@ -106,7 +106,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="channel"></param>
         /// <returns></returns>
-        public DiscordMemberModifyBuilder WithVoiceChannel(DiscordChannel channel)
+        public MemberModifyBuilder WithVoiceChannel(DiscordChannel channel)
         {
             this.VoiceChannel = channel;
 
@@ -118,7 +118,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="reason">The reason.</param>
         /// <returns></returns>
-        public DiscordMemberModifyBuilder WithAuditLogReason(string reason)
+        public MemberModifyBuilder WithAuditLogReason(string reason)
         {
             this.AuditLogReason = reason;
 

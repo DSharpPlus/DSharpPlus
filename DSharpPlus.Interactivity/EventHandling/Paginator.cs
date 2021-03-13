@@ -223,7 +223,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
 
             var page = await p.GetPageAsync().ConfigureAwait(false);
-            var builder = new DiscordMessageModifyBuilder()
+            var builder = new MessageModifyBuilder()
                 .WithContent(page.Content)
                 .WithEmbed(page.Embed);
 

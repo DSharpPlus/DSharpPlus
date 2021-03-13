@@ -10,7 +10,7 @@ namespace DSharpPlus.Test.Tests
         [Command]
         public async Task CreateRole(CommandContext ctx, [RemainingText] string name)
         {
-            await new DiscordRoleCreateBuilder()
+            await new RoleCreateBuilder()
                 .WithName(name)
                 .WithColor(DiscordColor.Blurple)
                 .WithHoist(true)
@@ -35,7 +35,7 @@ namespace DSharpPlus.Test.Tests
         [Command]
         public async Task ModifyRole(CommandContext ctx, DiscordRole role, [RemainingText] string name)
         {
-            await new DiscordRoleModifyBuilder()
+            await new RoleModifyBuilder()
                 .WithName(name)
                 .ModifyAsync(role);
         }

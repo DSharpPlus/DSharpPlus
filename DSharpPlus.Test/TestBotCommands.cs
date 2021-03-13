@@ -65,7 +65,7 @@ namespace DSharpPlus.Test
         [Command("chainreply")]
         public async Task ChainReplyAsync(CommandContext ctx)
         {
-            DiscordMessageCreateBuilder builder = new DiscordMessageCreateBuilder();
+            MessageCreateBuilder builder = new MessageCreateBuilder();
 
             StringBuilder contentBuilder = new StringBuilder();
 

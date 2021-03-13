@@ -7,7 +7,7 @@ namespace DSharpPlus.Entities
     /// Represents a Role that will be Created or Modified
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class DiscordRoleBuilder<T>
+    public abstract class RoleBuilder<T>
     {
         /// <summary>
         /// <para>Gets or Sets the Name of the role to be sent.</para>
@@ -144,7 +144,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents a Role that will be created.
     /// </summary>
-    public sealed class DiscordRoleCreateBuilder : DiscordRoleBuilder<DiscordRoleCreateBuilder>
+    public sealed class RoleCreateBuilder : RoleBuilder<RoleCreateBuilder>
     {
         /// <summary>
         /// Creates a role utilizing what was specified to the builder.
@@ -167,7 +167,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents the modifications to a role.
     /// </summary>
-    public sealed class DiscordRoleModifyBuilder : DiscordRoleBuilder<DiscordRoleModifyBuilder>
+    public sealed class RoleModifyBuilder : RoleBuilder<RoleModifyBuilder>
     {
         /// <summary>
         /// Modify a role utilizing what was specified to the builder.

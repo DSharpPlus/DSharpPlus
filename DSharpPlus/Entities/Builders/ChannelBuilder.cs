@@ -7,7 +7,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents the Channel that will be Created or Modified.
     /// </summary>
-    public abstract class DiscordChannelBuilder<T>
+    public abstract class ChannelBuilder<T>
     {
         /// <summary>
         /// <para>Gets or Sets the Name of the channel to be sent.</para>
@@ -248,7 +248,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents the builder that will be used to Create a Channel.
     /// </summary>
-    public sealed class DiscordChannelCreateBuilder : DiscordChannelBuilder<DiscordChannelCreateBuilder>
+    public sealed class ChannelCreateBuilder : ChannelBuilder<ChannelCreateBuilder>
     {
         /// <summary>
         /// Gets the type of channel that you want to set.
@@ -261,7 +261,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="type">The type of the Channel</param>
         /// <returns></returns>
-        public DiscordChannelCreateBuilder WithType(ChannelType type)
+        public ChannelCreateBuilder WithType(ChannelType type)
         {
             this.Type = type;
 
@@ -299,7 +299,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents the builder that will be used to Modify a Channel.
     /// </summary>
-    public sealed class DiscordChannelModifyBuilder : DiscordChannelBuilder<DiscordChannelModifyBuilder>
+    public sealed class ChannelModifyBuilder : ChannelBuilder<ChannelModifyBuilder>
     {
         /// <summary>
         /// Sends the changes of the channel to Discord.

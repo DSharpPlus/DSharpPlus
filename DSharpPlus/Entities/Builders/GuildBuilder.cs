@@ -9,7 +9,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents the Guild that will be Created or Modified.
     /// </summary>
-    public abstract class DiscordGuildBuilder<T>
+    public abstract class GuildBuilder<T>
     {
         /// <summary>
         /// <para>Gets or Sets the Name of the guild to be sent.</para>
@@ -217,7 +217,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents the builder that will be used to Create a Guild.
     /// </summary>
-    public sealed class DiscordGuildCreateBuilder : DiscordGuildBuilder<DiscordGuildCreateBuilder>
+    public sealed class GuildCreateBuilder : GuildBuilder<GuildCreateBuilder>
     {
         /// <summary>
         /// <para>Gets The list of Roles to be added.</para>
@@ -240,7 +240,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="role">The Role to be added.</param>
         /// <returns></returns>
-        public DiscordGuildCreateBuilder WithRole(GuildBuilderRole role)
+        public GuildCreateBuilder WithRole(GuildBuilderRole role)
         {
             this._Roles.Add(role);
 
@@ -254,7 +254,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="roles">The roles to be added.</param>
         /// <returns></returns>
-        public DiscordGuildCreateBuilder WithRoles(IEnumerable<GuildBuilderRole> roles)
+        public GuildCreateBuilder WithRoles(IEnumerable<GuildBuilderRole> roles)
         {
             this._Roles.AddRange(roles);
 
@@ -268,7 +268,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="channel">The channel to be added.</param>
         /// <returns></returns>
-        public DiscordGuildCreateBuilder WithChannel(GuildBuilderChannel channel)
+        public GuildCreateBuilder WithChannel(GuildBuilderChannel channel)
         {
             this._Channels.Add(channel);
 
@@ -282,7 +282,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="channels">The channels to be added.</param>
         /// <returns></returns>
-        public DiscordGuildCreateBuilder WithChannels(IEnumerable<GuildBuilderChannel> channels)
+        public GuildCreateBuilder WithChannels(IEnumerable<GuildBuilderChannel> channels)
         {
             this._Channels.AddRange(channels);
 
@@ -420,7 +420,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents the builder that will be used to Modify a Guild.
     /// </summary>
-    public sealed class DiscordGuildModifyBuilder : DiscordGuildBuilder<DiscordGuildModifyBuilder>
+    public sealed class GuildModifyBuilder : GuildBuilder<GuildModifyBuilder>
     {
         /// <summary>
         /// Gets the new Owner of the Guild.
@@ -453,7 +453,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="level"></param>
         /// <returns></returns>
-        public DiscordGuildModifyBuilder WithMfaLevel(MfaLevel level)
+        public GuildModifyBuilder WithMfaLevel(MfaLevel level)
         {
             this.MfaLevel = level;
 
@@ -466,7 +466,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="owner">the new owner of the guild</param>
         /// <returns></returns>
-        public DiscordGuildModifyBuilder WithNewOwener(DiscordMember owner)
+        public GuildModifyBuilder WithNewOwener(DiscordMember owner)
         {
             this.NewOwner = owner;
 
@@ -479,7 +479,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="stream">The stream of the new splash screen.</param>
         /// <returns></returns>
-        public DiscordGuildModifyBuilder WithSplash(Stream stream)
+        public GuildModifyBuilder WithSplash(Stream stream)
         {
             this.Splash = stream;
 
@@ -492,7 +492,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="channel">The channel to set as the rules channel.</param>
         /// <returns></returns>
-        public DiscordGuildModifyBuilder WithRulesChannel(DiscordChannel channel)
+        public GuildModifyBuilder WithRulesChannel(DiscordChannel channel)
         {
             this.RulesChannel = channel;
 
@@ -505,7 +505,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="channel">The channel to set as the public updates channel.</param>
         /// <returns></returns>
-        public DiscordGuildModifyBuilder WithPublicUpdatesChannel(DiscordChannel channel)
+        public GuildModifyBuilder WithPublicUpdatesChannel(DiscordChannel channel)
         {
             this.PublicUpdatesChannel = channel;
 

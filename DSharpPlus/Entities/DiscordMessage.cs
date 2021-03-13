@@ -442,7 +442,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordMessage> ModifyAsync(DiscordMessageModifyBuilder builder)
+        public async Task<DiscordMessage> ModifyAsync(MessageModifyBuilder builder)
         {
             builder.Validate();
             return await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, builder.Content, builder.Embed, builder.Mentions).ConfigureAwait(false);
@@ -526,7 +526,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordMessage> RespondAsync(DiscordMessageCreateBuilder builder)
+        public Task<DiscordMessage> RespondAsync(MessageCreateBuilder builder)
             => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, builder);
 
         /// <summary>
@@ -538,9 +538,9 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordMessage> RespondAsync(Action<DiscordMessageCreateBuilder> action)
+        public async Task<DiscordMessage> RespondAsync(Action<MessageCreateBuilder> action)
         {
-            var builder = new DiscordMessageCreateBuilder();
+            var builder = new MessageCreateBuilder();
 
             action(builder);
 

@@ -10,7 +10,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Constructs ready-to-send webhook requests.
     /// </summary>
-    public abstract class DiscordWebhookMessageBuilder<T>
+    public abstract class WebhookMessageBuilder<T>
     {        
         /// <summary>
         /// Whether this webhook request is text-to-speech.
@@ -47,7 +47,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Constructs a new empty webhook request builder.
         /// </summary>
-        public DiscordWebhookMessageBuilder()
+        public WebhookMessageBuilder()
         {
             this.Embeds = new ReadOnlyCollection<DiscordEmbed>(this._embeds);
             this.Mentions = new ReadOnlyCollection<IMention>(this._mentions);
@@ -128,7 +128,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents the Message to be sent to discord via webhook.
     /// </summary>
-    public sealed class DiscordWebhookMessageCreateBuilder : DiscordWebhookMessageBuilder<DiscordWebhookMessageCreateBuilder>
+    public sealed class WebhookMessageCreateBuilder : WebhookMessageBuilder<WebhookMessageCreateBuilder>
     {
         /// <summary>
         /// Username to use for this webhook request.
@@ -151,7 +151,7 @@ namespace DSharpPlus.Entities
         /// Sets the username for this webhook builder.
         /// </summary>
         /// <param name="username">Username of the webhook</param>
-        public DiscordWebhookMessageCreateBuilder WithUsername(string username)
+        public WebhookMessageCreateBuilder WithUsername(string username)
         {
             this.Username = username;
             return this;
@@ -161,7 +161,7 @@ namespace DSharpPlus.Entities
         /// Sets the avatar of this webhook builder from its url.
         /// </summary>
         /// <param name="avatarUrl">Avatar url of the webhook</param>
-        public DiscordWebhookMessageCreateBuilder WithAvatarUrl(string avatarUrl)
+        public WebhookMessageCreateBuilder WithAvatarUrl(string avatarUrl)
         {
             this.AvatarUrl = avatarUrl;
             return this;
@@ -173,7 +173,7 @@ namespace DSharpPlus.Entities
         /// <param name="filename">Name of the file.</param>
         /// <param name="data">File data.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
-        public DiscordWebhookMessageCreateBuilder AddFile(string filename, Stream data, bool resetStreamPosition = false)
+        public WebhookMessageCreateBuilder AddFile(string filename, Stream data, bool resetStreamPosition = false)
         {
             if (this.Files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
@@ -195,7 +195,7 @@ namespace DSharpPlus.Entities
         /// <param name="stream">The Stream to the file.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
         /// <returns></returns>
-        public DiscordWebhookMessageCreateBuilder AddFile(FileStream stream, bool resetStreamPosition = false)
+        public WebhookMessageCreateBuilder AddFile(FileStream stream, bool resetStreamPosition = false)
         {
             if (this.Files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
@@ -216,7 +216,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="files">Dictionary of file name and file data.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
-        public DiscordWebhookMessageCreateBuilder AddFiles(Dictionary<string, Stream> files, bool resetStreamPosition = false)
+        public WebhookMessageCreateBuilder AddFiles(Dictionary<string, Stream> files, bool resetStreamPosition = false)
         {
             if (this.Files.Count() + files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
@@ -267,7 +267,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents the changes that will be made to a message via webhook.
     /// </summary>
-    public sealed class DiscordWebhookMessageModifyBuilder : DiscordWebhookMessageBuilder<DiscordWebhookMessageModifyBuilder>
+    public sealed class WebhookMessageModifyBuilder : WebhookMessageBuilder<WebhookMessageModifyBuilder>
     {
         /// <summary>
         /// Sends the modified webhook message.

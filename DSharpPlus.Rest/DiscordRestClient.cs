@@ -58,7 +58,7 @@ namespace DSharpPlus
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordGuild> CreateGuildAsync(DiscordGuildCreateBuilder builder)
+        public Task<DiscordGuild> CreateGuildAsync(GuildCreateBuilder builder)
             => this.ApiClient.CreateGuildAsync(builder);
 
         /// <summary>
@@ -69,9 +69,9 @@ namespace DSharpPlus
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordGuild> CreateGuildAsync(Action<DiscordGuildCreateBuilder> action)
+        public async Task<DiscordGuild> CreateGuildAsync(Action<GuildCreateBuilder> action)
         {
-            var builder = new DiscordGuildCreateBuilder();
+            var builder = new GuildCreateBuilder();
             action(builder);
 
             return await this.ApiClient.CreateGuildAsync(builder).ConfigureAwait(false);
@@ -101,7 +101,7 @@ namespace DSharpPlus
         /// <param name="guild_id">Guild ID</param>
         /// <param name="builder">The builder which will modify the guild.</param>
         /// <returns></returns>
-        public Task<DiscordGuild> ModifyGuildAsync(ulong guild_id, DiscordGuildModifyBuilder builder)
+        public Task<DiscordGuild> ModifyGuildAsync(ulong guild_id, GuildModifyBuilder builder)
             => this.ApiClient.ModifyGuildAsync(guild_id, builder);
 
         /// <summary>
@@ -110,9 +110,9 @@ namespace DSharpPlus
         /// <param name="guild_id">Guild ID</param>
         /// <param name="action">The builder which will modify the guild.</param>
         /// <returns></returns>
-        public async Task<DiscordGuild> ModifyGuildAsync(ulong guild_id, Action<DiscordGuildModifyBuilder> action)
+        public async Task<DiscordGuild> ModifyGuildAsync(ulong guild_id, Action<GuildModifyBuilder> action)
         {
-            var builder = new DiscordGuildModifyBuilder();
+            var builder = new GuildModifyBuilder();
 
             action(builder);
 
@@ -310,7 +310,7 @@ namespace DSharpPlus
         /// <param name="guild_id">Guild id</param>
         /// <param name="builder">The builder to perform the modification.</param>
         /// <returns>The modified screening form.</returns>
-        public async Task<DiscordGuildMembershipScreening> ModifyGuildMembershipScreeningFormAsync(ulong guild_id, DiscordGuildMembershipModifyBuilder builder)
+        public async Task<DiscordGuildMembershipScreening> ModifyGuildMembershipScreeningFormAsync(ulong guild_id, GuildMembershipModifyBuilder builder)
         {
             return await this.ApiClient.ModifyGuildMembershipScreeningFormAsync(guild_id, builder).ConfigureAwait(false);
         }
@@ -321,9 +321,9 @@ namespace DSharpPlus
         /// <param name="guild_id">Guild id</param>
         /// <param name="action">Action to perform</param>
         /// <returns>The modified screening form.</returns>
-        public async Task<DiscordGuildMembershipScreening> ModifyGuildMembershipScreeningFormAsync(ulong guild_id, Action<DiscordGuildMembershipModifyBuilder> action)
+        public async Task<DiscordGuildMembershipScreening> ModifyGuildMembershipScreeningFormAsync(ulong guild_id, Action<GuildMembershipModifyBuilder> action)
         {
-            var builder = new DiscordGuildMembershipModifyBuilder();
+            var builder = new GuildMembershipModifyBuilder();
             action(builder);
             return await this.ModifyGuildMembershipScreeningFormAsync(guild_id, builder).ConfigureAwait(false);
         }
@@ -336,7 +336,7 @@ namespace DSharpPlus
         /// <param name="id">Channel id</param>
         /// <param name="builder">The builder with the channel information.</param>
         /// <returns></returns>
-        public Task<DiscordChannel> CreateGuildChannelAsync(ulong id, DiscordChannelCreateBuilder builder)
+        public Task<DiscordChannel> CreateGuildChannelAsync(ulong id, ChannelCreateBuilder builder)
             => this.ApiClient.CreateGuildChannelAsync(id, builder);
 
         /// <summary>
@@ -345,9 +345,9 @@ namespace DSharpPlus
         /// <param name="id">Channel id</param>
         /// <param name="action">The builder with the channel information.</param>
         /// <returns></returns>
-        public async Task<DiscordChannel> CreateGuildChannelAsync(ulong id, Action<DiscordChannelCreateBuilder> action)
+        public async Task<DiscordChannel> CreateGuildChannelAsync(ulong id, Action<ChannelCreateBuilder> action)
         {
-            var builder = new DiscordChannelCreateBuilder();
+            var builder = new ChannelCreateBuilder();
 
             action(builder);
 
@@ -360,7 +360,7 @@ namespace DSharpPlus
         /// <param name="id">Channel id</param>
         /// <param name="builder">The builder with the channel information.</param>
         /// <returns></returns>
-        public Task ModifyChannelAsync(ulong id, DiscordChannelModifyBuilder builder)
+        public Task ModifyChannelAsync(ulong id, ChannelModifyBuilder builder)
             => this.ApiClient.ModifyChannelAsync(id, builder);
 
         /// <summary>
@@ -423,7 +423,7 @@ namespace DSharpPlus
         /// <param name="channel_id">Channel id</param>
         /// <param name="builder">The Discord Mesage builder.</param>
         /// <returns></returns>
-        public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, DiscordMessageCreateBuilder builder)
+        public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, MessageCreateBuilder builder)
             => this.ApiClient.CreateMessageAsync(channel_id, builder);
 
         /// <summary>
@@ -432,9 +432,9 @@ namespace DSharpPlus
         /// <param name="channel_id">Channel id</param>
         /// <param name="action">The Discord Mesage builder.</param>
         /// <returns></returns>
-        public async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, Action<DiscordMessageCreateBuilder> action)
+        public async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, Action<MessageCreateBuilder> action)
         {
-            var builder = new DiscordMessageCreateBuilder();
+            var builder = new MessageCreateBuilder();
 
             action(builder);
 
@@ -497,7 +497,7 @@ namespace DSharpPlus
         /// <param name="message_id">Message id</param>
         /// <param name="builder">The builder of the message to edit.</param>
         /// <returns></returns>
-        public async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, DiscordMessageCreateBuilder builder)
+        public async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, MessageCreateBuilder builder)
         {
             builder.Validate();
 
@@ -759,7 +759,7 @@ namespace DSharpPlus
         /// <param name="user_id">User id</param>
         /// <param name="builder">the builder with the modifications.</param>
         /// <returns></returns>
-        public Task ModifyGuildMemberAsync(ulong guild_id, ulong user_id, DiscordMemberModifyBuilder builder)
+        public Task ModifyGuildMemberAsync(ulong guild_id, ulong user_id, MemberModifyBuilder builder)
             => this.ApiClient.ModifyGuildMemberAsync(guild_id, user_id, builder);
 
         /// <summary>
@@ -769,9 +769,9 @@ namespace DSharpPlus
         /// <param name="guild_id">Guild id</param>
         /// <param name="action">Modifications</param>
         /// <returns></returns>
-        public async Task ModifyAsync(ulong member_id, ulong guild_id, Action<DiscordMemberModifyBuilder> action)
+        public async Task ModifyAsync(ulong member_id, ulong guild_id, Action<MemberModifyBuilder> action)
         {
-            var builder = new DiscordMemberModifyBuilder();
+            var builder = new MemberModifyBuilder();
             action(builder);
 
             await this.ModifyGuildMemberAsync(guild_id, member_id, builder).ConfigureAwait(false);
@@ -827,7 +827,7 @@ namespace DSharpPlus
         /// <param name="role_id">Role id</param>
         /// <param name="builder">The builder of the role</param>
         /// <returns></returns>
-        public Task<DiscordRole> ModifyGuildRoleAsync(ulong guild_id, ulong role_id, DiscordRoleModifyBuilder builder)
+        public Task<DiscordRole> ModifyGuildRoleAsync(ulong guild_id, ulong role_id, RoleModifyBuilder builder)
             => this.ApiClient.ModifyGuildRoleAsync(guild_id, role_id, builder);
 
         /// <summary>
@@ -837,9 +837,9 @@ namespace DSharpPlus
         /// <param name="guild_id">Guild id</param>
         /// <param name="action">Modifications</param>
         /// <returns></returns>
-        public Task ModifyGuildRoleAsync(ulong role_id, ulong guild_id, Action<DiscordRoleModifyBuilder> action)
+        public Task ModifyGuildRoleAsync(ulong role_id, ulong guild_id, Action<RoleModifyBuilder> action)
         {
-            var builder = new DiscordRoleModifyBuilder();
+            var builder = new RoleModifyBuilder();
             action(builder);
 
             return ModifyGuildRoleAsync(guild_id, role_id, builder);
@@ -861,7 +861,7 @@ namespace DSharpPlus
         /// <param name="guild_id">Guild id</param>
         /// <param name="builder">The builder of the Role.</param>
         /// <returns></returns>
-        public Task<DiscordRole> CreateGuildRoleAsync(ulong guild_id, DiscordRoleCreateBuilder builder)
+        public Task<DiscordRole> CreateGuildRoleAsync(ulong guild_id, RoleCreateBuilder builder)
             => this.ApiClient.CreateGuildRoleAsync(guild_id, builder);
 
         /// <summary>
@@ -870,9 +870,9 @@ namespace DSharpPlus
         /// <param name="guild_id">Guild id</param>
         /// <param name="action">The builder of the Role.</param>
         /// <returns></returns>
-        public Task<DiscordRole> CreateGuildRoleAsync(ulong guild_id, Action<DiscordRoleCreateBuilder> action)
+        public Task<DiscordRole> CreateGuildRoleAsync(ulong guild_id, Action<RoleCreateBuilder> action)
         {
-            var builder = new DiscordRoleCreateBuilder();
+            var builder = new RoleCreateBuilder();
             action(builder);
 
             return CreateGuildRoleAsync(guild_id, builder);
@@ -1196,7 +1196,7 @@ namespace DSharpPlus
         /// <param name="webhook_token">Webhook token</param>
         /// <param name="builder">Webhook builder filled with data to send.</param>
         /// <returns></returns>
-        public Task<DiscordMessage> ExecuteWebhookAsync(ulong webhook_id, string webhook_token, DiscordWebhookMessageCreateBuilder builder)
+        public Task<DiscordMessage> ExecuteWebhookAsync(ulong webhook_id, string webhook_token, WebhookMessageCreateBuilder builder)
             => this.ApiClient.ExecuteWebhookAsync(webhook_id, webhook_token, builder);
 
         /// <summary>
@@ -1207,7 +1207,7 @@ namespace DSharpPlus
         /// <param name="messageId">The id of the message to edit.</param>
         /// <param name="builder">The builder of the message to edit.</param>
         /// <returns>The modified <see cref="DiscordMessage"/></returns>
-        public async Task<DiscordMessage> EditWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong messageId, DiscordWebhookMessageModifyBuilder builder)
+        public async Task<DiscordMessage> EditWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong messageId, WebhookMessageModifyBuilder builder)
         {
             builder.Validate();
 

@@ -149,7 +149,7 @@ namespace DSharpPlus.Net
             return guild;
         }
 
-        internal async Task<DiscordGuild> CreateGuildAsync(DiscordGuildCreateBuilder builder)
+        internal async Task<DiscordGuild> CreateGuildAsync(GuildCreateBuilder builder)
         {
             builder.Validate();
 
@@ -244,7 +244,7 @@ namespace DSharpPlus.Net
             }
         }
 
-        internal async Task<DiscordGuild> ModifyGuildAsync(ulong guildId, DiscordGuildModifyBuilder builder)
+        internal async Task<DiscordGuild> ModifyGuildAsync(ulong guildId, GuildModifyBuilder builder)
         {
             builder.Validate(); 
 
@@ -661,7 +661,7 @@ namespace DSharpPlus.Net
             return screening_raw;
         }
 
-        internal async Task<DiscordGuildMembershipScreening> ModifyGuildMembershipScreeningFormAsync(ulong guild_id, DiscordGuildMembershipModifyBuilder builder)
+        internal async Task<DiscordGuildMembershipScreening> ModifyGuildMembershipScreeningFormAsync(ulong guild_id, GuildMembershipModifyBuilder builder)
         {
             builder.Validate();
 
@@ -689,7 +689,7 @@ namespace DSharpPlus.Net
         #endregion
 
         #region Channel
-        internal async Task<DiscordChannel> CreateGuildChannelAsync(ulong guild_id, DiscordChannelCreateBuilder builder)
+        internal async Task<DiscordChannel> CreateGuildChannelAsync(ulong guild_id, ChannelCreateBuilder builder)
         {
             builder.Validate();
 
@@ -732,7 +732,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal Task ModifyChannelAsync(ulong channel_id, DiscordChannelModifyBuilder builder)
+        internal Task ModifyChannelAsync(ulong channel_id, ChannelModifyBuilder builder)
         {
             builder.Validate();
 
@@ -841,7 +841,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, DiscordMessageCreateBuilder builder)
+        internal async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, MessageCreateBuilder builder)
         {
             builder.Validate();
 
@@ -1341,7 +1341,7 @@ namespace DSharpPlus.Net
             }
         }
 
-        internal Task ModifyGuildMemberAsync(ulong guild_id, ulong user_id, DiscordMemberModifyBuilder builder)
+        internal Task ModifyGuildMemberAsync(ulong guild_id, ulong user_id, MemberModifyBuilder builder)
         {
             builder.Validate();
 
@@ -1428,7 +1428,7 @@ namespace DSharpPlus.Net
             }
         }
 
-        internal async Task<DiscordRole> ModifyGuildRoleAsync(ulong guild_id, ulong role_id, DiscordRoleModifyBuilder builder)
+        internal async Task<DiscordRole> ModifyGuildRoleAsync(ulong guild_id, ulong role_id, RoleModifyBuilder builder)
         {
             builder.Validate();
 
@@ -1471,7 +1471,7 @@ namespace DSharpPlus.Net
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route, headers);
         }
 
-        internal async Task<DiscordRole> CreateGuildRoleAsync(ulong guild_id, DiscordRoleCreateBuilder builder)
+        internal async Task<DiscordRole> CreateGuildRoleAsync(ulong guild_id, RoleCreateBuilder builder)
         {
             builder.Validate();
 
@@ -1950,7 +1950,7 @@ namespace DSharpPlus.Net
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route, headers);
         }
 
-        internal async Task<DiscordMessage> ExecuteWebhookAsync(ulong webhook_id, string webhook_token, DiscordWebhookMessageCreateBuilder builder)
+        internal async Task<DiscordMessage> ExecuteWebhookAsync(ulong webhook_id, string webhook_token, WebhookMessageCreateBuilder builder)
         {
             builder.Validate();
 
@@ -2015,7 +2015,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessage> EditWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong message_id, DiscordWebhookMessageModifyBuilder builder)
+        internal async Task<DiscordMessage> EditWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong message_id, WebhookMessageModifyBuilder builder)
         {
             builder.Validate();
 

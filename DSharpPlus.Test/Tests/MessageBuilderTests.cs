@@ -17,44 +17,44 @@ namespace DSharpPlus.Test.Tests
 
             await ctx.Channel.SendMessageAsync("✔ Default Behaviour: " + content).ConfigureAwait(false);                                                     //Should ping User
 
-            await new DiscordMessageCreateBuilder()
+            await new MessageCreateBuilder()
                 .WithContent("✔ UserMention(user): " + content)
                 .WithAllowedMentions(new IMention[] { new UserMention(user) })
                 .SendAsync(ctx.Channel)
                 .ConfigureAwait(false);                                                                                                                      //Should ping user
 
-            await new DiscordMessageCreateBuilder()
+            await new MessageCreateBuilder()
                 .WithContent("✔ UserMention(): " + content)
                 .WithAllowedMentions(new IMention[] { new UserMention() })
                 .SendAsync(ctx.Channel)
                 .ConfigureAwait(false);                                                                                                                      //Should ping user
 
-            await new DiscordMessageCreateBuilder()
+            await new MessageCreateBuilder()
                 .WithContent("✔ User Mention Everyone & Self: " + content)
                 .WithAllowedMentions(new IMention[] { new UserMention(), new UserMention(user) })
                 .SendAsync(ctx.Channel)
                 .ConfigureAwait(false);                                                                                                                      //Should ping user
 
 
-            await new DiscordMessageCreateBuilder()
+            await new MessageCreateBuilder()
                .WithContent("✔ UserMention.All: " + content)
                .WithAllowedMentions(new IMention[] { UserMention.All })
                .SendAsync(ctx.Channel)
                .ConfigureAwait(false);                                                                                                                       //Should ping user
 
-            await new DiscordMessageCreateBuilder()
+            await new MessageCreateBuilder()
                .WithContent("❌ Empty Mention Array: " + content)
                .WithAllowedMentions(new IMention[0])
                .SendAsync(ctx.Channel)
                .ConfigureAwait(false);                                                                                                                       //Should ping no one
 
-            await new DiscordMessageCreateBuilder()
+            await new MessageCreateBuilder()
                .WithContent("❌ UserMention(SomeoneElse): " + content)
                .WithAllowedMentions(new IMention[] { new UserMention(545836271960850454L) })
                .SendAsync(ctx.Channel)
                .ConfigureAwait(false);                                                                                                                       //Should ping no one (@user was not pinged)
 
-            await new DiscordMessageCreateBuilder()
+            await new MessageCreateBuilder()
                .WithContent("❌ Everyone():" + content)
                .WithAllowedMentions(new IMention[] { new EveryoneMention() })
                .SendAsync(ctx.Channel)
@@ -70,55 +70,55 @@ namespace DSharpPlus.Test.Tests
             await ctx.Channel.SendMessageAsync("✔ should ping, ❌ should not ping.").ConfigureAwait(false);
 
             var test1Msg = await ctx.Channel.SendMessageAsync("✔ Default Behaviour: " + origcontent).ConfigureAwait(false);
-            await new DiscordMessageModifyBuilder()
+            await new MessageModifyBuilder()
                .WithContent("✔ Default Behaviour: " + newContent)
                .ModifyAsync(test1Msg)
                .ConfigureAwait(false);                                                                                                                               //Should ping User
 
             var test2Msg = await ctx.Channel.SendMessageAsync("✔ UserMention(user): " + origcontent).ConfigureAwait(false);
-            await new DiscordMessageModifyBuilder()
+            await new MessageModifyBuilder()
                .WithContent("✔ UserMention(user): " + newContent)
                .WithAllowedMentions(new IMention[] { new UserMention(user) })
                .ModifyAsync(test2Msg)
                .ConfigureAwait(false);                                                                                                                               //Should ping user
 
             var test3Msg = await ctx.Channel.SendMessageAsync("✔ UserMention(): " + origcontent).ConfigureAwait(false);
-            await new DiscordMessageModifyBuilder()
+            await new MessageModifyBuilder()
                .WithContent("✔ UserMention(): " + newContent)
                .WithAllowedMentions(new IMention[] { new UserMention() })
                .ModifyAsync(test3Msg)
                .ConfigureAwait(false);                                                                                                                               //Should ping user
 
             var test4Msg = await ctx.Channel.SendMessageAsync("✔ User Mention Everyone & Self: " + origcontent).ConfigureAwait(false);
-            await new DiscordMessageModifyBuilder()
+            await new MessageModifyBuilder()
                .WithContent("✔ User Mention Everyone & Self: " + newContent)
                .WithAllowedMentions(new IMention[] { new UserMention(), new UserMention(user) })
                .ModifyAsync(test4Msg)
                .ConfigureAwait(false);                                                                                                                               //Should ping user
 
             var test5Msg = await ctx.Channel.SendMessageAsync("✔ UserMention.All: " + origcontent).ConfigureAwait(false);
-            await new DiscordMessageModifyBuilder()
+            await new MessageModifyBuilder()
                .WithContent("✔ UserMention.All: " + newContent)
                .WithAllowedMentions(new IMention[] { UserMention.All })
                .ModifyAsync(test5Msg)
                .ConfigureAwait(false);                                                                                                                               //Should ping user
 
             var test6Msg = await ctx.Channel.SendMessageAsync("❌ Empty Mention Array: " + origcontent).ConfigureAwait(false);
-            await new DiscordMessageModifyBuilder()
+            await new MessageModifyBuilder()
                .WithContent("❌ Empty Mention Array: " + newContent)
                .WithAllowedMentions(new IMention[0])
                .ModifyAsync(test6Msg)
                .ConfigureAwait(false);                                                                                                                               //Should ping no one
 
             var test7Msg = await ctx.Channel.SendMessageAsync("❌ UserMention(SomeoneElse): " + origcontent).ConfigureAwait(false);
-            await new DiscordMessageModifyBuilder()
+            await new MessageModifyBuilder()
                .WithContent("❌ UserMention(SomeoneElse): " + newContent)
                .WithAllowedMentions(new IMention[] { new UserMention(777677298316214324) })
                .ModifyAsync(test7Msg)
                .ConfigureAwait(false);                                                                                                                               //Should ping no one (@user was not pinged)
 
             var test8Msg = await ctx.Channel.SendMessageAsync("❌ Everyone(): " + origcontent).ConfigureAwait(false);
-            await new DiscordMessageModifyBuilder()
+            await new MessageModifyBuilder()
                .WithContent("❌ Everyone(): " + newContent)
                .WithAllowedMentions(new IMention[] { new EveryoneMention() })
                .ModifyAsync(test8Msg)
@@ -132,7 +132,7 @@ namespace DSharpPlus.Test.Tests
             {
 
                 // Verify that the lib resets the position when asked
-                var builder = new DiscordMessageCreateBuilder()
+                var builder = new MessageCreateBuilder()
                     .WithContent("Testing the `Dictionary<string, stream>` Overload with resetting the postion turned on.")
                     .WithFiles(new Dictionary<string, Stream>() { { "ADumbFile1.txt", fs } }, true);
 
@@ -205,7 +205,7 @@ namespace DSharpPlus.Test.Tests
                 sw.AutoFlush = true;
                 await sw.WriteLineAsync(fileBody);
                 fs.Position = 0;
-                var builder = new DiscordMessageCreateBuilder();
+                var builder = new MessageCreateBuilder();
                 builder.WithContent("Here is a really dumb file that i am testing with.");
                 //builder.WithFile(fileName);
                 builder.WithFile(fs);
@@ -233,7 +233,7 @@ namespace DSharpPlus.Test.Tests
             {
 
                 // Verify that the lib resets the position when asked
-                var builder = new DiscordWebhookMessageCreateBuilder()
+                var builder = new WebhookMessageCreateBuilder()
                     .WithContent("Testing the `AddFile(Dictionary<string, stream>)` Overload with resetting the postion turned on.")
                     .AddFiles(new Dictionary<string, Stream>() { { "ADumbFile1.txt", fs } }, true);
 

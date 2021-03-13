@@ -13,7 +13,7 @@ namespace DSharpPlus.Test.Tests
         [Command]
         public async Task ModifyGuildMembership(CommandContext ctx)
         {
-            await new DiscordGuildMembershipModifyBuilder()
+            await new GuildMembershipModifyBuilder()
                 .WithEnabled(true)
                 .WithDescription("An awesome test description")
                 .WithField(new DiscordGuildMembershipScreeningField(MembershipScreeningFieldType.Terms, "This is a Test", new string[] { "I repeat this is a test" }, true))

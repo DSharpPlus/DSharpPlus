@@ -452,7 +452,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the guild does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordGuild> ModifyAsync(DiscordGuildModifyBuilder builder)
+        public async Task<DiscordGuild> ModifyAsync(GuildModifyBuilder builder)
         {
             return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, builder).ConfigureAwait(false);
         }
@@ -466,9 +466,9 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the guild does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordGuild> ModifyAsync(Action<DiscordGuildModifyBuilder> action)
+        public async Task<DiscordGuild> ModifyAsync(Action<GuildModifyBuilder> action)
         {
-            var builder = new DiscordGuildModifyBuilder();
+            var builder = new GuildModifyBuilder();
 
             action(builder);
 
@@ -555,7 +555,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the guild does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordChannel> CreateChannelAsync(DiscordChannelCreateBuilder builder)
+        public Task<DiscordChannel> CreateChannelAsync(ChannelCreateBuilder builder)
             => this.Discord.ApiClient.CreateGuildChannelAsync(this.Id, builder);
 
         /// <summary>
@@ -567,9 +567,9 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the guild does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordChannel> CreateChannelAsync(Action<DiscordChannelCreateBuilder> action)
+        public async Task<DiscordChannel> CreateChannelAsync(Action<ChannelCreateBuilder> action)
         {
-            var builder = new DiscordChannelCreateBuilder();
+            var builder = new ChannelCreateBuilder();
 
             action(builder);
 
@@ -930,7 +930,7 @@ namespace DSharpPlus.Entities
         /// <returns>The newly-created role.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordRole> CreateRoleAsync(DiscordRoleCreateBuilder builder)
+        public Task<DiscordRole> CreateRoleAsync(RoleCreateBuilder builder)
             => this.Discord.ApiClient.CreateGuildRoleAsync(this.Id, builder);
 
         /// <summary>
@@ -940,9 +940,9 @@ namespace DSharpPlus.Entities
         /// <returns>The newly-created role.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordRole> CreateRoleAsync(Action<DiscordRoleCreateBuilder> action)
+        public async Task<DiscordRole> CreateRoleAsync(Action<RoleCreateBuilder> action)
         {
-            var builder = new DiscordRoleCreateBuilder();
+            var builder = new RoleCreateBuilder();
 
             action(builder);
 
@@ -2067,7 +2067,7 @@ namespace DSharpPlus.Entities
         /// <returns>The modified screening form.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client doesn't have the <see cref="Permissions.ManageGuild"/> permission, or community is not enabled on this guild.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordGuildMembershipScreening> ModifyMembershipScreeningFormAsync(DiscordGuildMembershipModifyBuilder builder)
+        public async Task<DiscordGuildMembershipScreening> ModifyMembershipScreeningFormAsync(GuildMembershipModifyBuilder builder)
         {
             return await this.Discord.ApiClient.ModifyGuildMembershipScreeningFormAsync(this.Id, builder);
         }
@@ -2079,9 +2079,9 @@ namespace DSharpPlus.Entities
         /// <returns>The modified screening form.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client doesn't have the <see cref="Permissions.ManageGuild"/> permission, or community is not enabled on this guild.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordGuildMembershipScreening> ModifyMembershipScreeningFormAsync(Action<DiscordGuildMembershipModifyBuilder> action)
+        public async Task<DiscordGuildMembershipScreening> ModifyMembershipScreeningFormAsync(Action<GuildMembershipModifyBuilder> action)
         {
-            var builder = new DiscordGuildMembershipModifyBuilder();
+            var builder = new GuildMembershipModifyBuilder();
 
             action(builder);
 

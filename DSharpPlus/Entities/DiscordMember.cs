@@ -324,7 +324,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordMessage> SendMessageAsync(DiscordMessageCreateBuilder message)
+        public async Task<DiscordMessage> SendMessageAsync(MessageCreateBuilder message)
         {
             if (this.IsBot && this.Discord.CurrentUser.IsBot)
                 throw new ArgumentException("Bots cannot DM each other.");
@@ -369,7 +369,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task ModifyAsync(DiscordMemberModifyBuilder builder)
+        public async Task ModifyAsync(MemberModifyBuilder builder)
         {
             if (builder.Nickname.HasValue && this.Discord.CurrentUser.Id == this.Id)
             {
@@ -395,9 +395,9 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task ModifyAsync(Action<DiscordMemberModifyBuilder> action)
+        public async Task ModifyAsync(Action<MemberModifyBuilder> action)
         {
-            var builder = new DiscordMemberModifyBuilder();
+            var builder = new MemberModifyBuilder();
             action(builder);
 
             await this.ModifyAsync(builder).ConfigureAwait(false);

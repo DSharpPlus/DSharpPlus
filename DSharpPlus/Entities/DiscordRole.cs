@@ -103,16 +103,16 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the role does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task ModifyAsync(DiscordRoleModifyBuilder builder)
+        public Task ModifyAsync(RoleModifyBuilder builder)
             => this.Discord.ApiClient.ModifyGuildRoleAsync(this._guild_id, Id, builder);
 
         /// <exception cref = "Exceptions.UnauthorizedException" > Thrown when the client does not have the<see cref="Permissions.ManageRoles"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the role does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task ModifyAsync(Action<DiscordRoleModifyBuilder> action)
+        public Task ModifyAsync(Action<RoleModifyBuilder> action)
 		{
-			var mdl = new DiscordRoleModifyBuilder();
+			var mdl = new RoleModifyBuilder();
 			action(mdl);
 
 			return this.ModifyAsync(mdl);

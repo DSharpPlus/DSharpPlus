@@ -6,7 +6,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents the Membership Screening that should be performed.
     /// </summary>
-    public sealed class DiscordGuildMembershipModifyBuilder
+    public sealed class GuildMembershipModifyBuilder
     {
         /// <summary>
         /// Gets whether membership screening should be enabled for this guild
@@ -35,7 +35,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="enabled">The enabled value.</param>
         /// <returns></returns>
-        public DiscordGuildMembershipModifyBuilder WithEnabled(bool enabled)
+        public GuildMembershipModifyBuilder WithEnabled(bool enabled)
         {
             this.Enabled = enabled;
 
@@ -47,7 +47,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="description"></param>
         /// <returns></returns>
-        public DiscordGuildMembershipModifyBuilder WithDescription(string description)
+        public GuildMembershipModifyBuilder WithDescription(string description)
         {
             this.Description = description;
 
@@ -59,7 +59,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="field"></param>
         /// <returns></returns>
-        public DiscordGuildMembershipModifyBuilder WithField(DiscordGuildMembershipScreeningField field)
+        public GuildMembershipModifyBuilder WithField(DiscordGuildMembershipScreeningField field)
         {
             this._Fields.Value.Add(field);
 
@@ -71,7 +71,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="fields"></param>
         /// <returns></returns>
-        public DiscordGuildMembershipModifyBuilder WithFields(IEnumerable<DiscordGuildMembershipScreeningField> fields)
+        public GuildMembershipModifyBuilder WithFields(IEnumerable<DiscordGuildMembershipScreeningField> fields)
         {
             this._Fields.Value.AddRange(fields);
 
@@ -83,7 +83,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="reason">The reason.</param>
         /// <returns></returns>
-        public DiscordGuildMembershipModifyBuilder WithAuditLogReason(string reason)
+        public GuildMembershipModifyBuilder WithAuditLogReason(string reason)
         {
             this.AuditLogReason = reason;
 

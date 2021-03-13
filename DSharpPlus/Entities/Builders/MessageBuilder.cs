@@ -9,7 +9,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents the message that will be Created or Modified.
     /// </summary>
-    public abstract class DiscordMessageBuilder<T>
+    public abstract class MessageBuilder<T>
     {
         /// <summary>
         /// Gets or Sets the Message to be sent.
@@ -119,7 +119,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents the message that will be sent.
     /// </summary>
-    public sealed class DiscordMessageCreateBuilder : DiscordMessageBuilder<DiscordMessageCreateBuilder>
+    public sealed class MessageCreateBuilder : MessageBuilder<MessageCreateBuilder>
     {
         /// <summary>
         /// Gets the Files to be sent in the Message.
@@ -145,7 +145,7 @@ namespace DSharpPlus.Entities
         /// <param name="stream">The Stream to the file.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
         /// <returns></returns>
-        public DiscordMessageCreateBuilder WithFile(string fileName, Stream stream, bool resetStreamPosition = false)
+        public MessageCreateBuilder WithFile(string fileName, Stream stream, bool resetStreamPosition = false)
         {
             if (this.Files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
@@ -167,7 +167,7 @@ namespace DSharpPlus.Entities
         /// <param name="stream">The Stream to the file.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
         /// <returns></returns>
-        public DiscordMessageCreateBuilder WithFile(FileStream stream, bool resetStreamPosition = false)
+        public MessageCreateBuilder WithFile(FileStream stream, bool resetStreamPosition = false)
         {
             if (this.Files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
@@ -189,7 +189,7 @@ namespace DSharpPlus.Entities
         /// <param name="files">The Files that should be sent.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
         /// <returns></returns>
-        public DiscordMessageCreateBuilder WithFiles(Dictionary<string, Stream> files, bool resetStreamPosition = false)
+        public MessageCreateBuilder WithFiles(Dictionary<string, Stream> files, bool resetStreamPosition = false)
         {
             if (this.Files.Count() + files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
@@ -215,7 +215,7 @@ namespace DSharpPlus.Entities
         /// <param name="messageId">The ID of the message to reply to.</param>
         /// <param name="mention">If we should mention the user in the reply.</param>
         /// <returns></returns>
-        public DiscordMessageCreateBuilder WithReply(ulong messageId, bool mention = false)
+        public MessageCreateBuilder WithReply(ulong messageId, bool mention = false)
         {
             this.ReplyId = messageId;
             this.MentionOnReply = mention;
@@ -256,7 +256,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents the changes that should be made to the message.
     /// </summary>
-    public sealed class DiscordMessageModifyBuilder : DiscordMessageBuilder<DiscordMessageModifyBuilder>
+    public sealed class MessageModifyBuilder : MessageBuilder<MessageModifyBuilder>
     {
         /// <inheritdoc />
         public override void Clear()

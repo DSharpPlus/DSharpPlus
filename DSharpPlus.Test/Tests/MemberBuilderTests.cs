@@ -11,7 +11,7 @@ namespace DSharpPlus.Test.Tests
         [Command]
         public async Task ModifyMember(CommandContext ctx, DiscordMember user)
         {
-            await new DiscordMemberModifyBuilder()
+            await new MemberModifyBuilder()
                 .WithNickname("DummyTester")
                 .ModifyAysnc(user);
         }
