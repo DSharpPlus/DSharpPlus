@@ -279,9 +279,9 @@ namespace DSharpPlus.Entities
             if (this.Guild == null)
                 throw new InvalidOperationException("Non-guild channels cannot be cloned.");
 
-            var ovrs = new List<DiscordOverwriteBuilder>();
+            var ovrs = new List<OverwriteBuilder>();
             foreach (var ovr in this._permissionOverwrites)
-                ovrs.Add(await new DiscordOverwriteBuilder().FromAsync(ovr).ConfigureAwait(false));
+                ovrs.Add(await new OverwriteBuilder().FromAsync(ovr).ConfigureAwait(false));
 
             var builder = new ChannelCreateBuilder()
                 .WithName(this.Name)

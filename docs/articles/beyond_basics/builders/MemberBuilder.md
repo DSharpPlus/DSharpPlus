@@ -8,14 +8,14 @@ Before the Member builder was put into place, there were many methods for modifi
 builder OR an action of a builder.  
 
 ## Using the Builder
-The API Documentation for the Role builder can be found at @DSharpPlus.Entities.DiscordMemberModifyBuilder but here we'll go over some of the concepts of using the
+The API Documentation for the Role builder can be found at @DSharpPlus.Entities.MemberModifyBuilder but here we'll go over some of the concepts of using the
 role builder:
 
 ### Modifing a Member
 
 When modifing a member, you can create it by pre-building the builder then calling ModifyAsync 
 ```cs 
-await new DiscordMemberModifyBuilder()
+await new MemberModifyBuilder()
     .WithNickname("DummyTester")
     .ModifyAysnc(member);
 ```

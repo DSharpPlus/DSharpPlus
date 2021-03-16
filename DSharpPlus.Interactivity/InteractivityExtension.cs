@@ -352,12 +352,12 @@ namespace DSharpPlus.Interactivity
         /// <param name="splittype">How to split input string.</param>
         /// <param name="embedbase">Base embed for output embeds.</param>
         /// <returns></returns>
-        public IEnumerable<Page> GeneratePagesInEmbed(string input, SplitType splittype = SplitType.Character, DiscordEmbedBuilder embedbase = null)
+        public IEnumerable<Page> GeneratePagesInEmbed(string input, SplitType splittype = SplitType.Character, EmbedBuilder embedbase = null)
         {
             if (string.IsNullOrEmpty(input))
                 throw new ArgumentException("You must provide a string that is not null or empty!");
 
-            var embed = embedbase ?? new DiscordEmbedBuilder();
+            var embed = embedbase ?? new EmbedBuilder();
 
             List<Page> result = new List<Page>();
             List<string> split;
@@ -391,7 +391,7 @@ namespace DSharpPlus.Interactivity
             int page = 1;
             foreach (string s in split)
             {
-                result.Add(new Page("", new DiscordEmbedBuilder(embed).WithDescription(s).WithFooter($"Page {page}/{split.Count}")));
+                result.Add(new Page("", new EmbedBuilder(embed).WithDescription(s).WithFooter($"Page {page}/{split.Count}")));
                 page++;
             }
 

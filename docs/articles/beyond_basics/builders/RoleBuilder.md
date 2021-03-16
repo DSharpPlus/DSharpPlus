@@ -9,13 +9,13 @@ was becoming a major code smell and it was hard to maintain and add more params 
 builder OR an action of a builder.  
 
 ## Using the Builder
-The API Documentation for the Role builder can be found at @DSharpPlus.Entities.DiscordRoleCreateBuilder and @DSharpPlus.Entities.DiscordRoleModifyBuilder but here we'll go over some of the concepts of using the
+The API Documentation for the Role builder can be found at @DSharpPlus.Entities.RoleCreateBuilder and @DSharpPlus.Entities.RoleModifyBuilder but here we'll go over some of the concepts of using the
 role builder:
 
 ### Creating a Role
 When Creating a role, you can create it by pre-building the builder then calling CreateAsync 
 ```cs
-await new DiscordRoleCreateBuilder()
+await new RoleCreateBuilder()
     .WithName("Role A")
     .WithColor(DiscordColor.Blurple)
     .WithHoist(true)
@@ -40,7 +40,7 @@ await ctx.Guild.CreateRoleAsync(x =>
 
 When modifing a role, you can create it by pre-building the builder then calling ModifyAsync 
 ```cs 
-await new DiscordRoleModifyBuilder()
+await new RoleModifyBuilder()
     .WithName("Role C")
     .ModifyAsync(role);
 ```

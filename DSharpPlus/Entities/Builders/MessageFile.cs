@@ -5,9 +5,9 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents the File that should be sent to Discord from the <see cref="MessageCreateBuilder"/>.
     /// </summary>
-    public class DiscordMessageFile
+    public class MessageFile
     {
-        internal DiscordMessageFile(string fileName, Stream stream, long? resetPositionTo)
+        internal MessageFile(string fileName, Stream stream, long? resetPositionTo)
         {
             this.FileName = fileName;
             this.Stream = stream;

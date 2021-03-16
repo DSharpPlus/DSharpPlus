@@ -15,14 +15,14 @@ All of our Builders are dedicated to either Create or Modify and will be named a
 will share a common base for code that is shared between the two.  Below is a list of our current builders:
 
 1.  [Message Builder](xref:beyond_basics_builder_messagebuilder)
-	1.  There is a dedicated @DSharpPlus.Entities.DiscordMessageCreateBuilder and a @DSharpPlus.Entities.DiscordMessageModifyBuilder
+	1.  There is a dedicated @DSharpPlus.Entities.MessageCreateBuilder and a @DSharpPlus.Entities.MessageModifyBuilder
 2.  [Guild Builder](xref:beyond_basics_builder_guildbuilder)
-	1.  There is a dedicated @DSharpPlus.Entities.DiscordGuildCreateBuilder and a @DSharpPlus.Entities.DiscordGuildModifyBuilder
+	1.  There is a dedicated @DSharpPlus.Entities.GuildCreateBuilder and a @DSharpPlus.Entities.GuildModifyBuilder
 3.  [Channel Builder](xref:beyond_basics_builder_channelbuilder)
-	1.  There is a dedicated @DSharpPlus.Entities.DiscordChannelCreateBuilder and a @DSharpPlus.Entities.DiscordChannelModifyBuilder
+	1.  There is a dedicated @DSharpPlus.Entities.ChannelCreateBuilder and a @DSharpPlus.Entities.ChannelModifyBuilder
 4.  [Role Builder](xref:beyond_basics_builder_rolebuilder)
-	1.  There is a dedicated @DSharpPlus.Entities.DiscordRoleCreateBuilder and a @DSharpPlus.Entities.DiscordRoleModifyBuilder
+	1.  There is a dedicated @DSharpPlus.Entities.RoleCreateBuilder and a @DSharpPlus.Entities.RoleModifyBuilder
 4.  [Member Builder](xref:beyond_basics_builder_memberbuilder)
-	1.  There is a dedicated @DSharpPlus.Entities.DiscordMemberModifyBuilder
+	1.  There is a dedicated @DSharpPlus.Entities.MemberModifyBuilder
 5.  [Guild Membership Screening Builder](xref:beyond_basics_builder_guildmembershipbuilder)
-	1.  There is a dedicated @DSharpPlus.Entities.DiscordGuildMembershipModifyBuilder
+	1.  There is a dedicated @DSharpPlus.Entities.GuildMembershipModifyBuilder

@@ -11,7 +11,7 @@ namespace DSharpPlus.CommandsNext.Converters
     /// </summary>
     public class DefaultHelpFormatter : BaseHelpFormatter
     {
-        public DiscordEmbedBuilder EmbedBuilder { get; }
+        public EmbedBuilder EmbedBuilder { get; }
         private Command Command { get; set; }
 
         /// <summary>
@@ -21,7 +21,7 @@ namespace DSharpPlus.CommandsNext.Converters
         public DefaultHelpFormatter(CommandContext ctx)
             : base(ctx)
         {
-            this.EmbedBuilder = new DiscordEmbedBuilder()
+            this.EmbedBuilder = new EmbedBuilder()
                 .WithTitle("Help")
                 .WithColor(0x007FFF);
         }

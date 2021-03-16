@@ -143,9 +143,9 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Files to send on this webhook request.
         /// </summary>
-        public IReadOnlyCollection<DiscordMessageFile> Files => this._files;
+        public IReadOnlyCollection<MessageFile> Files => this._files;
 
-        internal readonly List<DiscordMessageFile> _files = new List<DiscordMessageFile>();
+        internal readonly List<MessageFile> _files = new List<MessageFile>();
 
         /// <summary>
         /// Sets the username for this webhook builder.
@@ -182,9 +182,9 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("A File with that filename already exists");
 
             if (resetStreamPosition)
-                this._files.Add(new DiscordMessageFile(filename, data, data.Position));
+                this._files.Add(new MessageFile(filename, data, data.Position));
             else
-                this._files.Add(new DiscordMessageFile(filename, data, null));
+                this._files.Add(new MessageFile(filename, data, null));
 
             return this;
         }
@@ -204,9 +204,9 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("A File with that filename already exists");
 
             if (resetStreamPosition)
-                this._files.Add(new DiscordMessageFile(stream.Name, stream, stream.Position));
+                this._files.Add(new MessageFile(stream.Name, stream, stream.Position));
             else
-                this._files.Add(new DiscordMessageFile(stream.Name, stream, null));
+                this._files.Add(new MessageFile(stream.Name, stream, null));
 
             return this;
         }
@@ -227,9 +227,9 @@ namespace DSharpPlus.Entities
                     throw new ArgumentException("A File with that filename already exists");
 
                 if (resetStreamPosition)
-                    this._files.Add(new DiscordMessageFile(file.Key, file.Value, file.Value.Position));
+                    this._files.Add(new MessageFile(file.Key, file.Value, file.Value.Position));
                 else
-                    this._files.Add(new DiscordMessageFile(file.Key, file.Value, null));
+                    this._files.Add(new MessageFile(file.Key, file.Value, null));
             }
 
 

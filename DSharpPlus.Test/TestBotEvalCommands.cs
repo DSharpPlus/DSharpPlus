@@ -25,7 +25,7 @@ namespace DSharpPlus.Test
 
             var cs = code.Substring(cs1, cs2 - cs1);
 
-            msg = await ctx.RespondAsync(embed: new DiscordEmbedBuilder()
+            msg = await ctx.RespondAsync(embed: new EmbedBuilder()
                 .WithColor(new DiscordColor("#FF007F"))
                 .WithDescription("Evaluating...")
                 .Build()).ConfigureAwait(false);
@@ -43,13 +43,13 @@ namespace DSharpPlus.Test
                 var result = await script.RunAsync(globals).ConfigureAwait(false);
 
                 if (result != null && result.ReturnValue != null && !string.IsNullOrWhiteSpace(result.ReturnValue.ToString()))
-                    await msg.ModifyAsync(embed: new DiscordEmbedBuilder { Title = "Evaluation Result", Description = result.ReturnValue.ToString(), Color = new DiscordColor("#007FFF") }.Build()).ConfigureAwait(false);
+                    await msg.ModifyAsync(embed: new EmbedBuilder { Title = "Evaluation Result", Description = result.ReturnValue.ToString(), Color = new DiscordColor("#007FFF") }.Build()).ConfigureAwait(false);
                 else
-                    await msg.ModifyAsync(embed: new DiscordEmbedBuilder { Title = "Evaluation Successful", Description = "No result was returned.", Color = new DiscordColor("#007FFF") }.Build()).ConfigureAwait(false);
+                    await msg.ModifyAsync(embed: new EmbedBuilder { Title = "Evaluation Successful", Description = "No result was returned.", Color = new DiscordColor("#007FFF") }.Build()).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                await msg.ModifyAsync(embed: new DiscordEmbedBuilder { Title = "Evaluation Failure", Description = string.Concat("**", ex.GetType().ToString(), "**: ", ex.Message), Color = new DiscordColor("#FF0000") }.Build()).ConfigureAwait(false);
+                await msg.ModifyAsync(embed: new EmbedBuilder { Title = "Evaluation Failure", Description = string.Concat("**", ex.GetType().ToString(), "**: ", ex.Message), Color = new DiscordColor("#FF0000") }.Build()).ConfigureAwait(false);
             }
         }
     }

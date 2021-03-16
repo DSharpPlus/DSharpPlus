@@ -31,7 +31,7 @@ namespace DSharpPlus.Test
             // I hate this
             cs = $"[ModuleLifespan(ModuleLifespan.Transient)]\npublic sealed class DynamicCommands : BaseCommandModule\n{{\n{cs}\n}}";
 
-            msg = await ctx.RespondAsync(new DiscordEmbedBuilder()
+            msg = await ctx.RespondAsync(new EmbedBuilder()
                 .WithColor(new DiscordColor("#FF007F"))
                 .WithDescription("Compiling...")
                 .Build()).ConfigureAwait(false);
@@ -65,11 +65,11 @@ namespace DSharpPlus.Test
 
                 ctx.CommandsNext.RegisterCommands(moduleType);
 
-                await msg.ModifyAsync(embed: new DiscordEmbedBuilder { Title = "Compilation Successful", Description = "Commands were registered.", Color = new DiscordColor("#007FFF") }.Build()).ConfigureAwait(false);
+                await msg.ModifyAsync(embed: new EmbedBuilder { Title = "Compilation Successful", Description = "Commands were registered.", Color = new DiscordColor("#007FFF") }.Build()).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                await msg.ModifyAsync(embed: new DiscordEmbedBuilder { Title = "Compilation Failure", Description = string.Concat("**", ex.GetType().ToString(), "**: ", ex.Message), Color = new DiscordColor("#FF0000") }.Build()).ConfigureAwait(false);
+                await msg.ModifyAsync(embed: new EmbedBuilder { Title = "Compilation Failure", Description = string.Concat("**", ex.GetType().ToString(), "**: ", ex.Message), Color = new DiscordColor("#FF0000") }.Build()).ConfigureAwait(false);
             }
         }
 

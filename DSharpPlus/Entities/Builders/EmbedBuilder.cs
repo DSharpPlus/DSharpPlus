@@ -9,7 +9,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Constructs embeds.
     /// </summary>
-    public sealed class DiscordEmbedBuilder
+    public sealed class EmbedBuilder
     {
         /// <summary>
         /// Gets or sets the embed's title.
@@ -95,7 +95,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Constructs a new empty embed builder.
         /// </summary>
-        public DiscordEmbedBuilder()
+        public EmbedBuilder()
         {
             this.Fields = new ReadOnlyCollection<DiscordEmbedField>(this._fields);
         }
@@ -104,7 +104,7 @@ namespace DSharpPlus.Entities
         /// Constructs a new embed builder using another embed as prototype.
         /// </summary>
         /// <param name="original">Embed to use as prototype.</param>
-        public DiscordEmbedBuilder(DiscordEmbed original)
+        public EmbedBuilder(DiscordEmbed original)
             : this()
         {
             this.Title = original.Title;
@@ -149,7 +149,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="title">Title to set.</param>
         /// <returns>This embed builder.</returns>
-        public DiscordEmbedBuilder WithTitle(string title)
+        public EmbedBuilder WithTitle(string title)
         {
             this.Title = title;
             return this;
@@ -160,7 +160,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="description">Description to set.</param>
         /// <returns>This embed builder.</returns>
-        public DiscordEmbedBuilder WithDescription(string description)
+        public EmbedBuilder WithDescription(string description)
         {
             this.Description = description;
             return this;
@@ -171,7 +171,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="url">Title url to set.</param>
         /// <returns>This embed builder.</returns>
-        public DiscordEmbedBuilder WithUrl(string url)
+        public EmbedBuilder WithUrl(string url)
         {
             this.Url = url;
             return this;
@@ -182,7 +182,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="url">Title url to set.</param>
         /// <returns>This embed builder.</returns>
-        public DiscordEmbedBuilder WithUrl(Uri url)
+        public EmbedBuilder WithUrl(Uri url)
         {
             this._url = url;
             return this;
@@ -193,7 +193,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="color">Embed color to set.</param>
         /// <returns>This embed builder.</returns>
-        public DiscordEmbedBuilder WithColor(DiscordColor color)
+        public EmbedBuilder WithColor(DiscordColor color)
         {
             this.Color = color;
             return this;
@@ -204,7 +204,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="timestamp">Timestamp to set.</param>
         /// <returns>This embed builder.</returns>
-        public DiscordEmbedBuilder WithTimestamp(DateTimeOffset? timestamp)
+        public EmbedBuilder WithTimestamp(DateTimeOffset? timestamp)
         {
             this.Timestamp = timestamp;
             return this;
@@ -215,7 +215,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="timestamp">Timestamp to set.</param>
         /// <returns>This embed builder.</returns>
-        public DiscordEmbedBuilder WithTimestamp(DateTime? timestamp)
+        public EmbedBuilder WithTimestamp(DateTime? timestamp)
         {
             if (timestamp == null)
                 this.Timestamp = null;
@@ -229,7 +229,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="snowflake">Snowflake to calculate timestamp from.</param>
         /// <returns>This embed builder.</returns>
-        public DiscordEmbedBuilder WithTimestamp(ulong snowflake)
+        public EmbedBuilder WithTimestamp(ulong snowflake)
         {
             this.Timestamp = new DateTimeOffset(2015, 1, 1, 0, 0, 0, TimeSpan.Zero).AddMilliseconds(snowflake >> 22);
             return this;
@@ -240,7 +240,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="url">Image url to set.</param>
         /// <returns>This embed builder.</returns>
-        public DiscordEmbedBuilder WithImageUrl(string url)
+        public EmbedBuilder WithImageUrl(string url)
         {
             this.ImageUrl = url;
             return this;
@@ -251,7 +251,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="url">Image url to set.</param>
         /// <returns>This embed builder.</returns>
-        public DiscordEmbedBuilder WithImageUrl(Uri url)
+        public EmbedBuilder WithImageUrl(Uri url)
         {
             this._imageUri = new DiscordUri(url);
             return this;
@@ -264,7 +264,7 @@ namespace DSharpPlus.Entities
         /// <param name="height">The height of the thumbnail to set.</param>
         /// <param name="width">The width of the thumbnail to set.</param>
         /// <returns>This embed builder.</returns>
-        public DiscordEmbedBuilder WithThumbnail(string url, int height = 0, int width = 0)
+        public EmbedBuilder WithThumbnail(string url, int height = 0, int width = 0)
         {
             this.Thumbnail = new EmbedThumbnail
             {
@@ -283,7 +283,7 @@ namespace DSharpPlus.Entities
         /// <param name="height">The height of the thumbnail to set.</param>
         /// <param name="width">The width of the thumbnail to set.</param>
         /// <returns>This embed builder.</returns>
-        public DiscordEmbedBuilder WithThumbnail(Uri url, int height = 0, int width = 0)
+        public EmbedBuilder WithThumbnail(Uri url, int height = 0, int width = 0)
         {
             this.Thumbnail = new EmbedThumbnail
             {
@@ -302,7 +302,7 @@ namespace DSharpPlus.Entities
         /// <param name="url">Author's url.</param>
         /// <param name="iconUrl">Author icon's url.</param>
         /// <returns>This embed builder.</returns>
-        public DiscordEmbedBuilder WithAuthor(string name = null, string url = null, string iconUrl = null)
+        public EmbedBuilder WithAuthor(string name = null, string url = null, string iconUrl = null)
         {
             if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(url) && string.IsNullOrEmpty(iconUrl))
                 this.Author = null;
@@ -322,7 +322,7 @@ namespace DSharpPlus.Entities
         /// <param name="text">Footer's text.</param>
         /// <param name="iconUrl">Footer icon's url.</param>
         /// <returns>This embed builder.</returns>
-        public DiscordEmbedBuilder WithFooter(string text = null, string iconUrl = null)
+        public EmbedBuilder WithFooter(string text = null, string iconUrl = null)
         {
             if (text != null && text.Length > 2048)
                 throw new ArgumentException("Footer text length cannot exceed 2048 characters.", nameof(text));
@@ -345,7 +345,7 @@ namespace DSharpPlus.Entities
         /// <param name="value">Value of the field to add.</param>
         /// <param name="inline">Whether the field is to be inline or not.</param>
         /// <returns>This embed builder.</returns>
-        public DiscordEmbedBuilder AddField(string name, string value, bool inline = false)
+        public EmbedBuilder AddField(string name, string value, bool inline = false)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
@@ -382,7 +382,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="index">Index of the field to remove.</param>
         /// <returns>This embed builder.</returns>
-        public DiscordEmbedBuilder RemoveFieldAt(int index)
+        public EmbedBuilder RemoveFieldAt(int index)
         {
             this._fields.RemoveAt(index);
             return this;
@@ -394,7 +394,7 @@ namespace DSharpPlus.Entities
         /// <param name="index">Index of the first field to remove.</param>
         /// <param name="count">Number of fields to remove.</param>
         /// <returns>This embed builder.</returns>
-        public DiscordEmbedBuilder RemoveFieldRange(int index, int count)
+        public EmbedBuilder RemoveFieldRange(int index, int count)
         {
             this._fields.RemoveRange(index, count);
             return this;
@@ -404,7 +404,7 @@ namespace DSharpPlus.Entities
         /// Removes all fields from this embed.
         /// </summary>
         /// <returns>This embed builder.</returns>
-        public DiscordEmbedBuilder ClearFields()
+        public EmbedBuilder ClearFields()
         {
             this._fields.Clear();
             return this;
@@ -459,7 +459,7 @@ namespace DSharpPlus.Entities
         /// Implicitly converts this builder to an embed.
         /// </summary>
         /// <param name="builder">Builder to convert.</param>
-        public static implicit operator DiscordEmbed(DiscordEmbedBuilder builder)
+        public static implicit operator DiscordEmbed(EmbedBuilder builder)
             => builder?.Build();
 
         /// <summary>

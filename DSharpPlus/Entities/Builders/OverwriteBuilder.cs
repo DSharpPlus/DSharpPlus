@@ -6,7 +6,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents a Discord permission overwrite builder.
     /// </summary>
-    public sealed class DiscordOverwriteBuilder
+    public sealed class OverwriteBuilder
     {
         /// <summary>
         /// Gets or sets the allowed permissions for this overwrite.
@@ -31,7 +31,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Creates a new Discord permission overwrite builder. This class can be used to construct permission overwrites for guild channels, used when creating channels.
         /// </summary>
-        public DiscordOverwriteBuilder()
+        public OverwriteBuilder()
         {
 
         }
@@ -41,7 +41,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="permission">Permission or permission set to allow for this overwrite.</param>
         /// <returns>This builder.</returns>
-        public DiscordOverwriteBuilder Allow(Permissions permission)
+        public OverwriteBuilder Allow(Permissions permission)
         {
             this.Allowed |= permission;
             return this;
@@ -52,7 +52,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="permission">Permission or permission set to deny for this overwrite.</param>
         /// <returns>This builder.</returns>
-        public DiscordOverwriteBuilder Deny(Permissions permission)
+        public OverwriteBuilder Deny(Permissions permission)
         {
             this.Denied |= permission;
             return this;
@@ -63,7 +63,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="member">Member to which apply this overwrite's permissions.</param>
         /// <returns>This builder.</returns>
-        public DiscordOverwriteBuilder For(DiscordMember member)
+        public OverwriteBuilder For(DiscordMember member)
         {
             this.Target = member;
             this.Type = OverwriteType.Member;
@@ -75,7 +75,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="role">Role to which apply this overwrite's permissions.</param>
         /// <returns>This builder.</returns>
-        public DiscordOverwriteBuilder For(DiscordRole role)
+        public OverwriteBuilder For(DiscordRole role)
         {
             this.Target = role;
             this.Type = OverwriteType.Role;
@@ -87,7 +87,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="other">Overwrite from which data will be used.</param>
         /// <returns>This builder.</returns>
-        public async Task<DiscordOverwriteBuilder> FromAsync(DiscordOverwrite other)
+        public async Task<OverwriteBuilder> FromAsync(DiscordOverwrite other)
         {
             this.Allowed = other.Allowed;
             this.Denied = other.Denied;

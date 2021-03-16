@@ -9,13 +9,13 @@ was becoming a major code smell and it was hard to maintain and add more params 
 builder OR an action of a builder.  
 
 ## Using the Builder
-The API Documentation for the channel builder can be found at @DSharpPlus.Entities.DiscordChannelCreateBuilder and @DSharpPlus.Entities.DiscordChannelModifyBuilder but here we'll go over some of the concepts of using the
+The API Documentation for the channel builder can be found at @DSharpPlus.Entities.ChannelCreateBuilder and @DSharpPlus.Entities.ChannelModifyBuilder but here we'll go over some of the concepts of using the
 channel builder:
 
 ### Creating a Channel
 When Creating a channel, you can create it by pre-building the builder then calling CreateAsync 
 ```cs
-var builder = await new DiscordChannelCreateBuilder()
+var builder = await new ChannelCreateBuilder()
     .WithType(ChannelType.Category)
     .WithName("Awesome Category")
     .CreateAsync(ctx.Guild);
@@ -36,7 +36,7 @@ await ctx.Guild.CreateChannelAsync(x =>
 
 When modifing a channel, you can create it by pre-building the builder then calling ModifyAsync 
 ```cs 
-await new DiscordChannelModifyBuilder()
+await new ChannelModifyBuilder()
     .WithParentId(category.Id)
     .ModifyAsync(ctx.Channel);
 ```

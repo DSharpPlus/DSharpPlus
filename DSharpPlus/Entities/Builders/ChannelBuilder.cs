@@ -53,9 +53,9 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the Collection of Overwrites the channel should have.
         /// </summary>
-        public IReadOnlyCollection<DiscordOverwriteBuilder> Overwrites => this._Overwrites;
+        public IReadOnlyCollection<OverwriteBuilder> Overwrites => this._Overwrites;
 
-        internal List<DiscordOverwriteBuilder> _Overwrites = new List<DiscordOverwriteBuilder>();
+        internal List<OverwriteBuilder> _Overwrites = new List<OverwriteBuilder>();
 
         /// <summary>
         /// Gets the ParentId of the Channel
@@ -153,7 +153,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="builder"></param>
         /// <returns></returns>
-        public T WithOverwrite(DiscordOverwriteBuilder builder)
+        public T WithOverwrite(OverwriteBuilder builder)
         {
             this._Overwrites.Add(builder);
 
@@ -165,7 +165,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="builders"></param>
         /// <returns></returns>
-        public T WithOverwrites(IEnumerable<DiscordOverwriteBuilder> builders)
+        public T WithOverwrites(IEnumerable<OverwriteBuilder> builders)
         {
             this._Overwrites.AddRange(builders);
 

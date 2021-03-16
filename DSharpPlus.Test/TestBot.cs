@@ -195,7 +195,7 @@ namespace DSharpPlus.Test
                 if (ex is CommandNotFoundException && (e.Command == null || e.Command.QualifiedName != "help"))
                     return;
 
-                var embed = new DiscordEmbedBuilder
+                var embed = new EmbedBuilder
                 {
                     Color = new DiscordColor("#FF0000"),
                     Title = "An exception occurred when executing a command",

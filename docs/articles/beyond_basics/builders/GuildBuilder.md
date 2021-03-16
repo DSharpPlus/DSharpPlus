@@ -9,43 +9,43 @@ was becoming a major code smell and it was hard to maintain and add more params 
 builder OR an action of a builder.  
 
 ## Using the Builder
-The API Documentation for the guild builder can be found at @DSharpPlus.Entities.DiscordGuildCreateBuilder and @DSharpPlus.Entities.DiscordGuildModifyBuilder but here we'll go over some of the concepts of using the
+The API Documentation for the guild builder can be found at @DSharpPlus.Entities.GuildCreateBuilder and @DSharpPlus.Entities.GuildModifyBuilder but here we'll go over some of the concepts of using the
 guild builder:
 
 ### Creating a Guild
 When Creating a guild, you can create it by pre-building the builder then calling CreateAsync 
 ```cs
-var guild = await new DiscordGuildCreateBuilder()
+var guild = await new GuildCreateBuilder()
     .WithName("My Awesome Guild Name")
     .WithDefaultMessageNotificationLevel(DefaultMessageNotifications.MentionsOnly)
     .WithExplicitContentFilterLevel(ExplicitContentFilter.MembersWithoutRoles)
     .WithVerificationLevel(VerificationLevel.Low)
-    .WithRoles(new DiscordGuildCreateBuilder.GuildBuilderRole[] {
-            new DiscordGuildCreateBuilder.GuildBuilderRole { 
+    .WithRoles(new GuildCreateBuilder.GuildBuilderRole[] {
+            new GuildCreateBuilder.GuildBuilderRole { 
                 Id = Convert.ToUInt64(1), 
                 Mentionable = true, 
                 Name = "Everyone", 
                 Permissions = Permissions.Administrator 
             },
-            new DiscordGuildCreateBuilder.GuildBuilderRole { 
+            new GuildCreateBuilder.GuildBuilderRole { 
                 Id = Convert.ToUInt64(2), 
                 Mentionable = true, 
                 Name = "Role 1" 
             },
-            new DiscordGuildCreateBuilder.GuildBuilderRole { 
+            new GuildCreateBuilder.GuildBuilderRole { 
                 Id = Convert.ToUInt64(3), 
                 Mentionable = true, 
                 Name = "Role 2" 
             },
     })
-    .WithChannels(new DiscordGuildCreateBuilder.GuildBuilderChannel[] {
-            new DiscordGuildCreateBuilder.GuildBuilderChannel { 
+    .WithChannels(new GuildCreateBuilder.GuildBuilderChannel[] {
+            new GuildCreateBuilder.GuildBuilderChannel { 
                 Id = Convert.ToUInt64(4), 
                 Name = "test General", 
                 Type = ChannelType.Category, 
-                PermissionOverwrites = new DiscordGuildCreateBuilder.GuildBuilderChannel.ChannelOverwrite[] { } 
+                PermissionOverwrites = new GuildCreateBuilder.GuildBuilderChannel.ChannelOverwrite[] { } 
             },
-            new DiscordGuildCreateBuilder.GuildBuilderChannel { 
+            new GuildCreateBuilder.GuildBuilderChannel { 
                 Id = Convert.ToUInt64(5), 
                 Name = "test text General", 
                 Type = ChannelType.Text, 
@@ -53,12 +53,12 @@ var guild = await new DiscordGuildCreateBuilder()
                 Nsfw = true, 
                 Topic = "Some dumb topic", 
                 PermissionOverwrites = new DiscordGuildCreateBuilder.GuildBuilderChannel.ChannelOverwrite[] {
-                    new DiscordGuildCreateBuilder.GuildBuilderChannel.ChannelOverwrite { 
+                    new GuildCreateBuilder.GuildBuilderChannel.ChannelOverwrite { 
                         Id = Convert.ToUInt64(2), 
                         DenyPermissions = Permissions.All, 
                         AllowPermissions = Permissions.None 
                     },
-                    new DiscordGuildCreateBuilder.GuildBuilderChannel.ChannelOverwrite { 
+                    new GuildCreateBuilder.GuildBuilderChannel.ChannelOverwrite { 
                         Id = Convert.ToUInt64(3), 
                         AllowPermissions = Permissions.All, 
                         DenyPermissions = Permissions.None 
@@ -76,45 +76,45 @@ var guild = await ctx.Client.CreateGuildAsync(x => {
     .WithDefaultMessageNotificationLevel(DefaultMessageNotifications.MentionsOnly)
     .WithExplicitContentFilterLevel(ExplicitContentFilter.MembersWithoutRoles)
     .WithVerificationLevel(VerificationLevel.Low)
-    .WithRoles(new DiscordGuildCreateBuilder.GuildBuilderRole[] {
-            new DiscordGuildCreateBuilder.GuildBuilderRole { 
+    .WithRoles(new GuildCreateBuilder.GuildBuilderRole[] {
+            new GuildCreateBuilder.GuildBuilderRole { 
                 Id = Convert.ToUInt64(1), 
                 Mentionable = true, 
                 Name = "Everyone", 
                 Permissions = Permissions.Administrator 
             },
-            new DiscordGuildCreateBuilder.GuildBuilderRole { 
+            new GuildCreateBuilder.GuildBuilderRole { 
                 Id = Convert.ToUInt64(2), 
                 Mentionable = true, 
                 Name = "Role 1" 
             },
-            new DiscordGuildCreateBuilder.GuildBuilderRole { 
+            new GuildCreateBuilder.GuildBuilderRole { 
                 Id = Convert.ToUInt64(3), 
                 Mentionable = true, 
                 Name = "Role 2" 
             },
     })
-    .WithChannels(new DiscordGuildCreateBuilder.GuildBuilderChannel[] {
-            new DiscordGuildCreateBuilder.GuildBuilderChannel { 
+    .WithChannels(new GuildCreateBuilder.GuildBuilderChannel[] {
+            new GuildCreateBuilder.GuildBuilderChannel { 
                 Id = Convert.ToUInt64(4), 
                 Name = "test General", 
                 Type = ChannelType.Category, 
                 PermissionOverwrites = new DiscordGuildCreateBuilder.GuildBuilderChannel.ChannelOverwrite[] { } 
             },
-            new DiscordGuildCreateBuilder.GuildBuilderChannel { 
+            new GuildCreateBuilder.GuildBuilderChannel { 
                 Id = Convert.ToUInt64(5), 
                 Name = "test text General", 
                 Type = ChannelType.Text, 
                 ParentId = Convert.ToUInt64(4), 
                 Nsfw = true, 
                 Topic = "Some dumb topic", 
-                PermissionOverwrites = new DiscordGuildCreateBuilder.GuildBuilderChannel.ChannelOverwrite[] {
-                    new DiscordGuildCreateBuilder.GuildBuilderChannel.ChannelOverwrite { 
+                PermissionOverwrites = new GuildCreateBuilder.GuildBuilderChannel.ChannelOverwrite[] {
+                    new GuildCreateBuilder.GuildBuilderChannel.ChannelOverwrite { 
                         Id = Convert.ToUInt64(2), 
                         DenyPermissions = Permissions.All, 
                         AllowPermissions = Permissions.None 
                     },
-                    new DiscordGuildCreateBuilder.GuildBuilderChannel.ChannelOverwrite { 
+                    new GuildCreateBuilder.GuildBuilderChannel.ChannelOverwrite { 
                         Id = Convert.ToUInt64(3), 
                         AllowPermissions = Permissions.All, 
                         DenyPermissions = Permissions.None 
@@ -129,7 +129,7 @@ var guild = await ctx.Client.CreateGuildAsync(x => {
 
 When modifing a guild, you can create it by pre-building the builder then calling ModifyAsync 
 ```cs 
-await new DiscordGuildModifyBuilder()
+await new GuildModifyBuilder()
     .WithName("My Awesome Test Guild")
     .WithAuditLogReason("Cause i can")
     .WithNewOwener(ctx.Member)

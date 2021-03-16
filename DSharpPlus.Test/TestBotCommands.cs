@@ -56,7 +56,7 @@ namespace DSharpPlus.Test
         {
             [Command("message"), Aliases("msg"), Description("Attempts to bind a message.")]
             public Task MessageAsync(CommandContext ctx, DiscordMessage msg)
-                => ctx.RespondAsync(embed: new DiscordEmbedBuilder()
+                => ctx.RespondAsync(embed: new EmbedBuilder()
                     .WithTimestamp(msg.CreationTimestamp)
                     .WithAuthor($"{msg.Author.Username}#{msg.Author.Discriminator}", msg.Author.AvatarUrl)
                     .WithDescription(msg.Content));
