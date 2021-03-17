@@ -108,7 +108,7 @@ namespace DSharpPlus
         /// Creates a mention for specified user or member. Can optionally specify to resolve nicknames.
         /// </summary>
         /// <param name="user">User to create mention for.</param>
-        /// <param name="nickname">Whether the mention should resovle nicknames or not.</param>
+        /// <param name="nickname">Whether the mention should resolve nicknames or not.</param>
         /// <returns>Formatted mention.</returns>
         public static string Mention(DiscordUser user, bool nickname = false) 
             => (nickname ? $"<@!{user.Id.ToString(CultureInfo.InvariantCulture)}>" : $"<@{user.Id.ToString(CultureInfo.InvariantCulture)}>");
