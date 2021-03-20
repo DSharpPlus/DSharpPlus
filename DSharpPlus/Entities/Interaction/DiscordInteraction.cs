@@ -23,7 +23,7 @@ namespace DSharpPlus.Entities
         /// Gets the Id of the guild that invoked this interaction.
         /// </summary>
         [JsonIgnore]
-        public ulong GuildId { get; internal set; }
+        public ulong? GuildId { get; internal set; }
 
         /// <summary>
         /// Gets the guild that invoked this interaction.
@@ -46,10 +46,11 @@ namespace DSharpPlus.Entities
             => (this.Discord as DiscordClient).InternalGetCachedChannel(this.ChannelId);
 
         /// <summary>
-        /// Gets the member that invoked this interaction.
+        /// Gets the user that invoked this interaction.
+        /// <para>This can be cast to a <see cref="DiscordMember"/> if created in a guild.</para>
         /// </summary>
         [JsonIgnore]
-        public DiscordMember Member { get; internal set; }
+        public DiscordUser User { get; internal set; }
 
         /// <summary>
         /// Gets the continuation token for responding to this interaction.

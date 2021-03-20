@@ -325,10 +325,21 @@ namespace DSharpPlus
                 #region Interaction/Integration/Application
 
                 case "interaction_create":
-                    mbr = dat["member"].ToObject<TransportMember>();
+
+                    rawMbr = dat["member"];
+
+                    if(rawMbr != null)
+                    {
+                        mbr = dat["member"].ToObject<TransportMember>();
+                        usr = mbr.User;
+                    }
+                    else
+                    {
+                        usr = dat["user"].ToObject<TransportUser>();
+                    }
+
                     cid = (ulong)dat["channel_id"];
-                    gid = (ulong)dat["guild_id"]; //todo: check if fired in DMs
-                    await OnInteractionCreateAsync(gid, cid, mbr, dat.ToObject<DiscordInteraction>()).ConfigureAwait(false);
+                    await OnInteractionCreateAsync((ulong?)dat["guild_id"], cid, usr, mbr, dat.ToObject<DiscordInteraction>()).ConfigureAwait(false);
                     break;
 
                 case "application_command_create":
@@ -1796,12 +1807,15 @@ namespace DSharpPlus
 
         #region Misc
 
-        internal async Task OnInteractionCreateAsync(ulong guildId, ulong channelId, TransportMember member, DiscordInteraction interaction)
+        internal async Task OnInteractionCreateAsync(ulong? guildId, ulong channelId, TransportUser user, TransportMember member, DiscordInteraction interaction)
         {
-            var usr = new DiscordUser(member.User) { Discord = this };
-            this.UserCache.AddOrUpdate(member.User.Id, usr, (old, @new) => @new);
+            var usr = new DiscordUser(user) { Discord = this };
+            this.UserCache.AddOrUpdate(usr.Id, usr, (old, @new) => @new);
 
-            interaction.Member = new DiscordMember(usr) { _guild_id = guildId, Discord = this };
+            if (member != null)
+                usr = new DiscordMember(usr) { _guild_id = guildId.Value, Discord = this };
+
+            interaction.User = usr;
             interaction.ChannelId = channelId;
             interaction.GuildId = guildId;
             interaction.Discord = this;
