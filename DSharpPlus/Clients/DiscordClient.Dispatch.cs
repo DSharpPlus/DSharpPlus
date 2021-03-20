@@ -1821,6 +1821,50 @@ namespace DSharpPlus
             interaction.Discord = this;
             interaction.Data.Discord = this;
 
+            var resolved = interaction.Data.Resolved;
+            if(resolved != null)
+            {
+                if(resolved.Users != null)
+                {
+                    foreach (var c in resolved.Users)
+                    {
+                        c.Value.Discord = this;
+                    }
+                }
+
+                if (resolved.Members != null)
+                {
+                    foreach (var c in resolved.Members)
+                    {
+                        c.Value.Discord = this;
+                        c.Value.Id = c.Key;
+                        c.Value._guild_id = guildId.Value;
+                    }
+                }
+
+                if (resolved.Channels != null)
+                {
+                    foreach (var c in resolved.Channels)
+                    {
+                        c.Value.Discord = this;
+
+                        if (guildId.HasValue)
+                            c.Value.GuildId = guildId.Value;
+                    }
+                }
+
+                if (resolved.Roles != null)
+                {
+                    foreach (var c in resolved.Roles)
+                    {
+                        c.Value.Discord = this;
+
+                        if (guildId.HasValue)
+                            c.Value._guild_id = guildId.Value;
+                    }
+                }
+            }
+
             var ea = new InteractionCreateEventArgs
             {
                 Interaction = interaction
