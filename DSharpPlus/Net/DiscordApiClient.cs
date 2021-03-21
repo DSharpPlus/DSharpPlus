@@ -55,9 +55,10 @@ namespace DSharpPlus.Net
 
             PopulateMessage(author, ret);
 
-            if (ret.MessageType == MessageType.Reply)
+            var referencedMsg = msg_raw["referenced_message"];
+            if (ret.MessageType == MessageType.Reply && !string.IsNullOrWhiteSpace(referencedMsg?.ToString()))
             {
-                author = msg_raw["referenced_message"]["author"].ToObject<TransportUser>();
+                author = referencedMsg["author"].ToObject<TransportUser>();
                 ret.ReferencedMessage.Discord = this.Discord;
                 PopulateMessage(author, ret.ReferencedMessage);
             }
