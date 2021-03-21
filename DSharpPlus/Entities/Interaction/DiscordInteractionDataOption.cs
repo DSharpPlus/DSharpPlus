@@ -16,6 +16,12 @@ namespace DSharpPlus.Entities
         public string Name { get; internal set; }
 
         /// <summary>
+        /// Gets the type of this interaction parameter.
+        /// </summary>
+        [JsonProperty("type")]
+        public ApplicationCommandOptionType Type { get; internal set; }
+
+        /// <summary>
         /// Gets the value of this interaction parameter. 
         /// <para>This can be cast to an <see langword="int"></see> / <see langword="long"/>, <see langword="bool"></see>, <see langword="string"></see> or <see langword="ulong"/> depending on the <see cref="Name"/></para>
         /// </summary>
