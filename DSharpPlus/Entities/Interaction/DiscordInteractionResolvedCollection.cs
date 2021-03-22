@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 namespace DSharpPlus.Entities
 {
     /// <summary>
-    /// Represents Discord snowflake objects resolved from interaction arguments.
+    /// Represents a collection of Discord snowflake objects resolved from interaction arguments.
     /// </summary>
     public sealed class DiscordInteractionResolvedCollection
     {

@@ -63,5 +63,11 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("version")]
         public int Version { get; internal set; }
+
+        /// <summary>
+        /// Gets the ID of the application that created this interaction.
+        /// </summary>
+        [JsonProperty("application_id")]
+        public ulong ApplicationId { get; internal set; }
     }
 }
