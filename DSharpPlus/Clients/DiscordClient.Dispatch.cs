@@ -322,6 +322,52 @@ namespace DSharpPlus
 
                 #endregion
 
+                #region Interaction/Integration/Application
+
+                case "interaction_create":
+
+                    rawMbr = dat["member"];
+
+                    if(rawMbr != null)
+                    {
+                        mbr = dat["member"].ToObject<TransportMember>();
+                        usr = mbr.User;
+                    }
+                    else
+                    {
+                        usr = dat["user"].ToObject<TransportUser>();
+                    }
+
+                    cid = (ulong)dat["channel_id"];
+                    await OnInteractionCreateAsync((ulong?)dat["guild_id"], cid, usr, mbr, dat.ToObject<DiscordInteraction>()).ConfigureAwait(false);
+                    break;
+
+                case "application_command_create":
+                    await OnApplicationCommandCreateAsync(dat.ToObject<DiscordApplicationCommand>(), (ulong?)dat["guild_id"]).ConfigureAwait(false);
+                    break;
+
+                case "application_command_update":
+                    await OnApplicationCommandUpdateAsync(dat.ToObject<DiscordApplicationCommand>(), (ulong?)dat["guild_id"]).ConfigureAwait(false);
+                    break;
+
+                case "application_command_delete":
+                    await OnApplicationCommandDeleteAsync(dat.ToObject<DiscordApplicationCommand>(), (ulong?)dat["guild_id"]).ConfigureAwait(false);
+                    break;
+
+                // The following are not documented and thus ignored for the time being.
+                // Please update these if they are documented :)
+
+                case "integration_create":
+                    break;
+
+                case "integration_update":
+                    break;
+
+                case "integration_delete":
+                    break;
+
+                #endregion
+
                 #region Misc
 
                 case "gift_code_update": //Not supposed to be dispatched to bots
@@ -1683,7 +1729,149 @@ namespace DSharpPlus
 
         #endregion
 
+        #region Commands
+
+        internal async Task OnApplicationCommandCreateAsync(DiscordApplicationCommand cmd, ulong? guild_id)
+        {
+            cmd.Discord = this;
+
+            var guild = this.InternalGetCachedGuild(guild_id);
+
+            if(guild == null && guild_id.HasValue)
+            {
+                guild = new DiscordGuild
+                {
+                    Id = guild_id.Value,
+                    Discord = this
+                };
+            }
+
+            var ea = new ApplicationCommandEventArgs
+            {
+                Guild = guild,
+                Command = cmd
+            };
+
+            await this._applicationCommandCreated.InvokeAsync(this, ea).ConfigureAwait(false);
+        }
+
+        internal async Task OnApplicationCommandUpdateAsync(DiscordApplicationCommand cmd, ulong? guild_id)
+        {
+            cmd.Discord = this;
+
+            var guild = this.InternalGetCachedGuild(guild_id);
+
+            if (guild == null && guild_id.HasValue)
+            {
+                guild = new DiscordGuild
+                {
+                    Id = guild_id.Value,
+                    Discord = this
+                };
+            }
+
+            var ea = new ApplicationCommandEventArgs
+            {
+                Guild = guild,
+                Command = cmd
+            };
+
+            await this._applicationCommandUpdated.InvokeAsync(this, ea).ConfigureAwait(false);
+        }
+
+        internal async Task OnApplicationCommandDeleteAsync(DiscordApplicationCommand cmd, ulong? guild_id)
+        {
+            cmd.Discord = this;
+
+            var guild = this.InternalGetCachedGuild(guild_id);
+
+            if (guild == null && guild_id.HasValue)
+            {
+                guild = new DiscordGuild
+                {
+                    Id = guild_id.Value,
+                    Discord = this
+                };
+            }
+
+            var ea = new ApplicationCommandEventArgs
+            {
+                Guild = guild,
+                Command = cmd
+            };
+
+            await this._applicationCommandDeleted.InvokeAsync(this, ea).ConfigureAwait(false);
+        }
+
+        #endregion
+
         #region Misc
+
+        internal async Task OnInteractionCreateAsync(ulong? guildId, ulong channelId, TransportUser user, TransportMember member, DiscordInteraction interaction)
+        {
+            var usr = new DiscordUser(user) { Discord = this };
+            this.UserCache.AddOrUpdate(usr.Id, usr, (old, @new) => @new);
+
+            if (member != null)
+                usr = new DiscordMember(usr) { _guild_id = guildId.Value, Discord = this };
+
+            interaction.User = usr;
+            interaction.ChannelId = channelId;
+            interaction.GuildId = guildId;
+            interaction.Discord = this;
+            interaction.Data.Discord = this;
+
+            var resolved = interaction.Data.Resolved;
+            if(resolved != null)
+            {
+                if(resolved.Users != null)
+                {
+                    foreach (var c in resolved.Users)
+                    {
+                        c.Value.Discord = this;
+                    }
+                }
+
+                if (resolved.Members != null)
+                {
+                    foreach (var c in resolved.Members)
+                    {
+                        c.Value.Discord = this;
+                        c.Value.Id = c.Key;
+                        c.Value._guild_id = guildId.Value;
+                    }
+                }
+
+                if (resolved.Channels != null)
+                {
+                    foreach (var c in resolved.Channels)
+                    {
+                        c.Value.Discord = this;
+
+                        if (guildId.HasValue)
+                            c.Value.GuildId = guildId.Value;
+                    }
+                }
+
+                if (resolved.Roles != null)
+                {
+                    foreach (var c in resolved.Roles)
+                    {
+                        c.Value.Discord = this;
+
+                        if (guildId.HasValue)
+                            c.Value._guild_id = guildId.Value;
+                    }
+                }
+            }
+
+            var ea = new InteractionCreateEventArgs
+            {
+                Interaction = interaction
+            };
+
+            await this._interactionCreated.InvokeAsync(this, ea).ConfigureAwait(false);
+        }
 
         internal async Task OnTypingStartEventAsync(ulong userId, ulong channelId, DiscordChannel channel, ulong? guildId, DateTimeOffset started, TransportMember mbr)
         {

@@ -519,7 +519,51 @@ namespace DSharpPlus
 
         #endregion
 
+        #region Application
+
+        /// <summary>
+        /// Fired when a new application command is registered. 
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, ApplicationCommandEventArgs> ApplicationCommandCreated
+        {
+            add => this._applicationCommandCreated.Register(value);
+            remove => this._applicationCommandCreated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ApplicationCommandEventArgs> _applicationCommandCreated;
+
+        /// <summary>
+        /// Fired when an application command is updated. 
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, ApplicationCommandEventArgs> ApplicationCommandUpdated
+        {
+            add => this._applicationCommandUpdated.Register(value);
+            remove => this._applicationCommandUpdated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ApplicationCommandEventArgs> _applicationCommandUpdated;
+
+        /// <summary>
+        /// Fired when an application command is deleted. 
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, ApplicationCommandEventArgs> ApplicationCommandDeleted
+        {
+            add => this._applicationCommandDeleted.Register(value);
+            remove => this._applicationCommandDeleted.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ApplicationCommandEventArgs> _applicationCommandDeleted;
+
+        #endregion
+
         #region Misc
+
+        /// <summary>
+        /// Fired when an interaction is invoked.  
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, InteractionCreateEventArgs> InteractionCreated
+        {
+            add => this._interactionCreated.Register(value);
+            remove => this._interactionCreated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, InteractionCreateEventArgs> _interactionCreated;
 
         /// <summary>
         /// Fired when a user starts typing in a channel.
@@ -723,11 +767,23 @@ namespace DSharpPlus
         private Task Client_MessageReactionRemovedEmoji(DiscordClient client, MessageReactionRemoveEmojiEventArgs e)
             => this._messageReactionRemovedEmoji.InvokeAsync(client, e);
 
+        private Task Client_InteractionCreate(DiscordClient client, InteractionCreateEventArgs e)
+            => this._interactionCreated.InvokeAsync(client, e);
+
         private Task Client_WebhooksUpdate(DiscordClient client, WebhooksUpdateEventArgs e)
             => this._webhooksUpdated.InvokeAsync(client, e);
 
         private Task Client_HeartBeated(DiscordClient client, HeartbeatEventArgs e)
             => this._heartbeated.InvokeAsync(client, e);
+
+        private Task Client_ApplicationCommandCreated(DiscordClient client, ApplicationCommandEventArgs e)
+            => this._applicationCommandCreated.InvokeAsync(client, e);
+
+        private Task Client_ApplicationCommandUpdated(DiscordClient client, ApplicationCommandEventArgs e)
+            => this._applicationCommandUpdated.InvokeAsync(client, e);
+
+        private Task Client_ApplicationCommandDeleted(DiscordClient client, ApplicationCommandEventArgs e)
+            => this._applicationCommandDeleted.InvokeAsync(client, e);
 
         #endregion
     }
