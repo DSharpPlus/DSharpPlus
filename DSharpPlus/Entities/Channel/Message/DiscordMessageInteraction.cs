@@ -6,7 +6,7 @@ using System.Text;
 namespace DSharpPlus.Entities
 {
     /// <summary>
-    /// Represents the message interaction data sent when a message is an interacion response.
+    /// Represents the message interaction data sent when a message is an interaction response.
     /// </summary>
     public class DiscordMessageInteraction : SnowflakeObject
     {
