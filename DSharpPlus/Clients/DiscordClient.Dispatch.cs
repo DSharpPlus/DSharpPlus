@@ -1813,7 +1813,7 @@ namespace DSharpPlus
             this.UserCache.AddOrUpdate(usr.Id, usr, (old, @new) => @new);
 
             if (member != null)
-                usr = new DiscordMember(usr) { _guild_id = guildId.Value, Discord = this };
+                usr = new DiscordMember(member) { _guild_id = guildId.Value, Discord = this };
 
             interaction.User = usr;
             interaction.ChannelId = channelId;
