@@ -1474,8 +1474,8 @@ namespace DSharpPlus.Entities
                                 case "permissions":
                                     entryrol.PermissionChange = new PropertyChange<Permissions?>
                                     {
-                                        Before = xc.OldValue != null ? (Permissions?)(long)xc.OldValue : null,
-                                        After = xc.NewValue != null ? (Permissions?)(long)xc.NewValue : null
+                                        Before = xc.OldValue != null ? (Permissions?)long.Parse((string)xc.OldValue) : null,
+                                        After = xc.NewValue != null ? (Permissions?)long.Parse((string)xc.NewValue) : null
                                     };
                                     break;
 
