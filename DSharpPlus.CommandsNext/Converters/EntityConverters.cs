@@ -271,10 +271,10 @@ namespace DSharpPlus.CommandsNext.Converters
 
         Task<Optional<DiscordEmoji>> IArgumentConverter<DiscordEmoji>.ConvertAsync(string value, CommandContext ctx)
         {
-            if (DiscordEmoji.UnicodeEmojiList.Contains(value))
+            if (DiscordEmoji.TryFromUnicode(ctx.Client, value, out var emoji))
             {
-                var result = DiscordEmoji.FromUnicode(ctx.Client, value);
-                var ret = result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordEmoji>();
+                var result = emoji;
+                var ret = Optional.FromValue(result);
                 return Task.FromResult(ret);
             }
 
@@ -288,13 +288,8 @@ namespace DSharpPlus.CommandsNext.Converters
                 if (!ulong.TryParse(sid, NumberStyles.Integer, CultureInfo.InvariantCulture, out var id))
                     return Task.FromResult(Optional.FromNoValue<DiscordEmoji>());
 
-                try
-                {
-                    var e = DiscordEmoji.FromGuildEmote(ctx.Client, id);
-                    return Task.FromResult(Optional.FromValue(e));
-                }
-                catch (KeyNotFoundException)
-                { }
+                if (DiscordEmoji.TryFromGuildEmote(ctx.Client, id, out emoji))
+                    return Task.FromResult(Optional.FromValue(emoji));
 
                 return Task.FromResult(Optional.FromValue(new DiscordEmoji
                 {

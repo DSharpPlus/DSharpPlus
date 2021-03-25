@@ -56,7 +56,7 @@ namespace DSharpPlus.Test
             // events
             Discord.Ready += this.Discord_Ready;
             Discord.GuildAvailable += this.Discord_GuildAvailable;
-            Discord.PresenceUpdated += this.Discord_PresenceUpdated;
+            //Discord.PresenceUpdated += this.Discord_PresenceUpdated;
             //Discord.ClientErrored += this.Discord_ClientErrored;
             Discord.SocketErrored += this.Discord_SocketError;
             Discord.GuildCreated += this.Discord_GuildCreated;

@@ -189,28 +189,66 @@ namespace DSharpPlus.Entities
             => e1.ToString();
 
         /// <summary>
+        /// Checks whether specified unicode entity is a valid unicode emoji.
+        /// </summary>
+        /// <param name="unicodeEntity">Entity to check.</param>
+        /// <returns>Whether it's a valid emoji.</returns>
+        public static bool IsValidUnicode(string unicodeEntity)
+            => DiscordNameLookup.ContainsKey(unicodeEntity);
+
+        /// <summary>
         /// Creates an emoji object from a unicode entity.
         /// </summary>
         /// <param name="client"><see cref="BaseDiscordClient"/> to attach to the object.</param>
-        /// <param name="unicode_entity">Unicode entity to create the object from.</param>
+        /// <param name="unicodeEntity">Unicode entity to create the object from.</param>
         /// <returns>Create <see cref="DiscordEmoji"/> object.</returns>
-        public static DiscordEmoji FromUnicode(BaseDiscordClient client, string unicode_entity)
+        public static DiscordEmoji FromUnicode(BaseDiscordClient client, string unicodeEntity)
         {
-            if (client == null)
-                throw new ArgumentNullException(nameof(client), "Client cannot be null.");
+            if (!IsValidUnicode(unicodeEntity))
+                throw new ArgumentException("Specified unicode entity is not a valid unicode emoji.", nameof(unicodeEntity));
 
-            return new DiscordEmoji { Name = unicode_entity, Discord = client };
+            return new DiscordEmoji { Name = unicodeEntity, Discord = client };
         }
 
         /// <summary>
         /// Creates an emoji object from a unicode entity.
         /// </summary>
-        /// <param name="unicode_entity">Unicode entity to create the object from.</param>
+        /// <param name="unicodeEntity">Unicode entity to create the object from.</param>
         /// <returns>Create <see cref="DiscordEmoji"/> object.</returns>
-        public static DiscordEmoji FromUnicode(string unicode_entity)
+        public static DiscordEmoji FromUnicode(string unicodeEntity)
+            => FromUnicode(null, unicodeEntity);
+
+        /// <summary>
+        /// Attempts to create an emoji object from a unicode entity.
+        /// </summary>
+        /// <param name="client"><see cref="BaseDiscordClient"/> to attach to the object.</param>
+        /// <param name="unicodeEntity">Unicode entity to create the object from.</param>
+        /// <param name="emoji">Resulting <see cref="DiscordEmoji"/> object.</param>
+        /// <returns>Whether the operation was successful.</returns>
+        public static bool TryFromUnicode(BaseDiscordClient client, string unicodeEntity, out DiscordEmoji emoji)
         {
-            return new DiscordEmoji { Name = unicode_entity, Discord = null };
+            // this is a round-trip operation because of FE0F inconsistencies.
+            // through this, the inconsistency is normalized.
+
+            emoji = null;
+            if (!DiscordNameLookup.TryGetValue(unicodeEntity, out var discordName))
+                return false;
+
+            if (!UnicodeEmojis.TryGetValue(discordName, out unicodeEntity))
+                return false;
+
+            emoji = new DiscordEmoji { Name = unicodeEntity, Discord = client };
+            return true;
         }
+
+        /// <summary>
+        /// Attempts to create an emoji object from a unicode entity.
+        /// </summary>
+        /// <param name="unicodeEntity">Unicode entity to create the object from.</param>
+        /// <param name="emoji">Resulting <see cref="DiscordEmoji"/> object.</param>
+        /// <returns>Whether the operation was successful.</returns>
+        public static bool TryFromUnicode(string unicodeEntity, out DiscordEmoji emoji)
+            => TryFromUnicode(null, unicodeEntity, out emoji);
 
         /// <summary>
         /// Creates an emoji object from a guild emote.
@@ -233,7 +271,31 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Creates a DiscordEmoji from emote name that includes colons (eg. :thinking:). This method also supports skin tone variations (eg. :ok_hand::skin-tone-2:), standard emoticons (eg. :D), as well as guild emoji (still specified by :name:).
+        /// Attempts to create an emoji object from a guild emote.
+        /// </summary>
+        /// <param name="client"><see cref="BaseDiscordClient"/> to attach to the object.</param>
+        /// <param name="id">Id of the emote.</param>
+        /// <param name="emoji">Resulting <see cref="DiscordEmoji"/> object.</param>
+        /// <returns>Whether the operation was successful.</returns>
+        public static bool TryFromGuildEmote(BaseDiscordClient client, ulong id, out DiscordEmoji emoji)
+        {
+            if (client == null)
+                throw new ArgumentNullException(nameof(client), "Client cannot be null.");
+
+            foreach (var guild in client.Guilds.Values)
+            {
+                if (guild.Emojis.TryGetValue(id, out emoji))
+                    return true;
+            }
+
+            emoji = null;
+            return false;
+        }
+
+        /// <summary>
+        /// Creates an emoji obejct from emote name that includes colons (eg. :thinking:). This method also supports 
+        /// skin tone variations (eg. :ok_hand::skin-tone-2:), standard emoticons (eg. :D), as well as guild emoji 
+        /// (still specified by :name:).
         /// </summary>
         /// <param name="client"><see cref="BaseDiscordClient"/> to attach to the object.</param>
         /// <param name="name">Name of the emote to find, including colons (eg. :thinking:).</param>
@@ -247,20 +309,75 @@ namespace DSharpPlus.Entities
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentNullException(nameof(name), "Name cannot be empty or null.");
 
-            if (UnicodeEmojis.ContainsKey(name))
-                return new DiscordEmoji { Discord = client, Name = UnicodeEmojis[name] };
+            if (UnicodeEmojis.TryGetValue(name, out var unicodeEntity))
+                return new DiscordEmoji { Discord = client, Name = unicodeEntity };
 
             if (includeGuilds)
             {
-                var allEmojis = client.Guilds.Values.SelectMany(xg => xg.Emojis.Values).OrderBy(xe => xe.Name);
-            
-                var ek = name.Substring(1, name.Length - 2);
+                var allEmojis = client.Guilds.Values
+                    .SelectMany(xg => xg.Emojis.Values); // save cycles - don't order
+
+                var ek = name.AsSpan().Slice(1, name.Length - 2);
                 foreach (var emoji in allEmojis)
-                    if (emoji.Name == ek)
+                    if (emoji.Name.AsSpan().SequenceEqual(ek))
                         return emoji;
             }
 
             throw new ArgumentException("Invalid emoji name specified.", nameof(name));
+        }
+
+        /// <summary>
+        /// Attempts to create an emoji obejct from emote name that includes colons (eg. :thinking:). This method also 
+        /// supports skin tone variations (eg. :ok_hand::skin-tone-2:), standard emoticons (eg. :D), as well as guild 
+        /// emoji (still specified by :name:).
+        /// </summary>
+        /// <param name="client"><see cref="BaseDiscordClient"/> to attach to the object.</param>
+        /// <param name="name">Name of the emote to find, including colons (eg. :thinking:).</param>
+        /// <param name="emoji">Resulting <see cref="DiscordEmoji"/> object.</param>
+        /// <returns>Whether the operation was successful.</returns>
+        public static bool TryFromName(BaseDiscordClient client, string name, out DiscordEmoji emoji)
+            => TryFromName(client, name, true, out emoji);
+
+        /// <summary>
+        /// Attempts to create an emoji obejct from emote name that includes colons (eg. :thinking:). This method also 
+        /// supports skin tone variations (eg. :ok_hand::skin-tone-2:), standard emoticons (eg. :D), as well as guild 
+        /// emoji (still specified by :name:).
+        /// </summary>
+        /// <param name="client"><see cref="BaseDiscordClient"/> to attach to the object.</param>
+        /// <param name="name">Name of the emote to find, including colons (eg. :thinking:).</param>
+        /// <param name="includeGuilds">Should guild emojis be included in the search.</param>
+        /// <param name="emoji">Resulting <see cref="DiscordEmoji"/> object.</param>
+        /// <returns>Whether the operation was successful.</returns>
+        public static bool TryFromName(BaseDiscordClient client, string name, bool includeGuilds, out DiscordEmoji emoji)
+        {
+            if (client == null)
+                throw new ArgumentNullException(nameof(client), "Client cannot be null.");
+
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentNullException(nameof(name), "Name cannot be empty or null.");
+
+            if (UnicodeEmojis.TryGetValue(name, out var unicodeEntity))
+            {
+                emoji = new DiscordEmoji { Discord = client, Name = unicodeEntity };
+                return true;
+            }
+
+            if (includeGuilds)
+            {
+                var allEmojis = client.Guilds.Values
+                    .SelectMany(xg => xg.Emojis.Values); // save cycles - don't order
+
+                var ek = name.AsSpan().Slice(1, name.Length - 2);
+                foreach (var xemoji in allEmojis)
+                    if (xemoji.Name.AsSpan().SequenceEqual(ek))
+                    {
+                        emoji = xemoji;
+                        return true;
+                    }
+            }
+
+            emoji = null;
+            return false;
         }
     }
 }
