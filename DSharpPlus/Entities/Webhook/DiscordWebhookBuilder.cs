@@ -266,18 +266,33 @@ namespace DSharpPlus.Entities
         /// Does the validation before we send a the Create/Modify request.
         /// </summary>
         /// <param name="isModify">Tells the method to perform the Modify Validation or Create Validation.</param>
-        internal void Validate(bool isModify = false)
+        /// <param name="isFollowup">Tells the method to perform the follow up message validation.</param>
+        /// <param name="isInteractionResponse">Tells the method to perform the interaction response validation.</param>
+        internal void Validate(bool isModify = false, bool isFollowup = false, bool isInteractionResponse = false)
         {
             if (isModify)
             {
-                if (this.Files.Any())
-                    throw new ArgumentException("You cannot add files when modifying a message.");
-
                 if (this.Username.HasValue)
                     throw new ArgumentException("You cannot change the username of a message.");
 
                 if (this.AvatarUrl.HasValue)
                     throw new ArgumentException("You cannot change the avatar of a message.");
+            }
+            else if (isFollowup)
+            {
+                if (this.Username.HasValue)
+                    throw new ArgumentException("You cannot change the username of a follow up message.");
+
+                if (this.AvatarUrl.HasValue)
+                    throw new ArgumentException("You cannot change the avatar of a follow up message.");
+            }
+            else if (isInteractionResponse)
+            {
+                if (this.Username.HasValue)
+                    throw new ArgumentException("You cannot change the username of an interaction response.");
+
+                if (this.AvatarUrl.HasValue)
+                    throw new ArgumentException("You cannot change the avatar of an interaction response.");
             }
             else
             {

@@ -1310,6 +1310,183 @@ namespace DSharpPlus
             => this.ApiClient.DeleteAllReactionsAsync(channel_id, message_id, reason);
         #endregion
 
+        #region Slash Commands
+        /// <summary>
+        /// Gets all the global slash commands for this application.
+        /// </summary>
+        /// <returns>A list of global slash commands.</returns>
+        public Task<IReadOnlyList<DiscordApplicationCommand>> GetGlobalApplicationCommandsAsync() =>
+            this.ApiClient.GetGlobalApplicationCommandsAsync(this.CurrentApplication.Id);
+
+        /// <summary>
+        /// Overwrites the existing global slash commands. New commands are automatically created and missing commands are automatically deleted.
+        /// </summary>
+        /// <param name="commands">The list of commands to overwrite with.</param>
+        /// <returns>The list of global commands.</returns>
+        public Task<IReadOnlyList<DiscordApplicationCommand>> BulkOverwriteGlobalApplicationCommandsAsync(IEnumerable<DiscordApplicationCommand> commands) =>
+            this.ApiClient.BulkOverwriteGlobalApplicationCommandsAsync(this.CurrentApplication.Id, commands);
+
+        /// <summary>
+        /// Creates or overwrites a global slash command.
+        /// </summary>
+        /// <param name="command">The command to create.</param>
+        /// <returns>The created command.</returns>
+        public Task<DiscordApplicationCommand> CreateGlobalApplicationCommandAsync(DiscordApplicationCommand command) =>
+            this.ApiClient.CreateGlobalApplicationCommandAsync(this.CurrentApplication.Id, command);
+
+        /// <summary>
+        /// Gets a global slash command by its id.
+        /// </summary>
+        /// <param name="commandId">The id of the command to get.</param>
+        /// <returns>The command with the id.</returns>
+        public Task<DiscordApplicationCommand> GetGlobalApplicationCommandAsync(ulong commandId) =>
+            this.ApiClient.GetGlobalApplicationCommandAsync(this.CurrentApplication.Id, commandId);
+
+        /// <summary>
+        /// Edits a global slash command.
+        /// </summary>
+        /// <param name="commandId">The id of the command to edit.</param>
+        /// <param name="action">Action to perform.</param>
+        /// <returns>The edited command.</returns>
+        public async Task<DiscordApplicationCommand> EditGlobalApplicationCommandAsync(ulong commandId, Action<ApplicationCommandEditModel> action)
+        {
+            var mdl = new ApplicationCommandEditModel();
+            action(mdl);
+            var applicationId = this.CurrentApplication?.Id ?? (await this.GetCurrentApplicationAsync()).Id;
+            return await this.ApiClient.EditGlobalApplicationCommandAsync(applicationId, commandId, mdl.Name, mdl.Description, mdl.Options);
+        }
+
+        /// <summary>
+        /// Deletes a global slash command.
+        /// </summary>
+        /// <param name="commandId">The id of the command to delete.</param>
+        public Task DeleteGlobalApplicationCommandAsync(ulong commandId) =>
+            this.ApiClient.DeleteGlobalApplicationCommandAsync(this.CurrentApplication.Id, commandId);
+
+        /// <summary>
+        /// Gets all the slash commands for a guild.
+        /// </summary>
+        /// <param name="guildId">The id of the guild to get slash commands for.</param>
+        /// <returns>A list of slash commands in the guild.</returns>
+        public Task<IReadOnlyList<DiscordApplicationCommand>> GetGuildApplicationCommandsAsync(ulong guildId) =>
+            this.ApiClient.GetGuildApplicationCommandsAsync(this.CurrentApplication.Id, guildId);
+
+        /// <summary>
+        /// Overwrites the existing slash commands in a guild. New commands are automatically created and missing commands are automatically deleted.
+        /// </summary>
+        /// <param name="guildId">The id of the guild.</param>
+        /// <param name="commands">The list of commands to overwrite with.</param>
+        /// <returns>The list of guild commands.</returns>
+        public Task<IReadOnlyList<DiscordApplicationCommand>> BulkOverwriteGuildApplicationCommandsAsync(ulong guildId, IEnumerable<DiscordApplicationCommand> commands) =>
+            this.ApiClient.BulkOverwriteGuildApplicationCommandsAsync(this.CurrentApplication.Id, guildId, commands);
+
+        /// <summary>
+        /// Creates or overwrites a guild slash command.
+        /// </summary>
+        /// <param name="guildId">The id of the guild to create the slash command in.</param>
+        /// <param name="command">The command to create.</param>
+        /// <returns>The created command.</returns>
+        public Task<DiscordApplicationCommand> CreateGuildApplicationCommandAsync(ulong guildId, DiscordApplicationCommand command) =>
+            this.ApiClient.CreateGuildApplicationCommandAsync(this.CurrentApplication.Id, guildId, command);
+
+        /// <summary>
+        /// Gets a slash command in a guild by its id.
+        /// </summary>
+        /// <param name="guildId">The id of the guild the slash command is in.</param>
+        /// <param name="commandId">The id of the command to get.</param>
+        /// <returns>The command with the id.</returns>
+        public Task<DiscordApplicationCommand> GetGuildApplicationCommandAsync(ulong guildId, ulong commandId) =>
+             this.ApiClient.GetGuildApplicationCommandAsync(this.CurrentApplication.Id, guildId, commandId);
+
+        /// <summary>
+        /// Edits a slash command in a guild.
+        /// </summary>
+        /// <param name="guildId">The id of the guild the slash command is in.</param>
+        /// <param name="commandId">The id of the command to edit.</param>
+        /// <param name="action">Action to perform.</param>
+        /// <returns>The edited command.</returns>
+        public async Task<DiscordApplicationCommand> EditGuildApplicationCommandAsync(ulong guildId, ulong commandId, Action<ApplicationCommandEditModel> action)
+        {
+            var mdl = new ApplicationCommandEditModel();
+            action(mdl);
+            var applicationId = this.CurrentApplication?.Id ?? (await this.GetCurrentApplicationAsync()).Id;
+            return await this.ApiClient.EditGuildApplicationCommandAsync(applicationId, guildId, commandId, mdl.Name, mdl.Description, mdl.Options);
+        }
+
+        /// <summary>
+        /// Deletes a slash command in a guild.
+        /// </summary>
+        /// <param name="guildId">The id of the guild to delete the slash command in.</param>
+        /// <param name="commandId">The id of the command.</param>
+        public Task DeleteGuildApplicationCommandAsync(ulong guildId, ulong commandId) =>
+            this.ApiClient.DeleteGuildApplicationCommandAsync(this.CurrentApplication.Id, guildId, commandId);
+
+        /// <summary>
+        /// Creates a response to an interaction.
+        /// </summary>
+        /// <param name="interactionId">The id of the interaction.</param>
+        /// <param name="interactionToken">The token of the interaction</param>
+        /// <param name="type">The type of the response.</param>
+        /// <param name="builder">The data, if any, to send.</param>
+        public Task CreateInteractionResponseAsync(ulong interactionId, string interactionToken, InteractionResponseType type, DiscordInteractionResponseBuilder builder = null) =>
+            this.ApiClient.CreateInteractionResponseAsync(interactionId, interactionToken, type, builder);
+
+        /// <summary>
+        /// Edits the original interaction response.
+        /// </summary>
+        /// <param name="interactionToken">The token of the interaction.</param>
+        /// <param name="builder">The webhook builder.</param>
+        /// <returns>The <see cref="DiscordMessage"/> edited.</returns>
+        public async Task<DiscordMessage> EditOriginalInteractionResponseAsync(string interactionToken, DiscordWebhookBuilder builder)
+        {
+            builder.Validate(isInteractionResponse: true);
+
+            return await this.ApiClient.EditOriginalInteractionResponseAsync(this.CurrentApplication.Id, interactionToken, builder);
+        }
+
+        /// <summary>
+        /// Deletes the original interaction response.
+        /// <param name="interactionToken">The token of the interaction.</param>
+        /// </summary>>
+        public Task DeleteOriginalInteractionResponseAsync(string interactionToken) =>
+            this.ApiClient.DeleteOriginalInteractionResponseAsync(this.CurrentApplication.Id, interactionToken);
+
+        /// <summary>
+        /// Creates a follow up message to an interaction.
+        /// </summary>
+        /// <param name="interactionToken">The token of the interaction.</param>
+        /// <param name="builder">The webhook builder.</param>
+        /// <returns>The <see cref="DiscordMessage"/> created.</returns>
+        public async Task<DiscordMessage> CreateFollowupMessageAsync(string interactionToken, DiscordWebhookBuilder builder)
+        {
+            builder.Validate(isFollowup: true);
+
+            return await this.ApiClient.CreateFollowupMessageAsync(this.CurrentApplication.Id, interactionToken, builder);
+        }
+
+        /// <summary>
+        /// Edits a follow up message.
+        /// </summary>
+        /// <param name="interactionToken">The token of the interaction.</param>
+        /// <param name="messageId">The id of the follow up message.</param>
+        /// <param name="builder">The webhook builder.</param>
+        /// <returns>The <see cref="DiscordMessage"/> edited.</returns>
+        public async Task<DiscordMessage> EditFollowupMessageAsync(string interactionToken, ulong messageId, DiscordWebhookBuilder builder)
+        {
+            builder.Validate(isFollowup: true);
+
+            return await this.ApiClient.EditFollowupMessageAsync(this.CurrentApplication.Id, interactionToken, messageId, builder);
+        }
+
+        /// <summary>
+        /// Deletes a follow up message.
+        /// </summary>
+        /// <param name="interactionToken">The token of the interaction.</param>
+        /// <param name="messageId">The id of the follow up message.</param>
+        public Task DeleteFollowupMessageAsync(string interactionToken, ulong messageId) =>
+            this.ApiClient.DeleteFollowupMessageAsync(this.CurrentApplication.Id, interactionToken, messageId);
+        #endregion
+
         #region Misc
         /// <summary>
         /// Gets assets from an application
