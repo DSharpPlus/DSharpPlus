@@ -622,6 +622,37 @@ namespace DSharpPlus.Net
 
             return screening_raw;
         }
+
+        internal async Task<DiscordGuildWelcomeScreen> GetGuildWelcomeScreenAsync(ulong guild_id)
+        {
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.WELCOME_SCREEN}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route);
+
+            var ret = JsonConvert.DeserializeObject<DiscordGuildWelcomeScreen>(res.Response);
+            return ret;
+        }
+
+        internal async Task<DiscordGuildWelcomeScreen> ModifyGuildWelcomeScreenAsync(ulong guild_id, Optional<bool> enabled, Optional<IEnumerable<DiscordGuildWelcomeScreenChannel>> welcomeChannels, Optional<string> description)
+        {
+            var pld = new RestGuildWelcomeScreenModifyPayload
+            {
+                Enabled = enabled,
+                WelcomeChannels = welcomeChannels,
+                Description = description
+            };
+
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.WELCOME_SCREEN}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, payload: DiscordJson.SerializeObject(pld));
+
+            var ret = JsonConvert.DeserializeObject<DiscordGuildWelcomeScreen>(res.Response);
+            return ret;
+        }
         #endregion
 
         #region Channel
