@@ -22,7 +22,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the recipients of this direct message.
         /// </summary>
-        [JsonProperty("recipient", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("recipients", NullValueHandling = NullValueHandling.Ignore)]
         public IReadOnlyList<DiscordUser> Recipients 
             => this._recipients_lazy.Value;
 
@@ -36,6 +36,18 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("icon", NullValueHandling = NullValueHandling.Ignore)]
         public string IconHash { get; internal set; }
+
+        /// <summary>
+        /// Gets the id of this direct message's creator.
+        /// </summary>
+        [JsonProperty("owner_id", NullValueHandling = NullValueHandling.Ignore)]
+        public ulong OwnerId { get; internal set; }
+
+        /// <summary>
+        /// Gets the application id of the direct message's creator if it a bot.
+        /// </summary>
+        [JsonProperty("application_id", NullValueHandling = NullValueHandling.Ignore)]
+        public ulong ApplicationId { get; internal set; }
 
         /// <summary>
         /// Gets the URL of this channel's icon.
