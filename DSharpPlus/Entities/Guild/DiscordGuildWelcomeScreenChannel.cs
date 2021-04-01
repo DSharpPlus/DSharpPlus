@@ -30,5 +30,18 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("emoji_name", NullValueHandling = NullValueHandling.Ignore)]
         public string EmojiName { get; internal set; }
+
+        public DiscordGuildWelcomeScreenChannel(ulong channelId, string description, DiscordEmoji emoji = null)
+        {
+            this.ChannelId = channelId;
+            this.Description = description;
+            if(emoji != null)
+            {
+                if (emoji.Id == 0)
+                    EmojiName = emoji.Name;
+                else
+                    EmojiId = emoji.Id;
+            }
+        }
     }
 }
