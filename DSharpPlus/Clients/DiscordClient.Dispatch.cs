@@ -432,7 +432,7 @@ namespace DSharpPlus
                 //    .ToList();
 
                 var recips_raw = rawChannel["recipients"].ToObject<IEnumerable<TransportUser>>();
-                channel._recipients = new List<DiscordUser>();
+                var recipients = new List<DiscordUser>();
                 foreach (var xr in recips_raw)
                 {
                     var xu = new DiscordUser(xr) { Discord = this };
@@ -444,8 +444,10 @@ namespace DSharpPlus
                         return old;
                     });
 
-                    channel._recipients.Add(xu);
+                    recipients.Add(xu);
                 }
+                channel.Recipients = recipients;
+
 
                 this._privateChannels[channel.Id] = channel;
             }
