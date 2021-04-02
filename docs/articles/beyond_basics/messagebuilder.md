@@ -24,14 +24,6 @@ For sending files, you'll have to use the MessageBuilder to construct your messa
         .SendAsync(ctx.Channel);           
 }
 ```
-OR
-
-```cs
-var msg = await new DiscordMessageBuilder()
-    .WithContent("Here is a really dumb file that I am testing with.")
-    .WithFile("./ADumbFile.txt")
-    .SendAsync(ctx.Channel);
-```
 
 ### Adding Mentions
 For sending mentions, you'll have to use the MessageBuilder to construct your message, see example below:
