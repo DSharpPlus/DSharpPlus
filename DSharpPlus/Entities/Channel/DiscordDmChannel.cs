@@ -22,7 +22,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the recipients of this direct message.
         /// </summary>
-        [JsonProperty("recipients", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("recipient", NullValueHandling = NullValueHandling.Ignore)]
         public IReadOnlyList<DiscordUser> Recipients 
             => this._recipients_lazy.Value;
 
