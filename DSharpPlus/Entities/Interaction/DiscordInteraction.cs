@@ -102,9 +102,9 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="builder">The webhook builder.</param>
         /// <returns>The <see cref="DiscordMessage"/> created.</returns>
-        public async Task<DiscordMessage> CreateFollowupMessageAsync(DiscordWebhookBuilder builder)
+        public async Task<DiscordMessage> CreateFollowupMessageAsync(DiscordFollowupMessageBuilder builder)
         {
-            builder.Validate(isFollowup: true);
+            builder.Validate();
 
             return await this.Discord.ApiClient.CreateFollowupMessageAsync(this.Discord.CurrentApplication.Id, this.Token, builder);
         }

@@ -36,4 +36,22 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("data", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordInteractionApplicationCommandCallbackData Data { get; set; }
     }
+
+    internal class RestFollowupMessageCreatePayload
+    {
+        [JsonProperty("content", NullValueHandling = NullValueHandling.Ignore)]
+        public string Content { get; set; }
+
+        [JsonProperty("tts", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? IsTTS { get; set; }
+
+        [JsonProperty("embeds", NullValueHandling = NullValueHandling.Ignore)]
+        public IEnumerable<DiscordEmbed> Embeds { get; set; }
+
+        [JsonProperty("allowed_mentions", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordMentions Mentions { get; set; }
+
+        [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
+        public int? Flags { get; set; }
+    }
 }
