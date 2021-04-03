@@ -12,6 +12,7 @@ using Newtonsoft.Json.Linq;
 using DSharpPlus.Net.Serialization;
 using DSharpPlus.Net.Abstractions;
 using Microsoft.Extensions.Logging;
+using DSharpPlus.Net.Models;
 
 namespace DSharpPlus.Entities
 {

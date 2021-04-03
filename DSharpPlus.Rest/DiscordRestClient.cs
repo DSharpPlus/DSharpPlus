@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System;
 using DSharpPlus.Exceptions;
+using DSharpPlus.Net.Models;
 
 namespace DSharpPlus
 {
@@ -1024,6 +1025,7 @@ namespace DSharpPlus
         /// <summary>
         /// Modifies a guild's welcome screen.
         /// </summary>
+        /// <param name="guildId">The ID of the guild to modify.</param>
         /// <param name="action">Action to perform.</param>
         /// <returns>The modified welcome screen.</returns>
         public async Task<DiscordGuildWelcomeScreen> ModifyGuildWelcomeScreenAsync(ulong guildId, Action<WelcomeScreenEditModel> action)
