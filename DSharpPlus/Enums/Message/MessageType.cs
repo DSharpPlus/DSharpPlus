@@ -81,6 +81,16 @@
         GuildDiscoveryRequalified = 15,
 
         /// <summary>
+        /// Message indicating that a guild has failed to meet guild discovery requirements for a week.
+        /// </summary>
+        GuildDiscoveryGracePeriodInitialWarning = 16,
+
+        /// <summary>
+        /// Message indicating that a guild has failed to meet guild discovery requirements for 3 weeks.
+        /// </summary>
+        GuildDiscoveryGracePeriodFinalWarning = 17,
+
+        /// <summary>
         /// Message indicating a user replied to another user.
         /// </summary>
         Reply = 19,
