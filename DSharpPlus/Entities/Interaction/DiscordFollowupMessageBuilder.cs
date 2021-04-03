@@ -209,7 +209,7 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Allows for clearing the Webhook Builder so that it can be used again to send a new message.
+        /// Allows for clearing the Followup Message builder so that it can be used again to send a new message.
         /// </summary>
         public void Clear()
         {
