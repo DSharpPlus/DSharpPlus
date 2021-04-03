@@ -6,7 +6,7 @@ using System.Text;
 namespace DSharpPlus.Entities
 {
     /// <summary>
-    /// Represents a discord welcome screen object
+    /// Represents a discord welcome screen object.
     /// </summary>
     public class DiscordGuildWelcomeScreen
     {
@@ -17,7 +17,7 @@ namespace DSharpPlus.Entities
         public string Description { get; internal set; }
 
         /// <summary>
-        /// Gets the channels shown in the welcome screen
+        /// Gets the channels shown in the welcome screen.
         /// </summary>
         [JsonProperty("welcome_channels", NullValueHandling = NullValueHandling.Ignore)]
         public IReadOnlyList<DiscordGuildWelcomeScreenChannel> WelcomeChannels { get; internal set; }

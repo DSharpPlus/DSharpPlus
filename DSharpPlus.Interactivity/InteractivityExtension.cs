@@ -324,7 +324,7 @@ namespace DSharpPlus.Interactivity
                     for(int i = 0; i < subsplit.Length; i++)
                     {
                         s += subsplit[i];
-                        if(i % 15 == 0)
+                        if(i >= 15 && i % 15 == 0)
                         {
                             split.Add(s);
                             s = "";

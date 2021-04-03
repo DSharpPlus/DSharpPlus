@@ -245,4 +245,16 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<string> Description { get; set; }
     }
+
+    internal class RestGuildWelcomeScreenModifyPayload
+    {
+        [JsonProperty("enabled", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<bool> Enabled { get; set; }
+
+        [JsonProperty("welcome_channels", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<IEnumerable<DiscordGuildWelcomeScreenChannel>> WelcomeChannels { get; set; }
+
+        [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<string> Description { get; set; }
+    }
 }

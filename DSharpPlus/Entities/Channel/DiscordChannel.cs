@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -115,6 +116,17 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("rate_limit_per_user")]
         public int? PerUserRateLimit { get; internal set; }
+
+        /// <summary>
+        /// Gets when the last pinned message was pinned.
+        /// </summary>
+        [JsonIgnore]
+        public DateTimeOffset? LastPinTimestamp
+            => !string.IsNullOrWhiteSpace(this.LastPinTimestampRaw) && DateTimeOffset.TryParse(this.LastPinTimestampRaw, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dto) ?
+                dto : null;
+
+        [JsonProperty("last_pin_timestamp", NullValueHandling = NullValueHandling.Ignore)]
+        internal string LastPinTimestampRaw { get; set; }
 
         /// <summary>
         /// Gets this channel's mention string.

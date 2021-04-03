@@ -1431,8 +1431,8 @@ namespace DSharpPlus.Entities
                                 case "permissions":
                                     entryrol.PermissionChange = new PropertyChange<Permissions?>
                                     {
-                                        Before = xc.OldValue != null ? (Permissions?)(long)xc.OldValue : null,
-                                        After = xc.NewValue != null ? (Permissions?)(long)xc.NewValue : null
+                                        Before = xc.OldValue != null ? (Permissions?)long.Parse((string)xc.OldValue) : null,
+                                        After = xc.NewValue != null ? (Permissions?)long.Parse((string)xc.NewValue) : null
                                     };
                                     break;
 
@@ -2086,6 +2086,28 @@ namespace DSharpPlus.Entities
             action(builder);
 
             return await this.ModifyMembershipScreeningFormAsync(builder).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Gets this guild's welcome screen.
+        /// </summary>
+        /// <returns>This guild's welcome screen object.</returns>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordGuildWelcomeScreen> GetWelcomeScreenAsync() =>
+            this.Discord.ApiClient.GetGuildWelcomeScreenAsync(this.Id);
+
+        /// <summary>
+        /// Modifies this guild's welcome screen.
+        /// </summary>
+        /// <param name="action">Action to perform.</param>
+        /// <returns>The modified welcome screen.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client doesn't have the <see cref="Permissions.ManageGuild"/> permission, or community is not enabled on this guild.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<DiscordGuildWelcomeScreen> ModifyWelcomeScreenAsync(Action<WelcomeScreenEditModel> action)
+        {
+            var mdl = new WelcomeScreenEditModel();
+            action(mdl);
+            return await this.Discord.ApiClient.ModifyGuildWelcomeScreenAsync(this.Id, mdl.Enabled, mdl.WelcomeChannels, mdl.Description);
         }
         #endregion
 

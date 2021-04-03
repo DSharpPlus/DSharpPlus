@@ -55,9 +55,10 @@ namespace DSharpPlus.Net
 
             PopulateMessage(author, ret);
 
-            if (ret.MessageType == MessageType.Reply)
+            var referencedMsg = msg_raw["referenced_message"];
+            if (ret.MessageType == MessageType.Reply && !string.IsNullOrWhiteSpace(referencedMsg?.ToString()))
             {
-                author = msg_raw["referenced_message"]["author"].ToObject<TransportUser>();
+                author = referencedMsg["author"].ToObject<TransportUser>();
                 ret.ReferencedMessage.Discord = this.Discord;
                 PopulateMessage(author, ret.ReferencedMessage);
             }
@@ -685,6 +686,37 @@ namespace DSharpPlus.Net
             var screening_raw = JsonConvert.DeserializeObject<DiscordGuildMembershipScreening>(res.Response);
 
             return screening_raw;
+        }
+
+        internal async Task<DiscordGuildWelcomeScreen> GetGuildWelcomeScreenAsync(ulong guild_id)
+        {
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.WELCOME_SCREEN}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route);
+
+            var ret = JsonConvert.DeserializeObject<DiscordGuildWelcomeScreen>(res.Response);
+            return ret;
+        }
+
+        internal async Task<DiscordGuildWelcomeScreen> ModifyGuildWelcomeScreenAsync(ulong guild_id, Optional<bool> enabled, Optional<IEnumerable<DiscordGuildWelcomeScreenChannel>> welcomeChannels, Optional<string> description)
+        {
+            var pld = new RestGuildWelcomeScreenModifyPayload
+            {
+                Enabled = enabled,
+                WelcomeChannels = welcomeChannels,
+                Description = description
+            };
+
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.WELCOME_SCREEN}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, payload: DiscordJson.SerializeObject(pld));
+
+            var ret = JsonConvert.DeserializeObject<DiscordGuildWelcomeScreen>(res.Response);
+            return ret;
         }
         #endregion
 

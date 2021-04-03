@@ -304,6 +304,12 @@ namespace DSharpPlus.Entities
         [JsonProperty("referenced_message", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordMessage ReferencedMessage { get; internal set; }
 
+        /// <summary>
+        /// Gets whether the message is a response to an interaction.
+        /// </summary>
+        [JsonProperty("interaction", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordMessageInteraction Interaction { get; internal set; }
+
         internal DiscordMessageReference InternalBuildMessageReference()
         {
             var client = this.Discord as DiscordClient;
