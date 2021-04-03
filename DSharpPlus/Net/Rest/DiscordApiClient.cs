@@ -2470,8 +2470,45 @@ namespace DSharpPlus.Net
         internal Task DeleteOriginalInteractionResponseAsync(ulong application_id, string interaction_token) =>
             this.DeleteWebhookMessageAsync(application_id, interaction_token, "@original");
 
-        internal Task<DiscordMessage> CreateFollowupMessageAsync(ulong application_id, string interaction_token, DiscordWebhookBuilder builder) =>
-            this.ExecuteWebhookAsync(application_id, interaction_token, builder);
+        internal async Task<DiscordMessage> CreateFollowupMessageAsync(ulong application_id, string interaction_token, DiscordFollowupMessageBuilder builder)
+        {
+            builder.Validate();
+
+            if (builder.Embeds != null)
+                foreach (var embed in builder.Embeds)
+                    if (embed.Timestamp != null)
+                        embed.Timestamp = embed.Timestamp.Value.ToUniversalTime();
+
+            var values = new Dictionary<string, string>();
+            var pld = new RestFollowupMessageCreatePayload
+            {
+                Content = builder.Content,
+                IsTTS = builder.IsTTS,
+                Embeds = builder.Embeds,
+                Flags = builder.Flags
+            };
+
+            if (builder.Mentions != null)
+                pld.Mentions = new DiscordMentions(builder.Mentions);
+
+            if (!string.IsNullOrEmpty(builder.Content) || builder.Embeds?.Count() > 0 || builder.IsTTS == true || builder.Mentions != null)
+                values["payload_json"] = DiscordJson.SerializeObject(pld);
+
+            var route = $"{Endpoints.WEBHOOKS}/:application_id/:interaction_token";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { application_id, interaction_token }, out var path);
+
+            var url = Utilities.GetApiUriBuilderFor(path).AddParameter("wait", "true").Build();
+            var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, values: values, files: builder.Files).ConfigureAwait(false);
+            var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
+
+            foreach (var file in builder.Files.Where(x => x.ResetPositionTo.HasValue))
+            {
+                file.Stream.Position = file.ResetPositionTo.Value;
+            }
+
+            ret.Discord = this.Discord;
+            return ret;
+        }
 
         internal Task<DiscordMessage> EditFollowupMessageAsync(ulong application_id, string interaction_token, ulong message_id, DiscordWebhookBuilder builder) =>
             this.EditWebhookMessageAsync(application_id, interaction_token, message_id, builder);

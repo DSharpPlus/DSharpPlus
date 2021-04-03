@@ -1475,9 +1475,9 @@ namespace DSharpPlus
         /// <param name="interactionToken">The token of the interaction.</param>
         /// <param name="builder">The webhook builder.</param>
         /// <returns>The <see cref="DiscordMessage"/> created.</returns>
-        public async Task<DiscordMessage> CreateFollowupMessageAsync(string interactionToken, DiscordWebhookBuilder builder)
+        public async Task<DiscordMessage> CreateFollowupMessageAsync(string interactionToken, DiscordFollowupMessageBuilder builder)
         {
-            builder.Validate(isFollowup: true);
+            builder.Validate();
 
             return await this.ApiClient.CreateFollowupMessageAsync(this.CurrentApplication.Id, interactionToken, builder);
         }
