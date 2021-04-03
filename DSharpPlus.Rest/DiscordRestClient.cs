@@ -691,7 +691,6 @@ namespace DSharpPlus
         /// </exception>
         public Task<DiscordMessage> CrosspostMessageAsync(ulong channel_id, ulong message_id)
             => this.ApiClient.CrosspostMessageAsync(channel_id, message_id);
-        
         #endregion
 
         #region Member
@@ -1031,6 +1030,25 @@ namespace DSharpPlus
         /// <returns>The deleted template.</returns>
         public Task<DiscordGuildTemplate> DeleteGuildTemplateAsync(ulong guild_id, string code)
             => this.ApiClient.DeleteGuildTemplateAsync(guild_id, code);
+
+        /// <summary>
+        /// Gets a guild's welcome screen.
+        /// </summary>
+        /// <returns>The guild's welcome screen object.</returns>
+        public Task<DiscordGuildWelcomeScreen> GetGuildWelcomeScreenAsync(ulong guildId) =>
+            this.ApiClient.GetGuildWelcomeScreenAsync(guildId);
+
+        /// <summary>
+        /// Modifies a guild's welcome screen.
+        /// </summary>
+        /// <param name="action">Action to perform.</param>
+        /// <returns>The modified welcome screen.</returns>
+        public async Task<DiscordGuildWelcomeScreen> ModifyGuildWelcomeScreenAsync(ulong guildId, Action<WelcomeScreenEditModel> action)
+        {
+            var mdl = new WelcomeScreenEditModel();
+            action(mdl);
+            return await this.ApiClient.ModifyGuildWelcomeScreenAsync(guildId, mdl.Enabled, mdl.WelcomeChannels, mdl.Description);
+        }
         #endregion
 
         #region Invites

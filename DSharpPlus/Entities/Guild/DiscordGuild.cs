@@ -2152,6 +2152,27 @@ namespace DSharpPlus.Entities
             action(mdl);
             return await this.Discord.ApiClient.EditGuildApplicationCommandAsync(this.Discord.CurrentApplication.Id, this.Id, commandId, mdl.Name, mdl.Description, mdl.Options);
         }
+
+        /// Gets this guild's welcome screen.
+        /// </summary>
+        /// <returns>This guild's welcome screen object.</returns>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordGuildWelcomeScreen> GetWelcomeScreenAsync() =>
+            this.Discord.ApiClient.GetGuildWelcomeScreenAsync(this.Id);
+
+        /// <summary>
+        /// Modifies this guild's welcome screen.
+        /// </summary>
+        /// <param name="action">Action to perform.</param>
+        /// <returns>The modified welcome screen.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client doesn't have the <see cref="Permissions.ManageGuild"/> permission, or community is not enabled on this guild.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<DiscordGuildWelcomeScreen> ModifyWelcomeScreenAsync(Action<WelcomeScreenEditModel> action)
+        {
+            var mdl = new WelcomeScreenEditModel();
+            action(mdl);
+            return await this.Discord.ApiClient.ModifyGuildWelcomeScreenAsync(this.Id, mdl.Enabled, mdl.WelcomeChannels, mdl.Description);
+        }
         #endregion
 
         /// <summary>

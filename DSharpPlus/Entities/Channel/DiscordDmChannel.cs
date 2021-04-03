@@ -13,29 +13,29 @@ namespace DSharpPlus.Entities
     /// </summary>
     public class DiscordDmChannel : DiscordChannel
     {
-        internal DiscordDmChannel()
-            : base()
-        {
-            this._recipients_lazy = new Lazy<IReadOnlyList<DiscordUser>>(() => new ReadOnlyCollection<DiscordUser>(this._recipients));
-        }
-
         /// <summary>
         /// Gets the recipients of this direct message.
         /// </summary>
-        [JsonProperty("recipient", NullValueHandling = NullValueHandling.Ignore)]
-        public IReadOnlyList<DiscordUser> Recipients 
-            => this._recipients_lazy.Value;
-
-        [JsonIgnore]
-        internal List<DiscordUser> _recipients;
-        [JsonIgnore]
-        private Lazy<IReadOnlyList<DiscordUser>> _recipients_lazy;
+        [JsonProperty("recipients", NullValueHandling = NullValueHandling.Ignore)]
+        public IReadOnlyList<DiscordUser> Recipients { get; internal set; }
 
         /// <summary>
         /// Gets the hash of this channel's icon.
         /// </summary>
         [JsonProperty("icon", NullValueHandling = NullValueHandling.Ignore)]
         public string IconHash { get; internal set; }
+
+        /// <summary>
+        /// Gets the id of this direct message's creator.
+        /// </summary>
+        [JsonProperty("owner_id", NullValueHandling = NullValueHandling.Ignore)]
+        public ulong OwnerId { get; internal set; }
+
+        /// <summary>
+        /// Gets the application id of the direct message's creator if it a bot.
+        /// </summary>
+        [JsonProperty("application_id", NullValueHandling = NullValueHandling.Ignore)]
+        public ulong ApplicationId { get; internal set; }
 
         /// <summary>
         /// Gets the URL of this channel's icon.

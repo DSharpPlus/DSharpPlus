@@ -54,5 +54,6 @@
         public const string COMMANDS = "/commands";
         public const string INTERACTIONS = "/interactions";
         public const string CALLBACK = "/callback";
+        public const string WELCOME_SCREEN = "/welcome-screen";
     }
 }
