@@ -42,6 +42,16 @@ namespace DSharpPlus
         /// <summary>
         /// The message came from the urgent message system.
         /// </summary>
-        Urgent = 1 << 4
+        Urgent = 1 << 4,
+
+        /// <summary>
+        /// The message is only visible to the user who invoked the interaction.
+        /// </summary>
+        Ephemeral = 1 << 6,
+
+        /// <summary>
+        /// The message is an interaction response and the bot is "thinking".
+        /// </summary>
+        Loading = 1 << 7
     }
 }

@@ -5,8 +5,8 @@ title: Message Builder
 
 ## Background
 Before the message builder was put into place, we had one large method for sending messages along with 3 additional methods for sending files. This
-was becoming a major code smell and it was hard to maintain and add more params onto it. Now we support just sending a simple message, an embed, a simple
-message with an embed, or a full fledged message builder.
+was becoming a major code smell and it was hard to maintain and add more parameters onto it. Now we support just sending a simple message, an embed, a simple
+message with an embed, or a message builder.
 
 ## Using the Message Builder
 The API Documentation for the message builder can be found at @DSharpPlus.Entities.MessageCreateBuilder and @DSharpPlus.Entities.MessageModifyBuilder but here we'll go over some of the concepts of using the
@@ -27,7 +27,7 @@ For sending files, you'll have to use the MessageBuilder to construct your messa
 OR
 
 ```cs
-var msg = await new MessageCreateBuilder()
+var msg = await new DiscordMessageBuilder()
     .WithContent("Here is a really dumb file that I am testing with.")
     .WithFile("./ADumbFile.txt")
     .SendAsync(ctx.Channel);

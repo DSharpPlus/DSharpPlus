@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 namespace DSharpPlus.Entities
 {
@@ -69,5 +70,63 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("application_id")]
         public ulong ApplicationId { get; internal set; }
+
+        /// <summary>
+        /// Creates a response to this interaction.
+        /// </summary>
+        /// <param name="type">The type of the response.</param>
+        /// <param name="builder">The data, if any, to send.</param>
+        public Task CreateResponseAsync(InteractionResponseType type, DiscordInteractionResponseBuilder builder = null) =>
+            this.Discord.ApiClient.CreateInteractionResponseAsync(this.Id, this.Token, type, builder);
+
+        /// <summary>
+        /// Edits the original interaction response.
+        /// </summary>
+        /// <param name="builder">The webhook builder.</param>
+        /// <returns>The <see cref="DiscordMessage"/> edited.</returns>
+        public async Task<DiscordMessage> EditOriginalResponseAsync(DiscordWebhookBuilder builder)
+        {
+            builder.Validate(isInteractionResponse: true);
+
+            return await this.Discord.ApiClient.EditOriginalInteractionResponseAsync(this.Discord.CurrentApplication.Id, this.Token, builder);
+        }
+
+        /// <summary>
+        /// Deletes the original interaction response.
+        /// </summary>>
+        public Task DeleteOriginalResponseAsync() =>
+            this.Discord.ApiClient.DeleteOriginalInteractionResponseAsync(this.Discord.CurrentApplication.Id, this.Token);
+
+        /// <summary>
+        /// Creates a follow up message to this interaction.
+        /// </summary>
+        /// <param name="builder">The webhook builder.</param>
+        /// <returns>The <see cref="DiscordMessage"/> created.</returns>
+        public async Task<DiscordMessage> CreateFollowupMessageAsync(DiscordFollowupMessageBuilder builder)
+        {
+            builder.Validate();
+
+            return await this.Discord.ApiClient.CreateFollowupMessageAsync(this.Discord.CurrentApplication.Id, this.Token, builder);
+        }
+
+        /// <summary>
+        /// Edits a follow up message.
+        /// </summary>
+        /// <param name="messageId">The id of the follow up message.</param>
+        /// <param name="builder">The webhook builder.</param>
+        /// <returns>The <see cref="DiscordMessage"/> edited.</returns>
+        public async Task<DiscordMessage> EditFollowupMessageAsync(ulong messageId, DiscordWebhookBuilder builder)
+        {
+            builder.Validate(isFollowup: true);
+
+            return await this.Discord.ApiClient.EditFollowupMessageAsync(this.Discord.CurrentApplication.Id, this.Token, messageId, builder);
+        }
+
+        /// <summary>
+        /// Deletes a follow up message.
+        /// </summary>
+        /// <param name="messageId">The id of the follow up message.</param>
+        public Task DeleteFollowupMessageAsync(ulong messageId) =>
+            this.Discord.ApiClient.DeleteFollowupMessageAsync(this.Discord.CurrentApplication.Id, this.Token, messageId);
     }
 }

@@ -51,6 +51,9 @@
         public const string WIDGET_JSON = "/widget.json";
         public const string TEMPLATES = "/templates";
         public const string MEMBER_VERIFICATION = "/member-verification";
+        public const string COMMANDS = "/commands";
+        public const string INTERACTIONS = "/interactions";
+        public const string CALLBACK = "/callback";
         public const string WELCOME_SCREEN = "/welcome-screen";
     }
 }

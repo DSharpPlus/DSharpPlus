@@ -337,7 +337,7 @@ namespace DSharpPlus.Net
             };
             if (reason != null)
                 urlparams["reason"] = reason;
-            
+
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.BANS}/:user_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PUT, route, new { guild_id, user_id }, out var path);
 
@@ -861,7 +861,7 @@ namespace DSharpPlus.Net
                 HasEmbed = embed != null,
                 Embed = embed
             };
-            
+
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id }, out var path);
 
@@ -973,7 +973,7 @@ namespace DSharpPlus.Net
 
             return new ReadOnlyCollection<DiscordMessage>(new List<DiscordMessage>(msgs));
         }
-        
+
         internal async Task<DiscordMessage> GetChannelMessageAsync(ulong channel_id, ulong message_id)
         {
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}/:message_id";
@@ -993,7 +993,7 @@ namespace DSharpPlus.Net
             {
                 Suppress = suppress
             };
-            
+
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}/:message_id{Endpoints.SUPPRESS_EMBEDS}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id, message_id }, out var path);
 
@@ -1243,26 +1243,26 @@ namespace DSharpPlus.Net
             {
                 WebhookChannelId = webhook_channel_id
             };
-            
+
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.FOLLOWERS}";
-            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new {channel_id}, out var path);
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
             var response = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
-            
+
             return JsonConvert.DeserializeObject<DiscordFollowedChannel>(response.Response);
         }
 
         internal async Task<DiscordMessage> CrosspostMessageAsync(ulong channel_id, ulong message_id)
         {
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}/:message_id{Endpoints.CROSSPOST}";
-            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new {channel_id, message_id}, out var path);
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id, message_id }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
             var response = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route).ConfigureAwait(false);
             return JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
         }
-        
+
         #endregion
 
         #region Member
@@ -1353,7 +1353,7 @@ namespace DSharpPlus.Net
 
             var url = Utilities.GetApiUriBuilderFor(path)
                 .AddParameter($"limit", limit.ToString(CultureInfo.InvariantCulture));
-            
+
             if (before != null)
                 url.AddParameter("before", before.Value.ToString(CultureInfo.InvariantCulture));
             if (after != null)
@@ -1547,7 +1547,7 @@ namespace DSharpPlus.Net
 
             var sb = new StringBuilder();
 
-            if(include_roles != null)
+            if (include_roles != null)
             {
                 var roleArray = include_roles.ToArray();
                 var roleArrayCount = roleArray.Count();
@@ -2047,7 +2047,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessage> EditWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong message_id, WebhookMessageModifyBuilder builder)
+        internal async Task<DiscordMessage> EditWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong message_id, DiscordWebhookBuilder builder)
         {
             builder.Validate();
 
@@ -2068,8 +2068,10 @@ namespace DSharpPlus.Net
             ret.Discord = this.Discord;
             return ret;
         }
+        internal Task<DiscordMessage> EditWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong message_id, DiscordWebhookBuilder builder) =>
+            this.EditWebhookMessageAsync(webhook_id, webhook_token, message_id.ToString(), builder);
 
-        internal async Task DeleteWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong message_id)
+        internal async Task DeleteWebhookMessageAsync(ulong webhook_id, string webhook_token, string message_id)
         {
             var route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token{Endpoints.MESSAGES}/:message_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { webhook_id, webhook_token, message_id }, out var path);
@@ -2077,6 +2079,8 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route);
         }
+        internal Task DeleteWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong message_id) =>
+            this.DeleteWebhookMessageAsync(webhook_id, webhook_token, message_id.ToString());
         #endregion
 
         #region Reactions
@@ -2302,6 +2306,292 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route, headers);
         }
+        #endregion
+
+        #region Slash Commands
+        internal async Task<IReadOnlyList<DiscordApplicationCommand>> GetGlobalApplicationCommandsAsync(ulong application_id)
+        {
+            var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.COMMANDS}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { application_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route);
+
+            var ret = JsonConvert.DeserializeObject<IEnumerable<DiscordApplicationCommand>>(res.Response);
+            foreach (var app in ret)
+                app.Discord = this.Discord;
+            return ret.ToList();
+        }
+
+        internal async Task<IReadOnlyList<DiscordApplicationCommand>> BulkOverwriteGlobalApplicationCommandsAsync(ulong application_id, IEnumerable<DiscordApplicationCommand> commands)
+        {
+            var pld = new List<RestApplicationCommandCreatePayload>();
+            foreach(var command in commands)
+            {
+                pld.Add(new RestApplicationCommandCreatePayload
+                {
+                    Name = command.Name,
+                    Description = command.Description,
+                    Options = command.Options
+                });
+            }
+
+            var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.COMMANDS}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.PUT, route, new { application_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PUT, route, payload: DiscordJson.SerializeObject(pld));
+
+            var ret = JsonConvert.DeserializeObject<IEnumerable<DiscordApplicationCommand>>(res.Response);
+            foreach (var app in ret)
+                app.Discord = this.Discord;
+            return ret.ToList();
+        }
+
+        internal async Task<DiscordApplicationCommand> CreateGlobalApplicationCommandAsync(ulong application_id, DiscordApplicationCommand command)
+        {
+            var pld = new RestApplicationCommandCreatePayload
+            {
+                Name = command.Name,
+                Description = command.Description,
+                Options = command.Options
+            };
+
+            var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.COMMANDS}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { application_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld));
+
+            var ret = JsonConvert.DeserializeObject<DiscordApplicationCommand>(res.Response);
+            ret.Discord = this.Discord;
+
+            return ret;
+        }
+
+        internal async Task<DiscordApplicationCommand> GetGlobalApplicationCommandAsync(ulong application_id, ulong command_id)
+        {
+            var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.COMMANDS}/:command_id";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { application_id, command_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route);
+
+            var ret = JsonConvert.DeserializeObject<DiscordApplicationCommand>(res.Response);
+            ret.Discord = this.Discord;
+
+            return ret;
+        }
+
+        internal async Task<DiscordApplicationCommand> EditGlobalApplicationCommandAsync(ulong application_id, ulong command_id, Optional<string> name, Optional<string> description, Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options)
+        {
+            var pld = new RestApplicationCommandEditPayload
+            {
+                Name = name,
+                Description = description,
+                Options = options
+            };
+
+            var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.COMMANDS}/:command_id";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { application_id, command_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, payload: DiscordJson.SerializeObject(pld));
+
+            var ret = JsonConvert.DeserializeObject<DiscordApplicationCommand>(res.Response);
+            ret.Discord = this.Discord;
+
+            return ret;
+        }
+
+        internal async Task DeleteGlobalApplicationCommandAsync(ulong application_id, ulong command_id)
+        {
+            var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.COMMANDS}/:command_id";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { application_id, command_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route);
+        }
+
+        internal async Task<IReadOnlyList<DiscordApplicationCommand>> GetGuildApplicationCommandsAsync(ulong application_id, ulong guild_id)
+        {
+            var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.GUILDS}/:guild_id{Endpoints.COMMANDS}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { application_id, guild_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route);
+
+            var ret = JsonConvert.DeserializeObject<IEnumerable<DiscordApplicationCommand>>(res.Response);
+            foreach (var app in ret)
+                app.Discord = this.Discord;
+            return ret.ToList();
+        }
+
+        internal async Task<IReadOnlyList<DiscordApplicationCommand>> BulkOverwriteGuildApplicationCommandsAsync(ulong application_id, ulong guild_id, IEnumerable<DiscordApplicationCommand> commands)
+        {
+            var pld = new List<RestApplicationCommandCreatePayload>();
+            foreach (var command in commands)
+            {
+                pld.Add(new RestApplicationCommandCreatePayload
+                {
+                    Name = command.Name,
+                    Description = command.Description,
+                    Options = command.Options
+                });
+            }
+
+            var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.GUILDS}/:guild_id{Endpoints.COMMANDS}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.PUT, route, new { application_id, guild_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PUT, route, payload: DiscordJson.SerializeObject(pld));
+
+            var ret = JsonConvert.DeserializeObject<IEnumerable<DiscordApplicationCommand>>(res.Response);
+            foreach (var app in ret)
+                app.Discord = this.Discord;
+            return ret.ToList();
+        }
+
+        internal async Task<DiscordApplicationCommand> CreateGuildApplicationCommandAsync(ulong application_id, ulong guild_id, DiscordApplicationCommand command)
+        {
+            var pld = new RestApplicationCommandCreatePayload
+            {
+                Name = command.Name,
+                Description = command.Description,
+                Options = command.Options
+            };
+
+            var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.GUILDS}/:guild_id{Endpoints.COMMANDS}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { application_id, guild_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld));
+
+            var ret = JsonConvert.DeserializeObject<DiscordApplicationCommand>(res.Response);
+            ret.Discord = this.Discord;
+
+            return ret;
+        }
+
+        internal async Task<DiscordApplicationCommand> GetGuildApplicationCommandAsync(ulong application_id, ulong guild_id, ulong command_id)
+        {
+            var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.GUILDS}/:guild_id{Endpoints.COMMANDS}/:command_id";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { application_id, guild_id, command_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route);
+
+            var ret = JsonConvert.DeserializeObject<DiscordApplicationCommand>(res.Response);
+            ret.Discord = this.Discord;
+
+            return ret;
+        }
+
+        internal async Task<DiscordApplicationCommand> EditGuildApplicationCommandAsync(ulong application_id, ulong guild_id, ulong command_id, Optional<string> name, Optional<string> description, Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options)
+        {
+            var pld = new RestApplicationCommandEditPayload
+            {
+                Name = name,
+                Description = description,
+                Options = options
+            };
+
+            var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.GUILDS}/:guild_id{Endpoints.COMMANDS}/:command_id";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { application_id, guild_id, command_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, payload: DiscordJson.SerializeObject(pld));
+
+            var ret = JsonConvert.DeserializeObject<DiscordApplicationCommand>(res.Response);
+            ret.Discord = this.Discord;
+
+            return ret;
+        }
+
+        internal async Task DeleteGuildApplicationCommandAsync(ulong application_id, ulong guild_id, ulong command_id)
+        {
+            var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.GUILDS}/:guild_id{Endpoints.COMMANDS}/:command_id";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { application_id, guild_id, command_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route);
+        }
+
+        internal async Task CreateInteractionResponseAsync(ulong interaction_id, string interaction_token, InteractionResponseType type, DiscordInteractionResponseBuilder builder)
+        {
+            var pld = new RestInteractionResponsePayload
+            {
+                Type = type,
+                Data = builder != null ? new DiscordInteractionApplicationCommandCallbackData
+                {
+                    Content = builder.Content,
+                    Embeds = builder.Embeds,
+                    IsTTS = builder.IsTTS,
+                    Mentions = builder.Mentions,
+                    Flags = builder.IsEphemeral ? 64 : null
+                } : null
+            };
+
+            var route = $"{Endpoints.INTERACTIONS}/:interaction_id/:interaction_token{Endpoints.CALLBACK}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { interaction_id, interaction_token }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld));
+        }
+
+        internal Task<DiscordMessage> EditOriginalInteractionResponseAsync(ulong application_id, string interaction_token, DiscordWebhookBuilder builder) =>
+            this.EditWebhookMessageAsync(application_id, interaction_token, "@original", builder);
+
+        internal Task DeleteOriginalInteractionResponseAsync(ulong application_id, string interaction_token) =>
+            this.DeleteWebhookMessageAsync(application_id, interaction_token, "@original");
+
+        internal async Task<DiscordMessage> CreateFollowupMessageAsync(ulong application_id, string interaction_token, DiscordFollowupMessageBuilder builder)
+        {
+            builder.Validate();
+
+            if (builder.Embeds != null)
+                foreach (var embed in builder.Embeds)
+                    if (embed.Timestamp != null)
+                        embed.Timestamp = embed.Timestamp.Value.ToUniversalTime();
+
+            var values = new Dictionary<string, string>();
+            var pld = new RestFollowupMessageCreatePayload
+            {
+                Content = builder.Content,
+                IsTTS = builder.IsTTS,
+                Embeds = builder.Embeds,
+                Flags = builder.Flags
+            };
+
+            if (builder.Mentions != null)
+                pld.Mentions = new DiscordMentions(builder.Mentions);
+
+            if (!string.IsNullOrEmpty(builder.Content) || builder.Embeds?.Count() > 0 || builder.IsTTS == true || builder.Mentions != null)
+                values["payload_json"] = DiscordJson.SerializeObject(pld);
+
+            var route = $"{Endpoints.WEBHOOKS}/:application_id/:interaction_token";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { application_id, interaction_token }, out var path);
+
+            var url = Utilities.GetApiUriBuilderFor(path).AddParameter("wait", "true").Build();
+            var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, values: values, files: builder.Files).ConfigureAwait(false);
+            var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
+
+            foreach (var file in builder.Files.Where(x => x.ResetPositionTo.HasValue))
+            {
+                file.Stream.Position = file.ResetPositionTo.Value;
+            }
+
+            ret.Discord = this.Discord;
+            return ret;
+        }
+
+        internal Task<DiscordMessage> EditFollowupMessageAsync(ulong application_id, string interaction_token, ulong message_id, DiscordWebhookBuilder builder) =>
+            this.EditWebhookMessageAsync(application_id, interaction_token, message_id, builder);
+
+        internal Task DeleteFollowupMessageAsync(ulong application_id, string interaction_token, ulong message_id) =>
+            this.DeleteWebhookMessageAsync(application_id, interaction_token, message_id);
+
+        //TODO: edit, delete, follow up
         #endregion
 
         #region Misc

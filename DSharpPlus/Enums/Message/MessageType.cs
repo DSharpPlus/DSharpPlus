@@ -1,7 +1,7 @@
 ﻿namespace DSharpPlus
 {
     /// <summary>
-    /// Indicates the type of the message.
+    /// Represents the type of a message.
     /// </summary>
     public enum MessageType : int
     {
@@ -79,6 +79,16 @@
         /// Message indicating a guild was readded to guild discovery.
         /// </summary>
         GuildDiscoveryRequalified = 15,
+
+        /// <summary>
+        /// Message indicating that a guild has failed to meet guild discovery requirements for a week.
+        /// </summary>
+        GuildDiscoveryGracePeriodInitialWarning = 16,
+
+        /// <summary>
+        /// Message indicating that a guild has failed to meet guild discovery requirements for 3 weeks.
+        /// </summary>
+        GuildDiscoveryGracePeriodFinalWarning = 17,
 
         /// <summary>
         /// Message indicating a user replied to another user.

@@ -2090,6 +2090,41 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Gets all the slash commands in this guild.
+        /// </summary>
+        /// <returns>A list of slash commands in this guild.</returns>
+        public Task<IReadOnlyList<DiscordApplicationCommand>> GetApplicationCommandsAsync() =>
+            this.Discord.ApiClient.GetGuildApplicationCommandsAsync(this.Discord.CurrentApplication.Id, this.Id);
+
+        /// <summary>
+        /// Overwrites the existing slash commands in this guild. New commands are automatically created and missing commands are automatically delete
+        /// </summary>
+        /// <param name="commands">The list of commands to overwrite with.</param>
+        /// <returns>The list of guild commands</returns>
+        public Task<IReadOnlyList<DiscordApplicationCommand>> BulkOverwriteApplicationCommandsAsync(IEnumerable<DiscordApplicationCommand> commands) =>
+            this.Discord.ApiClient.BulkOverwriteGuildApplicationCommandsAsync(this.Discord.CurrentApplication.Id, this.Id, commands);
+
+        /// <summary>
+        /// Creates or overwrites a slash command in this guild.
+        /// </summary>
+        /// <param name="command">The command to create.</param>
+        /// <returns>The created command.</returns>
+        public Task<DiscordApplicationCommand> CreateApplicationCommandAsync(DiscordApplicationCommand command) =>
+            this.Discord.ApiClient.CreateGuildApplicationCommandAsync(this.Discord.CurrentApplication.Id, this.Id, command);
+
+        /// <summary>
+        /// Edits a slash command in this guild.
+        /// </summary>
+        /// <param name="commandId">The id of the command to edit.</param>
+        /// <param name="action">Action to perform.</param>
+        /// <returns>The edit command.</returns>
+        public async Task<DiscordApplicationCommand> EditApplicationCommandAsync(ulong commandId, Action<ApplicationCommandEditModel> action)
+        {
+            var mdl = new ApplicationCommandEditModel();
+            action(mdl);
+            return await this.Discord.ApiClient.EditGuildApplicationCommandAsync(this.Discord.CurrentApplication.Id, this.Id, commandId, mdl.Name, mdl.Description, mdl.Options);
+        }
+
         /// Gets this guild's welcome screen.
         /// </summary>
         /// <returns>This guild's welcome screen object.</returns>

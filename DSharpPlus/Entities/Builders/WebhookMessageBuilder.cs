@@ -300,11 +300,28 @@ namespace DSharpPlus.Entities
             this._mentions.Clear();
         }
 
-        /// <inheritdoc/>
-        internal override void Validate()
+        /// <summary>
+        /// Does the validation before we send a the Create/Modify request.
+        /// </summary>
+        /// <param name="isModify">Tells the method to perform the Modify Validation or Create Validation.</param>
+        internal void Validate(bool isModify = false)
         {
-            if (string.IsNullOrEmpty(this.Content) && !this.Embeds.Any())
-                throw new ArgumentException("You must specify content, an embed, or at least one file.");
+            if (isModify)
+            {
+                if (this.Files.Any())
+                    throw new ArgumentException("You cannot add files when modifying a message.");
+
+                if (this.Username.HasValue)
+                    throw new ArgumentException("You cannot change the username of a message.");
+
+                if (this.AvatarUrl.HasValue)
+                    throw new ArgumentException("You cannot change the avatar of a message.");
+            }
+            else
+            {
+                if (this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && !this.Embeds.Any())
+                    throw new ArgumentException("You must specify content, an embed, or at least one file.");
+            }
         }
     }
 }
