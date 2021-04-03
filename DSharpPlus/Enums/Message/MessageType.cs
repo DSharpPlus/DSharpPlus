@@ -1,7 +1,7 @@
 ﻿namespace DSharpPlus
 {
     /// <summary>
-    /// Indicates the type of the message.
+    /// Represents the type of a message.
     /// </summary>
     public enum MessageType : int
     {
