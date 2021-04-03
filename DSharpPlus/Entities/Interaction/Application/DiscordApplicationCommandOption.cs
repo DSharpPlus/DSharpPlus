@@ -51,16 +51,18 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="name">The name of this parameter.</param>
         /// <param name="description">The description of the parameter.</param>
+        /// <param name="type">The type of this parameter.</param>
         /// <param name="required">Whether the parameter is required.</param>
         /// <param name="choices">The optional choice selection for this parameter.</param>
         /// <param name="options">The optional subcommands for this parameter.</param>
-        public DiscordApplicationCommandOption(string name, string description, bool? required = null, IEnumerable<DiscordApplicationCommandOptionChoice> choices = null, IEnumerable<DiscordApplicationCommandOption> options = null)
+        public DiscordApplicationCommandOption(string name, string description, ApplicationCommandOptionType type, bool? required = null, IEnumerable<DiscordApplicationCommandOptionChoice> choices = null, IEnumerable<DiscordApplicationCommandOption> options = null)
         {
             var choiceList = choices != null ? new ReadOnlyCollection<DiscordApplicationCommandOptionChoice>(choices.ToList()) : null;
             var optionList = options != null ? new ReadOnlyCollection<DiscordApplicationCommandOption>(options.ToList()) : null;
 
             this.Name = name;
             this.Description = description;
+            this.Type = type;
             this.Required = required;
             this.Choices = choiceList;
             this.Options = optionList;
