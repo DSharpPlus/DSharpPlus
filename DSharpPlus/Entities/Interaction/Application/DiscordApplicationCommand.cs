@@ -43,6 +43,11 @@ namespace DSharpPlus.Entities
         /// <param name="options">Optional parameters for this command.</param>
         public DiscordApplicationCommand(string name, string description, IEnumerable<DiscordApplicationCommandOption> options = null)
         {
+            if(name.Length > 32)
+                throw new ArgumentException("Slash command name cannot exceed 32 characters.");
+            if (description.Length > 100)
+                throw new ArgumentException("Slash command description cannot exceed 100 characters.");
+
             var optionsList = options != null ? new ReadOnlyCollection<DiscordApplicationCommandOption>(options.ToList()) : null;
 
             this.Name = name;
