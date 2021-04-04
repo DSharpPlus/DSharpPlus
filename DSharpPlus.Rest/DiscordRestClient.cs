@@ -1041,6 +1041,7 @@ namespace DSharpPlus
         /// <summary>
         /// Modifies a guild's welcome screen.
         /// </summary>
+        /// <param name="guildId">The guild ID to modify.</param>
         /// <param name="action">Action to perform.</param>
         /// <returns>The modified welcome screen.</returns>
         public async Task<DiscordGuildWelcomeScreen> ModifyGuildWelcomeScreenAsync(ulong guildId, Action<WelcomeScreenEditModel> action)

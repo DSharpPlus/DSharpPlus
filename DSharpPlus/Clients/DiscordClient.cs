@@ -414,6 +414,24 @@ namespace DSharpPlus
             => this.ApiClient.CreateMessageAsync(channel.Id, builder);
 
         /// <summary>
+        /// Sends a message
+        /// </summary>
+        /// <param name="channel">Channel to send to.</param>
+        /// <param name="action">The Discord Mesage builder.</param>
+        /// <returns>The Discord Message that was sent.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission if TTS is false and <see cref="Permissions.SendTtsMessages"/> if TTS is true.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, Action<DiscordMessageBuilder> action)
+        {
+            var builder = new DiscordMessageBuilder();
+            action(builder);
+
+            return this.ApiClient.CreateMessageAsync(channel.Id, builder);
+        }
+
+        /// <summary>
         /// Creates a guild. This requires the bot to be in less than 10 guilds total.
         /// </summary>
         /// <param name="name">Name of the guild.</param>

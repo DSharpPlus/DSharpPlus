@@ -246,6 +246,24 @@ namespace DSharpPlus.Entities
         public Task<DiscordMessage> SendMessageAsync(DiscordMessageBuilder builder)
             => this.Discord.ApiClient.CreateMessageAsync(this.Id, builder);
 
+        /// <summary>
+        /// Sends a message to this channel.
+        /// </summary>
+        /// <param name="action">The builder with all the items to send.</param>
+        /// <returns>The sent message.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission TTS is true and <see cref="Permissions.SendTtsMessages"/> if TTS is true.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordMessage> SendMessageAsync(Action<DiscordMessageBuilder> action)
+        {
+            var builder = new DiscordMessageBuilder();
+            action(builder);
+
+
+            return this.Discord.ApiClient.CreateMessageAsync(this.Id, builder);
+        }
+
         // Please send memes to Naamloos#2887 at discord <3 thank you
 
         /// <summary>
