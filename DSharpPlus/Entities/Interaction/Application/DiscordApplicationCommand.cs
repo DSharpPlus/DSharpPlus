@@ -44,9 +44,9 @@ namespace DSharpPlus.Entities
         public DiscordApplicationCommand(string name, string description, IEnumerable<DiscordApplicationCommandOption> options = null)
         {
             if(name.Length > 32)
-                throw new ArgumentException("Slash command name cannot exceed 32 characters.");
+                throw new ArgumentException("Slash command name cannot exceed 32 characters.", nameof(name));
             if (description.Length > 100)
-                throw new ArgumentException("Slash command description cannot exceed 100 characters.");
+                throw new ArgumentException("Slash command description cannot exceed 100 characters.", nameof(description));
 
             var optionsList = options != null ? new ReadOnlyCollection<DiscordApplicationCommandOption>(options.ToList()) : null;
 
