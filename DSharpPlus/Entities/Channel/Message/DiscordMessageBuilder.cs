@@ -211,9 +211,9 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="channel">The channel the message should be sent to.</param>
         /// <returns></returns>
-        public async Task<DiscordMessage> SendAsync(DiscordChannel channel)
+        public Task<DiscordMessage> SendAsync(DiscordChannel channel)
         {
-            return await channel.SendMessageAsync(this).ConfigureAwait(false);
+            return channel.SendMessageAsync(this);
         }
 
         /// <summary>
@@ -221,9 +221,9 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="msg">The original Message to modify.</param>
         /// <returns></returns>
-        public async Task<DiscordMessage> ModifyAsync(DiscordMessage msg)
+        public Task<DiscordMessage> ModifyAsync(DiscordMessage msg)
         {
-            return await msg.ModifyAsync(this).ConfigureAwait(false);
+            return msg.ModifyAsync(this);
         }
 
         /// <summary>

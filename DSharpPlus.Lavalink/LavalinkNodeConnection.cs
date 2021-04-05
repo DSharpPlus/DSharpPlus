@@ -230,10 +230,20 @@ namespace DSharpPlus.Lavalink
                 { throw; }
                 catch (Exception ex)
                 {
-                    this.Discord.Logger.LogCritical(LavalinkEvents.LavalinkConnectionError, ex, "Failed to connect to Lavalink");
+                    if (this._backoff != MaximumBackoff)
+                    {
+                        this.Discord.Logger.LogCritical(LavalinkEvents.LavalinkConnectionError, ex, $"Failed to connect to Lavalink, retrying in {this._backoff} ms.");
+                    }
+                    else
+                    {
+                        this.Discord.Logger.LogCritical(LavalinkEvents.LavalinkConnectionError, ex, "Failed to connect to Lavalink.");
+                        throw ex;
+                    }
                 }
             }
             while (this.Configuration.SocketAutoReconnect);
+
+            Volatile.Write(ref this._isDisposed, false);
         }
 
         /// <summary>

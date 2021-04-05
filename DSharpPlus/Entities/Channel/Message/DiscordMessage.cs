@@ -455,6 +455,23 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Edits the message.
+        /// </summary>
+        /// <param name="action">The builder of the message to edit.</param>
+        /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client tried to modify a message not sent by them.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<DiscordMessage> ModifyAsync(Action<DiscordMessageBuilder> action)
+        {
+            var builder = new DiscordMessageBuilder();
+            action(builder);
+            builder.Validate(true);
+            return await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, builder.Content, builder.Embed, builder.Mentions).ConfigureAwait(false);
+        }
+
+        /// <summary>
         /// Deletes the message.
         /// </summary>
         /// <returns></returns>
@@ -539,7 +556,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Responds to the message.
         /// </summary>
-        /// <param name="builder">The Discord Mesage builder.</param>
+        /// <param name="builder">The Discord message builder.</param>
         /// <returns>The sent message.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
@@ -547,6 +564,22 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> RespondAsync(DiscordMessageBuilder builder)
             => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, builder);
+
+        /// <summary>
+        /// Responds to the message.
+        /// </summary>
+        /// <param name="action">The Discord message builder.</param>
+        /// <returns>The sent message.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordMessage> RespondAsync(Action<DiscordMessageBuilder> action)
+        {
+            var builder = new DiscordMessageBuilder();
+            action(builder);
+            return this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, builder);
+        }
 
         /// <summary>
         /// Creates a reaction to this message

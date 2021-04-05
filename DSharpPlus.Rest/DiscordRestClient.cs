@@ -454,6 +454,19 @@ namespace DSharpPlus
             => this.ApiClient.CreateMessageAsync(channel_id, builder);
 
         /// <summary>
+        /// Sends a message
+        /// </summary>
+        /// <param name="channel_id">Channel id</param>
+        /// <param name="action">The Discord Mesage builder.</param>
+        /// <returns></returns>
+        public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, Action<DiscordMessageBuilder> action)
+        {
+            var builder = new DiscordMessageBuilder();
+            action(builder);
+            return this.ApiClient.CreateMessageAsync(channel_id, builder);
+        }
+
+        /// <summary>
         /// Gets channels from a guild
         /// </summary>
         /// <param name="guild_id">Guild id</param>
@@ -1041,6 +1054,7 @@ namespace DSharpPlus
         /// <summary>
         /// Modifies a guild's welcome screen.
         /// </summary>
+        /// <param name="guildId">The guild ID to modify.</param>
         /// <param name="action">Action to perform.</param>
         /// <returns>The modified welcome screen.</returns>
         public async Task<DiscordGuildWelcomeScreen> ModifyGuildWelcomeScreenAsync(ulong guildId, Action<WelcomeScreenEditModel> action)
