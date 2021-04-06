@@ -24,6 +24,8 @@ namespace DSharpPlus.SlashCommands
         internal List<GroupCommand> GroupCommands { get; set; } = new List<GroupCommand>();
         internal List<SubGroupCommand> SubGroupCommands { get; set; } = new List<SubGroupCommand>();
 
+        internal List<KeyValuePair<ulong?, Type>> UpdateList { get; set; } = new List<KeyValuePair<ulong?, Type>>();
+
         internal SlashCommandsExtension() { }
 
         protected override void Setup(DiscordClient client)
@@ -36,6 +38,7 @@ namespace DSharpPlus.SlashCommands
             _error = new AsyncEvent<SlashCommandsExtension, SlashCommandErrorEventArgs>("SLASHCOMMAND_ERRORED", TimeSpan.Zero, null);
             _executed = new AsyncEvent<SlashCommandsExtension, SlashCommandExecutedEventArgs>("SLASHCOMMAND_EXECUTED", TimeSpan.Zero, null);
 
+            Client.Ready += Update;
             Client.InteractionCreated += InteractionHandler;
         }
 
@@ -47,23 +50,31 @@ namespace DSharpPlus.SlashCommands
         /// <typeparam name="T">The command class to register</typeparam>
         public void RegisterCommands<T>(ulong? guildid = null) where T : SlashCommandModule
         {
-            RegisterCommands(typeof(T), guildid);
+            UpdateList.Add(new KeyValuePair<ulong?, Type>(guildid, typeof(T)));
         }
 
-        private void RegisterCommands(Type t, ulong? guildid)
+        internal Task Update(DiscordClient client, ReadyEventArgs e)
+        {
+            foreach(var key in UpdateList.Select(x => x.Key).Distinct())
+            {
+                RegisterCommands(UpdateList.Where(x => x.Key == key).Select(x => x.Value).ToArray(), key);
+            }
+            return Task.CompletedTask;
+        }
+
+        private void RegisterCommands(Type[] types, ulong? guildid)
         {
             CommandMethod[] InternalCommandMethods = Array.Empty<CommandMethod>();
             GroupCommand[] InternalGroupCommands = Array.Empty<GroupCommand>();
             SubGroupCommand[] InternalSubGroupCommands = Array.Empty<SubGroupCommand>();
+            List<DiscordApplicationCommand> ToUpdate = new List<DiscordApplicationCommand>();
 
-            Client.Ready += (s, e) =>
+            _ = Task.Run(async () =>
             {
-                _ = Task.Run(async () =>
+                foreach (var t in types)
                 {
                     try
                     {
-                        List<DiscordApplicationCommand> ToUpdate = new List<DiscordApplicationCommand>();
-
                         var ti = t.GetTypeInfo();
 
                         var classes = ti.DeclaredNestedTypes;
@@ -97,7 +108,7 @@ namespace DSharpPlus.SlashCommands
                                         throw new ArgumentException("Arguments must have the Option attribute!");
 
                                     var type = parameter.ParameterType;
-                                    var parametertype = GetParameterType(type);                           
+                                    var parametertype = GetParameterType(type);
 
                                     DiscordApplicationCommandOptionChoice[] choices = null;
                                     var choiceattributes = parameter.GetCustomAttributes<ChoiceAttribute>();
@@ -223,40 +234,45 @@ namespace DSharpPlus.SlashCommands
                             var payload = new DiscordApplicationCommand(commandattribute.Name, commandattribute.Description, options);
                             ToUpdate.Add(payload);
                         }
-
-                        IEnumerable<DiscordApplicationCommand> commands;
-                        if(guildid == null)
-                        {
-                            commands = await Client.BulkOverwriteGlobalApplicationCommandsAsync(ToUpdate);
-                        }
-                        else
-                        {
-                            commands = await Client.BulkOverwriteGuildApplicationCommandsAsync(guildid.Value, ToUpdate);
-                        }
-                        foreach (var command in commands)
-                        {
-                            if (InternalCommandMethods.Any(x => x.Name == command.Name))
-                                InternalCommandMethods.First(x => x.Name == command.Name).Id = command.Id;
-
-                            else if (InternalGroupCommands.Any(x => x.Name == command.Name))
-                                InternalGroupCommands.First(x => x.Name == command.Name).Id = command.Id;
-
-                            else if (InternalSubGroupCommands.Any(x => x.Name == command.Name))
-                                InternalSubGroupCommands.First(x => x.Name == command.Name).Id = command.Id;
-                        }
-                        CommandMethods.AddRange(InternalCommandMethods);
-                        GroupCommands.AddRange(InternalGroupCommands);
-                        SubGroupCommands.AddRange(InternalSubGroupCommands);
                     }
                     catch (Exception ex)
                     {
                         Client.Logger.LogError(ex, $"There was an error registering slash commands");
                         Environment.Exit(-1);
                     }
-                });
+                }
+                try
+                {
+                    IEnumerable<DiscordApplicationCommand> commands;
+                    if (guildid == null)
+                    {
+                        commands = await Client.BulkOverwriteGlobalApplicationCommandsAsync(ToUpdate);
+                    }
+                    else
+                    {
+                        commands = await Client.BulkOverwriteGuildApplicationCommandsAsync(guildid.Value, ToUpdate);
+                    }
+                    foreach (var command in commands)
+                    {
+                        if (InternalCommandMethods.Any(x => x.Name == command.Name))
+                            InternalCommandMethods.First(x => x.Name == command.Name).Id = command.Id;
 
-                return Task.CompletedTask;
-            };
+                        else if (InternalGroupCommands.Any(x => x.Name == command.Name))
+                            InternalGroupCommands.First(x => x.Name == command.Name).Id = command.Id;
+
+                        else if (InternalSubGroupCommands.Any(x => x.Name == command.Name))
+                            InternalSubGroupCommands.First(x => x.Name == command.Name).Id = command.Id;
+                    }
+                    CommandMethods.AddRange(InternalCommandMethods);
+                    GroupCommands.AddRange(InternalGroupCommands);
+                    SubGroupCommands.AddRange(InternalSubGroupCommands);
+                }
+                catch (Exception ex)
+                {
+                    Client.Logger.LogError(ex, $"There was an error registering slash commands");
+                    Environment.Exit(-1);
+                }
+            });
         }
 
         //Handler
