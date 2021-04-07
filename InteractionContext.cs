@@ -1,9 +1,8 @@
 ﻿using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.SlashCommands
 {
@@ -62,6 +61,13 @@ namespace DSharpPlus.SlashCommands
         /// Gets the name of the command
         /// </summary>
         public string CommandName { get; internal set; }
+        
+        /// <summary>
+        /// <para>Gets the service provider.</para>
+        /// <para>This allows passing data around without resorting to static members.</para>
+        /// <para>Defaults to null.</para>
+        /// </summary>
+        public IServiceProvider Services { get; internal set; } = new ServiceCollection().BuildServiceProvider(true);
 
         /// <summary>
         /// Creates a response to this interaction
