@@ -1165,6 +1165,9 @@ namespace DSharpPlus.Net
             var ret = JsonConvert.DeserializeObject<DiscordDmChannel>(res.Response);
             ret.Discord = this.Discord;
 
+            if (this.Discord is DiscordClient dc)
+                _ = dc._privateChannels.TryAdd(ret.Id, ret);
+
             return ret;
         }
 

@@ -258,8 +258,15 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordDmChannel> CreateDmChannelAsync() 
-            => this.Discord.ApiClient.CreateDmAsync(this.Id);
+        public Task<DiscordDmChannel> CreateDmChannelAsync()
+        {
+            DiscordDmChannel dm = default;
+
+            if (this.Discord is DiscordClient dc)
+                dm = dc._privateChannels.Values.FirstOrDefault(x => x.Recipients[0].Id == this.Id);
+            
+            return dm != null ? Task.FromResult(dm) : this.Discord.ApiClient.CreateDmAsync(this.Id);
+        }
 
         /// <summary>
         /// Sends a direct message to this member. Creates a direct message channel if one does not exist already.

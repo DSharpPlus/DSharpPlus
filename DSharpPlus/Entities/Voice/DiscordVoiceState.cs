@@ -150,7 +150,7 @@ namespace DSharpPlus.Entities
 
 		public override string ToString()
 		{
-			return $"{this.UserId.ToString(CultureInfo.InvariantCulture)} in {(this.GuildId ?? this.Channel.GuildId).ToString(CultureInfo.InvariantCulture)}";
+			return $"{this.UserId.ToString(CultureInfo.InvariantCulture)} in {(this.GuildId ?? this.Channel.GuildId.Value).ToString(CultureInfo.InvariantCulture)}";
 		}
 	}
 }
