@@ -1,4 +1,4 @@
 # DSharpPlus.SlashCommands
 An extension for DSharpPlus to make slash commands easier
 
-TODO
+TODO (refer to https://github.com/IDoEverything/DSharpPlusSlashCommands#readme for now)
