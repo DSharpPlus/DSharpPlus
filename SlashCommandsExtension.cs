@@ -297,7 +297,7 @@ namespace DSharpPlus.SlashCommands
                     CommandName = e.Interaction.Data.Name,
                     InteractionId = e.Interaction.Id,
                     Token = e.Interaction.Token,
-                    Services = _configuration.Services
+                    Services = _configuration?.Services
                 };
 
                 try
@@ -370,7 +370,7 @@ namespace DSharpPlus.SlashCommands
                                     throw new ArgumentException($"How on earth did that happen");
                             }
                         }
-                        var classinstance = ActivatorUtilities.CreateInstance(_configuration.Services, method.ParentClass);
+                        var classinstance = ActivatorUtilities.CreateInstance(_configuration?.Services, method.ParentClass);
                         var task = (Task)method.Method.Invoke(classinstance, args.ToArray());
                         await task;
                     }
@@ -438,7 +438,7 @@ namespace DSharpPlus.SlashCommands
                                     throw new ArgumentException($"How on earth did that happen");
                             }
                         }
-                        var classinstance = ActivatorUtilities.CreateInstance(_configuration.Services, groups.First().ParentClass);
+                        var classinstance = ActivatorUtilities.CreateInstance(_configuration?.Services, groups.First().ParentClass);
                         var task = (Task)method.Invoke(classinstance, args.ToArray());
                         await task;
                     }
@@ -508,7 +508,7 @@ namespace DSharpPlus.SlashCommands
                                     throw new ArgumentException($"How on earth did that happen");
                             }
                         }
-                        var classinstance = ActivatorUtilities.CreateInstance(_configuration.Services, group.ParentClass);
+                        var classinstance = ActivatorUtilities.CreateInstance(_configuration?.Services, group.ParentClass);
                         var task = (Task)method.Invoke(classinstance, args.ToArray());
                         await task;
                     }
