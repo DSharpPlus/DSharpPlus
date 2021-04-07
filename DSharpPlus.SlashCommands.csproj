@@ -8,6 +8,7 @@
     <PackageProjectUrl>https://github.com/IDoEverything/DSharpPlus.SlashCommands</PackageProjectUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/IDoEverything/DSharpPlus.SlashCommands</RepositoryUrl>
+    <PackageId>IDoEverything.DSharpPlus.SlashCommands</PackageId>
   </PropertyGroup>
 
   <ItemGroup>
