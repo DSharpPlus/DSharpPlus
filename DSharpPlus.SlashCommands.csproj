@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="DSharpPlus" Version="4.0.0-rc3" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
   </ItemGroup>
 
   <ItemGroup>

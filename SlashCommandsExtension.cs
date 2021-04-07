@@ -12,6 +12,7 @@ using Emzi0767.Utilities;
 using DSharpPlus.SlashCommands.EventArgs;
 using DSharpPlus.Net;
 using DSharpPlus.Net.Serialization;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.SlashCommands
 {
@@ -26,7 +27,12 @@ namespace DSharpPlus.SlashCommands
 
         internal List<KeyValuePair<ulong?, Type>> UpdateList { get; set; } = new List<KeyValuePair<ulong?, Type>>();
 
-        internal SlashCommandsExtension() { }
+        private readonly SlashCommandsConfiguration _configuration;
+        
+        internal SlashCommandsExtension(SlashCommandsConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
 
         protected override void Setup(DiscordClient client)
         {
@@ -290,7 +296,8 @@ namespace DSharpPlus.SlashCommands
                     SlashCommandsExtension = this,
                     CommandName = e.Interaction.Data.Name,
                     InteractionId = e.Interaction.Id,
-                    Token = e.Interaction.Token
+                    Token = e.Interaction.Token,
+                    Services = _configuration.Services
                 };
 
                 try
@@ -363,7 +370,7 @@ namespace DSharpPlus.SlashCommands
                                     throw new ArgumentException($"How on earth did that happen");
                             }
                         }
-                        var classinstance = Activator.CreateInstance(method.ParentClass);
+                        var classinstance = ActivatorUtilities.CreateInstance(_configuration.Services, method.ParentClass);
                         var task = (Task)method.Method.Invoke(classinstance, args.ToArray());
                         await task;
                     }
@@ -431,7 +438,7 @@ namespace DSharpPlus.SlashCommands
                                     throw new ArgumentException($"How on earth did that happen");
                             }
                         }
-                        var classinstance = Activator.CreateInstance(groups.First().ParentClass);
+                        var classinstance = ActivatorUtilities.CreateInstance(_configuration.Services, groups.First().ParentClass);
                         var task = (Task)method.Invoke(classinstance, args.ToArray());
                         await task;
                     }
@@ -501,7 +508,7 @@ namespace DSharpPlus.SlashCommands
                                     throw new ArgumentException($"How on earth did that happen");
                             }
                         }
-                        var classinstance = Activator.CreateInstance(group.ParentClass);
+                        var classinstance = ActivatorUtilities.CreateInstance(_configuration.Services, group.ParentClass);
                         var task = (Task)method.Invoke(classinstance, args.ToArray());
                         await task;
                     }
@@ -564,10 +571,8 @@ namespace DSharpPlus.SlashCommands
     {
         [JsonProperty("name")]
         public string Name;
-
         [JsonProperty("description")]
         public string Description;
-
         [JsonProperty("options")]
         public List<DiscordApplicationCommandOption> Options = new List<DiscordApplicationCommandOption>();
     }*/
