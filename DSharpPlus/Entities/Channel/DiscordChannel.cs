@@ -21,7 +21,7 @@ namespace DSharpPlus.Entities
         /// Gets ID of the guild to which this channel belongs.
         /// </summary>
         [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong GuildId { get; internal set; }
+        public ulong? GuildId { get; internal set; }
 
         /// <summary>
         /// Gets ID of the category that contains this channel.
@@ -73,7 +73,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public DiscordGuild Guild 
-            => this.Discord.Guilds.TryGetValue(this.GuildId, out var guild) ? guild : null;
+            => this.GuildId.HasValue && this.Discord.Guilds.TryGetValue(this.GuildId.Value, out var guild) ? guild : null;
 
         /// <summary>
         /// Gets a collection of permission overwrites for this channel.

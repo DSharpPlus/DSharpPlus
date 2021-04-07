@@ -544,7 +544,7 @@ namespace DSharpPlus
                 xo._channel_id = channel.Id;
             }
 
-            this._guilds[channel.GuildId]._channels[channel.Id] = channel;
+            this._guilds[channel.GuildId.Value]._channels[channel.Id] = channel;
 
             await this._channelCreated.InvokeAsync(this, new ChannelCreateEventArgs { Channel = channel, Guild = channel.Guild }).ConfigureAwait(false);
         }
@@ -622,7 +622,7 @@ namespace DSharpPlus
             {
                 var dmChannel = channel as DiscordDmChannel;
 
-                if (this._privateChannels.TryRemove(dmChannel.Id, out var cachedDmChannel)) dmChannel = cachedDmChannel;
+                _ = this._privateChannels.TryRemove(dmChannel.Id, out _);
 
                 await this._dmChannelDeleted.InvokeAsync(this, new DmChannelDeleteEventArgs { Channel = dmChannel }).ConfigureAwait(false);
             }
@@ -1447,7 +1447,7 @@ namespace DSharpPlus
             if (channel?.Guild != null)
                 usr = channel.Guild.Members.TryGetValue(userId, out var member)
                     ? member
-                    : new DiscordMember(usr) { Discord = this, _guild_id = channel.GuildId };
+                    : new DiscordMember(usr) { Discord = this, _guild_id = channel.GuildId.Value };
 
             if (channel == null 
                 || this.Configuration.MessageCacheSize == 0 
