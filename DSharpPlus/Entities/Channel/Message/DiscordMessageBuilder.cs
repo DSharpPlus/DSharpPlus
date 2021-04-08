@@ -196,8 +196,7 @@ namespace DSharpPlus.Entities
                 else
                     this._files.Add(new DiscordMessageFile(file.Key, file.Value, null));
             }
-                
-
+            
             return this;
         }
 
@@ -206,6 +205,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="messageId">The ID of the message to reply to.</param>
         /// <param name="mention">If we should mention the user in the reply.</param>
+        /// <param name="failOnInvalidReply">Whether sending a reply that references an invalid message should be </param>
         /// <returns></returns>
         public DiscordMessageBuilder WithReply(ulong messageId, bool mention = false, bool failOnInvalidReply = false)
         {
