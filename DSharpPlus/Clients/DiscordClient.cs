@@ -1,5 +1,4 @@
-﻿#pragma warning disable CS0618
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -29,7 +28,7 @@ namespace DSharpPlus
         internal bool _isShard = false;
         internal RingBuffer<DiscordMessage> MessageCache { get; }
 
-        private List<BaseExtension> _extensions = new List<BaseExtension>();
+        private List<BaseExtension> _extensions = new();
         private StatusUpdate _status = null;
 
         private ManualResetEventSlim ConnectionLock { get; } = new ManualResetEventSlim(true);
@@ -76,7 +75,7 @@ namespace DSharpPlus
         /// ID.
         /// </summary>
         public IReadOnlyDictionary<ulong, DiscordDmChannel> PrivateChannels { get; }
-        internal ConcurrentDictionary<ulong, DiscordDmChannel> _privateChannels = new ConcurrentDictionary<ulong, DiscordDmChannel>();
+        internal ConcurrentDictionary<ulong, DiscordDmChannel> _privateChannels = new();
 
         /// <summary>
         /// Gets a dictionary of guilds that this client is in. The dictionary's key is the guild ID. Note that the
@@ -84,7 +83,7 @@ namespace DSharpPlus
         /// <see cref="GuildAvailable"/> or <see cref="GuildDownloadCompleted"/> events haven't been fired yet)
         /// </summary>
         public override IReadOnlyDictionary<ulong, DiscordGuild> Guilds { get; }
-        internal ConcurrentDictionary<ulong, DiscordGuild> _guilds = new ConcurrentDictionary<ulong, DiscordGuild>();
+        internal ConcurrentDictionary<ulong, DiscordGuild> _guilds = new();
 
         /// <summary>
         /// Gets the WS latency for this client.
@@ -100,8 +99,7 @@ namespace DSharpPlus
         public IReadOnlyDictionary<ulong, DiscordPresence> Presences
             => this._presencesLazy.Value;
 
-        internal Dictionary<ulong, DiscordPresence> _presences = new 
-            Dictionary<ulong, DiscordPresence>();
+        internal Dictionary<ulong, DiscordPresence> _presences = new();
         private Lazy<IReadOnlyDictionary<ulong, DiscordPresence>> _presencesLazy;
         #endregion
 
@@ -301,7 +299,7 @@ namespace DSharpPlus
             }
 
             // non-closure, hence args
-            void FailConnection(ManualResetEventSlim cl)
+            static void FailConnection(ManualResetEventSlim cl)
             {
                 // unlock this (if applicable) so we can let others attempt to connect
                 cl?.Set();
@@ -371,7 +369,7 @@ namespace DSharpPlus
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, string content = null)
-            => this.ApiClient.CreateMessageAsync(channel.Id, content, null);
+            => this.ApiClient.CreateMessageAsync(channel.Id, content, embed: null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
 
         /// <summary>
         /// Sends a message
@@ -384,7 +382,7 @@ namespace DSharpPlus
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, DiscordEmbed embed = null)
-            => this.ApiClient.CreateMessageAsync(channel.Id, null, embed);
+            => this.ApiClient.CreateMessageAsync(channel.Id, null, embed, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
 
         /// <summary>
         /// Sends a message
@@ -398,7 +396,7 @@ namespace DSharpPlus
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, string content = null, DiscordEmbed embed = null)
-            => this.ApiClient.CreateMessageAsync(channel.Id, content, embed);
+            => this.ApiClient.CreateMessageAsync(channel.Id, content, embed, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
 
         /// <summary>
         /// Sends a message

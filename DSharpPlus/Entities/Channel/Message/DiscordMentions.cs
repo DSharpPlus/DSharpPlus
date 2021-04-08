@@ -34,6 +34,7 @@ namespace DSharpPlus.Entities
         [JsonProperty("parse", NullValueHandling = NullValueHandling.Ignore)]
         public IEnumerable<string> Parse { get; }
         
+        // WHY IS THERE NO DOCSTRING HERE
         [JsonProperty("replied_user", NullValueHandling = NullValueHandling.Ignore)]
         public bool? RepliedUser { get; }
 
@@ -47,7 +48,7 @@ namespace DSharpPlus.Entities
             // Doing this allows for "no parsing"
             if (!mentions.Any())
             {
-                Parse = new string[0];
+                Parse = Array.Empty<string>();
                 this.RepliedUser = mention;
                 return;
             }

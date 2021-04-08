@@ -31,12 +31,12 @@ namespace DSharpPlus.Entities
     internal struct InternalDiscordMessageReference
     {
         [JsonProperty("message_id", NullValueHandling = NullValueHandling.Ignore)]
-        internal ulong? messageId { get; set; }
+        internal ulong? MessageId { get; set; }
 
         [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
-        internal ulong? channelId { get; set; }
+        internal ulong? ChannelId { get; set; }
 
         [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
-        internal ulong? guildId { get; set; }
+        internal ulong? GuildId { get; set; }
     }
 }
