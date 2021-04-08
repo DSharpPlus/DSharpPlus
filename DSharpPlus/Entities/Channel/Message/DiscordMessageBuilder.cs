@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -57,6 +57,13 @@ namespace DSharpPlus.Entities
         /// Gets if the Reply should mention the user.
         /// </summary>
         public bool MentionOnReply { get; private set; } = false;
+        
+        /// <summary>
+        /// Gets if the Reply will error if the Reply Message Id does not reference a valid message.
+        /// <para>If set to false, invalid replies are send as a regular message.</para>
+        /// <para>Defaults to false.</para>
+        /// </summary>
+        public bool FailOnInvalidReply { get; set; }
 
         /// <summary>
         /// Sets the Content of the Message.
@@ -90,6 +97,8 @@ namespace DSharpPlus.Entities
             this.Embed = embed;
             return this;
         }
+        
+        
 
         /// <summary>
         /// Sets if the message has allowed mentions.
@@ -198,13 +207,14 @@ namespace DSharpPlus.Entities
         /// <param name="messageId">The ID of the message to reply to.</param>
         /// <param name="mention">If we should mention the user in the reply.</param>
         /// <returns></returns>
-        public DiscordMessageBuilder WithReply(ulong messageId, bool mention = false)
+        public DiscordMessageBuilder WithReply(ulong messageId, bool mention = false, bool failOnInvalidReply = false)
         {
             this.ReplyId = messageId;
             this.MentionOnReply = mention;
-
+            this.FailOnInvalidReply = failOnInvalidReply;
             return this;
         }
+        
 
         /// <summary>
         /// Sends the Message to a specific channel
