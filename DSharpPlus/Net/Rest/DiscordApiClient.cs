@@ -184,7 +184,7 @@ namespace DSharpPlus.Net
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { guild_id }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route).ConfigureAwait(false);
+            await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route).ConfigureAwait(false);
 
             if (this.Discord is DiscordClient dc)
             {
@@ -767,7 +767,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content, DiscordEmbed embed)
+        internal async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content, DiscordEmbed embed, ulong? replyMessageId, bool mentionReply, bool failOnInvalidReply)
         {
             if (content != null && content.Length > 2000)
                 throw new ArgumentException("Message content length cannot exceed 2000 characters.");
@@ -777,7 +777,7 @@ namespace DSharpPlus.Net
                 if (content == null)
                     throw new ArgumentException("You must specify message content or an embed.");
 
-                if (content == "")
+                if (content.Length == 0)
                     throw new ArgumentException("Message content must not be empty.");
             }
 
@@ -792,6 +792,15 @@ namespace DSharpPlus.Net
                 HasEmbed = embed != null,
                 Embed = embed
             };
+
+            if (replyMessageId != null)
+            {
+                pld.MessageReference = new InternalDiscordMessageReference { MessageId = replyMessageId };
+                pld.FailIfNotExists = failOnInvalidReply;
+            }
+
+            if (replyMessageId != null)
+                pld.Mentions = new DiscordMentions(Mentions.None, mentionReply);
 
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id }, out var path);
@@ -821,7 +830,10 @@ namespace DSharpPlus.Net
             };
 
             if (builder.ReplyId != null)
-                pld.MessageReference = new InternalDiscordMessageReference { messageId = builder.ReplyId };
+            {
+                pld.MessageReference = new InternalDiscordMessageReference { MessageId = builder.ReplyId };
+                pld.FailIfNotExists = builder.FailOnInvalidReply;
+            }
 
             if (builder.Mentions != null || builder.ReplyId != null)
                 pld.Mentions = new DiscordMentions(builder.Mentions ?? Mentions.None, builder.MentionOnReply);
@@ -839,8 +851,10 @@ namespace DSharpPlus.Net
             }
             else
             {
-                var values = new Dictionary<string, string>();
-                values["payload_json"] = DiscordJson.SerializeObject(pld);
+                var values = new Dictionary<string, string>
+                {
+                    ["payload_json"] = DiscordJson.SerializeObject(pld)
+                };
 
                 var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}";
                 var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id }, out var path);
@@ -1617,8 +1631,6 @@ namespace DSharpPlus.Net
 
         internal Task DeleteGuildIntegrationAsync(ulong guild_id, DiscordIntegration integration)
         {
-            var pld = integration;
-
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.INTEGRATIONS}/:integration_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { guild_id, integration_id = integration.Id }, out var path);
 

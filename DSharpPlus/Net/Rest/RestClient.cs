@@ -176,9 +176,7 @@ namespace DSharpPlus.Net
                     await bucket.TryResetLimitAsync(now).ConfigureAwait(false);
 
                     // Decrement the remaining number of requests as there can be other concurrent requests before this one finishes and has a chance to update the bucket
-#pragma warning disable 420 // interlocked access is always volatile
                     if (Interlocked.Decrement(ref bucket._remaining) < 0)
-#pragma warning restore 420 // blaze it
                     {
                         this.Logger.LogDebug(LoggerEvents.RatelimitDiag, "Request for {0} is blocked", bucket.ToString());
                         var delay = bucket.Reset - now;
@@ -372,9 +370,7 @@ namespace DSharpPlus.Net
             {
                 if (bucket._limitTesting == 0)
                 {
-#pragma warning disable 420 // interlocked access is always volatile
                     if (Interlocked.CompareExchange(ref bucket._limitTesting, 1, 0) == 0)
-#pragma warning restore 420
                     {
                         // if we got here when the first request was just finishing, we must not create the waiter task as it would signel ExecureRequestAsync to bypass rate limiting
                         if (bucket._limitValid)

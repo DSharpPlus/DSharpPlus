@@ -83,9 +83,9 @@ namespace DSharpPlus.Entities
             => this._permissionOverwritesLazy.Value;
 
         [JsonProperty("permission_overwrites", NullValueHandling = NullValueHandling.Ignore)]
-        internal List<DiscordOverwrite> _permissionOverwrites = new List<DiscordOverwrite>();
+        internal List<DiscordOverwrite> _permissionOverwrites = new();
         [JsonIgnore]
-        private Lazy<IReadOnlyList<DiscordOverwrite>> _permissionOverwritesLazy;
+        private readonly Lazy<IReadOnlyList<DiscordOverwrite>> _permissionOverwritesLazy;
 
         /// <summary>
         /// Gets the channel's topic. This is applicable to text channels only.
@@ -196,7 +196,7 @@ namespace DSharpPlus.Entities
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
                 throw new ArgumentException("Cannot send a text message to a non-text channel.");
 
-            return this.Discord.ApiClient.CreateMessageAsync(this.Id, content, null);
+            return this.Discord.ApiClient.CreateMessageAsync(this.Id, content, null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
         }
 
         /// <summary>
@@ -213,7 +213,7 @@ namespace DSharpPlus.Entities
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
                 throw new ArgumentException("Cannot send a text message to a non-text channel.");
 
-            return this.Discord.ApiClient.CreateMessageAsync(this.Id, null, embed);
+            return this.Discord.ApiClient.CreateMessageAsync(this.Id, null, embed, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
         }
 
         /// <summary>
@@ -231,7 +231,7 @@ namespace DSharpPlus.Entities
             if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
                 throw new ArgumentException("Cannot send a text message to a non-text channel.");
 
-            return this.Discord.ApiClient.CreateMessageAsync(this.Id, content, embed);
+            return this.Discord.ApiClient.CreateMessageAsync(this.Id, content, embed, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
         }
 
         /// <summary>
@@ -442,7 +442,7 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("Cannot get a negative number of messages.");
 
             if (limit == 0)
-                return new DiscordMessage[0];
+                return Array.Empty<DiscordMessage>();
 
             //return this.Discord.ApiClient.GetChannelMessagesAsync(this.Id, limit, before, after, around);
             if (limit > 100 && around != null)
@@ -450,10 +450,10 @@ namespace DSharpPlus.Entities
 
             var msgs = new List<DiscordMessage>(limit);
             var remaining = limit;
-            var lastCount = 0;
             ulong? last = null;
             var isAfter = after != null;
 
+            int lastCount;
             do
             {
                 var fetchSize = remaining > 100 ? 100 : remaining;
@@ -796,7 +796,7 @@ namespace DSharpPlus.Entities
         /// <returns>Whether the <see cref="DiscordChannel"/> is equal to this <see cref="DiscordChannel"/>.</returns>
         public bool Equals(DiscordChannel e)
         {
-            if (ReferenceEquals(e, null))
+            if (e is null)
                 return false;
 
             if (ReferenceEquals(this, e))

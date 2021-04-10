@@ -46,7 +46,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         public IReadOnlyCollection<DiscordMessageFile> Files => this._files;
 
-        internal List<DiscordMessageFile> _files = new List<DiscordMessageFile>();
+        internal List<DiscordMessageFile> _files = new();
 
         /// <summary>
         /// Gets the Reply Message ID.

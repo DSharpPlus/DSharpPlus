@@ -19,7 +19,7 @@ namespace DSharpPlus
         public override IReadOnlyDictionary<ulong, DiscordGuild> Guilds
             => _guilds_lazy.Value;
 
-        internal Dictionary<ulong, DiscordGuild> _guilds = new Dictionary<ulong, DiscordGuild>();
+        internal Dictionary<ulong, DiscordGuild> _guilds = new();
         private Lazy<IReadOnlyDictionary<ulong, DiscordGuild>> _guilds_lazy;
 
         public DiscordRestClient(DiscordConfiguration config) : base(config)
@@ -183,7 +183,7 @@ namespace DSharpPlus
         /// <param name="deafened">Whether this user should be deafened on join</param>
         /// <returns></returns>
         public Task<DiscordMember> AddGuildMemberAsync(ulong guild_id, ulong user_id, string access_token, string nick, IEnumerable<DiscordRole> roles, bool muted, bool deafened)
-            => this.ApiClient.AddGuildMemberAsync(guild_id, user_id, this.Configuration.Token, nick, roles, muted, deafened);
+            => this.ApiClient.AddGuildMemberAsync(guild_id, user_id, access_token, nick, roles, muted, deafened);
 
         /// <summary>
         /// Gets all guild members
@@ -423,7 +423,7 @@ namespace DSharpPlus
         /// <param name="content">Message (text) content</param>
         /// <returns></returns>
         public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content)
-            => this.ApiClient.CreateMessageAsync(channel_id, content, null);
+            => this.ApiClient.CreateMessageAsync(channel_id, content, null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
 
         /// <summary>
         /// Sends a message
@@ -432,7 +432,7 @@ namespace DSharpPlus
         /// <param name="embed">Embed to attach</param>
         /// <returns></returns>
         public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, DiscordEmbed embed)
-            => this.ApiClient.CreateMessageAsync(channel_id, null, embed);
+            => this.ApiClient.CreateMessageAsync(channel_id, null, embed, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
 
         /// <summary>
         /// Sends a message
@@ -442,7 +442,7 @@ namespace DSharpPlus
         /// <param name="embed">Embed to attach</param>
         /// <returns></returns>
         public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content, DiscordEmbed embed)
-            => this.ApiClient.CreateMessageAsync(channel_id, content, embed);
+            => this.ApiClient.CreateMessageAsync(channel_id, content, embed, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
 
         /// <summary>
         /// Sends a message

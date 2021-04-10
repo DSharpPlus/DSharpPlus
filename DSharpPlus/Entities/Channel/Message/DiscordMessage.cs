@@ -1,12 +1,10 @@
-#pragma warning disable CS0618
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
 {
@@ -22,12 +20,12 @@ namespace DSharpPlus.Entities
             this._mentionedChannelsLazy = new Lazy<IReadOnlyList<DiscordChannel>>(() => {
                 if (this._mentionedChannels != null)
                     return new ReadOnlyCollection<DiscordChannel>(this._mentionedChannels);
-                return new DiscordChannel[0];
+                return Array.Empty<DiscordChannel>();
             });
             this._mentionedRolesLazy = new Lazy<IReadOnlyList<DiscordRole>>(() => {
                 if (this._mentionedRoles != null)
                     return new ReadOnlyCollection<DiscordRole>(this._mentionedRoles);
-                return new DiscordRole[0];
+                return Array.Empty<DiscordRole>();
             });
             this._mentionedUsersLazy = new Lazy<IReadOnlyList<DiscordUser>>(() => new ReadOnlyCollection<DiscordUser>(this._mentionedUsers));
             this._reactionsLazy = new Lazy<IReadOnlyList<DiscordReaction>>(() => new ReadOnlyCollection<DiscordReaction>(this._reactions));
@@ -151,7 +149,7 @@ namespace DSharpPlus.Entities
         [JsonProperty("mentions", NullValueHandling = NullValueHandling.Ignore)]
         internal List<DiscordUser> _mentionedUsers;
         [JsonIgnore]
-        Lazy<IReadOnlyList<DiscordUser>> _mentionedUsersLazy;
+        readonly Lazy<IReadOnlyList<DiscordUser>> _mentionedUsersLazy;
 
         // TODO this will probably throw an exception in DMs since it tries to wrap around a null List...
         // this is probably low priority but need to find out a clean way to solve it...
@@ -165,7 +163,7 @@ namespace DSharpPlus.Entities
         [JsonIgnore]
         internal List<DiscordRole> _mentionedRoles;
         [JsonIgnore]
-        private Lazy<IReadOnlyList<DiscordRole>> _mentionedRolesLazy;
+        private readonly Lazy<IReadOnlyList<DiscordRole>> _mentionedRolesLazy;
 
         /// <summary>
         /// Gets channels mentioned by this message.
@@ -177,7 +175,7 @@ namespace DSharpPlus.Entities
         [JsonIgnore]
         internal List<DiscordChannel> _mentionedChannels;
         [JsonIgnore]
-        private Lazy<IReadOnlyList<DiscordChannel>> _mentionedChannelsLazy;
+        private readonly Lazy<IReadOnlyList<DiscordChannel>> _mentionedChannelsLazy;
 
         /// <summary>
         /// Gets files attached to this message.
@@ -187,9 +185,9 @@ namespace DSharpPlus.Entities
             => this._attachmentsLazy.Value;
 
         [JsonProperty("attachments", NullValueHandling = NullValueHandling.Ignore)]
-        internal List<DiscordAttachment> _attachments = new List<DiscordAttachment>();
+        internal List<DiscordAttachment> _attachments = new();
         [JsonIgnore]
-        private Lazy<IReadOnlyList<DiscordAttachment>> _attachmentsLazy;
+        private readonly Lazy<IReadOnlyList<DiscordAttachment>> _attachmentsLazy;
 
         /// <summary>
         /// Gets embeds attached to this message.
@@ -199,9 +197,9 @@ namespace DSharpPlus.Entities
             => this._embedsLazy.Value;
 
         [JsonProperty("embeds", NullValueHandling = NullValueHandling.Ignore)]
-        internal List<DiscordEmbed> _embeds = new List<DiscordEmbed>();
+        internal List<DiscordEmbed> _embeds = new();
         [JsonIgnore]
-        private Lazy<IReadOnlyList<DiscordEmbed>> _embedsLazy;
+        private readonly Lazy<IReadOnlyList<DiscordEmbed>> _embedsLazy;
 
         /// <summary>
         /// Gets reactions used on this message.
@@ -211,9 +209,9 @@ namespace DSharpPlus.Entities
             => this._reactionsLazy.Value;
 
         [JsonProperty("reactions", NullValueHandling = NullValueHandling.Ignore)]
-        internal List<DiscordReaction> _reactions = new List<DiscordReaction>();
+        internal List<DiscordReaction> _reactions = new();
         [JsonIgnore]
-        private Lazy<IReadOnlyList<DiscordReaction>> _reactionsLazy;
+        private readonly Lazy<IReadOnlyList<DiscordReaction>> _reactionsLazy;
 
         /*
         /// <summary>
@@ -254,14 +252,14 @@ namespace DSharpPlus.Entities
         public DiscordMessageApplication Application { get; internal set; }
 
         [JsonProperty("message_reference", NullValueHandling = NullValueHandling.Ignore)]
-        internal InternalDiscordMessageReference? _reference { get; set; }
+        internal InternalDiscordMessageReference? InternalReference { get; set; }
 
         /// <summary>
         /// Gets the original message reference from the crossposted message.
         /// </summary>
         [JsonIgnore]
         public DiscordMessageReference Reference
-            => (this._reference.HasValue) ? this?.InternalBuildMessageReference() : null;
+            => (this.InternalReference.HasValue) ? this?.InternalBuildMessageReference() : null;
 
         /// <summary>
         /// Gets the bitwise flags for this message.
@@ -281,7 +279,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public Uri JumpLink => this._jumpLink.Value;
-        private Lazy<Uri> _jumpLink;
+        private readonly Lazy<Uri> _jumpLink;
 
         /// <summary>
         /// Gets stickers for this message.
@@ -291,9 +289,9 @@ namespace DSharpPlus.Entities
             => this._stickersLazy.Value;
 
         [JsonProperty("stickers", NullValueHandling = NullValueHandling.Ignore)]
-        internal List<DiscordMessageSticker> _stickers = new List<DiscordMessageSticker>();
+        internal List<DiscordMessageSticker> _stickers = new();
         [JsonIgnore]
-        private Lazy<IReadOnlyList<DiscordMessageSticker>> _stickersLazy;
+        private readonly Lazy<IReadOnlyList<DiscordMessageSticker>> _stickersLazy;
 
         [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
         internal ulong? GuildId { get; set; }
@@ -313,9 +311,9 @@ namespace DSharpPlus.Entities
         internal DiscordMessageReference InternalBuildMessageReference()
         {
             var client = this.Discord as DiscordClient;
-            var guildId = this._reference.Value.guildId;
-            var channelId = this._reference.Value.channelId;
-            var messageId = this._reference.Value.messageId;
+            var guildId = this.InternalReference.Value.GuildId;
+            var channelId = this.InternalReference.Value.ChannelId;
+            var messageId = this.InternalReference.Value.MessageId;
 
             var reference = new DiscordMessageReference();
 
@@ -517,7 +515,7 @@ namespace DSharpPlus.Entities
             => this.Discord.ApiClient.UnpinMessageAsync(this.ChannelId, this.Id);
 
         /// <summary>
-        /// Responds to the message.
+        /// Responds to the message. This produces a reply.
         /// </summary>
         /// <param name="content">Message content to respond with.</param>
         /// <returns>The sent message.</returns>
@@ -526,10 +524,10 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> RespondAsync(string content) 
-            => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, content, null);
+            => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, content, null, replyMessageId: this.Id, mentionReply: false, failOnInvalidReply: false);
 
         /// <summary>
-        /// Responds to the message.
+        /// Responds to the message. This produces a reply.
         /// </summary>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
@@ -538,10 +536,10 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> RespondAsync(DiscordEmbed embed)
-            => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, null, embed);
+            => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, null, embed, replyMessageId: this.Id, mentionReply: false, failOnInvalidReply: false);
 
         /// <summary>
-        /// Responds to the message.
+        /// Responds to the message. This produces a reply.
         /// </summary>
         /// <param name="content">Message content to respond with.</param>
         /// <param name="embed">Embed to attach to the message.</param>
@@ -551,10 +549,10 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> RespondAsync(string content, DiscordEmbed embed)
-            => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, content, embed);
+            => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, content, embed, replyMessageId: this.Id, mentionReply: false, failOnInvalidReply: false);
 
         /// <summary>
-        /// Responds to the message.
+        /// Responds to the message. This produces a reply.
         /// </summary>
         /// <param name="builder">The Discord message builder.</param>
         /// <returns>The sent message.</returns>
@@ -563,10 +561,10 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> RespondAsync(DiscordMessageBuilder builder)
-            => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, builder);
+            => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, builder.WithReply(this.Id, mention: false, failOnInvalidReply: false));
 
         /// <summary>
-        /// Responds to the message.
+        /// Responds to the message. This produces a reply.
         /// </summary>
         /// <param name="action">The Discord message builder.</param>
         /// <returns>The sent message.</returns>
@@ -578,11 +576,11 @@ namespace DSharpPlus.Entities
         {
             var builder = new DiscordMessageBuilder();
             action(builder);
-            return this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, builder);
+            return this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, builder.WithReply(this.Id, mention: false, failOnInvalidReply: false));
         }
 
         /// <summary>
-        /// Creates a reaction to this message
+        /// Creates a reaction to this message.
         /// </summary>
         /// <param name="emoji">The emoji you want to react with, either an emoji or name:id</param>
         /// <returns></returns>
@@ -661,7 +659,7 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("Cannot get a negative number of reactions' users.");
 
             if (limit == 0)
-                return new DiscordUser[0];
+                return Array.Empty<DiscordUser>();
 
             var users = new List<DiscordUser>(limit);
             var remaining = limit;
@@ -709,7 +707,7 @@ namespace DSharpPlus.Entities
         /// <returns>Whether the <see cref="DiscordMessage"/> is equal to this <see cref="DiscordMessage"/>.</returns>
         public bool Equals(DiscordMessage e)
         {
-            if (ReferenceEquals(e, null))
+            if (e is null)
                 return false;
 
             if (ReferenceEquals(this, e))

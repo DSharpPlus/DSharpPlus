@@ -47,7 +47,7 @@ namespace DSharpPlus.CommandsNext
         public DiscordMember Member 
             => this._lazyAssMember.Value;
 
-        private Lazy<DiscordMember> _lazyAssMember;
+        private readonly Lazy<DiscordMember> _lazyAssMember;
 
         /// <summary>
         /// Gets the CommandsNext service instance that handled this command.
