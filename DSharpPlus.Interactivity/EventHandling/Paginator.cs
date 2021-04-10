@@ -35,7 +35,6 @@ namespace DSharpPlus.Interactivity.EventHandling
             {
                 var tcs = await request.GetTaskCompletionSourceAsync().ConfigureAwait(false);
                 await tcs.Task.ConfigureAwait(false);
-                await request.DoCleanupAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -44,6 +43,14 @@ namespace DSharpPlus.Interactivity.EventHandling
             finally
             {
                 this._requests.TryRemove(request);
+                try
+                {
+                    await request.DoCleanupAsync().ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    this._client.Logger.LogError(InteractivityEvents.InteractivityPaginationError, ex, "Exception occurred while paginating");
+                }
             }
         }
 
