@@ -69,7 +69,8 @@ namespace DSharpPlus
 
         private ConcurrentDictionary<int, DiscordClient> _shards = new ConcurrentDictionary<int, DiscordClient>();
         private Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>> _voiceRegionsLazy;
-        private bool _isStarted = false;
+        private bool _isStarted;
+        private bool _manuallySharding;
 
         #endregion
 
@@ -82,6 +83,9 @@ namespace DSharpPlus
         public DiscordShardedClient(DiscordConfiguration config)
         {
             this.InternalSetup();
+
+            if (config.ShardCount > 1)
+                this._manuallySharding = true;
 
             this.Configuration = config;
             this.ShardClients = new ReadOnlyConcurrentDictionary<int, DiscordClient>(this._shards);
@@ -161,23 +165,30 @@ namespace DSharpPlus
             => this.InternalStopAsync();
 
         /// <summary>
-        /// Gets a shard from a guild id.
-        /// <para>This method uses the <see cref="Utilities.GetShardId(ulong, int)"/> method and will not iterate through the shard guild caches.</para>
+        /// Gets a shard from a guild ID.
+        /// <para>
+        ///     If automatically sharding, this will use the <see cref="Utilities.GetShardId(ulong, int)"/> method. 
+        ///     Otherwise if manually sharding, it will instead iterate through each shard's guild caches.  
+        /// </para>
         /// </summary>
-        /// <param name="guildId">The guild id for the shard.</param>
-        /// <returns>The found <see cref="DiscordClient"/> shard.</returns>
+        /// <param name="guildId">The guild ID for the shard.</param>
+        /// <returns>The found <see cref="DiscordClient"/> shard. Otherwise <see langword="null"/> if the shard was not found for the guild ID.</returns>
         public DiscordClient GetShard(ulong guildId)
         {
-            var index = Utilities.GetShardId(guildId, this.ShardClients.Count);
-            return this._shards[index];
+            var index = this._manuallySharding ? this.getShardIdFromGuilds(guildId) : Utilities.GetShardId(guildId, this.ShardClients.Count);
+
+            return index != -1 ? this._shards[index] : null;
         }
 
         /// <summary>
         /// Gets a shard from a guild.
-        /// <para>This method uses the <see cref="Utilities.GetShardId(ulong, int)"/> method and will not iterate through the shard guild caches.</para>
+        /// <para>
+        ///     If automatically sharding, this will use the <see cref="Utilities.GetShardId(ulong, int)"/> method. 
+        ///     Otherwise if manually sharding, it will instead iterate through each shard's guild caches.  
+        /// </para>
         /// </summary>
         /// <param name="guild">The guild for the shard.</param>
-        /// <returns>The found <see cref="DiscordClient"/> shard.</returns>
+        /// <returns>The found <see cref="DiscordClient"/> shard. Otherwise <see langword="null"/> if the shard was not found for the guild.</returns>
         public DiscordClient GetShard(DiscordGuild guild)
             => this.GetShard(guild.Id);
 
@@ -561,6 +572,19 @@ namespace DSharpPlus
             client.ApplicationCommandCreated -= this.Client_ApplicationCommandCreated;
             client.ApplicationCommandUpdated -= this.Client_ApplicationCommandUpdated;
             client.ApplicationCommandDeleted -= this.Client_ApplicationCommandDeleted;
+        }
+
+        private int getShardIdFromGuilds(ulong id)
+        {
+            foreach(var s in this._shards.Values)
+            {
+                if(s._guilds.TryGetValue(id, out _))
+                {
+                    return s.ShardId;
+                }
+            }
+
+            return -1;
         }
 
         #endregion
