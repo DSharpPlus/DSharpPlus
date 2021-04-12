@@ -22,15 +22,15 @@ You can install the library from following sources:
    On Windows, you will need SDKs for .NET 4.5, 4.6, and 4.7, as well as the .NET Core 1.1 and 2.0 SDKs. You can install these manually from the internet, or through the Visual Studio Installer.
 
 # Documentation
-The documentation for the latest stable version is available at [dsharpplus.emzi0767.com](https://dsharpplus.emzi0767.com).
+The documentation for the latest stable version is available at [dsharpplus.github.io](https://dsharpplus.github.io/).
 
-For the latest nightly build, you can find it at [dsharpplus.github.io](https://dsharpplus.github.io/). Do note that the articles for the nightly builds may not yet reflect recent API changes. The API Documentation however is automatically generated and should always be up-to-date.
+Do note that the documentation might not reflect the latest changes in nightly version of the library.
 
 ## Resources
 The following resources apply only for the latest stable version of the library.
 
 ### Tutorials
-* [Making your first bot in C#](https://dsharpplus.emzi0767.com/articles/intro.html).
+* [Making your first bot in C#](https://dsharpplus.github.io/articles/basics/bot_account.html).
 
 ### Example bots
 * [Example by Emzi0767](https://github.com/DSharpPlus/Example-Bots)
