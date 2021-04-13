@@ -38,5 +38,8 @@ namespace DSharpPlus.Entities
 
         [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
         internal ulong? GuildId { get; set; }
+        
+        [JsonProperty("fail_if_not_exists", NullValueHandling = NullValueHandling.Ignore)]
+        public bool FailIfNotExists { get; set; }
     }
 }

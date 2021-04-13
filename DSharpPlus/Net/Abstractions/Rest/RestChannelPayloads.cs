@@ -92,9 +92,6 @@ namespace DSharpPlus.Net.Abstractions
         
         [JsonProperty("message_reference", NullValueHandling = NullValueHandling.Ignore)]
         public InternalDiscordMessageReference? MessageReference { get; set; }
-
-        [JsonProperty("fail_if_not_exists", NullValueHandling = NullValueHandling.Ignore)]
-        public bool FailIfNotExists { get; set; }
     }
 
     internal sealed class RestChannelMessageCreateMultipartPayload
