@@ -49,7 +49,7 @@ If you want to give us some money as a thank you gesture, you can do so using on
 # Questions?
 Come talk to us here:
 
-[![DSharpPlus Chat](https://discord.com/api/guilds/379378609942560770/embed.png?style=banner1)](https://discord.gg/nTk7HgF)
+[![DSharpPlus Chat](https://discord.com/api/guilds/379378609942560770/embed.png?style=banner1)](https://discord.gg/dsharpplus)
 
 Alternatively, you could also join us in the [Discord API chat](https://discord.gg/discord-api) at **#dotnet_dsharpplus**.
 
