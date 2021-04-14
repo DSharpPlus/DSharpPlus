@@ -36,7 +36,7 @@ Once you're up and running, feel free to browse through the [API Documentation](
 You can get in contact with us on Discord through one of the following guilds:
 
 **DSharpPlus Guild**:</br>
-[![DSharpPlus Guild](https://discordapp.com/api/guilds/379378609942560770/embed.png?style=banner2)](https://discord.gg/KeAS3pU)
+[![DSharpPlus Guild](https://discordapp.com/api/guilds/379378609942560770/embed.png?style=banner2)](https://discord.gg/dsharpplus)
 
 **#dotnet_dsharpplus** on **Discord API**:</br>
 [![Discord API / #dotnet_dsharpplus](https://discordapp.com/api/guilds/81384788765712384/embed.png?style=banner2)](https://discord.gg/discord-api)
