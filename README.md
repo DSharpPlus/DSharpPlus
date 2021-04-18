@@ -7,15 +7,15 @@ An extension for DSharpPlus to make slash commands easier
 
 # Documentation
 
-The slash command API is still in the beta stages. As such, they won't be officially implemented into D#+ until they're stable enough. You can use this library to somewhat get an idea of how you can implement slash commands into your bot.
+DSharpPlus doesn't currently have a slash command framework. You can use this library to somewhat get an idea of how you can implement slash commands into your bot.
 
-I have done my best to make this as similar to CommandsNext as possible to make it a smooth experience. However, there are several limitations, that are either because of the unfinished and limited features of the slash command api itself, or for simplicity. This implementation does NOT support:
+I have done my best to make this as similar to CommandsNext as possible to make it a smooth experience. However, there are some limitations in comparison. The library does not support:
 
     Registering or editing commands at runtime
     Sharding
     Any pre execution checks
-
-You should ideally not use this library in production, especially for large and already established bots. I highly recommend only using this to check out what slash commands can do right now, and do some basic testing, and to wait until slash commands are fully released for any actual features.
+   
+While you can make commands at runtime, if you have a command class registered for that guild/globally if you're making global commands, it will be overwritten (therefore probably deleted) on the next startup due to the limitations of the bulk overwrite endpoint.
 
 Now, on to the actual guide:
 ## Installing
