@@ -327,7 +327,7 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Attempts to create an emoji obejct from emote name that includes colons (eg. :thinking:). This method also 
+        /// Attempts to create an emoji object from emote name that includes colons (eg. :thinking:). This method also 
         /// supports skin tone variations (eg. :ok_hand::skin-tone-2:), standard emoticons (eg. :D), as well as guild 
         /// emoji (still specified by :name:).
         /// </summary>
@@ -339,7 +339,7 @@ namespace DSharpPlus.Entities
             => TryFromName(client, name, true, out emoji);
 
         /// <summary>
-        /// Attempts to create an emoji obejct from emote name that includes colons (eg. :thinking:). This method also 
+        /// Attempts to create an emoji object from emote name that includes colons (eg. :thinking:). This method also 
         /// supports skin tone variations (eg. :ok_hand::skin-tone-2:), standard emoticons (eg. :D), as well as guild 
         /// emoji (still specified by :name:).
         /// </summary>
