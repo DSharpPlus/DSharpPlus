@@ -705,6 +705,7 @@ namespace DSharpPlus
             guild.Banner = eventGuild.Banner;
             guild.VanityUrlCode = eventGuild.VanityUrlCode;
             guild.Description = eventGuild.Description;
+            guild.Nsfw = eventGuild.Nsfw;
 
             foreach (var kvp in eventGuild._voiceStates) guild._voiceStates[kvp.Key] = kvp.Value;
 
@@ -788,6 +789,7 @@ namespace DSharpPlus
                     RulesChannelId = gld.RulesChannelId,
                     PublicUpdatesChannelId = gld.PublicUpdatesChannelId,
                     VoiceRegionId = gld.VoiceRegionId,
+                    Nsfw = gld.Nsfw,
                     _channels = new ConcurrentDictionary<ulong, DiscordChannel>(),
                     _emojis = new ConcurrentDictionary<ulong, DiscordEmoji>(),
                     _members = new ConcurrentDictionary<ulong, DiscordMember>(),
