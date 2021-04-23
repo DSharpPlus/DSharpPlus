@@ -257,7 +257,7 @@ namespace DSharpPlus
         UseSlashCommands = 0x0000000080000000,
 
         /// <summary>
-        /// Allows the user to request to speak in Stage channels.
+        /// Allows the user to request to speak in stage channels.
         /// </summary>
         [PermissionString("Request to speak")]
         RequestToSpeak = 0x0000000100000000
