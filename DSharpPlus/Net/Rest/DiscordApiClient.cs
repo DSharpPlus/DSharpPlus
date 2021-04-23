@@ -794,12 +794,9 @@ namespace DSharpPlus.Net
             };
 
             if (replyMessageId != null)
-            {
-                pld.MessageReference = new InternalDiscordMessageReference { MessageId = replyMessageId };
-                pld.FailIfNotExists = failOnInvalidReply;
-            }
+                pld.MessageReference = new InternalDiscordMessageReference { MessageId = replyMessageId, FailIfNotExists = failOnInvalidReply };
 
-            if (replyMessageId != null)
+                if (replyMessageId != null)
                 pld.Mentions = new DiscordMentions(Mentions.None, mentionReply);
 
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}";
@@ -830,10 +827,8 @@ namespace DSharpPlus.Net
             };
 
             if (builder.ReplyId != null)
-            {
-                pld.MessageReference = new InternalDiscordMessageReference { MessageId = builder.ReplyId };
-                pld.FailIfNotExists = builder.FailOnInvalidReply;
-            }
+                pld.MessageReference = new InternalDiscordMessageReference { MessageId = builder.ReplyId, FailIfNotExists = builder.FailOnInvalidReply};
+
 
             if (builder.Mentions != null || builder.ReplyId != null)
                 pld.Mentions = new DiscordMentions(builder.Mentions ?? Mentions.None, builder.MentionOnReply);
