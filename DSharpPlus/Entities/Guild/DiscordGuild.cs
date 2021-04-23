@@ -400,7 +400,7 @@ namespace DSharpPlus.Entities
         /// Gets whether this guild is designated as nsfw.
         /// </summary>
         [JsonProperty("nsfw", NullValueHandling = NullValueHandling.Ignore)]
-        public bool Nsfw { get; internal set; }
+        public bool IsNSFW { get; internal set; }
 
         // Seriously discord?
 
