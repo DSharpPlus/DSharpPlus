@@ -4,8 +4,8 @@ namespace DSharpPlus
 {
     public static class PermissionMethods
     {
-        internal static Permissions FULL_PERMS { get; } = (Permissions)2147483647L;
-
+        internal static Permissions FULL_PERMS { get; } = (Permissions)8589934591;
+        
         /// <summary>
         /// Calculates whether this permission set contains the given permission.
         /// </summary>
@@ -68,7 +68,7 @@ namespace DSharpPlus
         /// Indicates all permissions are granted
         /// </summary>
         [PermissionString("All permissions")]
-        All = 2147483647,
+        All = 8589934591,
 
         /// <summary>
         /// Allows creation of instant channel invites.
@@ -248,7 +248,19 @@ namespace DSharpPlus
         /// Allows the user to go live.
         /// </summary>
         [PermissionString("Allow stream")]
-        Stream	= 0x0000000000000200
+        Stream	= 0x0000000000000200,
+
+        /// <summary>
+        /// Allows the user to use slash commands.
+        /// </summary>
+        [PermissionString("Use slash commands")]
+        UseSlashCommands = 0x0000000080000000,
+
+        /// <summary>
+        /// Allows the user to request to speak in Stage channels.
+        /// </summary>
+        [PermissionString("Request to speak")]
+        RequestToSpeak = 0x0000000100000000
     }
 
     /// <summary>
