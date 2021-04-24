@@ -89,14 +89,14 @@ To make a response, you must run `CreateResponseAsync` on your `InteractionConte
 An interaction expires in 3 seconds unless you make a response. If the code you execute before making a response has the potential to take more than 3 seconds, you should first create a `DeferredChannelMessageWithSource` response, and then edit it after your code executes.
 
 
-The second argument is a type of [`DiscordWebhookBuilder`](https://dsharpplus.github.io/api/DSharpPlus.Entities.DiscordWebhookBuilder.html). It functions similarly to the DiscordMessageBuilder, except you cannot send files, and you can have multiple embeds.
+The second argument is a type of [`DiscordInteractionResponseBuilder`](https://dsharpplus.github.io/api/DSharpPlus.Entities.DiscordInteractionResponseBuilder.html). It functions similarly to the DiscordMessageBuilder, except you cannot send files, and you can have multiple embeds.
 
 A simple response would be like:
 ```cs
 [SlashCommand("test", "A slash command made to test the DSharpPlusSlashCommands library!")]
 public async Task TestCommand(InteractionContext ctx)
 {
-  await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordWebhookBuilder().WithContent("Success!"));
+  await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Success!"));
 }
 ```
 If your code will take some time to execute:
@@ -129,7 +129,7 @@ Some examples:
             }.
             WithFooter($"Requested by {ctx.Member.DisplayName}", ctx.Member.AvatarUrl).
             WithAuthor($"{user.Username}", user.AvatarUrl, user.AvatarUrl);
-            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordWebhookBuilder().WithEmbed(embed.Build()));
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithEmbed(embed.Build()));
         }
         
         [SlashCommand("phrase", "Sends a certain phrase in the chat!")]
@@ -138,55 +138,58 @@ Some examples:
           [Choice("phrase2", "be happy!")]
           [Option("phrase", "the phrase to respond with")] string phrase)
         {
-          await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordWebhookBuilder().WithContent(phrase));
+          await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(phrase));
         }
  ```
 ### Groups
-You can have slash commands in groups. Their structure is explained [here](https://discord.com/developers/docs/interactions/slash-commands#nested-subcommands-and-groups), I would highly recommend reading it to understand how they work. To register groups:
+You can have slash commands in groups. Their structure is explained [here](https://discord.com/developers/docs/interactions/slash-commands#nested-subcommands-and-groups), I would highly recommend reading it to understand how they work. To register groups you need a container which is a `SlashCommandModule`. Inside this container you can register groups of comamnds:
 ```cs
-//For a group and subcommands inside the group
-[SlashCommandGroup("group", "description")]
-public class Group
+public class GroupContainer : SlashCommandModule 
 {
-  [SlashCommand("command", "description")
-  public async Task Command(InteractionContext ctx) {}
-  
-  [SlashCommand("command2", "description")
-  public async Task Command2(InteractionContext ctx) {}
-  
-  [SlashCommand("command3", "description")
-  public async Task Command3(InteractionContext ctx) {}
-}
-
-//For subgroups inside groups
-[SlashCommandGroup("group", "description")]
-public class Group
-{
-  [SlashCommandGroup("subgroup", "description")]
-  public class SubGroup
+  //For a group and subcommands inside the group
+  [SlashCommandGroup("group", "description")]
+  public class Group
   {
     [SlashCommand("command", "description")
     public async Task Command(InteractionContext ctx) {}
-  
+    
     [SlashCommand("command2", "description")
     public async Task Command2(InteractionContext ctx) {}
-  
+    
     [SlashCommand("command3", "description")
     public async Task Command3(InteractionContext ctx) {}
-  {
+  }
   
-  [SlashCommandGroup("subgroup2", "description")]
-  public class SubGroup2
+  //For subgroups inside groups
+  [SlashCommandGroup("group", "description")]
+  public class Group
   {
-    [SlashCommand("command", "description")
-    public async Task Command(InteractionContext ctx) {}
-  
-    [SlashCommand("command2", "description")
-    public async Task Command2(InteractionContext ctx) {}
-  
-    [SlashCommand("command3", "description")
-    public async Task Command3(InteractionContext ctx) {}
-  {
+    [SlashCommandGroup("subgroup", "description")]
+    public class SubGroup
+    {
+      [SlashCommand("command", "description")
+      public async Task Command(InteractionContext ctx) {}
+    
+      [SlashCommand("command2", "description")
+      public async Task Command2(InteractionContext ctx) {}
+    
+      [SlashCommand("command3", "description")
+      public async Task Command3(InteractionContext ctx) {}
+    {
+    
+    [SlashCommandGroup("subgroup2", "description")]
+    public class SubGroup2
+    {
+      [SlashCommand("command", "description")
+      public async Task Command(InteractionContext ctx) {}
+    
+      [SlashCommand("command2", "description")
+      public async Task Command2(InteractionContext ctx) {}
+    
+      [SlashCommand("command3", "description")
+      public async Task Command3(InteractionContext ctx) {}
+    {
+  }
 }
 ```
 
