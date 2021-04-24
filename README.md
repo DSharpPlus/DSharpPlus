@@ -142,7 +142,7 @@ Some examples:
         }
  ```
 ### Groups
-You can have slash commands in groups. Their structure is explained [here](https://discord.com/developers/docs/interactions/slash-commands#nested-subcommands-and-groups), I would highly recommend reading it to understand how they work. To register groups you need a container which is a `SlashCommandModule`. Inside this container you can register groups of comamnds:
+You can have slash commands in groups. Their structure is explained [here](https://discord.com/developers/docs/interactions/slash-commands#nested-subcommands-and-groups), I would highly recommend reading it to understand how they work. To register groups you need a container which inherits from `SlashCommandModule`. Inside this container you can register groups of commands:
 ```cs
 public class GroupContainer : SlashCommandModule 
 {
