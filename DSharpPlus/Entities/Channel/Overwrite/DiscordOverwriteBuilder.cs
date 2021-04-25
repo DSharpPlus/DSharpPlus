@@ -29,12 +29,23 @@ namespace DSharpPlus.Entities
         public SnowflakeObject Target { get; private set; }
 
         /// <summary>
-        /// Creates a new Discord permission overwrite builder. This class can be used to construct permission overwrites for guild channels, used when creating channels.
+        /// Creates a new Discord permission overwrite builder for a member. This class can be used to construct permission overwrites for guild channels, used when creating channels.
         /// </summary>
-        public DiscordOverwriteBuilder()
+        public DiscordOverwriteBuilder(DiscordMember member)
         {
-
+            this.Target = member;
+            this.Type = OverwriteType.Member;
         }
+        /// <summary>
+        /// Creates a new Discord permission overwrite builder for a role. This class can be used to construct permission overwrites for guild channels, used when creating channels.
+        /// </summary>
+        public DiscordOverwriteBuilder(DiscordRole role)
+        {
+            this.Target = role;
+            this.Type = OverwriteType.Role;
+        }
+
+        internal DiscordOverwriteBuilder() { }
 
         /// <summary>
         /// Allows a permission for this overwrite.
