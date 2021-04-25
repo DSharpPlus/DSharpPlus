@@ -175,6 +175,16 @@ namespace DSharpPlus.Entities
         [JsonProperty("nsfw")]
         public bool IsNSFW { get; internal set; }
 
+        [JsonProperty("rtc_region", NullValueHandling = NullValueHandling.Ignore)]
+        internal string RtcRegionId { get; set; }
+
+        /// <summary>
+        /// Gets this channel's region override (if voice channel).
+        /// </summary>
+        [JsonIgnore]
+        public DiscordVoiceRegion RtcRegion
+            => this.RtcRegionId != null ? this.Discord.VoiceRegions[this.RtcRegionId] : null;
+
         internal DiscordChannel()
         {
             this._permissionOverwritesLazy = new Lazy<IReadOnlyList<DiscordOverwrite>>(() => new ReadOnlyCollection<DiscordOverwrite>(this._permissionOverwrites));
@@ -331,7 +341,7 @@ namespace DSharpPlus.Entities
             var mdl = new ChannelEditModel();
             action(mdl);
             return this.Discord.ApiClient.ModifyChannelAsync(this.Id, mdl.Name, mdl.Position, mdl.Topic, mdl.Nsfw,
-                mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.PerUserRateLimit, 
+                mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.PerUserRateLimit, mdl.RtcRegion != null ? mdl.RtcRegion.IfPresent(r => r.Id) : null,
                 mdl.AuditLogReason);
         }
 

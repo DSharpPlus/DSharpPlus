@@ -577,7 +577,8 @@ namespace DSharpPlus
                     UserLimit = channel_new.UserLimit,
                     ParentId = channel_new.ParentId,
                     IsNSFW = channel_new.IsNSFW,
-                    PerUserRateLimit = channel_new.PerUserRateLimit
+                    PerUserRateLimit = channel_new.PerUserRateLimit,
+                    RtcRegionId = channel_new.RtcRegionId
                 };
 
                 channel_new.Bitrate = channel.Bitrate;
@@ -589,6 +590,7 @@ namespace DSharpPlus
                 channel_new.IsNSFW = channel.IsNSFW;
                 channel_new.PerUserRateLimit = channel.PerUserRateLimit;
                 channel_new.Type = channel.Type;
+                channel_new.RtcRegionId = channel.RtcRegionId;
 
                 channel_new._permissionOverwrites.Clear();
 

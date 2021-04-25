@@ -59,6 +59,9 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("rate_limit_per_user")]
         public Optional<int?> PerUserRateLimit { get; set; }
+
+        [JsonProperty("rtc_region")]
+        public Optional<string> RtcRegion { get; set; }
     }
 
     internal class RestChannelMessageEditPayload
