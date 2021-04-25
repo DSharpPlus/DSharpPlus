@@ -58,8 +58,8 @@ namespace DSharpPlus.VoiceNext
         /// <returns>VoiceNext connection for this channel.</returns>
         public async Task<VoiceNextConnection> ConnectAsync(DiscordChannel channel)
         {
-            if (channel.Type != ChannelType.Voice)
-                throw new ArgumentException(nameof(channel), "Invalid channel specified; needs to be voice channel");
+            if (channel.Type != ChannelType.Voice && channel.Type != ChannelType.Stage)
+                throw new ArgumentException(nameof(channel), "Invalid channel specified; needs to be voice or stage channel");
 
             if (channel.Guild == null)
                 throw new ArgumentException(nameof(channel), "Invalid channel specified; needs to be guild channel");

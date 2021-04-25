@@ -41,6 +41,11 @@
         Store = 6,
 
         /// <summary>
+        /// Indicates that this is a stage channel.
+        /// </summary>
+        Stage = 13,
+
+        /// <summary>
         /// Indicates unknown channel type.
         /// </summary>
         Unknown = int.MaxValue

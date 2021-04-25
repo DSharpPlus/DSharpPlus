@@ -351,8 +351,8 @@ namespace DSharpPlus
         /// <returns></returns>
         public Task<DiscordChannel> CreateGuildChannelAsync(ulong id, string name, ChannelType type, ulong? parent, Optional<string> topic, int? bitrate, int? userLimit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, Optional<int?> perUserRateLimit, string reason)
         {
-            if (type != ChannelType.Category && type != ChannelType.Text && type != ChannelType.Voice && type != ChannelType.News && type != ChannelType.Store)
-                throw new ArgumentException("Channel type must be text, voice, or category.", nameof(type));
+            if (type != ChannelType.Category && type != ChannelType.Text && type != ChannelType.Voice && type != ChannelType.News && type != ChannelType.Store && type != ChannelType.Stage)
+                throw new ArgumentException("Channel type must be text, voice, stage, or category.", nameof(type));
 
             return this.ApiClient.CreateGuildChannelAsync(id, name, type, parent, topic, bitrate, userLimit, overwrites, nsfw, perUserRateLimit, reason);
         }
@@ -805,8 +805,8 @@ namespace DSharpPlus
             var mdl = new MemberEditModel();
             action(mdl);
 
-            if (mdl.VoiceChannel.HasValue && mdl.VoiceChannel.Value != null && mdl.VoiceChannel.Value.Type != ChannelType.Voice)
-                throw new ArgumentException("Given channel is not a voice channel.", nameof(mdl.VoiceChannel));
+            if (mdl.VoiceChannel.HasValue && mdl.VoiceChannel.Value != null && mdl.VoiceChannel.Value.Type != ChannelType.Voice && mdl.VoiceChannel.Value.Type != ChannelType.Stage)
+                throw new ArgumentException("Given channel is not a voice or stage channel.", nameof(mdl.VoiceChannel));
 
             if (mdl.Nickname.HasValue && this.CurrentUser.Id == member_id)
             {

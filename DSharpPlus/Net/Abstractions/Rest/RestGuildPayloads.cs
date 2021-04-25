@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
 
@@ -238,5 +239,26 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<string> Description { get; set; }
+    }
+
+    internal class RestGuildUpdateCurrentUserVoiceStatePayload
+    {
+        [JsonProperty("channel_id")]
+        public ulong ChannelId { get; set; }
+
+        [JsonProperty("suppress", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? Suppress { get; set; }
+
+        [JsonProperty("request_to_speak_timestamp", NullValueHandling = NullValueHandling.Ignore)]
+        public DateTimeOffset? RequestToSpeakTimestamp { get; set; }
+    }
+
+    internal class RestGuildUpdateUserVoiceStatePayload
+    {
+        [JsonProperty("channel_id")]
+        public ulong ChannelId { get; set; }
+
+        [JsonProperty("suppress", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? Suppress { get; set; }
     }
 }

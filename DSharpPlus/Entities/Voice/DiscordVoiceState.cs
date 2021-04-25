@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json;
 
@@ -112,6 +113,17 @@ namespace DSharpPlus.Entities
 		[JsonProperty("suppress", NullValueHandling = NullValueHandling.Ignore)]
 		public bool IsSuppressed { get; internal set; }
 
+		/// <summary>
+		/// Gets the time at which this user requested to speak.
+		/// </summary>
+		[JsonIgnore]
+		public DateTimeOffset? RequestToSpeakTimestamp
+			=> !string.IsNullOrWhiteSpace(this.RequestToSpeakTimestampRaw) && DateTimeOffset.TryParse(this.RequestToSpeakTimestampRaw, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dto) ?
+				dto : null;
+
+		[JsonProperty("request_to_speak_timestamp", NullValueHandling = NullValueHandling.Ignore)]
+		internal string RequestToSpeakTimestampRaw { get; set; }
+
 		internal DiscordVoiceState() { }
 
 		// copy constructor for reduced boilerplate
@@ -132,6 +144,7 @@ namespace DSharpPlus.Entities
 			this.IsSelfVideo = other.IsSelfVideo;
 
 			this.SessionId = other.SessionId;
+			this.RequestToSpeakTimestampRaw = other.RequestToSpeakTimestampRaw;
 		}
 
 		internal DiscordVoiceState(DiscordMember m)

@@ -90,8 +90,8 @@ namespace DSharpPlus.Lavalink
             if (channel.Guild == null)
                 throw new InvalidOperationException("Lavalink can only be used with guild channels.");
 
-            if (channel.Type != ChannelType.Voice)
-                throw new InvalidOperationException("You can only connect to voice channels.");
+            if (channel.Type != ChannelType.Voice && channel.Type != ChannelType.Stage)
+                throw new InvalidOperationException("You can only connect to voice and stage channels.");
 
             if (!(channel.Discord is DiscordClient discord) || discord == null)
                 throw new NullReferenceException();
