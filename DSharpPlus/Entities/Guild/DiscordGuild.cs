@@ -360,7 +360,7 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Gets vanity URL code for this guild, when applicable.
+        /// Gets the vanity URL code for this guild, when applicable.
         /// </summary>
         [JsonProperty("vanity_url_code")]
         public string VanityUrlCode { get; internal set; }
@@ -395,6 +395,12 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("premium_subscription_count", NullValueHandling = NullValueHandling.Ignore)]
         public int? PremiumSubscriptionCount { get; internal set; }
+
+        /// <summary>
+        /// Gets whether this guild is designated as NSFW.
+        /// </summary>
+        [JsonProperty("nsfw", NullValueHandling = NullValueHandling.Ignore)]
+        public bool IsNSFW { get; internal set; }
 
         // Seriously discord?
 
