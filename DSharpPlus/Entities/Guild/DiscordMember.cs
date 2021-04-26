@@ -486,7 +486,7 @@ namespace DSharpPlus.Entities
             => channel.PlaceMemberAsync(this);
 
         /// <summary>
-        /// Updates the member's voice state.
+        /// Updates the member's suppress state in a stage channel.
         /// </summary>
         /// <param name="channel">The channel the member is currently in.</param>
         /// <param name="suppress">Toggles the member's suppress state.</param>

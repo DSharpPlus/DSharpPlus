@@ -693,7 +693,7 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Updates the current user's voice state.
+        /// Updates the current user's suppress state in this channel, if stage channel.
         /// </summary>
         /// <param name="suppress">Toggles the suppress state.</param>
         /// <param name="requestToSpeakTimestamp">Sets the time the user requested to speak.</param>

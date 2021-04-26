@@ -116,13 +116,8 @@ namespace DSharpPlus.Entities
 		/// <summary>
 		/// Gets the time at which this user requested to speak.
 		/// </summary>
-		[JsonIgnore]
-		public DateTimeOffset? RequestToSpeakTimestamp
-			=> !string.IsNullOrWhiteSpace(this.RequestToSpeakTimestampRaw) && DateTimeOffset.TryParse(this.RequestToSpeakTimestampRaw, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dto) ?
-				dto : null;
-
 		[JsonProperty("request_to_speak_timestamp", NullValueHandling = NullValueHandling.Ignore)]
-		internal string RequestToSpeakTimestampRaw { get; set; }
+		internal DateTimeOffset RequestToSpeakTimestamp { get; set; }
 
 		internal DiscordVoiceState() { }
 
@@ -144,7 +139,7 @@ namespace DSharpPlus.Entities
 			this.IsSelfVideo = other.IsSelfVideo;
 
 			this.SessionId = other.SessionId;
-			this.RequestToSpeakTimestampRaw = other.RequestToSpeakTimestampRaw;
+			this.RequestToSpeakTimestamp = other.RequestToSpeakTimestamp;
 		}
 
 		internal DiscordVoiceState(DiscordMember m)

@@ -273,7 +273,7 @@ namespace DSharpPlus.Lavalink
             if (this._connectedGuilds.ContainsKey(channel.Guild.Id))
                 return this._connectedGuilds[channel.Guild.Id];
 
-            if (channel.Guild == null || channel.Type != ChannelType.Voice || channel.Type != ChannelType.Stage)
+            if (channel.Guild == null || (channel.Type != ChannelType.Voice && channel.Type != ChannelType.Stage))
                 throw new ArgumentException("Invalid channel specified.", nameof(channel));
 
             var vstut = new TaskCompletionSource<VoiceStateUpdateEventArgs>();
