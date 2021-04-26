@@ -360,7 +360,7 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Gets vanity URL code for this guild, when applicable.
+        /// Gets the vanity URL code for this guild, when applicable.
         /// </summary>
         [JsonProperty("vanity_url_code")]
         public string VanityUrlCode { get; internal set; }
