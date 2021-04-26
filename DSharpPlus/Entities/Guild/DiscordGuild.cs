@@ -397,7 +397,7 @@ namespace DSharpPlus.Entities
         public int? PremiumSubscriptionCount { get; internal set; }
 
         /// <summary>
-        /// Gets whether this guild is designated as nsfw.
+        /// Gets whether this guild is designated as NSFW.
         /// </summary>
         [JsonProperty("nsfw", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsNSFW { get; internal set; }
