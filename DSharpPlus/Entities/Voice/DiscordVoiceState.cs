@@ -117,7 +117,7 @@ namespace DSharpPlus.Entities
 		/// Gets the time at which this user requested to speak.
 		/// </summary>
 		[JsonProperty("request_to_speak_timestamp", NullValueHandling = NullValueHandling.Ignore)]
-		internal DateTimeOffset RequestToSpeakTimestamp { get; set; }
+		internal DateTimeOffset? RequestToSpeakTimestamp { get; set; }
 
 		internal DiscordVoiceState() { }
 
