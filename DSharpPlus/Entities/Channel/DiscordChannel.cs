@@ -341,7 +341,7 @@ namespace DSharpPlus.Entities
             var mdl = new ChannelEditModel();
             action(mdl);
             return this.Discord.ApiClient.ModifyChannelAsync(this.Id, mdl.Name, mdl.Position, mdl.Topic, mdl.Nsfw,
-                mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.PerUserRateLimit, mdl.RtcRegion != null ? mdl.RtcRegion.IfPresent(r => r.Id) : null,
+                mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.PerUserRateLimit, mdl.RtcRegion.IfPresent(r => r?.Id),
                 mdl.AuditLogReason);
         }
 
