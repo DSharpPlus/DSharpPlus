@@ -125,7 +125,7 @@ namespace DSharpPlus
 
         internal static bool ContainsEmojis(string message)
         {
-            string pattern = @"<:(.*):(\d+)>";
+            string pattern = @"<a?:(.*):(\d+)>";
             Regex regex = new Regex(pattern, RegexOptions.ECMAScript);
             return regex.IsMatch(message);
         }
@@ -156,7 +156,7 @@ namespace DSharpPlus
 
         internal static IEnumerable<ulong> GetEmojis(DiscordMessage message)
         {
-            var regex = new Regex(@"<:([a-zA-Z0-9_]+):(\d+)>", RegexOptions.ECMAScript);
+            var regex = new Regex(@"<a?:([a-zA-Z0-9_]+):(\d+)>", RegexOptions.ECMAScript);
             var matches = regex.Matches(message.Content);
             foreach (Match match in matches)
                 yield return ulong.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
