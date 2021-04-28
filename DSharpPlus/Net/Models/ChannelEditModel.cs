@@ -47,6 +47,12 @@ namespace DSharpPlus.Net.Models
         /// </summary>
         public Optional<int?> PerUserRateLimit { internal get; set; }
 
+        /// <summary>
+        /// <para>Sets the voice channel's region override.</para>
+        /// <para>Setting this to null will set it to automatic.</para>
+        /// </summary>
+        public Optional<DiscordVoiceRegion> RtcRegion { internal get; set; }
+
         internal ChannelEditModel() { }
     }
 }
