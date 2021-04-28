@@ -98,6 +98,11 @@
         /// <summary>
         /// Message indicating an application command was invoked.
         /// </summary>
-        ApplicationCommand = 20
+        ApplicationCommand = 20,
+
+        /// <summary>
+        /// Message reminding you to invite people to help you build the server.
+        /// </summary>
+        GuildInviteReminder = 22
     }
 }

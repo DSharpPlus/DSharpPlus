@@ -12,7 +12,8 @@ namespace DSharpPlus
         /// <param name="p">The permissions to calculate from</param>
         /// <param name="permission">permission you want to check</param>
         /// <returns></returns>
-        public static bool HasPermission(this Permissions p, Permissions permission) => (p & permission) == permission;
+        public static bool HasPermission(this Permissions p, Permissions permission) 
+            => p.HasFlag(Permissions.Administrator) || (p & permission) == permission;
 
         /// <summary>
         /// Grants permissions.

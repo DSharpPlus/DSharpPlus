@@ -360,7 +360,7 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Gets vanity URL code for this guild, when applicable.
+        /// Gets the vanity URL code for this guild, when applicable.
         /// </summary>
         [JsonProperty("vanity_url_code")]
         public string VanityUrlCode { get; internal set; }
@@ -395,6 +395,12 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("premium_subscription_count", NullValueHandling = NullValueHandling.Ignore)]
         public int? PremiumSubscriptionCount { get; internal set; }
+
+        /// <summary>
+        /// Gets whether this guild is designated as NSFW.
+        /// </summary>
+        [JsonProperty("nsfw", NullValueHandling = NullValueHandling.Ignore)]
+        public bool IsNSFW { get; internal set; }
 
         // Seriously discord?
 
@@ -621,8 +627,8 @@ namespace DSharpPlus.Entities
         public Task<DiscordChannel> CreateChannelAsync(string name, ChannelType type, DiscordChannel parent = null, Optional<string> topic = default, int? bitrate = null, int? userLimit = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, bool? nsfw = null, Optional<int?> perUserRateLimit = default, string reason = null)
         {
             // technically you can create news/store channels but not always
-            if (type != ChannelType.Text && type != ChannelType.Voice && type != ChannelType.Category && type != ChannelType.News && type != ChannelType.Store)
-                throw new ArgumentException("Channel type must be text, voice, or category.", nameof(type));
+            if (type != ChannelType.Text && type != ChannelType.Voice && type != ChannelType.Category && type != ChannelType.News && type != ChannelType.Store && type != ChannelType.Stage)
+                throw new ArgumentException("Channel type must be text, voice, stage, or category.", nameof(type));
 
             if (type == ChannelType.Category && parent != null)
                 throw new ArgumentException("Cannot specify parent of a channel category.", nameof(parent));

@@ -162,7 +162,7 @@ namespace DSharpPlus.Entities
                 if (this.Guild == null)
                     throw new InvalidOperationException("Cannot query users outside of guild channels.");
 
-                if (this.Type == ChannelType.Voice)
+                if (this.Type == ChannelType.Voice || this.Type == ChannelType.Stage)
                     return Guild.Members.Values.Where(x => x.VoiceState?.ChannelId == this.Id);
 
                 return Guild.Members.Values.Where(x => (this.PermissionsFor(x) & Permissions.AccessChannels) == Permissions.AccessChannels);
@@ -655,7 +655,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task PlaceMemberAsync(DiscordMember member)
         {
-            if (this.Type != ChannelType.Voice)
+            if (this.Type != ChannelType.Voice && this.Type != ChannelType.Stage)
                 throw new ArgumentException("Cannot place a member in a non-voice channel!"); // be a little more angery, let em learn!!1
             
             await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, member.Id, default, default, default,
@@ -690,6 +690,20 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("Message is already crossposted.");
             
             return this.Discord.ApiClient.CrosspostMessageAsync(this.Id, message.Id);
+        }
+
+        /// <summary>
+        /// Updates the current user's suppress state in this channel, if stage channel.
+        /// </summary>
+        /// <param name="suppress">Toggles the suppress state.</param>
+        /// <param name="requestToSpeakTimestamp">Sets the time the user requested to speak.</param>
+        /// <exception cref="ArgumentException">Thrown when the channel is not a stage channel.</exception>
+        public async Task UpdateCurrentUserVoiceStateAsync(bool? suppress, DateTimeOffset? requestToSpeakTimestamp = null)
+        {
+            if (this.Type != ChannelType.Stage)
+                throw new ArgumentException("Voice state can only be updated in a stage channel.");
+
+            await this.Discord.ApiClient.UpdateCurrentUserVoiceStateAsync(this.GuildId.Value, this.Id, suppress, requestToSpeakTimestamp);
         }
 
         /// <summary>

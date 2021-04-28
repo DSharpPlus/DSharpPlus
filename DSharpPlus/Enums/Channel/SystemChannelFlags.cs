@@ -27,6 +27,11 @@ namespace DSharpPlus
         /// <summary>
         /// Server boost messages are disabled.
         /// </summary>
-        SuppressPremiumSubscriptions = 1 << 1
+        SuppressPremiumSubscriptions = 1 << 1,
+
+        /// <summary>
+        /// Server setup tips are disabled.
+        /// </summary>
+        SuppressGuildReminderNotifications = 1 << 2
     }
 }

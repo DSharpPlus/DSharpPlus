@@ -381,8 +381,8 @@ namespace DSharpPlus.Entities
             var mdl = new MemberEditModel();
             action(mdl);
 
-            if (mdl.VoiceChannel.HasValue && mdl.VoiceChannel.Value != null && mdl.VoiceChannel.Value.Type != ChannelType.Voice)
-                throw new ArgumentException("Given channel is not a voice channel.", nameof(mdl.VoiceChannel));
+            if (mdl.VoiceChannel.HasValue && mdl.VoiceChannel.Value != null && mdl.VoiceChannel.Value.Type != ChannelType.Voice && mdl.VoiceChannel.Value.Type != ChannelType.Stage)
+                throw new ArgumentException("Given channel is not a voice or stage channel.", nameof(mdl.VoiceChannel));
 
             if (mdl.Nickname.HasValue && this.Discord.CurrentUser.Id == this.Id)
             {
@@ -484,6 +484,20 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task PlaceInAsync(DiscordChannel channel) 
             => channel.PlaceMemberAsync(this);
+
+        /// <summary>
+        /// Updates the member's suppress state in a stage channel.
+        /// </summary>
+        /// <param name="channel">The channel the member is currently in.</param>
+        /// <param name="suppress">Toggles the member's suppress state.</param>
+        /// <exception cref="ArgumentException">Thrown when the channel in not a voice channel.</exception>
+        public async Task UpdateVoiceStateAsync(DiscordChannel channel, bool? suppress)
+        {
+            if (channel.Type != ChannelType.Stage)
+                throw new ArgumentException("Voice state can only be updated in a stage channel.");
+
+            await this.Discord.ApiClient.UpdateUserVoiceStateAsync(this.Guild.Id, this.Id, channel.Id, suppress);
+        }
 
         /// <summary>
         /// Calculates permissions in a given channel for this member.
