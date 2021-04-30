@@ -92,7 +92,7 @@ namespace DSharpPlus.CommandsNext
                 ? new CommandResult
                 {
                     IsSuccessful = false,
-                    Exception = new InvalidOperationException("No matching subcommands were found, and this group is not executable."),
+                    Exception = new CommandNotFoundException(exMsg),
                     Context = ctx
                 }
                 : await base.ExecuteAsync(ctx).ConfigureAwait(false);
