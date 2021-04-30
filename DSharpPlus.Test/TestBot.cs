@@ -152,11 +152,11 @@ namespace DSharpPlus.Test
             return Task.CompletedTask;
         }
 
-        //private Task Discord_ClientErrored(DiscordClient client, ClientErrorEventArgs e)
-        //{
-        //    e.Client.Logger.LogError(TestBotEventId, e.Exception, "Client threw an exception");
-        //    return Task.CompletedTask;
-        //}
+        /*private Task Discord_ClientErrored(DiscordClient client, ClientErrorEventArgs e)
+        {
+            client.Logger.LogError(TestBotEventId, e.Exception, "Client threw an exception");
+            return Task.CompletedTask;
+        }*/
 
         private Task Discord_SocketError(DiscordClient client, SocketErrorEventArgs e)
         {
@@ -180,7 +180,18 @@ namespace DSharpPlus.Test
         private async Task CommandsNextService_CommandErrored(CommandsNextExtension cnext, CommandErrorEventArgs e)
         {
             if (e.Exception is CommandNotFoundException && (e.Command == null || e.Command.QualifiedName != "help"))
+            {
+                // Not logged as error to console because it's an user caused error
+                var embed = new DiscordEmbedBuilder
+                {
+                    Color = new DiscordColor("#FF0000"),
+                    Title = "Command Not Found Exception",
+                    Description = $"`{((CommandNotFoundException)e.Exception).CommandName}`, no such command or subcommand was found.",
+                    Timestamp = DateTime.UtcNow
+                };
+                await e.Context.RespondAsync("", embed: embed);
                 return;
+            }
 
             e.Context.Client.Logger.LogError(TestBotEventId, e.Exception, "Exception occurred during {0}'s invocation of '{1}'", e.Context.User.Username, e.Context.Command.QualifiedName);
 

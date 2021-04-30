@@ -70,12 +70,20 @@ namespace DSharpPlus.CommandsNext
             }
 
             if (!this.IsExecutableWithoutSubcommands)
+            {
+                string exMsg;
+                if (cn == null)
+                    exMsg = base.Name;
+                else
+                    exMsg = base.Name + " " + cn;
                 return new CommandResult
                 {
                     IsSuccessful = false,
-                    Exception = new InvalidOperationException("No matching subcommands were found, and this group is not executable."),
+                    Exception = new CommandNotFoundException(exMsg),
                     Context = ctx
                 };
+            }
+                
 
             return await base.ExecuteAsync(ctx).ConfigureAwait(false);
         }
