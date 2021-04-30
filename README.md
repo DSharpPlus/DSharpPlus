@@ -72,22 +72,16 @@ public class SlashCommands : SlashCommandModule
   [SlashCommand("test", "A slash command made to test the DSharpPlusSlashCommands library!")]
   public async Task TestCommand(InteractionContext ctx)
   {
-    Console.WriteLine($"The slash command test was executed by {ctx.Member.Username}!");
+    
   }
 }
 ```
-If you've registered the command class for your testing server, once you start the bot, you should see the `/test` command pop up when you type `/` into the chat. When you execute it, you should get the message in your console!
-
-### Responding
-You probably want to do a lot more with the command than write a message to the console. It will also be showing that "this interaction failed". Let's make a response to the command instead.
 
 To make a response, you must run `CreateResponseAsync` on your `InteractionContext`. `CreateResponseAsync` takes two arguments. The first is a [`InteractionResponseType`](https://dsharpplus.github.io/api/DSharpPlus.InteractionResponseType.html):
 * `DeferredChannelMessageWithSource` - Acknowledges the interaction, doesn't require any content.
 * `ChannelMessageWithSource` - Sends a message to the channel, requires you to specify some data to send.
-* `Ping` - Nothing to see here
 
 An interaction expires in 3 seconds unless you make a response. If the code you execute before making a response has the potential to take more than 3 seconds, you should first create a `DeferredChannelMessageWithSource` response, and then edit it after your code executes.
-
 
 The second argument is a type of [`DiscordInteractionResponseBuilder`](https://dsharpplus.github.io/api/DSharpPlus.Entities.DiscordInteractionResponseBuilder.html). It functions similarly to the DiscordMessageBuilder, except you cannot send files, and you can have multiple embeds.
 
