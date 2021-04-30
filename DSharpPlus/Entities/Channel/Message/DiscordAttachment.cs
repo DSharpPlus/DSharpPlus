@@ -20,6 +20,12 @@ namespace DSharpPlus.Entities
         public int FileSize { get; internal set; }
 
         /// <summary>
+        /// Gets the media, or MIME, type of the file.
+        /// </summary>
+        [JsonProperty("content_type", NullValueHandling = NullValueHandling.Ignore)]
+        public string MediaType { get; internal set; }
+
+        /// <summary>
         /// Gets the URL of the file.
         /// </summary>
         [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]

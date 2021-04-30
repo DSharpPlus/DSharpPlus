@@ -347,7 +347,7 @@ namespace DSharpPlus.Test
             await webhook.DeleteAsync();
         }
 
-            [Command("chainreply")]
+        [Command("chainreply")]
         public async Task ChainReplyAsync(CommandContext ctx)
         {
             DiscordMessageBuilder builder = new DiscordMessageBuilder();
@@ -426,6 +426,26 @@ namespace DSharpPlus.Test
                 contentBuilder.AppendLine(msg.MentionedRoles.Any() ? string.Join(", ", msg.MentionedRoles.Select(usr => usr.Mention)) : string.Empty);
             }
 
+            await ctx.RespondAsync(contentBuilder.ToString());
+        }
+        [Command("getattachmenttype")]
+        public async Task GetAttachmentsTypes(CommandContext ctx, ulong? messageId = null)
+        {
+            if (messageId is null)
+                messageId = ctx.Message.Id;
+
+            var message = await ctx.Channel.GetMessageAsync(messageId.Value);
+            var contentBuilder = new StringBuilder("Message has no attachment.");
+
+
+            if(message.Attachments.Any())
+            {
+                contentBuilder.Clear();
+                foreach (var attachment in message.Attachments)
+                {
+                    contentBuilder.AppendLine($"{attachment.FileName} is {attachment.MediaType}");
+                }
+            }
             await ctx.RespondAsync(contentBuilder.ToString());
         }
     }
