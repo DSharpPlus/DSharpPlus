@@ -188,7 +188,7 @@ public class GroupContainer : SlashCommandModule
 ```
 
 # Issues and contributing
-If you find any issues or bugs, you should join the discord server and discuss it. If it's an actual bug, you can create an [issue](https://github.com/IDoEverything/DSharpPlusSlashCommands/issues). If you would like to contribute or make changes, feel free to open a [pull request](https://github.com/IDoEverything/DSharpPlusSlashCommands/pulls).
+If you find any issues or bugs, you should join the discord server and discuss it. If it's an actual bug, you can create an [issue](https://github.com/IDoEverything/DSharpPlus.SlashCommands/issues). If you would like to contribute or make changes, feel free to open a [pull request](https://github.com/IDoEverything/DSharpPlus.SlashCommands/pulls).
 
 # Questions?
 Join the [discord server](https://discord.gg/2ZhXXVJYhU)!
