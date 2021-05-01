@@ -3,7 +3,7 @@
 [![Nuget](https://img.shields.io/nuget/vpre/IDoEverything.DSharpPlus.SlashCommands?style=flat-square)](https://www.nuget.org/packages/IDoEverything.DSharpPlus.SlashCommands)
 [![Discord](https://img.shields.io/discord/801857343930761281?label=Discord&logo=Discord&style=flat-square)](https://discord.gg/2ZhXXVJYhU)
 
-An extension for DSharpPlus to make slash commands easier
+An extension for [DSharpPlus](https://github.com/DSharpPlus/DSharpPlus) to make slash commands easier
 
 # Documentation
 
