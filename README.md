@@ -191,12 +191,12 @@ To pass in a service collection, provide a `SlashCommandsConfiguration` in `UseS
 ```cs
 var slash = discord.UseSlashCommands(new SlashCommandsConfiguration
 {
-    Services = new ServiceCollection().AddSingleton(rest).BuildServiceProvider()
+    Services = new ServiceCollection().AddSingleton<Random>().BuildServiceProvider()
 });
 ```
 To access the collection in a command, use the `Services` on your `InteractionContext`.
 ```cs
-var rest = ctx.Services.GetService<DiscordRestClient>();
+var rand = ctx.Services.GetService<Random>();
 ```
 (Thanks to @sssvt-drabek-stepan for adding this)
 
