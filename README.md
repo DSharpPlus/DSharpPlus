@@ -123,7 +123,7 @@ Some examples:
             }.
             WithFooter($"Requested by {ctx.Member.DisplayName}", ctx.Member.AvatarUrl).
             WithAuthor($"{user.Username}", user.AvatarUrl, user.AvatarUrl);
-            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithEmbed(embed.Build()));
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(embed.Build()));
         }
         
         [SlashCommand("phrase", "Sends a certain phrase in the chat!")]
