@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -54,7 +54,7 @@ namespace DSharpPlus.CommandsNext.Builders
         { }
 
         private CommandOverloadBuilder(MethodInfo method, object target)
-        { 
+        {
             if (!method.IsCommandCandidate(out var prms))
                 throw new ArgumentException("Specified method is not suitable for a command.", nameof(method));
 
@@ -111,7 +111,7 @@ namespace DSharpPlus.CommandsNext.Builders
                             break;
                     }
                 }
-                
+
                 if (i > 2 && !ca.IsOptional && !ca.IsCatchAll && args[i - 3].IsOptional)
                     throw new InvalidOverloadException("Non-optional argument cannot appear after an optional one", method, arg);
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 
 namespace DSharpPlus.CommandsNext.Attributes

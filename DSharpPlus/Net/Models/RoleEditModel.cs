@@ -1,9 +1,9 @@
-﻿using DSharpPlus.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DSharpPlus.Entities;
 
 namespace DSharpPlus.Net.Models
 {
@@ -30,13 +30,13 @@ namespace DSharpPlus.Net.Models
         /// </summary>
 		public bool? Mentionable { internal get; set; }
 
-		internal RoleEditModel()
-		{
-			this.Name = null;
-			this.Permissions = null;
-			this.Color = null;
-			this.Hoist = null;
-			this.Mentionable = null;
-		}
+        internal RoleEditModel()
+        {
+            this.Name = null;
+            this.Permissions = null;
+            this.Color = null;
+            this.Hoist = null;
+            this.Mentionable = null;
+        }
     }
 }

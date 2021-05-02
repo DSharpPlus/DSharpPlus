@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace DSharpPlus.Entities
 {
@@ -211,7 +211,7 @@ namespace DSharpPlus.Entities
         /// Gets the number inactivity days after which members were pruned.
         /// </summary>
         public int Days { get; internal set; }
-        
+
         /// <summary>
         /// Gets the number of members pruned.
         /// </summary>
@@ -356,7 +356,7 @@ namespace DSharpPlus.Entities
         /// Gets the affected webhook.
         /// </summary>
         public DiscordWebhook Target { get; internal set; }
-        
+
         /// <summary>
         /// Gets the description of webhook's name change.
         /// </summary>

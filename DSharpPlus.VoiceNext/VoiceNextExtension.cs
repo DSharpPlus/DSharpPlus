@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
@@ -46,7 +46,7 @@ namespace DSharpPlus.VoiceNext
                 throw new InvalidOperationException("What did I tell you?");
 
             this.Client = client;
-            
+
             this.Client.VoiceStateUpdated += this.Client_VoiceStateUpdate;
             this.Client.VoiceServerUpdated += this.Client_VoiceServerUpdate;
         }
@@ -68,7 +68,7 @@ namespace DSharpPlus.VoiceNext
                 throw new InvalidOperationException("You need UseVoice permission to connect to this voice channel");
 
             var gld = channel.Guild;
-            if (ActiveConnections.ContainsKey(gld.Id))
+            if (this.ActiveConnections.ContainsKey(gld.Id))
                 throw new InvalidOperationException("This guild already has a voice connection");
 
             var vstut = new TaskCompletionSource<VoiceStateUpdateEventArgs>();
@@ -89,7 +89,7 @@ namespace DSharpPlus.VoiceNext
             };
             var vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
             await (channel.Discord as DiscordClient).WsSendAsync(vsj).ConfigureAwait(false);
-            
+
             var vstu = await vstut.Task.ConfigureAwait(false);
             var vstup = new VoiceStateUpdatePayload
             {
@@ -103,7 +103,7 @@ namespace DSharpPlus.VoiceNext
                 GuildId = vsru.Guild.Id,
                 Token = vsru.VoiceToken
             };
-            
+
             var vnc = new VoiceNextConnection(this.Client, gld, channel, this.Configuration, vsrup, vstup);
             vnc.VoiceDisconnected += this.Vnc_VoiceDisconnected;
             await vnc.ConnectAsync().ConfigureAwait(false);
@@ -119,10 +119,7 @@ namespace DSharpPlus.VoiceNext
         /// <returns>VoiceNext connection for the specified guild.</returns>
         public VoiceNextConnection GetConnection(DiscordGuild guild)
         {
-            if (this.ActiveConnections.ContainsKey(guild.Id))
-                return this.ActiveConnections[guild.Id];
-
-            return null;
+            return this.ActiveConnections.ContainsKey(guild.Id) ? this.ActiveConnections[guild.Id] : null;
         }
 
         private async Task Vnc_VoiceDisconnected(DiscordGuild guild)
@@ -153,7 +150,7 @@ namespace DSharpPlus.VoiceNext
             if (e.User == null)
                 return Task.CompletedTask;
 
-            if(e.User.Id == this.Client.CurrentUser.Id)
+            if (e.User.Id == this.Client.CurrentUser.Id)
             {
                 if (e.After.Channel == null && this.ActiveConnections.TryRemove(gld.Id, out var ac))
                     ac.Disconnect();

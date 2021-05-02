@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -85,7 +85,7 @@ namespace DSharpPlus.Interactivity.EventHandling
                 // match message
                 if (req._message.Id == eventargs.Message.Id && req._message.ChannelId == eventargs.Channel.Id)
                 {
-                    if(eventargs.User.Id != _client.CurrentUser.Id)
+                    if (eventargs.User.Id != _client.CurrentUser.Id)
                         req.RemoveReaction(eventargs.Emoji, eventargs.User);
                 }
             }
@@ -97,7 +97,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             foreach (var req in _requests)
             {
                 // match message
-                if(req._message.Id == eventargs.Message.Id && req._message.ChannelId == eventargs.Channel.Id)
+                if (req._message.Id == eventargs.Message.Id && req._message.ChannelId == eventargs.Channel.Id)
                 {
                     req.ClearCollected();
                 }

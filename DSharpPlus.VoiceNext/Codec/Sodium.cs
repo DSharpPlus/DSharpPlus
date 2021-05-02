@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -145,10 +145,7 @@ namespace DSharpPlus.VoiceNext.Codec
                 throw new CryptographicException($"Could not decrypt the buffer. Sodium returned code {result}.");
         }
 
-        public void Dispose()
-        {
-            this.CSPRNG.Dispose();
-        }
+        public void Dispose() => this.CSPRNG.Dispose();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static KeyValuePair<string, EncryptionMode> SelectMode(IEnumerable<string> availableModes)

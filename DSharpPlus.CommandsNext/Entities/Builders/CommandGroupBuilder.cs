@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using DSharpPlus.CommandsNext.Entities;
@@ -27,7 +27,7 @@ namespace DSharpPlus.CommandsNext.Builders
         /// Creates a new command group builder.
         /// </summary>
         /// <param name="module">Module on which this group is to be defined.</param>
-        public CommandGroupBuilder(ICommandModule module) 
+        public CommandGroupBuilder(ICommandModule module)
             : base(module)
         {
             this.ChildrenList = new List<CommandBuilder>();

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace DSharpPlus.Net
 {
@@ -39,19 +39,13 @@ namespace DSharpPlus.Net
         /// Gets the hash code of this endpoint.
         /// </summary>
         /// <returns>Hash code of this endpoint.</returns>
-        public override int GetHashCode()
-        {
-            return 13 + 7 * this.Hostname.GetHashCode() + 7 * this.Port;
-        }
+        public override int GetHashCode() => 13 + (7 * this.Hostname.GetHashCode()) + (7 * this.Port);
 
         /// <summary>
         /// Gets the string representation of this connection endpoint.
         /// </summary>
         /// <returns>String representation of this endpoint.</returns>
-        public override string ToString()
-        {
-            return $"{this.Hostname}:{this.Port}";
-        }
+        public override string ToString() => $"{this.Hostname}:{this.Port}";
 
         internal string ToHttpString()
         {

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
@@ -38,13 +38,13 @@ namespace DSharpPlus.Entities
         /// Embeds to send on this interaction response.
         /// </summary>
         public IReadOnlyList<DiscordEmbed> Embeds { get; }
-        private readonly List<DiscordEmbed> _embeds = new List<DiscordEmbed>();
+        private readonly List<DiscordEmbed> _embeds = new();
 
         /// <summary>
         /// Mentions to send on this interaction response.
         /// </summary>
         public IEnumerable<IMention> Mentions { get; }
-        private readonly List<IMention> _mentions = new List<IMention>();
+        private readonly List<IMention> _mentions = new();
 
         /// <summary>
         /// Constructs a new empty interaction response builder.

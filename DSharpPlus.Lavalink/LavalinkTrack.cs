@@ -1,4 +1,4 @@
-﻿#pragma warning disable 0649
+#pragma warning disable 0649
 
 using System;
 using System.Collections.Generic;
@@ -141,7 +141,7 @@ namespace DSharpPlus.Lavalink
         /// </summary>
         [JsonProperty("playlistInfo")]
         public LavalinkPlaylistInfo PlaylistInfo { get; internal set; }
-        
+
         /// <summary>
         /// Gets the exception details if a track loading failed.
         /// </summary>

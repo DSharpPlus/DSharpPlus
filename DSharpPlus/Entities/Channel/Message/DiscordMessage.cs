@@ -17,16 +17,10 @@ namespace DSharpPlus.Entities
         {
             this._attachmentsLazy = new Lazy<IReadOnlyList<DiscordAttachment>>(() => new ReadOnlyCollection<DiscordAttachment>(this._attachments));
             this._embedsLazy = new Lazy<IReadOnlyList<DiscordEmbed>>(() => new ReadOnlyCollection<DiscordEmbed>(this._embeds));
-            this._mentionedChannelsLazy = new Lazy<IReadOnlyList<DiscordChannel>>(() => {
-                if (this._mentionedChannels != null)
-                    return new ReadOnlyCollection<DiscordChannel>(this._mentionedChannels);
-                return Array.Empty<DiscordChannel>();
-            });
-            this._mentionedRolesLazy = new Lazy<IReadOnlyList<DiscordRole>>(() => {
-                if (this._mentionedRoles != null)
-                    return new ReadOnlyCollection<DiscordRole>(this._mentionedRoles);
-                return Array.Empty<DiscordRole>();
-            });
+            this._mentionedChannelsLazy = new Lazy<IReadOnlyList<DiscordChannel>>(() => this._mentionedChannels != null
+                    ? new ReadOnlyCollection<DiscordChannel>(this._mentionedChannels)
+                    : Array.Empty<DiscordChannel>());
+            this._mentionedRolesLazy = new Lazy<IReadOnlyList<DiscordRole>>(() => this._mentionedRoles != null ? new ReadOnlyCollection<DiscordRole>(this._mentionedRoles) : Array.Empty<DiscordRole>());
             this._mentionedUsersLazy = new Lazy<IReadOnlyList<DiscordUser>>(() => new ReadOnlyCollection<DiscordUser>(this._mentionedUsers));
             this._reactionsLazy = new Lazy<IReadOnlyList<DiscordReaction>>(() => new ReadOnlyCollection<DiscordReaction>(this._reactions));
             this._stickersLazy = new Lazy<IReadOnlyList<DiscordMessageSticker>>(() => new ReadOnlyCollection<DiscordMessageSticker>(this._stickers));
@@ -39,7 +33,7 @@ namespace DSharpPlus.Entities
                 return new Uri($"https://discord.com/channels/{gid}/{cid}/{mid}");
             });
         }
-        
+
         internal DiscordMessage(DiscordMessage other)
             : this()
         {
@@ -47,8 +41,8 @@ namespace DSharpPlus.Entities
 
             this._attachments = other._attachments; // the attachments cannot change, thus no need to copy and reallocate.
             this._embeds = new List<DiscordEmbed>(other._embeds);
-            
-            if (other._mentionedChannels != null) 
+
+            if (other._mentionedChannels != null)
                 this._mentionedChannels = new List<DiscordChannel>(other._mentionedChannels);
             if (other._mentionedRoles != null)
                 this._mentionedRoles = new List<DiscordRole>(other._mentionedRoles);
@@ -73,12 +67,12 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public DiscordChannel Channel
-        { 
+        {
             get => (this.Discord as DiscordClient)?.InternalGetCachedChannel(this.ChannelId) ?? this._channel;
             internal set => this._channel = value;
         }
 
-        private DiscordChannel _channel; 
+        private DiscordChannel _channel;
 
         /// <summary>
         /// Gets the ID of the channel in which the message was sent.
@@ -113,8 +107,8 @@ namespace DSharpPlus.Entities
         /// Gets the message's edit timestamp. Will be null if the message was not edited.
         /// </summary>
         [JsonIgnore]
-        public DateTimeOffset? EditedTimestamp 
-            => !string.IsNullOrWhiteSpace(this.EditedTimestampRaw) && DateTimeOffset.TryParse(this.EditedTimestampRaw, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dto) ? 
+        public DateTimeOffset? EditedTimestamp
+            => !string.IsNullOrWhiteSpace(this.EditedTimestampRaw) && DateTimeOffset.TryParse(this.EditedTimestampRaw, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dto) ?
                 (DateTimeOffset?)dto : null;
 
         [JsonProperty("edited_timestamp", NullValueHandling = NullValueHandling.Ignore)]
@@ -124,7 +118,7 @@ namespace DSharpPlus.Entities
         /// Gets whether this message was edited.
         /// </summary>
         [JsonIgnore]
-        public bool IsEdited 
+        public bool IsEdited
             => !string.IsNullOrWhiteSpace(this.EditedTimestampRaw);
 
         /// <summary>
@@ -139,11 +133,11 @@ namespace DSharpPlus.Entities
         [JsonProperty("mention_everyone", NullValueHandling = NullValueHandling.Ignore)]
         public bool MentionEveryone { get; internal set; }
 
-		/// <summary>
-		/// Gets users or members mentioned by this message.
-		/// </summary>
-		[JsonIgnore]
-        public IReadOnlyList<DiscordUser> MentionedUsers 
+        /// <summary>
+        /// Gets users or members mentioned by this message.
+        /// </summary>
+        [JsonIgnore]
+        public IReadOnlyList<DiscordUser> MentionedUsers
             => this._mentionedUsersLazy.Value;
 
         [JsonProperty("mentions", NullValueHandling = NullValueHandling.Ignore)]
@@ -157,7 +151,7 @@ namespace DSharpPlus.Entities
         /// Gets roles mentioned by this message.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyList<DiscordRole> MentionedRoles 
+        public IReadOnlyList<DiscordRole> MentionedRoles
             => this._mentionedRolesLazy.Value;
 
         [JsonIgnore]
@@ -169,7 +163,7 @@ namespace DSharpPlus.Entities
         /// Gets channels mentioned by this message.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyList<DiscordChannel> MentionedChannels 
+        public IReadOnlyList<DiscordChannel> MentionedChannels
             => this._mentionedChannelsLazy.Value;
 
         [JsonIgnore]
@@ -181,7 +175,7 @@ namespace DSharpPlus.Entities
         /// Gets files attached to this message.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyList<DiscordAttachment> Attachments 
+        public IReadOnlyList<DiscordAttachment> Attachments
             => this._attachmentsLazy.Value;
 
         [JsonProperty("attachments", NullValueHandling = NullValueHandling.Ignore)]
@@ -193,7 +187,7 @@ namespace DSharpPlus.Entities
         /// Gets embeds attached to this message.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyList<DiscordEmbed> Embeds 
+        public IReadOnlyList<DiscordEmbed> Embeds
             => this._embedsLazy.Value;
 
         [JsonProperty("embeds", NullValueHandling = NullValueHandling.Ignore)]
@@ -205,7 +199,7 @@ namespace DSharpPlus.Entities
         /// Gets reactions used on this message.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyList<DiscordReaction> Reactions 
+        public IReadOnlyList<DiscordReaction> Reactions
             => this._reactionsLazy.Value;
 
         [JsonProperty("reactions", NullValueHandling = NullValueHandling.Ignore)]
@@ -259,7 +253,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public DiscordMessageReference Reference
-            => (this.InternalReference.HasValue) ? this?.InternalBuildMessageReference() : null;
+            => this.InternalReference.HasValue ? this?.InternalBuildMessageReference() : null;
 
         /// <summary>
         /// Gets the bitwise flags for this message.
@@ -271,7 +265,7 @@ namespace DSharpPlus.Entities
         /// Gets whether the message originated from a webhook.
         /// </summary>
         [JsonIgnore]
-        public bool WebhookMessage 
+        public bool WebhookMessage
             => this.WebhookId != null;
 
         /// <summary>
@@ -318,10 +312,9 @@ namespace DSharpPlus.Entities
             var reference = new DiscordMessageReference();
 
             if (guildId.HasValue)
-                if (client._guilds.TryGetValue(guildId.Value, out var g))
-                    reference.Guild = g;
-
-                else reference.Guild = new DiscordGuild
+                reference.Guild = client._guilds.TryGetValue(guildId.Value, out var g)
+                    ? g
+                    : new DiscordGuild
                 {
                     Id = guildId.Value,
                     Discord = client
@@ -357,7 +350,7 @@ namespace DSharpPlus.Entities
                 if (messageId.HasValue)
                     reference.Message.Id = messageId.Value;
             }
-            
+
             return reference;
         }
 
@@ -365,7 +358,7 @@ namespace DSharpPlus.Entities
 
         internal void PopulateMentions()
         {
-            DiscordGuild guild = this.Channel?.Guild;
+            var guild = this.Channel?.Guild;
             this._mentionedUsers ??= new List<DiscordUser>();
             this._mentionedRoles ??= new List<DiscordRole>();
             this._mentionedChannels ??= new List<DiscordChannel>();
@@ -409,7 +402,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordMessage> ModifyAsync(Optional<string> content) 
+        public Task<DiscordMessage> ModifyAsync(Optional<string> content)
             => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, default, default);
 
         /// <summary>
@@ -477,7 +470,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task DeleteAsync(string reason = null) 
+        public Task DeleteAsync(string reason = null)
             => this.Discord.ApiClient.DeleteMessageAsync(this.ChannelId, this.Id, reason);
 
         /// <summary>
@@ -500,7 +493,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task PinAsync() 
+        public Task PinAsync()
             => this.Discord.ApiClient.PinMessageAsync(this.ChannelId, this.Id);
 
         /// <summary>
@@ -511,7 +504,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task UnpinAsync() 
+        public Task UnpinAsync()
             => this.Discord.ApiClient.UnpinMessageAsync(this.ChannelId, this.Id);
 
         /// <summary>
@@ -523,7 +516,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordMessage> RespondAsync(string content) 
+        public Task<DiscordMessage> RespondAsync(string content)
             => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, content, null, replyMessageId: this.Id, mentionReply: false, failOnInvalidReply: false);
 
         /// <summary>
@@ -588,7 +581,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task CreateReactionAsync(DiscordEmoji emoji) 
+        public Task CreateReactionAsync(DiscordEmoji emoji)
             => this.Discord.ApiClient.CreateReactionAsync(this.ChannelId, this.Id, emoji.ToReactionString());
 
         /// <summary>
@@ -599,7 +592,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task DeleteOwnReactionAsync(DiscordEmoji emoji) 
+        public Task DeleteOwnReactionAsync(DiscordEmoji emoji)
             => this.Discord.ApiClient.DeleteOwnReactionAsync(this.ChannelId, this.Id, emoji.ToReactionString());
 
         /// <summary>
@@ -613,7 +606,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task DeleteReactionAsync(DiscordEmoji emoji, DiscordUser user, string reason = null) 
+        public Task DeleteReactionAsync(DiscordEmoji emoji, DiscordUser user, string reason = null)
             => this.Discord.ApiClient.DeleteUserReactionAsync(this.ChannelId, this.Id, user.Id, emoji.ToReactionString(), reason);
 
         /// <summary>
@@ -626,7 +619,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(DiscordEmoji emoji, int limit = 25, ulong? after = null) 
+        public Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(DiscordEmoji emoji, int limit = 25, ulong? after = null)
             => this.GetReactionsInternalAsync(emoji, limit, after);
 
         /// <summary>
@@ -638,7 +631,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task DeleteAllReactionsAsync(string reason = null) 
+        public Task DeleteAllReactionsAsync(string reason = null)
             => this.Discord.ApiClient.DeleteAllReactionsAsync(this.ChannelId, this.Id, reason);
 
         /// <summary>
@@ -685,20 +678,14 @@ namespace DSharpPlus.Entities
         /// Returns a string representation of this message.
         /// </summary>
         /// <returns>String representation of this message.</returns>
-        public override string ToString()
-        {
-            return $"Message {this.Id}; Attachment count: {this._attachments.Count}; Embed count: {this._embeds.Count}; Contents: {this.Content}";
-        }
+        public override string ToString() => $"Message {this.Id}; Attachment count: {this._attachments.Count}; Embed count: {this._embeds.Count}; Contents: {this.Content}";
 
         /// <summary>
         /// Checks whether this <see cref="DiscordMessage"/> is equal to another object.
         /// </summary>
         /// <param name="obj">Object to compare to.</param>
         /// <returns>Whether the object is equal to this <see cref="DiscordMessage"/>.</returns>
-        public override bool Equals(object obj)
-        {
-            return this.Equals(obj as DiscordMessage);
-        }
+        public override bool Equals(object obj) => this.Equals(obj as DiscordMessage);
 
         /// <summary>
         /// Checks whether this <see cref="DiscordMessage"/> is equal to another <see cref="DiscordMessage"/>.
@@ -710,10 +697,7 @@ namespace DSharpPlus.Entities
             if (e is null)
                 return false;
 
-            if (ReferenceEquals(this, e))
-                return true;
-
-            return this.Id == e.Id && this.ChannelId == e.ChannelId;
+            return ReferenceEquals(this, e) ? true : this.Id == e.Id && this.ChannelId == e.ChannelId;
         }
 
         /// <summary>
@@ -722,7 +706,7 @@ namespace DSharpPlus.Entities
         /// <returns>The hash code for this <see cref="DiscordMessage"/>.</returns>
         public override int GetHashCode()
         {
-            int hash = 13;
+            var hash = 13;
 
             hash = (hash * 7) + this.Id.GetHashCode();
             hash = (hash * 7) + this.ChannelId.GetHashCode();
@@ -744,10 +728,7 @@ namespace DSharpPlus.Entities
             if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
                 return false;
 
-            if (o1 == null && o2 == null)
-                return true;
-
-            return e1.Id == e2.Id && e1.ChannelId == e2.ChannelId;
+            return o1 == null && o2 == null ? true : e1.Id == e2.Id && e1.ChannelId == e2.ChannelId;
         }
 
         /// <summary>
@@ -756,7 +737,7 @@ namespace DSharpPlus.Entities
         /// <param name="e1">First message to compare.</param>
         /// <param name="e2">Second message to compare.</param>
         /// <returns>Whether the two messages are not equal.</returns>
-        public static bool operator !=(DiscordMessage e1, DiscordMessage e2) 
+        public static bool operator !=(DiscordMessage e1, DiscordMessage e2)
             => !(e1 == e2);
     }
 }

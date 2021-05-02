@@ -1,4 +1,4 @@
-﻿namespace DSharpPlus.Interactivity.Enums
+namespace DSharpPlus.Interactivity.Enums
 {
     /// <summary>
     /// Specifies how to split a string.

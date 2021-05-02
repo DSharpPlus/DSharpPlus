@@ -1,4 +1,4 @@
-﻿namespace DSharpPlus.Net
+namespace DSharpPlus.Net
 {
     internal static class Endpoints
     {

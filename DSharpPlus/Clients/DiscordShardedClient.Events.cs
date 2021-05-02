@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using DSharpPlus.EventArgs;
 using Emzi0767.Utilities;
+using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus
 {
@@ -623,10 +623,7 @@ namespace DSharpPlus
         }
 
         private void Goof<TArgs>(AsyncEvent<DiscordClient, TArgs> asyncEvent, Exception ex, AsyncEventHandler<DiscordClient, TArgs> handler, DiscordClient sender, TArgs eventArgs)
-            where TArgs : AsyncEventArgs
-        {
-            this.Logger.LogCritical(LoggerEvents.EventHandlerException, ex, "Exception event handler {0} (defined in {1}) threw an exception", handler.Method, handler.Method.DeclaringType);
-        }
+            where TArgs : AsyncEventArgs => this.Logger.LogCritical(LoggerEvents.EventHandlerException, ex, "Exception event handler {0} (defined in {1}) threw an exception", handler.Method, handler.Method.DeclaringType);
 
         #endregion
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Globalization;
 using System.Threading;
@@ -69,10 +69,7 @@ namespace DSharpPlus.CommandsNext.Attributes
             if (bucket == null)
                 return TimeSpan.Zero;
 
-            if (bucket.RemainingUses > 0)
-                return TimeSpan.Zero;
-
-            return bucket.ResetsAt - DateTimeOffset.UtcNow;
+            return bucket.RemainingUses > 0 ? TimeSpan.Zero : bucket.ResetsAt - DateTimeOffset.UtcNow;
         }
 
         /// <summary>
@@ -173,7 +170,7 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <summary>
         /// Gets the remaining number of uses before the cooldown is triggered.
         /// </summary>
-        public int RemainingUses 
+        public int RemainingUses
             => Volatile.Read(ref this._remaining_uses);
 
         private int _remaining_uses;
@@ -254,20 +251,14 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// Returns a string representation of this command cooldown bucket.
         /// </summary>
         /// <returns>String representation of this command cooldown bucket.</returns>
-        public override string ToString()
-        {
-            return $"Command bucket {this.BucketId}";
-        }
+        public override string ToString() => $"Command bucket {this.BucketId}";
 
         /// <summary>
         /// Checks whether this <see cref="CommandCooldownBucket"/> is equal to another object.
         /// </summary>
         /// <param name="obj">Object to compare to.</param>
         /// <returns>Whether the object is equal to this <see cref="CommandCooldownBucket"/>.</returns>
-        public override bool Equals(object obj)
-        {
-            return this.Equals(obj as CommandCooldownBucket);
-        }
+        public override bool Equals(object obj) => this.Equals(obj as CommandCooldownBucket);
 
         /// <summary>
         /// Checks whether this <see cref="CommandCooldownBucket"/> is equal to another <see cref="CommandCooldownBucket"/>.
@@ -276,13 +267,12 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <returns>Whether the <see cref="CommandCooldownBucket"/> is equal to this <see cref="CommandCooldownBucket"/>.</returns>
         public bool Equals(CommandCooldownBucket other)
         {
-            if (ReferenceEquals(other, null))
+            if (other is null)
                 return false;
 
-            if (ReferenceEquals(this, other))
-                return true;
-
-            return this.UserId == other.UserId && this.ChannelId == other.ChannelId && this.GuildId == other.GuildId;
+            return ReferenceEquals(this, other)
+                ? true
+                : this.UserId == other.UserId && this.ChannelId == other.ChannelId && this.GuildId == other.GuildId;
         }
 
         /// <summary>
@@ -291,7 +281,7 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <returns>The hash code for this <see cref="CommandCooldownBucket"/>.</returns>
         public override int GetHashCode()
         {
-            int hash = 13;
+            var hash = 13;
 
             hash = (hash * 7) + this.UserId.GetHashCode();
             hash = (hash * 7) + this.ChannelId.GetHashCode();
@@ -308,16 +298,13 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <returns>Whether the two buckets are equal.</returns>
         public static bool operator ==(CommandCooldownBucket bucket1, CommandCooldownBucket bucket2)
         {
-            var null1 = ReferenceEquals(bucket1, null);
-            var null2 = ReferenceEquals(bucket2, null);
+            var null1 = bucket1 is null;
+            var null2 = bucket2 is null;
 
             if (null1 && null2)
                 return true;
 
-            if (null1 != null2)
-                return false;
-
-            return null1.Equals(null2);
+            return null1 != null2 ? false : null1.Equals(null2);
         }
 
         /// <summary>
@@ -326,7 +313,7 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <param name="bucket1">First bucket to compare.</param>
         /// <param name="bucket2">Second bucket to compare.</param>
         /// <returns>Whether the two buckets are not equal.</returns>
-        public static bool operator !=(CommandCooldownBucket bucket1, CommandCooldownBucket bucket2) 
+        public static bool operator !=(CommandCooldownBucket bucket1, CommandCooldownBucket bucket2)
             => !(bucket1 == bucket2);
 
         /// <summary>
@@ -336,7 +323,7 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <param name="channelId">ID of the channel with which this cooldown is associated.</param>
         /// <param name="guildId">ID of the guild with which this cooldown is associated.</param>
         /// <returns>Generated bucket ID.</returns>
-        public static string MakeId(ulong userId = 0, ulong channelId = 0, ulong guildId = 0) 
+        public static string MakeId(ulong userId = 0, ulong channelId = 0, ulong guildId = 0)
             => $"{userId.ToString(CultureInfo.InvariantCulture)}:{channelId.ToString(CultureInfo.InvariantCulture)}:{guildId.ToString(CultureInfo.InvariantCulture)}";
     }
 }

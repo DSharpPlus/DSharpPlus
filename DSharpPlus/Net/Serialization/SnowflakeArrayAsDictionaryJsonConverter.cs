@@ -47,12 +47,12 @@ namespace DSharpPlus.Net.Serialization
             {
                 properties.SetValue(dict, entry, new object[]
                 {
-                    (entry as SnowflakeObject)?.Id 
-                    ?? (entry as DiscordVoiceState)?.UserId 
+                    (entry as SnowflakeObject)?.Id
+                    ?? (entry as DiscordVoiceState)?.UserId
                     ?? throw new InvalidOperationException($"Type {entry?.GetType()} is not deserializable")
                 });
             }
-            
+
             return dict;
         }
 

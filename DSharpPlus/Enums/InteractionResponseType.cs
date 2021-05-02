@@ -1,4 +1,4 @@
-﻿namespace DSharpPlus
+namespace DSharpPlus
 {
     /// <summary>
     /// Represents the type of interaction response
@@ -9,7 +9,7 @@
         /// Acknowledges a Ping.
         /// </summary>
         Pong = 1,
-        
+
         /// <summary>
         /// Responds to the interaction with a message.
         /// </summary>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
@@ -31,7 +31,7 @@ namespace DSharpPlus.Lavalink.Entities
     {
         [JsonProperty("track")]
         public string Track { get; }
-        
+
         public LavalinkPlay(LavalinkGuildConnection lvl, LavalinkTrack track)
             : base("play", lvl.GuildIdString)
         {

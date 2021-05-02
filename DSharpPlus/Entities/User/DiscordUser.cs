@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
@@ -43,7 +43,7 @@ namespace DSharpPlus.Entities
         public virtual string Discriminator { get; internal set; }
 
         [JsonIgnore]
-        internal int DiscriminatorInt 
+        internal int DiscriminatorInt
             => int.Parse(this.Discriminator, NumberStyles.Integer, CultureInfo.InvariantCulture);
 
         /// <summary>
@@ -56,14 +56,14 @@ namespace DSharpPlus.Entities
         /// Gets the user's avatar URL.
         /// </summary>
         [JsonIgnore]
-        public string AvatarUrl 
-            => !string.IsNullOrWhiteSpace(this.AvatarHash) ? (this.AvatarHash.StartsWith("a_") ? $"https://cdn.discordapp.com/avatars/{this.Id.ToString(CultureInfo.InvariantCulture)}/{AvatarHash}.gif?size=1024" : $"https://cdn.discordapp.com/avatars/{Id}/{AvatarHash}.png?size=1024") : this.DefaultAvatarUrl;
+        public string AvatarUrl
+            => !string.IsNullOrWhiteSpace(this.AvatarHash) ? (this.AvatarHash.StartsWith("a_") ? $"https://cdn.discordapp.com/avatars/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.AvatarHash}.gif?size=1024" : $"https://cdn.discordapp.com/avatars/{this.Id}/{this.AvatarHash}.png?size=1024") : this.DefaultAvatarUrl;
 
         /// <summary>
         /// Gets the URL of default avatar for this user.
         /// </summary>
         [JsonIgnore]
-        public string DefaultAvatarUrl 
+        public string DefaultAvatarUrl
             => $"https://cdn.discordapp.com/embed/avatars/{(this.DiscriminatorInt % 5).ToString(CultureInfo.InvariantCulture)}.png?size=1024";
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("locale", NullValueHandling = NullValueHandling.Ignore)]
         public virtual string Locale { get; internal set; }
-        
+
         /// <summary>
         /// Gets the user's flags for OAuth.
         /// </summary>
@@ -126,14 +126,14 @@ namespace DSharpPlus.Entities
         /// Gets the user's mention string.
         /// </summary>
         [JsonIgnore]
-        public string Mention 
+        public string Mention
             => Formatter.Mention(this, this is DiscordMember);
 
         /// <summary>
         /// Gets whether this user is the Client which created this object.
         /// </summary>
         [JsonIgnore]
-        public bool IsCurrent 
+        public bool IsCurrent
             => this.Id == this.Discord.CurrentUser.Id;
 
         /// <summary>
@@ -146,7 +146,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the user does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task UnbanAsync(DiscordGuild guild, string reason = null) 
+        public Task UnbanAsync(DiscordGuild guild, string reason = null)
             => guild.UnbanMemberAsync(this, reason);
 
         /// <summary>
@@ -157,9 +157,7 @@ namespace DSharpPlus.Entities
         {
             get
             {
-                if (this.Discord is DiscordClient dc)
-                    return dc.Presences.TryGetValue(this.Id, out var presence) ? presence : null;
-                return null;
+                return this.Discord is DiscordClient dc ? dc.Presences.TryGetValue(this.Id, out var presence) ? presence : null : null;
             }
         }
 
@@ -182,32 +180,15 @@ namespace DSharpPlus.Entities
                 throw new ArgumentOutOfRangeException(nameof(size));
 
             var sfmt = "";
-            switch (fmt)
+            sfmt = fmt switch
             {
-                case ImageFormat.Gif:
-                    sfmt = "gif";
-                    break;
-
-                case ImageFormat.Jpeg:
-                    sfmt = "jpg";
-                    break;
-
-                case ImageFormat.Png:
-                    sfmt = "png";
-                    break;
-
-                case ImageFormat.WebP:
-                    sfmt = "webp";
-                    break;
-
-                case ImageFormat.Auto:
-                    sfmt = !string.IsNullOrWhiteSpace(this.AvatarHash) ? (this.AvatarHash.StartsWith("a_") ? "gif" : "png") : "png";
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(fmt));
-            }
-
+                ImageFormat.Gif => "gif",
+                ImageFormat.Jpeg => "jpg",
+                ImageFormat.Png => "png",
+                ImageFormat.WebP => "webp",
+                ImageFormat.Auto => !string.IsNullOrWhiteSpace(this.AvatarHash) ? (this.AvatarHash.StartsWith("a_") ? "gif" : "png") : "png",
+                _ => throw new ArgumentOutOfRangeException(nameof(fmt)),
+            };
             var ssize = size.ToString(CultureInfo.InvariantCulture);
             if (!string.IsNullOrWhiteSpace(this.AvatarHash))
             {
@@ -225,20 +206,14 @@ namespace DSharpPlus.Entities
         /// Returns a string representation of this user.
         /// </summary>
         /// <returns>String representation of this user.</returns>
-        public override string ToString()
-        {
-            return $"User {this.Id}; {this.Username}#{this.Discriminator}";
-        }
+        public override string ToString() => $"User {this.Id}; {this.Username}#{this.Discriminator}";
 
         /// <summary>
         /// Checks whether this <see cref="DiscordUser"/> is equal to another object.
         /// </summary>
         /// <param name="obj">Object to compare to.</param>
         /// <returns>Whether the object is equal to this <see cref="DiscordUser"/>.</returns>
-        public override bool Equals(object obj)
-        {
-            return this.Equals(obj as DiscordUser);
-        }
+        public override bool Equals(object obj) => this.Equals(obj as DiscordUser);
 
         /// <summary>
         /// Checks whether this <see cref="DiscordUser"/> is equal to another <see cref="DiscordUser"/>.
@@ -247,23 +222,17 @@ namespace DSharpPlus.Entities
         /// <returns>Whether the <see cref="DiscordUser"/> is equal to this <see cref="DiscordUser"/>.</returns>
         public bool Equals(DiscordUser e)
         {
-            if (ReferenceEquals(e, null))
+            if (e is null)
                 return false;
 
-            if (ReferenceEquals(this, e))
-                return true;
-
-            return this.Id == e.Id;
+            return ReferenceEquals(this, e) ? true : this.Id == e.Id;
         }
 
         /// <summary>
         /// Gets the hash code for this <see cref="DiscordUser"/>.
         /// </summary>
         /// <returns>The hash code for this <see cref="DiscordUser"/>.</returns>
-        public override int GetHashCode()
-        {
-            return this.Id.GetHashCode();
-        }
+        public override int GetHashCode() => this.Id.GetHashCode();
 
         /// <summary>
         /// Gets whether the two <see cref="DiscordUser"/> objects are equal.
@@ -279,10 +248,7 @@ namespace DSharpPlus.Entities
             if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
                 return false;
 
-            if (o1 == null && o2 == null)
-                return true;
-
-            return e1.Id == e2.Id;
+            return o1 == null && o2 == null ? true : e1.Id == e2.Id;
         }
 
         /// <summary>
@@ -291,20 +257,14 @@ namespace DSharpPlus.Entities
         /// <param name="e1">First user to compare.</param>
         /// <param name="e2">Second user to compare.</param>
         /// <returns>Whether the two users are not equal.</returns>
-        public static bool operator !=(DiscordUser e1, DiscordUser e2) 
+        public static bool operator !=(DiscordUser e1, DiscordUser e2)
             => !(e1 == e2);
     }
 
     internal class DiscordUserComparer : IEqualityComparer<DiscordUser>
     {
-        public bool Equals(DiscordUser x, DiscordUser y)
-        {
-            return x.Equals(y);
-        }
+        public bool Equals(DiscordUser x, DiscordUser y) => x.Equals(y);
 
-        public int GetHashCode(DiscordUser obj)
-        {
-            return obj.Id.GetHashCode();
-        }
+        public int GetHashCode(DiscordUser obj) => obj.Id.GetHashCode();
     }
 }

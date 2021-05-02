@@ -1,4 +1,4 @@
-﻿#pragma warning disable 0649
+#pragma warning disable 0649
 
 using System;
 using Newtonsoft.Json;
@@ -10,12 +10,12 @@ namespace DSharpPlus.Lavalink.Entities
         [JsonIgnore]
         public DateTimeOffset Time => Utilities.GetDateTimeOffsetFromMilliseconds(this._time);
         [JsonProperty("time")]
-        private long _time;
+        private readonly long _time;
 
         [JsonIgnore]
         public TimeSpan Position => TimeSpan.FromMilliseconds(this._position);
         [JsonProperty("position")]
-        private long _position;
+        private readonly long _position;
     }
 
     /// <summary>
@@ -43,21 +43,21 @@ namespace DSharpPlus.Lavalink.Entities
     {
         [JsonProperty("playingPlayers")]
         public int ActivePlayers { get; set; }
-        
+
         [JsonProperty("players")]
         public int TotalPlayers { get; set; }
 
         [JsonIgnore]
         public TimeSpan Uptime => TimeSpan.FromMilliseconds(this._uptime);
         [JsonProperty("uptime")]
-        private long _uptime;
+        private readonly long _uptime;
 
         [JsonProperty("cpu")]
         public CpuStats Cpu { get; set; }
 
         [JsonProperty("memory")]
         public MemoryStats Memory { get; set; }
-        
+
         [JsonProperty("frameStats")]
         public FrameStats Frames { get; set; }
 

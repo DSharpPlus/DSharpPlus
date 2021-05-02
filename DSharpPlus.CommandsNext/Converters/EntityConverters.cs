@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -49,7 +49,7 @@ namespace DSharpPlus.CommandsNext.Converters
             var us = ctx.Client.Guilds.Values
                 .SelectMany(xkvp => xkvp.Members.Values)
                 .Where(xm => (cs ? xm.Username : xm.Username.ToLowerInvariant()) == un && ((dv != null && xm.Discriminator == dv) || dv == null));
-            
+
             var usr = us.FirstOrDefault();
             return usr != null ? Optional.FromValue<DiscordUser>(usr) : Optional.FromNoValue<DiscordUser>();
         }
@@ -97,7 +97,7 @@ namespace DSharpPlus.CommandsNext.Converters
             var dv = di != -1 ? value.Substring(di + 1) : null;
 
             var us = ctx.Guild.Members.Values
-                .Where(xm => ((cs ? xm.Username : xm.Username.ToLowerInvariant()) == un && ((dv != null && xm.Discriminator == dv) || dv == null)) 
+                .Where(xm => ((cs ? xm.Username : xm.Username.ToLowerInvariant()) == un && ((dv != null && xm.Discriminator == dv) || dv == null))
                           || (cs ? xm.Nickname : xm.Nickname?.ToLowerInvariant()) == value);
 
             var mbr = us.FirstOrDefault();
@@ -192,10 +192,9 @@ namespace DSharpPlus.CommandsNext.Converters
         {
             if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var gid))
             {
-                if (ctx.Client.Guilds.TryGetValue(gid, out var result))
-                    return Task.FromResult(Optional.FromValue(result));
-                else
-                    return Task.FromResult(Optional.FromNoValue<DiscordGuild>());
+                return ctx.Client.Guilds.TryGetValue(gid, out var result)
+                    ? Task.FromResult(Optional.FromValue(result))
+                    : Task.FromResult(Optional.FromNoValue<DiscordGuild>());
             }
 
             var cs = ctx.Config.CaseSensitive;
@@ -233,7 +232,7 @@ namespace DSharpPlus.CommandsNext.Converters
                     return Optional.FromNoValue<DiscordMessage>();
 
                 var uripath = MessagePathRegex.Match(uri.AbsolutePath);
-                if (!uripath.Success 
+                if (!uripath.Success
                     || !ulong.TryParse(uripath.Groups["channel"].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var cid)
                     || !ulong.TryParse(uripath.Groups["message"].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out mid))
                     return Optional.FromNoValue<DiscordMessage>();
@@ -288,10 +287,9 @@ namespace DSharpPlus.CommandsNext.Converters
                 if (!ulong.TryParse(sid, NumberStyles.Integer, CultureInfo.InvariantCulture, out var id))
                     return Task.FromResult(Optional.FromNoValue<DiscordEmoji>());
 
-                if (DiscordEmoji.TryFromGuildEmote(ctx.Client, id, out emoji))
-                    return Task.FromResult(Optional.FromValue(emoji));
-
-                return Task.FromResult(Optional.FromValue(new DiscordEmoji
+                return DiscordEmoji.TryFromGuildEmote(ctx.Client, id, out emoji)
+                    ? Task.FromResult(Optional.FromValue(emoji))
+                    : Task.FromResult(Optional.FromValue(new DiscordEmoji
                 {
                     Discord = ctx.Client,
                     Id = id,
@@ -335,10 +333,9 @@ namespace DSharpPlus.CommandsNext.Converters
                 var p2 = byte.TryParse(m.Groups[2].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var g);
                 var p3 = byte.TryParse(m.Groups[3].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var b);
 
-                if (!(p1 && p2 && p3))
-                    return Task.FromResult(Optional.FromNoValue<DiscordColor>());
-                
-                return Task.FromResult(Optional.FromValue(new DiscordColor(r, g, b)));
+                return !(p1 && p2 && p3)
+                    ? Task.FromResult(Optional.FromNoValue<DiscordColor>())
+                    : Task.FromResult(Optional.FromValue(new DiscordColor(r, g, b)));
             }
 
             return Task.FromResult(Optional.FromNoValue<DiscordColor>());

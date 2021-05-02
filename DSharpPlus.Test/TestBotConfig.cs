@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 
 namespace DSharpPlus.Test
 {
@@ -8,7 +8,7 @@ namespace DSharpPlus.Test
         public string Token { get; private set; } = string.Empty;
 
         [JsonProperty("command_prefixes")]
-        public string[] CommandPrefixes { get; private set; } = new[] { "d#", "d#+"  };
+        public string[] CommandPrefixes { get; private set; } = new[] { "d#", "d#+" };
 
         [JsonProperty("shards")]
         public int ShardCount { get; private set; } = 1;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -43,21 +43,13 @@ namespace DSharpPlus.CommandsNext.Attributes
             var ins = rns.Intersect(this.RoleNames, ctx.CommandsNext.GetStringComparer());
             var inc = ins.Count();
 
-            switch (this.CheckMode)
+            return this.CheckMode switch
             {
-                case RoleCheckMode.All:
-                    return Task.FromResult(this.RoleNames.Count == inc);
-                    
-                case RoleCheckMode.SpecifiedOnly:
-                    return Task.FromResult(rnc == inc);
-
-                case RoleCheckMode.None:
-                    return Task.FromResult(inc == 0);
-                    
-                case RoleCheckMode.Any:
-                default:
-                    return Task.FromResult(inc > 0);
-            }
+                RoleCheckMode.All => Task.FromResult(this.RoleNames.Count == inc),
+                RoleCheckMode.SpecifiedOnly => Task.FromResult(rnc == inc),
+                RoleCheckMode.None => Task.FromResult(inc == 0),
+                _ => Task.FromResult(inc > 0),
+            };
         }
     }
 

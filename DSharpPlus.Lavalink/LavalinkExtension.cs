@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +26,7 @@ namespace DSharpPlus.Lavalink
         /// Gets a dictionary of connected Lavalink nodes for the extension.
         /// </summary>
         public IReadOnlyDictionary<ConnectionEndpoint, LavalinkNodeConnection> ConnectedNodes { get; }
-        private ConcurrentDictionary<ConnectionEndpoint, LavalinkNodeConnection> _connectedNodes = new ConcurrentDictionary<ConnectionEndpoint, LavalinkNodeConnection>();
+        private readonly ConcurrentDictionary<ConnectionEndpoint, LavalinkNodeConnection> _connectedNodes = new();
 
         /// <summary>
         /// Creates a new instance of this Lavalink extension.
@@ -139,27 +139,27 @@ namespace DSharpPlus.Lavalink
                 var bPenaltyCount = b.Statistics.ActivePlayers;
 
                 //cpu load
-                aPenaltyCount += (int)Math.Pow(1.05d, 100 * (a.Statistics.CpuSystemLoad / a.Statistics.CpuCoreCount) * 10 - 10);
-                bPenaltyCount += (int)Math.Pow(1.05d, 100 * (b.Statistics.CpuSystemLoad / a.Statistics.CpuCoreCount) * 10 - 10);
+                aPenaltyCount += (int)Math.Pow(1.05d, (100 * (a.Statistics.CpuSystemLoad / a.Statistics.CpuCoreCount) * 10) - 10);
+                bPenaltyCount += (int)Math.Pow(1.05d, (100 * (b.Statistics.CpuSystemLoad / a.Statistics.CpuCoreCount) * 10) - 10);
 
                 //frame load
                 if (a.Statistics.AverageDeficitFramesPerMinute > 0)
                 {
                     //deficit frame load
-                    aPenaltyCount += (int)(Math.Pow(1.03d, 500f * (a.Statistics.AverageDeficitFramesPerMinute / 3000f)) * 600 - 600);
+                    aPenaltyCount += (int)((Math.Pow(1.03d, 500f * (a.Statistics.AverageDeficitFramesPerMinute / 3000f)) * 600) - 600);
 
                     //null frame load
-                    aPenaltyCount += (int)(Math.Pow(1.03d, 500f * (a.Statistics.AverageNulledFramesPerMinute / 3000f)) * 300 - 300);
+                    aPenaltyCount += (int)((Math.Pow(1.03d, 500f * (a.Statistics.AverageNulledFramesPerMinute / 3000f)) * 300) - 300);
                 }
 
                 //frame load
                 if (b.Statistics.AverageDeficitFramesPerMinute > 0)
                 {
                     //deficit frame load
-                    bPenaltyCount += (int)(Math.Pow(1.03d, 500f * (b.Statistics.AverageDeficitFramesPerMinute / 3000f)) * 600 - 600);
+                    bPenaltyCount += (int)((Math.Pow(1.03d, 500f * (b.Statistics.AverageDeficitFramesPerMinute / 3000f)) * 600) - 600);
 
                     //null frame load
-                    bPenaltyCount += (int)(Math.Pow(1.03d, 500f * (b.Statistics.AverageNulledFramesPerMinute / 3000f)) * 300 - 300);
+                    bPenaltyCount += (int)((Math.Pow(1.03d, 500f * (b.Statistics.AverageNulledFramesPerMinute / 3000f)) * 300) - 300);
                 }
 
                 return aPenaltyCount - bPenaltyCount;

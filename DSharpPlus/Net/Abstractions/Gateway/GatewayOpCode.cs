@@ -1,4 +1,4 @@
-﻿namespace DSharpPlus.Net.Abstractions
+namespace DSharpPlus.Net.Abstractions
 {
     /// <summary>
     /// Specifies an OP code in a gateway payload.
@@ -24,7 +24,7 @@
         /// Used to update client status.
         /// </summary>
         StatusUpdate = 3,
-        
+
         /// <summary>
         /// Used to update voice state, when joining, leaving, or moving between voice channels.
         /// </summary>

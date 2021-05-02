@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
 
@@ -20,7 +20,7 @@ namespace DSharpPlus.Entities
         /// Gets the user that owns this presence.
         /// </summary>
         [JsonIgnore]
-        public DiscordUser User 
+        public DiscordUser User
             => this.Discord.GetCachedOrEmptyUserInternal(this.InternalUser.Id);
 
         /// <summary>
@@ -36,13 +36,13 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public IReadOnlyList<DiscordActivity> Activities => InternalActivities;
-        
+
         [JsonIgnore]
         internal DiscordActivity[] InternalActivities;
-        
+
         [JsonProperty("activities", NullValueHandling = NullValueHandling.Ignore)]
         internal TransportActivity[] RawActivities { get; set; }
-        
+
         /// <summary>
         /// Gets this user's status.
         /// </summary>
@@ -56,7 +56,7 @@ namespace DSharpPlus.Entities
         /// Gets the guild for which this presence was set.
         /// </summary>
         [JsonIgnore]
-        public DiscordGuild Guild 
+        public DiscordGuild Guild
             => this.GuildId != 0 ? this.Discord._guilds[this.GuildId] : null;
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("client_status", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordClientStatus ClientStatus { get; internal set; }
-        
+
         internal DiscordPresence() { }
 
         internal DiscordPresence(DiscordPresence other)
@@ -72,8 +72,8 @@ namespace DSharpPlus.Entities
             this.Discord = other.Discord;
             this.Activity = other.Activity;
             this.RawActivity = other.RawActivity;
-            this.InternalActivities = (DiscordActivity[]) other.InternalActivities?.Clone();
-            this.RawActivities = (TransportActivity[]) other.RawActivities?.Clone();
+            this.InternalActivities = (DiscordActivity[])other.InternalActivities?.Clone();
+            this.RawActivities = (TransportActivity[])other.RawActivities?.Clone();
             this.Status = other.Status;
             this.InternalUser = new TransportUser(other.InternalUser);
         }
@@ -86,13 +86,13 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("desktop", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<UserStatus> Desktop { get; internal set; }
-        
+
         /// <summary>
         /// Gets the user's status set for an active mobile (iOS, Android) application session.
         /// </summary>
         [JsonProperty("mobile", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<UserStatus> Mobile { get; internal set; }
-        
+
         /// <summary>
         /// Gets the user's status set for an active web (browser, bot account) application session.
         /// </summary>

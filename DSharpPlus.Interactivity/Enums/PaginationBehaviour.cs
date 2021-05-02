@@ -1,4 +1,4 @@
-﻿namespace DSharpPlus.Interactivity.Enums
+namespace DSharpPlus.Interactivity.Enums
 {
     /// <summary>
     /// Specifies how pagination will handle advancing past the first and last pages.

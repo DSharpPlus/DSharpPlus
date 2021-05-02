@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
 {
@@ -63,15 +63,9 @@ namespace DSharpPlus.Entities
         public bool Equals(DiscordVoiceRegion region)
             => this == region;
 
-        public override bool Equals(object obj)
-        {
-            return this.Equals(obj as DiscordVoiceRegion);
-        }
+        public override bool Equals(object obj) => this.Equals(obj as DiscordVoiceRegion);
 
-        public override int GetHashCode()
-        {
-            return this.Id.GetHashCode();
-        }
+        public override int GetHashCode() => this.Id.GetHashCode();
 
         /// <summary>
         /// Gets whether the two <see cref="DiscordVoiceRegion"/> objects are equal.
@@ -79,7 +73,7 @@ namespace DSharpPlus.Entities
         /// <param name="left">First voice region to compare.</param>
         /// <param name="right">Second voice region to compare.</param>
         /// <returns>Whether the two voice regions are equal.</returns>
-        public static bool operator==(DiscordVoiceRegion left, DiscordVoiceRegion right)
+        public static bool operator ==(DiscordVoiceRegion left, DiscordVoiceRegion right)
         {
             var o1 = left as object;
             var o2 = right as object;
@@ -87,10 +81,7 @@ namespace DSharpPlus.Entities
             if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
                 return false;
 
-            if (o1 == null && o2 == null)
-                return true;
-
-            return left.Id == right.Id;
+            return o1 == null && o2 == null ? true : left.Id == right.Id;
         }
 
         /// <summary>

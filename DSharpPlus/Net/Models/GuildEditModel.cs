@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.Net.Models
@@ -69,7 +69,7 @@ namespace DSharpPlus.Net.Models
         /// The new guild rules channel.
         /// </summary>
         public Optional<DiscordChannel> RulesChannel { internal get; set; }
-        
+
         /// <summary>
         /// The new guild public updates channel.
         /// </summary>

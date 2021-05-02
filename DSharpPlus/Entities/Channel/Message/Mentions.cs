@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -8,7 +8,7 @@ namespace DSharpPlus.Entities
     /// Interface for mentionables
     /// </summary>
     public interface IMention { }
-    
+
 
     /// <summary>
     /// Allows a reply to ping the user being replied to.
@@ -19,19 +19,19 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Mention the user being replied to.  Alias to <see cref="RepliedUserMention()"/> constructor.
         /// </summary>
-        public static readonly RepliedUserMention All = new RepliedUserMention();
+        public static readonly RepliedUserMention All = new();
     }
-    
+
     /// <summary>
     /// Allows @everyone and @here pings to mention in the message.
     /// </summary>
-    public readonly struct EveryoneMention : IMention 
+    public readonly struct EveryoneMention : IMention
     {
         //This is pointless because new EveryoneMention() will work, but it is here for consistency with the other mentionables.
         /// <summary>
         /// Allow the mentioning of @everyone and @here. Alias to <see cref="EveryoneMention()"/> constructor.
         /// </summary>
-        public static readonly EveryoneMention All = new EveryoneMention();
+        public static readonly EveryoneMention All = new();
     }
 
     /// <summary>
@@ -42,7 +42,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Allow mentioning of all users. Alias to <see cref="UserMention()"/> constructor.
         /// </summary>
-        public static readonly UserMention All = new UserMention();
+        public static readonly UserMention All = new();
 
         /// <summary>
         /// Optional Id of the user that is allowed to be mentioned. If null, then all user mentions will be allowed. 
@@ -53,7 +53,7 @@ namespace DSharpPlus.Entities
         /// Allows the specific user to be mentioned
         /// </summary>
         /// <param name="id"></param>
-        public UserMention(ulong id) { this.Id = id;  }
+        public UserMention(ulong id) { this.Id = id; }
 
         /// <summary>
         /// Allows the specific user to be mentioned
@@ -61,7 +61,7 @@ namespace DSharpPlus.Entities
         /// <param name="user"></param>
         public UserMention(DiscordUser user) : this(user.Id) { }
 
-        public static implicit operator UserMention(DiscordUser user) => new UserMention(user.Id);
+        public static implicit operator UserMention(DiscordUser user) => new(user.Id);
     }
 
     /// <summary>
@@ -72,7 +72,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Allow the mentioning of all roles.  Alias to <see cref="RoleMention()"/> constructor.
         /// </summary>
-        public static readonly RoleMention All = new RoleMention();
+        public static readonly RoleMention All = new();
 
         /// <summary>
         /// Optional Id of the role that is allowed to be mentioned. If null, then all role mentions will be allowed. 
@@ -91,7 +91,7 @@ namespace DSharpPlus.Entities
         /// <param name="role"></param>
         public RoleMention(DiscordRole role) : this(role.Id) { }
 
-        public static implicit operator RoleMention(DiscordRole role) => new RoleMention(role.Id);
+        public static implicit operator RoleMention(DiscordRole role) => new(role.Id);
     }
 
     /// <summary>

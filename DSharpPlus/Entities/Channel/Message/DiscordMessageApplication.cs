@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
 {
@@ -33,6 +33,6 @@ namespace DSharpPlus.Entities
 
         internal DiscordMessageApplication() { }
 
-        
+
     }
 }

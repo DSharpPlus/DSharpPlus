@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.Interactivity.EventHandling
@@ -10,7 +10,7 @@ namespace DSharpPlus.Interactivity.EventHandling
         /// </summary>
         /// <returns></returns>
         int PageCount { get; }
-        
+
         /// <summary>
         /// Returns the current page.
         /// </summary>

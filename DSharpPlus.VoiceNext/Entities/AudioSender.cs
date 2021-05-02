@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using DSharpPlus.Entities;
 using DSharpPlus.VoiceNext.Codec;
 
@@ -18,9 +18,6 @@ namespace DSharpPlus.VoiceNext.Entities
             this.Decoder = decoder;
         }
 
-        public void Dispose()
-        {
-            this.Decoder?.Dispose();
-        }
+        public void Dispose() => this.Decoder?.Dispose();
     }
 }

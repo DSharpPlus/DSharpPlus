@@ -1,6 +1,6 @@
-﻿using Newtonsoft.Json.Linq;
 using System;
 using DSharpPlus.Net;
+using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus.Exceptions
 {
@@ -34,7 +34,7 @@ namespace DSharpPlus.Exceptions
                 var j = JObject.Parse(response.Response);
 
                 if (j["message"] != null)
-                    JsonMessage = j["message"].ToString();
+                    this.JsonMessage = j["message"].ToString();
             }
             catch (Exception) { }
         }

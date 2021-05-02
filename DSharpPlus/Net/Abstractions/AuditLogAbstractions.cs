@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -48,15 +48,15 @@ namespace DSharpPlus.Net.Abstractions
         public object OldValue { get; set; }
 
         [JsonIgnore]
-        public IEnumerable<JObject> OldValues 
+        public IEnumerable<JObject> OldValues
             => (this.OldValue as JArray)?.ToObject<IEnumerable<JObject>>();
 
         [JsonIgnore]
-        public ulong OldValueUlong 
+        public ulong OldValueUlong
             => (ulong)this.OldValue;
 
         [JsonIgnore]
-        public string OldValueString 
+        public string OldValueString
             => (string)this.OldValue;
 
         // this can be a string or an array
@@ -64,15 +64,15 @@ namespace DSharpPlus.Net.Abstractions
         public object NewValue { get; set; }
 
         [JsonIgnore]
-        public IEnumerable<JObject> NewValues 
+        public IEnumerable<JObject> NewValues
             => (this.NewValue as JArray)?.ToObject<IEnumerable<JObject>>();
 
         [JsonIgnore]
-        public ulong NewValueUlong 
+        public ulong NewValueUlong
             => (ulong)this.NewValue;
 
         [JsonIgnore]
-        public string NewValueString 
+        public string NewValueString
             => (string)this.NewValue;
 
         [JsonProperty("key")]
@@ -95,7 +95,7 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("count")]
         public int Count { get; set; }
-        
+
         [JsonProperty("delete_member_days")]
         public int DeleteMemberDays { get; set; }
 

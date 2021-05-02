@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
@@ -55,10 +55,7 @@ namespace DSharpPlus.Entities
         [JsonProperty("tags", NullValueHandling = NullValueHandling.Ignore)]
         private string _internalTags { get; set; }
 
-        public bool Equals(DiscordMessageSticker other)
-        {
-            return this.Id == other.Id;
-        }
+        public bool Equals(DiscordMessageSticker other) => this.Id == other.Id;
     }
 
     public enum StickerFormat

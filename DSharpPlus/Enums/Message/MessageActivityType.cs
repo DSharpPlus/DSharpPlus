@@ -1,4 +1,4 @@
-﻿namespace DSharpPlus
+namespace DSharpPlus
 {
     /// <summary>
     /// Indicates the type of MessageActivity for the Rich Presence.

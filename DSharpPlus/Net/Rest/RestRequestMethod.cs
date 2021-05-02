@@ -1,4 +1,4 @@
-﻿namespace DSharpPlus.Net
+namespace DSharpPlus.Net
 {
     /// <summary>
     /// Defines the HTTP method to use for an HTTP request.

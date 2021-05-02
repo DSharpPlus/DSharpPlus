@@ -1,4 +1,4 @@
-﻿namespace DSharpPlus.Interactivity
+namespace DSharpPlus.Interactivity
 {
     /// <summary>
     /// Interactivity result

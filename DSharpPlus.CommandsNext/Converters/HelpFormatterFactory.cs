@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.CommandsNext.Converters
 {
@@ -8,14 +8,8 @@ namespace DSharpPlus.CommandsNext.Converters
 
         public HelpFormatterFactory() { }
 
-        public void SetFormatterType<T>() where T : BaseHelpFormatter
-        {
-            this.Factory = ActivatorUtilities.CreateFactory(typeof(T), new[] { typeof(CommandContext) });
-        }
+        public void SetFormatterType<T>() where T : BaseHelpFormatter => this.Factory = ActivatorUtilities.CreateFactory(typeof(T), new[] { typeof(CommandContext) });
 
-        public BaseHelpFormatter Create(CommandContext ctx)
-        {
-            return this.Factory(ctx.Services, new object[] { ctx }) as BaseHelpFormatter;
-        }
+        public BaseHelpFormatter Create(CommandContext ctx) => this.Factory(ctx.Services, new object[] { ctx }) as BaseHelpFormatter;
     }
 }

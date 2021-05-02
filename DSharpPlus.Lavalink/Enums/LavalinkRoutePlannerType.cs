@@ -1,4 +1,4 @@
-﻿namespace DSharpPlus.Lavalink
+namespace DSharpPlus.Lavalink
 {
     public enum LavalinkRoutePlannerType
     {

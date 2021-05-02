@@ -1,4 +1,4 @@
-﻿using DSharpPlus.Entities;
+using DSharpPlus.Entities;
 
 namespace DSharpPlus.EventArgs
 {
@@ -15,7 +15,7 @@ namespace DSharpPlus.EventArgs
         /// <summary>
         /// Gets the channel for which the message was acknowledged.
         /// </summary>
-        public DiscordChannel Channel 
+        public DiscordChannel Channel
             => this.Message.Channel;
 
         internal MessageAcknowledgeEventArgs() : base() { }

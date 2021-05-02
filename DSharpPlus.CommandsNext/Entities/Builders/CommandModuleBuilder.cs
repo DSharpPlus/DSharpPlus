@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Entities;
 
@@ -52,16 +52,12 @@ namespace DSharpPlus.CommandsNext.Builders
 
         internal ICommandModule Build(IServiceProvider services)
         {
-            switch (this.Lifespan)
+            return this.Lifespan switch
             {
-                case ModuleLifespan.Singleton:
-                    return new SingletonCommandModule(this.Type, services);
-
-                case ModuleLifespan.Transient:
-                    return new TransientCommandModule(this.Type);
-            }
-
-            throw new NotSupportedException("Module lifespans other than transient and singleton are not supported.");
+                ModuleLifespan.Singleton => new SingletonCommandModule(this.Type, services),
+                ModuleLifespan.Transient => new TransientCommandModule(this.Type),
+                _ => throw new NotSupportedException("Module lifespans other than transient and singleton are not supported."),
+            };
         }
     }
 }

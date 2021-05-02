@@ -1,4 +1,4 @@
-﻿using Emzi0767.Utilities;
+using Emzi0767.Utilities;
 
 namespace DSharpPlus.CommandsNext
 {
@@ -15,7 +15,7 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets the command that was executed.
         /// </summary>
-        public Command Command 
+        public Command Command
             => this.Context.Command;
     }
 }

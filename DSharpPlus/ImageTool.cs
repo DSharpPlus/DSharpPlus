@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Text;
 
@@ -40,7 +40,7 @@ namespace DSharpPlus
 
             if (!stream.CanRead || !stream.CanSeek)
                 throw new ArgumentException("The stream needs to be both readable and seekable.", nameof(stream));
-            
+
             this.SourceStream = stream;
             this.SourceStream.Seek(0, SeekOrigin.Begin);
 

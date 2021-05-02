@@ -1,4 +1,4 @@
-﻿using Emzi0767.Utilities;
+using Emzi0767.Utilities;
 
 namespace DSharpPlus.Lavalink.EventArgs
 {
@@ -103,7 +103,7 @@ namespace DSharpPlus.Lavalink.EventArgs
         public long Threshold { get; set; }
         public string Track { get; set; }
     }
-    
+
     /// <summary>
     /// Represents event arguments for a track stuck event.
     /// </summary>

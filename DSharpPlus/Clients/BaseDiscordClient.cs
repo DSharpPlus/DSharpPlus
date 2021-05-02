@@ -1,4 +1,4 @@
-﻿#pragma warning disable CS0618
+#pragma warning disable CS0618
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -53,7 +53,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets the list of available voice regions. Note that this property will not contain VIP voice regions.
         /// </summary>
-        public IReadOnlyDictionary<string, DiscordVoiceRegion> VoiceRegions 
+        public IReadOnlyDictionary<string, DiscordVoiceRegion> VoiceRegions
             => this._voice_regions_lazy.Value;
 
         /// <summary>
@@ -158,7 +158,7 @@ namespace DSharpPlus
         /// </summary>
         /// <returns></returns>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<IReadOnlyList<DiscordVoiceRegion>> ListVoiceRegionsAsync() 
+        public Task<IReadOnlyList<DiscordVoiceRegion>> ListVoiceRegionsAsync()
             => this.ApiClient.ListVoiceRegionsAsync();
 
         /// <summary>
@@ -211,7 +211,7 @@ namespace DSharpPlus
 
         internal DiscordUser GetCachedOrEmptyUserInternal(ulong user_id)
         {
-            TryGetCachedUserInternal(user_id, out var user);
+            this.TryGetCachedUserInternal(user_id, out var user);
             return user;
         }
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -43,7 +43,7 @@ namespace DSharpPlus.Entities
         /// <param name="options">Optional parameters for this command.</param>
         public DiscordApplicationCommand(string name, string description, IEnumerable<DiscordApplicationCommandOption> options = null)
         {
-            if(name.Length > 32)
+            if (name.Length > 32)
                 throw new ArgumentException("Slash command name cannot exceed 32 characters.", nameof(name));
             if (description.Length > 100)
                 throw new ArgumentException("Slash command description cannot exceed 100 characters.", nameof(description));
@@ -88,10 +88,7 @@ namespace DSharpPlus.Entities
         /// <returns>Whether the two <see cref="DiscordApplicationCommand"/> objects are not equal.</returns>
         public override bool Equals(object other)
         {
-            if (other is DiscordApplicationCommand dac)
-                return this.Equals(dac);
-
-            return false;
+            return other is DiscordApplicationCommand dac ? this.Equals(dac) : false;
         }
 
         /// <summary>

@@ -25,12 +25,10 @@ namespace DSharpPlus.Test
 
         private TestBotConfig Config { get; }
         public DiscordClient Discord { get; }
-        private TestBotCommands Commands { get; }
         private VoiceNextExtension VoiceService { get; }
         private CommandsNextExtension CommandsNextService { get; }
         private InteractivityExtension InteractivityService { get; }
         private LavalinkExtension LavalinkService { get; }
-        private Timer GameGuard { get; set; }
 
         public TestBot(TestBotConfig cfg, int shardid)
         {
@@ -51,19 +49,19 @@ namespace DSharpPlus.Test
                 LogTimestampFormat = "dd-MM-yyyy HH:mm:ss zzz",
                 Intents = DiscordIntents.All // if 4013 is received, change to DiscordIntents.AllUnprivileged
             };
-            Discord = new DiscordClient(dcfg);
+            this.Discord = new DiscordClient(dcfg);
 
             // events
-            Discord.Ready += this.Discord_Ready;
-            Discord.GuildAvailable += this.Discord_GuildAvailable;
+            this.Discord.Ready += this.Discord_Ready;
+            this.Discord.GuildAvailable += this.Discord_GuildAvailable;
             //Discord.PresenceUpdated += this.Discord_PresenceUpdated;
             //Discord.ClientErrored += this.Discord_ClientErrored;
-            Discord.SocketErrored += this.Discord_SocketError;
-            Discord.GuildCreated += this.Discord_GuildCreated;
-            Discord.VoiceStateUpdated += this.Discord_VoiceStateUpdated;
-            Discord.GuildDownloadCompleted += this.Discord_GuildDownloadCompleted;
-            Discord.GuildUpdated += this.Discord_GuildUpdated;
-            Discord.ChannelDeleted += this.Discord_ChannelDeleted;
+            this.Discord.SocketErrored += this.Discord_SocketError;
+            this.Discord.GuildCreated += this.Discord_GuildCreated;
+            this.Discord.VoiceStateUpdated += this.Discord_VoiceStateUpdated;
+            this.Discord.GuildDownloadCompleted += this.Discord_GuildDownloadCompleted;
+            this.Discord.GuildUpdated += this.Discord_GuildUpdated;
+            this.Discord.ChannelDeleted += this.Discord_ChannelDeleted;
 
             // For event timeout testing
             //Discord.GuildDownloadCompleted += async (s, e) =>
@@ -94,7 +92,7 @@ namespace DSharpPlus.Test
                 IgnoreExtraArguments = false,
                 UseDefaultCommandHandler = true,
             };
-            this.CommandsNextService = Discord.UseCommandsNext(cncfg);
+            this.CommandsNextService = this.Discord.UseCommandsNext(cncfg);
             this.CommandsNextService.CommandErrored += this.CommandsNextService_CommandErrored;
             this.CommandsNextService.CommandExecuted += this.CommandsNextService_CommandExecuted;
             this.CommandsNextService.RegisterCommands(typeof(TestBot).GetTypeInfo().Assembly);
@@ -106,8 +104,8 @@ namespace DSharpPlus.Test
                 Timeout = TimeSpan.FromSeconds(3)
             };
 
-            this.InteractivityService = Discord.UseInteractivity(icfg);
-            this.LavalinkService = Discord.UseLavalink();
+            this.InteractivityService = this.Discord.UseInteractivity(icfg);
+            this.LavalinkService = this.Discord.UseLavalink();
 
             //this.Discord.MessageCreated += async e =>
             //{
@@ -118,27 +116,15 @@ namespace DSharpPlus.Test
             //};
         }
 
-        private Task Discord_PresenceUpdated(DiscordClient client, PresenceUpdateEventArgs e)
-        {
-            client.Logger.LogInformation(TestBotEventId, "Presence updated: '{0}'", e.Activity.Name);
-            return Task.CompletedTask;
-        }
-
         public async Task RunAsync()
         {
-			var act = new DiscordActivity("the screams of your ancestors", ActivityType.ListeningTo);
-            await Discord.ConnectAsync(act, UserStatus.DoNotDisturb).ConfigureAwait(false);
+            var act = new DiscordActivity("the screams of your ancestors", ActivityType.ListeningTo);
+            await this.Discord.ConnectAsync(act, UserStatus.DoNotDisturb).ConfigureAwait(false);
         }
 
-        public async Task StopAsync()
-        {
-            await Discord.DisconnectAsync().ConfigureAwait(false);
-        }
+        public async Task StopAsync() => await this.Discord.DisconnectAsync().ConfigureAwait(false);
 
-        private Task Discord_Ready(DiscordClient client, ReadyEventArgs e)
-        {
-            return Task.CompletedTask;
-        }
+        private Task Discord_Ready(DiscordClient client, ReadyEventArgs e) => Task.CompletedTask;
 
         private Task Discord_GuildAvailable(DiscordClient client, GuildCreateEventArgs e)
         {
@@ -202,7 +188,7 @@ namespace DSharpPlus.Test
                     Description = $"`{e.Exception.GetType()}` occurred when executing `{e.Command.QualifiedName}`.",
                     Timestamp = DateTime.UtcNow
                 };
-                embed.WithFooter(Discord.CurrentUser.Username, Discord.CurrentUser.AvatarUrl)
+                embed.WithFooter(this.Discord.CurrentUser.Username, this.Discord.CurrentUser.AvatarUrl)
                     .AddField("Message", ex.Message);
                 await e.Context.RespondAsync(embed: embed.Build()).ConfigureAwait(false);
             }

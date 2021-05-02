@@ -1,4 +1,4 @@
-﻿namespace DSharpPlus.Interactivity.Enums
+namespace DSharpPlus.Interactivity.Enums
 {
     /// <summary>
     /// Specifies what should be done when a poll times out.

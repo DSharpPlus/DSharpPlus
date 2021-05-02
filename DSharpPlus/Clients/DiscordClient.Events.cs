@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using DSharpPlus.EventArgs;
 using Emzi0767.Utilities;
 using Microsoft.Extensions.Logging;
@@ -629,7 +629,7 @@ namespace DSharpPlus
         internal void EventErrorHandler<TSender, TArgs>(AsyncEvent<TSender, TArgs> asyncEvent, Exception ex, AsyncEventHandler<TSender, TArgs> handler, TSender sender, TArgs eventArgs)
             where TArgs : AsyncEventArgs
         {
-            if(ex is AsyncEventTimeoutException)
+            if (ex is AsyncEventTimeoutException)
             {
                 this.Logger.LogWarning(LoggerEvents.EventHandlerException, $"An event handler for {asyncEvent.Name} took too long to execute. Defined as \"{handler.Method.ToString().Replace(handler.Method.ReturnType.ToString(), "").TrimStart()}\" located in \"{handler.Method.DeclaringType}\".");
                 return;
@@ -640,10 +640,7 @@ namespace DSharpPlus
         }
 
         private void Goof<TSender, TArgs>(AsyncEvent<TSender, TArgs> asyncEvent, Exception ex, AsyncEventHandler<TSender, TArgs> handler, TSender sender, TArgs eventArgs)
-            where TArgs : AsyncEventArgs
-        {
-            this.Logger.LogCritical(LoggerEvents.EventHandlerException, ex, "Exception event handler {0} (defined in {1}) threw an exception", handler.Method, handler.Method.DeclaringType);
-        }
+            where TArgs : AsyncEventArgs => this.Logger.LogCritical(LoggerEvents.EventHandlerException, ex, "Exception event handler {0} (defined in {1}) threw an exception", handler.Method, handler.Method.DeclaringType);
 
         #endregion
     }

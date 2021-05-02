@@ -9,13 +9,13 @@ namespace DSharpPlus
         public Uri SourceUri { get; }
 
         public IReadOnlyList<KeyValuePair<string, string>> QueryParameters => this._queryParams;
-        private readonly List<KeyValuePair<string, string>> _queryParams = new List<KeyValuePair<string, string>>();
+        private readonly List<KeyValuePair<string, string>> _queryParams = new();
 
         public QueryUriBuilder(string uri)
         {
             if (uri == null)
                 throw new ArgumentNullException(nameof(uri));
-            
+
             this.SourceUri = new Uri(uri);
         }
 
@@ -23,7 +23,7 @@ namespace DSharpPlus
         {
             if (uri == null)
                 throw new ArgumentNullException(nameof(uri));
-            
+
             this.SourceUri = uri;
         }
 
@@ -42,9 +42,6 @@ namespace DSharpPlus
             }.Uri;
         }
 
-        public override string ToString()
-        {
-            return Build().ToString();
-        }
+        public override string ToString() => this.Build().ToString();
     }
 }

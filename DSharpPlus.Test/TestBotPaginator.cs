@@ -1,11 +1,11 @@
-﻿using DSharpPlus.Entities;
-using DSharpPlus.Interactivity;
-using DSharpPlus.Interactivity.EventHandling;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using DSharpPlus.Entities;
+using DSharpPlus.Interactivity;
+using DSharpPlus.Interactivity.EventHandling;
 
 namespace DSharpPlus.Test
 {
@@ -15,13 +15,13 @@ namespace DSharpPlus.Test
     /// </summary>
     public class TestBotPaginator : IPaginationRequest
     {
-        private List<Page> pages;
-        private TaskCompletionSource<bool> _tcs;
-        private CancellationTokenSource _cts;
-        private DiscordMessage _msg;
+        private readonly List<Page> pages;
+        private readonly TaskCompletionSource<bool> _tcs;
+        private readonly CancellationTokenSource _cts;
+        private readonly DiscordMessage _msg;
         private int index = 0;
-        private PaginationEmojis _emojis;
-        private DiscordUser _usr;
+        private readonly PaginationEmojis _emojis;
+        private readonly DiscordUser _usr;
 
         public int PageCount
             => this.pages.Count;
@@ -37,10 +37,7 @@ namespace DSharpPlus.Test
             this._usr = usr;
         }
 
-        public async Task DoCleanupAsync()
-        {
-            await this._msg.DeleteAsync().ConfigureAwait(false);
-        }
+        public async Task DoCleanupAsync() => await this._msg.DeleteAsync().ConfigureAwait(false);
 
         public async Task<PaginationEmojis> GetEmojisAsync()
         {

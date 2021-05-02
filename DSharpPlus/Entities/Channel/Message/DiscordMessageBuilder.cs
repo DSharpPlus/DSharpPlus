@@ -57,7 +57,7 @@ namespace DSharpPlus.Entities
         /// Gets if the Reply should mention the user.
         /// </summary>
         public bool MentionOnReply { get; private set; } = false;
-        
+
         /// <summary>
         /// Gets if the Reply will error if the Reply Message Id does not reference a valid message.
         /// <para>If set to false, invalid replies are send as a regular message.</para>
@@ -74,7 +74,7 @@ namespace DSharpPlus.Entities
         {
             this.Content = content;
             return this;
-        } 
+        }
 
         /// <summary>
         /// Sets if the message should be TTS.
@@ -97,8 +97,8 @@ namespace DSharpPlus.Entities
             this.Embed = embed;
             return this;
         }
-        
-        
+
+
 
         /// <summary>
         /// Sets if the message has allowed mentions.
@@ -139,16 +139,16 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         public DiscordMessageBuilder WithFile(string fileName, Stream stream, bool resetStreamPosition = false)
         {
-            if(this.Files.Count() >= 10)
+            if (this.Files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
             if (this._files.Any(x => x.FileName == fileName))
                 throw new ArgumentException("A File with that filename already exists");
 
-            if(resetStreamPosition)
+            if (resetStreamPosition)
                 this._files.Add(new DiscordMessageFile(fileName, stream, stream.Position));
             else
-                this._files.Add(new DiscordMessageFile(fileName, stream, null));            
+                this._files.Add(new DiscordMessageFile(fileName, stream, null));
 
             return this;
         }
@@ -196,7 +196,7 @@ namespace DSharpPlus.Entities
                 else
                     this._files.Add(new DiscordMessageFile(file.Key, file.Value, null));
             }
-            
+
             return this;
         }
 
@@ -214,27 +214,21 @@ namespace DSharpPlus.Entities
             this.FailOnInvalidReply = failOnInvalidReply;
             return this;
         }
-        
+
 
         /// <summary>
         /// Sends the Message to a specific channel
         /// </summary>
         /// <param name="channel">The channel the message should be sent to.</param>
         /// <returns></returns>
-        public Task<DiscordMessage> SendAsync(DiscordChannel channel)
-        {
-            return channel.SendMessageAsync(this);
-        }
+        public Task<DiscordMessage> SendAsync(DiscordChannel channel) => channel.SendMessageAsync(this);
 
         /// <summary>
         /// Sends the modified message.
         /// </summary>
         /// <param name="msg">The original Message to modify.</param>
         /// <returns></returns>
-        public Task<DiscordMessage> ModifyAsync(DiscordMessage msg)
-        {
-            return msg.ModifyAsync(this);
-        }
+        public Task<DiscordMessage> ModifyAsync(DiscordMessage msg) => msg.ModifyAsync(this);
 
         /// <summary>
         /// Allows for clearing the Message Builder so that it can be used again to send a new message.

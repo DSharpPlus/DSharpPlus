@@ -1,7 +1,7 @@
-﻿using DSharpPlus.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using DSharpPlus.Entities;
 
 namespace DSharpPlus.Net.Models
 {

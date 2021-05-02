@@ -1,4 +1,4 @@
-﻿namespace DSharpPlus
+namespace DSharpPlus
 {
     /// <summary>
     /// Type of mention being made

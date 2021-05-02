@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 
 namespace DSharpPlus.Lavalink.Entities
 {
@@ -11,7 +11,9 @@ namespace DSharpPlus.Lavalink.Entities
         public string GuildId { get; }
 
         internal LavalinkPayload(string opcode)
-            => this.Operation = opcode;
+        {
+            this.Operation = opcode;
+        }
 
         internal LavalinkPayload(string opcode, string guildId)
         {

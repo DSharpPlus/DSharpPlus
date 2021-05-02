@@ -1,4 +1,4 @@
-﻿namespace DSharpPlus.Net.Abstractions
+namespace DSharpPlus.Net.Abstractions
 {
     internal interface IOAuth2Payload
     {

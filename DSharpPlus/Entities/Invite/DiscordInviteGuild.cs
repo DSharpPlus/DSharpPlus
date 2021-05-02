@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Globalization;
 using Newtonsoft.Json;
 
@@ -26,7 +26,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public string IconUrl
-            => !string.IsNullOrWhiteSpace(this.IconHash) ? $"https://cdn.discordapp.com/icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{IconHash}.jpg" : null;
+            => !string.IsNullOrWhiteSpace(this.IconHash) ? $"https://cdn.discordapp.com/icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.IconHash}.jpg" : null;
 
         /// <summary>
         /// Gets the hash of guild's invite splash.
@@ -38,8 +38,8 @@ namespace DSharpPlus.Entities
         /// Gets the URL of guild's invite splash.
         /// </summary>
         [JsonIgnore]
-        public string SplashUrl 
-            => !string.IsNullOrWhiteSpace(this.SplashHash) ? $"https://cdn.discordapp.com/splashes/{this.Id.ToString(CultureInfo.InvariantCulture)}/{SplashHash}.jpg" : null;
+        public string SplashUrl
+            => !string.IsNullOrWhiteSpace(this.SplashHash) ? $"https://cdn.discordapp.com/splashes/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.SplashHash}.jpg" : null;
 
         /// <summary>
         /// Gets the guild's banner hash, when applicable.

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -266,11 +266,11 @@ namespace DSharpPlus.Test
             await ctx.RespondAsync(sb.ToString()).ConfigureAwait(false);
         }
 
-        private static string[] Units = new[] { "", "ki", "Mi", "Gi" };
+        private static readonly string[] Units = new[] { "", "ki", "Mi", "Gi" };
         private static string SizeToString(long l)
         {
             double d = l;
-            int u = 0;
+            var u = 0;
             while (d >= 900 && u < Units.Length - 2)
             {
                 u++;

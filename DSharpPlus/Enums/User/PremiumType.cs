@@ -1,4 +1,4 @@
-﻿namespace DSharpPlus
+namespace DSharpPlus
 {
     /// <summary>
     /// The type of Nitro subscription on a user's account.

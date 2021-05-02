@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -45,20 +45,20 @@ namespace DSharpPlus.Entities
         /// Embeds to send on followup message.
         /// </summary>
         public IReadOnlyList<DiscordEmbed> Embeds { get; }
-        private readonly List<DiscordEmbed> _embeds = new List<DiscordEmbed>();
+        private readonly List<DiscordEmbed> _embeds = new();
 
         /// <summary>
         /// Files to send on this followup message.
         /// </summary>
         public IReadOnlyCollection<DiscordMessageFile> Files => this._files;
 
-        internal readonly List<DiscordMessageFile> _files = new List<DiscordMessageFile>();
+        internal readonly List<DiscordMessageFile> _files = new();
 
         /// <summary>
         /// Mentions to send on this followup message.
         /// </summary>
         public IEnumerable<IMention> Mentions { get; }
-        private readonly List<IMention> _mentions = new List<IMention>();
+        private readonly List<IMention> _mentions = new();
 
         /// <summary>
         /// Constructs a new empty followup message builder.

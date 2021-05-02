@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
@@ -33,7 +33,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("parse", NullValueHandling = NullValueHandling.Ignore)]
         public IEnumerable<string> Parse { get; }
-        
+
         // WHY IS THERE NO DOCSTRING HERE
         [JsonProperty("replied_user", NullValueHandling = NullValueHandling.Ignore)]
         public bool? RepliedUser { get; }
@@ -42,13 +42,13 @@ namespace DSharpPlus.Entities
         {
             //Null check just to be safe
             if (mentions == null) return;
-            
+
             //If we have no item in our mentions, its likely to be a empty array. 
             // This is a special case were we want parse to be a empty array
             // Doing this allows for "no parsing"
             if (!mentions.Any())
             {
-                Parse = Array.Empty<string>();
+                this.Parse = Array.Empty<string>();
                 this.RepliedUser = mention;
                 return;
             }
@@ -57,12 +57,12 @@ namespace DSharpPlus.Entities
             {
                 this.RepliedUser = mention;
             }
-            
-            
+
+
             //Prepare a list of allowed IDs. We will be adding to these IDs.
-            HashSet<ulong> roles = new HashSet<ulong>();
-            HashSet<ulong> users = new HashSet<ulong>();
-            HashSet<string> parse = new HashSet<string>();
+            var roles = new HashSet<ulong>();
+            var users = new HashSet<ulong>();
+            var parse = new HashSet<string>();
 
             foreach (var m in mentions)
             {
@@ -87,7 +87,7 @@ namespace DSharpPlus.Entities
                     case EveryoneMention e:
                         parse.Add(ParseEveryone);
                         break;
-                    
+
                     case RepliedUserMention _:
                         this.RepliedUser = mention;
                         break;
@@ -96,14 +96,14 @@ namespace DSharpPlus.Entities
 
             //Check the validity of each item. If it isn't in the explicit allow list and they have items, then add them.
             if (!parse.Contains(ParseUsers) && users.Count > 0)
-                Users = users;
+                this.Users = users;
 
             if (!parse.Contains(ParseRoles) && roles.Count > 0)
-                Roles = roles;
+                this.Roles = roles;
 
             //If we have a empty parse aray, we don't want to add it.
             if (parse.Count > 0)
-                Parse = parse;
+                this.Parse = parse;
         }
     }
 }

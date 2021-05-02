@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Net.Sockets;
 using System.Threading;
@@ -54,10 +54,7 @@ namespace DSharpPlus.Net.Udp
         /// <returns>The received bytes.</returns>
         public override Task<byte[]> ReceiveAsync()
         {
-            if (this.PacketQueue.Count > 0)
-                return Task.FromResult(this.PacketQueue.Take());
-
-            return Task.Run(() => this.PacketQueue.Take());
+            return this.PacketQueue.Count > 0 ? Task.FromResult(this.PacketQueue.Take()) : Task.Run(() => this.PacketQueue.Take());
         }
 
         /// <summary>
@@ -75,7 +72,7 @@ namespace DSharpPlus.Net.Udp
             // dequeue all the packets
             this.PacketQueue.Dispose();
         }
-        
+
         private async Task ReceiverLoopAsync()
         {
             while (!this.Token.IsCancellationRequested)

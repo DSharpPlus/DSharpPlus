@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace DSharpPlus
 {
@@ -12,7 +12,7 @@ namespace DSharpPlus
         /// <param name="p">The permissions to calculate from</param>
         /// <param name="permission">permission you want to check</param>
         /// <returns></returns>
-        public static bool HasPermission(this Permissions p, Permissions permission) 
+        public static bool HasPermission(this Permissions p, Permissions permission)
             => p.HasFlag(Permissions.Administrator) || (p & permission) == permission;
 
         /// <summary>
@@ -249,7 +249,7 @@ namespace DSharpPlus
         /// Allows the user to go live.
         /// </summary>
         [PermissionString("Allow stream")]
-        Stream	= 0x0000000000000200,
+        Stream  = 0x0000000000000200,
 
         /// <summary>
         /// Allows the user to use slash commands.

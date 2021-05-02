@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -36,7 +36,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             this._matchrequests = new ConcurrentHashSet<MatchRequest<T>>();
             this._collectrequests = new ConcurrentHashSet<CollectRequest<T>>();
             this._event = (AsyncEvent<DiscordClient, T>)handler.GetValue(_client);
-            this._handler = new AsyncEventHandler<DiscordClient, T>(HandleEvent);
+            this._handler = new AsyncEventHandler<DiscordClient, T>(this.HandleEvent);
             this._event.Register(_handler);
         }
 
@@ -121,16 +121,16 @@ namespace DSharpPlus.Interactivity.EventHandling
         public void Dispose()
         {
             this.disposed = true;
-            if(this._event != null)
+            if (this._event != null)
                 this._event.Unregister(_handler);
 
             this._event = null;
             this._handler = null;
             this._client = null;
 
-            if(this._matchrequests != null)
+            if (this._matchrequests != null)
                 this._matchrequests.Clear();
-            if(this._collectrequests != null)
+            if (this._collectrequests != null)
                 this._collectrequests.Clear();
 
             this._matchrequests = null;

@@ -1,4 +1,4 @@
-﻿namespace DSharpPlus.Entities
+namespace DSharpPlus.Entities
 {
     public partial struct DiscordColor
     {
@@ -125,7 +125,7 @@
         /// Gold, or #FFD700.
         /// </summary>
         public static DiscordColor Gold { get; } = new DiscordColor(0xFFD700);
-        
+
         // To be fair, you have to have a very high IQ to understand Goldenrod . 
         // The tones are extremely subtle, and without a solid grasp of artistic
         // theory most of the beauty will go over a typical painter's head.

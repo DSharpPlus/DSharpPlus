@@ -1,4 +1,4 @@
-﻿namespace DSharpPlus.EventArgs
+namespace DSharpPlus.EventArgs
 {
     /// <summary>
     /// Represents basic socket event arguments. 

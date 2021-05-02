@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -41,7 +41,7 @@ namespace DSharpPlus.Entities
         /// Gets the URL of this channel's icon.
         /// </summary>
         [JsonIgnore]
-        public string IconUrl 
+        public string IconUrl
             => !string.IsNullOrWhiteSpace(this.IconHash) ? $"https://cdn.discordapp.com/channel-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.IconHash}.png" : null;
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task AddDmRecipientAsync(ulong user_id, string accesstoken, string nickname) 
+        public Task AddDmRecipientAsync(ulong user_id, string accesstoken, string nickname)
             => this.Discord.ApiClient.AddGroupDmRecipientAsync(this.Id, user_id, accesstoken, nickname);
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task RemoveDmRecipientAsync(ulong user_id, string accesstoken) 
+        public Task RemoveDmRecipientAsync(ulong user_id, string accesstoken)
             => this.Discord.ApiClient.RemoveGroupDmRecipientAsync(this.Id, user_id);
     }
 }

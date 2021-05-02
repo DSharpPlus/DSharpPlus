@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus
@@ -29,15 +29,11 @@ namespace DSharpPlus
             if (this._isDisposed)
                 throw new InvalidOperationException("This logger provider is already disposed.");
 
-            if (categoryName != typeof(BaseDiscordClient).FullName && categoryName != typeof(DiscordWebhookClient).FullName)
-                throw new ArgumentException($"This provider can only provide instances of loggers for {typeof(BaseDiscordClient).FullName} or {typeof(DiscordWebhookClient).FullName}.", nameof(categoryName));
-
-            return new DefaultLogger(this.MinimumLevel, this.TimestampFormat);
+            return categoryName != typeof(BaseDiscordClient).FullName && categoryName != typeof(DiscordWebhookClient).FullName
+                ? throw new ArgumentException($"This provider can only provide instances of loggers for {typeof(BaseDiscordClient).FullName} or {typeof(DiscordWebhookClient).FullName}.", nameof(categoryName))
+                : new DefaultLogger(this.MinimumLevel, this.TimestampFormat);
         }
 
-        public void Dispose()
-        {
-            this._isDisposed = true;
-        }
+        public void Dispose() => this._isDisposed = true;
     }
 }

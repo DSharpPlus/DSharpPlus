@@ -1,4 +1,4 @@
-﻿namespace DSharpPlus.Net.Models
+namespace DSharpPlus.Net.Models
 {
     public class BaseEditModel
     {

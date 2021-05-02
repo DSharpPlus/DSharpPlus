@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.CommandsNext.Attributes
@@ -48,7 +48,7 @@ namespace DSharpPlus.CommandsNext.Attributes
 
             if (!usrok)
                 usrok = (pusr & Permissions.Administrator) != 0 || (pusr & this.Permissions) == this.Permissions;
-            
+
             if (!botok)
                 botok = (pbot & Permissions.Administrator) != 0 || (pbot & this.Permissions) == this.Permissions;
 

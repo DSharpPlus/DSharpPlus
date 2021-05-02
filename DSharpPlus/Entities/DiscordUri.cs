@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
 
@@ -67,10 +67,7 @@ namespace DSharpPlus.Net
 
         internal sealed class DiscordUriJsonConverter : JsonConverter
         {
-            public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-            {
-                writer.WriteValue((value as DiscordUri)._value);
-            }
+            public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) => writer.WriteValue((value as DiscordUri)._value);
 
             public override object ReadJson(JsonReader reader, Type objectType, object existingValue,
                 JsonSerializer serializer)
@@ -78,12 +75,11 @@ namespace DSharpPlus.Net
                 var val = reader.Value;
                 if (val == null)
                     return null;
-                
-                if (!(val is string s))
-                    throw new JsonReaderException("DiscordUri value invalid format! This is a bug in DSharpPlus. " +
-                                                  $"Include the type in your bug report: [[{reader.TokenType}]]");
-                
-                return IsStandard(s)
+
+                return val is not string s
+                    ? throw new JsonReaderException("DiscordUri value invalid format! This is a bug in DSharpPlus. " +
+                                                  $"Include the type in your bug report: [[{reader.TokenType}]]")
+                    : IsStandard(s)
                     ? new DiscordUri(new Uri(s))
                     : new DiscordUri(s);
             }

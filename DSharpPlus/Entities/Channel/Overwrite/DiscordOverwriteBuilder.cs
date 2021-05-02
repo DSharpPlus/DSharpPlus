@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -52,7 +52,7 @@ namespace DSharpPlus.Entities
         [Obsolete("Will be removed in 5.0. Use specialized constructors instead", false)]
         public DiscordOverwriteBuilder()
         {
-            
+
         }
 
         /// <summary>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
@@ -72,10 +72,7 @@ namespace DSharpPlus.VoiceNext
         /// <param name="offset">Start of the data in the buffer.</param>
         /// <param name="count">Number of bytes from the buffer.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
-        public async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default)
-        {
-            await WriteAsync(new ReadOnlyMemory<byte>(buffer, offset, count), cancellationToken).ConfigureAwait(false);
-        }
+        public async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default) => await this.WriteAsync(new ReadOnlyMemory<byte>(buffer, offset, count), cancellationToken).ConfigureAwait(false);
 
         /// <summary>
         /// Writes PCM data to the sink. The data is prepared for transmission, and enqueued.
@@ -106,15 +103,15 @@ namespace DSharpPlus.VoiceNext
 
                     if (this.PcmBufferLength == this.PcmBuffer.Length)
                     {
-                        ApplyFiltersSync(pcmSpan);
+                        this.ApplyFiltersSync(pcmSpan);
 
                         this.PcmBufferLength = 0;
 
-                        var packet = ArrayPool<byte>.Shared.Rent(PcmMemory.Length);
-                        var packetMemory = packet.AsMemory().Slice(0, PcmMemory.Length);
-                        PcmMemory.CopyTo(packetMemory);
+                        var packet = ArrayPool<byte>.Shared.Rent(this.PcmMemory.Length);
+                        var packetMemory = packet.AsMemory().Slice(0, this.PcmMemory.Length);
+                        this.PcmMemory.CopyTo(packetMemory);
 
-                        await Connection.EnqueuePacketAsync(new RawVoicePacket(packetMemory, PcmBufferDuration, false, packet), cancellationToken).ConfigureAwait(false);
+                        await this.Connection.EnqueuePacketAsync(new RawVoicePacket(packetMemory, this.PcmBufferDuration, false, packet), cancellationToken).ConfigureAwait(false);
                     }
                 }
             }
@@ -133,13 +130,13 @@ namespace DSharpPlus.VoiceNext
             var pcm = this.PcmMemory;
             Helpers.ZeroFill(pcm.Slice(this.PcmBufferLength).Span);
 
-            ApplyFiltersSync(pcm);
+            this.ApplyFiltersSync(pcm);
 
             var packet = ArrayPool<byte>.Shared.Rent(pcm.Length);
             var packetMemory = packet.AsMemory().Slice(0, pcm.Length);
             pcm.CopyTo(packetMemory);
 
-            await Connection.EnqueuePacketAsync(new RawVoicePacket(packetMemory, PcmBufferDuration, false, packet), cancellationToken).ConfigureAwait(false);
+            await this.Connection.EnqueuePacketAsync(new RawVoicePacket(packetMemory, this.PcmBufferDuration, false, packet), cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -201,10 +198,7 @@ namespace DSharpPlus.VoiceNext
             lock (this.Filters)
             {
                 var filters = this.Filters;
-                if (!filters.Contains(filter))
-                    return false;
-
-                return filters.Remove(filter);
+                return !filters.Contains(filter) ? false : filters.Remove(filter);
             }
         }
 

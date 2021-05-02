@@ -1,4 +1,4 @@
-﻿using DSharpPlus.Entities;
+using DSharpPlus.Entities;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Abstractions
@@ -42,7 +42,7 @@ namespace DSharpPlus.Net.Abstractions
         /// Gets or sets the presence for this connection.
         /// </summary>
 		[JsonProperty("presence", NullValueHandling = NullValueHandling.Ignore)]
-		public StatusUpdate Presence { get; set; } = null;
+        public StatusUpdate Presence { get; set; } = null;
 
         /// <summary>
         /// Gets or sets the intent flags for this connection.

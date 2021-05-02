@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using DSharpPlus.CommandsNext.Entities;
 
 namespace DSharpPlus.CommandsNext.Converters

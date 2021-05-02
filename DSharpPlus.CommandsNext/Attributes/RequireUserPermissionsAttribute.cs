@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.CommandsNext.Attributes
@@ -45,10 +45,7 @@ namespace DSharpPlus.CommandsNext.Attributes
             if ((pusr & Permissions.Administrator) != 0)
                 return Task.FromResult(true);
 
-            if ((pusr & this.Permissions) == this.Permissions)
-                return Task.FromResult(true);
-
-            return Task.FromResult(false);
+            return (pusr & this.Permissions) == this.Permissions ? Task.FromResult(true) : Task.FromResult(false);
         }
     }
 }

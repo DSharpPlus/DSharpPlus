@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -58,7 +58,7 @@ namespace DSharpPlus
         /// <param name="loggerFactory">The optional logging factory to use for this client.</param>
         /// <param name="minimumLogLevel">The minimum logging level for messages.</param>
         /// <param name="logTimestampFormat">The timestamp format to use for the logger.</param>
-        public DiscordWebhookClient(IWebProxy proxy = null, TimeSpan? timeout = null, bool useRelativeRateLimit = true, 
+        public DiscordWebhookClient(IWebProxy proxy = null, TimeSpan? timeout = null, bool useRelativeRateLimit = true,
             ILoggerFactory loggerFactory = null, LogLevel minimumLogLevel = LogLevel.Information, string logTimestampFormat = "yyyy-MM-dd HH:mm:ss zzz")
         {
             this._minimumLogLevel = minimumLogLevel;
@@ -120,7 +120,7 @@ namespace DSharpPlus
                 throw new ArgumentException("Invalid webhook URL supplied.", nameof(url));
 
             var token = tokenraw.Value;
-            return AddWebhookAsync(id, token);
+            return this.AddWebhookAsync(id, token);
         }
 
         /// <summary>

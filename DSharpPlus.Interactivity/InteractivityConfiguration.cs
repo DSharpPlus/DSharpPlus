@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using DSharpPlus.Interactivity.Enums;
 
 namespace DSharpPlus.Interactivity
@@ -37,7 +37,8 @@ namespace DSharpPlus.Interactivity
         /// <summary>
         /// Creates a new instance of <see cref="InteractivityConfiguration"/>.
         /// </summary>
-        public InteractivityConfiguration() {
+        public InteractivityConfiguration()
+        {
         }
 
         /// <summary>

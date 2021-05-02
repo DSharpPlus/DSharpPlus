@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -33,10 +33,7 @@ namespace DSharpPlus.CommandsNext
             if (str.Length >= content.Length)
                 return -1;
 
-            if (!content.StartsWith(str, comparisonType))
-                return -1;
-
-            return str.Length;
+            return !content.StartsWith(str, comparisonType) ? -1 : str.Length;
         }
 
         /// <summary>
@@ -61,10 +58,7 @@ namespace DSharpPlus.CommandsNext
                 return -1;
 
             var userId = ulong.Parse(m.Groups[1].Value, CultureInfo.InvariantCulture);
-            if (user.Id != userId)
-                return -1;
-
-            return m.Value.Length;
+            return user.Id != userId ? -1 : m.Value.Length;
         }
 
         //internal static string ExtractNextArgument(string str, out string remainder)
@@ -133,10 +127,7 @@ namespace DSharpPlus.CommandsNext
                 {
                     removeIndices.Add(i - startPosition);
 
-                    if (!inQuote)
-                        inQuote = true;
-                    else
-                        inQuote = false;
+                    inQuote = !inQuote;
                 }
 
                 if (inEscape)
@@ -145,16 +136,12 @@ namespace DSharpPlus.CommandsNext
                 if (endPosition != -1)
                 {
                     startPos = endPosition;
-                    if (startPosition != endPosition)
-                        return str.Substring(startPosition, endPosition - startPosition).CleanupString(removeIndices);
-                    return null;
+                    return startPosition != endPosition ? str.Substring(startPosition, endPosition - startPosition).CleanupString(removeIndices) : null;
                 }
             }
 
             startPos = str.Length;
-            if (startPos != startPosition)
-                return str.Substring(startPosition).CleanupString(removeIndices);
-            return null;
+            return startPos != startPosition ? str.Substring(startPosition).CleanupString(removeIndices) : null;
         }
 
         internal static string CleanupString(this string s, IList<int> indices)
@@ -204,7 +191,7 @@ namespace DSharpPlus.CommandsNext
                             argValue = ExtractNextArgument(argString, ref foundAt);
                             if (argValue == null)
                                 break;
-                            
+
                             rawArgumentList.Add(argValue);
                         }
 
@@ -264,7 +251,7 @@ namespace DSharpPlus.CommandsNext
                 else
                 {
                     try
-                    { 
+                    {
                         args[i + 2] = rawArgumentList[i] != null ? await ctx.CommandsNext.ConvertArgument(rawArgumentList[i], ctx, arg.Type).ConfigureAwait(false) : arg.DefaultValue;
                     }
                     catch (Exception ex)

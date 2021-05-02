@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using DSharpPlus.Net;
 using Newtonsoft.Json;
 

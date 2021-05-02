@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
@@ -31,7 +31,7 @@ namespace DSharpPlus.VoiceNext
                 throw new ArgumentOutOfRangeException(nameof(bufferSize), bufferSize, "bufferSize cannot be less than or equal to zero");
 
             var bufferLength = bufferSize ?? destination.SampleLength;
-            byte[] buffer = ArrayPool<byte>.Shared.Rent(bufferLength);
+            var buffer = ArrayPool<byte>.Shared.Rent(bufferLength);
             try
             {
                 int bytesRead;

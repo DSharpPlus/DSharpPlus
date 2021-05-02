@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -32,7 +32,7 @@ namespace DSharpPlus.Net.Abstractions
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            var arr = ReadArrayObject(reader, serializer);
+            var arr = this.ReadArrayObject(reader, serializer);
             return new ShardInfo
             {
                 ShardId = (int)arr[0],
@@ -42,15 +42,11 @@ namespace DSharpPlus.Net.Abstractions
 
         private JArray ReadArrayObject(JsonReader reader, JsonSerializer serializer)
         {
-            var arr = serializer.Deserialize<JToken>(reader) as JArray;
-            if (arr == null || arr.Count != 2)
-                throw new JsonSerializationException("Expected array of length 2");
-            return arr;
+            return serializer.Deserialize<JToken>(reader) is not JArray arr || arr.Count != 2
+                ? throw new JsonSerializationException("Expected array of length 2")
+                : arr;
         }
 
-        public override bool CanConvert(Type objectType)
-        {
-            return objectType == typeof(ShardInfo);
-        }
+        public override bool CanConvert(Type objectType) => objectType == typeof(ShardInfo);
     }
 }

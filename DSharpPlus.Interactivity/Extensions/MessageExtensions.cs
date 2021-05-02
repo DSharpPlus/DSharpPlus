@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
@@ -82,9 +82,9 @@ namespace DSharpPlus.Interactivity.Extensions
             var client = (DiscordClient)message.Discord;
             var interactivity = client.GetInteractivity();
 
-            if (interactivity == null) throw new InvalidOperationException($"Interactivity is not enabled for this {(client._isShard ? "shard" : "client")}.");
-
-            return interactivity;
+            return interactivity == null
+                ? throw new InvalidOperationException($"Interactivity is not enabled for this {(client._isShard ? "shard" : "client")}.")
+                : interactivity;
         }
     }
 }

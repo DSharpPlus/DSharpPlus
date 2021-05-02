@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
@@ -25,9 +25,6 @@ namespace DSharpPlus
                 logger.Log(logLevel, eventId, state, exception, formatter);
         }
 
-        public IDisposable BeginScope<TState>(TState state)
-        {
-            throw new NotImplementedException();
-        }
+        public IDisposable BeginScope<TState>(TState state) => throw new NotImplementedException();
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -28,7 +28,7 @@ namespace DSharpPlus.Lavalink
             add { this._playerUpdated.Register(value); }
             remove { this._playerUpdated.Unregister(value); }
         }
-        private AsyncEvent<LavalinkGuildConnection, PlayerUpdateEventArgs> _playerUpdated;
+        private readonly AsyncEvent<LavalinkGuildConnection, PlayerUpdateEventArgs> _playerUpdated;
 
         /// <summary>
         /// Triggered whenever playback of a track starts.
@@ -39,7 +39,7 @@ namespace DSharpPlus.Lavalink
             add { this._playbackStarted.Register(value); }
             remove { this._playbackStarted.Unregister(value); }
         }
-        private AsyncEvent<LavalinkGuildConnection, TrackStartEventArgs> _playbackStarted;
+        private readonly AsyncEvent<LavalinkGuildConnection, TrackStartEventArgs> _playbackStarted;
 
         /// <summary>
         /// Triggered whenever playback of a track finishes.
@@ -49,7 +49,7 @@ namespace DSharpPlus.Lavalink
             add { this._playbackFinished.Register(value); }
             remove { this._playbackFinished.Unregister(value); }
         }
-        private AsyncEvent<LavalinkGuildConnection, TrackFinishEventArgs> _playbackFinished;
+        private readonly AsyncEvent<LavalinkGuildConnection, TrackFinishEventArgs> _playbackFinished;
 
         /// <summary>
         /// Triggered whenever playback of a track gets stuck.
@@ -59,7 +59,7 @@ namespace DSharpPlus.Lavalink
             add { this._trackStuck.Register(value); }
             remove { this._trackStuck.Unregister(value); }
         }
-        private AsyncEvent<LavalinkGuildConnection, TrackStuckEventArgs> _trackStuck;
+        private readonly AsyncEvent<LavalinkGuildConnection, TrackStuckEventArgs> _trackStuck;
 
         /// <summary>
         /// Triggered whenever playback of a track encounters an error.
@@ -69,7 +69,7 @@ namespace DSharpPlus.Lavalink
             add { this._trackException.Register(value); }
             remove { this._trackException.Unregister(value); }
         }
-        private AsyncEvent<LavalinkGuildConnection, TrackExceptionEventArgs> _trackException;
+        private readonly AsyncEvent<LavalinkGuildConnection, TrackExceptionEventArgs> _trackException;
 
         /// <summary>
         /// Triggered whenever Discord Voice WebSocket connection is terminated.
@@ -79,7 +79,7 @@ namespace DSharpPlus.Lavalink
             add { this._webSocketClosed.Register(value); }
             remove { this._webSocketClosed.Unregister(value); }
         }
-        private AsyncEvent<LavalinkGuildConnection, WebSocketCloseEventArgs> _webSocketClosed;
+        private readonly AsyncEvent<LavalinkGuildConnection, WebSocketCloseEventArgs> _webSocketClosed;
 
         /// <summary>
         /// Gets whether this channel is still connected.

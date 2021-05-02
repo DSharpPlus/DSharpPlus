@@ -1,4 +1,4 @@
-﻿using DSharpPlus.Net;
+using DSharpPlus.Net;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities

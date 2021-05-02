@@ -1,4 +1,4 @@
-﻿namespace DSharpPlus
+namespace DSharpPlus
 {
     /// <summary>
     /// Determines at which level should the WebSocket traffic be compressed.

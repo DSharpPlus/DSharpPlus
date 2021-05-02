@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace DSharpPlus.EventArgs
 {
@@ -16,7 +16,7 @@ namespace DSharpPlus.EventArgs
         /// Gets the close message sent by remote host.
         /// </summary>
         public string CloseMessage { get; internal set; }
-        
+
         public SocketCloseEventArgs() : base() { }
     }
 

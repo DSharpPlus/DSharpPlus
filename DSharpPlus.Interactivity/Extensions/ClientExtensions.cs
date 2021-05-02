@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -65,7 +65,7 @@ namespace DSharpPlus.Interactivity.Extensions
         public static async Task<ReadOnlyDictionary<int, InteractivityExtension>> GetInteractivityAsync(this DiscordShardedClient client)
         {
             await client.InitializeShardsAsync().ConfigureAwait(false);
-            var extensions = new Dictionary<int, InteractivityExtension>();            
+            var extensions = new Dictionary<int, InteractivityExtension>();
 
             foreach (var shard in client.ShardClients.Select(xkvp => xkvp.Value))
             {

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
@@ -73,24 +73,14 @@ namespace DSharpPlus.Entities
         {
             // Active sessions are indicated with an "online", "idle", or "dnd" string per platform. If a user is
             // offline or invisible, the corresponding field is not present.
-            switch (reader.Value?.ToString().ToLowerInvariant()) // reader.Value can be a string, DateTime or DateTimeOffset (yes, it's weird)
+            return (reader.Value?.ToString().ToLowerInvariant()) switch // reader.Value can be a string, DateTime or DateTimeOffset (yes, it's weird)
             {
-                case "online":
-                    return UserStatus.Online;
-
-                case "idle":
-                    return UserStatus.Idle;
-
-                case "dnd":
-                    return UserStatus.DoNotDisturb;
-
-                case "invisible":
-                    return UserStatus.Invisible;
-
-                case "offline":
-                default:
-                    return UserStatus.Offline;
-            }
+                "online" => UserStatus.Online,
+                "idle" => UserStatus.Idle,
+                "dnd" => UserStatus.DoNotDisturb,
+                "invisible" => UserStatus.Invisible,
+                _ => UserStatus.Offline,
+            };
         }
 
         public override bool CanConvert(Type objectType) => objectType == typeof(UserStatus);
@@ -180,21 +170,17 @@ namespace DSharpPlus.Entities
 
             if (rawActivity?.IsRichPresence() == true && this.RichPresence != null)
                 this.RichPresence.UpdateWith(rawActivity);
-            else if (rawActivity?.IsRichPresence() == true)
-                this.RichPresence = new DiscordRichPresence(rawActivity);
-            else
-                this.RichPresence = null;
+            else this.RichPresence = rawActivity?.IsRichPresence() == true ? new DiscordRichPresence(rawActivity) : null;
 
             if (rawActivity?.IsCustomStatus() == true && this.CustomStatus != null)
                 this.CustomStatus.UpdateWith(rawActivity.State, rawActivity.Emoji);
-            else if (rawActivity?.IsCustomStatus() == true)
-                this.CustomStatus = new DiscordCustomStatus
+            else this.CustomStatus = rawActivity?.IsCustomStatus() == true
+                ? new DiscordCustomStatus
                 {
                     Name = rawActivity.State,
                     Emoji = rawActivity.Emoji
-                };
-            else
-                this.CustomStatus = null;
+                }
+                : null;
         }
     }
 

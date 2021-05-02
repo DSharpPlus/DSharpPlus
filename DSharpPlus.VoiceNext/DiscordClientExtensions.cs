@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -14,7 +14,7 @@ namespace DSharpPlus.VoiceNext
         /// </summary>
         /// <param name="client">Discord client to create VoiceNext instance for.</param>
         /// <returns>VoiceNext client instance.</returns>
-        public static VoiceNextExtension UseVoiceNext(this DiscordClient client) 
+        public static VoiceNextExtension UseVoiceNext(this DiscordClient client)
             => UseVoiceNext(client, new VoiceNextConfiguration());
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace DSharpPlus.VoiceNext
         /// </summary>
         /// <param name="client">Discord client to get VoiceNext instance for.</param>
         /// <returns>VoiceNext client instance.</returns>
-        public static VoiceNextExtension GetVoiceNext(this DiscordClient client) 
+        public static VoiceNextExtension GetVoiceNext(this DiscordClient client)
             => client.GetExtension<VoiceNextExtension>();
 
         /// <summary>
@@ -98,7 +98,7 @@ namespace DSharpPlus.VoiceNext
             if (channel.Type != ChannelType.Voice && channel.Type != ChannelType.Stage)
                 throw new InvalidOperationException("You can only connect to voice or stage channels.");
 
-            if (!(channel.Discord is DiscordClient discord) || discord == null)
+            if (channel.Discord is not DiscordClient discord || discord == null)
                 throw new NullReferenceException();
 
             var vnext = discord.GetVoiceNext();
@@ -106,10 +106,9 @@ namespace DSharpPlus.VoiceNext
                 throw new InvalidOperationException("VoiceNext is not initialized for this Discord client.");
 
             var vnc = vnext.GetConnection(channel.Guild);
-            if (vnc != null)
-                throw new InvalidOperationException("VoiceNext is already connected in this guild.");
-
-            return vnext.ConnectAsync(channel);
+            return vnc != null
+                ? throw new InvalidOperationException("VoiceNext is already connected in this guild.")
+                : vnext.ConnectAsync(channel);
         }
     }
 }

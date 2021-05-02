@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -10,10 +10,9 @@ namespace DSharpPlus.CommandsNext.Converters
     {
         Task<Optional<DateTime>> IArgumentConverter<DateTime>.ConvertAsync(string value, CommandContext ctx)
         {
-            if (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
-                return Task.FromResult(new Optional<DateTime>(result));
-
-            return Task.FromResult(Optional.FromNoValue<DateTime>());
+            return DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var result)
+                ? Task.FromResult(new Optional<DateTime>(result))
+                : Task.FromResult(Optional.FromNoValue<DateTime>());
         }
     }
 
@@ -21,10 +20,9 @@ namespace DSharpPlus.CommandsNext.Converters
     {
         Task<Optional<DateTimeOffset>> IArgumentConverter<DateTimeOffset>.ConvertAsync(string value, CommandContext ctx)
         {
-            if (DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
-                return Task.FromResult(Optional.FromValue(result));
-
-            return Task.FromResult(Optional.FromNoValue<DateTimeOffset>());
+            return DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var result)
+                ? Task.FromResult(Optional.FromValue(result))
+                : Task.FromResult(Optional.FromNoValue<DateTimeOffset>());
         }
     }
 

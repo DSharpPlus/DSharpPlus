@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Collections.Generic;
 using DSharpPlus.Entities;
+using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Abstractions
 {
@@ -25,6 +25,8 @@ namespace DSharpPlus.Net.Abstractions
         public string Nonce { get; internal set; }
 
         public GatewayRequestGuildMembers(DiscordGuild guild)
-            => this.GuildId = guild.Id;
+        {
+            this.GuildId = guild.Id;
+        }
     }
 }

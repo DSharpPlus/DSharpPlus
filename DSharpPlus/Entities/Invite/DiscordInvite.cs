@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -106,7 +106,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the emoji does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordInvite> DeleteAsync(string reason = null) 
+        public Task<DiscordInvite> DeleteAsync(string reason = null)
             => this.Discord.ApiClient.DeleteInviteAsync(this.Code, reason);
 
         /*
@@ -125,9 +125,6 @@ namespace DSharpPlus.Entities
         /// Converts this invite into an invite link.
         /// </summary>
         /// <returns>A discord.gg invite link.</returns>
-        public override string ToString()
-        {
-            return $"https://discord.gg/{this.Code}";
-        }
+        public override string ToString() => $"https://discord.gg/{this.Code}";
     }
 }

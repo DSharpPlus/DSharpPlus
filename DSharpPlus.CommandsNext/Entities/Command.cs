@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -85,7 +85,7 @@ namespace DSharpPlus.CommandsNext
                         continue;
 
                     ctx.RawArguments = args.Raw;
-                    
+
                     var mdl = ovl.InvocationTarget ?? this.Module?.GetInstance(ctx.Services);
                     if (mdl is BaseCommandModule bcmBefore)
                         await bcmBefore.BeforeExecutionAsync(ctx).ConfigureAwait(false);
@@ -132,7 +132,7 @@ namespace DSharpPlus.CommandsNext
             var fchecks = new List<CheckBaseAttribute>();
             if (this.ExecutionChecks != null && this.ExecutionChecks.Any())
                 foreach (var ec in this.ExecutionChecks)
-                    if (!(await ec.ExecuteCheckAsync(ctx, help).ConfigureAwait(false)))
+                    if (!await ec.ExecuteCheckAsync(ctx, help).ConfigureAwait(false))
                         fchecks.Add(ec);
 
             return fchecks;
@@ -185,21 +185,15 @@ namespace DSharpPlus.CommandsNext
             else if (o1 == null && o2 == null)
                 return true;
 
-            var cmd = obj as Command;
-            if ((object)cmd == null)
-                return false;
-
-            return cmd.QualifiedName == this.QualifiedName;
+            return obj is Command cmd
+&& cmd.QualifiedName == this.QualifiedName;
         }
 
         /// <summary>
         /// Gets this command's hash code.
         /// </summary>
         /// <returns>This command's hash code.</returns>
-        public override int GetHashCode()
-        {
-            return this.QualifiedName.GetHashCode();
-        }
+        public override int GetHashCode() => this.QualifiedName.GetHashCode();
 
         /// <summary>
         /// Returns a string representation of this command.
@@ -207,9 +201,9 @@ namespace DSharpPlus.CommandsNext
         /// <returns>String representation of this command.</returns>
         public override string ToString()
         {
-            if (this is CommandGroup g)
-                return $"Command Group: {this.QualifiedName}, {g.Children.Count} top-level children";
-            return $"Command: {this.QualifiedName}";
+            return this is CommandGroup g
+                ? $"Command Group: {this.QualifiedName}, {g.Children.Count} top-level children"
+                : $"Command: {this.QualifiedName}";
         }
     }
 }

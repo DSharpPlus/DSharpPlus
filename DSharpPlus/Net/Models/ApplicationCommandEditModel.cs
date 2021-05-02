@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using DSharpPlus.Entities;
 
@@ -25,10 +25,11 @@ namespace DSharpPlus.Net.Models
         /// Sets the command's new description
         /// </summary>
         public Optional<string> Description
-        {   internal get => this._description;
-            set 
+        {
+            internal get => this._description;
+            set
             {
-                if(value.Value.Length > 100)
+                if (value.Value.Length > 100)
                     throw new ArgumentException("Slash command description cannot exceed 100 characters.", nameof(value));
                 this._description = value;
             }

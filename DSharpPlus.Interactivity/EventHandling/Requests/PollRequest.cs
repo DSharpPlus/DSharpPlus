@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -33,7 +33,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             this._collected = new ConcurrentHashSet<PollEmoji>();
             this._message = message;
 
-            foreach (DiscordEmoji e in emojis)
+            foreach (var e in emojis)
             {
                 _collected.Add(new PollEmoji(e));
             }
@@ -42,7 +42,7 @@ namespace DSharpPlus.Interactivity.EventHandling
         internal void ClearCollected()
         {
             _collected.Clear();
-            foreach (DiscordEmoji e in _emojis)
+            foreach (var e in _emojis)
             {
                 _collected.Add(new PollEmoji(e));
             }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
@@ -33,23 +33,16 @@ namespace DSharpPlus.Entities
         {
             get
             {
-                switch (this.Type)
+                return this.Type switch
                 {
-                    case ApplicationCommandOptionType.Boolean:
-                        return bool.Parse(this._value);
-                    case ApplicationCommandOptionType.Integer:
-                        return long.Parse(this._value);
-                    case ApplicationCommandOptionType.String:
-                        return this._value;
-                    case ApplicationCommandOptionType.Channel:
-                        return ulong.Parse(this._value);
-                    case ApplicationCommandOptionType.User:
-                        return ulong.Parse(this._value);
-                    case ApplicationCommandOptionType.Role:
-                        return ulong.Parse(this._value);
-                    default:
-                        return this._value;
-                }
+                    ApplicationCommandOptionType.Boolean => bool.Parse(this._value),
+                    ApplicationCommandOptionType.Integer => long.Parse(this._value),
+                    ApplicationCommandOptionType.String => this._value,
+                    ApplicationCommandOptionType.Channel => ulong.Parse(this._value),
+                    ApplicationCommandOptionType.User => ulong.Parse(this._value),
+                    ApplicationCommandOptionType.Role => ulong.Parse(this._value),
+                    _ => this._value,
+                };
             }
         }
 

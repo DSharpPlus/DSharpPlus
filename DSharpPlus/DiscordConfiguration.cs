@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net;
 using DSharpPlus.Net.Udp;
 using DSharpPlus.Net.WebSocket;
@@ -153,10 +153,7 @@ namespace DSharpPlus
         public UdpClientFactoryDelegate UdpClientFactory
         {
             internal get => this._udpClientFactory;
-            set
-            {
-                this._udpClientFactory = value ?? throw new InvalidOperationException("You need to supply a valid UDP client factory method.");
-            }
+            set => this._udpClientFactory = value ?? throw new InvalidOperationException("You need to supply a valid UDP client factory method.");
         }
         private UdpClientFactoryDelegate _udpClientFactory = DspUdpClient.CreateNew;
 
@@ -170,7 +167,7 @@ namespace DSharpPlus
         /// <summary>
         /// Creates a new configuration with default values.
         /// </summary>
-        public DiscordConfiguration() 
+        public DiscordConfiguration()
         { }
 
         /// <summary>

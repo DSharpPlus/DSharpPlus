@@ -1,4 +1,4 @@
-﻿using Emzi0767.Utilities;
+using Emzi0767.Utilities;
 
 namespace DSharpPlus.Lavalink.EventArgs
 {
@@ -21,7 +21,7 @@ namespace DSharpPlus.Lavalink.EventArgs
         /// Gets whether the termination was initiated by the remote party (i.e. Discord).
         /// </summary>
         public bool Remote { get; }
-        
+
         internal WebSocketCloseEventArgs(int code, string reason, bool remote)
         {
             this.Code = code;

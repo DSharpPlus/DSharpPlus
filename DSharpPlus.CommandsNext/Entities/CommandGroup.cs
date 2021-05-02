@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -35,12 +35,9 @@ namespace DSharpPlus.CommandsNext
 
             if (cn != null)
             {
-                Command cmd = null;
-                if (ctx.Config.CaseSensitive)
-                    cmd = this.Children.FirstOrDefault(xc => xc.Name == cn || (xc.Aliases != null && xc.Aliases.Contains(cn)));
-                else
-                    cmd = this.Children.FirstOrDefault(xc => xc.Name.ToLowerInvariant() == cn.ToLowerInvariant() || (xc.Aliases != null && xc.Aliases.Select(xs => xs.ToLowerInvariant()).Contains(cn.ToLowerInvariant())));
-
+                var cmd = ctx.Config.CaseSensitive
+                    ? this.Children.FirstOrDefault(xc => xc.Name == cn || (xc.Aliases != null && xc.Aliases.Contains(cn)))
+                    : this.Children.FirstOrDefault(xc => xc.Name.ToLowerInvariant() == cn.ToLowerInvariant() || (xc.Aliases != null && xc.Aliases.Select(xs => xs.ToLowerInvariant()).Contains(cn.ToLowerInvariant())));
                 if (cmd != null)
                 {
                     // pass the execution on
@@ -57,27 +54,25 @@ namespace DSharpPlus.CommandsNext
                     };
 
                     var fchecks = await cmd.RunChecksAsync(xctx, false).ConfigureAwait(false);
-                    if (fchecks.Any())
-                        return new CommandResult
+                    return fchecks.Any()
+                        ? new CommandResult
                         {
                             IsSuccessful = false,
                             Exception = new ChecksFailedException(cmd, xctx, fchecks),
                             Context = xctx
-                        };
-                    
-                    return await cmd.ExecuteAsync(xctx).ConfigureAwait(false);
+                        }
+                        : await cmd.ExecuteAsync(xctx).ConfigureAwait(false);
                 }
             }
 
-            if (!this.IsExecutableWithoutSubcommands)
-                return new CommandResult
+            return !this.IsExecutableWithoutSubcommands
+                ? new CommandResult
                 {
                     IsSuccessful = false,
                     Exception = new InvalidOperationException("No matching subcommands were found, and this group is not executable."),
                     Context = ctx
-                };
-
-            return await base.ExecuteAsync(ctx).ConfigureAwait(false);
+                }
+                : await base.ExecuteAsync(ctx).ConfigureAwait(false);
         }
     }
 }

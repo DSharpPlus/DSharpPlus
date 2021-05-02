@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -17,34 +17,34 @@ namespace DSharpPlus.CommandsNext
         /// Gets the client which received the message.
         /// </summary>
         public DiscordClient Client { get; internal set; }
-        
+
         /// <summary>
         /// Gets the message that triggered the execution.
         /// </summary>
         public DiscordMessage Message { get; internal set; }
-        
+
         /// <summary>
         /// Gets the channel in which the execution was triggered,
         /// </summary>
-        public DiscordChannel Channel 
+        public DiscordChannel Channel
             => this.Message.Channel;
 
         /// <summary>
         /// Gets the guild in which the execution was triggered. This property is null for commands sent over direct messages.
         /// </summary>
-        public DiscordGuild Guild 
+        public DiscordGuild Guild
             => this.Channel.Guild;
 
         /// <summary>
         /// Gets the user who triggered the execution.
         /// </summary>
-        public DiscordUser User 
+        public DiscordUser User
             => this.Message.Author;
 
         /// <summary>
         /// Gets the member who triggered the execution. This property is null for commands sent over direct messages.
         /// </summary>
-        public DiscordMember Member 
+        public DiscordMember Member
             => this._lazyAssMember.Value;
 
         private readonly Lazy<DiscordMember> _lazyAssMember;
@@ -123,7 +123,7 @@ namespace DSharpPlus.CommandsNext
         /// </summary>
         /// <param name="builder">The Discord Message builder.</param>
         /// <returns></returns>
-        public Task<DiscordMessage> RespondAsync(DiscordMessageBuilder builder) 
+        public Task<DiscordMessage> RespondAsync(DiscordMessageBuilder builder)
             => this.Message.RespondAsync(builder);
 
         /// <summary>
@@ -138,7 +138,7 @@ namespace DSharpPlus.CommandsNext
         /// Triggers typing in the channel containing the message that triggered the command.
         /// </summary>
         /// <returns></returns>
-        public Task TriggerTypingAsync() 
+        public Task TriggerTypingAsync()
             => this.Channel.TriggerTypingAsync();
 
         internal struct ServiceContext : IDisposable
@@ -154,10 +154,7 @@ namespace DSharpPlus.CommandsNext
                 this.IsInitialized = true;
             }
 
-            public void Dispose()
-            {
-                this.Scope?.Dispose();
-            }
+            public void Dispose() => this.Scope?.Dispose();
         }
     }
 }

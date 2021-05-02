@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,14 +10,13 @@ namespace DSharpPlus.Interactivity.EventHandling
     internal class PaginationRequest : IPaginationRequest
     {
         private TaskCompletionSource<bool> _tcs;
-        private CancellationTokenSource _ct;
+        private readonly CancellationTokenSource _ct;
         private TimeSpan _timeout;
-        private List<Page> _pages;
-        private PaginationBehaviour _behaviour;
-        private PaginationDeletion _deletion;
-        private DiscordMessage _message;
-        private PaginationEmojis _emojis;
-        private DiscordUser _user;
+        private readonly List<Page> _pages;
+        private readonly PaginationBehaviour _behaviour;
+        private readonly DiscordMessage _message;
+        private readonly PaginationEmojis _emojis;
+        private readonly DiscordUser _user;
         private int index = 0;
 
         /// <summary>
@@ -41,7 +40,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             this._message = message;
             this._user = user;
 
-            this._deletion = deletion;
+            this.PaginationDeletion = deletion;
             this._behaviour = behaviour;
             this._emojis = emojis;
 
@@ -51,10 +50,10 @@ namespace DSharpPlus.Interactivity.EventHandling
                 this._pages.Add(p);
             }
         }
-        
+
         public int PageCount => _pages.Count;
 
-        public PaginationDeletion PaginationDeletion => _deletion;
+        public PaginationDeletion PaginationDeletion { get; }
 
         public async Task<Page> GetPageAsync()
         {
@@ -148,7 +147,7 @@ namespace DSharpPlus.Interactivity.EventHandling
 
         public async Task DoCleanupAsync()
         {
-            switch (_deletion)
+            switch (PaginationDeletion)
             {
                 case PaginationDeletion.DeleteEmojis:
                     await _message.DeleteAllReactionsAsync().ConfigureAwait(false);
@@ -210,7 +209,7 @@ namespace DSharpPlus.Interactivity
     {
         public string Content { get; set; }
         public DiscordEmbed Embed { get; set; }
-        
+
         public Page(string content = "", DiscordEmbedBuilder embed = null)
         {
             this.Content = content;

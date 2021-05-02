@@ -14,7 +14,7 @@ namespace DSharpPlus
 
         private TaskCompletionSource<bool> _tsc;
 
-        public AsyncManualResetEvent() 
+        public AsyncManualResetEvent()
             : this(false)
         { }
 
@@ -26,9 +26,9 @@ namespace DSharpPlus
                 _tsc.TrySetResult(true);
         }
 
-        public Task WaitAsync() { return _tsc.Task; }
+        public Task WaitAsync() => _tsc.Task;
 
-        public Task SetAsync() { return Task.Run(() => _tsc.TrySetResult(true)); }
+        public Task SetAsync() => Task.Run(() => _tsc.TrySetResult(true));
 
         public void Reset()
         {

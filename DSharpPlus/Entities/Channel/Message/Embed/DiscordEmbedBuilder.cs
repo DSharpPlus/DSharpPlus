@@ -70,7 +70,7 @@ namespace DSharpPlus.Entities
             set => this._imageUri = string.IsNullOrEmpty(value) ? null : new DiscordUri(value);
         }
         private DiscordUri _imageUri;
-        
+
         /// <summary>
         /// Gets or sets the embed's author.
         /// </summary>
@@ -90,7 +90,7 @@ namespace DSharpPlus.Entities
         /// Gets the embed's fields.
         /// </summary>
         public IReadOnlyList<DiscordEmbedField> Fields { get; }
-        private readonly List<DiscordEmbedField> _fields = new List<DiscordEmbedField>();
+        private readonly List<DiscordEmbedField> _fields = new();
 
         /// <summary>
         /// Constructs a new empty embed builder.
@@ -217,10 +217,7 @@ namespace DSharpPlus.Entities
         /// <returns>This embed builder.</returns>
         public DiscordEmbedBuilder WithTimestamp(DateTime? timestamp)
         {
-            if (timestamp == null)
-                this.Timestamp = null;
-            else
-                this.Timestamp = new DateTimeOffset(timestamp.Value);
+            this.Timestamp = timestamp == null ? null : (DateTimeOffset?)new DateTimeOffset(timestamp.Value);
             return this;
         }
 
@@ -304,10 +301,9 @@ namespace DSharpPlus.Entities
         /// <returns>This embed builder.</returns>
         public DiscordEmbedBuilder WithAuthor(string name = null, string url = null, string iconUrl = null)
         {
-            if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(url) && string.IsNullOrEmpty(iconUrl))
-                this.Author = null;
-            else
-                this.Author = new EmbedAuthor
+            this.Author = string.IsNullOrEmpty(name) && string.IsNullOrEmpty(url) && string.IsNullOrEmpty(iconUrl)
+                ? null
+                : new EmbedAuthor
                 {
                     Name = name,
                     Url = url,
@@ -327,10 +323,9 @@ namespace DSharpPlus.Entities
             if (text != null && text.Length > 2048)
                 throw new ArgumentException("Footer text length cannot exceed 2048 characters.", nameof(text));
 
-            if (string.IsNullOrEmpty(text) && string.IsNullOrEmpty(iconUrl))
-                this.Footer = null;
-            else
-                this.Footer = new EmbedFooter
+            this.Footer = string.IsNullOrEmpty(text) && string.IsNullOrEmpty(iconUrl)
+                ? null
+                : new EmbedFooter
                 {
                     Text = text,
                     IconUrl = iconUrl
@@ -447,7 +442,7 @@ namespace DSharpPlus.Entities
                 {
                     Url = this.Thumbnail._uri,
                     Height = this.Thumbnail.Height,
-                    Width =  this.Thumbnail.Width
+                    Width = this.Thumbnail.Width
                 };
 
             embed.Fields = new ReadOnlyCollection<DiscordEmbedField>(new List<DiscordEmbedField>(this._fields)); // copy the list, don't wrap it, prevents mutation

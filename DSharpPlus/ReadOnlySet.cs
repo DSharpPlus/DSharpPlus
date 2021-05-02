@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -33,7 +33,7 @@ namespace DSharpPlus
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerator<T> GetEnumerator()
             => this._underlyingSet.GetEnumerator();
-        
+
         /// <summary>
         /// Returns an enumerator that iterates through this set view.
         /// </summary>

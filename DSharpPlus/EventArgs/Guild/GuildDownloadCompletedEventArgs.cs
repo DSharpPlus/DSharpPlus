@@ -1,5 +1,5 @@
-﻿using DSharpPlus.Entities;
 using System.Collections.Generic;
+using DSharpPlus.Entities;
 
 namespace DSharpPlus.EventArgs
 {
@@ -13,7 +13,7 @@ namespace DSharpPlus.EventArgs
         /// </summary>
         public IReadOnlyDictionary<ulong, DiscordGuild> Guilds { get; }
 
-        internal GuildDownloadCompletedEventArgs(IReadOnlyDictionary<ulong, DiscordGuild> guilds) 
+        internal GuildDownloadCompletedEventArgs(IReadOnlyDictionary<ulong, DiscordGuild> guilds)
             : base()
         {
             this.Guilds = guilds;

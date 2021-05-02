@@ -1,4 +1,4 @@
-﻿namespace DSharpPlus.Lavalink
+namespace DSharpPlus.Lavalink
 {
     internal static class Endpoints
     {

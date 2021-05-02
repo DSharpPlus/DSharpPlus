@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,16 +33,13 @@ namespace DSharpPlus.Net
         /// <summary>
         /// Gets or sets the ratelimit hash of this bucket.
         /// </summary>
-        public string Hash 
-        { 
+        public string Hash
+        {
             get => Volatile.Read(ref this._hash);
 
             internal set
             {
-                if (value.Contains(UNLIMITED_HASH))
-                    this.IsUnlimited = true;
-                else
-                    this.IsUnlimited = false;
+                this.IsUnlimited = value.Contains(UNLIMITED_HASH);
 
                 if (this.BucketId != null && !this.BucketId.StartsWith(value))
                 {
@@ -70,7 +67,7 @@ namespace DSharpPlus.Net
         /// <summary>
         /// Gets the number of uses left before pre-emptive rate limit is triggered.
         /// </summary>
-        public int Remaining 
+        public int Remaining
             => this._remaining;
 
         /// <summary>
@@ -185,13 +182,10 @@ namespace DSharpPlus.Net
         /// <returns>Whether the <see cref="RateLimitBucket"/> is equal to this <see cref="RateLimitBucket"/>.</returns>
         public bool Equals(RateLimitBucket e)
         {
-            if (ReferenceEquals(e, null))
+            if (e is null)
                 return false;
 
-            if (ReferenceEquals(this, e))
-                return true;
-
-            return this.BucketId == e.BucketId;
+            return ReferenceEquals(this, e) ? true : this.BucketId == e.BucketId;
         }
 
         /// <summary>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -53,14 +53,14 @@ namespace DSharpPlus.Net
             var ret = msg_raw.ToDiscordObject<DiscordMessage>();
             ret.Discord = this.Discord;
 
-            PopulateMessage(author, ret);
+            this.PopulateMessage(author, ret);
 
             var referencedMsg = msg_raw["referenced_message"];
             if (ret.MessageType == MessageType.Reply && !string.IsNullOrWhiteSpace(referencedMsg?.ToString()))
             {
                 author = referencedMsg["author"].ToObject<TransportUser>();
                 ret.ReferencedMessage.Discord = this.Discord;
-                PopulateMessage(author, ret.ReferencedMessage);
+                this.PopulateMessage(author, ret.ReferencedMessage);
             }
 
             return ret;
@@ -454,23 +454,19 @@ namespace DSharpPlus.Net
             ret.Discord = this.Discord;
             ret.Guild = this.Discord.Guilds[guild_id];
 
-            if (ret.Guild == null)
-            {
-                ret.Channels = rawChannels.Select(r => new DiscordChannel {
+            ret.Channels = ret.Guild == null
+                ? rawChannels.Select(r => new DiscordChannel
+                {
                     Id = (ulong)r["id"],
                     Name = r["name"].ToString(),
                     Position = (int)r["position"]
-                }).ToList();
-            }
-            else
-            {
-                ret.Channels = rawChannels.Select(r =>
+                }).ToList()
+                : rawChannels.Select(r =>
                 {
-                    DiscordChannel c = ret.Guild.GetChannel((ulong)r["id"]);
+                    var c = ret.Guild.GetChannel((ulong)r["id"]);
                     c.Position = (int)r["position"];
                     return c;
                 }).ToList();
-            }
 
             return ret;
         }
@@ -828,7 +824,7 @@ namespace DSharpPlus.Net
             if (replyMessageId != null)
                 pld.MessageReference = new InternalDiscordMessageReference { MessageId = replyMessageId, FailIfNotExists = failOnInvalidReply };
 
-                if (replyMessageId != null)
+            if (replyMessageId != null)
                 pld.Mentions = new DiscordMentions(Mentions.None, mentionReply);
 
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}";
@@ -859,7 +855,7 @@ namespace DSharpPlus.Net
             };
 
             if (builder.ReplyId != null)
-                pld.MessageReference = new InternalDiscordMessageReference { MessageId = builder.ReplyId, FailIfNotExists = builder.FailOnInvalidReply};
+                pld.MessageReference = new InternalDiscordMessageReference { MessageId = builder.ReplyId, FailIfNotExists = builder.FailOnInvalidReply };
 
 
             if (builder.Mentions != null || builder.ReplyId != null)
@@ -1523,7 +1519,7 @@ namespace DSharpPlus.Net
                 var roleArray = include_roles.ToArray();
                 var roleArrayCount = roleArray.Count();
 
-                for (int i = 0; i < roleArrayCount; i++)
+                for (var i = 0; i < roleArrayCount; i++)
                     sb.Append($"&include_roles={roleArray[i]}");
             }
 
@@ -1555,7 +1551,7 @@ namespace DSharpPlus.Net
                 var roleArray = include_roles.ToArray();
                 var roleArrayCount = roleArray.Count();
 
-                for (int i = 0; i < roleArrayCount; i++)
+                for (var i = 0; i < roleArrayCount; i++)
                     sb.Append($"&include_roles={roleArray[i]}");
             }
 
@@ -2222,10 +2218,9 @@ namespace DSharpPlus.Net
             emoji.Guild = gld;
 
             var xtu = emoji_raw["user"]?.ToObject<TransportUser>();
-            if (xtu != null)
-                emoji.User = gld != null && gld.Members.TryGetValue(xtu.Id, out var member) ? member : new DiscordUser(xtu);
-            else
-                emoji.User = this.Discord.CurrentUser;
+            emoji.User = xtu != null
+                ? gld != null && gld.Members.TryGetValue(xtu.Id, out var member) ? member : new DiscordUser(xtu)
+                : this.Discord.CurrentUser;
 
             return emoji;
         }
@@ -2293,7 +2288,7 @@ namespace DSharpPlus.Net
         internal async Task<IReadOnlyList<DiscordApplicationCommand>> BulkOverwriteGlobalApplicationCommandsAsync(ulong application_id, IEnumerable<DiscordApplicationCommand> commands)
         {
             var pld = new List<RestApplicationCommandCreatePayload>();
-            foreach(var command in commands)
+            foreach (var command in commands)
             {
                 pld.Add(new RestApplicationCommandCreatePayload
                 {
@@ -2608,7 +2603,7 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route, headers).ConfigureAwait(false);
 
-            var info = (JObject.Parse(res.Response)).ToObject<GatewayInfo>();
+            var info = JObject.Parse(res.Response).ToObject<GatewayInfo>();
             info.SessionBucket.ResetAfter = DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(info.SessionBucket.resetAfter);
             return info;
         }

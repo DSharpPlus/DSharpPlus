@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace DSharpPlus.VoiceNext.Codec
@@ -71,10 +71,7 @@ namespace DSharpPlus.VoiceNext.Codec
             target = target.Slice(0, sampleSize);
         }
 
-        public void ProcessPacketLoss(OpusDecoder decoder, int frameSize, ref Span<byte> target)
-        {
-            Interop.OpusDecode(decoder.Decoder, frameSize, target);
-        }
+        public void ProcessPacketLoss(OpusDecoder decoder, int frameSize, ref Span<byte> target) => Interop.OpusDecode(decoder.Decoder, frameSize, target);
 
         public int GetLastPacketSampleCount(OpusDecoder decoder)
         {
@@ -144,12 +141,12 @@ namespace DSharpPlus.VoiceNext.Codec
         /// <param name="outputFormat"></param>
         internal void Initialize(AudioFormat outputFormat)
         {
-            if (Decoder != IntPtr.Zero)
-                Interop.OpusDestroyDecoder(Decoder);
+            if (this.Decoder != IntPtr.Zero)
+                Interop.OpusDestroyDecoder(this.Decoder);
 
-            AudioFormat = outputFormat;
+            this.AudioFormat = outputFormat;
 
-            Decoder = Interop.OpusCreateDecoder(outputFormat);
+            this.Decoder = Interop.OpusCreateDecoder(outputFormat);
         }
 
         /// <summary>

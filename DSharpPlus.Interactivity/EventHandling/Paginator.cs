@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using ConcurrentCollections;
 using DSharpPlus.Entities;
@@ -29,7 +29,7 @@ namespace DSharpPlus.Interactivity.EventHandling
 
         public async Task DoPaginationAsync(IPaginationRequest request)
         {
-            await ResetReactionsAsync(request).ConfigureAwait(false);
+            await this.ResetReactionsAsync(request).ConfigureAwait(false);
             this._requests.Add(request);
             try
             {
@@ -78,13 +78,13 @@ namespace DSharpPlus.Interactivity.EventHandling
                                  eventargs.Emoji == emojis.SkipRight ||
                                  eventargs.Emoji == emojis.Stop))
                             {
-                                await PaginateAsync(req, eventargs.Emoji).ConfigureAwait(false);
+                                await this.PaginateAsync(req, eventargs.Emoji).ConfigureAwait(false);
                             }
                             else if (eventargs.Emoji == emojis.Stop &&
                                      req is PaginationRequest paginationRequest &&
                                      paginationRequest.PaginationDeletion == PaginationDeletion.DeleteMessage)
                             {
-                                await PaginateAsync(req, eventargs.Emoji).ConfigureAwait(false);
+                                await this.PaginateAsync(req, eventargs.Emoji).ConfigureAwait(false);
                             }
                             else
                             {
@@ -132,13 +132,13 @@ namespace DSharpPlus.Interactivity.EventHandling
                                  eventargs.Emoji == emojis.SkipRight ||
                                  eventargs.Emoji == emojis.Stop))
                             {
-                                await PaginateAsync(req, eventargs.Emoji).ConfigureAwait(false);
+                                await this.PaginateAsync(req, eventargs.Emoji).ConfigureAwait(false);
                             }
                             else if (eventargs.Emoji == emojis.Stop &&
                                      req is PaginationRequest paginationRequest &&
                                      paginationRequest.PaginationDeletion == PaginationDeletion.DeleteMessage)
                             {
-                                await PaginateAsync(req, eventargs.Emoji).ConfigureAwait(false);
+                                await this.PaginateAsync(req, eventargs.Emoji).ConfigureAwait(false);
                             }
                         }
                     }
@@ -161,7 +161,7 @@ namespace DSharpPlus.Interactivity.EventHandling
 
                     if (msg.Id == eventargs.Message.Id)
                     {
-                        await ResetReactionsAsync(req).ConfigureAwait(false);
+                        await this.ResetReactionsAsync(req).ConfigureAwait(false);
                     }
                 }
             });

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 
 namespace DSharpPlus.CommandsNext.Exceptions
@@ -30,7 +30,7 @@ namespace DSharpPlus.CommandsNext.Exceptions
             this.Method = method;
             this.Parameter = parameter;
         }
-        
+
         /// <summary>
         /// Creates a new <see cref="InvalidOverloadException"/>.
         /// </summary>
@@ -47,10 +47,9 @@ namespace DSharpPlus.CommandsNext.Exceptions
         public override string ToString()
         {
             // much like System.ArgumentNullException works
-            if (this.Parameter == null)
-                return $"{this.GetType()}: {this.Message}\nMethod: {this.Method} (declared in {this.Method.DeclaringType})";
-            else
-                return $"{this.GetType()}: {this.Message}\nMethod: {this.Method} (declared in {this.Method.DeclaringType})\nArgument: {this.Parameter.ParameterType} {this.Parameter.Name}";
+            return this.Parameter == null
+                ? $"{this.GetType()}: {this.Message}\nMethod: {this.Method} (declared in {this.Method.DeclaringType})"
+                : $"{this.GetType()}: {this.Message}\nMethod: {this.Method} (declared in {this.Method.DeclaringType})\nArgument: {this.Parameter.ParameterType} {this.Parameter.Name}";
         }
     }
 }

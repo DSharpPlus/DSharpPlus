@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
 {
@@ -35,12 +35,12 @@ namespace DSharpPlus.Entities
         {
             this.ChannelId = channelId;
             this.Description = description;
-            if(emoji != null)
+            if (emoji != null)
             {
                 if (emoji.Id == 0)
-                    EmojiName = emoji.Name;
+                    this.EmojiName = emoji.Name;
                 else
-                    EmojiId = emoji.Id;
+                    this.EmojiId = emoji.Id;
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace DSharpPlus.CommandsNext
@@ -9,7 +9,7 @@ namespace DSharpPlus.CommandsNext
         /// Gets this argument's name.
         /// </summary>
         public string Name { get; internal set; }
-        
+
         /// <summary>
         /// Gets this argument's type.
         /// </summary>

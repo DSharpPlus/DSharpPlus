@@ -1,4 +1,4 @@
-﻿namespace DSharpPlus.VoiceNext
+namespace DSharpPlus.VoiceNext
 {
     /// <summary>
     /// VoiceNext client configuration.

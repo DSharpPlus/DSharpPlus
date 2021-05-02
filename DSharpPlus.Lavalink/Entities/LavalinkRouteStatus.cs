@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Lavalink.Entities
@@ -10,7 +10,7 @@ namespace DSharpPlus.Lavalink.Entities
         /// </summary>
         [JsonIgnore]
         public LavalinkRoutePlannerType? Class
-            => this.GetLavalinkRoutePlannerType(_class);
+            => this.GetLavalinkRoutePlannerType(this._class);
 
         /// <summary>
         /// Gets the details of the route planner.
@@ -23,23 +23,14 @@ namespace DSharpPlus.Lavalink.Entities
 
         private LavalinkRoutePlannerType? GetLavalinkRoutePlannerType(string type)
         {
-            switch(type)
+            return type switch
             {
-                case "RotatingIpRoutePlanner":
-                    return LavalinkRoutePlannerType.RotatingIpRoutePlanner;
-
-                case "BalancingIpRoutePlanner":
-                    return LavalinkRoutePlannerType.BalancingIpRoutePlanner;
-
-                case "NanoIpRoutePlanner":
-                    return LavalinkRoutePlannerType.NanoIpRoutePlanner;
-
-                case "RotatingNanoIpRoutePlanner":
-                    return LavalinkRoutePlannerType.RotatingNanoIpRoutePlanner;
-
-                default:
-                    return null;
-            }
+                "RotatingIpRoutePlanner" => LavalinkRoutePlannerType.RotatingIpRoutePlanner,
+                "BalancingIpRoutePlanner" => LavalinkRoutePlannerType.BalancingIpRoutePlanner,
+                "NanoIpRoutePlanner" => LavalinkRoutePlannerType.NanoIpRoutePlanner,
+                "RotatingNanoIpRoutePlanner" => LavalinkRoutePlannerType.RotatingNanoIpRoutePlanner,
+                _ => null,
+            };
         }
     }
 

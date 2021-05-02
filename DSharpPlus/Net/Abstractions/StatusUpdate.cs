@@ -1,4 +1,4 @@
-﻿using DSharpPlus.Entities;
+using DSharpPlus.Entities;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Abstractions
@@ -31,23 +31,14 @@ namespace DSharpPlus.Net.Abstractions
         {
             get
             {
-                switch (this.Status)
+                return this.Status switch
                 {
-                    case UserStatus.Online:
-                        return "online";
-                        
-                    case UserStatus.Idle:
-                        return "idle";
-
-                    case UserStatus.DoNotDisturb:
-                        return "dnd";
-
-                    case UserStatus.Invisible:
-                    case UserStatus.Offline:
-                        return "invisible";
-                }
-
-                return "online";
+                    UserStatus.Online => "online",
+                    UserStatus.Idle => "idle",
+                    UserStatus.DoNotDisturb => "dnd",
+                    UserStatus.Invisible or UserStatus.Offline => "invisible",
+                    _ => "online",
+                };
             }
         }
 

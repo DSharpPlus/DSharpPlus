@@ -1,12 +1,12 @@
-﻿using System.Collections.Generic;
-using DSharpPlus.Entities;
-using System.Threading.Tasks;
-using DSharpPlus.Net.Abstractions;
-using System.IO;
-using System.Collections.ObjectModel;
-using System.Linq;
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
+using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Models;
 
 namespace DSharpPlus
@@ -36,7 +36,7 @@ namespace DSharpPlus
             await base.InitializeAsync().ConfigureAwait(false);
             _guilds_lazy = new Lazy<IReadOnlyDictionary<ulong, DiscordGuild>>(() => new ReadOnlyDictionary<ulong, DiscordGuild>(_guilds));
             var gs = await this.ApiClient.GetCurrentUserGuildsAsync(100, null, null).ConfigureAwait(false);
-            foreach (DiscordGuild g in gs)
+            foreach (var g in gs)
             {
                 _guilds[g.Id] = g;
             }
@@ -351,10 +351,9 @@ namespace DSharpPlus
         /// <returns></returns>
         public Task<DiscordChannel> CreateGuildChannelAsync(ulong id, string name, ChannelType type, ulong? parent, Optional<string> topic, int? bitrate, int? userLimit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, Optional<int?> perUserRateLimit, string reason)
         {
-            if (type != ChannelType.Category && type != ChannelType.Text && type != ChannelType.Voice && type != ChannelType.News && type != ChannelType.Store && type != ChannelType.Stage)
-                throw new ArgumentException("Channel type must be text, voice, stage, or category.", nameof(type));
-
-            return this.ApiClient.CreateGuildChannelAsync(id, name, type, parent, topic, bitrate, userLimit, overwrites, nsfw, perUserRateLimit, reason);
+            return type != ChannelType.Category && type != ChannelType.Text && type != ChannelType.Voice && type != ChannelType.News && type != ChannelType.Store && type != ChannelType.Stage
+                ? throw new ArgumentException("Channel type must be text, voice, stage, or category.", nameof(type))
+                : this.ApiClient.CreateGuildChannelAsync(id, name, type, parent, topic, bitrate, userLimit, overwrites, nsfw, perUserRateLimit, reason);
         }
 
         /// <summary>
@@ -626,7 +625,7 @@ namespace DSharpPlus
         /// <param name="nickname">Dm nickname</param>
         /// <returns></returns>
         public Task JoinGroupDmAsync(ulong channel_id, string nickname)
-            => this.ApiClient.AddGroupDmRecipientAsync(channel_id, CurrentUser.Id, Configuration.Token, nickname);
+            => this.ApiClient.AddGroupDmRecipientAsync(channel_id, this.CurrentUser.Id, this.Configuration.Token, nickname);
 
         /// <summary>
         /// Adds a member to a group DM
@@ -645,7 +644,7 @@ namespace DSharpPlus
         /// <param name="channel_id">Channel id</param>
         /// <returns></returns>
         public Task LeaveGroupDmAsync(ulong channel_id)
-            => this.ApiClient.RemoveGroupDmRecipientAsync(channel_id, CurrentUser.Id);
+            => this.ApiClient.RemoveGroupDmRecipientAsync(channel_id, this.CurrentUser.Id);
 
         /// <summary>
         /// Removes a member from a group DM
@@ -867,7 +866,7 @@ namespace DSharpPlus
         /// <param name="reason">Why this role was modified</param>
         /// <returns></returns>
         public Task<DiscordRole> ModifyGuildRoleAsync(ulong guild_id, ulong role_id, string name, Permissions? permissions, DiscordColor? color, bool? hoist, bool? mentionable, string reason)
-            => this.ApiClient.ModifyGuildRoleAsync(guild_id, role_id, name, permissions, (color.HasValue? (int?)color.Value.Value : null), hoist, mentionable, reason);
+            => this.ApiClient.ModifyGuildRoleAsync(guild_id, role_id, name, permissions, color.HasValue ? (int?)color.Value.Value : null, hoist, mentionable, reason);
 
         /// <summary>
         /// Modifies a role
@@ -881,7 +880,7 @@ namespace DSharpPlus
             var mdl = new RoleEditModel();
             action(mdl);
 
-            return ModifyGuildRoleAsync(guild_id, role_id, mdl.Name, mdl.Permissions, mdl.Color, mdl.Hoist, mdl.Mentionable, mdl.AuditLogReason);
+            return this.ModifyGuildRoleAsync(guild_id, role_id, mdl.Name, mdl.Permissions, mdl.Color, mdl.Hoist, mdl.Mentionable, mdl.AuditLogReason);
         }
 
         /// <summary>

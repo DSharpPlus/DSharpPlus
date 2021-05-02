@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -64,7 +64,7 @@ namespace DSharpPlus.CommandsNext
         /// <returns>The module, or null if not activated.</returns>
         public static CommandsNextExtension GetCommandsNext(this DiscordClient client)
             => client.GetExtension<CommandsNextExtension>();
-        
+
 
         /// <summary>
         /// Gets the active CommandsNext modules for all shards in this client.
@@ -74,7 +74,7 @@ namespace DSharpPlus.CommandsNext
         public static async Task<IReadOnlyDictionary<int, CommandsNextExtension>> GetCommandsNextAsync(this DiscordShardedClient client)
         {
             await client.InitializeShardsAsync().ConfigureAwait(false);
-            var extensions = new Dictionary<int, CommandsNextExtension>();            
+            var extensions = new Dictionary<int, CommandsNextExtension>();
 
             foreach (var shard in client.ShardClients.Select(xkvp => xkvp.Value))
             {

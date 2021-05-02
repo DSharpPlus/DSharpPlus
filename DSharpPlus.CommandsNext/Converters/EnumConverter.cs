@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
@@ -14,10 +14,9 @@ namespace DSharpPlus.CommandsNext.Converters
             if (!ti.IsEnum)
                 throw new InvalidOperationException("Cannot convert non-enum value to an enum.");
 
-            if (Enum.TryParse(value, !ctx.Config.CaseSensitive, out T ev))
-                return Task.FromResult(Optional.FromValue(ev));
-
-            return Task.FromResult(Optional.FromNoValue<T>());
+            return Enum.TryParse(value, !ctx.Config.CaseSensitive, out T ev)
+                ? Task.FromResult(Optional.FromValue(ev))
+                : Task.FromResult(Optional.FromNoValue<T>());
         }
     }
 }

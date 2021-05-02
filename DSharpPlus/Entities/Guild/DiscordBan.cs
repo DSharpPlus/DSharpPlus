@@ -1,4 +1,4 @@
-﻿using DSharpPlus.Net.Abstractions;
+using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
@@ -13,7 +13,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("reason", NullValueHandling = NullValueHandling.Ignore)]
         public string Reason { get; internal set; }
-        
+
         /// <summary>
         /// Gets the banned user
         /// </summary>

@@ -1,4 +1,4 @@
-﻿using DSharpPlus.Entities;
+using DSharpPlus.Entities;
 
 namespace DSharpPlus.EventArgs
 {
@@ -20,7 +20,7 @@ namespace DSharpPlus.EventArgs
         /// DM channels in which no prior messages were received or sent.
         /// </remarks>
         public DiscordChannel Channel
-            => Message.Channel;
+            => this.Message.Channel;
 
         /// <summary>
         /// Gets the user who created the reaction.

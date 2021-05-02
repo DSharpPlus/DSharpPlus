@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Reflection;
 using DSharpPlus.Net.Serialization;
@@ -24,7 +24,7 @@ namespace DSharpPlus.Entities
         /// <typeparam name="T">Type of the value.</typeparam>
         /// <returns>Created optional.</returns>
         public static Optional<T> FromValue<T>(T value)
-            => new Optional<T>(value);
+            => new(value);
 
         /// <summary>
         /// Creates a new empty <see cref="Optional{T}"/> with no value and invalid state.
@@ -34,14 +34,14 @@ namespace DSharpPlus.Entities
         public static Optional<T> FromNoValue<T>()
             => default;
     }
-    
+
     // used internally to make serialization more convenient, do NOT change this, do NOT implement this yourself
     internal interface IOptional
     {
         bool HasValue { get; }
         object RawValue { get; } // must NOT throw InvalidOperationException
     }
-    
+
     /// <summary>
     /// Represents a wrapper which may or may not have a value.
     /// </summary>
@@ -77,10 +77,7 @@ namespace DSharpPlus.Entities
         /// Returns a string representation of this optional value.
         /// </summary>
         /// <returns>String representation of this optional value.</returns>
-        public override string ToString()
-        {
-            return $"Optional<{typeof(T)}> ({(this.HasValue ? this.Value.ToString() : "<no value>")})";
-        }
+        public override string ToString() => $"Optional<{typeof(T)}> ({(this.HasValue ? this.Value.ToString() : "<no value>")})";
 
         /// <summary>
         /// Checks whether this <see cref="Optional{T}"/> (or its value) are equal to another object.
@@ -89,15 +86,12 @@ namespace DSharpPlus.Entities
         /// <returns>Whether the object is equal to this <see cref="Optional{T}"/> or its value.</returns>
         public override bool Equals(object obj)
         {
-            switch (obj)
+            return obj switch
             {
-                case T t:
-                    return this.Equals(t);
-                case Optional<T> opt:
-                    return this.Equals(opt);
-                default:
-                    return false;
-            }
+                T t => this.Equals(t),
+                Optional<T> opt => this.Equals(opt),
+                _ => false,
+            };
         }
 
         /// <summary>
@@ -107,10 +101,7 @@ namespace DSharpPlus.Entities
         /// <returns>Whether the <see cref="Optional{T}"/> is equal to this <see cref="Optional{T}"/>.</returns>
         public bool Equals(Optional<T> e)
         {
-            if (!this.HasValue && !e.HasValue)
-                return true;
-
-            return this.HasValue == e.HasValue && this.Value.Equals(e.Value);
+            return !this.HasValue && !e.HasValue ? true : this.HasValue == e.HasValue && this.Value.Equals(e.Value);
         }
 
         /// <summary>
@@ -118,32 +109,32 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="e">Object to compare to.</param>
         /// <returns>Whether the object is equal to the value of this <see cref="Optional{T}"/>.</returns>
-        public bool Equals(T e) 
+        public bool Equals(T e)
             => this.HasValue && ReferenceEquals(this.Value, e);
 
         /// <summary>
         /// Gets the hash code for this <see cref="Optional{T}"/>.
         /// </summary>
         /// <returns>The hash code for this <see cref="Optional{T}"/>.</returns>
-        public override int GetHashCode() 
+        public override int GetHashCode()
             => this.HasValue ? this.Value.GetHashCode() : 0;
 
-        public static implicit operator Optional<T>(T val) 
-            => new Optional<T>(val);
+        public static implicit operator Optional<T>(T val)
+            => new(val);
 
-        public static explicit operator T(Optional<T> opt) 
+        public static explicit operator T(Optional<T> opt)
             => opt.Value;
 
-        public static bool operator ==(Optional<T> opt1, Optional<T> opt2) 
+        public static bool operator ==(Optional<T> opt1, Optional<T> opt2)
             => opt1.Equals(opt2);
 
-        public static bool operator !=(Optional<T> opt1, Optional<T> opt2) 
+        public static bool operator !=(Optional<T> opt1, Optional<T> opt2)
             => !opt1.Equals(opt2);
 
-        public static bool operator ==(Optional<T> opt, T t) 
+        public static bool operator ==(Optional<T> opt, T t)
             => opt.Equals(t);
 
-        public static bool operator !=(Optional<T> opt, T t) 
+        public static bool operator !=(Optional<T> opt, T t)
             => !opt.Equals(t);
 
         /// <summary>
@@ -158,12 +149,9 @@ namespace DSharpPlus.Entities
         /// <see cref="Optional{T}"/> contains a value; otherwise, an empty <see cref="Optional{T}"/> of the target
         /// type.
         /// </returns>
-        public Optional<TTarget> IfPresent<TTarget>(Func<T, TTarget> mapper)
-        {
-            return HasValue ? new Optional<TTarget>(mapper(Value)) : default;
-        }
+        public Optional<TTarget> IfPresent<TTarget>(Func<T, TTarget> mapper) => this.HasValue ? new Optional<TTarget>(mapper(this.Value)) : default;
     }
-    
+
     /// <seealso cref="DiscordJson.Serializer"/>
     internal sealed class OptionalJsonContractResolver : DefaultContractResolver
     {
@@ -172,7 +160,7 @@ namespace DSharpPlus.Entities
             var property = base.CreateProperty(member, memberSerialization);
 
             var type = property.PropertyType;
-            
+
             if (!type.GetTypeInfo().ImplementedInterfaces.Contains(typeof(IOptional)))
                 return property;
 
@@ -181,7 +169,7 @@ namespace DSharpPlus.Entities
             // we use UnderlyingName instead of PropertyName in case the C# name is different from the Json name.
             var declaringMember = property.DeclaringType.GetTypeInfo().DeclaredMembers
                 .FirstOrDefault(e => e.Name == property.UnderlyingName);
-            
+
             switch (declaringMember)
             {
                 case PropertyInfo declaringProp:
@@ -237,9 +225,6 @@ namespace DSharpPlus.Entities
             return constructor.Invoke(new[] { serializer.Deserialize(reader, genericType) });
         }
 
-        public override bool CanConvert(Type objectType)
-        {
-            return objectType.GetTypeInfo().ImplementedInterfaces.Contains(typeof(IOptional));
-        }
+        public override bool CanConvert(Type objectType) => objectType.GetTypeInfo().ImplementedInterfaces.Contains(typeof(IOptional));
     }
 }

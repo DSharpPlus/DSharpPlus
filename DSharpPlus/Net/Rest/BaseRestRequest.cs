@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -76,16 +76,16 @@ namespace DSharpPlus.Net
         /// Asynchronously waits for this request to complete.
         /// </summary>
         /// <returns>HTTP response to this request.</returns>
-        public Task<RestResponse> WaitForCompletionAsync() 
+        public Task<RestResponse> WaitForCompletionAsync()
             => this.RequestTaskSource.Task;
 
-        protected internal void SetCompleted(RestResponse response) 
+        protected internal void SetCompleted(RestResponse response)
             => this.RequestTaskSource.SetResult(response);
 
-        protected internal void SetFaulted(Exception ex) 
+        protected internal void SetFaulted(Exception ex)
             => this.RequestTaskSource.SetException(ex);
 
-        protected internal bool TrySetFaulted(Exception ex) 
+        protected internal bool TrySetFaulted(Exception ex)
             => this.RequestTaskSource.TrySetException(ex);
 
     }

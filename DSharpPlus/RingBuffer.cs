@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,13 +24,13 @@ namespace DSharpPlus
         /// <summary>
         /// Gets the number of items in this ring buffer.
         /// </summary>
-        public int Count 
+        public int Count
             => this._reached_end ? this.Capacity : this.CurrentIndex;
 
         /// <summary>
         /// Gets whether this ring buffer is read-only.
         /// </summary>
-        public bool IsReadOnly 
+        public bool IsReadOnly
             => false;
 
         /// <summary>
@@ -124,7 +124,7 @@ namespace DSharpPlus
                 }
             }
 
-            item = default(T);
+            item = default;
             return false;
         }
 
@@ -134,7 +134,7 @@ namespace DSharpPlus
         public void Clear()
         {
             for (var i = 0; i < this.InternalBuffer.Length; i++)
-                this.InternalBuffer[i] = default(T);
+                this.InternalBuffer[i] = default;
 
             this.CurrentIndex = 0;
         }
@@ -145,20 +145,14 @@ namespace DSharpPlus
         /// <param name="item">Item to check for.</param>
         /// <returns>Whether the buffer contains the item.</returns>
         /// <exception cref="NotImplementedException" />
-        public bool Contains(T item)
-        {
-            throw new NotImplementedException("This method is not implemented. Use .Contains(predicate) instead.");
-        }
+        public bool Contains(T item) => throw new NotImplementedException("This method is not implemented. Use .Contains(predicate) instead.");
 
         /// <summary>
         /// Checks whether given item is present in the buffer using given predicate to find it.
         /// </summary>
         /// <param name="predicate">Predicate used to check for the item.</param>
         /// <returns>Whether the buffer contains the item.</returns>
-        public bool Contains(Func<T, bool> predicate)
-        {
-            return this.InternalBuffer.Any(predicate);
-        }
+        public bool Contains(Func<T, bool> predicate) => this.InternalBuffer.Any(predicate);
 
         /// <summary>
         /// Copies this ring buffer to target array, attempting to maintain the order of items within.
@@ -182,10 +176,7 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="item">Item to remove.</param>
         /// <returns>Whether an item was removed or not.</returns>
-        public bool Remove(T item)
-        {
-            throw new NotImplementedException("This method is not implemented. Use .Remove(predicate) instead.");
-        }
+        public bool Remove(T item) => throw new NotImplementedException("This method is not implemented. Use .Remove(predicate) instead.");
 
         /// <summary>
         /// Removes an item from the buffer using given predicate to find it.
@@ -198,7 +189,7 @@ namespace DSharpPlus
             {
                 if (this.InternalBuffer[i] != null && predicate(this.InternalBuffer[i]))
                 {
-                    this.InternalBuffer[i] = default(T);
+                    this.InternalBuffer[i] = default;
                     return true;
                 }
             }
@@ -212,10 +203,9 @@ namespace DSharpPlus
         /// <returns>Enumerator for this ring buffer.</returns>
         public IEnumerator<T> GetEnumerator()
         {
-            if (!this._reached_end)
-                return this.InternalBuffer.AsEnumerable().GetEnumerator();
-
-            return this.InternalBuffer.Skip(this.CurrentIndex)
+            return !this._reached_end
+                ? this.InternalBuffer.AsEnumerable().GetEnumerator()
+                : this.InternalBuffer.Skip(this.CurrentIndex)
                 .Concat(this.InternalBuffer.Take(this.CurrentIndex))
                 .GetEnumerator();
         }
@@ -224,9 +214,6 @@ namespace DSharpPlus
         /// Returns an enumerator for this ring buffer.
         /// </summary>
         /// <returns>Enumerator for this ring buffer.</returns>
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return this.GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
     }
 }

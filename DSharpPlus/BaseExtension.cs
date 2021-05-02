@@ -1,4 +1,4 @@
-﻿namespace DSharpPlus
+namespace DSharpPlus
 {
     /// <summary>
     /// Represents base for all DSharpPlus extensions. To implement your own extension, extend this class, and implement its abstract members.

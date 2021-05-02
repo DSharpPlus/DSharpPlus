@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -47,19 +47,19 @@ namespace DSharpPlus.Interactivity.EventHandling
             var handler = tinfo.DeclaredFields.First(x => x.FieldType == typeof(AsyncEvent<DiscordClient, MessageReactionAddEventArgs>));
 
             this._reactionAddEvent = (AsyncEvent<DiscordClient, MessageReactionAddEventArgs>)handler.GetValue(_client);
-            this._reactionAddHandler = new AsyncEventHandler<DiscordClient, MessageReactionAddEventArgs>(HandleReactionAdd);
+            this._reactionAddHandler = new AsyncEventHandler<DiscordClient, MessageReactionAddEventArgs>(this.HandleReactionAdd);
             this._reactionAddEvent.Register(_reactionAddHandler);
 
             handler = tinfo.DeclaredFields.First(x => x.FieldType == typeof(AsyncEvent<DiscordClient, MessageReactionRemoveEventArgs>));
 
             this._reactionRemoveEvent = (AsyncEvent<DiscordClient, MessageReactionRemoveEventArgs>)handler.GetValue(_client);
-            this._reactionRemoveHandler = new AsyncEventHandler<DiscordClient, MessageReactionRemoveEventArgs>(HandleReactionRemove);
+            this._reactionRemoveHandler = new AsyncEventHandler<DiscordClient, MessageReactionRemoveEventArgs>(this.HandleReactionRemove);
             this._reactionRemoveEvent.Register(_reactionRemoveHandler);
 
             handler = tinfo.DeclaredFields.First(x => x.FieldType == typeof(AsyncEvent<DiscordClient, MessageReactionsClearEventArgs>));
 
             this._reactionClearEvent = (AsyncEvent<DiscordClient, MessageReactionsClearEventArgs>)handler.GetValue(_client);
-            this._reactionClearHandler = new AsyncEventHandler<DiscordClient, MessageReactionsClearEventArgs>(HandleReactionClear);
+            this._reactionClearHandler = new AsyncEventHandler<DiscordClient, MessageReactionsClearEventArgs>(this.HandleReactionClear);
             this._reactionClearEvent.Register(_reactionClearHandler);
         }
 
@@ -88,7 +88,7 @@ namespace DSharpPlus.Interactivity.EventHandling
         private Task HandleReactionAdd(DiscordClient client, MessageReactionAddEventArgs eventargs)
         {
             // foreach request add
-            foreach(var req in _requests)
+            foreach (var req in _requests)
             {
                 if (req.message.Id == eventargs.Message.Id)
                 {
@@ -119,7 +119,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             {
                 if (req.message.Id == eventargs.Message.Id)
                 {
-                    if(req._collected.Any(x => x.Emoji == eventargs.Emoji && x.Users.Any(y => y.Id == eventargs.User.Id)))
+                    if (req._collected.Any(x => x.Emoji == eventargs.Emoji && x.Users.Any(y => y.Id == eventargs.User.Id)))
                     {
                         var reaction = req._collected.First(x => x.Emoji == eventargs.Emoji && x.Users.Any(y => y.Id == eventargs.User.Id));
                         req._collected.TryRemove(reaction);
@@ -211,6 +211,6 @@ namespace DSharpPlus.Interactivity.EventHandling
     {
         public DiscordEmoji Emoji { get; internal set; }
         public ConcurrentHashSet<DiscordUser> Users { get; internal set; }
-        public int Total { get { return Users.Count; } }
+        public int Total => this.Users.Count;
     }
 }

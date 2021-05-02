@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.EventArgs
@@ -21,19 +21,19 @@ namespace DSharpPlus.EventArgs
         /// <summary>
         /// Gets the channel this message belongs to.
         /// </summary>
-        public DiscordChannel Channel 
+        public DiscordChannel Channel
             => this.Message.Channel;
 
         /// <summary>
         /// Gets the guild this message belongs to.
         /// </summary>
-        public DiscordGuild Guild 
+        public DiscordGuild Guild
             => this.Channel.Guild;
 
         /// <summary>
         /// Gets the author of the message.
         /// </summary>
-        public DiscordUser Author 
+        public DiscordUser Author
             => this.Message.Author;
 
         /// <summary>

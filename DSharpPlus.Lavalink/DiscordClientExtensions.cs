@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -93,14 +93,13 @@ namespace DSharpPlus.Lavalink
             if (channel.Type != ChannelType.Voice && channel.Type != ChannelType.Stage)
                 throw new InvalidOperationException("You can only connect to voice and stage channels.");
 
-            if (!(channel.Discord is DiscordClient discord) || discord == null)
+            if (channel.Discord is not DiscordClient discord || discord == null)
                 throw new NullReferenceException();
 
             var lava = discord.GetLavalink();
-            if (lava == null)
-                throw new InvalidOperationException("Lavalink is not initialized for this Discord client.");
-
-            return node.ConnectAsync(channel);
+            return lava == null
+                ? throw new InvalidOperationException("Lavalink is not initialized for this Discord client.")
+                : node.ConnectAsync(channel);
         }
     }
 }

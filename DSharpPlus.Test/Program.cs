@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -43,7 +43,7 @@ namespace DSharpPlus.Test
                 tskl.Add(bot.RunAsync());
                 await Task.Delay(7500).ConfigureAwait(false);
             }
-            
+
             await Task.WhenAll(tskl).ConfigureAwait(false);
 
             try

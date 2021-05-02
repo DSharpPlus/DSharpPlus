@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
@@ -34,7 +34,7 @@ namespace DSharpPlus.Lavalink
             add { this._lavalinkSocketError.Register(value); }
             remove { this._lavalinkSocketError.Unregister(value); }
         }
-        private AsyncEvent<LavalinkNodeConnection, SocketErrorEventArgs> _lavalinkSocketError;
+        private readonly AsyncEvent<LavalinkNodeConnection, SocketErrorEventArgs> _lavalinkSocketError;
 
         /// <summary>
         /// Triggered when this node disconnects.
@@ -44,7 +44,7 @@ namespace DSharpPlus.Lavalink
             add { this._disconnected.Register(value); }
             remove { this._disconnected.Unregister(value); }
         }
-        private AsyncEvent<LavalinkNodeConnection, NodeDisconnectedEventArgs> _disconnected;
+        private readonly AsyncEvent<LavalinkNodeConnection, NodeDisconnectedEventArgs> _disconnected;
 
         /// <summary>
         /// Triggered when this node receives a statistics update.
@@ -54,7 +54,7 @@ namespace DSharpPlus.Lavalink
             add { this._statsReceived.Register(value); }
             remove { this._statsReceived.Unregister(value); }
         }
-        private AsyncEvent<LavalinkNodeConnection, StatisticsReceivedEventArgs> _statsReceived;
+        private readonly AsyncEvent<LavalinkNodeConnection, StatisticsReceivedEventArgs> _statsReceived;
 
         /// <summary>
         /// Triggered whenever any of the players on this node is updated.
@@ -64,7 +64,7 @@ namespace DSharpPlus.Lavalink
             add { this._playerUpdated.Register(value); }
             remove { this._playerUpdated.Unregister(value); }
         }
-        private AsyncEvent<LavalinkGuildConnection, PlayerUpdateEventArgs> _playerUpdated;
+        private readonly AsyncEvent<LavalinkGuildConnection, PlayerUpdateEventArgs> _playerUpdated;
 
         /// <summary>
         /// Triggered whenever playback of a track starts.
@@ -75,7 +75,7 @@ namespace DSharpPlus.Lavalink
             add { this._playbackStarted.Register(value); }
             remove { this._playbackStarted.Unregister(value); }
         }
-        private AsyncEvent<LavalinkGuildConnection, TrackStartEventArgs> _playbackStarted;
+        private readonly AsyncEvent<LavalinkGuildConnection, TrackStartEventArgs> _playbackStarted;
 
         /// <summary>
         /// Triggered whenever playback of a track finishes.
@@ -85,7 +85,7 @@ namespace DSharpPlus.Lavalink
             add { this._playbackFinished.Register(value); }
             remove { this._playbackFinished.Unregister(value); }
         }
-        private AsyncEvent<LavalinkGuildConnection, TrackFinishEventArgs> _playbackFinished;
+        private readonly AsyncEvent<LavalinkGuildConnection, TrackFinishEventArgs> _playbackFinished;
 
         /// <summary>
         /// Triggered whenever playback of a track gets stuck.
@@ -95,7 +95,7 @@ namespace DSharpPlus.Lavalink
             add { this._trackStuck.Register(value); }
             remove { this._trackStuck.Unregister(value); }
         }
-        private AsyncEvent<LavalinkGuildConnection, TrackStuckEventArgs> _trackStuck;
+        private readonly AsyncEvent<LavalinkGuildConnection, TrackStuckEventArgs> _trackStuck;
 
         /// <summary>
         /// Triggered whenever playback of a track encounters an error.
@@ -105,7 +105,7 @@ namespace DSharpPlus.Lavalink
             add { this._trackException.Register(value); }
             remove { this._trackException.Unregister(value); }
         }
-        private AsyncEvent<LavalinkGuildConnection, TrackExceptionEventArgs> _trackException;
+        private readonly AsyncEvent<LavalinkGuildConnection, TrackExceptionEventArgs> _trackException;
 
         /// <summary>
         /// Gets the remote endpoint of this Lavalink node connection.
@@ -130,7 +130,7 @@ namespace DSharpPlus.Lavalink
         /// Gets a dictionary of Lavalink guild connections for this node.
         /// </summary>
         public IReadOnlyDictionary<ulong, LavalinkGuildConnection> ConnectedGuilds { get; }
-        internal ConcurrentDictionary<ulong, LavalinkGuildConnection> _connectedGuilds = new ConcurrentDictionary<ulong, LavalinkGuildConnection>();
+        internal ConcurrentDictionary<ulong, LavalinkGuildConnection> _connectedGuilds = new();
 
         /// <summary>
         /// Gets the REST client for this Lavalink connection.
@@ -316,14 +316,14 @@ namespace DSharpPlus.Lavalink
         /// <param name="guild">Guild to get connection for.</param>
         /// <returns>Channel connection, which allows for playback control.</returns>
         public LavalinkGuildConnection GetGuildConnection(DiscordGuild guild)
-            => this._connectedGuilds.TryGetValue(guild.Id, out LavalinkGuildConnection lgc) && lgc.IsConnected ? lgc : null;
+            => this._connectedGuilds.TryGetValue(guild.Id, out var lgc) && lgc.IsConnected ? lgc : null;
 
         internal async Task SendPayloadAsync(LavalinkPayload payload)
             => await this.WsSendAsync(JsonConvert.SerializeObject(payload, Formatting.None)).ConfigureAwait(false);
 
         private async Task WebSocket_OnMessage(IWebSocketClient client, SocketMessageEventArgs e)
         {
-            if (!(e is SocketTextMessageEventArgs et))
+            if (e is not SocketTextMessageEventArgs et)
             {
                 this.Discord.Logger.LogCritical(LavalinkEvents.LavalinkConnectionError, "Lavalink sent binary data - unable to process");
                 return;
@@ -359,7 +359,7 @@ namespace DSharpPlus.Lavalink
                             break;
 
                         case EventType.TrackEndEvent:
-                            TrackEndReason reason = TrackEndReason.Cleanup;
+                            var reason = TrackEndReason.Cleanup;
                             switch (jsonData["reason"].ToString())
                             {
                                 case "FINISHED":

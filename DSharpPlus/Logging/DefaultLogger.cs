@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus
 {
     public class DefaultLogger : ILogger<BaseDiscordClient>
     {
-        private static readonly object _lock = new object();
+        private static readonly object _lock = new();
 
         private LogLevel MinimumLevel { get; }
         private string TimestampFormat { get; }
@@ -58,16 +58,16 @@ namespace DSharpPlus
                         Console.ForegroundColor = ConsoleColor.Black;
                         break;
                 }
-                Console.Write(logLevel switch 
+                Console.Write(logLevel switch
                 {
-                    LogLevel.Trace =>       "[Trace] ",
-                    LogLevel.Debug =>       "[Debug] ",
+                    LogLevel.Trace => "[Trace] ",
+                    LogLevel.Debug => "[Debug] ",
                     LogLevel.Information => "[Info ] ",
-                    LogLevel.Warning =>     "[Warn ] ",
-                    LogLevel.Error =>       "[Error] ",
-                    LogLevel.Critical =>    "[Crit ]",
-                    LogLevel.None =>        "[None ] ",
-                    _ =>                    "[?????] "
+                    LogLevel.Warning => "[Warn ] ",
+                    LogLevel.Error => "[Error] ",
+                    LogLevel.Critical => "[Crit ]",
+                    LogLevel.None => "[None ] ",
+                    _ => "[?????] "
                 });
                 Console.ResetColor();
 
@@ -85,9 +85,6 @@ namespace DSharpPlus
         public bool IsEnabled(LogLevel logLevel)
             => logLevel >= this.MinimumLevel;
 
-        public IDisposable BeginScope<TState>(TState state)
-        {
-            throw new NotImplementedException();
-        }
+        public IDisposable BeginScope<TState>(TState state) => throw new NotImplementedException();
     }
 }

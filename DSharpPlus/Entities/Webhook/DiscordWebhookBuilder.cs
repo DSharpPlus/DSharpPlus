@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -16,12 +16,12 @@ namespace DSharpPlus.Entities
         /// Username to use for this webhook request.
         /// </summary>
         public Optional<string> Username { get; set; }
-        
+
         /// <summary>
         /// Avatar url to use for this webhook request.
         /// </summary>
         public Optional<string> AvatarUrl { get; set; }
-        
+
         /// <summary>
         /// Whether this webhook request is text-to-speech.
         /// </summary>
@@ -41,25 +41,25 @@ namespace DSharpPlus.Entities
             }
         }
         private string _content;
-        
+
         /// <summary>
         /// Embeds to send on this webhook request.
         /// </summary>
         public IReadOnlyList<DiscordEmbed> Embeds { get; }
-        private readonly List<DiscordEmbed> _embeds = new List<DiscordEmbed>();
+        private readonly List<DiscordEmbed> _embeds = new();
 
         /// <summary>
         /// Files to send on this webhook request.
         /// </summary>
         public IReadOnlyCollection<DiscordMessageFile> Files => this._files;
 
-        internal readonly List<DiscordMessageFile> _files = new List<DiscordMessageFile>();
+        internal readonly List<DiscordMessageFile> _files = new();
 
         /// <summary>
         /// Mentions to send on this webhook request.
         /// </summary>
         public IEnumerable<IMention> Mentions { get; }
-        private readonly List<IMention> _mentions = new List<IMention>();
+        private readonly List<IMention> _mentions = new();
 
         /// <summary>
         /// Constructs a new empty webhook request builder.
@@ -194,7 +194,7 @@ namespace DSharpPlus.Entities
                 else
                     this._files.Add(new DiscordMessageFile(file.Key, file.Value, null));
             }
-                
+
 
             return this;
         }
@@ -224,10 +224,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="webhook">The webhook that should be executed.</param>
         /// <returns>The message sent</returns>
-        public async Task<DiscordMessage> SendAsync(DiscordWebhook webhook)
-        {
-            return await webhook.ExecuteAsync(this).ConfigureAwait(false);
-        }
+        public async Task<DiscordMessage> SendAsync(DiscordWebhook webhook) => await webhook.ExecuteAsync(this).ConfigureAwait(false);
 
         /// <summary>
         /// Sends the modified webhook message.
@@ -235,20 +232,14 @@ namespace DSharpPlus.Entities
         /// <param name="webhook">The webhook that should be executed.</param>
         /// <param name="message">The message to modify.</param>
         /// <returns>The modified message</returns>
-        public async Task<DiscordMessage> ModifyAsync(DiscordWebhook webhook, DiscordMessage message)
-        {
-            return await this.ModifyAsync(webhook, message.Id).ConfigureAwait(false);
-        }
+        public async Task<DiscordMessage> ModifyAsync(DiscordWebhook webhook, DiscordMessage message) => await this.ModifyAsync(webhook, message.Id).ConfigureAwait(false);
         /// <summary>
         /// Sends the modified webhook message.
         /// </summary>
         /// <param name="webhook">The webhook that should be executed.</param>
         /// <param name="messageId">The id of the message to modify.</param>
         /// <returns>The modified message</returns>
-        public async Task<DiscordMessage> ModifyAsync(DiscordWebhook webhook, ulong messageId)
-        {
-            return await webhook.EditMessageAsync(messageId, this).ConfigureAwait(false);
-        }
+        public async Task<DiscordMessage> ModifyAsync(DiscordWebhook webhook, ulong messageId) => await webhook.EditMessageAsync(messageId, this).ConfigureAwait(false);
 
         /// <summary>
         /// Allows for clearing the Webhook Builder so that it can be used again to send a new message.

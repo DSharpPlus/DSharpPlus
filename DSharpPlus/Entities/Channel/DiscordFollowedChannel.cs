@@ -12,7 +12,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
         public ulong ChannelId { get; internal set; }
-        
+
         /// <summary>
         /// Gets the id of the webhook that posts crossposted messages to the channel.
         /// </summary>

@@ -1,15 +1,15 @@
-﻿using System;
+using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Concurrent;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.WebSocket;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus
 {
@@ -21,7 +21,7 @@ namespace DSharpPlus
         private DateTimeOffset _lastHeartbeat;
         private Task _heartbeatTask;
 
-        internal static DateTimeOffset DiscordEpoch = new DateTimeOffset(2015, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        internal static DateTimeOffset DiscordEpoch = new(2015, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
         private int _skippedHeartbeats = 0;
         private long _lastSequence;
@@ -38,7 +38,7 @@ namespace DSharpPlus
 
         private static ConcurrentDictionary<ulong, SocketLock> SocketLocks { get; } = new ConcurrentDictionary<ulong, SocketLock>();
         private ManualResetEventSlim SessionLock { get; } = new ManualResetEventSlim(true);
-        
+
         #endregion
 
         #region Internal Connection Methods
@@ -131,18 +131,16 @@ namespace DSharpPlus
                 }
                 else if (e is SocketBinaryMessageEventArgs ebin) // :DDDD
                 {
-                    using (var ms = new MemoryStream())
+                    using var ms = new MemoryStream();
+                    if (!this._payloadDecompressor.TryDecompress(new ArraySegment<byte>(ebin.Message), ms))
                     {
-                        if (!this._payloadDecompressor.TryDecompress(new ArraySegment<byte>(ebin.Message), ms))
-                        {
-                            this.Logger.LogError(LoggerEvents.WebSocketReceiveFailure, "Payload decompression failed");
-                            return;
-                        }
-
-                        ms.Position = 0;
-                        using (var sr = new StreamReader(ms, Utilities.UTF8))
-                            msg = await sr.ReadToEndAsync().ConfigureAwait(false);
+                        this.Logger.LogError(LoggerEvents.WebSocketReceiveFailure, "Payload decompression failed");
+                        return;
                     }
+
+                    ms.Position = 0;
+                    using var sr = new StreamReader(ms, Utilities.UTF8);
+                    msg = await sr.ReadToEndAsync().ConfigureAwait(false);
                 }
 
                 try
@@ -165,14 +163,14 @@ namespace DSharpPlus
                 this.ConnectionLock.Set();
                 this.SessionLock.Set();
 
-                if(!this._disposed)
+                if (!this._disposed)
                     this._cancelTokenSource.Cancel();
 
                 this.Logger.LogDebug(LoggerEvents.ConnectionClose, "Connection closed ({0}, '{1}')", e.CloseCode, e.CloseMessage);
                 await this._socketClosed.InvokeAsync(this, e).ConfigureAwait(false);
 
 
-                
+
                 if (this.Configuration.AutoReconnect && (e.CloseCode < 4001 || e.CloseCode >= 5000))
                 {
                     this.Logger.LogCritical(LoggerEvents.ConnectionClose, "Connection terminated ({0}, '{1}'), reconnecting", e.CloseCode, e.CloseMessage);
@@ -234,7 +232,7 @@ namespace DSharpPlus
         internal async Task OnHeartbeatAsync(long seq)
         {
             this.Logger.LogTrace(LoggerEvents.WebSocketReceive, "Received HEARTBEAT (OP1)");
-            await SendHeartbeatAsync(seq).ConfigureAwait(false);
+            await this.SendHeartbeatAsync(seq).ConfigureAwait(false);
         }
 
         internal async Task OnReconnectAsync()
@@ -258,13 +256,13 @@ namespace DSharpPlus
             {
                 this.Logger.LogTrace(LoggerEvents.WebSocketReceive, "Received INVALID_SESSION (OP9, true)");
                 await Task.Delay(6000).ConfigureAwait(false);
-                await SendResumeAsync().ConfigureAwait(false);
+                await this.SendResumeAsync().ConfigureAwait(false);
             }
             else
             {
                 this.Logger.LogTrace(LoggerEvents.WebSocketReceive, "Received INVALID_SESSION (OP9, false)");
                 this._sessionId = null;
-                await SendIdentifyAsync(this._status).ConfigureAwait(false);
+                await this.SendIdentifyAsync(this._status).ConfigureAwait(false);
             }
         }
 
@@ -288,9 +286,9 @@ namespace DSharpPlus
             this._heartbeatTask = Task.Run(this.HeartbeatLoopAsync, this._cancelToken);
 
             if (string.IsNullOrEmpty(this._sessionId))
-                await SendIdentifyAsync(this._status).ConfigureAwait(false);
+                await this.SendIdentifyAsync(this._status).ConfigureAwait(false);
             else
-                await SendResumeAsync().ConfigureAwait(false);
+                await this.SendResumeAsync().ConfigureAwait(false);
         }
 
         internal async Task OnHeartbeatAckAsync()

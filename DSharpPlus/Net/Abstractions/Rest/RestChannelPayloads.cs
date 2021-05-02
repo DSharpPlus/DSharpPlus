@@ -41,7 +41,7 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("position", NullValueHandling = NullValueHandling.Ignore)]
         public int? Position { get; set; }
-        
+
         [JsonProperty("topic")]
         public Optional<string> Topic { get; set; }
 
@@ -71,7 +71,7 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonIgnore]
         public bool HasContent { get; set; }
-        
+
         [JsonProperty("embed", NullValueHandling = NullValueHandling.Include)]
         public DiscordEmbed Embed { get; set; }
 
@@ -81,10 +81,10 @@ namespace DSharpPlus.Net.Abstractions
         [JsonIgnore]
         public bool HasEmbed { get; set; }
 
-        public bool ShouldSerializeContent() 
+        public bool ShouldSerializeContent()
             => this.HasContent;
 
-        public bool ShouldSerializeEmbed() 
+        public bool ShouldSerializeEmbed()
             => this.HasEmbed;
     }
 
@@ -92,7 +92,7 @@ namespace DSharpPlus.Net.Abstractions
     {
         [JsonProperty("tts", NullValueHandling = NullValueHandling.Ignore)]
         public bool? IsTTS { get; set; }
-        
+
         [JsonProperty("message_reference", NullValueHandling = NullValueHandling.Ignore)]
         public InternalDiscordMessageReference? MessageReference { get; set; }
     }
@@ -110,7 +110,7 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("allowed_mentions", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordMentions Mentions { get; set; }
-        
+
         [JsonProperty("message_reference", NullValueHandling = NullValueHandling.Ignore)]
         public InternalDiscordMessageReference? MessageReference { get; set; }
     }

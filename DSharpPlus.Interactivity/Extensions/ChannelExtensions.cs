@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
@@ -19,7 +19,7 @@ namespace DSharpPlus.Interactivity.Extensions
         /// <param name="predicate">A predicate that should return <see langword="true"/> if a message matches.</param>
         /// <param name="timeoutOverride">Overrides the timeout set in <see cref="InteractivityConfiguration.Timeout"/></param>
         /// <exception cref="InvalidOperationException">Thrown if interactivity is not enabled for the client associated with the channel.</exception>
-        public static Task<InteractivityResult<DiscordMessage>> GetNextMessageAsync(this DiscordChannel channel, Func<DiscordMessage, bool> predicate, TimeSpan? timeoutOverride = null) 
+        public static Task<InteractivityResult<DiscordMessage>> GetNextMessageAsync(this DiscordChannel channel, Func<DiscordMessage, bool> predicate, TimeSpan? timeoutOverride = null)
             => GetInteractivity(channel).WaitForMessageAsync(msg => msg.ChannelId == channel.Id && predicate(msg), timeoutOverride);
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace DSharpPlus.Interactivity.Extensions
         /// <param name="user">The target user.</param>
         /// <param name="timeoutOverride">Overrides the timeout set in <see cref="InteractivityConfiguration.Timeout"/></param>
         /// <exception cref="InvalidOperationException">Thrown if interactivity is not enabled for the client associated with the channel.</exception>
-        public static Task<InteractivityResult<TypingStartEventArgs>> WaitForUserTypingAsync(this DiscordChannel channel, DiscordUser user, TimeSpan? timeoutOverride = null) 
+        public static Task<InteractivityResult<TypingStartEventArgs>> WaitForUserTypingAsync(this DiscordChannel channel, DiscordUser user, TimeSpan? timeoutOverride = null)
             => GetInteractivity(channel).WaitForUserTypingAsync(user, channel, timeoutOverride);
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace DSharpPlus.Interactivity.Extensions
         /// <param name="deletion"></param>
         /// <param name="timeoutoverride"></param>
         /// <exception cref="InvalidOperationException">Thrown if interactivity is not enabled for the client associated with the channel.</exception>
-        public static Task SendPaginatedMessageAsync(this DiscordChannel channel, DiscordUser user, IEnumerable<Page> pages, PaginationEmojis emojis = null, PaginationBehaviour? behaviour = default, PaginationDeletion? deletion = default, TimeSpan? timeoutoverride = null) 
+        public static Task SendPaginatedMessageAsync(this DiscordChannel channel, DiscordUser user, IEnumerable<Page> pages, PaginationEmojis emojis = null, PaginationBehaviour? behaviour = default, PaginationDeletion? deletion = default, TimeSpan? timeoutoverride = null)
             => GetInteractivity(channel).SendPaginatedMessageAsync(channel, user, pages, emojis, behaviour, deletion, timeoutoverride);
 
         /// <summary>
@@ -73,9 +73,9 @@ namespace DSharpPlus.Interactivity.Extensions
             var client = (DiscordClient)channel.Discord;
             var interactivity = client.GetInteractivity();
 
-            if (interactivity == null) throw new InvalidOperationException($"Interactivity is not enabled for this {(client._isShard ? "shard" : "client")}.");
-
-            return interactivity;
+            return interactivity == null
+                ? throw new InvalidOperationException($"Interactivity is not enabled for this {(client._isShard ? "shard" : "client")}.")
+                : interactivity;
         }
     }
 }

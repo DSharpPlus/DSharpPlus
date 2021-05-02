@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace DSharpPlus.CommandsNext
@@ -22,7 +22,7 @@ namespace DSharpPlus.CommandsNext
         /// Gets this command overload's delegate.
         /// </summary>
         internal Delegate Callable { get; set; }
-        
+
         internal object InvocationTarget { get; set; }
 
         internal CommandOverload() { }

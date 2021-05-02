@@ -34,7 +34,7 @@ namespace DSharpPlus
         public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => this._underlyingDict.GetEnumerator();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) this._underlyingDict).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)this._underlyingDict).GetEnumerator();
 
         public int Count => this._underlyingDict.Count;
 

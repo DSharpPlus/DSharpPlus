@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using DSharpPlus.Net.Abstractions;
@@ -49,7 +49,7 @@ namespace DSharpPlus.Entities
         /// <param name="obj">Object to compare this team to.</param>
         /// <returns>Whether this team is equal to the given object.</returns>
         public override bool Equals(object obj)
-            => obj is DiscordTeam other ? this == other : false;
+            => obj is DiscordTeam other && this == other;
 
         /// <summary>
         /// Compares this team to another team and returns whether they are equal.
@@ -117,7 +117,7 @@ namespace DSharpPlus.Entities
         /// <param name="obj">Object to compare to.</param>
         /// <returns>Whether this team is equal to given object.</returns>
         public override bool Equals(object obj)
-            => obj is DiscordTeamMember other ? this == other : false;
+            => obj is DiscordTeamMember other && this == other;
 
         /// <summary>
         /// Compares this team member to another team member and returns whether they are equal.
@@ -133,9 +133,9 @@ namespace DSharpPlus.Entities
         /// <returns>Hash code of this team member.</returns>
         public override int GetHashCode()
         {
-            int hash = 13;
-            hash = hash * 7 + this.User.GetHashCode();
-            hash = hash * 7 + this.Team.GetHashCode();
+            var hash = 13;
+            hash = (hash * 7) + this.User.GetHashCode();
+            hash = (hash * 7) + this.Team.GetHashCode();
             return hash;
         }
 

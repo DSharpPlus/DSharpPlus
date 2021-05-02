@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace DSharpPlus.CommandsNext
 {
@@ -11,7 +11,7 @@ namespace DSharpPlus.CommandsNext
         /// Gets whether the command execution succeeded.
         /// </summary>
         public bool IsSuccessful { get; internal set; }
-        
+
         /// <summary>
         /// Gets the exception (if any) that occurred when executing the command.
         /// </summary>
