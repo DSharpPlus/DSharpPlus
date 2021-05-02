@@ -227,7 +227,7 @@ dotnet_naming_symbols.non_field_members.applicable_accessibilities = public, int
 dotnet_naming_symbols.non_field_members.required_modifiers = 
 
 dotnet_naming_symbols.async_methods.applicable_kinds = method
-dotnet_naming_symbols.async_methods.applicable_accessibilities = *
+dotnet_naming_symbols.async_methods.applicable_accessibilities = public, internal, protected_internal, protected, private_protected
 dotnet_naming_symbols.async_methods.required_modifiers = async
 
 dotnet_naming_symbols.const_fields.applicable_kinds = field, property
