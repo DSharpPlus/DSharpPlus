@@ -11,13 +11,13 @@ namespace DSharpPlus.Entities
         /// Gets the id of the bot this role belongs to.
         /// </summary>
         [JsonProperty("bot_id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong? BotID { get; internal set; }
+        public ulong? BotId { get; internal set; }
 
         /// <summary>
         /// Gets the id of the integration this role belongs to.
         /// </summary>
         [JsonProperty("integration_id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong? IntegrationID { get; internal set; }
+        public ulong? IntegrationId { get; internal set; }
 
         /// <summary>
         /// Gets whether this is the guild's premium subscriber role.
