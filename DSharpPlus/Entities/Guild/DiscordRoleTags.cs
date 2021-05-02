@@ -2,6 +2,9 @@
 
 namespace DSharpPlus.Entities
 {
+    /// <summary>
+    /// Represents a discord role tags.
+    /// </summary>
     public class DiscordRoleTags
     {
         /// <summary>
