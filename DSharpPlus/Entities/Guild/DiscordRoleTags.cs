@@ -24,21 +24,10 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public bool IsPremiumSubscriber
-        {
-            get
-            {
-                if(_premium_subscriber.HasValue)
-                {
-                    return _premium_subscriber.Value;
-                } else
-                {
-                    return true;
-                }
-            }
-        }
+        => this._premiumSubscriber ?? true;
 
         [JsonProperty("premium_subscriber", NullValueHandling = NullValueHandling.Include)]
-        internal bool? _premium_subscriber = false;
+        internal bool? _premiumSubscriber = false;
 
     }
 }
