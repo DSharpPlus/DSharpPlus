@@ -142,6 +142,12 @@ namespace DSharpPlus.Entities
         public int? PerUserRateLimit { get; internal set; }
 
         /// <summary>
+        /// Gets this channel's video quality mode. This is applicable to voice channels only.
+        /// </summary>
+        [JsonProperty("video_quality_mode", NullValueHandling = NullValueHandling.Ignore)]
+        public ChannelQualityMode ChannelQualityMode { get; internal set; }
+
+        /// <summary>
         /// Gets when the last pinned message was pinned.
         /// </summary>
         [JsonIgnore]
