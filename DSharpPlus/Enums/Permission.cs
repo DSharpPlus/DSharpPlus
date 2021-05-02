@@ -262,6 +262,8 @@ namespace DSharpPlus
         /// </summary>
         [PermissionString("Request to speak")]
         RequestToSpeak = 0x0000000100000000
+        
+        // To change "Stage ticket permission
     }
 
     /// <summary>
