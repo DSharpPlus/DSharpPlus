@@ -58,6 +58,12 @@ namespace DSharpPlus.Entities
         [JsonProperty("mentionable", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsMentionable { get; internal set; }
 
+        /// <summary>
+        /// Gets the tags this role has.
+        /// </summary>
+        [JsonProperty("tags", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordRoleTags Tags { get; internal set; }
+
         [JsonIgnore]
         internal ulong _guild_id = 0;
 
