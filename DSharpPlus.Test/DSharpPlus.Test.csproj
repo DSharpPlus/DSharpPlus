@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
@@ -44,7 +44,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="3.9.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="5.0.0" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\DSharpPlus.Lavalink\DSharpPlus.Lavalink.csproj" />
     <ProjectReference Include="..\DSharpPlus.Rest\DSharpPlus.Rest.csproj" />
@@ -53,7 +53,7 @@
     <ProjectReference Include="..\DSharpPlus.Interactivity\DSharpPlus.Interactivity.csproj" />
     <ProjectReference Include="..\DSharpPlus.VoiceNext\DSharpPlus.VoiceNext.csproj" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <None Update="config.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -65,5 +65,5 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  
+
 </Project>

@@ -23,6 +23,9 @@ insert_final_newline = true
 [*.{csproj,targets,yml}]
 indent_size = 2
 
+[NuGet.config]
+indent_size = 2
+
 # Solution files
 [*.sln]
 indent_style = tab

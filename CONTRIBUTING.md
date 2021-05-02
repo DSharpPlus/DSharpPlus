@@ -45,8 +45,8 @@ throughout the repository, with several exceptions:
   blocks, pass the task through instead of awaiting it. For example:
   
   ```cs
-  public Task DoSomethingAsync() =>
-      this.DoAnotherThingAsync();
+  public Task DoSomethingAsync()
+    => this.DoAnotherThingAsync();
       
   public Task DoAnotherThingAsync()
   {

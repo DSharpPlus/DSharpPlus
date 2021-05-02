@@ -1,46 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	
-	<PropertyGroup>
+
+  <PropertyGroup>
     <VersionPrefix>4.1.0</VersionPrefix>
     <NoWarn>1591</NoWarn>
     <LangVersion>9.0</LangVersion>
     <Optimize>True</Optimize>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <DebugType>Portable</DebugType>
-	</PropertyGroup>
-	
-	<PropertyGroup>
-		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-		<Authors>Naamloos, afroraydude, DrCreo, Death, TiaqoY0, Axiom, Emzi0767, DSharpPlus contributors</Authors>
-		<Company>DSharpPlus developers</Company>
-		<PackageLicenseUrl>https://github.com/DSharpPlus/DSharpPlus/blob/master/LICENSE</PackageLicenseUrl>
-		<PackageProjectUrl>https://github.com/DSharpPlus/DSharpPlus</PackageProjectUrl>
-		<PackageIconUrl>https://raw.githubusercontent.com/DSharpPlus/DSharpPlus/master/logo/dsharpplus.png</PackageIconUrl>
-		<RepositoryUrl>https://github.com/DSharpPlus/DSharpPlus</RepositoryUrl>
-		<RepositoryType>Git</RepositoryType>
-	</PropertyGroup>
-  
-	<PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-		<Optimize>False</Optimize>
-	</PropertyGroup>
+  </PropertyGroup>
 
-	<PropertyGroup Condition="'$(VersionSuffix)' != '' And '$(BuildNumber)' != ''">
-		<Version>$(VersionPrefix)-$(VersionSuffix)-$(BuildNumber)</Version>
-		<AssemblyVersion>$(VersionPrefix).$(BuildNumber)</AssemblyVersion>
-		<FileVersion>$(VersionPrefix).$(BuildNumber)</FileVersion>
-	</PropertyGroup>
+  <PropertyGroup>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <Authors>Naamloos, afroraydude, DrCreo, Death, TiaqoY0, Axiom, Emzi0767, DSharpPlus contributors</Authors>
+    <Company>DSharpPlus developers</Company>
+    <PackageLicenseUrl>https://github.com/DSharpPlus/DSharpPlus/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/DSharpPlus/DSharpPlus</PackageProjectUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/DSharpPlus/DSharpPlus/master/logo/dsharpplus.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/DSharpPlus/DSharpPlus</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+  </PropertyGroup>
 
-	<PropertyGroup Condition="'$(VersionSuffix)' != '' And '$(BuildNumber)' == ''">
-		<Version>$(VersionPrefix)-$(VersionSuffix)</Version>
-		<AssemblyVersion>$(VersionPrefix).0</AssemblyVersion>
-		<FileVersion>$(VersionPrefix).0</FileVersion>
-	</PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <Optimize>False</Optimize>
+  </PropertyGroup>
 
-	<PropertyGroup Condition="'$(VersionSuffix)' == ''">
-		<Version>$(VersionPrefix)</Version>
-		<AssemblyVersion>$(VersionPrefix).0</AssemblyVersion>
-		<FileVersion>$(VersionPrefix).0</FileVersion>
-	</PropertyGroup>
-	
+  <PropertyGroup Condition="'$(VersionSuffix)' != '' And '$(BuildNumber)' != ''">
+    <Version>$(VersionPrefix)-$(VersionSuffix)-$(BuildNumber)</Version>
+    <AssemblyVersion>$(VersionPrefix).$(BuildNumber)</AssemblyVersion>
+    <FileVersion>$(VersionPrefix).$(BuildNumber)</FileVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(VersionSuffix)' != '' And '$(BuildNumber)' == ''">
+    <Version>$(VersionPrefix)-$(VersionSuffix)</Version>
+    <AssemblyVersion>$(VersionPrefix).0</AssemblyVersion>
+    <FileVersion>$(VersionPrefix).0</FileVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(VersionSuffix)' == ''">
+    <Version>$(VersionPrefix)</Version>
+    <AssemblyVersion>$(VersionPrefix).0</AssemblyVersion>
+    <FileVersion>$(VersionPrefix).0</FileVersion>
+  </PropertyGroup>
+
 </Project>
