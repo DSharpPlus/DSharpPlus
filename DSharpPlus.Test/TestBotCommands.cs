@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -447,6 +448,23 @@ namespace DSharpPlus.Test
                 }
             }
             await ctx.RespondAsync(contentBuilder.ToString());
+        }
+        [Command("voiceproperties")]
+        public async Task GetVideoQualityMode(CommandContext ctx, DiscordChannel channel)
+        {
+            if(channel.Type != ChannelType.Voice)
+            {
+                await ctx.RespondAsync("Channel is not a voice channel.");
+                return; //you can remove to test values for non voice channels
+            }
+
+            var response = new StringBuilder($"{channel.Mention} Properties\n");
+            response.AppendLine($"Bitrate: {channel.Bitrate}");
+            response.AppendLine($"UserLimit: " + (channel.UserLimit != 0 ? channel.UserLimit.ToString() : "No Limit"));
+            response.AppendLine($"RtcRegion: {channel.RtcRegion}");
+            response.AppendLine($"VideoQualityMode: {channel.ChannelQualityMode}");
+
+            await ctx.RespondAsync(response.ToString());
         }
     }
 }
