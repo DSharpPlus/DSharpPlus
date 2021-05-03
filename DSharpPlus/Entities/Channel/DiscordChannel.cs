@@ -91,25 +91,25 @@ namespace DSharpPlus.Entities
         /// Gets the channel's topic. This is applicable to text channels only.
         /// </summary>
         [JsonProperty("topic", NullValueHandling = NullValueHandling.Ignore)]
-        public string Topic { get; internal set; } = "";
+        public string Topic { get; internal set; }
 
         /// <summary>
         /// Gets the ID of the last message sent in this channel. This is applicable to text channels only.
         /// </summary>
         [JsonProperty("last_message_id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong LastMessageId { get; internal set; } = 0;
+        public ulong? LastMessageId { get; internal set; }
 
         /// <summary>
         /// Gets this channel's bitrate. This is applicable to voice channels only.
         /// </summary>
         [JsonProperty("bitrate", NullValueHandling = NullValueHandling.Ignore)]
-        public int Bitrate { get; internal set; }
+        public int? Bitrate { get; internal set; }
 
         /// <summary>
         /// Gets this channel's user limit. This is applicable to voice channels only.
         /// </summary>
         [JsonProperty("user_limit", NullValueHandling = NullValueHandling.Ignore)]
-        public int UserLimit { get; internal set; }
+        public int? UserLimit { get; internal set; }
 
         /// <summary>
         /// <para>Gets the slow mode delay configured for this channel.</para>
