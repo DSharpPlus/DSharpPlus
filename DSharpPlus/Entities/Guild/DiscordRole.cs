@@ -170,9 +170,7 @@ namespace DSharpPlus.Entities
         /// <param name="permission">Permissions to check for.</param>
         /// <returns>Whether the permissions are allowed or not.</returns>
         public PermissionLevel CheckPermission(Permissions permission)
-        {
-            return (this.Permissions & permission) != 0 ? PermissionLevel.Allowed : PermissionLevel.Unset;
-        }
+            => (this.Permissions & permission) != 0 ? PermissionLevel.Allowed : PermissionLevel.Unset;
 
         /// <summary>
         /// Returns a string representation of this role.
@@ -193,12 +191,11 @@ namespace DSharpPlus.Entities
         /// <param name="e"><see cref="DiscordRole"/> to compare to.</param>
         /// <returns>Whether the <see cref="DiscordRole"/> is equal to this <see cref="DiscordRole"/>.</returns>
         public bool Equals(DiscordRole e)
-        {
-            if (e is null)
-                return false;
-
-            return ReferenceEquals(this, e) ? true : this.Id == e.Id;
-        }
+            => e switch
+            {
+                null => false,
+                _ => ReferenceEquals(this, e) || this.Id == e.Id
+            };
 
         /// <summary>
         /// Gets the hash code for this <see cref="DiscordRole"/>.
@@ -213,15 +210,8 @@ namespace DSharpPlus.Entities
         /// <param name="e2">Second role to compare.</param>
         /// <returns>Whether the two roles are equal.</returns>
         public static bool operator ==(DiscordRole e1, DiscordRole e2)
-        {
-            var o1 = e1 as object;
-            var o2 = e2 as object;
-
-            if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
-                return false;
-
-            return o1 == null && o2 == null ? true : e1.Id == e2.Id;
-        }
+            => e1 is null == e2 is null
+            && ((e1 is null && e2 is null) || e1.Id == e2.Id);
 
         /// <summary>
         /// Gets whether the two <see cref="DiscordRole"/> objects are not equal.
