@@ -706,7 +706,7 @@ namespace DSharpPlus.Net
         #endregion
 
         #region Channel
-        internal async Task<DiscordChannel> CreateGuildChannelAsync(ulong guild_id, string name, ChannelType type, ulong? parent, Optional<string> topic, int? bitrate, int? user_limit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, Optional<int?> perUserRateLimit, string reason)
+        internal async Task<DiscordChannel> CreateGuildChannelAsync(ulong guild_id, string name, ChannelType type, ulong? parent, Optional<string> topic, int? bitrate, int? user_limit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, Optional<int?> perUserRateLimit, ChannelQualityMode? channelQualityMode,string reason)
         {
             var restoverwrites = new List<DiscordRestOverwrite>();
             if (overwrites != null)
@@ -723,7 +723,8 @@ namespace DSharpPlus.Net
                 UserLimit = user_limit,
                 PermissionOverwrites = restoverwrites,
                 Nsfw = nsfw,
-                PerUserRateLimit = perUserRateLimit
+                PerUserRateLimit = perUserRateLimit,
+                ChannelQualityMode = channelQualityMode
             };
 
             var headers = Utilities.GetBaseHeaders();
@@ -747,7 +748,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal Task ModifyChannelAsync(ulong channel_id, string name, int? position, Optional<string> topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? user_limit, Optional<int?> perUserRateLimit, Optional<string> rtcRegion, string reason)
+        internal Task ModifyChannelAsync(ulong channel_id, string name, int? position, Optional<string> topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? user_limit, Optional<int?> perUserRateLimit, Optional<string> rtcRegion, ChannelQualityMode? channelQualityMode, string reason)
         {
             var pld = new RestChannelModifyPayload
             {
@@ -759,7 +760,8 @@ namespace DSharpPlus.Net
                 Bitrate = bitrate,
                 UserLimit = user_limit,
                 PerUserRateLimit = perUserRateLimit,
-                RtcRegion = rtcRegion
+                RtcRegion = rtcRegion,
+                ChannelQualityMode = channelQualityMode
             };
 
             var headers = Utilities.GetBaseHeaders();

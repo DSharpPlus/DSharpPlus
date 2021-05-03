@@ -55,6 +55,9 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("rate_limit_per_user")]
         public Optional<int?> PerUserRateLimit { get; set; }
+
+        [JsonProperty("video_quality_mode", NullValueHandling = NullValueHandling.Ignore)]
+        public ChannelQualityMode? ChannelQualityMode { get; set; }
     }
 
     internal sealed class RestChannelModifyPayload
@@ -85,6 +88,9 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("rtc_region")]
         public Optional<string> RtcRegion { get; set; }
+
+        [JsonProperty("video_quality_mode", NullValueHandling = NullValueHandling.Ignore)]
+        public ChannelQualityMode? ChannelQualityMode { get; set; }
     }
 
     internal class RestChannelMessageEditPayload
