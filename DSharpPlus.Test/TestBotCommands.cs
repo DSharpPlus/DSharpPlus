@@ -466,5 +466,65 @@ namespace DSharpPlus.Test
 
             await ctx.RespondAsync(response.ToString());
         }
+        [Command("invertquality")]
+        public async Task InvertVideoQualityMode(CommandContext ctx, DiscordChannel channel)
+        {
+            if (channel.Type != ChannelType.Voice)
+            {
+                await ctx.RespondAsync("Channel is not a voice channel.");
+                return;
+            }
+
+            var response = new StringBuilder($"{channel.Mention}\n" + $"Previous QualityMode: {channel.ChannelQualityMode}\n");
+
+            ChannelQualityMode mode;
+            if (channel.ChannelQualityMode == ChannelQualityMode.Auto)
+                mode = ChannelQualityMode.Full;
+            else
+                mode = ChannelQualityMode.Auto;
+
+            await channel.ModifyAsync(edit =>
+            {
+                edit.AuditLogReason = "Test Method";
+                edit.ChannelQualityMode = mode;
+            });
+
+            response.AppendLine($"New QualityMode: {channel.ChannelQualityMode}");
+
+            await ctx.RespondAsync(response.ToString());
+        }
+        [Command("clonevoice")] // Testing Channel.CloneChannel() with quality mode changes
+        public async Task CloneVoiceChannel(CommandContext ctx, DiscordChannel channel)
+        {
+            if (channel.Type != ChannelType.Voice)
+            {
+                await ctx.RespondAsync("Channel is not a voice channel.");
+                return;
+            }
+            
+
+            var clonedChannel = await channel.CloneAsync();
+            await clonedChannel.ModifyAsync(edit =>
+            {
+                edit.AuditLogReason = "Test Method";
+                edit.Name = clonedChannel.Name + " Cloned";
+            });
+            await ctx.RespondAsync($"{clonedChannel.Mention} cloned.");
+
+        }
+        [Command("createvoices")] // Testing Guild.CreateChannel() and Guild.CreateVoiceChannelAsync() with quality mode changes
+        public async Task CreateVoiceChannels(CommandContext ctx, DiscordChannel channel)
+        {
+            if (channel.Type != ChannelType.Voice)
+            {
+                await ctx.RespondAsync("Channel is not a voice channel.");
+                return;
+            }
+
+            var cGenericChannel = await ctx.Guild.CreateChannelAsync(channel.Name + " [Generic]", ChannelType.Voice, channel.Parent, null, null, null, null, null, null, ChannelQualityMode.Auto, null);
+            var cVoiceChannel = await ctx.Guild.CreateVoiceChannelAsync(channel.Name + " [Voice]", channel.Parent, null, null, null, ChannelQualityMode.Full, null);
+
+            await ctx.RespondAsync($"{cGenericChannel.Mention} and {cVoiceChannel.Mention} created.");
+        }
     }
 }

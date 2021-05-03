@@ -326,7 +326,7 @@ namespace DSharpPlus.Entities
                 perUserRateLimit = Optional.FromNoValue<int?>();
             }
 
-            return await this.Guild.CreateChannelAsync(this.Name, this.Type, this.Parent, this.Topic, bitrate, userLimit, ovrs, this.IsNSFW, perUserRateLimit, reason).ConfigureAwait(false);
+            return await this.Guild.CreateChannelAsync(this.Name, this.Type, this.Parent, this.Topic, bitrate, userLimit, ovrs, this.IsNSFW, perUserRateLimit, this.ChannelQualityMode, reason).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -366,7 +366,7 @@ namespace DSharpPlus.Entities
             action(mdl);
             return this.Discord.ApiClient.ModifyChannelAsync(this.Id, mdl.Name, mdl.Position, mdl.Topic, mdl.Nsfw,
                 mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.PerUserRateLimit, mdl.RtcRegion.IfPresent(r => r?.Id),
-                mdl.AuditLogReason);
+                mdl.ChannelQualityMode, mdl.AuditLogReason);
         }
 
         /// <summary>

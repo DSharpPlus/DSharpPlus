@@ -346,15 +346,16 @@ namespace DSharpPlus
         /// <param name="userLimit">Voice channel user limit</param>
         /// <param name="overwrites">Channel overwrites</param>
         /// <param name="nsfw">Whether this channel should be marked as NSFW</param>
-        /// <param name="perUserRateLimit">Slow mode timeout for users.</param>
+        /// <param name="perUserRateLimit">Slow mode timeout for users</param>
+        /// <param name="channelQualityMode">Voice channel quality mode</param>
         /// <param name="reason">Reason this channel was created</param>
         /// <returns></returns>
-        public Task<DiscordChannel> CreateGuildChannelAsync(ulong id, string name, ChannelType type, ulong? parent, Optional<string> topic, int? bitrate, int? userLimit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, Optional<int?> perUserRateLimit, string reason)
+        public Task<DiscordChannel> CreateGuildChannelAsync(ulong id, string name, ChannelType type, ulong? parent, Optional<string> topic, int? bitrate, int? userLimit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, Optional<int?> perUserRateLimit, ChannelQualityMode? channelQualityMode, string reason)
         {
             if (type != ChannelType.Category && type != ChannelType.Text && type != ChannelType.Voice && type != ChannelType.News && type != ChannelType.Store && type != ChannelType.Stage)
                 throw new ArgumentException("Channel type must be text, voice, stage, or category.", nameof(type));
 
-            return this.ApiClient.CreateGuildChannelAsync(id, name, type, parent, topic, bitrate, userLimit, overwrites, nsfw, perUserRateLimit, reason);
+            return this.ApiClient.CreateGuildChannelAsync(id, name, type, parent, topic, bitrate, userLimit, overwrites, nsfw, perUserRateLimit, channelQualityMode, reason);
         }
 
         /// <summary>
@@ -370,10 +371,11 @@ namespace DSharpPlus
         /// <param name="userLimit">New voice channel user limit</param>
         /// <param name="perUserRateLimit">Slow mode timeout for users.</param>
         /// <param name="rtcRegion">New region override.</param>
+        /// <param name="channelQualityMode">New video quality mode.</param>
         /// <param name="reason">Reason why this channel was modified</param>
         /// <returns></returns>
-        public Task ModifyChannelAsync(ulong id, string name, int? position, Optional<string> topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? userLimit, Optional<int?> perUserRateLimit, Optional<DiscordVoiceRegion> rtcRegion, string reason)
-            => this.ApiClient.ModifyChannelAsync(id, name, position, topic, nsfw, parent, bitrate, userLimit, perUserRateLimit, rtcRegion.IfPresent(e => e?.Id), reason);
+        public Task ModifyChannelAsync(ulong id, string name, int? position, Optional<string> topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? userLimit, Optional<int?> perUserRateLimit, Optional<DiscordVoiceRegion> rtcRegion, ChannelQualityMode? channelQualityMode, string reason)
+            => this.ApiClient.ModifyChannelAsync(id, name, position, topic, nsfw, parent, bitrate, userLimit, perUserRateLimit, rtcRegion.IfPresent(e => e?.Id), channelQualityMode, reason);
 
         /// <summary>
         /// Modifies a channel
@@ -388,7 +390,7 @@ namespace DSharpPlus
 
             return this.ApiClient.ModifyChannelAsync(channelId, mdl.Name, mdl.Position, mdl.Topic, mdl.Nsfw,
                 mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.PerUserRateLimit, mdl.RtcRegion.IfPresent(e => e?.Id),
-                mdl.AuditLogReason);
+                mdl.ChannelQualityMode, mdl.AuditLogReason);
         }
 
         /// <summary>
