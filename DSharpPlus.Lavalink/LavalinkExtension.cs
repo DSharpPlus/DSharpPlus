@@ -1,4 +1,27 @@
-﻿using System;
+// This file is part of the DSharpPlus project.
+//
+// Copyright (c) 2015 Mike Santiago
+// Copyright (c) 2016-2021 DSharpPlus Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +49,7 @@ namespace DSharpPlus.Lavalink
         /// Gets a dictionary of connected Lavalink nodes for the extension.
         /// </summary>
         public IReadOnlyDictionary<ConnectionEndpoint, LavalinkNodeConnection> ConnectedNodes { get; }
-        private ConcurrentDictionary<ConnectionEndpoint, LavalinkNodeConnection> _connectedNodes = new ConcurrentDictionary<ConnectionEndpoint, LavalinkNodeConnection>();
+        private readonly ConcurrentDictionary<ConnectionEndpoint, LavalinkNodeConnection> _connectedNodes = new();
 
         /// <summary>
         /// Creates a new instance of this Lavalink extension.
@@ -139,27 +162,27 @@ namespace DSharpPlus.Lavalink
                 var bPenaltyCount = b.Statistics.ActivePlayers;
 
                 //cpu load
-                aPenaltyCount += (int)Math.Pow(1.05d, 100 * (a.Statistics.CpuSystemLoad / a.Statistics.CpuCoreCount) * 10 - 10);
-                bPenaltyCount += (int)Math.Pow(1.05d, 100 * (b.Statistics.CpuSystemLoad / a.Statistics.CpuCoreCount) * 10 - 10);
+                aPenaltyCount += (int)Math.Pow(1.05d, (100 * (a.Statistics.CpuSystemLoad / a.Statistics.CpuCoreCount) * 10) - 10);
+                bPenaltyCount += (int)Math.Pow(1.05d, (100 * (b.Statistics.CpuSystemLoad / a.Statistics.CpuCoreCount) * 10) - 10);
 
                 //frame load
                 if (a.Statistics.AverageDeficitFramesPerMinute > 0)
                 {
                     //deficit frame load
-                    aPenaltyCount += (int)(Math.Pow(1.03d, 500f * (a.Statistics.AverageDeficitFramesPerMinute / 3000f)) * 600 - 600);
+                    aPenaltyCount += (int)((Math.Pow(1.03d, 500f * (a.Statistics.AverageDeficitFramesPerMinute / 3000f)) * 600) - 600);
 
                     //null frame load
-                    aPenaltyCount += (int)(Math.Pow(1.03d, 500f * (a.Statistics.AverageNulledFramesPerMinute / 3000f)) * 300 - 300);
+                    aPenaltyCount += (int)((Math.Pow(1.03d, 500f * (a.Statistics.AverageNulledFramesPerMinute / 3000f)) * 300) - 300);
                 }
 
                 //frame load
                 if (b.Statistics.AverageDeficitFramesPerMinute > 0)
                 {
                     //deficit frame load
-                    bPenaltyCount += (int)(Math.Pow(1.03d, 500f * (b.Statistics.AverageDeficitFramesPerMinute / 3000f)) * 600 - 600);
+                    bPenaltyCount += (int)((Math.Pow(1.03d, 500f * (b.Statistics.AverageDeficitFramesPerMinute / 3000f)) * 600) - 600);
 
                     //null frame load
-                    bPenaltyCount += (int)(Math.Pow(1.03d, 500f * (b.Statistics.AverageNulledFramesPerMinute / 3000f)) * 300 - 300);
+                    bPenaltyCount += (int)((Math.Pow(1.03d, 500f * (b.Statistics.AverageNulledFramesPerMinute / 3000f)) * 300) - 300);
                 }
 
                 return aPenaltyCount - bPenaltyCount;

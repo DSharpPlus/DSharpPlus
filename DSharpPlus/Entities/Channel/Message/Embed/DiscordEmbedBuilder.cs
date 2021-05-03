@@ -1,3 +1,26 @@
+// This file is part of the DSharpPlus project.
+//
+// Copyright (c) 2015 Mike Santiago
+// Copyright (c) 2016-2021 DSharpPlus Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -70,7 +93,7 @@ namespace DSharpPlus.Entities
             set => this._imageUri = string.IsNullOrEmpty(value) ? null : new DiscordUri(value);
         }
         private DiscordUri _imageUri;
-        
+
         /// <summary>
         /// Gets or sets the embed's author.
         /// </summary>
@@ -90,7 +113,7 @@ namespace DSharpPlus.Entities
         /// Gets the embed's fields.
         /// </summary>
         public IReadOnlyList<DiscordEmbedField> Fields { get; }
-        private readonly List<DiscordEmbedField> _fields = new List<DiscordEmbedField>();
+        private readonly List<DiscordEmbedField> _fields = new();
 
         /// <summary>
         /// Constructs a new empty embed builder.
@@ -217,10 +240,7 @@ namespace DSharpPlus.Entities
         /// <returns>This embed builder.</returns>
         public DiscordEmbedBuilder WithTimestamp(DateTime? timestamp)
         {
-            if (timestamp == null)
-                this.Timestamp = null;
-            else
-                this.Timestamp = new DateTimeOffset(timestamp.Value);
+            this.Timestamp = timestamp == null ? null : (DateTimeOffset?)new DateTimeOffset(timestamp.Value);
             return this;
         }
 
@@ -304,10 +324,9 @@ namespace DSharpPlus.Entities
         /// <returns>This embed builder.</returns>
         public DiscordEmbedBuilder WithAuthor(string name = null, string url = null, string iconUrl = null)
         {
-            if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(url) && string.IsNullOrEmpty(iconUrl))
-                this.Author = null;
-            else
-                this.Author = new EmbedAuthor
+            this.Author = string.IsNullOrEmpty(name) && string.IsNullOrEmpty(url) && string.IsNullOrEmpty(iconUrl)
+                ? null
+                : new EmbedAuthor
                 {
                     Name = name,
                     Url = url,
@@ -327,10 +346,9 @@ namespace DSharpPlus.Entities
             if (text != null && text.Length > 2048)
                 throw new ArgumentException("Footer text length cannot exceed 2048 characters.", nameof(text));
 
-            if (string.IsNullOrEmpty(text) && string.IsNullOrEmpty(iconUrl))
-                this.Footer = null;
-            else
-                this.Footer = new EmbedFooter
+            this.Footer = string.IsNullOrEmpty(text) && string.IsNullOrEmpty(iconUrl)
+                ? null
+                : new EmbedFooter
                 {
                     Text = text,
                     IconUrl = iconUrl
@@ -447,7 +465,7 @@ namespace DSharpPlus.Entities
                 {
                     Url = this.Thumbnail._uri,
                     Height = this.Thumbnail.Height,
-                    Width =  this.Thumbnail.Width
+                    Width = this.Thumbnail.Width
                 };
 
             embed.Fields = new ReadOnlyCollection<DiscordEmbedField>(new List<DiscordEmbedField>(this._fields)); // copy the list, don't wrap it, prevents mutation

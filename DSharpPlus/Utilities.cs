@@ -1,4 +1,27 @@
-﻿using System;
+// This file is part of the DSharpPlus project.
+//
+// Copyright (c) 2015 Mike Santiago
+// Copyright (c) 2016-2021 DSharpPlus Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -57,76 +80,68 @@ namespace DSharpPlus
             VersionHeader = $"DiscordBot (https://github.com/DSharpPlus/DSharpPlus, v{vs})";
         }
 
-        internal static string GetApiBaseUri() 
+        internal static string GetApiBaseUri()
             => Endpoints.BASE_URI;
 
         internal static Uri GetApiUriFor(string path)
-            => new Uri($"{GetApiBaseUri()}{path}");
+            => new($"{GetApiBaseUri()}{path}");
 
         internal static Uri GetApiUriFor(string path, string queryString)
-            => new Uri($"{GetApiBaseUri()}{path}{queryString}");
+            => new($"{GetApiBaseUri()}{path}{queryString}");
 
         internal static QueryUriBuilder GetApiUriBuilderFor(string path)
-            => new QueryUriBuilder($"{GetApiBaseUri()}{path}");
+            => new($"{GetApiBaseUri()}{path}");
 
-        internal static string GetFormattedToken(BaseDiscordClient client)
-        {
-            return GetFormattedToken(client.Configuration);
-        }
+        internal static string GetFormattedToken(BaseDiscordClient client) => GetFormattedToken(client.Configuration);
 
         internal static string GetFormattedToken(DiscordConfiguration config)
-        { 
-            switch (config.TokenType)
+        {
+            return config.TokenType switch
             {
-                case TokenType.Bearer:
-                    return $"Bearer {config.Token}";
-
-                case TokenType.Bot:
-                    return $"Bot {config.Token}";
-
-                default:
-                    throw new ArgumentException("Invalid token type specified.", nameof(config.Token));
-            }
+                TokenType.Bearer => $"Bearer {config.Token}",
+                TokenType.Bot => $"Bot {config.Token}",
+                _ => throw new ArgumentException("Invalid token type specified.", nameof(config.Token)),
+            };
         }
 
         internal static Dictionary<string, string> GetBaseHeaders()
-            => new Dictionary<string, string>();
+            => new();
 
         internal static string GetUserAgent()
             => VersionHeader;
 
         internal static bool ContainsUserMentions(string message)
         {
-            string pattern = @"<@(\d+)>";
-            Regex regex = new Regex(pattern, RegexOptions.ECMAScript);
+            var pattern = @"<@(\d+)>";
+            var regex = new Regex(pattern, RegexOptions.ECMAScript);
             return regex.IsMatch(message);
         }
 
         internal static bool ContainsNicknameMentions(string message)
         {
-            string pattern = @"<@!(\d+)>";
-            Regex regex = new Regex(pattern, RegexOptions.ECMAScript);
+            var pattern = @"<@!(\d+)>";
+            var regex = new Regex(pattern, RegexOptions.ECMAScript);
             return regex.IsMatch(message);
         }
 
         internal static bool ContainsChannelMentions(string message)
         {
-            string pattern = @"<#(\d+)>";
-            Regex regex = new Regex(pattern, RegexOptions.ECMAScript);
+            var pattern = @"<#(\d+)>";
+            var regex = new Regex(pattern, RegexOptions.ECMAScript);
             return regex.IsMatch(message);
         }
 
         internal static bool ContainsRoleMentions(string message)
         {
-            string pattern = @"<@&(\d+)>";
-            Regex regex = new Regex(pattern, RegexOptions.ECMAScript);
+            var pattern = @"<@&(\d+)>";
+            var regex = new Regex(pattern, RegexOptions.ECMAScript);
             return regex.IsMatch(message);
         }
 
         internal static bool ContainsEmojis(string message)
         {
-            string pattern = @"<a?:(.*):(\d+)>";
-            Regex regex = new Regex(pattern, RegexOptions.ECMAScript);
+            var pattern = @"<a?:(.*):(\d+)>";
+            var regex = new Regex(pattern, RegexOptions.ECMAScript);
             return regex.IsMatch(message);
         }
 
@@ -161,7 +176,7 @@ namespace DSharpPlus
             foreach (Match match in matches)
                 yield return ulong.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
         }
-        
+
         internal static bool HasMessageIntents(DiscordIntents intents)
             => intents.HasIntent(DiscordIntents.GuildMessages) || intents.HasIntent(DiscordIntents.DirectMessages);
 

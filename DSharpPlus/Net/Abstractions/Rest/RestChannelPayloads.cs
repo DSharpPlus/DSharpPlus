@@ -1,3 +1,26 @@
+// This file is part of the DSharpPlus project.
+//
+// Copyright (c) 2015 Mike Santiago
+// Copyright (c) 2016-2021 DSharpPlus Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 using System.Collections.Generic;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
@@ -41,7 +64,7 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("position", NullValueHandling = NullValueHandling.Ignore)]
         public int? Position { get; set; }
-        
+
         [JsonProperty("topic")]
         public Optional<string> Topic { get; set; }
 
@@ -71,7 +94,7 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonIgnore]
         public bool HasContent { get; set; }
-        
+
         [JsonProperty("embed", NullValueHandling = NullValueHandling.Include)]
         public DiscordEmbed Embed { get; set; }
 
@@ -81,10 +104,10 @@ namespace DSharpPlus.Net.Abstractions
         [JsonIgnore]
         public bool HasEmbed { get; set; }
 
-        public bool ShouldSerializeContent() 
+        public bool ShouldSerializeContent()
             => this.HasContent;
 
-        public bool ShouldSerializeEmbed() 
+        public bool ShouldSerializeEmbed()
             => this.HasEmbed;
     }
 
@@ -92,7 +115,7 @@ namespace DSharpPlus.Net.Abstractions
     {
         [JsonProperty("tts", NullValueHandling = NullValueHandling.Ignore)]
         public bool? IsTTS { get; set; }
-        
+
         [JsonProperty("message_reference", NullValueHandling = NullValueHandling.Ignore)]
         public InternalDiscordMessageReference? MessageReference { get; set; }
     }
@@ -110,7 +133,7 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("allowed_mentions", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordMentions Mentions { get; set; }
-        
+
         [JsonProperty("message_reference", NullValueHandling = NullValueHandling.Ignore)]
         public InternalDiscordMessageReference? MessageReference { get; set; }
     }

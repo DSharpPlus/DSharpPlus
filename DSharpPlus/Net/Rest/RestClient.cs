@@ -1,4 +1,27 @@
-﻿using System;
+// This file is part of the DSharpPlus project.
+//
+// Copyright (c) 2015 Mike Santiago
+// Copyright (c) 2016-2021 DSharpPlus Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
@@ -44,7 +67,7 @@ namespace DSharpPlus.Net
             this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(client));
         }
 
-        internal RestClient(IWebProxy proxy, TimeSpan timeout, bool useRelativeRatelimit, 
+        internal RestClient(IWebProxy proxy, TimeSpan timeout, bool useRelativeRatelimit,
             ILogger logger) // This is for meta-clients, such as the webhook client
         {
             this.Logger = logger;
@@ -88,10 +111,7 @@ namespace DSharpPlus.Net
                     rparams[xp.Name] = dt.ToString("yyyy-MM-ddTHH:mm:sszzz", CultureInfo.InvariantCulture);
                 else if (val is DateTimeOffset dto)
                     rparams[xp.Name] = dto.ToString("yyyy-MM-ddTHH:mm:sszzz", CultureInfo.InvariantCulture);
-                else if (val is IFormattable xf)
-                    rparams[xp.Name] = xf.ToString(null, CultureInfo.InvariantCulture);
-                else
-                    rparams[xp.Name] = val.ToString();
+                else rparams[xp.Name] = val is IFormattable xf ? xf.ToString(null, CultureInfo.InvariantCulture) : val.ToString();
             }
 
             var guild_id = rparams.ContainsKey("guild_id") ? rparams["guild_id"] : "";
@@ -145,12 +165,9 @@ namespace DSharpPlus.Net
 
         public Task ExecuteRequestAsync(BaseRestRequest request)
         {
-            if (request == null)
-                throw new ArgumentNullException(nameof(request));
-
-            return ExecuteRequestAsync(request, null, null);
+            return request == null ? throw new ArgumentNullException(nameof(request)) : this.ExecuteRequestAsync(request, null, null);
         }
-        
+
         // to allow proper rescheduling of the first request from a bucket
         private async Task ExecuteRequestAsync(BaseRestRequest request, RateLimitBucket bucket, TaskCompletionSource<bool> ratelimitTcs)
         {
@@ -216,7 +233,7 @@ namespace DSharpPlus.Net
                     if (this._disposed)
                         return;
 
-                    res = await HttpClient.SendAsync(req, HttpCompletionOption.ResponseContentRead, CancellationToken.None).ConfigureAwait(false);
+                    res = await this.HttpClient.SendAsync(req, HttpCompletionOption.ResponseContentRead, CancellationToken.None).ConfigureAwait(false);
 
                     var bts = await res.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
                     var txt = Utilities.UTF8.GetString(bts, 0, bts.Length);
@@ -352,7 +369,7 @@ namespace DSharpPlus.Net
             bucket._limitTesting = 0;
 
             //Reset to initial values.
-            if(resetToInitial)
+            if (resetToInitial)
             {
                 this.UpdateHashCaches(request, bucket);
                 bucket.Maximum = 0;
@@ -385,7 +402,7 @@ namespace DSharpPlus.Net
                 // it can take a couple of cycles for the task to be allocated, so wait until it happens or we are no longer probing for the limits
                 Task waitTask = null;
                 while (bucket._limitTesting != 0 && (waitTask = bucket._limitTestFinished) == null)
-                    await Task.Yield(); 
+                    await Task.Yield();
                 if (waitTask != null)
                     await waitTask.ConfigureAwait(false);
 
@@ -413,7 +430,7 @@ namespace DSharpPlus.Net
             {
                 this.Logger.LogTrace(LoggerEvents.RestTx, "<multipart request>");
 
-                string boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x");
+                var boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x");
 
                 req.Headers.Add("Connection", "keep-alive");
                 req.Headers.Add("Keep-Alive", "600");
@@ -427,7 +444,7 @@ namespace DSharpPlus.Net
                 {
                     var i = 1;
                     foreach (var f in mprequest.Files)
-                        content.Add(new StreamContent(f.Value), $"file{(i++).ToString(CultureInfo.InvariantCulture)}", f.Key);
+                        content.Add(new StreamContent(f.Value), $"file{i++.ToString(CultureInfo.InvariantCulture)}", f.Key);
                 }
 
                 req.Content = content;
@@ -554,7 +571,7 @@ namespace DSharpPlus.Net
                 return;
 
             // This is an unlimited bucket, which we don't need to keep track of.
-            if(newHash == null)
+            if (newHash == null)
             {
                 _ = this.RoutesToHashes.TryRemove(hashKey, out _);
                 _ = this.HashesToBuckets.TryRemove(bucket.BucketId, out _);
@@ -577,7 +594,7 @@ namespace DSharpPlus.Net
 
                     // Remove the old unlimited bucket.
                     _ = this.HashesToBuckets.TryRemove(oldBucketId, out _);
-                    _ = this.HashesToBuckets.AddOrUpdate(bucketId, bucket, (key, oldBucket) => { return bucket; });
+                    _ = this.HashesToBuckets.AddOrUpdate(bucketId, bucket, (key, oldBucket) => bucket);
 
                     return newHash;
                 });
@@ -588,7 +605,7 @@ namespace DSharpPlus.Net
 
         private async Task CleanupBucketsAsync()
         {
-            while(!this._bucketCleanerTokenSource.IsCancellationRequested)
+            while (!this._bucketCleanerTokenSource.IsCancellationRequested)
             {
                 try
                 {
@@ -604,11 +621,11 @@ namespace DSharpPlus.Net
                 {
                     var bucket = this.HashesToBuckets.Values.FirstOrDefault(x => x.RouteHashes.Contains(key));
 
-                    if(bucket == null || bucket != null && bucket.LastAttemptAt.AddSeconds(5) < DateTimeOffset.UtcNow)
+                    if (bucket == null || (bucket != null && bucket.LastAttemptAt.AddSeconds(5) < DateTimeOffset.UtcNow))
                         _ = this.RequestQueue.TryRemove(key, out _);
                 }
 
-                int removedBuckets = 0;
+                var removedBuckets = 0;
                 StringBuilder bucketIdStrBuilder = default;
 
                 foreach (var kvp in this.HashesToBuckets)
@@ -626,7 +643,7 @@ namespace DSharpPlus.Net
                     var resetOffset = this.UseResetAfter ? value._resetAfterOffset : value.Reset;
 
                     // Don't remove the bucket if it's reset date is less than now + the additional wait time, unless it's an unlimited bucket.
-                    if (resetOffset != null && !value.IsUnlimited && (resetOffset > DateTimeOffset.UtcNow || (DateTimeOffset.UtcNow - resetOffset) < this._bucketCleanupDelay))
+                    if (resetOffset != null && !value.IsUnlimited && (resetOffset > DateTimeOffset.UtcNow || DateTimeOffset.UtcNow - resetOffset < this._bucketCleanupDelay))
                         continue;
 
                     _ = this.HashesToBuckets.TryRemove(key, out _);

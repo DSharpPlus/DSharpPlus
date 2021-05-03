@@ -1,4 +1,27 @@
-﻿using System;
+// This file is part of the DSharpPlus project.
+//
+// Copyright (c) 2015 Mike Santiago
+// Copyright (c) 2016-2021 DSharpPlus Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -26,7 +49,7 @@ namespace DSharpPlus.Net.WebSocket
 
         /// <inheritdoc />
         public IReadOnlyDictionary<string, string> DefaultHeaders { get; }
-        private Dictionary<string, string> _defaultHeaders;
+        private readonly Dictionary<string, string> _defaultHeaders;
 
         private Task _receiverTask;
         private CancellationTokenSource _receiverTokenSource;
@@ -211,61 +234,59 @@ namespace DSharpPlus.Net.WebSocket
 
             try
             {
-                using (var bs = new MemoryStream())
+                using var bs = new MemoryStream();
+                while (!token.IsCancellationRequested)
                 {
-                    while (!token.IsCancellationRequested)
+                    // See https://github.com/RogueException/Discord.Net/commit/ac389f5f6823e3a720aedd81b7805adbdd78b66d 
+                    // for explanation on the cancellation token
+
+                    WebSocketReceiveResult result;
+                    byte[] resultBytes;
+                    do
                     {
-                        // See https://github.com/RogueException/Discord.Net/commit/ac389f5f6823e3a720aedd81b7805adbdd78b66d 
-                        // for explanation on the cancellation token
+                        result = await this._ws.ReceiveAsync(buffer, CancellationToken.None).ConfigureAwait(false);
 
-                        WebSocketReceiveResult result;
-                        byte[] resultBytes;
-                        do
-                        {
-                            result = await this._ws.ReceiveAsync(buffer, CancellationToken.None).ConfigureAwait(false);
-
-                            if (result.MessageType == WebSocketMessageType.Close)
-                                break;
-
-                            bs.Write(buffer.Array, 0, result.Count);
-                        }
-                        while (!result.EndOfMessage);
-
-                        resultBytes = new byte[bs.Length];
-                        bs.Position = 0;
-                        bs.Read(resultBytes, 0, resultBytes.Length);
-                        bs.Position = 0;
-                        bs.SetLength(0);
-
-                        if (!this._isConnected && result.MessageType != WebSocketMessageType.Close)
-                        {
-                            this._isConnected = true;
-                            await this._connected.InvokeAsync(this, new SocketEventArgs()).ConfigureAwait(false);
-                        }
-
-                        if (result.MessageType == WebSocketMessageType.Binary)
-                        {
-                            await this._messageReceived.InvokeAsync(this, new SocketBinaryMessageEventArgs(resultBytes)).ConfigureAwait(false);
-                        }
-                        else if (result.MessageType == WebSocketMessageType.Text)
-                        {
-                            await this._messageReceived.InvokeAsync(this, new SocketTextMessageEventArgs(Utilities.UTF8.GetString(resultBytes))).ConfigureAwait(false);
-                        }
-                        else // close
-                        {
-                            if (!this._isClientClose)
-                            {
-                                var code = result.CloseStatus.Value;
-                                code = code == WebSocketCloseStatus.NormalClosure || code == WebSocketCloseStatus.EndpointUnavailable
-                                    ? (WebSocketCloseStatus)4000
-                                    : code;
-
-                                await this._ws.CloseOutputAsync(code, result.CloseStatusDescription, CancellationToken.None).ConfigureAwait(false);
-                            }
-
-                            await this._disconnected.InvokeAsync(this, new SocketCloseEventArgs() { CloseCode = (int)result.CloseStatus, CloseMessage = result.CloseStatusDescription }).ConfigureAwait(false);
+                        if (result.MessageType == WebSocketMessageType.Close)
                             break;
+
+                        bs.Write(buffer.Array, 0, result.Count);
+                    }
+                    while (!result.EndOfMessage);
+
+                    resultBytes = new byte[bs.Length];
+                    bs.Position = 0;
+                    bs.Read(resultBytes, 0, resultBytes.Length);
+                    bs.Position = 0;
+                    bs.SetLength(0);
+
+                    if (!this._isConnected && result.MessageType != WebSocketMessageType.Close)
+                    {
+                        this._isConnected = true;
+                        await this._connected.InvokeAsync(this, new SocketEventArgs()).ConfigureAwait(false);
+                    }
+
+                    if (result.MessageType == WebSocketMessageType.Binary)
+                    {
+                        await this._messageReceived.InvokeAsync(this, new SocketBinaryMessageEventArgs(resultBytes)).ConfigureAwait(false);
+                    }
+                    else if (result.MessageType == WebSocketMessageType.Text)
+                    {
+                        await this._messageReceived.InvokeAsync(this, new SocketTextMessageEventArgs(Utilities.UTF8.GetString(resultBytes))).ConfigureAwait(false);
+                    }
+                    else // close
+                    {
+                        if (!this._isClientClose)
+                        {
+                            var code = result.CloseStatus.Value;
+                            code = code == WebSocketCloseStatus.NormalClosure || code == WebSocketCloseStatus.EndpointUnavailable
+                                ? (WebSocketCloseStatus)4000
+                                : code;
+
+                            await this._ws.CloseOutputAsync(code, result.CloseStatusDescription, CancellationToken.None).ConfigureAwait(false);
                         }
+
+                        await this._disconnected.InvokeAsync(this, new SocketCloseEventArgs() { CloseCode = (int)result.CloseStatus, CloseMessage = result.CloseStatusDescription }).ConfigureAwait(false);
+                        break;
                     }
                 }
             }
@@ -297,7 +318,7 @@ namespace DSharpPlus.Net.WebSocket
             add => this._connected.Register(value);
             remove => this._connected.Unregister(value);
         }
-        private AsyncEvent<WebSocketClient, SocketEventArgs> _connected;
+        private readonly AsyncEvent<WebSocketClient, SocketEventArgs> _connected;
 
         /// <summary>
         /// Triggered when the client is disconnected.
@@ -307,7 +328,7 @@ namespace DSharpPlus.Net.WebSocket
             add => this._disconnected.Register(value);
             remove => this._disconnected.Unregister(value);
         }
-        private AsyncEvent<WebSocketClient, SocketCloseEventArgs> _disconnected;
+        private readonly AsyncEvent<WebSocketClient, SocketCloseEventArgs> _disconnected;
 
         /// <summary>
         /// Triggered when the client receives a message from the remote party.
@@ -317,7 +338,7 @@ namespace DSharpPlus.Net.WebSocket
             add => this._messageReceived.Register(value);
             remove => this._messageReceived.Unregister(value);
         }
-        private AsyncEvent<WebSocketClient, SocketMessageEventArgs> _messageReceived;
+        private readonly AsyncEvent<WebSocketClient, SocketMessageEventArgs> _messageReceived;
 
         /// <summary>
         /// Triggered when an error occurs in the client.
@@ -327,7 +348,7 @@ namespace DSharpPlus.Net.WebSocket
             add => this._exceptionThrown.Register(value);
             remove => this._exceptionThrown.Unregister(value);
         }
-        private AsyncEvent<WebSocketClient, SocketErrorEventArgs> _exceptionThrown;
+        private readonly AsyncEvent<WebSocketClient, SocketErrorEventArgs> _exceptionThrown;
 
         private void EventErrorHandler<TArgs>(AsyncEvent<WebSocketClient, TArgs> asyncEvent, Exception ex, AsyncEventHandler<WebSocketClient, TArgs> handler, WebSocketClient sender, TArgs eventArgs)
             where TArgs : AsyncEventArgs

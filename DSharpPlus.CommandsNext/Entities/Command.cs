@@ -1,4 +1,27 @@
-﻿using System;
+// This file is part of the DSharpPlus project.
+//
+// Copyright (c) 2015 Mike Santiago
+// Copyright (c) 2016-2021 DSharpPlus Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -85,7 +108,7 @@ namespace DSharpPlus.CommandsNext
                         continue;
 
                     ctx.RawArguments = args.Raw;
-                    
+
                     var mdl = ovl.InvocationTarget ?? this.Module?.GetInstance(ctx.Services);
                     if (mdl is BaseCommandModule bcmBefore)
                         await bcmBefore.BeforeExecutionAsync(ctx).ConfigureAwait(false);
@@ -132,7 +155,7 @@ namespace DSharpPlus.CommandsNext
             var fchecks = new List<CheckBaseAttribute>();
             if (this.ExecutionChecks != null && this.ExecutionChecks.Any())
                 foreach (var ec in this.ExecutionChecks)
-                    if (!(await ec.ExecuteCheckAsync(ctx, help).ConfigureAwait(false)))
+                    if (!await ec.ExecuteCheckAsync(ctx, help).ConfigureAwait(false))
                         fchecks.Add(ec);
 
             return fchecks;
@@ -185,21 +208,15 @@ namespace DSharpPlus.CommandsNext
             else if (o1 == null && o2 == null)
                 return true;
 
-            var cmd = obj as Command;
-            if ((object)cmd == null)
-                return false;
-
-            return cmd.QualifiedName == this.QualifiedName;
+            return obj is Command cmd
+&& cmd.QualifiedName == this.QualifiedName;
         }
 
         /// <summary>
         /// Gets this command's hash code.
         /// </summary>
         /// <returns>This command's hash code.</returns>
-        public override int GetHashCode()
-        {
-            return this.QualifiedName.GetHashCode();
-        }
+        public override int GetHashCode() => this.QualifiedName.GetHashCode();
 
         /// <summary>
         /// Returns a string representation of this command.
@@ -207,9 +224,9 @@ namespace DSharpPlus.CommandsNext
         /// <returns>String representation of this command.</returns>
         public override string ToString()
         {
-            if (this is CommandGroup g)
-                return $"Command Group: {this.QualifiedName}, {g.Children.Count} top-level children";
-            return $"Command: {this.QualifiedName}";
+            return this is CommandGroup g
+                ? $"Command Group: {this.QualifiedName}, {g.Children.Count} top-level children"
+                : $"Command: {this.QualifiedName}";
         }
     }
 }

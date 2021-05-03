@@ -65,7 +65,7 @@
     ],
     "dest": "_site",
     "globalMetadata": {
-      "_appFooter": "© 2017-2020 DSharpPlus Contributors",
+      "_appFooter": "© 2016-2021 DSharpPlus Contributors",
       "_enableSearch": "true"
     },
     "globalMetadataFiles": [],

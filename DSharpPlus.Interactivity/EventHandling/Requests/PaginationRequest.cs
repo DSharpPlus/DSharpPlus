@@ -1,4 +1,27 @@
-﻿using System;
+// This file is part of the DSharpPlus project.
+//
+// Copyright (c) 2015 Mike Santiago
+// Copyright (c) 2016-2021 DSharpPlus Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,14 +33,13 @@ namespace DSharpPlus.Interactivity.EventHandling
     internal class PaginationRequest : IPaginationRequest
     {
         private TaskCompletionSource<bool> _tcs;
-        private CancellationTokenSource _ct;
+        private readonly CancellationTokenSource _ct;
         private TimeSpan _timeout;
-        private List<Page> _pages;
-        private PaginationBehaviour _behaviour;
-        private PaginationDeletion _deletion;
-        private DiscordMessage _message;
-        private PaginationEmojis _emojis;
-        private DiscordUser _user;
+        private readonly List<Page> _pages;
+        private readonly PaginationBehaviour _behaviour;
+        private readonly DiscordMessage _message;
+        private readonly PaginationEmojis _emojis;
+        private readonly DiscordUser _user;
         private int index = 0;
 
         /// <summary>
@@ -41,7 +63,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             this._message = message;
             this._user = user;
 
-            this._deletion = deletion;
+            this.PaginationDeletion = deletion;
             this._behaviour = behaviour;
             this._emojis = emojis;
 
@@ -51,10 +73,10 @@ namespace DSharpPlus.Interactivity.EventHandling
                 this._pages.Add(p);
             }
         }
-        
+
         public int PageCount => _pages.Count;
 
-        public PaginationDeletion PaginationDeletion => _deletion;
+        public PaginationDeletion PaginationDeletion { get; }
 
         public async Task<Page> GetPageAsync()
         {
@@ -148,7 +170,7 @@ namespace DSharpPlus.Interactivity.EventHandling
 
         public async Task DoCleanupAsync()
         {
-            switch (_deletion)
+            switch (PaginationDeletion)
             {
                 case PaginationDeletion.DeleteEmojis:
                     await _message.DeleteAllReactionsAsync().ConfigureAwait(false);
@@ -210,7 +232,7 @@ namespace DSharpPlus.Interactivity
     {
         public string Content { get; set; }
         public DiscordEmbed Embed { get; set; }
-        
+
         public Page(string content = "", DiscordEmbedBuilder embed = null)
         {
             this.Content = content;

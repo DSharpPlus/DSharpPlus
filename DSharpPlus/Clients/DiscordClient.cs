@@ -1,20 +1,43 @@
-﻿using System;
+// This file is part of the DSharpPlus project.
+//
+// Copyright (c) 2015 Mike Santiago
+// Copyright (c) 2016-2021 DSharpPlus Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Collections.Concurrent;
-using System.Collections.ObjectModel;
-using Newtonsoft.Json.Linq;
-using Microsoft.Extensions.Logging;
-using DSharpPlus.Net;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
+using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
-using Emzi0767.Utilities;
 using DSharpPlus.Net.Models;
+using Emzi0767.Utilities;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus
 {
@@ -34,7 +57,7 @@ namespace DSharpPlus
         private ManualResetEventSlim ConnectionLock { get; } = new ManualResetEventSlim(true);
 
         #endregion
-        
+
         #region Public Fields/Properties
         /// <summary>
         /// Gets the gateway protocol version.
@@ -299,11 +322,9 @@ namespace DSharpPlus
             }
 
             // non-closure, hence args
-            static void FailConnection(ManualResetEventSlim cl)
-            {
+            static void FailConnection(ManualResetEventSlim cl) =>
                 // unlock this (if applicable) so we can let others attempt to connect
                 cl?.Set();
-            }
         }
 
         public Task ReconnectAsync(bool startNewSession = false)
@@ -489,7 +510,7 @@ namespace DSharpPlus
         {
             if (this._guilds.TryGetValue(id, out var guild) && (!withCounts.HasValue || !withCounts.Value))
                 return guild;
-            
+
             guild = await this.ApiClient.GetGuildAsync(id, withCounts).ConfigureAwait(false);
             var channels = await this.ApiClient.GetGuildChannelsAsync(guild.Id).ConfigureAwait(false);
             foreach (var channel in channels) guild._channels[channel.Id] = channel;
@@ -505,7 +526,7 @@ namespace DSharpPlus
         /// <exception cref="Exceptions.NotFoundException">Thrown when the guild does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordGuildPreview> GetGuildPreviewAsync(ulong id) 
+        public Task<DiscordGuildPreview> GetGuildPreviewAsync(ulong id)
             => this.ApiClient.GetGuildPreviewAsync(id);
 
         /// <summary>
@@ -727,7 +748,7 @@ namespace DSharpPlus
 
         internal DiscordGuild InternalGetCachedGuild(ulong? guildId)
         {
-            if(this._guilds != null && guildId.HasValue)
+            if (this._guilds != null && guildId.HasValue)
             {
                 if (this._guilds.TryGetValue(guildId.Value, out var guild))
                     return guild;
@@ -751,25 +772,20 @@ namespace DSharpPlus
             var channel = this.InternalGetCachedChannel(message.ChannelId);
 
             if (channel != null) return;
-            
-            if (!message.GuildId.HasValue)
-            {
-                channel = new DiscordDmChannel
+
+            channel = !message.GuildId.HasValue
+                ? new DiscordDmChannel
                 {
                     Id = message.ChannelId,
                     Discord = this,
                     Type = ChannelType.Private
-                };
-            }
-            else 
-            {
-                channel = new DiscordChannel
+                }
+                : new DiscordChannel
                 {
                     Id = message.ChannelId,
                     Discord = this
                 };
-            }
-            
+
             message.Channel = channel;
         }
 
@@ -814,7 +830,7 @@ namespace DSharpPlus
                     }
                 }
             }
-            else if(usr.Username != null) // check if not a skeleton user
+            else if (usr.Username != null) // check if not a skeleton user
             {
                 _ = this.UserCache.AddOrUpdate(usr.Id, usr, (id, old) =>
                 {
@@ -971,7 +987,7 @@ namespace DSharpPlus
             var extensions = this._extensions; // prevent _extensions being modified during dispose
             this._extensions = null;
             foreach (var extension in extensions)
-                if (extension is IDisposable disposable) 
+                if (extension is IDisposable disposable)
                     disposable.Dispose();
 
             try

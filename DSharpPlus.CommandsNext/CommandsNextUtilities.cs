@@ -1,4 +1,27 @@
-﻿using System;
+// This file is part of the DSharpPlus project.
+//
+// Copyright (c) 2015 Mike Santiago
+// Copyright (c) 2016-2021 DSharpPlus Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -33,10 +56,7 @@ namespace DSharpPlus.CommandsNext
             if (str.Length >= content.Length)
                 return -1;
 
-            if (!content.StartsWith(str, comparisonType))
-                return -1;
-
-            return str.Length;
+            return !content.StartsWith(str, comparisonType) ? -1 : str.Length;
         }
 
         /// <summary>
@@ -61,10 +81,7 @@ namespace DSharpPlus.CommandsNext
                 return -1;
 
             var userId = ulong.Parse(m.Groups[1].Value, CultureInfo.InvariantCulture);
-            if (user.Id != userId)
-                return -1;
-
-            return m.Value.Length;
+            return user.Id != userId ? -1 : m.Value.Length;
         }
 
         //internal static string ExtractNextArgument(string str, out string remainder)
@@ -133,10 +150,7 @@ namespace DSharpPlus.CommandsNext
                 {
                     removeIndices.Add(i - startPosition);
 
-                    if (!inQuote)
-                        inQuote = true;
-                    else
-                        inQuote = false;
+                    inQuote = !inQuote;
                 }
 
                 if (inEscape)
@@ -145,16 +159,12 @@ namespace DSharpPlus.CommandsNext
                 if (endPosition != -1)
                 {
                     startPos = endPosition;
-                    if (startPosition != endPosition)
-                        return str.Substring(startPosition, endPosition - startPosition).CleanupString(removeIndices);
-                    return null;
+                    return startPosition != endPosition ? str.Substring(startPosition, endPosition - startPosition).CleanupString(removeIndices) : null;
                 }
             }
 
             startPos = str.Length;
-            if (startPos != startPosition)
-                return str.Substring(startPosition).CleanupString(removeIndices);
-            return null;
+            return startPos != startPosition ? str.Substring(startPosition).CleanupString(removeIndices) : null;
         }
 
         internal static string CleanupString(this string s, IList<int> indices)
@@ -204,7 +214,7 @@ namespace DSharpPlus.CommandsNext
                             argValue = ExtractNextArgument(argString, ref foundAt);
                             if (argValue == null)
                                 break;
-                            
+
                             rawArgumentList.Add(argValue);
                         }
 
@@ -264,7 +274,7 @@ namespace DSharpPlus.CommandsNext
                 else
                 {
                     try
-                    { 
+                    {
                         args[i + 2] = rawArgumentList[i] != null ? await ctx.CommandsNext.ConvertArgument(rawArgumentList[i], ctx, arg.Type).ConfigureAwait(false) : arg.DefaultValue;
                     }
                     catch (Exception ex)

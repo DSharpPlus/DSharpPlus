@@ -1,11 +1,34 @@
-﻿using DSharpPlus.Entities;
-using DSharpPlus.Interactivity;
-using DSharpPlus.Interactivity.EventHandling;
+// This file is part of the DSharpPlus project.
+//
+// Copyright (c) 2015 Mike Santiago
+// Copyright (c) 2016-2021 DSharpPlus Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using DSharpPlus.Entities;
+using DSharpPlus.Interactivity;
+using DSharpPlus.Interactivity.EventHandling;
 
 namespace DSharpPlus.Test
 {
@@ -15,13 +38,13 @@ namespace DSharpPlus.Test
     /// </summary>
     public class TestBotPaginator : IPaginationRequest
     {
-        private List<Page> pages;
-        private TaskCompletionSource<bool> _tcs;
-        private CancellationTokenSource _cts;
-        private DiscordMessage _msg;
+        private readonly List<Page> pages;
+        private readonly TaskCompletionSource<bool> _tcs;
+        private readonly CancellationTokenSource _cts;
+        private readonly DiscordMessage _msg;
         private int index = 0;
-        private PaginationEmojis _emojis;
-        private DiscordUser _usr;
+        private readonly PaginationEmojis _emojis;
+        private readonly DiscordUser _usr;
 
         public int PageCount
             => this.pages.Count;
@@ -37,10 +60,7 @@ namespace DSharpPlus.Test
             this._usr = usr;
         }
 
-        public async Task DoCleanupAsync()
-        {
-            await this._msg.DeleteAsync().ConfigureAwait(false);
-        }
+        public async Task DoCleanupAsync() => await this._msg.DeleteAsync().ConfigureAwait(false);
 
         public async Task<PaginationEmojis> GetEmojisAsync()
         {

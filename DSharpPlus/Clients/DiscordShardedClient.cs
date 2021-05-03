@@ -1,20 +1,43 @@
-﻿#pragma warning disable CS0618
+// This file is part of the DSharpPlus project.
+//
+// Copyright (c) 2015 Mike Santiago
+// Copyright (c) 2016-2021 DSharpPlus Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+#pragma warning disable CS0618
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
-using System.Diagnostics;
-using System.Globalization;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Collections.Concurrent;
-using System.Collections.ObjectModel;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
-using DSharpPlus.Net;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using DSharpPlus.Net;
 using Emzi0767.Utilities;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus
 {
@@ -53,7 +76,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets the list of available voice regions. Note that this property will not contain VIP voice regions.
         /// </summary>
-        public IReadOnlyDictionary<string, DiscordVoiceRegion> VoiceRegions 
+        public IReadOnlyDictionary<string, DiscordVoiceRegion> VoiceRegions
             => this._voiceRegionsLazy?.Value;
 
         #endregion
@@ -67,10 +90,10 @@ namespace DSharpPlus
         /// </summary>
         private ConcurrentDictionary<string, DiscordVoiceRegion> _internalVoiceRegions;
 
-        private ConcurrentDictionary<int, DiscordClient> _shards = new ConcurrentDictionary<int, DiscordClient>();
+        private readonly ConcurrentDictionary<int, DiscordClient> _shards = new();
         private Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>> _voiceRegionsLazy;
         private bool _isStarted;
-        private bool _manuallySharding;
+        private readonly bool _manuallySharding;
 
         #endregion
 
@@ -251,7 +274,7 @@ namespace DSharpPlus
 
             this.Logger.LogDebug(LoggerEvents.ShardRest, $"Obtaining gateway information from GET {Endpoints.GATEWAY}{Endpoints.BOT}...");
             var resp = await http.GetAsync(url).ConfigureAwait(false);
-            
+
             http.Dispose();
 
             if (!resp.IsSuccessStatusCode)
@@ -271,7 +294,7 @@ namespace DSharpPlus
             //There is a delay from parsing here.
             timer.Stop();
 
-            info.SessionBucket.resetAfter -= (int)timer.ElapsedMilliseconds; 
+            info.SessionBucket.resetAfter -= (int)timer.ElapsedMilliseconds;
             info.SessionBucket.ResetAfter = DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(info.SessionBucket.resetAfter);
 
             return info;
@@ -309,7 +332,7 @@ namespace DSharpPlus
         }
 
 
-        private readonly Lazy<string> _versionString = new Lazy<string>(() =>
+        private readonly Lazy<string> _versionString = new(() =>
         {
             var a = typeof(DiscordShardedClient).GetTypeInfo().Assembly;
 
@@ -387,7 +410,7 @@ namespace DSharpPlus
             this.CurrentUser = null;
             this.CurrentApplication = null;
 
-            for (int i = 0; i < this._shards.Count; i++)
+            for (var i = 0; i < this._shards.Count; i++)
             {
                 if (this._shards.TryGetValue(i, out var client))
                 {
@@ -576,9 +599,9 @@ namespace DSharpPlus
 
         private int getShardIdFromGuilds(ulong id)
         {
-            foreach(var s in this._shards.Values)
+            foreach (var s in this._shards.Values)
             {
-                if(s._guilds.TryGetValue(id, out _))
+                if (s._guilds.TryGetValue(id, out _))
                 {
                     return s.ShardId;
                 }

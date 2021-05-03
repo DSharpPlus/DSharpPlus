@@ -1,4 +1,27 @@
-﻿using System;
+// This file is part of the DSharpPlus project.
+//
+// Copyright (c) 2015 Mike Santiago
+// Copyright (c) 2016-2021 DSharpPlus Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+using System;
 using System.IO;
 using System.Text;
 using DSharpPlus.Lavalink.EventArgs;
@@ -16,7 +39,7 @@ namespace DSharpPlus.Lavalink
         /// </summary>
         public static bool MayStartNext(this TrackEndReason reason)
             => reason == TrackEndReason.Finished || reason == TrackEndReason.LoadFailed;
-        
+
         /// <summary>
         /// Decodes a Lavalink track string.
         /// </summary>
@@ -34,7 +57,7 @@ namespace DSharpPlus.Lavalink
             {
                 TrackString = track
             };
-            
+
             using (var ms = new MemoryStream(raw))
             using (var br = new JavaBinaryReader(ms))
             {
@@ -44,7 +67,7 @@ namespace DSharpPlus.Lavalink
                 var messageSize = messageHeader & 0x3FFFFFFF;
                 //if (messageSize != raw.Length)
                 //    Warn($"Size conflict: {messageSize} but was {raw.Length}");
-                
+
                 // https://github.com/sedmelluq/lavaplayer/blob/804cd1038229230052d9b1dee5e6d1741e30e284/main/src/main/java/com/sedmelluq/discord/lavaplayer/player/DefaultAudioPlayerManager.java#L268
 
                 // java bytes are signed
@@ -64,31 +87,10 @@ namespace DSharpPlus.Lavalink
                 decoded.IsStream = br.ReadBoolean();
 
                 var uri = br.ReadNullableString();
-                if (uri != null && version >= 2)
-                    decoded.Uri = new Uri(uri);
-                else
-                    decoded.Uri = null;
+                decoded.Uri = uri != null && version >= 2 ? new Uri(uri) : null;
             }
 
             return decoded;
-        }
-
-        private static uint SwapEndianness(uint v)
-        {
-            v = (v << 16) | (v >> 16);
-            return ((v & 0xFF00FF00) >> 8 | ((v & 0x00FF00FF) << 8));
-        }
-
-        private static short SwapEndianness(short v)
-        {
-            return (short)((v << 8) | (v >> 8));
-        }
-
-        private static ulong SwapEndianness(ulong v)
-        {
-            v = (v >> 32) | (v << 32);
-            v = ((v & 0xFFFF0000FFFF0000) >> 16) | ((v & 0x0000FFFF0000FFFF) << 16);
-            return ((v & 0xFF00FF00FF00FF00) >> 8) | ((v & 0x00FF00FF00FF00FF) << 8);
         }
     }
 
@@ -109,9 +111,9 @@ namespace DSharpPlus.Lavalink
         // https://docs.oracle.com/javase/7/docs/api/java/io/DataInput.html#readUTF()
         public string ReadJavaUtf8()
         {
-            var length = ReadUInt16(); // string size in bytes
+            var length = this.ReadUInt16(); // string size in bytes
             var bytes = new byte[length];
-            var amountRead = Read(bytes, 0, length);
+            var amountRead = this.Read(bytes, 0, length);
             if (amountRead < length)
                 throw new InvalidDataException("EOS unexpected");
 
@@ -125,7 +127,7 @@ namespace DSharpPlus.Lavalink
                 var value1 = bytes[i];
                 if ((value1 & 0b10000000) == 0) // highest bit 1 is false
                 {
-                    output[strlen++] = (char) value1;
+                    output[strlen++] = (char)value1;
                     continue;
                 }
 
@@ -137,11 +139,11 @@ namespace DSharpPlus.Lavalink
                     (value2 & 0b10000000) != 0) //   highest bit 1 is true
                 {
                     var value1Chop = (value1 & 0b00011111) << 6;
-                    var value2Chop = (value2 & 0b00111111);
-                    output[strlen++] = (char) (value1Chop | value2Chop);
+                    var value2Chop = value2 & 0b00111111;
+                    output[strlen++] = (char)(value1Chop | value2Chop);
                     continue;
                 }
-                
+
                 var value3 = bytes[++i];
                 if ((value1 & 0b00010000) == 0 && // highest bit 4 is false
                     (value1 & 0b11100000) != 0 && // highest bit 1,2,3 are true
@@ -152,50 +154,44 @@ namespace DSharpPlus.Lavalink
                 {
                     var value1Chop = (value1 & 0b00001111) << 12;
                     var value2Chop = (value2 & 0b00111111) << 6;
-                    var value3Chop = (value3 & 0b00111111);
-                    output[strlen++] = (char) (value1Chop | value2Chop | value3Chop);
+                    var value3Chop = value3 & 0b00111111;
+                    output[strlen++] = (char)(value1Chop | value2Chop | value3Chop);
                     continue;
                 }
             }
-            
+
             return new string(output, 0, strlen);
         }
 
         // https://github.com/sedmelluq/lavaplayer/blob/b0c536098c4f92e6d03b00f19221021f8f50b19b/main/src/main/java/com/sedmelluq/discord/lavaplayer/tools/DataFormatTools.java#L114-L125
-        public string ReadNullableString()
-        {
-            return ReadBoolean() ? ReadJavaUtf8() : null;
-        }
+        public string ReadNullableString() => this.ReadBoolean() ? this.ReadJavaUtf8() : null;
 
         // swap endianness
-        public override decimal ReadDecimal()
-        {
-            throw new MissingMethodException("This method does not have a Java equivalent");
-        }
+        public override decimal ReadDecimal() => throw new MissingMethodException("This method does not have a Java equivalent");
 
         // from https://github.com/Zoltu/Zoltu.EndianAwareBinaryReaderWriter under CC0
-        public override float ReadSingle() => Read(4, BitConverter.ToSingle);
+        public override float ReadSingle() => this.Read(4, BitConverter.ToSingle);
 
-        public override double ReadDouble() => Read(8, BitConverter.ToDouble);
+        public override double ReadDouble() => this.Read(8, BitConverter.ToDouble);
 
-        public override short ReadInt16() => Read(2, BitConverter.ToInt16);
+        public override short ReadInt16() => this.Read(2, BitConverter.ToInt16);
 
-        public override int ReadInt32() => Read(4, BitConverter.ToInt32);
+        public override int ReadInt32() => this.Read(4, BitConverter.ToInt32);
 
-        public override long ReadInt64() => Read(8, BitConverter.ToInt64);
+        public override long ReadInt64() => this.Read(8, BitConverter.ToInt64);
 
-        public override ushort ReadUInt16() => Read(2, BitConverter.ToUInt16);
+        public override ushort ReadUInt16() => this.Read(2, BitConverter.ToUInt16);
 
-        public override uint ReadUInt32() => Read(4, BitConverter.ToUInt32);
+        public override uint ReadUInt32() => this.Read(4, BitConverter.ToUInt32);
 
-        public override ulong ReadUInt64() => Read(8, BitConverter.ToUInt64);
+        public override ulong ReadUInt64() => this.Read(8, BitConverter.ToUInt64);
 
         private T Read<T>(int size, Func<byte[], int, T> converter) where T : struct
         {
             //Contract.Requires(size >= 0);
             //Contract.Requires(converter != null);
 
-            var bytes = GetNextBytesNativeEndian(size);
+            var bytes = this.GetNextBytesNativeEndian(size);
             return converter(bytes, 0);
         }
 
@@ -205,7 +201,7 @@ namespace DSharpPlus.Lavalink
             //Contract.Ensures(Contract.Result<Byte[]>() != null);
             //Contract.Ensures(Contract.Result<Byte[]>().Length == count);
 
-            var bytes = GetNextBytes(count);
+            var bytes = this.GetNextBytes(count);
             if (BitConverter.IsLittleEndian)
                 Array.Reverse(bytes);
             return bytes;
@@ -218,12 +214,9 @@ namespace DSharpPlus.Lavalink
             //Contract.Ensures(Contract.Result<Byte[]>().Length == count);
 
             var buffer = new byte[count];
-            var bytesRead = BaseStream.Read(buffer, 0, count);
+            var bytesRead = this.BaseStream.Read(buffer, 0, count);
 
-            if (bytesRead != count)
-                throw new EndOfStreamException();
-
-            return buffer;
+            return bytesRead != count ? throw new EndOfStreamException() : buffer;
         }
     }
 }

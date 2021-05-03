@@ -1,4 +1,27 @@
-﻿using System;
+// This file is part of the DSharpPlus project.
+//
+// Copyright (c) 2015 Mike Santiago
+// Copyright (c) 2016-2021 DSharpPlus Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+using System;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -28,7 +51,7 @@ namespace DSharpPlus.Lavalink
             add { this._playerUpdated.Register(value); }
             remove { this._playerUpdated.Unregister(value); }
         }
-        private AsyncEvent<LavalinkGuildConnection, PlayerUpdateEventArgs> _playerUpdated;
+        private readonly AsyncEvent<LavalinkGuildConnection, PlayerUpdateEventArgs> _playerUpdated;
 
         /// <summary>
         /// Triggered whenever playback of a track starts.
@@ -39,7 +62,7 @@ namespace DSharpPlus.Lavalink
             add { this._playbackStarted.Register(value); }
             remove { this._playbackStarted.Unregister(value); }
         }
-        private AsyncEvent<LavalinkGuildConnection, TrackStartEventArgs> _playbackStarted;
+        private readonly AsyncEvent<LavalinkGuildConnection, TrackStartEventArgs> _playbackStarted;
 
         /// <summary>
         /// Triggered whenever playback of a track finishes.
@@ -49,7 +72,7 @@ namespace DSharpPlus.Lavalink
             add { this._playbackFinished.Register(value); }
             remove { this._playbackFinished.Unregister(value); }
         }
-        private AsyncEvent<LavalinkGuildConnection, TrackFinishEventArgs> _playbackFinished;
+        private readonly AsyncEvent<LavalinkGuildConnection, TrackFinishEventArgs> _playbackFinished;
 
         /// <summary>
         /// Triggered whenever playback of a track gets stuck.
@@ -59,7 +82,7 @@ namespace DSharpPlus.Lavalink
             add { this._trackStuck.Register(value); }
             remove { this._trackStuck.Unregister(value); }
         }
-        private AsyncEvent<LavalinkGuildConnection, TrackStuckEventArgs> _trackStuck;
+        private readonly AsyncEvent<LavalinkGuildConnection, TrackStuckEventArgs> _trackStuck;
 
         /// <summary>
         /// Triggered whenever playback of a track encounters an error.
@@ -69,7 +92,7 @@ namespace DSharpPlus.Lavalink
             add { this._trackException.Register(value); }
             remove { this._trackException.Unregister(value); }
         }
-        private AsyncEvent<LavalinkGuildConnection, TrackExceptionEventArgs> _trackException;
+        private readonly AsyncEvent<LavalinkGuildConnection, TrackExceptionEventArgs> _trackException;
 
         /// <summary>
         /// Triggered whenever Discord Voice WebSocket connection is terminated.
@@ -79,7 +102,7 @@ namespace DSharpPlus.Lavalink
             add { this._webSocketClosed.Register(value); }
             remove { this._webSocketClosed.Unregister(value); }
         }
-        private AsyncEvent<LavalinkGuildConnection, WebSocketCloseEventArgs> _webSocketClosed;
+        private readonly AsyncEvent<LavalinkGuildConnection, WebSocketCloseEventArgs> _webSocketClosed;
 
         /// <summary>
         /// Gets whether this channel is still connected.

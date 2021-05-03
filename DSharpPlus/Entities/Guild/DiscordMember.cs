@@ -1,12 +1,35 @@
+// This file is part of the DSharpPlus project.
+//
+// Copyright (c) 2015 Mike Santiago
+// Copyright (c) 2016-2021 DSharpPlus Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using System.Linq;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Models;
+using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
 {
@@ -54,26 +77,26 @@ namespace DSharpPlus.Entities
         /// Gets this member's display name.
         /// </summary>
         [JsonIgnore]
-        public string DisplayName 
+        public string DisplayName
             => this.Nickname ?? this.Username;
 
         /// <summary>
         /// List of role ids
         /// </summary>
         [JsonIgnore]
-        internal IReadOnlyList<ulong> RoleIds 
+        internal IReadOnlyList<ulong> RoleIds
             => this._role_ids_lazy.Value;
 
         [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
         internal List<ulong> _role_ids;
         [JsonIgnore]
-        private Lazy<IReadOnlyList<ulong>> _role_ids_lazy;
+        private readonly Lazy<IReadOnlyList<ulong>> _role_ids_lazy;
 
         /// <summary>
         /// Gets the list of roles associated with this member.
         /// </summary>
         [JsonIgnore]
-        public IEnumerable<DiscordRole> Roles 
+        public IEnumerable<DiscordRole> Roles
             => this.RoleIds.Select(id => this.Guild.GetRole(id)).Where(x => x != null);
 
         /// <summary>
@@ -85,9 +108,7 @@ namespace DSharpPlus.Entities
             get
             {
                 var role = this.Roles.OrderByDescending(xr => xr.Position).FirstOrDefault(xr => xr.Color.Value != 0);
-                if (role != null)
-                    return role.Color;
-                return new DiscordColor();
+                return role != null ? role.Color : new DiscordColor();
             }
         }
 
@@ -125,7 +146,7 @@ namespace DSharpPlus.Entities
         /// Gets this member's voice state.
         /// </summary>
         [JsonIgnore]
-        public DiscordVoiceState VoiceState 
+        public DiscordVoiceState VoiceState
             => this.Discord.Guilds[this._guild_id].VoiceStates.TryGetValue(this.Id, out var voiceState) ? voiceState : null;
 
         [JsonIgnore]
@@ -135,14 +156,14 @@ namespace DSharpPlus.Entities
         /// Gets the guild of which this member is a part of.
         /// </summary>
         [JsonIgnore]
-        public DiscordGuild Guild 
+        public DiscordGuild Guild
             => this.Discord.Guilds[_guild_id];
 
         /// <summary>
         /// Gets whether this member is the Guild owner.
         /// </summary>
         [JsonIgnore]
-        public bool IsOwner 
+        public bool IsOwner
             => this.Id == this.Guild.OwnerId;
 
         /// <summary>
@@ -154,7 +175,7 @@ namespace DSharpPlus.Entities
 
         #region Overridden user properties
         [JsonIgnore]
-        internal DiscordUser User 
+        internal DiscordUser User
             => this.Discord.UserCache[this.Id];
 
         /// <summary>
@@ -234,19 +255,19 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the user's flags.
         /// </summary>
-        public override UserFlags? OAuthFlags 
-        { 
-            get => this.User.OAuthFlags; 
-            internal set => this.User.OAuthFlags = value; 
+        public override UserFlags? OAuthFlags
+        {
+            get => this.User.OAuthFlags;
+            internal set => this.User.OAuthFlags = value;
         }
 
         /// <summary>
         /// Gets the member's flags for OAuth.
         /// </summary>
-        public override UserFlags? Flags 
-        { 
-            get => this.User.Flags; 
-            internal set => this.User.Flags = value; 
+        public override UserFlags? Flags
+        {
+            get => this.User.Flags;
+            internal set => this.User.Flags = value;
         }
         #endregion
 
@@ -264,7 +285,7 @@ namespace DSharpPlus.Entities
 
             if (this.Discord is DiscordClient dc)
                 dm = dc._privateChannels.Values.FirstOrDefault(x => x.Recipients[0].Id == this.Id);
-            
+
             return dm != null ? Task.FromResult(dm) : this.Discord.ApiClient.CreateDmAsync(this.Id);
         }
 
@@ -281,7 +302,7 @@ namespace DSharpPlus.Entities
         {
             if (this.IsBot && this.Discord.CurrentUser.IsBot)
                 throw new ArgumentException("Bots cannot DM each other.");
-            
+
             var chn = await this.CreateDmChannelAsync().ConfigureAwait(false);
             return await chn.SendMessageAsync(content).ConfigureAwait(false);
         }
@@ -351,7 +372,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task SetMuteAsync(bool mute, string reason = null) 
+        public Task SetMuteAsync(bool mute, string reason = null)
             => this.Discord.ApiClient.ModifyGuildMemberAsync(_guild_id, this.Id, default, default, mute, default, default, reason);
 
         /// <summary>
@@ -364,7 +385,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task SetDeafAsync(bool deaf, string reason = null) 
+        public Task SetDeafAsync(bool deaf, string reason = null)
             => this.Discord.ApiClient.ModifyGuildMemberAsync(_guild_id, this.Id, default, default, default, deaf, default, reason);
 
         /// <summary>
@@ -411,7 +432,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task GrantRoleAsync(DiscordRole role, string reason = null) 
+        public Task GrantRoleAsync(DiscordRole role, string reason = null)
             => this.Discord.ApiClient.AddGuildMemberRoleAsync(this.Guild.Id, this.Id, role.Id, reason);
 
         /// <summary>
@@ -424,7 +445,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task RevokeRoleAsync(DiscordRole role, string reason = null) 
+        public Task RevokeRoleAsync(DiscordRole role, string reason = null)
             => this.Discord.ApiClient.RemoveGuildMemberRoleAsync(this.Guild.Id, this.Id, role.Id, reason);
 
         /// <summary>
@@ -437,7 +458,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task ReplaceRolesAsync(IEnumerable<DiscordRole> roles, string reason = null) 
+        public Task ReplaceRolesAsync(IEnumerable<DiscordRole> roles, string reason = null)
             => this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, default,
                 new Optional<IEnumerable<ulong>>(roles.Select(xr => xr.Id)), default, default, default, reason);
 
@@ -451,7 +472,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task BanAsync(int delete_message_days = 0, string reason = null) 
+        public Task BanAsync(int delete_message_days = 0, string reason = null)
             => this.Guild.BanMemberAsync(this, delete_message_days, reason);
 
         /// <exception cref = "Exceptions.UnauthorizedException" > Thrown when the client does not have the<see cref="Permissions.BanMembers"/> permission.</exception>
@@ -482,7 +503,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task PlaceInAsync(DiscordChannel channel) 
+        public Task PlaceInAsync(DiscordChannel channel)
             => channel.PlaceMemberAsync(this);
 
         /// <summary>
@@ -504,27 +525,21 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="channel">Channel to calculate permissions for.</param>
         /// <returns>Calculated permissions for this member in the channel.</returns>
-        public Permissions PermissionsIn(DiscordChannel channel) 
+        public Permissions PermissionsIn(DiscordChannel channel)
             => channel.PermissionsFor(this);
 
         /// <summary>
         /// Returns a string representation of this member.
         /// </summary>
         /// <returns>String representation of this member.</returns>
-        public override string ToString()
-        {
-            return $"Member {this.Id}; {this.Username}#{this.Discriminator} ({this.DisplayName})";
-        }
+        public override string ToString() => $"Member {this.Id}; {this.Username}#{this.Discriminator} ({this.DisplayName})";
 
         /// <summary>
         /// Checks whether this <see cref="DiscordMember"/> is equal to another object.
         /// </summary>
         /// <param name="obj">Object to compare to.</param>
         /// <returns>Whether the object is equal to this <see cref="DiscordMember"/>.</returns>
-        public override bool Equals(object obj)
-        {
-            return this.Equals(obj as DiscordMember);
-        }
+        public override bool Equals(object obj) => this.Equals(obj as DiscordMember);
 
         /// <summary>
         /// Checks whether this <see cref="DiscordMember"/> is equal to another <see cref="DiscordMember"/>.
@@ -533,13 +548,10 @@ namespace DSharpPlus.Entities
         /// <returns>Whether the <see cref="DiscordMember"/> is equal to this <see cref="DiscordMember"/>.</returns>
         public bool Equals(DiscordMember e)
         {
-            if (ReferenceEquals(e, null))
+            if (e is null)
                 return false;
 
-            if (ReferenceEquals(this, e))
-                return true;
-
-            return this.Id == e.Id && this._guild_id == e._guild_id;
+            return ReferenceEquals(this, e) ? true : this.Id == e.Id && this._guild_id == e._guild_id;
         }
 
         /// <summary>
@@ -548,7 +560,7 @@ namespace DSharpPlus.Entities
         /// <returns>The hash code for this <see cref="DiscordMember"/>.</returns>
         public override int GetHashCode()
         {
-            int hash = 13;
+            var hash = 13;
 
             hash = (hash * 7) + this.Id.GetHashCode();
             hash = (hash * 7) + this._guild_id.GetHashCode();
@@ -570,10 +582,7 @@ namespace DSharpPlus.Entities
             if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
                 return false;
 
-            if (o1 == null && o2 == null)
-                return true;
-
-            return e1.Id == e2.Id && e1._guild_id == e2._guild_id;
+            return o1 == null && o2 == null ? true : e1.Id == e2.Id && e1._guild_id == e2._guild_id;
         }
 
         /// <summary>
@@ -582,7 +591,7 @@ namespace DSharpPlus.Entities
         /// <param name="e1">First member to compare.</param>
         /// <param name="e2">Second member to compare.</param>
         /// <returns>Whether the two members are not equal.</returns>
-        public static bool operator !=(DiscordMember e1, DiscordMember e2) 
+        public static bool operator !=(DiscordMember e1, DiscordMember e2)
             => !(e1 == e2);
     }
 }

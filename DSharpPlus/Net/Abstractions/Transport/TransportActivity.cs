@@ -1,4 +1,27 @@
-﻿using System;
+// This file is part of the DSharpPlus project.
+//
+// Copyright (c) 2015 Mike Santiago
+// Copyright (c) 2016-2021 DSharpPlus Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+using System;
 using System.Globalization;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
@@ -198,7 +221,7 @@ namespace DSharpPlus.Net.Abstractions
             /// Gets the time the game has started.
             /// </summary>
             [JsonIgnore]
-            public DateTimeOffset? Start 
+            public DateTimeOffset? Start
                 => this._start != null ? (DateTimeOffset?)Utilities.GetDateTimeOffsetFromMilliseconds(this._start.Value, false) : null;
 
             [JsonProperty("start", NullValueHandling = NullValueHandling.Ignore)]
@@ -208,7 +231,7 @@ namespace DSharpPlus.Net.Abstractions
             /// Gets the time the game is going to end.
             /// </summary>
             [JsonIgnore]
-            public DateTimeOffset? End 
+            public DateTimeOffset? End
                 => this._end != null ? (DateTimeOffset?)Utilities.GetDateTimeOffsetFromMilliseconds(this._end.Value, false) : null;
 
             [JsonProperty("end", NullValueHandling = NullValueHandling.Ignore)]
@@ -244,14 +267,15 @@ namespace DSharpPlus.Net.Abstractions
     {
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            var sinfo = value as TransportActivity.GameParty.GamePartySize;
-            var obj = sinfo != null ? new object[] { sinfo.Current, sinfo.Maximum } : null;
+            var obj = value is TransportActivity.GameParty.GamePartySize sinfo
+                ? new object[] { sinfo.Current, sinfo.Maximum }
+                : null;
             serializer.Serialize(writer, obj);
         }
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            var arr = ReadArrayObject(reader, serializer);
+            var arr = this.ReadArrayObject(reader, serializer);
             return new TransportActivity.GameParty.GamePartySize
             {
                 Current = (long)arr[0],
@@ -261,15 +285,11 @@ namespace DSharpPlus.Net.Abstractions
 
         private JArray ReadArrayObject(JsonReader reader, JsonSerializer serializer)
         {
-            var arr = serializer.Deserialize<JToken>(reader) as JArray;
-            if (arr == null || arr.Count != 2)
-                throw new JsonSerializationException("Expected array of length 2");
-            return arr;
+            return serializer.Deserialize<JToken>(reader) is not JArray arr || arr.Count != 2
+                ? throw new JsonSerializationException("Expected array of length 2")
+                : arr;
         }
 
-        public override bool CanConvert(Type objectType)
-        {
-            return objectType == typeof(TransportActivity.GameParty.GamePartySize);
-        }
+        public override bool CanConvert(Type objectType) => objectType == typeof(TransportActivity.GameParty.GamePartySize);
     }
 }

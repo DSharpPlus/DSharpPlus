@@ -1,4 +1,27 @@
-﻿using System;
+// This file is part of the DSharpPlus project.
+//
+// Copyright (c) 2015 Mike Santiago
+// Copyright (c) 2016-2021 DSharpPlus Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
@@ -72,10 +95,7 @@ namespace DSharpPlus.VoiceNext
         /// <param name="offset">Start of the data in the buffer.</param>
         /// <param name="count">Number of bytes from the buffer.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
-        public async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default)
-        {
-            await WriteAsync(new ReadOnlyMemory<byte>(buffer, offset, count), cancellationToken).ConfigureAwait(false);
-        }
+        public async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default) => await this.WriteAsync(new ReadOnlyMemory<byte>(buffer, offset, count), cancellationToken).ConfigureAwait(false);
 
         /// <summary>
         /// Writes PCM data to the sink. The data is prepared for transmission, and enqueued.
@@ -106,15 +126,15 @@ namespace DSharpPlus.VoiceNext
 
                     if (this.PcmBufferLength == this.PcmBuffer.Length)
                     {
-                        ApplyFiltersSync(pcmSpan);
+                        this.ApplyFiltersSync(pcmSpan);
 
                         this.PcmBufferLength = 0;
 
-                        var packet = ArrayPool<byte>.Shared.Rent(PcmMemory.Length);
-                        var packetMemory = packet.AsMemory().Slice(0, PcmMemory.Length);
-                        PcmMemory.CopyTo(packetMemory);
+                        var packet = ArrayPool<byte>.Shared.Rent(this.PcmMemory.Length);
+                        var packetMemory = packet.AsMemory().Slice(0, this.PcmMemory.Length);
+                        this.PcmMemory.CopyTo(packetMemory);
 
-                        await Connection.EnqueuePacketAsync(new RawVoicePacket(packetMemory, PcmBufferDuration, false, packet), cancellationToken).ConfigureAwait(false);
+                        await this.Connection.EnqueuePacketAsync(new RawVoicePacket(packetMemory, this.PcmBufferDuration, false, packet), cancellationToken).ConfigureAwait(false);
                     }
                 }
             }
@@ -133,13 +153,13 @@ namespace DSharpPlus.VoiceNext
             var pcm = this.PcmMemory;
             Helpers.ZeroFill(pcm.Slice(this.PcmBufferLength).Span);
 
-            ApplyFiltersSync(pcm);
+            this.ApplyFiltersSync(pcm);
 
             var packet = ArrayPool<byte>.Shared.Rent(pcm.Length);
             var packetMemory = packet.AsMemory().Slice(0, pcm.Length);
             pcm.CopyTo(packetMemory);
 
-            await Connection.EnqueuePacketAsync(new RawVoicePacket(packetMemory, PcmBufferDuration, false, packet), cancellationToken).ConfigureAwait(false);
+            await this.Connection.EnqueuePacketAsync(new RawVoicePacket(packetMemory, this.PcmBufferDuration, false, packet), cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -201,10 +221,7 @@ namespace DSharpPlus.VoiceNext
             lock (this.Filters)
             {
                 var filters = this.Filters;
-                if (!filters.Contains(filter))
-                    return false;
-
-                return filters.Remove(filter);
+                return !filters.Contains(filter) ? false : filters.Remove(filter);
             }
         }
 

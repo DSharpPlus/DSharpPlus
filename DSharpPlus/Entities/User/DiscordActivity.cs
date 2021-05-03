@@ -1,4 +1,27 @@
-﻿using System;
+// This file is part of the DSharpPlus project.
+//
+// Copyright (c) 2015 Mike Santiago
+// Copyright (c) 2016-2021 DSharpPlus Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+using System;
 using System.Globalization;
 using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
@@ -73,24 +96,14 @@ namespace DSharpPlus.Entities
         {
             // Active sessions are indicated with an "online", "idle", or "dnd" string per platform. If a user is
             // offline or invisible, the corresponding field is not present.
-            switch (reader.Value?.ToString().ToLowerInvariant()) // reader.Value can be a string, DateTime or DateTimeOffset (yes, it's weird)
+            return (reader.Value?.ToString().ToLowerInvariant()) switch // reader.Value can be a string, DateTime or DateTimeOffset (yes, it's weird)
             {
-                case "online":
-                    return UserStatus.Online;
-
-                case "idle":
-                    return UserStatus.Idle;
-
-                case "dnd":
-                    return UserStatus.DoNotDisturb;
-
-                case "invisible":
-                    return UserStatus.Invisible;
-
-                case "offline":
-                default:
-                    return UserStatus.Offline;
-            }
+                "online" => UserStatus.Online,
+                "idle" => UserStatus.Idle,
+                "dnd" => UserStatus.DoNotDisturb,
+                "invisible" => UserStatus.Invisible,
+                _ => UserStatus.Offline,
+            };
         }
 
         public override bool CanConvert(Type objectType) => objectType == typeof(UserStatus);
@@ -180,21 +193,17 @@ namespace DSharpPlus.Entities
 
             if (rawActivity?.IsRichPresence() == true && this.RichPresence != null)
                 this.RichPresence.UpdateWith(rawActivity);
-            else if (rawActivity?.IsRichPresence() == true)
-                this.RichPresence = new DiscordRichPresence(rawActivity);
-            else
-                this.RichPresence = null;
+            else this.RichPresence = rawActivity?.IsRichPresence() == true ? new DiscordRichPresence(rawActivity) : null;
 
             if (rawActivity?.IsCustomStatus() == true && this.CustomStatus != null)
                 this.CustomStatus.UpdateWith(rawActivity.State, rawActivity.Emoji);
-            else if (rawActivity?.IsCustomStatus() == true)
-                this.CustomStatus = new DiscordCustomStatus
+            else this.CustomStatus = rawActivity?.IsCustomStatus() == true
+                ? new DiscordCustomStatus
                 {
                     Name = rawActivity.State,
                     Emoji = rawActivity.Emoji
-                };
-            else
-                this.CustomStatus = null;
+                }
+                : null;
         }
     }
 

@@ -1,4 +1,27 @@
-﻿using System.Collections.Concurrent;
+// This file is part of the DSharpPlus project.
+//
+// Copyright (c) 2015 Mike Santiago
+// Copyright (c) 2016-2021 DSharpPlus Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,45 +34,45 @@ using DSharpPlus.Entities;
 namespace DSharpPlus.Test
 {
     public class TestBotCommands : BaseCommandModule
-	{
-		public static ConcurrentDictionary<ulong, string> PrefixSettings { get; } = new ConcurrentDictionary<ulong, string>();
+    {
+        public static ConcurrentDictionary<ulong, string> PrefixSettings { get; } = new ConcurrentDictionary<ulong, string>();
 
-		[Command("crosspost")]
-		public async Task CrosspostAsync(CommandContext ctx, DiscordChannel chn, DiscordMessage msg)
-		{
-			var message = await chn.CrosspostMessageAsync(msg).ConfigureAwait(false);
-			await ctx.RespondAsync($":ok_hand: Message published: {message.Id}").ConfigureAwait(false);
-		}
+        [Command("crosspost")]
+        public async Task CrosspostAsync(CommandContext ctx, DiscordChannel chn, DiscordMessage msg)
+        {
+            var message = await chn.CrosspostMessageAsync(msg).ConfigureAwait(false);
+            await ctx.RespondAsync($":ok_hand: Message published: {message.Id}").ConfigureAwait(false);
+        }
 
-		[Command("follow")]
-		public async Task FollowAsync(CommandContext ctx, DiscordChannel channelToFollow, DiscordChannel targetChannel)
-		{
-			await channelToFollow.FollowAsync(targetChannel).ConfigureAwait(false);
-			await ctx.RespondAsync($":ok_hand: Following channel {channelToFollow.Mention} into {targetChannel.Mention} (Guild: {targetChannel.Guild.Id})").ConfigureAwait(false);
-		}
+        [Command("follow")]
+        public async Task FollowAsync(CommandContext ctx, DiscordChannel channelToFollow, DiscordChannel targetChannel)
+        {
+            await channelToFollow.FollowAsync(targetChannel).ConfigureAwait(false);
+            await ctx.RespondAsync($":ok_hand: Following channel {channelToFollow.Mention} into {targetChannel.Mention} (Guild: {targetChannel.Guild.Id})").ConfigureAwait(false);
+        }
 
-		[Command("setprefix"), Aliases("channelprefix"), Description("Sets custom command prefix for current channel. The bot will still respond to the default one."), RequireOwner]
-		public async Task SetPrefixAsync(CommandContext ctx, [Description("The prefix to use for current channel.")] string prefix = null)
-		{
-			if (string.IsNullOrWhiteSpace(prefix))
-				if (PrefixSettings.TryRemove(ctx.Channel.Id, out _))
-					await ctx.RespondAsync("👍").ConfigureAwait(false);
-				else
-					await ctx.RespondAsync("👎").ConfigureAwait(false);
-			else
-			{
-				PrefixSettings.AddOrUpdate(ctx.Channel.Id, prefix, (k, vold) => prefix);
-				await ctx.RespondAsync("👍").ConfigureAwait(false);
-			}
-		}
+        [Command("setprefix"), Aliases("channelprefix"), Description("Sets custom command prefix for current channel. The bot will still respond to the default one."), RequireOwner]
+        public async Task SetPrefixAsync(CommandContext ctx, [Description("The prefix to use for current channel.")] string prefix = null)
+        {
+            if (string.IsNullOrWhiteSpace(prefix))
+                if (PrefixSettings.TryRemove(ctx.Channel.Id, out _))
+                    await ctx.RespondAsync("👍").ConfigureAwait(false);
+                else
+                    await ctx.RespondAsync("👎").ConfigureAwait(false);
+            else
+            {
+                PrefixSettings.AddOrUpdate(ctx.Channel.Id, prefix, (k, vold) => prefix);
+                await ctx.RespondAsync("👍").ConfigureAwait(false);
+            }
+        }
 
-		[Command("sudo"), Description("Run a command as another user."), Hidden, RequireOwner]
-		public async Task SudoAsync(CommandContext ctx, DiscordUser user, [RemainingText] string content)
-		{
+        [Command("sudo"), Description("Run a command as another user."), Hidden, RequireOwner]
+        public async Task SudoAsync(CommandContext ctx, DiscordUser user, [RemainingText] string content)
+        {
             var cmd = ctx.CommandsNext.FindCommand(content, out var args);
             var fctx = ctx.CommandsNext.CreateFakeContext(user, ctx.Channel, content, ctx.Prefix, cmd, args);
             await ctx.CommandsNext.ExecuteCommandAsync(fctx).ConfigureAwait(false);
-		}
+        }
 
         [Group("bind"), Description("Various argument binder testing commands.")]
         public class Binding : BaseCommandModule
@@ -60,14 +83,14 @@ namespace DSharpPlus.Test
                     .WithTimestamp(msg.CreationTimestamp)
                     .WithAuthor($"{msg.Author.Username}#{msg.Author.Discriminator}", msg.Author.AvatarUrl)
                     .WithDescription(msg.Content));
-		}
+        }
 
 
         [Command("mention"), Description("Attempts to mention a user")]
         public async Task MentionablesAsync(CommandContext ctx, DiscordUser user)
         {
-            string content = $"Hey, {user.Mention}! Listen!";
-            await ctx.Channel.SendMessageAsync("✔ should ping, ❌ should not ping.").ConfigureAwait(false);                                                                                           
+            var content = $"Hey, {user.Mention}! Listen!";
+            await ctx.Channel.SendMessageAsync("✔ should ping, ❌ should not ping.").ConfigureAwait(false);
 
             await ctx.Channel.SendMessageAsync("✔ Default Behaviour: " + content).ConfigureAwait(false);                                                                                            //Should ping User
 
@@ -118,8 +141,8 @@ namespace DSharpPlus.Test
         [Command("editMention"), Description("Attempts to mention a user via edit message")]
         public async Task EditMentionablesAsync(CommandContext ctx, DiscordUser user)
         {
-            string origcontent = $"Hey, silly! Listen!";
-            string newContent = $"Hey, {user.Mention}! Listen!";
+            var origcontent = $"Hey, silly! Listen!";
+            var newContent = $"Hey, {user.Mention}! Listen!";
 
             await ctx.Channel.SendMessageAsync("✔ should ping, ❌ should not ping.").ConfigureAwait(false);
 
@@ -129,7 +152,7 @@ namespace DSharpPlus.Test
                .ModifyAsync(test1Msg)
                .ConfigureAwait(false);                                                                                                                               //Should ping User
 
-            var test2Msg = await ctx.Channel.SendMessageAsync("✔ UserMention(user): " + origcontent).ConfigureAwait(false);      
+            var test2Msg = await ctx.Channel.SendMessageAsync("✔ UserMention(user): " + origcontent).ConfigureAwait(false);
             await new DiscordMessageBuilder()
                .WithContent("✔ UserMention(user): " + newContent)
                .WithAllowedMentions(new IMention[] { new UserMention(user) })
@@ -245,7 +268,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("CreateSomeFile")]
-        public async Task CreateSomeFile(CommandContext ctx, string fileName, [RemainingText]string fileBody)
+        public async Task CreateSomeFile(CommandContext ctx, string fileName, [RemainingText] string fileBody)
         {
             using (var fs = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite))
             using (var sw = new StreamWriter(fs))
@@ -350,12 +373,12 @@ namespace DSharpPlus.Test
         [Command("chainreply")]
         public async Task ChainReplyAsync(CommandContext ctx)
         {
-            DiscordMessageBuilder builder = new DiscordMessageBuilder();
+            var builder = new DiscordMessageBuilder();
 
-            StringBuilder contentBuilder = new StringBuilder();
+            var contentBuilder = new StringBuilder();
 
-            ulong reply = ctx.Message.Id;
-            bool ping = false;
+            var reply = ctx.Message.Id;
+            var ping = false;
 
             if (ctx.Message.MessageType == MessageType.Reply)
             {
@@ -438,7 +461,7 @@ namespace DSharpPlus.Test
             var contentBuilder = new StringBuilder("Message has no attachment.");
 
 
-            if(message.Attachments.Any())
+            if (message.Attachments.Any())
             {
                 contentBuilder.Clear();
                 foreach (var attachment in message.Attachments)

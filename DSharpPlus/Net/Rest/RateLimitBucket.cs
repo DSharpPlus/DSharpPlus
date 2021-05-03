@@ -1,4 +1,27 @@
-﻿using System;
+// This file is part of the DSharpPlus project.
+//
+// Copyright (c) 2015 Mike Santiago
+// Copyright (c) 2016-2021 DSharpPlus Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+using System;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,16 +56,13 @@ namespace DSharpPlus.Net
         /// <summary>
         /// Gets or sets the ratelimit hash of this bucket.
         /// </summary>
-        public string Hash 
-        { 
+        public string Hash
+        {
             get => Volatile.Read(ref this._hash);
 
             internal set
             {
-                if (value.Contains(UNLIMITED_HASH))
-                    this.IsUnlimited = true;
-                else
-                    this.IsUnlimited = false;
+                this.IsUnlimited = value.Contains(UNLIMITED_HASH);
 
                 if (this.BucketId != null && !this.BucketId.StartsWith(value))
                 {
@@ -70,7 +90,7 @@ namespace DSharpPlus.Net
         /// <summary>
         /// Gets the number of uses left before pre-emptive rate limit is triggered.
         /// </summary>
-        public int Remaining 
+        public int Remaining
             => this._remaining;
 
         /// <summary>
@@ -185,13 +205,10 @@ namespace DSharpPlus.Net
         /// <returns>Whether the <see cref="RateLimitBucket"/> is equal to this <see cref="RateLimitBucket"/>.</returns>
         public bool Equals(RateLimitBucket e)
         {
-            if (ReferenceEquals(e, null))
+            if (e is null)
                 return false;
 
-            if (ReferenceEquals(this, e))
-                return true;
-
-            return this.BucketId == e.BucketId;
+            return ReferenceEquals(this, e) ? true : this.BucketId == e.BucketId;
         }
 
         /// <summary>

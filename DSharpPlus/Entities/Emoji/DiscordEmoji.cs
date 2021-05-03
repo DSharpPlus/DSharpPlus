@@ -1,4 +1,27 @@
-﻿using System;
+// This file is part of the DSharpPlus project.
+//
+// Copyright (c) 2015 Mike Santiago
+// Copyright (c) 2016-2021 DSharpPlus Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -26,7 +49,7 @@ namespace DSharpPlus.Entities
 
         [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
         internal List<ulong> _roles;
-        private Lazy<IReadOnlyList<ulong>> _rolesLazy;
+        private readonly Lazy<IReadOnlyList<ulong>> _rolesLazy;
 
         /// <summary>
         /// Gets whether this emoji requires colons to use.
@@ -57,10 +80,9 @@ namespace DSharpPlus.Entities
                 if (this.Id == 0)
                     throw new InvalidOperationException("Cannot get URL of unicode emojis.");
 
-                if (this.IsAnimated)
-                    return $"https://cdn.discordapp.com/emojis/{this.Id.ToString(CultureInfo.InvariantCulture)}.gif";
-
-                return $"https://cdn.discordapp.com/emojis/{this.Id.ToString(CultureInfo.InvariantCulture)}.png";
+                return this.IsAnimated
+                    ? $"https://cdn.discordapp.com/emojis/{this.Id.ToString(CultureInfo.InvariantCulture)}.gif"
+                    : $"https://cdn.discordapp.com/emojis/{this.Id.ToString(CultureInfo.InvariantCulture)}.png";
             }
         }
 
@@ -83,10 +105,7 @@ namespace DSharpPlus.Entities
         {
             DiscordNameLookup.TryGetValue(this.Name, out var name);
 
-            if (name == null)
-                return $":{ this.Name }:";
-
-            return name;
+            return name == null ? $":{ this.Name }:" : name;
         }
 
         /// <summary>
@@ -97,10 +116,9 @@ namespace DSharpPlus.Entities
         {
             if (this.Id != 0)
             {
-                if (this.IsAnimated)
-                    return $"<a:{this.Name}:{this.Id.ToString(CultureInfo.InvariantCulture)}>";
-                else
-                    return $"<:{this.Name}:{this.Id.ToString(CultureInfo.InvariantCulture)}>";
+                return this.IsAnimated
+                    ? $"<a:{this.Name}:{this.Id.ToString(CultureInfo.InvariantCulture)}>"
+                    : $"<:{this.Name}:{this.Id.ToString(CultureInfo.InvariantCulture)}>";
             }
 
             return this.Name;
@@ -111,10 +129,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="obj">Object to compare to.</param>
         /// <returns>Whether the object is equal to this <see cref="DiscordEmoji"/>.</returns>
-        public override bool Equals(object obj)
-        {
-            return this.Equals(obj as DiscordEmoji);
-        }
+        public override bool Equals(object obj) => this.Equals(obj as DiscordEmoji);
 
         /// <summary>
         /// Checks whether this <see cref="DiscordEmoji"/> is equal to another <see cref="DiscordEmoji"/>.
@@ -123,13 +138,10 @@ namespace DSharpPlus.Entities
         /// <returns>Whether the <see cref="DiscordEmoji"/> is equal to this <see cref="DiscordEmoji"/>.</returns>
         public bool Equals(DiscordEmoji e)
         {
-            if (ReferenceEquals(e, null))
+            if (e is null)
                 return false;
 
-            if (ReferenceEquals(this, e))
-                return true;
-
-            return this.Id == e.Id && this.Name == e.Name;
+            return ReferenceEquals(this, e) ? true : this.Id == e.Id && this.Name == e.Name;
         }
 
         /// <summary>
@@ -147,9 +159,7 @@ namespace DSharpPlus.Entities
 
         internal string ToReactionString()
         {
-            if (this.Id != 0)
-                return $"{this.Name}:{this.Id.ToString(CultureInfo.InvariantCulture)}";
-            return this.Name;
+            return this.Id != 0 ? $"{this.Name}:{this.Id.ToString(CultureInfo.InvariantCulture)}" : this.Name;
         }
 
         /// <summary>
@@ -166,10 +176,7 @@ namespace DSharpPlus.Entities
             if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
                 return false;
 
-            if (o1 == null && o2 == null)
-                return true;
-
-            return e1.Id == e2.Id && e1.Name == e2.Name;
+            return o1 == null && o2 == null ? true : e1.Id == e2.Id && e1.Name == e2.Name;
         }
 
         /// <summary>
@@ -178,14 +185,14 @@ namespace DSharpPlus.Entities
         /// <param name="e1">First emoji to compare.</param>
         /// <param name="e2">Second emoji to compare.</param>
         /// <returns>Whether the two emoji are not equal.</returns>
-        public static bool operator !=(DiscordEmoji e1, DiscordEmoji e2) 
+        public static bool operator !=(DiscordEmoji e1, DiscordEmoji e2)
             => !(e1 == e2);
 
         /// <summary>
         /// Implicitly converts this emoji to its string representation.
         /// </summary>
         /// <param name="e1">Emoji to convert.</param>
-        public static implicit operator string(DiscordEmoji e1) 
+        public static implicit operator string(DiscordEmoji e1)
             => e1.ToString();
 
         /// <summary>
@@ -204,10 +211,9 @@ namespace DSharpPlus.Entities
         /// <returns>Create <see cref="DiscordEmoji"/> object.</returns>
         public static DiscordEmoji FromUnicode(BaseDiscordClient client, string unicodeEntity)
         {
-            if (!IsValidUnicode(unicodeEntity))
-                throw new ArgumentException("Specified unicode entity is not a valid unicode emoji.", nameof(unicodeEntity));
-
-            return new DiscordEmoji { Name = unicodeEntity, Discord = client };
+            return !IsValidUnicode(unicodeEntity)
+                ? throw new ArgumentException("Specified unicode entity is not a valid unicode emoji.", nameof(unicodeEntity))
+                : new DiscordEmoji { Name = unicodeEntity, Discord = client };
         }
 
         /// <summary>
@@ -266,7 +272,7 @@ namespace DSharpPlus.Entities
                 if (guild.Emojis.TryGetValue(id, out var found))
                     return found;
             }
-            
+
             throw new KeyNotFoundException("Given emote was not found.");
         }
 

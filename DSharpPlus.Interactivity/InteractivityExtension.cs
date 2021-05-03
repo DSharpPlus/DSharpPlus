@@ -1,4 +1,27 @@
-﻿using System;
+// This file is part of the DSharpPlus project.
+//
+// Copyright (c) 2015 Mike Santiago
+// Copyright (c) 2016-2021 DSharpPlus Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -62,14 +85,14 @@ namespace DSharpPlus.Interactivity
             if (emojis.Count() < 1)
                 throw new ArgumentException("You need to provide at least one emoji for a poll!");
 
-            foreach(var em in emojis)
+            foreach (var em in emojis)
             {
                 await m.CreateReactionAsync(em).ConfigureAwait(false);
             }
             var res = await Poller.DoPollAsync(new PollRequest(m, timeout ?? this.Config.Timeout, emojis)).ConfigureAwait(false);
 
             var pollbehaviour = behaviour ?? this.Config.PollBehaviour;
-            var thismember = await m.Channel.Guild.GetMemberAsync(Client.CurrentUser.Id).ConfigureAwait(false);
+            var thismember = await m.Channel.Guild.GetMemberAsync(this.Client.CurrentUser.Id).ConfigureAwait(false);
 
             if (pollbehaviour == PollBehaviour.DeleteEmojis && m.Channel.PermissionsFor(thismember).HasPermission(Permissions.ManageMessages))
                 await m.DeleteAllReactionsAsync().ConfigureAwait(false);
@@ -83,13 +106,13 @@ namespace DSharpPlus.Interactivity
         /// <param name="predicate">Predicate to match.</param>
         /// <param name="timeoutoverride">override timeout period.</param>
         /// <returns></returns>
-        public async Task<InteractivityResult<DiscordMessage>> WaitForMessageAsync(Func<DiscordMessage, bool> predicate, 
+        public async Task<InteractivityResult<DiscordMessage>> WaitForMessageAsync(Func<DiscordMessage, bool> predicate,
             TimeSpan? timeoutoverride = null)
         {
             if (!Utilities.HasMessageIntents(this.Client.Configuration.Intents))
                 throw new InvalidOperationException("No message intents are enabled.");
 
-            var timeout = timeoutoverride ?? Config.Timeout;
+            var timeout = timeoutoverride ?? this.Config.Timeout;
             var returns = await this.MessageCreatedWaiter.WaitForMatch(new MatchRequest<MessageCreateEventArgs>(x => predicate(x.Message), timeout)).ConfigureAwait(false);
 
             return new InteractivityResult<DiscordMessage>(returns == null, returns?.Message);
@@ -107,7 +130,7 @@ namespace DSharpPlus.Interactivity
             if (!Utilities.HasReactionIntents(this.Client.Configuration.Intents))
                 throw new InvalidOperationException("No reaction intents are enabled.");
 
-            var timeout = timeoutoverride ?? Config.Timeout;
+            var timeout = timeoutoverride ?? this.Config.Timeout;
             var returns = await this.MessageReactionAddWaiter.WaitForMatch(new MatchRequest<MessageReactionAddEventArgs>(x => predicate(x), timeout)).ConfigureAwait(false);
 
             return new InteractivityResult<MessageReactionAddEventArgs>(returns == null, returns);
@@ -123,7 +146,7 @@ namespace DSharpPlus.Interactivity
         /// <returns></returns>
         public async Task<InteractivityResult<MessageReactionAddEventArgs>> WaitForReactionAsync(DiscordMessage message, DiscordUser user,
             TimeSpan? timeoutoverride = null)
-            => await WaitForReactionAsync(x => x.User.Id == user.Id && x.Message.Id == message.Id, timeoutoverride).ConfigureAwait(false);
+            => await this.WaitForReactionAsync(x => x.User.Id == user.Id && x.Message.Id == message.Id, timeoutoverride).ConfigureAwait(false);
 
         /// <summary>
         /// Waits for a specific reaction.
@@ -134,9 +157,9 @@ namespace DSharpPlus.Interactivity
         /// <param name="user">User that made the reaction.</param>
         /// <param name="timeoutoverride">override timeout period.</param>
         /// <returns></returns>
-        public async Task<InteractivityResult<MessageReactionAddEventArgs>> WaitForReactionAsync(Func<MessageReactionAddEventArgs, bool> predicate, 
+        public async Task<InteractivityResult<MessageReactionAddEventArgs>> WaitForReactionAsync(Func<MessageReactionAddEventArgs, bool> predicate,
             DiscordMessage message, DiscordUser user, TimeSpan? timeoutoverride = null)
-            => await WaitForReactionAsync(x => predicate(x) && x.User.Id == user.Id && x.Message.Id == message.Id, timeoutoverride).ConfigureAwait(false);
+            => await this.WaitForReactionAsync(x => predicate(x) && x.User.Id == user.Id && x.Message.Id == message.Id, timeoutoverride).ConfigureAwait(false);
 
         /// <summary>
         /// Waits for a specific reaction.
@@ -148,7 +171,7 @@ namespace DSharpPlus.Interactivity
         /// <returns></returns>
         public async Task<InteractivityResult<MessageReactionAddEventArgs>> WaitForReactionAsync(Func<MessageReactionAddEventArgs, bool> predicate,
             DiscordUser user, TimeSpan? timeoutoverride = null)
-            => await WaitForReactionAsync(x => predicate(x) && x.User.Id == user.Id, timeoutoverride).ConfigureAwait(false);
+            => await this.WaitForReactionAsync(x => predicate(x) && x.User.Id == user.Id, timeoutoverride).ConfigureAwait(false);
 
         /// <summary>
         /// Waits for a user to start typing.
@@ -157,13 +180,13 @@ namespace DSharpPlus.Interactivity
         /// <param name="channel">Channel the user is typing in.</param>
         /// <param name="timeoutoverride">Override timeout period.</param>
         /// <returns></returns>
-        public async Task<InteractivityResult<TypingStartEventArgs>> WaitForUserTypingAsync(DiscordUser user, 
+        public async Task<InteractivityResult<TypingStartEventArgs>> WaitForUserTypingAsync(DiscordUser user,
             DiscordChannel channel, TimeSpan? timeoutoverride = null)
         {
             if (!Utilities.HasTypingIntents(this.Client.Configuration.Intents))
                 throw new InvalidOperationException("No typing intents are enabled.");
 
-            var timeout = timeoutoverride ?? Config.Timeout;
+            var timeout = timeoutoverride ?? this.Config.Timeout;
             var returns = await this.TypingStartWaiter.WaitForMatch(
                 new MatchRequest<TypingStartEventArgs>(x => x.User.Id == user.Id && x.Channel.Id == channel.Id, timeout))
                 .ConfigureAwait(false);
@@ -182,7 +205,7 @@ namespace DSharpPlus.Interactivity
             if (!Utilities.HasTypingIntents(this.Client.Configuration.Intents))
                 throw new InvalidOperationException("No typing intents are enabled.");
 
-            var timeout = timeoutoverride ?? Config.Timeout;
+            var timeout = timeoutoverride ?? this.Config.Timeout;
             var returns = await this.TypingStartWaiter.WaitForMatch(
                 new MatchRequest<TypingStartEventArgs>(x => x.User.Id == user.Id, timeout))
                 .ConfigureAwait(false);
@@ -201,7 +224,7 @@ namespace DSharpPlus.Interactivity
             if (!Utilities.HasTypingIntents(this.Client.Configuration.Intents))
                 throw new InvalidOperationException("No typing intents are enabled.");
 
-            var timeout = timeoutoverride ?? Config.Timeout;
+            var timeout = timeoutoverride ?? this.Config.Timeout;
             var returns = await this.TypingStartWaiter.WaitForMatch(
                 new MatchRequest<TypingStartEventArgs>(x => x.Channel.Id == channel.Id, timeout))
                 .ConfigureAwait(false);
@@ -220,7 +243,7 @@ namespace DSharpPlus.Interactivity
             if (!Utilities.HasReactionIntents(this.Client.Configuration.Intents))
                 throw new InvalidOperationException("No reaction intents are enabled.");
 
-            var timeout = timeoutoverride ?? Config.Timeout;
+            var timeout = timeoutoverride ?? this.Config.Timeout;
             var collection = await ReactionCollector.CollectAsync(new ReactionCollectRequest(m, timeout)).ConfigureAwait(false);
             return new ReadOnlyCollection<Reaction>(collection.ToList());
         }
@@ -236,22 +259,18 @@ namespace DSharpPlus.Interactivity
         {
             var timeout = timeoutoverride ?? this.Config.Timeout;
 
-            using (var waiter = new EventWaiter<T>(this.Client))
-            {
-                var res = await waiter.WaitForMatch(new MatchRequest<T>(predicate, timeout)).ConfigureAwait(false);
-                return new InteractivityResult<T>(res == null, res);
-            }
+            using var waiter = new EventWaiter<T>(this.Client);
+            var res = await waiter.WaitForMatch(new MatchRequest<T>(predicate, timeout)).ConfigureAwait(false);
+            return new InteractivityResult<T>(res == null, res);
         }
 
         public async Task<ReadOnlyCollection<T>> CollectEventArgsAsync<T>(Func<T, bool> predicate, TimeSpan? timeoutoverride = null) where T : AsyncEventArgs
         {
             var timeout = timeoutoverride ?? this.Config.Timeout;
 
-            using (var waiter = new EventWaiter<T>(this.Client))
-            {
-                var res = await waiter.CollectMatches(new CollectRequest<T>(predicate, timeout)).ConfigureAwait(false);
-                return res;
-            }
+            using var waiter = new EventWaiter<T>(this.Client);
+            var res = await waiter.CollectMatches(new CollectRequest<T>(predicate, timeout)).ConfigureAwait(false);
+            return res;
         }
 
         /// <summary>
@@ -274,7 +293,7 @@ namespace DSharpPlus.Interactivity
                 .WithEmbed(pages.First().Embed);
             var m = await builder.SendAsync(c).ConfigureAwait(false);
 
-            var timeout = timeoutoverride ?? Config.Timeout;
+            var timeout = timeoutoverride ?? this.Config.Timeout;
 
             var bhv = behaviour ?? this.Config.PaginationBehaviour;
             var del = deletion ?? this.Config.PaginationDeletion;
@@ -291,10 +310,7 @@ namespace DSharpPlus.Interactivity
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        public async Task WaitForCustomPaginationAsync(IPaginationRequest request)
-        {
-            await Paginator.DoPaginationAsync(request).ConfigureAwait(false);
-        }
+        public async Task WaitForCustomPaginationAsync(IPaginationRequest request) => await Paginator.DoPaginationAsync(request).ConfigureAwait(false);
 
         /// <summary>
         /// Generates pages from a string, and puts them in message content.
@@ -307,24 +323,25 @@ namespace DSharpPlus.Interactivity
             if (string.IsNullOrEmpty(input))
                 throw new ArgumentException("You must provide a string that is not null or empty!");
 
-            List<Page> result = new List<Page>();
+            var result = new List<Page>();
             List<string> split;
 
-            switch (splittype) {
+            switch (splittype)
+            {
                 default:
                 case SplitType.Character:
-                    split = SplitString(input, 500).ToList();
+                    split = this.SplitString(input, 500).ToList();
                     break;
                 case SplitType.Line:
                     var subsplit = input.Split('\n');
 
                     split = new List<string>();
-                    string s = "";
+                    var s = "";
 
-                    for(int i = 0; i < subsplit.Length; i++)
+                    for (var i = 0; i < subsplit.Length; i++)
                     {
                         s += subsplit[i];
-                        if(i >= 15 && i % 15 == 0)
+                        if (i >= 15 && i % 15 == 0)
                         {
                             split.Add(s);
                             s = "";
@@ -335,8 +352,8 @@ namespace DSharpPlus.Interactivity
                     break;
             }
 
-            int page = 1;
-            foreach (string s in split)
+            var page = 1;
+            foreach (var s in split)
             {
                 result.Add(new Page($"Page {page}:\n{s}", null));
                 page++;
@@ -359,22 +376,22 @@ namespace DSharpPlus.Interactivity
 
             var embed = embedbase ?? new DiscordEmbedBuilder();
 
-            List<Page> result = new List<Page>();
+            var result = new List<Page>();
             List<string> split;
 
             switch (splittype)
             {
                 default:
                 case SplitType.Character:
-                    split = SplitString(input, 500).ToList();
+                    split = this.SplitString(input, 500).ToList();
                     break;
                 case SplitType.Line:
                     var subsplit = input.Split('\n');
 
                     split = new List<string>();
-                    string s = "";
+                    var s = "";
 
-                    for (int i = 0; i < subsplit.Length; i++)
+                    for (var i = 0; i < subsplit.Length; i++)
                     {
                         s += $"{subsplit[i]}\n";
                         if (i % 15 == 0 && i != 0)
@@ -388,8 +405,8 @@ namespace DSharpPlus.Interactivity
                     break;
             }
 
-            int page = 1;
-            foreach (string s in split)
+            var page = 1;
+            foreach (var s in split)
             {
                 result.Add(new Page("", new DiscordEmbedBuilder(embed).WithDescription(s).WithFooter($"Page {page}/{split.Count}")));
                 page++;

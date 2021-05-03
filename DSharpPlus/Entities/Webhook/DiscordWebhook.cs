@@ -1,10 +1,33 @@
-﻿using System;
-using System.IO;
+// This file is part of the DSharpPlus project.
+//
+// Copyright (c) 2015 Mike Santiago
+// Copyright (c) 2016-2021 DSharpPlus Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.Net;
 using Newtonsoft.Json;
-using System.Linq;
 
 namespace DSharpPlus.Entities
 {
@@ -48,7 +71,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the default avatar url for this webhook.
         /// </summary>
-        public string AvatarUrl 
+        public string AvatarUrl
             => !string.IsNullOrWhiteSpace(this.AvatarHash) ? $"https://cdn.discordapp.com/avatars/{this.Id}/{this.AvatarHash}.png?size=1024" : null;
 
         /// <summary>
@@ -80,7 +103,7 @@ namespace DSharpPlus.Entities
             else if (avatar.HasValue)
                 avatarb64 = null;
 
-            var newChannelId = channelId.HasValue ? channelId.Value : this.ChannelId;
+            var newChannelId = channelId ?? this.ChannelId;
 
             return this.Discord.ApiClient.ModifyWebhookAsync(this.Id, newChannelId, name, avatarb64, reason);
         }
@@ -93,8 +116,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the webhook does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task DeleteAsync() 
-            => this.Discord.ApiClient.DeleteWebhookAsync(this.Id, Token);
+        public Task DeleteAsync()
+            => this.Discord.ApiClient.DeleteWebhookAsync(this.Id, this.Token);
 
         /// <summary>
         /// Executes this webhook with the given <see cref="DiscordWebhookBuilder"/>.
@@ -114,8 +137,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the webhook does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task ExecuteSlackAsync(string json) 
-            => (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookSlackAsync(Id, Token, json);
+        public Task ExecuteSlackAsync(string json)
+            => (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookSlackAsync(this.Id, this.Token, json);
 
         /// <summary>
         /// Executes this webhook in GitHub compatibility mode.
@@ -125,8 +148,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the webhook does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task ExecuteGithubAsync(string json) 
-            => (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookGithubAsync(Id, Token, json);
+        public Task ExecuteGithubAsync(string json)
+            => (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookGithubAsync(this.Id, this.Token, json);
 
         /// <summary>
         /// Edits a previously-sent webhook message.
@@ -141,7 +164,7 @@ namespace DSharpPlus.Entities
         {
             builder.Validate(true);
 
-            return await(this.Discord?.ApiClient ?? this.ApiClient).EditWebhookMessageAsync(this.Id, this.Token, messageId, builder).ConfigureAwait(false);
+            return await (this.Discord?.ApiClient ?? this.ApiClient).EditWebhookMessageAsync(this.Id, this.Token, messageId, builder).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -160,10 +183,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="obj">Object to compare to.</param>
         /// <returns>Whether the object is equal to this <see cref="DiscordWebhook"/>.</returns>
-        public override bool Equals(object obj)
-        {
-            return this.Equals(obj as DiscordWebhook);
-        }
+        public override bool Equals(object obj) => this.Equals(obj as DiscordWebhook);
 
         /// <summary>
         /// Checks whether this <see cref="DiscordWebhook"/> is equal to another <see cref="DiscordWebhook"/>.
@@ -172,23 +192,17 @@ namespace DSharpPlus.Entities
         /// <returns>Whether the <see cref="DiscordWebhook"/> is equal to this <see cref="DiscordWebhook"/>.</returns>
         public bool Equals(DiscordWebhook e)
         {
-            if (ReferenceEquals(e, null))
+            if (e is null)
                 return false;
 
-            if (ReferenceEquals(this, e))
-                return true;
-
-            return this.Id == e.Id;
+            return ReferenceEquals(this, e) ? true : this.Id == e.Id;
         }
 
         /// <summary>
         /// Gets the hash code for this <see cref="DiscordWebhook"/>.
         /// </summary>
         /// <returns>The hash code for this <see cref="DiscordWebhook"/>.</returns>
-        public override int GetHashCode()
-        {
-            return this.Id.GetHashCode();
-        }
+        public override int GetHashCode() => this.Id.GetHashCode();
 
         /// <summary>
         /// Gets whether the two <see cref="DiscordWebhook"/> objects are equal.
@@ -204,10 +218,7 @@ namespace DSharpPlus.Entities
             if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
                 return false;
 
-            if (o1 == null && o2 == null)
-                return true;
-
-            return e1.Id == e2.Id;
+            return o1 == null && o2 == null ? true : e1.Id == e2.Id;
         }
 
         /// <summary>
@@ -216,7 +227,7 @@ namespace DSharpPlus.Entities
         /// <param name="e1">First webhook to compare.</param>
         /// <param name="e2">Second webhook to compare.</param>
         /// <returns>Whether the two webhooks are not equal.</returns>
-        public static bool operator !=(DiscordWebhook e1, DiscordWebhook e2) 
+        public static bool operator !=(DiscordWebhook e1, DiscordWebhook e2)
             => !(e1 == e2);
     }
 }

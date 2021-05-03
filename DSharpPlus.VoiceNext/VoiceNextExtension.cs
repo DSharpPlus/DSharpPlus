@@ -1,4 +1,27 @@
-﻿using System;
+// This file is part of the DSharpPlus project.
+//
+// Copyright (c) 2015 Mike Santiago
+// Copyright (c) 2016-2021 DSharpPlus Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
@@ -46,7 +69,7 @@ namespace DSharpPlus.VoiceNext
                 throw new InvalidOperationException("What did I tell you?");
 
             this.Client = client;
-            
+
             this.Client.VoiceStateUpdated += this.Client_VoiceStateUpdate;
             this.Client.VoiceServerUpdated += this.Client_VoiceServerUpdate;
         }
@@ -68,7 +91,7 @@ namespace DSharpPlus.VoiceNext
                 throw new InvalidOperationException("You need UseVoice permission to connect to this voice channel");
 
             var gld = channel.Guild;
-            if (ActiveConnections.ContainsKey(gld.Id))
+            if (this.ActiveConnections.ContainsKey(gld.Id))
                 throw new InvalidOperationException("This guild already has a voice connection");
 
             var vstut = new TaskCompletionSource<VoiceStateUpdateEventArgs>();
@@ -89,7 +112,7 @@ namespace DSharpPlus.VoiceNext
             };
             var vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
             await (channel.Discord as DiscordClient).WsSendAsync(vsj).ConfigureAwait(false);
-            
+
             var vstu = await vstut.Task.ConfigureAwait(false);
             var vstup = new VoiceStateUpdatePayload
             {
@@ -103,7 +126,7 @@ namespace DSharpPlus.VoiceNext
                 GuildId = vsru.Guild.Id,
                 Token = vsru.VoiceToken
             };
-            
+
             var vnc = new VoiceNextConnection(this.Client, gld, channel, this.Configuration, vsrup, vstup);
             vnc.VoiceDisconnected += this.Vnc_VoiceDisconnected;
             await vnc.ConnectAsync().ConfigureAwait(false);
@@ -119,10 +142,7 @@ namespace DSharpPlus.VoiceNext
         /// <returns>VoiceNext connection for the specified guild.</returns>
         public VoiceNextConnection GetConnection(DiscordGuild guild)
         {
-            if (this.ActiveConnections.ContainsKey(guild.Id))
-                return this.ActiveConnections[guild.Id];
-
-            return null;
+            return this.ActiveConnections.ContainsKey(guild.Id) ? this.ActiveConnections[guild.Id] : null;
         }
 
         private async Task Vnc_VoiceDisconnected(DiscordGuild guild)
@@ -153,7 +173,7 @@ namespace DSharpPlus.VoiceNext
             if (e.User == null)
                 return Task.CompletedTask;
 
-            if(e.User.Id == this.Client.CurrentUser.Id)
+            if (e.User.Id == this.Client.CurrentUser.Id)
             {
                 if (e.After.Channel == null && this.ActiveConnections.TryRemove(gld.Id, out var ac))
                     ac.Disconnect();

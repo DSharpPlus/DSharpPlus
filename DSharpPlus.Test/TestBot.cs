@@ -1,3 +1,26 @@
+// This file is part of the DSharpPlus project.
+//
+// Copyright (c) 2015 Mike Santiago
+// Copyright (c) 2016-2021 DSharpPlus Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 #pragma warning disable CS0618
 using System;
 using System.Collections.Generic;
@@ -25,12 +48,10 @@ namespace DSharpPlus.Test
 
         private TestBotConfig Config { get; }
         public DiscordClient Discord { get; }
-        private TestBotCommands Commands { get; }
         private VoiceNextExtension VoiceService { get; }
         private CommandsNextExtension CommandsNextService { get; }
         private InteractivityExtension InteractivityService { get; }
         private LavalinkExtension LavalinkService { get; }
-        private Timer GameGuard { get; set; }
 
         public TestBot(TestBotConfig cfg, int shardid)
         {
@@ -51,19 +72,19 @@ namespace DSharpPlus.Test
                 LogTimestampFormat = "dd-MM-yyyy HH:mm:ss zzz",
                 Intents = DiscordIntents.All // if 4013 is received, change to DiscordIntents.AllUnprivileged
             };
-            Discord = new DiscordClient(dcfg);
+            this.Discord = new DiscordClient(dcfg);
 
             // events
-            Discord.Ready += this.Discord_Ready;
-            Discord.GuildAvailable += this.Discord_GuildAvailable;
+            this.Discord.Ready += this.Discord_Ready;
+            this.Discord.GuildAvailable += this.Discord_GuildAvailable;
             //Discord.PresenceUpdated += this.Discord_PresenceUpdated;
             //Discord.ClientErrored += this.Discord_ClientErrored;
-            Discord.SocketErrored += this.Discord_SocketError;
-            Discord.GuildCreated += this.Discord_GuildCreated;
-            Discord.VoiceStateUpdated += this.Discord_VoiceStateUpdated;
-            Discord.GuildDownloadCompleted += this.Discord_GuildDownloadCompleted;
-            Discord.GuildUpdated += this.Discord_GuildUpdated;
-            Discord.ChannelDeleted += this.Discord_ChannelDeleted;
+            this.Discord.SocketErrored += this.Discord_SocketError;
+            this.Discord.GuildCreated += this.Discord_GuildCreated;
+            this.Discord.VoiceStateUpdated += this.Discord_VoiceStateUpdated;
+            this.Discord.GuildDownloadCompleted += this.Discord_GuildDownloadCompleted;
+            this.Discord.GuildUpdated += this.Discord_GuildUpdated;
+            this.Discord.ChannelDeleted += this.Discord_ChannelDeleted;
 
             // For event timeout testing
             //Discord.GuildDownloadCompleted += async (s, e) =>
@@ -94,7 +115,7 @@ namespace DSharpPlus.Test
                 IgnoreExtraArguments = false,
                 UseDefaultCommandHandler = true,
             };
-            this.CommandsNextService = Discord.UseCommandsNext(cncfg);
+            this.CommandsNextService = this.Discord.UseCommandsNext(cncfg);
             this.CommandsNextService.CommandErrored += this.CommandsNextService_CommandErrored;
             this.CommandsNextService.CommandExecuted += this.CommandsNextService_CommandExecuted;
             this.CommandsNextService.RegisterCommands(typeof(TestBot).GetTypeInfo().Assembly);
@@ -106,8 +127,8 @@ namespace DSharpPlus.Test
                 Timeout = TimeSpan.FromSeconds(3)
             };
 
-            this.InteractivityService = Discord.UseInteractivity(icfg);
-            this.LavalinkService = Discord.UseLavalink();
+            this.InteractivityService = this.Discord.UseInteractivity(icfg);
+            this.LavalinkService = this.Discord.UseLavalink();
 
             //this.Discord.MessageCreated += async e =>
             //{
@@ -118,27 +139,15 @@ namespace DSharpPlus.Test
             //};
         }
 
-        private Task Discord_PresenceUpdated(DiscordClient client, PresenceUpdateEventArgs e)
-        {
-            client.Logger.LogInformation(TestBotEventId, "Presence updated: '{0}'", e.Activity.Name);
-            return Task.CompletedTask;
-        }
-
         public async Task RunAsync()
         {
-			var act = new DiscordActivity("the screams of your ancestors", ActivityType.ListeningTo);
-            await Discord.ConnectAsync(act, UserStatus.DoNotDisturb).ConfigureAwait(false);
+            var act = new DiscordActivity("the screams of your ancestors", ActivityType.ListeningTo);
+            await this.Discord.ConnectAsync(act, UserStatus.DoNotDisturb).ConfigureAwait(false);
         }
 
-        public async Task StopAsync()
-        {
-            await Discord.DisconnectAsync().ConfigureAwait(false);
-        }
+        public async Task StopAsync() => await this.Discord.DisconnectAsync().ConfigureAwait(false);
 
-        private Task Discord_Ready(DiscordClient client, ReadyEventArgs e)
-        {
-            return Task.CompletedTask;
-        }
+        private Task Discord_Ready(DiscordClient client, ReadyEventArgs e) => Task.CompletedTask;
 
         private Task Discord_GuildAvailable(DiscordClient client, GuildCreateEventArgs e)
         {
@@ -202,7 +211,7 @@ namespace DSharpPlus.Test
                     Description = $"`{e.Exception.GetType()}` occurred when executing `{e.Command.QualifiedName}`.",
                     Timestamp = DateTime.UtcNow
                 };
-                embed.WithFooter(Discord.CurrentUser.Username, Discord.CurrentUser.AvatarUrl)
+                embed.WithFooter(this.Discord.CurrentUser.Username, this.Discord.CurrentUser.AvatarUrl)
                     .AddField("Message", ex.Message);
                 await e.Context.RespondAsync(embed: embed.Build()).ConfigureAwait(false);
             }

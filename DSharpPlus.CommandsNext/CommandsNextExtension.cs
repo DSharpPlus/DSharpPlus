@@ -1,4 +1,27 @@
-﻿using System;
+// This file is part of the DSharpPlus project.
+//
+// Copyright (c) 2015 Mike Santiago
+// Copyright (c) 2016-2021 DSharpPlus Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -112,7 +135,7 @@ namespace DSharpPlus.CommandsNext
 
                 var xcvt = ncvt.MakeGenericType(xt);
                 var xnt = nt.MakeGenericType(xt);
-                if (ArgumentConverters.ContainsKey(xcvt))
+                if (this.ArgumentConverters.ContainsKey(xcvt))
                     continue;
 
                 var xcv = Activator.CreateInstance(xcvt) as IArgumentConverter;
@@ -130,10 +153,7 @@ namespace DSharpPlus.CommandsNext
         /// Sets the help formatter to use with the default help command.
         /// </summary>
         /// <typeparam name="T">Type of the formatter to use.</typeparam>
-        public void SetHelpFormatter<T>() where T : BaseHelpFormatter
-        {
-            this.HelpFormatter.SetFormatterType<T>();
-        }
+        public void SetHelpFormatter<T>() where T : BaseHelpFormatter => this.HelpFormatter.SetFormatterType<T>();
 
         #region DiscordClient Registration
         /// <summary>
@@ -164,7 +184,7 @@ namespace DSharpPlus.CommandsNext
                 {
                     var checks = this.Config.DefaultHelpChecks.ToArray();
 
-                    for (int i = 0; i < tcmds.Count; i++)
+                    for (var i = 0; i < tcmds.Count; i++)
                         tcmds[i].WithExecutionChecks(checks);
                 }
 
@@ -251,7 +271,7 @@ namespace DSharpPlus.CommandsNext
                 rawArguments = commandString.Substring(pos).Trim();
                 return cmd;
             }
-            
+
             while (cmd is CommandGroup)
             {
                 var cm2 = cmd as CommandGroup;
@@ -459,7 +479,7 @@ namespace DSharpPlus.CommandsNext
                         if (inheritedChecks != null)
                             foreach (var chk in inheritedChecks)
                                 groupBuilder.WithExecutionCheck(chk);
-                        
+
                         foreach (var mi in ti.DeclaredMethods.Where(x => x.IsCommandCandidate(out _) && x.GetCustomAttribute<GroupCommandAttribute>() != null))
                             groupBuilder.WithOverload(new CommandOverloadBuilder(mi));
                         break;
@@ -506,7 +526,7 @@ namespace DSharpPlus.CommandsNext
                     continue;
 
                 var attrs = m.GetCustomAttributes();
-                if (!(attrs.FirstOrDefault(xa => xa is CommandAttribute) is CommandAttribute cattr))
+                if (attrs.FirstOrDefault(xa => xa is CommandAttribute) is not CommandAttribute cattr)
                     continue;
 
                 var commandName = cattr.Name;
@@ -575,8 +595,8 @@ namespace DSharpPlus.CommandsNext
                 .Where(xt => xt.IsModuleCandidateType() && xt.DeclaredConstructors.Any(xc => xc.IsPublic));
             foreach (var type in types)
             {
-                this.RegisterCommands(type.AsType(), 
-                    groupBuilder, 
+                this.RegisterCommands(type.AsType(),
+                    groupBuilder,
                     !isModule ? moduleChecks : null,
                     out var tempCommands);
 
@@ -585,8 +605,8 @@ namespace DSharpPlus.CommandsNext
                         groupBuilder.WithExecutionCheck(chk);
 
                 if (isModule && tempCommands != null)
-                        foreach (var xtcmd in tempCommands)
-                            groupBuilder.WithChild(xtcmd);
+                    foreach (var xtcmd in tempCommands)
+                        groupBuilder.WithChild(xtcmd);
                 else if (tempCommands != null)
                     commands.AddRange(tempCommands);
             }
@@ -659,10 +679,9 @@ namespace DSharpPlus.CommandsNext
                             break;
                         }
 
-                        if (ctx.Config.CaseSensitive)
-                            cmd = searchIn.FirstOrDefault(xc => xc.Name == c || (xc.Aliases != null && xc.Aliases.Contains(c)));
-                        else
-                            cmd = searchIn.FirstOrDefault(xc => xc.Name.ToLowerInvariant() == c.ToLowerInvariant() || (xc.Aliases != null && xc.Aliases.Select(xs => xs.ToLowerInvariant()).Contains(c.ToLowerInvariant())));
+                        cmd = ctx.Config.CaseSensitive
+                            ? searchIn.FirstOrDefault(xc => xc.Name == c || (xc.Aliases != null && xc.Aliases.Contains(c)))
+                            : searchIn.FirstOrDefault(xc => xc.Name.ToLowerInvariant() == c.ToLowerInvariant() || (xc.Aliases != null && xc.Aliases.Select(xs => xs.ToLowerInvariant()).Contains(c.ToLowerInvariant())));
 
                         if (cmd == null)
                             break;
@@ -671,10 +690,7 @@ namespace DSharpPlus.CommandsNext
                         if (failedChecks.Any())
                             throw new ChecksFailedException(cmd, ctx, failedChecks);
 
-                        if (cmd is CommandGroup)
-                            searchIn = (cmd as CommandGroup).Children;
-                        else
-                            searchIn = null;
+                        searchIn = cmd is CommandGroup ? (cmd as CommandGroup).Children : null;
                     }
 
                     if (cmd == null)
@@ -728,7 +744,7 @@ namespace DSharpPlus.CommandsNext
 
                 var builder = new DiscordMessageBuilder().WithContent(helpMessage.Content).WithEmbed(helpMessage.Embed);
 
-                if (!ctx.Config.DmHelp || ctx.Channel is DiscordDmChannel || ctx.Guild == null) 
+                if (!ctx.Config.DmHelp || ctx.Channel is DiscordDmChannel || ctx.Guild == null)
                     await ctx.RespondAsync(builder).ConfigureAwait(false);
                 else
                     await ctx.Member.SendMessageAsync(builder).ConfigureAwait(false);
@@ -830,14 +846,11 @@ namespace DSharpPlus.CommandsNext
             if (!this.ArgumentConverters.ContainsKey(t))
                 throw new ArgumentException("There is no converter specified for given type.", nameof(T));
 
-            if (!(this.ArgumentConverters[t] is IArgumentConverter<T> cv))
+            if (this.ArgumentConverters[t] is not IArgumentConverter<T> cv)
                 throw new ArgumentException("Invalid converter registered for this type.", nameof(T));
 
             var cvr = await cv.ConvertAsync(value, ctx).ConfigureAwait(false);
-            if (!cvr.HasValue)
-                throw new ArgumentException("Could not convert specified value to given type.", nameof(value));
-
-            return cvr.Value;
+            return !cvr.HasValue ? throw new ArgumentException("Could not convert specified value to given type.", nameof(value)) : cvr.Value;
         }
 
         /// <summary>
@@ -931,7 +944,6 @@ namespace DSharpPlus.CommandsNext
             if (!ti.IsValueType)
                 return;
 
-            var nullableConverterType = typeof(NullableConverter<>).MakeGenericType(t);
             var nullableType = typeof(Nullable<>).MakeGenericType(t);
             this.UserFriendlyTypeNames[nullableType] = value;
         }
@@ -950,10 +962,7 @@ namespace DSharpPlus.CommandsNext
             if (ti.IsGenericTypeDefinition && t.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 var tn = ti.GenericTypeArguments[0];
-                if (this.UserFriendlyTypeNames.ContainsKey(tn))
-                    return this.UserFriendlyTypeNames[tn];
-
-                return tn.Name;
+                return this.UserFriendlyTypeNames.ContainsKey(tn) ? this.UserFriendlyTypeNames[tn] : tn.Name;
             }
 
             return t.Name;

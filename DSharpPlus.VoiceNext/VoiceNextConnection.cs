@@ -1,4 +1,27 @@
-﻿using System;
+// This file is part of the DSharpPlus project.
+//
+// Copyright (c) 2015 Mike Santiago
+// Copyright (c) 2016-2021 DSharpPlus Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+using System;
 using System.Buffers;
 using System.Buffers.Binary;
 using System.Collections.Concurrent;
@@ -39,7 +62,7 @@ namespace DSharpPlus.VoiceNext
             add { this._userSpeaking.Register(value); }
             remove { this._userSpeaking.Unregister(value); }
         }
-        private AsyncEvent<VoiceNextConnection, UserSpeakingEventArgs> _userSpeaking;
+        private readonly AsyncEvent<VoiceNextConnection, UserSpeakingEventArgs> _userSpeaking;
 
         /// <summary>
         /// Triggered whenever a user joins voice in the connected guild.
@@ -49,7 +72,7 @@ namespace DSharpPlus.VoiceNext
             add { this._userJoined.Register(value); }
             remove { this._userJoined.Unregister(value); }
         }
-        private AsyncEvent<VoiceNextConnection, VoiceUserJoinEventArgs> _userJoined;
+        private readonly AsyncEvent<VoiceNextConnection, VoiceUserJoinEventArgs> _userJoined;
 
         /// <summary>
         /// Triggered whenever a user leaves voice in the connected guild.
@@ -59,7 +82,7 @@ namespace DSharpPlus.VoiceNext
             add { this._userLeft.Register(value); }
             remove { this._userLeft.Unregister(value); }
         }
-        private AsyncEvent<VoiceNextConnection, VoiceUserLeaveEventArgs> _userLeft;
+        private readonly AsyncEvent<VoiceNextConnection, VoiceUserLeaveEventArgs> _userLeft;
 
         /// <summary>
         /// Triggered whenever voice data is received from the connected voice channel.
@@ -69,7 +92,7 @@ namespace DSharpPlus.VoiceNext
             add { this._voiceReceived.Register(value); }
             remove { this._voiceReceived.Unregister(value); }
         }
-        private AsyncEvent<VoiceNextConnection, VoiceReceiveEventArgs> _voiceReceived;
+        private readonly AsyncEvent<VoiceNextConnection, VoiceReceiveEventArgs> _voiceReceived;
 
         /// <summary>
         /// Triggered whenever voice WebSocket throws an exception.
@@ -79,7 +102,7 @@ namespace DSharpPlus.VoiceNext
             add { this._voiceSocketError.Register(value); }
             remove { this._voiceSocketError.Unregister(value); }
         }
-        private AsyncEvent<VoiceNextConnection, SocketErrorEventArgs> _voiceSocketError;
+        private readonly AsyncEvent<VoiceNextConnection, SocketErrorEventArgs> _voiceSocketError;
 
         internal event VoiceDisconnectedEventHandler VoiceDisconnected;
 
@@ -221,7 +244,7 @@ namespace DSharpPlus.VoiceNext
             this.IsDisposed = false;
 
             this.PlayingWait = null;
-            this.TransmitChannel = Channel.CreateBounded<RawVoicePacket>(new BoundedChannelOptions(Configuration.PacketQueueSize));
+            this.TransmitChannel = Channel.CreateBounded<RawVoicePacket>(new BoundedChannelOptions(this.Configuration.PacketQueueSize));
             this.KeepaliveTimestamps = new ConcurrentDictionary<ulong, long>();
             this.PauseEvent = new AsyncManualResetEvent(true);
 
@@ -355,10 +378,10 @@ namespace DSharpPlus.VoiceNext
             var reader = this.TransmitChannel.Reader;
 
             byte[] data = null;
-            int length = 0;
+            var length = 0;
 
             var synchronizerTicks = (double)Stopwatch.GetTimestamp();
-            var synchronizerResolution = (Stopwatch.Frequency * 0.005);
+            var synchronizerResolution = Stopwatch.Frequency * 0.005;
             var tickResolution = 10_000_000.0 / Stopwatch.Frequency;
             this.Discord.Logger.LogDebug(VoiceNextEvents.Misc, "Timer accuracy: {0}/{1} (high resolution? {2})", Stopwatch.Frequency, synchronizerResolution, Stopwatch.IsHighResolution);
 
@@ -390,7 +413,7 @@ namespace DSharpPlus.VoiceNext
 
                 if (hasPacket)
                 {
-                    hasPacket = PreparePacket(rawPacket.Bytes.Span, out data, out length);
+                    hasPacket = this.PreparePacket(rawPacket.Bytes.Span, out data, out length);
                     if (rawPacket.RentedBuffer != null)
                         ArrayPool<byte>.Shared.Return(rawPacket.RentedBuffer);
                 }
@@ -439,7 +462,7 @@ namespace DSharpPlus.VoiceNext
 
             if (!this.TransmittingSSRCs.TryGetValue(ssrc, out var vtx))
             {
-                var decoder = Opus.CreateDecoder();
+                var decoder = this.Opus.CreateDecoder();
 
                 vtx = new AudioSender(ssrc, decoder)
                 {
@@ -474,7 +497,7 @@ namespace DSharpPlus.VoiceNext
                     // http://www.rfcreader.com/#rfc5285_line186
                     if (opusSpan[0] == 0xBE && opusSpan[1] == 0xDE)
                     {
-                        var headerLen = opusSpan[2] << 8 | opusSpan[3];
+                        var headerLen = (opusSpan[2] << 8) | opusSpan[3];
                         var i = 4;
                         for (; i < headerLen + 4; i++)
                         {
@@ -587,7 +610,7 @@ namespace DSharpPlus.VoiceNext
                 if (!this.KeepaliveTimestamps.TryRemove(keepalive, out var timestamp))
                     return;
 
-                var tdelta = (int)(((Stopwatch.GetTimestamp() - timestamp) / (double)Stopwatch.Frequency) * 1000);
+                var tdelta = (int)((Stopwatch.GetTimestamp() - timestamp) / (double)Stopwatch.Frequency * 1000);
                 this.Discord.Logger.LogDebug(VoiceNextEvents.VoiceKeepalive, "Received UDP keepalive {0} (ping {1}ms)", keepalive, tdelta);
                 Volatile.Write(ref this._udpPing, tdelta);
             }
@@ -1008,7 +1031,7 @@ namespace DSharpPlus.VoiceNext
 
         private Task VoiceWS_SocketMessage(IWebSocketClient client, SocketMessageEventArgs e)
         {
-            if (!(e is SocketTextMessageEventArgs et))
+            if (e is not SocketTextMessageEventArgs et)
             {
                 this.Discord.Logger.LogCritical(VoiceNextEvents.VoiceGatewayError, "Discord Voice Gateway sent binary data - unable to process");
                 return Task.CompletedTask;

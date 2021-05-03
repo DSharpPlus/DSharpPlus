@@ -1,4 +1,27 @@
-﻿using System;
+// This file is part of the DSharpPlus project.
+//
+// Copyright (c) 2015 Mike Santiago
+// Copyright (c) 2016-2021 DSharpPlus Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -35,12 +58,9 @@ namespace DSharpPlus.CommandsNext
 
             if (cn != null)
             {
-                Command cmd = null;
-                if (ctx.Config.CaseSensitive)
-                    cmd = this.Children.FirstOrDefault(xc => xc.Name == cn || (xc.Aliases != null && xc.Aliases.Contains(cn)));
-                else
-                    cmd = this.Children.FirstOrDefault(xc => xc.Name.ToLowerInvariant() == cn.ToLowerInvariant() || (xc.Aliases != null && xc.Aliases.Select(xs => xs.ToLowerInvariant()).Contains(cn.ToLowerInvariant())));
-
+                var cmd = ctx.Config.CaseSensitive
+                    ? this.Children.FirstOrDefault(xc => xc.Name == cn || (xc.Aliases != null && xc.Aliases.Contains(cn)))
+                    : this.Children.FirstOrDefault(xc => xc.Name.ToLowerInvariant() == cn.ToLowerInvariant() || (xc.Aliases != null && xc.Aliases.Select(xs => xs.ToLowerInvariant()).Contains(cn.ToLowerInvariant())));
                 if (cmd != null)
                 {
                     // pass the execution on
@@ -57,27 +77,25 @@ namespace DSharpPlus.CommandsNext
                     };
 
                     var fchecks = await cmd.RunChecksAsync(xctx, false).ConfigureAwait(false);
-                    if (fchecks.Any())
-                        return new CommandResult
+                    return fchecks.Any()
+                        ? new CommandResult
                         {
                             IsSuccessful = false,
                             Exception = new ChecksFailedException(cmd, xctx, fchecks),
                             Context = xctx
-                        };
-                    
-                    return await cmd.ExecuteAsync(xctx).ConfigureAwait(false);
+                        }
+                        : await cmd.ExecuteAsync(xctx).ConfigureAwait(false);
                 }
             }
 
-            if (!this.IsExecutableWithoutSubcommands)
-                return new CommandResult
+            return !this.IsExecutableWithoutSubcommands
+                ? new CommandResult
                 {
                     IsSuccessful = false,
                     Exception = new InvalidOperationException("No matching subcommands were found, and this group is not executable."),
                     Context = ctx
-                };
-
-            return await base.ExecuteAsync(ctx).ConfigureAwait(false);
+                }
+                : await base.ExecuteAsync(ctx).ConfigureAwait(false);
         }
     }
 }

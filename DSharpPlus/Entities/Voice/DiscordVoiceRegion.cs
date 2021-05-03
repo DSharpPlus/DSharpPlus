@@ -1,4 +1,27 @@
-﻿using Newtonsoft.Json;
+// This file is part of the DSharpPlus project.
+//
+// Copyright (c) 2015 Mike Santiago
+// Copyright (c) 2016-2021 DSharpPlus Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
 {
@@ -63,15 +86,9 @@ namespace DSharpPlus.Entities
         public bool Equals(DiscordVoiceRegion region)
             => this == region;
 
-        public override bool Equals(object obj)
-        {
-            return this.Equals(obj as DiscordVoiceRegion);
-        }
+        public override bool Equals(object obj) => this.Equals(obj as DiscordVoiceRegion);
 
-        public override int GetHashCode()
-        {
-            return this.Id.GetHashCode();
-        }
+        public override int GetHashCode() => this.Id.GetHashCode();
 
         /// <summary>
         /// Gets whether the two <see cref="DiscordVoiceRegion"/> objects are equal.
@@ -79,7 +96,7 @@ namespace DSharpPlus.Entities
         /// <param name="left">First voice region to compare.</param>
         /// <param name="right">Second voice region to compare.</param>
         /// <returns>Whether the two voice regions are equal.</returns>
-        public static bool operator==(DiscordVoiceRegion left, DiscordVoiceRegion right)
+        public static bool operator ==(DiscordVoiceRegion left, DiscordVoiceRegion right)
         {
             var o1 = left as object;
             var o2 = right as object;
@@ -87,10 +104,7 @@ namespace DSharpPlus.Entities
             if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
                 return false;
 
-            if (o1 == null && o2 == null)
-                return true;
-
-            return left.Id == right.Id;
+            return o1 == null && o2 == null ? true : left.Id == right.Id;
         }
 
         /// <summary>

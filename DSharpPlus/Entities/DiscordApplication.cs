@@ -1,8 +1,31 @@
-﻿using Newtonsoft.Json;
+// This file is part of the DSharpPlus project.
+//
+// Copyright (c) 2015 Mike Santiago
+// Copyright (c) 2016-2021 DSharpPlus Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Globalization;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
 {
@@ -91,29 +114,14 @@ namespace DSharpPlus.Entities
                 throw new ArgumentOutOfRangeException(nameof(size));
 
             var sfmt = "";
-            switch (fmt)
+            sfmt = fmt switch
             {
-                case ImageFormat.Gif:
-                    sfmt = "gif";
-                    break;
-
-                case ImageFormat.Jpeg:
-                    sfmt = "jpg";
-                    break;
-
-                case ImageFormat.Auto:
-                case ImageFormat.Png:
-                    sfmt = "png";
-                    break;
-
-                case ImageFormat.WebP:
-                    sfmt = "webp";
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(fmt));
-            }
-
+                ImageFormat.Gif => "gif",
+                ImageFormat.Jpeg => "jpg",
+                ImageFormat.Auto or ImageFormat.Png => "png",
+                ImageFormat.WebP => "webp",
+                _ => throw new ArgumentOutOfRangeException(nameof(fmt)),
+            };
             var ssize = size.ToString(CultureInfo.InvariantCulture);
             if (!string.IsNullOrWhiteSpace(this.CoverImageHash))
             {
@@ -145,7 +153,7 @@ namespace DSharpPlus.Entities
             return new QueryUriBuilder("https://discord.com/oauth2/authorize")
                 .AddParameter("client_id", this.Id.ToString(CultureInfo.InvariantCulture))
                 .AddParameter("scope", "bot")
-                .AddParameter("permissions", ((long) permissions).ToString(CultureInfo.InvariantCulture))
+                .AddParameter("permissions", ((long)permissions).ToString(CultureInfo.InvariantCulture))
                 .ToString();
         }
 
@@ -154,10 +162,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="obj">Object to compare to.</param>
         /// <returns>Whether the object is equal to this <see cref="DiscordApplication"/>.</returns>
-        public override bool Equals(object obj)
-        {
-            return this.Equals(obj as DiscordApplication);
-        }
+        public override bool Equals(object obj) => this.Equals(obj as DiscordApplication);
 
         /// <summary>
         /// Checks whether this <see cref="DiscordApplication"/> is equal to another <see cref="DiscordApplication"/>.
@@ -166,23 +171,17 @@ namespace DSharpPlus.Entities
         /// <returns>Whether the <see cref="DiscordApplication"/> is equal to this <see cref="DiscordApplication"/>.</returns>
         public bool Equals(DiscordApplication e)
         {
-            if (ReferenceEquals(e, null))
+            if (e is null)
                 return false;
 
-            if (ReferenceEquals(this, e))
-                return true;
-
-            return this.Id == e.Id;
+            return ReferenceEquals(this, e) ? true : this.Id == e.Id;
         }
 
         /// <summary>
         /// Gets the hash code for this <see cref="DiscordApplication"/>.
         /// </summary>
         /// <returns>The hash code for this <see cref="DiscordApplication"/>.</returns>
-        public override int GetHashCode()
-        {
-            return this.Id.GetHashCode();
-        }
+        public override int GetHashCode() => this.Id.GetHashCode();
 
         /// <summary>
         /// Gets whether the two <see cref="DiscordApplication"/> objects are equal.
@@ -198,10 +197,7 @@ namespace DSharpPlus.Entities
             if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
                 return false;
 
-            if (o1 == null && o2 == null)
-                return true;
-
-            return e1.Id == e2.Id;
+            return o1 == null && o2 == null ? true : e1.Id == e2.Id;
         }
 
         /// <summary>
@@ -258,7 +254,7 @@ namespace DSharpPlus.Entities
         /// Gets the Url of this asset.
         /// </summary>
         public override Uri Url
-            => new Uri($"https://cdn.discordapp.com/app-assets/{this.Application.Id.ToString(CultureInfo.InvariantCulture)}/{this.Id}.png");
+            => new($"https://cdn.discordapp.com/app-assets/{this.Application.Id.ToString(CultureInfo.InvariantCulture)}/{this.Id}.png");
 
         internal DiscordApplicationAsset() { }
 
@@ -272,10 +268,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="obj">Object to compare to.</param>
         /// <returns>Whether the object is equal to this <see cref="DiscordApplicationAsset"/>.</returns>
-        public override bool Equals(object obj)
-        {
-            return this.Equals(obj as DiscordApplicationAsset);
-        }
+        public override bool Equals(object obj) => this.Equals(obj as DiscordApplicationAsset);
 
         /// <summary>
         /// Checks whether this <see cref="DiscordApplicationAsset"/> is equal to another <see cref="DiscordApplicationAsset"/>.
@@ -284,23 +277,17 @@ namespace DSharpPlus.Entities
         /// <returns>Whether the <see cref="DiscordApplicationAsset"/> is equal to this <see cref="DiscordApplicationAsset"/>.</returns>
         public bool Equals(DiscordApplicationAsset e)
         {
-            if (ReferenceEquals(e, null))
+            if (e is null)
                 return false;
 
-            if (ReferenceEquals(this, e))
-                return true;
-
-            return this.Id == e.Id;
+            return ReferenceEquals(this, e) ? true : this.Id == e.Id;
         }
 
         /// <summary>
         /// Gets the hash code for this <see cref="DiscordApplication"/>.
         /// </summary>
         /// <returns>The hash code for this <see cref="DiscordApplication"/>.</returns>
-        public override int GetHashCode()
-        {
-            return this.Id.GetHashCode();
-        }
+        public override int GetHashCode() => this.Id.GetHashCode();
 
         /// <summary>
         /// Gets whether the two <see cref="DiscordApplicationAsset"/> objects are equal.
@@ -316,10 +303,7 @@ namespace DSharpPlus.Entities
             if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
                 return false;
 
-            if (o1 == null && o2 == null)
-                return true;
-
-            return e1.Id == e2.Id;
+            return o1 == null && o2 == null ? true : e1.Id == e2.Id;
         }
 
         /// <summary>
@@ -340,7 +324,7 @@ namespace DSharpPlus.Entities
         public override Uri Url
             => this._url.Value;
 
-        private Lazy<Uri> _url;
+        private readonly Lazy<Uri> _url;
 
         public DiscordSpotifyAsset()
         {

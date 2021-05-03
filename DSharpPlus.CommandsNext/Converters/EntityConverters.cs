@@ -1,4 +1,27 @@
-﻿using System;
+// This file is part of the DSharpPlus project.
+//
+// Copyright (c) 2015 Mike Santiago
+// Copyright (c) 2016-2021 DSharpPlus Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -49,7 +72,7 @@ namespace DSharpPlus.CommandsNext.Converters
             var us = ctx.Client.Guilds.Values
                 .SelectMany(xkvp => xkvp.Members.Values)
                 .Where(xm => (cs ? xm.Username : xm.Username.ToLowerInvariant()) == un && ((dv != null && xm.Discriminator == dv) || dv == null));
-            
+
             var usr = us.FirstOrDefault();
             return usr != null ? Optional.FromValue<DiscordUser>(usr) : Optional.FromNoValue<DiscordUser>();
         }
@@ -97,7 +120,7 @@ namespace DSharpPlus.CommandsNext.Converters
             var dv = di != -1 ? value.Substring(di + 1) : null;
 
             var us = ctx.Guild.Members.Values
-                .Where(xm => ((cs ? xm.Username : xm.Username.ToLowerInvariant()) == un && ((dv != null && xm.Discriminator == dv) || dv == null)) 
+                .Where(xm => ((cs ? xm.Username : xm.Username.ToLowerInvariant()) == un && ((dv != null && xm.Discriminator == dv) || dv == null))
                           || (cs ? xm.Nickname : xm.Nickname?.ToLowerInvariant()) == value);
 
             var mbr = us.FirstOrDefault();
@@ -192,10 +215,9 @@ namespace DSharpPlus.CommandsNext.Converters
         {
             if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var gid))
             {
-                if (ctx.Client.Guilds.TryGetValue(gid, out var result))
-                    return Task.FromResult(Optional.FromValue(result));
-                else
-                    return Task.FromResult(Optional.FromNoValue<DiscordGuild>());
+                return ctx.Client.Guilds.TryGetValue(gid, out var result)
+                    ? Task.FromResult(Optional.FromValue(result))
+                    : Task.FromResult(Optional.FromNoValue<DiscordGuild>());
             }
 
             var cs = ctx.Config.CaseSensitive;
@@ -233,7 +255,7 @@ namespace DSharpPlus.CommandsNext.Converters
                     return Optional.FromNoValue<DiscordMessage>();
 
                 var uripath = MessagePathRegex.Match(uri.AbsolutePath);
-                if (!uripath.Success 
+                if (!uripath.Success
                     || !ulong.TryParse(uripath.Groups["channel"].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var cid)
                     || !ulong.TryParse(uripath.Groups["message"].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out mid))
                     return Optional.FromNoValue<DiscordMessage>();
@@ -288,10 +310,9 @@ namespace DSharpPlus.CommandsNext.Converters
                 if (!ulong.TryParse(sid, NumberStyles.Integer, CultureInfo.InvariantCulture, out var id))
                     return Task.FromResult(Optional.FromNoValue<DiscordEmoji>());
 
-                if (DiscordEmoji.TryFromGuildEmote(ctx.Client, id, out emoji))
-                    return Task.FromResult(Optional.FromValue(emoji));
-
-                return Task.FromResult(Optional.FromValue(new DiscordEmoji
+                return DiscordEmoji.TryFromGuildEmote(ctx.Client, id, out emoji)
+                    ? Task.FromResult(Optional.FromValue(emoji))
+                    : Task.FromResult(Optional.FromValue(new DiscordEmoji
                 {
                     Discord = ctx.Client,
                     Id = id,
@@ -335,10 +356,9 @@ namespace DSharpPlus.CommandsNext.Converters
                 var p2 = byte.TryParse(m.Groups[2].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var g);
                 var p3 = byte.TryParse(m.Groups[3].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var b);
 
-                if (!(p1 && p2 && p3))
-                    return Task.FromResult(Optional.FromNoValue<DiscordColor>());
-                
-                return Task.FromResult(Optional.FromValue(new DiscordColor(r, g, b)));
+                return !(p1 && p2 && p3)
+                    ? Task.FromResult(Optional.FromNoValue<DiscordColor>())
+                    : Task.FromResult(Optional.FromValue(new DiscordColor(r, g, b)));
             }
 
             return Task.FromResult(Optional.FromNoValue<DiscordColor>());

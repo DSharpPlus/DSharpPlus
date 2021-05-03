@@ -1,6 +1,29 @@
-﻿using Newtonsoft.Json;
-using System.Threading.Tasks;
+// This file is part of the DSharpPlus project.
+//
+// Copyright (c) 2015 Mike Santiago
+// Copyright (c) 2016-2021 DSharpPlus Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 using System;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
 {
@@ -63,9 +86,9 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task<DiscordMember> GetMemberAsync()
         {
-            if (this.Type != OverwriteType.Member)
-                throw new ArgumentException(nameof(this.Type), "This overwrite is for a role, not a member.");
-            return await (await this.Discord.ApiClient.GetChannelAsync(this._channel_id).ConfigureAwait(false)).Guild.GetMemberAsync(this.Id).ConfigureAwait(false);
+            return this.Type != OverwriteType.Member
+                ? throw new ArgumentException(nameof(this.Type), "This overwrite is for a role, not a member.")
+                : await (await this.Discord.ApiClient.GetChannelAsync(this._channel_id).ConfigureAwait(false)).Guild.GetMemberAsync(this.Id).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -77,9 +100,9 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task<DiscordRole> GetRoleAsync()
         {
-            if (this.Type != OverwriteType.Role)
-                throw new ArgumentException(nameof(this.Type), "This overwrite is for a member, not a role.");
-            return (await this.Discord.ApiClient.GetChannelAsync(this._channel_id).ConfigureAwait(false)).Guild.GetRole(this.Id);
+            return this.Type != OverwriteType.Role
+                ? throw new ArgumentException(nameof(this.Type), "This overwrite is for a member, not a role.")
+                : (await this.Discord.ApiClient.GetChannelAsync(this._channel_id).ConfigureAwait(false)).Guild.GetRole(this.Id);
         }
 
         internal DiscordOverwrite() { }
@@ -91,11 +114,9 @@ namespace DSharpPlus.Entities
         /// <returns>Whether given permissions are allowed, denied, or not set.</returns>
         public PermissionLevel CheckPermission(Permissions permission)
         {
-            if ((Allowed & permission) != 0)
+            if ((this.Allowed & permission) != 0)
                 return PermissionLevel.Allowed;
-            if ((Denied & permission) != 0)
-                return PermissionLevel.Denied;
-            return PermissionLevel.Unset;
+            return (this.Denied & permission) != 0 ? PermissionLevel.Denied : PermissionLevel.Unset;
         }
     }
 }

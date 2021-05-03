@@ -1,4 +1,27 @@
-﻿using System;
+// This file is part of the DSharpPlus project.
+//
+// Copyright (c) 2015 Mike Santiago
+// Copyright (c) 2016-2021 DSharpPlus Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+using System;
 using System.Buffers.Binary;
 
 namespace DSharpPlus.VoiceNext.Codec
@@ -33,10 +56,7 @@ namespace DSharpPlus.VoiceNext.Codec
             if (source.Length < HeaderSize)
                 return false;
 
-            if ((source[0] != RtpNoExtension && source[0] != RtpExtension) || source[1] != RtpVersion)
-                return false;
-
-            return true;
+            return (source[0] == RtpNoExtension || source[0] == RtpExtension) && source[1] == RtpVersion;
         }
 
         public void DecodeHeader(ReadOnlySpan<byte> source, out ushort sequence, out uint timestamp, out uint ssrc, out bool hasExtension)
@@ -57,20 +77,13 @@ namespace DSharpPlus.VoiceNext.Codec
 
         public int CalculatePacketSize(int encryptedLength, EncryptionMode encryptionMode)
         {
-            switch (encryptionMode)
+            return encryptionMode switch
             {
-                case EncryptionMode.XSalsa20_Poly1305:
-                    return HeaderSize + encryptedLength;
-
-                case EncryptionMode.XSalsa20_Poly1305_Suffix:
-                    return HeaderSize + encryptedLength + Interop.SodiumNonceSize;
-
-                case EncryptionMode.XSalsa20_Poly1305_Lite:
-                    return HeaderSize + encryptedLength + 4;
-
-                default:
-                    throw new ArgumentException("Unsupported encryption mode.", nameof(encryptionMode));
-            }
+                EncryptionMode.XSalsa20_Poly1305 => HeaderSize + encryptedLength,
+                EncryptionMode.XSalsa20_Poly1305_Suffix => HeaderSize + encryptedLength + Interop.SodiumNonceSize,
+                EncryptionMode.XSalsa20_Poly1305_Lite => HeaderSize + encryptedLength + 4,
+                _ => throw new ArgumentException("Unsupported encryption mode.", nameof(encryptionMode)),
+            };
         }
 
         public void GetDataFromPacket(ReadOnlySpan<byte> packet, out ReadOnlySpan<byte> data, EncryptionMode encryptionMode)

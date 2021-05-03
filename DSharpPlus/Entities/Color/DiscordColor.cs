@@ -1,4 +1,27 @@
-﻿using System;
+// This file is part of the DSharpPlus project.
+//
+// Copyright (c) 2015 Mike Santiago
+// Copyright (c) 2016-2021 DSharpPlus Contributors
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+using System;
 using System.Globalization;
 using System.Linq;
 
@@ -19,19 +42,19 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the red component of this color as an 8-bit integer.
         /// </summary>
-        public byte R 
+        public byte R
             => (byte)((this.Value >> 16) & 0xFF);
 
         /// <summary>
         /// Gets the green component of this color as an 8-bit integer.
         /// </summary>
-        public byte G 
+        public byte G
             => (byte)((this.Value >> 8) & 0xFF);
 
         /// <summary>
         /// Gets the blue component of this color as an 8-bit integer.
         /// </summary>
-        public byte B 
+        public byte B
             => (byte)(this.Value & 0xFF);
 
         /// <summary>
@@ -51,7 +74,7 @@ namespace DSharpPlus.Entities
         /// <param name="b">Value of the blue component.</param>
         public DiscordColor(byte r, byte g, byte b)
         {
-            this.Value = r << 16 | g << 8 | b;
+            this.Value = (r << 16) | (g << 8) | b;
         }
 
         /// <summary>
@@ -69,7 +92,7 @@ namespace DSharpPlus.Entities
             var gb = (byte)(g * 255);
             var bb = (byte)(b * 255);
 
-            this.Value = rb << 16 | gb << 8 | bb;
+            this.Value = (rb << 16) | (gb << 8) | bb;
         }
 
         /// <summary>
@@ -100,12 +123,9 @@ namespace DSharpPlus.Entities
         /// Gets a string representation of this color.
         /// </summary>
         /// <returns>String representation of this color.</returns>
-        public override string ToString()
-        {
-            return $"#{this.Value.ToString("X6")}";
-        }
+        public override string ToString() => $"#{this.Value:X6}";
 
         public static implicit operator DiscordColor(int value)
-            => new DiscordColor(value);
+            => new(value);
     }
 }
