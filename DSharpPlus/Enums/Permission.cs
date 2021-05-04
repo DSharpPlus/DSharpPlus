@@ -261,7 +261,7 @@ namespace DSharpPlus
         /// Allows the user to request to speak in stage channels.
         /// </summary>
         [PermissionString("Request to speak")]
-        RequestToSpeak = 0x0000000100000000
+        RequestToSpeak = 0x0000000100000000,
         
         /// <summary>
         /// Allows the user to manage guild events.
