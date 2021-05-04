@@ -4,7 +4,7 @@ namespace DSharpPlus
 {
     public static class PermissionMethods
     {
-        internal static Permissions FULL_PERMS { get; } = (Permissions)8589934591;
+        internal static Permissions FULL_PERMS { get; } = (Permissions)17179869183;
 
         /// <summary>
         /// Calculates whether this permission set contains the given permission.
@@ -69,7 +69,7 @@ namespace DSharpPlus
         /// Indicates all permissions are granted
         /// </summary>
         [PermissionString("All permissions")]
-        All = 8589934591,
+        All = 17179869183,
 
         /// <summary>
         /// Allows creation of instant channel invites.
@@ -263,7 +263,11 @@ namespace DSharpPlus
         [PermissionString("Request to speak")]
         RequestToSpeak = 0x0000000100000000
         
-        // To change "Stage ticket permission
+        /// <summary>
+        /// Allows the user to manage guild events.
+        /// </summary>
+        [PermissionString("Manage Events")]
+        ManageEvents = 0x0000000200000000
     }
 
     /// <summary>
