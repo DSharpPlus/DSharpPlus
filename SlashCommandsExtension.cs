@@ -21,11 +21,11 @@ namespace DSharpPlus.SlashCommands
     /// </summary>
     public class SlashCommandsExtension : BaseExtension
     {
-        internal List<CommandMethod> CommandMethods { get; set; } = new List<CommandMethod>();
-        internal List<GroupCommand> GroupCommands { get; set; } = new List<GroupCommand>();
-        internal List<SubGroupCommand> SubGroupCommands { get; set; } = new List<SubGroupCommand>();
+        private List<CommandMethod> CommandMethods { get; set; } = new List<CommandMethod>();
+        private List<GroupCommand> GroupCommands { get; set; } = new List<GroupCommand>();
+        private List<SubGroupCommand> SubGroupCommands { get; set; } = new List<SubGroupCommand>();
 
-        internal List<KeyValuePair<ulong?, Type>> UpdateList { get; set; } = new List<KeyValuePair<ulong?, Type>>();
+        private List<KeyValuePair<ulong?, Type>> UpdateList { get; set; } = new List<KeyValuePair<ulong?, Type>>();
 
         private readonly SlashCommandsConfiguration _configuration;
         
@@ -101,33 +101,14 @@ namespace DSharpPlus.SlashCommands
                             {
                                 var commandattribute = submethod.GetCustomAttribute<SlashCommandAttribute>();
 
-                                var options = new List<DiscordApplicationCommandOption>();
 
                                 var parameters = submethod.GetParameters();
                                 if (!ReferenceEquals(parameters.First().ParameterType, typeof(InteractionContext)))
                                     throw new ArgumentException($"The first argument must be an InteractionContext!");
                                 parameters = parameters.Skip(1).ToArray();
-                                foreach (var parameter in parameters)
-                                {
-                                    var optionattribute = parameter.GetCustomAttribute<OptionAttribute>();
-                                    if (optionattribute == null)
-                                        throw new ArgumentException("Arguments must have the Option attribute!");
 
-                                    var type = parameter.ParameterType;
-                                    var parametertype = GetParameterType(type);
-
-                                    DiscordApplicationCommandOptionChoice[] choices = null;
-                                    var choiceattributes = parameter.GetCustomAttributes<ChoiceAttribute>();
-                                    if (choiceattributes.Any())
-                                    {
-                                        choices = Array.Empty<DiscordApplicationCommandOptionChoice>();
-                                        foreach (var att in choiceattributes)
-                                        {
-                                            choices = choices.Append(new DiscordApplicationCommandOptionChoice(att.Name, att.Value)).ToArray();
-                                        }
-                                    }
-                                    options.Add(new DiscordApplicationCommandOption(optionattribute.Name, optionattribute.Description, parametertype, !parameter.IsOptional, choices));
-                                }
+                                var options = ParseParameters(parameters);
+    
                                 var subpayload = new DiscordApplicationCommandOption(commandattribute.Name, commandattribute.Description, ApplicationCommandOptionType.SubCommand, null, null, options);
 
                                 commandmethods.Add(commandattribute.Name, submethod);
@@ -153,42 +134,8 @@ namespace DSharpPlus.SlashCommands
                                     if (!ReferenceEquals(parameters.First().ParameterType, typeof(InteractionContext)))
                                         throw new ArgumentException($"The first argument must be an InteractionContext!");
                                     parameters = parameters.Skip(1).ToArray();
-                                    foreach (var parameter in parameters)
-                                    {
-                                        var optionattribute = parameter.GetCustomAttribute<OptionAttribute>();
-                                        if (optionattribute == null)
-                                            throw new ArgumentException("Arguments must have the Option attribute!");
-
-                                        var type = parameter.ParameterType;
-                                        ApplicationCommandOptionType parametertype;
-                                        if (ReferenceEquals(type, typeof(string)))
-                                            parametertype = ApplicationCommandOptionType.String;
-                                        else if (ReferenceEquals(type, typeof(long)))
-                                            parametertype = ApplicationCommandOptionType.Integer;
-                                        else if (ReferenceEquals(type, typeof(bool)))
-                                            parametertype = ApplicationCommandOptionType.Boolean;
-                                        else if (ReferenceEquals(type, typeof(DiscordChannel)))
-                                            parametertype = ApplicationCommandOptionType.Channel;
-                                        else if (ReferenceEquals(type, typeof(DiscordUser)))
-                                            parametertype = ApplicationCommandOptionType.User;
-                                        else if (ReferenceEquals(type, typeof(DiscordRole)))
-                                            parametertype = ApplicationCommandOptionType.Role;
-                                        else
-                                            throw new ArgumentException("Cannot convert type! Argument types must be string, long, bool, DiscordChannel, DiscordUser or DiscordRole.");
-
-                                        DiscordApplicationCommandOptionChoice[] choices = null;
-                                        var choiceattributes = parameter.GetCustomAttributes<ChoiceAttribute>();
-                                        if (choiceattributes.Any())
-                                        {
-                                            choices = Array.Empty<DiscordApplicationCommandOptionChoice>();
-                                            foreach (var att in choiceattributes)
-                                            {
-                                                choices = choices.Append(new DiscordApplicationCommandOptionChoice(att.Name, att.Value)).ToArray();
-                                            }
-                                        }
-
-                                        suboptions.Add(new DiscordApplicationCommandOption(optionattribute.Name, optionattribute.Description, parametertype, !parameter.IsOptional, choices));
-                                    }
+                                    options = options.Concat(ParseParameters(parameters)).ToList();
+                                    
                                     var subsubpayload = new DiscordApplicationCommandOption(commatt.Name, commatt.Description, ApplicationCommandOptionType.SubCommand, null, null, suboptions);
                                     options.Add(subsubpayload);
                                     commandmethods.Add(commatt.Name, subsubmethod);
@@ -222,16 +169,7 @@ namespace DSharpPlus.SlashCommands
                                 var type = parameter.ParameterType;
                                 ApplicationCommandOptionType parametertype = GetParameterType(type);
 
-                                DiscordApplicationCommandOptionChoice[] choices = null;
-                                var choiceattributes = parameter.GetCustomAttributes<ChoiceAttribute>();
-                                if (choiceattributes.Any())
-                                {
-                                    choices = Array.Empty<DiscordApplicationCommandOptionChoice>();
-                                    foreach (var att in choiceattributes)
-                                    {
-                                        choices = choices.Append(new DiscordApplicationCommandOptionChoice(att.Name, att.Value)).ToArray();
-                                    }
-                                }
+                                DiscordApplicationCommandOptionChoice[] choices = GetChoiceAttributesFromParameter(parameter.GetCustomAttributes<ChoiceAttribute>());
 
                                 options.Add(new DiscordApplicationCommandOption(optionattribute.Name, optionattribute.Description, parametertype, !parameter.IsOptional, choices));
                             }
@@ -282,7 +220,7 @@ namespace DSharpPlus.SlashCommands
         }
 
         //Handler
-        internal Task InteractionHandler(DiscordClient client, InteractionCreateEventArgs e)
+        private Task InteractionHandler(DiscordClient client, InteractionCreateEventArgs e)
         {
             _ = Task.Run(async () =>
             {
@@ -311,65 +249,7 @@ namespace DSharpPlus.SlashCommands
                     {
                         var method = methods.First();
 
-                        List<object> args = new List<object> { context };
-                        var parameters = method.Method.GetParameters().Skip(1);
-
-                        for (int i = 0; i < parameters.Count(); i++)
-                        {
-                            var parameter = parameters.ElementAt(i);
-                            if (parameter.IsOptional && (e.Interaction.Data.Options == null || e.Interaction.Data.Options?.ElementAtOrDefault(i) == default))
-                                args.Add(parameter.DefaultValue);
-                            else
-                            {
-                                var option = e.Interaction.Data.Options.ElementAt(i);
-
-                                if (ReferenceEquals(parameter.ParameterType, typeof(string)))
-                                    args.Add(option.Value.ToString());
-                                else if (ReferenceEquals(parameter.ParameterType, typeof(long)))
-                                    args.Add((long)option.Value);
-                                else if (ReferenceEquals(parameter.ParameterType, typeof(bool)))
-                                    args.Add((bool)option.Value);
-                                else if (ReferenceEquals(parameter.ParameterType, typeof(DiscordUser)))
-                                {
-                                    if (e.Interaction.Data.Resolved.Members != null && e.Interaction.Data.Resolved.Members.TryGetValue((ulong)option.Value, out var member))
-                                    {
-                                        args.Add(member);
-                                    }
-                                    else if (e.Interaction.Data.Resolved.Users != null && e.Interaction.Data.Resolved.Users.TryGetValue((ulong)option.Value, out var user))
-                                    {
-                                        args.Add(user);
-                                    }
-                                    else
-                                    {
-                                        args.Add(await Client.GetUserAsync((ulong)option.Value));
-                                    }
-                                }
-                                else if (ReferenceEquals(parameter.ParameterType, typeof(DiscordChannel)))
-                                {
-                                    if (e.Interaction.Data.Resolved.Channels != null && e.Interaction.Data.Resolved.Channels.TryGetValue((ulong)option.Value, out var channel))
-                                    {
-                                        args.Add(channel);
-                                    }
-                                    else
-                                    {
-                                        args.Add(e.Interaction.Guild.GetChannel((ulong)option.Value));
-                                    }
-                                }
-                                else if (ReferenceEquals(parameter.ParameterType, typeof(DiscordRole)))
-                                {
-                                    if (e.Interaction.Data.Resolved.Roles != null && e.Interaction.Data.Resolved.Roles.TryGetValue((ulong)option.Value, out var role))
-                                    {
-                                        args.Add(role);
-                                    }
-                                    else
-                                    {
-                                        args.Add(e.Interaction.Guild.GetRole((ulong)option.Value));
-                                    }
-                                }
-                                else
-                                    throw new ArgumentException($"How on earth did that happen");
-                            }
-                        }
+                        var args = await ResloveInteractionCommandParameters(e, context, method.Method);
                         var classinstance = ActivatorUtilities.CreateInstance(_configuration?.Services, method.ParentClass);
                         var task = (Task)method.Method.Invoke(classinstance, args.ToArray());
                         await task;
@@ -379,65 +259,7 @@ namespace DSharpPlus.SlashCommands
                         var command = e.Interaction.Data.Options.First();
                         var method = groups.First().Methods.First(x => x.Key == command.Name).Value;
 
-                        List<object> args = new List<object> { context };
-                        var parameters = method.GetParameters().Skip(1);
-
-                        for (int i = 0; i < parameters.Count(); i++)
-                        {
-                            var parameter = parameters.ElementAt(i);
-                            if (parameter.IsOptional && (command.Options == null || command.Options?.ElementAtOrDefault(i) == default))
-                                args.Add(parameter.DefaultValue);
-                            else
-                            {
-                                var option = command.Options.ElementAt(i);
-
-                                if (ReferenceEquals(parameter.ParameterType, typeof(string)))
-                                    args.Add(option.Value.ToString());
-                                else if (ReferenceEquals(parameter.ParameterType, typeof(long)))
-                                    args.Add((long)option.Value);
-                                else if (ReferenceEquals(parameter.ParameterType, typeof(bool)))
-                                    args.Add((bool)option.Value);
-                                else if (ReferenceEquals(parameter.ParameterType, typeof(DiscordUser)))
-                                {
-                                    if (e.Interaction.Data.Resolved.Members != null && e.Interaction.Data.Resolved.Members.TryGetValue((ulong)option.Value, out var member))
-                                    {
-                                        args.Add(member);
-                                    }
-                                    else if (e.Interaction.Data.Resolved.Users != null && e.Interaction.Data.Resolved.Users.TryGetValue((ulong)option.Value, out var user))
-                                    {
-                                        args.Add(user);
-                                    }
-                                    else
-                                    {
-                                        args.Add(await Client.GetUserAsync((ulong)option.Value));
-                                    }
-                                }
-                                else if (ReferenceEquals(parameter.ParameterType, typeof(DiscordChannel)))
-                                {
-                                    if (e.Interaction.Data.Resolved.Channels != null && e.Interaction.Data.Resolved.Channels.TryGetValue((ulong)option.Value, out var channel))
-                                    {
-                                        args.Add(channel);
-                                    }
-                                    else
-                                    {
-                                        args.Add(e.Interaction.Guild.GetChannel((ulong)option.Value));
-                                    }
-                                }
-                                else if (ReferenceEquals(parameter.ParameterType, typeof(DiscordRole)))
-                                {
-                                    if (e.Interaction.Data.Resolved.Channels != null && e.Interaction.Data.Resolved.Roles.TryGetValue((ulong)option.Value, out var role))
-                                    {
-                                        args.Add(role);
-                                    }
-                                    else
-                                    {
-                                        args.Add(e.Interaction.Guild.GetRole((ulong)option.Value));
-                                    }
-                                }
-                                else
-                                    throw new ArgumentException($"How on earth did that happen");
-                            }
-                        }
+                        var args = await ResloveInteractionCommandParameters(e, context, method);
                         var classinstance = ActivatorUtilities.CreateInstance(_configuration?.Services, groups.First().ParentClass);
                         var task = (Task)method.Invoke(classinstance, args.ToArray());
                         await task;
@@ -449,65 +271,7 @@ namespace DSharpPlus.SlashCommands
 
                         var method = group.Methods.First(x => x.Key == command.Options.First().Name).Value;
 
-                        List<object> args = new List<object> { context };
-                        var parameters = method.GetParameters().Skip(1);
-
-                        for (int i = 0; i < parameters.Count(); i++)
-                        {
-                            var parameter = parameters.ElementAt(i);
-                            if (parameter.IsOptional && (command.Options == null || command.Options?.ElementAtOrDefault(i) == default))
-                                args.Add(parameter.DefaultValue);
-                            else
-                            {
-                                var option = command.Options.ElementAt(i);
-
-                                if (ReferenceEquals(parameter.ParameterType, typeof(string)))
-                                    args.Add(option.Value.ToString());
-                                else if (ReferenceEquals(parameter.ParameterType, typeof(long)))
-                                    args.Add((long)option.Value);
-                                else if (ReferenceEquals(parameter.ParameterType, typeof(bool)))
-                                    args.Add((bool)option.Value);
-                                else if (ReferenceEquals(parameter.ParameterType, typeof(DiscordUser)))
-                                {
-                                    if (e.Interaction.Data.Resolved.Members != null && e.Interaction.Data.Resolved.Members.TryGetValue((ulong)option.Value, out var member))
-                                    {
-                                        args.Add(member);
-                                    }
-                                    else if (e.Interaction.Data.Resolved.Users != null && e.Interaction.Data.Resolved.Users.TryGetValue((ulong)option.Value, out var user))
-                                    {
-                                        args.Add(user);
-                                    }
-                                    else
-                                    {
-                                        args.Add(await Client.GetUserAsync((ulong)option.Value));
-                                    }
-                                }
-                                else if (ReferenceEquals(parameter.ParameterType, typeof(DiscordChannel)))
-                                {
-                                    if (e.Interaction.Data.Resolved.Channels != null && e.Interaction.Data.Resolved.Channels.TryGetValue((ulong)option.Value, out var channel))
-                                    {
-                                        args.Add(channel);
-                                    }
-                                    else
-                                    {
-                                        args.Add(e.Interaction.Guild.GetChannel((ulong)option.Value));
-                                    }
-                                }
-                                else if (ReferenceEquals(parameter.ParameterType, typeof(DiscordRole)))
-                                {
-                                    if (e.Interaction.Data.Resolved.Channels != null && e.Interaction.Data.Resolved.Roles.TryGetValue((ulong)option.Value, out var role))
-                                    {
-                                        args.Add(role);
-                                    }
-                                    else
-                                    {
-                                        args.Add(e.Interaction.Guild.GetRole((ulong)option.Value));
-                                    }
-                                }
-                                else
-                                    throw new ArgumentException($"How on earth did that happen");
-                            }
-                        }
+                        var args = await ResloveInteractionCommandParameters(e, context, method);
                         var classinstance = ActivatorUtilities.CreateInstance(_configuration?.Services, group.ParentClass);
                         var task = (Task)method.Invoke(classinstance, args.ToArray());
                         await task;
@@ -521,6 +285,76 @@ namespace DSharpPlus.SlashCommands
                 }
             });
             return Task.CompletedTask;
+        }
+
+        private async Task<List<object>> ResloveInteractionCommandParameters(InteractionCreateEventArgs e, InteractionContext context, MethodInfo method)
+        {
+            List<object> args = new List<object> {context};
+            var parameters = method.GetParameters().Skip(1);
+
+            for (int i = 0; i < parameters.Count(); i++)
+            {
+                var parameter = parameters.ElementAt(i);
+                if (parameter.IsOptional && (e.Interaction.Data.Options == null ||
+                                             e.Interaction.Data.Options?.ElementAtOrDefault(i) == default))
+                    args.Add(parameter.DefaultValue);
+                else
+                {
+                    var option = e.Interaction.Data.Options.ElementAt(i);
+
+                    if (ReferenceEquals(parameter.ParameterType, typeof(string)))
+                        args.Add(option.Value.ToString());
+                    else if (ReferenceEquals(parameter.ParameterType, typeof(long)))
+                        args.Add((long) option.Value);
+                    else if (ReferenceEquals(parameter.ParameterType, typeof(bool)))
+                        args.Add((bool) option.Value);
+                    else if (ReferenceEquals(parameter.ParameterType, typeof(DiscordUser)))
+                    {
+                        if (e.Interaction.Data.Resolved.Members != null &&
+                            e.Interaction.Data.Resolved.Members.TryGetValue((ulong) option.Value, out var member))
+                        {
+                            args.Add(member);
+                        }
+                        else if (e.Interaction.Data.Resolved.Users != null &&
+                                 e.Interaction.Data.Resolved.Users.TryGetValue((ulong) option.Value, out var user))
+                        {
+                            args.Add(user);
+                        }
+                        else
+                        {
+                            args.Add(await Client.GetUserAsync((ulong) option.Value));
+                        }
+                    }
+                    else if (ReferenceEquals(parameter.ParameterType, typeof(DiscordChannel)))
+                    {
+                        if (e.Interaction.Data.Resolved.Channels != null &&
+                            e.Interaction.Data.Resolved.Channels.TryGetValue((ulong) option.Value, out var channel))
+                        {
+                            args.Add(channel);
+                        }
+                        else
+                        {
+                            args.Add(e.Interaction.Guild.GetChannel((ulong) option.Value));
+                        }
+                    }
+                    else if (ReferenceEquals(parameter.ParameterType, typeof(DiscordRole)))
+                    {
+                        if (e.Interaction.Data.Resolved.Roles != null &&
+                            e.Interaction.Data.Resolved.Roles.TryGetValue((ulong) option.Value, out var role))
+                        {
+                            args.Add(role);
+                        }
+                        else
+                        {
+                            args.Add(e.Interaction.Guild.GetRole((ulong) option.Value));
+                        }
+                    }
+                    else
+                        throw new ArgumentException($"How on earth did that happen");
+                }
+            }
+
+            return args;
         }
 
         //Events
@@ -545,7 +379,7 @@ namespace DSharpPlus.SlashCommands
         }
         private AsyncEvent<SlashCommandsExtension, SlashCommandExecutedEventArgs> _executed;
 
-        internal ApplicationCommandOptionType GetParameterType(Type type)
+        private ApplicationCommandOptionType GetParameterType(Type type)
         {
             ApplicationCommandOptionType parametertype;
             if (ReferenceEquals(type, typeof(string)))
@@ -565,17 +399,38 @@ namespace DSharpPlus.SlashCommands
 
             return parametertype;
         }
-    }
 
-    /*internal class CommandCreatePayload
-    {
-        [JsonProperty("name")]
-        public string Name;
-        [JsonProperty("description")]
-        public string Description;
-        [JsonProperty("options")]
-        public List<DiscordApplicationCommandOption> Options = new List<DiscordApplicationCommandOption>();
-    }*/
+        private DiscordApplicationCommandOptionChoice[] GetChoiceAttributesFromParameter(IEnumerable<ChoiceAttribute> choiceattributes)
+        {
+            if (!choiceattributes.Any())
+            {
+                return null;
+            }
+
+            return choiceattributes.Select(att => new DiscordApplicationCommandOptionChoice(att.Name, att.Value)).ToArray();
+        }
+
+        private List<DiscordApplicationCommandOption> ParseParameters(ParameterInfo[] parameters)
+        {
+            var options = new List<DiscordApplicationCommandOption>();
+            foreach (var parameter in parameters)
+            {
+                var optionattribute = parameter.GetCustomAttribute<OptionAttribute>();
+                if (optionattribute == null)
+                    throw new ArgumentException("Arguments must have the Option attribute!");
+
+                var type = parameter.ParameterType;
+                var parametertype = GetParameterType(type);
+
+                DiscordApplicationCommandOptionChoice[] choices = GetChoiceAttributesFromParameter(parameter.GetCustomAttributes<ChoiceAttribute>());
+
+                options.Add(new DiscordApplicationCommandOption(optionattribute.Name, optionattribute.Description, parametertype, !parameter.IsOptional, choices));
+            }
+
+            return options;
+        }
+        
+    }
 
     internal class CommandMethod
     {
