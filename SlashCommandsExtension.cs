@@ -132,7 +132,7 @@ namespace DSharpPlus.SlashCommands
                                     if (!ReferenceEquals(parameters.First().ParameterType, typeof(InteractionContext)))
                                         throw new ArgumentException($"The first argument must be an InteractionContext!");
                                     parameters = parameters.Skip(1).ToArray();
-                                    options = options.Concat(ParseParameters(parameters)).ToList();
+                                    suboptions = suboptions.Concat(ParseParameters(parameters)).ToList();
                                     
                                     var subsubpayload = new DiscordApplicationCommandOption(commatt.Name, commatt.Description, ApplicationCommandOptionType.SubCommand, null, null, suboptions);
                                     options.Add(subsubpayload);
@@ -250,7 +250,7 @@ namespace DSharpPlus.SlashCommands
                     {
                         var method = methods.First();
 
-                        var args = await ResloveInteractionCommandParameters(e, context, method.Method);
+                        var args = await ResolveInteractionCommandParameters(e, context, method.Method, e.Interaction.Data.Options);
                         var classinstance = ActivatorUtilities.CreateInstance(_configuration?.Services, method.ParentClass);
                         var task = (Task)method.Method.Invoke(classinstance, args.ToArray());
                         await task;
@@ -260,7 +260,7 @@ namespace DSharpPlus.SlashCommands
                         var command = e.Interaction.Data.Options.First();
                         var method = groups.First().Methods.First(x => x.Key == command.Name).Value;
 
-                        var args = await ResloveInteractionCommandParameters(e, context, method);
+                        var args = await ResolveInteractionCommandParameters(e, context, method, e.Interaction.Data.Options.First().Options);
                         var classinstance = ActivatorUtilities.CreateInstance(_configuration?.Services, groups.First().ParentClass);
                         var task = (Task)method.Invoke(classinstance, args.ToArray());
                         await task;
@@ -272,7 +272,7 @@ namespace DSharpPlus.SlashCommands
 
                         var method = group.Methods.First(x => x.Key == command.Options.First().Name).Value;
 
-                        var args = await ResloveInteractionCommandParameters(e, context, method);
+                        var args = await ResolveInteractionCommandParameters(e, context, method, e.Interaction.Data.Options.First().Options.First().Options);
                         var classinstance = ActivatorUtilities.CreateInstance(_configuration?.Services, group.ParentClass);
                         var task = (Task)method.Invoke(classinstance, args.ToArray());
                         await task;
@@ -288,7 +288,7 @@ namespace DSharpPlus.SlashCommands
             return Task.CompletedTask;
         }
 
-        private async Task<List<object>> ResloveInteractionCommandParameters(InteractionCreateEventArgs e, InteractionContext context, MethodInfo method)
+        private async Task<List<object>> ResolveInteractionCommandParameters(InteractionCreateEventArgs e, InteractionContext context, MethodInfo method, IEnumerable<DiscordInteractionDataOption> options)
         {
             List<object> args = new List<object> {context};
             var parameters = method.GetParameters().Skip(1);
@@ -301,7 +301,7 @@ namespace DSharpPlus.SlashCommands
                     args.Add(parameter.DefaultValue);
                 else
                 {
-                    var option = e.Interaction.Data.Options.ElementAt(i);
+                    var option = options.ElementAt(i);
 
                     if (ReferenceEquals(parameter.ParameterType, typeof(string)))
                         args.Add(option.Value.ToString());
