@@ -106,9 +106,11 @@ public async Task TestCommand(InteractionContext ctx)
 ### Arguments
 If you want the user to be able to give more data to the command, you can add some arguments.
 
-Arguments must have the `Option` attribute, and can only be of type `string`, `long`, `bool`, `DiscordUser`, `DiscordChannel` and `DiscordRole`. If you want to make them optional, you can assign a default value as well.
+Arguments must have the `Option` attribute, and can only be of type `string`, `long`, `bool`, `DiscordUser`, `DiscordChannel`, `DiscordRole` and `Enum`. If you want to make them optional, you can assign a default value as well.
 
 You can also predefine some choices for the option, with the `Choice` attribute. You can add multiple attributes to add multiple choices. Choices only work for `string` and `long` arguments.
+
+You can also define choices using enums, see the example bellow.
 
 Some examples:
 ```cs
@@ -134,6 +136,24 @@ Some examples:
         {
           await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(phrase));
         }
+        
+        
+        enum MyEnum
+        {
+            [Description("Option 1")]
+            option1,
+            [Description("Option 2")]
+            option2,
+            [Description("option3")]
+            option3
+        }
+    
+        [SlashCommand("enum", "Test enum")]
+        public async Task EnumCommand(InteractionContext ctx, MyEnum myEnum = MyEnum.option1)
+        {
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(myEnum.GetDescription()));
+        }
+        
  ```
 ### Groups
 You can have slash commands in groups. Their structure is explained [here](https://discord.com/developers/docs/interactions/slash-commands#nested-subcommands-and-groups), I would highly recommend reading it to understand how they work. To register groups you need a container which inherits from `SlashCommandModule`. Inside this container you can register groups of commands:
@@ -144,13 +164,13 @@ public class GroupContainer : SlashCommandModule
   [SlashCommandGroup("group", "description")]
   public class Group
   {
-    [SlashCommand("command", "description")
+    [SlashCommand("command", "description")]
     public async Task Command(InteractionContext ctx) {}
     
-    [SlashCommand("command2", "description")
+    [SlashCommand("command2", "description")]
     public async Task Command2(InteractionContext ctx) {}
     
-    [SlashCommand("command3", "description")
+    [SlashCommand("command3", "description")]
     public async Task Command3(InteractionContext ctx) {}
   }
   
@@ -161,26 +181,26 @@ public class GroupContainer : SlashCommandModule
     [SlashCommandGroup("subgroup", "description")]
     public class SubGroup
     {
-      [SlashCommand("command", "description")
+      [SlashCommand("command", "description")]
       public async Task Command(InteractionContext ctx) {}
     
-      [SlashCommand("command2", "description")
+      [SlashCommand("command2", "description")]
       public async Task Command2(InteractionContext ctx) {}
     
-      [SlashCommand("command3", "description")
+      [SlashCommand("command3", "description")]
       public async Task Command3(InteractionContext ctx) {}
     {
     
     [SlashCommandGroup("subgroup2", "description")]
     public class SubGroup2
     {
-      [SlashCommand("command", "description")
+      [SlashCommand("command", "description")]
       public async Task Command(InteractionContext ctx) {}
     
-      [SlashCommand("command2", "description")
+      [SlashCommand("command2", "description")]
       public async Task Command2(InteractionContext ctx) {}
     
-      [SlashCommand("command3", "description")
+      [SlashCommand("command3", "description")]
       public async Task Command3(InteractionContext ctx) {}
     {
   }

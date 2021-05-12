@@ -1,7 +1,5 @@
 ﻿using Emzi0767.Utilities;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DSharpPlus.SlashCommands.EventArgs
 {

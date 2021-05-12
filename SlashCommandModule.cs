@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DSharpPlus.SlashCommands
+﻿namespace DSharpPlus.SlashCommands
 {
     /// <summary>
     /// Represents a base class for slash command modules

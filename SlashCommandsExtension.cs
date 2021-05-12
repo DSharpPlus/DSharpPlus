@@ -2,7 +2,6 @@
 using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus.SlashCommands.Attributes;
-using Newtonsoft.Json;
 using System.Collections.Generic;
 using DSharpPlus.Entities;
 using System.Linq;
@@ -10,8 +9,7 @@ using DSharpPlus.EventArgs;
 using Microsoft.Extensions.Logging;
 using Emzi0767.Utilities;
 using DSharpPlus.SlashCommands.EventArgs;
-using DSharpPlus.Net;
-using DSharpPlus.Net.Serialization;
+using DSharpPlus.SlashCommands.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.SlashCommands
@@ -160,19 +158,8 @@ namespace DSharpPlus.SlashCommands
                             if (parameters.Length == 0 || parameters == null || !ReferenceEquals(parameters.FirstOrDefault()?.ParameterType, typeof(InteractionContext)))
                                 throw new ArgumentException($"The first argument must be an InteractionContext!");
                             parameters = parameters.Skip(1).ToArray();
-                            foreach (var parameter in parameters)
-                            {
-                                var optionattribute = parameter.GetCustomAttribute<OptionAttribute>();
-                                if (optionattribute == null)
-                                    throw new ArgumentException("Arguments must have the SlashOption attribute!");
+                            options = options.Concat(ParseParameters(parameters)).ToList();
 
-                                var type = parameter.ParameterType;
-                                ApplicationCommandOptionType parametertype = GetParameterType(type);
-
-                                DiscordApplicationCommandOptionChoice[] choices = GetChoiceAttributesFromParameter(parameter.GetCustomAttributes<ChoiceAttribute>());
-
-                                options.Add(new DiscordApplicationCommandOption(optionattribute.Name, optionattribute.Description, parametertype, !parameter.IsOptional, choices));
-                            }
                             InternalCommandMethods = InternalCommandMethods.Append(new CommandMethod { Method = method, Name = commandattribute.Name, ParentClass = t }).ToArray();
 
                             var payload = new DiscordApplicationCommand(commandattribute.Name, commandattribute.Description, options);
@@ -217,6 +204,20 @@ namespace DSharpPlus.SlashCommands
                     Environment.Exit(-1);
                 }
             });
+        }
+
+        private static DiscordApplicationCommandOptionChoice[] GetChoiceAttributesFromEnumParameter(Type enumParam)
+        {
+            DiscordApplicationCommandOptionChoice[] choices = null;
+
+                choices = Array.Empty<DiscordApplicationCommandOptionChoice>();
+                foreach (Enum foo in Enum.GetValues(enumParam))
+                {
+                    choices = choices.Append(new DiscordApplicationCommandOptionChoice(foo.GetDescription(), foo.ToString()))
+                        .ToArray();
+                }
+
+            return choices;
         }
 
         //Handler
@@ -304,6 +305,8 @@ namespace DSharpPlus.SlashCommands
 
                     if (ReferenceEquals(parameter.ParameterType, typeof(string)))
                         args.Add(option.Value.ToString());
+                    else if (parameter.ParameterType.IsEnum)
+                        args.Add(Enum.Parse(parameter.ParameterType, (string)option.Value));
                     else if (ReferenceEquals(parameter.ParameterType, typeof(long)))
                         args.Add((long) option.Value);
                     else if (ReferenceEquals(parameter.ParameterType, typeof(bool)))
@@ -350,7 +353,7 @@ namespace DSharpPlus.SlashCommands
                         }
                     }
                     else
-                        throw new ArgumentException($"How on earth did that happen");
+                        throw new ArgumentException($"Error resolving interaction");
                 }
             }
 
@@ -394,8 +397,11 @@ namespace DSharpPlus.SlashCommands
                 parametertype = ApplicationCommandOptionType.User;
             else if (ReferenceEquals(type, typeof(DiscordRole)))
                 parametertype = ApplicationCommandOptionType.Role;
+            else if (type.IsEnum)
+                parametertype = ApplicationCommandOptionType.String;
+
             else
-                throw new ArgumentException("Cannot convert type! Argument types must be string, long, bool, DiscordChannel, DiscordUser or DiscordRole.");
+                throw new ArgumentException("Cannot convert type! Argument types must be string, long, bool, DiscordChannel, DiscordUser, DiscordRole or an Enum.");
 
             return parametertype;
         }
@@ -424,12 +430,17 @@ namespace DSharpPlus.SlashCommands
 
                 DiscordApplicationCommandOptionChoice[] choices = GetChoiceAttributesFromParameter(parameter.GetCustomAttributes<ChoiceAttribute>());
 
+                if (parameter.ParameterType.IsEnum)
+                {
+                    choices = GetChoiceAttributesFromEnumParameter(parameter.ParameterType);
+                }
+
                 options.Add(new DiscordApplicationCommandOption(optionattribute.Name, optionattribute.Description, parametertype, !parameter.IsOptional, choices));
             }
 
             return options;
         }
-        
+
     }
 
     internal class CommandMethod
