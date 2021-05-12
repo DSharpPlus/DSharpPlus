@@ -110,7 +110,7 @@ Arguments must have the `Option` attribute, and can only be of type `string`, `l
 
 You can also predefine some choices for the option, with the `Choice` attribute. You can add multiple attributes to add multiple choices. Choices only work for `string` and `long` arguments.
 
-You can also define choices using enums, see the example bellow.
+You can also define choices using enums, see the example below.
 
 Some examples:
 ```cs
@@ -140,18 +140,18 @@ Some examples:
         
         enum MyEnum
         {
-            [Description("Option 1")]
+            [ChoiceName("Option 1")]
             option1,
-            [Description("Option 2")]
+            [ChoiceName("Option 2")]
             option2,
-            [Description("option3")]
+            [ChoiceName("option3")]
             option3
         }
     
         [SlashCommand("enum", "Test enum")]
         public async Task EnumCommand(InteractionContext ctx, MyEnum myEnum = MyEnum.option1)
         {
-            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(myEnum.GetDescription()));
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(myEnum.GetName()));
         }
         
  ```
