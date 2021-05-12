@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Reflection;
 using System.Threading.Tasks;
-using DSharpPlus.SlashCommands.Attributes;
 using System.Collections.Generic;
 using DSharpPlus.Entities;
 using System.Linq;
 using DSharpPlus.EventArgs;
 using Microsoft.Extensions.Logging;
 using Emzi0767.Utilities;
-using DSharpPlus.SlashCommands.EventArgs;
-using DSharpPlus.SlashCommands.Helpers;
 using Microsoft.Extensions.DependencyInjection;
+using DSharpPlus.SlashCommands.EventArgs;
 
 namespace DSharpPlus.SlashCommands
 {
@@ -210,12 +208,12 @@ namespace DSharpPlus.SlashCommands
         {
             DiscordApplicationCommandOptionChoice[] choices = null;
 
-                choices = Array.Empty<DiscordApplicationCommandOptionChoice>();
-                foreach (Enum foo in Enum.GetValues(enumParam))
-                {
-                    choices = choices.Append(new DiscordApplicationCommandOptionChoice(foo.GetDescription(), foo.ToString()))
-                        .ToArray();
-                }
+            choices = Array.Empty<DiscordApplicationCommandOptionChoice>();
+            foreach (Enum foo in Enum.GetValues(enumParam))
+            {
+                choices = choices.Append(new DiscordApplicationCommandOptionChoice(foo.GetName(), foo.ToString()))
+                    .ToArray();
+            }
 
             return choices;
         }

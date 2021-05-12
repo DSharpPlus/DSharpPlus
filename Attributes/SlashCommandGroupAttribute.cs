@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DSharpPlus.SlashCommands.Attributes
+namespace DSharpPlus.SlashCommands
 {
     /// <summary>
     /// Marks this class a slash command group

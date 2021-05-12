@@ -3,11 +3,17 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 
-namespace DSharpPlus.SlashCommands.Helpers
+namespace DSharpPlus.SlashCommands
 {
     public static class EnumHelpers
     {
-        public static string GetDescription<T>(this T e) where T : IConvertible
+        /// <summary>
+        /// Gets the name from the <see cref="ChoiceNameAttribute"/> for this enum value.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="e"></param>
+        /// <returns>The name.</returns>
+        public static string GetName<T>(this T e) where T : IConvertible
         {
             if (e is Enum)
             {
@@ -19,11 +25,11 @@ namespace DSharpPlus.SlashCommands.Helpers
                     if (val == e.ToInt32(CultureInfo.InvariantCulture))
                     {
                         var memInfo = type.GetMember(type.GetEnumName(val));
-                        var descriptionAttribute = memInfo[0]
-                            .GetCustomAttributes(typeof(DescriptionAttribute), false)
-                            .FirstOrDefault() as DescriptionAttribute;
+                        var nameAttribute = memInfo[0]
+                            .GetCustomAttributes(typeof(ChoiceNameAttribute), false)
+                            .FirstOrDefault() as ChoiceNameAttribute;
 
-                        return descriptionAttribute != null ? descriptionAttribute.Description : type.GetEnumName(val);
+                        return nameAttribute != null ? nameAttribute.Name : type.GetEnumName(val);
                     }
                 }
             }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DSharpPlus.SlashCommands.Attributes
+namespace DSharpPlus.SlashCommands
 {
     /// <summary>
     /// Marks this parameter as an option for a slash command
