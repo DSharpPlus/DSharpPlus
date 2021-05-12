@@ -24,6 +24,7 @@ namespace DSharpPlus.SlashCommands
         private List<KeyValuePair<ulong?, Type>> UpdateList { get; set; } = new List<KeyValuePair<ulong?, Type>>();
 
         private readonly SlashCommandsConfiguration _configuration;
+        private bool Errored { get; set; } = false;
         
         internal SlashCommandsExtension(SlashCommandsConfiguration configuration)
         {
@@ -198,17 +199,15 @@ namespace DSharpPlus.SlashCommands
                 }
                 catch (Exception ex)
                 {
-                    Client.Logger.LogError(ex, $"There was an error registering slash commands");
-                    Environment.Exit(-1);
+                    Client.Logger.LogCritical(ex, $"There was an error registering slash commands");
+                    Errored = true;
                 }
             });
         }
 
         private static DiscordApplicationCommandOptionChoice[] GetChoiceAttributesFromEnumParameter(Type enumParam)
         {
-            DiscordApplicationCommandOptionChoice[] choices = null;
-
-            choices = Array.Empty<DiscordApplicationCommandOptionChoice>();
+            DiscordApplicationCommandOptionChoice[] choices = Array.Empty<DiscordApplicationCommandOptionChoice>();
             foreach (Enum foo in Enum.GetValues(enumParam))
             {
                 choices = choices.Append(new DiscordApplicationCommandOptionChoice(foo.GetName(), foo.ToString()))
@@ -239,11 +238,13 @@ namespace DSharpPlus.SlashCommands
 
                 try
                 {
+                    if (Errored)
+                        throw new Exception("Slash commands failed to register properly on startup.");
                     var methods = CommandMethods.Where(x => x.Id == e.Interaction.Data.Id);
                     var groups = GroupCommands.Where(x => x.Id == e.Interaction.Data.Id);
                     var subgroups = SubGroupCommands.Where(x => x.Id == e.Interaction.Data.Id);
                     if (!methods.Any() && !groups.Any() && !subgroups.Any())
-                        throw new Exception("An interaction was created, but no command was registered for it");
+                        throw new Exception("An interaction was created, but no command was registered for it.");
                     if (methods.Any())
                     {
                         var method = methods.First();
@@ -351,7 +352,7 @@ namespace DSharpPlus.SlashCommands
                         }
                     }
                     else
-                        throw new ArgumentException($"Error resolving interaction");
+                        throw new ArgumentException($"Error resolving interaction.");
                 }
             }
 
