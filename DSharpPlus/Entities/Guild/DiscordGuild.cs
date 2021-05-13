@@ -167,6 +167,12 @@ namespace DSharpPlus.Entities
         [JsonProperty("explicit_content_filter")]
         public ExplicitContentFilter ExplicitContentFilter { get; internal set; }
 
+        /// <summary>
+        /// Gets the guild's nsfw level.
+        /// </summary>
+        [JsonProperty("nsfw_level")]
+        public NsfwLevel NsfwLevel { get; internal set; }
+
         [JsonProperty("system_channel_id", NullValueHandling = NullValueHandling.Include)]
         internal ulong? SystemChannelId { get; set; }
 
@@ -428,12 +434,12 @@ namespace DSharpPlus.Entities
         // Seriously discord?
 
         // I need to work on this
-        // 
+        //
         // /// <summary>
         // /// Gets channels ordered in a manner in which they'd be ordered in the UI of the discord client.
         // /// </summary>
         // [JsonIgnore]
-        // public IEnumerable<DiscordChannel> OrderedChannels 
+        // public IEnumerable<DiscordChannel> OrderedChannels
         //    => this._channels.OrderBy(xc => xc.Parent?.Position).ThenBy(xc => xc.Type).ThenBy(xc => xc.Position);
 
         [JsonIgnore]
@@ -811,7 +817,7 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Gets an invite from this guild from an invite code. 
+        /// Gets an invite from this guild from an invite code.
         /// </summary>
         /// <param name="code">The invite code</param>
         /// <returns>An invite, or null if not in cache.</returns>
@@ -944,7 +950,7 @@ namespace DSharpPlus.Entities
         /// Requests that Discord send a list of guild members based on the specified arguments. This method will fire the <see cref="DiscordClient.GuildMembersChunked"/> event.
         /// <para>If no arguments aside from <paramref name="presences"/> and <paramref name="nonce"/> are specified, this will request all guild members.</para>
         /// </summary>
-        /// <param name="query">Filters the returned members based on what the username starts with. Either this or <paramref name="userIds"/> must not be null. 
+        /// <param name="query">Filters the returned members based on what the username starts with. Either this or <paramref name="userIds"/> must not be null.
         /// The <paramref name="limit"/> must also be greater than 0 if this is specified.</param>
         /// <param name="limit">Total number of members to request. This must be greater than 0 if <paramref name="query"/> is specified.</param>
         /// <param name="presences">Whether to include the <see cref="EventArgs.GuildMembersChunkEventArgs.Presences"/> associated with the fetched members.</param>
