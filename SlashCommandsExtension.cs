@@ -60,16 +60,16 @@ namespace DSharpPlus.SlashCommands
         {
             foreach(var key in UpdateList.Select(x => x.Key).Distinct())
             {
-                RegisterCommands(UpdateList.Where(x => x.Key == key).Select(x => x.Value).ToArray(), key);
+                RegisterCommands(UpdateList.Where(x => x.Key == key).Select(x => x.Value), key);
             }
             return Task.CompletedTask;
         }
 
-        private void RegisterCommands(Type[] types, ulong? guildid)
+        private void RegisterCommands(IEnumerable<Type> types, ulong? guildid)
         {
-            CommandMethod[] InternalCommandMethods = Array.Empty<CommandMethod>();
-            GroupCommand[] InternalGroupCommands = Array.Empty<GroupCommand>();
-            SubGroupCommand[] InternalSubGroupCommands = Array.Empty<SubGroupCommand>();
+            List<CommandMethod> InternalCommandMethods = new List<CommandMethod>();
+            List<GroupCommand> InternalGroupCommands = new List<GroupCommand>();
+            List<SubGroupCommand> InternalSubGroupCommands = new List<SubGroupCommand>();
             List<DiscordApplicationCommand> ToUpdate = new List<DiscordApplicationCommand>();
 
             _ = Task.Run(async () =>
@@ -112,7 +112,7 @@ namespace DSharpPlus.SlashCommands
 
                                 payload = new DiscordApplicationCommand(payload.Name, payload.Description, payload.Options != null ? payload.Options.ToArray().Append(subpayload) : new DiscordApplicationCommandOption[] { subpayload });
 
-                                InternalGroupCommands = InternalGroupCommands.Append(new GroupCommand { Name = groupatt.Name, ParentClass = tti, Methods = commandmethods }).ToArray();
+                                InternalGroupCommands.Add(new GroupCommand { Name = groupatt.Name, ParentClass = tti, Methods = commandmethods });
                             }
                             foreach (var subclass in subclasses.Where(x => x.GetCustomAttribute<SlashCommandGroupAttribute>() != null))
                             {
@@ -140,7 +140,7 @@ namespace DSharpPlus.SlashCommands
 
                                 var subpayload = new DiscordApplicationCommandOption(subgroupatt.Name, subgroupatt.Description, ApplicationCommandOptionType.SubCommandGroup, null, null, options);
                                 command.SubCommands.Add(new GroupCommand { Name = subgroupatt.Name, ParentClass = subclass, Methods = commandmethods });
-                                InternalSubGroupCommands = InternalSubGroupCommands.Append(command).ToArray();
+                                InternalSubGroupCommands.Add(command);
                                 payload = new DiscordApplicationCommand(payload.Name, payload.Description, payload.Options != null ? payload.Options.ToArray().Append(subpayload) : new DiscordApplicationCommandOption[] { subpayload });
                             }
                             ToUpdate.Add(payload);
@@ -159,7 +159,7 @@ namespace DSharpPlus.SlashCommands
                             parameters = parameters.Skip(1).ToArray();
                             options = options.Concat(ParseParameters(parameters)).ToList();
 
-                            InternalCommandMethods = InternalCommandMethods.Append(new CommandMethod { Method = method, Name = commandattribute.Name, ParentClass = t }).ToArray();
+                            InternalCommandMethods.Add(new CommandMethod { Method = method, Name = commandattribute.Name, ParentClass = t });
 
                             var payload = new DiscordApplicationCommand(commandattribute.Name, commandattribute.Description, options);
                             ToUpdate.Add(payload);
@@ -205,15 +205,13 @@ namespace DSharpPlus.SlashCommands
             });
         }
 
-        private static DiscordApplicationCommandOptionChoice[] GetChoiceAttributesFromEnumParameter(Type enumParam)
+        private static List<DiscordApplicationCommandOptionChoice> GetChoiceAttributesFromEnumParameter(Type enumParam)
         {
-            DiscordApplicationCommandOptionChoice[] choices = Array.Empty<DiscordApplicationCommandOptionChoice>();
+            var choices = new List<DiscordApplicationCommandOptionChoice>();
             foreach (Enum foo in Enum.GetValues(enumParam))
             {
-                choices = choices.Append(new DiscordApplicationCommandOptionChoice(foo.GetName(), foo.ToString()))
-                    .ToArray();
+                choices.Add(new DiscordApplicationCommandOptionChoice(foo.GetName(), foo.ToString()));
             }
-
             return choices;
         }
 
@@ -405,14 +403,14 @@ namespace DSharpPlus.SlashCommands
             return parametertype;
         }
 
-        private DiscordApplicationCommandOptionChoice[] GetChoiceAttributesFromParameter(IEnumerable<ChoiceAttribute> choiceattributes)
+        private List<DiscordApplicationCommandOptionChoice> GetChoiceAttributesFromParameter(IEnumerable<ChoiceAttribute> choiceattributes)
         {
             if (!choiceattributes.Any())
             {
                 return null;
             }
 
-            return choiceattributes.Select(att => new DiscordApplicationCommandOptionChoice(att.Name, att.Value)).ToArray();
+            return choiceattributes.Select(att => new DiscordApplicationCommandOptionChoice(att.Name, att.Value)).ToList();
         }
 
         private List<DiscordApplicationCommandOption> ParseParameters(ParameterInfo[] parameters)
@@ -427,7 +425,7 @@ namespace DSharpPlus.SlashCommands
                 var type = parameter.ParameterType;
                 var parametertype = GetParameterType(type);
 
-                DiscordApplicationCommandOptionChoice[] choices = GetChoiceAttributesFromParameter(parameter.GetCustomAttributes<ChoiceAttribute>());
+                var choices = GetChoiceAttributesFromParameter(parameter.GetCustomAttributes<ChoiceAttribute>());
 
                 if (parameter.ParameterType.IsEnum)
                 {
