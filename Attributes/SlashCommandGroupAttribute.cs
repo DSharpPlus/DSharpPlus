@@ -25,7 +25,7 @@ namespace DSharpPlus.SlashCommands
         /// <param name="description"></param>
         public SlashCommandGroupAttribute(string name, string description)
         {
-            Name = name;
+            Name = name.ToLower();
             Description = description;
         }
     }

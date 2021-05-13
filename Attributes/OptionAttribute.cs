@@ -25,7 +25,7 @@ namespace DSharpPlus.SlashCommands
         /// <param name="description">The description of the option</param>
         public OptionAttribute(string name, string description)
         {
-            Name = name;
+            Name = name.ToLower();
             Description = description;
         }
     }

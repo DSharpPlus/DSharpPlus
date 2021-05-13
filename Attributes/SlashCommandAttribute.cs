@@ -25,7 +25,7 @@ namespace DSharpPlus.SlashCommands
         /// <param name="description">The description of this slash command</param>
         public SlashCommandAttribute(string name, string description)
         {
-            Name = name;
+            Name = name.ToLower();
             Description = description;
         }
     }
