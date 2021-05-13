@@ -58,7 +58,7 @@ namespace DSharpPlus.Entities
         /// Gets the user's current activities.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyList<DiscordActivity> Activities => InternalActivities;
+        public IReadOnlyList<DiscordActivity> Activities => this.InternalActivities;
 
         [JsonIgnore]
         internal DiscordActivity[] InternalActivities;

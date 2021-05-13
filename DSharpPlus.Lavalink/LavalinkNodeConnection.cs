@@ -234,7 +234,7 @@ namespace DSharpPlus.Lavalink
             {
                 try
                 {
-                    if (_backoff != 0)
+                    if (this._backoff != 0)
                     {
                         await Task.Delay(this._backoff).ConfigureAwait(false);
                         this._backoff = Math.Min(this._backoff * 2, MaximumBackoff);

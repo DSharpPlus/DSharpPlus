@@ -114,11 +114,11 @@ namespace DSharpPlus
                 throw new ArgumentNullException(nameof(token));
             token = token.Trim();
 
-            if (_hooks.Any(x => x.Id == id))
+            if (this._hooks.Any(x => x.Id == id))
                 throw new InvalidOperationException("This webhook is registered with this client.");
 
-            var wh = await _apiclient.GetWebhookWithTokenAsync(id, token).ConfigureAwait(false);
-            _hooks.Add(wh);
+            var wh = await this._apiclient.GetWebhookWithTokenAsync(id, token).ConfigureAwait(false);
+            this._hooks.Add(wh);
 
             return wh;
         }
@@ -157,7 +157,7 @@ namespace DSharpPlus
             if (client == null)
                 throw new ArgumentNullException(nameof(client));
 
-            if (_hooks.Any(x => x.Id == id))
+            if (this._hooks.Any(x => x.Id == id))
                 throw new ArgumentException("This webhook is already registered with this client.");
 
             var wh = await client.ApiClient.GetWebhookAsync(id).ConfigureAwait(false);
@@ -177,7 +177,7 @@ namespace DSharpPlus
             //    User = wh.User,
             //    Discord = null
             //};
-            _hooks.Add(wh);
+            this._hooks.Add(wh);
 
             return wh;
         }
@@ -192,7 +192,7 @@ namespace DSharpPlus
             if (webhook == null)
                 throw new ArgumentNullException(nameof(webhook));
 
-            if (_hooks.Any(x => x.Id == webhook.Id))
+            if (this._hooks.Any(x => x.Id == webhook.Id))
                 throw new ArgumentException("This webhook is already registered with this client.");
 
             // see line 128-131 for explanation
@@ -209,7 +209,7 @@ namespace DSharpPlus
             //    User = webhook.User,
             //    Discord = null
             //};
-            _hooks.Add(webhook);
+            this._hooks.Add(webhook);
 
             return webhook;
         }
@@ -221,7 +221,7 @@ namespace DSharpPlus
         /// <returns>The unregistered webhook.</returns>
         public DiscordWebhook RemoveWebhook(ulong id)
         {
-            if (!_hooks.Any(x => x.Id == id))
+            if (!this._hooks.Any(x => x.Id == id))
                 throw new ArgumentException("This webhook is not registered with this client.");
 
             var wh = this.GetRegisteredWebhook(id);
@@ -247,7 +247,7 @@ namespace DSharpPlus
             var deadhooks = new List<DiscordWebhook>();
             var messages = new Dictionary<DiscordWebhook, DiscordMessage>();
 
-            foreach (var hook in _hooks)
+            foreach (var hook in this._hooks)
             {
                 try
                 {
@@ -260,8 +260,7 @@ namespace DSharpPlus
             }
 
             // Removing dead webhooks from collection
-            foreach (var xwh in deadhooks)
-                _hooks.Remove(xwh);
+            foreach (var xwh in deadhooks) this._hooks.Remove(xwh);
 
             return messages;
         }

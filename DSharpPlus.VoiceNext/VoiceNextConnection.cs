@@ -432,7 +432,7 @@ namespace DSharpPlus.VoiceNext
                 await client.SendAsync(data, length).ConfigureAwait(false);
                 ArrayPool<byte>.Shared.Return(data);
 
-                if (!rawPacket.Silence && _queueCount == 0)
+                if (!rawPacket.Silence && this._queueCount == 0)
                 {
                     var nullpcm = new byte[this.AudioFormat.CalculateSampleSize(20)];
                     for (var i = 0; i < 3; i++)
@@ -442,7 +442,7 @@ namespace DSharpPlus.VoiceNext
                         await this.EnqueuePacketAsync(new RawVoicePacket(nullpacketmem, 20, true)).ConfigureAwait(false);
                     }
                 }
-                else if (_queueCount == 0)
+                else if (this._queueCount == 0)
                 {
                     await this.SendSpeakingAsync(false).ConfigureAwait(false);
                     this.PlayingWait?.SetResult(true);

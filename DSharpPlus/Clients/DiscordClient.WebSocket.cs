@@ -330,7 +330,7 @@ namespace DSharpPlus
                 Timestamp = DateTimeOffset.Now
             };
 
-            await _heartbeated.InvokeAsync(this, args).ConfigureAwait(false);
+            await this._heartbeated.InvokeAsync(this, args).ConfigureAwait(false);
         }
 
         internal async Task HeartbeatLoopAsync()

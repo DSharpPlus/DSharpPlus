@@ -40,14 +40,14 @@ namespace DSharpPlus
         /// Gets the dictionary of guilds cached by this client.
         /// </summary>
         public override IReadOnlyDictionary<ulong, DiscordGuild> Guilds
-            => _guilds_lazy.Value;
+            => this._guilds_lazy.Value;
 
         internal Dictionary<ulong, DiscordGuild> _guilds = new();
         private Lazy<IReadOnlyDictionary<ulong, DiscordGuild>> _guilds_lazy;
 
         public DiscordRestClient(DiscordConfiguration config) : base(config)
         {
-            disposed = false;
+            this.disposed = false;
         }
 
         /// <summary>
@@ -57,11 +57,11 @@ namespace DSharpPlus
         public async Task InitializeCacheAsync()
         {
             await base.InitializeAsync().ConfigureAwait(false);
-            _guilds_lazy = new Lazy<IReadOnlyDictionary<ulong, DiscordGuild>>(() => new ReadOnlyDictionary<ulong, DiscordGuild>(_guilds));
+            this._guilds_lazy = new Lazy<IReadOnlyDictionary<ulong, DiscordGuild>>(() => new ReadOnlyDictionary<ulong, DiscordGuild>(this._guilds));
             var gs = await this.ApiClient.GetCurrentUserGuildsAsync(100, null, null).ConfigureAwait(false);
             foreach (var g in gs)
             {
-                _guilds[g.Id] = g;
+                this._guilds[g.Id] = g;
             }
         }
 
@@ -1566,10 +1566,10 @@ namespace DSharpPlus
         /// </summary>
         public override void Dispose()
         {
-            if (disposed)
+            if (this.disposed)
                 return;
-            disposed = true;
-            _guilds = null;
+            this.disposed = true;
+            this._guilds = null;
             this.ApiClient.Rest.Dispose();
         }
     }

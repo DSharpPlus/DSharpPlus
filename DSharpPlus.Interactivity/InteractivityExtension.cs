@@ -89,7 +89,7 @@ namespace DSharpPlus.Interactivity
             {
                 await m.CreateReactionAsync(em).ConfigureAwait(false);
             }
-            var res = await Poller.DoPollAsync(new PollRequest(m, timeout ?? this.Config.Timeout, emojis)).ConfigureAwait(false);
+            var res = await this.Poller.DoPollAsync(new PollRequest(m, timeout ?? this.Config.Timeout, emojis)).ConfigureAwait(false);
 
             var pollbehaviour = behaviour ?? this.Config.PollBehaviour;
             var thismember = await m.Channel.Guild.GetMemberAsync(this.Client.CurrentUser.Id).ConfigureAwait(false);
@@ -244,7 +244,7 @@ namespace DSharpPlus.Interactivity
                 throw new InvalidOperationException("No reaction intents are enabled.");
 
             var timeout = timeoutoverride ?? this.Config.Timeout;
-            var collection = await ReactionCollector.CollectAsync(new ReactionCollectRequest(m, timeout)).ConfigureAwait(false);
+            var collection = await this.ReactionCollector.CollectAsync(new ReactionCollectRequest(m, timeout)).ConfigureAwait(false);
             return new ReadOnlyCollection<Reaction>(collection.ToList());
         }
 
@@ -301,7 +301,7 @@ namespace DSharpPlus.Interactivity
 
             var prequest = new PaginationRequest(m, u, bhv, del, ems, timeout, pages.ToArray());
 
-            await Paginator.DoPaginationAsync(prequest).ConfigureAwait(false);
+            await this.Paginator.DoPaginationAsync(prequest).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -310,7 +310,7 @@ namespace DSharpPlus.Interactivity
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        public async Task WaitForCustomPaginationAsync(IPaginationRequest request) => await Paginator.DoPaginationAsync(request).ConfigureAwait(false);
+        public async Task WaitForCustomPaginationAsync(IPaginationRequest request) => await this.Paginator.DoPaginationAsync(request).ConfigureAwait(false);
 
         /// <summary>
         /// Generates pages from a string, and puts them in message content.
