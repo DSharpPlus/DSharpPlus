@@ -84,8 +84,8 @@ namespace DSharpPlus.SlashCommands
                         foreach (var tti in classes)
                         {
                             var groupatt = tti.GetCustomAttribute<SlashCommandGroupAttribute>();
-                            var submethods = tti.DeclaredMethods.Where(x => x.GetCustomAttribute<SlashCommandAttribute>() != null);
-                            var subclasses = tti.DeclaredNestedTypes.Where(x => x.GetCustomAttribute<SlashCommandGroupAttribute>() != null);
+                            var submethods = tti.DeclaredMethods.Where(x => x.GetCustomAttribute<SlashCommandAttribute>() != null).ToList();
+                            var subclasses = tti.DeclaredNestedTypes.Where(x => x.GetCustomAttribute<SlashCommandGroupAttribute>() != null).ToList();
                             if (subclasses.Any() && submethods.Any())
                             {
                                 throw new ArgumentException("Slash command groups cannot have both subcommands and subgroups!");
