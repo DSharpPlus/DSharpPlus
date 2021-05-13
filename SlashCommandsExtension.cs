@@ -110,7 +110,7 @@ namespace DSharpPlus.SlashCommands
 
                                 commandmethods.Add(commandattribute.Name, submethod);
 
-                                payload = new DiscordApplicationCommand(payload.Name, payload.Description, payload.Options != null ? payload.Options.Append(subpayload) : new DiscordApplicationCommandOption[] { subpayload });
+                                payload = new DiscordApplicationCommand(payload.Name, payload.Description, payload.Options?.Append(subpayload) ?? new[] { subpayload });
 
                                 InternalGroupCommands.Add(new GroupCommand { Name = groupatt.Name, ParentClass = tti, Methods = commandmethods });
                             }
@@ -141,7 +141,7 @@ namespace DSharpPlus.SlashCommands
                                 var subpayload = new DiscordApplicationCommandOption(subgroupatt.Name, subgroupatt.Description, ApplicationCommandOptionType.SubCommandGroup, null, null, options);
                                 command.SubCommands.Add(new GroupCommand { Name = subgroupatt.Name, ParentClass = subclass, Methods = commandmethods });
                                 InternalSubGroupCommands.Add(command);
-                                payload = new DiscordApplicationCommand(payload.Name, payload.Description, payload.Options != null ? payload.Options.Append(subpayload) : new DiscordApplicationCommandOption[] { subpayload });
+                                payload = new DiscordApplicationCommand(payload.Name, payload.Description, payload.Options?.Append(subpayload) ?? new[] { subpayload });
                             }
                             ToUpdate.Add(payload);
                         }
