@@ -80,13 +80,13 @@ namespace DSharpPlus.SlashCommands
                     {
                         var ti = t.GetTypeInfo();
 
-                        var classes = ti.DeclaredNestedTypes;
-                        foreach (var tti in classes.Where(x => x.GetCustomAttribute<SlashCommandGroupAttribute>() != null))
+                        var classes = ti.DeclaredNestedTypes.Where(x => x.GetCustomAttribute<SlashCommandGroupAttribute>() != null);
+                        foreach (var tti in classes)
                         {
                             var groupatt = tti.GetCustomAttribute<SlashCommandGroupAttribute>();
-                            var submethods = tti.DeclaredMethods;
-                            var subclasses = tti.DeclaredNestedTypes;
-                            if (subclasses.Any(x => x.GetCustomAttribute<SlashCommandGroupAttribute>() != null) && submethods.Any(x => x.GetCustomAttribute<SlashCommandAttribute>() != null))
+                            var submethods = tti.DeclaredMethods.Where(x => x.GetCustomAttribute<SlashCommandAttribute>() != null);
+                            var subclasses = tti.DeclaredNestedTypes.Where(x => x.GetCustomAttribute<SlashCommandGroupAttribute>() != null);
+                            if (subclasses.Any() && submethods.Any())
                             {
                                 throw new ArgumentException("Slash command groups cannot have both subcommands and subgroups!");
                             }
@@ -94,7 +94,7 @@ namespace DSharpPlus.SlashCommands
 
 
                             var commandmethods = new Dictionary<string, MethodInfo>();
-                            foreach (var submethod in submethods.Where(x => x.GetCustomAttribute<SlashCommandAttribute>() != null))
+                            foreach (var submethod in submethods)
                             {
                                 var commandattribute = submethod.GetCustomAttribute<SlashCommandAttribute>();
 
@@ -114,7 +114,7 @@ namespace DSharpPlus.SlashCommands
 
                                 InternalGroupCommands.Add(new GroupCommand { Name = groupatt.Name, ParentClass = tti, Methods = commandmethods });
                             }
-                            foreach (var subclass in subclasses.Where(x => x.GetCustomAttribute<SlashCommandGroupAttribute>() != null))
+                            foreach (var subclass in subclasses)
                             {
                                 var subgroupatt = subclass.GetCustomAttribute<SlashCommandGroupAttribute>();
                                 var subsubmethods = subclass.DeclaredMethods.Where(x => x.GetCustomAttribute<SlashCommandAttribute>() != null);
@@ -146,8 +146,8 @@ namespace DSharpPlus.SlashCommands
                             ToUpdate.Add(payload);
                         }
 
-                        var methods = ti.DeclaredMethods;
-                        foreach (var method in methods.Where(x => x.GetCustomAttribute<SlashCommandAttribute>() != null))
+                        var methods = ti.DeclaredMethods.Where(x => x.GetCustomAttribute<SlashCommandAttribute>() != null);
+                        foreach (var method in methods)
                         {
                             var commandattribute = method.GetCustomAttribute<SlashCommandAttribute>();
 
