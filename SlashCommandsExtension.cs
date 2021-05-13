@@ -243,14 +243,20 @@ namespace DSharpPlus.SlashCommands
                     var subgroups = SubGroupCommands.Where(x => x.Id == e.Interaction.Data.Id);
                     if (!methods.Any() && !groups.Any() && !subgroups.Any())
                         throw new Exception("An interaction was created, but no command was registered for it.");
+
                     if (methods.Any())
                     {
                         var method = methods.First();
 
                         var args = await ResolveInteractionCommandParameters(e, context, method.Method, e.Interaction.Data.Options);
                         var classinstance = ActivatorUtilities.CreateInstance(_configuration?.Services, method.ParentClass);
+
+                        await ((SlashCommandModule)classinstance).BeforeExecutionAsync(context);
+
                         var task = (Task)method.Method.Invoke(classinstance, args.ToArray());
                         await task;
+
+                        await ((SlashCommandModule)classinstance).AfterExecutionAsync(context);
                     }
                     else if (groups.Any())
                     {
@@ -259,8 +265,17 @@ namespace DSharpPlus.SlashCommands
 
                         var args = await ResolveInteractionCommandParameters(e, context, method, e.Interaction.Data.Options.First().Options);
                         var classinstance = ActivatorUtilities.CreateInstance(_configuration?.Services, groups.First().ParentClass);
+
+                        SlashCommandModule module = null;
+                        if (classinstance is SlashCommandModule _module)
+                            module = _module;
+
+                        await (module?.BeforeExecutionAsync(context) ?? Task.CompletedTask);
+
                         var task = (Task)method.Invoke(classinstance, args.ToArray());
                         await task;
+
+                        await (module?.AfterExecutionAsync(context) ?? Task.CompletedTask);
                     }
                     else if (subgroups.Any())
                     {
@@ -271,8 +286,17 @@ namespace DSharpPlus.SlashCommands
 
                         var args = await ResolveInteractionCommandParameters(e, context, method, e.Interaction.Data.Options.First().Options.First().Options);
                         var classinstance = ActivatorUtilities.CreateInstance(_configuration?.Services, group.ParentClass);
+
+                        SlashCommandModule module = null;
+                        if (classinstance is SlashCommandModule _module)
+                            module = _module;
+
+                        await (module?.BeforeExecutionAsync(context) ?? Task.CompletedTask);
+
                         var task = (Task)method.Invoke(classinstance, args.ToArray());
                         await task;
+
+                        await (module?.AfterExecutionAsync(context) ?? Task.CompletedTask);
                     }
 
                     await _executed.InvokeAsync(this, new SlashCommandExecutedEventArgs { Context = context });
