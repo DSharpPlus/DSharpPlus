@@ -67,10 +67,10 @@ namespace DSharpPlus.SlashCommands
 
         private void RegisterCommands(IEnumerable<Type> types, ulong? guildid)
         {
-            List<CommandMethod> InternalCommandMethods = new List<CommandMethod>();
-            List<GroupCommand> InternalGroupCommands = new List<GroupCommand>();
-            List<SubGroupCommand> InternalSubGroupCommands = new List<SubGroupCommand>();
-            List<DiscordApplicationCommand> ToUpdate = new List<DiscordApplicationCommand>();
+            var InternalCommandMethods = new List<CommandMethod>();
+            var InternalGroupCommands = new List<GroupCommand>();
+            var InternalSubGroupCommands = new List<SubGroupCommand>();
+            var ToUpdate = new List<DiscordApplicationCommand>();
 
             _ = Task.Run(async () =>
             {
@@ -287,7 +287,7 @@ namespace DSharpPlus.SlashCommands
 
         private async Task<List<object>> ResolveInteractionCommandParameters(InteractionCreateEventArgs e, InteractionContext context, MethodInfo method, IEnumerable<DiscordInteractionDataOption> options)
         {
-            List<object> args = new List<object> {context};
+            var args = new List<object> { context };
             var parameters = method.GetParameters().Skip(1);
 
             for (int i = 0; i < parameters.Count(); i++)
