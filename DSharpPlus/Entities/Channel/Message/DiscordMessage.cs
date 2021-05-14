@@ -366,7 +366,7 @@ namespace DSharpPlus.Entities
             {
                 reference.Message = new DiscordMessage
                 {
-                    ChannelId = ChannelId,
+                    ChannelId = this.ChannelId,
                     Discord = client
                 };
 

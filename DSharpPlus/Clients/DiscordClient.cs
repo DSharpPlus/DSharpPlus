@@ -974,7 +974,7 @@ namespace DSharpPlus
         /// </summary>
         public override void Dispose()
         {
-            if (_disposed)
+            if (this._disposed)
                 return;
 
             this._disposed = true;

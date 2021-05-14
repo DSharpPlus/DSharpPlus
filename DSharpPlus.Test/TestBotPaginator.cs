@@ -96,7 +96,7 @@ namespace DSharpPlus.Test
         {
             await Task.Yield();
 
-            if (this.index < pages.Count - 1)
+            if (this.index < this.pages.Count - 1)
                 this.index++;
         }
 

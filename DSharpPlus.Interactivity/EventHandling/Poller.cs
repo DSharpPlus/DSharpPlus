@@ -74,19 +74,19 @@ namespace DSharpPlus.Interactivity.EventHandling
 
         private Task HandleReactionAdd(DiscordClient client, MessageReactionAddEventArgs eventargs)
         {
-            if (_requests.Count == 0)
+            if (this._requests.Count == 0)
                 return Task.CompletedTask;
 
             _ = Task.Run(async () =>
             {
-                foreach (var req in _requests)
+                foreach (var req in this._requests)
                 {
                     // match message
                     if (req._message.Id == eventargs.Message.Id && req._message.ChannelId == eventargs.Channel.Id)
                     {
                         if (req._emojis.Contains(eventargs.Emoji) && !req._collected.Any(x => x.Voted.Contains(eventargs.User)))
                         {
-                            if (eventargs.User.Id != _client.CurrentUser.Id)
+                            if (eventargs.User.Id != this._client.CurrentUser.Id)
                                 req.AddReaction(eventargs.Emoji, eventargs.User);
                         }
                         else
@@ -103,12 +103,12 @@ namespace DSharpPlus.Interactivity.EventHandling
 
         private Task HandleReactionRemove(DiscordClient client, MessageReactionRemoveEventArgs eventargs)
         {
-            foreach (var req in _requests)
+            foreach (var req in this._requests)
             {
                 // match message
                 if (req._message.Id == eventargs.Message.Id && req._message.ChannelId == eventargs.Channel.Id)
                 {
-                    if (eventargs.User.Id != _client.CurrentUser.Id)
+                    if (eventargs.User.Id != this._client.CurrentUser.Id)
                         req.RemoveReaction(eventargs.Emoji, eventargs.User);
                 }
             }
@@ -117,7 +117,7 @@ namespace DSharpPlus.Interactivity.EventHandling
 
         private Task HandleReactionClear(DiscordClient client, MessageReactionsClearEventArgs eventargs)
         {
-            foreach (var req in _requests)
+            foreach (var req in this._requests)
             {
                 // match message
                 if (req._message.Id == eventargs.Message.Id && req._message.ChannelId == eventargs.Channel.Id)

@@ -60,8 +60,7 @@ namespace DSharpPlus
         {
             return new UriBuilder(this.SourceUri)
             {
-                Query = string.Join("&",
-                    _queryParams.Select(e => Uri.EscapeDataString(e.Key) + '=' + Uri.EscapeDataString(e.Value)))
+                Query = string.Join("&", this._queryParams.Select(e => Uri.EscapeDataString(e.Key) + '=' + Uri.EscapeDataString(e.Value)))
             }.Uri;
         }
 

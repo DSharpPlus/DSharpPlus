@@ -50,7 +50,7 @@ namespace DSharpPlus.Interactivity.EventHandling
         {
             this._tcs = new TaskCompletionSource<bool>();
             this._ct = new CancellationTokenSource(timeout);
-            this._ct.Token.Register(() => _tcs.TrySetResult(true));
+            this._ct.Token.Register(() => this._tcs.TrySetResult(true));
             this._timeout = timeout;
             this._emojis = emojis;
             this._collected = new ConcurrentHashSet<PollEmoji>();
@@ -58,43 +58,43 @@ namespace DSharpPlus.Interactivity.EventHandling
 
             foreach (var e in emojis)
             {
-                _collected.Add(new PollEmoji(e));
+                this._collected.Add(new PollEmoji(e));
             }
         }
 
         internal void ClearCollected()
         {
-            _collected.Clear();
-            foreach (var e in _emojis)
+            this._collected.Clear();
+            foreach (var e in this._emojis)
             {
-                _collected.Add(new PollEmoji(e));
+                this._collected.Add(new PollEmoji(e));
             }
         }
 
         internal void RemoveReaction(DiscordEmoji emoji, DiscordUser member)
         {
-            if (_collected.Any(x => x.Emoji == emoji))
+            if (this._collected.Any(x => x.Emoji == emoji))
             {
-                if (_collected.Any(x => x.Voted.Contains(member)))
+                if (this._collected.Any(x => x.Voted.Contains(member)))
                 {
-                    var e = _collected.First(x => x.Emoji == emoji);
-                    _collected.TryRemove(e);
+                    var e = this._collected.First(x => x.Emoji == emoji);
+                    this._collected.TryRemove(e);
                     e.Voted.TryRemove(member);
-                    _collected.Add(e);
+                    this._collected.Add(e);
                 }
             }
         }
 
         internal void AddReaction(DiscordEmoji emoji, DiscordUser member)
         {
-            if (_collected.Any(x => x.Emoji == emoji))
+            if (this._collected.Any(x => x.Emoji == emoji))
             {
-                if (!_collected.Any(x => x.Voted.Contains(member)))
+                if (!this._collected.Any(x => x.Voted.Contains(member)))
                 {
-                    var e = _collected.First(x => x.Emoji == emoji);
-                    _collected.TryRemove(e);
+                    var e = this._collected.First(x => x.Emoji == emoji);
+                    this._collected.TryRemove(e);
                     e.Voted.Add(member);
-                    _collected.Add(e);
+                    this._collected.Add(e);
                 }
             }
         }
@@ -124,6 +124,6 @@ namespace DSharpPlus.Interactivity.EventHandling
 
         public DiscordEmoji Emoji;
         public ConcurrentHashSet<DiscordUser> Voted;
-        public int Total => Voted.Count;
+        public int Total => this.Voted.Count;
     }
 }

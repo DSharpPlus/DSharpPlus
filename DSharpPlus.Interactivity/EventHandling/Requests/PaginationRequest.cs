@@ -57,7 +57,7 @@ namespace DSharpPlus.Interactivity.EventHandling
         {
             this._tcs = new TaskCompletionSource<bool>();
             this._ct = new CancellationTokenSource(timeout);
-            this._ct.Token.Register(() => _tcs.TrySetResult(true));
+            this._ct.Token.Register(() => this._tcs.TrySetResult(true));
             this._timeout = timeout;
 
             this._message = message;
@@ -74,7 +74,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
         }
 
-        public int PageCount => _pages.Count;
+        public int PageCount => this._pages.Count;
 
         public PaginationDeletion PaginationDeletion { get; }
 
@@ -82,42 +82,42 @@ namespace DSharpPlus.Interactivity.EventHandling
         {
             await Task.Yield();
 
-            return _pages[index];
+            return this._pages[this.index];
         }
 
         public async Task SkipLeftAsync()
         {
             await Task.Yield();
 
-            index = 0;
+            this.index = 0;
         }
 
         public async Task SkipRightAsync()
         {
             await Task.Yield();
 
-            index = _pages.Count - 1;
+            this.index = this._pages.Count - 1;
         }
 
         public async Task NextPageAsync()
         {
             await Task.Yield();
 
-            switch (_behaviour)
+            switch (this._behaviour)
             {
                 case PaginationBehaviour.Ignore:
-                    if (index == _pages.Count - 1)
+                    if (this.index == this._pages.Count - 1)
                         break;
                     else
-                        index++;
+                        this.index++;
 
                     break;
 
                 case PaginationBehaviour.WrapAround:
-                    if (index == _pages.Count - 1)
-                        index = 0;
+                    if (this.index == this._pages.Count - 1)
+                        this.index = 0;
                     else
-                        index++;
+                        this.index++;
 
                     break;
             }
@@ -127,21 +127,21 @@ namespace DSharpPlus.Interactivity.EventHandling
         {
             await Task.Yield();
 
-            switch (_behaviour)
+            switch (this._behaviour)
             {
                 case PaginationBehaviour.Ignore:
-                    if (index == 0)
+                    if (this.index == 0)
                         break;
                     else
-                        index--;
+                        this.index--;
 
                     break;
 
                 case PaginationBehaviour.WrapAround:
-                    if (index == 0)
-                        index = _pages.Count - 1;
+                    if (this.index == 0)
+                        this.index = this._pages.Count - 1;
                     else
-                        index--;
+                        this.index--;
 
                     break;
             }
@@ -170,14 +170,14 @@ namespace DSharpPlus.Interactivity.EventHandling
 
         public async Task DoCleanupAsync()
         {
-            switch (PaginationDeletion)
+            switch (this.PaginationDeletion)
             {
                 case PaginationDeletion.DeleteEmojis:
-                    await _message.DeleteAllReactionsAsync().ConfigureAwait(false);
+                    await this._message.DeleteAllReactionsAsync().ConfigureAwait(false);
                     break;
 
                 case PaginationDeletion.DeleteMessage:
-                    await _message.DeleteAsync().ConfigureAwait(false);
+                    await this._message.DeleteAsync().ConfigureAwait(false);
                     break;
 
                 case PaginationDeletion.KeepEmojis:
@@ -220,11 +220,11 @@ namespace DSharpPlus.Interactivity
 
         public PaginationEmojis()
         {
-            Left = DiscordEmoji.FromUnicode("◀");
-            Right = DiscordEmoji.FromUnicode("▶");
-            SkipLeft = DiscordEmoji.FromUnicode("⏮");
-            SkipRight = DiscordEmoji.FromUnicode("⏭");
-            Stop = DiscordEmoji.FromUnicode("⏹");
+            this.Left = DiscordEmoji.FromUnicode("◀");
+            this.Right = DiscordEmoji.FromUnicode("▶");
+            this.SkipLeft = DiscordEmoji.FromUnicode("⏮");
+            this.SkipRight = DiscordEmoji.FromUnicode("⏭");
+            this.Stop = DiscordEmoji.FromUnicode("⏹");
         }
     }
 
