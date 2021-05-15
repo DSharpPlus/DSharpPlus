@@ -19,7 +19,7 @@ While you can make commands at runtime, if you have a command class registered f
 
 Now, on to the actual guide:
 ## Installing
-Package-Manager: `Install-Package IDoEverything.DSharpPlus.SlashCommands -Version 1.1.1`
+Package-Manager: `Install-Package IDoEverything.DSharpPlus.SlashCommands`
 
 .NET CLI: `dotnet add package IDoEverything.DSharpPlus.SlashCommands`
 
@@ -103,6 +103,7 @@ public async Task TestCommand(InteractionContext ctx)
   await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("5 second delay complete!"));
 }
 ```
+You can also override `BeforeExecutionAsync` and `AfterExecutionAsync` to run code before and after all the commands in a module. This does not apply to groups, you have the override them individually for the group's class.
 ### Arguments
 If you want the user to be able to give more data to the command, you can add some arguments.
 
@@ -162,7 +163,7 @@ public class GroupContainer : SlashCommandModule
 {
   //For a group and subcommands inside the group
   [SlashCommandGroup("group", "description")]
-  public class Group
+  public class Group : SlashCommandModule
   {
     [SlashCommand("command", "description")]
     public async Task Command(InteractionContext ctx) {}
@@ -176,10 +177,10 @@ public class GroupContainer : SlashCommandModule
   
   //For subgroups inside groups
   [SlashCommandGroup("group", "description")]
-  public class Group
+  public class Group : SlashCommandModule
   {
     [SlashCommandGroup("subgroup", "description")]
-    public class SubGroup
+    public class SubGroup : SlashCommandModule
     {
       [SlashCommand("command", "description")]
       public async Task Command(InteractionContext ctx) {}
@@ -192,7 +193,7 @@ public class GroupContainer : SlashCommandModule
     {
     
     [SlashCommandGroup("subgroup2", "description")]
-    public class SubGroup2
+    public class SubGroup2 : SlashCommandModule
     {
       [SlashCommand("command", "description")]
       public async Task Command(InteractionContext ctx) {}
@@ -213,10 +214,6 @@ var slash = discord.UseSlashCommands(new SlashCommandsConfiguration
 {
     Services = new ServiceCollection().AddSingleton<Random>().BuildServiceProvider()
 });
-```
-To access the collection in a command, use the `Services` on your `InteractionContext`.
-```cs
-var rand = ctx.Services.GetService<Random>();
 ```
 (Thanks to @sssvt-drabek-stepan for adding this)
 
