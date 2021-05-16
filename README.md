@@ -115,6 +115,7 @@ You can also predefine some choices for the option. Choices only work for `strin
 1. With the `Choice` attribute. You can add multiple attributes to add multiple choices.
 2. You can also define choices using enums, see the example below.
 3. You can use a `ChoiceProvider` to run code to get the choices from, see the example below.
+
 (second and third method contributed by @Epictek)
 
 Some examples:
