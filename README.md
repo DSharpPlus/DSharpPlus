@@ -3,7 +3,9 @@
 [![Nuget](https://img.shields.io/nuget/vpre/IDoEverything.DSharpPlus.SlashCommands?style=flat-square)](https://www.nuget.org/packages/IDoEverything.DSharpPlus.SlashCommands)
 [![Discord](https://img.shields.io/discord/801857343930761281?label=Discord&logo=Discord&style=flat-square)](https://discord.gg/2ZhXXVJYhU)
 
-An extension for [DSharpPlus](https://github.com/DSharpPlus/DSharpPlus) to make slash commands easier
+An extension for [DSharpPlus](https://github.com/DSharpPlus/DSharpPlus) to make slash commands easier.
+
+Join the [Discord server](https://discord.gg/2ZhXXVJYhU) for any questions, help or discussion.
 
 # Documentation
 
@@ -109,9 +111,11 @@ If you want the user to be able to give more data to the command, you can add so
 
 Arguments must have the `Option` attribute, and can only be of type `string`, `long`, `bool`, `DiscordUser`, `DiscordChannel`, `DiscordRole` and `Enum`. If you want to make them optional, you can assign a default value as well.
 
-You can also predefine some choices for the option, with the `Choice` attribute. You can add multiple attributes to add multiple choices. Choices only work for `string` and `long` arguments.
-
-You can also define choices using enums, see the example below.
+You can also predefine some choices for the option. Choices only work for `string` and `long` arguments. THere are several ways to use them:
+1. With the `Choice` attribute. You can add multiple attributes to add multiple choices.
+2. You can also define choices using enums, see the example below.
+3. You can use a `ChoiceProvider` to run code to get the choices from, see the example below.
+(second and third method contributed by @Epictek)
 
 Some examples:
 ```cs
@@ -138,7 +142,6 @@ Some examples:
           await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(phrase));
         }
         
-        
         enum MyEnum
         {
             [ChoiceName("Option 1")]
@@ -153,6 +156,27 @@ Some examples:
         public async Task EnumCommand(InteractionContext ctx, MyEnum myEnum = MyEnum.option1)
         {
             await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(myEnum.GetName()));
+        }
+        
+        public class TestChoiceProvider : IChoiceProvider
+        {
+            public async Task<IEnumerable<DiscordApplicationCommandOptionChoice>> Provider()
+            {
+                return new DiscordApplicationCommandOptionChoice[]
+                {
+                    new DiscordApplicationCommandOptionChoice("testing", "testing"),
+                    new DiscordApplicationCommandOptionChoice("testing2", "test option 2")
+                };
+            }
+        }
+        
+        [SlashCommand("choiceprovider", "test")]
+        public async Task ChoiceProviderCommand(InteractionContext ctx,
+            [ChoiceProvider(typeof(TestChoiceProvider))]
+            [Option("option", "option")]
+            string option)
+        {
+                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(option));
         }
         
  ```
