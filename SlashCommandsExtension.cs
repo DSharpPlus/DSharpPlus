@@ -215,7 +215,9 @@ namespace DSharpPlus.SlashCommands
             {
                 var method = choiceProviderAttribute.ProviderType.GetMethod(nameof(IChoiceProvider.Provider));
 
-                if (method != null)
+                if(method == null)
+                    throw new Exception("ChoiceProviders must inherit from IChoiceProvider.");
+                else
                 {
                     var instance = Activator.CreateInstance(choiceProviderAttribute.ProviderType);
                     var result = await (Task<IEnumerable<DiscordApplicationCommandOptionChoice>>) method.Invoke(instance, null);
