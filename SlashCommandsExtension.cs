@@ -167,40 +167,43 @@ namespace DSharpPlus.SlashCommands
                     }
                     catch (Exception ex)
                     {
-                        Client.Logger.LogError(ex, $"There was an error registering slash commands");
-                        Environment.Exit(-1);
+                        Client.Logger.LogCritical(ex, $"There was an error registering slash commands");
+                        Errored = true;
                     }
                 }
-                try
+                if (!Errored)
                 {
-                    IEnumerable<DiscordApplicationCommand> commands;
-                    if (guildid == null)
+                    try
                     {
-                        commands = await Client.BulkOverwriteGlobalApplicationCommandsAsync(ToUpdate);
-                    }
-                    else
-                    {
-                        commands = await Client.BulkOverwriteGuildApplicationCommandsAsync(guildid.Value, ToUpdate);
-                    }
-                    foreach (var command in commands)
-                    {
-                        if (InternalCommandMethods.Any(x => x.Name == command.Name))
-                            InternalCommandMethods.First(x => x.Name == command.Name).Id = command.Id;
+                        IEnumerable<DiscordApplicationCommand> commands;
+                        if (guildid == null)
+                        {
+                            commands = await Client.BulkOverwriteGlobalApplicationCommandsAsync(ToUpdate);
+                        }
+                        else
+                        {
+                            commands = await Client.BulkOverwriteGuildApplicationCommandsAsync(guildid.Value, ToUpdate);
+                        }
+                        foreach (var command in commands)
+                        {
+                            if (InternalCommandMethods.Any(x => x.Name == command.Name))
+                                InternalCommandMethods.First(x => x.Name == command.Name).Id = command.Id;
 
-                        else if (InternalGroupCommands.Any(x => x.Name == command.Name))
-                            InternalGroupCommands.First(x => x.Name == command.Name).Id = command.Id;
+                            else if (InternalGroupCommands.Any(x => x.Name == command.Name))
+                                InternalGroupCommands.First(x => x.Name == command.Name).Id = command.Id;
 
-                        else if (InternalSubGroupCommands.Any(x => x.Name == command.Name))
-                            InternalSubGroupCommands.First(x => x.Name == command.Name).Id = command.Id;
+                            else if (InternalSubGroupCommands.Any(x => x.Name == command.Name))
+                                InternalSubGroupCommands.First(x => x.Name == command.Name).Id = command.Id;
+                        }
+                        CommandMethods.AddRange(InternalCommandMethods);
+                        GroupCommands.AddRange(InternalGroupCommands);
+                        SubGroupCommands.AddRange(InternalSubGroupCommands);
                     }
-                    CommandMethods.AddRange(InternalCommandMethods);
-                    GroupCommands.AddRange(InternalGroupCommands);
-                    SubGroupCommands.AddRange(InternalSubGroupCommands);
-                }
-                catch (Exception ex)
-                {
-                    Client.Logger.LogCritical(ex, $"There was an error registering slash commands");
-                    Errored = true;
+                    catch (Exception ex)
+                    {
+                        Client.Logger.LogCritical(ex, $"There was an error registering slash commands");
+                        Errored = true;
+                    }
                 }
             });
         }
