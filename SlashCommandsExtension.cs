@@ -104,7 +104,7 @@ namespace DSharpPlus.SlashCommands
                                     throw new ArgumentException($"The first argument must be an InteractionContext!");
                                 parameters = parameters.Skip(1).ToArray();
 
-                                var options = ParseParameters(parameters);
+                                var options = await ParseParameters(parameters);
     
                                 var subpayload = new DiscordApplicationCommandOption(commandattribute.Name, commandattribute.Description, ApplicationCommandOptionType.SubCommand, null, null, options);
 
@@ -131,7 +131,7 @@ namespace DSharpPlus.SlashCommands
                                     if (!ReferenceEquals(parameters.First().ParameterType, typeof(InteractionContext)))
                                         throw new ArgumentException($"The first argument must be an InteractionContext!");
                                     parameters = parameters.Skip(1).ToArray();
-                                    suboptions = suboptions.Concat(ParseParameters(parameters)).ToList();
+                                    suboptions = suboptions.Concat(await ParseParameters(parameters)).ToList();
                                     
                                     var subsubpayload = new DiscordApplicationCommandOption(commatt.Name, commatt.Description, ApplicationCommandOptionType.SubCommand, null, null, suboptions);
                                     options.Add(subsubpayload);
@@ -157,7 +157,7 @@ namespace DSharpPlus.SlashCommands
                             if (parameters.Length == 0 || parameters == null || !ReferenceEquals(parameters.FirstOrDefault()?.ParameterType, typeof(InteractionContext)))
                                 throw new ArgumentException($"The first argument must be an InteractionContext!");
                             parameters = parameters.Skip(1).ToArray();
-                            options = options.Concat(ParseParameters(parameters)).ToList();
+                            options = options.Concat(await ParseParameters(parameters)).ToList();
 
                             InternalCommandMethods.Add(new CommandMethod { Method = method, Name = commandattribute.Name, ParentClass = t });
 
@@ -208,6 +208,28 @@ namespace DSharpPlus.SlashCommands
             });
         }
 
+        private async Task<List<DiscordApplicationCommandOptionChoice>> GetChoiceAttributesFromProvider(IEnumerable<ChoiceProviderAttribute> customAttributes)
+        {
+            var choices = new List<DiscordApplicationCommandOptionChoice>();
+            foreach (var choiceProviderAttribute in customAttributes)
+            {
+                var method = choiceProviderAttribute.ProviderType.GetMethod(nameof(IChoiceProvider.Provider));
+
+                if (method != null)
+                {
+                    var instance = Activator.CreateInstance(choiceProviderAttribute.ProviderType);
+                    var result = await (Task<IEnumerable<DiscordApplicationCommandOptionChoice>>) method.Invoke(instance, null);
+                    
+                    if (result.Any())
+                    {
+                        choices.AddRange(result);
+                    }
+                }
+            }
+
+            return choices;
+        }
+        
         private static List<DiscordApplicationCommandOptionChoice> GetChoiceAttributesFromEnumParameter(Type enumParam)
         {
             var choices = new List<DiscordApplicationCommandOptionChoice>();
@@ -440,7 +462,7 @@ namespace DSharpPlus.SlashCommands
             return choiceattributes.Select(att => new DiscordApplicationCommandOptionChoice(att.Name, att.Value)).ToList();
         }
 
-        private List<DiscordApplicationCommandOption> ParseParameters(ParameterInfo[] parameters)
+        private async Task<List<DiscordApplicationCommandOption>> ParseParameters(ParameterInfo[] parameters)
         {
             var options = new List<DiscordApplicationCommandOption>();
             foreach (var parameter in parameters)
@@ -457,6 +479,13 @@ namespace DSharpPlus.SlashCommands
                 if (parameter.ParameterType.IsEnum)
                 {
                     choices = GetChoiceAttributesFromEnumParameter(parameter.ParameterType);
+                }
+                
+                var choiceProviders = parameter.GetCustomAttributes<ChoiceProviderAttribute>();
+
+                if (choiceProviders.Any())
+                {
+                    choices = await GetChoiceAttributesFromProvider(choiceProviders);
                 }
 
                 options.Add(new DiscordApplicationCommandOption(optionattribute.Name, optionattribute.Description, parametertype, !parameter.IsOptional, choices));
