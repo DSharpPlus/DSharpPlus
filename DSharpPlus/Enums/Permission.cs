@@ -267,19 +267,19 @@ namespace DSharpPlus
         /// Allows for deleting and archiving threads, and viewing all private threads.
         /// </summary>
         [PermissionString("Manage Threads")]
-        ManageEvents = 0x0000000400000000,
+        ManageThreads = 0x0000000400000000,
         
         /// <summary>
         /// Allows for creating and participating in threads.
         /// </summary>
         [PermissionString("Use Public Threads")]
-        ManageEvents = 0x0000000800000000,
+        UsePublicThreads = 0x0000000800000000,
         
         /// <summary>
         /// Allows for creating and participating in private threads.
         /// </summary>
         [PermissionString("Use Private Threads")]
-        ManageEvents = 0x0000001000000000
+        UsePrivateThreads = 0x0000001000000000
     }
 
     /// <summary>
