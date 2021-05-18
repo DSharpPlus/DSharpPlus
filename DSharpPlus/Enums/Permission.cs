@@ -4,7 +4,7 @@ namespace DSharpPlus
 {
     public static class PermissionMethods
     {
-        internal static Permissions FULL_PERMS { get; } = (Permissions)17179869183;
+        internal static Permissions FULL_PERMS { get; } = (Permissions)128849018879L;
 
         /// <summary>
         /// Calculates whether this permission set contains the given permission.
@@ -69,7 +69,7 @@ namespace DSharpPlus
         /// Indicates all permissions are granted
         /// </summary>
         [PermissionString("All permissions")]
-        All = 17179869183,
+        All = 128849018879,
 
         /// <summary>
         /// Allows creation of instant channel invites.
@@ -266,8 +266,20 @@ namespace DSharpPlus
         /// <summary>
         /// Allows the user to manage guild events.
         /// </summary>
-        [PermissionString("Manage Events")]
-        ManageEvents = 0x0000000200000000
+        [PermissionString("Manage Threads")]
+        ManageEvents = 0x0000000400000000,
+        
+        /// <summary>
+        /// Allows the user to manage guild events.
+        /// </summary>
+        [PermissionString("Use Public Threads")]
+        ManageEvents = 0x0000000800000000,
+        
+        /// <summary>
+        /// Allows the user to manage guild events.
+        /// </summary>
+        [PermissionString("Use Private Threads")]
+        ManageEvents = 0x0000001000000000
     }
 
     /// <summary>
