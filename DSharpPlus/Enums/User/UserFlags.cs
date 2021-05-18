@@ -104,6 +104,6 @@ namespace DSharpPlus
         /// <summary>
         /// The user is a discord certified moderator.
         /// </summary>
-        CertifiedModerator = 1 << 18
+        DiscordCertifiedModerator = 1 << 18
     }
 }
