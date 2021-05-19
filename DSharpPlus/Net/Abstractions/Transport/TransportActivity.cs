@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
@@ -119,7 +120,7 @@ namespace DSharpPlus.Net.Abstractions
         /// This is a component of the rich presence, and, as such, can only be used by regular users.
         /// </summary>
         [JsonProperty("buttons", NullValueHandling = NullValueHandling.Ignore)]
-        public string[] Buttons { get; internal set; }
+        public IReadOnlyList<string> Buttons { get; internal set; }
 
         /// <summary>
         /// Gets or sets infromation about current game's timestamps.

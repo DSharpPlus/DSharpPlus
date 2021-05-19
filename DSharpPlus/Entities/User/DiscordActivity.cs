@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
@@ -300,7 +301,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the buttons.
         /// </summary>
-        public string[] Buttons  { get; internal set; }
+        public IReadOnlyList<string> Buttons { get; internal set; }
 
         /// <summary>
         /// Gets the game start timestamp.
