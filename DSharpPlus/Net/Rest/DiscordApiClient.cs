@@ -874,7 +874,8 @@ namespace DSharpPlus.Net
                 Content = builder.Content,
                 IsTTS = builder.IsTTS,
                 HasEmbed = builder.Embed != null,
-                Embed = builder.Embed
+                Embed = builder.Embed,
+                Components = builder.Components.ToArray()
             };
 
             if (builder.ReplyId != null)
@@ -1757,20 +1758,20 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        /* 
+        /*
          * Disabled due to API restrictions
-         * 
+         *
          * internal async Task<DiscordInvite> InternalAcceptInvite(string invite_code)
          * {
          *     this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "REST API", "Invite accept endpoint was used; this account is now likely unverified", DateTime.Now);
-         *     
+         *
          *     var url = new Uri($"{Utils.GetApiBaseUri(), Endpoints.INVITES}/{invite_code));
          *     var bucket = this.Rest.GetBucket(0, MajorParameterType.Unbucketed, url, HttpRequestMethod.POST);
          *     var res = await this.DoRequestAsync(this.Discord, bucket, url, HttpRequestMethod.POST).ConfigureAwait(false);
-         *     
+         *
          *     var ret = JsonConvert.DeserializeObject<DiscordInvite>(res.Response);
          *     ret.Discord = this.Discord;
-         * 
+         *
          *     return ret;
          * }
          */

@@ -23,6 +23,7 @@
 
 using System.Collections.Generic;
 using DSharpPlus.Entities;
+using DSharpPlus.Entities.Components;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Abstractions
@@ -118,6 +119,9 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("message_reference", NullValueHandling = NullValueHandling.Ignore)]
         public InternalDiscordMessageReference? MessageReference { get; set; }
+
+        [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordComponent[] Components { get; set; }
     }
 
     internal sealed class RestChannelMessageCreateMultipartPayload
@@ -136,6 +140,8 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("message_reference", NullValueHandling = NullValueHandling.Ignore)]
         public InternalDiscordMessageReference? MessageReference { get; set; }
+
+
     }
 
     internal sealed class RestChannelMessageBulkDeletePayload

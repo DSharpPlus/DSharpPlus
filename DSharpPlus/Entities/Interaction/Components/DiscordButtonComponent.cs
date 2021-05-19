@@ -28,13 +28,31 @@ namespace DSharpPlus.Entities.Components
     {
         [JsonProperty("style", NullValueHandling = NullValueHandling.Ignore)]
         public int Style { get; internal set; }
+
         [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
         public string Url { get; internal set; }
+
         [JsonProperty("label", NullValueHandling = NullValueHandling.Ignore)]
         public string Label { get; internal set; }
+
         [JsonProperty("custom_id", NullValueHandling = NullValueHandling.Ignore)]
         public string CustomId { get; internal set; }
+
         [JsonProperty("disabled", NullValueHandling = NullValueHandling.Ignore)]
         public bool Disabled { get; internal set; }
+
+        [JsonProperty("emoji", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordComponentEmoji Emoji { get; internal set; }
+
+        public DiscordButtonComponent(int style = default, string url = null, string label = null, string customId = null, bool disabled = default, DiscordComponentEmoji emoji = null)
+        {
+            this.Style = style;
+            this.Url = url;
+            this.Label = label;
+            this.CustomId = customId;
+            this.Disabled = disabled;
+            this.Emoji = emoji;
+            this.Type = 2;
+        }
     }
 }

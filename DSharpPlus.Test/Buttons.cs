@@ -20,17 +20,25 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-using Newtonsoft.Json;
+using System.Threading.Tasks;
+using DSharpPlus.CommandsNext;
+using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.Entities;
+using DSharpPlus.Entities.Components;
 
-namespace DSharpPlus.Entities.Components
+namespace DSharpPlus.Test
 {
-    public sealed class DiscordComponentEmoji
+    public class Buttons : BaseCommandModule
     {
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong Id { get; set; }
-        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
-        public string Name { get; set; }
-
-
+        [Command]
+        public async Task SendButton(CommandContext ctx)
+        {
+            var builder = new DiscordMessageBuilder().WithComponentRow(
+                new DiscordButtonComponent(2, customId: "poggers", emoji: new DiscordComponentEmoji {Id = 833475075474063421}),
+                new DiscordButtonComponent(4, label: "pog", customId: "owo")
+            );
+            builder.WithContent("Buttons!");
+            await ctx.RespondAsync(builder);
+        }
     }
 }

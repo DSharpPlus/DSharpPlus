@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using DSharpPlus.Entities.Components;
 
 namespace DSharpPlus.Entities
 {
@@ -60,7 +61,7 @@ namespace DSharpPlus.Entities
         public bool IsTTS { get; set; } = false;
 
         /// <summary>
-        /// Gets the Allowed Mentions for the message to be sent. 
+        /// Gets the Allowed Mentions for the message to be sent.
         /// </summary>
         public List<IMention> Mentions { get; private set; } = null;
 
@@ -68,8 +69,10 @@ namespace DSharpPlus.Entities
         /// Gets the Files to be sent in the Message.
         /// </summary>
         public IReadOnlyCollection<DiscordMessageFile> Files => this._files;
+        public IReadOnlyCollection<DiscordComponent> Components => this._components;
 
-        internal List<DiscordMessageFile> _files = new();
+        internal readonly List<DiscordMessageFile> _files = new();
+        internal readonly List<DiscordComponent> _components = new();
 
         /// <summary>
         /// Gets the Reply Message ID.
@@ -96,6 +99,14 @@ namespace DSharpPlus.Entities
         public DiscordMessageBuilder WithContent(string content)
         {
             this.Content = content;
+            return this;
+        }
+
+        public DiscordMessageBuilder WithComponentRow(params DiscordComponent[] components)
+        {
+            var comp = new DiscordActionRowComponent() { Components = components };
+            this._components.Add(comp);
+
             return this;
         }
 

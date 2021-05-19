@@ -28,7 +28,6 @@ namespace DSharpPlus.Entities.Components
     {
         [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
         public int Type { get; internal set; }
-        [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordComponent[] Components { get; internal set; }
+
     }
 }
