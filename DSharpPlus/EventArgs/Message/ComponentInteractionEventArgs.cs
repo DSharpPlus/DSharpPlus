@@ -24,15 +24,15 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.EventArgs
 {
-    public class ButtonPressedEventArgs : DiscordEventArgs
+    public class ComponentInteractionEventArgs : DiscordEventArgs
     {
         public string Id { get; internal set; }
-
         public DiscordUser User => this.Message.Author;
         public DiscordGuild Guild => this.Channel.Guild;
         public DiscordChannel Channel => this.Message.Channel;
         public DiscordMessage Message { get; internal set; }
+        public DiscordInteraction Interaction { get; internal set; }
 
-        internal ButtonPressedEventArgs() { }
+        internal ComponentInteractionEventArgs() { }
     }
 }

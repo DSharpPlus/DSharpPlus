@@ -29,6 +29,7 @@ namespace DSharpPlus
     public enum InteractionType
     {
         Ping = 1,
-        ApplicationCommand
+        ApplicationCommand,
+        Component = 3
     }
 }

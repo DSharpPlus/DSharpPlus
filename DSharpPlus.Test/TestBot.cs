@@ -85,7 +85,7 @@ namespace DSharpPlus.Test
             this.Discord.GuildDownloadCompleted += this.Discord_GuildDownloadCompleted;
             this.Discord.GuildUpdated += this.Discord_GuildUpdated;
             this.Discord.ChannelDeleted += this.Discord_ChannelDeleted;
-
+            this.Discord.ComponentInteractionCreated += this.DiscordComponentInteractionCreated;
             // For event timeout testing
             //Discord.GuildDownloadCompleted += async (s, e) =>
             //{
@@ -138,6 +138,7 @@ namespace DSharpPlus.Test
             //    _ = Task.Run(async () => await e.Message.RespondAsync(e.Message.Content)).ConfigureAwait(false);
             //};
         }
+        private async Task DiscordComponentInteractionCreated(DiscordClient sender, ComponentInteractionEventArgs e) => await e.Message.ModifyAsync(m => m.Content = "owo");
 
         public async Task RunAsync()
         {

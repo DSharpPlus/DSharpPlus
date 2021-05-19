@@ -606,13 +606,13 @@ namespace DSharpPlus
         private AsyncEvent<DiscordClient, InteractionCreateEventArgs> _interactionCreated;
 
 
-        public event AsyncEventHandler<DiscordClient, ButtonPressedEventArgs> ButtonPressed
+        public event AsyncEventHandler<DiscordClient, ComponentInteractionEventArgs> ComponentInteractionCreated
         {
-            add => this._buttonPressed.Register(value);
-            remove => this._buttonPressed.Unregister(value);
+            add => this._componentInteractionCreated.Register(value);
+            remove => this._componentInteractionCreated.Unregister(value);
         }
 
-        private AsyncEvent<DiscordClient, ButtonPressedEventArgs> _buttonPressed;
+        private AsyncEvent<DiscordClient, ComponentInteractionEventArgs> _componentInteractionCreated;
 
         /// <summary>
         /// Fired when a user starts typing in a channel.
