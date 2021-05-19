@@ -30,6 +30,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
+using DSharpPlus.Entities.Components;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Serialization;
@@ -58,7 +59,7 @@ namespace DSharpPlus
             }
 
             DiscordChannel chn;
-            string intId;
+            DiscordComponent cmp;
             ulong gid;
             ulong cid;
             TransportUser usr = default;
@@ -351,7 +352,7 @@ namespace DSharpPlus
                 case "interaction_create":
 
                     rawMbr = dat["member"];
-                    intId = dat["id"].ToObject<string>();
+                    cmp = dat["data"].ToObject<DiscordComponent>();
 
                     if (rawMbr != null)
                     {
@@ -364,7 +365,7 @@ namespace DSharpPlus
                     }
 
                     cid = (ulong)dat["channel_id"];
-                    await this.OnInteractionCreateAsync((ulong?)dat["guild_id"], cid, intId, usr, mbr, dat.ToObject<DiscordInteraction>()).ConfigureAwait(false);
+                    await this.OnInteractionCreateAsync((ulong?)dat["guild_id"], cid, usr, mbr, dat.ToObject<DiscordInteraction>()).ConfigureAwait(false);
                     break;
 
                 case "application_command_create":
@@ -1838,7 +1839,7 @@ namespace DSharpPlus
 
         #region Misc
 
-        internal async Task OnInteractionCreateAsync(ulong? guildId, ulong channelId, string interactionId, TransportUser user, TransportMember member, DiscordInteraction interaction)
+        internal async Task OnInteractionCreateAsync(ulong? guildId, ulong channelId, TransportUser user, TransportMember member, DiscordInteraction interaction)
         {
             var usr = new DiscordUser(user) { Discord = this };
             this.UserCache.AddOrUpdate(usr.Id, usr, (old, @new) => @new);
@@ -1900,7 +1901,7 @@ namespace DSharpPlus
             {
                 var cea = new ComponentInteractionEventArgs()
                 {
-                    Id = interactionId,
+                    Id = interaction.Component.CustomId,
                     Interaction = interaction
                 };
 

@@ -35,9 +35,6 @@ namespace DSharpPlus.Entities.Components
         [JsonProperty("label", NullValueHandling = NullValueHandling.Ignore)]
         public string Label { get; internal set; }
 
-        [JsonProperty("custom_id", NullValueHandling = NullValueHandling.Ignore)]
-        public string CustomId { get; internal set; }
-
         [JsonProperty("disabled", NullValueHandling = NullValueHandling.Ignore)]
         public bool Disabled { get; internal set; }
 

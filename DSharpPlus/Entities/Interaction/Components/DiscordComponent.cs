@@ -29,5 +29,7 @@ namespace DSharpPlus.Entities.Components
         [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
         public int Type { get; internal set; }
 
+        [JsonProperty("custom_id", NullValueHandling = NullValueHandling.Ignore)]
+        public string CustomId { get; internal set; }
     }
 }

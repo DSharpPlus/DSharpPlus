@@ -28,9 +28,8 @@ namespace DSharpPlus.Entities.Components
     {
         [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
         public ulong Id { get; set; }
+
         [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
         public string Name { get; set; }
-
-
     }
 }
