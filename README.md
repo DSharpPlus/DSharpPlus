@@ -71,11 +71,11 @@ Slash command methods must be `Task`s and have the `SlashCommand` attribute. The
 ```cs
 public class SlashCommands : SlashCommandModule
 {
-  [SlashCommand("test", "A slash command made to test the DSharpPlusSlashCommands library!")]
-  public async Task TestCommand(InteractionContext ctx)
-  {
+    [SlashCommand("test", "A slash command made to test the DSharpPlusSlashCommands library!")]
+    public async Task TestCommand(InteractionContext ctx)
+    {
     
-  }
+    }
 }
 ```
 
@@ -92,7 +92,7 @@ A simple response would be like:
 [SlashCommand("test", "A slash command made to test the DSharpPlusSlashCommands library!")]
 public async Task TestCommand(InteractionContext ctx)
 {
-  await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Success!"));
+    await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Success!"));
 }
 ```
 If your code will take some time to execute:
@@ -100,9 +100,9 @@ If your code will take some time to execute:
 [SlashCommand("test", "A slash command made to test the DSharpPlusSlashCommands library!")]
 public async Task TestCommand(InteractionContext ctx)
 {
-  await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
-  await Task.Delay(5000);
-  await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("5 second delay complete!"));
+    await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
+    await Task.Delay(5000);
+    await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("5 second delay complete!"));
 }
 ```
 You can also override `BeforeExecutionAsync` and `AfterExecutionAsync` to run code before and after all the commands in a module. This does not apply to groups, you have the override them individually for the group's class.
@@ -120,116 +120,117 @@ You can also predefine some choices for the option. Choices only work for `strin
 
 Some examples:
 ```cs
-        [SlashCommand("avatar", "Get someone's avatar")]
-        public async Task Av(InteractionContext ctx, [Option("user", "The user to get it for")] DiscordUser user = null)
-        {
-            user ??= ctx.Member;
-            var embed = new DiscordEmbedBuilder
-            {
-                Title = $"Avatar",
-                ImageUrl = user.AvatarUrl
-            }.
-            WithFooter($"Requested by {ctx.Member.DisplayName}", ctx.Member.AvatarUrl).
-            WithAuthor($"{user.Username}", user.AvatarUrl, user.AvatarUrl);
-            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(embed.Build()));
-        }
-        
-        [SlashCommand("phrase", "Sends a certain phrase in the chat!")]
-        public async Task Phrase(InteractionContext ctx,
-          [Choice("phrase1", "all's well that ends well")]
-          [Choice("phrase2", "be happy!")]
-          [Option("phrase", "the phrase to respond with")] string phrase)
-        {
-          await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(phrase));
-        }
-        
-        enum MyEnum
-        {
-            [ChoiceName("Option 1")]
-            option1,
-            [ChoiceName("Option 2")]
-            option2,
-            [ChoiceName("option3")]
-            option3
-        }
+[SlashCommand("avatar", "Get someone's avatar")]
+public async Task Av(InteractionContext ctx, [Option("user", "The user to get it for")] DiscordUser user = null)
+{
+    user ??= ctx.Member;
+    var embed = new DiscordEmbedBuilder
+    {
+        Title = $"Avatar",
+        ImageUrl = user.AvatarUrl
+    }.
+    WithFooter($"Requested by {ctx.Member.DisplayName}", ctx.Member.AvatarUrl).
+    WithAuthor($"{user.Username}", user.AvatarUrl, user.AvatarUrl);
+    await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(embed.Build()));
+}
+
+//Attribute choices
+[SlashCommand("phrase", "Sends a certain phrase in the chat!")]
+public async Task Phrase(InteractionContext ctx,
+    [Choice("phrase1", "all's well that ends well")]
+    [Choice("phrase2", "be happy!")]
+    [Option("phrase", "the phrase to respond with")] string phrase)
+{
+    await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(phrase));
+}
+
+//Enum choices
+enum MyEnum
+{
+    [ChoiceName("Option 1")]
+    option1,
+    [ChoiceName("Option 2")]
+    option2,
+    [ChoiceName("Option 3")]
+    option3
+}
     
-        [SlashCommand("enum", "Test enum")]
-        public async Task EnumCommand(InteractionContext ctx, MyEnum myEnum = MyEnum.option1)
+[SlashCommand("enum", "Test enum")]
+public async Task EnumCommand(InteractionContext ctx, MyEnum myEnum = MyEnum.option1)
+{
+    await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(myEnum.GetName()));
+}
+
+//ChoiceProvider choices
+public class TestChoiceProvider : IChoiceProvider
+{
+    public async Task<IEnumerable<DiscordApplicationCommandOptionChoice>> Provider()
+    {
+        return new DiscordApplicationCommandOptionChoice[]
         {
-            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(myEnum.GetName()));
-        }
+            new DiscordApplicationCommandOptionChoice("testing", "testing"),
+            new DiscordApplicationCommandOptionChoice("testing2", "test option 2")
+        };
+    }
+}
         
-        public class TestChoiceProvider : IChoiceProvider
-        {
-            public async Task<IEnumerable<DiscordApplicationCommandOptionChoice>> Provider()
-            {
-                return new DiscordApplicationCommandOptionChoice[]
-                {
-                    new DiscordApplicationCommandOptionChoice("testing", "testing"),
-                    new DiscordApplicationCommandOptionChoice("testing2", "test option 2")
-                };
-            }
-        }
-        
-        [SlashCommand("choiceprovider", "test")]
-        public async Task ChoiceProviderCommand(InteractionContext ctx,
-            [ChoiceProvider(typeof(TestChoiceProvider))]
-            [Option("option", "option")]
-            string option)
-        {
-                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(option));
-        }
-        
- ```
+[SlashCommand("choiceprovider", "test")]
+public async Task ChoiceProviderCommand(InteractionContext ctx,
+    [ChoiceProvider(typeof(TestChoiceProvider))]
+    [Option("option", "option")] string option)
+{
+    await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(option));
+}
+```
 ### Groups
 You can have slash commands in groups. Their structure is explained [here](https://discord.com/developers/docs/interactions/slash-commands#nested-subcommands-and-groups), I would highly recommend reading it to understand how they work. To register groups you need a container which inherits from `SlashCommandModule`. Inside this container you can register groups of commands:
 ```cs
 public class GroupContainer : SlashCommandModule 
 {
-  //For a group and subcommands inside the group
-  [SlashCommandGroup("group", "description")]
-  public class Group : SlashCommandModule
-  {
-    [SlashCommand("command", "description")]
-    public async Task Command(InteractionContext ctx) {}
+    //For a group and subcommands inside the group
+    [SlashCommandGroup("group", "description")]
+    public class Group : SlashCommandModule
+    {
+        [SlashCommand("command", "description")]
+        public async Task Command(InteractionContext ctx) {}
     
-    [SlashCommand("command2", "description")]
-    public async Task Command2(InteractionContext ctx) {}
+        [SlashCommand("command2", "description")]
+        public async Task Command2(InteractionContext ctx) {}
     
-    [SlashCommand("command3", "description")]
-    public async Task Command3(InteractionContext ctx) {}
-  }
+        [SlashCommand("command3", "description")]
+        public async Task Command3(InteractionContext ctx) {}
+    }
   
-  //For subgroups inside groups
-  [SlashCommandGroup("group", "description")]
-  public class Group : SlashCommandModule
-  {
-    [SlashCommandGroup("subgroup", "description")]
-    public class SubGroup : SlashCommandModule
+    //For subgroups inside groups
+    [SlashCommandGroup("group", "description")]
+    public class Group : SlashCommandModule
     {
-      [SlashCommand("command", "description")]
-      public async Task Command(InteractionContext ctx) {}
+        [SlashCommandGroup("subgroup", "description")]
+        public class SubGroup : SlashCommandModule
+        {
+            [SlashCommand("command", "description")]
+            public async Task Command(InteractionContext ctx) {}
     
-      [SlashCommand("command2", "description")]
-      public async Task Command2(InteractionContext ctx) {}
+            [SlashCommand("command2", "description")]
+            public async Task Command2(InteractionContext ctx) {}
     
-      [SlashCommand("command3", "description")]
-      public async Task Command3(InteractionContext ctx) {}
-    {
+            [SlashCommand("command3", "description")]
+            public async Task Command3(InteractionContext ctx) {}
+        }
     
-    [SlashCommandGroup("subgroup2", "description")]
-    public class SubGroup2 : SlashCommandModule
-    {
-      [SlashCommand("command", "description")]
-      public async Task Command(InteractionContext ctx) {}
+        [SlashCommandGroup("subgroup2", "description")]
+        public class SubGroup2 : SlashCommandModule
+        {
+            [SlashCommand("command", "description")]
+            public async Task Command(InteractionContext ctx) {}
     
-      [SlashCommand("command2", "description")]
-      public async Task Command2(InteractionContext ctx) {}
+            [SlashCommand("command2", "description")]
+            public async Task Command2(InteractionContext ctx) {}
     
-      [SlashCommand("command3", "description")]
-      public async Task Command3(InteractionContext ctx) {}
-    {
-  }
+            [SlashCommand("command3", "description")]
+            public async Task Command3(InteractionContext ctx) {}
+        }
+    }
 }
 ```
 ### Dependency Injection
