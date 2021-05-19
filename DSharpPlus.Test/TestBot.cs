@@ -63,7 +63,7 @@ namespace DSharpPlus.Test
             {
                 AutoReconnect = true,
                 LargeThreshold = 250,
-                MinimumLogLevel = LogLevel.Trace,
+                MinimumLogLevel = LogLevel.Debug,
                 Token = this.Config.Token,
                 TokenType = TokenType.Bot,
                 ShardId = shardid,
@@ -138,7 +138,11 @@ namespace DSharpPlus.Test
             //    _ = Task.Run(async () => await e.Message.RespondAsync(e.Message.Content)).ConfigureAwait(false);
             //};
         }
-        private async Task DiscordComponentInteractionCreated(DiscordClient sender, ComponentInteractionEventArgs e) => await e.Message.ModifyAsync(m => m.Content = "owo");
+        private Task DiscordComponentInteractionCreated(DiscordClient sender, ComponentInteractionEventArgs e) =>
+             e.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
+            {
+                Content = "owo!"
+            });
 
         public async Task RunAsync()
         {

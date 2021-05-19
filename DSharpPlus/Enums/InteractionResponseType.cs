@@ -42,5 +42,7 @@ namespace DSharpPlus
         /// Acknowledges an interaction to edit to a response later. The user sees a "thinking" state.
         /// </summary>
         DeferredChannelMessageWithSource = 5
+
+        //Todo: Type 6 & 7 (Components)
     }
 }
