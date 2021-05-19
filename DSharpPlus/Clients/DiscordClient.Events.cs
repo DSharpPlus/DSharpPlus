@@ -359,6 +359,43 @@ namespace DSharpPlus
 
         #endregion
 
+        #region Guild Integration
+
+        /// <summary>
+        /// Fired when a guild integration is created.
+        /// For this Event you need the <see cref="DiscordIntents.GuildIntegrations"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, GuildIntegrationCreateEventArgs> GuildIntegrationCreated
+        {
+            add => this._guildIntegrationCreated.Register(value);
+            remove => this._guildIntegrationCreated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, GuildIntegrationCreateEventArgs> _guildIntegrationCreated;
+
+        /// <summary>
+        /// Fired when a guild integration is updated.
+        /// For this Event you need the <see cref="DiscordIntents.GuildIntegrations"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, GuildIntegrationUpdateEventArgs> GuildIntegrationUpdated
+        {
+            add => this._guildIntegrationUpdated.Register(value);
+            remove => this._guildIntegrationUpdated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, GuildIntegrationUpdateEventArgs> _guildIntegrationUpdated;
+
+        /// <summary>
+        /// Fired when a guild integration is deleted.
+        /// For this Event you need the <see cref="DiscordIntents.GuildIntegrations"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, GuildIntegrationDeleteEventArgs> GuildIntegrationDeleted
+        {
+            add => this._guildIntegrationDeleted.Register(value);
+            remove => this._guildIntegrationDeleted.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, GuildIntegrationDeleteEventArgs> _guildIntegrationDeleted;
+
+        #endregion
+
         #region Invite
 
         /// <summary>
