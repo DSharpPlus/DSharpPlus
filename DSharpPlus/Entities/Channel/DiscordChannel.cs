@@ -560,6 +560,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="max_age">Duration of invite in seconds before expiry, or 0 for never.  Defaults to 86400.</param>
         /// <param name="max_uses">Max number of uses or 0 for unlimited.  Defaults to 0</param>
+        /// <param name="target_type">Target type of invite for the channel.  Defaults to 1</param>
         /// <param name="temporary">Whether this invite only grants temporary membership.  Defaults to false.</param>
         /// <param name="unique">If true, don't try to reuse a similar invite (useful for creating many unique one time use invites)</param>
         /// <param name="reason">Reason for audit logs.</param>
@@ -568,8 +569,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordInvite> CreateInviteAsync(int max_age = 86400, int max_uses = 0, bool temporary = false, bool unique = false, string reason = null)
-            => this.Discord.ApiClient.CreateChannelInviteAsync(this.Id, max_age, max_uses, temporary, unique, reason);
+        public Task<DiscordInvite> CreateInviteAsync(int max_age = 86400, int max_uses = 0, int target_type = 1, bool temporary = false, bool unique = false, string reason = null)
+            => this.Discord.ApiClient.CreateChannelInviteAsync(this.Id, max_age, max_uses, target_type, temporary, unique, reason);
 
         /// <summary>
         /// Adds a channel permission overwrite for specified member.
