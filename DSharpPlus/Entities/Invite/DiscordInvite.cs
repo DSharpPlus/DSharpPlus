@@ -65,10 +65,10 @@ namespace DSharpPlus.Entities
         public DiscordUser TargetUser { get; internal set; }
 
         /// <summary>
-        /// Gets the partial embedded application to open for this voice channel.
+        /// Gets the embedded application id to open for this voice channel.
         /// </summary>
-        [JsonProperty("target_application", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordApplication TargetApplication { get; internal set; }
+        [JsonProperty("target_application_id", NullValueHandling = NullValueHandling.Ignore)]
+        public ulong TargetApplicationId { get; internal set; }
 
         /// <summary>
         /// Gets the approximate guild online member count for the invite.
