@@ -34,8 +34,9 @@ namespace DSharpPlus.Test
         public async Task SendButton(CommandContext ctx)
         {
             var builder = new DiscordMessageBuilder().WithComponentRow(
-                new DiscordButtonComponent(2, customId: "P_", emoji: new DiscordComponentEmoji {Id = 833475075474063421}),
-                new DiscordButtonComponent(4, label: "pog", customId: "poggers")
+                new DiscordButtonComponent(1, label: "Send poggies", customId: "emoji", emoji: new DiscordComponentEmoji {Id = 833475075474063421}),
+                new DiscordButtonComponent(2, label: "Send poggies (but grey)", customId: "pog"),
+                new DiscordButtonComponent(3, label: "Just ack (great for role menus!)", customId: "ack")
             );
             builder.WithContent("Buttons!");
             await ctx.RespondAsync(builder);

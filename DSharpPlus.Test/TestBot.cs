@@ -140,9 +140,10 @@ namespace DSharpPlus.Test
         }
         private async Task DiscordComponentInteractionCreated(DiscordClient sender, ComponentInteractionEventArgs e)
         {
-            if (e.Id == "poggers")
-                await e.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-                    new DiscordInteractionResponseBuilder() {Content = "Poggers!"});
+            if (e.Id == "ack")
+                await e.Interaction.CreateResponseAsync(InteractionResponseType.DefferedMessageUpdate);
+            else if (e.Id == "pog")
+                await e.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder() {Content = "Poggies (in a normal message!"});
             else
                 await e.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
                 {

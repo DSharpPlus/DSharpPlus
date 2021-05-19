@@ -104,6 +104,12 @@ namespace DSharpPlus.Entities
 
         public DiscordMessageBuilder WithComponentRow(params DiscordComponent[] components)
         {
+            if (components.Length >= 5)
+                throw new InvalidOperationException("You can only have 5 action rows per message.");
+
+            if (components.Length > 5)
+                throw new InvalidOperationException("Action rows can only have 5 components");
+
             var comp = new DiscordActionRowComponent() { Components = components };
             this._components.Add(comp);
 

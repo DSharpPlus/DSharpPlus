@@ -43,8 +43,14 @@ namespace DSharpPlus
         /// </summary>
         DeferredChannelMessageWithSource = 5,
 
+        /// <summary>
+        /// Acknowledges a component interaction to allow a response later.
+        /// </summary>
         DefferedMessageUpdate = 6,
 
+        /// <summary>
+        /// Responds to a component interaction by editing the message it's attached to.
+        /// </summary>
         UpdateMessage = 7,
     }
 }
