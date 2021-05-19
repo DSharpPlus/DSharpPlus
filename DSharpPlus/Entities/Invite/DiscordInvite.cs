@@ -119,6 +119,12 @@ namespace DSharpPlus.Entities
         public DateTimeOffset CreatedAt { get; internal set; }
 
         /// <summary>
+        /// Gets the date and time when this invite expires.
+        /// </summary>
+        [JsonProperty("expires_at", NullValueHandling = NullValueHandling.Ignore)]
+        public DateTimeOffset ExpiresAt { get; internal set; }
+
+        /// <summary>
         /// Gets whether this invite is revoked.
         /// </summary>
         [JsonProperty("revoked", NullValueHandling = NullValueHandling.Ignore)]
