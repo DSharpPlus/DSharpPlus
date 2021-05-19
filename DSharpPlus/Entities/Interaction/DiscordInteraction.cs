@@ -95,13 +95,6 @@ namespace DSharpPlus.Entities
         [JsonProperty("application_id")]
         public ulong ApplicationId { get; internal set; }
 
-
-        /// <summary>
-        /// Te component that created this interaction, if any.
-        /// </summary>
-        [JsonProperty("data")]
-        public DiscordComponent Component { get; internal set; }
-
         /// <summary>
         /// Creates a response to this interaction.
         /// </summary>

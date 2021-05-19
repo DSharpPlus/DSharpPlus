@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System.Collections.Generic;
+using DSharpPlus.Entities.Components;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
@@ -48,5 +49,11 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("resolved", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordInteractionResolvedCollection Resolved { get; internal set; }
+
+        [JsonProperty("custom_id")]
+        public string CustomId { get; internal set; }
+
+        [JsonProperty("component_type")]
+        public ComponentType ComponentType { get; internal set; }
     }
 }

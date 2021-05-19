@@ -59,7 +59,6 @@ namespace DSharpPlus
             }
 
             DiscordChannel chn;
-            DiscordComponent cmp;
             ulong gid;
             ulong cid;
             TransportUser usr = default;
@@ -352,7 +351,6 @@ namespace DSharpPlus
                 case "interaction_create":
 
                     rawMbr = dat["member"];
-                    cmp = dat["data"].ToObject<DiscordComponent>();
 
                     if (rawMbr != null)
                     {
@@ -1901,7 +1899,7 @@ namespace DSharpPlus
             {
                 var cea = new ComponentInteractionEventArgs()
                 {
-                    Id = interaction.Component.CustomId,
+                    Id = interaction.Data.CustomId,
                     Interaction = interaction
                 };
 
