@@ -27,10 +27,9 @@ namespace DSharpPlus.EventArgs
     public class ComponentInteractionEventArgs : DiscordEventArgs
     {
         public string Id { get; internal set; }
-        public DiscordUser User => this.Message.Author;
+        public DiscordUser User => this.Interaction.User;
         public DiscordGuild Guild => this.Channel.Guild;
-        public DiscordChannel Channel => this.Message.Channel;
-        public DiscordMessage Message { get; internal set; }
+        public DiscordChannel Channel => this.Interaction.Channel;
         public DiscordInteraction Interaction { get; internal set; }
 
         internal ComponentInteractionEventArgs() { }

@@ -138,11 +138,24 @@ namespace DSharpPlus.Test
             //    _ = Task.Run(async () => await e.Message.RespondAsync(e.Message.Content)).ConfigureAwait(false);
             //};
         }
-        private Task DiscordComponentInteractionCreated(DiscordClient sender, ComponentInteractionEventArgs e) =>
-             e.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
+        private async Task DiscordComponentInteractionCreated(DiscordClient sender, ComponentInteractionEventArgs e)
+        {
+            if (e.Id is "poggers")
             {
-                Content = "owo!"
-            });
+                await e.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
+                {
+                    Content = "poggers!",
+                });
+            }
+            else
+            {
+                await e.Interaction.CreateFollowupMessageAsync(new DiscordFollowupMessageBuilder()
+                {
+                    Content = $"<:_:844698494992384041>",
+                    IsEphemeral = true
+                });
+            }
+        }
 
         public async Task RunAsync()
         {
