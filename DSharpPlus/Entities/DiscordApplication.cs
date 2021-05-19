@@ -78,12 +78,12 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the terms of service url of the application.
         /// </summary>
-        public string? TermsOfServiceUrl { get; internal set; }
+        public string TermsOfServiceUrl { get; internal set; }
         
         /// <summary>
         /// Gets the privacy policy url of the application.
         /// </summary>
-        public string? PrivacyPolicyUrl { get; internal set; }
+        public string PrivacyPolicyUrl { get; internal set; }
 
         /// <summary>
         /// Gets the hash of the application's cover image.

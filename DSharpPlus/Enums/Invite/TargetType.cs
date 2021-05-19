@@ -26,11 +26,12 @@ namespace DSharpPlus
     /// <summary>
     /// Represents the type of user who the invite is for.
     /// </summary>
-    public enum TargetUserType
+    public enum TargetType
     {
         /// <summary>
-        /// Represents a user who is livestreaming.
+        /// Represents a invite target type.
         /// </summary>
-        Streaming = 1
+        Streaming = 1,
+        EmbeddedApplication = 2
     }
 }

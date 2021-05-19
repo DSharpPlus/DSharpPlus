@@ -53,16 +53,22 @@ namespace DSharpPlus.Entities
         public DiscordInviteChannel Channel { get; internal set; }
 
         /// <summary>
-        /// Gets the partial user that is currently livestreaming.
+        /// Gets the target type for the voice channel this invite is for.
+        /// </summary>
+        [JsonProperty("target_type", NullValueHandling = NullValueHandling.Ignore)]
+        public TargetType? TargetType { get; internal set; }
+
+        /// <summary>
+        /// Gets the user that is currently livestreaming.
         /// </summary>
         [JsonProperty("target_user", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordUser TargetUser { get; internal set; }
 
         /// <summary>
-        /// Gets the type of user who the invite is for.
+        /// Gets the partial embedded application to open for this voice channel.
         /// </summary>
-        [JsonProperty("target_user_type", NullValueHandling = NullValueHandling.Ignore)]
-        public TargetUserType? TargetUserType { get; internal set; }
+        [JsonProperty("target_application", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordApplication TargetApplication { get; internal set; }
 
         /// <summary>
         /// Gets the approximate guild online member count for the invite.
