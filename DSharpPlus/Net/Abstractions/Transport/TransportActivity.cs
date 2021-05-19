@@ -114,6 +114,14 @@ namespace DSharpPlus.Net.Abstractions
         public PresenceAssets Assets { get; internal set; }
 
         /// <summary>
+        /// Gets or sets information about buttons in this rich presence.
+        /// 
+        /// This is a component of the rich presence, and, as such, can only be used by regular users.
+        /// </summary>
+        [JsonProperty("buttons", NullValueHandling = NullValueHandling.Ignore)]
+        public string[] Buttons { get; internal set; }
+
+        /// <summary>
         /// Gets or sets infromation about current game's timestamps.
         /// 
         /// This is a component of the rich presence, and, as such, can only be used by regular users.
@@ -142,7 +150,7 @@ namespace DSharpPlus.Net.Abstractions
         }
 
         public bool IsRichPresence()
-            => this.Details != null || this.State != null || this.ApplicationId != null || this.Instance != null || this.Party != null || this.Assets != null || this.Secrets != null || this.Timestamps != null;
+            => this.Details != null || this.State != null || this.ApplicationId != null || this.Instance != null || this.Party != null || this.Assets != null || this.Secrets != null || this.Timestamps != null || this.Buttons != null;
 
         public bool IsCustomStatus()
             => this.Name == "Custom Status";

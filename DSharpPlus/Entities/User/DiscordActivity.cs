@@ -298,6 +298,11 @@ namespace DSharpPlus.Entities
         public ulong? PartyId { get; internal set; }
 
         /// <summary>
+        /// Gets the buttons.
+        /// </summary>
+        public string[] Buttons  { get; internal set; }
+
+        /// <summary>
         /// Gets the game start timestamp.
         /// </summary>
         public DateTimeOffset? StartTimestamp { get; internal set; }
@@ -342,6 +347,7 @@ namespace DSharpPlus.Entities
             this.CurrentPartySize = other.CurrentPartySize;
             this.MaximumPartySize = other.MaximumPartySize;
             this.PartyId = other.PartyId;
+            this.Buttons = other.Buttons;
             this.StartTimestamp = other.StartTimestamp;
             this.EndTimestamp = other.EndTimestamp;
             this.JoinSecret = other.JoinSecret;
@@ -363,6 +369,7 @@ namespace DSharpPlus.Entities
             this.MaximumPartySize = rawGame?.Party?.Size?.Maximum;
             if (rawGame?.Party != null && ulong.TryParse(rawGame.Party.Id, NumberStyles.Number, CultureInfo.InvariantCulture, out var partyId))
                 this.PartyId = partyId;
+            this.Buttons = rawGame?.Buttons;
             this.StartTimestamp = rawGame?.Timestamps?.Start;
             this.EndTimestamp = rawGame?.Timestamps?.End;
             this.JoinSecret = rawGame?.Secrets?.Join;
