@@ -74,6 +74,16 @@ namespace DSharpPlus.Entities
         /// Gets whether this bot application is public.
         /// </summary>
         public bool? IsPublic { get; internal set; }
+        
+        /// <summary>
+        /// Gets the terms of service url of the application.
+        /// </summary>
+        public string? TermsOfServiceUrl { get; internal set; }
+        
+        /// <summary>
+        /// Gets the privacy policy url of the application.
+        /// </summary>
+        public string? PrivacyPolicyUrl { get; internal set; }
 
         /// <summary>
         /// Gets the hash of the application's cover image.
