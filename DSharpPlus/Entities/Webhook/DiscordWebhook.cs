@@ -69,16 +69,22 @@ namespace DSharpPlus.Entities
         internal string AvatarHash { get; set; }
 
         /// <summary>
-        /// Gets source guild for this webhook (For Channel Follower Webhooks).
+        /// Gets the partial source guild for this webhook (For Channel Follower Webhooks).
         /// </summary>
         [JsonProperty("source_guild", NullValueHandling = NullValueHandling.Ignore)]
         internal DiscordGuild SourceGuild { get; set; }
 
         /// <summary>
-        /// Gets source channel for this webhook (For Channel Follower Webhooks).
+        /// Gets the partial source channel for this webhook (For Channel Follower Webhooks).
         /// </summary>
         [JsonProperty("source_channel", NullValueHandling = NullValueHandling.Ignore)]
         internal DiscordChannel SourceChannel { get; set; }
+
+        /// <summary>
+        /// Gets the url used for executing the webhool.
+        /// </summary>
+        [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
+        internal Uri Url { get; set; }
 
         /// <summary>
         /// Gets the default avatar url for this webhook.
