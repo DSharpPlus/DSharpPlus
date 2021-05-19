@@ -85,6 +85,9 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("rtc_region")]
         public Optional<string> RtcRegion { get; set; }
+
+        [JsonProperty("lock_permissions")]
+        public Optional<bool?> LockPermissions { get; set; }
     }
 
     internal class RestChannelMessageEditPayload
