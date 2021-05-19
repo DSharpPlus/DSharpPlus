@@ -221,7 +221,7 @@ namespace DSharpPlus.Net
             Optional<DefaultMessageNotifications> defaultMessageNotifications, Optional<MfaLevel> mfaLevel,
             Optional<ExplicitContentFilter> explicitContentFilter, Optional<ulong?> afkChannelId,
             Optional<int> afkTimeout, Optional<string> iconb64, Optional<ulong> ownerId, Optional<string> splashb64,
-            Optional<ulong?> systemChannelId, string reason)
+            Optional<ulong?> systemChannelId, Optional<SystemChannelFlags> systemChannelFlags, Optional<string> description, string reason)
         {
             var pld = new RestGuildModifyPayload
             {
@@ -236,7 +236,9 @@ namespace DSharpPlus.Net
                 IconBase64 = iconb64,
                 SplashBase64 = splashb64,
                 OwnerId = ownerId,
-                SystemChannelId = systemChannelId
+                SystemChannelId = systemChannelId,
+                SystemChannelFlags = systemChannelFlags,
+                Description = description
             };
 
             var headers = Utilities.GetBaseHeaders();

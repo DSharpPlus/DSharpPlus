@@ -106,6 +106,12 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("system_channel_id", NullValueHandling = NullValueHandling.Include)]
         public Optional<ulong?> SystemChannelId { get; set; }
+
+        [JsonProperty("system_channel_flags", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<SystemChannelFlags> SystemChannelFlags { get; set; }
+
+        [JsonProperty("description", NullValueHandling = NullValueHandling.Include)]
+        public Optional<string> Description { get; set; }
     }
 
     internal sealed class RestGuildMemberAddPayload : IOAuth2Payload

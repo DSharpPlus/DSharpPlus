@@ -46,21 +46,17 @@ namespace DSharpPlus.Entities
         [JsonProperty("icon", NullValueHandling = NullValueHandling.Ignore)]
         public string Icon { get; internal set; }
 
-
         /// <summary>
         /// Gets the integration type.
         /// </summary>
         [JsonProperty("splash", NullValueHandling = NullValueHandling.Ignore)]
         public string Splash { get; internal set; }
 
-
         /// <summary>
         /// Gets the integration type.
         /// </summary>
         [JsonProperty("discovery_splash", NullValueHandling = NullValueHandling.Ignore)]
         public string DiscoverySplash { get; internal set; }
-
-
 
         /// <summary>
         /// Gets a collection of this guild's emojis.
@@ -72,7 +68,6 @@ namespace DSharpPlus.Entities
         [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
         internal ConcurrentDictionary<ulong, DiscordEmoji> _emojis;
 
-
         /// <summary>
         /// Gets a collection of this guild's features.
         /// </summary>
@@ -80,23 +75,28 @@ namespace DSharpPlus.Entities
         public IReadOnlyList<string> Features { get; internal set; }
 
         /// <summary>
-        /// Gets the integration type.
+        /// Gets the approximate member count.
         /// </summary>
         [JsonProperty("approximate_member_count")]
         public int ApproximateMemberCount { get; internal set; }
 
         /// <summary>
-        /// Gets the integration type.
+        /// Gets the approximate presence count.
         /// </summary>
         [JsonProperty("approximate_presence_count")]
         public int ApproximatePresenceCount { get; internal set; }
 
-
         /// <summary>
-        /// Gets the integration type.
+        /// Gets the description for the guild, if the guild is discoverable.
         /// </summary>
         [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
         public string Description { get; internal set; }
+
+        /// <summary>
+        /// Gets the system channel flags for the guild.
+        /// </summary>
+        [JsonProperty("system_channel_flags", NullValueHandling = NullValueHandling.Ignore)]
+        public SystemChannelFlags Flags { get; internal set; }
 
         internal DiscordGuildPreview() { }
     }

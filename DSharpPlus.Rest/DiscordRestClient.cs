@@ -112,6 +112,8 @@ namespace DSharpPlus
         /// <param name="owner_id">New guild owner id</param>
         /// <param name="splashb64">New guild spalsh (base64)</param>
         /// <param name="systemChannelId">New guild system channel id</param>
+        /// <param name="systemChannelFlags">New guild system channel flags</param>
+        /// <param name="description">New guild description</param>
         /// <param name="reason">Modify reason</param>
         /// <returns></returns>
         public Task<DiscordGuild> ModifyGuildAsync(ulong guild_id, Optional<string> name,
@@ -119,9 +121,9 @@ namespace DSharpPlus
             Optional<DefaultMessageNotifications> default_message_notifications, Optional<MfaLevel> mfa_level,
             Optional<ExplicitContentFilter> explicit_content_filter, Optional<ulong?> afk_channel_id,
             Optional<int> afk_timeout, Optional<string> iconb64, Optional<ulong> owner_id, Optional<string> splashb64,
-            Optional<ulong?> systemChannelId, string reason)
+            Optional<ulong?> systemChannelId, Optional<SystemChannelFlags> systemChannelFlags, Optional<string> description, string reason)
             => this.ApiClient.ModifyGuildAsync(guild_id, name, region, verification_level, default_message_notifications, mfa_level, explicit_content_filter, afk_channel_id, afk_timeout, iconb64,
-                owner_id, splashb64, systemChannelId, reason);
+                owner_id, splashb64, systemChannelId, systemChannelFlags, description, reason);
 
         /// <summary>
         /// Modifies a guild
@@ -152,9 +154,15 @@ namespace DSharpPlus
             else if (mdl.Splash.HasValue)
                 splashb64 = null;
 
+            var description = Optional.FromNoValue<string>();
+            if (mdl.Description.HasValue && mdl.Description.Value != null)
+                description = mdl.Description;
+            else if (mdl.Description.HasValue)
+                description = null;
+
             return await this.ApiClient.ModifyGuildAsync(guild_id, mdl.Name, mdl.Region.IfPresent(x => x.Id), mdl.VerificationLevel, mdl.DefaultMessageNotifications,
                 mdl.MfaLevel, mdl.ExplicitContentFilter, mdl.AfkChannel.IfPresent(x => x?.Id), mdl.AfkTimeout, iconb64, mdl.Owner.IfPresent(x => x.Id),
-                splashb64, mdl.SystemChannel.IfPresent(x => x?.Id), mdl.AuditLogReason).ConfigureAwait(false);
+                splashb64, mdl.SystemChannel.IfPresent(x => x?.Id), mdl.SystemChannelFlags, description, mdl.AuditLogReason).ConfigureAwait(false);
         }
 
         /// <summary>

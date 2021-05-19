@@ -89,6 +89,16 @@ namespace DSharpPlus.Net.Models
         public Optional<DiscordChannel> SystemChannel { internal get; set; }
 
         /// <summary>
+        /// The guild system channel flags.
+        /// </summary>
+        public Optional<SystemChannelFlags> SystemChannelFlags { internal get; set; }
+
+        /// <summary>
+        /// The guild description.
+        /// </summary>
+        public Optional<string> Description { internal get; set; }
+
+        /// <summary>
         /// The new guild rules channel.
         /// </summary>
         public Optional<DiscordChannel> RulesChannel { internal get; set; }

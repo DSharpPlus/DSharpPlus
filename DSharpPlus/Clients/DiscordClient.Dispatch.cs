@@ -808,6 +808,7 @@ namespace DSharpPlus
                     SplashHash = gld.SplashHash,
                     SystemChannelId = gld.SystemChannelId,
                     SystemChannelFlags = gld.SystemChannelFlags,
+                    Description = gld.Description,
                     WidgetEnabled = gld.WidgetEnabled,
                     WidgetChannelId = gld.WidgetChannelId,
                     VerificationLevel = gld.VerificationLevel,
