@@ -344,8 +344,8 @@ namespace DSharpPlus.SlashCommands
             for (int i = 0; i < parameters.Count(); i++)
             {
                 var parameter = parameters.ElementAt(i);
-                if (parameter.IsOptional && (e.Interaction.Data.Options == null ||
-                                             e.Interaction.Data.Options?.ElementAtOrDefault(i) == default))
+                if (parameter.IsOptional && (options == null ||
+                                             options?.ElementAtOrDefault(i) == default))
                     args.Add(parameter.DefaultValue);
                 else
                 {
