@@ -140,21 +140,15 @@ namespace DSharpPlus.Test
         }
         private async Task DiscordComponentInteractionCreated(DiscordClient sender, ComponentInteractionEventArgs e)
         {
-            if (e.Id is "poggers")
-            {
+            if (e.Id == "poggers")
+                await e.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                    new DiscordInteractionResponseBuilder() {Content = "Poggers!"});
+            else
                 await e.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
                 {
-                    Content = "poggers!",
-                });
-            }
-            else
-            {
-                await e.Interaction.CreateFollowupMessageAsync(new DiscordFollowupMessageBuilder()
-                {
-                    Content = $"<:_:844698494992384041>",
+                    Content = "Poggies",
                     IsEphemeral = true
                 });
-            }
         }
 
         public async Task RunAsync()
