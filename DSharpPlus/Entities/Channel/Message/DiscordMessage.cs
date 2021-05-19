@@ -268,6 +268,13 @@ namespace DSharpPlus.Entities
         [JsonProperty("application", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordMessageApplication Application { get; internal set; }
 
+        /// <summary>
+        /// Gets the message application id in the Rich Presence embed.
+        /// </summary>
+        [JsonProperty("application_id", NullValueHandling = NullValueHandling.Ignore)]
+        public ulong ApplicationId { get; internal set; }
+
+
         [JsonProperty("message_reference", NullValueHandling = NullValueHandling.Ignore)]
         internal InternalDiscordMessageReference? InternalReference { get; set; }
 
