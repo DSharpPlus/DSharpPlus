@@ -32,6 +32,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
+using DSharpPlus.Entities.Components;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Serialization;
 using Microsoft.Extensions.Logging;
@@ -993,7 +994,7 @@ namespace DSharpPlus.Net
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld));
         }
 
-        internal async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content, Optional<DiscordEmbed> embed, IEnumerable<IMention> mentions)
+        internal async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content, Optional<DiscordEmbed> embed, IEnumerable<IMention> mentions, List<DiscordComponent> components)
         {
             if (embed.HasValue && embed.Value != null && embed.Value.Timestamp != null)
                 embed.Value.Timestamp = embed.Value.Timestamp.Value.ToUniversalTime();
@@ -1003,7 +1004,8 @@ namespace DSharpPlus.Net
                 HasContent = content.HasValue,
                 Content = content.HasValue ? (string)content : null,
                 HasEmbed = embed.HasValue,
-                Embed = embed.HasValue ? (DiscordEmbed)embed : null
+                Embed = embed.HasValue ? (DiscordEmbed)embed : null,
+                Components = components.ToArray()
             };
 
             if (mentions != null)

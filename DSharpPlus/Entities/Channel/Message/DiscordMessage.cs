@@ -27,6 +27,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using DSharpPlus.Entities.Components;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
@@ -85,7 +86,7 @@ namespace DSharpPlus.Entities
             this.WebhookId = other.WebhookId;
         }
 
-        /// <summary> 
+        /// <summary>
         /// Gets the channel in which the message was sent.
         /// </summary>
         [JsonIgnore]
@@ -102,6 +103,13 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
         public ulong ChannelId { get; internal set; }
+
+
+        /// <summary>
+        /// Gets the components this message was sent with.
+        /// </summary>
+        [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
+        public IReadOnlyList<DiscordComponent> Components { get; set; }
 
         /// <summary>
         /// Gets the user or member that sent the message.
@@ -426,7 +434,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> ModifyAsync(Optional<string> content)
-            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, default, default);
+            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, default, default, default);
 
         /// <summary>
         /// Edits the message.
@@ -438,7 +446,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> ModifyAsync(Optional<DiscordEmbed> embed = default)
-            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, default, embed, default);
+            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, default, embed, default, default);
 
         /// <summary>
         /// Edits the message.
@@ -451,7 +459,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> ModifyAsync(Optional<string> content, Optional<DiscordEmbed> embed = default)
-            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embed, default);
+            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embed, default, default);
 
         /// <summary>
         /// Edits the message.
@@ -465,7 +473,7 @@ namespace DSharpPlus.Entities
         public async Task<DiscordMessage> ModifyAsync(DiscordMessageBuilder builder)
         {
             builder.Validate(true);
-            return await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, builder.Content, builder.Embed, builder.Mentions).ConfigureAwait(false);
+            return await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, builder.Content, builder.Embed, builder.Mentions, builder._components).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -482,7 +490,7 @@ namespace DSharpPlus.Entities
             var builder = new DiscordMessageBuilder();
             action(builder);
             builder.Validate(true);
-            return await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, builder.Content, builder.Embed, builder.Mentions).ConfigureAwait(false);
+            return await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, builder.Content, builder.Embed, builder.Mentions, builder._components).ConfigureAwait(false);
         }
 
         /// <summary>
