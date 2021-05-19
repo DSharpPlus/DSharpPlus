@@ -67,7 +67,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Embeds to send on followup message.
         /// </summary>
-        public IReadOnlyList<DiscordEmbed> Embeds { get; }
+        public IReadOnlyList<DiscordEmbed> Embeds => this._embeds;
         private readonly List<DiscordEmbed> _embeds = new();
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Mentions to send on this followup message.
         /// </summary>
-        public IEnumerable<IMention> Mentions { get; }
+        public IEnumerable<IMention> Mentions => this._mentions;
         private readonly List<IMention> _mentions = new();
 
         /// <summary>
@@ -88,8 +88,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         public DiscordFollowupMessageBuilder()
         {
-            this.Embeds = new ReadOnlyCollection<DiscordEmbed>(this._embeds);
-            this.Mentions = new ReadOnlyCollection<IMention>(this._mentions);
+
         }
 
         /// <summary>
