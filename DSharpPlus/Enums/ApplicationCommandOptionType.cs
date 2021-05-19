@@ -66,6 +66,11 @@ namespace DSharpPlus
         /// <summary>
         /// Whether this parameter is a Discord role.
         /// </summary>
-        Role
+        Role,
+
+        /// <summary>
+        /// Whether this parameter is a mentionable.
+        /// </summary>
+        Mentionable
     }
 }

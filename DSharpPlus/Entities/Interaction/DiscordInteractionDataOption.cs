@@ -64,6 +64,7 @@ namespace DSharpPlus.Entities
                     ApplicationCommandOptionType.Channel => ulong.Parse(this._value),
                     ApplicationCommandOptionType.User => ulong.Parse(this._value),
                     ApplicationCommandOptionType.Role => ulong.Parse(this._value),
+                    ApplicationCommandOptionType.Mentionable => ulong.Parse(this._value),
                     _ => this._value,
                 };
             }
