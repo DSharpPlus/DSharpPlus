@@ -72,6 +72,11 @@ namespace DSharpPlus.Entities
         internal List<DiscordMessageFile> _files = new();
 
         /// <summary>
+        /// Gets the Attachments to be sent in the Message.
+        /// </summary>
+        internal List<DiscordAttachment> Attachments { get; private set; } = null;
+
+        /// <summary>
         /// Gets the Reply Message ID.
         /// </summary>
         public ulong? ReplyId { get; private set; } = null;

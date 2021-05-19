@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.Collections;
 using System.Collections.Generic;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
@@ -76,5 +77,8 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("allowed_mentions", NullValueHandling = NullValueHandling.Ignore)]
         public IEnumerable<IMention> Mentions { get; set; }
+
+        [JsonProperty("attachments", NullValueHandling = NullValueHandling.Ignore)]
+        public IEnumerable<DiscordAttachment> Attachments { get; set; }
     }
 }

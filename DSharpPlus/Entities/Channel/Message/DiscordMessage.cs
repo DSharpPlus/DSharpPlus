@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using System.Net.Mail;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -433,7 +434,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> ModifyAsync(Optional<string> content)
-            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, default, default);
+            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, default, default, default);
 
         /// <summary>
         /// Edits the message.
@@ -445,7 +446,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> ModifyAsync(Optional<DiscordEmbed> embed = default)
-            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, default, embed, default);
+            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, default, embed, default, default);
 
         /// <summary>
         /// Edits the message.
@@ -458,7 +459,20 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> ModifyAsync(Optional<string> content, Optional<DiscordEmbed> embed = default)
-            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embed, default);
+            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embed, default, default);
+
+        /// <summary>
+        /// Edits the message.
+        /// </summary>
+        /// <param name="content">New content.</param>
+        /// <param name="attachments">New attachments.</param>
+        /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client tried to modify a message not sent by them.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordMessage> ModifyAsync(Optional<string> content, Optional<IEnumerable<DiscordAttachment>> attachments)
+            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, default, default, attachments);
 
         /// <summary>
         /// Edits the message.
@@ -472,7 +486,7 @@ namespace DSharpPlus.Entities
         public async Task<DiscordMessage> ModifyAsync(DiscordMessageBuilder builder)
         {
             builder.Validate(true);
-            return await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, builder.Content, builder.Embed, builder.Mentions).ConfigureAwait(false);
+            return await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, builder.Content, builder.Embed, builder.Mentions, builder.Attachments).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -489,7 +503,7 @@ namespace DSharpPlus.Entities
             var builder = new DiscordMessageBuilder();
             action(builder);
             builder.Validate(true);
-            return await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, builder.Content, builder.Embed, builder.Mentions).ConfigureAwait(false);
+            return await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, builder.Content, builder.Embed, builder.Mentions, builder.Attachments).ConfigureAwait(false);
         }
 
         /// <summary>

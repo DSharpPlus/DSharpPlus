@@ -101,6 +101,9 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("allowed_mentions", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordMentions Mentions { get; set; }
 
+        [JsonProperty("attachments", NullValueHandling = NullValueHandling.Ignore)]
+        public List<DiscordAttachment> Attachments { get; set; }
+
         [JsonIgnore]
         public bool HasEmbed { get; set; }
 

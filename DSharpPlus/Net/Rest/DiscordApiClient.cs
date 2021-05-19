@@ -994,7 +994,7 @@ namespace DSharpPlus.Net
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld));
         }
 
-        internal async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content, Optional<DiscordEmbed> embed, IEnumerable<IMention> mentions)
+        internal async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content, Optional<DiscordEmbed> embed, IEnumerable<IMention> mentions, Optional<IEnumerable<DiscordAttachment>> attachments)
         {
             if (embed.HasValue && embed.Value != null && embed.Value.Timestamp != null)
                 embed.Value.Timestamp = embed.Value.Timestamp.Value.ToUniversalTime();
@@ -1004,7 +1004,8 @@ namespace DSharpPlus.Net
                 HasContent = content.HasValue,
                 Content = content.HasValue ? (string)content : null,
                 HasEmbed = embed.HasValue,
-                Embed = embed.HasValue ? (DiscordEmbed)embed : null
+                Embed = embed.HasValue ? (DiscordEmbed)embed : null,
+                Attachments = attachments.HasValue ? (List<DiscordAttachment>)attachments : null
             };
 
             if (mentions != null)
@@ -2047,7 +2048,8 @@ namespace DSharpPlus.Net
             {
                 Content = builder.Content,
                 Embeds = builder.Embeds,
-                Mentions = builder.Mentions
+                Mentions = builder.Mentions,
+                Attachments = builder.Attachments
             };
 
             var route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token{Endpoints.MESSAGES}/:message_id";

@@ -85,6 +85,12 @@ namespace DSharpPlus.Entities
         private readonly List<IMention> _mentions = new();
 
         /// <summary>
+        /// Attachments to keep on this webhook request.
+        /// </summary>
+        public IEnumerable<DiscordAttachment> Attachments { get; }
+        private readonly List<DiscordAttachment> _attachments = new();
+
+        /// <summary>
         /// Constructs a new empty webhook request builder.
         /// </summary>
         public DiscordWebhookBuilder()
@@ -274,6 +280,7 @@ namespace DSharpPlus.Entities
             this.IsTTS = false;
             this._mentions.Clear();
             this._files.Clear();
+            this._attachments.Clear();
         }
 
         /// <summary>
