@@ -147,12 +147,11 @@ namespace DSharpPlus.Net
         /// <param name="method">The type of REST request to make.</param>
         /// <param name="headers">The headers to send with the request.</param>
         /// <param name="payload">The payload to send with the request.</param>
-        /// <param name="ratelimitWaitOverride"></param>
         /// <param name="queryString">The query string to add on the url.</param>
         /// <returns>The API response.</returns>
-        public Task<RestResponse> DoRequestAsync(string route, object routeParams, RestRequestMethod method, IReadOnlyDictionary<string, string> headers = null, object payload = null, double? ratelimitWaitOverride = null, string queryString = null)
+        public Task<RestResponse> DoRequestAsync(string route, object routeParams, RestRequestMethod method, IReadOnlyDictionary<string, string> headers = null, object payload = null, string queryString = null)
         {
-            var req = new RestRequest(this.Discord, this.Rest.GetBucket(method, route, routeParams, out var path), Utilities.GetApiUriFor(path, queryString), method, route, headers, DiscordJson.SerializeObject(payload), ratelimitWaitOverride);
+            var req = new RestRequest(this.Discord, this.Rest.GetBucket(method, route, routeParams, out var path), Utilities.GetApiUriFor(path, queryString), method, route, headers, DiscordJson.SerializeObject(payload), null);
 
             if (this.Discord != null)
                 this.Rest.ExecuteRequestAsync(req).LogTaskFault(this.Discord.Logger, LogLevel.Error, LoggerEvents.RestError, "Error while executing request");
@@ -182,13 +181,12 @@ namespace DSharpPlus.Net
         /// <param name="headers">The headers to send with the request.</param>
         /// <param name="values">Values to use.</param>
         /// <param name="files">The files to send on this multipart request.</param>
-        /// <param name="ratelimitWaitOverride"></param>
         /// <param name="queryString">The query string to add on the url.</param>
         /// <returns>The API response.</returns>
         public Task<RestResponse> DoMultipartAsync(string route, object routeParams, RestRequestMethod method, IReadOnlyDictionary<string, string> headers = null, IReadOnlyDictionary<string, string> values = null,
-            IReadOnlyCollection<DiscordMessageFile> files = null, double? ratelimitWaitOverride = null, string queryString = null)
+            IReadOnlyCollection<DiscordMessageFile> files = null, string queryString = null)
         {
-            var req = new MultipartWebRequest(this.Discord, this.Rest.GetBucket(method, route, routeParams, out var path), Utilities.GetApiUriFor(path, queryString), method, route, headers, values, files, ratelimitWaitOverride);
+            var req = new MultipartWebRequest(this.Discord, this.Rest.GetBucket(method, route, routeParams, out var path), Utilities.GetApiUriFor(path, queryString), method, route, headers, values, files, null);
 
             if (this.Discord != null)
                 this.Rest.ExecuteRequestAsync(req).LogTaskFault(this.Discord.Logger, LogLevel.Error, LoggerEvents.RestError, "Error while executing request");
