@@ -468,5 +468,18 @@ namespace DSharpPlus.Interactivity
 
             return res;
         }
+
+        private async Task HandleInvalidInteraction(DiscordInteraction interaction)
+        {
+            var at = this.Config.ResponseBehaviour switch
+            {
+                InteractionResponseBehaviour.Ack => interaction.CreateResponseAsync(InteractionResponseType.DefferedMessageUpdate),
+                InteractionResponseBehaviour.Respond => interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder() { Content = this.Config.ResponseMessage, IsEphemeral = true}),
+                InteractionResponseBehaviour.Ignore => Task.CompletedTask,
+                _ => throw new ArgumentException("Unknown enum value.")
+            };
+
+            await at;
+        }
     }
 }
