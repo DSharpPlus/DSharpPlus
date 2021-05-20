@@ -46,6 +46,9 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("bot_public", NullValueHandling = NullValueHandling.Include)]
         public bool IsPublicBot { get; set; }
 
+        [JsonProperty("flags", NullValueHandling = NullValueHandling.Include)]
+        public ApplicationFlags Flags { get; set; }
+
         [JsonProperty("terms_of_service_url", NullValueHandling = NullValueHandling.Include)]
         public string TermsOfServiceUrl { get; set; }
 

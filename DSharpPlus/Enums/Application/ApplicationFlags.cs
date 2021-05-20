@@ -44,12 +44,12 @@ namespace DSharpPlus
         /// <summary>
         /// The application can track guild members.
         /// </summary>
-        GarewayGuildMembers = 1 << 14,
+        GatewayGuildMembers = 1 << 14,
 
         /// <summary>
         /// The application can track guild members (limited).
         /// </summary>
-        GarewayGuildMembersLimited = 1 << 15,
+        GatewayGuildMembersLimited = 1 << 15,
 
         /// <summary>
         /// The application can track pending guild member verifications (limited).

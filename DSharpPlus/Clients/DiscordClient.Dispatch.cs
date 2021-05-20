@@ -33,6 +33,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Serialization;
+using Emzi0767.Utilities;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 
@@ -60,6 +61,7 @@ namespace DSharpPlus
             DiscordChannel chn;
             ulong gid;
             ulong cid;
+            DiscordStageInstance stg;
             TransportUser usr = default;
             TransportMember mbr = default;
             TransportUser refUsr = default;
@@ -312,6 +314,25 @@ namespace DSharpPlus
 
                 case "message_reaction_remove_emoji":
                     await this.OnMessageReactionRemoveEmojiAsync((ulong)dat["message_id"], (ulong)dat["channel_id"], (ulong)dat["guild_id"], dat["emoji"]).ConfigureAwait(false);
+                    break;
+
+                #endregion
+
+                #region Stage Instance
+
+                case "stage_instance_create":
+                    stg = dat.ToObject<DiscordStageInstance>();
+                    await this.OnStageInstanceCreateEventAsync(stg).ConfigureAwait(false);
+                    break;
+
+                case "stage_instance_update":
+                    stg = dat.ToObject<DiscordStageInstance>();
+                    await this.OnStageInstanceUpdateEventAsync(stg).ConfigureAwait(false);
+                    break;
+
+                case "stage_instance_delete":
+                    stg = dat.ToObject<DiscordStageInstance>();
+                    await this.OnStageInstanceDeleteEventAsync(stg).ConfigureAwait(false);
                     break;
 
                 #endregion
@@ -1584,6 +1605,31 @@ namespace DSharpPlus
             };
 
             await this._messageReactionRemovedEmoji.InvokeAsync(this, ea).ConfigureAwait(false);
+        }
+
+        #endregion
+
+        #region Stage Instance
+
+        internal async Task OnStageInstanceCreateEventAsync(DiscordStageInstance stage)
+        {
+            stage.Discord = this;
+
+            await this._stageInstanceCreated.InvokeAsync(this, new StageInstanceCreateEventArgs { StageInstance = stage }).ConfigureAwait(false);
+        }
+
+        internal async Task OnStageInstanceUpdateEventAsync(DiscordStageInstance stage)
+        {
+            stage.Discord = this;
+
+            await this._stageInstanceUpdated.InvokeAsync(this, new StageInstanceUpdateEventArgs { StageInstance = stage }).ConfigureAwait(false);
+        }
+
+        internal async Task OnStageInstanceDeleteEventAsync(DiscordStageInstance stage)
+        {
+            stage.Discord = this;
+
+            await this._stageInstanceDeleted.InvokeAsync(this, new StageInstanceDeleteEventArgs { StageInstance = stage }).ConfigureAwait(false);
         }
 
         #endregion
