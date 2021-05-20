@@ -34,7 +34,7 @@ namespace DSharpPlus.EventArgs
         /// Gets the stage instance that was created.
         /// </summary>
         /// 
-        public StageInstance StageInstance { get; internal set; }
+        public DiscordStageInstance StageInstance { get; internal set; }
 
         internal StageInstanceCreateEventArgs() : base() { }
     }

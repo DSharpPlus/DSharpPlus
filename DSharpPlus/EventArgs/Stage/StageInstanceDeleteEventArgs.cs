@@ -34,7 +34,7 @@ namespace DSharpPlus.EventArgs
         /// Gets the stage instance that was deleted.
         /// </summary>
         /// 
-        public StageInstance StageInstance { get; internal set; }
+        public DiscordStageInstance StageInstance { get; internal set; }
 
         internal StageInstanceDeleteEventArgs() : base() { }
     }
