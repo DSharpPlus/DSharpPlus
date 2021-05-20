@@ -24,12 +24,14 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities.Components
 {
-    public abstract class DiscordComponent
+    public class DiscordComponent
     {
         [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
         public int Type { get; internal set; }
 
         [JsonProperty("custom_id", NullValueHandling = NullValueHandling.Ignore)]
         public string CustomId { get; internal set; }
+
+        internal DiscordComponent() { }
     }
 }

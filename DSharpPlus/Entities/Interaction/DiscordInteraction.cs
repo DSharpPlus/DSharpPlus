@@ -96,6 +96,12 @@ namespace DSharpPlus.Entities
         public ulong ApplicationId { get; internal set; }
 
         /// <summary>
+        /// The message this interaction was created with, if any.
+        /// </summary>
+        [JsonProperty("message")]
+        internal DiscordMessage Message { get; set; }
+
+        /// <summary>
         /// Creates a response to this interaction.
         /// </summary>
         /// <param name="type">The type of the response.</param>

@@ -1900,6 +1900,7 @@ namespace DSharpPlus
                 var cea = new ComponentInteractionEventArgs()
                 {
                     Id = interaction.Data.CustomId,
+                    Message = interaction.Message,
                     Interaction = interaction
                 };
 

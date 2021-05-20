@@ -526,7 +526,7 @@ namespace DSharpPlus
         /// <param name="content">New message content</param>
         /// <returns></returns>
         public Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content)
-            => this.ApiClient.EditMessageAsync(channel_id, message_id, content, default, default);
+            => this.ApiClient.EditMessageAsync(channel_id, message_id, content, default, default, default);
 
         /// <summary>
         /// Edits a message
@@ -536,7 +536,7 @@ namespace DSharpPlus
         /// <param name="embed">New message embed</param>
         /// <returns></returns>
         public Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<DiscordEmbed> embed)
-            => this.ApiClient.EditMessageAsync(channel_id, message_id, default, embed, default);
+            => this.ApiClient.EditMessageAsync(channel_id, message_id, default, embed, default, default);
 
         /// <summary>
         /// Edits a message
@@ -549,7 +549,7 @@ namespace DSharpPlus
         {
             builder.Validate(true);
 
-            return await this.ApiClient.EditMessageAsync(channel_id, message_id, builder.Content, builder.Embed, builder.Mentions).ConfigureAwait(false);
+            return await this.ApiClient.EditMessageAsync(channel_id, message_id, builder.Content, builder.Embed, builder.Mentions, default).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -723,7 +723,7 @@ namespace DSharpPlus
         /// <param name="channel_id">Id of the news channel the message to crosspost belongs to</param>
         /// <param name="message_id">Id of the message to crosspost</param>
         /// <exception cref="UnauthorizedException">
-        ///     Thrown when the current user doesn't have <see cref="Permissions.ManageWebhooks"/> and/or <see cref="Permissions.SendMessages"/> 
+        ///     Thrown when the current user doesn't have <see cref="Permissions.ManageWebhooks"/> and/or <see cref="Permissions.SendMessages"/>
         /// </exception>
         public Task<DiscordMessage> CrosspostMessageAsync(ulong channel_id, ulong message_id)
             => this.ApiClient.CrosspostMessageAsync(channel_id, message_id);
