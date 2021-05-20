@@ -165,7 +165,7 @@ namespace DSharpPlus
 
                 #region Guild Integration
 
-                case "guild_integration_create":
+                case "integration_create":
                     gid = (ulong)dat["guild_id"];
                     itg = dat.ToObject<DiscordIntegration>();
 
@@ -176,7 +176,7 @@ namespace DSharpPlus
                     await this.OnGuildIntegrationCreateEventAsync(itg, gid).ConfigureAwait(false);
                     break;
 
-                case "guild_integration_update":
+                case "integration_update":
                     gid = (ulong)dat["guild_id"];
                     itg = dat.ToObject<DiscordIntegration>();
 
@@ -187,7 +187,7 @@ namespace DSharpPlus
                     await this.OnGuildIntegrationUpdateEventAsync(itg, gid).ConfigureAwait(false);
                     break;
 
-                case "guild_integration_delete":
+                case "integration_delete":
                     var id = (ulong)dat["id"];
                     gid = (ulong)dat["guild_id"];
                     var aid = dat["application_id"].HasValues ? (ulong)dat["application_id"] : 0;
