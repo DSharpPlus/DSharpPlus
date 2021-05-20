@@ -20,6 +20,8 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
@@ -27,7 +29,7 @@ namespace DSharpPlus.Entities
     public sealed class DiscordActionRowComponent : DiscordComponent
     {
         [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordComponent[] Components { get; internal set; }
+        public List<DiscordComponent> Components { get; internal set; }
 
         internal DiscordActionRowComponent()
         {

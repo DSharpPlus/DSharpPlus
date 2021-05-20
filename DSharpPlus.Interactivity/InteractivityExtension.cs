@@ -105,11 +105,11 @@ namespace DSharpPlus.Interactivity
         }
 
 
-                /// <summary>
+        /// <summary>
         /// Waits for a button with the specified Id to be pressed.
         /// </summary>
         /// <param name="message">The message to wait for the button on.</param>
-                /// <param name="timeoutOverride">Override the timeout period specified in <see cref="InteractivityConfiguration"/>.</param>
+        /// <param name="timeoutOverride">Override the timeout period specified in <see cref="InteractivityConfiguration"/>.</param>
         /// <returns>A <see cref="InteractivityResult{T}"/> with the result of the operation.</returns>
         /// <exception cref="InvalidOperationException">Thrown when attempting to wait for a message that is not authored by the current user.</exception>
         /// <exception cref="ArgumentException">Thrown when the message does not contain a button with the specified Id, or any buttons at all.</exception>

@@ -20,38 +20,29 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-using Newtonsoft.Json;
-
 namespace DSharpPlus.Entities
 {
-    public sealed class DiscordButtonComponent : DiscordComponent
+    public enum ButtonStyle : int
     {
-        [JsonProperty("style", NullValueHandling = NullValueHandling.Ignore)]
-        public ButtonStyle Style { get; set; }
-
-        [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
-        public string Url { get; set; }
-
-        [JsonProperty("label", NullValueHandling = NullValueHandling.Ignore)]
-        public string Label { get; set; }
-
-        [JsonProperty("disabled", NullValueHandling = NullValueHandling.Ignore)]
-        public bool Disabled { get; set; }
-
-        [JsonProperty("emoji", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordComponentEmoji Emoji { get; set; }
-
-
-        public DiscordButtonComponent() { }
-        public DiscordButtonComponent(ButtonStyle style, string customId = null, string label = null, bool disabled = false, DiscordComponentEmoji emoji = null, string url = null)
-        {
-            this.Style = style;
-            this.Url = url;
-            this.Label = label;
-            this.CustomId = customId;
-            this.Disabled = disabled;
-            this.Emoji = emoji;
-            this.Type = ComponentType.Button;
-        }
+        /// <summary>
+        /// Blurple button.
+        /// </summary>
+        Primary = 1,
+        /// <summary>
+        /// Grey button.
+        /// </summary>
+        Secondary = 2,
+        /// <summary>
+        /// Green button.
+        /// </summary>
+        Success  = 3,
+        /// <summary>
+        /// Red button.
+        /// </summary>
+        Danger = 4,
+        /// <summary>
+        /// A link. buttons are not allowed to have a custom Id if provided with this type.
+        /// </summary>
+        Link = 5
     }
 }

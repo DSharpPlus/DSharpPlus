@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -36,9 +37,9 @@ namespace DSharpPlus.Test
         public async Task SendButton(CommandContext ctx)
         {
             var builder = new DiscordMessageBuilder().WithComponentRow(
-                new DiscordButtonComponent(1, label: "Send poggies", customId: "emoji", emoji: new DiscordComponentEmoji {Id = 833475075474063421}),
-                new DiscordButtonComponent(2, label: "Send poggies (but grey)", customId: "pog"),
-                new DiscordButtonComponent(3, label: "Just ack (great for role menus!)", customId: "ack")
+                new DiscordButtonComponent(ButtonStyle.Primary, label: "Send poggies", customId: "emoji", emoji: new DiscordComponentEmoji {Id = 833475075474063421}),
+                new DiscordButtonComponent(ButtonStyle.Secondary, label: "Send poggies (but grey)", customId: "pog"),
+                new DiscordButtonComponent(ButtonStyle.Success, label: "Just ack (great for role menus!)", customId: "ack")
             );
             builder.WithContent("Buttons!");
             await ctx.RespondAsync(builder);
@@ -47,13 +48,14 @@ namespace DSharpPlus.Test
         [Command]
         public async Task WaitForButton(CommandContext ctx)
         {
-            var builder = new DiscordMessageBuilder().WithComponentRow(
-                new DiscordButtonComponent(1, customId: "P_", emoji: new DiscordComponentEmoji {Id = 833475075474063421}),
-                new DiscordButtonComponent(3, customId: "S_", emoji: new DiscordComponentEmoji {Id = 803713580385435700}),
-                new DiscordButtonComponent(4, customId: "L_", emoji: new DiscordComponentEmoji {Id = 797806751617384459})
-            );
-            builder.WithContent("You have 30 seconds to pick an option!!");
-            var msg = await ctx.RespondAsync(builder);
+            var p = new DiscordButtonComponent(ButtonStyle.Primary, "P_", emoji: new DiscordComponentEmoji {Id = 833475075474063421});
+            var s = new DiscordButtonComponent(ButtonStyle.Success, "S_", emoji: new DiscordComponentEmoji {Id = 803713580385435700});
+            var l = new DiscordButtonComponent(ButtonStyle.Danger, "L_", emoji: new DiscordComponentEmoji {Id = 797806751617384459});
+            var builder = new DiscordMessageBuilder().WithComponentRow(p, s, l);
+
+            builder.WithContent("You have 30 seconds to pick the right option!");
+
+            var msg = await builder.SendAsync(ctx.Channel);
 
             var interactivity = ctx.Client.GetInteractivity();
 
@@ -62,18 +64,23 @@ namespace DSharpPlus.Test
             if (result.TimedOut)
                 await ctx.RespondAsync("Timed out!");
             else
-            {
                 await result.Result.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
                 {
-                    Content = "Poggies", IsEphemeral = true
+                    Content = "Poggies!",
+                    IsEphemeral = true
                 });
-            }
         }
 
         [Command]
         public async Task WaitForAnyButton(CommandContext ctx)
         {
 
+        }
+
+        private static void RemoveComponent(DiscordMessageBuilder builder, DiscordComponent comp)
+        {
+            foreach (var ar in builder.Components)
+                ar.Components.Remove(comp);
         }
     }
 }
