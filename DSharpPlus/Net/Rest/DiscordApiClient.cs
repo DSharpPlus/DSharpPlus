@@ -28,6 +28,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Mail;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -940,6 +941,61 @@ namespace DSharpPlus.Net
                 }
 
             return new ReadOnlyCollection<DiscordChannel>(new List<DiscordChannel>(channels_raw));
+        }
+
+        internal async Task<StageInstance> CreateStageInstaceAsync(ulong channel_id, string topic)
+        {
+            var pld = new RestStageInstanceCreatePayload
+            {
+                ChannelId = channel_id,
+                Topic = topic
+            };
+
+            var route = $"{Endpoints.STAGE_INSTANCES}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
+
+            var stageInstance = JsonConvert.DeserializeObject<StageInstance>(res.Response);
+
+            return stageInstance;
+        }
+
+        internal async Task<StageInstance> GetStageInstaceAsync(ulong channel_id)
+        {
+            var route = $"{Endpoints.STAGE_INSTANCES}/:channel_id";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { channel_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
+
+            var stageInstance = JsonConvert.DeserializeObject<StageInstance>(res.Response);
+
+            return stageInstance;
+        }
+
+        internal Task ModifyStageInstaceAsync(ulong channel_id, string topic)
+        {
+            var pld = new RestStageInstanceModifyPayload
+            {
+                Topic = topic
+            };
+        
+            var route = $"{Endpoints.STAGE_INSTANCES}/:channel_id";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { channel_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, payload: DiscordJson.SerializeObject(pld));
+        }
+
+        internal Task DeleteStageInstaceAsync(ulong channel_id)
+        {
+            var route = $"{Endpoints.STAGE_INSTANCES}/:channel_id";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { channel_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route);
         }
 
         internal async Task<IReadOnlyList<DiscordMessage>> GetChannelMessagesAsync(ulong channel_id, int limit, ulong? before, ulong? after, ulong? around)
