@@ -436,18 +436,6 @@ namespace DSharpPlus
                     await this.OnApplicationCommandDeleteAsync(dat.ToObject<DiscordApplicationCommand>(), (ulong?)dat["guild_id"]).ConfigureAwait(false);
                     break;
 
-                // The following are not documented and thus ignored for the time being.
-                // Please update these if they are documented :)
-
-                case "integration_create":
-                    break;
-
-                case "integration_update":
-                    break;
-
-                case "integration_delete":
-                    break;
-
                 #endregion
 
                 #region Misc
