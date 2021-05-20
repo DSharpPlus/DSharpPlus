@@ -57,16 +57,21 @@ namespace DSharpPlus.Test
             var interactivity = ctx.Client.GetInteractivity();
 
             var result = await interactivity.WaitForButtonAsync(msg, "S_");
+
             if (result.TimedOut)
                 await ctx.RespondAsync("Timed out!");
             else
             {
+                await result.Result.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
+                {
+                    Content = "Ephemeral message 1!", IsEphemeral = true
+                });
+
+
                 await result
                     .Result.
                     Interaction
-                    .CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-                        new DiscordInteractionResponseBuilder() { Content = "Poggies!", IsEphemeral = true});
-
+                    .CreateFollowupMessageAsync(new DiscordFollowupMessageBuilder() { Content = "Ephemeral message 2!", IsEphemeral = true});
             }
         }
     }

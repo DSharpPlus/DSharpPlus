@@ -85,6 +85,7 @@ namespace DSharpPlus.Test
             this.Discord.GuildDownloadCompleted += this.Discord_GuildDownloadCompleted;
             this.Discord.GuildUpdated += this.Discord_GuildUpdated;
             this.Discord.ChannelDeleted += this.Discord_ChannelDeleted;
+            this.Discord.ComponentInteractionCreated += this.DiscordComponentInteractionCreated;
             // For event timeout testing
             //Discord.GuildDownloadCompleted += async (s, e) =>
             //{
@@ -137,7 +138,19 @@ namespace DSharpPlus.Test
             //    _ = Task.Run(async () => await e.Message.RespondAsync(e.Message.Content)).ConfigureAwait(false);
             //};
         }
-
+        private async Task DiscordComponentInteractionCreated(DiscordClient sender, ComponentInteractionEventArgs e)
+        {
+            if (e.Id == "ack")
+                await e.Interaction.CreateResponseAsync(InteractionResponseType.DefferedMessageUpdate);
+            else if (e.Id == "pog")
+                await e.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder() {Content = "Poggies (in a normal message!"});
+            else if (e.Id == "emoji")
+                await e.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
+                {
+                    Content = "Poggies",
+                    IsEphemeral = true
+                });
+        }
 
         public async Task RunAsync()
         {
