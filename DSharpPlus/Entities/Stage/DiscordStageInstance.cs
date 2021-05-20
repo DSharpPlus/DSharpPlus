@@ -39,7 +39,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents a Stage instance
     /// </summary>
-    public class StageInstance : SnowflakeObject, IEquatable<StageInstance>
+    public class DiscordStageInstance : SnowflakeObject, IEquatable<DiscordStageInstance>
     {
         /// <summary>
         /// Gets the guild id of the associated Stage channel
@@ -70,8 +70,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<StageInstance> OpenStageAsync(ulong channel_id, string topic)
-            => await this.Discord.ApiClient.CreateStageInstaceAsync(channel_id, topic);
+        public async Task<DiscordStageInstance> OpenStageAsync(ulong channel_id, string topic)
+            => await this.Discord.ApiClient.CreateStageInstanceAsync(channel_id, topic);
 
         /// <summary>  
         /// Gets the associated stage instance of the channel.
@@ -81,8 +81,8 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<StageInstance> GetStageAsync(ulong channel_id)
-            => await this.Discord.ApiClient.GetStageInstaceAsync(channel_id);
+        public async Task<DiscordStageInstance> GetStageAsync(ulong channel_id)
+            => await this.Discord.ApiClient.GetStageInstanceAsync(channel_id);
 
         /// <summary>
         /// Updates a stage instance.
@@ -94,7 +94,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task UpdateStageAsync(ulong channel_id, string topic)
-            => await this.Discord.ApiClient.ModifyStageInstaceAsync(channel_id, topic);
+            => await this.Discord.ApiClient.ModifyStageInstanceAsync(channel_id, topic);
 
         /// <summary>
         /// Deletes a stage instance.
@@ -105,39 +105,39 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task CloseStageAsync(ulong channel_id)
-            => await this.Discord.ApiClient.DeleteStageInstaceAsync(channel_id);
+            => await this.Discord.ApiClient.DeleteStageInstanceAsync(channel_id);
 
         #endregion
 
         /// <summary>
-        /// Checks whether this <see cref="StageInstance"/> is equal to another object.
+        /// Checks whether this <see cref="DiscordStageInstance"/> is equal to another object.
         /// </summary>
         /// <param name="obj">Object to compare to.</param>
-        /// <returns>Whether the object is equal to this <see cref="StageInstance"/>.</returns>
+        /// <returns>Whether the object is equal to this <see cref="DiscordStageInstance"/>.</returns>
         public override bool Equals(object obj)
-            => this.Equals(obj as StageInstance);
+            => this.Equals(obj as DiscordStageInstance);
 
         /// <summary>
-        /// Checks whether this <see cref="StageInstance"/> is equal to another <see cref="StageInstance"/>.
+        /// Checks whether this <see cref="DiscordStageInstance"/> is equal to another <see cref="DiscordStageInstance"/>.
         /// </summary>
-        /// <param name="e"><see cref="StageInstance"/> to compare to.</param>
-        /// <returns>Whether the <see cref="StageInstance"/> is equal to this <see cref="StageInstance"/>.</returns>
-        public bool Equals(StageInstance e)
+        /// <param name="e"><see cref="DiscordStageInstance"/> to compare to.</param>
+        /// <returns>Whether the <see cref="DiscordStageInstance"/> is equal to this <see cref="DiscordStageInstance"/>.</returns>
+        public bool Equals(DiscordStageInstance e)
             => e is null ? false : ReferenceEquals(this, e) ? true : this.Id == e.Id;
 
         /// <summary>
-        /// Gets the hash code for this <see cref="StageInstance"/>.
+        /// Gets the hash code for this <see cref="DiscordStageInstance"/>.
         /// </summary>
-        /// <returns>The hash code for this <see cref="StageInstance"/>.</returns>
+        /// <returns>The hash code for this <see cref="DiscordStageInstance"/>.</returns>
         public override int GetHashCode() => this.Id.GetHashCode();
 
         /// <summary>
-        /// Gets whether the two <see cref="StageInstance"/> objects are equal.
+        /// Gets whether the two <see cref="DiscordStageInstance"/> objects are equal.
         /// </summary>
         /// <param name="e1">First channel to compare.</param>
         /// <param name="e2">Second channel to compare.</param>
         /// <returns>Whether the two channels are equal.</returns>
-        public static bool operator ==(StageInstance e1, StageInstance e2)
+        public static bool operator ==(DiscordStageInstance e1, DiscordStageInstance e2)
         {
             var o1 = e1 as object;
             var o2 = e2 as object;
@@ -151,7 +151,7 @@ namespace DSharpPlus.Entities
         /// <param name="e1">First channel to compare.</param>
         /// <param name="e2">Second channel to compare.</param>
         /// <returns>Whether the two channels are not equal.</returns>
-        public static bool operator !=(StageInstance e1, StageInstance e2)
+        public static bool operator !=(DiscordStageInstance e1, DiscordStageInstance e2)
             => !(e1 == e2);
     }
 }

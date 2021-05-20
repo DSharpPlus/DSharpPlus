@@ -943,7 +943,7 @@ namespace DSharpPlus.Net
             return new ReadOnlyCollection<DiscordChannel>(new List<DiscordChannel>(channels_raw));
         }
 
-        internal async Task<StageInstance> CreateStageInstaceAsync(ulong channel_id, string topic)
+        internal async Task<DiscordStageInstance> CreateStageInstanceAsync(ulong channel_id, string topic)
         {
             var pld = new RestStageInstanceCreatePayload
             {
@@ -957,12 +957,12 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
 
-            var stageInstance = JsonConvert.DeserializeObject<StageInstance>(res.Response);
+            var stageInstance = JsonConvert.DeserializeObject<DiscordStageInstance>(res.Response);
 
             return stageInstance;
         }
 
-        internal async Task<StageInstance> GetStageInstaceAsync(ulong channel_id)
+        internal async Task<DiscordStageInstance> GetStageInstanceAsync(ulong channel_id)
         {
             var route = $"{Endpoints.STAGE_INSTANCES}/:channel_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { channel_id }, out var path);
@@ -970,12 +970,12 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
 
-            var stageInstance = JsonConvert.DeserializeObject<StageInstance>(res.Response);
+            var stageInstance = JsonConvert.DeserializeObject<DiscordStageInstance>(res.Response);
 
             return stageInstance;
         }
 
-        internal Task ModifyStageInstaceAsync(ulong channel_id, string topic)
+        internal Task ModifyStageInstanceAsync(ulong channel_id, string topic)
         {
             var pld = new RestStageInstanceModifyPayload
             {
@@ -989,7 +989,7 @@ namespace DSharpPlus.Net
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, payload: DiscordJson.SerializeObject(pld));
         }
 
-        internal Task DeleteStageInstaceAsync(ulong channel_id)
+        internal Task DeleteStageInstanceAsync(ulong channel_id)
         {
             var route = $"{Endpoints.STAGE_INSTANCES}/:channel_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { channel_id }, out var path);
