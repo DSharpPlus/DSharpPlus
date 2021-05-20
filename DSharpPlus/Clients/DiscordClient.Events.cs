@@ -275,6 +275,43 @@ namespace DSharpPlus
 
         #endregion
 
+        #region Guild Integration
+
+        /// <summary>
+        /// Fired when a guild integration is created.
+        /// For this Event you need the <see cref="DiscordIntents.GuildIntegrations"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, GuildIntegrationCreateEventArgs> GuildIntegrationCreated
+        {
+            add => this._guildIntegrationCreated.Register(value);
+            remove => this._guildIntegrationCreated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, GuildIntegrationCreateEventArgs> _guildIntegrationCreated;
+
+        /// <summary>
+        /// Fired when a guild integration is updated.
+        /// For this Event you need the <see cref="DiscordIntents.GuildIntegrations"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, GuildIntegrationUpdateEventArgs> GuildIntegrationUpdated
+        {
+            add => this._guildIntegrationUpdated.Register(value);
+            remove => this._guildIntegrationUpdated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, GuildIntegrationUpdateEventArgs> _guildIntegrationUpdated;
+
+        /// <summary>
+        /// Fired when a guild integration is deleted.
+        /// For this Event you need the <see cref="DiscordIntents.GuildIntegrations"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, GuildIntegrationDeleteEventArgs> GuildIntegrationDeleted
+        {
+            add => this._guildIntegrationDeleted.Register(value);
+            remove => this._guildIntegrationDeleted.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, GuildIntegrationDeleteEventArgs> _guildIntegrationDeleted;
+
+        #endregion
+
         #region Guild Member
 
         /// <summary>
@@ -356,43 +393,6 @@ namespace DSharpPlus
             remove => this._guildRoleDeleted.Unregister(value);
         }
         private AsyncEvent<DiscordClient, GuildRoleDeleteEventArgs> _guildRoleDeleted;
-
-        #endregion
-
-        #region Guild Integration
-
-        /// <summary>
-        /// Fired when a guild integration is created.
-        /// For this Event you need the <see cref="DiscordIntents.GuildIntegrations"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
-        /// </summary>
-        public event AsyncEventHandler<DiscordClient, GuildIntegrationCreateEventArgs> GuildIntegrationCreated
-        {
-            add => this._guildIntegrationCreated.Register(value);
-            remove => this._guildIntegrationCreated.Unregister(value);
-        }
-        private AsyncEvent<DiscordClient, GuildIntegrationCreateEventArgs> _guildIntegrationCreated;
-
-        /// <summary>
-        /// Fired when a guild integration is updated.
-        /// For this Event you need the <see cref="DiscordIntents.GuildIntegrations"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
-        /// </summary>
-        public event AsyncEventHandler<DiscordClient, GuildIntegrationUpdateEventArgs> GuildIntegrationUpdated
-        {
-            add => this._guildIntegrationUpdated.Register(value);
-            remove => this._guildIntegrationUpdated.Unregister(value);
-        }
-        private AsyncEvent<DiscordClient, GuildIntegrationUpdateEventArgs> _guildIntegrationUpdated;
-
-        /// <summary>
-        /// Fired when a guild integration is deleted.
-        /// For this Event you need the <see cref="DiscordIntents.GuildIntegrations"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
-        /// </summary>
-        public event AsyncEventHandler<DiscordClient, GuildIntegrationDeleteEventArgs> GuildIntegrationDeleted
-        {
-            add => this._guildIntegrationDeleted.Register(value);
-            remove => this._guildIntegrationDeleted.Unregister(value);
-        }
-        private AsyncEvent<DiscordClient, GuildIntegrationDeleteEventArgs> _guildIntegrationDeleted;
 
         #endregion
 
@@ -567,6 +567,43 @@ namespace DSharpPlus
             remove => this._userUpdated.Unregister(value);
         }
         private AsyncEvent<DiscordClient, UserUpdateEventArgs> _userUpdated;
+
+        #endregion
+
+        #region Stage Instance
+
+        /// <summary>
+        /// Fired when a Stage Instance is created.
+        /// For this Event you need the <see cref="DiscordIntents.GuildIntegrations"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, StageInstanceCreateEventArgs> StageInstanceCreated
+        {
+            add => this._stageInstanceCreated.Register(value);
+            remove => this._stageInstanceCreated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, StageInstanceCreateEventArgs> _stageInstanceCreated;
+
+        /// <summary>
+        /// Fired when a Stage Instance is updated.
+        /// For this Event you need the <see cref="DiscordIntents.GuildIntegrations"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, StageInstanceUpdateEventArgs> StageInstanceUpdated
+        {
+            add => this._stageInstanceUpdated.Register(value);
+            remove => this._stageInstanceUpdated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, StageInstanceUpdateEventArgs> _stageInstanceUpdated;
+
+        /// <summary>
+        /// Fired when a Stage Instance is deleted.
+        /// For this Event you need the <see cref="DiscordIntents.GuildIntegrations"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, StageInstanceDeleteEventArgs> StageInstanceDeleted
+        {
+            add => this._stageInstanceDeleted.Register(value);
+            remove => this._stageInstanceDeleted.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, StageInstanceDeleteEventArgs> _stageInstanceDeleted;
 
         #endregion
 
