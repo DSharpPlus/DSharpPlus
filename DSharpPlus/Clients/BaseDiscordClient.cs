@@ -141,7 +141,9 @@ namespace DSharpPlus
                 Flags = 0,
                 RequiresCodeGrant = tapp.BotRequiresCodeGrant,
                 IsPublic = tapp.IsPublicBot,
-                CoverImageHash = null
+                CoverImageHash = null,
+                PrivacyPolicyUrl = tapp.PrivacyPolicyUrl,
+                TermsOfServiceUrl = tapp.TermsOfServiceUrl
             };
 
             // do team and owners
@@ -152,6 +154,7 @@ namespace DSharpPlus
 
                 app.Owners = new ReadOnlyCollection<DiscordUser>(new[] { new DiscordUser(tapp.Owner) });
                 app.Team = null;
+                app.TeamName = null;
             }
             else
             {
@@ -171,6 +174,7 @@ namespace DSharpPlus
                 app.Owners = new ReadOnlyCollection<DiscordUser>(owners);
                 app.Team.Owner = owners.FirstOrDefault(x => x.Id == tapp.Team.OwnerId);
                 app.Team.Members = new ReadOnlyCollection<DiscordTeamMember>(members);
+                app.TeamName = app.Team.Name;
             }
 
             return app;

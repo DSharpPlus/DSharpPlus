@@ -86,6 +86,11 @@ namespace DSharpPlus.Entities
         public string PrivacyPolicyUrl { get; internal set; }
 
         /// <summary>
+        /// Gets the team name of the application.
+        /// </summary>
+        public string TeamName { get; internal set; }
+
+        /// <summary>
         /// Gets the hash of the application's cover image.
         /// </summary>
         public string CoverImageHash { get; internal set; }
