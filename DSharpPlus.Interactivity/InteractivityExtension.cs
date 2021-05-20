@@ -27,6 +27,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
+using DSharpPlus.Entities.Components;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.EventHandling;
@@ -46,6 +47,8 @@ namespace DSharpPlus.Interactivity
         private EventWaiter<MessageReactionAddEventArgs> MessageReactionAddWaiter;
 
         private EventWaiter<TypingStartEventArgs> TypingStartWaiter;
+
+        private EventWaiter<ComponentInteractionEventArgs> ComponentInteractionWaiter;
 
         private ReactionCollector ReactionCollector;
 
@@ -100,6 +103,35 @@ namespace DSharpPlus.Interactivity
             return new ReadOnlyCollection<PollEmoji>(res.ToList());
         }
 
+
+        /// <summary>
+        /// Waits for a button with the specified Id to be pressed.
+        /// </summary>
+        /// <param name="message">The message to wait for the button on.</param>
+        /// <param name="id">The Id of the button to wait for.</param>
+        /// <param name="timeoutOverride">Override the timeout period specified in <see cref="InteractivityConfiguration"/>.</param>
+        /// <returns>A <see cref="InteractivityResult{T}"/> with the result of the operation.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when attempting to wait for a message that is not authored by the current user.</exception>
+        /// <exception cref="ArgumentException">Thrown when the message does not contain a button with the specified Id, or any buttons at all.</exception>
+        public async Task<InteractivityResult<ComponentInteractionEventArgs>> WaitForButtonAsync(DiscordMessage message, string id, TimeSpan? timeoutOverride = null)
+        {
+            if (message.Author != this.Client.CurrentUser)
+                throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
+
+            if (message.Components is null || !message.Components.OfType<DiscordActionRowComponent>().Select(a => a.Components).Any())
+                throw new ArgumentException("Message does not contain any buttons.");
+
+            if (message.Components.OfType<DiscordButtonComponent>().All(b => b.CustomId != id))
+                throw new ArgumentException($"Message does not contain button with Id of '{id}'.");
+
+
+            var timeout = timeoutOverride ?? this.Config.Timeout;
+
+             var result = await this.ComponentInteractionWaiter.WaitForMatch(new MatchRequest<ComponentInteractionEventArgs>(c => c.Interaction.Type == InteractionType.Component &&
+                                                                                                                                  c.Interaction.Data.ComponentType == ComponentType.Button && c.Interaction.Data.CustomId == id, timeout));
+             return new InteractivityResult<ComponentInteractionEventArgs>(result == null, result);
+        }
+
         /// <summary>
         /// Waits for a specific message.
         /// </summary>
@@ -131,7 +163,7 @@ namespace DSharpPlus.Interactivity
                 throw new InvalidOperationException("No reaction intents are enabled.");
 
             var timeout = timeoutoverride ?? this.Config.Timeout;
-            var returns = await this.MessageReactionAddWaiter.WaitForMatch(new MatchRequest<MessageReactionAddEventArgs>(x => predicate(x), timeout)).ConfigureAwait(false);
+            var returns = await this.MessageReactionAddWaiter.WaitForMatch(new MatchRequest<MessageReactionAddEventArgs>(predicate, timeout)).ConfigureAwait(false);
 
             return new InteractivityResult<MessageReactionAddEventArgs>(returns == null, returns);
         }
