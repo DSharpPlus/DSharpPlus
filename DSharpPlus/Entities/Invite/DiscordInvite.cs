@@ -68,7 +68,7 @@ namespace DSharpPlus.Entities
         /// Gets the embedded application id to open for this voice channel.
         /// </summary>
         [JsonProperty("target_application_id", NullValueHandling = NullValueHandling.Ignore)]
-        public TargetActivity? TargetApplicationId { get; internal set; }
+        public TargetActivity? TargetApplication { get; internal set; }
 
         /// <summary>
         /// Gets the approximate guild online member count for the invite.

@@ -1123,14 +1123,14 @@ namespace DSharpPlus.Net
             return new ReadOnlyCollection<DiscordInvite>(new List<DiscordInvite>(invites_raw));
         }
 
-        internal async Task<DiscordInvite> CreateChannelInviteAsync(ulong channel_id, int max_age, int max_uses, TargetType target_type, TargetActivity target_application_id, bool temporary, bool unique, string reason)
+        internal async Task<DiscordInvite> CreateChannelInviteAsync(ulong channel_id, int max_age, int max_uses, TargetType target_type, TargetActivity target_application, bool temporary, bool unique, string reason)
         {
             var pld = new RestChannelInviteCreatePayload
             {
                 MaxAge = max_age,
                 MaxUses = max_uses,
                 TargetType = target_type,
-                TargetApplicationId = target_application_id,
+                TargetApplication = target_application,
                 Temporary = temporary,
                 Unique = unique
             };

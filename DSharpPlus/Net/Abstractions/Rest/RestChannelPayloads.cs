@@ -168,7 +168,7 @@ namespace DSharpPlus.Net.Abstractions
         public TargetType TargetType{ get; set; }
 
         [JsonProperty("target_application_id", NullValueHandling = NullValueHandling.Ignore)]
-        public TargetActivity TargetApplicationId { get; set; }
+        public TargetActivity TargetApplication { get; set; }
 
         [JsonProperty("temporary", NullValueHandling = NullValueHandling.Ignore)]
         public bool Temporary { get; set; }
