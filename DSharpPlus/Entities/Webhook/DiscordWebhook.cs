@@ -72,13 +72,13 @@ namespace DSharpPlus.Entities
         /// Gets the partial source guild for this webhook (For Channel Follower Webhooks).
         /// </summary>
         [JsonProperty("source_guild", NullValueHandling = NullValueHandling.Ignore)]
-        internal DiscordGuild SourceGuild { get; set; }
+        public DiscordGuild SourceGuild { get; set; }
 
         /// <summary>
         /// Gets the partial source channel for this webhook (For Channel Follower Webhooks).
         /// </summary>
         [JsonProperty("source_channel", NullValueHandling = NullValueHandling.Ignore)]
-        internal DiscordChannel SourceChannel { get; set; }
+        public DiscordChannel SourceChannel { get; set; }
 
         /// <summary>
         /// Gets the url used for executing the webhool.
