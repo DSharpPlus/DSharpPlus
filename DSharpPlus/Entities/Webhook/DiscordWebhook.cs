@@ -84,7 +84,7 @@ namespace DSharpPlus.Entities
         /// Gets the url used for executing the webhool.
         /// </summary>
         [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
-        public Uri Url { get; set; }
+        public string Url { get; set; }
 
         /// <summary>
         /// Gets the default avatar url for this webhook.
