@@ -22,7 +22,6 @@
 // SOFTWARE.
 
 using System.Collections.Generic;
-using DSharpPlus.Entities.Components;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities

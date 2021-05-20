@@ -24,7 +24,7 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
-using DSharpPlus.Entities.Components;
+
 
 namespace DSharpPlus.Test
 {
@@ -40,6 +40,21 @@ namespace DSharpPlus.Test
             );
             builder.WithContent("Buttons!");
             await ctx.RespondAsync(builder);
+        }
+
+        [Command]
+        public async Task Edit(CommandContext ctx)
+        {
+            var builder = new DiscordMessageBuilder().WithComponentRow(
+                new DiscordButtonComponent(1, label: "Send poggies", customId: "emoji", emoji: new DiscordComponentEmoji {Id = 833475075474063421}),
+                new DiscordButtonComponent(2, label: "Send poggies (but grey)", customId: "pog"),
+                new DiscordButtonComponent(3, label: "Just ack (great for role menus!)", customId: "ack")
+            );
+            builder.WithContent("Buttons!");
+
+            var msg = await ctx.RespondAsync(builder);
+            builder.WithComponentRow(new DiscordButtonComponent(3, label: "OwO", customId: "owo"));
+            await builder.ModifyAsync(msg);
         }
     }
 }

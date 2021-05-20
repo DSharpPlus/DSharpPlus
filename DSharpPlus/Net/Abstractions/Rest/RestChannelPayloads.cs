@@ -23,7 +23,6 @@
 
 using System.Collections.Generic;
 using DSharpPlus.Entities;
-using DSharpPlus.Entities.Components;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Abstractions

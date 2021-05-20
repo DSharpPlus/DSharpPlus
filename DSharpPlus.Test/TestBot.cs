@@ -143,13 +143,14 @@ namespace DSharpPlus.Test
             if (e.Id == "ack")
                 await e.Interaction.CreateResponseAsync(InteractionResponseType.DefferedMessageUpdate);
             else if (e.Id == "pog")
-                await e.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder() {Content = "Poggies (in a normal message!"});
+                await e.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder() {Content = "Poggies (in a normal message!)"});
             else
                 await e.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
                 {
                     Content = "Poggies",
                     IsEphemeral = true
                 });
+
         }
 
         public async Task RunAsync()

@@ -22,7 +22,7 @@
 // SOFTWARE.
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Entities.Components
+namespace DSharpPlus.Entities
 {
     public sealed class DiscordActionRowComponent : DiscordComponent
     {

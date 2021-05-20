@@ -27,7 +27,6 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-using DSharpPlus.Entities.Components;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
