@@ -128,9 +128,14 @@ namespace DSharpPlus.Interactivity
 
             var timeout = timeoutOverride ?? this.Config.Timeout;
 
-             var result = await this.ComponentInteractionWaiter.WaitForMatch(new MatchRequest<ComponentInteractionEventArgs>(c => c.Interaction.Type == InteractionType.Component &&
-                                                                                                                                  c.Interaction.Data.ComponentType == ComponentType.Button && c.Interaction.Data.CustomId == id, timeout));
-             return new InteractivityResult<ComponentInteractionEventArgs>(result == null, result);
+            while (true)
+            {
+                var result = await this.ComponentInteractionWaiter
+                    .WaitForMatch(new MatchRequest<ComponentInteractionEventArgs>(c => c.Interaction.Type == InteractionType.Component && c.Interaction.Data.ComponentType == ComponentType.Button, timeout));
+                if (result is null) return new InteractivityResult<ComponentInteractionEventArgs>(true, null);
+                if (result.Id != id) await result.Interaction.CreateResponseAsync(InteractionResponseType.DefferedMessageUpdate);
+                else return new InteractivityResult<ComponentInteractionEventArgs>(false, result);
+            }
         }
 
         /// <summary>
