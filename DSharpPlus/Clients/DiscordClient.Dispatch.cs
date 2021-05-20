@@ -62,6 +62,7 @@ namespace DSharpPlus
             ulong gid;
             ulong cid;
             DiscordStageInstance stg;
+            DiscordIntegration itg;
             TransportUser usr = default;
             TransportMember mbr = default;
             TransportUser refUsr = default;
@@ -160,6 +161,43 @@ namespace DSharpPlus
                     await this.OnGuildBanRemoveEventAsync(usr, this._guilds[gid]).ConfigureAwait(false);
                     break;
 
+                #endregion
+
+                #region Guild Integration
+
+                case "guild_integration_create":
+                    gid = (ulong)dat["guild_id"];
+                    itg = dat.ToObject<DiscordIntegration>();
+
+                    // discord fires this event inconsistently if the current user leaves a guild.
+                    if (!this._guilds.ContainsKey(gid))
+                        return;
+
+                    await this.OnGuildIntegrationCreateEventAsync(itg, gid).ConfigureAwait(false);
+                    break;
+
+                case "guild_integration_update":
+                    gid = (ulong)dat["guild_id"];
+                    itg = dat.ToObject<DiscordIntegration>();
+
+                    // discord fires this event inconsistently if the current user leaves a guild.
+                    if (!this._guilds.ContainsKey(gid))
+                        return;
+
+                    await this.OnGuildIntegrationUpdateEventAsync(itg, gid).ConfigureAwait(false);
+                    break;
+
+                case "guild_integration_delete":
+                    var id = (ulong)dat["id"];
+                    gid = (ulong)dat["guild_id"];
+                    var aid = dat["application_id"].HasValues ? (ulong)dat["application_id"] : 0;
+
+                    // discord fires this event inconsistently if the current user leaves a guild.
+                    if (!this._guilds.ContainsKey(gid))
+                        return;
+
+                    await this.OnGuildIntegrationDeleteEventAsync(id, gid, aid).ConfigureAwait(false);
+                    break;
                 #endregion
 
                 #region Guild Member
@@ -1000,6 +1038,27 @@ namespace DSharpPlus
             };
             await this._guildBanRemoved.InvokeAsync(this, ea).ConfigureAwait(false);
         }
+
+        #endregion
+
+        #region Guild Integration
+
+        internal async Task OnGuildIntegrationCreateEventAsync(DiscordIntegration integration, ulong guild_id)
+        {
+            integration.Discord = this;
+
+            await this._guildIntegrationCreated.InvokeAsync(this, new GuildIntegrationCreateEventArgs { Integration = integration, GuildId = guild_id }).ConfigureAwait(false);
+        }
+
+        internal async Task OnGuildIntegrationUpdateEventAsync(DiscordIntegration integration, ulong guild_id)
+        {
+            integration.Discord = this;
+
+            await this._guildIntegrationUpdated.InvokeAsync(this, new GuildIntegrationUpdateEventArgs { Integration = integration, GuildId = guild_id }).ConfigureAwait(false);
+        }
+
+        internal async Task OnGuildIntegrationDeleteEventAsync(ulong guild_id, ulong integration_id, ulong application_id)
+            => await this._guildIntegrationDeleted.InvokeAsync(this, new GuildIntegrationDeleteEventArgs { GuildId = guild_id, IntegrationId = integration_id, ApplicationId = application_id }).ConfigureAwait(false);
 
         #endregion
 
