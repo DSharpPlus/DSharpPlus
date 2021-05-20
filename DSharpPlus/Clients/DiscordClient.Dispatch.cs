@@ -1897,6 +1897,7 @@ namespace DSharpPlus
 
             if (interaction.Type is InteractionType.Component)
             {
+                interaction.Message.Discord = this;
                 var cea = new ComponentInteractionEventArgs()
                 {
                     Id = interaction.Data.CustomId,
