@@ -65,10 +65,12 @@ namespace DSharpPlus.Interactivity
             this.Client = client;
             this.MessageCreatedWaiter = new EventWaiter<MessageCreateEventArgs>(this.Client);
             this.MessageReactionAddWaiter = new EventWaiter<MessageReactionAddEventArgs>(this.Client);
+            this.ComponentInteractionWaiter = new EventWaiter<ComponentInteractionEventArgs>(this.Client);
             this.TypingStartWaiter = new EventWaiter<TypingStartEventArgs>(this.Client);
             this.Poller = new Poller(this.Client);
             this.ReactionCollector = new ReactionCollector(this.Client);
             this.Paginator = new Paginator(this.Client);
+
         }
 
         /// <summary>
@@ -117,10 +119,10 @@ namespace DSharpPlus.Interactivity
             if (message.Author != this.Client.CurrentUser)
                 throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
 
-            if (message.Components is null || !message.Components.OfType<DiscordActionRowComponent>().Select(a => a.Components).Any())
+            if (message.Components is null || !message.Components.Select(a => a.Components).Any())
                 throw new ArgumentException("Message does not contain any buttons.");
 
-            if (message.Components.OfType<DiscordButtonComponent>().All(b => b.CustomId != id))
+            if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is ComponentType.Button && c.CustomId == id))
                 throw new ArgumentException($"Message does not contain button with Id of '{id}'.");
 
 
@@ -386,7 +388,7 @@ namespace DSharpPlus.Interactivity
             var page = 1;
             foreach (var s in split)
             {
-                result.Add(new Page($"Page {page}:\n{s}", null));
+                result.Add(new Page($"Page {page}:\n{s}"));
                 page++;
             }
 

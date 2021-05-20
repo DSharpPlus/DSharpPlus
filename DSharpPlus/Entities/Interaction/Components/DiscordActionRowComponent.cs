@@ -31,7 +31,7 @@ namespace DSharpPlus.Entities
 
         internal DiscordActionRowComponent()
         {
-            this.Type = 1;
+            this.Type = ComponentType.ActionRow;
         }
     }
 }

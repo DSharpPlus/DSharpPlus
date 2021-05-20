@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using DSharpPlus.Interactivity.Extensions;
 
 
 namespace DSharpPlus.Test
@@ -43,18 +44,30 @@ namespace DSharpPlus.Test
         }
 
         [Command]
-        public async Task Edit(CommandContext ctx)
+        public async Task WaitForButton(CommandContext ctx)
         {
             var builder = new DiscordMessageBuilder().WithComponentRow(
-                new DiscordButtonComponent(1, label: "Send poggies", customId: "emoji", emoji: new DiscordComponentEmoji {Id = 833475075474063421}),
-                new DiscordButtonComponent(2, label: "Send poggies (but grey)", customId: "pog"),
-                new DiscordButtonComponent(3, label: "Just ack (great for role menus!)", customId: "ack")
+                new DiscordButtonComponent(1, customId: "P_", emoji: new DiscordComponentEmoji {Id = 833475075474063421}),
+                new DiscordButtonComponent(3, customId: "S_", emoji: new DiscordComponentEmoji {Id = 803713580385435700}),
+                new DiscordButtonComponent(4, customId: "L_", emoji: new DiscordComponentEmoji {Id = 797806751617384459})
             );
-            builder.WithContent("Buttons!");
-
+            builder.WithContent("You have 30 seconds to pick an option!!");
             var msg = await ctx.RespondAsync(builder);
-            builder.WithComponentRow(new DiscordButtonComponent(3, label: "OwO", customId: "owo"));
-            await builder.ModifyAsync(msg);
+
+            var interactivity = ctx.Client.GetInteractivity();
+
+            var result = await interactivity.WaitForButtonAsync(msg, "S_");
+            if (result.TimedOut)
+                await ctx.RespondAsync("Timed out!");
+            else
+            {
+                await result
+                    .Result.
+                    Interaction
+                    .CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                        new DiscordInteractionResponseBuilder() { Content = "Poggies!", IsEphemeral = true});
+
+            }
         }
     }
 }

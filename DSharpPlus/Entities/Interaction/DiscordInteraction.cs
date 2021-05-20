@@ -22,7 +22,6 @@
 // SOFTWARE.
 
 using System.Threading.Tasks;
-using DSharpPlus.Entities.Components;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities

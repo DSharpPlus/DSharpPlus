@@ -49,7 +49,7 @@ namespace DSharpPlus.Entities
             this.CustomId = customId;
             this.Disabled = disabled;
             this.Emoji = emoji;
-            this.Type = 2;
+            this.Type = ComponentType.Button;
         }
     }
 }
