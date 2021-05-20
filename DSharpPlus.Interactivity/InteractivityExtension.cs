@@ -104,13 +104,45 @@ namespace DSharpPlus.Interactivity
             return new ReadOnlyCollection<PollEmoji>(res.ToList());
         }
 
+        /// <summary>
+        /// Waits for any button in the specified collection to be pressed.
+        /// </summary>
+        /// <param name="message">The message to wait on.</param>
+        /// <param name="buttons">A collection of buttons to listen for.</param>
+        /// <param name="timeoutOverride">Override the timeout period in <see cref="InteractivityConfiguration"/>.</param>
+        /// <returns>A <see cref="InteractivityResult{T}"/> with the result of button that was pressed, if any.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when attempting to wait for a message that is not authored by the current user.</exception>
+        /// <exception cref="ArgumentException">Thrown when the message does not contain a button with the specified Id, or any buttons at all.</exception>
+        public async Task<InteractivityResult<ComponentInteractionEventArgs>> WaitForButtonAsync(DiscordMessage message, IEnumerable<DiscordButtonComponent> buttons, TimeSpan? timeoutOverride = null)
+        {
+            if (message.Author != this.Client.CurrentUser)
+                throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
+
+            if (message.Components is null || !message.Components.Select(a => a.Components).Any())
+                throw new ArgumentException("Message does not contain any buttons.");
+
+            if (!buttons.Any())
+                throw new ArgumentOutOfRangeException(nameof(buttons), "You must specify at least one button to listen for.");
+
+            var timeout = timeoutOverride ?? this.Config.Timeout;
+
+            while (true)
+            {
+                var result = await this.ComponentInteractionWaiter
+                    .WaitForMatch(new MatchRequest<ComponentInteractionEventArgs>(c => c.Interaction.Type == InteractionType.Component &&
+                                                                                       c.Interaction.Data.ComponentType == ComponentType.Button && buttons.Any(b => b.CustomId == c.Id), timeout));
+                if (result is null)
+                    return new InteractivityResult<ComponentInteractionEventArgs>(true, null);
+                else return new InteractivityResult<ComponentInteractionEventArgs>(false, result);
+            }
+        }
 
         /// <summary>
         /// Waits for a button with the specified Id to be pressed.
         /// </summary>
         /// <param name="message">The message to wait for the button on.</param>
         /// <param name="timeoutOverride">Override the timeout period specified in <see cref="InteractivityConfiguration"/>.</param>
-        /// <returns>A <see cref="InteractivityResult{T}"/> with the result of the operation.</returns>
+        /// <returns>A <see cref="InteractivityResult{T}"/> with the result of button that was pressed, if any.</returns>
         /// <exception cref="InvalidOperationException">Thrown when attempting to wait for a message that is not authored by the current user.</exception>
         /// <exception cref="ArgumentException">Thrown when the message does not contain a button with the specified Id, or any buttons at all.</exception>
         public async Task<InteractivityResult<ComponentInteractionEventArgs>> WaitForButtonAsync(DiscordMessage message, TimeSpan? timeoutOverride = null)
