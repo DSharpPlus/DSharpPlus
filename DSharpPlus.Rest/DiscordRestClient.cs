@@ -596,7 +596,8 @@ namespace DSharpPlus
         /// <param name="channel_id">Channel id</param>
         /// <param name="max_age">For how long the invite should exist</param>
         /// <param name="max_uses">How often the invite may be used</param>
-        /// <param name="target_type">Target type of invite for the channel.  Defaults to 1</param>
+        /// <param name="target_type">Target type of invite for the channel</param>
+        /// <param name="target_application_id">Target application id of invite for the channel</param>
         /// <param name="temporary">Whether this invite should be temporary</param>
         /// <param name="unique">Whether this invite should be unique (false might return an existing invite)</param>
         /// <param name="reason">Why you made an invite</param>

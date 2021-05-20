@@ -114,7 +114,8 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="obj">Object to compare to.</param>
         /// <returns>Whether the object is equal to this <see cref="StageInstance"/>.</returns>
-        public override bool Equals(object obj) => this.Equals(obj as StageInstance);
+        public override bool Equals(object obj)
+            => this.Equals(obj as StageInstance);
 
         /// <summary>
         /// Checks whether this <see cref="StageInstance"/> is equal to another <see cref="StageInstance"/>.
@@ -122,12 +123,7 @@ namespace DSharpPlus.Entities
         /// <param name="e"><see cref="StageInstance"/> to compare to.</param>
         /// <returns>Whether the <see cref="StageInstance"/> is equal to this <see cref="StageInstance"/>.</returns>
         public bool Equals(StageInstance e)
-        {
-            if (e is null)
-                return false;
-
-            return ReferenceEquals(this, e) ? true : this.Id == e.Id;
-        }
+            => e is null ? false : ReferenceEquals(this, e) ? true : this.Id == e.Id;
 
         /// <summary>
         /// Gets the hash code for this <see cref="StageInstance"/>.
@@ -146,10 +142,7 @@ namespace DSharpPlus.Entities
             var o1 = e1 as object;
             var o2 = e2 as object;
 
-            if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
-                return false;
-
-            return o1 == null && o2 == null ? true : e1.Id == e2.Id;
+            return (o1 == null && o2 != null) || (o1 != null && o2 == null) ? false : o1 == null && o2 == null ? true : e1.Id == e2.Id;
         }
 
         /// <summary>

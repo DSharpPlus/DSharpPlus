@@ -286,7 +286,7 @@ namespace DSharpPlus
             add => this._guildIntegrationCreated.Register(value);
             remove => this._guildIntegrationCreated.Unregister(value);
         }
-        private AsyncEvent<DiscordClient, GuildIntegrationCreateEventArgs> _guildIntegrationCreated;
+        private readonly AsyncEvent<DiscordClient, GuildIntegrationCreateEventArgs> _guildIntegrationCreated;
 
         /// <summary>
         /// Fired when a guild integration is updated.
@@ -297,7 +297,7 @@ namespace DSharpPlus
             add => this._guildIntegrationUpdated.Register(value);
             remove => this._guildIntegrationUpdated.Unregister(value);
         }
-        private AsyncEvent<DiscordClient, GuildIntegrationUpdateEventArgs> _guildIntegrationUpdated;
+        private readonly AsyncEvent<DiscordClient, GuildIntegrationUpdateEventArgs> _guildIntegrationUpdated;
 
         /// <summary>
         /// Fired when a guild integration is deleted.
@@ -308,7 +308,7 @@ namespace DSharpPlus
             add => this._guildIntegrationDeleted.Register(value);
             remove => this._guildIntegrationDeleted.Unregister(value);
         }
-        private AsyncEvent<DiscordClient, GuildIntegrationDeleteEventArgs> _guildIntegrationDeleted;
+        private readonly AsyncEvent<DiscordClient, GuildIntegrationDeleteEventArgs> _guildIntegrationDeleted;
 
         #endregion
 
@@ -581,7 +581,7 @@ namespace DSharpPlus
             add => this._stageInstanceCreated.Register(value);
             remove => this._stageInstanceCreated.Unregister(value);
         }
-        private AsyncEvent<DiscordClient, StageInstanceCreateEventArgs> _stageInstanceCreated;
+        private readonly AsyncEvent<DiscordClient, StageInstanceCreateEventArgs> _stageInstanceCreated;
 
         /// <summary>
         /// Fired when a Stage Instance is updated.
@@ -592,7 +592,7 @@ namespace DSharpPlus
             add => this._stageInstanceUpdated.Register(value);
             remove => this._stageInstanceUpdated.Unregister(value);
         }
-        private AsyncEvent<DiscordClient, StageInstanceUpdateEventArgs> _stageInstanceUpdated;
+        private readonly AsyncEvent<DiscordClient, StageInstanceUpdateEventArgs> _stageInstanceUpdated;
 
         /// <summary>
         /// Fired when a Stage Instance is deleted.
@@ -603,7 +603,7 @@ namespace DSharpPlus
             add => this._stageInstanceDeleted.Register(value);
             remove => this._stageInstanceDeleted.Unregister(value);
         }
-        private AsyncEvent<DiscordClient, StageInstanceDeleteEventArgs> _stageInstanceDeleted;
+        private readonly AsyncEvent<DiscordClient, StageInstanceDeleteEventArgs> _stageInstanceDeleted;
 
         #endregion
 
