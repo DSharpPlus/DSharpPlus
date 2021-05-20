@@ -165,10 +165,10 @@ namespace DSharpPlus.Net.Abstractions
         public int MaxUses { get; set; }
 
         [JsonProperty("target_type", NullValueHandling = NullValueHandling.Ignore)]
-        public int TargetType{ get; set; }
+        public TargetType TargetType{ get; set; }
 
         [JsonProperty("target_application_id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong TargetApplicationId { get; set; }
+        public TargetActivity TargetApplicationId { get; set; }
 
         [JsonProperty("temporary", NullValueHandling = NullValueHandling.Ignore)]
         public bool Temporary { get; set; }

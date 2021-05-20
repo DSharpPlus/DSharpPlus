@@ -570,7 +570,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordInvite> CreateInviteAsync(int max_age = 86400, int max_uses = 0, int target_type = 1, ulong target_application_id = 0, bool temporary = false, bool unique = false, string reason = null)
+        public Task<DiscordInvite> CreateInviteAsync(int max_age = 86400, int max_uses = 0, TargetType target_type = TargetType.Streaming, TargetActivity target_application_id = TargetActivity.None, bool temporary = false, bool unique = false, string reason = null)
             => this.Discord.ApiClient.CreateChannelInviteAsync(this.Id, max_age, max_uses, target_type, target_application_id, temporary, unique, reason);
 
         /// <summary>

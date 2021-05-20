@@ -24,18 +24,33 @@
 namespace DSharpPlus
 {
     /// <summary>
-    /// Represents the type of user who the invite is for.
+    /// Represents the activity this invite is for.
     /// </summary>
-    public enum TargetType
+    public enum TargetActivity : ulong
     {
         /// <summary>
-        /// Represents a streaming invite.
+        /// Represents the no embedded application.
         /// </summary>
-        Streaming = 1,
+        None = 0,
 
         /// <summary>
-        /// Represents a activity invite.
+        /// Represents the embedded application Poker Night.
         /// </summary>
-        EmbeddedApplication = 2
+        PokerNight = 755827207812677713,
+
+        /// <summary>
+        /// Represents the embedded application Betrayal.io.
+        /// </summary>
+        Betrayal = 773336526917861400,
+
+        /// <summary>
+        /// Represents the embedded application Fishington.io.
+        /// </summary>
+        Fishington = 814288819477020702,
+
+        /// <summary>
+        /// Represents the embedded application YouTube Together.
+        /// </summary>
+        YouTubeTogether = 755600276941176913
     }
 }
