@@ -67,6 +67,8 @@ namespace DSharpPlus.Net.Serialization
 
         private static string SerializeObjectInternal(object value, Type type, JsonSerializer jsonSerializer)
         {
+            if (value == null)
+                return null;
             var stringWriter = new StringWriter(new StringBuilder(256), CultureInfo.InvariantCulture);
             using (var jsonTextWriter = new JsonTextWriter(stringWriter))
             {

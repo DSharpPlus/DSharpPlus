@@ -30,7 +30,13 @@ namespace DSharpPlus.Entities
     /// </summary>
     public class DiscordMessageFile
     {
-        internal DiscordMessageFile(string fileName, Stream stream, long? resetPositionTo)
+        /// <summary>
+        /// Builds a message file to be sent on a multipart request.
+        /// </summary>
+        /// <param name="fileName">The name of the file.</param>
+        /// <param name="stream">The stream of the file.</param>
+        /// <param name="resetPositionTo">The position the file should be reset to.</param>
+        public DiscordMessageFile(string fileName, Stream stream, long? resetPositionTo)
         {
             this.FileName = fileName;
             this.Stream = stream;

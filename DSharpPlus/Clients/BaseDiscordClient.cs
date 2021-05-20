@@ -40,7 +40,10 @@ namespace DSharpPlus
     /// </summary>
     public abstract class BaseDiscordClient : IDisposable
     {
-        internal protected DiscordApiClient ApiClient { get; }
+        /// <summary>
+        /// The ApiClient associated with this client.
+        /// </summary>
+        public DiscordApiClient ApiClient { get; }
         internal protected DiscordConfiguration Configuration { get; }
 
         /// <summary>
