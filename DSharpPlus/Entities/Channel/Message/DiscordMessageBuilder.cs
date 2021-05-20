@@ -68,10 +68,10 @@ namespace DSharpPlus.Entities
         /// Gets the Files to be sent in the Message.
         /// </summary>
         public IReadOnlyCollection<DiscordMessageFile> Files => this._files;
-        public IReadOnlyCollection<DiscordComponent> Components => this._components;
+        public IReadOnlyCollection<DiscordActionRowComponent> Components => this._components;
 
         internal readonly List<DiscordMessageFile> _files = new();
-        internal readonly List<DiscordComponent> _components = new();
+        internal readonly List<DiscordActionRowComponent> _components = new();
 
         /// <summary>
         /// Gets the Reply Message ID.
@@ -103,7 +103,7 @@ namespace DSharpPlus.Entities
 
         public DiscordMessageBuilder WithComponentRow(params DiscordComponent[] components)
         {
-            if (components.Length >= 5)
+            if (this._components.Count + 1 > 5)
                 throw new InvalidOperationException("You can only have 5 action rows per message.");
 
             if (components.Length > 5)
@@ -114,6 +114,8 @@ namespace DSharpPlus.Entities
 
             return this;
         }
+
+
 
         /// <summary>
         /// Sets if the message should be TTS.

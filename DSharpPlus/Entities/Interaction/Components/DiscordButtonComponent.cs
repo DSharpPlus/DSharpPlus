@@ -27,19 +27,19 @@ namespace DSharpPlus.Entities
     public sealed class DiscordButtonComponent : DiscordComponent
     {
         [JsonProperty("style", NullValueHandling = NullValueHandling.Ignore)]
-        public int Style { get; internal set; }
+        public int Style { get; set; }
 
         [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
-        public string Url { get; internal set; }
+        public string Url { get; set; }
 
         [JsonProperty("label", NullValueHandling = NullValueHandling.Ignore)]
-        public string Label { get; internal set; }
+        public string Label { get; set; }
 
         [JsonProperty("disabled", NullValueHandling = NullValueHandling.Ignore)]
-        public bool Disabled { get; internal set; }
+        public bool Disabled { get; set; }
 
         [JsonProperty("emoji", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordComponentEmoji Emoji { get; internal set; }
+        public DiscordComponentEmoji Emoji { get; set; }
 
         public DiscordButtonComponent(int style = default, string url = null, string label = null, string customId = null, bool disabled = default, DiscordComponentEmoji emoji = null)
         {

@@ -20,6 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+using System;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -56,7 +57,7 @@ namespace DSharpPlus.Test
 
             var interactivity = ctx.Client.GetInteractivity();
 
-            var result = await interactivity.WaitForButtonAsync(msg, "S_");
+            var result = await interactivity.WaitForButtonAsync(msg, "S_", TimeSpan.FromSeconds(30));
 
             if (result.TimedOut)
                 await ctx.RespondAsync("Timed out!");
@@ -64,15 +65,15 @@ namespace DSharpPlus.Test
             {
                 await result.Result.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
                 {
-                    Content = "Ephemeral message 1!", IsEphemeral = true
+                    Content = "Poggies", IsEphemeral = true
                 });
-
-
-                await result
-                    .Result.
-                    Interaction
-                    .CreateFollowupMessageAsync(new DiscordFollowupMessageBuilder() { Content = "Ephemeral message 2!", IsEphemeral = true});
             }
+        }
+
+        [Command]
+        public async Task WaitForAnyButton(CommandContext ctx)
+        {
+
         }
     }
 }

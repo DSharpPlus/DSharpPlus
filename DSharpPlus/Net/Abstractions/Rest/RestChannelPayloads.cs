@@ -102,7 +102,7 @@ namespace DSharpPlus.Net.Abstractions
         public DiscordMentions Mentions { get; set; }
 
         [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordComponent[] Components { get; set; }
+        public List<DiscordActionRowComponent> Components { get; set; }
 
         [JsonIgnore]
         public bool HasEmbed { get; set; }
@@ -122,8 +122,6 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("message_reference", NullValueHandling = NullValueHandling.Ignore)]
         public InternalDiscordMessageReference? MessageReference { get; set; }
 
-        [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordComponent[] Components { get; set; }
     }
 
     internal sealed class RestChannelMessageCreateMultipartPayload

@@ -34,6 +34,7 @@ using DSharpPlus.CommandsNext.Exceptions;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
+using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Lavalink;
 using DSharpPlus.VoiceNext;
@@ -124,7 +125,9 @@ namespace DSharpPlus.Test
             // interactivity service
             var icfg = new InteractivityConfiguration()
             {
-                Timeout = TimeSpan.FromSeconds(3)
+                Timeout = TimeSpan.FromSeconds(3),
+                ResponseBehaviour = InteractionResponseBehaviour.Ack,
+                ResponseMessage = "That's not a valid button"
             };
 
             this.InteractivityService = this.Discord.UseInteractivity(icfg);

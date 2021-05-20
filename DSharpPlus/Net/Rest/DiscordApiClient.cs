@@ -873,7 +873,7 @@ namespace DSharpPlus.Net
                 IsTTS = builder.IsTTS,
                 HasEmbed = builder.Embed != null,
                 Embed = builder.Embed,
-                Components = builder.Components.ToArray()
+                Components = builder.Components as List<DiscordActionRowComponent> // if you change the builder and it blows up, it's on you ~Velvet //
             };
 
             if (builder.ReplyId != null)
@@ -991,7 +991,7 @@ namespace DSharpPlus.Net
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld));
         }
 
-        internal async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content, Optional<DiscordEmbed> embed, IEnumerable<IMention> mentions, List<DiscordComponent> components)
+        internal async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content, Optional<DiscordEmbed> embed, IEnumerable<IMention> mentions, List<DiscordActionRowComponent> components)
         {
             if (embed.HasValue && embed.Value != null && embed.Value.Timestamp != null)
                 embed.Value.Timestamp = embed.Value.Timestamp.Value.ToUniversalTime();
@@ -1002,7 +1002,7 @@ namespace DSharpPlus.Net
                 Content = content.HasValue ? (string)content : null,
                 HasEmbed = embed.HasValue,
                 Embed = embed.HasValue ? (DiscordEmbed)embed : null,
-                Components = components.ToArray()
+                Components = components
             };
 
             if (mentions != null)
