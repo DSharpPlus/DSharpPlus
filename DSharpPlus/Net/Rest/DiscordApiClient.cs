@@ -2546,7 +2546,8 @@ namespace DSharpPlus.Net
                 Content = builder.Content,
                 IsTTS = builder.IsTTS,
                 Embeds = builder.Embeds,
-                Flags = builder.Flags
+                Flags = builder.Flags,
+                Components = builder.Components
             };
 
             if (builder.Mentions != null)

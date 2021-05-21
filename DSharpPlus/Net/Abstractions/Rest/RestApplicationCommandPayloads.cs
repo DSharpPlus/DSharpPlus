@@ -76,5 +76,8 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
         public int? Flags { get; set; }
+
+        [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
+        public IReadOnlyCollection<DiscordActionRowComponent> Components { get; set; }
     }
 }

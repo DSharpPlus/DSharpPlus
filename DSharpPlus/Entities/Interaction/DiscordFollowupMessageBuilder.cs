@@ -70,9 +70,11 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Files to send on this followup message.
         /// </summary>
-        public IReadOnlyCollection<DiscordMessageFile> Files => this._files;
+        public IReadOnlyList<DiscordMessageFile> Files => this._files;
+        private readonly List<DiscordMessageFile> _files = new();
 
-        internal readonly List<DiscordMessageFile> _files = new();
+        public IReadOnlyList<DiscordActionRowComponent> Components => this._components;
+        private readonly List<DiscordActionRowComponent> _components = new();
 
         /// <summary>
         /// Mentions to send on this followup message.
@@ -85,6 +87,18 @@ namespace DSharpPlus.Entities
         /// </summary>
         public DiscordFollowupMessageBuilder() { }
 
+
+        public DiscordFollowupMessageBuilder WithComponents(IEnumerable<DiscordComponent> components)
+        {
+            var count = components.Count();
+
+            if (count > 5)
+                throw new ArgumentException("Cannot add more than 5 components per action row!");
+
+            var arc = new DiscordActionRowComponent(components);
+            this._components.Add(arc);
+            return this;
+        }
         /// <summary>
         /// Indicates if the followup message must use text-to-speech.
         /// </summary>
