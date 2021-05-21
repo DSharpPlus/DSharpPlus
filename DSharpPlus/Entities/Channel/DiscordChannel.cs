@@ -410,7 +410,7 @@ namespace DSharpPlus.Entities
                     if(parent_id != null)
                         pmds[i].ParentId = parent_id;
                     if(lock_permissions != null)
-                    pmds[i].LockPermissions = lock_permissions;
+                        pmds[i].LockPermissions = lock_permissions;
                 }
             }
 
