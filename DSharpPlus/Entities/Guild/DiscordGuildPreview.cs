@@ -96,7 +96,7 @@ namespace DSharpPlus.Entities
         /// Gets the system channel flags for the guild.
         /// </summary>
         [JsonProperty("system_channel_flags", NullValueHandling = NullValueHandling.Ignore)]
-        public SystemChannelFlags Flags { get; internal set; }
+        public SystemChannelFlags SystemChannelFlags { get; internal set; }
 
         internal DiscordGuildPreview() { }
     }
