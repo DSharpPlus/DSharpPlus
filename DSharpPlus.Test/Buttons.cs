@@ -36,46 +36,43 @@ namespace DSharpPlus.Test
         [Command]
         public async Task SendButton(CommandContext ctx)
         {
-            var builder = new DiscordMessageBuilder().WithComponentRow(
-                new DiscordButtonComponent(ButtonStyle.Primary, label: "Send poggies", customId: "emoji", emoji: new DiscordComponentEmoji {Id = 833475075474063421}),
-                new DiscordButtonComponent(ButtonStyle.Secondary, label: "Send poggies (but grey)", customId: "pog"),
-                new DiscordButtonComponent(ButtonStyle.Success, label: "Just ack (great for role menus!)", customId: "ack")
-            );
-            builder.WithContent("Buttons!");
-            await ctx.RespondAsync(builder);
+            var builder = new DiscordMessageBuilder();
+
+            builder
+                .WithContent("Buttons! Coming soon:tm:")
+                .WithComponentRow(new DiscordButtonComponent(ButtonStyle.Primary, "P_", emoji: new DiscordComponentEmoji {Id = 833475075474063421}));
+
+            await builder.SendAsync(ctx.Channel);
         }
 
         [Command]
-        public async Task WaitForButton(CommandContext ctx)
+        public async Task Sendbuttons(CommandContext ctx)
         {
-            var p = new DiscordButtonComponent(ButtonStyle.Primary, "P_", emoji: new DiscordComponentEmoji {Id = 833475075474063421});
-            var s = new DiscordButtonComponent(ButtonStyle.Success, "S_", emoji: new DiscordComponentEmoji {Id = 803713580385435700});
-            var l = new DiscordButtonComponent(ButtonStyle.Danger, "L_", emoji: new DiscordComponentEmoji {Id = 797806751617384459});
-            var builder = new DiscordMessageBuilder().WithComponentRow(p, s, l);
+            var p = new DiscordButtonComponent(ButtonStyle.Primary, "P_", "Blurple", emoji: new DiscordComponentEmoji {Id = 833475075474063421});
+            var c = new DiscordButtonComponent(ButtonStyle.Secondary, "C_", "Grey", emoji: new DiscordComponentEmoji {Id = 833475015114358854});
+            var b = new DiscordButtonComponent(ButtonStyle.Success, "B_", "Green", emoji: new DiscordComponentEmoji {Id = 831306677449785394});
+            var y = new DiscordButtonComponent(ButtonStyle.Danger, "Y_", "Red", emoji: new DiscordComponentEmoji {Id = 833886629792972860});
+            var z = new DiscordButtonComponent(ButtonStyle.Link, null, "Link", emoji: new DiscordComponentEmoji {Id = 826108356656758794}, url: "https://velvetthepanda.dev");
 
-            builder.WithContent("You have 30 seconds to pick the right option!");
+            var d1 = new DiscordButtonComponent(ButtonStyle.Primary, "disabled", "and", true);
+            var d2 = new DiscordButtonComponent(ButtonStyle.Secondary, "disabled2", "these", true);
+            var d3 = new DiscordButtonComponent(ButtonStyle.Success, "disabled3", "are", true);
+            var d4 = new DiscordButtonComponent(ButtonStyle.Danger, "disabled4", "disabled~!", true);
 
-            var msg = await builder.SendAsync(ctx.Channel);
 
-            var interactivity = ctx.Client.GetInteractivity();
+            var builder = new DiscordMessageBuilder();
 
-            var result = await interactivity.WaitForButtonAsync(msg, "S_", TimeSpan.FromSeconds(30));
+            builder
+                .WithContent("Buttons! Coming soon:tm:")
+                .WithComponentRow(p)
+                .WithComponentRow(c, b)
+                .WithComponentRow(y, z)
+                .WithComponentRow(d1, d2, d3, d4);
 
-            if (result.TimedOut)
-                await ctx.RespondAsync("Timed out!");
-            else
-                await result.Result.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
-                {
-                    Content = "Poggies!",
-                    IsEphemeral = true
-                });
+            await builder.SendAsync(ctx.Channel);
+
         }
 
-        [Command]
-        public async Task WaitForAnyButton(CommandContext ctx)
-        {
-
-        }
 
         private static void RemoveComponent(DiscordMessageBuilder builder, DiscordComponent comp)
         {

@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace DSharpPlus.Entities
 {
@@ -60,8 +61,12 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Embeds to send on this interaction response.
         /// </summary>
-        public IReadOnlyList<DiscordEmbed> Embeds { get; }
+        public IReadOnlyList<DiscordEmbed> Embeds => this._embeds;
         private readonly List<DiscordEmbed> _embeds = new();
+
+        public IReadOnlyList<DiscordActionRowComponent> Components => this._components;
+        private readonly List<DiscordActionRowComponent> _components = new();
+
 
         /// <summary>
         /// Mentions to send on this interaction response.
@@ -74,8 +79,16 @@ namespace DSharpPlus.Entities
         /// </summary>
         public DiscordInteractionResponseBuilder()
         {
-            this.Embeds = new ReadOnlyCollection<DiscordEmbed>(this._embeds);
-            this.Mentions = new ReadOnlyCollection<IMention>(this._mentions);
+            // Why were you initializing collections with empty collections? //
+            //this.Embeds = new ReadOnlyCollection<DiscordEmbed>(this._embeds);
+            //this.Mentions = new ReadOnlyCollection<IMention>(this._mentions);
+        }
+
+        public DiscordInteractionResponseBuilder WithComponents(IEnumerable<DiscordComponent> components)
+        {
+            var arc = new DiscordActionRowComponent(components);
+            this._components.Add(arc);
+            return this;
         }
 
         /// <summary>

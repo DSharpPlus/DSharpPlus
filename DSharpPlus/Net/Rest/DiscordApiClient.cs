@@ -2513,7 +2513,8 @@ namespace DSharpPlus.Net
                     Embeds = builder.Embeds,
                     IsTTS = builder.IsTTS,
                     Mentions = builder.Mentions,
-                    Flags = builder.IsEphemeral ? 64 : null
+                    Flags = builder.IsEphemeral ? 64 : null,
+                    Components = builder.Components.ToList()
                 } : null
             };
 

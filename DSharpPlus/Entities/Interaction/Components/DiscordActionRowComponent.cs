@@ -22,18 +22,25 @@
 // SOFTWARE.
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
 {
     public sealed class DiscordActionRowComponent : DiscordComponent
     {
+
+        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
+        public ComponentType Type { get; internal set; } = ComponentType.ActionRow;
+
         [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
         public List<DiscordComponent> Components { get; internal set; }
 
-        internal DiscordActionRowComponent()
+        internal DiscordActionRowComponent() { }
+        internal DiscordActionRowComponent(IEnumerable<DiscordComponent> components)
         {
-            this.Type = ComponentType.ActionRow;
+            this.Components = components.ToList();
         }
+
     }
 }
