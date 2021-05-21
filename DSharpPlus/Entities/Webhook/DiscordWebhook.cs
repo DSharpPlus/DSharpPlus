@@ -81,7 +81,7 @@ namespace DSharpPlus.Entities
         public DiscordChannel SourceChannel { get; set; }
 
         /// <summary>
-        /// Gets the url used for executing the webhool.
+        /// Gets the url used for executing the webhook.
         /// </summary>
         [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
         public string Url { get; set; }
