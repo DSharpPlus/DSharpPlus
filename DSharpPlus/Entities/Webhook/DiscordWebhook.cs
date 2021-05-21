@@ -141,11 +141,12 @@ namespace DSharpPlus.Entities
         /// Executes this webhook with the given <see cref="DiscordWebhookBuilder"/>.
         /// </summary>
         /// <param name="builder">Webhook builder filled with data to send.</param>
+        /// <param name="thread_id">Target thread id (Optional). Defaults to null.</param>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the webhook does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordMessage> ExecuteAsync(DiscordWebhookBuilder builder)
-            => (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookAsync(this.Id, this.Token, builder);
+        public Task<DiscordMessage> ExecuteAsync(DiscordWebhookBuilder builder, string thread_id = null)
+            => (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookAsync(this.Id, this.Token, builder, thread_id);
 
         /// <summary>
         /// Executes this webhook in Slack compatibility mode.

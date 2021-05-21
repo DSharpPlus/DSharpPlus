@@ -2033,7 +2033,7 @@ namespace DSharpPlus.Net
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route, headers);
         }
 
-        internal async Task<DiscordMessage> ExecuteWebhookAsync(ulong webhook_id, string webhook_token, DiscordWebhookBuilder builder)
+        internal async Task<DiscordMessage> ExecuteWebhookAsync(ulong webhook_id, string webhook_token, DiscordWebhookBuilder builder, string thread_id)
         {
             builder.Validate();
 
@@ -2061,7 +2061,11 @@ namespace DSharpPlus.Net
             var route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { webhook_id, webhook_token }, out var path);
 
-            var url = Utilities.GetApiUriBuilderFor(path).AddParameter("wait", "true").Build();
+            var qub = Utilities.GetApiUriBuilderFor(path).AddParameter("wait", "true");
+            if (thread_id != null)
+                qub.AddParameter("thread_id", thread_id);
+            var url = qub.Build();
+
             var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, values: values, files: builder.Files).ConfigureAwait(false);
             var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
 
