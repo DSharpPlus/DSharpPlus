@@ -425,6 +425,7 @@ namespace DSharpPlus.Entities
                 throw new InvalidOperationException("Cannot modify order of non-guild channels.");
 
             var pmds = new RestGuildChannelNewParentPayload();
+            pmds.ChannelId = this.Id;
             pmds.ParentId = parent_id;
             if (parent_id != null)
                 pmds.LockPermissions = lock_permissions;
