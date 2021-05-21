@@ -71,7 +71,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Mentions to send on this interaction response.
         /// </summary>
-        public IEnumerable<IMention> Mentions { get; }
+        public IEnumerable<IMention> Mentions => this._mentions;
         private readonly List<IMention> _mentions = new();
 
         /// <summary>
