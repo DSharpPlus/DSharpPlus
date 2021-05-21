@@ -1278,7 +1278,7 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="webhook_id">Webhook id</param>
         /// <param name="webhook_token">Webhook token</param>
-        /// <param name="builder">Webhook builder filled with data to send.</param
+        /// <param name="builder">Webhook builder filled with data to send.</param>
         /// <param name="thread_id">Target thread id (Optional). Defaults to null.</param>
         /// <returns></returns>
         public Task<DiscordMessage> ExecuteWebhookAsync(ulong webhook_id, string webhook_token, DiscordWebhookBuilder builder, string thread_id = null)

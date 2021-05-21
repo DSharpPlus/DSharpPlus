@@ -413,6 +413,19 @@ namespace DSharpPlus.Net
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, headers, DiscordJson.SerializeObject(pld));
         }
 
+        internal Task ModifyGuildChannelParentAsync(ulong guild_id, RestGuildChannelNewParentPayload pld, string reason)
+        {
+            var headers = Utilities.GetBaseHeaders();
+            if (!string.IsNullOrWhiteSpace(reason))
+                headers.Add(REASON_HEADER_NAME, reason);
+
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.CHANNELS}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, headers, DiscordJson.SerializeObject(pld));
+        }
+
         internal Task ModifyGuildRolePositionAsync(ulong guild_id, IEnumerable<RestGuildRoleReorderPayload> pld, string reason)
         {
             var headers = Utilities.GetBaseHeaders();

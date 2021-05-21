@@ -383,14 +383,12 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="position">Position the channel should be moved to.</param>
         /// <param name="reason">Reason for audit logs.</param>
-        /// <param name="lock_permissions">Sync permissions with parent. Defaults to null</param>
-        /// <param name="parent_id">Parent channel ID. Defaults to null</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task ModifyPositionAsync(int position, bool? lock_permissions = null, ulong? parent_id = null, string reason = null)
+        public Task ModifyPositionAsync(int position, string reason = null)
         {
             if (this.Guild == null)
                 throw new InvalidOperationException("Cannot modify order of non-guild channels.");
@@ -405,16 +403,33 @@ namespace DSharpPlus.Entities
                 };
 
                 pmds[i].Position = chns[i].Id == this.Id ? position : chns[i].Position >= position ? chns[i].Position + 1 : chns[i].Position;
-                if(chns[i].Id == this.Id)
-                {
-                    if(parent_id != null)
-                        pmds[i].ParentId = parent_id;
-                    if(lock_permissions != null)
-                        pmds[i].LockPermissions = lock_permissions;
-                }
             }
 
             return this.Discord.ApiClient.ModifyGuildChannelPositionAsync(this.Guild.Id, pmds, reason);
+        }
+
+        /// <summary>
+        /// Updates the channel parent
+        /// </summary>
+        /// <param name="parent_id">New parent ID. Will move out of parent when no ID given</param>
+        /// <param name="lock_permissions">Sync permissions with parent. Defaults to null</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task ModifyParentAsync(ulong? parent_id = null, bool? lock_permissions = null, string reason = null)
+        {
+            if (this.Guild == null)
+                throw new InvalidOperationException("Cannot modify order of non-guild channels.");
+
+            var pmds = new RestGuildChannelNewParentPayload();
+            pmds.ParentId = parent_id;
+            if (parent_id != null)
+                pmds.LockPermissions = lock_permissions;
+
+            return this.Discord.ApiClient.ModifyGuildChannelParentAsync(this.Guild.Id, pmds, reason);
         }
 
         /// <summary>  
