@@ -400,7 +400,6 @@ namespace DSharpPlus
         /// <param name="userLimit">New voice channel user limit</param>
         /// <param name="perUserRateLimit">Slow mode timeout for users.</param>
         /// <param name="rtcRegion">New region override.</param>
-        /// <param name="lockPermissions">Sync Permissions of parent category.</param>
         /// <param name="reason">Reason why this channel was modified</param>
         /// <returns></returns>
         public Task ModifyChannelAsync(ulong id, string name, int? position, Optional<string> topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? userLimit, Optional<int?> perUserRateLimit, Optional<DiscordVoiceRegion> rtcRegion, string reason)
