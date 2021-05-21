@@ -67,7 +67,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the embedded application id to open for this voice channel.
         /// </summary>
-        [JsonProperty("target_application_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("target_application", NullValueHandling = NullValueHandling.Ignore)]
         public TargetActivity? TargetApplication { get; internal set; }
 
         /// <summary>
