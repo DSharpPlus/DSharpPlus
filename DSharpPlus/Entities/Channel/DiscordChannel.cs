@@ -374,7 +374,7 @@ namespace DSharpPlus.Entities
             var mdl = new ChannelEditModel();
             action(mdl);
             return this.Discord.ApiClient.ModifyChannelAsync(this.Id, mdl.Name, mdl.Position, mdl.Topic, mdl.Nsfw,
-                mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.PerUserRateLimit, mdl.RtcRegion.IfPresent(r => r?.Id), mdl.LockPermissions,
+                mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.PerUserRateLimit, mdl.RtcRegion.IfPresent(r => r?.Id),
                 mdl.AuditLogReason);
         }
 
@@ -383,12 +383,14 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="position">Position the channel should be moved to.</param>
         /// <param name="reason">Reason for audit logs.</param>
+        /// <param name="lock_permissions">Sync permissions with parent. Defaults to false</param>
+        /// <param name="parent_id">Parent channel ID. Defaults to none</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task ModifyPositionAsync(int position, string reason = null)
+        public Task ModifyPositionAsync(int position, bool lock_permissions = false, ulong parent_id = 0, string reason = null)
         {
             if (this.Guild == null)
                 throw new InvalidOperationException("Cannot modify order of non-guild channels.");
@@ -399,10 +401,15 @@ namespace DSharpPlus.Entities
             {
                 pmds[i] = new RestGuildChannelReorderPayload
                 {
-                    ChannelId = chns[i].Id
+                    ChannelId = chns[i].Id,
                 };
 
                 pmds[i].Position = chns[i].Id == this.Id ? position : chns[i].Position >= position ? chns[i].Position + 1 : chns[i].Position;
+                pmds[i].LockPermissions = chns[i].Id == this.Id ? lock_permissions : chns[i].LockPermissions;
+                if(parent_id != 0 && chns[i].Id == this.Id)
+                {
+                    pmds[i].ParentId = parent_id;
+                }
             }
 
             return this.Discord.ApiClient.ModifyGuildChannelPositionAsync(this.Guild.Id, pmds, reason);

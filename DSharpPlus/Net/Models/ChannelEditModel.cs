@@ -65,11 +65,6 @@ namespace DSharpPlus.Net.Models
         public int? Userlimit { internal get; set; }
 
         /// <summary>
-        /// Sets whether the channel syncs the permission overwrites with the parent.
-        /// </summary>
-        public Optional<bool?> LockPermissions { internal get; set; }
-
-        /// <summary>
         /// <para>Sets the channel's new slow mode timeout.</para>
         /// <para>Setting this to null or 0 will disable slow mode.</para>
         /// </summary>
