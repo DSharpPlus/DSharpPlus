@@ -61,51 +61,26 @@ namespace DSharpPlus.Entities
 
         #region Methods
 
-        /// <summary>  
-        /// Creates a stage instance.
-        /// <param name="channel_id">Associated channel id.</param>
-        /// <param name="topic">Topic of the stage instance.</param>
-        /// </summary> 
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordStageInstance> OpenStageAsync(ulong channel_id, string topic)
-            => await this.Discord.ApiClient.CreateStageInstanceAsync(channel_id, topic);
-
-        /// <summary>  
-        /// Gets the associated stage instance of the channel.
-        /// <param name="channel_id">Associated channel id.</param>
-        /// </summary> 
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.AccessChannels"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordStageInstance> GetStageAsync(ulong channel_id)
-            => await this.Discord.ApiClient.GetStageInstanceAsync(channel_id);
-
         /// <summary>
         /// Updates a stage instance.
         /// </summary>
-        /// <param name="channel_id">Associated channel id.</param>
         /// <param name="topic">Topic of the stage instance.</param>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task UpdateStageAsync(ulong channel_id, string topic)
-            => await this.Discord.ApiClient.ModifyStageInstanceAsync(channel_id, topic);
+        public async Task UpdateAsync(string topic)
+            => await this.Discord.ApiClient.ModifyStageInstanceAsync(this.ChannelId, topic);
 
         /// <summary>
         /// Deletes a stage instance.
         /// </summary>
-        /// <param name="channel_id">Associated channel id.</param>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task CloseStageAsync(ulong channel_id)
-            => await this.Discord.ApiClient.DeleteStageInstanceAsync(channel_id);
+        public async Task CloseAsync()
+            => await this.Discord.ApiClient.DeleteStageInstanceAsync(this.ChannelId);
 
         #endregion
 
