@@ -405,10 +405,11 @@ namespace DSharpPlus.Entities
                 };
 
                 pmds[i].Position = chns[i].Id == this.Id ? position : chns[i].Position >= position ? chns[i].Position + 1 : chns[i].Position;
-                pmds[i].LockPermissions = chns[i].Id == this.Id ? lock_permissions : chns[i].LockPermissions;
-                if(parent_id != 0 && chns[i].Id == this.Id)
+                if(chns[i].Id == this.Id)
                 {
-                    pmds[i].ParentId = parent_id;
+                    if(parent_id != 0)
+                        pmds[i].ParentId = parent_id;
+                    pmds[i].LockPermissions = lock_permissions;
                 }
             }
 
