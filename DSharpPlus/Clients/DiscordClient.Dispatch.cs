@@ -188,15 +188,13 @@ namespace DSharpPlus
                     break;
 
                 case "integration_delete":
-                    var id = (ulong)dat["id"];
                     gid = (ulong)dat["guild_id"];
-                    var aid = dat["application_id"].HasValues ? (ulong)dat["application_id"] : 0;
 
                     // discord fires this event inconsistently if the current user leaves a guild.
                     if (!this._guilds.ContainsKey(gid))
                         return;
 
-                    await this.OnGuildIntegrationDeleteEventAsync(id, gid, aid).ConfigureAwait(false);
+                    await this.OnGuildIntegrationDeleteEventAsync((ulong)dat["id"], gid, (ulong?)dat["application_id"]).ConfigureAwait(false);
                     break;
                 #endregion
 
@@ -1045,7 +1043,7 @@ namespace DSharpPlus
             await this._guildIntegrationUpdated.InvokeAsync(this, new GuildIntegrationUpdateEventArgs { Integration = integration, GuildId = guild_id }).ConfigureAwait(false);
         }
 
-        internal async Task OnGuildIntegrationDeleteEventAsync(ulong guild_id, ulong integration_id, ulong application_id)
+        internal async Task OnGuildIntegrationDeleteEventAsync(ulong guild_id, ulong integration_id, ulong? application_id)
             => await this._guildIntegrationDeleted.InvokeAsync(this, new GuildIntegrationDeleteEventArgs { GuildId = guild_id, IntegrationId = integration_id, ApplicationId = application_id }).ConfigureAwait(false);
 
         #endregion
