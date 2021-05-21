@@ -84,8 +84,21 @@ namespace DSharpPlus.Entities
             //this.Mentions = new ReadOnlyCollection<IMention>(this._mentions);
         }
 
+        public DiscordInteractionResponseBuilder(DiscordMessageBuilder builder)
+        {
+            this._components = builder.Components;
+            this._content = builder.Content;
+            this._mentions = builder.Mentions;
+            this._embeds.Add(builder.Embed);
+        }
+
         public DiscordInteractionResponseBuilder WithComponents(IEnumerable<DiscordComponent> components)
         {
+            var count = components.Count();
+
+            if (count > 5)
+                throw new ArgumentException("Cannot add more than 5 components per action row!");
+
             var arc = new DiscordActionRowComponent(components);
             this._components.Add(arc);
             return this;
@@ -171,6 +184,7 @@ namespace DSharpPlus.Entities
             this.IsTTS = false;
             this.IsEphemeral = false;
             this._mentions.Clear();
+            this._components.Clear();
         }
     }
 }

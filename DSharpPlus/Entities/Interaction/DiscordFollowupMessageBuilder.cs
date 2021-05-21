@@ -83,10 +83,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Constructs a new empty followup message builder.
         /// </summary>
-        public DiscordFollowupMessageBuilder()
-        {
-
-        }
+        public DiscordFollowupMessageBuilder() { }
 
         /// <summary>
         /// Indicates if the followup message must use text-to-speech.
