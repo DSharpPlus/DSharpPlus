@@ -413,7 +413,7 @@ namespace DSharpPlus.Net
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, headers, DiscordJson.SerializeObject(pld));
         }
 
-        internal Task ModifyGuildChannelParentAsync(ulong guild_id, RestGuildChannelNewParentPayload pld, string reason)
+        internal Task ModifyGuildChannelParentAsync(ulong guild_id, IEnumerable<RestGuildChannelNewParentPayload> pld, string reason)
         {
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))

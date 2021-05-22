@@ -409,7 +409,7 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Updates the channel parent
+        /// Updates the channel parent, moving the channel to the bottom of the new category.
         /// </summary>
         /// <param name="parent_id">New parent ID. Will move out of parent when no ID given</param>
         /// <param name="lock_permissions">Sync permissions with parent. Defaults to null</param>
@@ -426,14 +426,21 @@ namespace DSharpPlus.Entities
             if (this.IsCategory)
                 throw new InvalidOperationException("Cannot modify parent of category channels.");
 
-            var pmd = new RestGuildChannelNewParentPayload()
+            var position = this.Guild._channels.Values.Where(xc => xc.Type == this.Type && xc.ParentId == parent_id).Select(xc => xc.Position).DefaultIfEmpty().Max() + 1;
+            var chns = this.Guild._channels.Values.Where(xc => xc.Type == this.Type).OrderBy(xc => xc.Position).ToArray();
+            var pmds = new RestGuildChannelNewParentPayload[chns.Length]; // Discord will only set no parent category if the payload is an array
+            for (var i = 0; i < chns.Length; i++)
             {
-                ChannelId = this.Id,
-                ParentId = parent_id,
-                LockPermissions = lock_permissions
-            };
+                pmds[i] = new RestGuildChannelNewParentPayload
+                {
+                    ChannelId = chns[i].Id,
+                    Position = chns[i].Id == this.Id ? position : chns[i].Position >= position ? chns[i].Position + 1 : chns[i].Position,
+                    ParentId = chns[i].Id == this.Id ? parent_id : null,
+                    LockPermissions = chns[i].Id == this.Id ? lock_permissions : null,
+                };
+            }
 
-            return this.Discord.ApiClient.ModifyGuildChannelParentAsync(this.Guild.Id, pmd, reason);
+            return this.Discord.ApiClient.ModifyGuildChannelParentAsync(this.Guild.Id, pmds, reason);
         }
 
         /// <summary>  

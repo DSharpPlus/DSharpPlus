@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -452,7 +453,7 @@ namespace DSharpPlus.Test
             await ctx.RespondAsync(contentBuilder.ToString());
         }
         [Command("getattachmenttype")]
-        public async Task GetAttachmentsTypes(CommandContext ctx, ulong? messageId = null)
+        public async Task GetAttachmentsTypesAsync(CommandContext ctx, ulong? messageId = null)
         {
             if (messageId is null)
                 messageId = ctx.Message.Id;
@@ -470,6 +471,25 @@ namespace DSharpPlus.Test
                 }
             }
             await ctx.RespondAsync(contentBuilder.ToString());
+        }
+        [Command("channelpos")]
+        public async Task ChannelPositionsAsync(CommandContext ctx)
+        {
+            var channels = await ctx.Guild.GetChannelsAsync();
+            var channelsList = channels.OrderBy(x => x.Position).ToList();
+            var catC = channelsList.Where(x => x.Type is ChannelType.Category);
+            var voiC = channelsList.Where(x => x.Type is ChannelType.Voice);
+            var txtC = channelsList.Where(x => x.Type is ChannelType.Text);
+
+            await ctx.RespondAsync($"**Category Channels**\n{string.Join("\n", catC.Select(x => x.Position + ": " + x.Mention))}\n" +
+                $"**Voice Channels**\n{string.Join("\n", voiC.Select(x => x.Position + ": " + x.Mention))}\n" +
+                $"**Text Channels**\n{string.Join("\n", txtC.Select(x => x.Position + ": " + x.Mention + ": " + x.Parent.Mention))}");
+        }
+        [Command("changeparent")]
+        public async Task ChannelParentChangeAsync(CommandContext ctx, DiscordChannel moveChannel, DiscordChannel newCategory = null)
+        {
+            await moveChannel.ModifyParentAsync(newCategory?.Id, null, null);
+            await ctx.RespondAsync($"{moveChannel.Mention} moved: {(newCategory is null ? "no category" : newCategory.Name)}");
         }
     }
 }
