@@ -27,7 +27,7 @@ namespace DSharpPlus.Entities
     public class DiscordComponent
     {
         [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-        public ComponentType Type { get; internal set; }
+        public ComponentType Type { get; internal set; } = ComponentType.ActionRow;
 
         [JsonProperty("custom_id", NullValueHandling = NullValueHandling.Ignore)]
         public string CustomId { get; internal set; }

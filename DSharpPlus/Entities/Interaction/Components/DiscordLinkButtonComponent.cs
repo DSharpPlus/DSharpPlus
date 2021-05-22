@@ -24,11 +24,16 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
 {
-    public sealed class DiscordButtonComponent : DiscordComponent
+    public class DiscordLinkButtonComponent : DiscordComponent
     {
-        [JsonProperty("style", NullValueHandling = NullValueHandling.Ignore)]
-        public ButtonStyle Style { get; set; }
+        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
+        public ComponentType Type { get; internal set; } = ComponentType.Button;
 
+        [JsonProperty("style", NullValueHandling = NullValueHandling.Ignore)]
+        internal int Style { get; set; } = 5; // Link = 5; Discord throws 400 otherwise //
+
+        [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
+        public string Url { get; set; }
 
         [JsonProperty("label", NullValueHandling = NullValueHandling.Ignore)]
         public string Label { get; set; }
@@ -39,16 +44,13 @@ namespace DSharpPlus.Entities
         [JsonProperty("emoji", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordComponentEmoji Emoji { get; set; }
 
-        public DiscordButtonComponent() { }
-        public DiscordButtonComponent(ButtonStyle style, string customId = null, string label = null, bool disabled = false, DiscordComponentEmoji emoji = null)
+        public DiscordLinkButtonComponent(string url, string label, DiscordComponentEmoji emoji = null, bool disabled = false)
         {
-            this.Style = style;
-
+            this.Url = url;
             this.Label = label;
-            this.CustomId = customId;
             this.Disabled = disabled;
             this.Emoji = emoji;
-            this.Type = ComponentType.Button;
         }
+
     }
 }

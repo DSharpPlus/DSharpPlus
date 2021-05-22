@@ -40,9 +40,5 @@ namespace DSharpPlus.Entities
         /// Red button.
         /// </summary>
         Danger = 4,
-        /// <summary>
-        /// A link. buttons are not allowed to have a custom Id if provided with this type.
-        /// </summary>
-        Link = 5
     }
 }

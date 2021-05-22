@@ -52,7 +52,7 @@ namespace DSharpPlus.Test
             var c = new DiscordButtonComponent(ButtonStyle.Secondary, "C_", "Grey", emoji: new DiscordComponentEmoji {Id = 833475015114358854});
             var b = new DiscordButtonComponent(ButtonStyle.Success, "B_", "Green", emoji: new DiscordComponentEmoji {Id = 831306677449785394});
             var y = new DiscordButtonComponent(ButtonStyle.Danger, "Y_", "Red", emoji: new DiscordComponentEmoji {Id = 833886629792972860});
-            var z = new DiscordButtonComponent(ButtonStyle.Link, null, "Link", emoji: new DiscordComponentEmoji {Id = 826108356656758794}, url: "https://velvetthepanda.dev");
+            var z = new DiscordLinkButtonComponent("https://velvetthepanda.dev", "Link", new DiscordComponentEmoji {Id = 826108356656758794});
 
             var d1 = new DiscordButtonComponent(ButtonStyle.Primary, "disabled", "and", true);
             var d2 = new DiscordButtonComponent(ButtonStyle.Secondary, "disabled2", "these", true);
