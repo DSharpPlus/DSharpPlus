@@ -150,7 +150,7 @@ namespace DSharpPlus.Net.Abstractions
         public int Position { get; set; }
 
         [JsonProperty("parent_id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong? ParentId { get; set; }
+        public Optional<ulong?> ParentId { get; set; }
 
         [JsonProperty("lock_permissions", NullValueHandling = NullValueHandling.Ignore)]
         public bool? LockPermissions { get; set; }

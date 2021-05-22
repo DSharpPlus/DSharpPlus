@@ -379,7 +379,7 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Updates the channel position
+        /// Updates the channel position within it's own category. Use <see cref="ModifyParentAsync"/> for moving to other categories.
         /// </summary>
         /// <param name="position">Position the channel should be moved to.</param>
         /// <param name="reason">Reason for audit logs.</param>
@@ -411,8 +411,8 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Updates the channel parent, moving the channel to the bottom of the new category.
         /// </summary>
-        /// <param name="parent_id">New parent ID. Will move out of parent when no ID given</param>
-        /// <param name="lock_permissions">Sync permissions with parent. Defaults to null</param>
+        /// <param name="parent_id">New parent ID. Will move out of parent if null.</param>
+        /// <param name="lock_permissions">Sync permissions with parent. Defaults to null.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
@@ -426,18 +426,22 @@ namespace DSharpPlus.Entities
             if (this.IsCategory)
                 throw new InvalidOperationException("Cannot modify parent of category channels.");
 
-            var position = this.Guild._channels.Values.Where(xc => xc.Type == this.Type && xc.ParentId == parent_id).Select(xc => xc.Position).DefaultIfEmpty().Max() + 1;
+            var position = this.Guild._channels.Values.Where(xc => xc.Type == this.Type && xc.ParentId == parent_id).Select(xc => xc.Position).DefaultIfEmpty(-1).Max() + 1;
             var chns = this.Guild._channels.Values.Where(xc => xc.Type == this.Type).OrderBy(xc => xc.Position).ToArray();
-            var pmds = new RestGuildChannelNewParentPayload[chns.Length]; // Discord will only set no parent category if the payload is an array
+            var pmds = new RestGuildChannelNewParentPayload[chns.Length];
             for (var i = 0; i < chns.Length; i++)
             {
                 pmds[i] = new RestGuildChannelNewParentPayload
                 {
                     ChannelId = chns[i].Id,
-                    Position = chns[i].Id == this.Id ? position : chns[i].Position >= position ? chns[i].Position + 1 : chns[i].Position,
-                    ParentId = chns[i].Id == this.Id ? parent_id : null,
-                    LockPermissions = chns[i].Id == this.Id ? lock_permissions : null,
+                    Position = chns[i].Position >= position ? chns[i].Position + 1 : chns[i].Position,
                 };
+                if(chns[i].Id == this.Id)
+                {
+                    pmds[i].Position = position;
+                    pmds[i].ParentId = parent_id;
+                    pmds[i].LockPermissions = lock_permissions;
+                }
             }
 
             return this.Discord.ApiClient.ModifyGuildChannelParentAsync(this.Guild.Id, pmds, reason);

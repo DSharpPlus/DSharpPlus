@@ -483,7 +483,7 @@ namespace DSharpPlus.Test
 
             await ctx.RespondAsync($"**Category Channels**\n{string.Join("\n", catC.Select(x => x.Position + ": " + x.Mention))}\n" +
                 $"**Voice Channels**\n{string.Join("\n", voiC.Select(x => x.Position + ": " + x.Mention))}\n" +
-                $"**Text Channels**\n{string.Join("\n", txtC.Select(x => x.Position + ": " + x.Mention + ": " + x.Parent.Mention))}");
+                $"**Text Channels**\n{string.Join("\n", txtC.Select(x => x.Position + ": " + x.Mention + ": " + x.Parent?.Mention))}");
         }
         [Command("changeparent")]
         public async Task ChannelParentChangeAsync(CommandContext ctx, DiscordChannel moveChannel, DiscordChannel newCategory = null)
