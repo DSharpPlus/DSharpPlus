@@ -33,14 +33,15 @@ namespace DSharpPlus.Entities
         /// The Id of the emoji to use.
         /// </summary>
         [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong Id { get; internal set; }
+        public ulong Id { get; set; }
 
         /// <summary>
         /// The name of the emoji to use.
         /// </summary>
         [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
-        public string Name { get; internal set; }
+        public string Name { get; set; }
 
+        public DiscordComponentEmoji() { }
         public DiscordComponentEmoji(ulong id)
         {
             this.Id = id;

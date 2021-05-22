@@ -800,6 +800,8 @@ namespace DSharpPlus
         private Task Client_InteractionCreate(DiscordClient client, InteractionCreateEventArgs e)
             => this._interactionCreated.InvokeAsync(client, e);
 
+        private Task Client_ComponentInteractionCreate(DiscordClient client, ComponentInteractionEventArgs e)
+            => this._componentInteractionCreated.InvokeAsync(client, e);
         private Task Client_WebhooksUpdate(DiscordClient client, WebhooksUpdateEventArgs e)
             => this._webhooksUpdated.InvokeAsync(client, e);
 

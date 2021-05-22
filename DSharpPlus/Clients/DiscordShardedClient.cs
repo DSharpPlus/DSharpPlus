@@ -525,6 +525,7 @@ namespace DSharpPlus
             client.MessageDeleted += this.Client_MessageDelete;
             client.MessagesBulkDeleted += this.Client_MessageBulkDelete;
             client.InteractionCreated += this.Client_InteractionCreate;
+            client.ComponentInteractionCreated += this.Client_ComponentInteractionCreate;
             client.TypingStarted += this.Client_TypingStart;
             client.UserSettingsUpdated += this.Client_UserSettingsUpdate;
             client.UserUpdated += this.Client_UserUpdate;
