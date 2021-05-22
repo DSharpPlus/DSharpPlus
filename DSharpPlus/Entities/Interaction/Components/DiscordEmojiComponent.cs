@@ -24,12 +24,30 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
 {
+    /// <summary>
+    /// Represents an emoji to add to a component.
+    /// </summary>
     public sealed class DiscordComponentEmoji
     {
+        /// <summary>
+        /// The Id of the emoji to use.
+        /// </summary>
         [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong Id { get; set; }
+        public ulong Id { get; internal set; }
 
+        /// <summary>
+        /// The name of the emoji to use.
+        /// </summary>
         [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
-        public string Name { get; set; }
+        public string Name { get; internal set; }
+
+        public DiscordComponentEmoji(ulong id)
+        {
+            this.Id = id;
+        }
+        public DiscordComponentEmoji(string name)
+        {
+            this.Name = name;
+        }
     }
 }
