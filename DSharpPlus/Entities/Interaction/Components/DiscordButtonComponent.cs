@@ -30,6 +30,10 @@ namespace DSharpPlus.Entities
     /// </summary>
     public sealed class DiscordButtonComponent : DiscordComponent
     {
+
+        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
+        internal new ComponentType Type { get; set; } = ComponentType.Button; // Discord likes to throw 400. //
+
         /// <summary>
         /// The style of the button.
         /// </summary>
@@ -55,7 +59,7 @@ namespace DSharpPlus.Entities
         public DiscordComponentEmoji Emoji { get; set; }
 
         public DiscordButtonComponent() { }
-        public DiscordButtonComponent(ButtonStyle style, string customId = null, string label = null, bool disabled = false, DiscordComponentEmoji emoji = null)
+        public DiscordButtonComponent(ButtonStyle style, string customId, string label, bool disabled = false, DiscordComponentEmoji emoji = null)
         {
             this.Style = style;
 

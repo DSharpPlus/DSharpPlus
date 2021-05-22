@@ -40,7 +40,7 @@ namespace DSharpPlus.Test
 
             builder
                 .WithContent("Buttons! Coming soon:tm:")
-                .WithComponentRow(new DiscordButtonComponent(ButtonStyle.Primary, "P_", emoji: new DiscordComponentEmoji(833475075474063421)));
+                .WithComponentRow(new DiscordButtonComponent(ButtonStyle.Primary, "P_", "", false, new DiscordComponentEmoji(833475075474063421)));
 
             await builder.SendAsync(ctx.Channel);
         }

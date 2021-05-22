@@ -79,7 +79,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Mentions to send on this followup message.
         /// </summary>
-        public IEnumerable<IMention> Mentions => this._mentions;
+        public IReadOnlyList<IMention> Mentions => this._mentions;
         private readonly List<IMention> _mentions = new();
 
         /// <summary>
