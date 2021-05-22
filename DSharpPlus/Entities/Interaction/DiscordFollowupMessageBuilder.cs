@@ -83,11 +83,11 @@ namespace DSharpPlus.Entities
         private readonly List<IMention> _mentions = new();
 
         /// <summary>
-        /// Constructs a new empty followup message builder.
+        /// Adds acollection of components to the message.
         /// </summary>
-        public DiscordFollowupMessageBuilder() { }
-
-
+        /// <param name="components">The collection of components to add.</param>
+        /// <returns>The builder to chain calls with.</returns>
+        /// <exception cref="ArgumentException"><paramref name="components"/> contained more than 5 components.</exception>
         public DiscordFollowupMessageBuilder WithComponents(IEnumerable<DiscordComponent> components)
         {
             var count = components.Count();
@@ -103,6 +103,7 @@ namespace DSharpPlus.Entities
         /// Indicates if the followup message must use text-to-speech.
         /// </summary>
         /// <param name="tts">Text-to-speech</param>
+        /// <returns>The builder to chain calls with.</returns>
         public DiscordFollowupMessageBuilder WithTTS(bool tts)
         {
             this.IsTTS = tts;
@@ -113,6 +114,7 @@ namespace DSharpPlus.Entities
         /// Sets the message to send with the followup message..
         /// </summary>
         /// <param name="content">Message to send.</param>
+        /// <returns>The builder to chain calls with.</returns>
         public DiscordFollowupMessageBuilder WithContent(string content)
         {
             this.Content = content;
@@ -123,6 +125,7 @@ namespace DSharpPlus.Entities
         /// Adds an embed to the followup message.
         /// </summary>
         /// <param name="embed">Embed to add.</param>
+        /// <returns>The builder to chain calls with.</returns>
         public DiscordFollowupMessageBuilder AddEmbed(DiscordEmbed embed)
         {
             this._embeds.Add(embed);
@@ -133,6 +136,7 @@ namespace DSharpPlus.Entities
         /// Adds the given embeds to the followup message.
         /// </summary>
         /// <param name="embeds">Embeds to add.</param>
+        /// <returns>The builder to chain calls with.</returns>
         public DiscordFollowupMessageBuilder AddEmbeds(IEnumerable<DiscordEmbed> embeds)
         {
             this._embeds.AddRange(embeds);
@@ -145,6 +149,7 @@ namespace DSharpPlus.Entities
         /// <param name="filename">Name of the file.</param>
         /// <param name="data">File data.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
+        /// <returns>The builder to chain calls with.</returns>
         public DiscordFollowupMessageBuilder AddFile(string filename, Stream data, bool resetStreamPosition = false)
         {
             if (this.Files.Count >= 10)
@@ -166,7 +171,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="stream">The Stream to the file.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
-        /// <returns></returns>
+        /// <returns>The builder to chain calls with.</returns>
         public DiscordFollowupMessageBuilder AddFile(FileStream stream, bool resetStreamPosition = false)
         {
             if (this.Files.Count >= 10)
@@ -188,6 +193,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="files">Dictionary of file name and file data.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
+        /// <returns>The builder to chain calls with.</returns>
         public DiscordFollowupMessageBuilder AddFiles(Dictionary<string, Stream> files, bool resetStreamPosition = false)
         {
             if (this.Files.Count + files.Count >= 10)
@@ -212,6 +218,7 @@ namespace DSharpPlus.Entities
         /// Adds the mention to the mentions to parse, etc. with the followup message.
         /// </summary>
         /// <param name="mention">Mention to add.</param>
+        /// <returns>The builder to chain calls with.</returns>
         public DiscordFollowupMessageBuilder AddMention(IMention mention)
         {
             this._mentions.Add(mention);
@@ -222,6 +229,7 @@ namespace DSharpPlus.Entities
         /// Adds the mentions to the mentions to parse, etc. with the followup message.
         /// </summary>
         /// <param name="mentions">Mentions to add.</param>
+        /// <returns>The builder to chain calls with.</returns>
         public DiscordFollowupMessageBuilder AddMentions(IEnumerable<IMention> mentions)
         {
             this._mentions.AddRange(mentions);
@@ -232,6 +240,7 @@ namespace DSharpPlus.Entities
         /// Sets the followup message to be ephemeral.
         /// </summary>
         /// <param name="ephemeral">Ephemeral.</param>
+        /// <returns>The builder to chain calls with.</returns>
         public DiscordFollowupMessageBuilder AsEphemeral(bool ephemeral)
         {
             this.IsEphemeral = ephemeral;
