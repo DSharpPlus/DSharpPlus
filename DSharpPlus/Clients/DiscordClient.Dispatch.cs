@@ -145,6 +145,10 @@ namespace DSharpPlus
                     await this.OnGuildIntegrationsUpdateEventAsync(this._guilds[gid]).ConfigureAwait(false);
                     break;
 
+                // This event is at the moment not documented and could be part of membership screening
+                case "guild_join_request_delete":
+                    break;
+
                 #endregion
 
                 #region Guild Ban
