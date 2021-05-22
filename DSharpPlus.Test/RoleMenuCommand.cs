@@ -55,7 +55,7 @@ namespace DSharpPlus.Test
                     if (pair.First.Position > ctx.Member.Hierarchy)
                         throw new InvalidOperationException("Cannot assign role higher than your own!");
 
-                    var e = new DiscordComponentEmoji() {Id = pair.Second.Id, Name = pair.Second.Name};
+                    var e = new DiscordComponentEmoji(pair.Second.Id);
                     var b = new DiscordButtonComponent(ButtonStyle.Success, $"{pair.First.Mention}", emoji: e);
                     buttons.Add(b);
                 }

@@ -40,7 +40,7 @@ namespace DSharpPlus.Test
 
             builder
                 .WithContent("Buttons! Coming soon:tm:")
-                .WithComponentRow(new DiscordButtonComponent(ButtonStyle.Primary, "P_", emoji: new DiscordComponentEmoji {Id = 833475075474063421}));
+                .WithComponentRow(new DiscordButtonComponent(ButtonStyle.Primary, "P_", emoji: new DiscordComponentEmoji(833475075474063421)));
 
             await builder.SendAsync(ctx.Channel);
         }
@@ -48,11 +48,11 @@ namespace DSharpPlus.Test
         [Command]
         public async Task Sendbuttons(CommandContext ctx)
         {
-            var p = new DiscordButtonComponent(ButtonStyle.Primary, "P_", "Blurple", emoji: new DiscordComponentEmoji {Id = 833475075474063421});
-            var c = new DiscordButtonComponent(ButtonStyle.Secondary, "C_", "Grey", emoji: new DiscordComponentEmoji {Id = 833475015114358854});
-            var b = new DiscordButtonComponent(ButtonStyle.Success, "B_", "Green", emoji: new DiscordComponentEmoji {Id = 831306677449785394});
-            var y = new DiscordButtonComponent(ButtonStyle.Danger, "Y_", "Red", emoji: new DiscordComponentEmoji {Id = 833886629792972860});
-            var z = new DiscordLinkButtonComponent("https://velvetthepanda.dev", "Link", new DiscordComponentEmoji {Id = 826108356656758794});
+            var p = new DiscordButtonComponent(ButtonStyle.Primary, "P_", "Blurple", emoji: new DiscordComponentEmoji( 833475075474063421));
+            var c = new DiscordButtonComponent(ButtonStyle.Secondary, "C_", "Grey", emoji: new DiscordComponentEmoji(833475015114358854));
+            var b = new DiscordButtonComponent(ButtonStyle.Success, "B_", "Green", emoji: new DiscordComponentEmoji(831306677449785394));
+            var y = new DiscordButtonComponent(ButtonStyle.Danger, "Y_", "Red", emoji: new DiscordComponentEmoji(833886629792972860));
+            var z = new DiscordLinkButtonComponent("https://velvetthepanda.dev", "Link", new DiscordComponentEmoji(826108356656758794));
 
             var d1 = new DiscordButtonComponent(ButtonStyle.Primary, "disabled", "and", true);
             var d2 = new DiscordButtonComponent(ButtonStyle.Secondary, "disabled2", "these", true);
