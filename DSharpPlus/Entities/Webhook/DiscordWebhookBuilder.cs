@@ -85,7 +85,7 @@ namespace DSharpPlus.Entities
 
 
         public IReadOnlyCollection<DiscordActionRowComponent> Components => this._components;
-        private readonly List<DiscordActionRowComponent> _components;
+        private readonly List<DiscordActionRowComponent> _components = new();
 
 
         /// <summary>
