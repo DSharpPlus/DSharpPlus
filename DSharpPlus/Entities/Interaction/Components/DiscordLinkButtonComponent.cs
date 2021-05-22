@@ -24,25 +24,43 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
 {
+    /// <summary>
+    /// Represents a link button. Clicking a link button does not send an interaction.
+    /// </summary>
     public class DiscordLinkButtonComponent : DiscordComponent
     {
+        /// <summary>
+        /// The type of component this represents. Always returns button.
+        /// </summary>
         [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
         public ComponentType Type { get; internal set; } = ComponentType.Button;
 
-        [JsonProperty("style", NullValueHandling = NullValueHandling.Ignore)]
-        internal int Style { get; set; } = 5; // Link = 5; Discord throws 400 otherwise //
-
+        /// <summary>
+        /// The url to open when pressing this button.
+        /// </summary>
         [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
         public string Url { get; set; }
 
+        /// <summary>
+        /// The text to add to this button. If this is not specified, <see cref="Emoji"/> must be.
+        /// </summary>
         [JsonProperty("label", NullValueHandling = NullValueHandling.Ignore)]
         public string Label { get; set; }
 
+        /// <summary>
+        /// Whether this button can be pressed.
+        /// </summary>
         [JsonProperty("disabled", NullValueHandling = NullValueHandling.Ignore)]
         public bool Disabled { get; set; }
 
+        /// <summary>
+        /// The emoji to add to the button. Can be used in conjunction with a label, or as standalone. Must be added if label is not specified.
+        /// </summary>
         [JsonProperty("emoji", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordComponentEmoji Emoji { get; set; }
+
+        [JsonProperty("style", NullValueHandling = NullValueHandling.Ignore)]
+        internal int Style { get; set; } = 5; // Link = 5; Discord throws 400 otherwise //
 
         public DiscordLinkButtonComponent(string url, string label, DiscordComponentEmoji emoji = null, bool disabled = false)
         {

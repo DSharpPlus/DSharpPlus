@@ -24,11 +24,20 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
 {
+    /// <summary>
+    /// A component to attatch to a message.
+    /// </summary>
     public class DiscordComponent
     {
+        /// <summary>
+        /// The type of component this represents.
+        /// </summary>
         [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
         public ComponentType Type { get; internal set; } = ComponentType.ActionRow;
 
+        /// <summary>
+        /// The Id of this compopnent, if applicable. Not applicable on ActionRow(s) and Link buttons.
+        /// </summary>
         [JsonProperty("custom_id", NullValueHandling = NullValueHandling.Ignore)]
         public string CustomId { get; internal set; }
 

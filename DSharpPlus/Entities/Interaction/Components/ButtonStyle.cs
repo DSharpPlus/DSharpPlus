@@ -22,6 +22,9 @@
 // SOFTWARE.
 namespace DSharpPlus.Entities
 {
+    /// <summary>
+    /// Represents a button's style/color.
+    /// </summary>
     public enum ButtonStyle : int
     {
         /// <summary>

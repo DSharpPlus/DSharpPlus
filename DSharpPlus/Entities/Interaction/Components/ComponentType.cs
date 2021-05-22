@@ -22,9 +22,18 @@
 // SOFTWARE.
 namespace DSharpPlus.Entities
 {
+    /// <summary>
+    /// Represents a type of component.
+    /// </summary>
     public enum ComponentType
     {
+        /// <summary>
+        /// A row of components.
+        /// </summary>
         ActionRow = 1,
+        /// <summary>
+        /// A button.
+        /// </summary>
         Button = 2,
     }
 }

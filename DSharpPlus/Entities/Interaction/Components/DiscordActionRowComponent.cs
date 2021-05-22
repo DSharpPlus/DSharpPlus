@@ -27,16 +27,26 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
 {
+    /// <summary>
+    /// Represents a row of components. Acion rows can have up to five components.
+    /// </summary>
     public sealed class DiscordActionRowComponent : DiscordComponent
     {
 
+        /// <summary>
+        /// The type of component this represents. Always returns type 1.
+        /// </summary>
         [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
         public ComponentType Type { get; internal set; } = ComponentType.ActionRow;
 
+        /// <summary>
+        /// The components contained within the action row.
+        /// </summary>
         [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
         public List<DiscordComponent> Components { get; internal set; }
 
         internal DiscordActionRowComponent() { }
+
         internal DiscordActionRowComponent(IEnumerable<DiscordComponent> components)
         {
             this.Components = components.ToList();

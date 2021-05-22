@@ -24,18 +24,33 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
 {
+
+    /// <summary>
+    /// Represents a button that can be pressed. Fires <see cref="EventArgs.ComponentInteractionEventArgs"/> when pressed.
+    /// </summary>
     public sealed class DiscordButtonComponent : DiscordComponent
     {
+        /// <summary>
+        /// The style of the button.
+        /// </summary>
         [JsonProperty("style", NullValueHandling = NullValueHandling.Ignore)]
         public ButtonStyle Style { get; set; }
 
-
+        /// <summary>
+        /// The text to apply to the button. If this is not specified <see cref="Emoji"/> becomes required.
+        /// </summary>
         [JsonProperty("label", NullValueHandling = NullValueHandling.Ignore)]
         public string Label { get; set; }
 
+        /// <summary>
+        /// Whether this button can be pressed.
+        /// </summary>
         [JsonProperty("disabled", NullValueHandling = NullValueHandling.Ignore)]
         public bool Disabled { get; set; }
 
+        /// <summary>
+        /// The emoji to add to the button. Can be used in conjunction with a label, or as standalone. Must be added if label is not specified.
+        /// </summary>
         [JsonProperty("emoji", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordComponentEmoji Emoji { get; set; }
 
