@@ -605,7 +605,9 @@ namespace DSharpPlus
         }
         private AsyncEvent<DiscordClient, InteractionCreateEventArgs> _interactionCreated;
 
-
+        /// <summary>
+        /// Fired when a component is invoked.
+        /// </summary>
         public event AsyncEventHandler<DiscordClient, ComponentInteractionEventArgs> ComponentInteractionCreated
         {
             add => this._componentInteractionCreated.Register(value);

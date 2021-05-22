@@ -545,7 +545,7 @@ namespace DSharpPlus
         #region Application
 
         /// <summary>
-        /// Fired when a new application command is registered. 
+        /// Fired when a new application command is registered.
         /// </summary>
         public event AsyncEventHandler<DiscordClient, ApplicationCommandEventArgs> ApplicationCommandCreated
         {
@@ -555,7 +555,7 @@ namespace DSharpPlus
         private AsyncEvent<DiscordClient, ApplicationCommandEventArgs> _applicationCommandCreated;
 
         /// <summary>
-        /// Fired when an application command is updated. 
+        /// Fired when an application command is updated.
         /// </summary>
         public event AsyncEventHandler<DiscordClient, ApplicationCommandEventArgs> ApplicationCommandUpdated
         {
@@ -565,7 +565,7 @@ namespace DSharpPlus
         private AsyncEvent<DiscordClient, ApplicationCommandEventArgs> _applicationCommandUpdated;
 
         /// <summary>
-        /// Fired when an application command is deleted. 
+        /// Fired when an application command is deleted.
         /// </summary>
         public event AsyncEventHandler<DiscordClient, ApplicationCommandEventArgs> ApplicationCommandDeleted
         {
@@ -579,7 +579,7 @@ namespace DSharpPlus
         #region Misc
 
         /// <summary>
-        /// Fired when an interaction is invoked.  
+        /// Fired when an interaction is invoked.
         /// </summary>
         public event AsyncEventHandler<DiscordClient, InteractionCreateEventArgs> InteractionCreated
         {
@@ -587,6 +587,16 @@ namespace DSharpPlus
             remove => this._interactionCreated.Unregister(value);
         }
         private AsyncEvent<DiscordClient, InteractionCreateEventArgs> _interactionCreated;
+
+        /// <summary>
+        /// Fired when a component is invoked.
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, ComponentInteractionEventArgs> ComponentInteracted
+        {
+            add => this._componentInteractionCreated.Register(value);
+            remove => this._componentInteractionCreated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ComponentInteractionEventArgs> _componentInteractionCreated;
 
         /// <summary>
         /// Fired when a user starts typing in a channel.
