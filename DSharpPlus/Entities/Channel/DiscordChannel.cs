@@ -422,15 +422,18 @@ namespace DSharpPlus.Entities
         public Task ModifyParentAsync(ulong? parent_id = null, bool? lock_permissions = null, string reason = null)
         {
             if (this.Guild == null)
-                throw new InvalidOperationException("Cannot modify order of non-guild channels.");
+                throw new InvalidOperationException("Cannot modify parent of non-guild channels.");
+            if (this.IsCategory)
+                throw new InvalidOperationException("Cannot modify parent of category channels.");
 
-            var pmds = new RestGuildChannelNewParentPayload();
-            pmds.ChannelId = this.Id;
-            pmds.ParentId = parent_id;
-            if (parent_id != null)
-                pmds.LockPermissions = lock_permissions;
+            var pmd = new RestGuildChannelNewParentPayload()
+            {
+                ChannelId = this.Id,
+                ParentId = parent_id,
+                LockPermissions = lock_permissions
+            };
 
-            return this.Discord.ApiClient.ModifyGuildChannelParentAsync(this.Guild.Id, pmds, reason);
+            return this.Discord.ApiClient.ModifyGuildChannelParentAsync(this.Guild.Id, pmd, reason);
         }
 
         /// <summary>  
