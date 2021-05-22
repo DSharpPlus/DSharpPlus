@@ -591,7 +591,7 @@ namespace DSharpPlus
         /// <summary>
         /// Fired when a component is invoked.
         /// </summary>
-        public event AsyncEventHandler<DiscordClient, ComponentInteractionEventArgs> ComponentInteracted
+        public event AsyncEventHandler<DiscordClient, ComponentInteractionEventArgs> ComponentInteractionCreated
         {
             add => this._componentInteractionCreated.Register(value);
             remove => this._componentInteractionCreated.Unregister(value);
