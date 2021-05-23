@@ -38,12 +38,12 @@ namespace DSharpPlus
         DefaultValue = 0,
 
         /// <summary>
-        /// Indicates that the camera quality is automatically chosen, or there is no value set.
+        /// Indicates that the video quality is automatically chosen, or there is no value set.
         /// </summary>
         Auto = 1,
 
         /// <summary>
-        /// Indicates that the camera quality is 720p.
+        /// Indicates that the video quality is 720p.
         /// </summary>
         Full = 2,
     }
