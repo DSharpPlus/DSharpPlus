@@ -332,6 +332,12 @@ namespace DSharpPlus.Entities
         [JsonProperty("interaction", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordMessageInteraction Interaction { get; internal set; }
 
+        /// <summary>
+        /// Gets the thread that was started from this message.
+        /// </summary>
+        [JsonProperty("thread", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordThreadChannel Thread { get; internal set; }
+
         internal DiscordMessageReference InternalBuildMessageReference()
         {
             var client = this.Discord as DiscordClient;

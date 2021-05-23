@@ -68,6 +68,11 @@ namespace DSharpPlus
         Urgent = 1 << 4,
 
         /// <summary>
+        /// The message has an associated thread, with the same id as the message.
+        /// </summary>
+        HasThread = 1 << 5,
+
+        /// <summary>
         /// The message is only visible to the user who invoked the interaction.
         /// </summary>
         Ephemeral = 1 << 6,

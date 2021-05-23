@@ -47,14 +47,10 @@ namespace DSharpPlus.Entities
         public bool Archived { get; internal set; }
 
         /// <summary>
-        /// Gets the timestamp when it was archived.
+        /// Gets ID of the archiver.
         /// </summary>
-        public DateTimeOffset? ArchiveTimestamp
-            => !string.IsNullOrWhiteSpace(this.ArchiveTimestampRaw) && DateTimeOffset.TryParse(this.ArchiveTimestampRaw, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dto) ?
-                dto : null;
-
-        [JsonProperty("archive_timestamp", NullValueHandling = NullValueHandling.Ignore)]
-        internal string ArchiveTimestampRaw { get; set; }
+        [JsonProperty("archiver_id", NullValueHandling = NullValueHandling.Ignore)]
+        public ulong? ArchiverId { get; internal set; }
 
         /// <summary>
         /// Gets the time when it will be archived, while there is no action inside the thread (In minutes).
@@ -63,10 +59,14 @@ namespace DSharpPlus.Entities
         public int AutoArchiveDuration { get; internal set; }
 
         /// <summary>
-        /// Gets ID of the archiver.
+        /// Gets the timestamp when it was archived.
         /// </summary>
-        [JsonProperty("archiver_id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong ArchiverId { get; internal set; }
+        public DateTimeOffset? ArchiveTimestamp
+            => !string.IsNullOrWhiteSpace(this.ArchiveTimestampRaw) && DateTimeOffset.TryParse(this.ArchiveTimestampRaw, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dto) ?
+                dto : null;
+
+        [JsonProperty("archive_timestamp", NullValueHandling = NullValueHandling.Ignore)]
+        internal string ArchiveTimestampRaw { get; set; }
 
         /// <summary>
         /// Gets whether the thread is locked.

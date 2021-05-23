@@ -114,6 +114,11 @@ namespace DSharpPlus
         GuildDiscoveryGracePeriodFinalWarning = 17,
 
         /// <summary>
+        /// Message indicating a thread was created.
+        /// </summary>
+        ThreadCreated = 18,
+
+        /// <summary>
         /// Message indicating a user replied to another user.
         /// </summary>
         Reply = 19,
@@ -122,6 +127,11 @@ namespace DSharpPlus
         /// Message indicating an application command was invoked.
         /// </summary>
         ApplicationCommand = 20,
+
+        /// <summary>
+        /// Message indicating a thread starter message.
+        /// </summary>
+        ThreadStarterMessage = 19,
 
         /// <summary>
         /// Message reminding you to invite people to help you build the server.

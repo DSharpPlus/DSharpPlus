@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -31,6 +32,7 @@ using System.Threading.Tasks;
 using DSharpPlus.Exceptions;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Models;
+using DSharpPlus.Net.Serialization;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
@@ -87,7 +89,7 @@ namespace DSharpPlus.Entities
         /// <para>Gets the slow mode delay configured for this thread.</para>
         /// <para>All bots, as well as users with <see cref="Permissions.ManageChannels"/> or <see cref="Permissions.ManageMessages"/> permissions in the channel are exempt from slow mode.</para>
         /// </summary>
-        [JsonProperty("rate_limit_per_user")]
+        [JsonProperty("rate_limit_per_user"), NullValueHandling = NullValueHandling.Ignore)]
         public int? PerUserRateLimit { get; internal set; }
 
         /// <summary>
@@ -104,9 +106,19 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the threads metadata.
         /// </summary>
-        [JsonProperty("thread_metadata")]
+        [JsonProperty("thread_metadata"), NullValueHandling = NullValueHandling.Ignore)]
         public DiscordThreadChannelMetadata ThreadMetadata { get; internal set; }
-        
+
+        /// <summary>
+        /// Gets the thread member object.
+        /// </summary>
+        [JsonIgnore]
+        public IReadOnlyDictionary<ulong, DiscordThreadChannelMember> ThreadMembers => new ReadOnlyConcurrentDictionary<ulong, DiscordThreadChannelMember>(this._threadMembers);
+
+        [JsonProperty("thread_member", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
+        internal ConcurrentDictionary<ulong, DiscordThreadChannelMember> _threadMembers;
+
         #region Methods
 
         /// <summary>
