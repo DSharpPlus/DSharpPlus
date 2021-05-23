@@ -91,7 +91,7 @@ namespace DSharpPlus.Entities
         public int? PerUserRateLimit { get; internal set; }
 
         /// <summary>
-        /// Gets when the last pinned message was pinned.
+        /// Gets when the last pinned message was pinned in this thread.
         /// </summary>
         [JsonIgnore]
         public DateTimeOffset? LastPinTimestamp
@@ -101,7 +101,12 @@ namespace DSharpPlus.Entities
         [JsonProperty("last_pin_timestamp", NullValueHandling = NullValueHandling.Ignore)]
         internal string LastPinTimestampRaw { get; set; }
 
-
+        /// <summary>
+        /// Gets the threads metadata.
+        /// </summary>
+        [JsonProperty("thread_metadata")]
+        public DiscordThreadChannelMetadata ThreadMetadata { get; internal set; }
+        
         #region Methods
 
         /// <summary>
