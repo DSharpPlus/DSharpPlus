@@ -684,13 +684,62 @@ namespace DSharpPlus.Entities
         /// <param name="name">The name of the thread.</param>
         /// <param name="auto_archive_duration"><see cref="ThreadAutoArchiveDuration"/> till it gets archived.</param>
         /// <param name="private_thread">Whether this thread should be a <see cref="ChannelType.PrivateThread"/> or a <see cref="ChannelType.PublicThread"/>.</param>
-        /// <returns></returns>
+        /// <returns><see cref="DiscordThreadChannel"/></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.UsePublicThreads"/> or <see cref="Permissions.UsePrivateThreads"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the guild hasn't enabled threads atm.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task<DiscordThreadChannel> CreateThreadAsync(string name, ThreadAutoArchiveDuration auto_archive_duration = ThreadAutoArchiveDuration.ONE_HOUR, bool private_thread = false)
             => await this.Discord.ApiClient.CreateThreadWithoutMessageAsync(this.Id, name, auto_archive_duration, private_thread);
+
+        /// <summary>
+        /// Gets active threads. Can contain more threads. Watch for HasMore.
+        /// </summary>
+        /// <returns><see cref="DiscordThreadResult"/></returns>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the thread does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<DiscordThreadResult> GetActiveThreadsAsync()
+            => await this.Discord.ApiClient.GetActiveThreadsAsync(this.Id);
+
+        /// <summary>
+        /// Gets joined archived private threads. Can contain more threads. Watch for HasMore.
+        /// </summary>
+        /// <param name="before">Get threads before this timestamp.</param>
+        /// <param name="limit">Defines the limit of returned <see cref="DiscordThreadResult"/>.</param>
+        /// <returns><see cref="DiscordThreadResult"/></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ReadMessageHistory"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<DiscordThreadResult> GetJoinedPrivateArchivedThreadsAsync(ulong? before, int? limit)
+            => await this.Discord.ApiClient.GetJoinedPrivateArchivedThreadsAsync(this.Id, before, limit);
+
+        /// <summary>
+        /// Gets archived public threads. Can contain more threads. Watch for HasMore.
+        /// </summary>
+        /// <param name="before">Get threads before this timestamp.</param>
+        /// <param name="limit">Defines the limit of returned <see cref="DiscordThreadResult"/>.</param>
+        /// <returns><see cref="DiscordThreadResult"/></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ReadMessageHistory"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<DiscordThreadResult> GetPublicArchivedThreadsAsync(ulong? before, int? limit)
+            => await this.Discord.ApiClient.GetPublicArchivedThreadsAsync(this.Id, before, limit);
+
+        /// <summary>
+        /// Gets archived private threads. Can contain more threads. Watch for HasMore.
+        /// </summary>
+        /// <param name="before">Get threads before this timestamp.</param>
+        /// <param name="limit">Defines the limit of returned <see cref="DiscordThreadResult"/>.</param>
+        /// <returns><see cref="DiscordThreadResult"/></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageThreads"/> or <see cref="Permissions.ReadMessageHistory"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<DiscordThreadResult> GetPrivateArchivedThreadsAsync(ulong? before, int? limit)
+            => await this.Discord.ApiClient.GetPrivateArchivedThreadsAsync(this.Id, before, limit);
 
         #endregion
 

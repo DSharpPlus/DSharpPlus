@@ -210,7 +210,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Adds a thread member.
         /// </summary>
-        /// <param name="member">The member to have the permission added.</param>
+        /// <param name="member">The member id to be added.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the thread does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
@@ -221,7 +221,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Removes a thread member.
         /// </summary>
-        /// <param name="member">The member to have the permission added.</param>
+        /// <param name="member">The member id to be removed.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the thread does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
