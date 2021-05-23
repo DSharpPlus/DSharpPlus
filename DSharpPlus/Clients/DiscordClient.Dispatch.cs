@@ -1724,7 +1724,7 @@ namespace DSharpPlus
         }
 
         internal async Task OnThreadListSyncEventAsync(ulong guild_id, IEnumerable<ulong?> channel_ids, IEnumerable<DiscordThreadChannel> threads, IEnumerable<DiscordThreadChannelMember> members)
-            => await this._threadListSynce.InvokeAsync(this, new ThreadListSyncEventArgs { GuildId = guild_id, ChannelIds = channel_ids, Threads = threads, Members = members }).ConfigureAwait(false);
+            => await this._threadListSynced.InvokeAsync(this, new ThreadListSyncEventArgs { GuildId = guild_id, ChannelIds = channel_ids, Threads = threads, Members = members }).ConfigureAwait(false);
 
         internal async Task OnThreadMemberUpdateEventAsync(DiscordThreadChannelMember member)
         {
