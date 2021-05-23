@@ -40,7 +40,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents a discord thread channel.
     /// </summary>
-    public class DiscordThreadReturn
+    public class DiscordThreadResult
     {
         public Dictionary<ulong, DiscordThreadChannel> ReturnedThreads { get; set; }
 

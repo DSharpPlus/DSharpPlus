@@ -2327,7 +2327,7 @@ namespace DSharpPlus.Net
             return new ReadOnlyCollection<DiscordThreadChannelMember>(thread_members_raw);
         }
 
-        internal async Task<DiscordThreadReturn> GetActiveThreadsAsync(ulong channel_id)
+        internal async Task<DiscordThreadResult> GetActiveThreadsAsync(ulong channel_id)
         {
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.THREADS}{Endpoints.THREAD_ACTIVE}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { channel_id }, out var path);
@@ -2335,12 +2335,12 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route);
 
-            var thread_return = JsonConvert.DeserializeObject<DiscordThreadReturn>(res.Response);
+            var thread_return = JsonConvert.DeserializeObject<DiscordThreadResult>(res.Response);
 
             return thread_return;
         }
 
-        internal async Task<DiscordThreadReturn> GetJoinedPrivateArchivedThreadsAsync(ulong channel_id, ulong? before, int? limit)
+        internal async Task<DiscordThreadResult> GetJoinedPrivateArchivedThreadsAsync(ulong channel_id, ulong? before, int? limit)
         {
             var urlparams = new Dictionary<string, string>();
             if (before != null)
@@ -2354,12 +2354,12 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path, urlparams.Any() ? BuildQueryString(urlparams) : "");
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route);
 
-            var thread_return = JsonConvert.DeserializeObject<DiscordThreadReturn>(res.Response);
+            var thread_return = JsonConvert.DeserializeObject<DiscordThreadResult>(res.Response);
 
             return thread_return;
         }
 
-        internal async Task<DiscordThreadReturn> GetPublicArchivedThreadsAsync(ulong channel_id, ulong? before, int? limit)
+        internal async Task<DiscordThreadResult> GetPublicArchivedThreadsAsync(ulong channel_id, ulong? before, int? limit)
         {
             var urlparams = new Dictionary<string, string>();
             if (before != null)
@@ -2373,12 +2373,12 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path, urlparams.Any() ? BuildQueryString(urlparams) : "");
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route);
 
-            var thread_return = JsonConvert.DeserializeObject<DiscordThreadReturn>(res.Response);
+            var thread_return = JsonConvert.DeserializeObject<DiscordThreadResult>(res.Response);
 
             return thread_return;
         }
 
-        internal async Task<DiscordThreadReturn> GetPrivateArchivedThreadsAsync(ulong channel_id, ulong? before, int? limit)
+        internal async Task<DiscordThreadResult> GetPrivateArchivedThreadsAsync(ulong channel_id, ulong? before, int? limit)
         {
             var urlparams = new Dictionary<string, string>();
             if (before != null)
@@ -2392,9 +2392,44 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path, urlparams.Any() ? BuildQueryString(urlparams) : "");
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route);
 
-            var thread_return = JsonConvert.DeserializeObject<DiscordThreadReturn>(res.Response);
+            var thread_return = JsonConvert.DeserializeObject<DiscordThreadResult>(res.Response);
 
             return thread_return;
+        }
+
+        internal Task ModifyThreadAsync(ulong channel_id, Optional<string> name, Optional<bool?> locked, Optional<bool?> archived, Optional<int?> autoArchiveDuration, Optional<int?> perUserRateLimit, string reason)
+        {
+            var pld = new RestThreadChannelModifyPayload
+            {
+                Name = name,
+                Archived = archived,
+                AutoArchiveDuration = autoArchiveDuration,
+                Locked = locked,
+                PerUserRateLimit = perUserRateLimit
+            };
+
+            var headers = Utilities.GetBaseHeaders();
+            if (!string.IsNullOrWhiteSpace(reason))
+                headers.Add(REASON_HEADER_NAME, reason);
+
+            var route = $"{Endpoints.CHANNELS}/:channel_id";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { channel_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, headers, DiscordJson.SerializeObject(pld));
+        }
+
+        internal Task DeleteThreadAsync(ulong channel_id, string reason)
+        {
+            var headers = Utilities.GetBaseHeaders();
+            if (!string.IsNullOrWhiteSpace(reason))
+                headers.Add(REASON_HEADER_NAME, reason);
+
+            var route = $"{Endpoints.CHANNELS}/:channel_id";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { channel_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route, headers);
         }
 
         #endregion

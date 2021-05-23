@@ -209,4 +209,22 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("auto_archive_duration")]
         public int AutoArchiveDuration { get; set; }
     }
+
+    internal sealed class RestThreadChannelModifyPayload
+    {
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<string> Name { get; set; }
+
+        [JsonProperty("archived", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<bool?> Archived { get; set; }
+
+        [JsonProperty("auto_archive_duration", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<int?> AutoArchiveDuration { get; set; }
+
+        [JsonProperty("locked", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<bool?> Locked { get; set; }
+
+        [JsonProperty("rate_limit_per_user", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<int?> PerUserRateLimit { get; set; }
+    }
 }
