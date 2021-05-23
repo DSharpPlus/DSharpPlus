@@ -29,7 +29,7 @@ namespace DSharpPlus
     public enum TargetActivity : ulong
     {
         /// <summary>
-        /// Represents the no embedded application.
+        /// Represents no embedded application.
         /// </summary>
         None = 0,
 
