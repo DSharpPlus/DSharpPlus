@@ -85,11 +85,25 @@ namespace DSharpPlus.Entities
             => this.Type == ChannelType.Private || this.Type == ChannelType.Group;
 
         /// <summary>
+        /// Gets whether this channel is a temporary thread channel.
+        /// </summary>
+        [JsonIgnore]
+        public bool IsThread
+            => this.Type == ChannelType.NewsThread || this.Type == ChannelType.PrivateThread || this.Type == ChannelType.PublicThread;
+
+        /// <summary>
         /// Gets whether this channel is a channel category.
         /// </summary>
         [JsonIgnore]
         public bool IsCategory
             => this.Type == ChannelType.Category;
+
+        /// <summary>
+        /// Gets whether this channel is a stage channel.
+        /// </summary>
+        [JsonIgnore]
+        public bool IsStage
+            => this.Type == ChannelType.Stage;
 
         /// <summary>
         /// Gets the guild to which this channel belongs.
