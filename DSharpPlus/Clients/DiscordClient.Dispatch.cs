@@ -63,6 +63,8 @@ namespace DSharpPlus
             ulong cid;
             DiscordStageInstance stg;
             DiscordIntegration itg;
+            DiscordThreadChannel trd;
+            DiscordThreadChannelMember trdm;
             TransportUser usr = default;
             TransportMember mbr = default;
             TransportUser refUsr = default;
@@ -391,6 +393,34 @@ namespace DSharpPlus
                 #endregion
 
                 #region Thread
+
+                case "thread_create":
+                    trd = dat.ToObject<DiscordThreadChannel>();
+                    await this.OnThreadCreateEventAsync(trd).ConfigureAwait(false);
+                    break;
+
+                case "thread_update":
+                    trd = dat.ToObject<DiscordThreadChannel>();
+                    await this.OnThreadUpdateEventAsync(trd).ConfigureAwait(false);
+                    break;
+
+                case "thread_delete":
+                    trd = dat.ToObject<DiscordThreadChannel>();
+                    await this.OnThreadDeleteEventAsync(trd).ConfigureAwait(false);
+                    break;
+
+                case "thread_list_sync":
+                    await this.OnThreadListSyncEventAsync(dat).ConfigureAwait(false);
+                    break;
+
+                case "thread_member_update":
+                    trdm = dat.ToObject<DiscordThreadChannelMember>();
+                    await this.OnThreadMemberUpdateEventAsync(trdm).ConfigureAwait(false);
+                    break;
+
+                case "thread_members_update":
+                    await this.OnThreadMemberUpdatesEventAsync(dat).ConfigureAwait(false);
+                    break;
 
                 #endregion
 
@@ -1667,6 +1697,44 @@ namespace DSharpPlus
         #endregion
 
         #region Thread
+
+        internal async Task OnThreadCreateEventAsync(DiscordThreadChannel thread)
+        {
+            thread.Discord = this;
+
+            //await this._threadCreated.InvokeAsync(this, new ThreadCreateEventArgs { ThreadChannel = thread }).ConfigureAwait(false);
+        }
+
+        internal async Task OnThreadUpdateEventAsync(DiscordThreadChannel thread)
+        {
+            thread.Discord = this;
+
+            //await this._threadUpdated.InvokeAsync(this, new ThreadUpdateEventArgs { ThreadChannel = thread }).ConfigureAwait(false);
+        }
+
+        internal async Task OnThreadDeleteEventAsync(DiscordThreadChannel thread)
+        {
+            thread.Discord = this;
+
+            //await this._threadDeleted.InvokeAsync(this, new ThreadDeleteEventArgs { Id = thread.Id, GuildId = thread.GuildId, ParentChannelId = thread.ParentChannelId, Type = thread.Type }).ConfigureAwait(false);
+        }
+
+        internal async Task OnThreadListSyncEventAsync(JObject dat)
+        {
+            //await this._threadListSynce.InvokeAsync(this, new ThreadListSyncEventArgs { GuildId = guild, ChannelIds = channels, Threads = threads, Members = members }).ConfigureAwait(false);
+        }
+
+        internal async Task OnThreadMemberUpdateEventAsync(DiscordThreadChannelMember member)
+        {
+            member.Discord = this;
+
+            //await this._threadMemberUpdated.InvokeAsync(this, new ThreadMemberUpdateEventArgs { ThreadMember = member }).ConfigureAwait(false);
+        }
+
+        internal async Task OnThreadMemberUpdatesEventAsync(JObject dat)
+        {
+            //await this._threadMembersUpdated.InvokeAsync(this, new ThreadMembersUpdateEventArgs { Id = id, GuildId = guild, MemberCount = count, AddedMembers = addedMembers, RemovedThreadMemberIds = removed_member_ids}).ConfigureAwait(false);
+        }
 
         #endregion
 
