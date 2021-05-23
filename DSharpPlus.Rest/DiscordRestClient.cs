@@ -370,7 +370,7 @@ namespace DSharpPlus
         /// <param name="overwrites">Channel overwrites</param>
         /// <param name="nsfw">Whether this channel should be marked as NSFW</param>
         /// <param name="perUserRateLimit">Slow mode timeout for users.</param>
-        /// <param name="qualityMode">Voice channel quality mode.</param>
+        /// <param name="qualityMode">Voice channel video quality mode.</param>
         /// <param name="reason">Reason this channel was created</param>
         /// <returns></returns>
         public Task<DiscordChannel> CreateGuildChannelAsync(ulong id, string name, ChannelType type, ulong? parent, Optional<string> topic, int? bitrate, int? userLimit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, Optional<int?> perUserRateLimit, ChannelQualityMode? qualityMode, string reason)

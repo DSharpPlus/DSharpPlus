@@ -28,7 +28,7 @@ using System.Text;
 namespace DSharpPlus
 {
     /// <summary>
-    /// Represents the camera quality of a voice channel. This is applicable to voice channels only.
+    /// Represents the video quality mode of a voice channel. This is applicable to voice channels only.
     /// </summary>
     public enum ChannelQualityMode : int
     {

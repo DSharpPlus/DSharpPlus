@@ -620,7 +620,7 @@ namespace DSharpPlus.Entities
         /// <param name="bitrate">Bitrate of the channel.</param>
         /// <param name="user_limit">Maximum number of users in the channel.</param>
         /// <param name="overwrites">Permission overwrites for this channel.</param>
-        /// <param name="qualityMode">Video quality of the channel.</param>
+        /// <param name="qualityMode">Video quality mode of the channel.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The newly-created channel.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
@@ -642,7 +642,7 @@ namespace DSharpPlus.Entities
         /// <param name="overwrites">Permission overwrites for this channel.</param>
         /// <param name="nsfw">Whether the channel is to be flagged as not safe for work. Applies to text only.</param>
         /// <param name="perUserRateLimit">Slow mode timeout for users.</param>
-        /// <param name="qualityMode">Video quality of the channel. Applies to voice only.</param>
+        /// <param name="qualityMode">Video quality mode of the channel. Applies to voice only.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The newly-created channel.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
