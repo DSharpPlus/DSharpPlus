@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
 using System.IO;
 using DSharpPlus.Entities;
 
@@ -36,6 +37,7 @@ namespace DSharpPlus.Net.Models
         /// <summary>
         /// The new guild voice region.
         /// </summary>
+        [ObsoleteAttribute("Channels use their own voice regions from now on. Don't use this anymore.", false)]
         public Optional<DiscordVoiceRegion> Region { internal get; set; }
 
         /// <summary>
