@@ -22,9 +22,11 @@
 // SOFTWARE.
 
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
@@ -410,7 +412,8 @@ namespace DSharpPlus
                     break;
 
                 case "thread_list_sync":
-                    await this.OnThreadListSyncEventAsync(dat).ConfigureAwait(false);
+                    gid = (ulong)dat["guild_id"];
+                    await this.OnThreadListSyncEventAsync(gid, dat["channel_ids"].ToObject<IEnumerable<ulong?>>(), dat["threads"].ToObject<IEnumerable<DiscordThreadChannel>>(), dat["members"].ToObject<IEnumerable<DiscordThreadChannelMember>>()).ConfigureAwait(false);
                     break;
 
                 case "thread_member_update":
@@ -419,7 +422,8 @@ namespace DSharpPlus
                     break;
 
                 case "thread_members_update":
-                    await this.OnThreadMemberUpdatesEventAsync(dat).ConfigureAwait(false);
+                    gid = (ulong)dat["guild_id"];
+                    await this.OnThreadMemberUpdatesEventAsync((ulong)dat["id"], gid, (int)dat["member_count"], dat["added_members"].ToObject<IEnumerable<DiscordThreadChannelMember>>(), dat["removed_member_ids"].ToObject<IEnumerable<ulong?>>()).ConfigureAwait(false);
                     break;
 
                 #endregion
@@ -1719,10 +1723,8 @@ namespace DSharpPlus
             await this._threadDeleted.InvokeAsync(this, new ThreadDeleteEventArgs { Id = thread.Id, GuildId = thread.GuildId, ParentChannelId = thread.ParentChannelId, Type = thread.Type }).ConfigureAwait(false);
         }
 
-        internal async Task OnThreadListSyncEventAsync(JObject dat)
-        {
-            //await this._threadListSynce.InvokeAsync(this, new ThreadListSyncEventArgs { GuildId = guild, ChannelIds = channels, Threads = threads, Members = members }).ConfigureAwait(false);
-        }
+        internal async Task OnThreadListSyncEventAsync(ulong guild_id, IEnumerable<ulong?> channel_ids, IEnumerable<DiscordThreadChannel> threads, IEnumerable<DiscordThreadChannelMember> members)
+            => await this._threadListSynce.InvokeAsync(this, new ThreadListSyncEventArgs { GuildId = guild_id, ChannelIds = channel_ids, Threads = threads, Members = members }).ConfigureAwait(false);
 
         internal async Task OnThreadMemberUpdateEventAsync(DiscordThreadChannelMember member)
         {
@@ -1731,10 +1733,8 @@ namespace DSharpPlus
             await this._threadMemberUpdated.InvokeAsync(this, new ThreadMemberUpdateEventArgs { ThreadMember = member }).ConfigureAwait(false);
         }
 
-        internal async Task OnThreadMemberUpdatesEventAsync(JObject dat)
-        {
-            //await this._threadMembersUpdated.InvokeAsync(this, new ThreadMembersUpdateEventArgs { Id = id, GuildId = guild, MemberCount = count, AddedMembers = addedMembers, RemovedThreadMemberIds = removed_member_ids}).ConfigureAwait(false);
-        }
+        internal async Task OnThreadMemberUpdatesEventAsync(ulong id, ulong guild_id, int member_count, IEnumerable<DiscordThreadChannelMember> addedMembers, IEnumerable<ulong?> removed_member_ids)
+            => await this._threadMembersUpdated.InvokeAsync(this, new ThreadMembersUpdateEventArgs { Id = id, GuildId = guild_id, MemberCount = member_count, AddedMembers = addedMembers, RemovedMemberIds = removed_member_ids }).ConfigureAwait(false);
 
         #endregion
 

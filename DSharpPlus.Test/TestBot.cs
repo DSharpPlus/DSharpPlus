@@ -85,6 +85,8 @@ namespace DSharpPlus.Test
             this.Discord.GuildDownloadCompleted += this.Discord_GuildDownloadCompleted;
             this.Discord.GuildUpdated += this.Discord_GuildUpdated;
             this.Discord.ChannelDeleted += this.Discord_ChannelDeleted;
+            this.Discord.ThreadListSynced += this.Discord_ThreadListSynced;
+            this.Discord.ThreadMembersUpdated += this.Discord_ThreadMembersUpdated;
 
             // For event timeout testing
             //Discord.GuildDownloadCompleted += async (s, e) =>
@@ -137,6 +139,45 @@ namespace DSharpPlus.Test
 
             //    _ = Task.Run(async () => await e.Message.RespondAsync(e.Message.Content)).ConfigureAwait(false);
             //};
+        }
+
+        private Task Discord_ThreadListSynced(DiscordClient sender, ThreadListSyncEventArgs e)
+        {
+            Console.WriteLine($"Guild {e.GuildId} fired ThreadListSynced");
+
+            foreach(var c in e.ChannelIds)
+            {
+                Console.WriteLine($"Channel {c} is included");
+            }
+
+            foreach(var t in e.Threads)
+            {
+                Console.WriteLine($"Thread {t.Name} with id {t.Id} in channel {t.ParentChannelId} is included and will be auto archived on {t.ThreadMetadata.ArchiveTimestamp}");
+            }
+
+            foreach (var m in e.Members)
+            {
+                Console.WriteLine($"Member {m.UserId} joined {m.JoinTimeStamp} in {m.Id} and has notification setting flag {m.Flags}");
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private Task Discord_ThreadMembersUpdated(DiscordClient sender, ThreadMembersUpdateEventArgs e)
+        {
+            Console.WriteLine($"Guild {e.GuildId} fired ThreadMembersUpdated for thread {e.Id}. It has ~{e.MemberCount} members.");
+
+            foreach (var rmi in e.RemovedMemberIds)
+            {
+                Console.WriteLine($"Member {rmi} got removed");
+            }
+
+            foreach (var am in e.AddedMembers)
+            {
+                Console.WriteLine($"Member {am.UserId} joined {am.JoinTimeStamp} in {am.Id} and has notification setting flag {am.Flags}");
+            }
+
+            return Task.CompletedTask;
         }
 
         public async Task RunAsync()

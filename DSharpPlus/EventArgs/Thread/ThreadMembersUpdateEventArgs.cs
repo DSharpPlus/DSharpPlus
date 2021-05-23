@@ -53,13 +53,13 @@ namespace DSharpPlus.EventArgs
         /// Gets the users who were added to the thread.
         /// </summary>
         /// 
-        public IReadOnlyCollection<DiscordThreadChannelMember> AddedMembers { get; internal set; }
+        public IEnumerable<DiscordThreadChannelMember> AddedMembers { get; internal set; }
 
         /// <summary>
         /// Gets the id of the users who were removed from the thread.
         /// </summary>
         /// 
-        public IReadOnlyCollection<ulong?> RemovedThreadMemberIds { get; internal set; }
+        public IEnumerable<ulong?> RemovedMemberIds { get; internal set; }
 
         internal ThreadMembersUpdateEventArgs() : base() { }
     }
