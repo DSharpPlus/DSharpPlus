@@ -2242,15 +2242,8 @@ namespace DSharpPlus.Net
 
         internal async Task<DiscordThreadChannel> CreateThreadWithMessageAsync(ulong channel_id, ulong message_id, string name, ThreadAutoArchiveDuration auto_archive_duration, bool private_thread)
         {
-            ChannelType type;
-            if(private_thread)
-            {
-                type = ChannelType.PrivateThread;
-            } else
-            {
-                DiscordChannel channel = await this.GetChannelAsync(channel_id);
-                type = channel.Type == ChannelType.News ? ChannelType.NewsThread : ChannelType.PublicThread;
-            }
+            DiscordChannel channel = await this.GetChannelAsync(channel_id);
+            ChannelType type = channel.Type == ChannelType.News ? ChannelType.NewsThread : private_thread ? ChannelType.PrivateThread : ChannelType.PublicThread;
 
             var pld = new RestThreadChannelCreatePayload
             {
@@ -2272,16 +2265,8 @@ namespace DSharpPlus.Net
 
         internal async Task<DiscordThreadChannel> CreateThreadWithoutMessageAsync(ulong channel_id, string name, ThreadAutoArchiveDuration auto_archive_duration, bool private_thread)
         {
-            ChannelType type;
-            if (private_thread)
-            {
-                type = ChannelType.PrivateThread;
-            }
-            else
-            {
-                DiscordChannel channel = await this.GetChannelAsync(channel_id);
-                type = channel.Type == ChannelType.News ? ChannelType.NewsThread : ChannelType.PublicThread;
-            }
+            DiscordChannel channel = await this.GetChannelAsync(channel_id);
+            ChannelType type = channel.Type == ChannelType.News ? ChannelType.NewsThread : private_thread ? ChannelType.PrivateThread : ChannelType.PublicThread;
 
             var pld = new RestThreadChannelCreatePayload
             {
