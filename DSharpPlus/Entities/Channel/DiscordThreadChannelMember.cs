@@ -61,7 +61,7 @@ namespace DSharpPlus.Entities
         /// Gets flags (Currently only for notification settings).
         /// </summary>
         [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
-        public int Flags { get; internal set; }
+        public ThreadNotificationSetting Flags { get; internal set; }
 
         /// <summary>
         /// Checks whether this <see cref="DiscordThreadChannelMember"/> is equal to another object.
