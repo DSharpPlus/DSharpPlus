@@ -551,6 +551,72 @@ namespace DSharpPlus
 
         #region Thread
 
+        /// <summary>
+        /// Fired when a thread is created.
+        /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, ThreadCreateEventArgs> ThreadCreated
+        {
+            add => this._threadCreated.Register(value);
+            remove => this._threadCreated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ThreadCreateEventArgs> _threadCreated;
+
+        /// <summary>
+        /// Fired when a thread is updated.
+        /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, ThreadUpdateEventArgs> ThreadUpdated
+        {
+            add => this._threadUpdated.Register(value);
+            remove => this._threadUpdated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ThreadUpdateEventArgs> _threadUpdated;
+
+        /// <summary>
+        /// Fired when a thread is deleted.
+        /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, ThreadDeleteEventArgs> ThreadDeleted
+        {
+            add => this._threadDeleted.Register(value);
+            remove => this._threadDeleted.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ThreadDeleteEventArgs> _threadDeleted;
+
+        /// <summary>
+        /// Fired when a thread member is updated.
+        /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, ThreadListSyncEventArgs> ThreadListSynced
+        {
+            add => this._threadListSynced.Register(value);
+            remove => this._threadListSynced.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ThreadListSyncEventArgs> _threadListSynced;
+
+        /// <summary>
+        /// Fired when a thread member is updated.
+        /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, ThreadMemberUpdateEventArgs> ThreadMemberUpdated
+        {
+            add => this._threadMemberUpdated.Register(value);
+            remove => this._threadMemberUpdated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ThreadMemberUpdateEventArgs> _threadMemberUpdated;
+
+        /// <summary>
+        /// Fired when the thread members are updated.
+        /// For this Event you need the <see cref="DiscordIntents.GuildMembers"/> or <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, ThreadMembersUpdateEventArgs> ThreadMembersUpdated
+        {
+            add => this._threadMembersUpdated.Register(value);
+            remove => this._threadMembersUpdated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ThreadMembersUpdateEventArgs> _threadMembersUpdated;
+
         #endregion
 
         #region User/Presence Update
@@ -883,6 +949,15 @@ namespace DSharpPlus
         private Task Client_ApplicationCommandDeleted(DiscordClient client, ApplicationCommandEventArgs e)
             => this._applicationCommandDeleted.InvokeAsync(client, e);
 
+        private Task Client_GuildIntegrationCreated(DiscordClient client, GuildIntegrationCreateEventArgs e)
+            => this._guildIntegrationCreated.InvokeAsync(client, e);
+
+        private Task Client_GuildIntegrationUpdated(DiscordClient client, GuildIntegrationUpdateEventArgs e)
+            => this._guildIntegrationUpdated.InvokeAsync(client, e);
+
+        private Task Client_GuildIntegrationDeleted(DiscordClient client, GuildIntegrationDeleteEventArgs e)
+            => this._guildIntegrationDeleted.InvokeAsync(client, e);
+
         private Task Client_StageInstanceCreated(DiscordClient client, StageInstanceCreateEventArgs e)
             => this._stageInstanceCreated.InvokeAsync(client, e);
 
@@ -892,14 +967,23 @@ namespace DSharpPlus
         private Task Client_StageInstanceDeleted(DiscordClient client, StageInstanceDeleteEventArgs e)
             => this._stageInstanceDeleted.InvokeAsync(client, e);
 
-        private Task Client_GuildIntegrationCreated(DiscordClient client, GuildIntegrationCreateEventArgs e)
-            => this._guildIntegrationCreated.InvokeAsync(client, e);
+        private Task Client_ThreadCreated(DiscordClient client, ThreadCreateEventArgs e)
+            => this._threadCreated.InvokeAsync(client, e);
 
-        private Task Client_GuildIntegrationUpdated(DiscordClient client, GuildIntegrationUpdateEventArgs e)
-            => this._guildIntegrationUpdated.InvokeAsync(client, e);
+        private Task Client_ThreadUpdated(DiscordClient client, ThreadUpdateEventArgs e)
+            => this._threadUpdated.InvokeAsync(client, e);
 
-        private Task Client_GuildIntegrationDeleted(DiscordClient client, GuildIntegrationDeleteEventArgs e)
-            => this._guildIntegrationDeleted.InvokeAsync(client, e);
+        private Task Client_ThreadDeleted(DiscordClient client, ThreadDeleteEventArgs e)
+            => this._threadDeleted.InvokeAsync(client, e);
+
+        private Task Client_ThreadListSynced(DiscordClient client, ThreadListSyncEventArgs e)
+            => this._threadListSynced.InvokeAsync(client, e);
+
+        private Task Client_ThreadMemberUpdated(DiscordClient client, ThreadMemberUpdateEventArgs e)
+            => this._threadMemberUpdated.InvokeAsync(client, e);
+
+        private Task Client_ThreadMembersUpdated(DiscordClient client, ThreadMembersUpdateEventArgs e)
+            => this._threadMembersUpdated.InvokeAsync(client, e);
 
         #endregion
     }

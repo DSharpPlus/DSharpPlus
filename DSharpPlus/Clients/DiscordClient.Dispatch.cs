@@ -1702,21 +1702,21 @@ namespace DSharpPlus
         {
             thread.Discord = this;
 
-            //await this._threadCreated.InvokeAsync(this, new ThreadCreateEventArgs { ThreadChannel = thread }).ConfigureAwait(false);
+            await this._threadCreated.InvokeAsync(this, new ThreadCreateEventArgs { ThreadChannel = thread }).ConfigureAwait(false);
         }
 
         internal async Task OnThreadUpdateEventAsync(DiscordThreadChannel thread)
         {
             thread.Discord = this;
 
-            //await this._threadUpdated.InvokeAsync(this, new ThreadUpdateEventArgs { ThreadChannel = thread }).ConfigureAwait(false);
+            await this._threadUpdated.InvokeAsync(this, new ThreadUpdateEventArgs { ThreadChannel = thread }).ConfigureAwait(false);
         }
 
         internal async Task OnThreadDeleteEventAsync(DiscordThreadChannel thread)
         {
             thread.Discord = this;
 
-            //await this._threadDeleted.InvokeAsync(this, new ThreadDeleteEventArgs { Id = thread.Id, GuildId = thread.GuildId, ParentChannelId = thread.ParentChannelId, Type = thread.Type }).ConfigureAwait(false);
+            await this._threadDeleted.InvokeAsync(this, new ThreadDeleteEventArgs { Id = thread.Id, GuildId = thread.GuildId, ParentChannelId = thread.ParentChannelId, Type = thread.Type }).ConfigureAwait(false);
         }
 
         internal async Task OnThreadListSyncEventAsync(JObject dat)
@@ -1728,7 +1728,7 @@ namespace DSharpPlus
         {
             member.Discord = this;
 
-            //await this._threadMemberUpdated.InvokeAsync(this, new ThreadMemberUpdateEventArgs { ThreadMember = member }).ConfigureAwait(false);
+            await this._threadMemberUpdated.InvokeAsync(this, new ThreadMemberUpdateEventArgs { ThreadMember = member }).ConfigureAwait(false);
         }
 
         internal async Task OnThreadMemberUpdatesEventAsync(JObject dat)

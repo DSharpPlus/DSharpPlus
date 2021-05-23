@@ -70,7 +70,7 @@ namespace DSharpPlus
         /// <para><see cref="DiscordClient.GuildRoleCreated"/>, <see cref="DiscordClient.GuildRoleUpdated"/>, <see cref="DiscordClient.GuildRoleDeleted"/>,</para>
         /// <para><see cref="DiscordClient.ChannelCreated"/>, <see cref="DiscordClient.ChannelUpdated"/>, <see cref="DiscordClient.ChannelDeleted"/>, <see cref="DiscordClient.ChannelPinsUpdated"/>,</para>
         /// <para><see cref="DiscordClient.StageInstanceCreated"/>, <see cref="DiscordClient.StageInstanceUpdated"/>, <see cref="DiscordClient.StageInstanceDeleted"/>,</para>
-        /// <para><see cref="DiscordClient.ThreadGreated"/>, <see cref="DiscordClient.ThreadUpdated"/>, <see cref="DiscordClient.ThreadDeleted"/>,</para>
+        /// <para><see cref="DiscordClient.ThreadCreated"/>, <see cref="DiscordClient.ThreadUpdated"/>, <see cref="DiscordClient.ThreadDeleted"/>,</para>
         /// <para><see cref="DiscordClient.ThreadListSynced"/>, <see cref="DiscordClient.ThreadMemberUpdated"/> and <see cref="DiscordClient.ThreadMembersUpdated"/>.</para>
         /// </summary>
         Guilds = 1 << 0,

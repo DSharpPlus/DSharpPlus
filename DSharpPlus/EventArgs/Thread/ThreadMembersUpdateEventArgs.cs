@@ -29,7 +29,7 @@ namespace DSharpPlus.EventArgs
     /// <summary>
     /// Represents arguments for <see cref="DiscordClient.ThreadMembersUpdated"/> event.
     /// </summary>
-    class ThreadMembersUpdateEventArgs
+    public class ThreadMembersUpdateEventArgs : DiscordEventArgs
     {
         /// <summary>
         /// Gets the id of the thread.

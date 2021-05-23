@@ -29,7 +29,7 @@ namespace DSharpPlus.EventArgs
     /// <summary>
     /// Represents arguments for <see cref="DiscordClient.ThreadListSynced"/> event.
     /// </summary>
-    public class ThreadListSyncEventArgs
+    public class ThreadListSyncEventArgs : DiscordEventArgs
     {
         /// <summary>
         /// Gets the id of the guild.
