@@ -37,7 +37,7 @@ namespace DSharpPlus.Net.Models
         /// <summary>
         /// The new guild voice region.
         /// </summary>
-        [ObsoleteAttribute("Channels use their own voice regions from now on. Don't use this anymore.", false)]
+        [ObsoleteAttribute("Channels use their own voice regions. Guild region is deprecated. Please use the newer one on the voice channels.", false)]
         public Optional<DiscordVoiceRegion> Region { internal get; set; }
 
         /// <summary>

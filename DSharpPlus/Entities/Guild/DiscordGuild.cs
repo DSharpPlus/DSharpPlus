@@ -127,7 +127,7 @@ namespace DSharpPlus.Entities
         /// Gets the guild's voice region.
         /// </summary>
         [JsonIgnore]
-        [ObsoleteAttribute("Channels use their own voice regions from now on. Don't use this anymore.", false)]
+        [ObsoleteAttribute("Channels use their own voice regions. Guild region is deprecated. Please use the newer one on the voice channels.", false)]
         public DiscordVoiceRegion VoiceRegion
             => this.Discord.VoiceRegions[this.VoiceRegionId];
 
