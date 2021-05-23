@@ -33,7 +33,7 @@ namespace DSharpPlus.Net.Abstractions
     /// <summary>
     /// Represents a game a user is playing.
     /// </summary>
-    internal sealed class TransportActivity
+    internal sealed class TransportActivity : SnowflakeObject
     {
         /// <summary>
         /// Gets or sets the name of the game the user is playing.
@@ -121,6 +121,30 @@ namespace DSharpPlus.Net.Abstractions
         /// </summary>
         [JsonProperty("buttons", NullValueHandling = NullValueHandling.Ignore)]
         public IReadOnlyList<string> Buttons { get; internal set; }
+
+        /// <summary>
+        /// Gets or sets plattform in this rich presence.
+        /// 
+        /// This is a component of the rich presence, and, as such, can only be used by regular users.
+        /// </summary>
+        [JsonProperty("platform", NullValueHandling = NullValueHandling.Ignore)]
+        public string Plattform { get; internal set; }
+
+        /// <summary>
+        /// Gets or sets sync_id in this rich presence.
+        /// 
+        /// This is a component of the rich presence, and, as such, can only be used by regular users.
+        /// </summary>
+        [JsonProperty("sync_id", NullValueHandling = NullValueHandling.Ignore)]
+        public string SyncId { get; internal set; }
+
+        /// <summary>
+        /// Gets or sets session_id in this rich presence.
+        /// 
+        /// This is a component of the rich presence, and, as such, can only be used by regular users.
+        /// </summary>
+        [JsonProperty("session_id", NullValueHandling = NullValueHandling.Ignore)]
+        public string SessionId { get; internal set; }
 
         /// <summary>
         /// Gets or sets infromation about current game's timestamps.

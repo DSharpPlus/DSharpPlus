@@ -113,7 +113,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents a game that a user is playing.
     /// </summary>
-    public sealed class DiscordActivity
+    public sealed class DiscordActivity :SnowflakeObject
     {
         /// <summary>
         /// Gets or sets the name of user's activity.
@@ -124,6 +124,21 @@ namespace DSharpPlus.Entities
         /// Gets or sets the stream URL, if applicable.
         /// </summary>
         public string StreamUrl { get; set; }
+
+        /// <summary>
+        /// Gets or sets plattform in this rich presence.
+        /// </summary>
+        public string Plattform { get; internal set; }
+
+        /// <summary>
+        /// Gets or sets sync_id in this rich presence.
+        /// </summary>
+        public string SyncId { get; internal set; }
+
+        /// <summary>
+        /// Gets or sets session_id in this rich presence.
+        /// </summary>
+        public string SessionId { get; internal set; }
 
         /// <summary>
         /// Gets or sets the activity type.
