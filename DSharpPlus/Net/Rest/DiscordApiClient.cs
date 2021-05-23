@@ -2041,7 +2041,8 @@ namespace DSharpPlus.Net
             {
                 Content = builder.Content,
                 Embeds = builder.Embeds,
-                Mentions = builder.Mentions
+                Mentions = builder.Mentions,
+                Components = builder.Components
             };
 
             var route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token{Endpoints.MESSAGES}/:message_id";

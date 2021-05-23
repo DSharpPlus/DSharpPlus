@@ -87,8 +87,8 @@ namespace DSharpPlus.Test
             this.Discord.GuildDownloadCompleted += this.Discord_GuildDownloadCompleted;
             this.Discord.GuildUpdated += this.Discord_GuildUpdated;
             this.Discord.ChannelDeleted += this.Discord_ChannelDeleted;
-            this.Discord.ComponentInteractionCreated += this.RoleMenu;
-            this.Discord.ComponentInteractionCreated += this.DiscordComponentInteractionCreated;
+            //this.Discord.ComponentInteractionCreated += this.RoleMenu;
+            //this.Discord.ComponentInteractionCreated += this.DiscordComponentInteractionCreated;
 
             this.Discord.InteractionCreated += this.SendButton;
             // For event timeout testing
@@ -129,7 +129,7 @@ namespace DSharpPlus.Test
             // interactivity service
             var icfg = new InteractivityConfiguration()
             {
-                Timeout = TimeSpan.FromSeconds(3),
+                Timeout = TimeSpan.FromSeconds(10),
                 ResponseBehaviour = InteractionResponseBehaviour.Ack,
                 ResponseMessage = "That's not a valid button"
             };

@@ -26,6 +26,8 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
+using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
 
 
@@ -33,17 +35,60 @@ namespace DSharpPlus.Test
 {
     public class Buttons : BaseCommandModule
     {
-        [Command]
-        public async Task SendButton(CommandContext ctx)
+        private readonly TimeSpan InteractionTimeout = TimeSpan.FromMinutes(15);
+
+        [Aliases("ci")]
+        [Command("create_interactive")]
+        [Description("Create a button-base role menu! \nThis one is interactive.")]
+        public async Task CreateInteractive(CommandContext ctx)
         {
-            var builder = new DiscordMessageBuilder();
+            var input = ctx.Client.GetInteractivity();
+            ComponentInteractionEventArgs buttonInput;
+            DiscordInteraction buttonInteraction;
+            DiscordFollowupMessageBuilder followupMessageBuilder = new DiscordFollowupMessageBuilder();
+            DiscordMessage currentMessage;
+            DiscordMessage messagePreview;
 
-            builder
-                .WithContent("Buttons! Coming soon:tm:")
-                .WithComponentRow(new DiscordButtonComponent(ButtonStyle.Primary, "P_", "", false, new DiscordComponentEmoji(833475075474063421)));
+            var YNC = new DiscordComponent[]
+            {
+                new DiscordButtonComponent(ButtonStyle.Success, $"{ctx.User.Id} rolemenu confirm", ":check: Yes"),
+                new DiscordButtonComponent(ButtonStyle.Danger, $"{ctx.User.Id} rolemenu confirm", ":cross: No"),
+                new DiscordButtonComponent(ButtonStyle.Secondary, $"{ctx.User.Id} rolemenu confirm", ":warning: Cancel")
+            };
 
-            await builder.SendAsync(ctx.Channel);
+            var start = new DiscordButtonComponent(ButtonStyle.Success, $"{ctx.User.Id} rolemenu init", "Start");
+
+            var builder = new DiscordMessageBuilder()
+                .WithContent("Press start to start. This message is valid for 10 minutes, and the role menu setup expires 15 minutes after that.")
+                .WithComponents(start);
+
+            currentMessage = await builder.SendAsync(ctx.Channel);
+            buttonInput = (await input.WaitForButtonAsync(currentMessage, TimeSpan.FromMinutes(10))).Result;
+            buttonInteraction = buttonInput?.Interaction;
+
+            if (buttonInput is null) // null = timed out //
+            {
+                start.Disabled = true;
+                await currentMessage.ModifyAsync(builder);
+                return;
+            }
+
+            await buttonInput.Interaction.CreateResponseAsync(InteractionResponseType.DefferedMessageUpdate);
+            currentMessage = await buttonInteraction.CreateFollowupMessageAsync(followupMessageBuilder.WithContent("All good role menus start with a name. What's this one's?"));
+
+            while (true)
+            {
+                var messageInput = await input.WaitForMessageAsync(m => m.Author == ctx.User, this.InteractionTimeout);
+                if (messageInput.TimedOut)
+                {
+                    await ctx.RespondAsync($"{ctx.User.Mention} your setup has timed out.");
+                    return;
+                }
+                await buttonInteraction.EditFollowupMessageAsync(currentMessage.Id, new DiscordWebhookBuilder().WithContent("updated!"));
+                await ctx.RespondAsync("Updated message");
+            }
         }
+
 
         [Command]
         public async Task Sendbuttons(CommandContext ctx)
@@ -64,10 +109,10 @@ namespace DSharpPlus.Test
 
             builder
                 .WithContent("Buttons! Coming soon:tm:")
-                .WithComponentRow(p)
-                .WithComponentRow(c, b)
-                .WithComponentRow(y, z)
-                .WithComponentRow(d1, d2, d3, d4);
+                .WithComponents(p)
+                .WithComponents(c, b)
+                .WithComponents(y, z)
+                .WithComponents(d1, d2, d3, d4);
 
             await builder.SendAsync(ctx.Channel);
 

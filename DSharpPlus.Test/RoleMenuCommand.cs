@@ -56,10 +56,10 @@ namespace DSharpPlus.Test
                         throw new InvalidOperationException("Cannot assign role higher than your own!");
 
                     var e = new DiscordComponentEmoji(pair.Second.Id);
-                    var b = new DiscordButtonComponent(ButtonStyle.Success, $"{pair.First.Mention}", emoji: e);
+                    var b = new DiscordButtonComponent(ButtonStyle.Success, $"{pair.First.Mention}", "", emoji: e);
                     buttons.Add(b);
                 }
-                builder.WithComponentRow(buttons.ToArray());
+                builder.WithComponents(buttons.ToArray());
                 buttons.Clear();
             }
             await builder.SendAsync(ctx.Channel);
