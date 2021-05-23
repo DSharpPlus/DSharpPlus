@@ -34,12 +34,12 @@ namespace DSharpPlus
         Default = 0,
 
         /// <summary>
-        /// Message indicating a recipient was added to a group direct message.
+        /// Message indicating a recipient was added to a group direct message or a thread channel.
         /// </summary>
         RecipientAdd = 1,
 
         /// <summary>
-        /// Message indicating a recipient was removed from a group direct message.
+        /// Message indicating a recipient was removed from a group direct message or a thread channel.
         /// </summary>
         RecipientRemove = 2,
 
@@ -49,7 +49,7 @@ namespace DSharpPlus
         Call = 3,
 
         /// <summary>
-        /// Message indicating a group direct message channel rename.
+        /// Message indicating a group direct message or thread channel rename.
         /// </summary>
         ChannelNameChange = 4,
 
@@ -129,7 +129,7 @@ namespace DSharpPlus
         ApplicationCommand = 20,
 
         /// <summary>
-        /// Message indicating a thread starter message.
+        /// Message indicating a new was message sent as the first message in threads that are started from an existing message in the parent channel.
         /// </summary>
         ThreadStarterMessage = 21,
 
