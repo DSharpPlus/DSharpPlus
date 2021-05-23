@@ -94,13 +94,6 @@ namespace DSharpPlus
             => this.Configuration.Intents;
 
         /// <summary>
-        /// Gets a dictionary of DM channels that have been cached by this client. The dictionary's key is the channel
-        /// ID.
-        /// </summary>
-        public IReadOnlyDictionary<ulong, DiscordDmChannel> PrivateChannels { get; }
-        internal ConcurrentDictionary<ulong, DiscordDmChannel> _privateChannels = new();
-
-        /// <summary>
         /// Gets a dictionary of guilds that this client is in. The dictionary's key is the guild ID. Note that the
         /// guild objects in this dictionary will not be filled in if the specific guilds aren't available (the
         /// <see cref="GuildAvailable"/> or <see cref="GuildDownloadCompleted"/> events haven't been fired yet)
@@ -146,7 +139,6 @@ namespace DSharpPlus
             this.InternalSetup();
 
             this.Guilds = new ReadOnlyConcurrentDictionary<ulong, DiscordGuild>(this._guilds);
-            this.PrivateChannels = new ReadOnlyConcurrentDictionary<ulong, DiscordDmChannel>(this._privateChannels);
         }
 
         internal void InternalSetup()
@@ -741,11 +733,6 @@ namespace DSharpPlus
 
         internal DiscordChannel InternalGetCachedChannel(ulong channelId)
         {
-            DiscordDmChannel foundDmChannel = default;
-
-            if (this._privateChannels?.TryGetValue(channelId, out foundDmChannel) == true)
-                return foundDmChannel;
-
             foreach (var guild in this.Guilds.Values)
                 if (guild.Channels.TryGetValue(channelId, out var foundChannel))
                     return foundChannel;
@@ -1008,7 +995,6 @@ namespace DSharpPlus
 
             this._guilds = null;
             this._heartbeatTask = null;
-            this._privateChannels = null;
         }
 
         #endregion
