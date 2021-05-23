@@ -200,4 +200,13 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("token", NullValueHandling = NullValueHandling.Include)]
         public string Token { get; set; }
     }
+
+    internal sealed class RestThreadChannelCreatePayload
+    {
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("auto_archive_duration")]
+        public int AutoArchiveDuration { get; set; }
+    }
 }
