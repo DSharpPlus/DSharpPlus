@@ -64,6 +64,21 @@ namespace DSharpPlus
         Store = 6,
 
         /// <summary>
+        /// Indicates that this is a temporary sub-channel within a news channel.
+        /// </summary>
+        NewsThread = 10,
+
+        /// <summary>
+        /// Indicates that this is a temporary sub-channel within a text channel.
+        /// </summary>
+        PublicThread = 11,
+
+        /// <summary>
+        /// Indicates that this is a temporary sub-channel within a text channel that is only viewable by those invited and those with the MANAGE_THREADS permission.
+        /// </summary>
+        PrivateThread = 12,
+
+        /// <summary>
         /// Indicates that this is a stage channel.
         /// </summary>
         Stage = 13,
