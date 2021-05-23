@@ -131,7 +131,7 @@ namespace DSharpPlus
         /// <summary>
         /// Message indicating a thread starter message.
         /// </summary>
-        ThreadStarterMessage = 19,
+        ThreadStarterMessage = 21,
 
         /// <summary>
         /// Message reminding you to invite people to help you build the server.
