@@ -2118,6 +2118,7 @@ namespace DSharpPlus.Net
             ret.Discord = this.Discord;
             return ret;
         }
+
         internal Task<DiscordMessage> EditWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong message_id, DiscordWebhookBuilder builder) =>
             this.EditWebhookMessageAsync(webhook_id, webhook_token, message_id.ToString(), builder);
 
@@ -2133,6 +2134,9 @@ namespace DSharpPlus.Net
             ret.Discord = this.Discord;
             return ret;
         }
+        internal Task<DiscordMessage> GetWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong message_id) =>
+            this.GetWebhookMessageAsync(webhook_id, webhook_token, message_id.ToString());
+
 
         internal async Task DeleteWebhookMessageAsync(ulong webhook_id, string webhook_token, string message_id)
         {

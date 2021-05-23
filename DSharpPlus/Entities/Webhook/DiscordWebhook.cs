@@ -127,6 +127,16 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Gets the previously-sent webhook message from the same token of this webhook.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the webhook does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<DiscordMessage> GetMessageAsync(ulong messageId)
+            => await (this.Discord?.ApiClient ?? this.ApiClient).GetWebhookMessageAsync(this.Id, this.Token, messageId).ConfigureAwait(false);
+
+        /// <summary>
         /// Permanently deletes this webhook.
         /// </summary>
         /// <returns></returns>

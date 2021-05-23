@@ -115,6 +115,16 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Gets the original interaction response.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the response does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<DiscordMessage> GetOriginalResponseAsync(ulong messageId)
+            => await this.Discord.ApiClient.GetOriginalInteractionResponseAsync(this.Id, this.Token);
+
+        /// <summary>
         /// Deletes the original interaction response.
         /// </summary>>
         public Task DeleteOriginalResponseAsync() =>
