@@ -2314,7 +2314,7 @@ namespace DSharpPlus.Net
             await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route);
         }
 
-        internal async Task<IReadOnlyList<DiscordThreadChannelMember>> GetThreadMembersAsync(ulong channel_id, ulong user_id)
+        internal async Task<IReadOnlyList<DiscordThreadChannelMember>> GetThreadMembersAsync(ulong channel_id)
         {
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.THREAD_MEMBERS}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { channel_id }, out var path);
