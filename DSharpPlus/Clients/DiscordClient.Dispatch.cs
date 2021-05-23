@@ -145,7 +145,20 @@ namespace DSharpPlus
                     await this.OnGuildIntegrationsUpdateEventAsync(this._guilds[gid]).ConfigureAwait(false);
                     break;
 
-                // This event is at the moment not documented and could be part of membership screening
+                /*
+                 Ok soooo.. this isn't documented yet
+                 It seems to be part of the next version of membership screening (https://discord.com/channels/641574644578648068/689591708962652289/845836910991507486)
+                 
+                 Previews: https://github.com/DSharpPlus/DSharpPlus/pull/890#issuecomment-846464105
+                  
+                 advaith said the following (https://discord.com/channels/641574644578648068/689591708962652289/845838160047112202):
+                 > iirc it happens when a user leaves a server where they havent completed screening yet
+                 
+                 We have to wait till it's documented, but the fields are:
+                 { "user_id": "snowflake_user", "guild_id": "snowflake_guild" }
+                 
+                 We could handle it rn, but due to the fact that it isn't documented, it's not an good idea.
+                 */
                 case "guild_join_request_delete":
                     break;
 
