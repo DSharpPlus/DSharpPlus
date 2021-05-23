@@ -65,7 +65,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets ID of the archiver.
         /// </summary>
-        [JsonProperty("archiver_id", NullValueHandling = NullValueHandling.Include)]
+        [JsonProperty("archiver_id", NullValueHandling = NullValueHandling.Ignore)]
         public ulong ArchiverId { get; internal set; }
 
         /// <summary>
