@@ -89,7 +89,7 @@ namespace DSharpPlus.Entities
         /// <para>Gets the slow mode delay configured for this thread.</para>
         /// <para>All bots, as well as users with <see cref="Permissions.ManageChannels"/> or <see cref="Permissions.ManageMessages"/> permissions in the channel are exempt from slow mode.</para>
         /// </summary>
-        [JsonProperty("rate_limit_per_user"), NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("rate_limit_per_user", NullValueHandling = NullValueHandling.Ignore)]
         public int? PerUserRateLimit { get; internal set; }
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the threads metadata.
         /// </summary>
-        [JsonProperty("thread_metadata"), NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("thread_metadata", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordThreadChannelMetadata ThreadMetadata { get; internal set; }
 
         /// <summary>

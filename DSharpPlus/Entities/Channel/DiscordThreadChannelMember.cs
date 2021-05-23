@@ -38,14 +38,8 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents a discord thread member object.
     /// </summary>
-    public class DiscordThreadChannelMember : IEquatable<DiscordThreadChannelMember>
+    public class DiscordThreadChannelMember : SnowflakeObject, IEquatable<DiscordThreadChannelMember>
     {
-        /// <summary>
-        /// Gets ID of the thread.
-        /// </summary>
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong Id { get; internal set; }
-
         /// <summary>
         /// Gets ID of the user.
         /// </summary>
