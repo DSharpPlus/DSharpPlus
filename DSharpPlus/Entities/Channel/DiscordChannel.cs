@@ -85,7 +85,7 @@ namespace DSharpPlus.Entities
             => this.Type == ChannelType.Private || this.Type == ChannelType.Group;
 
         /// <summary>
-        /// Gets whether this channel is a temporary thread channel.
+        /// Gets whether this channel is a DiscordThreadChannel.
         /// </summary>
         [JsonIgnore]
         public bool IsThread
