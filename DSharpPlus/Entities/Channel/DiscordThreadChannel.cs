@@ -47,6 +47,12 @@ namespace DSharpPlus.Entities
         public ulong GuildId { get; internal set; }
 
         /// <summary>
+        /// Gets ID of the owner that started this thread.
+        /// </summary>
+        [JsonProperty("owner_id", NullValueHandling = NullValueHandling.Ignore)]
+        public ulong OwnerId { get; internal set; }
+
+        /// <summary>
         /// Gets ID of the news or text channel that contains this thread.
         /// </summary>
         [JsonProperty("parent_id", NullValueHandling = NullValueHandling.Ignore)]
