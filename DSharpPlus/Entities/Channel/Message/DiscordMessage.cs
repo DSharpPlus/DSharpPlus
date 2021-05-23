@@ -536,7 +536,7 @@ namespace DSharpPlus.Entities
         public async Task<DiscordThreadChannel> CreateThreadAsync(string name, ThreadAutoArchiveDuration auto_archive_duration = ThreadAutoArchiveDuration.ONE_HOUR, bool private_thread = false)
         {
             DiscordChannel channel = await this.Discord.ApiClient.GetChannelAsync(this.ChannelId);
-            await this.Discord.ApiClient.CreateThreadWithMessageAsync(this.ChannelId, this.Id, name, auto_archive_duration, private_thread, channel.Type == ChannelType.News ? false : private_thread);
+            return await this.Discord.ApiClient.CreateThreadWithMessageAsync(this.ChannelId, this.Id, name, auto_archive_duration, channel.Type == ChannelType.News ? false : private_thread);
         }
 
         /// <summary>
