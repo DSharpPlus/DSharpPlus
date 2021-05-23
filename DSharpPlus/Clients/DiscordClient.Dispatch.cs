@@ -509,38 +509,6 @@ namespace DSharpPlus
             this._sessionId = ready.SessionId;
             var raw_guild_index = rawGuilds.ToDictionary(xt => (ulong)xt["id"], xt => (JObject)xt);
 
-            this._privateChannels.Clear();
-            foreach (var rawChannel in rawDmChannels)
-            {
-                var channel = rawChannel.ToObject<DiscordDmChannel>();
-
-                channel.Discord = this;
-
-                //xdc._recipients = 
-                //    .Select(xtu => this.InternalGetCachedUser(xtu.Id) ?? new DiscordUser(xtu) { Discord = this })
-                //    .ToList();
-
-                var recips_raw = rawChannel["recipients"].ToObject<IEnumerable<TransportUser>>();
-                var recipients = new List<DiscordUser>();
-                foreach (var xr in recips_raw)
-                {
-                    var xu = new DiscordUser(xr) { Discord = this };
-                    xu = this.UserCache.AddOrUpdate(xr.Id, xu, (id, old) =>
-                    {
-                        old.Username = xu.Username;
-                        old.Discriminator = xu.Discriminator;
-                        old.AvatarHash = xu.AvatarHash;
-                        return old;
-                    });
-
-                    recipients.Add(xu);
-                }
-                channel.Recipients = recipients;
-
-
-                this._privateChannels[channel.Id] = channel;
-            }
-
             this._guilds.Clear();
             foreach (var guild in ready.Guilds)
             {
@@ -712,8 +680,6 @@ namespace DSharpPlus
             if (channel.Type == ChannelType.Group || channel.Type == ChannelType.Private)
             {
                 var dmChannel = channel as DiscordDmChannel;
-
-                _ = this._privateChannels.TryRemove(dmChannel.Id, out _);
 
                 await this._dmChannelDeleted.InvokeAsync(this, new DmChannelDeleteEventArgs { Channel = dmChannel }).ConfigureAwait(false);
             }
