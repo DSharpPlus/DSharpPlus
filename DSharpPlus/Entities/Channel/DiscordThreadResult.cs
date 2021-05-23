@@ -38,7 +38,7 @@ using Newtonsoft.Json;
 namespace DSharpPlus.Entities
 {
     /// <summary>
-    /// Represents a discord thread channel.
+    /// Represents a discord thread result.
     /// </summary>
     public class DiscordThreadResult
     {

@@ -34,17 +34,17 @@ namespace DSharpPlus
         Unknown = 0,
 
         /// <summary>
-        /// Indicates that the notification seeting is set to all messages.
+        /// Indicates that the notification setting is set to all messages.
         /// </summary>
         All = 3,
 
         /// <summary>
-        /// Indicates that the notification seeting is set to only mentions.
+        /// Indicates that the notification setting is set to only mentions.
         /// </summary>
         Mentions = 5,
 
         /// <summary>
-        /// Indicates that the notification seeting is set to none.
+        /// Indicates that the notification setting is set to none.
         /// </summary>
         None = 9
     }
