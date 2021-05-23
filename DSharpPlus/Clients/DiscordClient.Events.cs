@@ -607,6 +607,10 @@ namespace DSharpPlus
 
         #endregion
 
+        #region Thread
+
+        #endregion
+
         #region Voice
 
         /// <summary>

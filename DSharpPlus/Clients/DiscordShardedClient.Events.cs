@@ -549,6 +549,10 @@ namespace DSharpPlus
 
         #endregion
 
+        #region Thread
+
+        #endregion
+
         #region User/Presence Update
 
         /// <summary>

@@ -377,6 +377,10 @@ namespace DSharpPlus
 
                 #endregion
 
+                #region Thread
+
+                #endregion
+
                 #region User/Presence Update
 
                 case "presence_update":
@@ -1680,6 +1684,10 @@ namespace DSharpPlus
 
             await this._stageInstanceDeleted.InvokeAsync(this, new StageInstanceDeleteEventArgs { StageInstance = stage }).ConfigureAwait(false);
         }
+
+        #endregion
+
+        #region Thread
 
         #endregion
 
