@@ -674,21 +674,6 @@ namespace DSharpPlus.Entities
         public async Task<DiscordStageInstance> GetStageAsync()
             => await this.Discord.ApiClient.GetStageInstanceAsync(this.Id);
 
-        /// <summary>
-        /// Adds a channel permission overwrite for specified member.
-        /// </summary>
-        /// <param name="member">The member to have the permission added.</param>
-        /// <param name="allow">The permissions to allow.</param>
-        /// <param name="deny">The permissions to deny.</param>
-        /// <param name="reason">Reason for audit logs.</param>
-        /// <returns></returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task AddOverwriteAsync(DiscordMember member, Permissions allow = Permissions.None, Permissions deny = Permissions.None, string reason = null)
-            => this.Discord.ApiClient.EditChannelPermissionsAsync(this.Id, member.Id, allow, deny, "member", reason);
-
         #endregion
 
         #region Threads
@@ -708,6 +693,7 @@ namespace DSharpPlus.Entities
             => await this.Discord.ApiClient.CreateThreadWithoutMessageAsync(this.Id, name, auto_archive_duration, private_thread);
 
         #endregion
+
         /// <summary>
         /// Adds a channel permission overwrite for specified role.
         /// </summary>
@@ -722,6 +708,22 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task AddOverwriteAsync(DiscordRole role, Permissions allow = Permissions.None, Permissions deny = Permissions.None, string reason = null)
             => this.Discord.ApiClient.EditChannelPermissionsAsync(this.Id, role.Id, allow, deny, "role", reason);
+
+
+        /// <summary>
+        /// Adds a channel permission overwrite for specified member.
+        /// </summary>
+        /// <param name="member">The member to have the permission added.</param>
+        /// <param name="allow">The permissions to allow.</param>
+        /// <param name="deny">The permissions to deny.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task AddOverwriteAsync(DiscordMember member, Permissions allow = Permissions.None, Permissions deny = Permissions.None, string reason = null)
+            => this.Discord.ApiClient.EditChannelPermissionsAsync(this.Id, member.Id, allow, deny, "member", reason);
 
         /// <summary>
         /// Post a typing indicator
