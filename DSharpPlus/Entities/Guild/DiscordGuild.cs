@@ -167,12 +167,18 @@ namespace DSharpPlus.Entities
         [JsonProperty("explicit_content_filter")]
         public ExplicitContentFilter ExplicitContentFilter { get; internal set; }
 
-        [JsonProperty("system_channel_id", NullValueHandling = NullValueHandling.Include)]
-        internal ulong? SystemChannelId { get; set; }
+        /// <summary>
+        /// Gets the guild's nsfw level.
+        /// </summary>
+        [JsonProperty("nsfw_level")]
+        public NsfwLevel NsfwLevel { get; internal set; }
 
         /// <summary>
         /// Gets the channel where system messages (such as boost and welcome messages) are sent.
         /// </summary>
+        [JsonProperty("system_channel_id", NullValueHandling = NullValueHandling.Include)]
+        internal ulong? SystemChannelId { get; set; }
+
         [JsonIgnore]
         public DiscordChannel SystemChannel => this.SystemChannelId.HasValue
             ? this.GetChannel(this.SystemChannelId.Value)
