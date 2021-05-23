@@ -130,7 +130,9 @@ namespace DSharpPlus.Interactivity
             {
                 var result = await this.ComponentInteractionWaiter
                     .WaitForMatch(new MatchRequest<ComponentInteractionEventArgs>(c => c.Interaction.Type == InteractionType.Component &&
-                                                                                       c.Interaction.Data.ComponentType == ComponentType.Button && buttons.Any(b => b.CustomId == c.Id), timeout));
+                                                                                       c.Interaction.Data.ComponentType == ComponentType.Button &&
+                                                                                       c.Message.Id == message.Id &&
+                                                                                       buttons.Any(b => b.CustomId == c.Id), timeout));
                 if (result is null)
                     return new InteractivityResult<ComponentInteractionEventArgs>(true, null);
                 else return new InteractivityResult<ComponentInteractionEventArgs>(false, result);
@@ -159,7 +161,9 @@ namespace DSharpPlus.Interactivity
             while (true)
             {
                 var result = await this.ComponentInteractionWaiter
-                    .WaitForMatch(new MatchRequest<ComponentInteractionEventArgs>(c => c.Interaction.Type == InteractionType.Component && c.Interaction.Data.ComponentType == ComponentType.Button, timeout));
+                    .WaitForMatch(new MatchRequest<ComponentInteractionEventArgs>(c => c.Interaction.Type == InteractionType.Component &&
+                                                                                       c.Interaction.Data.ComponentType == ComponentType.Button &&
+                                                                                       c.Message.Id == message.Id, timeout));
                 if (result is null) return new InteractivityResult<ComponentInteractionEventArgs>(true, null);
 
                 else return new InteractivityResult<ComponentInteractionEventArgs>(false, result);
@@ -193,7 +197,8 @@ namespace DSharpPlus.Interactivity
             while (true)
             {
                 var result = await this.ComponentInteractionWaiter
-                    .WaitForMatch(new MatchRequest<ComponentInteractionEventArgs>(c => c.Interaction.Type == InteractionType.Component && c.Interaction.Data.ComponentType == ComponentType.Button, timeout));
+                    .WaitForMatch(new MatchRequest<ComponentInteractionEventArgs>(c => c.Interaction.Type == InteractionType.Component &&
+                                                                                       c.Interaction.Data.ComponentType == ComponentType.Button && c.Message.Id == message.Id, timeout));
                 if (result is null) return new InteractivityResult<ComponentInteractionEventArgs>(true, null);
                 if (result.Id != id) await this.HandleInvalidInteraction(result.Interaction);
                 else return new InteractivityResult<ComponentInteractionEventArgs>(false, result);
