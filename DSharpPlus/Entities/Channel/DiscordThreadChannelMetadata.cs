@@ -56,7 +56,7 @@ namespace DSharpPlus.Entities
         /// Gets the time when it will be archived, while there is no action inside the thread (In minutes).
         /// </summary>
         [JsonProperty("auto_archive_duration", NullValueHandling = NullValueHandling.Ignore)]
-        public int AutoArchiveDuration { get; internal set; }
+        public ThreadAutoArchiveDuration AutoArchiveDuration { get; internal set; }
 
         /// <summary>
         /// Gets the timestamp when it was archived.

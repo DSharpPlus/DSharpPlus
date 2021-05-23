@@ -219,7 +219,7 @@ namespace DSharpPlus.Net.Abstractions
         public Optional<bool?> Archived { get; set; }
 
         [JsonProperty("auto_archive_duration", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<int?> AutoArchiveDuration { get; set; }
+        public Optional<ThreadAutoArchiveDuration?> AutoArchiveDuration { get; set; }
 
         [JsonProperty("locked", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<bool?> Locked { get; set; }

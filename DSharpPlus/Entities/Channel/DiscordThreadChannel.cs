@@ -122,6 +122,35 @@ namespace DSharpPlus.Entities
         #region Methods
 
         /// <summary>
+        /// Deletes a thread
+        /// </summary>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageThreads"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task DeleteAsync(string reason = null)
+            => this.Discord.ApiClient.DeleteThreadAsync(this.Id, reason);
+
+
+        /// <summary>
+        /// Modifies the current thread.
+        /// </summary>
+        /// <param name="action">Action to perform on this thread</param>
+        /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageThreads"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception
+        public Task ModifyAsync(Action<ThreadEditModel> action)
+        {
+            var mdl = new ThreadEditModel();
+            action(mdl);
+            return this.Discord.ApiClient.ModifyThreadAsync(this.Id, mdl.Name, mdl.Locked, mdl.Archived, mdl.AutoArchiveDuration, mdl.PerUserRateLimit, mdl.AuditLogReason);
+        }
+
+        /// <summary>
         /// Returns a string representation of this thread.
         /// </summary>
         /// <returns>String representation of this thread.</returns>
