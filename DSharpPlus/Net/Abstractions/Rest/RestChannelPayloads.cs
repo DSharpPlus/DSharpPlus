@@ -213,7 +213,7 @@ namespace DSharpPlus.Net.Abstractions
     internal sealed class RestThreadChannelModifyPayload
     {
         [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<string> Name { get; set; }
+        public string Name { get; set; }
 
         [JsonProperty("archived", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<bool?> Archived { get; set; }

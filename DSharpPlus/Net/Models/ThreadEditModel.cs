@@ -30,7 +30,7 @@ namespace DSharpPlus.Net.Models
         /// <summary>
         /// Sets the threads's new name.
         /// </summary>
-        public Optional<string> Name { internal get; set; }
+        public string Name { internal get; set; }
 
         /// <summary>
         /// Sets the threads's locked state.

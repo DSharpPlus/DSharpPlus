@@ -2397,7 +2397,7 @@ namespace DSharpPlus.Net
             return thread_return;
         }
 
-        internal Task ModifyThreadAsync(ulong channel_id, Optional<string> name, Optional<bool?> locked, Optional<bool?> archived, Optional<ThreadAutoArchiveDuration?> autoArchiveDuration, Optional<int?> perUserRateLimit, string reason)
+        internal Task ModifyThreadAsync(ulong channel_id, string name, Optional<bool?> locked, Optional<bool?> archived, Optional<ThreadAutoArchiveDuration?> autoArchiveDuration, Optional<int?> perUserRateLimit, string reason)
         {
             var pld = new RestThreadChannelModifyPayload
             {
