@@ -147,12 +147,6 @@ namespace DSharpPlus.Net.Abstractions
         public IEnumerable<ulong> Messages { get; set; }
     }
 
-    internal sealed class RestChannelMessageSuppressEmbedsPayload
-    {
-        [JsonProperty("suppress", NullValueHandling = NullValueHandling.Ignore)]
-        public bool? Suppress { get; set; }
-    }
-
     internal sealed class RestChannelInviteCreatePayload
     {
         [JsonProperty("max_age", NullValueHandling = NullValueHandling.Ignore)]
