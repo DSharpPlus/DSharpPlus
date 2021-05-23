@@ -993,7 +993,7 @@ namespace DSharpPlus.Net
             {
                 Topic = topic
             };
-        
+
             var route = $"{Endpoints.STAGE_INSTANCES}/:channel_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { channel_id }, out var path);
 
@@ -2240,12 +2240,23 @@ namespace DSharpPlus.Net
 
         #region Threads
 
-        internal async Task<DiscordThreadChannel> CreateThreadWithMessageAsync(ulong channel_id, ulong message_id, string name, ThreadAutoArchiveDuration auto_archive_duration)
+        internal async Task<DiscordThreadChannel> CreateThreadWithMessageAsync(ulong channel_id, ulong message_id, string name, ThreadAutoArchiveDuration auto_archive_duration, bool private_thread)
         {
+            ChannelType type;
+            if(private_thread)
+            {
+                type = ChannelType.PrivateThread;
+            } else
+            {
+                DiscordChannel channel = await this.GetChannelAsync(channel_id);
+                type = channel.Type == ChannelType.News ? ChannelType.NewsThread : ChannelType.PublicThread;
+            }
+
             var pld = new RestThreadChannelCreatePayload
             {
                 Name = name,
-                AutoArchiveDuration = auto_archive_duration
+                AutoArchiveDuration = auto_archive_duration,
+                Type = type
             };
 
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}/:message_id{Endpoints.THREADS}";
@@ -2259,12 +2270,24 @@ namespace DSharpPlus.Net
             return thread_channel;
         }
 
-        internal async Task<DiscordThreadChannel> CreateThreadWithoutMessageAsync(ulong channel_id, string name, ThreadAutoArchiveDuration auto_archive_duration)
+        internal async Task<DiscordThreadChannel> CreateThreadWithoutMessageAsync(ulong channel_id, string name, ThreadAutoArchiveDuration auto_archive_duration, bool private_thread)
         {
+            ChannelType type;
+            if (private_thread)
+            {
+                type = ChannelType.PrivateThread;
+            }
+            else
+            {
+                DiscordChannel channel = await this.GetChannelAsync(channel_id);
+                type = channel.Type == ChannelType.News ? ChannelType.NewsThread : ChannelType.PublicThread;
+            }
+
             var pld = new RestThreadChannelCreatePayload
             {
                 Name = name,
-                AutoArchiveDuration = auto_archive_duration
+                AutoArchiveDuration = auto_archive_duration,
+                Type = type
             };
 
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.THREADS}";

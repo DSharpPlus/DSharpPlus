@@ -208,6 +208,9 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("auto_archive_duration")]
         public ThreadAutoArchiveDuration AutoArchiveDuration { get; set; }
+
+        [JsonProperty("type")]
+        public ChannelType Type { get; set; }
     }
 
     internal sealed class RestThreadChannelModifyPayload
