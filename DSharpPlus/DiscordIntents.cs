@@ -68,14 +68,16 @@ namespace DSharpPlus
         /// Whether to include general guild events.
         /// <para>These include <see cref="DiscordClient.GuildCreated"/>, <see cref="DiscordClient.GuildDeleted"/>, <see cref="DiscordClient.GuildAvailable"/>, <see cref="DiscordClient.GuildDownloadCompleted"/>,</para>
         /// <para><see cref="DiscordClient.GuildRoleCreated"/>, <see cref="DiscordClient.GuildRoleUpdated"/>, <see cref="DiscordClient.GuildRoleDeleted"/>,</para>
-        /// <para><see cref="DiscordClient.ChannelCreated"/>, <see cref="DiscordClient.ChannelUpdated"/>, <see cref="DiscordClient.ChannelDeleted"/>, and <see cref="DiscordClient.ChannelPinsUpdated"/>,</para>
-        /// <para><see cref="DiscordClient.StageInstanceCreated"/>, <see cref="DiscordClient.StageInstanceUpdated"/> and <see cref="DiscordClient.StageInstanceDeleted"/>.</para>
+        /// <para><see cref="DiscordClient.ChannelCreated"/>, <see cref="DiscordClient.ChannelUpdated"/>, <see cref="DiscordClient.ChannelDeleted"/>, <see cref="DiscordClient.ChannelPinsUpdated"/>,</para>
+        /// <para><see cref="DiscordClient.StageInstanceCreated"/>, <see cref="DiscordClient.StageInstanceUpdated"/>, <see cref="DiscordClient.StageInstanceDeleted"/>,</para>
+        /// <para><see cref="DiscordClient.ThreadGreated"/>, <see cref="DiscordClient.ThreadUpdated"/>, <see cref="DiscordClient.ThreadDeleted"/>,</para>
+        /// <para><see cref="DiscordClient.ThreadListSynced"/>, <see cref="DiscordClient.ThreadMemberUpdated"/> and <see cref="DiscordClient.ThreadMembersUpdated"/>.</para>
         /// </summary>
         Guilds = 1 << 0,
 
         /// <summary>
         /// Whether to include guild member events.
-        /// <para>These include <see cref="DiscordClient.GuildMemberAdded"/>, <see cref="DiscordClient.GuildMemberUpdated"/>, and <see cref="DiscordClient.GuildMemberRemoved"/>.</para>
+        /// <para>These include <see cref="DiscordClient.GuildMemberAdded"/>, <see cref="DiscordClient.GuildMemberUpdated"/>, <see cref="DiscordClient.GuildMemberRemoved"/> and <see cref="DiscordClient.ThreadMembersUpdated"/>.</para>
         /// <para>This is a privileged intent, and must be enabled on the bot's developer page.</para>
         /// </summary>
         GuildMembers = 1 << 1,
