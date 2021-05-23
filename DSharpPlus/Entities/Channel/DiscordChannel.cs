@@ -626,6 +626,8 @@ namespace DSharpPlus.Entities
         public Task<DiscordInvite> CreateInviteAsync(int max_age = 86400, int max_uses = 0, TargetType target_type = TargetType.Streaming, TargetActivity target_application = TargetActivity.None, bool temporary = false, bool unique = false, string reason = null)
             => this.Discord.ApiClient.CreateChannelInviteAsync(this.Id, max_age, max_uses, target_type, target_application, temporary, unique, reason);
 
+        #region Stage
+
         /// <summary>
         /// Opens a stage
         /// </summary>
@@ -687,6 +689,24 @@ namespace DSharpPlus.Entities
         public Task AddOverwriteAsync(DiscordMember member, Permissions allow = Permissions.None, Permissions deny = Permissions.None, string reason = null)
             => this.Discord.ApiClient.EditChannelPermissionsAsync(this.Id, member.Id, allow, deny, "member", reason);
 
+        #endregion
+
+        #region Threads
+
+        /// <summary>
+        /// Creates a thread.
+        /// </summary>
+        /// <param name="name">The name of the thread.</param>
+        /// <param name="auto_archive_duration"><see cref="ThreadAutoArchiveDuration"/> till it gets archived.</param>
+        /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.UsePublicThreads"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<DiscordThreadChannel> CreateThreadAsync(string name, ThreadAutoArchiveDuration auto_archive_duration = ThreadAutoArchiveDuration.ONE_HOUR)
+            => await this.Discord.ApiClient.CreateThreadWithoutMessageAsync(this.Id, name, auto_archive_duration);
+
+        #endregion
         /// <summary>
         /// Adds a channel permission overwrite for specified role.
         /// </summary>

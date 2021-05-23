@@ -523,6 +523,19 @@ namespace DSharpPlus.Entities
             => this.Discord.ApiClient.DeleteMessageAsync(this.ChannelId, this.Id, reason);
 
         /// <summary>
+        /// Creates a thread.
+        /// </summary>
+        /// <param name="name">The name of the thread.</param>
+        /// <param name="auto_archive_duration"><see cref="ThreadAutoArchiveDuration"/> till it gets archived.</param>
+        /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.UsePublicThreads"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<DiscordThreadChannel> CreateThreadAsync(string name, ThreadAutoArchiveDuration auto_archive_duration = ThreadAutoArchiveDuration.ONE_HOUR)
+            => await this.Discord.ApiClient.CreateThreadWithMessageAsync(this.ChannelId, this.Id, name, auto_archive_duration);
+
+        /// <summary>
         /// Pins the message in its channel.
         /// </summary>
         /// <returns></returns>

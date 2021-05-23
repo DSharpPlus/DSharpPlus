@@ -210,22 +210,24 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Adds a thread member.
         /// </summary>
+        /// <param name="member">The member to have the permission added.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the thread does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task AddMemberAsync(ulong userId)
-            => this.Discord.ApiClient.AddThreadMemberAsync(this.Id, userId);
+        public Task AddMemberAsync(ulong member)
+            => this.Discord.ApiClient.AddThreadMemberAsync(this.Id, member);
 
         /// <summary>
         /// Removes a thread member.
         /// </summary>
+        /// <param name="member">The member to have the permission added.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the thread does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task RemoveMemberAsync(ulong userId)
-            => this.Discord.ApiClient.RemoveThreadMemberAsync(this.Id, userId);
+        public Task RemoveMemberAsync(ulong member)
+            => this.Discord.ApiClient.RemoveThreadMemberAsync(this.Id, member);
 
         /// <summary>
         /// Joins a thread

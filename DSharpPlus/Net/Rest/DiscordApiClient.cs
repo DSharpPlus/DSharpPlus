@@ -2240,7 +2240,7 @@ namespace DSharpPlus.Net
 
         #region Threads
 
-        internal async Task<DiscordThreadChannel> CreateThreadWithMessageAsync(ulong channel_id, ulong message_id, string name, int auto_archive_duration)
+        internal async Task<DiscordThreadChannel> CreateThreadWithMessageAsync(ulong channel_id, ulong message_id, string name, ThreadAutoArchiveDuration auto_archive_duration)
         {
             var pld = new RestThreadChannelCreatePayload
             {
@@ -2249,7 +2249,7 @@ namespace DSharpPlus.Net
             };
 
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}/:message_id{Endpoints.THREADS}";
-            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { }, out var path);
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id, message_id }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld));
@@ -2259,7 +2259,7 @@ namespace DSharpPlus.Net
             return thread_channel;
         }
 
-        internal async Task<DiscordThreadChannel> CreateThreadWithoutMessageAsync(ulong channel_id, string name, int auto_archive_duration)
+        internal async Task<DiscordThreadChannel> CreateThreadWithoutMessageAsync(ulong channel_id, string name, ThreadAutoArchiveDuration auto_archive_duration)
         {
             var pld = new RestThreadChannelCreatePayload
             {
@@ -2268,7 +2268,7 @@ namespace DSharpPlus.Net
             };
 
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.THREADS}";
-            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { }, out var path);
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld));
