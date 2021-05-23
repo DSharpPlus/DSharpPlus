@@ -128,17 +128,17 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets or sets plattform in this rich presence.
         /// </summary>
-        public string Plattform { get; internal set; }
+        public string Plattform { get; set; }
 
         /// <summary>
         /// Gets or sets sync_id in this rich presence.
         /// </summary>
-        public string SyncId { get; internal set; }
+        public string SyncId { get; set; }
 
         /// <summary>
         /// Gets or sets session_id in this rich presence.
         /// </summary>
-        public string SessionId { get; internal set; }
+        public string SessionId { get; set; }
 
         /// <summary>
         /// Gets or sets the activity type.
@@ -197,6 +197,9 @@ namespace DSharpPlus.Entities
             this.Name = other.Name;
             this.ActivityType = other.ActivityType;
             this.StreamUrl = other.StreamUrl;
+            this.SessionId = other.SessionId;
+            this.SyncId = other.SyncId;
+            this.Plattform = other.Plattform;
             this.RichPresence = new DiscordRichPresence(other.RichPresence);
             this.CustomStatus = new DiscordCustomStatus(other.CustomStatus);
         }
@@ -206,6 +209,9 @@ namespace DSharpPlus.Entities
             this.Name = rawActivity?.Name;
             this.ActivityType = rawActivity != null ? rawActivity.ActivityType : ActivityType.Playing;
             this.StreamUrl = rawActivity?.StreamUrl;
+            this.SessionId = rawActivity?.SessionId;
+            this.SyncId = rawActivity?.SyncId;
+            this.Plattform = rawActivity?.Plattform;
 
             if (rawActivity?.IsRichPresence() == true && this.RichPresence != null)
                 this.RichPresence.UpdateWith(rawActivity);
