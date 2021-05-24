@@ -249,6 +249,267 @@ namespace DSharpPlus.Entities
         public Task LeaveAsync()
             => this.Discord.ApiClient.LeaveThreadAsync(this.Id);
 
+
+        /// <summary>
+        /// Sends a message to this thread.
+        /// </summary>
+        /// <param name="content">Content of the message to send.</param>
+        /// <returns>The sent message.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission and <see cref="Permissions.SendTtsMessages"/> if TTS is true or the client is missing <see cref="Permissions.UsePrivateThreads"/> or <see cref="Permissions.UsePublicThreads"/> or the thread is locked.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the thread does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordMessage> SendMessageAsync(string content)
+        {
+            return this.Type != ChannelType.PublicThread && this.Type != ChannelType.PrivateThread && this.Type != ChannelType.NewsThread
+                ? throw new ArgumentException("Cannot send a text message to a non-thread channel.")
+                : this.Discord.ApiClient.CreateMessageAsync(this.Id, content, null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
+        }
+
+        /// <summary>
+        /// Sends a message to this thread.
+        /// </summary>
+        /// <param name="embed">Embed to attach to the message.</param>
+        /// <returns>The sent message.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission and <see cref="Permissions.SendTtsMessages"/> if TTS is true or the client is missing <see cref="Permissions.UsePrivateThreads"/> or <see cref="Permissions.UsePublicThreads"/> or the thread is locked.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the thread does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordMessage> SendMessageAsync(DiscordEmbed embed)
+        {
+            return this.Type != ChannelType.PublicThread && this.Type != ChannelType.PrivateThread && this.Type != ChannelType.NewsThread
+                ? throw new ArgumentException("Cannot send a text message to a non-text channel.")
+                : this.Discord.ApiClient.CreateMessageAsync(this.Id, null, embed, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
+        }
+
+        /// <summary>
+        /// Sends a message to this thread.
+        /// </summary>
+        /// <param name="embed">Embed to attach to the message.</param>
+        /// <param name="content">Content of the message to send.</param>
+        /// <returns>The sent message.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission and <see cref="Permissions.SendTtsMessages"/> if TTS is true or the client is missing <see cref="Permissions.UsePrivateThreads"/> or <see cref="Permissions.UsePublicThreads"/> or the thread is locked.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the thread does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordMessage> SendMessageAsync(string content, DiscordEmbed embed)
+        {
+            return this.Type != ChannelType.PublicThread && this.Type != ChannelType.PrivateThread && this.Type != ChannelType.NewsThread
+                ? throw new ArgumentException("Cannot send a text message to a non-text channel.")
+                : this.Discord.ApiClient.CreateMessageAsync(this.Id, content, embed, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
+        }
+
+        /// <summary>
+        /// Sends a message to this thread.
+        /// </summary>
+        /// <param name="builder">The builder with all the items to thread.</param>
+        /// <returns>The sent message.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission and <see cref="Permissions.SendTtsMessages"/> if TTS is true or the client is missing <see cref="Permissions.UsePrivateThreads"/> or <see cref="Permissions.UsePublicThreads"/> or the thread is locked.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the thread does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordMessage> SendMessageAsync(DiscordMessageBuilder builder)
+            => this.Discord.ApiClient.CreateMessageAsync(this.Id, builder);
+
+        /// <summary>
+        /// Sends a message to this channel.
+        /// </summary>
+        /// <param name="action">The builder with all the items to send.</param>
+        /// <returns>The sent message.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission and <see cref="Permissions.SendTtsMessages"/> if TTS is true or the client is missing <see cref="Permissions.UsePrivateThreads"/> or <see cref="Permissions.UsePublicThreads"/> or the thread is locked.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the thread does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordMessage> SendMessageAsync(Action<DiscordMessageBuilder> action)
+        {
+            var builder = new DiscordMessageBuilder();
+            action(builder);
+
+
+            return this.Discord.ApiClient.CreateMessageAsync(this.Id, builder);
+        }
+
+        /// <summary>
+        /// Returns a specific message
+        /// </summary>
+        /// <param name="id">The id of the message</param>
+        /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ReadMessageHistory"/> permission or the client is missing <see cref="Permissions.UsePrivateThreads"/> or <see cref="Permissions.UsePublicThreads"/>.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the thread does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<DiscordMessage> GetMessageAsync(ulong id)
+        {
+            return this.Discord.Configuration.MessageCacheSize > 0
+                && this.Discord is DiscordClient dc
+                && dc.MessageCache != null
+                && dc.MessageCache.TryGet(xm => xm.Id == id && xm.ChannelId == this.Id, out var msg)
+                ? msg
+                : await this.Discord.ApiClient.GetMessageAsync(this.Id, id).ConfigureAwait(false);
+        }
+
+        /// <summary>  
+        /// Returns a list of messages before a certain message.
+        /// <param name="limit">The amount of messages to fetch.</param>
+        /// <param name="before">Message to fetch before from.</param>
+        /// </summary> 
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.AccessChannels"/> or the <see cref="Permissions.ReadMessageHistory"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the thread does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<IReadOnlyList<DiscordMessage>> GetMessagesBeforeAsync(ulong before, int limit = 100)
+            => this.GetMessagesInternalAsync(limit, before, null, null);
+
+        /// <summary>  
+        /// Returns a list of messages after a certain message.
+        /// <param name="limit">The amount of messages to fetch.</param>
+        /// <param name="after">Message to fetch after from.</param>
+        /// </summary> 
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.AccessChannels"/> or the <see cref="Permissions.ReadMessageHistory"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the thread does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<IReadOnlyList<DiscordMessage>> GetMessagesAfterAsync(ulong after, int limit = 100)
+            => this.GetMessagesInternalAsync(limit, null, after, null);
+
+        /// <summary>  
+        /// Returns a list of messages around a certain message.
+        /// <param name="limit">The amount of messages to fetch.</param>
+        /// <param name="around">Message to fetch around from.</param>
+        /// </summary> 
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.AccessChannels"/> or the <see cref="Permissions.ReadMessageHistory"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the thread does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<IReadOnlyList<DiscordMessage>> GetMessagesAroundAsync(ulong around, int limit = 100)
+            => this.GetMessagesInternalAsync(limit, null, null, around);
+
+        /// <summary>  
+        /// Returns a list of messages from the last message in the thread.
+        /// <param name="limit">The amount of messages to fetch.</param>
+        /// </summary> 
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.AccessChannels"/> or the <see cref="Permissions.ReadMessageHistory"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the thread does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<IReadOnlyList<DiscordMessage>> GetMessagesAsync(int limit = 100) =>
+            this.GetMessagesInternalAsync(limit, null, null, null);
+
+        private async Task<IReadOnlyList<DiscordMessage>> GetMessagesInternalAsync(int limit = 100, ulong? before = null, ulong? after = null, ulong? around = null)
+        {
+            if (this.Type != ChannelType.PublicThread && this.Type != ChannelType.PrivateThread && this.Type != ChannelType.NewsThread)
+                throw new ArgumentException("Cannot get the messages of a non-thread channel.");
+
+            if (limit < 0)
+                throw new ArgumentException("Cannot get a negative number of messages.");
+
+            if (limit == 0)
+                return Array.Empty<DiscordMessage>();
+
+            //return this.Discord.ApiClient.GetChannelMessagesAsync(this.Id, limit, before, after, around);
+            if (limit > 100 && around != null)
+                throw new InvalidOperationException("Cannot get more than 100 messages around the specified ID.");
+
+            var msgs = new List<DiscordMessage>(limit);
+            var remaining = limit;
+            ulong? last = null;
+            var isAfter = after != null;
+
+            int lastCount;
+            do
+            {
+                var fetchSize = remaining > 100 ? 100 : remaining;
+                var fetch = await this.Discord.ApiClient.GetChannelMessagesAsync(this.Id, fetchSize, !isAfter ? last ?? before : null, isAfter ? last ?? after : null, around).ConfigureAwait(false);
+
+                lastCount = fetch.Count;
+                remaining -= lastCount;
+
+                if (!isAfter)
+                {
+                    msgs.AddRange(fetch);
+                    last = fetch.LastOrDefault()?.Id;
+                }
+                else
+                {
+                    msgs.InsertRange(0, fetch);
+                    last = fetch.FirstOrDefault()?.Id;
+                }
+            }
+            while (remaining > 0 && lastCount > 0);
+
+            return new ReadOnlyCollection<DiscordMessage>(msgs);
+        }
+
+        /// <summary>
+        /// Deletes multiple messages if they are less than 14 days old.  If they are older, none of the messages will be deleted and you will receive a <see cref="Exceptions.BadRequestException"/> error.
+        /// </summary>
+        /// <param name="messages">A collection of messages to delete.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageMessages"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the thread does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task DeleteMessagesAsync(IEnumerable<DiscordMessage> messages, string reason = null)
+        {
+            // don't enumerate more than once
+            var msgs = messages.Where(x => x.Channel.Id == this.Id).Select(x => x.Id).ToArray();
+            if (messages == null || !msgs.Any())
+                throw new ArgumentException("You need to specify at least one message to delete.");
+
+            if (msgs.Count() < 2)
+            {
+                await this.Discord.ApiClient.DeleteMessageAsync(this.Id, msgs.Single(), reason).ConfigureAwait(false);
+                return;
+            }
+
+            for (var i = 0; i < msgs.Count(); i += 100)
+                await this.Discord.ApiClient.DeleteMessagesAsync(this.Id, msgs.Skip(i).Take(100), reason).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Deletes a message
+        /// </summary>
+        /// <param name="message">The message to be deleted.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageMessages"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the thread does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task DeleteMessageAsync(DiscordMessage message, string reason = null)
+            => this.Discord.ApiClient.DeleteMessageAsync(this.Id, message.Id, reason);
+
+
+        /// <summary>
+        /// Post a typing indicator
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the thread does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task TriggerTypingAsync()
+        {
+            return this.Type != ChannelType.PublicThread && this.Type != ChannelType.PrivateThread && this.Type != ChannelType.News
+                ? throw new ArgumentException("Cannot start typing in a non-text channel.")
+                : this.Discord.ApiClient.TriggerTypingAsync(this.Id);
+        }
+
+        /// <summary>
+        /// Returns all pinned messages
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.AccessChannels"/> permission or the client is missing <see cref="Permissions.UsePrivateThreads"/> or <see cref="Permissions.UsePublicThreads"/> or <see cref="Permissions.ReadMessageHistory"/>.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the thread does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<IReadOnlyList<DiscordMessage>> GetPinnedMessagesAsync()
+        {
+            return this.Type != ChannelType.PublicThread && this.Type != ChannelType.PrivateThread&& this.Type != ChannelType.News
+                ? throw new ArgumentException("A non-thread channel does not have pinned messages.")
+                : this.Discord.ApiClient.GetPinnedMessagesAsync(this.Id);
+        }
+
         /// <summary>
         /// Returns a string representation of this thread.
         /// </summary>
