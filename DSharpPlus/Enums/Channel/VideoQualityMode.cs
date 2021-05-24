@@ -30,7 +30,7 @@ namespace DSharpPlus
     /// <summary>
     /// Represents the video quality mode of a voice channel. This is applicable to voice channels only.
     /// </summary>
-    public enum ChannelQualityMode : int
+    public enum VideoQualityMode : int
     {
         /// <summary>
         /// Indicates default video type, or channel is not a voice channel.

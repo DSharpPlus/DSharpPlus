@@ -79,7 +79,7 @@ namespace DSharpPlus.Net.Models
         /// <summary>
         /// <para>Sets the voice channel's video quality.</para>
         /// </summary>
-        public ChannelQualityMode? QualityMode { internal get; set; }
+        public VideoQualityMode? QualityMode { internal get; set; }
 
         internal ChannelEditModel() { }
     }

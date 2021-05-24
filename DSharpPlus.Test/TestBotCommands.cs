@@ -484,8 +484,8 @@ namespace DSharpPlus.Test
             }
 
             var cNull = await ctx.Guild.CreateVoiceChannelAsync(channel.Name + " [Null]", channel.Parent, null, null, null, null, null);
-            var cAuto = await ctx.Guild.CreateVoiceChannelAsync(channel.Name + " [Auto]", channel.Parent, null, null, null, ChannelQualityMode.Auto, null);
-            var cFull = await ctx.Guild.CreateVoiceChannelAsync(channel.Name + " [Full]", channel.Parent, null, null, null, ChannelQualityMode.Full, null);
+            var cAuto = await ctx.Guild.CreateVoiceChannelAsync(channel.Name + " [Auto]", channel.Parent, null, null, null, VideoQualityMode.Auto, null);
+            var cFull = await ctx.Guild.CreateVoiceChannelAsync(channel.Name + " [Full]", channel.Parent, null, null, null, VideoQualityMode.Full, null);
 
             await ctx.RespondAsync($"{cNull.Mention}, {cAuto.Mention}, and {cFull.Mention} created. Delete channels? (Y)");
             var result = await ctx.Message.GetNextMessageAsync(m => m.Content.Equals("Y", StringComparison.OrdinalIgnoreCase), TimeSpan.FromMinutes(1));

@@ -373,7 +373,7 @@ namespace DSharpPlus
         /// <param name="qualityMode">Voice channel video quality mode.</param>
         /// <param name="reason">Reason this channel was created</param>
         /// <returns></returns>
-        public Task<DiscordChannel> CreateGuildChannelAsync(ulong id, string name, ChannelType type, ulong? parent, Optional<string> topic, int? bitrate, int? userLimit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, Optional<int?> perUserRateLimit, ChannelQualityMode? qualityMode, string reason)
+        public Task<DiscordChannel> CreateGuildChannelAsync(ulong id, string name, ChannelType type, ulong? parent, Optional<string> topic, int? bitrate, int? userLimit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, Optional<int?> perUserRateLimit, VideoQualityMode? qualityMode, string reason)
         {
             return type != ChannelType.Category && type != ChannelType.Text && type != ChannelType.Voice && type != ChannelType.News && type != ChannelType.Store && type != ChannelType.Stage
                 ? throw new ArgumentException("Channel type must be text, voice, stage, or category.", nameof(type))
@@ -396,7 +396,7 @@ namespace DSharpPlus
         /// <param name="qualityMode">New video quality mode.</param>
         /// <param name="reason">Reason why this channel was modified</param>
         /// <returns></returns>
-        public Task ModifyChannelAsync(ulong id, string name, int? position, Optional<string> topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? userLimit, Optional<int?> perUserRateLimit, Optional<DiscordVoiceRegion> rtcRegion, ChannelQualityMode? qualityMode, string reason)
+        public Task ModifyChannelAsync(ulong id, string name, int? position, Optional<string> topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? userLimit, Optional<int?> perUserRateLimit, Optional<DiscordVoiceRegion> rtcRegion, VideoQualityMode? qualityMode, string reason)
             => this.ApiClient.ModifyChannelAsync(id, name, position, topic, nsfw, parent, bitrate, userLimit, perUserRateLimit, rtcRegion.IfPresent(e => e?.Id), qualityMode, reason);
 
         /// <summary>
