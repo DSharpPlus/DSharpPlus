@@ -204,7 +204,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("SendSomeFile")]
-        public async Task SendSomeFile(CommandContext ctx)
+        public async Task SendSomeFileAsync(CommandContext ctx)
         {
             using (var fs = new FileStream("ADumbFile.txt", FileMode.Open, FileAccess.Read))
             {
@@ -269,7 +269,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("CreateSomeFile")]
-        public async Task CreateSomeFile(CommandContext ctx, string fileName, [RemainingText] string fileBody)
+        public async Task CreateSomeFileAsync(CommandContext ctx, string fileName, [RemainingText] string fileBody)
         {
             using (var fs = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite))
             using (var sw = new StreamWriter(fs))
@@ -303,7 +303,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("SendWebhookFiles")]
-        public async Task SendWebhookFiles(CommandContext ctx)
+        public async Task SendWebhookFilesAsync(CommandContext ctx)
         {
             var webhook = await ctx.Channel.CreateWebhookAsync("webhook-test");
 
@@ -407,7 +407,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("mentionusers")]
-        public async Task MentionAllMentionedUsers(CommandContext ctx, [RemainingText][Description("Just a string so that DSharpPlus will parse no matter what I say")] string mentionedUsers)
+        public async Task MentionAllMentionedUsersAsync(CommandContext ctx, [RemainingText][Description("Just a string so that DSharpPlus will parse no matter what I say")] string mentionedUsers)
         {
             var content = "You didn't have any users to mention";
             if (ctx.Message.MentionedUsers.Any())
@@ -417,7 +417,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("mentionroles")]
-        public async Task MentionAllMentionedRoles(CommandContext ctx, [RemainingText][Description("Just a string so that DSharpPlus will parse no matter what I say")] string mentionedRoles)
+        public async Task MentionAllMentionedRolesAsync(CommandContext ctx, [RemainingText][Description("Just a string so that DSharpPlus will parse no matter what I say")] string mentionedRoles)
         {
             var content = "You didn't have any roles to mention";
             if (ctx.Message.MentionedRoles.Any())
@@ -427,7 +427,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("mentionchannels")]
-        public async Task MentionChannels(CommandContext ctx, [RemainingText][Description("Just a string so that DSharpPlus will parse no matter what I say")] string mentionedChannels)
+        public async Task MentionChannelsAsync(CommandContext ctx, [RemainingText][Description("Just a string so that DSharpPlus will parse no matter what I say")] string mentionedChannels)
         {
             var content = "You didn't have any channels to mention";
             if (ctx.Message.MentionedChannels.Any())
@@ -437,7 +437,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("getmessagementions")]
-        public async Task GetMessageMentions(CommandContext ctx, ulong msgId)
+        public async Task GetMessageMentionsAsync(CommandContext ctx, ulong msgId)
         {
             var msg = await ctx.Channel.GetMessageAsync(msgId);
             var contentBuilder = new StringBuilder("You didn't mention any user, channel, or role.");
