@@ -345,11 +345,11 @@ namespace DSharpPlus.SlashCommands
             {
                 var parameter = parameters.ElementAt(i);
                 if (parameter.IsOptional && (options == null ||
-                                             options?.ElementAtOrDefault(i) == default))
+                                             (!options?.Any(x => x.Name == parameter.GetCustomAttribute<OptionAttribute>().Name.ToLower()) ?? true)))
                     args.Add(parameter.DefaultValue);
                 else
                 {
-                    var option = options.ElementAt(i);
+                    var option = options.Single(x => x.Name == parameter.GetCustomAttribute<OptionAttribute>().Name.ToLower());
 
                     if (ReferenceEquals(parameter.ParameterType, typeof(string)))
                         args.Add(option.Value.ToString());
