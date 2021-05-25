@@ -258,6 +258,7 @@ namespace DSharpPlus.Entities
             this._mentions.Clear();
             this._files.Clear();
             this.IsEphemeral = false;
+            this._components.Clear();
         }
 
         internal void Validate()
