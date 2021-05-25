@@ -87,6 +87,11 @@ namespace DSharpPlus.Entities
         public bool MentionOnReply { get; private set; } = false;
 
         /// <summary>
+        /// Gets if the embeds should be suppressed.
+        /// </summary>
+        public bool Suppressed { get; private set; } = false;
+
+        /// <summary>
         /// Gets if the Reply will error if the Reply Message Id does not reference a valid message.
         /// <para>If set to false, invalid replies are send as a regular message.</para>
         /// <para>Defaults to false.</para>
@@ -270,6 +275,7 @@ namespace DSharpPlus.Entities
             this._files.Clear();
             this.ReplyId = null;
             this.MentionOnReply = false;
+            this.Suppressed = false;
         }
 
         /// <summary>
