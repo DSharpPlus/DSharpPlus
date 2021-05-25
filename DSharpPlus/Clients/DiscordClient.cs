@@ -947,7 +947,9 @@ namespace DSharpPlus
 
         private void PopulateMessageReactionsAndCache(DiscordMessage message, TransportUser author, TransportMember member)
         {
-            this.UpdateMessage(message, author, message.Channel?.Guild, member);
+            var guild = message.Channel?.Guild ?? this.InternalGetCachedGuild(message.GuildId);
+
+            this.UpdateMessage(message, author, guild, member);
 
             if (message._reactions == null)
                 message._reactions = new List<DiscordReaction>();

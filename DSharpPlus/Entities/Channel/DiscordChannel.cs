@@ -142,6 +142,12 @@ namespace DSharpPlus.Entities
         public int? PerUserRateLimit { get; internal set; }
 
         /// <summary>
+        /// Gets this channel's video quality mode. This is applicable to voice channels only.
+        /// </summary>
+        [JsonProperty("video_quality_mode", NullValueHandling = NullValueHandling.Ignore)]
+        public VideoQualityMode QualityMode { get; internal set; }
+
+        /// <summary>
         /// Gets when the last pinned message was pinned.
         /// </summary>
         [JsonIgnore]
@@ -338,7 +344,7 @@ namespace DSharpPlus.Entities
                 perUserRateLimit = Optional.FromNoValue<int?>();
             }
 
-            return await this.Guild.CreateChannelAsync(this.Name, this.Type, this.Parent, this.Topic, bitrate, userLimit, ovrs, this.IsNSFW, perUserRateLimit, reason).ConfigureAwait(false);
+            return await this.Guild.CreateChannelAsync(this.Name, this.Type, this.Parent, this.Topic, bitrate, userLimit, ovrs, this.IsNSFW, perUserRateLimit, this.QualityMode, reason).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -375,7 +381,7 @@ namespace DSharpPlus.Entities
             action(mdl);
             return this.Discord.ApiClient.ModifyChannelAsync(this.Id, mdl.Name, mdl.Position, mdl.Topic, mdl.Nsfw,
                 mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.PerUserRateLimit, mdl.RtcRegion.IfPresent(r => r?.Id),
-                mdl.AuditLogReason);
+                mdl.QualityMode, mdl.AuditLogReason);
         }
 
         /// <summary>
