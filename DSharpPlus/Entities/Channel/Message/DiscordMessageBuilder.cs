@@ -112,7 +112,7 @@ namespace DSharpPlus.Entities
             if (!components.Any())
                 throw new ArgumentOutOfRangeException(nameof(components), "You must provide at least one component");
 
-            var comp = new DiscordActionRowComponent() { Components = components.ToList() };
+            var comp = new DiscordActionRowComponent(components);
             this.Components.Add(comp);
 
             return this;

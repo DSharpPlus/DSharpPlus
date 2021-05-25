@@ -49,9 +49,15 @@ namespace DSharpPlus.Entities
         [JsonProperty("resolved", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordInteractionResolvedCollection Resolved { get; internal set; }
 
+        /// <summary>
+        /// The Id of the component that invoked this interaction, if applicable.
+        /// </summary>
         [JsonProperty("custom_id")]
         public string CustomId { get; internal set; }
 
+        /// <summary>
+        /// The type of component that invoked this interaction, if applicable.
+        /// </summary>
         [JsonProperty("component_type")]
         public ComponentType ComponentType { get; internal set; }
     }

@@ -24,7 +24,11 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.EventArgs
 {
-    public class ComponentInteractionEventArgs : DiscordEventArgs
+
+    /// <summary>
+    /// Represents arguments for <see cref="DiscordClient.ComponentInteractionCreated"/>.
+    /// </summary>
+    public class ComponentInteractionEventArgs : InteractionCreateEventArgs
     {
         /// <summary>
         /// The Id of the component that was interacted with.
@@ -50,11 +54,6 @@ namespace DSharpPlus.EventArgs
         /// The message this interaction is attached to.
         /// </summary>
         public DiscordMessage Message { get; internal set; }
-
-        /// <summary>
-        /// The interaction.
-        /// </summary>
-        public DiscordInteraction Interaction { get; internal set; }
 
         internal ComponentInteractionEventArgs() { }
     }

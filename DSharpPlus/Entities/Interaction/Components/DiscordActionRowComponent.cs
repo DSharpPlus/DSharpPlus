@@ -22,6 +22,7 @@
 // SOFTWARE.
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Newtonsoft.Json;
 
@@ -43,13 +44,13 @@ namespace DSharpPlus.Entities
         /// The components contained within the action row.
         /// </summary>
         [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
-        public List<DiscordComponent> Components { get; internal set; }
+        public ReadOnlyCollection<DiscordComponent> Components { get; internal set; }
 
         internal DiscordActionRowComponent() { }
 
         internal DiscordActionRowComponent(IEnumerable<DiscordComponent> components)
         {
-            this.Components = components.ToList();
+            this.Components = components.ToList().AsReadOnly();
         }
 
     }

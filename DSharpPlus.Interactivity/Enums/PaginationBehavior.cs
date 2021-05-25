@@ -26,7 +26,7 @@ namespace DSharpPlus.Interactivity.Enums
     /// <summary>
     /// Specifies how pagination will handle advancing past the first and last pages.
     /// </summary>
-    public enum PaginationBehaviour
+    public enum PaginationBehavior
     {
         /// <summary>
         /// Going forward beyond the last page will loop back to the first page.

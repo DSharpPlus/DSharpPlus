@@ -77,13 +77,13 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Constructs a new empty interaction response builder.
         /// </summary>
-        public DiscordInteractionResponseBuilder()
-        {
-            // Why were you initializing collections with empty collections? //
-            //this.Embeds = new ReadOnlyCollection<DiscordEmbed>(this._embeds);
-            //this.Mentions = new ReadOnlyCollection<IMention>(this._mentions);
-        }
+        public DiscordInteractionResponseBuilder() { }
 
+
+        /// <summary>
+        /// Constructs a new <see cref="DiscordInteractionResponseBuilder"/> based on an existing <see cref="DiscordMessageBuilder"/>.
+        /// </summary>
+        /// <param name="builder">The builder to copy.</param>
         public DiscordInteractionResponseBuilder(DiscordMessageBuilder builder)
         {
             this._components = builder.Components;
@@ -92,6 +92,13 @@ namespace DSharpPlus.Entities
             this._embeds.Add(builder.Embed);
         }
 
+
+        /// <summary>
+        /// Appends a collection of components to the builder. Each call will append to a new row.
+        /// </summary>
+        /// <param name="components">The components to append. Up to five.</param>
+        /// <returns>The current builder to chain calls with.</returns>
+        /// <exception cref="ArgumentException">Thrown when passing more than 5 components.</exception>
         public DiscordInteractionResponseBuilder WithComponents(IEnumerable<DiscordComponent> components)
         {
             var count = components.Count();

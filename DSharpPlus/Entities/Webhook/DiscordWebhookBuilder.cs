@@ -101,12 +101,13 @@ namespace DSharpPlus.Entities
         /// <exception cref="ArgumentException"><paramref name="components"/> contained more than 5 components.</exception>
         public DiscordWebhookBuilder WithComponents(IEnumerable<DiscordComponent> components)
         {
-            var count = components.Count();
+            var compArr = components.ToArray();
+            var count = compArr.Length;
 
             if (count > 5)
                 throw new ArgumentException("Cannot add more than 5 components per action row!");
 
-            var arc = new DiscordActionRowComponent(components);
+            var arc = new DiscordActionRowComponent(compArr);
             this._components.Add(arc);
             return this;
         }

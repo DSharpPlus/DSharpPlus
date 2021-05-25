@@ -551,7 +551,7 @@ namespace DSharpPlus
         {
             builder.Validate(true);
 
-            return await this.ApiClient.EditMessageAsync(channel_id, message_id, builder.Content, builder.Embed, builder.Mentions, default).ConfigureAwait(false);
+            return await this.ApiClient.EditMessageAsync(channel_id, message_id, builder.Content, builder.Embed, builder.Mentions, builder.Components).ConfigureAwait(false);
         }
 
         /// <summary>

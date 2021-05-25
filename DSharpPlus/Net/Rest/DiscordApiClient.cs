@@ -875,7 +875,7 @@ namespace DSharpPlus.Net
                 IsTTS = builder.IsTTS,
                 HasEmbed = builder.Embed != null,
                 Embed = builder.Embed,
-                Components = builder.Components as List<DiscordActionRowComponent> // if you change the builder and it blows up, it's on you ~Velvet //
+                Components = builder.Components.ToList().AsReadOnly() // if you change the builder and it blows up, it's on you ~Velvet //
             };
 
             if (builder.ReplyId != null)
@@ -1004,7 +1004,7 @@ namespace DSharpPlus.Net
                 Content = content.HasValue ? (string)content : null,
                 HasEmbed = embed.HasValue,
                 Embed = embed.HasValue ? (DiscordEmbed)embed : null,
-                Components = components.HasValue ? components.Value.ToList() : null
+                Components = components.HasValue ? components.Value.ToList().AsReadOnly() : null
             };
 
             if (mentions != null)
@@ -2516,8 +2516,8 @@ namespace DSharpPlus.Net
                     Embeds = builder.Embeds,
                     IsTTS = builder.IsTTS,
                     Mentions = builder.Mentions,
-                    Flags = builder.IsEphemeral ? 64 : null,
-                    Components = builder.Components.ToList()
+                    Flags = builder.IsEphemeral ? MessageFlags.Ephemeral : 0,
+                    Components = builder.Components
                 } : null
             };
 

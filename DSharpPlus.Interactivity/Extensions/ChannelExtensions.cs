@@ -85,7 +85,7 @@ namespace DSharpPlus.Interactivity.Extensions
         /// <param name="deletion"></param>
         /// <param name="timeoutoverride"></param>
         /// <exception cref="InvalidOperationException">Thrown if interactivity is not enabled for the client associated with the channel.</exception>
-        public static Task SendPaginatedMessageAsync(this DiscordChannel channel, DiscordUser user, IEnumerable<Page> pages, PaginationEmojis emojis = null, PaginationBehaviour? behaviour = default, PaginationDeletion? deletion = default, TimeSpan? timeoutoverride = null)
+        public static Task SendPaginatedMessageAsync(this DiscordChannel channel, DiscordUser user, IEnumerable<Page> pages, PaginationEmojis emojis = null, PaginationBehavior? behaviour = default, PaginationDeletion? deletion = default, TimeSpan? timeoutoverride = null)
             => GetInteractivity(channel).SendPaginatedMessageAsync(channel, user, pages, emojis, behaviour, deletion, timeoutoverride);
 
         /// <summary>

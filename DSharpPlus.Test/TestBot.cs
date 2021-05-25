@@ -130,7 +130,7 @@ namespace DSharpPlus.Test
             var icfg = new InteractivityConfiguration()
             {
                 Timeout = TimeSpan.FromSeconds(10),
-                ResponseBehaviour = InteractionResponseBehaviour.Ack,
+                ResponseBehavior = InteractionResponseBehavior.Ack,
                 ResponseMessage = "That's not a valid button"
             };
 

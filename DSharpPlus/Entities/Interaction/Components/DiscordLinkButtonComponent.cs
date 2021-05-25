@@ -60,15 +60,21 @@ namespace DSharpPlus.Entities
         public DiscordComponentEmoji Emoji { get; set; }
 
         [JsonProperty("style", NullValueHandling = NullValueHandling.Ignore)]
-        internal int Style { get; set; } = 5; // Link = 5; Discord throws 400 otherwise //
+        internal int Style => 5; // Link = 5; Discord throws 400 otherwise //
 
-        public DiscordLinkButtonComponent(string url, string label, DiscordComponentEmoji emoji = null, bool disabled = false)
+        /// <summary>
+        /// Constructs a new <see cref="DiscordLinkButtonComponent"/>. This type of button does not send back and interaction when pressed.
+        /// </summary>
+        /// <param name="url">The url to set the button to.</param>
+        /// <param name="label">The text to display on the button. Can be left blank if <paramref name="emoji"/> is set.</param>
+        /// <param name="disabled">Whether or not this button can be pressed.</param>
+        /// <param name="emoji">The emoji to set with this button. This is required if <paramref name="label"/> is null or empty.</param>
+        public DiscordLinkButtonComponent(string url, string label, bool disabled = false, DiscordComponentEmoji emoji = null)
         {
             this.Url = url;
             this.Label = label;
             this.Disabled = disabled;
             this.Emoji = emoji;
         }
-
     }
 }

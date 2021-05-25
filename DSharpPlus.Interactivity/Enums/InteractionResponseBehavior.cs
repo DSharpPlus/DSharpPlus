@@ -22,7 +22,7 @@
 // SOFTWARE.
 namespace DSharpPlus.Interactivity.Enums
 {
-    public enum InteractionResponseBehaviour
+    public enum InteractionResponseBehavior
     {
         /// <summary>
         /// Indicates that invalid input should be ignored when waiting for interactions. This will cause the interaction to fail.

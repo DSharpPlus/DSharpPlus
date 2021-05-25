@@ -83,19 +83,20 @@ namespace DSharpPlus.Entities
         private readonly List<IMention> _mentions = new();
 
         /// <summary>
-        /// Adds acollection of components to the message.
+        /// Appends a collection of components to the message.
         /// </summary>
         /// <param name="components">The collection of components to add.</param>
         /// <returns>The builder to chain calls with.</returns>
         /// <exception cref="ArgumentException"><paramref name="components"/> contained more than 5 components.</exception>
         public DiscordFollowupMessageBuilder WithComponents(IEnumerable<DiscordComponent> components)
         {
-            var count = components.Count();
+            var compArr = components.ToArray();
+            var count = compArr.Length;
 
             if (count > 5)
                 throw new ArgumentException("Cannot add more than 5 components per action row!");
 
-            var arc = new DiscordActionRowComponent(components);
+            var arc = new DiscordActionRowComponent(compArr);
             this._components.Add(arc);
             return this;
         }
@@ -196,7 +197,7 @@ namespace DSharpPlus.Entities
         /// <returns>The builder to chain calls with.</returns>
         public DiscordFollowupMessageBuilder AddFiles(Dictionary<string, Stream> files, bool resetStreamPosition = false)
         {
-            if (this.Files.Count + files.Count >= 10)
+            if (this.Files.Count + files.Count > 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
             foreach (var file in files)

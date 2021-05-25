@@ -122,20 +122,18 @@ namespace DSharpPlus.Interactivity
                 throw new ArgumentException("Message does not contain any buttons.");
 
             if (!buttons.Any())
-                throw new ArgumentOutOfRangeException(nameof(buttons), "You must specify at least one button to listen for.");
+                throw new ArgumentException("You must specify at least one button to listen for.");
 
             var timeout = timeoutOverride ?? this.Config.Timeout;
 
             while (true)
             {
                 var result = await this.ComponentInteractionWaiter
-                    .WaitForMatch(new MatchRequest<ComponentInteractionEventArgs>(c => c.Interaction.Type == InteractionType.Component &&
-                                                                                       c.Interaction.Data.ComponentType == ComponentType.Button &&
-                                                                                       c.Message.Id == message.Id &&
-                                                                                       buttons.Any(b => b.CustomId == c.Id), timeout));
+                    .WaitForMatch(new MatchRequest<ComponentInteractionEventArgs>(c => c.Interaction.Type == InteractionType.Component && c.Interaction.Data.ComponentType == ComponentType.Button && c.Message.Id == message.Id && buttons.Any(b => b.CustomId == c.Id), timeout));
                 if (result is null)
                     return new InteractivityResult<ComponentInteractionEventArgs>(true, null);
-                else return new InteractivityResult<ComponentInteractionEventArgs>(false, result);
+                else
+                    return new InteractivityResult<ComponentInteractionEventArgs>(false, result);
             }
         }
 
@@ -161,9 +159,7 @@ namespace DSharpPlus.Interactivity
             while (true)
             {
                 var result = await this.ComponentInteractionWaiter
-                    .WaitForMatch(new MatchRequest<ComponentInteractionEventArgs>(c => c.Interaction.Type == InteractionType.Component &&
-                                                                                       c.Interaction.Data.ComponentType == ComponentType.Button &&
-                                                                                       c.Message.Id == message.Id, timeout));
+                    .WaitForMatch(new MatchRequest<ComponentInteractionEventArgs>(c => c.Interaction.Type == InteractionType.Component && c.Interaction.Data.ComponentType == ComponentType.Button && c.Message.Id == message.Id, timeout)).ConfigureAwait(false);
                 if (result is null) return new InteractivityResult<ComponentInteractionEventArgs>(true, null);
 
                 else return new InteractivityResult<ComponentInteractionEventArgs>(false, result);
@@ -199,9 +195,13 @@ namespace DSharpPlus.Interactivity
                 var result = await this.ComponentInteractionWaiter
                     .WaitForMatch(new MatchRequest<ComponentInteractionEventArgs>(c => c.Interaction.Type == InteractionType.Component &&
                                                                                        c.Interaction.Data.ComponentType == ComponentType.Button && c.Message.Id == message.Id, timeout));
-                if (result is null) return new InteractivityResult<ComponentInteractionEventArgs>(true, null);
-                if (result.Id != id) await this.HandleInvalidInteraction(result.Interaction);
-                else return new InteractivityResult<ComponentInteractionEventArgs>(false, result);
+                if (result is null)
+                    return new InteractivityResult<ComponentInteractionEventArgs>(true, null);
+
+                if (result.Id != id)
+                    await this.HandleInvalidInteraction(result.Interaction).ConfigureAwait(false);
+                else
+                    return new InteractivityResult<ComponentInteractionEventArgs>(false, result);
             }
         }
 
@@ -350,7 +350,7 @@ namespace DSharpPlus.Interactivity
 
             var timeout = timeoutoverride ?? this.Config.Timeout;
             var collection = await this.ReactionCollector.CollectAsync(new ReactionCollectRequest(m, timeout)).ConfigureAwait(false);
-            return new ReadOnlyCollection<Reaction>(collection.ToList());
+            return collection.ToList().AsReadOnly();
         }
 
         /// <summary>
@@ -391,7 +391,7 @@ namespace DSharpPlus.Interactivity
         /// <param name="timeoutoverride">Override timeout period.</param>
         /// <returns></returns>
         public async Task SendPaginatedMessageAsync(DiscordChannel c, DiscordUser u, IEnumerable<Page> pages, PaginationEmojis emojis = null,
-            PaginationBehaviour? behaviour = default, PaginationDeletion? deletion = default, TimeSpan? timeoutoverride = null)
+            PaginationBehavior? behaviour = default, PaginationDeletion? deletion = default, TimeSpan? timeoutoverride = null)
         {
             var builder = new DiscordMessageBuilder()
                 .WithContent(pages.First().Content)
@@ -538,11 +538,11 @@ namespace DSharpPlus.Interactivity
 
         private async Task HandleInvalidInteraction(DiscordInteraction interaction)
         {
-            var at = this.Config.ResponseBehaviour switch
+            var at = this.Config.ResponseBehavior switch
             {
-                InteractionResponseBehaviour.Ack => interaction.CreateResponseAsync(InteractionResponseType.DefferedMessageUpdate),
-                InteractionResponseBehaviour.Respond => interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder() { Content = this.Config.ResponseMessage, IsEphemeral = true}),
-                InteractionResponseBehaviour.Ignore => Task.CompletedTask,
+                InteractionResponseBehavior.Ack => interaction.CreateResponseAsync(InteractionResponseType.DefferedMessageUpdate),
+                InteractionResponseBehavior.Respond => interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder() { Content = this.Config.ResponseMessage, IsEphemeral = true}),
+                InteractionResponseBehavior.Ignore => Task.CompletedTask,
                 _ => throw new ArgumentException("Unknown enum value.")
             };
 

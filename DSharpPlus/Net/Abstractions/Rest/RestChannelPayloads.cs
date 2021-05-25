@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
 
@@ -108,7 +109,7 @@ namespace DSharpPlus.Net.Abstractions
         public DiscordMentions Mentions { get; set; }
 
         [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
-        public List<DiscordActionRowComponent> Components { get; set; }
+        public ReadOnlyCollection<DiscordActionRowComponent> Components { get; set; }
 
         [JsonIgnore]
         public bool HasEmbed { get; set; }
@@ -146,8 +147,6 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("message_reference", NullValueHandling = NullValueHandling.Ignore)]
         public InternalDiscordMessageReference? MessageReference { get; set; }
-
-
     }
 
     internal sealed class RestChannelMessageBulkDeletePayload
