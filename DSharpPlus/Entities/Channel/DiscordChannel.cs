@@ -467,6 +467,45 @@ namespace DSharpPlus.Entities
             return this.Discord.ApiClient.ModifyGuildChannelParentAsync(this.Guild.Id, pmds, reason);
         }
 
+        /// <summary>
+        /// Moves the channel out of a category.
+        /// </summary>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task DetachParentAsync(string reason = null)
+        {
+            if (this.Guild == null)
+                throw new InvalidOperationException("Cannot modify parent of non-guild channels.");
+            if (this.IsCategory)
+                throw new InvalidOperationException("Cannot modify parent of category channels.");
+
+            var position = this.Guild._channels.Values.Where(xc => xc.Type == this.Type).Select(xc => xc.Position).DefaultIfEmpty(-1).Max() + 1;
+            var chns = this.Guild._channels.Values.Where(xc => xc.Type == this.Type).OrderBy(xc => xc.Position).ToArray();
+            var pmds = new RestGuildChannelNoParentPayload[chns.Length];
+            for (var i = 0; i < chns.Length; i++)
+            {
+                pmds[i] = new RestGuildChannelNoParentPayload
+                {
+                    ChannelId = chns[i].Id,
+                };
+                if (chns[i].Id == this.Id)
+                {
+                    pmds[i].Position = 1;
+                    pmds[i].ParentId = null;
+                } else
+                {
+                    pmds[i].Position = chns[i].Position + 1;
+                    pmds[i].ParentId = chns[i].ParentId;
+                }
+            }
+
+            return this.Discord.ApiClient.DetachGuildChannelParentAsync(this.Guild.Id, pmds, reason);
+        }
+
         /// <summary>  
         /// Returns a list of messages before a certain message.
         /// <param name="limit">The amount of messages to fetch.</param>

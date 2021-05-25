@@ -156,6 +156,18 @@ namespace DSharpPlus.Net.Abstractions
         public bool? LockPermissions { get; set; }
     }
 
+    internal sealed class RestGuildChannelNoParentPayload
+    {
+        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        public ulong ChannelId { get; set; }
+
+        [JsonProperty("position", NullValueHandling = NullValueHandling.Ignore)]
+        public int Position { get; set; }
+
+        [JsonProperty("parent_id", NullValueHandling = NullValueHandling.Include)]
+        public Optional<ulong?> ParentId { get; set; }
+    }
+
     internal sealed class RestGuildRoleReorderPayload
     {
         [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
