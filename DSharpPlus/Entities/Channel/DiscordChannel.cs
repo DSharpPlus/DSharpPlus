@@ -476,7 +476,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task DetachParentAsync(string reason = null)
+        public Task RemoveParentAsync(string reason = null)
         {
             if (this.Guild == null)
                 throw new InvalidOperationException("Cannot modify parent of non-guild channels.");
@@ -496,16 +496,10 @@ namespace DSharpPlus.Entities
                 {
                     pmds[i].Position = 1;
                     pmds[i].ParentId = null;
-                } else
+                }
+                else
                 {
-                    pmds[i].ParentId = chns[i].ParentId;
-                    if(chns[i].Position < this.Position)
-                    {
-                        pmds[i].Position = chns[i].Position + 1;
-                    } else
-                    {
-                        pmds[i].Position = chns[i].Position;
-                    }
+                    pmds[i].Position = chns[i].Position < this.Position ? chns[i].Position + 1 : chns[i].Position;
                 }
             }
 
