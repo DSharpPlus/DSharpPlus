@@ -362,7 +362,7 @@ namespace DSharpPlus
                     }
 
                     cid = (ulong)dat["channel_id"];
-                    await this.OnInteractionCreateAsync((ulong?)dat["guild_id"], cid, usr, mbr, dat.ToObject<DiscordInteraction>()).ConfigureAwait(false);
+                    await this.OnInteractionCreateAsync((ulong?)dat["guild_id"], cid, usr, mbr, dat.ToDiscordObject<DiscordInteraction>()).ConfigureAwait(false);
                     break;
 
                 case "application_command_create":
@@ -1896,10 +1896,10 @@ namespace DSharpPlus
 
             if (interaction.Type is InteractionType.Component)
             {
+
                 interaction.Message.Discord = this;
-                var cea = new ComponentInteractionEventArgs()
+                var cea = new ComponentInteractionEventArgs
                 {
-                    Id = interaction.Data.CustomId,
                     Message = interaction.Message,
                     Interaction = interaction
                 };
