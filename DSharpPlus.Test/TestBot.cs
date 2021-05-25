@@ -159,7 +159,7 @@ namespace DSharpPlus.Test
             var d1 = new DiscordButtonComponent(ButtonStyle.Primary, "disabled", "and", true);
             var d2 = new DiscordButtonComponent(ButtonStyle.Secondary, "disabled2", "these", true);
             var d3 = new DiscordButtonComponent(ButtonStyle.Success, "disabled3", "are", true);
-            var d4 = new DiscordButtonComponent(ButtonStyle.Danger, "disabled4", "disabled~!", true);
+            var d4 = new DiscordButtonComponent(ButtonStyle.Danger, "disabl ed4", "disabled~!", true);
 
 
             await e.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
