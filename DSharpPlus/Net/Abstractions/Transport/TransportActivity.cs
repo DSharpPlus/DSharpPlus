@@ -33,8 +33,14 @@ namespace DSharpPlus.Net.Abstractions
     /// <summary>
     /// Represents a game a user is playing.
     /// </summary>
-    internal sealed class TransportActivity : SnowflakeObject
+    internal sealed class TransportActivity
     {
+        /// <summary>
+        /// Gets or sets the id of user's activity.
+        /// </summary>
+        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        public string Id { get; internal set; }
+
         /// <summary>
         /// Gets or sets the name of the game the user is playing.
         /// </summary>

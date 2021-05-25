@@ -113,8 +113,13 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents a game that a user is playing.
     /// </summary>
-    public sealed class DiscordActivity :SnowflakeObject
+    public sealed class DiscordActivity
     {
+        /// <summary>
+        /// Gets or sets the id of user's activity.
+        /// </summary>
+        public string Id { get; set; }
+
         /// <summary>
         /// Gets or sets the name of user's activity.
         /// </summary>
