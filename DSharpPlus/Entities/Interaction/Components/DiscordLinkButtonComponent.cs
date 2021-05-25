@@ -60,7 +60,7 @@ namespace DSharpPlus.Entities
         public DiscordComponentEmoji Emoji { get; set; }
 
         [JsonProperty("style", NullValueHandling = NullValueHandling.Ignore)]
-        internal int Style => 5; // Link = 5; Discord throws 400 otherwise //
+        internal int Style { get; } = 5; // Link = 5; Discord throws 400 otherwise //
 
         /// <summary>
         /// Constructs a new <see cref="DiscordLinkButtonComponent"/>. This type of button does not send back and interaction when pressed.
