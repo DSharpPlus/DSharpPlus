@@ -70,7 +70,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task UpdateAsync(string topic)
-            => await this.Discord.ApiClient.ModifyStageInstanceAsync(this.ChannelId, topic);
+            => await this.Discord.ApiClient.ModifyStageInstanceAsync(this.Id, topic);
 
         /// <summary>
         /// Deletes a stage instance.
@@ -80,7 +80,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task CloseAsync()
-            => await this.Discord.ApiClient.DeleteStageInstanceAsync(this.ChannelId);
+            => await this.Discord.ApiClient.DeleteStageInstanceAsync(this.Id);
 
         #endregion
 
