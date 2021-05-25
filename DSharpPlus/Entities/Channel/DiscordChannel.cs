@@ -498,8 +498,14 @@ namespace DSharpPlus.Entities
                     pmds[i].ParentId = null;
                 } else
                 {
-                    pmds[i].Position = chns[i].Position + 1;
                     pmds[i].ParentId = chns[i].ParentId;
+                    if(chns[i].Position < this.Position)
+                    {
+                        pmds[i].Position = chns[i].Position + 1;
+                    } else
+                    {
+                        pmds[i].Position = chns[i].Position;
+                    }
                 }
             }
 
