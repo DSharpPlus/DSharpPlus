@@ -148,7 +148,7 @@ namespace DSharpPlus.Test
         private async Task SendButton(DiscordClient sender, InteractionCreateEventArgs e)
         {
             // if (e.Interaction.Type != InteractionType.Component)
-            // I don't know why I put this if here; components don't fire this event anymore. //
+            // I don't know why I put this if here; components don't fire this event anymore.  //
 
             var p = new DiscordButtonComponent(ButtonStyle.Primary, "P_", "Blurple", emoji: new DiscordComponentEmoji(833475075474063421));
             var c = new DiscordButtonComponent(ButtonStyle.Secondary, "C_", "Grey", emoji: new DiscordComponentEmoji(833475015114358854));
