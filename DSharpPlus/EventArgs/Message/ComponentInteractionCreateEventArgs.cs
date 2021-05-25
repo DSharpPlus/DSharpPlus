@@ -28,7 +28,7 @@ namespace DSharpPlus.EventArgs
     /// <summary>
     /// Represents arguments for <see cref="DiscordClient.ComponentInteractionCreated"/>.
     /// </summary>
-    public class ComponentInteractionEventArgs : InteractionCreateEventArgs
+    public class ComponentInteractionCreateEventArgs : InteractionCreateEventArgs
     {
         /// <summary>
         /// The Id of the component that was interacted with.
@@ -55,6 +55,6 @@ namespace DSharpPlus.EventArgs
         /// </summary>
         public DiscordMessage Message { get; internal set; }
 
-        internal ComponentInteractionEventArgs() { }
+        internal ComponentInteractionCreateEventArgs() { }
     }
 }

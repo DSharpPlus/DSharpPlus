@@ -47,7 +47,7 @@ namespace DSharpPlus.Interactivity
 
         private EventWaiter<TypingStartEventArgs> TypingStartWaiter;
 
-        private EventWaiter<ComponentInteractionEventArgs> ComponentInteractionWaiter;
+        private EventWaiter<ComponentInteractionCreateEventArgs> ComponentInteractionWaiter;
 
         private ReactionCollector ReactionCollector;
 
@@ -65,7 +65,7 @@ namespace DSharpPlus.Interactivity
             this.Client = client;
             this.MessageCreatedWaiter = new EventWaiter<MessageCreateEventArgs>(this.Client);
             this.MessageReactionAddWaiter = new EventWaiter<MessageReactionAddEventArgs>(this.Client);
-            this.ComponentInteractionWaiter = new EventWaiter<ComponentInteractionEventArgs>(this.Client);
+            this.ComponentInteractionWaiter = new EventWaiter<ComponentInteractionCreateEventArgs>(this.Client);
             this.TypingStartWaiter = new EventWaiter<TypingStartEventArgs>(this.Client);
             this.Poller = new Poller(this.Client);
             this.ReactionCollector = new ReactionCollector(this.Client);
@@ -113,7 +113,7 @@ namespace DSharpPlus.Interactivity
         /// <returns>A <see cref="InteractivityResult{T}"/> with the result of button that was pressed, if any.</returns>
         /// <exception cref="InvalidOperationException">Thrown when attempting to wait for a message that is not authored by the current user.</exception>
         /// <exception cref="ArgumentException">Thrown when the message does not contain a button with the specified Id, or any buttons at all.</exception>
-        public async Task<InteractivityResult<ComponentInteractionEventArgs>> WaitForButtonAsync(DiscordMessage message, IEnumerable<DiscordButtonComponent> buttons, TimeSpan? timeoutOverride = null)
+        public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(DiscordMessage message, IEnumerable<DiscordButtonComponent> buttons, TimeSpan? timeoutOverride = null)
         {
             if (message.Author != this.Client.CurrentUser)
                 throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
@@ -129,11 +129,12 @@ namespace DSharpPlus.Interactivity
             while (true)
             {
                 var result = await this.ComponentInteractionWaiter
-                    .WaitForMatch(new MatchRequest<ComponentInteractionEventArgs>(c => c.Interaction.Type == InteractionType.Component && c.Interaction.Data.ComponentType == ComponentType.Button && c.Message.Id == message.Id && buttons.Any(b => b.CustomId == c.Id), timeout));
+                    .WaitForMatch(new MatchRequest<ComponentInteractionCreateEventArgs>(c => c.Interaction.Type == InteractionType.Component && c.Interaction.Data.ComponentType == ComponentType.Button && c.Message.Id == message.Id && buttons.Any(b => b.CustomId == c.Id), timeout)).ConfigureAwait(false);
+
                 if (result is null)
-                    return new InteractivityResult<ComponentInteractionEventArgs>(true, null);
+                    return new InteractivityResult<ComponentInteractionCreateEventArgs>(true, null);
                 else
-                    return new InteractivityResult<ComponentInteractionEventArgs>(false, result);
+                    return new InteractivityResult<ComponentInteractionCreateEventArgs>(false, result);
             }
         }
 
@@ -145,7 +146,7 @@ namespace DSharpPlus.Interactivity
         /// <returns>A <see cref="InteractivityResult{T}"/> with the result of button that was pressed, if any.</returns>
         /// <exception cref="InvalidOperationException">Thrown when attempting to wait for a message that is not authored by the current user.</exception>
         /// <exception cref="ArgumentException">Thrown when the message does not contain a button with the specified Id, or any buttons at all.</exception>
-        public async Task<InteractivityResult<ComponentInteractionEventArgs>> WaitForButtonAsync(DiscordMessage message, TimeSpan? timeoutOverride = null)
+        public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(DiscordMessage message, TimeSpan? timeoutOverride = null)
         {
             if (message.Author != this.Client.CurrentUser)
                 throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
@@ -159,10 +160,12 @@ namespace DSharpPlus.Interactivity
             while (true)
             {
                 var result = await this.ComponentInteractionWaiter
-                    .WaitForMatch(new MatchRequest<ComponentInteractionEventArgs>(c => c.Interaction.Type == InteractionType.Component && c.Interaction.Data.ComponentType == ComponentType.Button && c.Message.Id == message.Id, timeout)).ConfigureAwait(false);
-                if (result is null) return new InteractivityResult<ComponentInteractionEventArgs>(true, null);
+                    .WaitForMatch(new MatchRequest<ComponentInteractionCreateEventArgs>(c => c.Interaction.Type == InteractionType.Component && c.Interaction.Data.ComponentType == ComponentType.Button && c.Message.Id == message.Id, timeout)).ConfigureAwait(false);
 
-                else return new InteractivityResult<ComponentInteractionEventArgs>(false, result);
+                if (result is null)
+                    return new InteractivityResult<ComponentInteractionCreateEventArgs>(true, null);
+                else
+                    return new InteractivityResult<ComponentInteractionCreateEventArgs>(false, result);
             }
         }
 
@@ -176,7 +179,7 @@ namespace DSharpPlus.Interactivity
         /// <returns>A <see cref="InteractivityResult{T}"/> with the result of the operation.</returns>
         /// <exception cref="InvalidOperationException">Thrown when attempting to wait for a message that is not authored by the current user.</exception>
         /// <exception cref="ArgumentException">Thrown when the message does not contain a button with the specified Id, or any buttons at all.</exception>
-        public async Task<InteractivityResult<ComponentInteractionEventArgs>> WaitForButtonAsync(DiscordMessage message, string id, TimeSpan? timeoutOverride = null)
+        public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(DiscordMessage message, string id, TimeSpan? timeoutOverride = null)
         {
             if (message.Author != this.Client.CurrentUser)
                 throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
@@ -193,15 +196,15 @@ namespace DSharpPlus.Interactivity
             while (true)
             {
                 var result = await this.ComponentInteractionWaiter
-                    .WaitForMatch(new MatchRequest<ComponentInteractionEventArgs>(c => c.Interaction.Type == InteractionType.Component &&
-                                                                                       c.Interaction.Data.ComponentType == ComponentType.Button && c.Message.Id == message.Id, timeout));
+                    .WaitForMatch(new MatchRequest<ComponentInteractionCreateEventArgs>(c => c.Interaction.Type == InteractionType.Component && c.Interaction.Data.ComponentType == ComponentType.Button && c.Message.Id == message.Id, timeout)).ConfigureAwait(false);
+
                 if (result is null)
-                    return new InteractivityResult<ComponentInteractionEventArgs>(true, null);
+                    return new InteractivityResult<ComponentInteractionCreateEventArgs>(true, null);
 
                 if (result.Id != id)
                     await this.HandleInvalidInteraction(result.Interaction).ConfigureAwait(false);
                 else
-                    return new InteractivityResult<ComponentInteractionEventArgs>(false, result);
+                    return new InteractivityResult<ComponentInteractionCreateEventArgs>(false, result);
             }
         }
 
@@ -350,7 +353,7 @@ namespace DSharpPlus.Interactivity
 
             var timeout = timeoutoverride ?? this.Config.Timeout;
             var collection = await this.ReactionCollector.CollectAsync(new ReactionCollectRequest(m, timeout)).ConfigureAwait(false);
-            return collection.ToList().AsReadOnly();
+            return collection;
         }
 
         /// <summary>
@@ -391,7 +394,7 @@ namespace DSharpPlus.Interactivity
         /// <param name="timeoutoverride">Override timeout period.</param>
         /// <returns></returns>
         public async Task SendPaginatedMessageAsync(DiscordChannel c, DiscordUser u, IEnumerable<Page> pages, PaginationEmojis emojis = null,
-            PaginationBehavior? behaviour = default, PaginationDeletion? deletion = default, TimeSpan? timeoutoverride = null)
+            PaginationBehaviour? behaviour = default, PaginationDeletion? deletion = default, TimeSpan? timeoutoverride = null)
         {
             var builder = new DiscordMessageBuilder()
                 .WithContent(pages.First().Content)

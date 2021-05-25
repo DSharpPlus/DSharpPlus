@@ -36,7 +36,7 @@ namespace DSharpPlus.Interactivity.EventHandling
         private readonly CancellationTokenSource _ct;
         private TimeSpan _timeout;
         private readonly List<Page> _pages;
-        private readonly PaginationBehavior _behavior;
+        private readonly PaginationBehaviour _behaviour;
         private readonly DiscordMessage _message;
         private readonly PaginationEmojis _emojis;
         private readonly DiscordUser _user;
@@ -47,12 +47,12 @@ namespace DSharpPlus.Interactivity.EventHandling
         /// </summary>
         /// <param name="message">Message to paginate</param>
         /// <param name="user">User to allow control for</param>
-        /// <param name="behavior">Behaviour during pagination</param>
+        /// <param name="behaviour">Behaviour during pagination</param>
         /// <param name="deletion">Behavior on pagination end</param>
         /// <param name="emojis">Emojis for this pagination object</param>
         /// <param name="timeout">Timeout time</param>
         /// <param name="pages">Pagination pages</param>
-        internal PaginationRequest(DiscordMessage message, DiscordUser user, PaginationBehavior behavior, PaginationDeletion deletion,
+        internal PaginationRequest(DiscordMessage message, DiscordUser user, PaginationBehaviour behaviour, PaginationDeletion deletion,
             PaginationEmojis emojis, TimeSpan timeout, params Page[] pages)
         {
             this._tcs = new TaskCompletionSource<bool>();
@@ -64,7 +64,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             this._user = user;
 
             this.PaginationDeletion = deletion;
-            this._behavior = behavior;
+            this._behaviour = behaviour;
             this._emojis = emojis;
 
             this._pages = new List<Page>();
@@ -103,9 +103,9 @@ namespace DSharpPlus.Interactivity.EventHandling
         {
             await Task.Yield();
 
-            switch (this._behavior)
+            switch (this._behaviour)
             {
-                case PaginationBehavior.Ignore:
+                case PaginationBehaviour.Ignore:
                     if (this.index == this._pages.Count - 1)
                         break;
                     else
@@ -113,7 +113,7 @@ namespace DSharpPlus.Interactivity.EventHandling
 
                     break;
 
-                case PaginationBehavior.WrapAround:
+                case PaginationBehaviour.WrapAround:
                     if (this.index == this._pages.Count - 1)
                         this.index = 0;
                     else
@@ -127,9 +127,9 @@ namespace DSharpPlus.Interactivity.EventHandling
         {
             await Task.Yield();
 
-            switch (this._behavior)
+            switch (this._behaviour)
             {
-                case PaginationBehavior.Ignore:
+                case PaginationBehaviour.Ignore:
                     if (this.index == 0)
                         break;
                     else
@@ -137,7 +137,7 @@ namespace DSharpPlus.Interactivity.EventHandling
 
                     break;
 
-                case PaginationBehavior.WrapAround:
+                case PaginationBehaviour.WrapAround:
                     if (this.index == 0)
                         this.index = this._pages.Count - 1;
                     else

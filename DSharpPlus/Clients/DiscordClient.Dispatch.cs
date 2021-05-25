@@ -1900,7 +1900,7 @@ namespace DSharpPlus
             {
 
                 interaction.Message.Discord = this;
-                var cea = new ComponentInteractionEventArgs
+                var cea = new ComponentInteractionCreateEventArgs
                 {
                     Message = interaction.Message,
                     Interaction = interaction

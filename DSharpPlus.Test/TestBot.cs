@@ -90,7 +90,7 @@ namespace DSharpPlus.Test
             //this.Discord.ComponentInteractionCreated += this.RoleMenu;
             //this.Discord.ComponentInteractionCreated += this.DiscordComponentInteractionCreated;
 
-            this.Discord.InteractionCreated += this.SendButton;
+            //this.Discord.InteractionCreated += this.SendButton;
             // For event timeout testing
             //Discord.GuildDownloadCompleted += async (s, e) =>
             //{
@@ -145,16 +145,13 @@ namespace DSharpPlus.Test
             //    _ = Task.Run(async () => await e.Message.RespondAsync(e.Message.Content)).ConfigureAwait(false);
             //};
         }
-        private async Task SendButton(DiscordClient sender, InteractionCreateEventArgs e)
+        /*private async Task SendButton(DiscordClient sender, InteractionCreateEventArgs e)
         {
-            // if (e.Interaction.Type != InteractionType.Component)
-            // I don't know why I put this if here; components don't fire this event anymore.  //
-
             var p = new DiscordButtonComponent(ButtonStyle.Primary, "P_", "Blurple", emoji: new DiscordComponentEmoji(833475075474063421));
             var c = new DiscordButtonComponent(ButtonStyle.Secondary, "C_", "Grey", emoji: new DiscordComponentEmoji(833475015114358854));
             var b = new DiscordButtonComponent(ButtonStyle.Success, "B_", "Green", emoji: new DiscordComponentEmoji(831306677449785394));
             var y = new DiscordButtonComponent(ButtonStyle.Danger, "Y_", "Red", emoji: new DiscordComponentEmoji(833886629792972860));
-            var z = new DiscordLinkButtonComponent("https://velvetthepanda.dev", "Link", new DiscordComponentEmoji(826108356656758794));
+            var z = new DiscordLinkButtonComponent("https://velvetthepanda.dev", "Link", false, new DiscordComponentEmoji(826108356656758794));
 
             var d1 = new DiscordButtonComponent(ButtonStyle.Primary, "disabled", "and", true);
             var d2 = new DiscordButtonComponent(ButtonStyle.Secondary, "disabled2", "these", true);
@@ -180,7 +177,7 @@ namespace DSharpPlus.Test
         {
             await args.Interaction.CreateResponseAsync(InteractionResponseType.DefferedMessageUpdate);
         }
-        catch (NotFoundException) { /* Button was ACK'd already. */ }
+        catch (NotFoundException) { /* Button was ACK'd already. #1# }
 
         var role = args.Guild.Roles.FirstOrDefault(r => r.Value.Mention == args.Id).Value;
         var member = args.User as DiscordMember;
@@ -197,9 +194,9 @@ namespace DSharpPlus.Test
             await member.GrantRoleAsync(role);
             await args.Interaction.CreateFollowupMessageAsync(new DiscordFollowupMessageBuilder().WithContent($"Gave you {role.Mention}!").AsEphemeral(true));
         }
-    }
+    }*/
 
-        private async Task DiscordComponentInteractionCreated(DiscordClient sender, ComponentInteractionEventArgs e)
+        private async Task DiscordComponentInteractionCreated(DiscordClient sender, ComponentInteractionCreateEventArgs e)
         {
             if (e.Id == "ack")
                 await e.Interaction.CreateResponseAsync(InteractionResponseType.DefferedMessageUpdate);

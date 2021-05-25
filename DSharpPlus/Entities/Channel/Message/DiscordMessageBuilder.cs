@@ -43,7 +43,7 @@ namespace DSharpPlus.Entities
             get => this._content;
             set
             {
-                if (value is {Length: > 2000})
+                if (value != null && value.Length > 2000)
                     throw new ArgumentException("Content cannot exceed 2000 characters.", nameof(value));
                 this._content = value;
             }
@@ -69,7 +69,8 @@ namespace DSharpPlus.Entities
         /// Gets the Files to be sent in the Message.
         /// </summary>
         public IReadOnlyCollection<DiscordMessageFile> Files => this._files;
-        public List<DiscordActionRowComponent> Components { get; } = new(5);
+        public IReadOnlyList<DiscordActionRowComponent> Components => this._components;
+        internal readonly List<DiscordActionRowComponent> _components = new(5);
 
         internal readonly List<DiscordMessageFile> _files = new();
 
@@ -113,7 +114,7 @@ namespace DSharpPlus.Entities
                 throw new ArgumentOutOfRangeException(nameof(components), "You must provide at least one component");
 
             var comp = new DiscordActionRowComponent(components);
-            this.Components.Add(comp);
+            this._components.Add(comp);
 
             return this;
         }
@@ -283,7 +284,7 @@ namespace DSharpPlus.Entities
             this._files.Clear();
             this.ReplyId = null;
             this.MentionOnReply = false;
-            this.Components.Clear();
+            this._components.Clear();
         }
 
         /// <summary>
@@ -305,7 +306,7 @@ namespace DSharpPlus.Entities
                 if (this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && this.Embed == null)
                     throw new ArgumentException("You must specify content, an embed, or at least one file.");
 
-                if (this.Components.Count + 1 > 5)
+                if (this.Components.Count > 5)
                     throw new InvalidOperationException("You can only have 5 action rows per message.");
 
                 if (this.Components.Any(c => c.Components.Count > 5))

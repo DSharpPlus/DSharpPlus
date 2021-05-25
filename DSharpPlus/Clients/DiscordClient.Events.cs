@@ -608,13 +608,13 @@ namespace DSharpPlus
         /// <summary>
         /// Fired when a component is invoked.
         /// </summary>
-        public event AsyncEventHandler<DiscordClient, ComponentInteractionEventArgs> ComponentInteractionCreated
+        public event AsyncEventHandler<DiscordClient, ComponentInteractionCreateEventArgs> ComponentInteractionCreated
         {
             add => this._componentInteractionCreated.Register(value);
             remove => this._componentInteractionCreated.Unregister(value);
         }
 
-        private AsyncEvent<DiscordClient, ComponentInteractionEventArgs> _componentInteractionCreated;
+        private AsyncEvent<DiscordClient, ComponentInteractionCreateEventArgs> _componentInteractionCreated;
 
         /// <summary>
         /// Fired when a user starts typing in a channel.

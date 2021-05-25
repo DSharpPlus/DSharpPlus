@@ -591,12 +591,12 @@ namespace DSharpPlus
         /// <summary>
         /// Fired when a component is invoked.
         /// </summary>
-        public event AsyncEventHandler<DiscordClient, ComponentInteractionEventArgs> ComponentInteractionCreated
+        public event AsyncEventHandler<DiscordClient, ComponentInteractionCreateEventArgs> ComponentInteractionCreated
         {
             add => this._componentInteractionCreated.Register(value);
             remove => this._componentInteractionCreated.Unregister(value);
         }
-        private AsyncEvent<DiscordClient, ComponentInteractionEventArgs> _componentInteractionCreated;
+        private AsyncEvent<DiscordClient, ComponentInteractionCreateEventArgs> _componentInteractionCreated;
 
         /// <summary>
         /// Fired when a user starts typing in a channel.
@@ -800,7 +800,7 @@ namespace DSharpPlus
         private Task Client_InteractionCreate(DiscordClient client, InteractionCreateEventArgs e)
             => this._interactionCreated.InvokeAsync(client, e);
 
-        private Task Client_ComponentInteractionCreate(DiscordClient client, ComponentInteractionEventArgs e)
+        private Task Client_ComponentInteractionCreate(DiscordClient client, ComponentInteractionCreateEventArgs e)
             => this._componentInteractionCreated.InvokeAsync(client, e);
         private Task Client_WebhooksUpdate(DiscordClient client, WebhooksUpdateEventArgs e)
             => this._webhooksUpdated.InvokeAsync(client, e);

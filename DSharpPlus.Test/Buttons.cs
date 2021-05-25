@@ -43,9 +43,9 @@ namespace DSharpPlus.Test
         public async Task CreateInteractive(CommandContext ctx)
         {
             var input = ctx.Client.GetInteractivity();
-            ComponentInteractionEventArgs buttonInput;
+            ComponentInteractionCreateEventArgs buttonInput;
             DiscordInteraction buttonInteraction;
-            DiscordFollowupMessageBuilder followupMessageBuilder = new DiscordFollowupMessageBuilder();
+            var followupMessageBuilder = new DiscordFollowupMessageBuilder();
             DiscordMessage currentMessage;
             DiscordMessage messagePreview;
 
@@ -97,7 +97,7 @@ namespace DSharpPlus.Test
             var c = new DiscordButtonComponent(ButtonStyle.Secondary, "C_", "Grey", emoji: new DiscordComponentEmoji(833475015114358854));
             var b = new DiscordButtonComponent(ButtonStyle.Success, "B_", "Green", emoji: new DiscordComponentEmoji(831306677449785394));
             var y = new DiscordButtonComponent(ButtonStyle.Danger, "Y_", "Red", emoji: new DiscordComponentEmoji(833886629792972860));
-            var z = new DiscordLinkButtonComponent("https://velvetthepanda.dev", "Link", new DiscordComponentEmoji(826108356656758794));
+            var z = new DiscordLinkButtonComponent("https://velvetthepanda.dev", "Link", false, new DiscordComponentEmoji(826108356656758794));
 
             var d1 = new DiscordButtonComponent(ButtonStyle.Primary, "disabled", "and", true);
             var d2 = new DiscordButtonComponent(ButtonStyle.Secondary, "disabled2", "these", true);
@@ -118,11 +118,5 @@ namespace DSharpPlus.Test
 
         }
 
-
-        private static void RemoveComponent(DiscordMessageBuilder builder, DiscordComponent comp)
-        {
-            foreach (var ar in builder.Components)
-                ar.Components.Remove(comp);
-        }
     }
 }

@@ -50,7 +50,7 @@ namespace DSharpPlus.Interactivity
         /// <summary>
         /// How to handle pagination. Defaults to WrapAround.
         /// </summary>
-        public PaginationBehavior PaginationBehaviour { internal get; set; } = PaginationBehavior.WrapAround;
+        public PaginationBehaviour PaginationBehaviour { internal get; set; } = PaginationBehaviour.WrapAround;
 
         /// <summary>
         /// How to handle pagination deletion. Defaults to DeleteEmojis.

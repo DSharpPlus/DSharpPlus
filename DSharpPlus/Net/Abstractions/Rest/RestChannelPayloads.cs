@@ -22,7 +22,6 @@
 // SOFTWARE.
 
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
 
@@ -109,7 +108,7 @@ namespace DSharpPlus.Net.Abstractions
         public DiscordMentions Mentions { get; set; }
 
         [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
-        public ReadOnlyCollection<DiscordActionRowComponent> Components { get; set; }
+        public IReadOnlyCollection<DiscordActionRowComponent> Components { get; set; }
 
         [JsonIgnore]
         public bool HasEmbed { get; set; }
