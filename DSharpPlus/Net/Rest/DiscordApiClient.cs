@@ -1098,9 +1098,10 @@ namespace DSharpPlus.Net
         /// <param name="overwrites">Channel overwrites</param>
         /// <param name="nsfw">Whether this channel should be marked as NSFW</param>
         /// <param name="perUserRateLimit">Slow mode timeout for users.</param>
+        /// <param name="qualityMode">Video quality.</param>
         /// <param name="reason">Reason this channel was created</param>
         /// <returns></returns>
-        public async Task<DiscordChannel> CreateGuildChannelAsync(ulong guild_id, string name, ChannelType type, ulong? parent, Optional<string> topic, int? bitrate, int? user_limit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, Optional<int?> perUserRateLimit, string reason)
+        public async Task<DiscordChannel> CreateGuildChannelAsync(ulong guild_id, string name, ChannelType type, ulong? parent, Optional<string> topic, int? bitrate, int? user_limit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, Optional<int?> perUserRateLimit, VideoQualityMode? qualityMode, string reason)
         {
             var restoverwrites = new List<DiscordRestOverwrite>();
             if (overwrites != null)
@@ -1117,7 +1118,8 @@ namespace DSharpPlus.Net
                 UserLimit = user_limit,
                 PermissionOverwrites = restoverwrites,
                 Nsfw = nsfw,
-                PerUserRateLimit = perUserRateLimit
+                PerUserRateLimit = perUserRateLimit,
+                QualityMode = qualityMode
             };
 
             var headers = Utilities.GetBaseHeaders();
@@ -1154,9 +1156,10 @@ namespace DSharpPlus.Net
         /// <param name="user_limit">New voice channel user limit</param>
         /// <param name="perUserRateLimit">Slow mode timeout for users.</param>
         /// <param name="rtcRegion">New region override.</param>
+        /// <param name="qualityMode">New video quality for this channel.</param>
         /// <param name="reason">Reason why this channel was modified</param>
         /// <returns></returns>
-        public Task ModifyChannelAsync(ulong channel_id, string name, int? position, Optional<string> topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? user_limit, Optional<int?> perUserRateLimit, Optional<string> rtcRegion, string reason)
+        public Task ModifyChannelAsync(ulong channel_id, string name, int? position, Optional<string> topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? user_limit, Optional<int?> perUserRateLimit, Optional<string> rtcRegion, VideoQualityMode? qualityMode, string reason)
         {
             var pld = new RestChannelModifyPayload
             {
@@ -1168,7 +1171,8 @@ namespace DSharpPlus.Net
                 Bitrate = bitrate,
                 UserLimit = user_limit,
                 PerUserRateLimit = perUserRateLimit,
-                RtcRegion = rtcRegion
+                RtcRegion = rtcRegion,
+                QualityMode = qualityMode,
             };
 
             var headers = Utilities.GetBaseHeaders();
@@ -1193,7 +1197,7 @@ namespace DSharpPlus.Net
             action(mdl);
 
             return this.ModifyChannelAsync(channelId, mdl.Name, mdl.Position, mdl.Topic, mdl.Nsfw,
-                mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.PerUserRateLimit, mdl.RtcRegion.IfPresent(e => e?.Id),
+                mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.PerUserRateLimit, mdl.RtcRegion.IfPresent(e => e?.Id), mdl.QualityMode,
                 mdl.AuditLogReason);
         }
 
