@@ -150,9 +150,9 @@ namespace DSharpPlus.Net
         /// <param name="payload">The payload to send with the request.</param>
         /// <param name="queryString">The query string to add on the url.</param>
         /// <returns>The API response.</returns>
-        public Task<RestResponse> DoRequestAsync(string route, object routeParams, RestRequestMethod method, IReadOnlyDictionary<string, string> headers = null, object payload = null, string queryString = null)
+        public Task<RestResponse> DoRequestAsync(string route, object routeParams, RestRequestMethod method, IReadOnlyDictionary<string, string> headers = null, string payload = null, string queryString = null)
         {
-            var req = new RestRequest(this.Discord, this.Rest.GetBucket(method, route, routeParams, out var path), Utilities.GetApiUriFor(path, queryString), method, route, headers, DiscordJson.SerializeObject(payload), null);
+            var req = new RestRequest(this.Discord, this.Rest.GetBucket(method, route, routeParams, out var path), Utilities.GetApiUriFor(path, queryString), method, route, headers, payload, null);
 
             if (this.Discord != null)
                 this.Rest.ExecuteRequestAsync(req).LogTaskFault(this.Discord.Logger, LogLevel.Error, LoggerEvents.RestError, "Error while executing request");
