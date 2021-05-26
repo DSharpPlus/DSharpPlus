@@ -69,10 +69,13 @@ namespace DSharpPlus.Entities
         /// Gets the Files to be sent in the Message.
         /// </summary>
         public IReadOnlyCollection<DiscordMessageFile> Files => this._files;
+        internal readonly List<DiscordMessageFile> _files = new();
+
+        /// <summary>
+        /// Gets the compeonents to be sent in the Message.
+        /// </summary>
         public IReadOnlyList<DiscordActionRowComponent> Components => this._components;
         internal readonly List<DiscordActionRowComponent> _components = new(5);
-
-        internal readonly List<DiscordMessageFile> _files = new();
 
         /// <summary>
         /// Gets the Reply Message ID.

@@ -66,5 +66,15 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("Only unicode emojis can be passed.");
             this.Name = name;
         }
+
+        /// <summary>
+        /// Constructs a new component emoji from an existing <see cref="DiscordEmoji"/>.
+        /// </summary>
+        /// <param name="emoji">The emoji to use.</param>
+        public DiscordComponentEmoji(DiscordEmoji emoji)
+        {
+            this.Id = emoji.Id;
+            this.Name = emoji.Name; // Name is ignored if the Id is present. //
+        }
     }
 }
