@@ -73,6 +73,9 @@ namespace DSharpPlus.Entities
         public IReadOnlyList<DiscordMessageFile> Files => this._files;
         private readonly List<DiscordMessageFile> _files = new();
 
+        /// <summary>
+        /// Components to send on this followup message.
+        /// </summary>
         public IReadOnlyList<DiscordActionRowComponent> Components => this._components;
         private readonly List<DiscordActionRowComponent> _components = new();
 
