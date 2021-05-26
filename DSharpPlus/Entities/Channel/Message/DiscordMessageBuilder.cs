@@ -112,6 +112,15 @@ namespace DSharpPlus.Entities
         /// <returns>The current builder to be chained.</returns>
         /// <exception cref="ArgumentOutOfRangeException">No components were passed.</exception>
         public DiscordMessageBuilder WithComponents(params DiscordComponent[] components)
+            => this.WithComponents((IEnumerable<DiscordComponent>)components);
+
+        /// <summary>
+        /// Adds a row of components to a message, up to 5 components per row, and up to 5 rows per message.
+        /// </summary>
+        /// <param name="components">The components to add to the message.</param>
+        /// <returns>The current builder to be chained.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">No components were passed.</exception>
+        public DiscordMessageBuilder WithComponents(IEnumerable<DiscordComponent> components)
         {
             if (!components.Any())
                 throw new ArgumentOutOfRangeException(nameof(components), "You must provide at least one component");

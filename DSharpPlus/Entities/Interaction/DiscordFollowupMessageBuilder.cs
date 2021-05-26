@@ -85,6 +85,16 @@ namespace DSharpPlus.Entities
         public IReadOnlyList<IMention> Mentions => this._mentions;
         private readonly List<IMention> _mentions = new();
 
+
+        /// <summary>
+        /// Appends a collection of components to the message.
+        /// </summary>
+        /// <param name="components">The collection of components to add.</param>
+        /// <returns>The builder to chain calls with.</returns>
+        /// <exception cref="ArgumentException"><paramref name="components"/> contained more than 5 components.</exception>
+        public DiscordFollowupMessageBuilder WithComponents(params DiscordComponent[] components)
+            => this.WithComponents((IEnumerable<DiscordComponent>)components);
+
         /// <summary>
         /// Appends a collection of components to the message.
         /// </summary>
