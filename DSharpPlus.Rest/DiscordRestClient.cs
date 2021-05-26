@@ -215,41 +215,8 @@ namespace DSharpPlus
         /// <param name="limit">Member download limit</param>
         /// <param name="after">Gets members after this ID</param>
         /// <returns></returns>
-        public async Task<IReadOnlyList<DiscordMember>> ListGuildMembersAsync(ulong guild_id, int? limit, ulong? after)
-        {
-            var recmbr = new List<DiscordMember>();
-
-            var recd = limit ?? 1000;
-            var lim = limit ?? 1000;
-            var last = after;
-            while (recd == lim)
-            {
-                var tms = await this.ApiClient.ListGuildMembersAsync(guild_id, lim, last == 0 ? null : (ulong?)last).ConfigureAwait(false);
-                recd = tms.Count;
-
-                foreach (var xtm in tms)
-                {
-                    last = xtm.User.Id;
-
-                    if (this.UserCache.ContainsKey(xtm.User.Id))
-                        continue;
-
-                    var usr = new DiscordUser(xtm.User) { Discord = this };
-                    this.UserCache.AddOrUpdate(xtm.User.Id, usr, (id, old) =>
-                    {
-                        old.Username = usr.Username;
-                        old.Discord = usr.Discord;
-                        old.AvatarHash = usr.AvatarHash;
-
-                        return old;
-                    });
-                }
-
-                recmbr.AddRange(tms.Select(xtm => new DiscordMember(xtm) { Discord = this, _guild_id = guild_id }));
-            }
-
-            return new ReadOnlyCollection<DiscordMember>(recmbr);
-        }
+        public Task<IReadOnlyList<DiscordMember>> ListGuildMembersAsync(ulong guild_id, int? limit, ulong? after)
+            => this.ApiClient.ListGuildMembersAsync(guild_id, limit, after);
 
         /// <summary>
         /// Add role to guild member
@@ -299,13 +266,8 @@ namespace DSharpPlus
         /// <param name="reason">Reason this position was modified</param>
         /// <returns></returns>
         public Task UpdateChannelPositionAsync(ulong guild_id, ulong channel_id, int position, string reason)
-        {
-            var rgcrps = new List<RestGuildChannelReorderPayload>()
-            {
-                new RestGuildChannelReorderPayload { ChannelId = channel_id, Position = position }
-            };
-            return this.ApiClient.ModifyGuildChannelPositionAsync(guild_id, rgcrps, reason);
-        }
+
+            => this.ApiClient.ModifyGuildChannelPositionAsync(guild_id, channel_id, position, reason);
 
         /// <summary>
         /// Gets a guild's widget
@@ -360,7 +322,7 @@ namespace DSharpPlus
         /// <summary>
         /// Creates a guild channel
         /// </summary>
-        /// <param name="id">Channel id</param>
+        /// <param name="id">Guild id</param>
         /// <param name="name">Channel name</param>
         /// <param name="type">Channel type</param>
         /// <param name="parent">Channel parent id</param>
@@ -633,7 +595,7 @@ namespace DSharpPlus
             => this.ApiClient.GetPinnedMessagesAsync(channel_id);
 
         /// <summary>
-        /// Unpuns a message
+        /// Unpins a message
         /// </summary>
         /// <param name="channel_id">Channel id</param>
         /// <param name="message_id">Message id</param>

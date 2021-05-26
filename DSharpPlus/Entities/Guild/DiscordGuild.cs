@@ -914,7 +914,7 @@ namespace DSharpPlus.Entities
             var last = 0ul;
             while (recd > 0)
             {
-                var tms = await this.Discord.ApiClient.ListGuildMembersAsync(this.Id, 1000, last == 0 ? null : (ulong?)last).ConfigureAwait(false);
+                var tms = await this.Discord.ApiClient.InternalListGuildMembersAsync(this.Id, 1000, last == 0 ? null : (ulong?)last).ConfigureAwait(false);
                 recd = tms.Count;
 
                 foreach (var xtm in tms)
