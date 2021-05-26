@@ -139,7 +139,7 @@ namespace DSharpPlus.Interactivity
         }
 
         /// <summary>
-        /// Waits for a button with the specified Id to be pressed.
+        /// Waits for any button on the specified message to be pressed.
         /// </summary>
         /// <param name="message">The message to wait for the button on.</param>
         /// <param name="timeoutOverride">Override the timeout period specified in <see cref="InteractivityConfiguration"/>.</param>
@@ -169,6 +169,36 @@ namespace DSharpPlus.Interactivity
             }
         }
 
+        /// <summary>
+        /// Waits for any button on the specified message to be pressed by the specified user.
+        /// </summary>
+        /// <param name="message">The message to wait for the button on.</param>
+        /// <param name="timeoutOverride">Override the timeout period specified in <see cref="InteractivityConfiguration"/>.</param>
+        /// <returns>A <see cref="InteractivityResult{T}"/> with the result of button that was pressed, if any.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when attempting to wait for a message that is not authored by the current user.</exception>
+        /// <exception cref="ArgumentException">Thrown when the message does not contain a button with the specified Id, or any buttons at all.</exception>
+        public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(DiscordMessage message, DiscordUser user, TimeSpan? timeoutOverride = null)
+        {
+            if (message.Author != this.Client.CurrentUser)
+                throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
+
+            if (message.Components is null || !message.Components.Select(a => a.Components).Any())
+                throw new ArgumentException("Message does not contain any buttons.");
+
+
+            var timeout = timeoutOverride ?? this.Config.Timeout;
+
+            while (true)
+            {
+                var result = await this.ComponentInteractionWaiter
+                    .WaitForMatch(new MatchRequest<ComponentInteractionCreateEventArgs>(c => c.Interaction.Type == InteractionType.Component && c.Interaction.Data.ComponentType == ComponentType.Button && c.Message.Id == message.Id && c.User == user, timeout)).ConfigureAwait(false);
+
+                if (result is null)
+                    return new InteractivityResult<ComponentInteractionCreateEventArgs>(true, null);
+                else
+                    return new InteractivityResult<ComponentInteractionCreateEventArgs>(false, result);
+            }
+        }
 
         /// <summary>
         /// Waits for a button with the specified Id to be pressed.
