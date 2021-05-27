@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using DSharpPlus.Entities;
+
 namespace DSharpPlus.EventArgs
 {
     /// <summary>
@@ -35,9 +37,9 @@ namespace DSharpPlus.EventArgs
         public ulong IntegrationId { get; internal set; }
 
         /// <summary>
-        /// Gets the guild id where the integration which where deleted.
+        /// Gets the guild where the integration which where deleted.
         /// </summary>
-        public ulong GuildId { get; internal set; }
+        public DiscordGuild Guild { get; internal set; }
 
         /// <summary>
         /// Gets the application id of the integration which where deleted.

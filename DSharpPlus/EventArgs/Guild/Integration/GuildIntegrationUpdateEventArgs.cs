@@ -37,9 +37,9 @@ namespace DSharpPlus.EventArgs
         public DiscordIntegration Integration { get; internal set; }
 
         /// <summary>
-        /// Gets the guild id where the integration was updated.
+        /// Gets the guild where the integration was updated.
         /// </summary>
-        public ulong GuildId { get; internal set; }
+        public DiscordGuild Guild { get; internal set; }
 
         internal GuildIntegrationUpdateEventArgs() : base() { }
     }

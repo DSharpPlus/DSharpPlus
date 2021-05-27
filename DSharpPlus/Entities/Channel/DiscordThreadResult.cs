@@ -42,10 +42,12 @@ namespace DSharpPlus.Entities
     /// </summary>
     public class DiscordThreadResult
     {
-        public Dictionary<ulong, DiscordThreadChannel> ReturnedThreads { get; set; }
+        internal DiscordThreadResult() { }
 
-        public List<DiscordThreadChannelMember> ActiveMembers { get; set; }
+        public Dictionary<ulong, DiscordThreadChannel> ReturnedThreads { get; internal set; }
 
-        public bool HasMore { get; set; }
+        public List<DiscordThreadChannelMember> ActiveMembers { get; internal set; }
+
+        public bool HasMore { get; internal set; }
     }
 }

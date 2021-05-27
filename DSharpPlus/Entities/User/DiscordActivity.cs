@@ -133,7 +133,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets or sets plattform in this rich presence.
         /// </summary>
-        public string Plattform { get; set; }
+        public string Platform { get; set; }
 
         /// <summary>
         /// Gets or sets sync_id in this rich presence.
@@ -204,7 +204,7 @@ namespace DSharpPlus.Entities
             this.StreamUrl = other.StreamUrl;
             this.SessionId = other.SessionId;
             this.SyncId = other.SyncId;
-            this.Plattform = other.Plattform;
+            this.Platform = other.Platform;
             this.RichPresence = new DiscordRichPresence(other.RichPresence);
             this.CustomStatus = new DiscordCustomStatus(other.CustomStatus);
         }
@@ -216,7 +216,7 @@ namespace DSharpPlus.Entities
             this.StreamUrl = rawActivity?.StreamUrl;
             this.SessionId = rawActivity?.SessionId;
             this.SyncId = rawActivity?.SyncId;
-            this.Plattform = rawActivity?.Plattform;
+            this.Platform = rawActivity?.Platform;
 
             if (rawActivity?.IsRichPresence() == true && this.RichPresence != null)
                 this.RichPresence.UpdateWith(rawActivity);

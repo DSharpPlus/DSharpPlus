@@ -491,7 +491,7 @@ namespace DSharpPlus.Test
         [Command("changeparent")]
         public async Task ChannelParentChangeAsync(CommandContext ctx, DiscordChannel moveChannel, DiscordChannel newCategory = null)
         {
-            await moveChannel.ModifyParentAsync(newCategory?.Id, null, null);
+            await moveChannel.ModifyParentAsync(newCategory, null, null);
             await ctx.RespondAsync($"{moveChannel.Mention} moved: {(newCategory is null ? "no category" : newCategory.Name)}");
         }
         

@@ -597,13 +597,13 @@ namespace DSharpPlus
         /// <param name="channel_id">Channel id</param>
         /// <param name="max_age">For how long the invite should exist</param>
         /// <param name="max_uses">How often the invite may be used</param>
-        /// <param name="target_type">Target type of invite for the channel</param>
-        /// <param name="target_application">Target application of invite for the channel</param>
         /// <param name="temporary">Whether this invite should be temporary</param>
         /// <param name="unique">Whether this invite should be unique (false might return an existing invite)</param>
+        /// <param name="target_type">Target type of invite for the channel</param>
+        /// <param name="target_application">Target application of invite for the channel</param>
         /// <param name="reason">Why you made an invite</param>
         /// <returns></returns>
-        public Task<DiscordInvite> CreateChannelInviteAsync(ulong channel_id, int max_age, int max_uses, TargetType target_type, TargetActivity target_application, bool temporary, bool unique, string reason)
+        public Task<DiscordInvite> CreateChannelInviteAsync(ulong channel_id, int max_age, int max_uses, bool temporary, bool unique, TargetType target_type, TargetActivity target_application, string reason)
             => this.ApiClient.CreateChannelInviteAsync(channel_id, max_age, max_uses, target_type, target_application, temporary, unique, reason);
 
         /// <summary>

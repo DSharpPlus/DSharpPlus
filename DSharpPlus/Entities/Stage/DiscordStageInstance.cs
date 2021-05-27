@@ -62,6 +62,13 @@ namespace DSharpPlus.Entities
         #region Methods
 
         /// <summary>
+        /// Gets the guild to which this channel belongs.
+        /// </summary>
+        [JsonIgnore]
+        public DiscordGuild Guild
+            => this.Discord.Guilds.TryGetValue(this.GuildId, out var guild) ? guild : null;
+
+        /// <summary>
         /// Updates a stage instance.
         /// </summary>
         /// <param name="topic">Topic of the stage instance.</param>
@@ -69,7 +76,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task UpdateAsync(string topic)
+        public async Task ModifyAsync(string topic)
             => await this.Discord.ApiClient.ModifyStageInstanceAsync(this.Id, topic);
 
         /// <summary>

@@ -32,34 +32,29 @@ namespace DSharpPlus.EventArgs
     public class ThreadMembersUpdateEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// Gets the id of the thread.
-        /// </summary>
-        /// 
-        public ulong Id { get; internal set; }
-
-        /// <summary>
-        /// Gets the id of the guild.
-        /// </summary>
-        /// 
-        public ulong GuildId { get; internal set; }
-
-        /// <summary>
         /// Gets the approximate number of members in the thread, capped at 50.
         /// </summary>
-        /// 
         public int MemberCount { get; internal set; }
-
-        /// <summary>
-        /// Gets the users who were added to the thread.
-        /// </summary>
-        /// 
-        public IEnumerable<DiscordThreadChannelMember> AddedMembers { get; internal set; }
 
         /// <summary>
         /// Gets the id of the users who were removed from the thread.
         /// </summary>
-        /// 
-        public IEnumerable<ulong?> RemovedMemberIds { get; internal set; }
+        public IReadOnlyList<ulong?> RemovedMemberIds { get; internal set; }
+
+        /// <summary>
+        /// Gets the users who were added to the thread.
+        /// </summary>
+        public IReadOnlyList<DiscordThreadChannelMember> AddedMembers { get; internal set; }
+
+        /// <summary>
+        /// Gets the id of the thread.
+        /// </summary>
+        public ulong ThreadId { get; internal set; }
+
+        /// <summary>
+        /// Gets the guild.
+        /// </summary>
+        public DiscordGuild Guild { get; internal set; }
 
         internal ThreadMembersUpdateEventArgs() : base() { }
     }

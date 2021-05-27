@@ -85,13 +85,6 @@ namespace DSharpPlus.Entities
             => this.Type == ChannelType.Private || this.Type == ChannelType.Group;
 
         /// <summary>
-        /// Gets whether this channel is a DiscordThreadChannel.
-        /// </summary>
-        [JsonIgnore]
-        public bool IsThread
-            => this.Type == ChannelType.NewsThread || this.Type == ChannelType.PrivateThread || this.Type == ChannelType.PublicThread;
-
-        /// <summary>
         /// Gets whether this channel is a channel category.
         /// </summary>
         [JsonIgnore]
@@ -411,7 +404,7 @@ namespace DSharpPlus.Entities
         public Task ModifyPositionAsync(int position, string reason = null)
         {
             if (this.Guild == null)
-                throw new InvalidOperationException("Cannot modify order of non-guild channels.");
+                throw new ArgumentException("Cannot modify order of non-guild channels.");
 
             var chns = this.Guild._channels.Values.Where(xc => xc.Type == this.Type).OrderBy(xc => xc.Position).ToArray();
             var pmds = new RestGuildChannelReorderPayload[chns.Length];
@@ -431,7 +424,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Updates the channel parent, moving the channel to the bottom of the new category.
         /// </summary>
-        /// <param name="parent_id">New parent ID. Will move out of parent if null.</param>
+        /// <param name="newParent">New parent fpr channel. Will move out of parent if null.</param>
         /// <param name="lock_permissions">Sync permissions with parent. Defaults to null.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
@@ -439,14 +432,18 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task ModifyParentAsync(ulong? parent_id = null, bool? lock_permissions = null, string reason = null)
+        public Task ModifyParentAsync(DiscordChannel? newParent = null, bool? lock_permissions = null, string reason = null)
         {
             if (this.Guild == null)
-                throw new InvalidOperationException("Cannot modify parent of non-guild channels.");
+                throw new ArgumentException("Cannot modify parent of non-guild channels.");
             if (this.IsCategory)
-                throw new InvalidOperationException("Cannot modify parent of category channels.");
+                throw new ArgumentException("Cannot modify parent of category channels.");
+            if(newParent.Type is not ChannelType.Category)
+                throw new ArgumentException("Only category type channels can be parents.");
 
-            var position = this.Guild._channels.Values.Where(xc => xc.Type == this.Type && xc.ParentId == parent_id).Select(xc => xc.Position).DefaultIfEmpty(-1).Max() + 1;
+
+            var position = this.Guild._channels.Values.Where(xc => xc.Type == this.Type && xc.ParentId == newParent.Id) // gets list same type channels in parent
+                            .Select(xc => xc.Position).DefaultIfEmpty(-1).Max() + 1; // returns highest position of list +1, default val: 0
             var chns = this.Guild._channels.Values.Where(xc => xc.Type == this.Type).OrderBy(xc => xc.Position).ToArray();
             var pmds = new RestGuildChannelNewParentPayload[chns.Length];
             for (var i = 0; i < chns.Length; i++)
@@ -459,7 +456,7 @@ namespace DSharpPlus.Entities
                 if(chns[i].Id == this.Id)
                 {
                     pmds[i].Position = position;
-                    pmds[i].ParentId = parent_id;
+                    pmds[i].ParentId = newParent is not null? newParent.Id : null;
                     pmds[i].LockPermissions = lock_permissions;
                 }
             }
@@ -479,11 +476,12 @@ namespace DSharpPlus.Entities
         public Task RemoveParentAsync(string reason = null)
         {
             if (this.Guild == null)
-                throw new InvalidOperationException("Cannot modify parent of non-guild channels.");
+                throw new ArgumentException("Cannot modify parent of non-guild channels.");
             if (this.IsCategory)
-                throw new InvalidOperationException("Cannot modify parent of category channels.");
+                throw new ArgumentException("Cannot modify parent of category channels.");
 
-            var position = this.Guild._channels.Values.Where(xc => xc.Type == this.Type).Select(xc => xc.Position).DefaultIfEmpty(-1).Max() + 1;
+            var position = this.Guild._channels.Values.Where(xc => xc.Type == this.Type && xc.Parent is null) //gets list of same type channels with no parent
+                            .Select(xc => xc.Position).DefaultIfEmpty(-1).Max() + 1; // returns highest position of list +1, default val: 0
             var chns = this.Guild._channels.Values.Where(xc => xc.Type == this.Type).OrderBy(xc => xc.Position).ToArray();
             var pmds = new RestGuildChannelNoParentPayload[chns.Length];
             for (var i = 0; i < chns.Length; i++)
@@ -658,17 +656,18 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="max_age">Duration of invite in seconds before expiry, or 0 for never.  Defaults to 86400.</param>
         /// <param name="max_uses">Max number of uses or 0 for unlimited.  Defaults to 0</param>
-        /// <param name="target_type">Target type of invite for the channel.  Defaults to Streaming</param>
-        /// <param name="target_application">Target application of invite for the channel.  Defaults to None</param>
+
         /// <param name="temporary">Whether this invite only grants temporary membership.  Defaults to false.</param>
         /// <param name="unique">If true, don't try to reuse a similar invite (useful for creating many unique one time use invites)</param>
+        /// <param name="target_type">Target type of invite for the channel.  Defaults to Streaming</param>
+        /// <param name="target_application">Target application of invite for the channel.  Defaults to None</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.CreateInstantInvite"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordInvite> CreateInviteAsync(int max_age = 86400, int max_uses = 0, TargetType target_type = TargetType.Streaming, TargetActivity target_application = TargetActivity.None, bool temporary = false, bool unique = false, string reason = null)
+        public Task<DiscordInvite> CreateInviteAsync(int max_age = 86400, int max_uses = 0, bool temporary = false, bool unique = false, TargetType target_type = TargetType.Streaming, TargetActivity target_application = TargetActivity.None, string reason = null)
             => this.Discord.ApiClient.CreateChannelInviteAsync(this.Id, max_age, max_uses, target_type, target_application, temporary, unique, reason);
 
         #region Stage

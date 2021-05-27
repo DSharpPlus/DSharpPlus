@@ -58,7 +58,7 @@ namespace DSharpPlus.Entities
         /// Gets ID of the news or text channel that contains this thread.
         /// </summary>
         [JsonProperty("parent_id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong ParentChannelId { get; internal set; }
+        public ulong ParentId { get; internal set; }
 
         /// <summary>
         /// Gets the name of this thread.
@@ -118,6 +118,20 @@ namespace DSharpPlus.Entities
         [JsonProperty("thread_member", NullValueHandling = NullValueHandling.Ignore)]
         [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
         internal ConcurrentDictionary<ulong, DiscordThreadChannelMember> _threadMembers;
+
+        /// <summary>
+        /// Gets the guild to which this thread belongs.
+        /// </summary>
+        [JsonIgnore]
+        public DiscordGuild Guild
+            => this.Discord.Guilds.TryGetValue(this.GuildId, out var guild) ? guild : null;
+
+        /// <summary>
+        /// Gets the category that contains this channel.
+        /// </summary>
+        [JsonIgnore]
+        public DiscordChannel Parent
+            => this.Guild.GetChannel(this.ParentId);
 
         #region Methods
 

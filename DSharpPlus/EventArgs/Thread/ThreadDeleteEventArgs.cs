@@ -33,27 +33,22 @@ namespace DSharpPlus.EventArgs
         /// <summary>
         /// Gets the threads id that was deleted.
         /// </summary>
-        /// 
-        public ulong Id{ get; internal set; }
+        public ulong ThreadId{ get; internal set; }
 
         /// <summary>
-        /// Gets the threads guild id.
+        /// Gets the threads parent channel.
         /// </summary>
-        /// 
-        public ulong GuildId { get; internal set; }
+        public DiscordChannel Parent { get; internal set; }
 
         /// <summary>
-        /// Gets the threads parent channel id.
+        /// Gets the guild this thread belonged to.
         /// </summary>
-        /// 
-        public ulong ParentChannelId { get; internal set; }
+        public DiscordGuild Guild { get; internal set; }
 
         /// <summary>
         /// Gets the threads type.
         /// </summary>
-        /// 
         public ChannelType Type { get; internal set; }
-
 
         internal ThreadDeleteEventArgs() : base() { }
     }

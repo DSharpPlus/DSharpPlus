@@ -134,7 +134,7 @@ namespace DSharpPlus.Net.Abstractions
         /// This is a component of the rich presence, and, as such, can only be used by regular users.
         /// </summary>
         [JsonProperty("platform", NullValueHandling = NullValueHandling.Ignore)]
-        public string Plattform { get; internal set; }
+        public string Platform { get; internal set; }
 
         /// <summary>
         /// Gets or sets sync_id in this rich presence.

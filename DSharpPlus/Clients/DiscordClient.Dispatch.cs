@@ -22,11 +22,9 @@
 // SOFTWARE.
 
 using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
@@ -194,7 +192,7 @@ namespace DSharpPlus
                     if (!this._guilds.ContainsKey(gid))
                         return;
 
-                    await this.OnGuildIntegrationCreateEventAsync(itg, gid).ConfigureAwait(false);
+                    await this.OnGuildIntegrationCreateEventAsync(this._guilds[gid], itg).ConfigureAwait(false);
                     break;
 
                 case "integration_update":
@@ -205,7 +203,7 @@ namespace DSharpPlus
                     if (!this._guilds.ContainsKey(gid))
                         return;
 
-                    await this.OnGuildIntegrationUpdateEventAsync(itg, gid).ConfigureAwait(false);
+                    await this.OnGuildIntegrationUpdateEventAsync(this._guilds[gid], itg).ConfigureAwait(false);
                     break;
 
                 case "integration_delete":
@@ -215,7 +213,7 @@ namespace DSharpPlus
                     if (!this._guilds.ContainsKey(gid))
                         return;
 
-                    await this.OnGuildIntegrationDeleteEventAsync((ulong)dat["id"], gid, (ulong?)dat["application_id"]).ConfigureAwait(false);
+                    await this.OnGuildIntegrationDeleteEventAsync(this._guilds[gid], (ulong)dat["id"], (ulong?)dat["application_id"]).ConfigureAwait(false);
                     break;
                 #endregion
 
@@ -412,7 +410,8 @@ namespace DSharpPlus
                     break;
 
                 case "thread_list_sync":
-                    gid = (ulong)dat["guild_id"];
+                    gid = (ulong)dat["guild_id"]; //get guild
+
                     await this.OnThreadListSyncEventAsync(gid, dat["channel_ids"].ToObject<IEnumerable<ulong?>>(), dat["threads"].ToObject<IEnumerable<DiscordThreadChannel>>(), dat["members"].ToObject<IEnumerable<DiscordThreadChannelMember>>()).ConfigureAwait(false);
                     break;
 
@@ -423,7 +422,8 @@ namespace DSharpPlus
 
                 case "thread_members_update":
                     gid = (ulong)dat["guild_id"];
-                    await this.OnThreadMemberUpdatesEventAsync((ulong)dat["id"], gid, (int)dat["member_count"], dat["added_members"].ToObject<IEnumerable<DiscordThreadChannelMember>>(), dat["removed_member_ids"].ToObject<IEnumerable<ulong?>>()).ConfigureAwait(false);
+
+                    await this.OnThreadMemberUpdatesEventAsync(this._guilds[gid], (ulong)dat["id"], dat["added_members"].ToObject<IEnumerable<DiscordThreadChannelMember>>(), dat["removed_member_ids"].ToObject<IEnumerable<ulong?>>(), (int)dat["member_count"]).ConfigureAwait(false);
                     break;
 
                 #endregion
@@ -1052,22 +1052,22 @@ namespace DSharpPlus
 
         #region Guild Integration
 
-        internal async Task OnGuildIntegrationCreateEventAsync(DiscordIntegration integration, ulong guild_id)
+        internal async Task OnGuildIntegrationCreateEventAsync(DiscordGuild guild, DiscordIntegration integration)
         {
             integration.Discord = this;
 
-            await this._guildIntegrationCreated.InvokeAsync(this, new GuildIntegrationCreateEventArgs { Integration = integration, GuildId = guild_id }).ConfigureAwait(false);
+            await this._guildIntegrationCreated.InvokeAsync(this, new GuildIntegrationCreateEventArgs { Integration = integration, Guild = guild }).ConfigureAwait(false);
         }
 
-        internal async Task OnGuildIntegrationUpdateEventAsync(DiscordIntegration integration, ulong guild_id)
+        internal async Task OnGuildIntegrationUpdateEventAsync(DiscordGuild guild, DiscordIntegration integration)
         {
             integration.Discord = this;
 
-            await this._guildIntegrationUpdated.InvokeAsync(this, new GuildIntegrationUpdateEventArgs { Integration = integration, GuildId = guild_id }).ConfigureAwait(false);
+            await this._guildIntegrationUpdated.InvokeAsync(this, new GuildIntegrationUpdateEventArgs { Integration = integration, Guild = guild }).ConfigureAwait(false);
         }
 
-        internal async Task OnGuildIntegrationDeleteEventAsync(ulong guild_id, ulong integration_id, ulong? application_id)
-            => await this._guildIntegrationDeleted.InvokeAsync(this, new GuildIntegrationDeleteEventArgs { GuildId = guild_id, IntegrationId = integration_id, ApplicationId = application_id }).ConfigureAwait(false);
+        internal async Task OnGuildIntegrationDeleteEventAsync(DiscordGuild guild, ulong integration_id, ulong? application_id)
+            => await this._guildIntegrationDeleted.InvokeAsync(this, new GuildIntegrationDeleteEventArgs { Guild = guild, IntegrationId = integration_id, ApplicationId = application_id }).ConfigureAwait(false);
 
         #endregion
 
@@ -1683,21 +1683,21 @@ namespace DSharpPlus
         {
             stage.Discord = this;
 
-            await this._stageInstanceCreated.InvokeAsync(this, new StageInstanceCreateEventArgs { StageInstance = stage }).ConfigureAwait(false);
+            await this._stageInstanceCreated.InvokeAsync(this, new StageInstanceCreateEventArgs { StageInstance = stage, Guild = stage.Guild }).ConfigureAwait(false);
         }
 
         internal async Task OnStageInstanceUpdateEventAsync(DiscordStageInstance stage)
         {
             stage.Discord = this;
 
-            await this._stageInstanceUpdated.InvokeAsync(this, new StageInstanceUpdateEventArgs { StageInstance = stage }).ConfigureAwait(false);
+            await this._stageInstanceUpdated.InvokeAsync(this, new StageInstanceUpdateEventArgs { StageInstance = stage, Guild = stage.Guild }).ConfigureAwait(false);
         }
 
         internal async Task OnStageInstanceDeleteEventAsync(DiscordStageInstance stage)
         {
             stage.Discord = this;
 
-            await this._stageInstanceDeleted.InvokeAsync(this, new StageInstanceDeleteEventArgs { StageInstance = stage }).ConfigureAwait(false);
+            await this._stageInstanceDeleted.InvokeAsync(this, new StageInstanceDeleteEventArgs { StageInstance = stage, Guild = stage.Guild }).ConfigureAwait(false);
         }
 
         #endregion
@@ -1708,25 +1708,37 @@ namespace DSharpPlus
         {
             thread.Discord = this;
 
-            await this._threadCreated.InvokeAsync(this, new ThreadCreateEventArgs { ThreadChannel = thread }).ConfigureAwait(false);
+            await this._threadCreated.InvokeAsync(this, new ThreadCreateEventArgs { ThreadChannel = thread, Guild = thread.Guild, Parent = thread.Parent }).ConfigureAwait(false);
         }
 
         internal async Task OnThreadUpdateEventAsync(DiscordThreadChannel thread)
         {
             thread.Discord = this;
 
-            await this._threadUpdated.InvokeAsync(this, new ThreadUpdateEventArgs { ThreadChannel = thread }).ConfigureAwait(false);
+            await this._threadUpdated.InvokeAsync(this, new ThreadUpdateEventArgs { ThreadChannel = thread, Guild = thread.Guild, Parent = thread.Parent }).ConfigureAwait(false);
         }
 
         internal async Task OnThreadDeleteEventAsync(DiscordThreadChannel thread)
         {
             thread.Discord = this;
 
-            await this._threadDeleted.InvokeAsync(this, new ThreadDeleteEventArgs { Id = thread.Id, GuildId = thread.GuildId, ParentChannelId = thread.ParentChannelId, Type = thread.Type }).ConfigureAwait(false);
+            await this._threadDeleted.InvokeAsync(this, new ThreadDeleteEventArgs { ThreadId = thread.Id, Guild = thread.Guild, Parent = thread.Parent, Type = thread.Type }).ConfigureAwait(false);
         }
 
-        internal async Task OnThreadListSyncEventAsync(ulong guild_id, IEnumerable<ulong?> channel_ids, IEnumerable<DiscordThreadChannel> threads, IEnumerable<DiscordThreadChannelMember> members)
-            => await this._threadListSynced.InvokeAsync(this, new ThreadListSyncEventArgs { GuildId = guild_id, ChannelIds = channel_ids, Threads = threads, Members = members }).ConfigureAwait(false);
+        internal async Task OnThreadListSyncEventAsync(ulong guildId, IEnumerable<ulong?> channel_ids, IEnumerable<DiscordThreadChannel> threads, IEnumerable<DiscordThreadChannelMember> members)
+        {
+            var guild = this.InternalGetCachedGuild(guildId);
+            guild.Discord = this;
+
+            var channels = channel_ids.Select(x => guild.GetChannel(x.Value)); //getting channel objects
+
+            foreach (var chan in channels)
+            {
+                chan.Discord = this;
+            }
+
+            await this._threadListSynced.InvokeAsync(this, new ThreadListSyncEventArgs { Guild = guild, Channels = channels.ToList().AsReadOnly(), Threads = threads.ToList().AsReadOnly(), Members = members.ToList().AsReadOnly() }).ConfigureAwait(false);
+        }
 
         internal async Task OnThreadMemberUpdateEventAsync(DiscordThreadChannelMember member)
         {
@@ -1735,8 +1747,12 @@ namespace DSharpPlus
             await this._threadMemberUpdated.InvokeAsync(this, new ThreadMemberUpdateEventArgs { ThreadMember = member }).ConfigureAwait(false);
         }
 
-        internal async Task OnThreadMemberUpdatesEventAsync(ulong id, ulong guild_id, int member_count, IEnumerable<DiscordThreadChannelMember> addedMembers, IEnumerable<ulong?> removed_member_ids)
-            => await this._threadMembersUpdated.InvokeAsync(this, new ThreadMembersUpdateEventArgs { Id = id, GuildId = guild_id, MemberCount = member_count, AddedMembers = addedMembers, RemovedMemberIds = removed_member_ids }).ConfigureAwait(false);
+        internal async Task OnThreadMemberUpdatesEventAsync(DiscordGuild guild, ulong thread_id, IEnumerable<DiscordThreadChannelMember> addedMembers, IEnumerable<ulong?> removed_member_ids, int member_count)
+        {
+            guild.Discord = this;
+
+            await this._threadMembersUpdated.InvokeAsync(this, new ThreadMembersUpdateEventArgs { Guild = guild, ThreadId = thread_id, AddedMembers = addedMembers.ToList().AsReadOnly(), RemovedMemberIds = removed_member_ids.ToList().AsReadOnly(), MemberCount = member_count}).ConfigureAwait(false);
+        }
 
         #endregion
 

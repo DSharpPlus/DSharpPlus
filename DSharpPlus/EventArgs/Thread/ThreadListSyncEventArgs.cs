@@ -32,28 +32,24 @@ namespace DSharpPlus.EventArgs
     public class ThreadListSyncEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// Gets the id of the guild.
+        /// Gets all thread member objects from the synced threads for the current user, indicating which threads the current user has been added to
         /// </summary>
-        /// 
-        public ulong GuildId { get; internal set; }
-
-        /// <summary>
-        /// Gets the parent channel ids whose threads are being synced. If omitted, then threads were synced for the entire guild. This array may contain channel_ids that have no active threads as well.
-        /// </summary>
-        /// 
-        public IEnumerable<ulong?> ChannelIds { get; internal set; }
+        public IReadOnlyList<DiscordThreadChannelMember> Members { get; internal set; }
 
         /// <summary>
         /// Gets all active threads in the given channels that the current user can access.
         /// </summary>
-        /// 
-        public IEnumerable<DiscordThreadChannel> Threads { get; internal set; }
+        public IReadOnlyList<DiscordThreadChannel> Threads { get; internal set; }
 
         /// <summary>
-        /// Gets all thread member objects from the synced threads for the current user, indicating which threads the current user has been added to
+        /// Gets the parent channels whose threads are being synced. If empty, then threads are synced for the guild. May contain channels that have no active threads as well.
         /// </summary>
-        /// 
-        public IEnumerable<DiscordThreadChannelMember> Members { get; internal set; }
+        public IReadOnlyList<DiscordChannel> Channels { get; internal set; }
+
+        /// <summary>
+        /// Gets the guild being synced.
+        /// </summary>
+        public DiscordGuild Guild { get; internal set; }
 
         internal ThreadListSyncEventArgs() : base() { }
     }

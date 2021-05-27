@@ -143,16 +143,16 @@ namespace DSharpPlus.Test
 
         private Task Discord_ThreadListSynced(DiscordClient sender, ThreadListSyncEventArgs e)
         {
-            Console.WriteLine($"Guild {e.GuildId} fired ThreadListSynced");
+            Console.WriteLine($"Guild {e.Guild.Id} fired ThreadListSynced");
 
-            foreach(var c in e.ChannelIds)
+            foreach(var c in e.Channels)
             {
-                Console.WriteLine($"Channel {c} is included");
+                Console.WriteLine($"Channel {c.Id} is included");
             }
 
             foreach(var t in e.Threads)
             {
-                Console.WriteLine($"Thread {t.Name} with id {t.Id} in channel {t.ParentChannelId} is included and will be auto archived on {t.ThreadMetadata.ArchiveTimestamp}");
+                Console.WriteLine($"Thread {t.Name} with id {t.Id} in channel {t.ParentId} is included and will be auto archived on {t.ThreadMetadata.ArchiveTimestamp}");
             }
 
             foreach (var m in e.Members)
@@ -165,7 +165,7 @@ namespace DSharpPlus.Test
 
         private Task Discord_ThreadMembersUpdated(DiscordClient sender, ThreadMembersUpdateEventArgs e)
         {
-            Console.WriteLine($"Guild {e.GuildId} fired ThreadMembersUpdated for thread {e.Id}. It has ~{e.MemberCount} members.");
+            Console.WriteLine($"Guild {e.Guild.Id} fired ThreadMembersUpdated for thread {e.ThreadId}. It has ~{e.MemberCount} members.");
 
             foreach (var rmi in e.RemovedMemberIds)
             {
