@@ -59,12 +59,19 @@ namespace DSharpPlus.Entities
         public IReadOnlyCollection<DiscordApplicationCommandOption> Options { get; internal set; }
 
         /// <summary>
+        /// Gets whether the command is enabled by default when the app is added to a guild.
+        /// </summary>
+        [JsonProperty("default_permission", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? DefaultPermission { get; internal set; }
+
+        /// <summary>
         /// Creates a new instance of a <see cref="DiscordApplicationCommand"/>.
         /// </summary>
         /// <param name="name">The name of the command.</param>
         /// <param name="description">The description of the command.</param>
         /// <param name="options">Optional parameters for this command.</param>
-        public DiscordApplicationCommand(string name, string description, IEnumerable<DiscordApplicationCommandOption> options = null)
+        /// <param name="default_permission">Optional default permission for this command.</param>
+        public DiscordApplicationCommand(string name, string description, IEnumerable<DiscordApplicationCommandOption> options = null, bool default_permission = true)
         {
             if (name.Length > 32)
                 throw new ArgumentException("Slash command name cannot exceed 32 characters.", nameof(name));
@@ -76,6 +83,7 @@ namespace DSharpPlus.Entities
             this.Name = name;
             this.Description = description;
             this.Options = optionsList;
+            this.DefaultPermission = default_permission;
         }
 
         /// <summary>

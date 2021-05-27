@@ -63,6 +63,7 @@ namespace DSharpPlus.Entities
         [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
         public ThreadNotificationSetting Flags { get; internal set; }
 
+
         /// <summary>
         /// Checks whether this <see cref="DiscordThreadChannelMember"/> is equal to another object.
         /// </summary>
@@ -114,5 +115,7 @@ namespace DSharpPlus.Entities
         /// <returns>Whether the two channels are not equal.</returns>
         public static bool operator !=(DiscordThreadChannelMember e1, DiscordThreadChannelMember e2)
             => !(e1 == e2);
+
+        internal DiscordThreadChannelMember() { }
     }
 }
