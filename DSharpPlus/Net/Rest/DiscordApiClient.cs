@@ -979,20 +979,6 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal Task ModifyEmbedSuppressionAsync(bool suppress, ulong channel_id, ulong message_id)
-        {
-            var pld = new RestChannelMessageSuppressEmbedsPayload
-            {
-                Suppress = suppress
-            };
-
-            var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}/:message_id{Endpoints.SUPPRESS_EMBEDS}";
-            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id, message_id }, out var path);
-
-            var url = Utilities.GetApiUriFor(path);
-            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld));
-        }
-
         internal async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content, Optional<DiscordEmbed> embed, IEnumerable<IMention> mentions, IReadOnlyList<DiscordActionRowComponent> components)
         {
             if (embed.HasValue && embed.Value != null && embed.Value.Timestamp != null)
@@ -1723,11 +1709,13 @@ namespace DSharpPlus.Net
         #endregion
 
         #region Invite
-        internal async Task<DiscordInvite> GetInviteAsync(string invite_code, bool? with_counts)
+        internal async Task<DiscordInvite> GetInviteAsync(string invite_code, bool? with_counts, bool? with_expiration)
         {
             var urlparams = new Dictionary<string, string>();
             if (with_counts.HasValue)
                 urlparams["with_counts"] = with_counts?.ToString();
+            if (with_expiration.HasValue)
+                urlparams["with_expiration"] = with_expiration?.ToString();
 
             var route = $"{Endpoints.INVITES}/:invite_code";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { invite_code }, out var path);
@@ -1972,7 +1960,7 @@ namespace DSharpPlus.Net
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route, headers);
         }
 
-        internal async Task<DiscordMessage> ExecuteWebhookAsync(ulong webhook_id, string webhook_token, DiscordWebhookBuilder builder)
+        internal async Task<DiscordMessage> ExecuteWebhookAsync(ulong webhook_id, string webhook_token, DiscordWebhookBuilder builder, string thread_id)
         {
             builder.Validate();
 
@@ -2000,7 +1988,11 @@ namespace DSharpPlus.Net
             var route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { webhook_id, webhook_token }, out var path);
 
-            var url = Utilities.GetApiUriBuilderFor(path).AddParameter("wait", "true").Build();
+            var qub = Utilities.GetApiUriBuilderFor(path).AddParameter("wait", "true");
+            if (thread_id != null)
+                qub.AddParameter("thread_id", thread_id);
+            var url = qub.Build();
+
             var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, values: values, files: builder.Files).ConfigureAwait(false);
             var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
 
@@ -2044,7 +2036,8 @@ namespace DSharpPlus.Net
                 Content = builder.Content,
                 Embeds = builder.Embeds,
                 Mentions = builder.Mentions,
-                Components = builder.Components
+                Components = builder.Components,
+                Attachments = builder.Attachments
             };
 
             var route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token{Endpoints.MESSAGES}/:message_id";
@@ -2057,8 +2050,25 @@ namespace DSharpPlus.Net
             ret.Discord = this.Discord;
             return ret;
         }
+
         internal Task<DiscordMessage> EditWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong message_id, DiscordWebhookBuilder builder) =>
             this.EditWebhookMessageAsync(webhook_id, webhook_token, message_id.ToString(), builder);
+
+        internal async Task<DiscordMessage> GetWebhookMessageAsync(ulong webhook_id, string webhook_token, string message_id)
+        {
+            var route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token{Endpoints.MESSAGES}/:message_id";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { webhook_id, webhook_token, message_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route);
+
+            var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
+            ret.Discord = this.Discord;
+            return ret;
+        }
+        internal Task<DiscordMessage> GetWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong message_id) =>
+            this.GetWebhookMessageAsync(webhook_id, webhook_token, message_id.ToString());
+
 
         internal async Task DeleteWebhookMessageAsync(ulong webhook_id, string webhook_token, string message_id)
         {
@@ -2527,6 +2537,9 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld));
         }
+
+        internal Task<DiscordMessage> GetOriginalInteractionResponseAsync(ulong application_id, string interaction_token) =>
+            this.GetWebhookMessageAsync(application_id, interaction_token, "@original");
 
         internal Task<DiscordMessage> EditOriginalInteractionResponseAsync(ulong application_id, string interaction_token, DiscordWebhookBuilder builder) =>
             this.EditWebhookMessageAsync(application_id, interaction_token, "@original", builder);
