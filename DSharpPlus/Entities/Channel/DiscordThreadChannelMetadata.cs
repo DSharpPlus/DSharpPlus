@@ -50,7 +50,7 @@ namespace DSharpPlus.Entities
         /// Gets ID of the archiver.
         /// </summary>
         [JsonProperty("archiver_id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong? ArchiverId { get; internal set; }
+        public DiscordMember Archiver { get; internal set; }
 
         /// <summary>
         /// Gets the time when it will be archived, while there is no action inside the thread (In minutes).

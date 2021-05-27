@@ -444,8 +444,12 @@ namespace DSharpPlus.Entities
 
             var position = this.Guild._channels.Values.Where(xc => xc.Type == this.Type && xc.ParentId == newParent.Id) // gets list same type channels in parent
                             .Select(xc => xc.Position).DefaultIfEmpty(-1).Max() + 1; // returns highest position of list +1, default val: 0
-            var chns = this.Guild._channels.Values.Where(xc => xc.Type == this.Type).OrderBy(xc => xc.Position).ToArray();
+
+            var chns = this.Guild._channels.Values.Where(xc => xc.Type == this.Type)
+                            .OrderBy(xc => xc.Position).ToArray();
+
             var pmds = new RestGuildChannelNewParentPayload[chns.Length];
+
             for (var i = 0; i < chns.Length; i++)
             {
                 pmds[i] = new RestGuildChannelNewParentPayload
@@ -482,8 +486,12 @@ namespace DSharpPlus.Entities
 
             var position = this.Guild._channels.Values.Where(xc => xc.Type == this.Type && xc.Parent is null) //gets list of same type channels with no parent
                             .Select(xc => xc.Position).DefaultIfEmpty(-1).Max() + 1; // returns highest position of list +1, default val: 0
-            var chns = this.Guild._channels.Values.Where(xc => xc.Type == this.Type).OrderBy(xc => xc.Position).ToArray();
+
+            var chns = this.Guild._channels.Values.Where(xc => xc.Type == this.Type)
+                .OrderBy(xc => xc.Position).ToArray();
+
             var pmds = new RestGuildChannelNoParentPayload[chns.Length];
+
             for (var i = 0; i < chns.Length; i++)
             {
                 pmds[i] = new RestGuildChannelNoParentPayload

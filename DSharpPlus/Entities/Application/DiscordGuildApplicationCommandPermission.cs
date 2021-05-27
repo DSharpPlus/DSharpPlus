@@ -83,10 +83,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="other">The object to compare to.</param>
         /// <returns>Whether the two <see cref="DiscordGuildApplicationCommandPermission"/> objects are not equal.</returns>
-        public override bool Equals(object other)
-        {
-            return other is DiscordGuildApplicationCommandPermission dac ? this.Equals(dac) : false;
-        }
+        public override bool Equals(object other) => other is DiscordGuildApplicationCommandPermission dac ? this.Equals(dac) : false;
 
         /// <summary>
         /// Gets the hash code for this <see cref="DiscordGuildApplicationCommandPermission"/>.
