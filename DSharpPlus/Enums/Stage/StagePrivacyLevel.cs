@@ -21,30 +21,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System.Collections.Generic;
-using DSharpPlus.Entities;
-using Newtonsoft.Json;
-
-namespace DSharpPlus.Net.Abstractions
+namespace DSharpPlus
 {
-    internal sealed class RestStageInstanceCreatePayload
+    /// <summary>
+    /// Represents the privacy level for a stage.
+    /// </summary>
+    public enum StagePrivacyLevel : int
     {
-        [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong ChannelId { get; set; }
+        /// <summary>
+        /// Indicates that the stage is public visible, i.e. on stage discovery.
+        /// </summary>
+        PUBLIC = 1,
 
-        [JsonProperty("topic", NullValueHandling = NullValueHandling.Ignore)]
-        public string Topic { get; set; }
-
-        [JsonProperty("privacy_level", NullValueHandling = NullValueHandling.Ignore)]
-        public StagePrivacyLevel PrivacyLevel { get; set; }
-    }
-
-    internal sealed class RestStageInstanceModifyPayload
-    {
-        [JsonProperty("topic", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<string> Topic { get; set; }
-
-        [JsonProperty("privacy_level", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<StagePrivacyLevel> PrivacyLevel { get; set; }
+        /// <summary>
+        /// Indicates that the stage is only visible to guild members.
+        /// </summary>
+        GUILD_ONLY = 2
     }
 }

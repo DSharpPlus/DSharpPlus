@@ -59,6 +59,18 @@ namespace DSharpPlus.Entities
         [JsonProperty("topic", NullValueHandling = NullValueHandling.Ignore)]
         public string Topic { get; internal set; }
 
+        /// <summary>
+        /// Gets the topic of the Stage instance
+        /// </summary>
+        [JsonProperty("privacy_level", NullValueHandling = NullValueHandling.Ignore)]
+        public StagePrivacyLevel PrivacyLevel { get; internal set; }
+
+        /// <summary>
+        /// Gets whether or not stage discovery is disabled
+        /// </summary>
+        [JsonProperty("discoverable_disabled", NullValueHandling = NullValueHandling.Ignore)]
+        public bool DiscoverableDisabled { get; internal set; }
+
         #region Methods
 
         /// <summary>
@@ -72,12 +84,13 @@ namespace DSharpPlus.Entities
         /// Updates a stage instance.
         /// </summary>
         /// <param name="topic">Topic of the stage instance.</param>
+        /// <param name="privacy_level">Privacy Level of the stage instance.</param>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task ModifyAsync(string topic)
-            => await this.Discord.ApiClient.ModifyStageInstanceAsync(this.Id, topic);
+        public async Task ModifyAsync(Optional<string> topic, Optional<StagePrivacyLevel> privacy_level)
+            => await this.Discord.ApiClient.ModifyStageInstanceAsync(this.Id, topic, privacy_level);
 
         /// <summary>
         /// Deletes a stage instance.

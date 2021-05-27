@@ -969,12 +969,13 @@ namespace DSharpPlus.Net
             return new ReadOnlyCollection<DiscordChannel>(new List<DiscordChannel>(channels_raw));
         }
 
-        internal async Task<DiscordStageInstance> CreateStageInstanceAsync(ulong channel_id, string topic)
+        internal async Task<DiscordStageInstance> CreateStageInstanceAsync(ulong channel_id, string topic, StagePrivacyLevel privacy_level)
         {
             var pld = new RestStageInstanceCreatePayload
             {
                 ChannelId = channel_id,
-                Topic = topic
+                Topic = topic,
+                PrivacyLevel = privacy_level
             };
 
             var route = $"{Endpoints.STAGE_INSTANCES}";
@@ -1001,11 +1002,12 @@ namespace DSharpPlus.Net
             return stageInstance;
         }
 
-        internal Task ModifyStageInstanceAsync(ulong channel_id, string topic)
+        internal Task ModifyStageInstanceAsync(ulong channel_id, Optional<string> topic, Optional<StagePrivacyLevel> privacy_level)
         {
             var pld = new RestStageInstanceModifyPayload
             {
-                Topic = topic
+                Topic = topic,
+                PrivacyLevel = privacy_level
             };
 
             var route = $"{Endpoints.STAGE_INSTANCES}/:channel_id";
