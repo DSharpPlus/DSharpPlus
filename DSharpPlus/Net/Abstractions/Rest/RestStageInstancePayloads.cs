@@ -34,11 +34,17 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("topic", NullValueHandling = NullValueHandling.Ignore)]
         public string Topic { get; set; }
+
+        [JsonProperty("privacy_level", NullValueHandling = NullValueHandling.Ignore)]
+        public StagePrivacyLevel PrivacyLevel { get; set; }
     }
 
     internal sealed class RestStageInstanceModifyPayload
     {
         [JsonProperty("topic", NullValueHandling = NullValueHandling.Ignore)]
-        public string Topic { get; set; }
+        public Optional<string> Topic { get; set; }
+
+        [JsonProperty("privacy_level", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<StagePrivacyLevel> PrivacyLevel { get; set; }
     }
 }

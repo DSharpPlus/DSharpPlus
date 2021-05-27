@@ -677,25 +677,27 @@ namespace DSharpPlus.Entities
         /// Opens a stage
         /// </summary>
         /// <param name="topic">Topic of stage.</param>
+        /// <param name="privacy_level">Privacy level of stage (Defaults to <see cref="StagePrivacyLevel.GUILD_ONLY"/></param>
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordStageInstance> OpenStageAsync(string topic)
-            => await this.Discord.ApiClient.CreateStageInstanceAsync(this.Id, topic);
+        public async Task<DiscordStageInstance> OpenStageAsync(string topic, StagePrivacyLevel privacy_level = StagePrivacyLevel.GUILD_ONLY)
+            => await this.Discord.ApiClient.CreateStageInstanceAsync(this.Id, topic, privacy_level);
 
         /// <summary>
         /// Modifies a stage topic
         /// </summary>
         /// <param name="topic">New topic of stage.</param>
+        /// <param name="privacy_level">New privacy level of stage.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task ModifyStageAsync(string topic)
-            => await this.Discord.ApiClient.ModifyStageInstanceAsync(this.Id, topic);
+        public async Task ModifyStageAsync(Optional<string> topic, Optional<StagePrivacyLevel> privacy_level)
+            => await this.Discord.ApiClient.ModifyStageInstanceAsync(this.Id, topic, privacy_level);
 
         /// <summary>
         /// Closes a stage
