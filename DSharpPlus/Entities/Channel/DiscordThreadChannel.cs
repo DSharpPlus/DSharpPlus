@@ -127,7 +127,7 @@ namespace DSharpPlus.Entities
             => this.Discord.Guilds.TryGetValue(this.GuildId, out var guild) ? guild : null;
 
         /// <summary>
-        /// Gets the category that contains this channel.
+        /// Gets the category that contains this thread.
         /// </summary>
         [JsonIgnore]
         public DiscordChannel Parent

@@ -1065,7 +1065,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content, Optional<DiscordEmbed> embed, IEnumerable<IMention> mentions, Optional<IEnumerable<DiscordAttachment>> attachments, Optional<bool> suppress_embed)
+        internal async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content, Optional<DiscordEmbed> embed, IEnumerable<IMention> mentions, Optional<bool> suppress_embed)
         {
             if (embed.HasValue && embed.Value != null && embed.Value.Timestamp != null)
                 embed.Value.Timestamp = embed.Value.Timestamp.Value.ToUniversalTime();
@@ -1076,7 +1076,6 @@ namespace DSharpPlus.Net
                 Content = content.HasValue ? (string)content : null,
                 HasEmbed = embed.HasValue,
                 Embed = embed.HasValue ? (DiscordEmbed)embed : null,
-                Attachments = attachments.HasValue ? (List<DiscordAttachment>)attachments : null,
                 Flags = suppress_embed.HasValue ? (bool)suppress_embed ? MessageFlags.SuppressedEmbeds : null : null
             };
 

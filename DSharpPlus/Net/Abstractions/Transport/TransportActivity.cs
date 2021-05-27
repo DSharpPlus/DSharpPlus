@@ -129,7 +129,7 @@ namespace DSharpPlus.Net.Abstractions
         public IReadOnlyList<string> Buttons { get; internal set; }
 
         /// <summary>
-        /// Gets or sets plattform in this rich presence.
+        /// Gets or sets platform in this rich presence.
         /// 
         /// This is a component of the rich presence, and, as such, can only be used by regular users.
         /// </summary>

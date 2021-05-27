@@ -412,7 +412,7 @@ namespace DSharpPlus
                 case "thread_list_sync":
                     gid = (ulong)dat["guild_id"]; //get guild
 
-                    await this.OnThreadListSyncEventAsync(gid, dat["channel_ids"].ToObject<IEnumerable<ulong?>>(), dat["threads"].ToObject<IEnumerable<DiscordThreadChannel>>(), dat["members"].ToObject<IEnumerable<DiscordThreadChannelMember>>()).ConfigureAwait(false);
+                    await this.OnThreadListSyncEventAsync(this._guilds[gid], dat["channel_ids"].ToObject<IEnumerable<ulong?>>(), dat["threads"].ToObject<IEnumerable<DiscordThreadChannel>>(), dat["members"].ToObject<IEnumerable<DiscordThreadChannelMember>>()).ConfigureAwait(false);
                     break;
 
                 case "thread_member_update":
@@ -1725,13 +1725,11 @@ namespace DSharpPlus
             await this._threadDeleted.InvokeAsync(this, new ThreadDeleteEventArgs { ThreadId = thread.Id, Guild = thread.Guild, Parent = thread.Parent, Type = thread.Type }).ConfigureAwait(false);
         }
 
-        internal async Task OnThreadListSyncEventAsync(ulong guildId, IEnumerable<ulong?> channel_ids, IEnumerable<DiscordThreadChannel> threads, IEnumerable<DiscordThreadChannelMember> members)
+        internal async Task OnThreadListSyncEventAsync(DiscordGuild guild, IEnumerable<ulong?> channel_ids, IEnumerable<DiscordThreadChannel> threads, IEnumerable<DiscordThreadChannelMember> members)
         {
-            var guild = this.InternalGetCachedGuild(guildId);
             guild.Discord = this;
 
             var channels = channel_ids.Select(x => guild.GetChannel(x.Value)); //getting channel objects
-
             foreach (var chan in channels)
             {
                 chan.Discord = this;

@@ -131,7 +131,7 @@ namespace DSharpPlus.Entities
         public string StreamUrl { get; set; }
 
         /// <summary>
-        /// Gets or sets plattform in this rich presence.
+        /// Gets or sets platform in this rich presence.
         /// </summary>
         public string Platform { get; set; }
 

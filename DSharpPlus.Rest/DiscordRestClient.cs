@@ -534,10 +534,9 @@ namespace DSharpPlus
         /// <param name="channel_id">Channel id</param>
         /// <param name="message_id">Message id</param>
         /// <param name="content">New message content</param>
-        /// <param name="attachments">New message content</param>
         /// <returns></returns>
-        public Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content, Optional<IEnumerable<DiscordAttachment>> attachments)
-            => this.ApiClient.EditMessageAsync(channel_id, message_id, content, default, default, attachments, default);
+        public Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content)
+            => this.ApiClient.EditMessageAsync(channel_id, message_id, content, default, default, default);
 
         /// <summary>
         /// Edits a message
@@ -547,7 +546,7 @@ namespace DSharpPlus
         /// <param name="embed">New message embed</param>
         /// <returns></returns>
         public Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<DiscordEmbed> embed)
-            => this.ApiClient.EditMessageAsync(channel_id, message_id, default, embed, default, default, default);
+            => this.ApiClient.EditMessageAsync(channel_id, message_id, default, embed, default, default);
 
         /// <summary>
         /// Edits a message
@@ -560,7 +559,7 @@ namespace DSharpPlus
         {
             builder.Validate(true);
 
-            return await this.ApiClient.EditMessageAsync(channel_id, message_id, builder.Content, builder.Embed, builder.Mentions, builder.Attachments, builder.Suppressed).ConfigureAwait(false);
+            return await this.ApiClient.EditMessageAsync(channel_id, message_id, builder.Content, builder.Embed, builder.Mentions, builder.Suppressed).ConfigureAwait(false);
         }
 
         /// <summary>
