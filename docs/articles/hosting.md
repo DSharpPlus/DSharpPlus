@@ -71,8 +71,8 @@ Now that we have covered where you can possibly host your application, now lets 
 source control solutions out there are free and also offer some type of CI/CD integration (paid and free).  Below are some of the 
 solutions that we recommend:
 
-* [**Azure Devops**](https://azure.microsoft.com/en-us/services/devops/?nav=min "Azure Devops"):  Allows for GIT source control hosting along with integrated CI/CD
-  pipelines to auto compile and publish your applications.  You can also use their CI/CD service if your code is hosted in a different source control enviorment like Github.
-* [**Github**](https://github.com/ "GitHub") Allows for GIT source control hosting.  From here you can leverage many different CI/CD options to compile and publish your 
+* [**Azure Devops**](https://azure.microsoft.com/en-us/services/devops/?nav=min "Azure Devops"):  Allows for Git source control hosting along with integrated CI/CD
+  pipelines to auto compile and publish your applications.  You can also use their CI/CD service if your code is hosted in a different source control enviorment like GitHub.
+* [**GitHub**](https://github.com/ "GitHub") Allows for Git source control hosting.  From here you can leverage many different CI/CD options to compile and publish your 
   applications.
-* [**Bitbucket**](https://bitbucket.org/ "Bitbucket"):  Allows for GIT source control hosting along with integrated CI/CD pipelines to auto compile and publish your applications.
+* [**Bitbucket**](https://bitbucket.org/ "Bitbucket"):  Allows for Git source control hosting along with integrated CI/CD pipelines to auto compile and publish your applications.
