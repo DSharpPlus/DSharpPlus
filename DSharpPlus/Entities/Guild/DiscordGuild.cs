@@ -1047,6 +1047,15 @@ namespace DSharpPlus.Entities
             => (this._channels != null && this._channels.TryGetValue(id, out var channel)) ? channel : null;
 
         /// <summary>
+        /// Gets a thread from this guild by its ID.
+        /// </summary>
+        /// <param name="id">ID of the thread to get.</param>
+        /// <returns>Requested thread.</returns>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public DiscordThreadChannel GetThread(ulong id)
+            => (this._threads != null && this._threads.TryGetValue(id, out var thread)) ? thread : null;
+
+        /// <summary>
         /// Gets audit log entries for this guild.
         /// </summary>
         /// <param name="limit">Maximum number of entries to fetch.</param>

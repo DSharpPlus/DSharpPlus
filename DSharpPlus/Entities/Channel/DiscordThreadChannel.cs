@@ -133,6 +133,8 @@ namespace DSharpPlus.Entities
         public DiscordChannel Parent
             => this.Guild.GetChannel(this.ParentId);
 
+        internal DiscordThreadChannel() { }
+
         #region Methods
 
         /// <summary>

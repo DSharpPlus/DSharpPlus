@@ -31,9 +31,14 @@ namespace DSharpPlus.EventArgs
     public class ThreadUpdateEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// Gets the thread that was updated.
+        /// Gets the post-update thread.
         /// </summary>
-        public DiscordThreadChannel ThreadChannel { get; internal set; }
+        public DiscordThreadChannel ThreadAfter { get; internal set; }
+
+        /// <summary>
+        /// Gets the pre-update thread.
+        /// </summary>
+        public DiscordThreadChannel ThreadBefore { get; internal set; }
 
         /// <summary>
         /// Gets the threads parent channel.

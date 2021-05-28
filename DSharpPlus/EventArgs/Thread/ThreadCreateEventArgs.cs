@@ -33,7 +33,7 @@ namespace DSharpPlus.EventArgs
         /// <summary>
         /// Gets the thread that was created.
         /// </summary>
-        public DiscordThreadChannel ThreadChannel { get; internal set; }
+        public DiscordThreadChannel Thread { get; internal set; }
 
         /// <summary>
         /// Gets the threads parent channel.

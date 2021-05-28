@@ -31,9 +31,9 @@ namespace DSharpPlus.EventArgs
     public class ThreadDeleteEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// Gets the threads id that was deleted.
+        /// Gets the thread that was deleted.
         /// </summary>
-        public ulong ThreadId{ get; internal set; }
+        public DiscordThreadChannel Thread { get; internal set; }
 
         /// <summary>
         /// Gets the threads parent channel.

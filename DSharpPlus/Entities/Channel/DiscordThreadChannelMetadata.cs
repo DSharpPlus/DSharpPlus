@@ -50,7 +50,7 @@ namespace DSharpPlus.Entities
         /// Gets ID of the archiver.
         /// </summary>
         [JsonProperty("archiver_id", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordMember Archiver { get; internal set; }
+        public ulong? Archiver { get; internal set; }
 
         /// <summary>
         /// Gets the time when it will be archived, while there is no action inside the thread (In minutes).
@@ -73,6 +73,8 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("locked", NullValueHandling = NullValueHandling.Ignore)]
         public bool? Locked { get; internal set; }
+
+        internal DiscordThreadChannelMetadata() { }
 
     }
 }

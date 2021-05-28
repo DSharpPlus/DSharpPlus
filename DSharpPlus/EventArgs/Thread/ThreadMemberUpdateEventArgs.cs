@@ -33,7 +33,6 @@ namespace DSharpPlus.EventArgs
         /// <summary>
         /// Gets the thread member that was updated.
         /// </summary>
-        /// 
         public DiscordThreadChannelMember ThreadMember { get; internal set; }
 
         internal ThreadMemberUpdateEventArgs() : base() { }
