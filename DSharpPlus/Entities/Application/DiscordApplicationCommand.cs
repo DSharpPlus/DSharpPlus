@@ -62,7 +62,7 @@ namespace DSharpPlus.Entities
         /// Gets whether the command is enabled by default when the app is added to a guild.
         /// </summary>
         [JsonProperty("default_permission", NullValueHandling = NullValueHandling.Ignore)]
-        public bool? DefaultPermission { get; internal set; }
+        public bool DefaultPermission { get; internal set; }
 
         /// <summary>
         /// Creates a new instance of a <see cref="DiscordApplicationCommand"/>.

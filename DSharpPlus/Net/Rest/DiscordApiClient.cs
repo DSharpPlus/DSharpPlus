@@ -2624,7 +2624,8 @@ namespace DSharpPlus.Net
                 {
                     Name = command.Name,
                     Description = command.Description,
-                    Options = command.Options
+                    Options = command.Options,
+                    DefaultPermission = command.DefaultPermission
                 });
             }
 
@@ -2646,7 +2647,8 @@ namespace DSharpPlus.Net
             {
                 Name = command.Name,
                 Description = command.Description,
-                Options = command.Options
+                Options = command.Options,
+                DefaultPermission = command.DefaultPermission
             };
 
             var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.COMMANDS}";
@@ -2675,13 +2677,14 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordApplicationCommand> EditGlobalApplicationCommandAsync(ulong application_id, ulong command_id, Optional<string> name, Optional<string> description, Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options)
+        internal async Task<DiscordApplicationCommand> EditGlobalApplicationCommandAsync(ulong application_id, ulong command_id, Optional<string> name, Optional<string> description, Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options, Optional<bool> default_permission)
         {
             var pld = new RestApplicationCommandEditPayload
             {
                 Name = name,
                 Description = description,
-                Options = options
+                Options = options,
+                DefaultPermission = default_permission
             };
 
             var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.COMMANDS}/:command_id";
@@ -2728,7 +2731,8 @@ namespace DSharpPlus.Net
                 {
                     Name = command.Name,
                     Description = command.Description,
-                    Options = command.Options
+                    Options = command.Options,
+                    DefaultPermission = command.DefaultPermission
                 });
             }
 
@@ -2750,7 +2754,9 @@ namespace DSharpPlus.Net
             {
                 Name = command.Name,
                 Description = command.Description,
-                Options = command.Options
+                Options = command.Options,
+                DefaultPermission = command.DefaultPermission
+
             };
 
             var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.GUILDS}/:guild_id{Endpoints.COMMANDS}";
@@ -2779,13 +2785,14 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordApplicationCommand> EditGuildApplicationCommandAsync(ulong application_id, ulong guild_id, ulong command_id, Optional<string> name, Optional<string> description, Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options)
+        internal async Task<DiscordApplicationCommand> EditGuildApplicationCommandAsync(ulong application_id, ulong guild_id, ulong command_id, Optional<string> name, Optional<string> description, Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options, Optional<bool> default_permission)
         {
             var pld = new RestApplicationCommandEditPayload
             {
                 Name = name,
                 Description = description,
-                Options = options
+                Options = options,
+                DefaultPermission = default_permission
             };
 
             var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.GUILDS}/:guild_id{Endpoints.COMMANDS}/:command_id";
