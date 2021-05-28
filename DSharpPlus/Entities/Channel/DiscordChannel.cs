@@ -736,13 +736,13 @@ namespace DSharpPlus.Entities
         /// Creates a thread. Depending on whether it is created inside an <see cref="ChannelType.News"/> or an <see cref="ChannelType.Text"/> it is either an <see cref="ChannelType.NewsThread"/> or an <see cref="ChannelType.PublicThread"/>
         /// </summary>
         /// <param name="name">The name of the thread.</param>
-        /// <param name="auto_archive_duration"><see cref="ThreadAutoArchiveDuration"/> till it gets archived.</param>
+        /// <param name="auto_archive_duration"><see cref="ThreadAutoArchiveDuration"/> till it gets archived. Defaults to <see cref="ThreadAutoArchiveDuration.OneHour"/></param>
         /// <returns><see cref="DiscordThreadChannel"/></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.UsePublicThreads"/> or <see cref="Permissions.SendMessages"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the guild hasn't enabled threads atm.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordThreadChannel> CreateThreadAsync(string name, ThreadAutoArchiveDuration auto_archive_duration = ThreadAutoArchiveDuration.ONE_HOUR)
+        public async Task<DiscordThreadChannel> CreateThreadAsync(string name, ThreadAutoArchiveDuration auto_archive_duration = ThreadAutoArchiveDuration.OneHour)
             => await this.Discord.ApiClient.CreateThreadWithoutMessageAsync(this.Id, name, auto_archive_duration);
 
         /// <summary>
