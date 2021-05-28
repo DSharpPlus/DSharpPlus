@@ -2294,6 +2294,20 @@ namespace DSharpPlus.Net
             return thread_channel;
         }
 
+        internal async Task<DiscordThreadChannel> GetThreadAsync(ulong thread_id)
+        {
+            var route = $"{Endpoints.CHANNELS}/:channel_id";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { thread_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
+
+            var ret = JsonConvert.DeserializeObject<DiscordThreadChannel>(res.Response);
+            ret.Discord = this.Discord;
+
+            return ret;
+        }
+
         internal async Task JoinThreadAsync(ulong channel_id)
         {
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.THREAD_MEMBERS}{Endpoints.ME}";
