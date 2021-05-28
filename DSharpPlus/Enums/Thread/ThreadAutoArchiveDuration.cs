@@ -31,21 +31,21 @@ namespace DSharpPlus
         /// <summary>
         /// Indicates that the thread will be auto archived after one hour.
         /// </summary>
-        ONE_HOUR = 60,
+        OneHour = 60,
 
         /// <summary>
         /// Indicates that the thread will be auto archived after one day / twentyfour hours.
         /// </summary>
-        ONE_DAY = 1440,
+        OneDay = 1440,
 
         /// <summary>
         /// Indicates that the thread will be auto archived after three days.
         /// </summary>
-        THREE_DAYS = 4320,
+        ThreeDays = 4320,
 
         /// <summary>
         /// Indicates that the thread will be auto archived after a week.
         /// </summary>
-        ONE_WEEK = 10080
+        OneWeek = 10080
     }
 }
