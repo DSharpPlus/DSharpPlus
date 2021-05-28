@@ -736,6 +736,14 @@ namespace DSharpPlus
         #endregion
 
         #region Internal Caching Methods
+        internal DiscordThreadChannel InternalGetCachedThread(ulong threadId)
+        {
+            foreach (var guild in this.Guilds.Values)
+                if (guild.Threads.TryGetValue(threadId, out var foundThread))
+                    return foundThread;
+
+            return null;
+        }
 
         internal DiscordChannel InternalGetCachedChannel(ulong channelId)
         {
