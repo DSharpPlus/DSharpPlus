@@ -120,14 +120,14 @@ namespace DSharpPlus.Entities
         internal ConcurrentDictionary<ulong, DiscordThreadChannelMember> _threadMembers;
 
         /// <summary>
-        /// Gets the guild to which this thread belongs.
+        /// Gets the <see cref="DiscordGuild"/> to which this thread belongs.
         /// </summary>
         [JsonIgnore]
         public DiscordGuild Guild
             => this.Discord.Guilds.TryGetValue(this.GuildId, out var guild) ? guild : null;
 
         /// <summary>
-        /// Gets the category that contains this thread.
+        /// Gets the <see cref="DiscordChannel"/> that contains this thread.
         /// </summary>
         [JsonIgnore]
         public DiscordChannel Parent

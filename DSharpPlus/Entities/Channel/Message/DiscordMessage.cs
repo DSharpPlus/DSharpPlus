@@ -49,7 +49,9 @@ namespace DSharpPlus.Entities
             this._stickersLazy = new Lazy<IReadOnlyList<DiscordMessageSticker>>(() => new ReadOnlyCollection<DiscordMessageSticker>(this._stickers));
             this._jumpLink = new Lazy<Uri>(() =>
             {
-                var gid = this.Channel is DiscordDmChannel ? "@me" : this.Channel.GuildId.Value.ToString(CultureInfo.InvariantCulture);
+                var gid = this.Channel != null
+                    ? this.Channel is DiscordDmChannel ? "@me" : this.Channel.GuildId.Value.ToString(CultureInfo.InvariantCulture)
+                    : this.InternalThread.GuildId.ToString(CultureInfo.InvariantCulture);
                 var cid = this.ChannelId.ToString(CultureInfo.InvariantCulture);
                 var mid = this.Id.ToString(CultureInfo.InvariantCulture);
 
@@ -96,6 +98,18 @@ namespace DSharpPlus.Entities
         }
 
         private DiscordChannel _channel;
+
+        /// <summary> 
+        /// Gets the thread in which the message was sent.
+        /// </summary>
+        [JsonIgnore]
+        private DiscordThreadChannel InternalThread
+        {
+            get => (this.Discord as DiscordClient)?.InternalGetCachedThread(this.ChannelId) ?? this._thread;
+            set => this._thread = value;
+        }
+
+        private DiscordThreadChannel _thread;
 
         /// <summary>
         /// Gets the ID of the channel in which the message was sent.
