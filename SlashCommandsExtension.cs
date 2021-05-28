@@ -247,90 +247,93 @@ namespace DSharpPlus.SlashCommands
         {
             _ = Task.Run(async () =>
             {
-                InteractionContext context = new InteractionContext
+                if (e.Interaction.Type == InteractionType.ApplicationCommand)
                 {
-                    Interaction = e.Interaction,
-                    Channel = e.Interaction.Channel,
-                    Guild = e.Interaction.Guild,
-                    User = e.Interaction.User,
-                    Client = client,
-                    SlashCommandsExtension = this,
-                    CommandName = e.Interaction.Data.Name,
-                    InteractionId = e.Interaction.Id,
-                    Token = e.Interaction.Token,
-                    Services = _configuration?.Services
-                };
-
-                try
-                {
-                    if (Errored)
-                        throw new Exception("Slash commands failed to register properly on startup.");
-                    var methods = CommandMethods.Where(x => x.Id == e.Interaction.Data.Id);
-                    var groups = GroupCommands.Where(x => x.Id == e.Interaction.Data.Id);
-                    var subgroups = SubGroupCommands.Where(x => x.Id == e.Interaction.Data.Id);
-                    if (!methods.Any() && !groups.Any() && !subgroups.Any())
-                        throw new Exception("An interaction was created, but no command was registered for it.");
-
-                    if (methods.Any())
+                    InteractionContext context = new InteractionContext
                     {
-                        var method = methods.First();
+                        Interaction = e.Interaction,
+                        Channel = e.Interaction.Channel,
+                        Guild = e.Interaction.Guild,
+                        User = e.Interaction.User,
+                        Client = client,
+                        SlashCommandsExtension = this,
+                        CommandName = e.Interaction.Data.Name,
+                        InteractionId = e.Interaction.Id,
+                        Token = e.Interaction.Token,
+                        Services = _configuration?.Services
+                    };
 
-                        var args = await ResolveInteractionCommandParameters(e, context, method.Method, e.Interaction.Data.Options);
-                        var classinstance = ActivatorUtilities.CreateInstance(_configuration?.Services, method.ParentClass);
-
-                        await ((SlashCommandModule)classinstance).BeforeExecutionAsync(context);
-
-                        var task = (Task)method.Method.Invoke(classinstance, args.ToArray());
-                        await task;
-
-                        await ((SlashCommandModule)classinstance).AfterExecutionAsync(context);
-                    }
-                    else if (groups.Any())
+                    try
                     {
-                        var command = e.Interaction.Data.Options.First();
-                        var method = groups.First().Methods.First(x => x.Key == command.Name).Value;
+                        if (Errored)
+                            throw new Exception("Slash commands failed to register properly on startup.");
+                        var methods = CommandMethods.Where(x => x.Id == e.Interaction.Data.Id);
+                        var groups = GroupCommands.Where(x => x.Id == e.Interaction.Data.Id);
+                        var subgroups = SubGroupCommands.Where(x => x.Id == e.Interaction.Data.Id);
+                        if (!methods.Any() && !groups.Any() && !subgroups.Any())
+                            throw new Exception("A slash command was executed, but no command was registered for it.");
 
-                        var args = await ResolveInteractionCommandParameters(e, context, method, e.Interaction.Data.Options.First().Options);
-                        var classinstance = ActivatorUtilities.CreateInstance(_configuration?.Services, groups.First().ParentClass);
+                        if (methods.Any())
+                        {
+                            var method = methods.First();
 
-                        SlashCommandModule module = null;
-                        if (classinstance is SlashCommandModule _module)
-                            module = _module;
+                            var args = await ResolveInteractionCommandParameters(e, context, method.Method, e.Interaction.Data.Options);
+                            var classinstance = ActivatorUtilities.CreateInstance(_configuration?.Services, method.ParentClass);
 
-                        await (module?.BeforeExecutionAsync(context) ?? Task.CompletedTask);
+                            await ((SlashCommandModule)classinstance).BeforeExecutionAsync(context);
 
-                        var task = (Task)method.Invoke(classinstance, args.ToArray());
-                        await task;
+                            var task = (Task)method.Method.Invoke(classinstance, args.ToArray());
+                            await task;
 
-                        await (module?.AfterExecutionAsync(context) ?? Task.CompletedTask);
+                            await ((SlashCommandModule)classinstance).AfterExecutionAsync(context);
+                        }
+                        else if (groups.Any())
+                        {
+                            var command = e.Interaction.Data.Options.First();
+                            var method = groups.First().Methods.First(x => x.Key == command.Name).Value;
+
+                            var args = await ResolveInteractionCommandParameters(e, context, method, e.Interaction.Data.Options.First().Options);
+                            var classinstance = ActivatorUtilities.CreateInstance(_configuration?.Services, groups.First().ParentClass);
+
+                            SlashCommandModule module = null;
+                            if (classinstance is SlashCommandModule _module)
+                                module = _module;
+
+                            await (module?.BeforeExecutionAsync(context) ?? Task.CompletedTask);
+
+                            var task = (Task)method.Invoke(classinstance, args.ToArray());
+                            await task;
+
+                            await (module?.AfterExecutionAsync(context) ?? Task.CompletedTask);
+                        }
+                        else if (subgroups.Any())
+                        {
+                            var command = e.Interaction.Data.Options.First();
+                            var group = subgroups.First(x => x.SubCommands.Any(y => y.Name == command.Name)).SubCommands.First(x => x.Name == command.Name);
+
+                            var method = group.Methods.First(x => x.Key == command.Options.First().Name).Value;
+
+                            var args = await ResolveInteractionCommandParameters(e, context, method, e.Interaction.Data.Options.First().Options.First().Options);
+                            var classinstance = ActivatorUtilities.CreateInstance(_configuration?.Services, group.ParentClass);
+
+                            SlashCommandModule module = null;
+                            if (classinstance is SlashCommandModule _module)
+                                module = _module;
+
+                            await (module?.BeforeExecutionAsync(context) ?? Task.CompletedTask);
+
+                            var task = (Task)method.Invoke(classinstance, args.ToArray());
+                            await task;
+
+                            await (module?.AfterExecutionAsync(context) ?? Task.CompletedTask);
+                        }
+
+                        await _executed.InvokeAsync(this, new SlashCommandExecutedEventArgs { Context = context });
                     }
-                    else if (subgroups.Any())
+                    catch (Exception ex)
                     {
-                        var command = e.Interaction.Data.Options.First();
-                        var group = subgroups.First(x => x.SubCommands.Any(y => y.Name == command.Name)).SubCommands.First(x => x.Name == command.Name);
-
-                        var method = group.Methods.First(x => x.Key == command.Options.First().Name).Value;
-
-                        var args = await ResolveInteractionCommandParameters(e, context, method, e.Interaction.Data.Options.First().Options.First().Options);
-                        var classinstance = ActivatorUtilities.CreateInstance(_configuration?.Services, group.ParentClass);
-
-                        SlashCommandModule module = null;
-                        if (classinstance is SlashCommandModule _module)
-                            module = _module;
-
-                        await (module?.BeforeExecutionAsync(context) ?? Task.CompletedTask);
-
-                        var task = (Task)method.Invoke(classinstance, args.ToArray());
-                        await task;
-
-                        await (module?.AfterExecutionAsync(context) ?? Task.CompletedTask);
+                        await _error.InvokeAsync(this, new SlashCommandErrorEventArgs { Context = context, Exception = ex });
                     }
-
-                    await _executed.InvokeAsync(this, new SlashCommandExecutedEventArgs { Context = context });
-                }
-                catch (Exception ex)
-                {
-                    await _error.InvokeAsync(this, new SlashCommandErrorEventArgs { Context = context, Exception = ex });
                 }
             });
             return Task.CompletedTask;
