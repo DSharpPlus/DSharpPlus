@@ -25,9 +25,11 @@ Package-Manager: `Install-Package IDoEverything.DSharpPlus.SlashCommands`
 
 .NET CLI: `dotnet add package IDoEverything.DSharpPlus.SlashCommands`
 
-## Authorizing your bot
+# Important: Authorizing your bot
 
 For a bot to make slash commands in a server, it must be authorized with the applications.commands scope as well. In the OAuth2 section of the developer portal, you can check the applications.commands box to generate an invite link. You can check the bot box as well to generate a link that authorizes both. If a bot is already authorized with the bot scope, you can still authorize with just the applications.commands scope without having to kick out the bot.
+
+If your bot isn't properly authorized, a 403 exception will be thrown on startup.
 
 # Setup
 
