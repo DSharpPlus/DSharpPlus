@@ -101,6 +101,11 @@ namespace DSharpPlus
 
         internal Dictionary<ulong, DiscordPresence> _presences = new();
         private Lazy<IReadOnlyDictionary<ulong, DiscordPresence>> _presencesLazy;
+
+        /// <summary>
+        /// Get the rest client initiated with this client.
+        /// </summary>
+        public DiscordRestClient Rest { get; private set; }
         #endregion
 
         #region Constructor/Internal Setup
@@ -184,6 +189,8 @@ namespace DSharpPlus
             this._guilds.Clear();
 
             this._presencesLazy = new Lazy<IReadOnlyDictionary<ulong, DiscordPresence>>(() => new ReadOnlyDictionary<ulong, DiscordPresence>(this._presences));
+
+            this.Rest = new DiscordRestClient(this.Configuration);
         }
 
         #endregion
@@ -259,6 +266,14 @@ namespace DSharpPlus
                 try
                 {
                     await this.InternalConnectAsync().ConfigureAwait(false);
+                    this.Rest.CurrentUser = this.CurrentUser;
+                    this.Rest.UserCache.AddOrUpdate(this.CurrentUser.Id, this.CurrentUser, (id, xu) => this.CurrentUser);
+
+                    if (this.Configuration.TokenType == TokenType.Bot)
+                    {
+                        this.Rest.CurrentApplication = this.CurrentApplication;
+                        this.Rest.InternalVoiceRegions = this.InternalVoiceRegions;
+                    }
                     s = true;
                     break;
                 }
