@@ -34,6 +34,12 @@ namespace DSharpPlus.Entities
         internal new ComponentType Type { get; set; } = ComponentType.Select;
 
         /// <summary>
+        /// The custom Id of this component.
+        /// </summary>
+        [JsonProperty("custom_id", NullValueHandling = NullValueHandling.Ignore)]
+        public new string CustomId { get; set; }
+
+        /// <summary>
         /// The options to pick from on this component.
         /// </summary>
         [JsonProperty("options", NullValueHandling = NullValueHandling.Ignore)]
