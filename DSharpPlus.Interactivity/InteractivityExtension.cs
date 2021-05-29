@@ -241,9 +241,21 @@ namespace DSharpPlus.Interactivity
 
         public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForSelectAsync(DiscordMessage message, string id, TimeSpan? timeoutOverride = null)
         {
+            if (!message.Components.Any())
+                throw new ArgumentException("Message doesn't contain any components!");
 
+            var scmps = message.Components.SelectMany(c => c.Components).Where(c => c.Type is ComponentType.Select).ToList();
 
-            return new InteractivityResult<ComponentInteractionCreateEventArgs>(true, null);
+            if (!scmps.Any())
+                throw new ArgumentException("Message doesn't contain any select menus!");
+
+            if (scmps.All(c => c.CustomId != id))
+                throw new ArgumentException("Message doesn't contain a select menu with that Id!");
+
+            var res = await this.ComponentInteractionWaiter
+                .WaitForMatch(new MatchRequest<ComponentInteractionCreateEventArgs>(c => c.Id == id, timeoutOverride ?? this.Config.Timeout)).ConfigureAwait(false);
+
+            return new InteractivityResult<ComponentInteractionCreateEventArgs>(res is null, res);
         }
 
 
