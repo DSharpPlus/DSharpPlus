@@ -72,7 +72,7 @@ namespace DSharpPlus.Entities
         internal readonly List<DiscordMessageFile> _files = new();
 
         /// <summary>
-        /// Gets the compeonents to be sent in the Message.
+        /// Gets the components that will be attached to the message.
         /// </summary>
         public IReadOnlyList<DiscordActionRowComponent> Components => this._components;
         internal readonly List<DiscordActionRowComponent> _components = new(5);
@@ -122,10 +122,12 @@ namespace DSharpPlus.Entities
         /// <exception cref="ArgumentOutOfRangeException">No components were passed.</exception>
         public DiscordMessageBuilder WithComponents(IEnumerable<DiscordComponent> components)
         {
-            if (!components.Any())
+            var cmpArr = components.ToArray();
+
+            if (!cmpArr.Any())
                 throw new ArgumentOutOfRangeException(nameof(components), "You must provide at least one component");
 
-            var comp = new DiscordActionRowComponent(components);
+            var comp = new DiscordActionRowComponent(cmpArr);
             this._components.Add(comp);
 
             return this;
