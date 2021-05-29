@@ -20,38 +20,27 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+using Newtonsoft.Json;
 
-using System.Collections.Generic;
-using DSharpPlus.Entities;
-
-namespace DSharpPlus.Net.Models
+namespace DSharpPlus.Entities
 {
-    public class MemberEditModel : BaseEditModel
+    /// <summary>
+    /// A component to attatch to a message.
+    /// </summary>
+    public class DiscordComponent
     {
         /// <summary>
-        /// New nickname
+        /// The type of component this represents.
         /// </summary>
-        public Optional<string> Nickname { internal get; set; }
-        /// <summary>
-        /// New roles
-        /// </summary>
-        public Optional<List<DiscordRole>> Roles { internal get; set; }
-        /// <summary>
-        /// Whether this user should be muted
-        /// </summary>
-        public Optional<bool> Muted { internal get; set; }
-        /// <summary>
-        /// Whether this user should be deafened
-        /// </summary>
-        public Optional<bool> Deafened { internal get; set; }
-        /// <summary>
-        /// Voice channel to move this user to, set to null to kick
-        /// </summary>
-        public Optional<DiscordChannel> VoiceChannel { internal get; set; }
+        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
+        public ComponentType Type { get; internal set; } = ComponentType.ActionRow;
 
-        internal MemberEditModel()
-        {
+        /// <summary>
+        /// The Id of this compopnent, if applicable. Not applicable on ActionRow(s) and Link buttons.
+        /// </summary>
+        [JsonProperty("custom_id", NullValueHandling = NullValueHandling.Ignore)]
+        public string CustomId { get; internal set; }
 
-        }
+        internal DiscordComponent() { }
     }
 }

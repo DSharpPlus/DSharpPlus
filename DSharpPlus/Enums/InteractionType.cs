@@ -28,7 +28,17 @@ namespace DSharpPlus
     /// </summary>
     public enum InteractionType
     {
+        /// <summary>
+        /// Sent when registering an HTTP interaction endpoint with Discord. Must be replied to with a Pong.
+        /// </summary>
         Ping = 1,
-        ApplicationCommand
+        /// <summary>
+        /// A slash command.
+        /// </summary>
+        ApplicationCommand = 2,
+        /// <summary>
+        /// A component.
+        /// </summary>
+        Component = 3
     }
 }

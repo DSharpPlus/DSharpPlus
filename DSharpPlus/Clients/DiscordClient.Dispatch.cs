@@ -280,7 +280,7 @@ namespace DSharpPlus
                     await this.OnMessageUpdateEventAsync(dat.ToDiscordObject<DiscordMessage>(), dat["author"]?.ToObject<TransportUser>(), mbr, refUsr, refMbr).ConfigureAwait(false);
                     break;
 
-                // delete event does *not* include message object 
+                // delete event does *not* include message object
                 case "message_delete":
                     await this.OnMessageDeleteEventAsync((ulong)dat["id"], (ulong)dat["channel_id"], (ulong?)dat["guild_id"]).ConfigureAwait(false);
                     break;
@@ -362,7 +362,7 @@ namespace DSharpPlus
                     }
 
                     cid = (ulong)dat["channel_id"];
-                    await this.OnInteractionCreateAsync((ulong?)dat["guild_id"], cid, usr, mbr, dat.ToObject<DiscordInteraction>()).ConfigureAwait(false);
+                    await this.OnInteractionCreateAsync((ulong?)dat["guild_id"], cid, usr, mbr, dat.ToDiscordObject<DiscordInteraction>()).ConfigureAwait(false);
                     break;
 
                 case "application_command_create":
@@ -450,7 +450,7 @@ namespace DSharpPlus
 
                 channel.Discord = this;
 
-                //xdc._recipients = 
+                //xdc._recipients =
                 //    .Select(xtu => this.InternalGetCachedUser(xtu.Id) ?? new DiscordUser(xtu) { Discord = this })
                 //    .ToList();
 
@@ -1896,12 +1896,27 @@ namespace DSharpPlus
                 }
             }
 
-            var ea = new InteractionCreateEventArgs
+            if (interaction.Type is InteractionType.Component)
             {
-                Interaction = interaction
-            };
 
-            await this._interactionCreated.InvokeAsync(this, ea).ConfigureAwait(false);
+                interaction.Message.Discord = this;
+                var cea = new ComponentInteractionCreateEventArgs
+                {
+                    Message = interaction.Message,
+                    Interaction = interaction
+                };
+
+                await this._componentInteractionCreated.InvokeAsync(this, cea).ConfigureAwait(false);
+            }
+            else
+            {
+                var ea = new InteractionCreateEventArgs
+                {
+                    Interaction = interaction
+                };
+
+                await this._interactionCreated.InvokeAsync(this, ea).ConfigureAwait(false);
+            }
         }
 
         internal async Task OnTypingStartEventAsync(ulong userId, ulong channelId, DiscordChannel channel, ulong? guildId, DateTimeOffset started, TransportMember mbr)
