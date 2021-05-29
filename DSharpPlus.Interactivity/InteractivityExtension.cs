@@ -383,6 +383,7 @@ namespace DSharpPlus.Interactivity
 
             var timeout = timeoutoverride ?? this.Config.Timeout;
             var collection = await this.ReactionCollector.CollectAsync(new ReactionCollectRequest(m, timeout)).ConfigureAwait(false);
+            
             return collection;
         }
 
