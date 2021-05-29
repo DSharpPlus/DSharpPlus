@@ -99,6 +99,11 @@ namespace DSharpPlus
         /// <summary>
         /// The user is a verified bot developer.
         /// </summary>
-        VerifiedBotDeveloper = 1 << 17
+        VerifiedBotDeveloper = 1 << 17,
+        
+        /// <summary>
+        /// The user is a discord certified moderator.
+        /// </summary>
+        DiscordCertifiedModerator = 1 << 18
     }
 }

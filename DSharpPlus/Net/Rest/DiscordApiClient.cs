@@ -25,11 +25,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.Net.Abstractions;
@@ -706,7 +704,7 @@ namespace DSharpPlus.Net
         #endregion
 
         #region Channel
-        internal async Task<DiscordChannel> CreateGuildChannelAsync(ulong guild_id, string name, ChannelType type, ulong? parent, Optional<string> topic, int? bitrate, int? user_limit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, Optional<int?> perUserRateLimit, string reason)
+        internal async Task<DiscordChannel> CreateGuildChannelAsync(ulong guild_id, string name, ChannelType type, ulong? parent, Optional<string> topic, int? bitrate, int? user_limit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, Optional<int?> perUserRateLimit, VideoQualityMode? qualityMode, string reason)
         {
             var restoverwrites = new List<DiscordRestOverwrite>();
             if (overwrites != null)
@@ -723,7 +721,8 @@ namespace DSharpPlus.Net
                 UserLimit = user_limit,
                 PermissionOverwrites = restoverwrites,
                 Nsfw = nsfw,
-                PerUserRateLimit = perUserRateLimit
+                PerUserRateLimit = perUserRateLimit,
+                QualityMode = qualityMode
             };
 
             var headers = Utilities.GetBaseHeaders();
@@ -747,7 +746,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal Task ModifyChannelAsync(ulong channel_id, string name, int? position, Optional<string> topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? user_limit, Optional<int?> perUserRateLimit, Optional<string> rtcRegion, string reason)
+        internal Task ModifyChannelAsync(ulong channel_id, string name, int? position, Optional<string> topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? user_limit, Optional<int?> perUserRateLimit, Optional<string> rtcRegion, VideoQualityMode? qualityMode, string reason)
         {
             var pld = new RestChannelModifyPayload
             {
@@ -759,7 +758,8 @@ namespace DSharpPlus.Net
                 Bitrate = bitrate,
                 UserLimit = user_limit,
                 PerUserRateLimit = perUserRateLimit,
-                RtcRegion = rtcRegion
+                RtcRegion = rtcRegion,
+                QualityMode = qualityMode,
             };
 
             var headers = Utilities.GetBaseHeaders();
@@ -874,7 +874,8 @@ namespace DSharpPlus.Net
                 Content = builder.Content,
                 IsTTS = builder.IsTTS,
                 HasEmbed = builder.Embed != null,
-                Embed = builder.Embed
+                Embed = builder.Embed,
+                Components = builder.Components
             };
 
             if (builder.ReplyId != null)
@@ -965,19 +966,6 @@ namespace DSharpPlus.Net
             return new ReadOnlyCollection<DiscordMessage>(new List<DiscordMessage>(msgs));
         }
 
-        internal async Task<DiscordMessage> GetChannelMessageAsync(ulong channel_id, ulong message_id)
-        {
-            var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}/:message_id";
-            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { channel_id, message_id }, out var path);
-
-            var url = Utilities.GetApiUriFor(path);
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
-
-            var ret = this.PrepareMessage(JObject.Parse(res.Response));
-
-            return ret;
-        }
-
         internal Task ModifyEmbedSuppressionAsync(bool suppress, ulong channel_id, ulong message_id)
         {
             var pld = new RestChannelMessageSuppressEmbedsPayload
@@ -992,7 +980,20 @@ namespace DSharpPlus.Net
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld));
         }
 
-        internal async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content, Optional<DiscordEmbed> embed, IEnumerable<IMention> mentions)
+        internal async Task<DiscordMessage> GetChannelMessageAsync(ulong channel_id, ulong message_id)
+        {
+            var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}/:message_id";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { channel_id, message_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
+
+            var ret = this.PrepareMessage(JObject.Parse(res.Response));
+
+            return ret;
+        }
+
+        internal async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content, Optional<DiscordEmbed> embed, IEnumerable<IMention> mentions, IReadOnlyList<DiscordActionRowComponent> components)
         {
             if (embed.HasValue && embed.Value != null && embed.Value.Timestamp != null)
                 embed.Value.Timestamp = embed.Value.Timestamp.Value.ToUniversalTime();
@@ -1002,7 +1003,8 @@ namespace DSharpPlus.Net
                 HasContent = content.HasValue,
                 Content = content.HasValue ? (string)content : null,
                 HasEmbed = embed.HasValue,
-                Embed = embed.HasValue ? (DiscordEmbed)embed : null
+                Embed = embed.HasValue ? (DiscordEmbed)embed : null,
+                Components = components
             };
 
             if (mentions != null)
@@ -1757,20 +1759,20 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        /* 
+        /*
          * Disabled due to API restrictions
-         * 
+         *
          * internal async Task<DiscordInvite> InternalAcceptInvite(string invite_code)
          * {
          *     this.Discord.DebugLogger.LogMessage(LogLevel.Warning, "REST API", "Invite accept endpoint was used; this account is now likely unverified", DateTime.Now);
-         *     
+         *
          *     var url = new Uri($"{Utils.GetApiBaseUri(), Endpoints.INVITES}/{invite_code));
          *     var bucket = this.Rest.GetBucket(0, MajorParameterType.Unbucketed, url, HttpRequestMethod.POST);
          *     var res = await this.DoRequestAsync(this.Discord, bucket, url, HttpRequestMethod.POST).ConfigureAwait(false);
-         *     
+         *
          *     var ret = JsonConvert.DeserializeObject<DiscordInvite>(res.Response);
          *     ret.Discord = this.Discord;
-         * 
+         *
          *     return ret;
          * }
          */
@@ -1999,6 +2001,7 @@ namespace DSharpPlus.Net
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { webhook_id, webhook_token }, out var path);
 
             var url = Utilities.GetApiUriBuilderFor(path).AddParameter("wait", "true").Build();
+
             var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, values: values, files: builder.Files).ConfigureAwait(false);
             var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
 
@@ -2041,7 +2044,8 @@ namespace DSharpPlus.Net
             {
                 Content = builder.Content,
                 Embeds = builder.Embeds,
-                Mentions = builder.Mentions
+                Mentions = builder.Mentions,
+                Components = builder.Components,
             };
 
             var route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token{Endpoints.MESSAGES}/:message_id";
@@ -2054,6 +2058,7 @@ namespace DSharpPlus.Net
             ret.Discord = this.Discord;
             return ret;
         }
+
         internal Task<DiscordMessage> EditWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong message_id, DiscordWebhookBuilder builder) =>
             this.EditWebhookMessageAsync(webhook_id, webhook_token, message_id.ToString(), builder);
 
@@ -2513,7 +2518,8 @@ namespace DSharpPlus.Net
                     Embeds = builder.Embeds,
                     IsTTS = builder.IsTTS,
                     Mentions = builder.Mentions,
-                    Flags = builder.IsEphemeral ? 64 : null
+                    Flags = builder.IsEphemeral ? MessageFlags.Ephemeral : 0,
+                    Components = builder.Components
                 } : null
             };
 
@@ -2545,7 +2551,8 @@ namespace DSharpPlus.Net
                 Content = builder.Content,
                 IsTTS = builder.IsTTS,
                 Embeds = builder.Embeds,
-                Flags = builder.Flags
+                Flags = builder.Flags,
+                Components = builder.Components
             };
 
             if (builder.Mentions != null)

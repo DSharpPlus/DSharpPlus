@@ -187,6 +187,7 @@ namespace DSharpPlus
             this._messageDeleted = new AsyncEvent<DiscordClient, MessageDeleteEventArgs>("MESSAGE_DELETED", EventExecutionLimit, this.EventErrorHandler);
             this._messagesBulkDeleted = new AsyncEvent<DiscordClient, MessageBulkDeleteEventArgs>("MESSAGE_BULK_DELETED", EventExecutionLimit, this.EventErrorHandler);
             this._interactionCreated = new AsyncEvent<DiscordClient, InteractionCreateEventArgs>("INTERACTION_CREATED", EventExecutionLimit, this.EventErrorHandler);
+            this._componentInteractionCreated = new AsyncEvent<DiscordClient, ComponentInteractionCreateEventArgs>("COMPONENT_INTERACTED", EventExecutionLimit, this.EventErrorHandler);
             this._typingStarted = new AsyncEvent<DiscordClient, TypingStartEventArgs>("TYPING_STARTED", EventExecutionLimit, this.EventErrorHandler);
             this._userSettingsUpdated = new AsyncEvent<DiscordClient, UserSettingsUpdateEventArgs>("USER_SETTINGS_UPDATED", EventExecutionLimit, this.EventErrorHandler);
             this._userUpdated = new AsyncEvent<DiscordClient, UserUpdateEventArgs>("USER_UPDATED", EventExecutionLimit, this.EventErrorHandler);
@@ -946,7 +947,9 @@ namespace DSharpPlus
 
         private void PopulateMessageReactionsAndCache(DiscordMessage message, TransportUser author, TransportMember member)
         {
-            this.UpdateMessage(message, author, message.Channel?.Guild, member);
+            var guild = message.Channel?.Guild ?? this.InternalGetCachedGuild(message.GuildId);
+
+            this.UpdateMessage(message, author, guild, member);
 
             if (message._reactions == null)
                 message._reactions = new List<DiscordReaction>();

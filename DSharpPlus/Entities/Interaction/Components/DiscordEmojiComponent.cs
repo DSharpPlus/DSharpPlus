@@ -20,58 +20,61 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-
+using System;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
 {
     /// <summary>
-    /// Represents an attachment for a message.
+    /// Represents an emoji to add to a component.
     /// </summary>
-    public class DiscordAttachment : SnowflakeObject
+    public sealed class DiscordComponentEmoji
     {
         /// <summary>
-        /// Gets the name of the file.
+        /// The Id of the emoji to use.
         /// </summary>
-        [JsonProperty("filename", NullValueHandling = NullValueHandling.Ignore)]
-        public string FileName { get; internal set; }
+        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        public ulong Id { get; set; }
 
         /// <summary>
-        /// Gets the file size in bytes.
+        /// The name of the emoji to use. Ignored if <see cref="Id"/> is set.
         /// </summary>
-        [JsonProperty("size", NullValueHandling = NullValueHandling.Ignore)]
-        public int FileSize { get; internal set; }
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        public string Name { get; set; }
 
         /// <summary>
-        /// Gets the media, or MIME, type of the file.
+        /// Constructs a new component emoji to add to a <see cref="DiscordComponent"/>.
         /// </summary>
-        [JsonProperty("content_type", NullValueHandling = NullValueHandling.Ignore)]
-        public string MediaType { get; internal set; }
+        public DiscordComponentEmoji() { }
 
         /// <summary>
-        /// Gets the URL of the file.
+        /// Constructs a new component emoji from an emoji Id.
         /// </summary>
-        [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
-        public string Url { get; internal set; }
+        /// <param name="id">The Id of the emoji to use. Any valid emoji Id can be passed.</param>
+        public DiscordComponentEmoji(ulong id)
+        {
+            this.Id = id;
+        }
 
         /// <summary>
-        /// Gets the proxied URL of the file.
+        /// Constructs a new component emoji from unicode.
         /// </summary>
-        [JsonProperty("proxy_url", NullValueHandling = NullValueHandling.Ignore)]
-        public string ProxyUrl { get; internal set; }
+        /// <param name="name">The unicode emoji to set.</param>
+        public DiscordComponentEmoji(string name)
+        {
+            if (!DiscordEmoji.IsValidUnicode(name))
+                throw new ArgumentException("Only unicode emojis can be passed.");
+            this.Name = name;
+        }
 
         /// <summary>
-        /// Gets the height. Applicable only if the attachment is an image.
+        /// Constructs a new component emoji from an existing <see cref="DiscordEmoji"/>.
         /// </summary>
-        [JsonProperty("height", NullValueHandling = NullValueHandling.Ignore)]
-        public int? Height { get; internal set; }
-
-        /// <summary>
-        /// Gets the width. Applicable only if the attachment is an image.
-        /// </summary>
-        [JsonProperty("width", NullValueHandling = NullValueHandling.Ignore)]
-        public int? Width { get; internal set; }
-
-        internal DiscordAttachment() { }
+        /// <param name="emoji">The emoji to use.</param>
+        public DiscordComponentEmoji(DiscordEmoji emoji)
+        {
+            this.Id = emoji.Id;
+            this.Name = emoji.Name; // Name is ignored if the Id is present. //
+        }
     }
 }

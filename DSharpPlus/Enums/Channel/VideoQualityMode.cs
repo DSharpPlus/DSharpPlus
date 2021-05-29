@@ -21,37 +21,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
 using System.Collections.Generic;
-using DSharpPlus.Entities;
+using System.Text;
 
-namespace DSharpPlus.Net.Models
+namespace DSharpPlus
 {
-    public class MemberEditModel : BaseEditModel
+    /// <summary>
+    /// Represents the video quality mode of a voice channel. This is applicable to voice channels only.
+    /// </summary>
+    public enum VideoQualityMode : int
     {
         /// <summary>
-        /// New nickname
+        /// Indicates default video type, or channel is not a voice channel.
         /// </summary>
-        public Optional<string> Nickname { internal get; set; }
-        /// <summary>
-        /// New roles
-        /// </summary>
-        public Optional<List<DiscordRole>> Roles { internal get; set; }
-        /// <summary>
-        /// Whether this user should be muted
-        /// </summary>
-        public Optional<bool> Muted { internal get; set; }
-        /// <summary>
-        /// Whether this user should be deafened
-        /// </summary>
-        public Optional<bool> Deafened { internal get; set; }
-        /// <summary>
-        /// Voice channel to move this user to, set to null to kick
-        /// </summary>
-        public Optional<DiscordChannel> VoiceChannel { internal get; set; }
+        DefaultValue = 0,
 
-        internal MemberEditModel()
-        {
+        /// <summary>
+        /// Indicates that the video quality is automatically chosen, or there is no value set.
+        /// </summary>
+        Auto = 1,
 
-        }
+        /// <summary>
+        /// Indicates that the video quality is 720p.
+        /// </summary>
+        Full = 2,
     }
 }

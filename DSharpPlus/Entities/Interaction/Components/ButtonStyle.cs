@@ -20,38 +20,28 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-
-using System.Collections.Generic;
-using DSharpPlus.Entities;
-
-namespace DSharpPlus.Net.Models
+namespace DSharpPlus.Entities
 {
-    public class MemberEditModel : BaseEditModel
+    /// <summary>
+    /// Represents a button's style/color.
+    /// </summary>
+    public enum ButtonStyle : int
     {
         /// <summary>
-        /// New nickname
+        /// Blurple button.
         /// </summary>
-        public Optional<string> Nickname { internal get; set; }
+        Primary = 1,
         /// <summary>
-        /// New roles
+        /// Grey button.
         /// </summary>
-        public Optional<List<DiscordRole>> Roles { internal get; set; }
+        Secondary = 2,
         /// <summary>
-        /// Whether this user should be muted
+        /// Green button.
         /// </summary>
-        public Optional<bool> Muted { internal get; set; }
+        Success  = 3,
         /// <summary>
-        /// Whether this user should be deafened
+        /// Red button.
         /// </summary>
-        public Optional<bool> Deafened { internal get; set; }
-        /// <summary>
-        /// Voice channel to move this user to, set to null to kick
-        /// </summary>
-        public Optional<DiscordChannel> VoiceChannel { internal get; set; }
-
-        internal MemberEditModel()
-        {
-
-        }
+        Danger = 4,
     }
 }

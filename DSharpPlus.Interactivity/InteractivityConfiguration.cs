@@ -58,6 +58,16 @@ namespace DSharpPlus.Interactivity
         public PaginationDeletion PaginationDeletion { internal get; set; } = PaginationDeletion.DeleteEmojis;
 
         /// <summary>
+        /// How to handle invalid interactions. Defaults to Ignore.
+        /// </summary>
+        public InteractionResponseBehavior ResponseBehavior { internal get; set; } = InteractionResponseBehavior.Ignore;
+
+        /// <summary>
+        /// The message to send to the user when processing invalid interactions. Ignored if <see cref="ResponseBehavior"/> is not set to <see cref="InteractionResponseBehavior.Respond"/>.
+        /// </summary>
+        public string ResponseMessage { internal get; set; }
+
+        /// <summary>
         /// Creates a new instance of <see cref="InteractivityConfiguration"/>.
         /// </summary>
         public InteractivityConfiguration()
@@ -70,7 +80,16 @@ namespace DSharpPlus.Interactivity
         /// <param name="other">Configuration the properties of which are to be copied.</param>
         public InteractivityConfiguration(InteractivityConfiguration other)
         {
+            this.PaginationBehaviour = other.PaginationBehaviour;
+            this.PaginationDeletion = other.PaginationDeletion;
+            this.ResponseBehavior = other.ResponseBehavior;
+            this.PaginationEmojis = other.PaginationEmojis;
+            this.ResponseMessage = other.ResponseMessage;
+            this.PollBehaviour = other.PollBehaviour;
             this.Timeout = other.Timeout;
+
+            if (this.ResponseBehavior is InteractionResponseBehavior.Respond && string.IsNullOrWhiteSpace(this.ResponseMessage))
+                throw new ArgumentException($"{nameof(this.ResponseMessage)} cannot be null, empty, or whitespace when {nameof(this.ResponseBehavior)} is set to respond.");
         }
     }
 }

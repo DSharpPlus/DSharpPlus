@@ -55,6 +55,9 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("rate_limit_per_user")]
         public Optional<int?> PerUserRateLimit { get; set; }
+
+        [JsonProperty("video_quality_mode", NullValueHandling = NullValueHandling.Ignore)]
+        public VideoQualityMode? QualityMode { get; set; }
     }
 
     internal sealed class RestChannelModifyPayload
@@ -85,6 +88,9 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("rtc_region")]
         public Optional<string> RtcRegion { get; set; }
+
+        [JsonProperty("video_quality_mode", NullValueHandling = NullValueHandling.Ignore)]
+        public VideoQualityMode? QualityMode { get; set; }
     }
 
     internal class RestChannelMessageEditPayload
@@ -100,6 +106,9 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("allowed_mentions", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordMentions Mentions { get; set; }
+
+        [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
+        public IReadOnlyCollection<DiscordActionRowComponent> Components { get; set; }
 
         [JsonIgnore]
         public bool HasEmbed { get; set; }
@@ -118,6 +127,7 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("message_reference", NullValueHandling = NullValueHandling.Ignore)]
         public InternalDiscordMessageReference? MessageReference { get; set; }
+
     }
 
     internal sealed class RestChannelMessageCreateMultipartPayload

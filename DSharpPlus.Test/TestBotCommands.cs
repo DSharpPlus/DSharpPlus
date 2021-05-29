@@ -21,15 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using DSharpPlus.Interactivity.Extensions;
 
 namespace DSharpPlus.Test
 {
@@ -470,6 +473,29 @@ namespace DSharpPlus.Test
                 }
             }
             await ctx.RespondAsync(contentBuilder.ToString());
+        }
+        [Command("createvoices")]
+        public async Task CreateVoiceChannelsAsync(CommandContext ctx, DiscordChannel channel)
+        {
+            if (channel.Type != ChannelType.Voice)
+            {
+                await ctx.RespondAsync("Channel is not a voice channel.");
+                return;
+            }
+
+            var cNull = await ctx.Guild.CreateVoiceChannelAsync(channel.Name + " [Null]", channel.Parent, null, null, null, null, null);
+            var cAuto = await ctx.Guild.CreateVoiceChannelAsync(channel.Name + " [Auto]", channel.Parent, null, null, null, VideoQualityMode.Auto, null);
+            var cFull = await ctx.Guild.CreateVoiceChannelAsync(channel.Name + " [Full]", channel.Parent, null, null, null, VideoQualityMode.Full, null);
+
+            await ctx.RespondAsync($"{cNull.Mention}, {cAuto.Mention}, and {cFull.Mention} created. Delete channels? (Y)");
+            var result = await ctx.Message.GetNextMessageAsync(m => m.Content.Equals("Y", StringComparison.OrdinalIgnoreCase), TimeSpan.FromMinutes(1));
+
+            if(!result.TimedOut)
+            {
+                await cNull.DeleteAsync();
+                await cAuto.DeleteAsync();
+                await cFull.DeleteAsync();
+            }
         }
     }
 }

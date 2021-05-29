@@ -20,38 +20,21 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-
-using System.Collections.Generic;
-using DSharpPlus.Entities;
-
-namespace DSharpPlus.Net.Models
+namespace DSharpPlus.Interactivity.Enums
 {
-    public class MemberEditModel : BaseEditModel
+    public enum InteractionResponseBehavior
     {
         /// <summary>
-        /// New nickname
+        /// Indicates that invalid input should be ignored when waiting for interactions. This will cause the interaction to fail.
         /// </summary>
-        public Optional<string> Nickname { internal get; set; }
+        Ignore,
         /// <summary>
-        /// New roles
+        /// Indiicates that invalid input should be ACK'd. The interaction will succeed, but nothing will happen.
         /// </summary>
-        public Optional<List<DiscordRole>> Roles { internal get; set; }
+        Ack,
         /// <summary>
-        /// Whether this user should be muted
+        /// Indicates that invalid input should warrant an ephemeral error message.
         /// </summary>
-        public Optional<bool> Muted { internal get; set; }
-        /// <summary>
-        /// Whether this user should be deafened
-        /// </summary>
-        public Optional<bool> Deafened { internal get; set; }
-        /// <summary>
-        /// Voice channel to move this user to, set to null to kick
-        /// </summary>
-        public Optional<DiscordChannel> VoiceChannel { internal get; set; }
-
-        internal MemberEditModel()
-        {
-
-        }
+        Respond
     }
 }

@@ -20,38 +20,38 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-
+using System;
 using System.Collections.Generic;
-using DSharpPlus.Entities;
+using System.Collections.ObjectModel;
+using System.Linq;
+using Newtonsoft.Json;
 
-namespace DSharpPlus.Net.Models
+namespace DSharpPlus.Entities
 {
-    public class MemberEditModel : BaseEditModel
+    /// <summary>
+    /// Represents a row of components. Acion rows can have up to five components.
+    /// </summary>
+    public sealed class DiscordActionRowComponent : DiscordComponent
     {
-        /// <summary>
-        /// New nickname
-        /// </summary>
-        public Optional<string> Nickname { internal get; set; }
-        /// <summary>
-        /// New roles
-        /// </summary>
-        public Optional<List<DiscordRole>> Roles { internal get; set; }
-        /// <summary>
-        /// Whether this user should be muted
-        /// </summary>
-        public Optional<bool> Muted { internal get; set; }
-        /// <summary>
-        /// Whether this user should be deafened
-        /// </summary>
-        public Optional<bool> Deafened { internal get; set; }
-        /// <summary>
-        /// Voice channel to move this user to, set to null to kick
-        /// </summary>
-        public Optional<DiscordChannel> VoiceChannel { internal get; set; }
 
-        internal MemberEditModel()
+        /// <summary>
+        /// The type of component this represents. Always returns type 1.
+        /// </summary>
+        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
+        public ComponentType Type { get; internal set; } = ComponentType.ActionRow;
+
+        /// <summary>
+        /// The components contained within the action row.
+        /// </summary>
+        [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
+        public ReadOnlyCollection<DiscordComponent> Components { get; internal set; }
+
+        internal DiscordActionRowComponent() { }
+
+        internal DiscordActionRowComponent(IEnumerable<DiscordComponent> components)
         {
-
+            this.Components = components.ToList().AsReadOnly();
         }
+
     }
 }

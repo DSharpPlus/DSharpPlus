@@ -27,7 +27,7 @@ namespace DSharpPlus
 {
     public static class PermissionMethods
     {
-        internal static Permissions FULL_PERMS { get; } = (Permissions)8589934591;
+        internal static Permissions FULL_PERMS { get; } = (Permissions)128849018879L;
 
         /// <summary>
         /// Calculates whether this permission set contains the given permission.
@@ -92,7 +92,7 @@ namespace DSharpPlus
         /// Indicates all permissions are granted
         /// </summary>
         [PermissionString("All permissions")]
-        All = 8589934591,
+        All = 128849018879,
 
         /// <summary>
         /// Allows creation of instant channel invites.
@@ -281,10 +281,28 @@ namespace DSharpPlus
         UseSlashCommands = 0x0000000080000000,
 
         /// <summary>
-        /// Allows the user to request to speak in stage channels.
+        /// Allows for requesting to speak in stage channels.
         /// </summary>
         [PermissionString("Request to speak")]
-        RequestToSpeak = 0x0000000100000000
+        RequestToSpeak = 0x0000000100000000,
+        
+        /// <summary>
+        /// Allows for deleting and archiving threads, and viewing all private threads.
+        /// </summary>
+        [PermissionString("Manage Threads")]
+        ManageThreads = 0x0000000400000000,
+        
+        /// <summary>
+        /// Allows for creating and participating in threads.
+        /// </summary>
+        [PermissionString("Use Public Threads")]
+        UsePublicThreads = 0x0000000800000000,
+        
+        /// <summary>
+        /// Allows for creating and participating in private threads.
+        /// </summary>
+        [PermissionString("Use Private Threads")]
+        UsePrivateThreads = 0x0000001000000000
     }
 
     /// <summary>

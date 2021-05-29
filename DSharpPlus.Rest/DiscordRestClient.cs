@@ -370,13 +370,14 @@ namespace DSharpPlus
         /// <param name="overwrites">Channel overwrites</param>
         /// <param name="nsfw">Whether this channel should be marked as NSFW</param>
         /// <param name="perUserRateLimit">Slow mode timeout for users.</param>
+        /// <param name="qualityMode">Voice channel video quality mode.</param>
         /// <param name="reason">Reason this channel was created</param>
         /// <returns></returns>
-        public Task<DiscordChannel> CreateGuildChannelAsync(ulong id, string name, ChannelType type, ulong? parent, Optional<string> topic, int? bitrate, int? userLimit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, Optional<int?> perUserRateLimit, string reason)
+        public Task<DiscordChannel> CreateGuildChannelAsync(ulong id, string name, ChannelType type, ulong? parent, Optional<string> topic, int? bitrate, int? userLimit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, Optional<int?> perUserRateLimit, VideoQualityMode? qualityMode, string reason)
         {
             return type != ChannelType.Category && type != ChannelType.Text && type != ChannelType.Voice && type != ChannelType.News && type != ChannelType.Store && type != ChannelType.Stage
                 ? throw new ArgumentException("Channel type must be text, voice, stage, or category.", nameof(type))
-                : this.ApiClient.CreateGuildChannelAsync(id, name, type, parent, topic, bitrate, userLimit, overwrites, nsfw, perUserRateLimit, reason);
+                : this.ApiClient.CreateGuildChannelAsync(id, name, type, parent, topic, bitrate, userLimit, overwrites, nsfw, perUserRateLimit, qualityMode, reason);
         }
 
         /// <summary>
@@ -392,10 +393,11 @@ namespace DSharpPlus
         /// <param name="userLimit">New voice channel user limit</param>
         /// <param name="perUserRateLimit">Slow mode timeout for users.</param>
         /// <param name="rtcRegion">New region override.</param>
+        /// <param name="qualityMode">New video quality mode.</param>
         /// <param name="reason">Reason why this channel was modified</param>
         /// <returns></returns>
-        public Task ModifyChannelAsync(ulong id, string name, int? position, Optional<string> topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? userLimit, Optional<int?> perUserRateLimit, Optional<DiscordVoiceRegion> rtcRegion, string reason)
-            => this.ApiClient.ModifyChannelAsync(id, name, position, topic, nsfw, parent, bitrate, userLimit, perUserRateLimit, rtcRegion.IfPresent(e => e?.Id), reason);
+        public Task ModifyChannelAsync(ulong id, string name, int? position, Optional<string> topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? userLimit, Optional<int?> perUserRateLimit, Optional<DiscordVoiceRegion> rtcRegion, VideoQualityMode? qualityMode, string reason)
+            => this.ApiClient.ModifyChannelAsync(id, name, position, topic, nsfw, parent, bitrate, userLimit, perUserRateLimit, rtcRegion.IfPresent(e => e?.Id), qualityMode, reason);
 
         /// <summary>
         /// Modifies a channel
@@ -410,7 +412,7 @@ namespace DSharpPlus
 
             return this.ApiClient.ModifyChannelAsync(channelId, mdl.Name, mdl.Position, mdl.Topic, mdl.Nsfw,
                 mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.PerUserRateLimit, mdl.RtcRegion.IfPresent(e => e?.Id),
-                mdl.AuditLogReason);
+                mdl.QualityMode, mdl.AuditLogReason);
         }
 
         /// <summary>
@@ -526,7 +528,7 @@ namespace DSharpPlus
         /// <param name="content">New message content</param>
         /// <returns></returns>
         public Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content)
-            => this.ApiClient.EditMessageAsync(channel_id, message_id, content, default, default);
+            => this.ApiClient.EditMessageAsync(channel_id, message_id, content, default, default, default);
 
         /// <summary>
         /// Edits a message
@@ -536,7 +538,7 @@ namespace DSharpPlus
         /// <param name="embed">New message embed</param>
         /// <returns></returns>
         public Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<DiscordEmbed> embed)
-            => this.ApiClient.EditMessageAsync(channel_id, message_id, default, embed, default);
+            => this.ApiClient.EditMessageAsync(channel_id, message_id, default, embed, default, default);
 
         /// <summary>
         /// Edits a message
@@ -549,7 +551,7 @@ namespace DSharpPlus
         {
             builder.Validate(true);
 
-            return await this.ApiClient.EditMessageAsync(channel_id, message_id, builder.Content, builder.Embed, builder.Mentions).ConfigureAwait(false);
+            return await this.ApiClient.EditMessageAsync(channel_id, message_id, builder.Content, builder.Embed, builder.Mentions, builder.Components).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -723,7 +725,7 @@ namespace DSharpPlus
         /// <param name="channel_id">Id of the news channel the message to crosspost belongs to</param>
         /// <param name="message_id">Id of the message to crosspost</param>
         /// <exception cref="UnauthorizedException">
-        ///     Thrown when the current user doesn't have <see cref="Permissions.ManageWebhooks"/> and/or <see cref="Permissions.SendMessages"/> 
+        ///     Thrown when the current user doesn't have <see cref="Permissions.ManageWebhooks"/> and/or <see cref="Permissions.SendMessages"/>
         /// </exception>
         public Task<DiscordMessage> CrosspostMessageAsync(ulong channel_id, ulong message_id)
             => this.ApiClient.CrosspostMessageAsync(channel_id, message_id);

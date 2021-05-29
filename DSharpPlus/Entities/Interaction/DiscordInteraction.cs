@@ -32,7 +32,7 @@ namespace DSharpPlus.Entities
     public sealed class DiscordInteraction : SnowflakeObject
     {
         /// <summary>
-        /// Gets the type of interaction invoked. 
+        /// Gets the type of interaction invoked.
         /// </summary>
         [JsonProperty("type")]
         public InteractionType Type { get; internal set; }
@@ -93,6 +93,12 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("application_id")]
         public ulong ApplicationId { get; internal set; }
+
+        /// <summary>
+        /// The message this interaction was created with, if any.
+        /// </summary>
+        [JsonProperty("message")]
+        internal DiscordMessage Message { get; set; }
 
         /// <summary>
         /// Creates a response to this interaction.

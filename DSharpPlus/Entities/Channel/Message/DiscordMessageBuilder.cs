@@ -25,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.Entities
@@ -60,7 +61,7 @@ namespace DSharpPlus.Entities
         public bool IsTTS { get; set; } = false;
 
         /// <summary>
-        /// Gets the Allowed Mentions for the message to be sent. 
+        /// Gets the Allowed Mentions for the message to be sent.
         /// </summary>
         public List<IMention> Mentions { get; private set; } = null;
 
@@ -68,8 +69,13 @@ namespace DSharpPlus.Entities
         /// Gets the Files to be sent in the Message.
         /// </summary>
         public IReadOnlyCollection<DiscordMessageFile> Files => this._files;
+        internal readonly List<DiscordMessageFile> _files = new();
 
-        internal List<DiscordMessageFile> _files = new();
+        /// <summary>
+        /// Gets the components that will be attached to the message.
+        /// </summary>
+        public IReadOnlyList<DiscordActionRowComponent> Components => this._components;
+        internal readonly List<DiscordActionRowComponent> _components = new(5);
 
         /// <summary>
         /// Gets the Reply Message ID.
@@ -92,7 +98,7 @@ namespace DSharpPlus.Entities
         /// Sets the Content of the Message.
         /// </summary>
         /// <param name="content">The content to be set.</param>
-        /// <returns></returns>
+        /// <returns>The current builder to be chained.</returns>
         public DiscordMessageBuilder WithContent(string content)
         {
             this.Content = content;
@@ -100,10 +106,38 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Adds a row of components to a message, up to 5 components per row, and up to 5 rows per message.
+        /// </summary>
+        /// <param name="components">The components to add to the message.</param>
+        /// <returns>The current builder to be chained.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">No components were passed.</exception>
+        public DiscordMessageBuilder WithComponents(params DiscordComponent[] components)
+            => this.WithComponents((IEnumerable<DiscordComponent>)components);
+
+        /// <summary>
+        /// Adds a row of components to a message, up to 5 components per row, and up to 5 rows per message.
+        /// </summary>
+        /// <param name="components">The components to add to the message.</param>
+        /// <returns>The current builder to be chained.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">No components were passed.</exception>
+        public DiscordMessageBuilder WithComponents(IEnumerable<DiscordComponent> components)
+        {
+            var cmpArr = components.ToArray();
+
+            if (!cmpArr.Any())
+                throw new ArgumentOutOfRangeException(nameof(components), "You must provide at least one component");
+
+            var comp = new DiscordActionRowComponent(cmpArr);
+            this._components.Add(comp);
+
+            return this;
+        }
+
+        /// <summary>
         /// Sets if the message should be TTS.
         /// </summary>
         /// <param name="isTTS">If TTS should be set.</param>
-        /// <returns></returns>
+        /// <returns>The current builder to be chained.</returns>
         public DiscordMessageBuilder HasTTS(bool isTTS)
         {
             this.IsTTS = isTTS;
@@ -114,7 +148,7 @@ namespace DSharpPlus.Entities
         /// Sets if the message will have an Embed.
         /// </summary>
         /// <param name="embed">The embed that should be sent.</param>
-        /// <returns></returns>
+        /// <returns>The current builder to be chained.</returns>
         public DiscordMessageBuilder WithEmbed(DiscordEmbed embed)
         {
             this.Embed = embed;
@@ -122,12 +156,11 @@ namespace DSharpPlus.Entities
         }
 
 
-
         /// <summary>
         /// Sets if the message has allowed mentions.
         /// </summary>
         /// <param name="allowedMention">The allowed Mention that should be sent.</param>
-        /// <returns></returns>
+        /// <returns>The current builder to be chained.</returns>
         public DiscordMessageBuilder WithAllowedMention(IMention allowedMention)
         {
             if (this.Mentions != null)
@@ -142,7 +175,7 @@ namespace DSharpPlus.Entities
         /// Sets if the message has allowed mentions.
         /// </summary>
         /// <param name="allowedMentions">The allowed Mentions that should be sent.</param>
-        /// <returns></returns>
+        /// <returns>The current builder to be chained.</returns>
         public DiscordMessageBuilder WithAllowedMentions(IEnumerable<IMention> allowedMentions)
         {
             if (this.Mentions != null)
@@ -159,10 +192,10 @@ namespace DSharpPlus.Entities
         /// <param name="fileName">The fileName that the file should be sent as.</param>
         /// <param name="stream">The Stream to the file.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
-        /// <returns></returns>
+        /// <returns>The current builder to be chained.</returns>
         public DiscordMessageBuilder WithFile(string fileName, Stream stream, bool resetStreamPosition = false)
         {
-            if (this.Files.Count() >= 10)
+            if (this.Files.Count >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
             if (this._files.Any(x => x.FileName == fileName))
@@ -181,10 +214,10 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="stream">The Stream to the file.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
-        /// <returns></returns>
+        /// <returns>The current builder to be chained.</returns>
         public DiscordMessageBuilder WithFile(FileStream stream, bool resetStreamPosition = false)
         {
-            if (this.Files.Count() >= 10)
+            if (this.Files.Count >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
             if (this._files.Any(x => x.FileName == stream.Name))
@@ -203,10 +236,10 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="files">The Files that should be sent.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
-        /// <returns></returns>
+        /// <returns>The current builder to be chained.</returns>
         public DiscordMessageBuilder WithFiles(Dictionary<string, Stream> files, bool resetStreamPosition = false)
         {
-            if (this.Files.Count() + files.Count() >= 10)
+            if (this.Files.Count + files.Count >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
             foreach (var file in files)
@@ -229,7 +262,7 @@ namespace DSharpPlus.Entities
         /// <param name="messageId">The ID of the message to reply to.</param>
         /// <param name="mention">If we should mention the user in the reply.</param>
         /// <param name="failOnInvalidReply">Whether sending a reply that references an invalid message should be </param>
-        /// <returns></returns>
+        /// <returns>The current builder to be chained.</returns>
         public DiscordMessageBuilder WithReply(ulong messageId, bool mention = false, bool failOnInvalidReply = false)
         {
             this.ReplyId = messageId;
@@ -243,14 +276,14 @@ namespace DSharpPlus.Entities
         /// Sends the Message to a specific channel
         /// </summary>
         /// <param name="channel">The channel the message should be sent to.</param>
-        /// <returns></returns>
+        /// <returns>The current builder to be chained.</returns>
         public Task<DiscordMessage> SendAsync(DiscordChannel channel) => channel.SendMessageAsync(this);
 
         /// <summary>
         /// Sends the modified message.
         /// </summary>
         /// <param name="msg">The original Message to modify.</param>
-        /// <returns></returns>
+        /// <returns>The current builder to be chained.</returns>
         public Task<DiscordMessage> ModifyAsync(DiscordMessage msg) => msg.ModifyAsync(this);
 
         /// <summary>
@@ -265,6 +298,7 @@ namespace DSharpPlus.Entities
             this._files.Clear();
             this.ReplyId = null;
             this.MentionOnReply = false;
+            this._components.Clear();
         }
 
         /// <summary>
@@ -285,6 +319,12 @@ namespace DSharpPlus.Entities
             {
                 if (this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && this.Embed == null)
                     throw new ArgumentException("You must specify content, an embed, or at least one file.");
+
+                if (this.Components.Count > 5)
+                    throw new InvalidOperationException("You can only have 5 action rows per message.");
+
+                if (this.Components.Any(c => c.Components.Count > 5))
+                    throw new InvalidOperationException("Action rows can only have 5 components");
             }
         }
     }

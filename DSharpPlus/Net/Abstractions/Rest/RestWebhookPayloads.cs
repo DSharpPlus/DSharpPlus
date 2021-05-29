@@ -76,5 +76,8 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("allowed_mentions", NullValueHandling = NullValueHandling.Ignore)]
         public IEnumerable<IMention> Mentions { get; set; }
+
+        [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
+        public IEnumerable<DiscordActionRowComponent> Components { get; set; }
     }
 }

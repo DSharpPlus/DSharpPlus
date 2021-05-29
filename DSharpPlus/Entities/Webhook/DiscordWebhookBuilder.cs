@@ -23,7 +23,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -68,29 +67,49 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Embeds to send on this webhook request.
         /// </summary>
-        public IReadOnlyList<DiscordEmbed> Embeds { get; }
+        public IReadOnlyList<DiscordEmbed> Embeds => this._embeds;
         private readonly List<DiscordEmbed> _embeds = new();
 
         /// <summary>
         /// Files to send on this webhook request.
         /// </summary>
         public IReadOnlyCollection<DiscordMessageFile> Files => this._files;
-
-        internal readonly List<DiscordMessageFile> _files = new();
+        private readonly List<DiscordMessageFile> _files = new();
 
         /// <summary>
         /// Mentions to send on this webhook request.
         /// </summary>
-        public IEnumerable<IMention> Mentions { get; }
+        public IReadOnlyCollection<IMention> Mentions => this._mentions;
         private readonly List<IMention> _mentions = new();
+
+
+        public IReadOnlyCollection<DiscordActionRowComponent> Components => this._components;
+        private readonly List<DiscordActionRowComponent> _components = new();
+
 
         /// <summary>
         /// Constructs a new empty webhook request builder.
         /// </summary>
-        public DiscordWebhookBuilder()
+        public DiscordWebhookBuilder() { } // I still see no point in initializing collections with empty collections. //
+
+
+        /// <summary>
+        /// Adds acollection of components to the message.
+        /// </summary>
+        /// <param name="components">The collection of components to add.</param>
+        /// <returns>The builder to chain calls with.</returns>
+        /// <exception cref="ArgumentException"><paramref name="components"/> contained more than 5 components.</exception>
+        public DiscordWebhookBuilder WithComponents(IEnumerable<DiscordComponent> components)
         {
-            this.Embeds = new ReadOnlyCollection<DiscordEmbed>(this._embeds);
-            this.Mentions = new ReadOnlyCollection<IMention>(this._mentions);
+            var compArr = components.ToArray();
+            var count = compArr.Length;
+
+            if (count > 5)
+                throw new ArgumentException("Cannot add more than 5 components per action row!");
+
+            var arc = new DiscordActionRowComponent(compArr);
+            this._components.Add(arc);
+            return this;
         }
 
         /// <summary>
