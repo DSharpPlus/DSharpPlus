@@ -1986,9 +1986,7 @@ namespace DSharpPlus.Net
             var route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { webhook_id, webhook_token }, out var path);
 
-            var qub = Utilities.GetApiUriBuilderFor(path).AddParameter("wait", "true");
-
-            var url = qub.Build();
+            var url = Utilities.GetApiUriBuilderFor(path).AddParameter("wait", "true").Build();
 
             var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, values: values, files: builder.Files).ConfigureAwait(false);
             var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
