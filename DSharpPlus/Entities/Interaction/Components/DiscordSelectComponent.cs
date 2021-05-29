@@ -20,24 +20,41 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+using System;
+using Newtonsoft.Json;
+
 namespace DSharpPlus.Entities
 {
     /// <summary>
-    /// Represents a type of component.
+    /// A select menu with multiple options to choose from.
     /// </summary>
-    public enum ComponentType
+    public sealed class DiscordSelectComponent : DiscordComponent
     {
+        [JsonProperty("type")]
+        internal new ComponentType Type { get; set; } = ComponentType.Select;
+
         /// <summary>
-        /// A row of components.
+        /// The options to pick from on this component.
         /// </summary>
-        ActionRow = 1,
+        [JsonProperty("options")]
+        public DiscordSelectComponentOption[] Options { get; set; } = Array.Empty<DiscordSelectComponentOption>();
+
         /// <summary>
-        /// A button.
+        /// The text to show when no option is selected.
         /// </summary>
-        Button = 2,
+        [JsonProperty("placeholder")]
+        public string Placeholder { get; set; }
+
         /// <summary>
-        /// A select menu.
+        /// The minimum amount of options that can be selected. Must be greater than zero and less than or equal to <see cref="MaximumSelectedValues"/>. Defaults to one.
         /// </summary>
-        Select = 3
+        [JsonProperty("min_values")]
+        public int? MinimumSelectedValues { get; set; }
+
+        /// <summary>
+        /// The maximum amount of options that can be selected. Must be greater than zero and or equal to <see cref="MinimumSelectedValues"/>. Defaults to 1.
+        /// </summary>
+        [JsonProperty("max_values")]
+        public int? MaximumSelectedValues { get; set; }
     }
 }

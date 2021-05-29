@@ -20,24 +20,43 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+using Newtonsoft.Json;
+
 namespace DSharpPlus.Entities
 {
     /// <summary>
-    /// Represents a type of component.
+    /// Represents options for <see cref="DiscordSelectComponent"/>.
     /// </summary>
-    public enum ComponentType
+    public sealed class DiscordSelectComponentOption
     {
         /// <summary>
-        /// A row of components.
+        /// The label to add.
         /// </summary>
-        ActionRow = 1,
+        [JsonProperty("label", NullValueHandling = NullValueHandling.Ignore)]
+        public string Label { get; set; }
+
         /// <summary>
-        /// A button.
+        /// The value of this option. Akin to the Custom Id of components.
         /// </summary>
-        Button = 2,
+        [JsonProperty("value", NullValueHandling = NullValueHandling.Ignore)]
+        public string Value { get; set; }
+
         /// <summary>
-        /// A select menu.
+        /// Whether this option is default. If true, this option will be pre-selected.
         /// </summary>
-        Select = 3
+        [JsonProperty("default", NullValueHandling = NullValueHandling.Ignore)]
+        public bool Default { get; set; } // false //
+
+        /// <summary>
+        /// The description of this option. This is optional.
+        /// </summary>
+        [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
+        public string Description { get; set; }
+
+        /// <summary>
+        /// The emoji of this option. This is optional.
+        /// </summary>
+        [JsonProperty("emoji", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordComponentEmoji Emoji { get; set; }
     }
 }
