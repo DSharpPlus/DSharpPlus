@@ -493,6 +493,18 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Modifes the visibility of embeds in this message.
+        /// </summary>
+        /// <param name="hideEmbeds">Whether to hide all embeds.</param>
+        /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageMessages"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task ModifyEmbedSuppressionAsync(bool hideEmbeds)
+            => this.Discord.ApiClient.ModifyEmbedSuppressionAsync(hideEmbeds, this.ChannelId, this.Id);
+
+        /// <summary>
         /// Deletes the message.
         /// </summary>
         /// <returns></returns>
