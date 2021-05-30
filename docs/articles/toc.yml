@@ -23,6 +23,10 @@
     href: beyond_basics/sharding.md
   - name: Message Builder
     href: beyond_basics/messagebuilder.md
+- name: Advanced Topics
+  items:
+  - name: Buttons
+    href: advanced_topics/buttons.md
 - name: Commands
   items:  
   - name: Introduction
