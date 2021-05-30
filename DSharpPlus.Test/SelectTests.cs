@@ -20,6 +20,10 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -37,11 +41,12 @@ namespace DSharpPlus.Test
         }
 
         [Command]
-        public async Task Select_Interactivity_Test_1(CommandContext ctx)
+        [Description("A test for select menus. This waits for one input.")]
+        public async Task Select_Interactive_Test_1(CommandContext ctx)
         {
             var input = ctx.Client.GetInteractivity();
             var builder = new DiscordMessageBuilder();
-            builder.WithContent("Test!");
+            builder.WithContent("This is a test! Select is valid for 30 seconds.");
 
             var select = new DiscordSelectComponent()
             {
@@ -49,21 +54,67 @@ namespace DSharpPlus.Test
                 Placeholder = "Poggers",
                 Options = new[]
                 {
-                    new DiscordSelectComponentOption("Label 1", "value 1", emoji: new DiscordComponentEmoji("⬜")),
-                    new DiscordSelectComponentOption("Label 2", "value 2", emoji: new DiscordComponentEmoji("🟦")),
-                    new DiscordSelectComponentOption("Label 3", "value 3", emoji: new DiscordComponentEmoji("⬛")),
+                    new DiscordSelectComponentOption("Label 1", "the first option", emoji: new DiscordComponentEmoji("⬜")),
+                    new DiscordSelectComponentOption("Label 2", "the second option", emoji: new DiscordComponentEmoji("🟦")),
+                    new DiscordSelectComponentOption("Label 3", "the third option", emoji: new DiscordComponentEmoji("⬛")),
                 }
             };
 
-            var btn1 = new DiscordButtonComponent(ButtonStyle.Primary, "no1", "Button 1!");
-            var btn2 = new DiscordButtonComponent(ButtonStyle.Secondary, "no2", "Button 2!");
-            var btn3 = new DiscordButtonComponent(ButtonStyle.Success, "no3", "Button 3!");
+            var btn1 = new DiscordButtonComponent(ButtonStyle.Primary, "no1", "Button 1!", true);
+            var btn2 = new DiscordButtonComponent(ButtonStyle.Secondary, "no2", "Button 2!", true);
+            var btn3 = new DiscordButtonComponent(ButtonStyle.Success, "no3", "Button 3!", true);
 
             builder.WithComponents(btn1, btn2, btn3);
             builder.WithComponents(select);
 
             var msg = await builder.SendAsync(ctx.Channel);
-            await input.WaitForSelectAsync(msg, "");
+            var res = await input.WaitForSelectAsync(msg, "yert", TimeSpan.FromSeconds(30));
+
+            if (res.TimedOut)
+                await ctx.RespondAsync("Sorry but it timed out!");
+            else
+                await ctx.RespondAsync($"You selected {string.Join(", ", res.Result.Values)}");
+        }
+
+        [Command]
+        [Description("A test for select menus. This waits for two inputs.")]
+        public async Task Select_Interactive_Test_2(CommandContext ctx)
+        {
+            var input = ctx.Client.GetInteractivity();
+            var builder = new DiscordMessageBuilder();
+            builder.WithContent("This is a test! Select is valid for 30 seconds.");
+
+            var select = new DiscordSelectComponent()
+            {
+                CustomId = "yert",
+                Placeholder = "Poggers",
+                Options = new[]
+                {
+                    new DiscordSelectComponentOption("Label 1", "the first option", emoji: new DiscordComponentEmoji("⬜")),
+                    new DiscordSelectComponentOption("Label 2", "the second option", emoji: new DiscordComponentEmoji("🟦")),
+                    new DiscordSelectComponentOption("Label 3", "the third option", emoji: new DiscordComponentEmoji("⬛")),
+                },
+                //MinimumSelectedValues = 2, // Ideally you'd set this. //
+                MaximumSelectedValues = 2
+            };
+
+            var btn1 = new DiscordButtonComponent(ButtonStyle.Primary, "no1", "Button 1!", true);
+            var btn2 = new DiscordButtonComponent(ButtonStyle.Secondary, "no2", "Button 2!", true);
+            var btn3 = new DiscordButtonComponent(ButtonStyle.Success, "no3", "Button 3!", true);
+
+            builder.WithComponents(btn1, btn2, btn3);
+            builder.WithComponents(select);
+
+            var msg = await builder.SendAsync(ctx.Channel);
+            wait:
+            var res = await input.WaitForSelectAsync(msg, "yert", TimeSpan.FromSeconds(30));
+
+            if (res.TimedOut)
+                await ctx.RespondAsync("Sorry but it timed out!");
+            else if (res.Result.Values.Length != 2)
+                goto wait; // I'm lazy. A while(true) or while (res?.Result.Values.Length != 2 ?? false) would be better
+            else
+                await ctx.RespondAsync($"You selected {string.Join(", ", res.Result.Values)}");
         }
     }
 }
