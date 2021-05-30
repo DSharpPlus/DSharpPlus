@@ -66,3 +66,52 @@ await builder.SendAsync(someChannel);
 As a note, custom ids can contain spaces. For these examples, underscores will be used. 
 
 Produces a message like such: ![Buttons](/images/advanced_topics_buttons_01.png)
+
+
+# Responding to button presses
+
+When any button is pressed, it will fire the [ComponentInteractionCreated](xref:DSharpPlus.DiscordClient#ComponentInteractionCreated) event.
+
+In the event args, `Id` will be the id of the button you specified. There's also an `Interaction` property, which contains the interaction the event created. It's important to respond to an interaction within 3 seconds, or it will time out. Responding after this period will throw a `NotFoundException`.
+
+With buttons, there are two new response types: `DefferedMessageUpdate` and `UpdateMessage`.
+
+Using `DeferredMessageUpdate` lets you create followup messages via the [followup message builder](xref:DSharpPlus.Entities.DiscordFollowupMessageBuilder). The button will return to being in it's 'dormant' state, or it's 'unpushed' state, if you will. 
+
+You have 15 minutes from that point to make followup messages. Responding to that interaction looks like such:
+
+```cs
+client.ComponentInteractionCreated += async (c, e) => 
+{
+    await e.Interaction.CreateResponseAsync(InteractionResponseType.DefferedMessageUpdate);
+    // Do things.. //
+}
+```
+
+If you would like to update the message when a button is pressed, however, you'd use `UpdateMessage` instead, and pass a `DiscordInteractionResponseBuilder` with the new content you'd like.
+
+```cs
+client.ComponentInteractionCreated += async (c, e) => 
+{
+    await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder().WithContent("No more buttons for you >:)"));
+}
+```
+This will update the message, and without the infamous <sub>(edited)</sub> next to it. Nice.
+
+
+# Interactivity
+Along with the typical `WaitForMessageAsync` and `WaitForReactionAsync` methods provided by interactivity, there are also button implementations as well.
+
+More information about how interactivity works can be found in [the interactivity article](xref:interactivity)
+
+Since buttons create interactions, there are also two additional properties in the configuration:
+- RepsonseBehavior
+- ResponseMessage
+
+ResponseBehavior is what interactivity will do when handling something that isn't a valid valid button, in the context of waiting for a specific button. It defaults to `Ignore`, which will cause the interaction fail.
+
+Alterantively, setting it to `Ack` will acknowledge the button, and continue waiting. 
+
+Respond will reply with an ephemeral message with the aforementioned response message. 
+
+ResponseBehavior only applies to the overload accepting a string id of the button to wait for.
