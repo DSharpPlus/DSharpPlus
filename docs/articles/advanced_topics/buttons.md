@@ -4,9 +4,8 @@ title: Buttons
 ---
 
 # Introduction
-Buttons are a feature in Discord based on the interaction framework. Buttons are appended to the bottom of a message, and come in several colors.
-
-Before working with buttons, you will want to familarize yourself with the [Message Builder](xref:beyond_basics_messagebuilder). It, among other builders will be mentioned throughout this article, and function similarly.
+Buttons are a feature in Discord based on the interaction framework appended to the bottom of a message which come in several colors.
+You will want to familarize yourself with the [message builder](xref:beyond_basics_messagebuilder) as it and similar builder objects will be used throughout this article.
 
 With buttons, you can have up to five buttons in a row, and up to five (5) rows of buttons. 
 Furthermore, buttons come in two types: regular, and link. Link buttons contain a Url field, and are always grey.
