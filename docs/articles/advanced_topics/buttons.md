@@ -1,6 +1,6 @@
 ---
 uid: advanced_topics_buttons
-title: Buttons & Components
+title: Buttons
 ---
 
 # Button Introduction
