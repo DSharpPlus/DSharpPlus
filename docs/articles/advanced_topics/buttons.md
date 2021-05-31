@@ -110,7 +110,7 @@ Since buttons create interactions, there are also two additional properties in t
 
 ResponseBehavior is what interactivity will do when handling something that isn't a valid valid button, in the context of waiting for a specific button. It defaults to `Ignore`, which will cause the interaction fail.
 
-Alterantively, setting it to `Ack` will acknowledge the button, and continue waiting. 
+Alternatively, setting it to `Ack` will acknowledge the button, and continue waiting. 
 
 Respond will reply with an ephemeral message with the aforementioned response message. 
 
