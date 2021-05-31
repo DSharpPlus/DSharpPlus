@@ -497,5 +497,42 @@ namespace DSharpPlus.Test
                 await cFull.DeleteAsync();
             }
         }
+
+        [Command("createchannel")]
+        public async Task CreateGuildChannelsAsync(CommandContext ctx, [RemainingText] string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                await ctx.RespondAsync("You must provide a channel name");
+                return;
+            }
+
+            var channel = await ctx.Guild.CreateTextChannelAsync(name);
+            var msg = await ctx.RespondAsync($"{channel.Mention} created. Delete? (Y)");
+            var result = await ctx.Message.GetNextMessageAsync(m => m.Content.Equals("y", StringComparison.OrdinalIgnoreCase), TimeSpan.FromMinutes(1));
+
+            if (!result.TimedOut)
+            {
+                await channel.DeleteAsync();
+                await ctx.RespondAsync("Channel deleted");
+            }
+        }
+
+        [Command("pc")]
+        [Aliases("purgechat")]
+        [Description("Purges chat")]
+        [RequirePermissions(Permissions.ManageChannels)]
+        public async Task PurgeChatAsync(CommandContext ctx)
+        {
+            DiscordChannel channel = ctx.Channel;
+            var z = ctx.Channel.Position;
+            var x = await channel.CloneAsync();
+            await channel.DeleteAsync();
+            await x.ModifyPositionAsync(z);
+            var embed2 = new DiscordEmbedBuilder()
+                .WithTitle("✅ Purged")
+                .WithFooter($"foo");
+            await x.SendMessageAsync(embed: embed2);
+        }
     }
 }
