@@ -112,7 +112,7 @@ namespace DSharpPlus.Test
             if (res.TimedOut)
                 await ctx.RespondAsync("Sorry but it timed out!");
             else if (res.Result.Values.Length != 2)
-                goto wait; // I'm lazy. A while(true) or while (res?.Result.Values.Length != 2 ?? false) would be better
+                goto wait; // I'm lazy. A while(true) or while (res?.Result.Values.Length != 2 ?? false) would be better. This duplicates messages.
             else
                 await ctx.RespondAsync($"You selected {string.Join(", ", res.Result.Values)}");
         }
