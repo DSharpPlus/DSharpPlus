@@ -3,7 +3,7 @@ uid: advanced_topics_buttons
 title: Buttons
 ---
 
-# Button Introduction
+# Introduction
 Buttons are a feature in Discord based on the interaction framework. Buttons are appended to the bottom of a message, and come in several colors.
 
 Before working with buttons, you will want to familarize yourself with the [Message Builder](xref:beyond_basics_messagebuilder). It, among other builders will be mentioned throughout this article, and function similarly.
