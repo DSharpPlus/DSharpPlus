@@ -81,6 +81,26 @@ namespace DSharpPlus.Interactivity.Extensions
             => GetInteractivity(message).WaitForButtonAsync(message, user, timeoutOverride);
 
         /// <summary>
+        /// Waits for a dropdown to be interacted with.
+        /// </summary>
+        /// <param name="message">The message to wait on.</param>
+        /// <param name="id">The Id of the dropdown to wait for.</param>
+        /// <param name="timeoutOverride">Overrides the timeout set in <see cref="InteractivityConfiguration.Timeout"/></param>
+        public static Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForSelectAsync(this DiscordMessage message, string id, TimeSpan? timeoutOverride = null)
+            => GetInteractivity(message).WaitForSelectAsync(message, id, timeoutOverride);
+
+        /// <summary>
+        /// Waits for a dropdown to be interacted with by the specified user.
+        /// </summary>
+        /// <param name="message">The message to wait on.</param>
+        /// <param name="user">The user to wait for.</param>
+        /// <param name="id">The Id of the dropdown to wait for.</param>
+        /// <param name="timeoutOverride"></param>
+        /// <returns></returns>
+        public static Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForSelectAsync(this DiscordMessage message, DiscordUser user, string id, TimeSpan? timeoutOverride = null)
+            => GetInteractivity(message).WaitForSelectAsync(message, user, id, timeoutOverride);
+
+        /// <summary>
         /// Waits for a reaction on this message from a specific user.
         /// </summary>
         /// <param name="message">Target message.</param>
