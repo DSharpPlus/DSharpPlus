@@ -149,6 +149,23 @@ namespace DSharpPlus.Net
         }
 
         #region Guild
+
+        internal async Task<IReadOnlyList<TransportMember>> SearchMembersAsync(ulong guild_id, string name, int? limit)
+        {
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.MEMBERS}{Endpoints.SEARCH}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
+            var querydict = new Dictionary<string, string>
+            {
+                ["query"] = name,
+                ["limit"] = limit.ToString()
+            };
+            var url = Utilities.GetApiUriFor(path, BuildQueryString(querydict));
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
+            var json = JArray.Parse(res.Response);
+
+            return json.ToObject<IReadOnlyList<TransportMember>>();
+        }
+
         internal async Task<DiscordGuild> CreateGuildAsync(string name, string region_id, Optional<string> iconb64, VerificationLevel? verification_level,
             DefaultMessageNotifications? default_message_notifications)
         {
@@ -2638,5 +2655,6 @@ namespace DSharpPlus.Net
             return info;
         }
         #endregion
+
     }
 }
