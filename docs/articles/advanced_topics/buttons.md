@@ -38,7 +38,7 @@ var myButton = new DiscordButtonComponent()
     Emoji = new DiscordComponentEmoji("😀")
 };
 ```
-Will create a blurple button with the text that reads "Very cool button!". When a user pushes it, `"my_very_cool_button"` will be sent back as the `Id` property on the event. This is expanded on in the [how to respond to buttons](#responding-to-button-presses).
+This will create a blurple button with the text that reads "Very cool button!". When a user pushes it, `"my_very_cool_button"` will be sent back as the `Id` property on the event. This is expanded on in the [how to respond to buttons](#responding-to-button-presses).
 
 The label of a button is optional *if* an emoji is specified. The label can be up to 80 characters in length. 
 The emoji of a button is a [partial emoji object](https://discord.dev/interactions/message-components#component-object), which means that **any valid emoji is usable**, even if your bot does not have access to it's origin server.
