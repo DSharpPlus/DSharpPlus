@@ -48,6 +48,7 @@ namespace DSharpPlus.Net
         public const string PINS = "/pins";
         public const string USERS = "/users";
         public const string GUILDS = "/guilds";
+        public const string SEARCH = "/search";
         public const string INVITES = "/invites";
         public const string ROLES = "/roles";
         public const string MEMBERS = "/members";
