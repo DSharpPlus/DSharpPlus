@@ -59,16 +59,14 @@ builder.WithContent("This message has buttons! Pretty neat innit?");
 Well, there's a builder, but no buttons. What now? Simply make a new button object (`DiscordButtonComponent`) and call `.WithComponents()` on the MessageBuilder.
 
 ```cs
-var builder = new DiscordMessageBuilder();
-
-var myButton = new DiscordButtonComponent 
+var myButton = new DiscordButtonComponent
 {
     CustomId = "my_custom_id",
     Label = "This is a button!",
     Style = ButtonStyle.Primary,
 };
 
-builder
+var builder = new DiscordMessageBuilder()
     .WithContent("This message has buttons! Pretty neat innit?")
     .WithComponents(myButton);
 ```
@@ -77,11 +75,9 @@ Now you have a message with a button. Congratulations! It's important to note th
 Buttons can be added in any order you fancy. Lets add 5 to demonstrate each color, and a link button for good measure.
 
 ```cs
-var builder = new DiscordMessageBuilder();
-
-builder
+var builder = new DiscordMessageBuilder()
     .WithContent("This message has buttons! Pretty neat innit?")
-    .WithComponents(new DiscordComponent[] 
+    .WithComponents(new DiscordComponent[]
     {
         new DiscordButtonComponent(ButtonStyle.Primary, "1_top" "Blurple!"),
         new DiscordButtonComponent(ButtonStyle.Secondary, "2_top", "Grey!"),
@@ -95,14 +91,14 @@ As promised, not too complicated. Links however are `DiscordLinkButtonComponent`
 Lets also add a second row of buttons, but disable them, so the user can't push them all willy-nilly.
 
 ```cs
-    builder.WithComponents(new DiscordComponent[] 
-    {
-        new DiscordButtonComponent(ButtonStyle.Primary, "1_top_d" "Blurple!", true),
-        new DiscordButtonComponent(ButtonStyle.Secondary, "2_top_d" "Grey!", true),
-        new DiscordButtonComponent(ButtonStyle.Success, "3_top_d", "Green!", true),
-        new DiscordButtonComponent(ButtonStyle.Danger, "4_top_d" "Red!", true),
-        new DiscordButtonComponent("https://some-super-cool.site", "Link!", true)
-    });
+builder.WithComponents(new DiscordComponent[] 
+{
+    new DiscordButtonComponent(ButtonStyle.Primary, "1_top_d" "Blurple!", true),
+    new DiscordButtonComponent(ButtonStyle.Secondary, "2_top_d" "Grey!", true),
+    new DiscordButtonComponent(ButtonStyle.Success, "3_top_d", "Green!", true),
+    new DiscordButtonComponent(ButtonStyle.Danger, "4_top_d" "Red!", true),
+    new DiscordButtonComponent("https://some-super-cool.site", "Link!", true)
+});
 ```
 Practically identical, but now with `true` as an extra paremeter. This is the `Disabled` property. 
 
@@ -111,7 +107,14 @@ Produces a message like such: ![Buttons](/images/advanced_topics_buttons_01.png)
 Well, that's all neat, but lets say you want to add an emoji. Being able to use any emoji is pretty neat, afterall. That's also very simple!
 
 ```cs
-var myButton = new DiscordButtonComponent(ButtonStyle.Primary, "emoji_button", null, false, new DiscordComponentEmoji(595381687026843651));
+var myButton = new DiscordButtonComponent
+(
+    ButtonStyle.Primary, 
+    "emoji_button", 
+    null, 
+    false, 
+    new DiscordComponentEmoji(595381687026843651)
+);
 ```
 And you're done! Simply add that to a builder, and when you send, you'll get a message that has a button with a little Pikachu enjoying a lolipop. Adorable. ![PikaLolipop](/images/advanced_topics_buttons_02.png)
 
