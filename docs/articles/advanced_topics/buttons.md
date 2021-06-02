@@ -91,7 +91,7 @@ As promised, not too complicated. Links however are `DiscordLinkButtonComponent`
 Lets also add a second row of buttons, but disable them, so the user can't push them all willy-nilly.
 
 ```cs
-builder.WithComponents(new DiscordComponent[] 
+builder.AddComponents(new DiscordComponent[] 
 {
     new DiscordButtonComponent(ButtonStyle.Primary, "1_top_d" "Blurple!", true),
     new DiscordButtonComponent(ButtonStyle.Secondary, "2_top_d" "Grey!", true),
