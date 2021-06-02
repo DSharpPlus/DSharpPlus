@@ -62,7 +62,7 @@ namespace DSharpPlus.Entities
             this.Nickname = mbr.Nickname;
             this.PremiumSince = mbr.PremiumSince;
             this.IsPending = mbr.IsPending;
-
+            this._avatarHash = mbr.AvatarHash;
             this._role_ids = mbr.Roles ?? new List<ulong>();
             this._role_ids_lazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(this._role_ids));
         }
@@ -196,8 +196,7 @@ namespace DSharpPlus.Entities
             internal set => this.User.Discriminator = value;
         }
 
-        [JsonProperty("avatar")]
-        internal string _avatarHash;
+
 
         /// <summary>
         /// Gets the member's avatar for the current guild.
@@ -210,6 +209,7 @@ namespace DSharpPlus.Entities
         public string GuildAvatarUrl
             => !string.IsNullOrWhiteSpace(this.GuildAvatarHash) ? (this.GuildAvatarHash.StartsWith("a_") ? $"https://cdn.discordapp.com/avatars/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.GuildAvatarHash}.gif?size=1024" : $"https://cdn.discordapp.com/avatars/{this.Id}/{this.GuildAvatarHash}.png?size=1024") : this.DefaultAvatarUrl;
 
+        private string _avatarHash;
 
         /// <summary>
         /// Gets the member's avatar hash.
