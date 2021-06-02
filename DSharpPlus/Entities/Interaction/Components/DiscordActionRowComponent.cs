@@ -48,7 +48,7 @@ namespace DSharpPlus.Entities
 
         internal DiscordActionRowComponent(IEnumerable<DiscordComponent> components)
         {
-            this.Components = components.ToArray();
+            this.Components = components.ToList().AsReadOnly();
         }
 
     }
