@@ -11,12 +11,8 @@ Join the [Discord server](https://discord.gg/2ZhXXVJYhU) for any questions, help
 
 DSharpPlus doesn't currently have a slash command framework. You can use this library to somewhat get an idea of how you can implement slash commands into your bot.
 
-I have done my best to make this as similar to CommandsNext as possible to make it a smooth experience. However, there are some limitations in comparison. The library does not support:
+I have done my best to make this as similar to CommandsNext as possible to make it a smooth experience. However, there are some limitations due to the working of slash commands themselves. The library does not support registering or editing commands at runtime, and does not have any built-in pre-execution checks.
 
-    Registering or editing commands at runtime
-    Sharding
-    Any pre execution checks
-   
 While you can make commands at runtime, if you have a command class registered for that guild/globally if you're making global commands, it will be overwritten (therefore probably deleted) on the next startup due to the limitations of the bulk overwrite endpoint.
 
 Now, on to the actual guide:
@@ -244,6 +240,10 @@ var slash = discord.UseSlashCommands(new SlashCommandsConfiguration
 });
 ```
 (Thanks to @sssvt-drabek-stepan for adding this)
+### Sharding
+`UseSlashCommands` -> `UseSlashCommmandsAsync` which returns a dictionary.
+
+You'll have to foreach over it to register events.
 
 # Issues and contributing
 If you find any issues or bugs, you should join the discord server and discuss it. If it's an actual bug, you can create an [issue](https://github.com/IDoEverything/DSharpPlus.SlashCommands/issues). If you would like to contribute or make changes, feel free to open a [pull request](https://github.com/IDoEverything/DSharpPlus.SlashCommands/pulls).
