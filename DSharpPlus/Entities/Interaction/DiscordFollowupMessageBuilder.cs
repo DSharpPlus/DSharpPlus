@@ -92,8 +92,26 @@ namespace DSharpPlus.Entities
         /// <param name="components">The collection of components to add.</param>
         /// <returns>The builder to chain calls with.</returns>
         /// <exception cref="ArgumentException"><paramref name="components"/> contained more than 5 components.</exception>
-        public DiscordFollowupMessageBuilder WithComponents(params DiscordComponent[] components)
-            => this.WithComponents((IEnumerable<DiscordComponent>)components);
+        public DiscordFollowupMessageBuilder AddComponents(params DiscordComponent[] components)
+            => this.AddComponents((IEnumerable<DiscordComponent>)components);
+
+        /// <summary>
+        /// Appends several rows of components to the message
+        /// </summary>
+        /// <param name="components">The rows of components to add, holding up to five each.</param>
+        /// <returns></returns>
+        public DiscordFollowupMessageBuilder AddComponents(IEnumerable<DiscordActionRowComponent> components)
+        {
+            var ara = components.ToArray();
+
+            if (ara.Length + this._components.Count > 5)
+                throw new ArgumentException("ActionRow count exceeds maximum of five.");
+
+            foreach (var ar in ara)
+                this._components.Add(ar);
+
+            return this;
+        }
 
         /// <summary>
         /// Appends a collection of components to the message.
@@ -101,7 +119,7 @@ namespace DSharpPlus.Entities
         /// <param name="components">The collection of components to add.</param>
         /// <returns>The builder to chain calls with.</returns>
         /// <exception cref="ArgumentException"><paramref name="components"/> contained more than 5 components.</exception>
-        public DiscordFollowupMessageBuilder WithComponents(IEnumerable<DiscordComponent> components)
+        public DiscordFollowupMessageBuilder AddComponents(IEnumerable<DiscordComponent> components)
         {
             var compArr = components.ToArray();
             var count = compArr.Length;
