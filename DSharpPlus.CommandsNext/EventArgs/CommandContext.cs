@@ -59,7 +59,7 @@ namespace DSharpPlus.CommandsNext
             => this.Channel.Guild;
 
         /// <summary>
-        /// Gets the user who triggered the execution. Reffers to Message.Author.
+        /// Gets the user who triggered the execution. Refers to Message.Author.
         /// </summary>
         public DiscordUser User
             => this.Message.Author;
