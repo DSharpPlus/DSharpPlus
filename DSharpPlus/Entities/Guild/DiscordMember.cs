@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.Net.Abstractions;
@@ -194,6 +195,21 @@ namespace DSharpPlus.Entities
             get => this.User.Discriminator;
             internal set => this.User.Discriminator = value;
         }
+
+        [JsonProperty("avatar")]
+        internal string _avatarHash;
+
+        /// <summary>
+        /// Gets the member's avatar for the current guild.
+        /// </summary>
+        public string GuildAvatarHash => this._avatarHash ?? this.User.AvatarHash;
+
+        /// <summary>
+        /// Gets the members avatar url for the current guild.
+        /// </summary>
+        public string GuildAvatarUrl
+            => !string.IsNullOrWhiteSpace(this.GuildAvatarHash) ? (this.GuildAvatarHash.StartsWith("a_") ? $"https://cdn.discordapp.com/avatars/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.GuildAvatarHash}.gif?size=1024" : $"https://cdn.discordapp.com/avatars/{this.Id}/{this.GuildAvatarHash}.png?size=1024") : this.DefaultAvatarUrl;
+
 
         /// <summary>
         /// Gets the member's avatar hash.
@@ -422,7 +438,7 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Grants a role to the member. 
+        /// Grants a role to the member.
         /// </summary>
         /// <param name="role">Role to grant.</param>
         /// <param name="reason">Reason for audit logs.</param>
