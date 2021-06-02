@@ -111,8 +111,27 @@ namespace DSharpPlus.Entities
         /// <param name="components">The components to add to the message.</param>
         /// <returns>The current builder to be chained.</returns>
         /// <exception cref="ArgumentOutOfRangeException">No components were passed.</exception>
-        public DiscordMessageBuilder WithComponents(params DiscordComponent[] components)
-            => this.WithComponents((IEnumerable<DiscordComponent>)components);
+        public DiscordMessageBuilder AddComponents(params DiscordComponent[] components)
+            => this.AddComponents((IEnumerable<DiscordComponent>)components);
+
+
+        /// <summary>
+        /// Appends several rows of components to the message
+        /// </summary>
+        /// <param name="components">The rows of components to add, holding up to five each.</param>
+        /// <returns></returns>
+        public DiscordMessageBuilder AddComponents(IEnumerable<DiscordActionRowComponent> components)
+        {
+            var ara = components.ToArray();
+
+            if (ara.Length + this._components.Count > 5)
+                throw new ArgumentException("ActionRow count exceeds maximum of five.");
+
+            foreach (var ar in ara)
+                this._components.Add(ar);
+
+            return this;
+        }
 
         /// <summary>
         /// Adds a row of components to a message, up to 5 components per row, and up to 5 rows per message.
@@ -120,7 +139,7 @@ namespace DSharpPlus.Entities
         /// <param name="components">The components to add to the message.</param>
         /// <returns>The current builder to be chained.</returns>
         /// <exception cref="ArgumentOutOfRangeException">No components were passed.</exception>
-        public DiscordMessageBuilder WithComponents(IEnumerable<DiscordComponent> components)
+        public DiscordMessageBuilder AddComponents(IEnumerable<DiscordComponent> components)
         {
             var cmpArr = components.ToArray();
 
