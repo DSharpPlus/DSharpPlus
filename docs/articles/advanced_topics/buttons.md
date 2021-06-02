@@ -68,7 +68,7 @@ var myButton = new DiscordButtonComponent
 
 var builder = new DiscordMessageBuilder()
     .WithContent("This message has buttons! Pretty neat innit?")
-    .WithComponents(myButton);
+    .AddComponents(myButton);
 ```
 Now you have a message with a button. Congratulations! It's important to note that `.WithComponents()` will create a new row with each call, so **add everything you want on one row in one call!**
 
