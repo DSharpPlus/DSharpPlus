@@ -56,7 +56,7 @@ var builder = new DiscordMessageBuilder();
 builder.WithContent("This message has buttons! Pretty neat innit?");
 ```
 
-Well, there's a builder, but no buttons. What now? Simply make a new button object (`DiscordButtonComponent`) and call `.WithComponents()` on the MessageBuilder.
+Well, there's a builder, but no buttons. What now? Simply make a new button object (`DiscordButtonComponent`) and call `.AddComponents()` on the MessageBuilder.
 
 ```cs
 var myButton = new DiscordButtonComponent
