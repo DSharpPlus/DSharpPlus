@@ -31,6 +31,10 @@ namespace DSharpPlus.SlashCommands
             _configuration = configuration;
         }
 
+        /// <summary>
+        /// Runs setup. DO NOT RUN THIS MANUALLY. DO NOT DO ANYTHING WITH THIS.
+        /// </summary>
+        /// <param name="client">The client to setup on.</param>
         protected override void Setup(DiscordClient client)
         {
             if (this.Client != null)
@@ -51,7 +55,7 @@ namespace DSharpPlus.SlashCommands
         /// Registers a command class
         /// </summary>
         /// <typeparam name="T">The command class to register</typeparam>
-        /// <param name="guildid">The guild id to register it on. If you want global commands, leave it null.</param>
+        /// <param name="guildId">The guild id to register it on. If you want global commands, leave it null.</param>
         public void RegisterCommands<T>(ulong? guildId = null) where T : SlashCommandModule
         {
             if(Client.ShardId == 0)

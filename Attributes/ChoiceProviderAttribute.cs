@@ -9,9 +9,15 @@ namespace DSharpPlus.SlashCommands
     [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = true)]
     public class ChoiceProviderAttribute : Attribute
     {
-
+        /// <summary>
+        /// The type of the provider
+        /// </summary>
         public Type ProviderType { get; }
         
+        /// <summary>
+        /// Adds a choice provider to this command
+        /// </summary>
+        /// <param name="providerType">The type of the provider</param>
         public ChoiceProviderAttribute(Type providerType)
         {
             ProviderType = providerType;

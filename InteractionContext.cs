@@ -70,7 +70,7 @@ namespace DSharpPlus.SlashCommands
 
         /// <summary>
         /// Creates a response to this interaction
-        /// <para>You must create a response within 3 seconds of this interaction being executed; if the command has the potential to take more than 3 seconds, create a <see cref="DiscordInteractionResponseType.DeferredChannelMessageWithSource"/> at the start, and edit the response later</para>
+        /// <para>You must create a response within 3 seconds of this interaction being executed; if the command has the potential to take more than 3 seconds, create a <see cref="InteractionResponseType.DeferredChannelMessageWithSource"/> at the start, and edit the response later</para>
         /// </summary>
         /// <param name="type">The type of the response</param>
         /// <param name="builder">The data to be sent, if any</param>

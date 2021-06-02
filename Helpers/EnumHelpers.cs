@@ -5,6 +5,9 @@ using System.Linq;
 
 namespace DSharpPlus.SlashCommands
 {
+    /// <summary>
+    /// Defines some extension methods for enums.
+    /// </summary>
     public static class EnumHelpers
     {
         /// <summary>
