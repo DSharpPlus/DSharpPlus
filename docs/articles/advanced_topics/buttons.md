@@ -77,7 +77,7 @@ Buttons can be added in any order you fancy. Lets add 5 to demonstrate each colo
 ```cs
 var builder = new DiscordMessageBuilder()
     .WithContent("This message has buttons! Pretty neat innit?")
-    .WithComponents(new DiscordComponent[]
+    .AddComponents(new DiscordComponent[]
     {
         new DiscordButtonComponent(ButtonStyle.Primary, "1_top" "Blurple!"),
         new DiscordButtonComponent(ButtonStyle.Secondary, "2_top", "Grey!"),
