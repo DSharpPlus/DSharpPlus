@@ -50,5 +50,6 @@ namespace DSharpPlus.Entities
         {
             this.Components = components.ToList().AsReadOnly();
         }
+        internal DiscordActionRowComponent() { } // For Json.NET
     }
 }
