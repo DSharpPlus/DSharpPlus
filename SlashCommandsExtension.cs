@@ -17,14 +17,14 @@ namespace DSharpPlus.SlashCommands
     /// </summary>
     public class SlashCommandsExtension : BaseExtension
     {
-        private List<CommandMethod> CommandMethods { get; set; } = new List<CommandMethod>();
-        private List<GroupCommand> GroupCommands { get; set; } = new List<GroupCommand>();
-        private List<SubGroupCommand> SubGroupCommands { get; set; } = new List<SubGroupCommand>();
+        private static List<CommandMethod> CommandMethods { get; set; } = new List<CommandMethod>();
+        private static List<GroupCommand> GroupCommands { get; set; } = new List<GroupCommand>();
+        private static List<SubGroupCommand> SubGroupCommands { get; set; } = new List<SubGroupCommand>();
 
         private List<KeyValuePair<ulong?, Type>> UpdateList { get; set; } = new List<KeyValuePair<ulong?, Type>>();
 
         private readonly SlashCommandsConfiguration _configuration;
-        private bool Errored { get; set; } = false;
+        private static bool Errored { get; set; } = false;
         
         internal SlashCommandsExtension(SlashCommandsConfiguration configuration)
         {
@@ -51,16 +51,34 @@ namespace DSharpPlus.SlashCommands
         /// Registers a command class
         /// </summary>
         /// <typeparam name="T">The command class to register</typeparam>
-        public void RegisterCommands<T>(ulong? guildid = null) where T : SlashCommandModule
+        /// <param name="guildid">The guild id to register it on. If you want global commands, leave it null.</param>
+        public void RegisterCommands<T>(ulong? guildId = null) where T : SlashCommandModule
         {
-            UpdateList.Add(new KeyValuePair<ulong?, Type>(guildid, typeof(T)));
+            if(Client.ShardId == 0)
+                UpdateList.Add(new KeyValuePair<ulong?, Type>(guildId, typeof(T)));
+        }
+
+        /// <summary>
+        /// Registers a command class
+        /// </summary>
+        /// <param name="type">The <see cref="Type"/> of the command class to register</param>
+        /// <param name="guildId">The guild id to register it on. If you want global commands, leave it null.</param>
+        public void RegisterCommands(Type type, ulong? guildId = null)
+        {
+            if (!typeof(SlashCommandModule).IsAssignableFrom(type))
+                throw new ArgumentException("Command classes have to inherit from SlashCommandModule", nameof(type));
+            if (Client.ShardId == 0)
+                UpdateList.Add(new KeyValuePair<ulong?, Type>(guildId, type));
         }
 
         internal Task Update(DiscordClient client, ReadyEventArgs e)
         {
-            foreach(var key in UpdateList.Select(x => x.Key).Distinct())
+            if(client.ShardId == 0)
             {
-                RegisterCommands(UpdateList.Where(x => x.Key == key).Select(x => x.Value), key);
+                foreach (var key in UpdateList.Select(x => x.Key).Distinct())
+                {
+                    RegisterCommands(UpdateList.Where(x => x.Key == key).Select(x => x.Value), key);
+                }
             }
             return Task.CompletedTask;
         }
