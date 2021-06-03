@@ -100,7 +100,7 @@ namespace DSharpPlus.Entities
         /// <returns>The current builder to be chained.</returns>
         /// <exception cref="ArgumentOutOfRangeException">No components were passed.</exception>
         public DiscordWebhookBuilder AddComponents(params DiscordComponent[] components)
-            => this.AddComponents((IEnumerable <DiscordActionRowComponent>)components);
+            => this.AddComponents((IEnumerable<DiscordComponent>)components);
 
 
         /// <summary>

@@ -100,7 +100,7 @@ namespace DSharpPlus.Entities
         /// <returns>The current builder to chain calls with.</returns>
         /// <exception cref="ArgumentException">Thrown when passing more than 5 components.</exception>
         public DiscordInteractionResponseBuilder AddComponents(params DiscordComponent[] components)
-            => this.AddComponents((IEnumerable<DiscordActionRowComponent>)components);
+            => this.AddComponents((IEnumerable<DiscordComponent>)components);
 
         /// <summary>
         /// Appends several rows of components to the message
