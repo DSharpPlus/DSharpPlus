@@ -7,7 +7,7 @@ title: Buttons
 Buttons are a feature in Discord based on the interaction framework appended to the bottom of a message which come in several colors.
 You will want to familarize yourself with the [message builder](xref:beyond_basics_messagebuilder) as it and similar builder objects will be used throughout this article.
 
-With buttons, you can have up to five buttons in a row, and up to five (5) rows of buttons. 
+With buttons, you can have up to five buttons in a row, and up to five (5) rows of buttons, for a maximum for 25 buttons per message.
 Furthermore, buttons come in two types: regular, and link. Link buttons contain a Url field, and are always grey.
 
 # Buttons Continued
@@ -28,7 +28,7 @@ The id of the button is a settable string on buttons, and is specified by the de
 
 Non-link buttons come in four colors, which are known as styles: Blurple, Grey, Green, and Red. Or as their styles are named: Primary, Secondary, Success, and Danger respectively.
 
-How does one construct a button? It's simple, and buttons support constructor and object initialization
+How does one construct a button? It's simple, buttons support constructor and object initialization like so:
 ```cs
 var myButton = new DiscordButtonComponent() 
 {
