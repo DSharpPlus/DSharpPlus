@@ -94,21 +94,53 @@ namespace DSharpPlus.Entities
 
 
         /// <summary>
-        /// Adds acollection of components to the message.
+        /// Adds a row of components to the builder, up to 5 components per row, and up to 5 rows per message.
         /// </summary>
-        /// <param name="components">The collection of components to add.</param>
-        /// <returns>The builder to chain calls with.</returns>
-        /// <exception cref="ArgumentException"><paramref name="components"/> contained more than 5 components.</exception>
-        public DiscordWebhookBuilder WithComponents(IEnumerable<DiscordComponent> components)
+        /// <param name="components">The components to add to the builder.</param>
+        /// <returns>The current builder to be chained.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">No components were passed.</exception>
+        public DiscordWebhookBuilder AddComponents(params DiscordComponent[] components)
+            => this.AddComponents(components);
+
+
+        /// <summary>
+        /// Appends several rows of components to the builder
+        /// </summary>
+        /// <param name="components">The rows of components to add, holding up to five each.</param>
+        /// <returns></returns>
+        public DiscordWebhookBuilder AddComponents(IEnumerable<DiscordActionRowComponent> components)
         {
-            var compArr = components.ToArray();
-            var count = compArr.Length;
+            var ara = components.ToArray();
+
+            if (ara.Length + this._components.Count > 5)
+                throw new ArgumentException("ActionRow count exceeds maximum of five.");
+
+            foreach (var ar in ara)
+                this._components.Add(ar);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a row of components to the builder, up to 5 components per row, and up to 5 rows per message.
+        /// </summary>
+        /// <param name="components">The components to add to the builder.</param>
+        /// <returns>The current builder to be chained.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">No components were passed.</exception>
+        public DiscordWebhookBuilder AddComponents(IEnumerable<DiscordComponent> components)
+        {
+            var cmpArr = components.ToArray();
+            var count = cmpArr.Length;
+
+            if (!cmpArr.Any())
+                throw new ArgumentOutOfRangeException(nameof(components), "You must provide at least one component");
 
             if (count > 5)
                 throw new ArgumentException("Cannot add more than 5 components per action row!");
 
-            var arc = new DiscordActionRowComponent(compArr);
-            this._components.Add(arc);
+            var comp = new DiscordActionRowComponent(cmpArr);
+            this._components.Add(comp);
+
             return this;
         }
 

@@ -93,7 +93,7 @@ namespace DSharpPlus.Entities
         /// <returns>The builder to chain calls with.</returns>
         /// <exception cref="ArgumentException"><paramref name="components"/> contained more than 5 components.</exception>
         public DiscordFollowupMessageBuilder AddComponents(params DiscordComponent[] components)
-            => this.AddComponents((IEnumerable<DiscordComponent>)components);
+            => this.AddComponents(components);
 
         /// <summary>
         /// Appends several rows of components to the message
