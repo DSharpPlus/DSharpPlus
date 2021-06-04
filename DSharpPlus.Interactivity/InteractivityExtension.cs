@@ -134,9 +134,7 @@ namespace DSharpPlus.Interactivity
                 var result = await this.ComponentInteractionWaiter
                     .WaitForMatch(new MatchRequest<ComponentInteractionCreateEventArgs>(c => c.Interaction.Type == InteractionType.Component && c.Interaction.Data.ComponentType == ComponentType.Button && c.Message.Id == message.Id && buttons.Any(b => b.CustomId == c.Id), timeout)).ConfigureAwait(false);
 
-                return result is null
-                    ? new InteractivityResult<ComponentInteractionCreateEventArgs>(true, null)
-                    : new InteractivityResult<ComponentInteractionCreateEventArgs>(false, result);
+                return new InteractivityResult<ComponentInteractionCreateEventArgs>(result is null, result);
             }
         }
 
@@ -164,9 +162,8 @@ namespace DSharpPlus.Interactivity
                 var result = await this.ComponentInteractionWaiter
                     .WaitForMatch(new MatchRequest<ComponentInteractionCreateEventArgs>(c => c.Interaction.Type == InteractionType.Component && c.Interaction.Data.ComponentType == ComponentType.Button && c.Message.Id == message.Id, timeout)).ConfigureAwait(false);
 
-                return result is null
-                    ? new InteractivityResult<ComponentInteractionCreateEventArgs>(true, null)
-                    : new InteractivityResult<ComponentInteractionCreateEventArgs>(false, result);
+                return new InteractivityResult<ComponentInteractionCreateEventArgs>(result is null, result);
+
             }
         }
 
@@ -195,9 +192,7 @@ namespace DSharpPlus.Interactivity
                 var result = await this.ComponentInteractionWaiter
                     .WaitForMatch(new MatchRequest<ComponentInteractionCreateEventArgs>(c => c.Interaction.Type == InteractionType.Component && c.Interaction.Data.ComponentType == ComponentType.Button && c.Message.Id == message.Id && c.User == user, timeout)).ConfigureAwait(false);
 
-                return result is null
-                    ? new InteractivityResult<ComponentInteractionCreateEventArgs>(true, null)
-                    : new InteractivityResult<ComponentInteractionCreateEventArgs>(false, result);
+                return new InteractivityResult<ComponentInteractionCreateEventArgs>(result is null, result);                    
             }
         }
 
