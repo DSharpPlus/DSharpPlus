@@ -60,7 +60,7 @@ namespace DSharpPlus.Test
 
             var builder = new DiscordMessageBuilder()
                 .WithContent("Press start to start. This message is valid for 10 minutes, and the role menu setup expires 15 minutes after that.")
-                .WithComponents(start);
+                .AddComponents(start);
 
             currentMessage = await builder.SendAsync(ctx.Channel);
             buttonInput = (await input.WaitForButtonAsync(currentMessage, TimeSpan.FromMinutes(10))).Result;
@@ -109,10 +109,10 @@ namespace DSharpPlus.Test
 
             builder
                 .WithContent("Buttons! Coming soon:tm:")
-                .WithComponents(p)
-                .WithComponents(c, b)
-                .WithComponents(y, z)
-                .WithComponents(d1, d2, d3, d4);
+                .AddComponents(p)
+                .AddComponents(c, b)
+                .AddComponents(y, z)
+                .AddComponents(d1, d2, d3, d4);
 
             await builder.SendAsync(ctx.Channel);
 

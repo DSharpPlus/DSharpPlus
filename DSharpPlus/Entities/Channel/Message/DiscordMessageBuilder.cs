@@ -142,9 +142,13 @@ namespace DSharpPlus.Entities
         public DiscordMessageBuilder AddComponents(IEnumerable<DiscordComponent> components)
         {
             var cmpArr = components.ToArray();
+            var count = cmpArr.Length;
 
             if (!cmpArr.Any())
                 throw new ArgumentOutOfRangeException(nameof(components), "You must provide at least one component");
+
+            if (count > 5)
+                throw new ArgumentException("Cannot add more than 5 components per action row!");
 
             var comp = new DiscordActionRowComponent(cmpArr);
             this._components.Add(comp);
