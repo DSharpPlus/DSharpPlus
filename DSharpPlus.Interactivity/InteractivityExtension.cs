@@ -39,6 +39,8 @@ namespace DSharpPlus.Interactivity
     /// </summary>
     public class InteractivityExtension : BaseExtension
     {
+
+        #pragma warning disable IDE1006 // Naming Styles
         internal InteractivityConfiguration Config { get; }
 
         private EventWaiter<MessageCreateEventArgs> MessageCreatedWaiter;
@@ -54,6 +56,7 @@ namespace DSharpPlus.Interactivity
         private Poller Poller;
 
         private Paginator Paginator;
+        #pragma warning restore IDE1006 // Naming Styles
 
         internal InteractivityExtension(InteractivityConfiguration cfg)
         {
