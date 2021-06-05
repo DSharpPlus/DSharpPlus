@@ -163,10 +163,10 @@ namespace DSharpPlus.Test
                 new DiscordInteractionResponseBuilder()
                     .WithContent("Poggers")
                     .AsEphemeral(true)
-                    .WithComponents(new [] {p})
-                    .WithComponents(new [] {c, b})
-                    .WithComponents(new DiscordComponent[] {y, z})
-                    .WithComponents(new [] {d1, d2, d3, d4}));
+                    .AddComponents(new [] {p})
+                    .AddComponents(new [] {c, b})
+                    .AddComponents(new DiscordComponent[] {y, z})
+                    .AddComponents(new [] {d1, d2, d3, d4}));
         }
 
     private async Task RoleMenu(DiscordClient client, ComponentInteractionEventArgs args)

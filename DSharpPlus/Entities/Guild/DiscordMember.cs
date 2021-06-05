@@ -76,7 +76,7 @@ namespace DSharpPlus.Entities
         /// Gets the members avatar url for the current guild.
         /// </summary>
         public string GuildAvatarUrl
-            => !string.IsNullOrWhiteSpace(this.GuildAvatarHash) ? (this.GuildAvatarHash.StartsWith("a_") ? $"https://cdn.discordapp.com/guilds/{this._guild_id}/users/{this.Id}/avatar/{this.GuildAvatarHash}.gif?size=1024" : $"https://cdn.discordapp.com/guilds/{this._guild_id}/users/{this.Id}/avatar/{this.GuildAvatarHash}.png?size=1024") : this.DefaultAvatarUrl;
+            => !string.IsNullOrWhiteSpace(this.GuildAvatarHash) ? (this.GuildAvatarHash.StartsWith("a_") ? $"https://cdn.discordapp.com/guilds/{this._guild_id}/users/{this.Id}/avatars/{this.GuildAvatarHash}.gif?size=1024" : $"https://cdn.discordapp.com/guilds/{this._guild_id}/users/{this.Id}/avatars/{this.GuildAvatarHash}.png?size=1024") : this.DefaultAvatarUrl;
         [JsonIgnore]
         private string _avatarHash;
 
