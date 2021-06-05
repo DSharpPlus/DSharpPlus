@@ -68,6 +68,19 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Gets the member's avatar for the current guild.
+        /// </summary>
+        public string GuildAvatarHash => this._avatarHash ?? this.User.AvatarHash;
+
+        /// <summary>
+        /// Gets the members avatar url for the current guild.
+        /// </summary>
+        public string GuildAvatarUrl
+            => !string.IsNullOrWhiteSpace(this.GuildAvatarHash) ? (this.GuildAvatarHash.StartsWith("a_") ? $"https://cdn.discordapp.com/guilds/{this._guild_id}/users/{this.Id}/avatar/{this.GuildAvatarHash}.gif?size=1024" : $"https://cdn.discordapp.com/guilds/{this._guild_id}/users/{this.Id}/avatar/{this.GuildAvatarHash}.png?size=1024") : this.DefaultAvatarUrl;
+        [JsonIgnore]
+        private string _avatarHash;
+
+        /// <summary>
         /// Gets this member's nickname.
         /// </summary>
         [JsonProperty("nick", NullValueHandling = NullValueHandling.Ignore)]
@@ -195,21 +208,6 @@ namespace DSharpPlus.Entities
             get => this.User.Discriminator;
             internal set => this.User.Discriminator = value;
         }
-
-
-
-        /// <summary>
-        /// Gets the member's avatar for the current guild.
-        /// </summary>
-        public string GuildAvatarHash => this._avatarHash ?? this.User.AvatarHash;
-
-        /// <summary>
-        /// Gets the members avatar url for the current guild.
-        /// </summary>
-        public string GuildAvatarUrl
-            => !string.IsNullOrWhiteSpace(this.GuildAvatarHash) ? (this.GuildAvatarHash.StartsWith("a_") ? $"https://cdn.discordapp.com/avatars/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.GuildAvatarHash}.gif?size=1024" : $"https://cdn.discordapp.com/avatars/{this.Id}/{this.GuildAvatarHash}.png?size=1024") : this.DefaultAvatarUrl;
-
-        private string _avatarHash;
 
         /// <summary>
         /// Gets the member's avatar hash.
