@@ -46,10 +46,10 @@ namespace DSharpPlus.Entities
         [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
         public IReadOnlyCollection<DiscordComponent> Components { get; internal set; }
 
-        internal DiscordActionRowComponent(IEnumerable<DiscordComponent> components)
+        public DiscordActionRowComponent(IEnumerable<DiscordComponent> components)
         {
             this.Components = components.ToList().AsReadOnly();
         }
-
+        internal DiscordActionRowComponent() { } // For Json.NET
     }
 }
