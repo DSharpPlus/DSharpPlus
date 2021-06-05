@@ -70,13 +70,16 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the member's avatar for the current guild.
         /// </summary>
+        [JsonIgnore]
         public string GuildAvatarHash => this._avatarHash ?? this.User.AvatarHash;
 
         /// <summary>
         /// Gets the members avatar url for the current guild.
         /// </summary>
+        [JsonIgnore]
         public string GuildAvatarUrl
             => !string.IsNullOrWhiteSpace(this.GuildAvatarHash) ? (this.GuildAvatarHash.StartsWith("a_") ? $"https://cdn.discordapp.com/guilds/{this._guild_id}/users/{this.Id}/avatars/{this.GuildAvatarHash}.gif?size=1024" : $"https://cdn.discordapp.com/guilds/{this._guild_id}/users/{this.Id}/avatars/{this.GuildAvatarHash}.png?size=1024") : this.DefaultAvatarUrl;
+
         [JsonIgnore]
         private string _avatarHash;
 
