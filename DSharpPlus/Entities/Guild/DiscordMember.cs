@@ -81,7 +81,7 @@ namespace DSharpPlus.Entities
             => !string.IsNullOrWhiteSpace(this.GuildAvatarHash) ? (this.GuildAvatarHash.StartsWith("a_") ? $"https://cdn.discordapp.com/guilds/{this._guild_id}/users/{this.Id}/avatars/{this.GuildAvatarHash}.gif?size=1024" : $"https://cdn.discordapp.com/guilds/{this._guild_id}/users/{this.Id}/avatars/{this.GuildAvatarHash}.png?size=1024") : this.DefaultAvatarUrl;
 
         [JsonIgnore]
-        private string _avatarHash;
+        internal string _avatarHash;
 
         /// <summary>
         /// Gets this member's nickname.
