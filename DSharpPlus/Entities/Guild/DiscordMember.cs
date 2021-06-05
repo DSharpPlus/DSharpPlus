@@ -215,6 +215,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the member's avatar hash.
         /// </summary>
+        [JsonIgnore]
         public override string AvatarHash
         {
             get => this.User.AvatarHash;
