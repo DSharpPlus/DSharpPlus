@@ -184,7 +184,7 @@ namespace DSharpPlus
 
                 case "guild_member_update":
                     gid = (ulong)dat["guild_id"];
-                    await this.OnGuildMemberUpdateEventAsync(dat["user"].ToObject<TransportMember>(), this._guilds[gid], dat["roles"].ToObject<IEnumerable<ulong>>(), (string)dat["nick"], (bool?)dat["pending"]).ConfigureAwait(false);
+                    await this.OnGuildMemberUpdateEventAsync(dat.ToDiscordObject<TransportMember>(), this._guilds[gid], dat["roles"].ToObject<IEnumerable<ulong>>(), (string)dat["nick"], (bool?)dat["pending"]).ConfigureAwait(false);
                     break;
 
                 case "guild_members_chunk":
