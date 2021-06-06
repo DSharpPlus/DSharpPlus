@@ -182,7 +182,7 @@ public async Task ChoiceProviderCommand(InteractionContext ctx,
 ```
 
 ### Pre-execution checks
-You can define some custom attributes that function as pre-execution checks, woring very similarly to `CommandsNext`. Simply create an attribute that inherits `SlashCheckBaseAttribute` and override the methods.
+You can define some custom attributes that function as pre-execution checks, working very similarly to `CommandsNext`. Simply create an attribute that inherits `SlashCheckBaseAttribute` and override the methods.
 ```cs
 public class RequireMeAttribute : SlashCheckBaseAttribute
 {
