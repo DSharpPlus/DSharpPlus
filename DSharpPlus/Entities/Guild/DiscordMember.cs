@@ -24,8 +24,10 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Models;
 using Newtonsoft.Json;
@@ -61,10 +63,26 @@ namespace DSharpPlus.Entities
             this.Nickname = mbr.Nickname;
             this.PremiumSince = mbr.PremiumSince;
             this.IsPending = mbr.IsPending;
-
+            this._avatarHash = mbr.AvatarHash;
             this._role_ids = mbr.Roles ?? new List<ulong>();
             this._role_ids_lazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(this._role_ids));
         }
+
+        /// <summary>
+        /// Gets the member's avatar for the current guild.
+        /// </summary>
+        [JsonIgnore]
+        public string GuildAvatarHash => this._avatarHash ?? this.User.AvatarHash;
+
+        /// <summary>
+        /// Gets the members avatar url for the current guild.
+        /// </summary>
+        [JsonIgnore]
+        public string GuildAvatarUrl
+            => !string.IsNullOrWhiteSpace(this.GuildAvatarHash) ? (this.GuildAvatarHash.StartsWith("a_") ? $"https://cdn.discordapp.com{Endpoints.GUILDS}/{this._guild_id}{Endpoints.USERS}/{this.Id}{Endpoints.AVATARS}/{this.GuildAvatarHash}.gif?size=1024" : $"https://cdn.discordapp.com{Endpoints.GUILDS}/{this._guild_id}{Endpoints.USERS}/{this.Id}{Endpoints.AVATARS}/{this.GuildAvatarHash}.png?size=1024") : this.DefaultAvatarUrl;
+
+        [JsonIgnore]
+        internal string _avatarHash;
 
         /// <summary>
         /// Gets this member's nickname.
@@ -198,6 +216,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the member's avatar hash.
         /// </summary>
+        [JsonIgnore]
         public override string AvatarHash
         {
             get => this.User.AvatarHash;
@@ -422,7 +441,7 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Grants a role to the member. 
+        /// Grants a role to the member.
         /// </summary>
         /// <param name="role">Role to grant.</param>
         /// <param name="reason">Reason for audit logs.</param>
