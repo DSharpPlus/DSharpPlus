@@ -302,6 +302,8 @@ namespace DSharpPlus.SlashCommands
                             var args = await ResolveInteractionCommandParameters(e, context, method.Method, e.Interaction.Data.Options);
                             var classinstance = ActivatorUtilities.CreateInstance(_configuration?.Services, method.ParentClass);
 
+                            await RunPreexecutionChecksAsync(method.Method, context);
+
                             await ((SlashCommandModule)classinstance).BeforeExecutionAsync(context);
 
                             var task = (Task)method.Method.Invoke(classinstance, args.ToArray());
@@ -320,6 +322,8 @@ namespace DSharpPlus.SlashCommands
                             SlashCommandModule module = null;
                             if (classinstance is SlashCommandModule _module)
                                 module = _module;
+
+                            await RunPreexecutionChecksAsync(method, context);
 
                             await (module?.BeforeExecutionAsync(context) ?? Task.CompletedTask);
 
@@ -341,6 +345,8 @@ namespace DSharpPlus.SlashCommands
                             SlashCommandModule module = null;
                             if (classinstance is SlashCommandModule _module)
                                 module = _module;
+
+                            await RunPreexecutionChecksAsync(method, context);
 
                             await (module?.BeforeExecutionAsync(context) ?? Task.CompletedTask);
 
@@ -431,6 +437,20 @@ namespace DSharpPlus.SlashCommands
             }
 
             return args;
+        }
+
+        private async Task RunPreexecutionChecksAsync(MethodInfo method, InteractionContext ctx)
+        {
+            var attributes = method.GetCustomAttributes<SlashCheckBaseAttribute>(true);
+            var dict = new Dictionary<SlashCheckBaseAttribute, bool>();
+            foreach (var att in attributes)
+            {
+                var result = await att.ExecuteChecksAsync(ctx);
+                dict.Add(att, result);
+            }
+
+            if (dict.Any(x => x.Value == false))
+                throw new SlashExecutionChecksFailedException(dict.Where(x => x.Value == false).Select(x => x.Key).ToList());
         }
 
         //Events
