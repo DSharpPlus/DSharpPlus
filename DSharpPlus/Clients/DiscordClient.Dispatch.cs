@@ -184,7 +184,7 @@ namespace DSharpPlus
 
                 case "guild_member_update":
                     gid = (ulong)dat["guild_id"];
-                    await this.OnGuildMemberUpdateEventAsync(dat["user"].ToObject<TransportUser>(), this._guilds[gid], dat["roles"].ToObject<IEnumerable<ulong>>(), (string)dat["nick"], (bool?)dat["pending"]).ConfigureAwait(false);
+                    await this.OnGuildMemberUpdateEventAsync(dat.ToDiscordObject<TransportMember>(), this._guilds[gid], dat["roles"].ToObject<IEnumerable<ulong>>(), (string)dat["nick"], (bool?)dat["pending"]).ConfigureAwait(false);
                     break;
 
                 case "guild_members_chunk":
@@ -1031,10 +1031,10 @@ namespace DSharpPlus
             await this._guildMemberRemoved.InvokeAsync(this, ea).ConfigureAwait(false);
         }
 
-        internal async Task OnGuildMemberUpdateEventAsync(TransportUser user, DiscordGuild guild, IEnumerable<ulong> roles, string nick, bool? pending)
+        internal async Task OnGuildMemberUpdateEventAsync(TransportMember member, DiscordGuild guild, IEnumerable<ulong> roles, string nick, bool? pending)
         {
-            var usr = new DiscordUser(user) { Discord = this };
-            usr = this.UserCache.AddOrUpdate(user.Id, usr, (id, old) =>
+            var usr = new DiscordUser(member.User) { Discord = this };
+            usr = this.UserCache.AddOrUpdate(usr.Id, usr, (id, old) =>
             {
                 old.Username = usr.Username;
                 old.Discriminator = usr.Discriminator;
@@ -1042,13 +1042,14 @@ namespace DSharpPlus
                 return old;
             });
 
-            if (!guild.Members.TryGetValue(user.Id, out var mbr))
+            if (!guild.Members.TryGetValue(member.User.Id, out var mbr))
                 mbr = new DiscordMember(usr) { Discord = this, _guild_id = guild.Id };
 
             var nick_old = mbr.Nickname;
             var pending_old = mbr.IsPending;
             var roles_old = new ReadOnlyCollection<DiscordRole>(new List<DiscordRole>(mbr.Roles));
 
+            mbr._avatarHash = member.AvatarHash;
             mbr.Nickname = nick;
             mbr.IsPending = pending;
             mbr._role_ids.Clear();

@@ -145,7 +145,6 @@ namespace DSharpPlus.Test
             //};
         }
 
-
         public async Task RunAsync()
         {
             var act = new DiscordActivity("the screams of your ancestors", ActivityType.ListeningTo);
