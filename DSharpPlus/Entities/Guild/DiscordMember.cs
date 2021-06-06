@@ -172,6 +172,14 @@ namespace DSharpPlus.Entities
         public int Hierarchy
             => this.IsOwner ? int.MaxValue : this.RoleIds.Count == 0 ? 0 : this.Roles.Max(x => x.Position);
 
+
+        /// <summary>
+        /// Gets the permissions for the current member.
+        /// </summary>
+        [JsonIgnore]
+        public Permissions Permissions
+            => this.Roles.Aggregate(Permissions.None, (perms, role) => perms |= role.Permissions);
+
         #region Overridden user properties
         [JsonIgnore]
         internal DiscordUser User
@@ -422,7 +430,7 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Grants a role to the member. 
+        /// Grants a role to the member.
         /// </summary>
         /// <param name="role">Role to grant.</param>
         /// <param name="reason">Reason for audit logs.</param>
@@ -526,6 +534,7 @@ namespace DSharpPlus.Entities
         /// <returns>Calculated permissions for this member in the channel.</returns>
         public Permissions PermissionsIn(DiscordChannel channel)
             => channel.PermissionsFor(this);
+
 
         /// <summary>
         /// Returns a string representation of this member.
