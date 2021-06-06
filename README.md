@@ -180,6 +180,41 @@ public async Task ChoiceProviderCommand(InteractionContext ctx,
     await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(option));
 }
 ```
+
+### Pre-execution checks
+You can define some custom attributes that function as pre-execution checks, woring very similarly to `CommandsNext`. Simply create an attribute that inherits `SlashCheckBaseAttribute` and override the methods.
+```cs
+public class RequireMeAttribute : SlashCheckBaseAttribute
+{
+    public override async Task<bool> ExecuteChecksAsync(InteractionContext ctx)
+    {
+        if(ctx.User.Id != 00000)
+            return false;
+        return true;
+    }
+}
+```
+Then just apply it to your command
+```cs
+[SlashCommand("admin", "runs sneaky admin things")]
+[RequireMe]
+public async Task Admin(InteractionContext ctx) { //secrets }
+```
+To provide a custom error message when an execution check fails, hook the `SlashCommandErrored` event on your `SlashCommandsExtension`
+```cs
+SlashCommandsExtension slash = //assigned;
+slash.SlashCommandErrored += async (s, e) =>
+{
+    if(e.Exception is SlashExecutionChecksFailedException slex)
+    {
+        if (slex.FailedChecks.Any(x => x is RequireMeAttribute))
+        {
+            await e.Context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Only my owner can run this command!"));
+        }
+    }
+};
+```
+
 ### Groups
 You can have slash commands in groups. Their structure is explained [here](https://discord.com/developers/docs/interactions/slash-commands#nested-subcommands-and-groups), I would highly recommend reading it to understand how they work. To register groups you need a container which inherits from `SlashCommandModule`. Inside this container you can register groups of commands:
 ```cs
