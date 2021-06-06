@@ -64,8 +64,8 @@ namespace DSharpPlus.Test
             var btn2 = new DiscordButtonComponent(ButtonStyle.Secondary, "no2", "Button 2!", true);
             var btn3 = new DiscordButtonComponent(ButtonStyle.Success, "no3", "Button 3!", true);
 
-            builder.WithComponents(btn1, btn2, btn3);
-            builder.WithComponents(select);
+            builder.AddComponents(btn1, btn2, btn3);
+            builder.AddComponents(select);
 
             var msg = await builder.SendAsync(ctx.Channel);
             var res = await input.WaitForSelectAsync(msg, "yert", TimeSpan.FromSeconds(30));
@@ -102,8 +102,8 @@ namespace DSharpPlus.Test
             var btn2 = new DiscordButtonComponent(ButtonStyle.Secondary, "no2", "Button 2!", true);
             var btn3 = new DiscordButtonComponent(ButtonStyle.Success, "no3", "Button 3!", true);
 
-            builder.WithComponents(btn1, btn2, btn3);
-            builder.WithComponents(select);
+            builder.AddComponents(btn1, btn2, btn3);
+            builder.AddComponents(select);
 
             var msg = await builder.SendAsync(ctx.Channel);
             wait:
