@@ -35,5 +35,9 @@ namespace DSharpPlus.Entities
         /// A button.
         /// </summary>
         Button = 2,
+        /// <summary>
+        /// A select menu.
+        /// </summary>
+        Select = 3
     }
 }

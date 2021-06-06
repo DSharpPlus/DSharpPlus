@@ -173,6 +173,7 @@ namespace DSharpPlus.Interactivity
         /// Waits for any button on the specified message to be pressed by the specified user.
         /// </summary>
         /// <param name="message">The message to wait for the button on.</param>
+        /// <param name="user">The user to wait for.</param>
         /// <param name="timeoutOverride">Override the timeout period specified in <see cref="InteractivityConfiguration"/>.</param>
         /// <returns>A <see cref="InteractivityResult{T}"/> with the result of button that was pressed, if any.</returns>
         /// <exception cref="InvalidOperationException">Thrown when attempting to wait for a message that is not authored by the current user.</exception>
@@ -226,7 +227,7 @@ namespace DSharpPlus.Interactivity
             while (true)
             {
                 var result = await this.ComponentInteractionWaiter
-                    .WaitForMatch(new MatchRequest<ComponentInteractionCreateEventArgs>(c => c.Interaction.Type == InteractionType.Component && c.Interaction.Data.ComponentType == ComponentType.Button && c.Message.Id == message.Id, timeout)).ConfigureAwait(false);
+                    .WaitForMatch(new MatchRequest<ComponentInteractionCreateEventArgs>(c => c.Interaction.Type == InteractionType.Component && c.Interaction.Data.ComponentType == ComponentType.Button && c.Message == message, timeout)).ConfigureAwait(false);
 
                 if (result is null)
                     return new InteractivityResult<ComponentInteractionCreateEventArgs>(true, null);
@@ -237,6 +238,75 @@ namespace DSharpPlus.Interactivity
                     return new InteractivityResult<ComponentInteractionCreateEventArgs>(false, result);
             }
         }
+
+        /// <summary>
+        /// Waits for a dropdown to be interacted with.
+        /// </summary>
+        /// <param name="message">The message to wait on.</param>
+        /// <param name="id">The Id of the dropdown to wait on.</param>
+        /// <param name="timeoutOverride">Override the timeout period specified in <see cref="InteractivityConfiguration"/>.</param>
+        /// <exception cref="ArgumentException">Thrown when the message does not have any dropdowns or any dropdown with the specified Id.</exception>
+        public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForSelectAsync(DiscordMessage message, string id, TimeSpan? timeoutOverride = null)
+        {
+            if (!message.Components.Any())
+                throw new ArgumentException("Message doesn't contain any components!");
+
+            var scmps = message.Components.SelectMany(c => c.Components).Where(c => c.Type is ComponentType.Select).ToList();
+
+            if (!scmps.Any())
+                throw new ArgumentException("Message doesn't contain any select menus!");
+
+            if (scmps.All(c => c.CustomId != id))
+                throw new ArgumentException("Message doesn't contain a select menu with that Id!");
+
+            while (true)
+            {
+                var res = await this.ComponentInteractionWaiter
+                    .WaitForMatch(new MatchRequest<ComponentInteractionCreateEventArgs>(c => c.Id == id && c.Message == message, timeoutOverride ?? this.Config.Timeout)).ConfigureAwait(false);
+
+                if (res is null)
+                    return new InteractivityResult<ComponentInteractionCreateEventArgs>(true, null);
+                else if (res.Id != id)
+                    await this.HandleInvalidInteraction(res.Interaction).ConfigureAwait(false);
+                else
+                    return new InteractivityResult<ComponentInteractionCreateEventArgs>(false, res);
+            }
+        }
+
+        /// <summary>
+        /// Waits for a dropdown to be interacted with by a specific user.
+        /// </summary>
+        /// <param name="message">The message to wait on.</param>
+        /// <param name="id">The Id of the dropdown to wait on.</param>
+        /// <param name="timeoutOverride">Override the timeout period specified in <see cref="InteractivityConfiguration"/>.</param>
+        /// <exception cref="ArgumentException">Thrown when the message does not have any dropdowns or any dropdown with the specified Id.</exception>
+        public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForSelectAsync(DiscordMessage message, DiscordUser user, string id, TimeSpan? timeoutOverride = null)
+        {
+            if (!message.Components.Any())
+                throw new ArgumentException("Message doesn't contain any components!");
+
+            var scmps = message.Components.SelectMany(c => c.Components).Where(c => c.Type is ComponentType.Select).ToList();
+
+            if (!scmps.Any())
+                throw new ArgumentException("Message doesn't contain any select menus!");
+
+            if (scmps.All(c => c.CustomId != id))
+                throw new ArgumentException("Message doesn't contain a select menu with that Id!");
+
+            while (true)
+            {
+                var res = await this.ComponentInteractionWaiter
+                    .WaitForMatch(new MatchRequest<ComponentInteractionCreateEventArgs>(c => c.Id == id && c.Message == message && c.User == user, timeoutOverride ?? this.Config.Timeout)).ConfigureAwait(false);
+
+                if (res is null)
+                    return new InteractivityResult<ComponentInteractionCreateEventArgs>(true, null);
+                else if (res.Id != id)
+                    await this.HandleInvalidInteraction(res.Interaction).ConfigureAwait(false);
+                else
+                    return new InteractivityResult<ComponentInteractionCreateEventArgs>(false, res);
+            }
+        }
+
 
         /// <summary>
         /// Waits for a specific message.
