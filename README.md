@@ -9,11 +9,9 @@ Join the [Discord server](https://discord.gg/2ZhXXVJYhU) for any questions, help
 
 # Documentation
 
-DSharpPlus doesn't currently have a slash command framework. You can use this library to somewhat get an idea of how you can implement slash commands into your bot.
+DSharpPlus doesn't currently have a slash command framework. You can use this library to implement slash commands into your bot.
 
-I have done my best to make this as similar to CommandsNext as possible to make it a smooth experience. However, there are some limitations due to the working of slash commands themselves. The library does not support registering or editing commands at runtime, and does not have any built-in pre-execution checks.
-
-While you can make commands at runtime, if you have a command class registered for that guild/globally if you're making global commands, it will be overwritten (therefore probably deleted) on the next startup due to the limitations of the bulk overwrite endpoint.
+I have done my best to make this as similar to CommandsNext as possible to make it a smooth experience. However, the library does not support registering or editing commands at runtime. While you can make commands at runtime using the methods on the client, if you have a command class registered for that guild/globally if you're making global commands, it will be overwritten (therefore probably deleted) on the next startup due to the limitations of the bulk overwrite endpoint.
 
 Now, on to the actual guide:
 ## Installing
