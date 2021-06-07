@@ -184,11 +184,16 @@ public async Task ChoiceProviderCommand(InteractionContext ctx,
 ### Pre-execution checks
 You can define some custom attributes that function as pre-execution checks, working very similarly to `CommandsNext`. Simply create an attribute that inherits `SlashCheckBaseAttribute` and override the methods.
 ```cs
-public class RequireMeAttribute : SlashCheckBaseAttribute
+public class RequireUserIdAttribute : SlashCheckBaseAttribute
 {
+    public ulong Id;
+    
+    public RequireUserIdAttribute(ulong id)
+        => Id = id;
+
     public override async Task<bool> ExecuteChecksAsync(InteractionContext ctx)
     {
-        if(ctx.User.Id != 00000)
+        if(ctx.User.Id != Id)
             return false;
         return true;
     }
@@ -197,7 +202,7 @@ public class RequireMeAttribute : SlashCheckBaseAttribute
 Then just apply it to your command
 ```cs
 [SlashCommand("admin", "runs sneaky admin things")]
-[RequireMe]
+[RequireUserId(0000000000000)]
 public async Task Admin(InteractionContext ctx) { //secrets }
 ```
 To provide a custom error message when an execution check fails, hook the `SlashCommandErrored` event on your `SlashCommandsExtension`
@@ -207,7 +212,7 @@ slash.SlashCommandErrored += async (s, e) =>
 {
     if(e.Exception is SlashExecutionChecksFailedException slex)
     {
-        if (slex.FailedChecks.Any(x => x is RequireMeAttribute))
+        if (slex.FailedChecks.Any(x => x is RequireUserIdAttribute))
         {
             await e.Context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Only my owner can run this command!"));
         }
