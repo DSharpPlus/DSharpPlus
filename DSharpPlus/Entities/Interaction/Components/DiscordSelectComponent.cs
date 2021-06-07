@@ -20,49 +20,47 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-
 using System;
-using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
 {
     /// <summary>
-    /// Represents the inner data payload of a <see cref="DiscordInteraction"/>.
+    /// A select menu with multiple options to choose from.
     /// </summary>
-    public sealed class DiscordInteractionData : SnowflakeObject
+    public sealed class DiscordSelectComponent : DiscordComponent
     {
-        /// <summary>
-        /// Gets the name of the invoked interaction.
-        /// </summary>
-        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
-        public string Name { get; internal set; }
+        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
+        internal new ComponentType Type { get; set; } = ComponentType.Select;
 
         /// <summary>
-        /// Gets the parameters and values of the invoked interaction.
-        /// </summary>
-        [JsonProperty("options", NullValueHandling = NullValueHandling.Ignore)]
-        public IEnumerable<DiscordInteractionDataOption> Options { get; internal set; }
-
-        /// <summary>
-        /// Gets the Discord snowflake objects resolved from this interaction's arguments.
-        /// </summary>
-        [JsonProperty("resolved", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordInteractionResolvedCollection Resolved { get; internal set; }
-
-        /// <summary>
-        /// The Id of the component that invoked this interaction, if applicable.
+        /// The custom Id of this component.
         /// </summary>
         [JsonProperty("custom_id", NullValueHandling = NullValueHandling.Ignore)]
-        public string CustomId { get; internal set; }
+        public new string CustomId { get; set; }
 
         /// <summary>
-        /// The type of component that invoked this interaction, if applicable.
+        /// The options to pick from on this component.
         /// </summary>
-        [JsonProperty("component_type", NullValueHandling = NullValueHandling.Ignore)]
-        public ComponentType ComponentType { get; internal set; }
+        [JsonProperty("options", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordSelectComponentOption[] Options { get; set; } = Array.Empty<DiscordSelectComponentOption>();
 
-        [JsonProperty("values", NullValueHandling = NullValueHandling.Ignore)]
-        public string[] Values { get; internal set; } = Array.Empty<string>();
+        /// <summary>
+        /// The text to show when no option is selected.
+        /// </summary>
+        [JsonProperty("placeholder", NullValueHandling = NullValueHandling.Ignore)]
+        public string Placeholder { get; set; }
+
+        /// <summary>
+        /// The minimum amount of options that can be selected. Must be greater than zero and less than or equal to <see cref="MaximumSelectedValues"/>. Defaults to one.
+        /// </summary>
+        [JsonProperty("min_values", NullValueHandling = NullValueHandling.Ignore)]
+        public int? MinimumSelectedValues { get; set; }
+
+        /// <summary>
+        /// The maximum amount of options that can be selected. Must be greater than zero and or equal to <see cref="MinimumSelectedValues"/>. Defaults to 1.
+        /// </summary>
+        [JsonProperty("max_values", NullValueHandling = NullValueHandling.Ignore)]
+        public int? MaximumSelectedValues { get; set; }
     }
 }

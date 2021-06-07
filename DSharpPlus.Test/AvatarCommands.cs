@@ -20,24 +20,21 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace DSharpPlus.Entities
+using System.Threading.Tasks;
+using DSharpPlus.CommandsNext;
+using DSharpPlus.CommandsNext.Attributes;
+
+namespace DSharpPlus.Test
 {
-    /// <summary>
-    /// Represents a type of component.
-    /// </summary>
-    public enum ComponentType
+    public class AvatarCommands : BaseCommandModule
     {
-        /// <summary>
-        /// A row of components.
-        /// </summary>
-        ActionRow = 1,
-        /// <summary>
-        /// A button.
-        /// </summary>
-        Button = 2,
-        /// <summary>
-        /// A select menu.
-        /// </summary>
-        Select = 3
+        [Command]
+        public async Task Avatar(CommandContext ctx)
+        {
+            if (ctx.Member.GuildAvatarHash != ctx.User.AvatarHash)
+                await ctx.RespondAsync($"You have a custom guild-specific avatar set! Guild: {ctx.Member.GuildAvatarUrl}\n User: {ctx.Member.AvatarUrl}");
+            else
+                await ctx.RespondAsync($"You don't have a custom guild-specific avatar set! Avatar url: {ctx.Member.AvatarUrl}");
+        }
     }
 }

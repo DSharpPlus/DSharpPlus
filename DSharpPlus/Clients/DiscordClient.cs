@@ -35,6 +35,7 @@ using DSharpPlus.Exceptions;
 using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Models;
+using DSharpPlus.Net.Serialization;
 using Emzi0767.Utilities;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -880,7 +881,7 @@ namespace DSharpPlus
 
                 foreach (var xj in rawMembers)
                 {
-                    var xtm = xj.ToObject<TransportMember>();
+                    var xtm = xj.ToDiscordObject<TransportMember>();
 
                     var xu = new DiscordUser(xtm.User) { Discord = this };
                     _ = this.UserCache.AddOrUpdate(xtm.User.Id, xu, (id, old) =>

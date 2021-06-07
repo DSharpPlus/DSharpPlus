@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 using DSharpPlus.Entities;
+using Newtonsoft.Json;
 
 namespace DSharpPlus.EventArgs
 {
@@ -49,6 +50,11 @@ namespace DSharpPlus.EventArgs
         /// The channel this interaction was invoked in.
         /// </summary>
         public DiscordChannel Channel => this.Interaction.Channel;
+
+        /// <summary>
+        /// The value(s) selected. Only applicable to SelectMenu components.
+        /// </summary>
+        public string[] Values => this.Interaction.Data.Values;
 
         /// <summary>
         /// The message this interaction is attached to.

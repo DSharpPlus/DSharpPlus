@@ -20,49 +20,52 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-
-using System;
-using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
 {
     /// <summary>
-    /// Represents the inner data payload of a <see cref="DiscordInteraction"/>.
+    /// Represents options for <see cref="DiscordSelectComponent"/>.
     /// </summary>
-    public sealed class DiscordInteractionData : SnowflakeObject
+    public sealed class DiscordSelectComponentOption
     {
         /// <summary>
-        /// Gets the name of the invoked interaction.
+        /// The label to add. This is required.
         /// </summary>
-        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
-        public string Name { get; internal set; }
+        [JsonProperty("label", NullValueHandling = NullValueHandling.Ignore)]
+        public string Label { get; internal set; }
 
         /// <summary>
-        /// Gets the parameters and values of the invoked interaction.
+        /// The value of this option. Akin to the Custom Id of components.
         /// </summary>
-        [JsonProperty("options", NullValueHandling = NullValueHandling.Ignore)]
-        public IEnumerable<DiscordInteractionDataOption> Options { get; internal set; }
+        [JsonProperty("value", NullValueHandling = NullValueHandling.Ignore)]
+        public string Value { get; internal set; }
 
         /// <summary>
-        /// Gets the Discord snowflake objects resolved from this interaction's arguments.
+        /// Whether this option is default. If true, this option will be pre-selected. Defaults to false.
         /// </summary>
-        [JsonProperty("resolved", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordInteractionResolvedCollection Resolved { get; internal set; }
+        [JsonProperty("default", NullValueHandling = NullValueHandling.Ignore)]
+        public bool Default { get; internal set; } // false //
 
         /// <summary>
-        /// The Id of the component that invoked this interaction, if applicable.
+        /// The description of this option. This is optional.
         /// </summary>
-        [JsonProperty("custom_id", NullValueHandling = NullValueHandling.Ignore)]
-        public string CustomId { get; internal set; }
+        [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
+        public string Description { get; internal set; }
 
         /// <summary>
-        /// The type of component that invoked this interaction, if applicable.
+        /// The emoji of this option. This is optional.
         /// </summary>
-        [JsonProperty("component_type", NullValueHandling = NullValueHandling.Ignore)]
-        public ComponentType ComponentType { get; internal set; }
+        [JsonProperty("emoji", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordComponentEmoji Emoji { get; internal set; }
 
-        [JsonProperty("values", NullValueHandling = NullValueHandling.Ignore)]
-        public string[] Values { get; internal set; } = Array.Empty<string>();
+        public DiscordSelectComponentOption(string label, string value, string description = null, bool isDefault = false, DiscordComponentEmoji emoji = null)
+        {
+            this.Label = label;
+            this.Value = value;
+            this.Description = description;
+            this.Default = isDefault;
+            this.Emoji = emoji;
+        }
     }
 }
