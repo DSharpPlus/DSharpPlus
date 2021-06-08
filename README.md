@@ -141,7 +141,7 @@ public async Task Phrase(InteractionContext ctx,
 }
 
 //Enum choices
-enum MyEnum
+public enum MyEnum
 {
     [ChoiceName("Option 1")]
     option1,
@@ -152,7 +152,7 @@ enum MyEnum
 }
     
 [SlashCommand("enum", "Test enum")]
-public async Task EnumCommand(InteractionContext ctx, MyEnum myEnum = MyEnum.option1)
+public async Task EnumCommand(InteractionContext ctx, [Option("enum", "enum option")]MyEnum myEnum = MyEnum.option1)
 {
     await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(myEnum.GetName()));
 }
