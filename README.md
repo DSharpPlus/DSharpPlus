@@ -225,7 +225,7 @@ public class GroupContainer : SlashCommandModule
 {
     //For a group and subcommands inside the group
     [SlashCommandGroup("group", "description")]
-    public class Group : SlashCommandModule
+    public class Group
     {
         [SlashCommand("command", "description")]
         public async Task Command(InteractionContext ctx) {}
@@ -239,10 +239,10 @@ public class GroupContainer : SlashCommandModule
   
     //For subgroups inside groups
     [SlashCommandGroup("group", "description")]
-    public class Group : SlashCommandModule
+    public class Group
     {
         [SlashCommandGroup("subgroup", "description")]
-        public class SubGroup : SlashCommandModule
+        public class SubGroup
         {
             [SlashCommand("command", "description")]
             public async Task Command(InteractionContext ctx) {}
@@ -255,7 +255,7 @@ public class GroupContainer : SlashCommandModule
         }
     
         [SlashCommandGroup("subgroup2", "description")]
-        public class SubGroup2 : SlashCommandModule
+        public class SubGroup2
         {
             [SlashCommand("command", "description")]
             public async Task Command(InteractionContext ctx) {}
