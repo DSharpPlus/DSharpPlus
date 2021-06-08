@@ -39,6 +39,8 @@ namespace DSharpPlus.Interactivity
     /// </summary>
     public class InteractivityExtension : BaseExtension
     {
+
+        #pragma warning disable IDE1006 // Naming Styles
         internal InteractivityConfiguration Config { get; }
 
         private EventWaiter<MessageCreateEventArgs> MessageCreatedWaiter;
@@ -54,6 +56,7 @@ namespace DSharpPlus.Interactivity
         private Poller Poller;
 
         private Paginator Paginator;
+        #pragma warning restore IDE1006 // Naming Styles
 
         internal InteractivityExtension(InteractivityConfiguration cfg)
         {
@@ -129,12 +132,12 @@ namespace DSharpPlus.Interactivity
             while (true)
             {
                 var result = await this.ComponentInteractionWaiter
-                    .WaitForMatch(new MatchRequest<ComponentInteractionCreateEventArgs>(c => c.Interaction.Type == InteractionType.Component && c.Interaction.Data.ComponentType == ComponentType.Button && c.Message.Id == message.Id && buttons.Any(b => b.CustomId == c.Id), timeout)).ConfigureAwait(false);
+                    .WaitForMatch(new MatchRequest<ComponentInteractionCreateEventArgs>(c => c.Interaction.Type == InteractionType.Component
+                                                                                             && c.Interaction.Data.ComponentType == ComponentType.Button
+                                                                                             && c.Message == message
+                                                                                             && buttons.Any(b => b.CustomId == c.Id), timeout)).ConfigureAwait(false);
 
-                if (result is null)
-                    return new InteractivityResult<ComponentInteractionCreateEventArgs>(true, null);
-                else
-                    return new InteractivityResult<ComponentInteractionCreateEventArgs>(false, result);
+                return new InteractivityResult<ComponentInteractionCreateEventArgs>(result is null, result);
             }
         }
 
@@ -160,12 +163,12 @@ namespace DSharpPlus.Interactivity
             while (true)
             {
                 var result = await this.ComponentInteractionWaiter
-                    .WaitForMatch(new MatchRequest<ComponentInteractionCreateEventArgs>(c => c.Interaction.Type == InteractionType.Component && c.Interaction.Data.ComponentType == ComponentType.Button && c.Message.Id == message.Id, timeout)).ConfigureAwait(false);
+                    .WaitForMatch(new MatchRequest<ComponentInteractionCreateEventArgs>(c => c.Interaction.Type == InteractionType.Component
+                                                                                             && c.Interaction.Data.ComponentType == ComponentType.Button
+                                                                                             && c.Message == message, timeout)).ConfigureAwait(false);
 
-                if (result is null)
-                    return new InteractivityResult<ComponentInteractionCreateEventArgs>(true, null);
-                else
-                    return new InteractivityResult<ComponentInteractionCreateEventArgs>(false, result);
+                return new InteractivityResult<ComponentInteractionCreateEventArgs>(result is null, result);
+
             }
         }
 
@@ -173,7 +176,7 @@ namespace DSharpPlus.Interactivity
         /// Waits for any button on the specified message to be pressed by the specified user.
         /// </summary>
         /// <param name="message">The message to wait for the button on.</param>
-        /// <param name="user">The user to wait for.</param>
+        /// <param name="user">The user to wait for the button press from.</param>
         /// <param name="timeoutOverride">Override the timeout period specified in <see cref="InteractivityConfiguration"/>.</param>
         /// <returns>A <see cref="InteractivityResult{T}"/> with the result of button that was pressed, if any.</returns>
         /// <exception cref="InvalidOperationException">Thrown when attempting to wait for a message that is not authored by the current user.</exception>
@@ -194,10 +197,7 @@ namespace DSharpPlus.Interactivity
                 var result = await this.ComponentInteractionWaiter
                     .WaitForMatch(new MatchRequest<ComponentInteractionCreateEventArgs>(c => c.Interaction.Type == InteractionType.Component && c.Interaction.Data.ComponentType == ComponentType.Button && c.Message.Id == message.Id && c.User == user, timeout)).ConfigureAwait(false);
 
-                if (result is null)
-                    return new InteractivityResult<ComponentInteractionCreateEventArgs>(true, null);
-                else
-                    return new InteractivityResult<ComponentInteractionCreateEventArgs>(false, result);
+                return new InteractivityResult<ComponentInteractionCreateEventArgs>(result is null, result);                    
             }
         }
 
