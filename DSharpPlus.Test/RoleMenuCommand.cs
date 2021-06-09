@@ -59,7 +59,7 @@ namespace DSharpPlus.Test
                     var b = new DiscordButtonComponent(ButtonStyle.Success, $"{pair.First.Mention}", "", emoji: e);
                     buttons.Add(b);
                 }
-                builder.WithComponents(buttons.ToArray());
+                builder.AddComponents(buttons.ToArray());
                 buttons.Clear();
             }
             await builder.SendAsync(ctx.Channel);

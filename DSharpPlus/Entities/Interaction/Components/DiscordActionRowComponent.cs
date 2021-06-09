@@ -38,20 +38,18 @@ namespace DSharpPlus.Entities
         /// The type of component this represents. Always returns type 1.
         /// </summary>
         [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-        public ComponentType Type { get; internal set; } = ComponentType.ActionRow;
+        internal ComponentType Type { get; set; } = ComponentType.ActionRow;
 
         /// <summary>
         /// The components contained within the action row.
         /// </summary>
         [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
-        public ReadOnlyCollection<DiscordComponent> Components { get; internal set; }
+        public IReadOnlyCollection<DiscordComponent> Components { get; internal set; }
 
-        internal DiscordActionRowComponent() { }
-
-        internal DiscordActionRowComponent(IEnumerable<DiscordComponent> components)
+        public DiscordActionRowComponent(IEnumerable<DiscordComponent> components)
         {
             this.Components = components.ToList().AsReadOnly();
         }
-
+        internal DiscordActionRowComponent() { } // For Json.NET
     }
 }
