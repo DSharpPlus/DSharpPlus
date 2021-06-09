@@ -77,9 +77,9 @@ Buttons can be added in any order you fancy. Lets add 5 to demonstrate each colo
 ```cs
 var builder = new DiscordMessageBuilder()
     .WithContent("This message has buttons! Pretty neat innit?")
-    .WithComponents(new DiscordComponent[]
+    .AddComponents(new DiscordComponent[]
     {
-        new DiscordButtonComponent(ButtonStyle.Primary, "1_top" "Blurple!"),
+        new DiscordButtonComponent(ButtonStyle.Primary, "1_top", "Blurple!"),
         new DiscordButtonComponent(ButtonStyle.Secondary, "2_top", "Grey!"),
         new DiscordButtonComponent(ButtonStyle.Success, "3_top", "Green!"),
         new DiscordButtonComponent(ButtonStyle.Danger, "4_top", "Red!"),
@@ -91,13 +91,13 @@ As promised, not too complicated. Links however are `DiscordLinkButtonComponent`
 Lets also add a second row of buttons, but disable them, so the user can't push them all willy-nilly.
 
 ```cs
-builder.WithComponents(new DiscordComponent[] 
+builder.AddComponents(new DiscordComponent[] 
 {
-    new DiscordButtonComponent(ButtonStyle.Primary, "1_top_d" "Blurple!", true),
-    new DiscordButtonComponent(ButtonStyle.Secondary, "2_top_d" "Grey!", true),
+    new DiscordButtonComponent(ButtonStyle.Primary, "1_top_d", "Blurple!", true),
+    new DiscordButtonComponent(ButtonStyle.Secondary, "2_top_d", "Grey!", true),
     new DiscordButtonComponent(ButtonStyle.Success, "3_top_d", "Green!", true),
-    new DiscordButtonComponent(ButtonStyle.Danger, "4_top_d" "Red!", true),
-    new DiscordButtonComponent("https://some-super-cool.site", "Link!", true)
+    new DiscordButtonComponent(ButtonStyle.Danger, "4_top_d", "Red!", true),
+    new DiscordLinkButtonComponent("https://some-super-cool.site", "Link!", true)
 });
 ```
 Practically identical, but now with `true` as an extra paremeter. This is the `Disabled` property. 
