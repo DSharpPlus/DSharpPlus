@@ -190,7 +190,6 @@ namespace DSharpPlus.Test
         {
             if (e.Exception is CommandNotFoundException && (e.Command == null || e.Command.QualifiedName != "help"))
             {
-                // Not logged as error to console because it's an user caused error
                 var embed = new DiscordEmbedBuilder
                 {
                     Color = new DiscordColor("#FF0000"),
