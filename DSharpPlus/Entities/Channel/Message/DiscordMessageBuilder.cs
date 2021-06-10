@@ -179,6 +179,25 @@ namespace DSharpPlus.Entities
             return this;
         }
 
+        /// <summary>
+        /// Appends an embed to the current builder.
+        /// </summary>
+        /// <param name="embed">The embed that should be appended.</param>
+        /// <returns>The current builder to be chained.</returns>
+        public DiscordMessageBuilder AddEmbed(DiscordEmbed embed) => this.WithEmbed(embed);
+
+        /// <summary>
+        /// Appends several embeds to the current builder.
+        /// </summary>
+        /// <param name="embed">The embeds that should be appended.</param>
+        /// <returns>The current builder to be chained.</returns>
+        public DiscordMessageBuilder AddEmbeds(IEnumerable<DiscordEmbed> embeds)
+        {
+            this._embeds.AddRange(embeds);
+            return this;
+        }
+
+
 
         /// <summary>
         /// Sets if the message has allowed mentions.
@@ -341,7 +360,7 @@ namespace DSharpPlus.Entities
             }
             else
             {
-                if (this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && (this.Embeds?.Any() ?? true))
+                if (this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && (!this.Embeds?.Any() ?? true))
                     throw new ArgumentException("You must specify content, an embed, or at least one file.");
 
                 if (this.Components.Count > 5)
