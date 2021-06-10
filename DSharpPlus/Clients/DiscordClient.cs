@@ -35,6 +35,7 @@ using DSharpPlus.Exceptions;
 using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Models;
+using DSharpPlus.Net.Serialization;
 using Emzi0767.Utilities;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -187,6 +188,7 @@ namespace DSharpPlus
             this._messageDeleted = new AsyncEvent<DiscordClient, MessageDeleteEventArgs>("MESSAGE_DELETED", EventExecutionLimit, this.EventErrorHandler);
             this._messagesBulkDeleted = new AsyncEvent<DiscordClient, MessageBulkDeleteEventArgs>("MESSAGE_BULK_DELETED", EventExecutionLimit, this.EventErrorHandler);
             this._interactionCreated = new AsyncEvent<DiscordClient, InteractionCreateEventArgs>("INTERACTION_CREATED", EventExecutionLimit, this.EventErrorHandler);
+            this._componentInteractionCreated = new AsyncEvent<DiscordClient, ComponentInteractionCreateEventArgs>("COMPONENT_INTERACTED", EventExecutionLimit, this.EventErrorHandler);
             this._typingStarted = new AsyncEvent<DiscordClient, TypingStartEventArgs>("TYPING_STARTED", EventExecutionLimit, this.EventErrorHandler);
             this._userSettingsUpdated = new AsyncEvent<DiscordClient, UserSettingsUpdateEventArgs>("USER_SETTINGS_UPDATED", EventExecutionLimit, this.EventErrorHandler);
             this._userUpdated = new AsyncEvent<DiscordClient, UserUpdateEventArgs>("USER_UPDATED", EventExecutionLimit, this.EventErrorHandler);
@@ -879,7 +881,7 @@ namespace DSharpPlus
 
                 foreach (var xj in rawMembers)
                 {
-                    var xtm = xj.ToObject<TransportMember>();
+                    var xtm = xj.ToDiscordObject<TransportMember>();
 
                     var xu = new DiscordUser(xtm.User) { Discord = this };
                     _ = this.UserCache.AddOrUpdate(xtm.User.Id, xu, (id, old) =>

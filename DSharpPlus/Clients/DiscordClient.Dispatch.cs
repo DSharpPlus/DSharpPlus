@@ -102,7 +102,7 @@ namespace DSharpPlus
                 case "channel_pins_update":
                     cid = (ulong)dat["channel_id"];
                     var ts = (string)dat["last_pin_timestamp"];
-                    await this.OnChannelPinsUpdate((ulong?)dat["guild_id"], this.InternalGetCachedChannel(cid), ts != null ? DateTimeOffset.Parse(ts, CultureInfo.InvariantCulture) : default(DateTimeOffset?)).ConfigureAwait(false);
+                    await this.OnChannelPinsUpdateAsync((ulong?)dat["guild_id"], this.InternalGetCachedChannel(cid), ts != null ? DateTimeOffset.Parse(ts, CultureInfo.InvariantCulture) : default(DateTimeOffset?)).ConfigureAwait(false);
                     break;
 
                 #endregion
@@ -184,7 +184,7 @@ namespace DSharpPlus
 
                 case "guild_member_update":
                     gid = (ulong)dat["guild_id"];
-                    await this.OnGuildMemberUpdateEventAsync(dat["user"].ToObject<TransportUser>(), this._guilds[gid], dat["roles"].ToObject<IEnumerable<ulong>>(), (string)dat["nick"], (bool?)dat["pending"]).ConfigureAwait(false);
+                    await this.OnGuildMemberUpdateEventAsync(dat.ToDiscordObject<TransportMember>(), this._guilds[gid], dat["roles"].ToObject<IEnumerable<ulong>>(), (string)dat["nick"], (bool?)dat["pending"]).ConfigureAwait(false);
                     break;
 
                 case "guild_members_chunk":
@@ -280,7 +280,7 @@ namespace DSharpPlus
                     await this.OnMessageUpdateEventAsync(dat.ToDiscordObject<DiscordMessage>(), dat["author"]?.ToObject<TransportUser>(), mbr, refUsr, refMbr).ConfigureAwait(false);
                     break;
 
-                // delete event does *not* include message object 
+                // delete event does *not* include message object
                 case "message_delete":
                     await this.OnMessageDeleteEventAsync((ulong)dat["id"], (ulong)dat["channel_id"], (ulong?)dat["guild_id"]).ConfigureAwait(false);
                     break;
@@ -362,7 +362,7 @@ namespace DSharpPlus
                     }
 
                     cid = (ulong)dat["channel_id"];
-                    await this.OnInteractionCreateAsync((ulong?)dat["guild_id"], cid, usr, mbr, dat.ToObject<DiscordInteraction>()).ConfigureAwait(false);
+                    await this.OnInteractionCreateAsync((ulong?)dat["guild_id"], cid, usr, mbr, dat.ToDiscordObject<DiscordInteraction>()).ConfigureAwait(false);
                     break;
 
                 case "application_command_create":
@@ -450,7 +450,7 @@ namespace DSharpPlus
 
                 channel.Discord = this;
 
-                //xdc._recipients = 
+                //xdc._recipients =
                 //    .Select(xtu => this.InternalGetCachedUser(xtu.Id) ?? new DiscordUser(xtu) { Discord = this })
                 //    .ToList();
 
@@ -663,7 +663,7 @@ namespace DSharpPlus
             }
         }
 
-        internal async Task OnChannelPinsUpdate(ulong? guildId, DiscordChannel channel, DateTimeOffset? lastPinTimestamp)
+        internal async Task OnChannelPinsUpdateAsync(ulong? guildId, DiscordChannel channel, DateTimeOffset? lastPinTimestamp)
         {
             if (channel == null)
                 return;
@@ -1031,10 +1031,10 @@ namespace DSharpPlus
             await this._guildMemberRemoved.InvokeAsync(this, ea).ConfigureAwait(false);
         }
 
-        internal async Task OnGuildMemberUpdateEventAsync(TransportUser user, DiscordGuild guild, IEnumerable<ulong> roles, string nick, bool? pending)
+        internal async Task OnGuildMemberUpdateEventAsync(TransportMember member, DiscordGuild guild, IEnumerable<ulong> roles, string nick, bool? pending)
         {
-            var usr = new DiscordUser(user) { Discord = this };
-            usr = this.UserCache.AddOrUpdate(user.Id, usr, (id, old) =>
+            var usr = new DiscordUser(member.User) { Discord = this };
+            usr = this.UserCache.AddOrUpdate(usr.Id, usr, (id, old) =>
             {
                 old.Username = usr.Username;
                 old.Discriminator = usr.Discriminator;
@@ -1042,13 +1042,14 @@ namespace DSharpPlus
                 return old;
             });
 
-            if (!guild.Members.TryGetValue(user.Id, out var mbr))
+            if (!guild.Members.TryGetValue(member.User.Id, out var mbr))
                 mbr = new DiscordMember(usr) { Discord = this, _guild_id = guild.Id };
 
             var nick_old = mbr.Nickname;
             var pending_old = mbr.IsPending;
             var roles_old = new ReadOnlyCollection<DiscordRole>(new List<DiscordRole>(mbr.Roles));
 
+            mbr._avatarHash = member.AvatarHash;
             mbr.Nickname = nick;
             mbr.IsPending = pending;
             mbr._role_ids.Clear();
@@ -1896,12 +1897,27 @@ namespace DSharpPlus
                 }
             }
 
-            var ea = new InteractionCreateEventArgs
+            if (interaction.Type is InteractionType.Component)
             {
-                Interaction = interaction
-            };
 
-            await this._interactionCreated.InvokeAsync(this, ea).ConfigureAwait(false);
+                interaction.Message.Discord = this;
+                var cea = new ComponentInteractionCreateEventArgs
+                {
+                    Message = interaction.Message,
+                    Interaction = interaction
+                };
+
+                await this._componentInteractionCreated.InvokeAsync(this, cea).ConfigureAwait(false);
+            }
+            else
+            {
+                var ea = new InteractionCreateEventArgs
+                {
+                    Interaction = interaction
+                };
+
+                await this._interactionCreated.InvokeAsync(this, ea).ConfigureAwait(false);
+            }
         }
 
         internal async Task OnTypingStartEventAsync(ulong userId, ulong channelId, DiscordChannel channel, ulong? guildId, DateTimeOffset started, TransportMember mbr)

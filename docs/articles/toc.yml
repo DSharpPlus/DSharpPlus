@@ -59,6 +59,10 @@
       href: audio/voicenext/receive.md
 - name: Interactivity
   href: interactivity.md
+- name: Advanced Topics
+  items:
+  - name: Buttons
+    href: advanced_topics/buttons.md
 - name: Hosting
   href: hosting.md
 - name: Version Migration

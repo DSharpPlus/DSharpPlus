@@ -167,6 +167,12 @@ namespace DSharpPlus.Entities
         [JsonProperty("explicit_content_filter")]
         public ExplicitContentFilter ExplicitContentFilter { get; internal set; }
 
+        /// <summary>
+        /// Gets the guild's nsfw level.
+        /// </summary>
+        [JsonProperty("nsfw_level")]
+        public NsfwLevel NsfwLevel { get; internal set; }
+
         [JsonProperty("system_channel_id", NullValueHandling = NullValueHandling.Include)]
         internal ulong? SystemChannelId { get; set; }
 
@@ -428,12 +434,12 @@ namespace DSharpPlus.Entities
         // Seriously discord?
 
         // I need to work on this
-        // 
+        //
         // /// <summary>
         // /// Gets channels ordered in a manner in which they'd be ordered in the UI of the discord client.
         // /// </summary>
         // [JsonIgnore]
-        // public IEnumerable<DiscordChannel> OrderedChannels 
+        // public IEnumerable<DiscordChannel> OrderedChannels
         //    => this._channels.OrderBy(xc => xc.Parent?.Position).ThenBy(xc => xc.Type).ThenBy(xc => xc.Position);
 
         [JsonIgnore]
@@ -446,6 +452,22 @@ namespace DSharpPlus.Entities
         }
 
         #region Guild Methods
+
+        /// <summary>
+        /// Searches the current guild for members who's display name start with the specified name.
+        /// </summary>
+        /// <param name="name">The name to search for.</param>
+        /// <param name="limit">The maximum amount of members to return. Max 1000. Defaults to 1.</param>
+        /// <returns>The members found, if any.</returns>
+        public async Task<IReadOnlyList<DiscordMember>> SearchMembersAsync(string name, int? limit = 1)
+        {
+            var tms = await this.Discord.ApiClient.SearchMembersAsync(this.Id, name, limit).ConfigureAwait(false);
+
+            var mbrs = tms.Select(tm => new DiscordMember(tm) { Discord = this.Discord, _guild_id = this.Id });
+
+            return mbrs.ToArray();
+        }
+
         /// <summary>
         /// Adds a new member to this guild
         /// </summary>
@@ -627,7 +649,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the guild does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordChannel> CreateVoiceChannelAsync(string name, DiscordChannel parent = null, int? bitrate = null, int? user_limit = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, VideoQualityMode? qualityMode = default, string reason = null)
+        public Task<DiscordChannel> CreateVoiceChannelAsync(string name, DiscordChannel parent = null, int? bitrate = null, int? user_limit = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, VideoQualityMode? qualityMode = null, string reason = null)
             => this.CreateChannelAsync(name, ChannelType.Voice, parent, Optional.FromNoValue<string>(), bitrate, user_limit, overwrites, null, Optional.FromNoValue<int?>(), qualityMode, reason);
 
         /// <summary>
@@ -649,7 +671,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.NotFoundException">Thrown when the guild does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordChannel> CreateChannelAsync(string name, ChannelType type, DiscordChannel parent = null, Optional<string> topic = default, int? bitrate = null, int? userLimit = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, bool? nsfw = null, Optional<int?> perUserRateLimit = default, VideoQualityMode? qualityMode = default, string reason = null)
+        public Task<DiscordChannel> CreateChannelAsync(string name, ChannelType type, DiscordChannel parent = null, Optional<string> topic = default, int? bitrate = null, int? userLimit = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, bool? nsfw = null, Optional<int?> perUserRateLimit = default, VideoQualityMode? qualityMode = null, string reason = null)
         {
             // technically you can create news/store channels but not always
             if (type != ChannelType.Text && type != ChannelType.Voice && type != ChannelType.Category && type != ChannelType.News && type != ChannelType.Store && type != ChannelType.Stage)
@@ -813,7 +835,7 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Gets an invite from this guild from an invite code. 
+        /// Gets an invite from this guild from an invite code.
         /// </summary>
         /// <param name="code">The invite code</param>
         /// <returns>An invite, or null if not in cache.</returns>
@@ -946,7 +968,7 @@ namespace DSharpPlus.Entities
         /// Requests that Discord send a list of guild members based on the specified arguments. This method will fire the <see cref="DiscordClient.GuildMembersChunked"/> event.
         /// <para>If no arguments aside from <paramref name="presences"/> and <paramref name="nonce"/> are specified, this will request all guild members.</para>
         /// </summary>
-        /// <param name="query">Filters the returned members based on what the username starts with. Either this or <paramref name="userIds"/> must not be null. 
+        /// <param name="query">Filters the returned members based on what the username starts with. Either this or <paramref name="userIds"/> must not be null.
         /// The <paramref name="limit"/> must also be greater than 0 if this is specified.</param>
         /// <param name="limit">Total number of members to request. This must be greater than 0 if <paramref name="query"/> is specified.</param>
         /// <param name="presences">Whether to include the <see cref="EventArgs.GuildMembersChunkEventArgs.Presences"/> associated with the fetched members.</param>

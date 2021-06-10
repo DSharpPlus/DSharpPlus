@@ -1,4 +1,4 @@
-// This file is part of the DSharpPlus project.
+﻿// This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
 // Copyright (c) 2016-2021 DSharpPlus Contributors
@@ -66,6 +66,22 @@ namespace DSharpPlus
         }
 
         #region Guild
+
+        /// <summary>
+        /// Searches the given guild for members who's display name start with the specified name.
+        /// </summary>
+        /// <param name="guild_id">The Id of the guild to search.</param>
+        /// <param name="name">The name to search for.</param>
+        /// <param name="limit">The maximum amount of members to return. Max 1000. Defaults to 1.</param>
+        /// <returns>The members found, if any.</returns>
+        public async Task<IReadOnlyList<DiscordMember>> SearchMembersAsync(ulong guild_id, string name, int? limit = 1)
+        {
+            var tms = await this.ApiClient.SearchMembersAsync(guild_id, name, limit).ConfigureAwait(false);
+
+            var mbrs = tms.Select(tm => new DiscordMember(tm) { Discord = this.ApiClient.Discord, _guild_id = guild_id });
+
+            return mbrs.ToArray();
+        }
         /// <summary>
         /// Creates a new guild
         /// </summary>
@@ -528,7 +544,7 @@ namespace DSharpPlus
         /// <param name="content">New message content</param>
         /// <returns></returns>
         public Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content)
-            => this.ApiClient.EditMessageAsync(channel_id, message_id, content, default, default);
+            => this.ApiClient.EditMessageAsync(channel_id, message_id, content, default, default, default);
 
         /// <summary>
         /// Edits a message
@@ -538,7 +554,7 @@ namespace DSharpPlus
         /// <param name="embed">New message embed</param>
         /// <returns></returns>
         public Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<DiscordEmbed> embed)
-            => this.ApiClient.EditMessageAsync(channel_id, message_id, default, embed, default);
+            => this.ApiClient.EditMessageAsync(channel_id, message_id, default, embed, default, default);
 
         /// <summary>
         /// Edits a message
@@ -551,7 +567,7 @@ namespace DSharpPlus
         {
             builder.Validate(true);
 
-            return await this.ApiClient.EditMessageAsync(channel_id, message_id, builder.Content, builder.Embed, builder.Mentions).ConfigureAwait(false);
+            return await this.ApiClient.EditMessageAsync(channel_id, message_id, builder.Content, builder.Embed, builder.Mentions, builder.Components).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -725,7 +741,7 @@ namespace DSharpPlus
         /// <param name="channel_id">Id of the news channel the message to crosspost belongs to</param>
         /// <param name="message_id">Id of the message to crosspost</param>
         /// <exception cref="UnauthorizedException">
-        ///     Thrown when the current user doesn't have <see cref="Permissions.ManageWebhooks"/> and/or <see cref="Permissions.SendMessages"/> 
+        ///     Thrown when the current user doesn't have <see cref="Permissions.ManageWebhooks"/> and/or <see cref="Permissions.SendMessages"/>
         /// </exception>
         public Task<DiscordMessage> CrosspostMessageAsync(ulong channel_id, ulong message_id)
             => this.ApiClient.CrosspostMessageAsync(channel_id, message_id);

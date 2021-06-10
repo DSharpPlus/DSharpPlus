@@ -33,7 +33,9 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Exceptions;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using DSharpPlus.Exceptions;
 using DSharpPlus.Interactivity;
+using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Lavalink;
 using DSharpPlus.VoiceNext;
@@ -63,7 +65,7 @@ namespace DSharpPlus.Test
             {
                 AutoReconnect = true,
                 LargeThreshold = 250,
-                MinimumLogLevel = LogLevel.Debug,
+                MinimumLogLevel = LogLevel.Trace,
                 Token = this.Config.Token,
                 TokenType = TokenType.Bot,
                 ShardId = shardid,
@@ -85,7 +87,9 @@ namespace DSharpPlus.Test
             this.Discord.GuildDownloadCompleted += this.Discord_GuildDownloadCompleted;
             this.Discord.GuildUpdated += this.Discord_GuildUpdated;
             this.Discord.ChannelDeleted += this.Discord_ChannelDeleted;
-
+            //this.Discord.ComponentInteractionCreated += this.RoleMenu;
+            //this.Discord.ComponentInteractionCreated += this.DiscordComponentInteractionCreated;
+            //this.Discord.InteractionCreated += this.SendButton;
             // For event timeout testing
             //Discord.GuildDownloadCompleted += async (s, e) =>
             //{
@@ -124,7 +128,9 @@ namespace DSharpPlus.Test
             // interactivity service
             var icfg = new InteractivityConfiguration()
             {
-                Timeout = TimeSpan.FromSeconds(3)
+                Timeout = TimeSpan.FromSeconds(10),
+                ResponseBehavior = InteractionResponseBehavior.Ack,
+                ResponseMessage = "That's not a valid button"
             };
 
             this.InteractivityService = this.Discord.UseInteractivity(icfg);

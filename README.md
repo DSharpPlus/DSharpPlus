@@ -34,7 +34,6 @@ The following resources apply only for the latest stable version of the library.
 
 ### Example bots
 * [Example by Emzi0767](https://github.com/DSharpPlus/Example-Bots)
-* [Example by Naamloos](https://github.com/DSharpPlus/DSharpPlus-Example)
 
 # I want to throw my money at you!
 If you want to give us some money as a thank you gesture, you can do so using one of these links:
