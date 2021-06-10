@@ -50,6 +50,20 @@ namespace DSharpPlus.Entities
         }
         private string _content;
 
+
+        /// <summary>
+        /// Gets or sets the embed for the builder. This will always set the builder to have one embed.
+        /// </summary>
+        public DiscordEmbed Embed
+        {
+            get => this._embeds.Count > 0 ? this._embeds[0] : null;
+            set
+            {
+                this._embeds.Clear();
+                this._embeds.Add(value);
+            }
+        }
+
         /// <summary>
         /// Gets the Embeds to be sent.
         /// </summary>
@@ -169,13 +183,13 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Appends an embed to the current builder.
+        /// Sets the embed for the current builder.
         /// </summary>
-        /// <param name="embed">The embed that should be appended.</param>
+        /// <param name="embed">The embed that should be set.</param>
         /// <returns>The current builder to be chained.</returns>
         public DiscordMessageBuilder WithEmbed(DiscordEmbed embed)
         {
-            this._embeds.Add(embed);
+            this.Embed = embed;
             return this;
         }
 
