@@ -248,7 +248,7 @@ namespace DSharpPlus.Entities
         {
             return this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News
                 ? throw new ArgumentException("Cannot send a text message to a non-text channel.")
-                : this.Discord.ApiClient.CreateMessageAsync(this.Id, null, embed, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
+                : this.Discord.ApiClient.CreateMessageAsync(this.Id, null, new[] {embed}, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
         }
 
         /// <summary>
@@ -265,7 +265,7 @@ namespace DSharpPlus.Entities
         {
             return this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News
                 ? throw new ArgumentException("Cannot send a text message to a non-text channel.")
-                : this.Discord.ApiClient.CreateMessageAsync(this.Id, content, embed, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
+                : this.Discord.ApiClient.CreateMessageAsync(this.Id, content, new[] {embed}, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
         }
 
         /// <summary>
@@ -414,11 +414,11 @@ namespace DSharpPlus.Entities
             return this.Discord.ApiClient.ModifyGuildChannelPositionAsync(this.Guild.Id, pmds, reason);
         }
 
-        /// <summary>  
+        /// <summary>
         /// Returns a list of messages before a certain message.
         /// <param name="limit">The amount of messages to fetch.</param>
         /// <param name="before">Message to fetch before from.</param>
-        /// </summary> 
+        /// </summary>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.AccessChannels"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
@@ -426,11 +426,11 @@ namespace DSharpPlus.Entities
         public Task<IReadOnlyList<DiscordMessage>> GetMessagesBeforeAsync(ulong before, int limit = 100)
             => this.GetMessagesInternalAsync(limit, before, null, null);
 
-        /// <summary>  
+        /// <summary>
         /// Returns a list of messages after a certain message.
         /// <param name="limit">The amount of messages to fetch.</param>
         /// <param name="after">Message to fetch after from.</param>
-        /// </summary> 
+        /// </summary>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.AccessChannels"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
@@ -438,11 +438,11 @@ namespace DSharpPlus.Entities
         public Task<IReadOnlyList<DiscordMessage>> GetMessagesAfterAsync(ulong after, int limit = 100)
             => this.GetMessagesInternalAsync(limit, null, after, null);
 
-        /// <summary>  
+        /// <summary>
         /// Returns a list of messages around a certain message.
         /// <param name="limit">The amount of messages to fetch.</param>
         /// <param name="around">Message to fetch around from.</param>
-        /// </summary> 
+        /// </summary>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.AccessChannels"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
@@ -450,10 +450,10 @@ namespace DSharpPlus.Entities
         public Task<IReadOnlyList<DiscordMessage>> GetMessagesAroundAsync(ulong around, int limit = 100)
             => this.GetMessagesInternalAsync(limit, null, null, around);
 
-        /// <summary>  
+        /// <summary>
         /// Returns a list of messages from the last message in the channel.
         /// <param name="limit">The amount of messages to fetch.</param>
-        /// </summary> 
+        /// </summary>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.AccessChannels"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
@@ -706,7 +706,7 @@ namespace DSharpPlus.Entities
         /// <param name="message">Message to publish</param>
         /// <exception cref="ArgumentException">Thrown when the message has already been crossposted</exception>
         /// <exception cref="UnauthorizedException">
-        ///     Thrown when the current user doesn't have <see cref="Permissions.ManageWebhooks"/> and/or <see cref="Permissions.SendMessages"/> 
+        ///     Thrown when the current user doesn't have <see cref="Permissions.ManageWebhooks"/> and/or <see cref="Permissions.SendMessages"/>
         /// </exception>
         public Task<DiscordMessage> CrosspostMessageAsync(DiscordMessage message)
         {

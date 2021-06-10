@@ -88,7 +88,7 @@ namespace DSharpPlus.Entities
         {
             this._content = builder.Content;
             this._mentions = builder.Mentions;
-            this._embeds.Add(builder.Embed);
+            this._embeds.AddRange(builder.Embeds);
             this._components.AddRange(builder.Components);
         }
 

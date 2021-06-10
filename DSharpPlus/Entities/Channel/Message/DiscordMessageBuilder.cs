@@ -51,9 +51,10 @@ namespace DSharpPlus.Entities
         private string _content;
 
         /// <summary>
-        /// Gets or Sets the Embed to be sent.
+        /// Gets the Embeds to be sent.
         /// </summary>
-        public DiscordEmbed Embed { get; set; }
+        public IReadOnlyList<DiscordEmbed> Embeds => this._embeds;
+        private readonly List<DiscordEmbed> _embeds = new();
 
         /// <summary>
         /// Gets or Sets if the message should be TTS.
@@ -168,13 +169,13 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Sets if the message will have an Embed.
+        /// Appends an embed to the current builder.
         /// </summary>
-        /// <param name="embed">The embed that should be sent.</param>
+        /// <param name="embed">The embed that should be appended.</param>
         /// <returns>The current builder to be chained.</returns>
         public DiscordMessageBuilder WithEmbed(DiscordEmbed embed)
         {
-            this.Embed = embed;
+            this._embeds.Add(embed);
             return this;
         }
 
@@ -315,7 +316,7 @@ namespace DSharpPlus.Entities
         public void Clear()
         {
             this.Content = "";
-            this.Embed = null;
+            this._embeds.Clear();
             this.IsTTS = false;
             this.Mentions = null;
             this._files.Clear();
@@ -340,7 +341,7 @@ namespace DSharpPlus.Entities
             }
             else
             {
-                if (this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && this.Embed == null)
+                if (this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && (this.Embeds?.Any() ?? true))
                     throw new ArgumentException("You must specify content, an embed, or at least one file.");
 
                 if (this.Components.Count > 5)
