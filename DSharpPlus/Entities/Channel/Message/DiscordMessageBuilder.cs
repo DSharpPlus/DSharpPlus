@@ -198,12 +198,16 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="embed">The embed that should be appended.</param>
         /// <returns>The current builder to be chained.</returns>
-        public DiscordMessageBuilder AddEmbed(DiscordEmbed embed) => this.WithEmbed(embed);
+        public DiscordMessageBuilder AddEmbed(DiscordEmbed embed)
+        {
+            this._embeds.Add(embed);
+            return this;
+        }
 
         /// <summary>
         /// Appends several embeds to the current builder.
         /// </summary>
-        /// <param name="embed">The embeds that should be appended.</param>
+        /// <param name="embeds">The embeds that should be appended.</param>
         /// <returns>The current builder to be chained.</returns>
         public DiscordMessageBuilder AddEmbeds(IEnumerable<DiscordEmbed> embeds)
         {
@@ -364,6 +368,9 @@ namespace DSharpPlus.Entities
         /// <param name="isModify">Tells the method to perform the Modify Validation or Create Validation.</param>
         internal void Validate(bool isModify = false)
         {
+            if (this._embeds.Count > 10)
+                throw new ArgumentException("A message can only have up to 10 embeds.");
+
             if (isModify)
             {
                 if (this.Files.Any())
