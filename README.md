@@ -210,10 +210,9 @@ slash.SlashCommandErrored += async (s, e) =>
 {
     if(e.Exception is SlashExecutionChecksFailedException slex)
     {
-        if (slex.FailedChecks.Any(x => x is RequireUserIdAttribute))
-        {
-            await e.Context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Only my owner can run this command!"));
-        }
+        foreach (var check in slex.FailedChecks)
+          if (check is RequireUserIdAttribute att)
+              await e.Context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent($"Only <@{att.Id}> can run this command!"));
     }
 };
 ```
