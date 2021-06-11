@@ -47,7 +47,7 @@ namespace DSharpPlus.Entities
         public ulong? GuildId { get; internal set; }
 
         /// <summary>
-        /// Gets ID of the category that contains this channel.
+        /// Gets ID of the category that contains this channel. For threads, gets the ID of the channel this thread was created in.
         /// </summary>
         [JsonProperty("parent_id", NullValueHandling = NullValueHandling.Include)]
         public ulong? ParentId { get; internal set; }

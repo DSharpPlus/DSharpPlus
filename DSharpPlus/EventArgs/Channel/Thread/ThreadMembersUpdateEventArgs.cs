@@ -21,73 +21,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace DSharpPlus
+using System.Collections.Generic;
+using DSharpPlus.Entities;
+
+namespace DSharpPlus.EventArgs
 {
     /// <summary>
-    /// Represents a channel's type.
+    /// Represents arguments for <see cref="DiscordClient.ThreadMembersUpdated"/> event.
     /// </summary>
-    public enum ChannelType : int
+    public class ThreadMembersUpdateEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// Indicates that this is a text channel.
+        /// Gets the approximate number of members in the thread, capped at 50.
         /// </summary>
-        Text = 0,
+        public int MemberCount { get; internal set; }
 
         /// <summary>
-        /// Indicates that this is a private channel.
+        /// Gets the id of the users who were removed from the thread.
         /// </summary>
-        Private = 1,
+        public IReadOnlyList<ulong?> RemovedMemberIds { get; internal set; }
 
         /// <summary>
-        /// Indicates that this is a voice channel.
+        /// Gets the users who were added to the thread.
         /// </summary>
-        Voice = 2,
+        public IReadOnlyList<DiscordThreadChannelMember> AddedMembers { get; internal set; }
 
         /// <summary>
-        /// Indicates that this is a group direct message channel.
+        /// Gets the id of the thread.
         /// </summary>
-        Group = 3,
+        public ulong ThreadId { get; internal set; }
 
         /// <summary>
-        /// Indicates that this is a channel category.
+        /// Gets the guild.
         /// </summary>
-        Category = 4,
+        public DiscordGuild Guild { get; internal set; }
 
-        /// <summary>
-        /// Indicates that this is a news channel.
-        /// </summary>
-        News = 5,
-
-        /// <summary>
-        /// Indicates that this is a store channel.
-        /// </summary>
-        Store = 6,
-
-        /* Type 10, 11, and 12 channels are only available in API v9
-        /// <summary>
-        /// Indicates that this is a thread within a news channel.
-        /// </summary>
-        NewsThread = 10,
-
-        
-        /// <summary>
-        /// Indicates that this is a public thread within a channel.
-        /// </summary>
-        PublicThread = 11,
-
-        /// <summary>
-        /// Indicates that this is a private thread within a channel.
-        /// </summary>
-        PrivateThread = 12,*/
-
-        /// <summary>
-        /// Indicates that this is a stage channel.
-        /// </summary>
-        Stage = 13,
-
-        /// <summary>
-        /// Indicates unknown channel type.
-        /// </summary>
-        Unknown = int.MaxValue
+        internal ThreadMembersUpdateEventArgs() : base() { }
     }
 }
