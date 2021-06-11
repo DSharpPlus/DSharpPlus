@@ -190,11 +190,7 @@ public class RequireUserIdAttribute : SlashCheckBaseAttribute
         => Id = id;
 
     public override async Task<bool> ExecuteChecksAsync(InteractionContext ctx)
-    {
-        if(ctx.User.Id != Id)
-            return false;
-        return true;
-    }
+        => ctx.User.Id == Id;
 }
 ```
 Then just apply it to your command
