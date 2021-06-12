@@ -68,6 +68,8 @@ namespace DSharpPlus.Entities
         {
             if (name.Length > 32)
                 throw new ArgumentException("Slash command name cannot exceed 32 characters.", nameof(name));
+            if (name.Trim().Any(ch => char.IsWhiteSpace(ch)))
+                throw new ArgumentException("Slash command name cannot contain spaces.", nameof(name));
             if (description.Length > 100)
                 throw new ArgumentException("Slash command description cannot exceed 100 characters.", nameof(description));
 
