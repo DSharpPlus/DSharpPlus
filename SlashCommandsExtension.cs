@@ -293,7 +293,7 @@ namespace DSharpPlus.SlashCommands
                         var groups = GroupCommands.Where(x => x.Id == e.Interaction.Data.Id);
                         var subgroups = SubGroupCommands.Where(x => x.Id == e.Interaction.Data.Id);
                         if (!methods.Any() && !groups.Any() && !subgroups.Any())
-                            throw new Exception("A slash command was executed, but no command was registered for it.");
+                            throw new InvalidOperationException("A slash command was executed, but no command was registered for it.");
 
                         if (methods.Any())
                         {
