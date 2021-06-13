@@ -58,7 +58,7 @@ namespace DSharpPlus.Entities
                 return null;
 
             var job = JObject.Load(reader);
-            var type = job["type"]?.Value<ComponentType>();
+            var type = job["type"]?.ToObject<ComponentType>();
 
             if (type == null)
                 throw new ArgumentException($"Value {reader} does not have a component type specifier");
