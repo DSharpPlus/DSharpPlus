@@ -20,13 +20,16 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+using System;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus.Entities
 {
     /// <summary>
     /// A component to attatch to a message.
     /// </summary>
+    [JsonConverter(typeof(DiscordComponentConverter))]
     public class DiscordComponent
     {
         /// <summary>
@@ -42,5 +45,38 @@ namespace DSharpPlus.Entities
         public string CustomId { get; internal set; }
 
         internal DiscordComponent() { }
+
+    }
+    internal sealed class DiscordComponentConverter : JsonConverter
+    {
+        public override bool CanWrite => false;
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) => throw new NotImplementedException();
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            if (reader.TokenType == JsonToken.Null)
+                return null;
+
+            var job = JObject.Load(reader);
+            var type = job["type"]?.Value<ComponentType>();
+
+            if (type == null)
+                throw new ArgumentException($"Value {reader} does not have a component type specifier");
+
+            var cmp = type switch
+            {
+                ComponentType.ActionRow => new DiscordActionRowComponent(),
+                ComponentType.Button => new DiscordButtonComponent(),
+                ComponentType.Select => new DiscordSelectComponent(),
+                _ => new DiscordComponent() { Type = type.Value }
+            };
+
+            // Populate the existing component with the values in the JObject. This avoids a recursive JsonConverter loop
+            serializer.Populate(job.CreateReader(), cmp);
+
+            return cmp;
+        }
+
+        public override bool CanConvert(Type objectType) => typeof(DiscordComponent).IsAssignableFrom(objectType);
     }
 }
