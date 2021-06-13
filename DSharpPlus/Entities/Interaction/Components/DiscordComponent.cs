@@ -36,7 +36,7 @@ namespace DSharpPlus.Entities
         public ComponentType Type { get; internal set; } = ComponentType.ActionRow;
 
         /// <summary>
-        /// The Id of this compopnent, if applicable. Not applicable on ActionRow(s) and Link buttons.
+        /// The Id of this component, if applicable. Not applicable on ActionRow(s) and Link buttons.
         /// </summary>
         [JsonProperty("custom_id", NullValueHandling = NullValueHandling.Ignore)]
         public string CustomId { get; internal set; }
