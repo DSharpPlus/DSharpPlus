@@ -72,7 +72,8 @@ namespace DSharpPlus.Entities
             };
 
             // Populate the existing component with the values in the JObject. This avoids a recursive JsonConverter loop
-            serializer.Populate(job.CreateReader(), cmp);
+            using var jreader = job.CreateReader();
+            serializer.Populate(jreader, cmp);
 
             return cmp;
         }
