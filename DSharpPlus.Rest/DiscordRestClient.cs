@@ -1,4 +1,4 @@
-﻿// This file is part of the DSharpPlus project.
+// This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
 // Copyright (c) 2016-2021 DSharpPlus Contributors
@@ -74,14 +74,10 @@ namespace DSharpPlus
         /// <param name="name">The name to search for.</param>
         /// <param name="limit">The maximum amount of members to return. Max 1000. Defaults to 1.</param>
         /// <returns>The members found, if any.</returns>
-        public async Task<IReadOnlyList<DiscordMember>> SearchMembersAsync(ulong guild_id, string name, int? limit = 1)
-        {
-            var tms = await this.ApiClient.SearchMembersAsync(guild_id, name, limit).ConfigureAwait(false);
+        public Task<IReadOnlyList<DiscordMember>> SearchMembersAsync(ulong guild_id, string name, int? limit = 1)
 
-            var mbrs = tms.Select(tm => new DiscordMember(tm) { Discord = this.ApiClient.Discord, _guild_id = guild_id });
+            => this.ApiClient.SearchMembersAsync(guild_id, name, limit);
 
-            return mbrs.ToArray();
-        }
         /// <summary>
         /// Creates a new guild
         /// </summary>

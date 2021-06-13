@@ -150,7 +150,7 @@ namespace DSharpPlus.Net
 
         #region Guild
 
-        internal async Task<IReadOnlyList<TransportMember>> SearchMembersAsync(ulong guild_id, string name, int? limit)
+        internal async Task<IReadOnlyList<DiscordMember>> SearchMembersAsync(ulong guild_id, string name, int? limit)
         {
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.MEMBERS}{Endpoints.SEARCH}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
@@ -162,8 +162,24 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path, BuildQueryString(querydict));
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
             var json = JArray.Parse(res.Response);
+            var tms = json.ToObject<IReadOnlyList<TransportMember>>();
+            foreach (var xtm in tms)
+            {
+                var usr = new DiscordUser(xtm.User) { Discord = this.Discord };
 
-            return json.ToObject<IReadOnlyList<TransportMember>>();
+                this.Discord.UserCache.AddOrUpdate(xtm.User.Id, usr, (id, old) =>
+                {
+                    old.Username = usr.Username;
+                    old.Discord = usr.Discord;
+                    old.AvatarHash = usr.AvatarHash;
+
+                    return old;
+                });
+            }
+
+            var mbrs = tms.Select(tm => new DiscordMember(tm) { Discord = this.Discord, _guild_id = guild_id });
+
+            return mbrs.ToList();
         }
 
         internal async Task<DiscordGuild> CreateGuildAsync(string name, string region_id, Optional<string> iconb64, VerificationLevel? verification_level,
