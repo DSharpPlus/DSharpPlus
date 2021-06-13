@@ -459,14 +459,8 @@ namespace DSharpPlus.Entities
         /// <param name="name">The name to search for.</param>
         /// <param name="limit">The maximum amount of members to return. Max 1000. Defaults to 1.</param>
         /// <returns>The members found, if any.</returns>
-        public async Task<IReadOnlyList<DiscordMember>> SearchMembersAsync(string name, int? limit = 1)
-        {
-            var tms = await this.Discord.ApiClient.SearchMembersAsync(this.Id, name, limit).ConfigureAwait(false);
-
-            var mbrs = tms.Select(tm => new DiscordMember(tm) { Discord = this.Discord, _guild_id = this.Id });
-
-            return mbrs.ToArray();
-        }
+        public Task<IReadOnlyList<DiscordMember>> SearchMembersAsync(string name, int? limit = 1)
+            => this.Discord.ApiClient.SearchMembersAsync(this.Id, name, limit);
 
         /// <summary>
         /// Adds a new member to this guild
