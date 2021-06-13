@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Emzi0767.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using DSharpPlus.SlashCommands.EventArgs;
+using DSharpPlus.Exceptions;
 
 namespace DSharpPlus.SlashCommands
 {
@@ -189,7 +190,10 @@ namespace DSharpPlus.SlashCommands
                     }
                     catch (Exception ex)
                     {
-                        Client.Logger.LogCritical(ex, $"There was an error registering slash commands");
+                        if (ex is BadRequestException brex)
+                            Client.Logger.LogCritical(brex, $"There was an error registering slash commands: {brex.JsonMessage}");
+                        else
+                            Client.Logger.LogCritical(ex, $"There was an error registering slash commands");
                         Errored = true;
                     }
                 }
@@ -223,7 +227,10 @@ namespace DSharpPlus.SlashCommands
                     }
                     catch (Exception ex)
                     {
-                        Client.Logger.LogCritical(ex, $"There was an error registering slash commands");
+                        if (ex is BadRequestException brex)
+                            Client.Logger.LogCritical(brex, $"There was an error registering slash commands: {brex.JsonMessage}");
+                        else
+                            Client.Logger.LogCritical(ex, $"There was an error registering slash commands");
                         Errored = true;
                     }
                 }
@@ -238,7 +245,7 @@ namespace DSharpPlus.SlashCommands
                 var method = choiceProviderAttribute.ProviderType.GetMethod(nameof(IChoiceProvider.Provider));
 
                 if(method == null)
-                    throw new Exception("ChoiceProviders must inherit from IChoiceProvider.");
+                    throw new ArgumentException("ChoiceProviders must inherit from IChoiceProvider.");
                 else
                 {
                     var instance = Activator.CreateInstance(choiceProviderAttribute.ProviderType);
@@ -288,7 +295,7 @@ namespace DSharpPlus.SlashCommands
                     try
                     {
                         if (Errored)
-                            throw new Exception("Slash commands failed to register properly on startup.");
+                            throw new InvalidOperationException("Slash commands failed to register properly on startup.");
                         var methods = CommandMethods.Where(x => x.Id == e.Interaction.Data.Id);
                         var groups = GroupCommands.Where(x => x.Id == e.Interaction.Data.Id);
                         var subgroups = SubGroupCommands.Where(x => x.Id == e.Interaction.Data.Id);
