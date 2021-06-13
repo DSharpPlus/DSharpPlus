@@ -163,6 +163,8 @@ namespace DSharpPlus.Net
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
             var json = JArray.Parse(res.Response);
             var tms = json.ToObject<IReadOnlyList<TransportMember>>();
+
+            var mbrs = new List<DiscordMember>();
             foreach (var xtm in tms)
             {
                 var usr = new DiscordUser(xtm.User) { Discord = this.Discord };
@@ -175,11 +177,11 @@ namespace DSharpPlus.Net
 
                     return old;
                 });
+
+                mbrs.Add(new DiscordMember(xtm) { Discord = this.Discord, _guild_id = guild_id });
             }
 
-            var mbrs = tms.Select(tm => new DiscordMember(tm) { Discord = this.Discord, _guild_id = guild_id });
-
-            return mbrs.ToList();
+            return mbrs;
         }
 
         internal async Task<DiscordGuild> CreateGuildAsync(string name, string region_id, Optional<string> iconb64, VerificationLevel? verification_level,
