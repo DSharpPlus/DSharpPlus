@@ -29,7 +29,7 @@ namespace DSharpPlus.Interactivity.Enums
         /// </summary>
         Ignore,
         /// <summary>
-        /// Indiicates that invalid input should be ACK'd. The interaction will succeed, but nothing will happen.
+        /// Indicates that invalid input should be ACK'd. The interaction will succeed, but nothing will happen.
         /// </summary>
         Ack,
         /// <summary>
