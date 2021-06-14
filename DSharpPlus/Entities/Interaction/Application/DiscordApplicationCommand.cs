@@ -25,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
@@ -70,6 +71,8 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("Slash command name cannot exceed 32 characters.", nameof(name));
             if (name.Trim().Any(ch => char.IsWhiteSpace(ch)))
                 throw new ArgumentException("Slash command name cannot contain spaces.", nameof(name));
+            if (!Utilities.IsValidSlashCommandName(name))
+                throw new ArgumentException("Invalid slash command name specified.", nameof(name));
             if (description.Length > 100)
                 throw new ArgumentException("Slash command description cannot exceed 100 characters.", nameof(description));
 
