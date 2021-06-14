@@ -467,7 +467,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="user">User to add</param>
         /// <param name="access_token">User's access token (OAuth2)</param>
-        /// <param name="nickname">new nickame</param>
+        /// <param name="nickname">new nickname</param>
         /// <param name="roles">new roles</param>
         /// <param name="muted">whether this user has to be muted</param>
         /// <param name="deaf">whether this user has to be deafened</param>

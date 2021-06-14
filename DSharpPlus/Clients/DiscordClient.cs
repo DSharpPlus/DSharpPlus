@@ -425,7 +425,7 @@ namespace DSharpPlus
         /// Sends a message
         /// </summary>
         /// <param name="channel">Channel to send to.</param>
-        /// <param name="builder">The Discord Mesage builder.</param>
+        /// <param name="builder">The Discord Message builder.</param>
         /// <returns>The Discord Message that was sent.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission if TTS is false and <see cref="Permissions.SendTtsMessages"/> if TTS is true.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
@@ -438,7 +438,7 @@ namespace DSharpPlus
         /// Sends a message
         /// </summary>
         /// <param name="channel">Channel to send to.</param>
-        /// <param name="action">The Discord Mesage builder.</param>
+        /// <param name="action">The Discord Message builder.</param>
         /// <returns>The Discord Message that was sent.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission if TTS is false and <see cref="Permissions.SendTtsMessages"/> if TTS is true.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>

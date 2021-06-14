@@ -681,7 +681,7 @@ namespace DSharpPlus.Entities
         public async Task PlaceMemberAsync(DiscordMember member)
         {
             if (this.Type != ChannelType.Voice && this.Type != ChannelType.Stage)
-                throw new ArgumentException("Cannot place a member in a non-voice channel!"); // be a little more angery, let em learn!!1
+                throw new ArgumentException("Cannot place a member in a non-voice channel!"); // be a little more angry, let em learn!!1
 
             await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, member.Id, default, default, default,
                 default, this.Id, null).ConfigureAwait(false);
@@ -736,7 +736,7 @@ namespace DSharpPlus.Entities
         /// <returns>Calculated permissions for a given member.</returns>
         public Permissions PermissionsFor(DiscordMember mbr)
         {
-            // future note: might be able to simplify @everyone role checks to just check any role ... but i'm not sure
+            // future note: might be able to simplify @everyone role checks to just check any role ... but I'm not sure
             // xoxo, ~uwx
             //
             // you should use a single tilde
