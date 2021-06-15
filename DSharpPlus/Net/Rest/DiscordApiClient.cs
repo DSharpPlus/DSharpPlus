@@ -883,7 +883,7 @@ namespace DSharpPlus.Net
                 pld.MessageReference = new InternalDiscordMessageReference { MessageId = replyMessageId, FailIfNotExists = failOnInvalidReply };
 
             if (replyMessageId != null)
-                pld.Mentions = new DiscordMentions(Mentions.None, mentionReply);
+                pld.Mentions = new DiscordMentions(Mentions.All, true, mentionReply);
 
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id }, out var path);
@@ -916,9 +916,8 @@ namespace DSharpPlus.Net
             if (builder.ReplyId != null)
                 pld.MessageReference = new InternalDiscordMessageReference { MessageId = builder.ReplyId, FailIfNotExists = builder.FailOnInvalidReply };
 
-
             if (builder.Mentions != null || builder.ReplyId != null)
-                pld.Mentions = new DiscordMentions(builder.Mentions ?? Mentions.None, builder.MentionOnReply);
+                pld.Mentions = new DiscordMentions(builder.Mentions ?? Mentions.All, builder.Mentions?.Any() ?? false, builder.MentionOnReply);
 
             if (builder.Files.Count == 0)
             {
@@ -2027,7 +2026,7 @@ namespace DSharpPlus.Net
             };
 
             if (builder.Mentions != null)
-                pld.Mentions = new DiscordMentions(builder.Mentions);
+                pld.Mentions = new DiscordMentions(builder.Mentions, builder.Mentions.Any());
 
             if (!string.IsNullOrEmpty(builder.Content) || builder.Embeds?.Count() > 0 || builder.IsTTS == true || builder.Mentions != null)
                 values["payload_json"] = DiscordJson.SerializeObject(pld);
@@ -2591,7 +2590,7 @@ namespace DSharpPlus.Net
             };
 
             if (builder.Mentions != null)
-                pld.Mentions = new DiscordMentions(builder.Mentions);
+                pld.Mentions = new DiscordMentions(builder.Mentions, builder.Mentions.Any());
 
             if (!string.IsNullOrEmpty(builder.Content) || builder.Embeds?.Count() > 0 || builder.IsTTS == true || builder.Mentions != null)
                 values["payload_json"] = DiscordJson.SerializeObject(pld);
