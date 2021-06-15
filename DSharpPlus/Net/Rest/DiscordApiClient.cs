@@ -192,7 +192,7 @@ namespace DSharpPlus.Net
             var res = await this.DoRequestAsync(this.Discord, bucket, uri, RestRequestMethod.GET, route).ConfigureAwait(false);
             var json = JObject.Parse(res.Response);
 
-            var ban = json.ToDiscordObject<DiscordBan>();
+            var ban = json.ToObject<DiscordBan>();
 
             return ban;
         }
