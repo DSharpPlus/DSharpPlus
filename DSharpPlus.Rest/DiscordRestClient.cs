@@ -75,7 +75,6 @@ namespace DSharpPlus
         /// <param name="limit">The maximum amount of members to return. Max 1000. Defaults to 1.</param>
         /// <returns>The members found, if any.</returns>
         public Task<IReadOnlyList<DiscordMember>> SearchMembersAsync(ulong guild_id, string name, int? limit = 1)
-
             => this.ApiClient.SearchMembersAsync(guild_id, name, limit);
 
         /// <summary>
@@ -170,12 +169,21 @@ namespace DSharpPlus
         }
 
         /// <summary>
-        /// Gets guild bans
+        /// Gets guild bans.
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
-        /// <returns></returns>
+        /// <param name="guild_id">The Id of the guild to get the bans from.</param>
+        /// <returns>A collection of the guild's bans.</returns>
         public Task<IReadOnlyList<DiscordBan>> GetGuildBansAsync(ulong guild_id)
             => this.ApiClient.GetGuildBansAsync(guild_id);
+
+        /// <summary>
+        /// Gets the ban of the specified user. Requires Ban Members permission.
+        /// </summary>
+        /// <param name="guild_id">The Id of the guild to get the ban from.</param>
+        /// <param name="user_id">The Id of the user to get the ban for.</param>
+        /// <returns>A guild ban object.</returns>
+        public Task<DiscordBan> GetGuildBanAsync(ulong guild_id, ulong user_id)
+            => this.ApiClient.GetGuildBanAsync(guild_id, user_id);
 
         /// <summary>
         /// Creates guild ban

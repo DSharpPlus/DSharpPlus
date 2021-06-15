@@ -184,6 +184,19 @@ namespace DSharpPlus.Net
             return mbrs;
         }
 
+        internal async Task<DiscordBan> GetGuildBanAsync(ulong guild_id, ulong user_id)
+        {
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.BANS}/:user_id";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new {guild_id, user_id}, out var url);
+            var uri = Utilities.GetApiUriFor(url);
+            var res = await this.DoRequestAsync(this.Discord, bucket, uri, RestRequestMethod.GET, route).ConfigureAwait(false);
+            var json = JObject.Parse(res.Response);
+
+            var ban = json.ToObject<DiscordBan>();
+
+            return ban;
+        }
+
         internal async Task<DiscordGuild> CreateGuildAsync(string name, string region_id, Optional<string> iconb64, VerificationLevel? verification_level,
             DefaultMessageNotifications? default_message_notifications)
         {

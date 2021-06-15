@@ -30,6 +30,8 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using DSharpPlus.EventArgs;
+using DSharpPlus.Exceptions;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Models;
 using DSharpPlus.Net.Serialization;
@@ -597,6 +599,24 @@ namespace DSharpPlus.Entities
             => this.Discord.ApiClient.GetGuildBansAsync(this.Id);
 
         /// <summary>
+        /// Gets a ban for a specific user.
+        /// </summary>
+        /// <param name="userId">The Id of the user to get the ban for.</param>
+        /// <exception cref="NotFoundException">Thrown when the specified user is not banned.</exception>
+        /// <returns>The requested ban object.</returns>
+        public Task<DiscordBan> GetBanAsync(ulong userId)
+            => this.Discord.ApiClient.GetGuildBanAsync(this.Id, userId);
+
+        /// <summary>
+        /// Gets a ban for a specific user.
+        /// </summary>
+        /// <param name="user">The user to get the ban for.</param>
+        /// <exception cref="NotFoundException">Thrown when the specified user is not banned.</exception>
+        /// <returns>The requested ban object.</returns>
+        public Task<DiscordBan> GetBanAsync(DiscordUser user)
+            => this.GetBanAsync(user.Id);
+
+        /// <summary>
         /// Creates a new text channel in this guild.
         /// </summary>
         /// <param name="name">Name of the new channel.</param>
@@ -965,7 +985,7 @@ namespace DSharpPlus.Entities
         /// <param name="query">Filters the returned members based on what the username starts with. Either this or <paramref name="userIds"/> must not be null.
         /// The <paramref name="limit"/> must also be greater than 0 if this is specified.</param>
         /// <param name="limit">Total number of members to request. This must be greater than 0 if <paramref name="query"/> is specified.</param>
-        /// <param name="presences">Whether to include the <see cref="EventArgs.GuildMembersChunkEventArgs.Presences"/> associated with the fetched members.</param>
+        /// <param name="presences">Whether to include the <see cref="GuildMembersChunkEventArgs.Presences"/> associated with the fetched members.</param>
         /// <param name="userIds">Whether to limit the request to the specified user ids. Either this or <paramref name="query"/> must not be null.</param>
         /// <param name="nonce">The unique string to identify the response.</param>
         public async Task RequestMembersAsync(string query = "", int limit = 0, bool? presences = null, IEnumerable<ulong> userIds = null, string nonce = null)
