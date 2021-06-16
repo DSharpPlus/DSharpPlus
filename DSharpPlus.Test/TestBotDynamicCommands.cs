@@ -97,27 +97,24 @@ namespace DSharpPlus.Test
         }
 
         [Command("addsimple"), Description("Adds a simple echo command."), Hidden, RequireOwner]
-        public async Task AddSimple(CommandContext ctx, string name, params string[] aliases)
+        public async Task AddSimpleAsync(CommandContext ctx, string name, params string[] aliases)
         {
             await Task.Yield();
             var command = new CommandBuilder(null)
                 .WithName(name)
                 .WithDescription("Automatically-added command.")
                 .WithExecutionChecks(new CooldownAttribute(1, 5, CooldownBucketType.Channel))
-                .WithOverload(new CommandOverloadBuilder(new Func<CommandContext, Task>(Func0)).WithPriority(10))
-                .WithOverload(new CommandOverloadBuilder(new Func<CommandContext, string, Task>(Func1)).WithPriority(0));
+                .WithOverload(new CommandOverloadBuilder(new Func<CommandContext, Task>(this.Func0Async)).WithPriority(10))
+                .WithOverload(new CommandOverloadBuilder(new Func<CommandContext, string, Task>(this.Func1Async)).WithPriority(0));
 
             if (aliases?.Any() == true)
                 command.WithAliases(aliases);
 
             ctx.CommandsNext.RegisterCommands(command);
             await ctx.RespondAsync(DiscordEmoji.FromUnicode("👌").ToString()).ConfigureAwait(false);
-
-            Task Func0(CommandContext c)
-                => c.RespondAsync($"{c.Prefix} {c.Command.QualifiedName}");
-
-            Task Func1(CommandContext c, string text)
-                => c.RespondAsync($"{c.Prefix} {text}");
         }
+
+        public async Task Func0Async(CommandContext ctx) => await ctx.RespondAsync($"{ctx.Prefix} {ctx.Command.QualifiedName}");
+        public async Task Func1Async(CommandContext ctx, string text) => await ctx.RespondAsync($"{ctx.Prefix} {text}");
     }
 }
