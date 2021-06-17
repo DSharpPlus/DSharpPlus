@@ -72,7 +72,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets whether this emoji is a unicode one.
         /// </summary>
-        [JsonProperty("unicode")]
+        [JsonIgnore]
         public bool IsUnicode => this.Id == 0;
 
         /// <summary>

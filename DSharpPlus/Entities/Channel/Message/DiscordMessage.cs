@@ -325,7 +325,7 @@ namespace DSharpPlus.Entities
         public IReadOnlyList<DiscordEmoji> Emojis
             => this._emojisLazy.Value;
 
-        [JsonProperty("emojis", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonIgnore]
         internal List<DiscordEmoji> _emojis = new();
         [JsonIgnore]
         private readonly Lazy<IReadOnlyList<DiscordEmoji>> _emojisLazy;
@@ -443,7 +443,7 @@ namespace DSharpPlus.Entities
                             return result ? emoji : new DiscordEmoji
                             {
                                 Id = edata.eid,
-                                Name = edata.eid.ToString(),
+                                Name = edata.eid.ToString(), // This is required for GetHashCode
                                 IsAvailable = false,
                                 IsAnimated = edata.isAnimated
                             };

@@ -220,16 +220,12 @@ namespace DSharpPlus
                         var user = message.MentionedUsers.FirstOrDefault(u => u.Id == tagId);
                         if (user is DiscordMember member)
                         {
-                            var nickname = string.IsNullOrEmpty(member.Nickname) ?
-                                member.Username : member.Nickname;
-                            return $"@{nickname}";
+                            return $"@{member.DisplayName}";
                         }
                         if (message.Channel?.Guild != null)
                         {
                             member = await message.Channel.Guild.GetMemberAsync(tagId);
-                            var nickname = string.IsNullOrEmpty(member.Nickname) ?
-                                member.Username : member.Nickname;
-                            return $"@{nickname}";
+                            return $"@{member.DisplayName}";
                         }
                         return $"@{user.Username}";
 
@@ -394,10 +390,12 @@ namespace DSharpPlus
         /// <summary>
         /// An async version of Regex.Replace
         /// </summary>
-        /// <param name="regex">The Regex object</param>
+        /// <param name="regex">The Regex object which is used to match the string for replacements</param>
         /// <param name="input">The string to search for a match</param>
         /// <param name="replacementFn">A custom method that examines each match and returns either the original matched string or a replacement string</param>
-        /// <returns></returns>
+        /// <returns>A new string that is identical to the input string, except that a replacement
+        /// string takes the place of each matched string. If pattern is not matched in the
+        /// current instance, the method returns the current instance unchanged</returns>
         public static async Task<string> ReplaceAsync(this Regex regex, string input, Func<Match, Task<string>> replacementFn)
         {
             var sb = new StringBuilder();
