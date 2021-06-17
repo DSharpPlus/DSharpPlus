@@ -138,7 +138,7 @@ namespace DSharpPlus
             return regex.IsMatch(message);
         }
 
-        internal static bool ContainsEmojis(string message)
+        internal static bool ContainsGuildEmojis(string message)
         {
             var pattern = @"<a?:(.*):(\d+)>";
             var regex = new Regex(pattern, RegexOptions.ECMAScript);
@@ -169,12 +169,114 @@ namespace DSharpPlus
                 yield return ulong.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
         }
 
-        internal static IEnumerable<ulong> GetEmojis(DiscordMessage message)
+        internal static IEnumerable<ulong> GetGuildEmojis(DiscordMessage message)
         {
             var regex = new Regex(@"<a?:([a-zA-Z0-9_]+):(\d+)>", RegexOptions.ECMAScript);
             var matches = regex.Matches(message.Content);
             foreach (Match match in matches)
                 yield return ulong.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
+        }
+
+        public static IEnumerable<DiscordEmoji> GetCommonEmojis(DiscordMessage message)
+        {
+            return DiscordEmoji.UnicodeEmojis.Keys
+                .Where(e => message.Content.Contains(e))
+                .Select(e => DiscordEmoji.FromName(message.Discord, e, false))
+                .Union(DiscordEmoji.DiscordNameLookup.Keys
+                    .Where(e => message.Content.Contains(e))
+                    .Select(e => DiscordEmoji.FromUnicode(e)))
+                .ToList();
+        }
+
+        /// <summary>
+        /// Converts all of the Discord message snowflake tags to a human-readable format
+        /// </summary>
+        /// <param name="message">The message to convert</param>
+        /// <returns>A human-readable format of the message</returns>
+        public static Task<string> HumanizeContentAsync(DiscordMessage message)
+            => HumanizeContentAsync(message, (e)
+                => e.IsUnicode ? Task.FromResult(e.Name) : Task.FromResult(string.Empty));
+
+        /// <summary>
+        /// Converts all of the Discord message snowflake tags to a human-readable format
+        /// </summary>
+        /// <param name="message">The message to convert</param>
+        /// <param name="emojiReplacer">A callback to specify how emojis should be converted</param>
+        /// <returns>A human-readable format of the message</returns>
+        public async static Task<string> HumanizeContentAsync(DiscordMessage message, Func<DiscordEmoji, Task<string>> emojiReplacer)
+        {
+            // First we take care of "special tags (<>), including guild emojies"
+            var regex = new Regex(@"<(?<TagType>(@[!&]?)|(#)|(a?:([a-zA-Z0-9_]+):))(?<TagId>\d+)>", RegexOptions.ECMAScript);
+            var text = await regex.ReplaceAsync(message.Content, async m =>
+            {
+                var tagType = m.Groups["TagType"].Value;
+                var tagId = ulong.Parse(m.Groups["TagId"].Value);
+                switch (tagType)
+                {
+                    case "@": // Username mention
+                        return $"@{message.MentionedUsers.FirstOrDefault(u => u.Id == tagId).Username}";
+
+                    case "@!": // Nickname mention
+                        var user = message.MentionedUsers.FirstOrDefault(u => u.Id == tagId);
+                        if (user is DiscordMember member)
+                        {
+                            var nickname = string.IsNullOrEmpty(member.Nickname) ?
+                                member.Username : member.Nickname;
+                            return $"@{nickname}";
+                        }
+                        if (message.Channel?.Guild != null)
+                        {
+                            member = await message.Channel.Guild.GetMemberAsync(tagId);
+                            var nickname = string.IsNullOrEmpty(member.Nickname) ?
+                                member.Username : member.Nickname;
+                            return $"@{nickname}";
+                        }
+                        return $"@{user.Username}";
+
+                    case "@&": // Role mention
+                        return $"@{message.MentionedRoles.FirstOrDefault(r => r.Id == tagId).Name}";
+
+                    case "#": // Channel mention
+                        return $"#{message.MentionedChannels.FirstOrDefault(c => c.Id == tagId).Name}";
+
+                    case string s when s.StartsWith("a:") || s.StartsWith(":"): // Guild emoji
+                        var emoji = message.Emojis.FirstOrDefault(e => e.Id == tagId);
+                        return await emojiReplacer(emoji);
+
+                    default:
+                        throw new ArgumentException("Matched something unexpected");
+                }
+            });
+
+            // Now we take care of common emojis
+            // We sort them so we first replace the most complex ("composite") ones first
+
+            // Converting the ":emojiname:" format
+            var commonEmojis = DiscordEmoji.UnicodeEmojis.Keys
+                .Where(e => text.Contains(e))
+                .OrderByDescending(e => e.Count(c => c == ':'))
+                .ThenByDescending(e => e.Length);
+
+            foreach (var emojiName in commonEmojis)
+            {
+                var emoji = DiscordEmoji.FromName(message.Discord, emojiName, false);
+                var replacement = await emojiReplacer(emoji);
+                text = text.Replace(emojiName, replacement);
+            }
+
+            // Converting the unicode emojis
+            var unicodeEmojis = DiscordEmoji.DiscordNameLookup.Keys
+                .Where(e => text.Contains(e))
+                .OrderByDescending(e => e.Length);
+
+            foreach (var unicodeEmoji in unicodeEmojis)
+            {
+                var emoji = DiscordEmoji.FromUnicode(unicodeEmoji);
+                var replacement = await emojiReplacer(emoji);
+                text = text.Replace(unicodeEmoji, replacement);
+            }
+
+            return text;
         }
 
         internal static bool HasMessageIntents(DiscordIntents intents)
@@ -287,6 +389,31 @@ namespace DSharpPlus
                     return true;
 
             return false;
+        }
+
+        /// <summary>
+        /// An async version of Regex.Replace
+        /// </summary>
+        /// <param name="regex">The Regex object</param>
+        /// <param name="input">The string to search for a match</param>
+        /// <param name="replacementFn">A custom method that examines each match and returns either the original matched string or a replacement string</param>
+        /// <returns></returns>
+        public static async Task<string> ReplaceAsync(this Regex regex, string input, Func<Match, Task<string>> replacementFn)
+        {
+            var sb = new StringBuilder();
+            var lastIndex = 0;
+
+            var matches = regex.Matches(input);
+            foreach (Match match in matches)
+            {
+                sb.Append(input, lastIndex, match.Index - lastIndex)
+                  .Append(await replacementFn(match).ConfigureAwait(false));
+
+                lastIndex = match.Index + match.Length;
+            }
+
+            sb.Append(input, lastIndex, input.Length - lastIndex);
+            return sb.ToString();
         }
 
         internal static void LogTaskFault(this Task task, ILogger logger, LogLevel level, EventId eventId, string message)

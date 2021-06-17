@@ -70,6 +70,12 @@ namespace DSharpPlus.Entities
         public bool IsAnimated { get; internal set; }
 
         /// <summary>
+        /// Gets whether this emoji is a unicode one.
+        /// </summary>
+        [JsonProperty("unicode")]
+        public bool IsUnicode => this.Id == 0;
+
+        /// <summary>
         /// Gets the image URL of this emoji.
         /// </summary>
         [JsonIgnore]
@@ -87,7 +93,7 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Gets whether the emoji is available for use.  
+        /// Gets whether the emoji is available for use.
         /// An emoji may not be available due to loss of server boost.
         /// </summary>
         [JsonProperty("available", NullValueHandling = NullValueHandling.Ignore)]
@@ -299,8 +305,8 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Creates an emoji obejct from emote name that includes colons (eg. :thinking:). This method also supports 
-        /// skin tone variations (eg. :ok_hand::skin-tone-2:), standard emoticons (eg. :D), as well as guild emoji 
+        /// Creates an emoji obejct from emote name that includes colons (eg. :thinking:). This method also supports
+        /// skin tone variations (eg. :ok_hand::skin-tone-2:), standard emoticons (eg. :D), as well as guild emoji
         /// (still specified by :name:).
         /// </summary>
         /// <param name="client"><see cref="BaseDiscordClient"/> to attach to the object.</param>
@@ -333,8 +339,8 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Attempts to create an emoji object from emote name that includes colons (eg. :thinking:). This method also 
-        /// supports skin tone variations (eg. :ok_hand::skin-tone-2:), standard emoticons (eg. :D), as well as guild 
+        /// Attempts to create an emoji object from emote name that includes colons (eg. :thinking:). This method also
+        /// supports skin tone variations (eg. :ok_hand::skin-tone-2:), standard emoticons (eg. :D), as well as guild
         /// emoji (still specified by :name:).
         /// </summary>
         /// <param name="client"><see cref="BaseDiscordClient"/> to attach to the object.</param>
@@ -345,8 +351,8 @@ namespace DSharpPlus.Entities
             => TryFromName(client, name, true, out emoji);
 
         /// <summary>
-        /// Attempts to create an emoji object from emote name that includes colons (eg. :thinking:). This method also 
-        /// supports skin tone variations (eg. :ok_hand::skin-tone-2:), standard emoticons (eg. :D), as well as guild 
+        /// Attempts to create an emoji object from emote name that includes colons (eg. :thinking:). This method also
+        /// supports skin tone variations (eg. :ok_hand::skin-tone-2:), standard emoticons (eg. :D), as well as guild
         /// emoji (still specified by :name:).
         /// </summary>
         /// <param name="client"><see cref="BaseDiscordClient"/> to attach to the object.</param>

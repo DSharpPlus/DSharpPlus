@@ -47,6 +47,7 @@ namespace DSharpPlus.Entities
             this._mentionedUsersLazy = new Lazy<IReadOnlyList<DiscordUser>>(() => new ReadOnlyCollection<DiscordUser>(this._mentionedUsers));
             this._reactionsLazy = new Lazy<IReadOnlyList<DiscordReaction>>(() => new ReadOnlyCollection<DiscordReaction>(this._reactions));
             this._stickersLazy = new Lazy<IReadOnlyList<DiscordMessageSticker>>(() => new ReadOnlyCollection<DiscordMessageSticker>(this._stickers));
+            this._emojisLazy = new Lazy<IReadOnlyList<DiscordEmoji>>(() => new ReadOnlyCollection<DiscordEmoji>(this._emojis));
             this._jumpLink = new Lazy<Uri>(() =>
             {
                 var gid = this.Channel is DiscordDmChannel ? "@me" : this.Channel.GuildId.Value.ToString(CultureInfo.InvariantCulture);
@@ -72,6 +73,7 @@ namespace DSharpPlus.Entities
             this._mentionedUsers = new List<DiscordUser>(other._mentionedUsers);
             this._reactions = new List<DiscordReaction>(other._reactions);
             this._stickers = new List<DiscordMessageSticker>(other._stickers);
+            this._emojis = new List<DiscordEmoji>(other._emojis);
 
             this.Author = other.Author;
             this.ChannelId = other.ChannelId;
@@ -102,7 +104,6 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
         public ulong ChannelId { get; internal set; }
-
 
         /// <summary>
         /// Gets the components this message was sent with.
@@ -173,7 +174,7 @@ namespace DSharpPlus.Entities
         [JsonProperty("mentions", NullValueHandling = NullValueHandling.Ignore)]
         internal List<DiscordUser> _mentionedUsers;
         [JsonIgnore]
-        readonly Lazy<IReadOnlyList<DiscordUser>> _mentionedUsersLazy;
+        private readonly Lazy<IReadOnlyList<DiscordUser>> _mentionedUsersLazy;
 
         // TODO this will probably throw an exception in DMs since it tries to wrap around a null List...
         // this is probably low priority but need to find out a clean way to solve it...
@@ -317,6 +318,18 @@ namespace DSharpPlus.Entities
         [JsonIgnore]
         private readonly Lazy<IReadOnlyList<DiscordMessageSticker>> _stickersLazy;
 
+        /// <summary>
+        /// Gets emojis for this message
+        /// </summary>
+        [JsonIgnore]
+        public IReadOnlyList<DiscordEmoji> Emojis
+            => this._emojisLazy.Value;
+
+        [JsonProperty("emojis", NullValueHandling = NullValueHandling.Ignore)]
+        internal List<DiscordEmoji> _emojis = new();
+        [JsonIgnore]
+        private readonly Lazy<IReadOnlyList<DiscordEmoji>> _emojisLazy;
+
         [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
         internal ulong? GuildId { get; set; }
 
@@ -345,10 +358,10 @@ namespace DSharpPlus.Entities
                 reference.Guild = client._guilds.TryGetValue(guildId.Value, out var g)
                     ? g
                     : new DiscordGuild
-                {
-                    Id = guildId.Value,
-                    Discord = client
-                };
+                    {
+                        Id = guildId.Value,
+                        Discord = client
+                    };
 
             var channel = client.InternalGetCachedChannel(channelId.Value);
 
@@ -363,12 +376,10 @@ namespace DSharpPlus.Entities
                 if (guildId.HasValue)
                     reference.Channel.GuildId = guildId.Value;
             }
-
             else reference.Channel = channel;
 
             if (client.MessageCache != null && client.MessageCache.TryGet(m => m.Id == messageId.Value && m.ChannelId == channelId, out var msg))
                 reference.Message = msg;
-
             else
             {
                 reference.Message = new DiscordMessage
@@ -383,8 +394,6 @@ namespace DSharpPlus.Entities
 
             return reference;
         }
-
-
 
         internal void PopulateMentions()
         {
@@ -421,6 +430,15 @@ namespace DSharpPlus.Entities
             }
 
             this._mentionedUsers = mentionedUsers.ToList();
+
+            // Populating all emojis
+            this._emojis ??= new List<DiscordEmoji>();
+
+            this._emojis = this._emojis
+                .Union(Utilities.GetGuildEmojis(this)
+                        .Select(eid => DiscordEmoji.FromGuildEmote(this.Discord, eid)))
+                .Union(Utilities.GetCommonEmojis(this))
+                .ToList();
         }
 
         /// <summary>
