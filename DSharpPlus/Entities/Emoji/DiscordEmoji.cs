@@ -94,7 +94,8 @@ namespace DSharpPlus.Entities
 
         /// <summary>
         /// Gets whether the emoji is available for use.
-        /// An emoji may not be available due to loss of server boost.
+        /// An emoji may not be available due to loss of server boost or
+        /// by being from a server where the bot is not present
         /// </summary>
         [JsonProperty("available", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsAvailable { get; internal set; }

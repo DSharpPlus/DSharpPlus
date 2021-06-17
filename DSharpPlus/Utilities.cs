@@ -169,12 +169,12 @@ namespace DSharpPlus
                 yield return ulong.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
         }
 
-        internal static IEnumerable<ulong> GetGuildEmojis(DiscordMessage message)
+        internal static IEnumerable<(ulong eid, bool isAnimated)> GetGuildEmojis(DiscordMessage message)
         {
             var regex = new Regex(@"<a?:([a-zA-Z0-9_]+):(\d+)>", RegexOptions.ECMAScript);
             var matches = regex.Matches(message.Content);
             foreach (Match match in matches)
-                yield return ulong.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
+                yield return (ulong.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture), match.Value.StartsWith("<a:"));
         }
 
         public static IEnumerable<DiscordEmoji> GetCommonEmojis(DiscordMessage message)
@@ -195,7 +195,7 @@ namespace DSharpPlus
         /// <returns>A human-readable format of the message</returns>
         public static Task<string> HumanizeContentAsync(DiscordMessage message)
             => HumanizeContentAsync(message, (e)
-                => e.IsUnicode ? Task.FromResult(e.Name) : Task.FromResult(string.Empty));
+                => (e != null && e.IsUnicode) ? Task.FromResult(e.Name) : Task.FromResult(string.Empty));
 
         /// <summary>
         /// Converts all of the Discord message snowflake tags to a human-readable format
