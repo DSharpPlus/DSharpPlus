@@ -169,12 +169,14 @@ namespace DSharpPlus
                 yield return ulong.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
         }
 
-        internal static IEnumerable<(ulong eid, bool isAnimated)> GetGuildEmojis(DiscordMessage message)
+        internal static IEnumerable<(ulong id, string name, bool isAnimated)> GetGuildEmojis(DiscordMessage message)
         {
             var regex = new Regex(@"<a?:([a-zA-Z0-9_]+):(\d+)>", RegexOptions.ECMAScript);
             var matches = regex.Matches(message.Content);
             foreach (Match match in matches)
-                yield return (ulong.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture), match.Value.StartsWith("<a:"));
+                yield return (ulong.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture),
+                              match.Groups[1].Value,
+                              match.Value.StartsWith("<a:"));
         }
 
         public static IEnumerable<DiscordEmoji> GetCommonEmojis(DiscordMessage message)

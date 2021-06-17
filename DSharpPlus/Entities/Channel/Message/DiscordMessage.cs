@@ -436,16 +436,17 @@ namespace DSharpPlus.Entities
 
             this._emojis = this._emojis
                 .Union(Utilities.GetGuildEmojis(this)
-                        .Select(edata =>
+                        .Select(emojidata =>
                         {
-                            var result = DiscordEmoji.TryFromGuildEmote(this.Discord, edata.eid, out var emoji);
+                            var result = DiscordEmoji.TryFromGuildEmote(this.Discord, emojidata.id, out var emoji);
                             // If the emoji wasn't found, we still can construct it's URL from the data we got, so create a dummy object, and mark it as unavailable
                             return result ? emoji : new DiscordEmoji
                             {
-                                Id = edata.eid,
-                                Name = edata.eid.ToString(), // This is required for GetHashCode
+                                Id = emojidata.id,
+                                Name = emojidata.name,
                                 IsAvailable = false,
-                                IsAnimated = edata.isAnimated
+                                IsAnimated = emojidata.isAnimated,
+                                Discord = this.Discord
                             };
                         }))
                 .Union(Utilities.GetCommonEmojis(this))
