@@ -214,6 +214,13 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Gets this member's username and 4-digit discriminator concatenated by a #.
+        /// </summary>
+        [JsonIgnore]
+        public override string Tag
+            => this.User.Tag;
+
+        /// <summary>
         /// Gets the member's avatar hash.
         /// </summary>
         [JsonIgnore]
@@ -550,7 +557,7 @@ namespace DSharpPlus.Entities
         /// Returns a string representation of this member.
         /// </summary>
         /// <returns>String representation of this member.</returns>
-        public override string ToString() => $"Member {this.Id}; {this.Username}#{this.Discriminator} ({this.DisplayName})";
+        public override string ToString() => $"Member {this.Id}; {this.Tag} ({this.DisplayName})";
 
         /// <summary>
         /// Checks whether this <see cref="DiscordMember"/> is equal to another object.

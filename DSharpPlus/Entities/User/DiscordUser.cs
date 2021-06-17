@@ -64,6 +64,13 @@ namespace DSharpPlus.Entities
         [JsonProperty("discriminator", NullValueHandling = NullValueHandling.Ignore)]
         public virtual string Discriminator { get; internal set; }
 
+        /// <summary>
+        /// Gets this user's username and 4-digit discriminator concatenated by a #.
+        /// </summary>
+        [JsonIgnore]
+        public virtual string Tag
+            => $"{this.Username}#{this.Discriminator}";
+
         [JsonIgnore]
         internal int DiscriminatorInt
             => int.Parse(this.Discriminator, NumberStyles.Integer, CultureInfo.InvariantCulture);
@@ -228,7 +235,7 @@ namespace DSharpPlus.Entities
         /// Returns a string representation of this user.
         /// </summary>
         /// <returns>String representation of this user.</returns>
-        public override string ToString() => $"User {this.Id}; {this.Username}#{this.Discriminator}";
+        public override string ToString() => $"User {this.Id}; {this.Tag}";
 
         /// <summary>
         /// Checks whether this <see cref="DiscordUser"/> is equal to another object.
