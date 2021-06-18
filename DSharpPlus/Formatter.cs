@@ -54,6 +54,14 @@ namespace DSharpPlus
             => $"`{content}`";
 
         /// <summary>
+        /// Creates a rendered timestamp.
+        /// </summary>
+        /// <param name="time">The time from now.</param>
+        /// <returns>A formatted timestamp relative to now.</returns>
+        public static string TimeStamp(TimeSpan time)
+            => $"<t:{(DateTimeOffset.UtcNow + time).ToUnixTimeSeconds()}:R>";
+
+        /// <summary>
         /// Creates bold text.
         /// </summary>
         /// <param name="content">Text to bolden.</param>
