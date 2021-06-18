@@ -196,36 +196,39 @@ namespace DSharpPlus
         /// <param name="message">The message to convert</param>
         /// <returns>A human-readable format of the message</returns>
         public static Task<string> HumanizeContentAsync(DiscordMessage message)
-            => HumanizeContentAsync(message, (e)
-                => (e != null && e.Id == 0) ? Task.FromResult(e.Name) : Task.FromResult(string.Empty));
+            => HumanizeContentAsync(message, (obj)
+                =>
+                {
+                    switch (obj)
+                    {
+                        case DiscordEmoji emoji:
+                            var result = emoji.Id == 0 ? emoji.Name : string.Empty;
+                            return Task.FromResult(result);
+                        case DiscordMember member:
+                            return Task.FromResult($"@{member.DisplayName}");
+                        case DiscordUser user:
+                            return Task.FromResult($"@{user.Username}");
+                        case DiscordRole role:
+                            return Task.FromResult($"@{role.Name}");
+                        case DiscordChannel channel:
+                            return Task.FromResult($"#{channel.Name}");
+                        default:
+                            return Task.FromResult(string.Empty);
+                    }
+                });
 
         /// <summary>
         /// Converts all of the Discord message snowflake tags to a human-readable format
         /// </summary>
         /// <param name="message">The message to convert</param>
-        /// <param name="emojiReplacer">A callback to specify how emojis should be converted</param>
+        /// <param name="objectReplacer">A callback to specify how objects should be converted</param>
         /// <returns>A human-readable format of the message</returns>
-        public async static Task<string> HumanizeContentAsync(DiscordMessage message, Func<DiscordEmoji, Task<string>> emojiReplacer)
+        public async static Task<string> HumanizeContentAsync(DiscordMessage message, Func<SnowflakeObject, Task<string>> objectReplacer)
         {
-            // Preparing the parsing by retrieving all the guild emojis used
-            var guildEmojis = Utilities.GetGuildEmojis(message)
-                .Select(emojidata =>
-                {
-                    var result = DiscordEmoji.TryFromGuildEmote(message.Discord, emojidata.id, out var emoji);
-                    // If the emoji wasn't found, we still can construct it's URL from the data we got, so create a dummy object, and mark it as unavailable
-                    return result ? emoji : new DiscordEmoji
-                    {
-                        Id = emojidata.id,
-                        Name = emojidata.name,
-                        IsAvailable = false,
-                        IsAnimated = emojidata.isAnimated,
-                        Discord = message.Discord,
-                        RequiresColons = true
-                    };
-                });
+            var client = message.Discord as DiscordClient;
 
             // First we take care of "special tags (<>), including guild emojies"
-            var regex = new Regex(@"<(?<TagType>(@[!&]?)|(#)|(a?:([a-zA-Z0-9_]+):))(?<TagId>\d+)>", RegexOptions.ECMAScript);
+            var regex = new Regex(@"<(?<TagType>(@[!&]?)|(#)|(a?:(?<TagName>[a-zA-Z0-9_]+):))(?<TagId>\d+)>", RegexOptions.ECMAScript);
             var text = await regex.ReplaceAsync(message.Content, async m =>
             {
                 var tagType = m.Groups["TagType"].Value;
@@ -233,30 +236,59 @@ namespace DSharpPlus
                 switch (tagType)
                 {
                     case "@": // Username mention
-                        return $"@{message.MentionedUsers.FirstOrDefault(u => u.Id == tagId).Username}";
+                        var cached = message.Discord.TryGetCachedUserInternal(tagId, out var user);
+                        if (!cached && client != null)
+                            user = await client.GetUserAsync(tagId);
+                        return await objectReplacer(user);
 
                     case "@!": // Nickname mention
-                        var user = message.MentionedUsers.FirstOrDefault(u => u.Id == tagId);
+                        cached = message.Discord.TryGetCachedUserInternal(tagId, out user);
+                        if (!cached && client != null)
+                            user = await client.GetUserAsync(tagId);
                         if (user is DiscordMember member)
                         {
-                            return $"@{member.DisplayName}";
+                            return await objectReplacer(member);
                         }
                         if (message.Channel?.Guild != null)
                         {
                             member = await message.Channel.Guild.GetMemberAsync(tagId);
-                            return $"@{member.DisplayName}";
+                            return await objectReplacer(member);
                         }
-                        return $"@{user.Username}";
+                        return await objectReplacer(user);
 
                     case "@&": // Role mention
-                        return $"@{message.MentionedRoles.FirstOrDefault(r => r.Id == tagId).Name}";
+                        if (message.Channel?.Guild != null)
+                        {
+                            var role = message.Channel.Guild.GetRole(tagId);
+                            return await objectReplacer(role);
+                        }
+                        return await objectReplacer(null);
 
                     case "#": // Channel mention
-                        return $"#{message.MentionedChannels.FirstOrDefault(c => c.Id == tagId).Name}";
+                        if (message.Channel?.Guild != null)
+                        {
+                            var channel = message.Channel.Guild.GetChannel(tagId);
+                            return await objectReplacer(channel);
+                        }
+                        return await objectReplacer(null);
 
                     case string s when s.StartsWith("a:") || s.StartsWith(":"): // Guild emoji
-                        var emoji = guildEmojis.FirstOrDefault(e => e.Id == tagId);
-                        return await emojiReplacer(emoji);
+                        var exists = DiscordEmoji.TryFromGuildEmote(message.Discord, tagId, out var emoji);
+                        // We still have enough information to construct a dummy DiscordEmoji
+                        // which could provide us for example an Url for the emoji
+                        // This could happen if eg a Nitro user used an emoji from a server
+                        // where the bot is not present
+                        // We explicitely mark as IsAvailable = false to avoid it's usage
+                        emoji = exists ? emoji : new DiscordEmoji
+                        {
+                            Id = tagId,
+                            Name = m.Groups["TagName"].Value,
+                            IsAvailable = false,
+                            IsAnimated = s.StartsWith("a:"),
+                            Discord = message.Discord,
+                            RequiresColons = true
+                        };
+                        return await objectReplacer(emoji);
 
                     default:
                         throw new ArgumentException("Matched something unexpected");
@@ -267,28 +299,21 @@ namespace DSharpPlus
             // We sort them so we first replace the most complex ("composite") ones first
 
             // Converting the ":emojiname:" format
-            var commonEmojis = DiscordEmoji.UnicodeEmojis.Keys
+            var emojis = DiscordEmoji.UnicodeEmojis.Keys
                 .Where(e => text.Contains(e))
                 .OrderByDescending(e => e.Count(c => c == ':'))
-                .ThenByDescending(e => e.Length);
+                .ThenByDescending(e => e.Length)
+                .Select(e => new { Token = e, Emoji = DiscordEmoji.FromName(message.Discord, e, false) })
+                .Union(// Converting the unicode emojis
+                    DiscordEmoji.DiscordNameLookup.Keys
+                    .Where(e => text.Contains(e))
+                    .OrderByDescending(e => e.Length)
+                    .Select(e => new { Token = e, Emoji = DiscordEmoji.FromUnicode(e) }));
 
-            foreach (var emojiName in commonEmojis)
+            foreach (var emojiInfo in emojis)
             {
-                var emoji = DiscordEmoji.FromName(message.Discord, emojiName, false);
-                var replacement = await emojiReplacer(emoji);
-                text = text.Replace(emojiName, replacement);
-            }
-
-            // Converting the unicode emojis
-            var unicodeEmojis = DiscordEmoji.DiscordNameLookup.Keys
-                .Where(e => text.Contains(e))
-                .OrderByDescending(e => e.Length);
-
-            foreach (var unicodeEmoji in unicodeEmojis)
-            {
-                var emoji = DiscordEmoji.FromUnicode(unicodeEmoji);
-                var replacement = await emojiReplacer(emoji);
-                text = text.Replace(unicodeEmoji, replacement);
+                var replacement = await objectReplacer(emojiInfo.Emoji);
+                text = text.Replace(emojiInfo.Token, replacement);
             }
 
             return text;
