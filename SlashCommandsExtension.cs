@@ -116,7 +116,7 @@ namespace DSharpPlus.SlashCommands
                             var payload = new DiscordApplicationCommand(groupatt.Name, groupatt.Description);
 
 
-                            var commandmethods = new Dictionary<string, MethodInfo>();
+                            var commandmethods = new List<KeyValuePair<string, MethodInfo>>();
                             foreach (var submethod in submethods)
                             {
                                 var commandattribute = submethod.GetCustomAttribute<SlashCommandAttribute>();
@@ -131,7 +131,7 @@ namespace DSharpPlus.SlashCommands
     
                                 var subpayload = new DiscordApplicationCommandOption(commandattribute.Name, commandattribute.Description, ApplicationCommandOptionType.SubCommand, null, null, options);
 
-                                commandmethods.Add(commandattribute.Name, submethod);
+                                commandmethods.Add(new KeyValuePair<string, MethodInfo>(commandattribute.Name, submethod));
 
                                 payload = new DiscordApplicationCommand(payload.Name, payload.Description, payload.Options?.Append(subpayload) ?? new[] { subpayload });
 
@@ -158,7 +158,7 @@ namespace DSharpPlus.SlashCommands
                                     
                                     var subsubpayload = new DiscordApplicationCommandOption(commatt.Name, commatt.Description, ApplicationCommandOptionType.SubCommand, null, null, suboptions);
                                     options.Add(subsubpayload);
-                                    commandmethods.Add(commatt.Name, subsubmethod);
+                                    commandmethods.Add(new KeyValuePair<string, MethodInfo>(commatt.Name, subsubmethod));
                                 }
 
                                 var subpayload = new DiscordApplicationCommandOption(subgroupatt.Name, subgroupatt.Description, ApplicationCommandOptionType.SubCommandGroup, null, null, options);
@@ -564,7 +564,7 @@ namespace DSharpPlus.SlashCommands
         public ulong Id;
 
         public string Name;
-        public Dictionary<string, MethodInfo> Methods = null;
+        public List<KeyValuePair<string, MethodInfo>> Methods = null;
         public Type ParentClass;
     }
 
