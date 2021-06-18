@@ -59,22 +59,8 @@ namespace DSharpPlus
         /// <param name="time">The time from now.</param>
         /// <param name="format">The format to render the timestamp in. Defaults to relative.</param>
         /// <returns>A formatted timestamp relative to now.</returns>
-        public static string TimeStamp(TimeSpan time, TimestampFormat format = TimestampFormat.RelativeTime)
-        {
-            var flag = format switch
-            {
-                TimestampFormat.RelativeTime => 'R',
-                TimestampFormat.LongDate => 'D',
-                TimestampFormat.ShortDate => 'd',
-                TimestampFormat.ShortTime => 't',
-                TimestampFormat.LongTime => 'T',
-                TimestampFormat.ShortDateTime => 'f',
-                TimestampFormat.LongDateTime => 'F',
-                _ => throw new ArgumentException($"Unkown timestamp format. {format}")
-            };
-
-            return $"<t:{(DateTimeOffset.UtcNow + time).ToUnixTimeSeconds()}:{flag}>";
-        }
+        public static string Timestamp(TimeSpan time, TimestampFormat format = TimestampFormat.RelativeTime)
+            => $"<t:{(DateTimeOffset.UtcNow + time).ToUnixTimeSeconds()}:{(char)format}>";
 
         /// <summary>
         /// Creates bold text.
