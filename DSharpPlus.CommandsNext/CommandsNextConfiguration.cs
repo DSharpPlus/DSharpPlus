@@ -118,10 +118,10 @@ namespace DSharpPlus.CommandsNext
         public bool IgnoreExtraArguments { internal get; set; } = false;
 
         /// <summary>
-        /// <para>Gets whether subsequent MessageCreate event handlers are processed after a command was found. If this is set to true, the default command handler marks the event as handled, and subsequent MessageCreate handlers won't be called, otherwise they are called.</para>
+        /// <para>Gets or sets whether remaining MessageCreate event handlers will run if a command is successfully parsed.</para>
         /// <para>Defaults to false.</para>
         /// </summary>
-        public bool SignalHandledOnCommandFound { internal get; set; } = false;
+        public bool MarkEventAsHandled { internal get; set; } = false;
 
         /// <summary>
         /// <para>Gets or sets whether to automatically enable handling commands.</para>
