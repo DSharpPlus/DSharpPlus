@@ -235,6 +235,9 @@ namespace DSharpPlus.CommandsNext
             }
 
             _ = Task.Run(async () => await this.ExecuteCommandAsync(ctx).ConfigureAwait(false));
+
+            if (this.Config.SignalHandledOnCommandFound)
+                e.Handled = true;
         }
 
         /// <summary>
