@@ -73,7 +73,7 @@ namespace DSharpPlus.Test
                 return;
             }
 
-            await buttonInput.Interaction.CreateResponseAsync(InteractionResponseType.DefferedMessageUpdate);
+            await buttonInput.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
             currentMessage = await buttonInteraction.CreateFollowupMessageAsync(followupMessageBuilder.WithContent("All good role menus start with a name. What's this one's?"));
 
             while (true)

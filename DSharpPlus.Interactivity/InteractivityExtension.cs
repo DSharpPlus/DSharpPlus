@@ -644,7 +644,7 @@ namespace DSharpPlus.Interactivity
         {
             var at = this.Config.ResponseBehavior switch
             {
-                InteractionResponseBehavior.Ack => interaction.CreateResponseAsync(InteractionResponseType.DefferedMessageUpdate),
+                InteractionResponseBehavior.Ack => interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate),
                 InteractionResponseBehavior.Respond => interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder() { Content = this.Config.ResponseMessage, IsEphemeral = true}),
                 InteractionResponseBehavior.Ignore => Task.CompletedTask,
                 _ => throw new ArgumentException("Unknown enum value.")
