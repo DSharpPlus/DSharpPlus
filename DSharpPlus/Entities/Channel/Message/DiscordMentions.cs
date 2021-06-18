@@ -66,19 +66,14 @@ namespace DSharpPlus.Entities
             //Null check just to be safe
             if (mentions == null) return;
 
+            this.RepliedUser = repliedUser;
             //If we have no item in our mentions, its likely to be a empty array.
             // This is a special case were we want parse to be a empty array
             // Doing this allows for "no parsing"
             if (!mentions.Any())
             {
                 this.Parse = Array.Empty<string>();
-                this.RepliedUser = repliedUser;
                 return;
-            }
-
-            if (mention)
-            {
-                this.RepliedUser = repliedUser;
             }
 
 
@@ -107,12 +102,11 @@ namespace DSharpPlus.Entities
                             parse.Add(ParseRoles);      //We have role ID, so let all users through
                         break;
 
-                    case EveryoneMention e:
+                    case EveryoneMention:
                         parse.Add(ParseEveryone);
                         break;
 
-                    case RepliedUserMention _:
-                        this.RepliedUser = repliedUser;
+                    case RepliedUserMention:
                         break;
                 }
             }
