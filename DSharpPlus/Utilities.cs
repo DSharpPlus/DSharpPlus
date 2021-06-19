@@ -169,17 +169,32 @@ namespace DSharpPlus
                 yield return ulong.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
         }
 
-        internal static IEnumerable<(ulong id, string name, bool isAnimated)> GetGuildEmojis(DiscordMessage message)
+        internal static IEnumerable<DiscordEmoji> GetGuildEmojis(DiscordMessage message)
         {
             var regex = new Regex(@"<a?:([a-zA-Z0-9_]+):(\d+)>", RegexOptions.ECMAScript);
             var matches = regex.Matches(message.Content);
             foreach (Match match in matches)
-                yield return (ulong.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture),
-                              match.Groups[1].Value,
-                              match.Value.StartsWith("<a:"));
+            {
+                var emojiId = ulong.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
+                var exists = DiscordEmoji.TryFromGuildEmote(message.Discord, emojiId, out var emoji);
+                // We still have enough information to construct a dummy DiscordEmoji
+                // which could provide us for example an Url for the emoji
+                // This could happen if eg a Nitro user used an emoji from a server
+                // where the bot is not present
+                // We explicitely mark as IsAvailable = false to avoid it's usage
+                yield return exists ? emoji : new DiscordEmoji
+                {
+                    Id = emojiId,
+                    Name = match.Groups[1].Value,
+                    IsAvailable = false,
+                    IsAnimated = match.Value.StartsWith("<a:"),
+                    Discord = message.Discord,
+                    RequiresColons = true
+                };
+            }
         }
 
-        public static IEnumerable<DiscordEmoji> GetCommonEmojis(DiscordMessage message)
+        internal static IEnumerable<DiscordEmoji> GetCommonEmojis(DiscordMessage message)
         {
             return DiscordEmoji.UnicodeEmojis.Keys
                 .Where(e => message.Content.Contains(e))
@@ -227,7 +242,6 @@ namespace DSharpPlus
         {
             var client = message.Discord as DiscordClient;
 
-            // First we take care of "special tags (<>), including guild emojies"
             var regex = new Regex(@"<(?<TagType>(@[!&]?)|(#)|(a?:(?<TagName>[a-zA-Z0-9_]+):))(?<TagId>\d+)>", RegexOptions.ECMAScript);
             var text = await regex.ReplaceAsync(message.Content, async m =>
             {
@@ -294,27 +308,6 @@ namespace DSharpPlus
                         throw new ArgumentException("Matched something unexpected");
                 }
             });
-
-            // Now we take care of common emojis
-            // We sort them so we first replace the most complex ("composite") ones first
-
-            // Converting the ":emojiname:" format
-            var emojis = DiscordEmoji.UnicodeEmojis.Keys
-                .Where(e => text.Contains(e))
-                .OrderByDescending(e => e.Count(c => c == ':'))
-                .ThenByDescending(e => e.Length)
-                .Select(e => new { Token = e, Emoji = DiscordEmoji.FromName(message.Discord, e, false) })
-                .Union(// Converting the unicode emojis
-                    DiscordEmoji.DiscordNameLookup.Keys
-                    .Where(e => text.Contains(e))
-                    .OrderByDescending(e => e.Length)
-                    .Select(e => new { Token = e, Emoji = DiscordEmoji.FromUnicode(e) }));
-
-            foreach (var emojiInfo in emojis)
-            {
-                var replacement = await objectReplacer(emojiInfo.Emoji);
-                text = text.Replace(emojiInfo.Token, replacement);
-            }
 
             return text;
         }
