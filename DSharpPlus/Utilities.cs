@@ -238,7 +238,94 @@ namespace DSharpPlus
         /// <param name="message">The message to convert</param>
         /// <param name="objectReplacer">A callback to specify how objects should be converted</param>
         /// <returns>A human-readable format of the message</returns>
-        public async static Task<string> HumanizeContentAsync(DiscordMessage message, Func<SnowflakeObject, Task<string>> objectReplacer)
+        public static Task<string> HumanizeContentAsync(DiscordMessage message, Func<SnowflakeObject, Task<string>> objectReplacer)
+            => HumanizeContentAsync(message, objectReplacer, (timestamp, timeFormat)
+                =>
+                {
+                    switch (timeFormat)
+                    {
+                        case TimestampFormat.ShortTime:
+                            return Task.FromResult(timestamp.ToString("t", CultureInfo.InvariantCulture));
+                        case TimestampFormat.LongTime:
+                            return Task.FromResult(timestamp.ToString("T", CultureInfo.InvariantCulture));
+                        case TimestampFormat.ShortDate:
+                            // The format in the Discord documentation is not the same as the "d" modifier for DateTimeOffset
+                            return Task.FromResult(timestamp.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture));
+                        case TimestampFormat.LongDate:
+                            return Task.FromResult(timestamp.ToString("D", CultureInfo.InvariantCulture));
+                        case TimestampFormat.ShortDateTime:
+                            // The format in the Discord documentation is not the same as the "f" modifier for DateTimeOffset
+                            return Task.FromResult(timestamp.ToString("D t", CultureInfo.InvariantCulture));
+                        case TimestampFormat.LongDateTime:
+                            return Task.FromResult(timestamp.ToString("F", CultureInfo.InvariantCulture));
+                        case TimestampFormat.RelativeTime:
+                        {
+                            var now = DateTime.UtcNow;
+                            var difference = timestamp - now;
+                            var isPast = difference < TimeSpan.Zero;
+                            // The following was taken from Discord JS code
+                            if (isPast && difference > TimeSpan.FromSeconds(-2))
+                                return Task.FromResult("just now");
+                            if (!isPast && difference < TimeSpan.FromSeconds(2))
+                                return Task.FromResult("now");
+                            if (isPast && difference > TimeSpan.FromMinutes(-1))
+                                return Task.FromResult($"{-difference.TotalSeconds} seconds ago");
+                            if (!isPast && difference < TimeSpan.FromMinutes(1))
+                                return Task.FromResult($"in {difference.TotalSeconds} seconds");
+                            if (isPast && difference > TimeSpan.FromMinutes(-2))
+                                return Task.FromResult($"about a minute ago");
+                            if (!isPast && difference < TimeSpan.FromMinutes(2))
+                                return Task.FromResult($"in about a minute");
+                            if (isPast && difference > TimeSpan.FromHours(-1))
+                                return Task.FromResult($"{-difference.TotalMinutes} minutes ago");
+                            if (!isPast && difference < TimeSpan.FromHours(1))
+                                return Task.FromResult($"in {difference.TotalMinutes} minutes");
+                            if (isPast && difference > TimeSpan.FromHours(-2))
+                                return Task.FromResult($"about an hour ago");
+                            if (!isPast && difference < TimeSpan.FromHours(2))
+                                return Task.FromResult($"in about an hour");
+                            if (isPast && difference > TimeSpan.FromDays(-1))
+                                return Task.FromResult($"{-difference.TotalHours} hours ago");
+                            if (!isPast && difference < TimeSpan.FromDays(1))
+                                return Task.FromResult($"in {difference.TotalHours} hours");
+                            if (isPast && difference > TimeSpan.FromDays(-2))
+                                return Task.FromResult($"1 day ago");
+                            if (!isPast && difference < TimeSpan.FromDays(2))
+                                return Task.FromResult($"in 1 day");
+                            if (isPast && difference > TimeSpan.FromDays(-29))
+                                return Task.FromResult($"{-difference.TotalDays} days ago");
+                            if (!isPast && difference < TimeSpan.FromDays(29))
+                                return Task.FromResult($"in {difference.TotalDays} days");
+                            if (isPast && difference > TimeSpan.FromDays(-60))
+                                return Task.FromResult($"about a month ago");
+                            if (!isPast && difference < TimeSpan.FromDays(60))
+                                return Task.FromResult($"in about a month");
+                            var monthsDiff = (12 * timestamp.Year + timestamp.Month) - (12 * now.Year + now.Month);
+                            if (isPast && monthsDiff > -12)
+                                return Task.FromResult($"{-monthsDiff} months ago");
+                            if (!isPast && monthsDiff < 12)
+                                return Task.FromResult($"in {monthsDiff} months");
+                            var yearsDiff = timestamp.Year - now.Year;
+                            if (isPast && yearsDiff > -2)
+                                return Task.FromResult($"a year ago");
+                            if (!isPast && yearsDiff < 2)
+                                return Task.FromResult($"in a year");
+                            return isPast
+                                ? Task.FromResult($"{-yearsDiff} years ago")
+                                : Task.FromResult($"in {yearsDiff} years");
+                        }
+                    }
+                    return Task.FromResult(string.Empty);
+                });
+
+        /// <summary>
+        /// Converts all of the Discord message snowflake tags to a human-readable format
+        /// </summary>
+        /// <param name="message">The message to convert</param>
+        /// <param name="objectReplacer">A callback to specify how objects should be converted</param>
+        /// <param name="timestampReplacer">A callback to specify how timestamps should be converted</param>
+        /// <returns>A human-readable format of the message</returns>
+        public async static Task<string> HumanizeContentAsync(DiscordMessage message, Func<SnowflakeObject, Task<string>> objectReplacer, Func<DateTimeOffset, TimestampFormat, Task<string>> timestampReplacer)
         {
             var client = message.Discord as DiscordClient;
 
@@ -246,6 +333,7 @@ namespace DSharpPlus
             var text = await regex.ReplaceAsync(message.Content, async m =>
             {
                 var tagType = m.Groups["TagType"].Value;
+
                 var tagId = ulong.Parse(m.Groups["TagId"].Value);
                 switch (tagType)
                 {
@@ -285,7 +373,6 @@ namespace DSharpPlus
                             return await objectReplacer(channel);
                         }
                         return await objectReplacer(null);
-
                     case string s when s.StartsWith("a:") || s.StartsWith(":"): // Guild emoji
                         var exists = DiscordEmoji.TryFromGuildEmote(message.Discord, tagId, out var emoji);
                         // We still have enough information to construct a dummy DiscordEmoji
@@ -307,6 +394,17 @@ namespace DSharpPlus
                     default:
                         throw new ArgumentException("Matched something unexpected");
                 }
+            });
+
+            var timestampRegex = new Regex(@"<t:(?<Timestamp>\d+)(:(?<TimestampFormat>[tTdDfFR]))?>", RegexOptions.ECMAScript);
+            text = await timestampRegex.ReplaceAsync(text, async m =>
+            {
+                var timestamp = GetDateTimeOffset(long.Parse(m.Groups["Timestamp"].Value));
+                var format = TimestampFormat.ShortDateTime;
+                var tagFormat = m.Groups["TimestampFormat"]?.Value;
+                if (tagFormat != null)
+                    format = (TimestampFormat)tagFormat[0];
+                return await timestampReplacer(timestamp, format);
             });
 
             return text;
