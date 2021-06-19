@@ -208,8 +208,11 @@ namespace DSharpPlus.CommandsNext
         private async Task HandleCommandsAsync(DiscordClient sender, MessageCreateEventArgs e)
         {
             var cmd = await this.FindCommandForMessageAsync(e.Message);
-            var ctx = this.CreateContext(e.Message, cmd.Prefix, cmd.Command, cmd.CommandArguments);
             if (cmd == null)
+                return;
+
+            var ctx = this.CreateContext(e.Message, cmd.Prefix, cmd.Command, cmd.CommandArguments);
+            if (cmd.Command == null)
             {
                 await this._error.InvokeAsync(this, new CommandErrorEventArgs { Context = ctx, Exception = new CommandNotFoundException(cmd.CommandName) }).ConfigureAwait(false);
                 return;
@@ -238,21 +241,22 @@ namespace DSharpPlus.CommandsNext
             if (mpos == -1 && this.Config.PrefixResolver != null)
                 mpos = await this.Config.PrefixResolver(message).ConfigureAwait(false);
 
+            if (mpos == -1)
+                return null;
+
             var prefix = message.Content.Substring(0, mpos); ;
             var cnt = message.Content.Substring(mpos);
             var __ = 0;
             var cmdName = cnt.ExtractNextArgument(ref __);
 
             var command = this.FindCommand(cnt, out var cmdArgs);
-            return command == null
-                ? null
-                : new CommandInfo
-                {
-                    Command = command,
-                    Prefix = prefix,
-                    CommandName = cmdName,
-                    CommandArguments = cmdArgs
-                };
+            return new CommandInfo
+            {
+                Command = command,
+                Prefix = prefix,
+                CommandName = cmdName,
+                CommandArguments = cmdArgs
+            };
         }
 
         /// <summary>
@@ -261,7 +265,10 @@ namespace DSharpPlus.CommandsNext
         /// <param name="message">The message to check</param>
         /// <returns>True if it have a matching Command, false if it does not</returns>
         public async Task<bool> IsCommandMessageAsync(DiscordMessage message)
-            => await this.FindCommandForMessageAsync(message) != null;
+        {
+            var commandInfo = await this.FindCommandForMessageAsync(message);
+            return commandInfo != null && commandInfo.Command != null;
+        }
 
         /// <summary>
         /// Finds a specified command by its qualified name, then separates arguments.
