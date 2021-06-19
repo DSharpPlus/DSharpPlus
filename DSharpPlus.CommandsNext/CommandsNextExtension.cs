@@ -199,34 +199,7 @@ namespace DSharpPlus.CommandsNext
         #region Command Handling
         private async Task HandleCommandsAsync(DiscordClient sender, MessageCreateEventArgs e)
         {
-            if (e.Author.IsBot) // bad bot
-                return;
-
-            if (!this.Config.EnableDms && e.Channel.IsPrivate)
-                return;
-
-            var mpos = -1;
-            if (this.Config.EnableMentionPrefix)
-                mpos = e.Message.GetMentionPrefixLength(this.Client.CurrentUser);
-
-            if (this.Config.StringPrefixes?.Any() == true)
-                foreach (var pfix in this.Config.StringPrefixes)
-                    if (mpos == -1 && !string.IsNullOrWhiteSpace(pfix))
-                        mpos = e.Message.GetStringPrefixLength(pfix, this.Config.CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
-
-            if (mpos == -1 && this.Config.PrefixResolver != null)
-                mpos = await this.Config.PrefixResolver(e.Message).ConfigureAwait(false);
-
-            if (mpos == -1)
-                return;
-
-            var pfx = e.Message.Content.Substring(0, mpos);
-            var cnt = e.Message.Content.Substring(mpos);
-
-            var __ = 0;
-            var fname = cnt.ExtractNextArgument(ref __);
-
-            var cmd = this.FindCommand(cnt, out var args);
+            var cmd = this.FindCommandForMessage(e.Message, out var pfx, out var fname, out var args);
             var ctx = this.CreateContext(e.Message, pfx, cmd, args);
             if (cmd == null)
             {
@@ -236,6 +209,46 @@ namespace DSharpPlus.CommandsNext
 
             _ = Task.Run(async () => await this.ExecuteCommandAsync(ctx).ConfigureAwait(false));
         }
+
+        private Command FindCommandForMessage(DiscordMessage message, out string prefix, out string cmdName, out string cmdArgs)
+        {
+            prefix = string.Empty;
+            cmdName = string.Empty;
+            cmdArgs = string.Empty;
+            var mpos = -1;
+            if (message.Author.IsBot) // bad bot
+                return null;
+
+            if (!this.Config.EnableDms && message.Channel.IsPrivate)
+                return null;
+
+            if (this.Config.EnableMentionPrefix)
+                mpos = message.GetMentionPrefixLength(this.Client.CurrentUser);
+
+            if (this.Config.StringPrefixes?.Any() == true)
+                foreach (var pfix in this.Config.StringPrefixes)
+                    if (mpos == -1 && !string.IsNullOrWhiteSpace(pfix))
+                        mpos = message.GetStringPrefixLength(pfix, this.Config.CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
+
+            if (mpos == -1 && this.Config.PrefixResolver != null)
+                // We can't make the current method async because of out params
+                mpos = this.Config.PrefixResolver(message).ConfigureAwait(false).GetAwaiter().GetResult();
+
+            prefix = message.Content.Substring(0, mpos); ;
+            var cnt = message.Content.Substring(mpos);
+            var __ = 0;
+            cmdName = cnt.ExtractNextArgument(ref __);
+
+            return this.FindCommand(cnt, out cmdArgs);
+        }
+
+        /// <summary>
+        /// Checks if a message is considered a command
+        /// </summary>
+        /// <param name="message">The message to check</param>
+        /// <returns>True if it have a matching Command, false if it is not</returns>
+        public bool IsCommandMessage(DiscordMessage message)
+            => this.FindCommandForMessage(message, out _, out _, out _) != null;
 
         /// <summary>
         /// Finds a specified command by its qualified name, then separates arguments.
