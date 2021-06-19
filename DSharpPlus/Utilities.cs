@@ -330,8 +330,32 @@ namespace DSharpPlus
             var client = message.Discord as DiscordClient;
 
             var regex = new Regex(@"<(?<TagType>(@[!&]?)|(#)|(a?:(?<TagName>[a-zA-Z0-9_]+):))(?<TagId>\d+)>", RegexOptions.ECMAScript);
+
+            // We match it right to left to parse correctly "```````" and similar stuff
+            var regexCodeBlock = new Regex(@"```", RegexOptions.RightToLeft);
+            var regexCode = new Regex(@"`", RegexOptions.ECMAScript);
             var text = await regex.ReplaceAsync(message.Content, async m =>
             {
+                var cpos = m.Index;
+                var spos = 0;
+                // We scan the previous content for code blocks or code tags
+                var prev = message.Content.Substring(spos, cpos - spos);
+                var matchCodeBlock = regexCodeBlock.Matches(prev);
+                // If we counted an uneven number of code block tags, we're inside a code block, skip this
+                if (matchCodeBlock.Count % 2 == 1)
+                {
+                    return m.Value;
+                }
+                // We match for code tags only after the last code block tag
+                if (matchCodeBlock.Count > 0)
+                {
+                    spos = matchCodeBlock[0].Index + 3;
+                }
+                prev = message.Content.Substring(spos, cpos - spos);
+                // If we counted an uneven number of code tags, we're inside an inline code, skip this
+                if (regexCode.Matches(prev).Count % 2 == 1)
+                    return m.Value;
+
                 var tagType = m.Groups["TagType"].Value;
 
                 var tagId = ulong.Parse(m.Groups["TagId"].Value);
@@ -399,6 +423,25 @@ namespace DSharpPlus
             var timestampRegex = new Regex(@"<t:(?<Timestamp>\d+)(:(?<TimestampFormat>[tTdDfFR]))?>", RegexOptions.ECMAScript);
             text = await timestampRegex.ReplaceAsync(text, async m =>
             {
+                var cpos = m.Index;
+                var spos = 0;
+                var prev = message.Content.Substring(spos, cpos - spos);
+                var matchCodeBlock = regexCodeBlock.Matches(prev);
+                // If we counted an uneven number of code block tags, we're inside a code block, skip this
+                if (matchCodeBlock.Count % 2 == 1)
+                {
+                    return m.Value;
+                }
+                // We match for code tags only after the last code block tag
+                if (matchCodeBlock.Count > 0)
+                {
+                    spos = matchCodeBlock[0].Index + 3;
+                }
+                prev = message.Content.Substring(spos, cpos - spos);
+                // If we counted an uneven number of code tags, we're inside an inline code, skip this
+                if (regexCode.Matches(prev).Count % 2 == 1)
+                    return m.Value;
+
                 var timestamp = GetDateTimeOffset(long.Parse(m.Groups["Timestamp"].Value));
                 var format = TimestampFormat.ShortDateTime;
                 var tagFormat = m.Groups["TimestampFormat"]?.Value;
