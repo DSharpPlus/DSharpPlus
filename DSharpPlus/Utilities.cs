@@ -182,17 +182,6 @@ namespace DSharpPlus
             }
         }
 
-        internal static IEnumerable<DiscordEmoji> GetCommonEmojis(DiscordMessage message)
-        {
-            return DiscordEmoji.UnicodeEmojis.Keys
-                .Where(e => message.Content.Contains(e))
-                .Select(e => DiscordEmoji.FromName(message.Discord, e, false))
-                .Union(DiscordEmoji.DiscordNameLookup.Keys
-                    .Where(e => message.Content.Contains(e))
-                    .Select(e => DiscordEmoji.FromUnicode(e)))
-                .ToList();
-        }
-
         /// <summary>
         /// The default humanizer for objects constructed from mentions (such as user, role, channel mentions or emojis).
         /// </summary>
@@ -334,8 +323,8 @@ namespace DSharpPlus
 
             var regexFullCodeBlock = new Regex(@"```[\w\W]+?```", RegexOptions.ECMAScript);
             var regexCodeBlockStart = new Regex(@"```[\w\W]+?", RegexOptions.ECMAScript);
-            var regexFullCode = new Regex(@"[^`]`[^`][\w\W]+?[^`]`[^`]", RegexOptions.ECMAScript);
-            var regexCode = new Regex(@"[^`]`[^`]", RegexOptions.ECMAScript);
+            var regexFullCode = new Regex(@"(?<!`)`[\w\W]+?`(?!`)", RegexOptions.ECMAScript);
+            var regexCode = new Regex(@"(?<!`)`(?!`)", RegexOptions.ECMAScript);
             var text = await regex.ReplaceAsync(message.Content, async m =>
             {
                 // Code block checking
