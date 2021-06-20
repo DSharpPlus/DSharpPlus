@@ -194,31 +194,121 @@ namespace DSharpPlus
         }
 
         /// <summary>
+        /// The default humanizer for objects constructed from mentions (such as user, role, channel mentions or emojis).
+        /// </summary>
+        /// <param name="obj">The object which is constructed from a mention</param>
+        /// <returns>The human-readable representation of that object</returns>
+        public static Task<string> HumanizeMentionObjectAsync(SnowflakeObject obj)
+        {
+            switch (obj)
+            {
+                case DiscordEmoji emoji:
+                    var result = emoji.Id == 0 ? emoji.Name : string.Empty;
+                    return Task.FromResult(result);
+                case DiscordMember member:
+                    return Task.FromResult($"@{member.DisplayName}");
+                case DiscordUser user:
+                    return Task.FromResult($"@{user.Username}");
+                case DiscordRole role:
+                    return Task.FromResult($"@{role.Name}");
+                case DiscordChannel channel:
+                    return Task.FromResult($"#{channel.Name}");
+                default:
+                    return Task.FromResult(string.Empty);
+            }
+        }
+
+        /// <summary>
+        /// The default humanizer for Discord timestamps.
+        /// </summary>
+        /// <param name="timestamp">A DateTimeOffset representing a timestamp</param>
+        /// <param name="timeFormat">The format in which the timestamp should be encoded</param>
+        /// <returns>The human-readable representation of the timestamp</returns>
+        public static Task<string> HumanizeTimestampAsync(DateTimeOffset timestamp, TimestampFormat timeFormat)
+        {
+            switch (timeFormat)
+            {
+                case TimestampFormat.ShortTime:
+                    return Task.FromResult(timestamp.ToString("t", CultureInfo.InvariantCulture));
+                case TimestampFormat.LongTime:
+                    return Task.FromResult(timestamp.ToString("T", CultureInfo.InvariantCulture));
+                case TimestampFormat.ShortDate:
+                    // The format in the Discord documentation is not the same as the "d" modifier for DateTimeOffset
+                    return Task.FromResult(timestamp.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture));
+                case TimestampFormat.LongDate:
+                    return Task.FromResult(timestamp.ToString("D", CultureInfo.InvariantCulture));
+                case TimestampFormat.ShortDateTime:
+                    // The format in the Discord documentation is not the same as the "f" modifier for DateTimeOffset
+                    return Task.FromResult(timestamp.ToString("D t", CultureInfo.InvariantCulture));
+                case TimestampFormat.LongDateTime:
+                    return Task.FromResult(timestamp.ToString("F", CultureInfo.InvariantCulture));
+                case TimestampFormat.RelativeTime:
+                {
+                    var now = DateTime.UtcNow;
+                    var difference = timestamp - now;
+                    var isPast = difference < TimeSpan.Zero;
+                    // The following was taken from Discord JS code
+                    if (isPast && difference > TimeSpan.FromSeconds(-2))
+                        return Task.FromResult("just now");
+                    if (!isPast && difference < TimeSpan.FromSeconds(2))
+                        return Task.FromResult("now");
+                    if (isPast && difference > TimeSpan.FromMinutes(-1))
+                        return Task.FromResult($"{-difference.TotalSeconds} seconds ago");
+                    if (!isPast && difference < TimeSpan.FromMinutes(1))
+                        return Task.FromResult($"in {difference.TotalSeconds} seconds");
+                    if (isPast && difference > TimeSpan.FromMinutes(-2))
+                        return Task.FromResult($"about a minute ago");
+                    if (!isPast && difference < TimeSpan.FromMinutes(2))
+                        return Task.FromResult($"in about a minute");
+                    if (isPast && difference > TimeSpan.FromHours(-1))
+                        return Task.FromResult($"{-difference.TotalMinutes} minutes ago");
+                    if (!isPast && difference < TimeSpan.FromHours(1))
+                        return Task.FromResult($"in {difference.TotalMinutes} minutes");
+                    if (isPast && difference > TimeSpan.FromHours(-2))
+                        return Task.FromResult($"about an hour ago");
+                    if (!isPast && difference < TimeSpan.FromHours(2))
+                        return Task.FromResult($"in about an hour");
+                    if (isPast && difference > TimeSpan.FromDays(-1))
+                        return Task.FromResult($"{-difference.TotalHours} hours ago");
+                    if (!isPast && difference < TimeSpan.FromDays(1))
+                        return Task.FromResult($"in {difference.TotalHours} hours");
+                    if (isPast && difference > TimeSpan.FromDays(-2))
+                        return Task.FromResult($"1 day ago");
+                    if (!isPast && difference < TimeSpan.FromDays(2))
+                        return Task.FromResult($"in 1 day");
+                    if (isPast && difference > TimeSpan.FromDays(-29))
+                        return Task.FromResult($"{-difference.TotalDays} days ago");
+                    if (!isPast && difference < TimeSpan.FromDays(29))
+                        return Task.FromResult($"in {difference.TotalDays} days");
+                    if (isPast && difference > TimeSpan.FromDays(-60))
+                        return Task.FromResult($"about a month ago");
+                    if (!isPast && difference < TimeSpan.FromDays(60))
+                        return Task.FromResult($"in about a month");
+                    var monthsDiff = (12 * timestamp.Year + timestamp.Month) - (12 * now.Year + now.Month);
+                    if (isPast && monthsDiff > -12)
+                        return Task.FromResult($"{-monthsDiff} months ago");
+                    if (!isPast && monthsDiff < 12)
+                        return Task.FromResult($"in {monthsDiff} months");
+                    var yearsDiff = timestamp.Year - now.Year;
+                    if (isPast && yearsDiff > -2)
+                        return Task.FromResult($"a year ago");
+                    if (!isPast && yearsDiff < 2)
+                        return Task.FromResult($"in a year");
+                    return isPast
+                        ? Task.FromResult($"{-yearsDiff} years ago")
+                        : Task.FromResult($"in {yearsDiff} years");
+                }
+            }
+            return Task.FromResult(string.Empty);
+        }
+
+        /// <summary>
         /// Converts all of the Discord message snowflake tags to a human-readable format
         /// </summary>
         /// <param name="message">The message to convert</param>
         /// <returns>A human-readable format of the message</returns>
         public static Task<string> HumanizeContentAsync(DiscordMessage message)
-            => HumanizeContentAsync(message, (obj)
-                =>
-                {
-                    switch (obj)
-                    {
-                        case DiscordEmoji emoji:
-                            var result = emoji.Id == 0 ? emoji.Name : string.Empty;
-                            return Task.FromResult(result);
-                        case DiscordMember member:
-                            return Task.FromResult($"@{member.DisplayName}");
-                        case DiscordUser user:
-                            return Task.FromResult($"@{user.Username}");
-                        case DiscordRole role:
-                            return Task.FromResult($"@{role.Name}");
-                        case DiscordChannel channel:
-                            return Task.FromResult($"#{channel.Name}");
-                        default:
-                            return Task.FromResult(string.Empty);
-                    }
-                });
+            => HumanizeContentAsync(message, HumanizeMentionObjectAsync);
 
         /// <summary>
         /// Converts all of the Discord message snowflake tags to a human-readable format
@@ -227,84 +317,7 @@ namespace DSharpPlus
         /// <param name="objectReplacer">A callback to specify how objects should be converted</param>
         /// <returns>A human-readable format of the message</returns>
         public static Task<string> HumanizeContentAsync(DiscordMessage message, Func<SnowflakeObject, Task<string>> objectReplacer)
-            => HumanizeContentAsync(message, objectReplacer, (timestamp, timeFormat)
-                =>
-                {
-                    switch (timeFormat)
-                    {
-                        case TimestampFormat.ShortTime:
-                            return Task.FromResult(timestamp.ToString("t", CultureInfo.InvariantCulture));
-                        case TimestampFormat.LongTime:
-                            return Task.FromResult(timestamp.ToString("T", CultureInfo.InvariantCulture));
-                        case TimestampFormat.ShortDate:
-                            // The format in the Discord documentation is not the same as the "d" modifier for DateTimeOffset
-                            return Task.FromResult(timestamp.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture));
-                        case TimestampFormat.LongDate:
-                            return Task.FromResult(timestamp.ToString("D", CultureInfo.InvariantCulture));
-                        case TimestampFormat.ShortDateTime:
-                            // The format in the Discord documentation is not the same as the "f" modifier for DateTimeOffset
-                            return Task.FromResult(timestamp.ToString("D t", CultureInfo.InvariantCulture));
-                        case TimestampFormat.LongDateTime:
-                            return Task.FromResult(timestamp.ToString("F", CultureInfo.InvariantCulture));
-                        case TimestampFormat.RelativeTime:
-                        {
-                            var now = DateTime.UtcNow;
-                            var difference = timestamp - now;
-                            var isPast = difference < TimeSpan.Zero;
-                            // The following was taken from Discord JS code
-                            if (isPast && difference > TimeSpan.FromSeconds(-2))
-                                return Task.FromResult("just now");
-                            if (!isPast && difference < TimeSpan.FromSeconds(2))
-                                return Task.FromResult("now");
-                            if (isPast && difference > TimeSpan.FromMinutes(-1))
-                                return Task.FromResult($"{-difference.TotalSeconds} seconds ago");
-                            if (!isPast && difference < TimeSpan.FromMinutes(1))
-                                return Task.FromResult($"in {difference.TotalSeconds} seconds");
-                            if (isPast && difference > TimeSpan.FromMinutes(-2))
-                                return Task.FromResult($"about a minute ago");
-                            if (!isPast && difference < TimeSpan.FromMinutes(2))
-                                return Task.FromResult($"in about a minute");
-                            if (isPast && difference > TimeSpan.FromHours(-1))
-                                return Task.FromResult($"{-difference.TotalMinutes} minutes ago");
-                            if (!isPast && difference < TimeSpan.FromHours(1))
-                                return Task.FromResult($"in {difference.TotalMinutes} minutes");
-                            if (isPast && difference > TimeSpan.FromHours(-2))
-                                return Task.FromResult($"about an hour ago");
-                            if (!isPast && difference < TimeSpan.FromHours(2))
-                                return Task.FromResult($"in about an hour");
-                            if (isPast && difference > TimeSpan.FromDays(-1))
-                                return Task.FromResult($"{-difference.TotalHours} hours ago");
-                            if (!isPast && difference < TimeSpan.FromDays(1))
-                                return Task.FromResult($"in {difference.TotalHours} hours");
-                            if (isPast && difference > TimeSpan.FromDays(-2))
-                                return Task.FromResult($"1 day ago");
-                            if (!isPast && difference < TimeSpan.FromDays(2))
-                                return Task.FromResult($"in 1 day");
-                            if (isPast && difference > TimeSpan.FromDays(-29))
-                                return Task.FromResult($"{-difference.TotalDays} days ago");
-                            if (!isPast && difference < TimeSpan.FromDays(29))
-                                return Task.FromResult($"in {difference.TotalDays} days");
-                            if (isPast && difference > TimeSpan.FromDays(-60))
-                                return Task.FromResult($"about a month ago");
-                            if (!isPast && difference < TimeSpan.FromDays(60))
-                                return Task.FromResult($"in about a month");
-                            var monthsDiff = (12 * timestamp.Year + timestamp.Month) - (12 * now.Year + now.Month);
-                            if (isPast && monthsDiff > -12)
-                                return Task.FromResult($"{-monthsDiff} months ago");
-                            if (!isPast && monthsDiff < 12)
-                                return Task.FromResult($"in {monthsDiff} months");
-                            var yearsDiff = timestamp.Year - now.Year;
-                            if (isPast && yearsDiff > -2)
-                                return Task.FromResult($"a year ago");
-                            if (!isPast && yearsDiff < 2)
-                                return Task.FromResult($"in a year");
-                            return isPast
-                                ? Task.FromResult($"{-yearsDiff} years ago")
-                                : Task.FromResult($"in {yearsDiff} years");
-                        }
-                    }
-                    return Task.FromResult(string.Empty);
-                });
+            => HumanizeContentAsync(message, objectReplacer, HumanizeTimestampAsync);
 
         /// <summary>
         /// Converts all of the Discord message snowflake tags to a human-readable format
@@ -319,7 +332,6 @@ namespace DSharpPlus
 
             var regex = new Regex(@"<(?<TagType>(@[!&]?)|(#)|(a?:(?<TagName>[a-zA-Z0-9_]+):)|(t:))(?<TagId>\d+)(:(?<TimestampFormat>[tTdDfFR]))?>", RegexOptions.ECMAScript);
 
-            // We match it right to left to parse correctly "```````" and similar stuff
             var regexFullCodeBlock = new Regex(@"```[\w\W]+?```", RegexOptions.ECMAScript);
             var regexCodeBlockStart = new Regex(@"```[\w\W]+?", RegexOptions.ECMAScript);
             var regexFullCode = new Regex(@"[^`]`[^`][\w\W]+?[^`]`[^`]", RegexOptions.ECMAScript);
