@@ -182,6 +182,103 @@ namespace DSharpPlus
             }
         }
 
+        internal static bool HasMessageIntents(DiscordIntents intents)
+            => intents.HasIntent(DiscordIntents.GuildMessages) || intents.HasIntent(DiscordIntents.DirectMessages);
+
+        internal static bool HasReactionIntents(DiscordIntents intents)
+            => intents.HasIntent(DiscordIntents.GuildMessageReactions) || intents.HasIntent(DiscordIntents.DirectMessageReactions);
+
+        internal static bool HasTypingIntents(DiscordIntents intents)
+            => intents.HasIntent(DiscordIntents.GuildMessageTyping) || intents.HasIntent(DiscordIntents.DirectMessageTyping);
+
+        // https://discord.com/developers/docs/topics/gateway#sharding-sharding-formula
+        /// <summary>
+        /// Gets a shard id from a guild id and total shard count.
+        /// </summary>
+        /// <param name="guildId">The guild id the shard is on.</param>
+        /// <param name="shardCount">The total amount of shards.</param>
+        /// <returns>The shard id.</returns>
+        public static int GetShardId(ulong guildId, int shardCount)
+            => (int)(guildId >> 22) % shardCount;
+
+        /// <summary>
+        /// Helper method to create a <see cref="DateTimeOffset"/> from Unix time seconds for targets that do not support this natively.
+        /// </summary>
+        /// <param name="unixTime">Unix time seconds to convert.</param>
+        /// <param name="shouldThrow">Whether the method should throw on failure. Defaults to true.</param>
+        /// <returns>Calculated <see cref="DateTimeOffset"/>.</returns>
+        public static DateTimeOffset GetDateTimeOffset(long unixTime, bool shouldThrow = true)
+        {
+            try
+            {
+                return DateTimeOffset.FromUnixTimeSeconds(unixTime);
+            }
+            catch (Exception)
+            {
+                if (shouldThrow)
+                    throw;
+
+                return DateTimeOffset.MinValue;
+            }
+        }
+
+        /// <summary>
+        /// Helper method to create a <see cref="DateTimeOffset"/> from Unix time milliseconds for targets that do not support this natively.
+        /// </summary>
+        /// <param name="unixTime">Unix time milliseconds to convert.</param>
+        /// <param name="shouldThrow">Whether the method should throw on failure. Defaults to true.</param>
+        /// <returns>Calculated <see cref="DateTimeOffset"/>.</returns>
+        public static DateTimeOffset GetDateTimeOffsetFromMilliseconds(long unixTime, bool shouldThrow = true)
+        {
+            try
+            {
+                return DateTimeOffset.FromUnixTimeMilliseconds(unixTime);
+            }
+            catch (Exception)
+            {
+                if (shouldThrow)
+                    throw;
+
+                return DateTimeOffset.MinValue;
+            }
+        }
+
+        /// <summary>
+        /// Helper method to calculate Unix time seconds from a <see cref="DateTimeOffset"/> for targets that do not support this natively.
+        /// </summary>
+        /// <param name="dto"><see cref="DateTimeOffset"/> to calculate Unix time for.</param>
+        /// <returns>Calculated Unix time.</returns>
+        public static long GetUnixTime(DateTimeOffset dto)
+            => dto.ToUnixTimeMilliseconds();
+
+        /// <summary>
+        /// Computes a timestamp from a given snowflake.
+        /// </summary>
+        /// <param name="snowflake">Snowflake to compute a timestamp from.</param>
+        /// <returns>Computed timestamp.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static DateTimeOffset GetSnowflakeTime(this ulong snowflake)
+            => DiscordClient.DiscordEpoch.AddMilliseconds(snowflake >> 22);
+
+        /// <summary>
+        /// Converts this <see cref="Permissions"/> into human-readable format.
+        /// </summary>
+        /// <param name="perm">Permissions enumeration to convert.</param>
+        /// <returns>Human-readable permissions.</returns>
+        public static string ToPermissionString(this Permissions perm)
+        {
+            if (perm == Permissions.None)
+                return PermissionStrings[perm];
+
+            perm &= PermissionMethods.FULL_PERMS;
+
+            var strs = PermissionStrings
+                .Where(xkvp => xkvp.Key != Permissions.None && (perm & xkvp.Key) == xkvp.Key)
+                .Select(xkvp => xkvp.Value);
+
+            return string.Join(", ", strs.OrderBy(xs => xs));
+        }
+
         /// <summary>
         /// The default humanizer for objects constructed from mentions (such as user, role, channel mentions or emojis).
         /// </summary>
@@ -404,11 +501,13 @@ namespace DSharpPlus
                             return await objectReplacer(channel);
                         }
                         return await objectReplacer(null);
+
                     case string s when s.StartsWith("a:") || s.StartsWith(":"): // Guild emoji
                         var isAnimated = s.StartsWith("a:");
                         var tagName = m.Groups["TagName"].Value;
                         var emoji = DiscordEmoji.FromGuildEmoteTagInfo(message.Discord, tagId, tagName, isAnimated);
                         return await objectReplacer(emoji);
+
                     case "t:": // Timestamp
                         var timestamp = GetDateTimeOffset((long)tagId);
                         var format = TimestampFormat.ShortDateTime;
@@ -423,103 +522,6 @@ namespace DSharpPlus
             });
 
             return text;
-        }
-
-        internal static bool HasMessageIntents(DiscordIntents intents)
-            => intents.HasIntent(DiscordIntents.GuildMessages) || intents.HasIntent(DiscordIntents.DirectMessages);
-
-        internal static bool HasReactionIntents(DiscordIntents intents)
-            => intents.HasIntent(DiscordIntents.GuildMessageReactions) || intents.HasIntent(DiscordIntents.DirectMessageReactions);
-
-        internal static bool HasTypingIntents(DiscordIntents intents)
-            => intents.HasIntent(DiscordIntents.GuildMessageTyping) || intents.HasIntent(DiscordIntents.DirectMessageTyping);
-
-        // https://discord.com/developers/docs/topics/gateway#sharding-sharding-formula
-        /// <summary>
-        /// Gets a shard id from a guild id and total shard count.
-        /// </summary>
-        /// <param name="guildId">The guild id the shard is on.</param>
-        /// <param name="shardCount">The total amount of shards.</param>
-        /// <returns>The shard id.</returns>
-        public static int GetShardId(ulong guildId, int shardCount)
-            => (int)(guildId >> 22) % shardCount;
-
-        /// <summary>
-        /// Helper method to create a <see cref="DateTimeOffset"/> from Unix time seconds for targets that do not support this natively.
-        /// </summary>
-        /// <param name="unixTime">Unix time seconds to convert.</param>
-        /// <param name="shouldThrow">Whether the method should throw on failure. Defaults to true.</param>
-        /// <returns>Calculated <see cref="DateTimeOffset"/>.</returns>
-        public static DateTimeOffset GetDateTimeOffset(long unixTime, bool shouldThrow = true)
-        {
-            try
-            {
-                return DateTimeOffset.FromUnixTimeSeconds(unixTime);
-            }
-            catch (Exception)
-            {
-                if (shouldThrow)
-                    throw;
-
-                return DateTimeOffset.MinValue;
-            }
-        }
-
-        /// <summary>
-        /// Helper method to create a <see cref="DateTimeOffset"/> from Unix time milliseconds for targets that do not support this natively.
-        /// </summary>
-        /// <param name="unixTime">Unix time milliseconds to convert.</param>
-        /// <param name="shouldThrow">Whether the method should throw on failure. Defaults to true.</param>
-        /// <returns>Calculated <see cref="DateTimeOffset"/>.</returns>
-        public static DateTimeOffset GetDateTimeOffsetFromMilliseconds(long unixTime, bool shouldThrow = true)
-        {
-            try
-            {
-                return DateTimeOffset.FromUnixTimeMilliseconds(unixTime);
-            }
-            catch (Exception)
-            {
-                if (shouldThrow)
-                    throw;
-
-                return DateTimeOffset.MinValue;
-            }
-        }
-
-        /// <summary>
-        /// Helper method to calculate Unix time seconds from a <see cref="DateTimeOffset"/> for targets that do not support this natively.
-        /// </summary>
-        /// <param name="dto"><see cref="DateTimeOffset"/> to calculate Unix time for.</param>
-        /// <returns>Calculated Unix time.</returns>
-        public static long GetUnixTime(DateTimeOffset dto)
-            => dto.ToUnixTimeMilliseconds();
-
-        /// <summary>
-        /// Computes a timestamp from a given snowflake.
-        /// </summary>
-        /// <param name="snowflake">Snowflake to compute a timestamp from.</param>
-        /// <returns>Computed timestamp.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static DateTimeOffset GetSnowflakeTime(this ulong snowflake)
-            => DiscordClient.DiscordEpoch.AddMilliseconds(snowflake >> 22);
-
-        /// <summary>
-        /// Converts this <see cref="Permissions"/> into human-readable format.
-        /// </summary>
-        /// <param name="perm">Permissions enumeration to convert.</param>
-        /// <returns>Human-readable permissions.</returns>
-        public static string ToPermissionString(this Permissions perm)
-        {
-            if (perm == Permissions.None)
-                return PermissionStrings[perm];
-
-            perm &= PermissionMethods.FULL_PERMS;
-
-            var strs = PermissionStrings
-                .Where(xkvp => xkvp.Key != Permissions.None && (perm & xkvp.Key) == xkvp.Key)
-                .Select(xkvp => xkvp.Value);
-
-            return string.Join(", ", strs.OrderBy(xs => xs));
         }
 
         /// <summary>
