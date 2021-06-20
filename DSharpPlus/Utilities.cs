@@ -176,21 +176,9 @@ namespace DSharpPlus
             foreach (Match match in matches)
             {
                 var emojiId = ulong.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
-                var exists = DiscordEmoji.TryFromGuildEmote(message.Discord, emojiId, out var emoji);
-                // We still have enough information to construct a dummy DiscordEmoji
-                // which could provide us for example an Url for the emoji
-                // This could happen if eg a Nitro user used an emoji from a server
-                // where the bot is not present
-                // We explicitely mark as IsAvailable = false to avoid it's usage
-                yield return exists ? emoji : new DiscordEmoji
-                {
-                    Id = emojiId,
-                    Name = match.Groups[1].Value,
-                    IsAvailable = false,
-                    IsAnimated = match.Value.StartsWith("<a:"),
-                    Discord = message.Discord,
-                    RequiresColons = true
-                };
+                var emojiName = match.Groups[1].Value;
+                var isAnimated = match.Value.StartsWith("<a:");
+                yield return DiscordEmoji.FromGuildEmoteTagInfo(message.Discord, emojiId, emojiName, isAnimated);
             }
         }
 
@@ -329,32 +317,50 @@ namespace DSharpPlus
         {
             var client = message.Discord as DiscordClient;
 
-            var regex = new Regex(@"<(?<TagType>(@[!&]?)|(#)|(a?:(?<TagName>[a-zA-Z0-9_]+):))(?<TagId>\d+)>", RegexOptions.ECMAScript);
+            var regex = new Regex(@"<(?<TagType>(@[!&]?)|(#)|(a?:(?<TagName>[a-zA-Z0-9_]+):)|(t:))(?<TagId>\d+)(:(?<TimestampFormat>[tTdDfFR]))?>", RegexOptions.ECMAScript);
 
             // We match it right to left to parse correctly "```````" and similar stuff
-            var regexCodeBlock = new Regex(@"```", RegexOptions.RightToLeft);
-            var regexCode = new Regex(@"`", RegexOptions.ECMAScript);
+            var regexFullCodeBlock = new Regex(@"```[\w\W]+?```", RegexOptions.ECMAScript);
+            var regexCodeBlockStart = new Regex(@"```[\w\W]+?", RegexOptions.ECMAScript);
+            var regexFullCode = new Regex(@"[^`]`[^`][\w\W]+?[^`]`[^`]", RegexOptions.ECMAScript);
+            var regexCode = new Regex(@"[^`]`[^`]", RegexOptions.ECMAScript);
             var text = await regex.ReplaceAsync(message.Content, async m =>
             {
-                var cpos = m.Index;
+                // Code block checking
+                var cpos = m.Index + 1;
                 var spos = 0;
-                // We scan the previous content for code blocks or code tags
                 var prev = message.Content.Substring(spos, cpos - spos);
-                var matchCodeBlock = regexCodeBlock.Matches(prev);
-                // If we counted an uneven number of code block tags, we're inside a code block, skip this
-                if (matchCodeBlock.Count % 2 == 1)
+                // First we filter out full code blocks
+                var matchFullCodeBlocks = regexFullCodeBlock.Matches(prev);
+                if (matchFullCodeBlocks.Count > 0)
                 {
-                    return m.Value;
+                    var matchId = matchFullCodeBlocks.Count - 1;
+                    spos = matchFullCodeBlocks[matchId].Index + matchFullCodeBlocks[matchId].Length;
+                    prev = message.Content.Substring(spos, cpos - spos);
                 }
-                // We match for code tags only after the last code block tag
-                if (matchCodeBlock.Count > 0)
+                // Now we search for a code block start (we know it couldn't had ended)
+                var matchCodeBlock = regexCodeBlockStart.Match(prev);
+                if (matchCodeBlock.Success)
+                    return m.Value;
+                // Filter out full code tags
+                var matchFullCodes = regexFullCode.Matches(prev);
+                if (matchFullCodes.Count > 0)
                 {
-                    spos = matchCodeBlock[0].Index + 3;
+                    var matchId = matchFullCodes.Count - 1;
+                    spos = matchFullCodes[matchId].Index + matchFullCodes[matchId].Length;
+                    prev = message.Content.Substring(spos, cpos - spos);
                 }
-                prev = message.Content.Substring(spos, cpos - spos);
-                // If we counted an uneven number of code tags, we're inside an inline code, skip this
-                if (regexCode.Matches(prev).Count % 2 == 1)
-                    return m.Value;
+                // Search for code start
+                var matchCode = regexCode.Match(prev);
+                if (matchCode.Success)
+                {
+                    // We need to check if the tag is closed, else it is not considered a code tag
+                    var indexAfter = m.Index + m.Length - 1;
+                    var lengthLeft = message.Content.Length - indexAfter;
+                    var after = message.Content.Substring(indexAfter, lengthLeft);
+                    if (regexCode.Match(after).Success)
+                        return m.Value;
+                }
 
                 var tagType = m.Groups["TagType"].Value;
 
@@ -398,56 +404,21 @@ namespace DSharpPlus
                         }
                         return await objectReplacer(null);
                     case string s when s.StartsWith("a:") || s.StartsWith(":"): // Guild emoji
-                        var exists = DiscordEmoji.TryFromGuildEmote(message.Discord, tagId, out var emoji);
-                        // We still have enough information to construct a dummy DiscordEmoji
-                        // which could provide us for example an Url for the emoji
-                        // This could happen if eg a Nitro user used an emoji from a server
-                        // where the bot is not present
-                        // We explicitely mark as IsAvailable = false to avoid it's usage
-                        emoji = exists ? emoji : new DiscordEmoji
-                        {
-                            Id = tagId,
-                            Name = m.Groups["TagName"].Value,
-                            IsAvailable = false,
-                            IsAnimated = s.StartsWith("a:"),
-                            Discord = message.Discord,
-                            RequiresColons = true
-                        };
+                        var isAnimated = s.StartsWith("a:");
+                        var tagName = m.Groups["TagName"].Value;
+                        var emoji = DiscordEmoji.FromGuildEmoteTagInfo(message.Discord, tagId, tagName, isAnimated);
                         return await objectReplacer(emoji);
+                    case "t:": // Timestamp
+                        var timestamp = GetDateTimeOffset((long)tagId);
+                        var format = TimestampFormat.ShortDateTime;
+                        var tagFormat = m.Groups["TimestampFormat"]?.Value;
+                        if (!string.IsNullOrEmpty(tagFormat))
+                            format = (TimestampFormat)tagFormat[0];
+                        return await timestampReplacer(timestamp, format);
 
                     default:
                         throw new ArgumentException("Matched something unexpected");
                 }
-            });
-
-            var timestampRegex = new Regex(@"<t:(?<Timestamp>\d+)(:(?<TimestampFormat>[tTdDfFR]))?>", RegexOptions.ECMAScript);
-            text = await timestampRegex.ReplaceAsync(text, async m =>
-            {
-                var cpos = m.Index;
-                var spos = 0;
-                var prev = message.Content.Substring(spos, cpos - spos);
-                var matchCodeBlock = regexCodeBlock.Matches(prev);
-                // If we counted an uneven number of code block tags, we're inside a code block, skip this
-                if (matchCodeBlock.Count % 2 == 1)
-                {
-                    return m.Value;
-                }
-                // We match for code tags only after the last code block tag
-                if (matchCodeBlock.Count > 0)
-                {
-                    spos = matchCodeBlock[0].Index + 3;
-                }
-                prev = message.Content.Substring(spos, cpos - spos);
-                // If we counted an uneven number of code tags, we're inside an inline code, skip this
-                if (regexCode.Matches(prev).Count % 2 == 1)
-                    return m.Value;
-
-                var timestamp = GetDateTimeOffset(long.Parse(m.Groups["Timestamp"].Value));
-                var format = TimestampFormat.ShortDateTime;
-                var tagFormat = m.Groups["TimestampFormat"]?.Value;
-                if (tagFormat != null)
-                    format = (TimestampFormat)tagFormat[0];
-                return await timestampReplacer(timestamp, format);
             });
 
             return text;
