@@ -1,15 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 using DSharpPlus.Entities;
-using System.Linq;
 using DSharpPlus.EventArgs;
-using Microsoft.Extensions.Logging;
+using DSharpPlus.Exceptions;
+using DSharpPlus.SlashCommands.EventArgs;
 using Emzi0767.Utilities;
 using Microsoft.Extensions.DependencyInjection;
-using DSharpPlus.SlashCommands.EventArgs;
-using DSharpPlus.Exceptions;
+using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.SlashCommands
 {
@@ -26,7 +26,7 @@ namespace DSharpPlus.SlashCommands
 
         private readonly SlashCommandsConfiguration _configuration;
         private static bool Errored { get; set; } = false;
-        
+
         internal SlashCommandsExtension(SlashCommandsConfiguration configuration)
         {
             _configuration = configuration;
@@ -59,7 +59,7 @@ namespace DSharpPlus.SlashCommands
         /// <param name="guildId">The guild id to register it on. If you want global commands, leave it null.</param>
         public void RegisterCommands<T>(ulong? guildId = null) where T : SlashCommandModule
         {
-            if(Client.ShardId == 0)
+            if (Client.ShardId == 0)
                 UpdateList.Add(new KeyValuePair<ulong?, Type>(guildId, typeof(T)));
         }
 
@@ -78,7 +78,7 @@ namespace DSharpPlus.SlashCommands
 
         internal Task Update(DiscordClient client, ReadyEventArgs e)
         {
-            if(client.ShardId == 0)
+            if (client.ShardId == 0)
             {
                 foreach (var key in UpdateList.Select(x => x.Key).Distinct())
                 {
@@ -128,7 +128,7 @@ namespace DSharpPlus.SlashCommands
                                 parameters = parameters.Skip(1).ToArray();
 
                                 var options = await ParseParameters(parameters);
-    
+
                                 var subpayload = new DiscordApplicationCommandOption(commandattribute.Name, commandattribute.Description, ApplicationCommandOptionType.SubCommand, null, null, options);
 
                                 commandmethods.Add(new KeyValuePair<string, MethodInfo>(commandattribute.Name, submethod));
@@ -155,7 +155,7 @@ namespace DSharpPlus.SlashCommands
                                         throw new ArgumentException($"The first argument must be an InteractionContext!");
                                     parameters = parameters.Skip(1).ToArray();
                                     suboptions = suboptions.Concat(await ParseParameters(parameters)).ToList();
-                                    
+
                                     var subsubpayload = new DiscordApplicationCommandOption(commatt.Name, commatt.Description, ApplicationCommandOptionType.SubCommand, null, null, suboptions);
                                     options.Add(subsubpayload);
                                     commandmethods.Add(new KeyValuePair<string, MethodInfo>(commatt.Name, subsubmethod));
@@ -244,13 +244,13 @@ namespace DSharpPlus.SlashCommands
             {
                 var method = choiceProviderAttribute.ProviderType.GetMethod(nameof(IChoiceProvider.Provider));
 
-                if(method == null)
+                if (method == null)
                     throw new ArgumentException("ChoiceProviders must inherit from IChoiceProvider.");
                 else
                 {
                     var instance = Activator.CreateInstance(choiceProviderAttribute.ProviderType);
-                    var result = await (Task<IEnumerable<DiscordApplicationCommandOptionChoice>>) method.Invoke(instance, null);
-                    
+                    var result = await (Task<IEnumerable<DiscordApplicationCommandOptionChoice>>)method.Invoke(instance, null);
+
                     if (result.Any())
                     {
                         choices.AddRange(result);
@@ -260,7 +260,7 @@ namespace DSharpPlus.SlashCommands
 
             return choices;
         }
-        
+
         private static List<DiscordApplicationCommandOptionChoice> GetChoiceAttributesFromEnumParameter(Type enumParam)
         {
             var choices = new List<DiscordApplicationCommandOptionChoice>();
@@ -307,7 +307,8 @@ namespace DSharpPlus.SlashCommands
                             var method = methods.First();
 
                             var args = await ResolveInteractionCommandParameters(e, context, method.Method, e.Interaction.Data.Options);
-                            var classinstance = ActivatorUtilities.CreateInstance(_configuration?.Services, method.ParentClass);
+
+                            object classinstance = method.Method.IsStatic ? ActivatorUtilities.CreateInstance(_configuration?.Services, method.ParentClass) : CreateInstance(method.Method.DeclaringType, _configuration?.Services);
 
                             await RunPreexecutionChecksAsync(method.Method, context);
 
@@ -324,7 +325,7 @@ namespace DSharpPlus.SlashCommands
                             var method = groups.First().Methods.First(x => x.Key == command.Name).Value;
 
                             var args = await ResolveInteractionCommandParameters(e, context, method, e.Interaction.Data.Options.First().Options);
-                            var classinstance = ActivatorUtilities.CreateInstance(_configuration?.Services, groups.First().ParentClass);
+                            object classinstance = method.IsStatic ? ActivatorUtilities.CreateInstance(_configuration?.Services, groups.First().ParentClass) : CreateInstance(groups.First().ParentClass, _configuration?.Services);
 
                             SlashCommandModule module = null;
                             if (classinstance is SlashCommandModule _module)
@@ -347,7 +348,7 @@ namespace DSharpPlus.SlashCommands
                             var method = group.Methods.First(x => x.Key == command.Options.First().Name).Value;
 
                             var args = await ResolveInteractionCommandParameters(e, context, method, e.Interaction.Data.Options.First().Options.First().Options);
-                            var classinstance = ActivatorUtilities.CreateInstance(_configuration?.Services, group.ParentClass);
+                            object classinstance = method.IsStatic ? ActivatorUtilities.CreateInstance(_configuration?.Services, group.ParentClass) : CreateInstance(group.ParentClass, _configuration?.Services);
 
                             SlashCommandModule module = null;
                             if (classinstance is SlashCommandModule _module)
@@ -374,6 +375,61 @@ namespace DSharpPlus.SlashCommands
             return Task.CompletedTask;
         }
 
+        internal static object CreateInstance(Type t, IServiceProvider services)
+        {
+            var ti = t.GetTypeInfo();
+            var constructors = ti.DeclaredConstructors
+                .Where(xci => xci.IsPublic)
+                .ToArray();
+
+            if (constructors.Length != 1)
+                throw new ArgumentException("Specified type does not contain a public constructor or contains more than one public constructor.");
+
+            var constructor = constructors[0];
+            var constructorArgs = constructor.GetParameters();
+            var args = new object[constructorArgs.Length];
+
+            if (constructorArgs.Length != 0 && services == null)
+                throw new InvalidOperationException("Dependency collection needs to be specified for parameterized constructors.");
+
+            // inject via constructor
+            if (constructorArgs.Length != 0)
+                for (var i = 0; i < args.Length; i++)
+                    args[i] = services.GetRequiredService(constructorArgs[i].ParameterType);
+
+            var moduleInstance = Activator.CreateInstance(t, args);
+
+            // inject into properties
+            var props = t.GetRuntimeProperties().Where(xp => xp.CanWrite && xp.SetMethod != null && !xp.SetMethod.IsStatic && xp.SetMethod.IsPublic);
+            foreach (var prop in props)
+            {
+                if (prop.GetCustomAttribute<DontInjectAttribute>() != null)
+                    continue;
+
+                var service = services.GetService(prop.PropertyType);
+                if (service == null)
+                    continue;
+
+                prop.SetValue(moduleInstance, service);
+            }
+
+            // inject into fields
+            var fields = t.GetRuntimeFields().Where(xf => !xf.IsInitOnly && !xf.IsStatic && xf.IsPublic);
+            foreach (var field in fields)
+            {
+                if (field.GetCustomAttribute<DontInjectAttribute>() != null)
+                    continue;
+
+                var service = services.GetService(field.FieldType);
+                if (service == null)
+                    continue;
+
+                field.SetValue(moduleInstance, service);
+            }
+
+            return moduleInstance;
+        }
+
         private async Task<List<object>> ResolveInteractionCommandParameters(InteractionCreateEventArgs e, InteractionContext context, MethodInfo method, IEnumerable<DiscordInteractionDataOption> options)
         {
             var args = new List<object> { context };
@@ -394,48 +450,48 @@ namespace DSharpPlus.SlashCommands
                     else if (parameter.ParameterType.IsEnum)
                         args.Add(Enum.Parse(parameter.ParameterType, (string)option.Value));
                     else if (ReferenceEquals(parameter.ParameterType, typeof(long)))
-                        args.Add((long) option.Value);
+                        args.Add((long)option.Value);
                     else if (ReferenceEquals(parameter.ParameterType, typeof(bool)))
-                        args.Add((bool) option.Value);
+                        args.Add((bool)option.Value);
                     else if (ReferenceEquals(parameter.ParameterType, typeof(DiscordUser)))
                     {
                         if (e.Interaction.Data.Resolved.Members != null &&
-                            e.Interaction.Data.Resolved.Members.TryGetValue((ulong) option.Value, out var member))
+                            e.Interaction.Data.Resolved.Members.TryGetValue((ulong)option.Value, out var member))
                         {
                             args.Add(member);
                         }
                         else if (e.Interaction.Data.Resolved.Users != null &&
-                                 e.Interaction.Data.Resolved.Users.TryGetValue((ulong) option.Value, out var user))
+                                 e.Interaction.Data.Resolved.Users.TryGetValue((ulong)option.Value, out var user))
                         {
                             args.Add(user);
                         }
                         else
                         {
-                            args.Add(await Client.GetUserAsync((ulong) option.Value));
+                            args.Add(await Client.GetUserAsync((ulong)option.Value));
                         }
                     }
                     else if (ReferenceEquals(parameter.ParameterType, typeof(DiscordChannel)))
                     {
                         if (e.Interaction.Data.Resolved.Channels != null &&
-                            e.Interaction.Data.Resolved.Channels.TryGetValue((ulong) option.Value, out var channel))
+                            e.Interaction.Data.Resolved.Channels.TryGetValue((ulong)option.Value, out var channel))
                         {
                             args.Add(channel);
                         }
                         else
                         {
-                            args.Add(e.Interaction.Guild.GetChannel((ulong) option.Value));
+                            args.Add(e.Interaction.Guild.GetChannel((ulong)option.Value));
                         }
                     }
                     else if (ReferenceEquals(parameter.ParameterType, typeof(DiscordRole)))
                     {
                         if (e.Interaction.Data.Resolved.Roles != null &&
-                            e.Interaction.Data.Resolved.Roles.TryGetValue((ulong) option.Value, out var role))
+                            e.Interaction.Data.Resolved.Roles.TryGetValue((ulong)option.Value, out var role))
                         {
                             args.Add(role);
                         }
                         else
                         {
-                            args.Add(e.Interaction.Guild.GetRole((ulong) option.Value));
+                            args.Add(e.Interaction.Guild.GetRole((ulong)option.Value));
                         }
                     }
                     else
@@ -534,7 +590,7 @@ namespace DSharpPlus.SlashCommands
                 {
                     choices = GetChoiceAttributesFromEnumParameter(parameter.ParameterType);
                 }
-                
+
                 var choiceProviders = parameter.GetCustomAttributes<ChoiceProviderAttribute>();
 
                 if (choiceProviders.Any())
