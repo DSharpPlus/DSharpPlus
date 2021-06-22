@@ -31,10 +31,6 @@ namespace DSharpPlus.Entities
     /// </summary>
     public sealed class DiscordButtonComponent : DiscordComponent
     {
-
-        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-        internal new ComponentType Type { get; set; } = ComponentType.Button; // Discord likes to throw 400. //
-
         /// <summary>
         /// The style of the button.
         /// </summary>
@@ -62,7 +58,10 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Constructs a new <see cref="DiscordButtonComponent"/>.
         /// </summary>
-        public DiscordButtonComponent() { }
+        public DiscordButtonComponent()
+        {
+            this.Type = ComponentType.Button;
+        }
 
         /// <summary>
         /// Constructs a new button with the specified options.

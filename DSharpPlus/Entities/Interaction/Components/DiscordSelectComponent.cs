@@ -30,9 +30,6 @@ namespace DSharpPlus.Entities
     /// </summary>
     public sealed class DiscordSelectComponent : DiscordComponent
     {
-        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-        internal new ComponentType Type { get; set; } = ComponentType.Select;
-
         /// <summary>
         /// The custom Id of this component.
         /// </summary>
