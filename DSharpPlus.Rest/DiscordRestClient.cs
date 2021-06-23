@@ -1511,7 +1511,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets the original interaction response.
         /// </summary>
-        /// <returns>The origingal message that was sent. This <b>does not work on ephemeral messages.</b></returns>
+        /// <returns>The original message that was sent. This <b>does not work on ephemeral messages.</b></returns>
         public Task<DiscordMessage> GetOriginalInteractionResponseAsync(string interactionToken) =>
             this.ApiClient.GetOriginalInteractionResponseAsync(interactionToken);
 
