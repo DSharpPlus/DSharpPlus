@@ -2583,6 +2583,19 @@ namespace DSharpPlus.Net
             await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld));
         }
 
+        internal async Task<DiscordMessage> GetOriginalInteractionResponseAsync(string interaction_token)
+        {
+            var application_id = this.Discord.CurrentApplication.Id;
+            var route = $"{Endpoints.WEBHOOKS}/:application_id/:interaction_token{Endpoints.MESSAGES}{Endpoints.ORIGINAL}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { application_id, interaction_token }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route);
+            var json = JObject.Parse(res.Response);
+
+            return json.ToDiscordObject<DiscordMessage>();
+        }
+
         internal Task<DiscordMessage> EditOriginalInteractionResponseAsync(ulong application_id, string interaction_token, DiscordWebhookBuilder builder) =>
             this.EditWebhookMessageAsync(application_id, interaction_token, "@original", builder);
 

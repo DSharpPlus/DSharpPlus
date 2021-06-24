@@ -1509,6 +1509,13 @@ namespace DSharpPlus
             this.ApiClient.CreateInteractionResponseAsync(interactionId, interactionToken, type, builder);
 
         /// <summary>
+        /// Gets the original interaction response.
+        /// </summary>
+        /// <returns>The original message that was sent. This <b>does not work on ephemeral messages.</b></returns>
+        public Task<DiscordMessage> GetOriginalInteractionResponseAsync(string interactionToken) =>
+            this.ApiClient.GetOriginalInteractionResponseAsync(interactionToken);
+
+        /// <summary>
         /// Edits the original interaction response.
         /// </summary>
         /// <param name="interactionToken">The token of the interaction.</param>

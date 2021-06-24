@@ -1901,6 +1901,7 @@ namespace DSharpPlus
             {
 
                 interaction.Message.Discord = this;
+                interaction.Message.ChannelId = interaction.ChannelId;
                 var cea = new ComponentInteractionCreateEventArgs
                 {
                     Message = interaction.Message,
