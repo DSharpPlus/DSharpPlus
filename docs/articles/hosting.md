@@ -61,10 +61,11 @@ where Docker and other cloud native hosting comes into play.  There are many dif
 to chose which one will suit you best.  Here are a few services that offer Docker or other cloud native solutions that are cheaper than running
 a whole VM.
 
-* [**Azure App Service**](https://azure.microsoft.com/en-us/services/app-service/ "Azure App Service"):  Allows for Hosting Website, Continous Jobs, 
-  and Docker images on a Windows base or Linux base machine.
+* [**Azure App Service**](https://azure.microsoft.com/en-us/services/app-service/ "Azure App Service"):  Allows for Hosting Website, Continuous Jobs, 
+  and Docker images on a Windows based or Linux based machine.
 * [**AWS Fargate**](https://aws.amazon.com/fargate/ "AWS Fargate"):  Allows for hosting Docker images within Amazon Web Services
 * [**Jelastic**](https://jelastic.com/docker/ "Jelastic"):  Allows for hosting Docker images.
+* [**Railway**](https://railway.app/): Allows hosting up to 3 Docker images for free.
 
 ### Making your publishing life easier
 Now that we have covered where you can possibly host your application, now lets cover how to make your life easier publishing it. Many different
