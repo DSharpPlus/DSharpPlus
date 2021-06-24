@@ -50,10 +50,25 @@ namespace DSharpPlus.Entities
         }
         private string _content;
 
+
         /// <summary>
-        /// Gets or Sets the Embed to be sent.
+        /// Gets or sets the embed for the builder. This will always set the builder to have one embed.
         /// </summary>
-        public DiscordEmbed Embed { get; set; }
+        public DiscordEmbed Embed
+        {
+            get => this._embeds.Count > 0 ? this._embeds[0] : null;
+            set
+            {
+                this._embeds.Clear();
+                this._embeds.Add(value);
+            }
+        }
+
+        /// <summary>
+        /// Gets the Embeds to be sent.
+        /// </summary>
+        public IReadOnlyList<DiscordEmbed> Embeds => this._embeds;
+        private readonly List<DiscordEmbed> _embeds = new();
 
         /// <summary>
         /// Gets or Sets if the message should be TTS.
@@ -168,15 +183,38 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Sets if the message will have an Embed.
+        /// Sets the embed for the current builder.
         /// </summary>
-        /// <param name="embed">The embed that should be sent.</param>
+        /// <param name="embed">The embed that should be set.</param>
         /// <returns>The current builder to be chained.</returns>
         public DiscordMessageBuilder WithEmbed(DiscordEmbed embed)
         {
             this.Embed = embed;
             return this;
         }
+
+        /// <summary>
+        /// Appends an embed to the current builder.
+        /// </summary>
+        /// <param name="embed">The embed that should be appended.</param>
+        /// <returns>The current builder to be chained.</returns>
+        public DiscordMessageBuilder AddEmbed(DiscordEmbed embed)
+        {
+            this._embeds.Add(embed);
+            return this;
+        }
+
+        /// <summary>
+        /// Appends several embeds to the current builder.
+        /// </summary>
+        /// <param name="embeds">The embeds that should be appended.</param>
+        /// <returns>The current builder to be chained.</returns>
+        public DiscordMessageBuilder AddEmbeds(IEnumerable<DiscordEmbed> embeds)
+        {
+            this._embeds.AddRange(embeds);
+            return this;
+        }
+
 
 
         /// <summary>
@@ -315,7 +353,7 @@ namespace DSharpPlus.Entities
         public void Clear()
         {
             this.Content = "";
-            this.Embed = null;
+            this._embeds.Clear();
             this.IsTTS = false;
             this.Mentions = null;
             this._files.Clear();
@@ -330,6 +368,9 @@ namespace DSharpPlus.Entities
         /// <param name="isModify">Tells the method to perform the Modify Validation or Create Validation.</param>
         internal void Validate(bool isModify = false)
         {
+            if (this._embeds.Count > 10)
+                throw new ArgumentException("A message can only have up to 10 embeds.");
+
             if (isModify)
             {
                 if (this.Files.Any())
@@ -340,7 +381,7 @@ namespace DSharpPlus.Entities
             }
             else
             {
-                if (this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && this.Embed == null)
+                if (this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && (!this.Embeds?.Any() ?? true))
                     throw new ArgumentException("You must specify content, an embed, or at least one file.");
 
                 if (this.Components.Count > 5)

@@ -866,12 +866,12 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content, DiscordEmbed embed, ulong? replyMessageId, bool mentionReply, bool failOnInvalidReply)
+        internal async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content, IEnumerable<DiscordEmbed> embeds, ulong? replyMessageId, bool mentionReply, bool failOnInvalidReply)
         {
             if (content != null && content.Length > 2000)
                 throw new ArgumentException("Message content length cannot exceed 2000 characters.");
 
-            if (embed == null)
+            if (!embeds?.Any() ?? true)
             {
                 if (content == null)
                     throw new ArgumentException("You must specify message content or an embed.");
@@ -880,16 +880,18 @@ namespace DSharpPlus.Net
                     throw new ArgumentException("Message content must not be empty.");
             }
 
-            if (embed?.Timestamp != null)
-                embed.Timestamp = embed.Timestamp.Value.ToUniversalTime();
+            if (embeds != null)
+                foreach (var embed in embeds)
+                    if (embed.Timestamp != null)
+                        embed.Timestamp = embed.Timestamp.Value.ToUniversalTime();
 
             var pld = new RestChannelMessageCreatePayload
             {
                 HasContent = content != null,
                 Content = content,
                 IsTTS = false,
-                HasEmbed = embed != null,
-                Embed = embed
+                HasEmbed = embeds?.Any() ?? false,
+                Embeds = embeds
             };
 
             if (replyMessageId != null)
@@ -913,16 +915,18 @@ namespace DSharpPlus.Net
         {
             builder.Validate();
 
-            if (builder.Embed?.Timestamp != null)
-                builder.Embed.Timestamp = builder.Embed.Timestamp.Value.ToUniversalTime();
+            if (builder.Embeds != null)
+                foreach (var embed in builder.Embeds)
+                    if (embed.Timestamp != null)
+                        embed.Timestamp = embed.Timestamp.Value.ToUniversalTime();
 
             var pld = new RestChannelMessageCreatePayload
             {
                 HasContent = builder.Content != null,
                 Content = builder.Content,
                 IsTTS = builder.IsTTS,
-                HasEmbed = builder.Embed != null,
-                Embed = builder.Embed,
+                HasEmbed = builder.Embeds != null,
+                Embeds = builder.Embeds,
                 Components = builder.Components
             };
 
@@ -1040,17 +1044,19 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content, Optional<DiscordEmbed> embed, IEnumerable<IMention> mentions, IReadOnlyList<DiscordActionRowComponent> components)
+        internal async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content, Optional<IEnumerable<DiscordEmbed>> embeds, IEnumerable<IMention> mentions, IReadOnlyList<DiscordActionRowComponent> components)
         {
-            if (embed.HasValue && embed.Value != null && embed.Value.Timestamp != null)
-                embed.Value.Timestamp = embed.Value.Timestamp.Value.ToUniversalTime();
+            if (embeds.HasValue && embeds.Value != null)
+                foreach (var embed in embeds.Value)
+                    if (embed.Timestamp != null)
+                        embed.Timestamp = embed.Timestamp.Value.ToUniversalTime();
 
             var pld = new RestChannelMessageEditPayload
             {
                 HasContent = content.HasValue,
                 Content = content.HasValue ? (string)content : null,
-                HasEmbed = embed.HasValue,
-                Embed = embed.HasValue ? (DiscordEmbed)embed : null,
+                HasEmbed = embeds.HasValue && (embeds.Value?.Any() ?? false),
+                Embeds = embeds.HasValue && (embeds.Value?.Any() ?? false) ? embeds.Value : null,
                 Components = components
             };
 
