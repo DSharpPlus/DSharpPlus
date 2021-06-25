@@ -548,7 +548,7 @@ namespace DSharpPlus
         /// <param name="content">New message content</param>
         /// <returns></returns>
         public Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content)
-            => this.ApiClient.EditMessageAsync(channel_id, message_id, content, default, default, default);
+            => this.ApiClient.EditMessageAsync(channel_id, message_id, content, default, default, default, default);
 
         /// <summary>
         /// Edits a message
@@ -558,7 +558,7 @@ namespace DSharpPlus
         /// <param name="embed">New message embed</param>
         /// <returns></returns>
         public Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<DiscordEmbed> embed)
-            => this.ApiClient.EditMessageAsync(channel_id, message_id, default, embed.HasValue ? new[] {embed.Value} : Array.Empty<DiscordEmbed>(), default, default);
+            => this.ApiClient.EditMessageAsync(channel_id, message_id, default, embed.HasValue ? new[] {embed.Value} : Array.Empty<DiscordEmbed>(), default, default, default);
 
         /// <summary>
         /// Edits a message
@@ -571,7 +571,7 @@ namespace DSharpPlus
         {
             builder.Validate(true);
 
-            return await this.ApiClient.EditMessageAsync(channel_id, message_id, builder.Content, new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), builder.Mentions, builder.Components).ConfigureAwait(false);
+            return await this.ApiClient.EditMessageAsync(channel_id, message_id, builder.Content, new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), builder.Mentions, builder.Components, builder.Files).ConfigureAwait(false);
         }
 
         /// <summary>
