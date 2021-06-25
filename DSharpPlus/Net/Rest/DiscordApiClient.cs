@@ -1072,7 +1072,7 @@ namespace DSharpPlus.Net
             var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { channel_id, message_id }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, values: values, files: files ?? new List<DiscordMessageFile>()).ConfigureAwait(false);
+            var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, values: values, files: files).ConfigureAwait(false);
 
             var ret = this.PrepareMessage(JObject.Parse(res.Response));
 
@@ -2128,9 +2128,7 @@ namespace DSharpPlus.Net
             ret.Discord = this.Discord;
 
             foreach (var file in builder.Files.Where(x => x.ResetPositionTo.HasValue))
-            {
                 file.Stream.Position = file.ResetPositionTo.Value;
-            }
 
             return ret;
         }
