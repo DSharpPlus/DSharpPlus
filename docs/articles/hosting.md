@@ -10,7 +10,7 @@ If you're looking for free hosts, you've likely considered using [Heroku](https:
 We advise against using these platforms as they are designed to host web services, not Discord bots, and instances from either of these companies will shut down if there isn't enough internet traffic.
 Save yourself the headache and don't bother.
 
-Outside of persuading somebody to host your bot, you won't find any good free hosting solutions.
+**Oracle Cloud** currently offers an [Always Free Tier](https://www.oracle.com/cloud/free/) with up to 4 unlimited-usage VM instances, with 4 Arm-based Ampere A1 cores, up to 24 GB of memory and 200GB of Block Volume Storage (shared among all of them). However, the free tier does require a credit card to sign up and unlike paid services, offers no SLA.
 
 ### Self Hosting
 If you have access to an unused machine, have the technical know-how, and you also have a solid internet connection, you might consider hosting your bot on your own.
