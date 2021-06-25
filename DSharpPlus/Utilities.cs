@@ -177,6 +177,12 @@ namespace DSharpPlus
                 yield return ulong.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
         }
 
+        internal static bool IsValidSlashCommandName(string name)
+        {
+            var regex = new Regex(@"^[\w-]{1,32}$", RegexOptions.ECMAScript);
+            return regex.IsMatch(name);
+        }
+
         internal static bool HasMessageIntents(DiscordIntents intents)
             => intents.HasIntent(DiscordIntents.GuildMessages) || intents.HasIntent(DiscordIntents.DirectMessages);
 
