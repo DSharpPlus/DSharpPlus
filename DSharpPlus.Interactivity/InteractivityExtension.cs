@@ -277,6 +277,7 @@ namespace DSharpPlus.Interactivity
         /// Waits for a dropdown to be interacted with by a specific user.
         /// </summary>
         /// <param name="message">The message to wait on.</param>
+        /// <param name="user">The user to wait on.</param>
         /// <param name="id">The Id of the dropdown to wait on.</param>
         /// <param name="timeoutOverride">Override the timeout period specified in <see cref="InteractivityConfiguration"/>.</param>
         /// <exception cref="ArgumentException">Thrown when the message does not have any dropdowns or any dropdown with the specified Id.</exception>

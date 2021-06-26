@@ -33,12 +33,10 @@ namespace DSharpPlus.Entities
     /// </summary>
     public sealed class DiscordActionRowComponent : DiscordComponent
     {
-
         /// <summary>
-        /// The type of component this represents. Always returns type 1.
+        /// The type of component this represents. Always returns <see cref="ComponentType.ActionRow"/>.
         /// </summary>
-        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-        internal ComponentType Type { get; set; } = ComponentType.ActionRow;
+        public new ComponentType Type { get; set; } = ComponentType.ActionRow;
 
         /// <summary>
         /// The components contained within the action row.
