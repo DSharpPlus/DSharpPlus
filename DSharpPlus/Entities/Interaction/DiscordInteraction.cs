@@ -114,7 +114,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <returns>The origingal message that was sent. This <b>does not work on ephemeral messages.</b></returns>
         public Task<DiscordMessage> GetOriginalResponseAsync() =>
-            this.Discord.ApiClient.GetOriginalInteractionResponseAsync(this.Token);
+            this.Discord.ApiClient.GetOriginalInteractionResponseAsync(this.Discord.CurrentApplication.Id, this.Token);
 
         /// <summary>
         /// Edits the original interaction response.

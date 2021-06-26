@@ -2375,7 +2375,8 @@ namespace DSharpPlus.Net
                 {
                     Name = command.Name,
                     Description = command.Description,
-                    Options = command.Options
+                    Options = command.Options,
+                    DefaultPermission = command.DefaultPermission
                 });
             }
 
@@ -2397,7 +2398,8 @@ namespace DSharpPlus.Net
             {
                 Name = command.Name,
                 Description = command.Description,
-                Options = command.Options
+                Options = command.Options,
+                DefaultPermission = command.DefaultPermission
             };
 
             var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.COMMANDS}";
@@ -2426,13 +2428,14 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordApplicationCommand> EditGlobalApplicationCommandAsync(ulong application_id, ulong command_id, Optional<string> name, Optional<string> description, Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options)
+        internal async Task<DiscordApplicationCommand> EditGlobalApplicationCommandAsync(ulong application_id, ulong command_id, Optional<string> name, Optional<string> description, Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options, Optional<bool?> defaultPermission)
         {
             var pld = new RestApplicationCommandEditPayload
             {
                 Name = name,
                 Description = description,
-                Options = options
+                Options = options,
+                DefaultPermission = defaultPermission
             };
 
             var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.COMMANDS}/:command_id";
@@ -2479,7 +2482,8 @@ namespace DSharpPlus.Net
                 {
                     Name = command.Name,
                     Description = command.Description,
-                    Options = command.Options
+                    Options = command.Options,
+                    DefaultPermission = command.DefaultPermission
                 });
             }
 
@@ -2501,7 +2505,8 @@ namespace DSharpPlus.Net
             {
                 Name = command.Name,
                 Description = command.Description,
-                Options = command.Options
+                Options = command.Options,
+                DefaultPermission = command.DefaultPermission
             };
 
             var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.GUILDS}/:guild_id{Endpoints.COMMANDS}";
@@ -2530,13 +2535,14 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordApplicationCommand> EditGuildApplicationCommandAsync(ulong application_id, ulong guild_id, ulong command_id, Optional<string> name, Optional<string> description, Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options)
+        internal async Task<DiscordApplicationCommand> EditGuildApplicationCommandAsync(ulong application_id, ulong guild_id, ulong command_id, Optional<string> name, Optional<string> description, Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options, Optional<bool?> defaultPermission)
         {
             var pld = new RestApplicationCommandEditPayload
             {
                 Name = name,
                 Description = description,
-                Options = options
+                Options = options,
+                DefaultPermission = defaultPermission
             };
 
             var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.GUILDS}/:guild_id{Endpoints.COMMANDS}/:command_id";
@@ -2583,17 +2589,17 @@ namespace DSharpPlus.Net
             await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld));
         }
 
-        internal async Task<DiscordMessage> GetOriginalInteractionResponseAsync(string interaction_token)
+        internal async Task<DiscordMessage> GetOriginalInteractionResponseAsync(ulong application_id, string interaction_token)
         {
-            var application_id = this.Discord.CurrentApplication.Id;
             var route = $"{Endpoints.WEBHOOKS}/:application_id/:interaction_token{Endpoints.MESSAGES}{Endpoints.ORIGINAL}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { application_id, interaction_token }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route);
-            var json = JObject.Parse(res.Response);
+            var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
 
-            return json.ToDiscordObject<DiscordMessage>();
+            ret.Discord = this.Discord;
+            return ret;
         }
 
         internal Task<DiscordMessage> EditOriginalInteractionResponseAsync(ulong application_id, string interaction_token, DiscordWebhookBuilder builder) =>
@@ -2649,7 +2655,64 @@ namespace DSharpPlus.Net
         internal Task DeleteFollowupMessageAsync(ulong application_id, string interaction_token, ulong message_id) =>
             this.DeleteWebhookMessageAsync(application_id, interaction_token, message_id);
 
-        //TODO: edit, delete, follow up
+        internal async Task<IReadOnlyList<DiscordGuildApplicationCommandPermissions>> GetGuildApplicationCommandPermissionsAsync(ulong application_id, ulong guild_id)
+        {
+            var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.GUILDS}/:guild_id{Endpoints.COMMANDS}{Endpoints.PERMISSIONS}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { application_id, guild_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route);
+            var ret = JsonConvert.DeserializeObject<IEnumerable<DiscordGuildApplicationCommandPermissions>>(res.Response);
+
+            foreach (var perm in ret)
+                perm.Discord = this.Discord;
+            return ret.ToList();
+        }
+
+        internal async Task<DiscordGuildApplicationCommandPermissions> GetApplicationCommandPermissionsAsync(ulong application_id, ulong guild_id, ulong command_id)
+        {
+            var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.GUILDS}/:guild_id{Endpoints.COMMANDS}/:command_id{Endpoints.PERMISSIONS}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { application_id, guild_id, command_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route);
+            var ret = JsonConvert.DeserializeObject<DiscordGuildApplicationCommandPermissions>(res.Response);
+
+            ret.Discord = this.Discord;
+            return ret;
+        }
+
+        internal async Task<DiscordGuildApplicationCommandPermissions> EditApplicationCommandPermissionsAsync(ulong application_id, ulong guild_id, ulong command_id, IEnumerable<DiscordApplicationCommandPermission> permissions)
+        {
+            var pld = new RestEditApplicationCommmandPermissionsPayload
+            {
+                Permissions = permissions
+            };
+
+            var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.GUILDS}/:guild_id{Endpoints.COMMANDS}/:command_id{Endpoints.PERMISSIONS}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.PUT, route, new { application_id, guild_id, command_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PUT, route, payload: DiscordJson.SerializeObject(pld));
+            var ret = JsonConvert.DeserializeObject<DiscordGuildApplicationCommandPermissions>(res.Response);
+
+            ret.Discord = this.Discord;
+            return ret;
+        }
+
+        internal async Task<IReadOnlyList<DiscordGuildApplicationCommandPermissions>> BatchEditApplicationCommandPermissionsAsync(ulong application_id, ulong guild_id, IEnumerable<DiscordGuildApplicationCommandPermissions> permissions)
+        {
+            var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.GUILDS}/:guild_id{Endpoints.COMMANDS}{Endpoints.PERMISSIONS}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.PUT, route, new { application_id, guild_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PUT, route, payload: DiscordJson.SerializeObject(permissions));
+            var ret = JsonConvert.DeserializeObject<IEnumerable<DiscordGuildApplicationCommandPermissions>>(res.Response);
+
+            foreach (var perm in ret)
+                perm.Discord = this.Discord;
+            return ret.ToList();
+        } 
         #endregion
 
         #region Misc

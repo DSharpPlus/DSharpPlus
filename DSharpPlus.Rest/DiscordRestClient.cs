@@ -1430,7 +1430,7 @@ namespace DSharpPlus
             var mdl = new ApplicationCommandEditModel();
             action(mdl);
             var applicationId = this.CurrentApplication?.Id ?? (await this.GetCurrentApplicationAsync()).Id;
-            return await this.ApiClient.EditGlobalApplicationCommandAsync(applicationId, commandId, mdl.Name, mdl.Description, mdl.Options);
+            return await this.ApiClient.EditGlobalApplicationCommandAsync(applicationId, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission);
         }
 
         /// <summary>
@@ -1487,7 +1487,7 @@ namespace DSharpPlus
             var mdl = new ApplicationCommandEditModel();
             action(mdl);
             var applicationId = this.CurrentApplication?.Id ?? (await this.GetCurrentApplicationAsync()).Id;
-            return await this.ApiClient.EditGuildApplicationCommandAsync(applicationId, guildId, commandId, mdl.Name, mdl.Description, mdl.Options);
+            return await this.ApiClient.EditGuildApplicationCommandAsync(applicationId, guildId, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission);
         }
 
         /// <summary>
@@ -1513,7 +1513,7 @@ namespace DSharpPlus
         /// </summary>
         /// <returns>The original message that was sent. This <b>does not work on ephemeral messages.</b></returns>
         public Task<DiscordMessage> GetOriginalInteractionResponseAsync(string interactionToken) =>
-            this.ApiClient.GetOriginalInteractionResponseAsync(interactionToken);
+            this.ApiClient.GetOriginalInteractionResponseAsync(this.CurrentApplication.Id, interactionToken);
 
         /// <summary>
         /// Edits the original interaction response.
@@ -1569,6 +1569,42 @@ namespace DSharpPlus
         /// <param name="messageId">The id of the follow up message.</param>
         public Task DeleteFollowupMessageAsync(string interactionToken, ulong messageId) =>
             this.ApiClient.DeleteFollowupMessageAsync(this.CurrentApplication.Id, interactionToken, messageId);
+
+        /// <summary>
+        /// Gets all slash command permissions in a guild.
+        /// </summary>
+        /// <param name="guildId">The guild id.</param>
+        /// <returns>A list of permissions.</returns>
+        public Task<IReadOnlyList<DiscordGuildApplicationCommandPermissions>> GetGuildApplicationCommandsPermissionsAsync(ulong guildId)
+            => this.ApiClient.GetGuildApplicationCommandPermissionsAsync(this.CurrentApplication.Id, guildId);
+
+        /// <summary>
+        /// Gets permissions for a slash command in a guild.
+        /// </summary>
+        /// <param name="guildId">The guild id.</param>
+        /// <param name="commandId">The id of the command to get them for.</param>
+        /// <returns>The permissions.</returns>
+        public Task<DiscordGuildApplicationCommandPermissions> GetGuildApplicationCommandPermissionsAsync(ulong guildId, ulong commandId)
+            => this.ApiClient.GetApplicationCommandPermissionsAsync(this.CurrentApplication.Id, guildId, commandId);
+
+        /// <summary>
+        /// Edits permissions for a slash command in a guild.
+        /// </summary>
+        /// <param name="guildId">The guild id.</param>
+        /// <param name="commandId">The id of the command to edit permissions for.</param>
+        /// <param name="permissions">The list of permissions to use.</param>
+        /// <returns>The edited permissions.</returns>
+        public Task<DiscordGuildApplicationCommandPermissions> EditApplicationCommandPermissionsAsync(ulong guildId, ulong commandId, IEnumerable<DiscordApplicationCommandPermission> permissions)
+            => this.ApiClient.EditApplicationCommandPermissionsAsync(this.CurrentApplication.Id, guildId, commandId, permissions);
+
+        /// <summary>
+        /// Batch edits permissions for a slash command in a guild.
+        /// </summary>
+        /// <param name="guildId">The guild id.</param>
+        /// <param name="permissions">The list of permissions to use.</param>
+        /// <returns>A list of edited permissions.</returns>
+        public Task<IReadOnlyList<DiscordGuildApplicationCommandPermissions>> BatchEditApplicationCommandPermissionsAsync(ulong guildId, IEnumerable<DiscordGuildApplicationCommandPermissions> permissions)
+            => this.ApiClient.BatchEditApplicationCommandPermissionsAsync(this.CurrentApplication.Id, guildId, permissions);
         #endregion
 
         #region Misc
