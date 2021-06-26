@@ -20,28 +20,24 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace DSharpPlus.Entities
+namespace DSharpPlus
 {
     /// <summary>
-    /// Represents a button's style/color.
+    /// Represents a type of component.
     /// </summary>
-    public enum ButtonStyle : int
+    public enum ComponentType
     {
         /// <summary>
-        /// Blurple button.
+        /// A row of components.
         /// </summary>
-        Primary = 1,
+        ActionRow = 1,
         /// <summary>
-        /// Grey button.
+        /// A button.
         /// </summary>
-        Secondary = 2,
+        Button = 2,
         /// <summary>
-        /// Green button.
+        /// A select menu.
         /// </summary>
-        Success  = 3,
-        /// <summary>
-        /// Red button.
-        /// </summary>
-        Danger = 4,
+        Select = 3
     }
 }

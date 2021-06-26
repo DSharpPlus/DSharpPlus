@@ -2155,7 +2155,7 @@ namespace DSharpPlus.Entities
         {
             var mdl = new ApplicationCommandEditModel();
             action(mdl);
-            return await this.Discord.ApiClient.EditGuildApplicationCommandAsync(this.Discord.CurrentApplication.Id, this.Id, commandId, mdl.Name, mdl.Description, mdl.Options);
+            return await this.Discord.ApiClient.EditGuildApplicationCommandAsync(this.Discord.CurrentApplication.Id, this.Id, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission);
         }
 
         /// <summary>
@@ -2179,6 +2179,38 @@ namespace DSharpPlus.Entities
             action(mdl);
             return await this.Discord.ApiClient.ModifyGuildWelcomeScreenAsync(this.Id, mdl.Enabled, mdl.WelcomeChannels, mdl.Description);
         }
+
+        /// <summary>
+        /// Gets all slash command permissions in this guild.
+        /// </summary>
+        /// <returns>A list of permissions.</returns>
+        public Task<IReadOnlyList<DiscordGuildApplicationCommandPermissions>> GetApplicationCommandsPermissionsAsync()
+            => this.Discord.ApiClient.GetGuildApplicationCommandPermissionsAsync(this.Discord.CurrentApplication.Id, this.Id);
+
+        /// <summary>
+        /// Gets permissions for a slash command in this guild.
+        /// </summary>
+        /// <param name="command">The command to get them for.</param>
+        /// <returns>The permissions.</returns>
+        public Task<DiscordGuildApplicationCommandPermissions> GetApplicationCommandPermissionsAsync(DiscordApplicationCommand command)
+            => this.Discord.ApiClient.GetApplicationCommandPermissionsAsync(this.Discord.CurrentApplication.Id, this.Id, command.Id);
+
+        /// <summary>
+        /// Edits permissions for a slash command in this guild.
+        /// </summary>
+        /// <param name="command">The command to edit permissions for.</param>
+        /// <param name="permissions">The list of permissions to use.</param>
+        /// <returns>The edited permissions.</returns>
+        public Task<DiscordGuildApplicationCommandPermissions> EditApplicationCommandPermissionsAsync(DiscordApplicationCommand command, IEnumerable<DiscordApplicationCommandPermission> permissions)
+            => this.Discord.ApiClient.EditApplicationCommandPermissionsAsync(this.Discord.CurrentApplication.Id, this.Id, command.Id, permissions);
+
+        /// <summary>
+        /// Batch edits permissions for a slash command in this guild.
+        /// </summary>
+        /// <param name="permissions">The list of permissions to use.</param>
+        /// <returns>A list of edited permissions.</returns>
+        public Task<IReadOnlyList<DiscordGuildApplicationCommandPermissions>> BatchEditApplicationCommandPermissionsAsync(IEnumerable<DiscordGuildApplicationCommandPermissions> permissions)
+            => this.Discord.ApiClient.BatchEditApplicationCommandPermissionsAsync(this.Discord.CurrentApplication.Id, this.Id, permissions);
         #endregion
 
         /// <summary>
