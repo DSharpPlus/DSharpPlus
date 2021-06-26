@@ -1044,7 +1044,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content, Optional<IEnumerable<DiscordEmbed>> embeds, IEnumerable<IMention> mentions, IReadOnlyList<DiscordActionRowComponent> components)
+        internal async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content, Optional<IEnumerable<DiscordEmbed>> embeds, IEnumerable<IMention> mentions, IReadOnlyList<DiscordActionRowComponent> components, IReadOnlyCollection<DiscordMessageFile> files)
         {
             if (embeds.HasValue && embeds.Value != null)
                 foreach (var embed in embeds.Value)
@@ -1063,13 +1063,23 @@ namespace DSharpPlus.Net
             if (mentions != null)
                 pld.Mentions = new DiscordMentions(mentions);
 
+            var values = new Dictionary<string, string>
+            {
+                ["payload_json"] = DiscordJson.SerializeObject(pld)
+            };
+
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}/:message_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { channel_id, message_id }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
+            var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, values: values, files: files).ConfigureAwait(false);
 
             var ret = this.PrepareMessage(JObject.Parse(res.Response));
+
+            foreach (var file in files.Where(x => x.ResetPositionTo.HasValue))
+            {
+                file.Stream.Position = file.ResetPositionTo.Value;
+            }
 
             return ret;
         }
@@ -2093,6 +2103,8 @@ namespace DSharpPlus.Net
 
         internal async Task<DiscordMessage> EditWebhookMessageAsync(ulong webhook_id, string webhook_token, string message_id, DiscordWebhookBuilder builder)
         {
+            builder.Validate(true);
+
             var pld = new RestWebhookMessageEditPayload
             {
                 Content = builder.Content,
@@ -2104,11 +2116,20 @@ namespace DSharpPlus.Net
             var route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token{Endpoints.MESSAGES}/:message_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { webhook_id, webhook_token, message_id }, out var path);
 
+            var values = new Dictionary<string, string>
+            {
+                ["payload_json"] = DiscordJson.SerializeObject(pld)
+            };
+
             var url = Utilities.GetApiUriFor(path);
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, payload: DiscordJson.SerializeObject(pld));
+            var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, values: values, files: builder.Files);
 
             var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
             ret.Discord = this.Discord;
+
+            foreach (var file in builder.Files.Where(x => x.ResetPositionTo.HasValue))
+                file.Stream.Position = file.ResetPositionTo.Value;
+
             return ret;
         }
 
