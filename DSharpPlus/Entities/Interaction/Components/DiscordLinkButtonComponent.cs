@@ -30,11 +30,6 @@ namespace DSharpPlus.Entities
     public class DiscordLinkButtonComponent : DiscordComponent
     {
         /// <summary>
-        /// The type of component this represents. Always returns <see cref="ComponentType.Button"/>.
-        /// </summary>
-        public new ComponentType Type { get; internal set; } = ComponentType.Button;
-
-        /// <summary>
         /// The url to open when pressing this button.
         /// </summary>
         [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
@@ -70,6 +65,7 @@ namespace DSharpPlus.Entities
         /// <param name="emoji">The emoji to set with this button. This is required if <paramref name="label"/> is null or empty.</param>
         public DiscordLinkButtonComponent(string url, string label, bool disabled = false, DiscordComponentEmoji emoji = null)
         {
+            this.Type = ComponentType.Button;
             this.Url = url;
             this.Label = label;
             this.Disabled = disabled;
