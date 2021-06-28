@@ -241,14 +241,15 @@ namespace DSharpPlus
                 return this._shards.Count;
 
             this.GatewayInfo = await this.GetGatewayInfoAsync().ConfigureAwait(false);
-            var shardc = this.Configuration.ShardCount == 1 ? this.GatewayInfo.ShardCount : this.Configuration.ShardCount;
+            var gwShardc = this.Configuration.ShardCount == 1 ? this.GatewayInfo.ShardCount : this.Configuration.ShardCount;
+            var shardc = this.Configuration.BootShardCount ?? gwShardc;
             var lf = new ShardedLoggerFactory(this.Logger);
             for (var i = 0; i < shardc; i++)
             {
                 var cfg = new DiscordConfiguration(this.Configuration)
                 {
-                    ShardId = i,
-                    ShardCount = shardc,
+                    ShardId = this.Configuration.ShardId + i,
+                    ShardCount = gwShardc, /* We want to send the total amount of shards regardless of how many shards this client will boot. */
                     LoggerFactory = lf
                 };
 
@@ -380,7 +381,7 @@ namespace DSharpPlus
 
             client._isShard = true;
             await client.ConnectAsync().ConfigureAwait(false);
-            this.Logger.LogInformation(LoggerEvents.ShardStartup, "Booted shard {0}.", i);
+            this.Logger.LogInformation(LoggerEvents.ShardStartup, "Booted shard {0}.", client.ShardId);
 
             if (this.CurrentUser == null)
                 this.CurrentUser = client.CurrentUser;

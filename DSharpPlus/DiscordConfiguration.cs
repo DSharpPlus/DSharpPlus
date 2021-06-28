@@ -101,6 +101,23 @@ namespace DSharpPlus
         public int ShardCount { internal get; set; } = 1;
 
         /// <summary>
+        /// Sets the number of shards to boot with. If automatically sharding, or sharding in-process, this should be left alone.
+        /// </summary>
+        public int? BootShardCount
+        {
+            internal get => this._shardBootCount;
+            set
+            {
+                if ((value != null && value > this.ShardCount) || value < 1)
+                    throw new ArgumentOutOfRangeException(nameof(value), "Value must be greater than zero and less than or equal to ShardCount.");
+
+                this._shardBootCount = value;
+            }
+        }
+
+        private int? _shardBootCount = null;
+
+        /// <summary>
         /// <para>Sets the level of compression for WebSocket traffic.</para>
         /// <para>Disabling this option will increase the amount of traffic sent via WebSocket. Setting <see cref="GatewayCompressionLevel.Payload"/> will enable compression for READY and GUILD_CREATE payloads. Setting <see cref="GatewayCompressionLevel.Stream"/> will enable compression for the entire WebSocket stream, drastically reducing amount of traffic.</para>
         /// <para>Defaults to <see cref="GatewayCompressionLevel.Stream"/>.</para>
@@ -208,6 +225,7 @@ namespace DSharpPlus
             this.AutoReconnect = other.AutoReconnect;
             this.ShardId = other.ShardId;
             this.ShardCount = other.ShardCount;
+            this.BootShardCount = other.BootShardCount;
             this.GatewayCompressionLevel = other.GatewayCompressionLevel;
             this.MessageCacheSize = other.MessageCacheSize;
             this.WebSocketClientFactory = other.WebSocketClientFactory;
