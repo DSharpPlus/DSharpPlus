@@ -273,6 +273,20 @@ var slash = discord.UseSlashCommands(new SlashCommandsConfiguration
 });
 ```
 (Thanks to @sssvt-drabek-stepan for adding this)
+
+Property injection is implemented, however static properties will not be replaced. If you wish for a non-static property to be left alone, assign it the `DontInject` attribute. Property Injection can be used like so:
+```cs
+public class Commands : SlashCommandModule
+{
+    public Database Database { private get; set; } // The get accessor is optionally public, but the set accessor must be public.
+
+    [SlashCommand("ping", "Checks the latency between the bot and it's database. Best used to see if the bot is lagging.")]
+    public async Task Ping(InteractionContext context) => await context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new()
+    {
+        Content = $"Pong! Database latency is {Database.GetPing()}ms."
+    });
+}
+```
 ### Sharding
 `UseSlashCommands` -> `UseSlashCommmandsAsync` which returns a dictionary.
 
