@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <Authors>IDoEverything, Epictek, sssvt-drabek-stepan, tygore587, VelvetThePanda</Authors>
     <Description>An extension for DSharpPlus to make slash commands easy</Description>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageLicenseFile></PackageLicenseFile>
     <PackageProjectUrl>https://github.com/IDoEverything/DSharpPlus.SlashCommands</PackageProjectUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/IDoEverything/DSharpPlus.SlashCommands</RepositoryUrl>
@@ -26,13 +26,6 @@
   <ItemGroup>
     <PackageReference Include="DSharpPlus" Version="4.1.0-nightly-00903" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="LICENSE">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
   </ItemGroup>
 
 </Project>
