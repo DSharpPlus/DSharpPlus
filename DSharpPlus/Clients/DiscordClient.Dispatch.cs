@@ -365,11 +365,11 @@ namespace DSharpPlus
 
                 case "thread_list_sync":
                     gid = (ulong)dat["guild_id"]; //get guild
-                    await this.OnThreadListSyncEventAsync(this._guilds[gid], dat["channel_ids"].ToObject<IReadOnlyList<ulong?>>(), dat["threads"].ToObject<IReadOnlyList<DiscordThreadChannel>>(), dat["members"].ToObject<IReadOnlyList<DiscordThreadChannelMember>>()).ConfigureAwait(false);
+                    await this.OnThreadListSyncEventAsync(this._guilds[gid], dat["channel_ids"].ToDiscordObject<IReadOnlyList<ulong?>>(), dat["threads"].ToObject<IReadOnlyList<DiscordThreadChannel>>(), dat["members"].ToObject<IReadOnlyList<DiscordThreadChannelMember>>()).ConfigureAwait(false);
                     break;
 
                 case "thread_member_update":
-                    await this.OnThreadMemberUpdateEventAsync(dat.ToObject<DiscordThreadChannelMember>()).ConfigureAwait(false);
+                    await this.OnThreadMemberUpdateEventAsync(dat.ToDiscordObject<DiscordThreadChannelMember>()).ConfigureAwait(false);
                     break;
 
                 case "thread_members_update":
