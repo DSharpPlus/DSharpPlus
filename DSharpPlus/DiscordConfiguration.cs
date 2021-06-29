@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using System.IO;
 using System.Net;
 using DSharpPlus.Net.Udp;
 using DSharpPlus.Net.WebSocket;
@@ -102,6 +103,7 @@ namespace DSharpPlus
 
         /// <summary>
         /// Sets the number of shards to boot with. If automatically sharding, or sharding in-process, this should be left alone.
+        /// This should be consistent across <b>all clusters</b>.
         /// </summary>
         public int? BootShardCount
         {
@@ -115,7 +117,29 @@ namespace DSharpPlus
             }
         }
 
-        private int? _shardBootCount = null;
+        private int? _shardBootCount;
+
+        /// <summary>
+        /// The Id of the cluster. This has no effect in <see cref="DiscordClient"/> or <see cref="DiscordShardedClient"/>.
+        ///
+        /// When using <see cref="DiscordClusterClient"/>, this is used to determine the shard to start with. The cluser client will initialize the specified amount of shards, with the Id of <see cref="ClusterId"/> * <see cref="BootShardCount"/>.
+        /// </summary>
+        public int ClusterId
+        {
+            get => this._clusterId;
+            set
+            {
+                if (value * this._shardBootCount >= this.ShardCount)
+                    throw new ArgumentOutOfRangeException(nameof(value), "Value must equate to less than specified shard count");
+
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException(nameof(value), "Value must be non-null and greater than or equal to 0");
+
+                this._clusterId = value;
+            }
+        }
+
+        private int _clusterId;
 
         /// <summary>
         /// <para>Sets the level of compression for WebSocket traffic.</para>

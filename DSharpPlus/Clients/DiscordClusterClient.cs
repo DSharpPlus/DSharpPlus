@@ -155,7 +155,7 @@ namespace DSharpPlus
             {
                 var cfg = new DiscordConfiguration(this.Configuration)
                 {
-                    ShardId = (this.Configuration.ShardId * shardc) + i,
+                    ShardId = (this.Configuration.ClusterId * shardc) + i,
                     ShardCount = gwShardc, /* We want to send the total amount of shards regardless of how many shards this client will boot. */
                     LoggerFactory = lf
                 };
