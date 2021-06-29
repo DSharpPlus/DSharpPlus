@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -99,7 +100,7 @@ namespace DSharpPlus
                 this._manuallySharding = true;
 
             this.Configuration = config;
-            this.ShardClients = new ReadOnlyConcurrentDictionary<int, DiscordClient>(this._shards);
+            this.ShardClients = new ConcurrentDictionary<int, DiscordClient>(this._shards);
 
             if (this.Configuration.LoggerFactory == null)
             {
