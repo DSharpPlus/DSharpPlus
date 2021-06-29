@@ -31,13 +31,7 @@ Non-link buttons come in four colors, which are known as styles: Blurple, Grey, 
 How does one construct a button? It's simple, buttons support constructor and object initialization like so:
 
 ```cs
-var myButton = new DiscordButtonComponent()
-{
-    CustomId = "my_very_cool_button",
-    Style = ButtonStyle.Primary,
-    Label = "Very cool button!",
-    Emoji = new DiscordComponentEmoji("😀")
-};
+var myButton = new DiscordButtonComponent(ButtonStyle.Primary, "my_very_cool_button", "Very cool button!", false, new DiscordComponentEmoji("😀"));
 ```
 
 This will create a blurple button with the text that reads "Very cool button!". When a user pushes it, `"my_very_cool_button"` will be sent back as the `Id` property on the event. This is expanded on in the [how to respond to buttons](#responding-to-button-presses).
@@ -61,12 +55,7 @@ builder.WithContent("This message has buttons! Pretty neat innit?");
 Well, there's a builder, but no buttons. What now? Simply make a new button object (`DiscordButtonComponent`) and call `.AddComponents()` on the MessageBuilder.
 
 ```cs
-var myButton = new DiscordButtonComponent
-{
-    CustomId = "my_custom_id",
-    Label = "This is a button!",
-    Style = ButtonStyle.Primary,
-};
+var myButton = new DiscordButtonComponent(ButtonStyle.Primary, "my_custom_id", "This is a button!");
 
 var builder = new DiscordMessageBuilder()
     .WithContent("This message has buttons! Pretty neat innit?")
@@ -109,14 +98,7 @@ Produces a message like such: ![Buttons](/images/advanced_topics_buttons_01.png)
 Well, that's all neat, but lets say you want to add an emoji. Being able to use any emoji is pretty neat, afterall. That's also very simple!
 
 ```cs
-var myButton = new DiscordButtonComponent
-(
-    ButtonStyle.Primary,
-    "emoji_button",
-    null,
-    false,
-    new DiscordComponentEmoji(595381687026843651)
-);
+var myButton = new DiscordButtonComponent(ButtonStyle.Primary, "emoji_button", null, false, new DiscordComponentEmoji(595381687026843651));
 ```
 And you're done! Simply add that to a builder, and when you send, you'll get a message that has a button with a little Pikachu enjoying a lolipop. Adorable. ![PikaLolipop](/images/advanced_topics_buttons_02.png)
 
