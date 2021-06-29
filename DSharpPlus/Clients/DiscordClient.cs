@@ -146,8 +146,8 @@ namespace DSharpPlus
 
             this.InternalSetup();
 
-            this.Guilds = new ReadOnlyConcurrentDictionary<ulong, DiscordGuild>(this._guilds);
-            this.PrivateChannels = new ReadOnlyConcurrentDictionary<ulong, DiscordDmChannel>(this._privateChannels);
+            this.Guilds = this._guilds;
+            this.PrivateChannels = this._privateChannels;
         }
 
         internal void InternalSetup()
@@ -399,7 +399,7 @@ namespace DSharpPlus
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, string content = null)
-            => this.ApiClient.CreateMessageAsync(channel.Id, content, embed: null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
+            => this.ApiClient.CreateMessageAsync(channel.Id, content, embeds: null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
 
         /// <summary>
         /// Sends a message
@@ -412,7 +412,7 @@ namespace DSharpPlus
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, DiscordEmbed embed = null)
-            => this.ApiClient.CreateMessageAsync(channel.Id, null, embed, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
+            => this.ApiClient.CreateMessageAsync(channel.Id, null, new[] {embed}, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
 
         /// <summary>
         /// Sends a message
@@ -426,13 +426,13 @@ namespace DSharpPlus
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> SendMessageAsync(DiscordChannel channel, string content = null, DiscordEmbed embed = null)
-            => this.ApiClient.CreateMessageAsync(channel.Id, content, embed, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
+            => this.ApiClient.CreateMessageAsync(channel.Id, content, new[] {embed}, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
 
         /// <summary>
         /// Sends a message
         /// </summary>
         /// <param name="channel">Channel to send to.</param>
-        /// <param name="builder">The Discord Mesage builder.</param>
+        /// <param name="builder">The Discord Message builder.</param>
         /// <returns>The Discord Message that was sent.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission if TTS is false and <see cref="Permissions.SendTtsMessages"/> if TTS is true.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
@@ -445,7 +445,7 @@ namespace DSharpPlus
         /// Sends a message
         /// </summary>
         /// <param name="channel">Channel to send to.</param>
-        /// <param name="action">The Discord Mesage builder.</param>
+        /// <param name="action">The Discord Message builder.</param>
         /// <returns>The Discord Message that was sent.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission if TTS is false and <see cref="Permissions.SendTtsMessages"/> if TTS is true.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
@@ -670,7 +670,7 @@ namespace DSharpPlus
             var mdl = new ApplicationCommandEditModel();
             action(mdl);
             var applicationId = this.CurrentApplication?.Id ?? (await this.GetCurrentApplicationAsync()).Id;
-            return await this.ApiClient.EditGlobalApplicationCommandAsync(applicationId, commandId, mdl.Name, mdl.Description, mdl.Options);
+            return await this.ApiClient.EditGlobalApplicationCommandAsync(applicationId, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission);
         }
 
         /// <summary>
@@ -727,7 +727,7 @@ namespace DSharpPlus
             var mdl = new ApplicationCommandEditModel();
             action(mdl);
             var applicationId = this.CurrentApplication?.Id ?? (await this.GetCurrentApplicationAsync()).Id;
-            return await this.ApiClient.EditGuildApplicationCommandAsync(applicationId, guildId, commandId, mdl.Name, mdl.Description, mdl.Options);
+            return await this.ApiClient.EditGuildApplicationCommandAsync(applicationId, guildId, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission);
         }
 
         /// <summary>

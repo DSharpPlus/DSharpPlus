@@ -190,6 +190,15 @@ namespace DSharpPlus.Entities
         public int Hierarchy
             => this.IsOwner ? int.MaxValue : this.RoleIds.Count == 0 ? 0 : this.Roles.Max(x => x.Position);
 
+
+        /// <summary>
+        /// Gets the permissions for the current member.
+        /// </summary>
+        [JsonIgnore]
+        public Permissions Permissions => this.GetPermissions();
+
+
+
         #region Overridden user properties
         [JsonIgnore]
         internal DiscordUser User
@@ -546,6 +555,7 @@ namespace DSharpPlus.Entities
         public Permissions PermissionsIn(DiscordChannel channel)
             => channel.PermissionsFor(this);
 
+
         /// <summary>
         /// Returns a string representation of this member.
         /// </summary>
@@ -611,5 +621,29 @@ namespace DSharpPlus.Entities
         /// <returns>Whether the two members are not equal.</returns>
         public static bool operator !=(DiscordMember e1, DiscordMember e2)
             => !(e1 == e2);
+
+        /// <summary>
+        /// Get's the current member's roles based on the sum of the permissions of their given roles.
+        /// </summary>
+        private Permissions GetPermissions()
+        {
+            if (this.Guild.OwnerId == this.Id)
+                return PermissionMethods.FULL_PERMS;
+
+            Permissions perms;
+
+            // assign @everyone permissions
+            var everyoneRole = this.Guild.EveryoneRole;
+            perms = everyoneRole.Permissions;
+
+            // assign permissions from member's roles (in order)
+            perms |= this.Roles.Aggregate(Permissions.None, (c, role) => c | role.Permissions);
+
+            // Adminstrator grants all permissions and cannot be overridden
+            if ((perms & Permissions.Administrator) == Permissions.Administrator)
+                return PermissionMethods.FULL_PERMS;
+
+            return perms;
+        }
     }
 }

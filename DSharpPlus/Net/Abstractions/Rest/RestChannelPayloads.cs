@@ -101,8 +101,8 @@ namespace DSharpPlus.Net.Abstractions
         [JsonIgnore]
         public bool HasContent { get; set; }
 
-        [JsonProperty("embed", NullValueHandling = NullValueHandling.Include)]
-        public DiscordEmbed Embed { get; set; }
+        [JsonProperty("embeds", NullValueHandling = NullValueHandling.Ignore)]
+        public IEnumerable<DiscordEmbed> Embeds { get; set; }
 
         [JsonProperty("allowed_mentions", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordMentions Mentions { get; set; }
@@ -138,8 +138,8 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("tts", NullValueHandling = NullValueHandling.Ignore)]
         public bool? IsTTS { get; set; }
 
-        [JsonProperty("embed", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordEmbed Embed { get; set; }
+        [JsonProperty("embeds", NullValueHandling = NullValueHandling.Ignore)]
+        public IEnumerable<DiscordEmbed> Embeds { get; set; }
 
         [JsonProperty("allowed_mentions", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordMentions Mentions { get; set; }

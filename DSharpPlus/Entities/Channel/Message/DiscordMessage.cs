@@ -433,7 +433,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> ModifyAsync(Optional<string> content)
-            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, default, default, default);
+            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, default, default, default, Array.Empty<DiscordMessageFile>());
 
         /// <summary>
         /// Edits the message.
@@ -445,7 +445,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> ModifyAsync(Optional<DiscordEmbed> embed = default)
-            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, default, embed, default, default);
+            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, default, embed.HasValue ? new[] {embed.Value} : Array.Empty<DiscordEmbed>(), default, default, Array.Empty<DiscordMessageFile>());
 
         /// <summary>
         /// Edits the message.
@@ -458,7 +458,21 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> ModifyAsync(Optional<string> content, Optional<DiscordEmbed> embed = default)
-            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embed, default, default);
+            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embed.HasValue ? new[] {embed.Value} : Array.Empty<DiscordEmbed>(), default, default, Array.Empty<DiscordMessageFile>());
+
+        /// <summary>
+        /// Edits the message.
+        /// </summary>
+        /// <param name="content">New content.</param>
+        /// <param name="embeds">New embeds.</param>
+        /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client tried to modify a message not sent by them.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordMessage> ModifyAsync(Optional<string> content, Optional<IEnumerable<DiscordEmbed>> embeds = default)
+            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embeds, default, default, Array.Empty<DiscordMessageFile>());
+
 
         /// <summary>
         /// Edits the message.
@@ -472,7 +486,7 @@ namespace DSharpPlus.Entities
         public async Task<DiscordMessage> ModifyAsync(DiscordMessageBuilder builder)
         {
             builder.Validate(true);
-            return await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, builder.Content, builder.Embed, builder.Mentions, builder.Components).ConfigureAwait(false);
+            return await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, builder.Content, new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), builder.Mentions, builder.Components, builder.Files).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -489,7 +503,7 @@ namespace DSharpPlus.Entities
             var builder = new DiscordMessageBuilder();
             action(builder);
             builder.Validate(true);
-            return await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, builder.Content, builder.Embed, builder.Mentions, builder.Components).ConfigureAwait(false);
+            return await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, builder.Content, new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), builder.Mentions, builder.Components, builder.Files).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -559,7 +573,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> RespondAsync(DiscordEmbed embed)
-            => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, null, embed, replyMessageId: this.Id, mentionReply: false, failOnInvalidReply: false);
+            => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, null, new[] {embed}, replyMessageId: this.Id, mentionReply: false, failOnInvalidReply: false);
 
         /// <summary>
         /// Responds to the message. This produces a reply.
@@ -572,7 +586,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> RespondAsync(string content, DiscordEmbed embed)
-            => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, content, embed, replyMessageId: this.Id, mentionReply: false, failOnInvalidReply: false);
+            => this.Discord.ApiClient.CreateMessageAsync(this.ChannelId, content, new[] {embed}, replyMessageId: this.Id, mentionReply: false, failOnInvalidReply: false);
 
         /// <summary>
         /// Responds to the message. This produces a reply.

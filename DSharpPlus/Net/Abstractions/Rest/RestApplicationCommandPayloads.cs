@@ -37,6 +37,9 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("options")]
         public IEnumerable<DiscordApplicationCommandOption> Options { get; set; }
+
+        [JsonProperty("default_permission", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? DefaultPermission { get; set; }
     }
 
     internal class RestApplicationCommandEditPayload
@@ -49,6 +52,9 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("options")]
         public Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> Options { get; set; }
+
+        [JsonProperty("default_permission", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<bool?> DefaultPermission { get; set; }
     }
 
     internal class RestInteractionResponsePayload
@@ -79,5 +85,11 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
         public IReadOnlyCollection<DiscordActionRowComponent> Components { get; set; }
+    }
+
+    internal class RestEditApplicationCommmandPermissionsPayload
+    {
+        [JsonProperty("permissions")]
+        public IEnumerable<DiscordApplicationCommandPermission> Permissions { get; set; }
     }
 }

@@ -56,7 +56,7 @@ namespace DSharpPlus
     }
 
     /// <summary>
-    /// Wether a permission is allowed, denied or unset
+    /// Whether a permission is allowed, denied or unset
     /// </summary>
     public enum PermissionLevel
     {

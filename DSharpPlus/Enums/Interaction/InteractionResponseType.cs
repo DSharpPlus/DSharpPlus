@@ -20,24 +20,37 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace DSharpPlus.Entities
+
+namespace DSharpPlus
 {
     /// <summary>
-    /// Represents a type of component.
+    /// Represents the type of interaction response
     /// </summary>
-    public enum ComponentType
+    public enum InteractionResponseType
     {
         /// <summary>
-        /// A row of components.
+        /// Acknowledges a Ping.
         /// </summary>
-        ActionRow = 1,
+        Pong = 1,
+
         /// <summary>
-        /// A button.
+        /// Responds to the interaction with a message.
         /// </summary>
-        Button = 2,
+        ChannelMessageWithSource = 4,
+
         /// <summary>
-        /// A select menu.
+        /// Acknowledges an interaction to edit to a response later. The user sees a "thinking" state.
         /// </summary>
-        Select = 3
+        DeferredChannelMessageWithSource = 5,
+
+        /// <summary>
+        /// Acknowledges a component interaction to allow a response later.
+        /// </summary>
+        DeferredMessageUpdate = 6,
+
+        /// <summary>
+        /// Responds to a component interaction by editing the message it's attached to.
+        /// </summary>
+        UpdateMessage = 7,
     }
 }
