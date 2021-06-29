@@ -29,7 +29,7 @@ using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus
 {
-    public sealed partial class DiscordShardedClient
+    public partial class DiscordShardedClient
     {
         #region WebSocket
 

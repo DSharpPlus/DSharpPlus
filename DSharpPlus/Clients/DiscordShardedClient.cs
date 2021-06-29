@@ -44,34 +44,34 @@ namespace DSharpPlus
     /// <summary>
     /// A Discord client that shards automatically.
     /// </summary>
-    public sealed partial class DiscordShardedClient
+    public partial class DiscordShardedClient
     {
         #region Public Properties
 
         /// <summary>
         /// Gets the logger for this client.
         /// </summary>
-        public ILogger<BaseDiscordClient> Logger { get; }
+        public ILogger<BaseDiscordClient> Logger { get; private protected set; }
 
         /// <summary>
         /// Gets all client shards.
         /// </summary>
-        public IReadOnlyDictionary<int, DiscordClient> ShardClients { get; }
+        public IReadOnlyDictionary<int, DiscordClient> ShardClients { get; private protected set; }
 
         /// <summary>
         /// Gets the gateway info for the client's session.
         /// </summary>
-        public GatewayInfo GatewayInfo { get; private set; }
+        public GatewayInfo GatewayInfo { get; private protected set; }
 
         /// <summary>
         /// Gets the current user.
         /// </summary>
-        public DiscordUser CurrentUser { get; private set; }
+        public DiscordUser CurrentUser { get; private protected set; }
 
         /// <summary>
         /// Gets the current application.
         /// </summary>
-        public DiscordApplication CurrentApplication { get; private set; }
+        public DiscordApplication CurrentApplication { get; private protected set; }
 
         /// <summary>
         /// Gets the list of available voice regions. Note that this property will not contain VIP voice regions.
@@ -83,21 +83,23 @@ namespace DSharpPlus
 
         #region Private Properties/Fields
 
-        private DiscordConfiguration Configuration { get; }
+        private protected DiscordConfiguration Configuration { get; set; }
 
         /// <summary>
         /// Gets the list of available voice regions. This property is meant as a way to modify <see cref="VoiceRegions"/>.
         /// </summary>
         private ConcurrentDictionary<string, DiscordVoiceRegion> _internalVoiceRegions;
 
-        private readonly ConcurrentDictionary<int, DiscordClient> _shards = new();
-        private Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>> _voiceRegionsLazy;
-        private bool _isStarted;
-        private readonly bool _manuallySharding;
+        private protected readonly ConcurrentDictionary<int, DiscordClient> _shards = new();
+        private protected Lazy<IReadOnlyDictionary<string, DiscordVoiceRegion>> _voiceRegionsLazy;
+        private protected bool _isStarted;
+        private protected bool _manuallySharding;
 
         #endregion
 
         #region Constructor
+
+        protected DiscordShardedClient() { } // We don't want to call the base in the cluser client //
 
         /// <summary>
         /// Initializes new auto-sharding Discord client.
@@ -131,7 +133,7 @@ namespace DSharpPlus
         /// <exception cref="AggregateException"></exception>
         /// <exception cref="InvalidOperationException"></exception>
         /// <returns></returns>
-        public async Task StartAsync()
+        public virtual async Task StartAsync()
         {
             if (this._isStarted)
                 throw new InvalidOperationException("This client has already been started.");
@@ -184,7 +186,7 @@ namespace DSharpPlus
         /// </summary>
         /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
-        public Task StopAsync()
+        public virtual Task StopAsync()
             => this.InternalStopAsync();
 
         /// <summary>
@@ -212,7 +214,7 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="guild">The guild for the shard.</param>
         /// <returns>The found <see cref="DiscordClient"/> shard. Otherwise <see langword="null"/> if the shard was not found for the guild.</returns>
-        public DiscordClient GetShard(DiscordGuild guild)
+        public virtual DiscordClient GetShard(DiscordGuild guild)
             => this.GetShard(guild.Id);
 
         /// <summary>
@@ -241,15 +243,14 @@ namespace DSharpPlus
                 return this._shards.Count;
 
             this.GatewayInfo = await this.GetGatewayInfoAsync().ConfigureAwait(false);
-            var gwShardc = this.Configuration.ShardCount == 1 ? this.GatewayInfo.ShardCount : this.Configuration.ShardCount;
-            var shardc = this.Configuration.BootShardCount ?? gwShardc;
+            var shardc = this.Configuration.ShardCount == 1 ? this.GatewayInfo.ShardCount : this.Configuration.ShardCount;
             var lf = new ShardedLoggerFactory(this.Logger);
             for (var i = 0; i < shardc; i++)
             {
                 var cfg = new DiscordConfiguration(this.Configuration)
                 {
-                    ShardId = this.Configuration.ShardId + i,
-                    ShardCount = gwShardc, /* We want to send the total amount of shards regardless of how many shards this client will boot. */
+                    ShardId = i,
+                    ShardCount = shardc,
                     LoggerFactory = lf
                 };
 
@@ -265,7 +266,7 @@ namespace DSharpPlus
 
         #region Private Methods/Version Property
 
-        private async Task<GatewayInfo> GetGatewayInfoAsync()
+        private protected async Task<GatewayInfo> GetGatewayInfoAsync()
         {
             var url = $"{Utilities.GetApiBaseUri()}{Endpoints.GATEWAY}{Endpoints.BOT}";
             var http = new HttpClient();
@@ -333,7 +334,7 @@ namespace DSharpPlus
         }
 
 
-        private readonly Lazy<string> _versionString = new(() =>
+        private protected readonly Lazy<string> _versionString = new(() =>
         {
             var a = typeof(DiscordShardedClient).GetTypeInfo().Assembly;
 
@@ -354,7 +355,7 @@ namespace DSharpPlus
 
         #region Private Connection Methods
 
-        private async Task ConnectShardAsync(int i)
+        private protected async Task ConnectShardAsync(int i)
         {
             if (!this._shards.TryGetValue(i, out var client))
                 throw new Exception($"Could not initialize shard {i}.");
@@ -433,7 +434,7 @@ namespace DSharpPlus
 
         #region Event Handler Initialization/Registering
 
-        private void InternalSetup()
+        private protected void InternalSetup()
         {
             this._clientErrored = new AsyncEvent<DiscordClient, ClientErrorEventArgs>("CLIENT_ERRORED", DiscordClient.EventExecutionLimit, this.Goof);
             this._socketErrored = new AsyncEvent<DiscordClient, SocketErrorEventArgs>("SOCKET_ERRORED", DiscordClient.EventExecutionLimit, this.Goof);
@@ -545,7 +546,7 @@ namespace DSharpPlus
             client.ApplicationCommandDeleted += this.Client_ApplicationCommandDeleted;
         }
 
-        private void UnhookEventHandlers(DiscordClient client)
+        private protected void UnhookEventHandlers(DiscordClient client)
         {
             client.ClientErrored -= this.Client_ClientError;
             client.SocketErrored -= this.Client_SocketError;
