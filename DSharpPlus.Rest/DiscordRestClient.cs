@@ -317,12 +317,14 @@ namespace DSharpPlus
         /// <param name="channel_id">Channel id</param>
         /// <param name="position">Channel position</param>
         /// <param name="reason">Reason this position was modified</param>
+        /// <param name="lockPermissions">Whether to sync channel permissions with the parent, if moving to a new category.</param>
+        /// <param name="parentId">The new parent id if the channel is to be moved to a new category.</param>
         /// <returns></returns>
-        public Task UpdateChannelPositionAsync(ulong guild_id, ulong channel_id, int position, string reason)
+        public Task UpdateChannelPositionAsync(ulong guild_id, ulong channel_id, int position, string reason, bool? lockPermissions = null, ulong? parentId = null)
         {
             var rgcrps = new List<RestGuildChannelReorderPayload>()
             {
-                new RestGuildChannelReorderPayload { ChannelId = channel_id, Position = position }
+                new RestGuildChannelReorderPayload { ChannelId = channel_id, Position = position, LockPermissions = lockPermissions, ParentId = parentId }
             };
             return this.ApiClient.ModifyGuildChannelPositionAsync(guild_id, rgcrps, reason);
         }

@@ -113,7 +113,7 @@ namespace DSharpPlus
                 this._manuallySharding = true;
 
             this.Configuration = config;
-            this.ShardClients = new ReadOnlyConcurrentDictionary<int, DiscordClient>(this._shards);
+            this.ShardClients = this._shards;
 
             if (this.Configuration.LoggerFactory == null)
             {
