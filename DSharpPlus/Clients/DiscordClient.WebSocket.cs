@@ -28,6 +28,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.WebSocket;
 using Microsoft.Extensions.Logging;
@@ -75,6 +76,7 @@ namespace DSharpPlus
             return Task.CompletedTask;
         }
 
+        /* GATEWAY VERSION IS IN THIS METHOD!! If you need to update the Gateway Version, look for gwuri ~Velvet */
         internal async Task InternalConnectAsync()
         {
             SocketLock socketLock = null;
