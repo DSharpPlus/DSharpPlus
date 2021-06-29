@@ -349,17 +349,17 @@ namespace DSharpPlus
                 #region Thread
 
                 case "thread_create":
-                    trd = dat.ToObject<DiscordThreadChannel>();
+                    trd = dat.ToDiscordObject<DiscordThreadChannel>();
                     await this.OnThreadCreateEventAsync(trd).ConfigureAwait(false);
                     break;
 
                 case "thread_update":
-                    trd = dat.ToObject<DiscordThreadChannel>();
+                    trd = dat.ToDiscordObject<DiscordThreadChannel>();
                     await this.OnThreadUpdateEventAsync(trd).ConfigureAwait(false);
                     break;
 
                 case "thread_delete":
-                    trd = dat.ToObject<DiscordThreadChannel>();
+                    trd = dat.ToDiscordObject<DiscordThreadChannel>();
                     await this.OnThreadDeleteEventAsync(trd).ConfigureAwait(false);
                     break;
 
