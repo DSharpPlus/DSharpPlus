@@ -63,12 +63,10 @@ namespace DSharpPlus
         /// </summary>
         Store = 6,
 
-        /* Type 10, 11, and 12 channels are only available in API v9
         /// <summary>
         /// Indicates that this is a thread within a news channel.
         /// </summary>
         NewsThread = 10,
-
         
         /// <summary>
         /// Indicates that this is a public thread within a channel.
@@ -78,7 +76,7 @@ namespace DSharpPlus
         /// <summary>
         /// Indicates that this is a private thread within a channel.
         /// </summary>
-        PrivateThread = 12,*/
+        PrivateThread = 12,
 
         /// <summary>
         /// Indicates that this is a stage channel.

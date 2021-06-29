@@ -516,6 +516,8 @@ namespace DSharpPlus
 
                 if (guild._channels == null)
                     guild._channels = new ConcurrentDictionary<ulong, DiscordChannel>();
+                if (guild._threads == null)
+                    guild._threads = new ConcurrentDictionary<ulong, DiscordThreadChannel>();
 
                 foreach (var xc in guild.Channels.Values)
                 {
@@ -526,6 +528,11 @@ namespace DSharpPlus
                         xo.Discord = this;
                         xo._channel_id = xc.Id;
                     }
+                }
+                foreach (var xc in guild.Threads.Values)
+                {
+                    xc.GuildId = guild.Id;
+                    xc.Discord = this;
                 }
 
                 if (guild._roles == null)

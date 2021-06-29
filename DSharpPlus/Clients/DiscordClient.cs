@@ -887,6 +887,15 @@ namespace DSharpPlus
                     guild._channels[channel.Id] = channel;
                 }
             }
+            if (newGuild._threads != null && newGuild._threads.Count > 0)
+            {
+                foreach (var thread in newGuild._threads.Values)
+                {
+                    if (guild._threads.TryGetValue(thread.Id, out _)) continue;
+
+                    guild._threads[thread.Id] = thread;
+                }
+            }
 
             foreach (var newEmoji in newGuild._emojis.Values)
                 _ = guild._emojis.GetOrAdd(newEmoji.Id, _ => newEmoji);
