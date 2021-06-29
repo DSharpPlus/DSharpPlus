@@ -237,7 +237,7 @@ namespace DSharpPlus
 
         #region Internal Methods
 
-        internal async Task<int> InitializeShardsAsync()
+        internal virtual async Task<int> InitializeShardsAsync()
         {
             if (this._shards.Count != 0)
                 return this._shards.Count;

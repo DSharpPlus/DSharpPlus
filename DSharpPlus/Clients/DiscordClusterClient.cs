@@ -143,7 +143,7 @@ namespace DSharpPlus
             return Task.CompletedTask;
         }
 
-        private async Task<int> InitializeShardsAsync()
+        internal override async Task<int> InitializeShardsAsync()
         {
             if (this._shards.Count != 0)
                 return this._shards.Count;
