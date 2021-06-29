@@ -374,11 +374,11 @@ namespace DSharpPlus.Entities
         /// Gets a dictionary of all the active threads associated with this guild the user has permission to view. The dictionary's key is the channel ID.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyDictionary<ulong, DiscordThreadChannel> Threads => new ReadOnlyConcurrentDictionary<ulong, DiscordThreadChannel>(this._threads);
+        public IReadOnlyDictionary<ulong, DiscordThreadChannel> Threads { get; internal set; }
 
         [JsonProperty("threads", NullValueHandling = NullValueHandling.Ignore)]
         [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
-        internal ConcurrentDictionary<ulong, DiscordThreadChannel> _threads;
+        internal ConcurrentDictionary<ulong, DiscordThreadChannel> _threads = new();
 
         internal ConcurrentDictionary<string, DiscordInvite> _invites;
 

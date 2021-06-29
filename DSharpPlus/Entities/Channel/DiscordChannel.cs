@@ -92,6 +92,13 @@ namespace DSharpPlus.Entities
             => this.Type == ChannelType.Category;
 
         /// <summary>
+        /// Gets whether this channel is a thread.
+        /// </summary>
+        [JsonIgnore]
+        public bool IsThread
+            => this.Type == ChannelType.PrivateThread || this.Type == ChannelType.PublicThread || this.Type == ChannelType.NewsThread;
+
+        /// <summary>
         /// Gets the guild to which this channel belongs.
         /// </summary>
         [JsonIgnore]
@@ -176,6 +183,20 @@ namespace DSharpPlus.Entities
                 return !this.IsCategory
                     ? throw new ArgumentException("Only channel categories contain children.")
                     : this.Guild._channels.Values.Where(e => e.ParentId == this.Id);
+            }
+        }
+
+        /// <summary>
+        /// Gets this channel's threads. This applies only to text and news channels.
+        /// </summary>
+        [JsonIgnore]
+        public IEnumerable<DiscordThreadChannel> Threads
+        {
+            get
+            {
+                return !(this.Type == ChannelType.Text || this.Type == ChannelType.News)
+                    ? throw new ArgumentException("Only text channels can have threads.")
+                    : this.Guild._threads.Values.Where(e => e.ParentId == this.Id);
             }
         }
 
