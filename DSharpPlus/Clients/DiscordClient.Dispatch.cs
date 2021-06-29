@@ -1829,35 +1829,35 @@ namespace DSharpPlus
             thread.Discord = this;
             var guild = thread.Guild;
 
-            var threadNew = this.InternalGetCachedThread(thread.Id);
+            var cthread = this.InternalGetCachedThread(thread.Id);
             DiscordThreadChannel threadOld = null;
 
-            if (threadNew != null)
+            if (cthread != null)
             {
                 threadOld = new DiscordThreadChannel
                 {
-                    GuildId = threadNew.GuildId,
-                    OwnerId = threadNew.OwnerId,
-                    ParentId = threadNew.ParentId,
-                    Name = threadNew.Name,
-                    Type = threadNew.Type,
-                    LastMessageId = threadNew.LastMessageId,
+                    GuildId = cthread.GuildId,
+                    OwnerId = cthread.OwnerId,
+                    ParentId = cthread.ParentId,
+                    Name = cthread.Name,
+                    Type = cthread.Type,
+                    LastMessageId = cthread.LastMessageId,
                     //PerUserRateLimit?
                     //LastPinTimestamp?
-                    ThreadMetadata = threadNew.ThreadMetadata,
+                    ThreadMetadata = cthread.ThreadMetadata,
                     //_threadMembers = threadNew._threadMembers,
                 };
 
-                threadNew.Name = thread.Name;
-                threadNew.LastMessageId = thread.LastMessageId;
-                threadNew.ThreadMetadata = thread.ThreadMetadata;
+                cthread.Name = thread.Name;
+                cthread.LastMessageId = thread.LastMessageId;
+                cthread.ThreadMetadata = thread.ThreadMetadata;
             }
             else if (guild != null)
             {
                 guild._threads[thread.Id] = thread;
             }
 
-            await this._threadUpdated.InvokeAsync(this, new ThreadUpdateEventArgs { ThreadAfter = threadNew, ThreadBefore = threadOld, Guild = thread.Guild, Parent = thread.Parent }).ConfigureAwait(false);
+            await this._threadUpdated.InvokeAsync(this, new ThreadUpdateEventArgs { ThreadAfter = cthread, ThreadBefore = threadOld, Guild = thread.Guild, Parent = thread.Parent }).ConfigureAwait(false);
         }
 
         internal async Task OnThreadDeleteEventAsync(DiscordThreadChannel thread)
