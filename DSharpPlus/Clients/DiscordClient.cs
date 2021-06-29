@@ -146,8 +146,8 @@ namespace DSharpPlus
 
             this.InternalSetup();
 
-            this.Guilds = new ConcurrentDictionary<ulong, DiscordGuild>(this._guilds);
-            this.PrivateChannels = new ConcurrentDictionary<ulong, DiscordDmChannel>(this._privateChannels);
+            this.Guilds = this._guilds;
+            this.PrivateChannels = this._privateChannels;
         }
 
         internal void InternalSetup()
