@@ -91,6 +91,7 @@ namespace DSharpPlus
             }
 
         }
+
         public override Task StopAsync() =>
             this.StopInternal(false);
 
@@ -105,13 +106,14 @@ namespace DSharpPlus
                 this._manuallySharding = true;
 
             this.Configuration = config;
-            this.ShardClients = new ConcurrentDictionary<int, DiscordClient>(this._shards);
+            this.ShardClients = this._shards;
 
             if (this.Configuration.LoggerFactory == null)
             {
                 this.Configuration.LoggerFactory = new DefaultLoggerFactory();
                 this.Configuration.LoggerFactory.AddProvider(new DefaultLoggerProvider(this.Configuration.MinimumLogLevel, this.Configuration.LogTimestampFormat));
             }
+            base.Logger = this.Configuration.LoggerFactory.CreateLogger<BaseDiscordClient>();
             this.Logger = this.Configuration.LoggerFactory.CreateLogger<DiscordClusterClient>();
         }
 
