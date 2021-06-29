@@ -76,32 +76,32 @@ namespace DSharpPlus.Entities
         public DiscordGuild Target { get; internal set; }
 
         /// <summary>
-        /// Gets the the description of guild name's change.
+        /// Gets the description of guild name's change.
         /// </summary>
         public PropertyChange<string> NameChange { get; internal set; }
 
         /// <summary>
-        /// Gets the the description of owner's change.
+        /// Gets the description of owner's change.
         /// </summary>
         public PropertyChange<DiscordMember> OwnerChange { get; internal set; }
 
         /// <summary>
-        /// Gets the the description of icon's change.
+        /// Gets the description of icon's change.
         /// </summary>
         public PropertyChange<string> IconChange { get; internal set; }
 
         /// <summary>
-        /// Gets the the description of verification level's change.
+        /// Gets the description of verification level's change.
         /// </summary>
         public PropertyChange<VerificationLevel> VerificationLevelChange { get; internal set; }
 
         /// <summary>
-        /// Gets the the description of afk channel's change.
+        /// Gets the description of afk channel's change.
         /// </summary>
         public PropertyChange<DiscordChannel> AfkChannelChange { get; internal set; }
 
         /// <summary>
-        /// Gets the the description of widget channel's change.
+        /// Gets the description of widget channel's change.
         /// </summary>
         public PropertyChange<DiscordChannel> EmbedChannelChange { get; internal set; }
 

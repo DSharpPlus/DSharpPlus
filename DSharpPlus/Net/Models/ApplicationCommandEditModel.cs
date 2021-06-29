@@ -63,5 +63,10 @@ namespace DSharpPlus.Net.Models
         /// Sets the command's new options.
         /// </summary>
         public Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> Options { internal get; set; }
+
+        /// <summary>
+        /// Sets whether the command is enabled by default when the application is added to a guild.
+        /// </summary>
+        public Optional<bool?> DefaultPermission { internal get; set; }
     }
 }

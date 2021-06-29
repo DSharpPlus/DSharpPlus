@@ -20,30 +20,12 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-using DSharpPlus.Net.Serialization;
-using Newtonsoft.Json;
 
-namespace DSharpPlus.Entities
+namespace DSharpPlus
 {
-    /// <summary>
-    /// A component to attach to a message.
-    /// </summary>
-    [JsonConverter(typeof(DiscordComponentJsonConverter))]
-    public class DiscordComponent
+    public enum ApplicationCommandPermissionType
     {
-        /// <summary>
-        /// The type of component this represents.
-        /// </summary>
-        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-        public ComponentType Type { get; internal set; }
-
-        /// <summary>
-        /// The Id of this component, if applicable. Not applicable on ActionRow(s) and link buttons.
-        /// </summary>
-        [JsonProperty("custom_id", NullValueHandling = NullValueHandling.Ignore)]
-        public string CustomId { get; internal set; }
-
-        internal DiscordComponent() { }
-
+        Role = 1,
+        User
     }
 }

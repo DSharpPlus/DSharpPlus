@@ -248,7 +248,7 @@ namespace DSharpPlus.Entities
         {
             return this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News
                 ? throw new ArgumentException("Cannot send a text message to a non-text channel.")
-                : this.Discord.ApiClient.CreateMessageAsync(this.Id, null, embed, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
+                : this.Discord.ApiClient.CreateMessageAsync(this.Id, null, new[] {embed}, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
         }
 
         /// <summary>
@@ -265,7 +265,7 @@ namespace DSharpPlus.Entities
         {
             return this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News
                 ? throw new ArgumentException("Cannot send a text message to a non-text channel.")
-                : this.Discord.ApiClient.CreateMessageAsync(this.Id, content, embed, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
+                : this.Discord.ApiClient.CreateMessageAsync(this.Id, content, new[] {embed}, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
         }
 
         /// <summary>
@@ -389,12 +389,14 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="position">Position the channel should be moved to.</param>
         /// <param name="reason">Reason for audit logs.</param>
+        /// <param name="lockPermissions">Whether to sync channel permissions with the parent, if moving to a new category.</param>
+        /// <param name="parentId">The new parent id if the channel is to be moved to a new category.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task ModifyPositionAsync(int position, string reason = null)
+        public Task ModifyPositionAsync(int position, string reason = null, bool? lockPermissions = null, ulong? parentId = null)
         {
             if (this.Guild == null)
                 throw new InvalidOperationException("Cannot modify order of non-guild channels.");
@@ -409,16 +411,18 @@ namespace DSharpPlus.Entities
                 };
 
                 pmds[i].Position = chns[i].Id == this.Id ? position : chns[i].Position >= position ? chns[i].Position + 1 : chns[i].Position;
+                pmds[i].LockPermissions = chns[i].Id == this.Id ? lockPermissions : null;
+                pmds[i].ParentId = chns[i].Id == this.Id ? parentId : null;
             }
 
             return this.Discord.ApiClient.ModifyGuildChannelPositionAsync(this.Guild.Id, pmds, reason);
         }
 
-        /// <summary>  
+        /// <summary>
         /// Returns a list of messages before a certain message.
         /// <param name="limit">The amount of messages to fetch.</param>
         /// <param name="before">Message to fetch before from.</param>
-        /// </summary> 
+        /// </summary>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.AccessChannels"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
@@ -426,11 +430,11 @@ namespace DSharpPlus.Entities
         public Task<IReadOnlyList<DiscordMessage>> GetMessagesBeforeAsync(ulong before, int limit = 100)
             => this.GetMessagesInternalAsync(limit, before, null, null);
 
-        /// <summary>  
+        /// <summary>
         /// Returns a list of messages after a certain message.
         /// <param name="limit">The amount of messages to fetch.</param>
         /// <param name="after">Message to fetch after from.</param>
-        /// </summary> 
+        /// </summary>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.AccessChannels"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
@@ -438,11 +442,11 @@ namespace DSharpPlus.Entities
         public Task<IReadOnlyList<DiscordMessage>> GetMessagesAfterAsync(ulong after, int limit = 100)
             => this.GetMessagesInternalAsync(limit, null, after, null);
 
-        /// <summary>  
+        /// <summary>
         /// Returns a list of messages around a certain message.
         /// <param name="limit">The amount of messages to fetch.</param>
         /// <param name="around">Message to fetch around from.</param>
-        /// </summary> 
+        /// </summary>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.AccessChannels"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
@@ -450,10 +454,10 @@ namespace DSharpPlus.Entities
         public Task<IReadOnlyList<DiscordMessage>> GetMessagesAroundAsync(ulong around, int limit = 100)
             => this.GetMessagesInternalAsync(limit, null, null, around);
 
-        /// <summary>  
+        /// <summary>
         /// Returns a list of messages from the last message in the channel.
         /// <param name="limit">The amount of messages to fetch.</param>
-        /// </summary> 
+        /// </summary>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.AccessChannels"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
@@ -681,7 +685,7 @@ namespace DSharpPlus.Entities
         public async Task PlaceMemberAsync(DiscordMember member)
         {
             if (this.Type != ChannelType.Voice && this.Type != ChannelType.Stage)
-                throw new ArgumentException("Cannot place a member in a non-voice channel!"); // be a little more angery, let em learn!!1
+                throw new ArgumentException("Cannot place a member in a non-voice channel!"); // be a little more angry, let em learn!!1
 
             await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, member.Id, default, default, default,
                 default, this.Id, null).ConfigureAwait(false);
@@ -706,7 +710,7 @@ namespace DSharpPlus.Entities
         /// <param name="message">Message to publish</param>
         /// <exception cref="ArgumentException">Thrown when the message has already been crossposted</exception>
         /// <exception cref="UnauthorizedException">
-        ///     Thrown when the current user doesn't have <see cref="Permissions.ManageWebhooks"/> and/or <see cref="Permissions.SendMessages"/> 
+        ///     Thrown when the current user doesn't have <see cref="Permissions.ManageWebhooks"/> and/or <see cref="Permissions.SendMessages"/>
         /// </exception>
         public Task<DiscordMessage> CrosspostMessageAsync(DiscordMessage message)
         {
@@ -736,7 +740,7 @@ namespace DSharpPlus.Entities
         /// <returns>Calculated permissions for a given member.</returns>
         public Permissions PermissionsFor(DiscordMember mbr)
         {
-            // future note: might be able to simplify @everyone role checks to just check any role ... but i'm not sure
+            // future note: might be able to simplify @everyone role checks to just check any role ... but I'm not sure
             // xoxo, ~uwx
             //
             // you should use a single tilde

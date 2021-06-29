@@ -20,30 +20,28 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-using DSharpPlus.Net.Serialization;
-using Newtonsoft.Json;
-
-namespace DSharpPlus.Entities
+namespace DSharpPlus
 {
     /// <summary>
-    /// A component to attach to a message.
+    /// Represents a button's style/color.
     /// </summary>
-    [JsonConverter(typeof(DiscordComponentJsonConverter))]
-    public class DiscordComponent
+    public enum ButtonStyle : int
     {
         /// <summary>
-        /// The type of component this represents.
+        /// Blurple button.
         /// </summary>
-        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-        public ComponentType Type { get; internal set; }
-
+        Primary = 1,
         /// <summary>
-        /// The Id of this component, if applicable. Not applicable on ActionRow(s) and link buttons.
+        /// Grey button.
         /// </summary>
-        [JsonProperty("custom_id", NullValueHandling = NullValueHandling.Ignore)]
-        public string CustomId { get; internal set; }
-
-        internal DiscordComponent() { }
-
+        Secondary = 2,
+        /// <summary>
+        /// Green button.
+        /// </summary>
+        Success  = 3,
+        /// <summary>
+        /// Red button.
+        /// </summary>
+        Danger = 4,
     }
 }

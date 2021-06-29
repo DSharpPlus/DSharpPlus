@@ -53,7 +53,7 @@ namespace DSharpPlus
         {
             if (payload.Data is not JObject dat)
             {
-                this.Logger.LogWarning(LoggerEvents.WebSocketReceive, "Invalid payload body (this message is probaby safe to ignore); opcode: {0} event: {1}; payload: {2}", payload.OpCode, payload.EventName, payload.Data);
+                this.Logger.LogWarning(LoggerEvents.WebSocketReceive, "Invalid payload body (this message is probably safe to ignore); opcode: {0} event: {1}; payload: {2}", payload.OpCode, payload.EventName, payload.Data);
                 return;
             }
 
@@ -908,7 +908,7 @@ namespace DSharpPlus
 
         internal async Task OnGuildEmojisUpdateEventAsync(DiscordGuild guild, IEnumerable<DiscordEmoji> newEmojis)
         {
-            var oldEmojis = new ConcurrentDictionary<ulong, DiscordEmoji>(guild._emojis);
+            var oldEmojis = new ReadOnlyDictionary<ulong, DiscordEmoji>(guild._emojis);
             guild._emojis.Clear();
 
             foreach (var emoji in newEmojis)
@@ -921,7 +921,7 @@ namespace DSharpPlus
             {
                 Guild = guild,
                 EmojisAfter = guild.Emojis,
-                EmojisBefore = new ReadOnlyConcurrentDictionary<ulong, DiscordEmoji>(oldEmojis)
+                EmojisBefore = oldEmojis
             };
             await this._guildEmojisUpdated.InvokeAsync(this, ea).ConfigureAwait(false);
         }
@@ -1197,7 +1197,7 @@ namespace DSharpPlus
         internal async Task OnGuildRoleDeleteEventAsync(ulong roleId, DiscordGuild guild)
         {
             if (!guild._roles.TryRemove(roleId, out var role))
-                throw new InvalidOperationException("Attempted to delete a nonexistent role.");
+                this.Logger.LogWarning($"Attempted to delete a nonexistent role ({roleId}) from guild ({guild}).");
 
             var ea = new GuildRoleDeleteEventArgs
             {
@@ -1901,6 +1901,7 @@ namespace DSharpPlus
             {
 
                 interaction.Message.Discord = this;
+                interaction.Message.ChannelId = interaction.ChannelId;
                 var cea = new ComponentInteractionCreateEventArgs
                 {
                     Message = interaction.Message,

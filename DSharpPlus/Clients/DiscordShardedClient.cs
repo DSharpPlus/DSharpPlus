@@ -198,7 +198,7 @@ namespace DSharpPlus
         /// <returns>The found <see cref="DiscordClient"/> shard. Otherwise <see langword="null"/> if the shard was not found for the guild ID.</returns>
         public DiscordClient GetShard(ulong guildId)
         {
-            var index = this._manuallySharding ? this.getShardIdFromGuilds(guildId) : Utilities.GetShardId(guildId, this.ShardClients.Count);
+            var index = this._manuallySharding ? this.GetShardIdFromGuilds(guildId) : Utilities.GetShardId(guildId, this.ShardClients.Count);
 
             return index != -1 ? this._shards[index] : null;
         }
@@ -599,7 +599,7 @@ namespace DSharpPlus
             client.ApplicationCommandDeleted -= this.Client_ApplicationCommandDeleted;
         }
 
-        private int getShardIdFromGuilds(ulong id)
+        private int GetShardIdFromGuilds(ulong id)
         {
             foreach (var s in this._shards.Values)
             {

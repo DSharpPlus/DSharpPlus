@@ -41,7 +41,7 @@ namespace DSharpPlus
         /// </summary>
         Safe = 2,
         /// <summary>
-        /// Indicates a server's conent is age-gated.
+        /// Indicates a server's content is age-gated.
         /// </summary>
         Age_Restricted = 3
     }

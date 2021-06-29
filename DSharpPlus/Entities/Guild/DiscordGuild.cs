@@ -30,6 +30,8 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using DSharpPlus.EventArgs;
+using DSharpPlus.Exceptions;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Models;
 using DSharpPlus.Net.Serialization;
@@ -241,21 +243,21 @@ namespace DSharpPlus.Entities
         /// Gets a collection of this guild's roles.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyDictionary<ulong, DiscordRole> Roles => new ReadOnlyConcurrentDictionary<ulong, DiscordRole>(this._roles);
+        public IReadOnlyDictionary<ulong, DiscordRole> Roles { get; internal set; }
 
         [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
         [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
-        internal ConcurrentDictionary<ulong, DiscordRole> _roles;
+        internal ConcurrentDictionary<ulong, DiscordRole> _roles = new();
 
         /// <summary>
         /// Gets a collection of this guild's emojis.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyDictionary<ulong, DiscordEmoji> Emojis => new ReadOnlyConcurrentDictionary<ulong, DiscordEmoji>(this._emojis);
+        public IReadOnlyDictionary<ulong, DiscordEmoji> Emojis { get; internal set; }
 
         [JsonProperty("emojis", NullValueHandling = NullValueHandling.Ignore)]
         [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
-        internal ConcurrentDictionary<ulong, DiscordEmoji> _emojis;
+        internal ConcurrentDictionary<ulong, DiscordEmoji> _emojis = new();
 
         /// <summary>
         /// Gets a collection of this guild's features.
@@ -330,31 +332,31 @@ namespace DSharpPlus.Entities
         /// the voice state corresponds to.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyDictionary<ulong, DiscordVoiceState> VoiceStates => new ReadOnlyConcurrentDictionary<ulong, DiscordVoiceState>(this._voiceStates);
+        public IReadOnlyDictionary<ulong, DiscordVoiceState> VoiceStates { get; internal set; }
 
         [JsonProperty("voice_states", NullValueHandling = NullValueHandling.Ignore)]
         [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
-        internal ConcurrentDictionary<ulong, DiscordVoiceState> _voiceStates;
+        internal ConcurrentDictionary<ulong, DiscordVoiceState> _voiceStates = new();
 
         /// <summary>
         /// Gets a dictionary of all the members that belong to this guild. The dictionary's key is the member ID.
         /// </summary>
         [JsonIgnore] // TODO overhead of => vs Lazy? it's a struct
-        public IReadOnlyDictionary<ulong, DiscordMember> Members => new ReadOnlyConcurrentDictionary<ulong, DiscordMember>(this._members);
+        public IReadOnlyDictionary<ulong, DiscordMember> Members { get; internal set; }
 
         [JsonProperty("members", NullValueHandling = NullValueHandling.Ignore)]
         [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
-        internal ConcurrentDictionary<ulong, DiscordMember> _members;
+        internal ConcurrentDictionary<ulong, DiscordMember> _members = new();
 
         /// <summary>
         /// Gets a dictionary of all the channels associated with this guild. The dictionary's key is the channel ID.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyDictionary<ulong, DiscordChannel> Channels => new ReadOnlyConcurrentDictionary<ulong, DiscordChannel>(this._channels);
+        public IReadOnlyDictionary<ulong, DiscordChannel> Channels { get; internal set; }
 
         [JsonProperty("channels", NullValueHandling = NullValueHandling.Ignore)]
         [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
-        internal ConcurrentDictionary<ulong, DiscordChannel> _channels;
+        internal ConcurrentDictionary<ulong, DiscordChannel> _channels = new();
 
         internal ConcurrentDictionary<string, DiscordInvite> _invites;
 
@@ -447,6 +449,12 @@ namespace DSharpPlus.Entities
 
         internal DiscordGuild()
         {
+            this.Roles = new ReadOnlyConcurrentDictionary<ulong, DiscordRole>(this._roles);
+            this.Emojis = new ReadOnlyConcurrentDictionary<ulong, DiscordEmoji>(this._emojis);
+            this.VoiceStates = new ReadOnlyConcurrentDictionary<ulong, DiscordVoiceState>(this._voiceStates);
+            this.Members = new ReadOnlyConcurrentDictionary<ulong, DiscordMember>(this._members);
+            this.Channels = new ReadOnlyConcurrentDictionary<ulong, DiscordChannel>(this._channels);
+
             this._current_member_lazy = new Lazy<DiscordMember>(() => (this._members != null && this._members.TryGetValue(this.Discord.CurrentUser.Id, out var member)) ? member : null);
             this._invites = new ConcurrentDictionary<string, DiscordInvite>();
         }
@@ -459,21 +467,15 @@ namespace DSharpPlus.Entities
         /// <param name="name">The name to search for.</param>
         /// <param name="limit">The maximum amount of members to return. Max 1000. Defaults to 1.</param>
         /// <returns>The members found, if any.</returns>
-        public async Task<IReadOnlyList<DiscordMember>> SearchMembersAsync(string name, int? limit = 1)
-        {
-            var tms = await this.Discord.ApiClient.SearchMembersAsync(this.Id, name, limit).ConfigureAwait(false);
-
-            var mbrs = tms.Select(tm => new DiscordMember(tm) { Discord = this.Discord, _guild_id = this.Id });
-
-            return mbrs.ToArray();
-        }
+        public Task<IReadOnlyList<DiscordMember>> SearchMembersAsync(string name, int? limit = 1)
+            => this.Discord.ApiClient.SearchMembersAsync(this.Id, name, limit);
 
         /// <summary>
         /// Adds a new member to this guild
         /// </summary>
         /// <param name="user">User to add</param>
         /// <param name="access_token">User's access token (OAuth2)</param>
-        /// <param name="nickname">new nickame</param>
+        /// <param name="nickname">new nickname</param>
         /// <param name="roles">new roles</param>
         /// <param name="muted">whether this user has to be muted</param>
         /// <param name="deaf">whether this user has to be deafened</param>
@@ -601,6 +603,24 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<IReadOnlyList<DiscordBan>> GetBansAsync()
             => this.Discord.ApiClient.GetGuildBansAsync(this.Id);
+
+        /// <summary>
+        /// Gets a ban for a specific user.
+        /// </summary>
+        /// <param name="userId">The Id of the user to get the ban for.</param>
+        /// <exception cref="NotFoundException">Thrown when the specified user is not banned.</exception>
+        /// <returns>The requested ban object.</returns>
+        public Task<DiscordBan> GetBanAsync(ulong userId)
+            => this.Discord.ApiClient.GetGuildBanAsync(this.Id, userId);
+
+        /// <summary>
+        /// Gets a ban for a specific user.
+        /// </summary>
+        /// <param name="user">The user to get the ban for.</param>
+        /// <exception cref="NotFoundException">Thrown when the specified user is not banned.</exception>
+        /// <returns>The requested ban object.</returns>
+        public Task<DiscordBan> GetBanAsync(DiscordUser user)
+            => this.GetBanAsync(user.Id);
 
         /// <summary>
         /// Creates a new text channel in this guild.
@@ -971,7 +991,7 @@ namespace DSharpPlus.Entities
         /// <param name="query">Filters the returned members based on what the username starts with. Either this or <paramref name="userIds"/> must not be null.
         /// The <paramref name="limit"/> must also be greater than 0 if this is specified.</param>
         /// <param name="limit">Total number of members to request. This must be greater than 0 if <paramref name="query"/> is specified.</param>
-        /// <param name="presences">Whether to include the <see cref="EventArgs.GuildMembersChunkEventArgs.Presences"/> associated with the fetched members.</param>
+        /// <param name="presences">Whether to include the <see cref="GuildMembersChunkEventArgs.Presences"/> associated with the fetched members.</param>
         /// <param name="userIds">Whether to limit the request to the specified user ids. Either this or <paramref name="query"/> must not be null.</param>
         /// <param name="nonce">The unique string to identify the response.</param>
         public async Task RequestMembersAsync(string query = "", int limit = 0, bool? presences = null, IEnumerable<ulong> userIds = null, string nonce = null)
@@ -2141,7 +2161,7 @@ namespace DSharpPlus.Entities
         {
             var mdl = new ApplicationCommandEditModel();
             action(mdl);
-            return await this.Discord.ApiClient.EditGuildApplicationCommandAsync(this.Discord.CurrentApplication.Id, this.Id, commandId, mdl.Name, mdl.Description, mdl.Options);
+            return await this.Discord.ApiClient.EditGuildApplicationCommandAsync(this.Discord.CurrentApplication.Id, this.Id, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission);
         }
 
         /// <summary>
@@ -2165,6 +2185,38 @@ namespace DSharpPlus.Entities
             action(mdl);
             return await this.Discord.ApiClient.ModifyGuildWelcomeScreenAsync(this.Id, mdl.Enabled, mdl.WelcomeChannels, mdl.Description);
         }
+
+        /// <summary>
+        /// Gets all slash command permissions in this guild.
+        /// </summary>
+        /// <returns>A list of permissions.</returns>
+        public Task<IReadOnlyList<DiscordGuildApplicationCommandPermissions>> GetApplicationCommandsPermissionsAsync()
+            => this.Discord.ApiClient.GetGuildApplicationCommandPermissionsAsync(this.Discord.CurrentApplication.Id, this.Id);
+
+        /// <summary>
+        /// Gets permissions for a slash command in this guild.
+        /// </summary>
+        /// <param name="command">The command to get them for.</param>
+        /// <returns>The permissions.</returns>
+        public Task<DiscordGuildApplicationCommandPermissions> GetApplicationCommandPermissionsAsync(DiscordApplicationCommand command)
+            => this.Discord.ApiClient.GetApplicationCommandPermissionsAsync(this.Discord.CurrentApplication.Id, this.Id, command.Id);
+
+        /// <summary>
+        /// Edits permissions for a slash command in this guild.
+        /// </summary>
+        /// <param name="command">The command to edit permissions for.</param>
+        /// <param name="permissions">The list of permissions to use.</param>
+        /// <returns>The edited permissions.</returns>
+        public Task<DiscordGuildApplicationCommandPermissions> EditApplicationCommandPermissionsAsync(DiscordApplicationCommand command, IEnumerable<DiscordApplicationCommandPermission> permissions)
+            => this.Discord.ApiClient.EditApplicationCommandPermissionsAsync(this.Discord.CurrentApplication.Id, this.Id, command.Id, permissions);
+
+        /// <summary>
+        /// Batch edits permissions for a slash command in this guild.
+        /// </summary>
+        /// <param name="permissions">The list of permissions to use.</param>
+        /// <returns>A list of edited permissions.</returns>
+        public Task<IReadOnlyList<DiscordGuildApplicationCommandPermissions>> BatchEditApplicationCommandPermissionsAsync(IEnumerable<DiscordGuildApplicationCommandPermissions> permissions)
+            => this.Discord.ApiClient.BatchEditApplicationCommandPermissionsAsync(this.Discord.CurrentApplication.Id, this.Id, permissions);
         #endregion
 
         /// <summary>

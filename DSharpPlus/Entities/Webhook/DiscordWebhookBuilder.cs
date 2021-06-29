@@ -62,6 +62,7 @@ namespace DSharpPlus.Entities
                 this._content = value;
             }
         }
+
         private string _content;
 
         /// <summary>
@@ -73,17 +74,17 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Files to send on this webhook request.
         /// </summary>
-        public IReadOnlyCollection<DiscordMessageFile> Files => this._files;
+        public IReadOnlyList<DiscordMessageFile> Files => this._files;
         private readonly List<DiscordMessageFile> _files = new();
 
         /// <summary>
         /// Mentions to send on this webhook request.
         /// </summary>
-        public IReadOnlyCollection<IMention> Mentions => this._mentions;
+        public IReadOnlyList<IMention> Mentions => this._mentions;
         private readonly List<IMention> _mentions = new();
 
 
-        public IReadOnlyCollection<DiscordActionRowComponent> Components => this._components;
+        public IReadOnlyList<DiscordActionRowComponent> Components => this._components;
         private readonly List<DiscordActionRowComponent> _components = new();
 
 
