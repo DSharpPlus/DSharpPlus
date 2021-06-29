@@ -26,23 +26,18 @@ using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus
 {
-    internal class ShardedLoggerFactory : ILoggerFactory
+    internal class ShardedLoggerFactory<T> : ILoggerFactory
     {
-        private ILogger<BaseDiscordClient> Logger { get; }
+        private ILogger<T> Logger { get; }
 
-        public ShardedLoggerFactory(ILogger<BaseDiscordClient> instance)
+        public ShardedLoggerFactory(ILogger<T> instance)
         {
             this.Logger = instance;
         }
 
         public void AddProvider(ILoggerProvider provider) => throw new InvalidOperationException("This is a passthrough logger container, it cannot register new providers.");
 
-        public ILogger CreateLogger(string categoryName)
-        {
-            return categoryName != typeof(BaseDiscordClient).FullName
-                ? throw new ArgumentException($"This factory can only provide instances of loggers for {typeof(BaseDiscordClient).FullName}.", nameof(categoryName))
-                : this.Logger;
-        }
+        public ILogger CreateLogger(string categoryName) => this.Logger;
 
         public void Dispose()
         { }

@@ -35,6 +35,11 @@ namespace DSharpPlus
     /// <inheritdoc />
     public sealed class DiscordClusterClient : DiscordShardedClient
     {
+        /// <summary>
+        /// Gets the logger for this client.
+        /// </summary>
+        public new ILogger<DiscordClusterClient> Logger { get; }
+
         public override async Task StartAsync()
         {
             if (this._isStarted)
@@ -107,7 +112,7 @@ namespace DSharpPlus
                 this.Configuration.LoggerFactory = new DefaultLoggerFactory();
                 this.Configuration.LoggerFactory.AddProvider(new DefaultLoggerProvider(this.Configuration.MinimumLogLevel, this.Configuration.LogTimestampFormat));
             }
-            this.Logger = this.Configuration.LoggerFactory.CreateLogger<BaseDiscordClient>();
+            this.Logger = this.Configuration.LoggerFactory.CreateLogger<DiscordClusterClient>();
         }
 
         private Task StopInternal(bool enableLogger)
@@ -151,7 +156,7 @@ namespace DSharpPlus
             this.GatewayInfo = await this.GetGatewayInfoAsync().ConfigureAwait(false);
             var gwShardc = this.Configuration.ShardCount == 1 ? this.GatewayInfo.ShardCount : this.Configuration.ShardCount;
             var shardc = this.Configuration.BootShardCount ?? gwShardc;
-            var lf = new ShardedLoggerFactory(this.Logger);
+            var lf = new ShardedLoggerFactory<DiscordClusterClient>(this.Logger);
             for (var i = 0; i < shardc; i++)
             {
                 var cfg = new DiscordConfiguration(this.Configuration)
