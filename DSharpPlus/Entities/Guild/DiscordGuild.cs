@@ -249,6 +249,18 @@ namespace DSharpPlus.Entities
         [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
         internal ConcurrentDictionary<ulong, DiscordRole> _roles = new();
 
+
+        /// <summary>
+        /// Gets a collection of this guild's stickers.
+        /// </summary>
+        [JsonIgnore]
+        public IReadOnlyDictionary<ulong, DiscordMessageSticker> Stickers { get; internal set; }
+
+        [JsonProperty("stickers", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
+        internal ConcurrentDictionary<ulong, DiscordMessageSticker> _stickers = new();
+
+
         /// <summary>
         /// Gets a collection of this guild's emojis.
         /// </summary>
@@ -451,6 +463,7 @@ namespace DSharpPlus.Entities
         {
             this.Roles = new ReadOnlyConcurrentDictionary<ulong, DiscordRole>(this._roles);
             this.Emojis = new ReadOnlyConcurrentDictionary<ulong, DiscordEmoji>(this._emojis);
+            this.Stickers = new ReadOnlyDictionary<ulong, DiscordMessageSticker>(this._stickers);
             this.VoiceStates = new ReadOnlyConcurrentDictionary<ulong, DiscordVoiceState>(this._voiceStates);
             this.Members = new ReadOnlyConcurrentDictionary<ulong, DiscordMember>(this._members);
             this.Channels = new ReadOnlyConcurrentDictionary<ulong, DiscordChannel>(this._channels);

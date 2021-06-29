@@ -51,6 +51,38 @@ namespace DSharpPlus.Entities
         public string Description { get; internal set; }
 
         /// <summary>
+        /// Gets the type of sticker.
+        /// </summary>
+        [JsonProperty("type")]
+        public StickerType Type { get; internal set; }
+
+        /// <summary>
+        /// For guild stickers, gets the user that made the sticker.
+        /// </summary>
+        [JsonProperty("user")]
+        public DiscordUser User { get; internal set; }
+
+        /// <summary>
+        /// Gets the guild associated with this sticker, if any.
+        /// </summary>
+        public DiscordGuild Guild => (this.Discord as DiscordClient).InternalGetCachedGuild(this.GuildId);
+
+        [JsonProperty("guild_id")]
+        internal ulong? GuildId { get; set; }
+
+        /// <summary>
+        /// Gets whether this sticker is available. Only applicable to guild stickers.
+        /// </summary>
+        [JsonProperty("available")]
+        public bool Available { get; internal set; }
+
+        /// <summary>
+        /// Gets the sticker's sort order, if it's in a pack.
+        /// </summary>
+        [JsonProperty("sort_value")]
+        public int SortVelue { get; internal set; }
+
+        /// <summary>
         /// Gets the list of tags for the sticker.
         /// </summary>
         [JsonIgnore]
@@ -79,6 +111,12 @@ namespace DSharpPlus.Entities
         private string _internalTags { get; set; }
 
         public bool Equals(DiscordMessageSticker other) => this.Id == other.Id;
+    }
+
+    public enum StickerType
+    {
+        Standard = 1,
+        Guild = 2
     }
 
     public enum StickerFormat
