@@ -80,7 +80,7 @@ namespace DSharpPlus.Entities
         /// Gets the sticker's sort order, if it's in a pack.
         /// </summary>
         [JsonProperty("sort_value")]
-        public int SortVelue { get; internal set; }
+        public int SortValue { get; internal set; }
 
         /// <summary>
         /// Gets the list of tags for the sticker.
@@ -111,6 +111,8 @@ namespace DSharpPlus.Entities
         private string _internalTags { get; set; }
 
         public bool Equals(DiscordMessageSticker other) => this.Id == other.Id;
+
+        public override string ToString() => $"Sticker {this.Id}; {this.Name}; {this.FormatType}";
     }
 
     public enum StickerType
