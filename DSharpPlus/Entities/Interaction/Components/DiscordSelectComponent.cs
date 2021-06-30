@@ -68,7 +68,7 @@ namespace DSharpPlus.Entities
             this.Type = ComponentType.Select;
         }
 
-        public DiscordSelectComponent(string customId, IEnumerable<DiscordSelectComponentOption> options, string placeholder = null, int minOptions = 1, int maxOptions = 1)
+        public DiscordSelectComponent(string customId, IEnumerable<DiscordSelectComponentOption> options, string placeholder = null, int minOptions = 1, int maxOptions = 1) : this()
         {
             this.CustomId = customId;
             this.Options = options.ToArray();
