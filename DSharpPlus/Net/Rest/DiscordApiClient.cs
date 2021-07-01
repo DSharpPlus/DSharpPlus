@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -749,6 +750,40 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, payload: DiscordJson.SerializeObject(pld));
         }
+        #endregion
+
+        #region Stickers
+
+        internal async Task<DiscordMessageSticker> GetStickerAsync(ulong sticker_id)
+        {
+            var route = $"{Endpoints.STICKERS}/:sticker_id";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new {sticker_id}, out var path);
+            var url = Utilities.GetApiUriFor(path);
+
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
+            var ret = JObject.Parse(res.Response).ToDiscordObject<DiscordMessageSticker>();
+
+            ret.Discord = this.Discord;
+            return ret;
+        }
+
+        internal async Task<IReadOnlyList<DiscordMessageSticker>> GetStickersAsync(ulong guild_id)
+        {
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.STICKERS}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new {guild_id}, out var path);
+            var url = Utilities.GetApiUriFor(path);
+
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
+            var ret = JObject.Parse(res.Response).ToDiscordObject<IEnumerable<DiscordMessageSticker>>();
+
+            foreach (var stkr in ret)
+                stkr.Discord = this.Discord;
+
+            return ret.ToList();
+        }
+
+        internal async Task<DiscordMessageSticker> CreateGuildSticker() { }
+
         #endregion
 
         #region Channel
@@ -2733,7 +2768,7 @@ namespace DSharpPlus.Net
             foreach (var perm in ret)
                 perm.Discord = this.Discord;
             return ret.ToList();
-        } 
+        }
         #endregion
 
         #region Misc
