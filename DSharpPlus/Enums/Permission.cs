@@ -269,6 +269,12 @@ namespace DSharpPlus
         ManageEmojis = 0x0000000040000000,
 
         /// <summary>
+        /// Allows managing guild stickers.
+        /// </summary>
+        [PermissionString("Manage stickers")]
+        ManageStickers = ManageEmojis,
+
+        /// <summary>
         /// Allows the user to go live.
         /// </summary>
         [PermissionString("Allow stream")]
@@ -285,19 +291,19 @@ namespace DSharpPlus
         /// </summary>
         [PermissionString("Request to speak")]
         RequestToSpeak = 0x0000000100000000,
-        
+
         /// <summary>
         /// Allows for deleting and archiving threads, and viewing all private threads.
         /// </summary>
         [PermissionString("Manage Threads")]
         ManageThreads = 0x0000000400000000,
-        
+
         /// <summary>
         /// Allows for creating and participating in threads.
         /// </summary>
         [PermissionString("Use Public Threads")]
         UsePublicThreads = 0x0000000800000000,
-        
+
         /// <summary>
         /// Allows for creating and participating in private threads.
         /// </summary>
