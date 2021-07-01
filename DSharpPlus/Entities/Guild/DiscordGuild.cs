@@ -479,7 +479,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="stickerId">The Id of the sticker to get.</param>
         /// <returns>The specificed sticker.</returns>
-        public Task<DiscordMessageSticker> GetGuildSticker(ulong stickerId)
+        public Task<DiscordMessageSticker> GetStickerAsync(ulong stickerId)
             => this.Discord.ApiClient.GetGuildStickerAsync(stickerId, this.Id);
 
         /// <summary>
@@ -491,7 +491,7 @@ namespace DSharpPlus.Entities
         /// <param name="format">The file format the sticker is written in.</param>
         /// <param name="file">The sticker.</param>
         /// <returns>The created sticker.</returns>
-        public async Task<DiscordMessageSticker> CreateGuildStickerAsync(string name, string? description, DiscordEmoji emoji, StickerFormat format, Stream file)
+        public async Task<DiscordMessageSticker> CreateStickerAsync(string name, string? description, DiscordEmoji emoji, StickerFormat format, Stream file)
         {
             if (emoji.Id is not 0)
                 throw new InvalidOperationException("Only unicode emoji can be used for stickers.");
@@ -521,7 +521,7 @@ namespace DSharpPlus.Entities
         /// <param name="emoji">The emoji to associate with this sticker.</param>
         /// <returns>The modified sticker.</returns>
         /// <exception cref="InvalidOperationException"></exception>
-        public async Task<DiscordMessageSticker> ModifyGuildStickerAsync(ulong stickerId, string? name, string? description, DiscordEmoji? emoji)
+        public async Task<DiscordMessageSticker> ModifyStickerAsync(ulong stickerId, string? name, string? description, DiscordEmoji? emoji)
         {
             if (emoji?.Id is not null and > 0)
                 throw new InvalidOperationException("Only unicode emojis can be used with stickers.");
@@ -538,7 +538,7 @@ namespace DSharpPlus.Entities
         /// Gets the current guild's stickers.
         /// </summary>
         /// <returns>The stickers on teh current guild, if any.</returns>
-        public async Task<IReadOnlyList<DiscordMessageSticker>> GetGuildStickersAsync()
+        public async Task<IReadOnlyList<DiscordMessageSticker>> GetStickersAsync()
         {
             var stickers = await this.Discord.ApiClient.GetStickersAsync(this.Id);
 
