@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using System.Linq;
 using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus
@@ -30,6 +31,13 @@ namespace DSharpPlus
     {
         private ILogger<T> Logger { get; }
 
+        private readonly string[] _supportedLoggerTypes = new[]
+        {
+            typeof(BaseDiscordClient).FullName,
+            typeof(DiscordWebhookClient).FullName,
+            typeof(DiscordClusterClient).FullName
+        };
+
         public ShardedLoggerFactory(ILogger<T> instance)
         {
             this.Logger = instance;
@@ -37,7 +45,12 @@ namespace DSharpPlus
 
         public void AddProvider(ILoggerProvider provider) => throw new InvalidOperationException("This is a passthrough logger container, it cannot register new providers.");
 
-        public ILogger CreateLogger(string categoryName) => this.Logger;
+        public ILogger CreateLogger(string categoryName)
+        {
+            if (!this._supportedLoggerTypes.Contains(categoryName))
+                throw new ArgumentException($"This factory can only provide instances of loggers for {string.Join(" or ", this._supportedLoggerTypes)}.", nameof(categoryName))
+            return this.Logger;
+        }
 
         public void Dispose()
         { }

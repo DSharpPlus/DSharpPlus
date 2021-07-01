@@ -33,7 +33,7 @@ namespace DSharpPlus
         private List<ILoggerProvider> Providers { get; } = new List<ILoggerProvider>();
         private bool _isDisposed = false;
 
-        private readonly string[] _supoprtedLoggerTypes = new[]
+        private readonly string[] _supportedLoggerTypes = new[]
         {
             typeof(BaseDiscordClient).FullName,
             typeof(DiscordWebhookClient).FullName,
@@ -47,8 +47,8 @@ namespace DSharpPlus
             if (this._isDisposed)
                 throw new InvalidOperationException("This logger factory is already disposed.");
 
-            return !this._supoprtedLoggerTypes.Contains(categoryName)
-                ? throw new ArgumentException($"This factory can only provide instances of loggers for {typeof(BaseDiscordClient).FullName} or {typeof(DiscordWebhookClient).FullName}.", nameof(categoryName))
+            return !this._supportedLoggerTypes.Contains(categoryName)
+                ? throw new ArgumentException($"This factory can only provide instances of loggers for {string.Join(" or ", this._supportedLoggerTypes)}.", nameof(categoryName))
                 : new CompositeDefaultLogger(this.Providers);
         }
 

@@ -107,17 +107,17 @@ namespace DSharpPlus
         /// </summary>
         public int? BootShardCount
         {
-            internal get => this._shardBootCount;
+            internal get => this._bootShardCount;
             set
             {
                 if ((value != null && value > this.ShardCount) || value < 1)
                     throw new ArgumentOutOfRangeException(nameof(value), "Value must be greater than zero and less than or equal to ShardCount.");
 
-                this._shardBootCount = value;
+                this._bootShardCount = value;
             }
         }
 
-        private int? _shardBootCount;
+        private int? _bootShardCount;
 
         /// <summary>
         /// The Id of the cluster. This has no effect in <see cref="DiscordClient"/> or <see cref="DiscordShardedClient"/>.
@@ -129,7 +129,7 @@ namespace DSharpPlus
             get => this._clusterId;
             set
             {
-                if (value * this._shardBootCount >= this.ShardCount)
+                if (value * this._bootShardCount >= this.ShardCount)
                     throw new ArgumentOutOfRangeException(nameof(value), "Value must equate to less than specified shard count");
 
                 if (value < 0)
