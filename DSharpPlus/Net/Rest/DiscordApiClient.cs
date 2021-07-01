@@ -761,8 +761,19 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
 
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
-            var ret = JObject.Parse(res.Response).ToDiscordObject<DiscordMessageSticker>();
+            var json = JObject.Parse(res.Response);
+            var ret = json.ToDiscordObject<DiscordMessageSticker>();
 
+            var tsr = json["user"].ToDiscordObject<TransportUser>();
+            var usr = new DiscordUser(tsr) {Discord = this.Discord};
+            usr = this.Discord.UserCache.AddOrUpdate(tsr.Id, usr, (id, old) =>
+            {
+                old.Username = usr.Username;
+                old.Discriminator = usr.Discriminator;
+                old.AvatarHash = usr.AvatarHash;
+                return old;
+            });
+            ret.User = usr;
             ret.Discord = this.Discord;
             return ret;
         }
