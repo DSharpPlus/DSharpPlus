@@ -1,4 +1,4 @@
-version: 4.1.0-nightly-{build}
+version: 4.1.0-storm-{build}
 pull_requests:
   do_not_increment_build_number: true
 branches:
@@ -13,7 +13,7 @@ build_script:
 - ps: |-
     # Version number
     $BUILD_NUMBER = [int]$Env:APPVEYOR_BUILD_NUMBER
-    $BUILD_SUFFIX = "nightly"
+    $BUILD_SUFFIX = "storm"
 
     # Branch
     $BRANCH = "$Env:APPVEYOR_REPO_BRANCH"

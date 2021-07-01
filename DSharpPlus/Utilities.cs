@@ -47,6 +47,11 @@ namespace DSharpPlus
         private static string VersionHeader { get; set; }
         private static Dictionary<Permissions, string> PermissionStrings { get; set; }
 
+        /// <summary>
+        /// Determins current D#+ version is working on.
+        /// </summary>
+        public static string Version { get; internal set; }
+
         internal static UTF8Encoding UTF8 { get; } = new UTF8Encoding(false);
 
         static Utilities()
@@ -77,7 +82,7 @@ namespace DSharpPlus
                 vs = v.ToString(3);
             }
 
-            VersionHeader = $"DiscordBot (https://github.com/DSharpPlus/DSharpPlus, v{vs})";
+            VersionHeader = $"DiscordBot (https://github.com/DSharpPlus/DSharpPlus, v{(Version = vs)})";
         }
 
         internal static string GetApiBaseUri()
