@@ -754,6 +754,19 @@ namespace DSharpPlus.Net
 
         #region Stickers
 
+        internal async Task<DiscordMessageSticker> GetGuildStickerAsync(ulong sticker_id, ulong guild_id)
+        {
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.STICKERS}/:sticker_id";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new {guild_id, sticker_id}, out var path);
+            var url = Utilities.GetApiUriFor(path);
+
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
+            var ret = JObject.Parse(res.Response).ToDiscordObject<DiscordMessageSticker>();
+
+            ret.Discord = this.Discord;
+            return ret;
+        }
+
         internal async Task<DiscordMessageSticker> GetStickerAsync(ulong sticker_id)
         {
             var route = $"{Endpoints.STICKERS}/:sticker_id";
