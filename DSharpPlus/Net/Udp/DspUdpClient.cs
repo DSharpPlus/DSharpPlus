@@ -75,10 +75,7 @@ namespace DSharpPlus.Net.Udp
         /// Receives a datagram.
         /// </summary>
         /// <returns>The received bytes.</returns>
-        public override Task<byte[]> ReceiveAsync()
-            => this.PacketQueue.Count is 0 ?
-            Task.FromResult(this.PacketQueue.Take(this.Token)) : //Do NOT remove this token or you will deadlock VNext. //
-            Task.Run(() => this.PacketQueue.Take(this.Token), this.Token);
+        public override Task<byte[]> ReceiveAsync() => Task.FromResult(this.PacketQueue.Take(this.Token));
 
 
         /// <summary>
