@@ -30,7 +30,7 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.EventHandling;
 
-namespace DSharpPlus.Interactivity.Extensions
+namespace DSharpPlus.Interactivity
 {
     /// <summary>
     /// Interactivity extension methods for <see cref="DiscordMessage"/>.

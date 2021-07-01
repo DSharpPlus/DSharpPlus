@@ -840,7 +840,7 @@ namespace DSharpPlus.CommandsNext
         /// <param name="value">Value to convert.</param>
         /// <param name="ctx">Context in which to convert to.</param>
         /// <returns>Converted object.</returns>
-        public async Task<object> ConvertArgument<T>(string value, CommandContext ctx)
+        public async Task<object> ConvertArgumentAsync<T>(string value, CommandContext ctx)
         {
             var t = typeof(T);
             if (!this.ArgumentConverters.ContainsKey(t))

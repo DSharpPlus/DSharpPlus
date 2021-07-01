@@ -195,6 +195,14 @@ namespace DSharpPlus.Entities
         public static implicit operator string(DiscordEmoji e1)
             => e1.ToString();
 
+        public static implicit operator DiscordEmoji(string raw)
+        {
+            if (!UnicodeEmojis.TryGetValue(raw, out var entity))
+                throw new InvalidCastException("Invalid emoji name provided.");
+
+            return new DiscordEmoji { Name = entity };
+        }
+
         /// <summary>
         /// Checks whether specified unicode entity is a valid unicode emoji.
         /// </summary>
@@ -296,6 +304,28 @@ namespace DSharpPlus.Entities
 
             emoji = null;
             return false;
+        }
+
+        /// <summary>
+        /// Creates an emoji obejct from emote name that includes colons (eg. :thinking:). This method also supports 
+        /// skin tone variations (eg. :ok_hand::skin-tone-2:), standard emoticons (eg. :D), This method only search for
+        /// default discord emojis, so client is optional.
+        /// </summary>
+        /// <param name="client">Optional <see cref="BaseDiscordClient"/> to attach to the object.</param>
+        /// <param name="name">Name of the emote to find, including colons (eg. :thinking:).</param>
+        /// <returns>Create <see cref="DiscordEmoji"/> object.</returns>
+        public static DiscordEmoji FromName(string name, DiscordClient client = default)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentNullException(nameof(name), "Name cannot be empty or null.");
+
+            if (UnicodeEmojis.TryGetValue(name, out var unicodeEntity))
+                return new DiscordEmoji { Discord = client, Name = unicodeEntity };
+
+            if (client != null)
+                return FromName(client, name, true);
+
+            throw new ArgumentException("Invalid emoji name specified.", nameof(name));
         }
 
         /// <summary>

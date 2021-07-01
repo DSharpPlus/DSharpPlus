@@ -27,7 +27,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace DSharpPlus.Interactivity.Extensions
+namespace DSharpPlus.Interactivity
 {
     /// <summary>
     /// Interactivity extension methods for <see cref="DiscordClient"/> and <see cref="DiscordShardedClient"/>.
