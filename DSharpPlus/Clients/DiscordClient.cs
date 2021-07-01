@@ -346,6 +346,15 @@ namespace DSharpPlus
         #endregion
 
         #region Public REST Methods
+
+        /// <summary>
+        /// Gets a sticker.
+        /// </summary>
+        /// <param name="stickerId">The Id of the sticker.</param>
+        /// <returns>The specified sticker</returns>
+        public Task<DiscordMessageSticker> GetStickerAsync(ulong stickerId)
+            => this.ApiClient.GetStickerAsync(stickerId);
+
         /// <summary>
         /// Gets a user
         /// </summary>
