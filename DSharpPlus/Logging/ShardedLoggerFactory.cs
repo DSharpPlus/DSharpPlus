@@ -48,7 +48,7 @@ namespace DSharpPlus
         public ILogger CreateLogger(string categoryName)
         {
             if (!this._supportedLoggerTypes.Contains(categoryName))
-                throw new ArgumentException($"This factory can only provide instances of loggers for {string.Join(" or ", this._supportedLoggerTypes)}.", nameof(categoryName))
+                throw new ArgumentException($"This factory can only provide instances of loggers for {string.Join(" or ", this._supportedLoggerTypes)}.", nameof(categoryName));
             return this.Logger;
         }
 
