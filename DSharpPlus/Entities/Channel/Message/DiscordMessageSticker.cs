@@ -67,6 +67,8 @@ namespace DSharpPlus.Entities
         /// </summary>
         public DiscordGuild Guild => (this.Discord as DiscordClient).InternalGetCachedGuild(this.GuildId);
 
+        public string StickerUrl => $"https://cdn.discordapp.com/stickers/{this.Id}{this.GetFileTypeExtension()}";
+
         [JsonProperty("guild_id")]
         internal ulong? GuildId { get; set; }
 
@@ -110,9 +112,19 @@ namespace DSharpPlus.Entities
         [JsonProperty("tags", NullValueHandling = NullValueHandling.Ignore)]
         internal string _internalTags { get; set; }
 
+        [JsonProperty("banner_asset_id")]
+        internal ulong BannerAssetId { get; set; }
+
         public bool Equals(DiscordMessageSticker other) => this.Id == other.Id;
 
         public override string ToString() => $"Sticker {this.Id}; {this.Name}; {this.FormatType}";
+
+        private string GetFileTypeExtension() => this.FormatType switch
+        {
+            StickerFormat.PNG => ".png",
+            StickerFormat.APNG => ".apng",
+            StickerFormat.LOTTIE => ".json"
+        };
     }
 
     public enum StickerType
