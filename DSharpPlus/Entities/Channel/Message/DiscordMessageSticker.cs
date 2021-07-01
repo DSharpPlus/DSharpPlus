@@ -108,7 +108,7 @@ namespace DSharpPlus.Entities
         public StickerFormat FormatType { get; internal set; }
 
         [JsonProperty("tags", NullValueHandling = NullValueHandling.Ignore)]
-        private string _internalTags { get; set; }
+        internal string _internalTags { get; set; }
 
         public bool Equals(DiscordMessageSticker other) => this.Id == other.Id;
 

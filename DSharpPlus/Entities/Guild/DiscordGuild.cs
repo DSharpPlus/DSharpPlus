@@ -475,6 +475,95 @@ namespace DSharpPlus.Entities
         #region Guild Methods
 
         /// <summary>
+        /// Gets a guild sticker by it's Id.
+        /// </summary>
+        /// <param name="stickerId">The Id of the sticker to get.</param>
+        /// <returns>The specificed sticker.</returns>
+        public Task<DiscordMessageSticker> GetGuildSticker(ulong stickerId)
+            => this.Discord.ApiClient.GetGuildStickerAsync(stickerId, this.Id);
+
+        /// <summary>
+        /// Creates a new sticker on the guild. Requires ManageStickers permission.
+        /// </summary>
+        /// <param name="name">The name of the sticker.</param>
+        /// <param name="description">The optional description of the sticker.</param>
+        /// <param name="emoji">The emoji to associate the sticker with.</param>
+        /// <param name="format">The file format the sticker is written in.</param>
+        /// <param name="file">The sticker.</param>
+        /// <returns>The created sticker.</returns>
+        public async Task<DiscordMessageSticker> CreateGuildStickerAsync(string name, string? description, DiscordEmoji emoji, StickerFormat format, Stream file)
+        {
+            if (emoji.Id is not 0)
+                throw new InvalidOperationException("Only unicode emoji can be used for stickers.");
+
+            if (name.Length is > 30 or < 2)
+                throw new ArgumentOutOfRangeException(nameof(name), "Sticker name must be 2-30 characters.");
+
+            if (description?.Length > 100)
+                throw new ArgumentOutOfRangeException(nameof(description), "Sticker description must be less than or equal to 100 characters.");
+
+            var filename = format switch
+            {
+                StickerFormat.PNG => "sticker.png",
+                StickerFormat.APNG => "sticker.apng",
+                StickerFormat.LOTTIE => "sticker.json"
+            };
+
+            return await this.Discord.ApiClient.CreateGuildStickerAsync(this.Id, name, description, emoji.Name, new($"sticker.{format}", file, null)).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Modifies a sticker. Requires ManageStickers permission.
+        /// </summary>
+        /// <param name="stickerId">The Id of the sticker to modify.</param>
+        /// <param name="name">The name of the sticker</param>
+        /// <param name="description">The description of the sticker</param>
+        /// <param name="emoji">The emoji to associate with this sticker.</param>
+        /// <returns>The modified sticker.</returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        public async Task<DiscordMessageSticker> ModifyGuildStickerAsync(ulong stickerId, string? name, string? description, DiscordEmoji? emoji)
+        {
+            if (emoji?.Id is not null and > 0)
+                throw new InvalidOperationException("Only unicode emojis can be used with stickers.");
+
+            var sticker = await this.Discord.ApiClient.ModifyStickerAsync(this.Id, stickerId, name, description, emoji.Name).ConfigureAwait(false);
+
+            if (this._stickers.TryGetValue(stickerId, out var old))
+                this._stickers.TryUpdate(stickerId, sticker, old);
+
+            return sticker;
+        }
+
+        /// <summary>
+        /// Gets the current guild's stickers.
+        /// </summary>
+        /// <returns>The stickers on teh current guild, if any.</returns>
+        public async Task<IReadOnlyList<DiscordMessageSticker>> GetGuildStickersAsync()
+        {
+            var stickers = await this.Discord.ApiClient.GetStickersAsync(this.Id);
+
+            foreach (var xstr in stickers)
+            {
+                this._stickers.AddOrUpdate(xstr.Id, xstr, (id, old) =>
+                {
+                    old.Name = xstr.Name;
+                    old.Description = xstr.Description;
+                    old._internalTags = xstr._internalTags;
+                    return old;
+                });
+            }
+
+            return stickers;
+        }
+
+        /// <summary>
+        /// Deletes a guild sticker. Requires ManageStickers permission.
+        /// </summary>
+        /// <param name="stickerId">The Id of the sticker to delete.</param>
+        public Task DeleteGuildStickerAsync(ulong stickerId)
+            => this.Discord.ApiClient.DeleteStickerAsync(this.Id, stickerId);
+
+        /// <summary>
         /// Searches the current guild for members who's display name start with the specified name.
         /// </summary>
         /// <param name="name">The name to search for.</param>

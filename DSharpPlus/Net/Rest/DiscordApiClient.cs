@@ -795,7 +795,7 @@ namespace DSharpPlus.Net
             return ret.ToList();
         }
 
-        internal async Task<DiscordMessageSticker> CreateGuildSticker(ulong guild_id, string name, string? description, string tags, DiscordMessageFile file)
+        internal async Task<DiscordMessageSticker> CreateGuildStickerAsync(ulong guild_id, string name, string? description, string tags, DiscordMessageFile file)
         {
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.STICKERS}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new {guild_id}, out var path);
