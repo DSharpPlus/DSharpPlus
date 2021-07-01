@@ -112,6 +112,8 @@ namespace DSharpPlus.Entities
         [JsonProperty("tags", NullValueHandling = NullValueHandling.Ignore)]
         internal string _internalTags { get; set; }
 
+        public string BannerUrl => $"https://cdn.discordapp.com/app-assets/710982414301790216/store/{this.BannerAssetId}.png?size=4096";
+
         [JsonProperty("banner_asset_id")]
         internal ulong BannerAssetId { get; set; }
 

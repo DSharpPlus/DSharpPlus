@@ -237,6 +237,9 @@ namespace DSharpPlus
         }
         private AsyncEvent<DiscordClient, GuildEmojisUpdateEventArgs> _guildEmojisUpdated;
 
+
+        private AsyncEvent<DiscordClient, GuildStickersUpdateEventArgs> _guildStickersUpdate;
+
         /// <summary>
         /// Fired when a guild integration is updated.
         /// </summary>

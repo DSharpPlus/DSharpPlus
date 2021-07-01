@@ -412,6 +412,11 @@ namespace DSharpPlus
                     await this.OnWebhooksUpdateAsync(this._guilds[gid].GetChannel(cid), this._guilds[gid]).ConfigureAwait(false);
                     break;
 
+                case "guild_stickers_update":
+                    var strs = dat.ToDiscordObject<IEnumerable<DiscordMessageSticker>>();
+                    await this.OnStickersUpdatedAsync(strs, dat).ConfigureAwait(false);
+                    break;
+
                 default:
                     await this.OnUnknownEventAsync(payload).ConfigureAwait(false);
                     this.Logger.LogWarning(LoggerEvents.WebSocketReceive, "Unknown event: {0}\npayload: {1}", payload.EventName, payload.Data);
@@ -420,6 +425,7 @@ namespace DSharpPlus
                     #endregion
             }
         }
+
 
         #endregion
 
@@ -1956,6 +1962,31 @@ namespace DSharpPlus
                 Guild = guild
             };
             await this._webhooksUpdated.InvokeAsync(this, ea).ConfigureAwait(false);
+        }
+
+        internal async Task OnStickersUpdatedAsync(IEnumerable<DiscordMessageSticker> newStickers, JObject raw)
+        {
+            var guild = this.InternalGetCachedGuild((ulong)raw["guild_id"]);
+            var oldStickers = new ReadOnlyDictionary<ulong, DiscordMessageSticker>(guild._stickers);
+            guild._stickers.Clear();
+
+            foreach (var nst in newStickers)
+            {
+                if (nst.User is not null)
+                    nst.User.Discord = this;
+                nst.Discord = this;
+
+                guild._stickers[nst.Id] = nst;
+            }
+
+            var sea = new GuildStickersUpdateEventArgs
+            {
+                Guild = guild,
+                StickersBefore = oldStickers,
+                StickersAfter = guild.Stickers
+            };
+
+            await this._guildStickersUpdate.InvokeAsync(this, sea);
         }
 
         internal async Task OnUnknownEventAsync(GatewayPayload payload)
