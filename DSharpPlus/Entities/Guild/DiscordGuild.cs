@@ -463,7 +463,7 @@ namespace DSharpPlus.Entities
         {
             this.Roles = new ReadOnlyConcurrentDictionary<ulong, DiscordRole>(this._roles);
             this.Emojis = new ReadOnlyConcurrentDictionary<ulong, DiscordEmoji>(this._emojis);
-            this.Stickers = new ReadOnlyDictionary<ulong, DiscordMessageSticker>(this._stickers);
+            this.Stickers = new ReadOnlyConcurrentDictionary<ulong, DiscordMessageSticker>(this._stickers);
             this.VoiceStates = new ReadOnlyConcurrentDictionary<ulong, DiscordVoiceState>(this._voiceStates);
             this.Members = new ReadOnlyConcurrentDictionary<ulong, DiscordMember>(this._members);
             this.Channels = new ReadOnlyConcurrentDictionary<ulong, DiscordChannel>(this._channels);
