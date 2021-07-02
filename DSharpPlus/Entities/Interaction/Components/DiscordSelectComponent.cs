@@ -46,6 +46,11 @@ namespace DSharpPlus.Entities
         public string Placeholder { get; internal set; }
 
         /// <summary>
+        /// Whether this dropdown can be interacted with.
+        /// </summary>
+        public bool Disabled { get; internal set; }
+
+        /// <summary>
         /// The minimum amount of options that can be selected. Must be greater than zero and less than or equal to <see cref="MaximumSelectedValues"/>. Defaults to one.
         /// </summary>
         [JsonProperty("min_values", NullValueHandling = NullValueHandling.Ignore)]
@@ -62,11 +67,12 @@ namespace DSharpPlus.Entities
             this.Type = ComponentType.Select;
         }
 
-        public DiscordSelectComponent(string customId, string? placeholder, IEnumerable<DiscordSelectComponentOption> options, int minOptions = 1, int maxOptions = 1) : this()
+        public DiscordSelectComponent(string customId, string? placeholder, IEnumerable<DiscordSelectComponentOption> options, bool disabled = false, int minOptions = 1, int maxOptions = 1) : this()
         {
             this.CustomId = customId;
             this.Options = options.ToArray();
             this.Placeholder = placeholder;
+
             this.MinimumSelectedValues = minOptions;
             this.MaximumSelectedValues = maxOptions;
         }
