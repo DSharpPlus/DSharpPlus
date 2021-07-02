@@ -793,7 +793,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<IReadOnlyList<DiscordMessageSticker>> GetStickersAsync(ulong guild_id)
+        internal async Task<IReadOnlyList<DiscordMessageSticker>> GetGuildStickersAsync(ulong guild_id)
         {
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.STICKERS}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new {guild_id}, out var path);
