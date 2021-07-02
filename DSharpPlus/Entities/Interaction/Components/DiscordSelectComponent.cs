@@ -37,25 +37,25 @@ namespace DSharpPlus.Entities
         /// The options to pick from on this component.
         /// </summary>
         [JsonProperty("options", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordSelectComponentOption[] Options { get; set; } = Array.Empty<DiscordSelectComponentOption>();
+        public IReadOnlyList<DiscordSelectComponentOption> Options { get; internal set; } = Array.Empty<DiscordSelectComponentOption>();
 
         /// <summary>
         /// The text to show when no option is selected.
         /// </summary>
         [JsonProperty("placeholder", NullValueHandling = NullValueHandling.Ignore)]
-        public string Placeholder { get; set; }
+        public string Placeholder { get; internal set; }
 
         /// <summary>
         /// The minimum amount of options that can be selected. Must be greater than zero and less than or equal to <see cref="MaximumSelectedValues"/>. Defaults to one.
         /// </summary>
         [JsonProperty("min_values", NullValueHandling = NullValueHandling.Ignore)]
-        public int? MinimumSelectedValues { get; set; }
+        public int? MinimumSelectedValues { get; internal set; }
 
         /// <summary>
         /// The maximum amount of options that can be selected. Must be greater than zero and or equal to <see cref="MinimumSelectedValues"/>. Defaults to 1.
         /// </summary>
         [JsonProperty("max_values", NullValueHandling = NullValueHandling.Ignore)]
-        public int? MaximumSelectedValues { get; set; }
+        public int? MaximumSelectedValues { get; internal set; }
 
         public DiscordSelectComponent()
         {
