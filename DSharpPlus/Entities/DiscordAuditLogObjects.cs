@@ -446,14 +446,29 @@ namespace DSharpPlus.Entities
         public PropertyChange<string> AssetChange { get; internal set; }
 
         /// <summary>
-        /// Gets the description of sticker's guild change.
+        /// Gets the description of sticker's guild id change.
         /// </summary>
-        public PropertyChange<DiscordGuild> GuildChange { get; internal set; }
+        public PropertyChange<ulong?> GuildIdChange { get; internal set; }
 
         /// <summary>
         /// Gets the description of sticker's availability change.
         /// </summary>
-        public PropertyChange<bool> AvailabilityChange { get; internal set; }
+        public PropertyChange<bool?> AvailabilityChange { get; internal set; }
+
+        /// <summary>
+        /// Gets the description of sticker's id change.
+        /// </summary>
+        public PropertyChange<ulong?> IdChange { get; internal set; }
+
+        /// <summary>
+        /// Gets the description of sticker's type change.
+        /// </summary>
+        public PropertyChange<StickerType?> TypeChange { get; internal set; }
+
+        /// <summary>
+        /// Gets the description of sticker's format change.
+        /// </summary>
+        public PropertyChange<StickerFormat?> FormatChange { get; internal set; }
 
         internal DiscordAuditLogStickerEntry() { }
     }
