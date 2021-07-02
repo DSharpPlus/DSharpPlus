@@ -801,15 +801,17 @@ namespace DSharpPlus.Net
 
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
             var json = JArray.Parse(res.Response);
-            var ret = json.ToDiscordObject<IEnumerable<DiscordMessageSticker>>();
+            var ret = json.ToDiscordObject<DiscordMessageSticker[]>();
 
-            foreach (var stkr in ret)
+
+            for (int i = 0; i < ret.Length; i++)
             {
+                var stkr = ret[i];
                 stkr.Discord = this.Discord;
 
-                if (json["user"] is not null) // Null = Missing stickers perm //
+                if (json[i]["user"] is JObject obj) // Null = Missing stickers perm //
                 {
-                    var tsr = json["user"].ToDiscordObject<TransportUser>();
+                    var tsr = obj.ToDiscordObject<TransportUser>();
                     var usr = new DiscordUser(tsr) {Discord = this.Discord};
                     usr = this.Discord.UserCache.AddOrUpdate(tsr.Id, usr, (id, old) =>
                     {
@@ -818,7 +820,7 @@ namespace DSharpPlus.Net
                         old.AvatarHash = usr.AvatarHash;
                         return old;
                     });
-                    stkr.User = usr;
+                    stkr.User = usr; // The sticker would've already populated, but this is just to ensure everything is up to date //
                 }
             }
 
