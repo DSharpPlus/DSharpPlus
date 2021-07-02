@@ -793,6 +793,20 @@ namespace DSharpPlus.Net
             return ret;
         }
 
+        internal async Task<IReadOnlyList<DiscordMessageStickerPack>> GetStickerPacksAsync()
+        {
+            var route = $"{Endpoints.STICKERPACKS}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
+
+            var json = JObject.Parse(res.Response)["sticker_packs"] as JArray;
+            var ret = json.ToDiscordObject<DiscordMessageStickerPack[]>();
+
+            return ret;
+        }
+
         internal async Task<IReadOnlyList<DiscordMessageSticker>> GetGuildStickersAsync(ulong guild_id)
         {
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.STICKERS}";
