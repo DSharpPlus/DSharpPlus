@@ -1294,6 +1294,9 @@ namespace DSharpPlus
                 message.ReferencedMessage.PopulateMentions();
             }
 
+            foreach (var sticker in message.Stickers)
+                sticker.Discord = this;
+
             var ea = new MessageCreateEventArgs
             {
                 Message = message,
