@@ -537,7 +537,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the current guild's stickers.
         /// </summary>
-        /// <returns>The stickers on teh current guild, if any.</returns>
+        /// <returns>The stickers on the current guild, if any.</returns>
         public async Task<IReadOnlyList<DiscordMessageSticker>> GetStickersAsync()
         {
             var stickers = await this.Discord.ApiClient.GetStickersAsync(this.Id);
