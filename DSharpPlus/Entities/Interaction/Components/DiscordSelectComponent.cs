@@ -48,6 +48,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Whether this dropdown can be interacted with.
         /// </summary>
+        [JsonProperty("disabled", NullValueHandling = NullValueHandling.Ignore)]
         public bool Disabled { get; internal set; }
 
         /// <summary>
