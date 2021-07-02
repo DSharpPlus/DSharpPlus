@@ -418,6 +418,46 @@ namespace DSharpPlus.Entities
         internal DiscordAuditLogEmojiEntry() { }
     }
 
+    public sealed class DiscordAuditLogStickerEntry : DiscordAuditLogEntry
+    {
+        /// <summary>
+        /// Gets the affected sticker.
+        /// </summary>
+        public DiscordMessageSticker Target { get; internal set; }
+
+        /// <summary>
+        /// Gets the description of sticker's name change.
+        /// </summary>
+        public PropertyChange<string> NameChange { get; internal set; }
+
+        /// <summary>
+        /// Gets the description of sticker's description change.
+        /// </summary>
+        public PropertyChange<string> DescriptionChange { get; internal set; }
+
+        /// <summary>
+        /// Gets the description of sticker's tags change.
+        /// </summary>
+        public PropertyChange<string> TagsChange { get; internal set; }
+
+        /// <summary>
+        /// Gets the description of sticker's tags change.
+        /// </summary>
+        public PropertyChange<string> AssetChange { get; internal set; }
+
+        /// <summary>
+        /// Gets the description of sticker's guild change.
+        /// </summary>
+        public PropertyChange<DiscordGuild> GuildChange { get; internal set; }
+
+        /// <summary>
+        /// Gets the description of sticker's availability change.
+        /// </summary>
+        public PropertyChange<bool> AvailabilityChange { get; internal set; }
+
+        internal DiscordAuditLogStickerEntry() { }
+    }
+
     public sealed class DiscordAuditLogMessageEntry : DiscordAuditLogEntry
     {
         /// <summary>
@@ -713,5 +753,19 @@ namespace DSharpPlus.Entities
         /// Indicates that an integration was deleted.
         /// </summary>
         IntegrationDelete = 82,
+        /// <summary>
+        /// Indicates that an sticker was created.
+        /// </summary>
+        StickerCreate = 90,
+
+        /// <summary>
+        /// Indicates that an sticker was updated.
+        /// </summary>
+        StickerUpdate = 91,
+
+        /// <summary>
+        /// Indicates that an sticker was deleted.
+        /// </summary>
+        StickerDelete = 92,
     }
 }
