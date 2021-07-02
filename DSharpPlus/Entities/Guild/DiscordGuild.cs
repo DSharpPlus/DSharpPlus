@@ -2034,14 +2034,14 @@ namespace DSharpPlus.Entities
                                     p1 = ulong.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t1);
                                     p2 = ulong.TryParse(xc.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t2);
 
-                                    entrysti.GuildChange = new PropertyChange<DiscordGuild>
+                                    entrysti.GuildIdChange = new PropertyChange<ulong?>
                                     {
-                                        Before = p1 ? this ?? new DiscordGuild { Id = t1, Discord = this.Discord } : null,
-                                        After = p2 ? this ?? new DiscordGuild { Id = t1, Discord = this.Discord } : null
+                                        Before = t1,
+                                        After = t2
                                     };
                                     break;
                                 case "available":
-                                    entrysti.AvailabilityChange = new PropertyChange<bool>
+                                    entrysti.AvailabilityChange = new PropertyChange<bool?>
                                     {
                                         Before = bool.Parse((string)xc.OldValue),
                                         After = bool.Parse((string)xc.NewValue),
