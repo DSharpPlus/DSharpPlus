@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
@@ -908,7 +909,7 @@ namespace DSharpPlus
 
         internal async Task OnGuildEmojisUpdateEventAsync(DiscordGuild guild, IEnumerable<DiscordEmoji> newEmojis)
         {
-            var oldEmojis = new ReadOnlyDictionary<ulong, DiscordEmoji>(guild._emojis);
+            var oldEmojis = guild._emojis.ToImmutableDictionary();
             guild._emojis.Clear();
 
             foreach (var emoji in newEmojis)
