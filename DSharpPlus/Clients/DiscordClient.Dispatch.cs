@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
@@ -1970,7 +1971,8 @@ namespace DSharpPlus
         internal async Task OnStickersUpdatedAsync(IEnumerable<DiscordMessageSticker> newStickers, JObject raw)
         {
             var guild = this.InternalGetCachedGuild((ulong)raw["guild_id"]);
-            var oldStickers = new ReadOnlyDictionary<ulong, DiscordMessageSticker>(guild._stickers);
+            var oldStickers = guild._stickers.ToImmutableDictionary();
+
             guild._stickers.Clear();
 
             foreach (var nst in newStickers)
