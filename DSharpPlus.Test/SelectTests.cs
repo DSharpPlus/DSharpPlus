@@ -48,17 +48,14 @@ namespace DSharpPlus.Test
             var builder = new DiscordMessageBuilder();
             builder.WithContent("This is a test! Select is valid for 30 seconds.");
 
-            var select = new DiscordSelectComponent()
+            var opts = new[]
             {
-                CustomId = "yert",
-                Placeholder = "Poggers",
-                Options = new[]
-                {
-                    new DiscordSelectComponentOption("Label 1", "the first option", emoji: new DiscordComponentEmoji("⬜")),
-                    new DiscordSelectComponentOption("Label 2", "the second option", emoji: new DiscordComponentEmoji("🟦")),
-                    new DiscordSelectComponentOption("Label 3", "the third option", emoji: new DiscordComponentEmoji("⬛")),
-                }
+                new DiscordSelectComponentOption("Label 1", "the first option", emoji: new DiscordComponentEmoji("⬜")),
+                new DiscordSelectComponentOption("Label 2", "the second option", emoji: new DiscordComponentEmoji("🟦")),
+                new DiscordSelectComponentOption("Label 3", "the third option", emoji: new DiscordComponentEmoji("⬛")),
             };
+
+            var select = new DiscordSelectComponent("yert", "Dropdowns!", opts, true, 0, 1);
 
             var btn1 = new DiscordButtonComponent(ButtonStyle.Primary, "no1", "Button 1!", true);
             var btn2 = new DiscordButtonComponent(ButtonStyle.Secondary, "no2", "Button 2!", true);
@@ -84,19 +81,14 @@ namespace DSharpPlus.Test
             var builder = new DiscordMessageBuilder();
             builder.WithContent("This is a test! Select is valid for 30 seconds.");
 
-            var select = new DiscordSelectComponent()
+            var opts = new[]
             {
-                CustomId = "yert",
-                Placeholder = "Poggers",
-                Options = new[]
-                {
-                    new DiscordSelectComponentOption("Label 1", "the first option", emoji: new DiscordComponentEmoji("⬜")),
-                    new DiscordSelectComponentOption("Label 2", "the second option", emoji: new DiscordComponentEmoji("🟦")),
-                    new DiscordSelectComponentOption("Label 3", "the third option", emoji: new DiscordComponentEmoji("⬛")),
-                },
-                //MinimumSelectedValues = 2, // Ideally you'd set this. //
-                MaximumSelectedValues = 2
+                new DiscordSelectComponentOption("Label 1", "the first option", emoji: new DiscordComponentEmoji("⬜")),
+                new DiscordSelectComponentOption("Label 2", "the second option", emoji: new DiscordComponentEmoji("🟦")),
+                new DiscordSelectComponentOption("Label 3", "the third option", emoji: new DiscordComponentEmoji("⬛")),
             };
+
+            var select = new DiscordSelectComponent("yert", "Dropdowns!", opts, false);
 
             var btn1 = new DiscordButtonComponent(ButtonStyle.Primary, "no1", "Button 1!", true);
             var btn2 = new DiscordButtonComponent(ButtonStyle.Secondary, "no2", "Button 2!", true);

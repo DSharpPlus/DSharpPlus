@@ -200,7 +200,7 @@ namespace DSharpPlus
         /// <param name="shardCount">The total amount of shards.</param>
         /// <returns>The shard id.</returns>
         public static int GetShardId(ulong guildId, int shardCount)
-            => (int)(guildId >> 22) % shardCount;
+            => (int)((guildId >> 22) % (ulong)shardCount);
 
         /// <summary>
         /// Helper method to create a <see cref="DateTimeOffset"/> from Unix time seconds for targets that do not support this natively.
