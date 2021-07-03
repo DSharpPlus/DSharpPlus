@@ -3,7 +3,7 @@
 # DSharpPlus
 An unofficial .NET wrapper for the Discord API, based off [DiscordSharp](https://github.com/suicvne/DiscordSharp), but rewritten to fit the API standards.
 
-[![Build Status](https://img.shields.io/appveyor/ci/Emzi0767/dsharpplus/master.svg)](https://ci.appveyor.com/project/Emzi0767/dsharpplus/branch/master)
+[![Build Status](https://img.shields.io/appveyor/build/dsharpplus/dsharpplus/release/4.0)](https://ci.appveyor.com/project/DSharpPlus/dsharpplus/branch/release/4.0)
 [![Discord Server](https://img.shields.io/discord/379378609942560770.svg?label=discord)](https://discord.gg/dsharpplus) 
 [![SlimGet](https://img.shields.io/badge/dynamic/json.svg?color=yellow&label=slimget&query=%24.items%5B-1%3A%5D.upper&url=https%3A%2F%2Fnuget.emzi0767.com%2Fapi%2Fv3%2Fregistration%2FPlain%2Fdsharpplus%2Findex.json)](https://nuget.emzi0767.com/gallery/search?q=DSharpPlus&pre=true)
 [![NuGet](https://img.shields.io/nuget/vpre/DSharpPlus.svg)](https://nuget.org/packages/DSharpPlus)
