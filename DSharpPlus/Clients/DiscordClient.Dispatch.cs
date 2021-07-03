@@ -413,7 +413,7 @@ namespace DSharpPlus
                     break;
 
                 case "guild_stickers_update":
-                    var strs = dat.ToDiscordObject<IEnumerable<DiscordMessageSticker>>();
+                    var strs = dat["stickers"].ToDiscordObject<IEnumerable<DiscordMessageSticker>>();
                     await this.OnStickersUpdatedAsync(strs, dat).ConfigureAwait(false);
                     break;
 
@@ -1978,6 +1978,7 @@ namespace DSharpPlus
                 if (nst.User is not null)
                     nst.User.Discord = this;
                 nst.Discord = this;
+                nst.Discord = this;
 
                 guild._stickers[nst.Id] = nst;
             }
@@ -1989,7 +1990,7 @@ namespace DSharpPlus
                 StickersAfter = guild.Stickers
             };
 
-            await this._guildStickersUpdate.InvokeAsync(this, sea);
+            await this._guildStickersUpdated.InvokeAsync(this, sea);
         }
 
         internal async Task OnUnknownEventAsync(GatewayPayload payload)

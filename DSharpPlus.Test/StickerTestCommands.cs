@@ -41,7 +41,7 @@ namespace DSharpPlus.Test
 
             var str = ctx.Message.Stickers.First();
 
-            if (!(str.Guild is null ^ str.Available))
+            if (!ctx.Guild.Stickers.TryGetValue(str.Id, out _))
             {
                 await ctx.RespondAsync("Send a sticker from this guild!");
                 return;

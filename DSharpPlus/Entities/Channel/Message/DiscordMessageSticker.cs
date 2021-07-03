@@ -69,8 +69,11 @@ namespace DSharpPlus.Entities
 
         public string StickerUrl => $"https://cdn.discordapp.com/stickers/{this.Id}{this.GetFileTypeExtension()}";
 
+        /// <summary>
+        /// Gets the Id of the sticker this guild belongs to, if any.
+        /// </summary>
         [JsonProperty("guild_id")]
-        internal ulong? GuildId { get; set; }
+        public ulong? GuildId { get; internal set; }
 
         /// <summary>
         /// Gets whether this sticker is available. Only applicable to guild stickers.
