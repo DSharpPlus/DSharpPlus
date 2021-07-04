@@ -1861,6 +1861,7 @@ namespace DSharpPlus
                     foreach (var c in resolved.Users)
                     {
                         c.Value.Discord = this;
+                        this.UserCache.AddOrUpdate(c.Value.Id, c.Value, (old, @new) => @new);
                     }
                 }
 
@@ -1871,6 +1872,9 @@ namespace DSharpPlus
                         c.Value.Discord = this;
                         c.Value.Id = c.Key;
                         c.Value._guild_id = guildId.Value;
+                        c.Value.User.Discord = this;
+
+                        this.UserCache.AddOrUpdate(c.Value.User.Id, c.Value.User, (old, @new) => @new);
                     }
                 }
 
