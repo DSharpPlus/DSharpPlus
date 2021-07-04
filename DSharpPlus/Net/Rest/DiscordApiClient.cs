@@ -1076,7 +1076,7 @@ namespace DSharpPlus.Net
             {
                 HasContent = builder.Content != null,
                 Content = builder.Content,
-                StickersIds = new[] {builder.Sticker.Id},
+                StickersIds = builder.Sticker is null ? Array.Empty<ulong>() : new[] {builder.Sticker.Id},
                 IsTTS = builder.IsTTS,
                 HasEmbed = builder.Embeds != null,
                 Embeds = builder.Embeds,
