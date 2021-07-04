@@ -908,7 +908,7 @@ namespace DSharpPlus
 
         internal async Task OnGuildEmojisUpdateEventAsync(DiscordGuild guild, IEnumerable<DiscordEmoji> newEmojis)
         {
-            var oldEmojis = new ReadOnlyDictionary<ulong, DiscordEmoji>(guild._emojis);
+            var oldEmojis = new ConcurrentDictionary<ulong, DiscordEmoji>(guild._emojis);
             guild._emojis.Clear();
 
             foreach (var emoji in newEmojis)
