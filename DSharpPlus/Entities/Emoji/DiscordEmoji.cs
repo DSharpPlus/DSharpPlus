@@ -105,7 +105,7 @@ namespace DSharpPlus.Entities
         {
             DiscordNameLookup.TryGetValue(this.Name, out var name);
 
-            return name == null ? $":{ this.Name }:" : name;
+            return name ?? $":{ this.Name }:";
         }
 
         /// <summary>
@@ -141,7 +141,7 @@ namespace DSharpPlus.Entities
             if (e is null)
                 return false;
 
-            return ReferenceEquals(this, e) ? true : this.Id == e.Id && this.Name == e.Name;
+            return ReferenceEquals(this, e) || (this.Id == e.Id && (this.Id != 0 || this.Name == e.Name));
         }
 
         /// <summary>
@@ -158,9 +158,7 @@ namespace DSharpPlus.Entities
         }
 
         internal string ToReactionString()
-        {
-            return this.Id != 0 ? $"{this.Name}:{this.Id.ToString(CultureInfo.InvariantCulture)}" : this.Name;
-        }
+            => this.Id != 0 ? $"{this.Name}:{this.Id.ToString(CultureInfo.InvariantCulture)}" : this.Name;
 
         /// <summary>
         /// Gets whether the two <see cref="DiscordEmoji"/> objects are equal.
@@ -176,7 +174,7 @@ namespace DSharpPlus.Entities
             if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
                 return false;
 
-            return o1 == null && o2 == null ? true : e1.Id == e2.Id && e1.Name == e2.Name;
+            return (o1 == null && o2 == null) || (e1.Id == e2.Id && (e1.Id != 0 || e1.Name == e2.Name));
         }
 
         /// <summary>
