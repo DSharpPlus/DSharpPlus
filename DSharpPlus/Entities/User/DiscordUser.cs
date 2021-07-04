@@ -69,10 +69,31 @@ namespace DSharpPlus.Entities
             => int.Parse(this.Discriminator, NumberStyles.Integer, CultureInfo.InvariantCulture);
 
         /// <summary>
+        /// Gets the user's banner color, if set.
+        /// </summary>
+        public DiscordColor? BannerColor => new DiscordColor(this._bannerColor);
+
+        [JsonProperty("banner_color")]
+        internal string _bannerColor;
+
+        /// <summary>
+        /// Gets the user's banner url
+        /// </summary>
+        [JsonIgnore]
+        public string BannerUrl
+            => string.IsNullOrEmpty(this.BannerHash) ? null : $"https://cdn.discordapp.com/banners/{this.Id}/{this.BannerHash}.{(this.BannerHash.StartsWith("a") ? "gif" : "png")}?size=4096";
+        /// <summary>
+        /// Gets the user's profile banner hash.
+        /// </summary>
+        [JsonProperty("banner", NullValueHandling = NullValueHandling.Ignore)]
+        public virtual string BannerHash { get; internal set; }
+
+        /// <summary>
         /// Gets the user's avatar hash.
         /// </summary>
         [JsonProperty("avatar", NullValueHandling = NullValueHandling.Ignore)]
         public virtual string AvatarHash { get; internal set; }
+
 
         /// <summary>
         /// Gets the user's avatar URL.

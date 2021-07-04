@@ -223,6 +223,16 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Gets the member's banner hash.
+        /// </summary>
+        [JsonIgnore]
+        public override string BannerHash
+        {
+            get => this.User.BannerHash;
+            internal set => this.User.BannerHash = value;
+        }
+
+        /// <summary>
         /// Gets the member's avatar hash.
         /// </summary>
         [JsonIgnore]
