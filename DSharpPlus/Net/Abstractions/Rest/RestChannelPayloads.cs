@@ -110,6 +110,9 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
         public IReadOnlyCollection<DiscordActionRowComponent> Components { get; set; }
 
+        [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
+        public MessageFlags? Flags { get; set; }
+
         [JsonIgnore]
         public bool HasEmbed { get; set; }
 

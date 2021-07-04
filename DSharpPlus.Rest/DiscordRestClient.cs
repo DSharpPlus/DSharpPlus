@@ -550,7 +550,7 @@ namespace DSharpPlus
         /// <param name="content">New message content</param>
         /// <returns></returns>
         public Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content)
-            => this.ApiClient.EditMessageAsync(channel_id, message_id, content, default, default, default, Array.Empty<DiscordMessageFile>());
+            => this.ApiClient.EditMessageAsync(channel_id, message_id, content, default, default, default, Array.Empty<DiscordMessageFile>(), null);
 
         /// <summary>
         /// Edits a message
@@ -560,7 +560,7 @@ namespace DSharpPlus
         /// <param name="embed">New message embed</param>
         /// <returns></returns>
         public Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<DiscordEmbed> embed)
-            => this.ApiClient.EditMessageAsync(channel_id, message_id, default, embed.HasValue ? new[] {embed.Value} : Array.Empty<DiscordEmbed>(), default, default, Array.Empty<DiscordMessageFile>());
+            => this.ApiClient.EditMessageAsync(channel_id, message_id, default, embed.HasValue ? new[] {embed.Value} : Array.Empty<DiscordEmbed>(), default, default, Array.Empty<DiscordMessageFile>(), null);
 
         /// <summary>
         /// Edits a message
@@ -568,13 +568,23 @@ namespace DSharpPlus
         /// <param name="channel_id">Channel id</param>
         /// <param name="message_id">Message id</param>
         /// <param name="builder">The builder of the message to edit.</param>
+        /// <param name="suppressEmbeds">Whether to suppress embeds on the message.</param>
         /// <returns></returns>
-        public async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, DiscordMessageBuilder builder)
+        public async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, DiscordMessageBuilder builder, bool suppressEmbeds = false)
         {
             builder.Validate(true);
 
-            return await this.ApiClient.EditMessageAsync(channel_id, message_id, builder.Content, new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), builder.Mentions, builder.Components, builder.Files).ConfigureAwait(false);
+            return await this.ApiClient.EditMessageAsync(channel_id, message_id, builder.Content, new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), builder.Mentions, builder.Components, builder.Files, suppressEmbeds ? MessageFlags.SuppressedEmbeds : null).ConfigureAwait(false);
         }
+
+        /// <summary>
+        /// Modifes the visibility of embeds in a message.
+        /// </summary>
+        /// <param name="channel_id">Channel id</param>
+        /// <param name="message_id">Message id</param>
+        /// <param name="hideEmbeds">Whether to hide all embeds.</param>
+        public Task ModifyEmbedSuppressionAsync(ulong channel_id, ulong message_id, bool hideEmbeds)
+            => this.ApiClient.EditMessageAsync(channel_id, message_id, default, default, default, default, Array.Empty<DiscordMessageFile>(), hideEmbeds ? MessageFlags.SuppressedEmbeds : null);
 
         /// <summary>
         /// Deletes a message
