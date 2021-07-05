@@ -63,11 +63,11 @@ namespace DSharpPlus.Entities
         /// Gets a collection of this guild's emojis.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyDictionary<ulong, DiscordEmoji> Emojis { get; internal set; }
+        public IReadOnlyDictionary<ulong, DiscordEmoji> Emojis => new ReadOnlyConcurrentDictionary<ulong, DiscordEmoji>(this._emojis);
 
         [JsonProperty("emojis", NullValueHandling = NullValueHandling.Ignore)]
         [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
-        internal ConcurrentDictionary<ulong, DiscordEmoji> _emojis = new();
+        internal ConcurrentDictionary<ulong, DiscordEmoji> _emojis;
 
         /// <summary>
         /// Gets a collection of this guild's features.
@@ -94,9 +94,6 @@ namespace DSharpPlus.Entities
         [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
         public string Description { get; internal set; }
 
-        internal DiscordGuildPreview()
-        {
-            this.Emojis = new ReadOnlyConcurrentDictionary<ulong, DiscordEmoji>(this._emojis);
-        }
+        internal DiscordGuildPreview() { }
     }
 }
