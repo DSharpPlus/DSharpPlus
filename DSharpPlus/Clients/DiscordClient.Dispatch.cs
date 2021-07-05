@@ -921,7 +921,7 @@ namespace DSharpPlus
             {
                 Guild = guild,
                 EmojisAfter = guild.Emojis,
-                EmojisBefore = oldEmojis
+                EmojisBefore = new ConcurrentDictionary<ulong, DiscordEmoji>(oldEmojis)
             };
             await this._guildEmojisUpdated.InvokeAsync(this, ea).ConfigureAwait(false);
         }
