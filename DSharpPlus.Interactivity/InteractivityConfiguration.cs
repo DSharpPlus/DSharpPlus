@@ -23,6 +23,7 @@
 
 using System;
 using DSharpPlus.Interactivity.Enums;
+using DSharpPlus.Interactivity.EventHandling;
 
 namespace DSharpPlus.Interactivity
 {
@@ -45,7 +46,12 @@ namespace DSharpPlus.Interactivity
         /// <summary>
         /// Emojis to use for pagination
         /// </summary>
-        public PaginationEmojis PaginationEmojis { internal get; set; } = new PaginationEmojis();
+        public PaginationEmojis PaginationEmojis { internal get; set; } = new();
+
+        /// <summary>
+        /// Buttons to use for pagination.
+        /// </summary>
+        public PaginationButtons PaginationButtons { internal get; set; } = new();
 
         /// <summary>
         /// How to handle pagination. Defaults to WrapAround.

@@ -71,6 +71,12 @@ namespace DSharpPlus.Interactivity.EventHandling
         Task<PaginationEmojis> GetEmojisAsync();
 
         /// <summary>
+        /// Requests the message buttons from the pagination request.
+        /// </summary>
+        /// <returns>The buttons.</returns>
+        Task<PaginationButtons> GetButtonsAsync();
+
+        /// <summary>
         /// Gets pagination message from this request.
         /// </summary>
         /// <returns></returns>
