@@ -25,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
@@ -51,6 +52,8 @@ namespace DSharpPlus.Interactivity
 
         private EventWaiter<ComponentInteractionCreateEventArgs> ComponentInteractionWaiter;
 
+        private ComponentEventWaiter ComponentEventWaiter;
+
         private ReactionCollector ReactionCollector;
 
         private Poller Poller;
@@ -73,6 +76,7 @@ namespace DSharpPlus.Interactivity
             this.Poller = new Poller(this.Client);
             this.ReactionCollector = new ReactionCollector(this.Client);
             this.Paginator = new Paginator(this.Client);
+            this.ComponentEventWaiter = new(this.Client, this.Config);
 
         }
 
@@ -131,13 +135,16 @@ namespace DSharpPlus.Interactivity
 
             while (true)
             {
-                var result = await this.ComponentInteractionWaiter
-                    .WaitForMatch(new MatchRequest<ComponentInteractionCreateEventArgs>(c => c.Interaction.Type == InteractionType.Component
-                                                                                             && c.Interaction.Data.ComponentType == ComponentType.Button
-                                                                                             && c.Message == message
-                                                                                             && buttons.Any(b => b.CustomId == c.Id), timeout)).ConfigureAwait(false);
+                var cts = new CancellationTokenSource();
+                cts.CancelAfter(timeout);
+                var res = await this.ComponentEventWaiter
+                    .WaitForMatchAsync(new(message.Id,
+                        c =>
+                            c.Message == message &&
+                            c.Interaction.Data.ComponentType == ComponentType.Button &&
+                            buttons.Any(b => b.CustomId == c.Id), cts.Token));
 
-                return new InteractivityResult<ComponentInteractionCreateEventArgs>(result is null, result);
+                return new(res is null, res);
             }
         }
 
@@ -157,17 +164,22 @@ namespace DSharpPlus.Interactivity
             if (message.Components is null || !message.Components.Select(a => a.Components).Any())
                 throw new ArgumentException("Message does not contain any buttons.");
 
+            var ids = message.Components.SelectMany(m => m.Components).Select(c => c.CustomId);
 
             var timeout = timeoutOverride ?? this.Config.Timeout;
 
             while (true)
             {
-                var result = await this.ComponentInteractionWaiter
-                    .WaitForMatch(new MatchRequest<ComponentInteractionCreateEventArgs>(c => c.Interaction.Type == InteractionType.Component
-                                                                                             && c.Interaction.Data.ComponentType == ComponentType.Button
-                                                                                             && c.Message == message, timeout)).ConfigureAwait(false);
+                var cts = new CancellationTokenSource();
+                cts.CancelAfter(timeout);
 
-                return new InteractivityResult<ComponentInteractionCreateEventArgs>(result is null, result);
+                var result =
+                    await this
+                    .ComponentEventWaiter
+                    .WaitForMatchAsync(new(message.Id, c => c.Message == message &&
+                                                            c.Interaction.Data.ComponentType == ComponentType.Button, cts.Token)).ConfigureAwait(false);
+
+                return new(result is null, result);
 
             }
         }
@@ -194,10 +206,12 @@ namespace DSharpPlus.Interactivity
 
             while (true)
             {
-                var result = await this.ComponentInteractionWaiter
-                    .WaitForMatch(new MatchRequest<ComponentInteractionCreateEventArgs>(c => c.Interaction.Type == InteractionType.Component && c.Interaction.Data.ComponentType == ComponentType.Button && c.Message.Id == message.Id && c.User == user, timeout)).ConfigureAwait(false);
+                var cts = new CancellationTokenSource();
+                cts.CancelAfter(timeout);
+                var result = await this.ComponentEventWaiter
+                    .WaitForMatchAsync(new(message.Id, c => c.Interaction.Data.ComponentType == ComponentType.Button && c.Message == message && c.User == user, cts.Token)).ConfigureAwait(false);
 
-                return new InteractivityResult<ComponentInteractionCreateEventArgs>(result is null, result);                    
+                return new(result is null, result);
             }
         }
 
@@ -223,19 +237,20 @@ namespace DSharpPlus.Interactivity
 
 
             var timeout = timeoutOverride ?? this.Config.Timeout;
-
+            var cts = new CancellationTokenSource();
+            cts.CancelAfter(timeout);
             while (true)
             {
-                var result = await this.ComponentInteractionWaiter
-                    .WaitForMatch(new MatchRequest<ComponentInteractionCreateEventArgs>(c => c.Interaction.Type == InteractionType.Component && c.Interaction.Data.ComponentType == ComponentType.Button && c.Message == message, timeout)).ConfigureAwait(false);
+                var result = await this.ComponentEventWaiter
+                    .WaitForMatchAsync(new(message.Id, c => c.Interaction.Data.ComponentType == ComponentType.Button && c.Message == message, cts.Token)).ConfigureAwait(false);
 
                 if (result is null)
-                    return new InteractivityResult<ComponentInteractionCreateEventArgs>(true, null);
+                    return new(true, null);
 
                 if (result.Id != id)
                     await this.HandleInvalidInteraction(result.Interaction).ConfigureAwait(false);
                 else
-                    return new InteractivityResult<ComponentInteractionCreateEventArgs>(false, result);
+                    return new(false, result);
             }
         }
 
@@ -454,7 +469,7 @@ namespace DSharpPlus.Interactivity
 
             var timeout = timeoutoverride ?? this.Config.Timeout;
             var collection = await this.ReactionCollector.CollectAsync(new ReactionCollectRequest(m, timeout)).ConfigureAwait(false);
-            
+
             return collection;
         }
 
@@ -646,7 +661,7 @@ namespace DSharpPlus.Interactivity
             var at = this.Config.ResponseBehavior switch
             {
                 InteractionResponseBehavior.Ack => interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate),
-                InteractionResponseBehavior.Respond => interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder() { Content = this.Config.ResponseMessage, IsEphemeral = true}),
+                InteractionResponseBehavior.Respond => interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new() { Content = this.Config.ResponseMessage, IsEphemeral = true}),
                 InteractionResponseBehavior.Ignore => Task.CompletedTask,
                 _ => throw new ArgumentException("Unknown enum value.")
             };

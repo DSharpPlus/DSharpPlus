@@ -44,23 +44,25 @@ namespace DSharpPlus.Test
             var y = new DiscordButtonComponent(ButtonStyle.Danger, "Y_", "Red", emoji: new DiscordComponentEmoji(833886629792972860));
             var z = new DiscordLinkButtonComponent("https://velvetthepanda.dev", "Link", false, new DiscordComponentEmoji(826108356656758794));
 
-            var d1 = new DiscordButtonComponent(ButtonStyle.Primary, "disabled", "and", true);
-            var d2 = new DiscordButtonComponent(ButtonStyle.Secondary, "disabled2", "these", true);
-            var d3 = new DiscordButtonComponent(ButtonStyle.Success, "disabled3", "are", true);
-            var d4 = new DiscordButtonComponent(ButtonStyle.Danger, "disabled4", "disabled~!", true);
 
 
             var builder = new DiscordMessageBuilder();
 
             builder
-                .WithContent("Buttons!")
+                .WithContent("Buttons! Feel free to press any within the next 20s.")
                 .AddComponents(p)
                 .AddComponents(c, b)
-                .AddComponents(y, z)
-                .AddComponents(d1, d2, d3, d4);
+                .AddComponents(y, z);
 
-            await builder.SendAsync(ctx.Channel);
+            var msg = await builder.SendAsync(ctx.Channel);
+            var interactivity = ctx.Client.GetInteractivity();
 
+            var res = await interactivity.WaitForButtonAsync(msg, new[] {p, c, b, y}, TimeSpan.FromSeconds(20));
+
+            if (res.TimedOut)
+                await ctx.RespondAsync("Next time!");
+            else
+                await ctx.RespondAsync(res.Result.Id);
         }
 
     }
