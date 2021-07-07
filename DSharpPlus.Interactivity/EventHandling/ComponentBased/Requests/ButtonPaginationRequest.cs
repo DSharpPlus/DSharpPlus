@@ -84,7 +84,7 @@ namespace DSharpPlus.Interactivity.EventHandling
         {
             if (this._wrapBehavior is PaginationBehaviour.WrapAround)
             {
-                this._index = this._index is 0 ? this.PageCount - 1 : 0;
+                this._index = this._index == this.PageCount - 1 ? 0 : this.PageCount - 1;
                 return Task.CompletedTask;
             }
 
