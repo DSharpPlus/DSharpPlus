@@ -74,10 +74,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
         }
 
-        public void Dispose()
-        {
-            this._client.ComponentInteractionCreated -= this.Handle;
-        }
+        public void Dispose() => this._client.ComponentInteractionCreated -= this.Handle;
 
 
         private async Task Handle(DiscordClient _, ComponentInteractionCreateEventArgs e)
