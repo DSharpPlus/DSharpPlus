@@ -46,14 +46,15 @@ namespace DSharpPlus.Interactivity.EventHandling
         private readonly ConcurrentDictionary<ulong, ComponentMatchRequest> _matchrequests = new();
         private readonly ConcurrentDictionary<ulong, ComponentCollectRequest> _collectrequests = new();
 
-        private readonly InteractionResponseBehavior _behavior;
         private readonly DiscordFollowupMessageBuilder _message;
+        private readonly InteractivityConfiguration _config;
 
         public ComponentEventWaiter(DiscordClient client, InteractivityConfiguration config)
         {
             this._client = client;
             this._client.ComponentInteractionCreated += this.Handle;
-            this._behavior = config.ResponseBehavior;
+            this._config = config;
+
             this._message = new() {Content = config.ResponseMessage ?? "This message was not meant for you.", IsEphemeral = true};
         }
 
@@ -105,18 +106,17 @@ namespace DSharpPlus.Interactivity.EventHandling
         {
             if (this._matchrequests.TryGetValue(args.Message.Id, out var mreq))
             {
-                await args.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate).ConfigureAwait(false);
+                if (this._config.ACKPaginationButtons)
+                {
+                    await args.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate).ConfigureAwait(false);
+                    args.Handled = true;
+                }
 
-                if (!mreq.IsMatch(args))
-                {
-                    if (this._behavior is InteractionResponseBehavior.Respond)
-                        await args.Interaction.CreateFollowupMessageAsync(this._message).ConfigureAwait(false);
-                }
-                else
-                {
-                    if (!mreq.Tcs.TrySetResult(args))
-                        this._client.Logger.LogWarning(InteractivityEvents.InteractivityWaitError, "Could not set result for component wait event.");
-                }
+                if (mreq.IsMatch(args))
+                    mreq.Tcs.TrySetResult(args);
+
+                else if (this._config.ResponseBehavior is InteractionResponseBehavior.Respond)
+                    await args.Interaction.CreateFollowupMessageAsync(this._message).ConfigureAwait(false);
             }
 
 
@@ -125,14 +125,10 @@ namespace DSharpPlus.Interactivity.EventHandling
                 await args.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate).ConfigureAwait(false);
 
                 if (creq.IsMatch(args))
-                {
                     creq.Collected.Add(args);
-                }
-                else
-                {
-                    if (this._behavior is InteractionResponseBehavior.Respond)
-                        await args.Interaction.CreateFollowupMessageAsync(this._message).ConfigureAwait(false);
-                }
+
+                else if (this._config.ResponseBehavior is InteractionResponseBehavior.Respond)
+                    await args.Interaction.CreateFollowupMessageAsync(this._message).ConfigureAwait(false);
             }
         }
         public void Dispose()
