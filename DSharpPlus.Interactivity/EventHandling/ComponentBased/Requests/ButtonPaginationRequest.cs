@@ -62,7 +62,33 @@ namespace DSharpPlus.Interactivity.EventHandling
 
         public int PageCount => this._pages.Count;
 
-        public Task<Page> GetPageAsync() => Task.FromResult(this._pages[this._index]);
+        public Task<Page> GetPageAsync()
+        {
+            var page = Task.FromResult(this._pages[this._index]);
+
+            if (this.PageCount is 1)
+            {
+                this._buttons.ButtonArray.Select(b => b.Disable());
+                this._buttons.Stop.Enable();
+                return page;
+            }
+
+
+
+            if (this._wrapBehavior is PaginationBehaviour.WrapAround)
+                return page;
+
+            this._buttons.SkipLeft.Disabled = this._index - 1 < 2;
+
+            this._buttons.Left.Disabled = this._index is 0;
+
+            this._buttons.Right.Disabled = this._index + 1 == this.PageCount;
+
+            this._buttons.SkipRight.Disabled = this._index + 2 >= this.PageCount;
+
+
+            return page;
+        }
         public Task SkipLeftAsync()
         {
             if (this._wrapBehavior is PaginationBehaviour.WrapAround)
@@ -72,11 +98,6 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
 
             this._index = 0;
-            this._buttons.Left.Disable();
-            this._buttons.SkipLeft.Disable();
-
-            this._buttons.Right.Enable();
-            this._buttons.SkipRight.Enable();
 
             return Task.CompletedTask;
         }
@@ -89,12 +110,6 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
 
             this._index = this._pages.Count - 1;
-
-            this._buttons.Left.Enable();
-            this._buttons.SkipLeft.Enable();
-
-            this._buttons.Right.Disable();
-            this._buttons.SkipRight.Disable();
 
             return Task.CompletedTask;
         }
@@ -110,11 +125,7 @@ namespace DSharpPlus.Interactivity.EventHandling
                 return Task.CompletedTask;
             }
 
-            if (this._index > this._pages.Count - 2)
-                this._buttons.SkipRight.Disable();
-
-            if (this._index == this._pages.Count - 1)
-                this._buttons.Right.Disable();
+            this._index = Math.Min(this._index, this.PageCount - 1);
 
             return Task.CompletedTask;
         }
@@ -130,26 +141,15 @@ namespace DSharpPlus.Interactivity.EventHandling
                 return Task.CompletedTask;
             }
 
-            if (this._index is 1)
-                this._buttons.SkipLeft.Disable();
-
-            if (this._index < 1)
-            {
-                this._buttons.Left.Disable();
-                this._index = 0;
-            }
-
-            if (this.PageCount > 2)
-                this._buttons.SkipRight.Enable();
-
-            this._buttons.Right.Enable();
+            this._index = Math.Max(this._index, 0);
 
             return Task.CompletedTask;
         }
         public Task<PaginationEmojis> GetEmojisAsync()
             => Task.FromException<PaginationEmojis>(new NotSupportedException("Emojis aren't supported for this request."));
 
-        public Task<IEnumerable<DiscordButtonComponent>> GetButtonsAsync() => Task.FromResult(this._buttons.ButtonArray.AsEnumerable());
+        public Task<IEnumerable<DiscordButtonComponent>> GetButtonsAsync()
+            => Task.FromResult((IEnumerable<DiscordButtonComponent>)this._buttons.ButtonArray);
 
         public Task<DiscordMessage> GetMessageAsync() => Task.FromResult(this._message);
         public Task<DiscordUser> GetUserAsync() => Task.FromResult(this._user);

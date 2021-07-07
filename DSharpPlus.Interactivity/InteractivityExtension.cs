@@ -508,21 +508,18 @@ namespace DSharpPlus.Interactivity
             var del = deletion ?? this.Config.ButtonBehavior;
             var bts = buttons ?? this.Config.PaginationButtons;
 
+            var req = new ButtonPaginationRequest(null, user, bhv, del, bts, pages.ToArray(), token.Value);
+            await req.GetPageAsync().ConfigureAwait(false);
+
             var builder = new DiscordMessageBuilder()
                 .WithContent(pages.First().Content)
                 .WithEmbed(pages.First().Embed)
-                .AddComponents(
-                    bts.SkipLeft,
-                    bts.Left,
-                    bts.Stop,
-                    bts.Right,
-                    bts.SkipRight);
+                .AddComponents(await req.GetButtonsAsync().ConfigureAwait(false));
             var message = await builder.SendAsync(channel).ConfigureAwait(false);
 
+            req = new(message, user, bhv, del, bts, pages.ToArray(), token.Value);
             token ??= new CancellationTokenSource(this.Config.Timeout).Token;
 
-
-            var req = new ButtonPaginationRequest(message, user, bhv, del, bts, pages.ToArray(), token.Value);
 
             await this._compPaginator.DoPaginationAsync(req).ConfigureAwait(false);
         }

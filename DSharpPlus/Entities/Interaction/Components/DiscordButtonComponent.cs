@@ -88,10 +88,11 @@ namespace DSharpPlus.Entities
         /// Constucts a new button based on another button.
         /// </summary>
         /// <param name="other">The button to copy.</param>
-        public DiscordButtonComponent(DiscordButtonComponent other)
+        public DiscordButtonComponent(DiscordButtonComponent other) : this()
         {
             this.CustomId = other.CustomId;
             this.Style = other.Style;
+            this.Label = other.Label;
             this.Disabled = other.Disabled;
             this.Emoji = other.Emoji;
         }
