@@ -149,8 +149,7 @@ namespace DSharpPlus.Interactivity.EventHandling
         public Task<PaginationEmojis> GetEmojisAsync()
             => Task.FromException<PaginationEmojis>(new NotSupportedException("Emojis aren't supported for this request."));
 
-        public Task<IEnumerable<DiscordButtonComponent>> GetButtonsAsync()
-            => Task.FromResult(this._message.Components.First().Components.Cast<DiscordButtonComponent>());
+        public Task<IEnumerable<DiscordButtonComponent>> GetButtonsAsync() => Task.FromResult(this._buttons.ButtonArray.AsEnumerable());
 
         public Task<DiscordMessage> GetMessageAsync() => Task.FromResult(this._message);
         public Task<DiscordUser> GetUserAsync() => Task.FromResult(this._user);
@@ -159,11 +158,10 @@ namespace DSharpPlus.Interactivity.EventHandling
         // This is essentially the stop method. //
         public async Task DoCleanupAsync()
         {
-            Console.WriteLine("Cleaning up.");
             switch (this._behaviorBehavior)
             {
                 case ButtonPaginationBehavior.Disable:
-                    var buttons = (await this.GetButtonsAsync()).Select(b => b.Disable());
+                    var buttons = this._buttons.ButtonArray.Select(b => b.Disable());
 
                     var builder = new DiscordMessageBuilder()
                         .WithContent(this._pages[this._index].Content)

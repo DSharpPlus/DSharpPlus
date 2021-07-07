@@ -35,7 +35,7 @@ namespace DSharpPlus.Interactivity.EventHandling
         public DiscordButtonComponent Right { get; set; }
         public DiscordButtonComponent SkipRight { get; set; }
 
-        internal DiscordButtonComponent[] Buttons { get; private set; }
+        internal DiscordButtonComponent[] ButtonArray { get; private set; }
 
         public PaginationButtons()
         {
@@ -45,7 +45,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             this.Right = new(ButtonStyle.Secondary, "right", null, false, new(DiscordEmoji.FromUnicode("▶")));
             this.SkipRight = new(ButtonStyle.Secondary, "rightskip", null, false, new(DiscordEmoji.FromUnicode("⏯")));
 
-            this.Buttons = new[]
+            this.ButtonArray = new[]
             {
                 this.SkipLeft,
                 this.Left,
