@@ -189,6 +189,9 @@ namespace DSharpPlus.Entities
         /// <returns>The current builder to be chained.</returns>
         public DiscordMessageBuilder WithEmbed(DiscordEmbed embed)
         {
+            if (embed is null)
+                return this;
+
             this.Embed = embed;
             return this;
         }
@@ -200,6 +203,8 @@ namespace DSharpPlus.Entities
         /// <returns>The current builder to be chained.</returns>
         public DiscordMessageBuilder AddEmbed(DiscordEmbed embed)
         {
+            if (embed is null)
+                return this; //this will 400//
             this._embeds.Add(embed);
             return this;
         }

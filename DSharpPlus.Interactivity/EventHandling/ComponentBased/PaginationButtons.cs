@@ -20,6 +20,9 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.Interactivity.EventHandling
@@ -32,6 +35,8 @@ namespace DSharpPlus.Interactivity.EventHandling
         public DiscordButtonComponent Right { get; set; }
         public DiscordButtonComponent SkipRight { get; set; }
 
+        internal DiscordButtonComponent[] Buttons { get; private set; }
+
         public PaginationButtons()
         {
             this.SkipLeft = new(ButtonStyle.Secondary, "leftskip", null, false, new(DiscordEmoji.FromUnicode("⏮")));
@@ -39,6 +44,24 @@ namespace DSharpPlus.Interactivity.EventHandling
             this.Stop = new(ButtonStyle.Secondary, "stop", null, false, new(DiscordEmoji.FromUnicode("🛑")));
             this.Right = new(ButtonStyle.Secondary, "right", null, false, new(DiscordEmoji.FromUnicode("▶")));
             this.SkipRight = new(ButtonStyle.Secondary, "rightskip", null, false, new(DiscordEmoji.FromUnicode("⏯")));
+
+            this.Buttons = new[]
+            {
+                this.SkipLeft,
+                this.Left,
+                this.Stop,
+                this.Right,
+                this.SkipRight
+            };
+        }
+
+        public PaginationButtons(PaginationButtons other) : this()
+        {
+            this.Stop = new(other.Stop);
+            this.Left = new(other.Left);
+            this.Right = new(other.Right);
+            this.SkipLeft = new(other.SkipLeft);
+            this.SkipRight = new(other.SkipRight);
         }
     }
 }

@@ -54,6 +54,16 @@ namespace DSharpPlus.Interactivity
         public PaginationButtons PaginationButtons { internal get; set; } = new();
 
         /// <summary>
+        /// Whether interactivity should ACK buttons that are pushed. Setting this to <see langword="true"/> will also prevent subsequent event handlers from running.
+        /// </summary>
+        public bool ACKPaginationButtons { internal get; set; }
+
+        /// <summary>
+        /// How to handle buttons after pagination ends.
+        /// </summary>
+        public ButtonPaginationBehavior ButtonBehavior { internal get; set; } = new();
+
+        /// <summary>
         /// How to handle pagination. Defaults to WrapAround.
         /// </summary>
         public PaginationBehaviour PaginationBehaviour { internal get; set; } = PaginationBehaviour.WrapAround;
@@ -86,6 +96,10 @@ namespace DSharpPlus.Interactivity
         /// <param name="other">Configuration the properties of which are to be copied.</param>
         public InteractivityConfiguration(InteractivityConfiguration other)
         {
+            this.ACKPaginationButtons = other.ACKPaginationButtons;
+            this.PaginationButtons = other.PaginationButtons;
+            this.ButtonBehavior = other.ButtonBehavior;
+
             this.PaginationBehaviour = other.PaginationBehaviour;
             this.PaginationDeletion = other.PaginationDeletion;
             this.ResponseBehavior = other.ResponseBehavior;

@@ -59,6 +59,8 @@ namespace DSharpPlus.Interactivity
         private Poller Poller;
 
         private Paginator Paginator;
+        private  ComponentPaginator _compPaginator;
+
         #pragma warning restore IDE1006 // Naming Styles
 
         internal InteractivityExtension(InteractivityConfiguration cfg)
@@ -76,6 +78,7 @@ namespace DSharpPlus.Interactivity
             this.Poller = new Poller(this.Client);
             this.ReactionCollector = new ReactionCollector(this.Client);
             this.Paginator = new Paginator(this.Client);
+            this._compPaginator = new(this.Client, this.Config);
             this.ComponentEventWaiter = new(this.Client, this.Config);
 
         }
@@ -97,9 +100,8 @@ namespace DSharpPlus.Interactivity
                 throw new ArgumentException("You need to provide at least one emoji for a poll!");
 
             foreach (var em in emojis)
-            {
                 await m.CreateReactionAsync(em).ConfigureAwait(false);
-            }
+
             var res = await this.Poller.DoPollAsync(new PollRequest(m, timeout ?? this.Config.Timeout, emojis)).ConfigureAwait(false);
 
             var pollbehaviour = behaviour ?? this.Config.PollBehaviour;
@@ -497,6 +499,34 @@ namespace DSharpPlus.Interactivity
             var res = await waiter.CollectMatches(new CollectRequest<T>(predicate, timeout)).ConfigureAwait(false);
             return res;
         }
+
+        public async Task SendPaginatedMessageAsync(
+            DiscordChannel channel, DiscordUser user, IEnumerable<Page> pages, PaginationButtons buttons = null,
+            PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default, CancellationToken? token = default)
+        {
+            var bhv = behaviour ?? this.Config.PaginationBehaviour;
+            var del = deletion ?? this.Config.ButtonBehavior;
+            var bts = buttons ?? this.Config.PaginationButtons;
+
+            var builder = new DiscordMessageBuilder()
+                .WithContent(pages.First().Content)
+                .WithEmbed(pages.First().Embed)
+                .AddComponents(
+                    bts.SkipLeft,
+                    bts.Left,
+                    bts.Stop,
+                    bts.Right,
+                    bts.SkipRight);
+            var message = await builder.SendAsync(channel).ConfigureAwait(false);
+
+            token ??= new CancellationTokenSource(this.Config.Timeout).Token;
+
+
+            var req = new ButtonPaginationRequest(message, user, bhv, del, bts, pages.ToArray(), token.Value);
+
+            await this._compPaginator.DoPaginationAsync(req).ConfigureAwait(false);
+        }
+
 
         /// <summary>
         /// Sends a paginated message.

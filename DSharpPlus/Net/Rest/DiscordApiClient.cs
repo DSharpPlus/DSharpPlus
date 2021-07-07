@@ -917,7 +917,7 @@ namespace DSharpPlus.Net
 
             if (builder.Embeds != null)
                 foreach (var embed in builder.Embeds)
-                    if (embed.Timestamp != null)
+                    if (embed?.Timestamp != null)
                         embed.Timestamp = embed.Timestamp.Value.ToUniversalTime();
 
             var pld = new RestChannelMessageCreatePayload
@@ -2720,7 +2720,7 @@ namespace DSharpPlus.Net
             foreach (var perm in ret)
                 perm.Discord = this.Discord;
             return ret.ToList();
-        } 
+        }
         #endregion
 
         #region Misc

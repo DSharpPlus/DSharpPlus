@@ -153,7 +153,8 @@ namespace DSharpPlus.Interactivity.EventHandling
 
             return this._emojis;
         }
-        public async Task<PaginationButtons> GetButtonsAsync() => throw new NotSupportedException("This request does not support buttons.");
+        public async Task<IEnumerable<DiscordButtonComponent>> GetButtonsAsync()
+            => throw new NotSupportedException("This request does not support buttons.");
 
         public async Task<DiscordMessage> GetMessageAsync()
         {
