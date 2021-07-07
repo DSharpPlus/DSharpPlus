@@ -31,7 +31,7 @@ using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.Interactivity.EventHandling
 {
-    internal class ComponentPaginator : IPaginator, IDisposable
+    internal class ComponentPaginator : IPaginator
     {
         private readonly DiscordClient _client;
         private readonly InteractivityConfiguration _config;
@@ -47,16 +47,12 @@ namespace DSharpPlus.Interactivity.EventHandling
 
         public async Task DoPaginationAsync(IPaginationRequest request)
         {
-            if (request is not ButtonPaginationRequest breq)
-                throw new ArgumentException($"Only {typeof(ButtonPaginationRequest).Name} is supported.", nameof(request));
-
             var id = (await request.GetMessageAsync().ConfigureAwait(false)).Id;
-            this._requests.Add(id, breq);
+            this._requests.Add(id, request);
 
             try
             {
                 var tcs = await request.GetTaskCompletionSourceAsync().ConfigureAwait(false);
-                Console.WriteLine("awaiting tcs.Task");
                 await tcs.Task;
             }
             catch (Exception ex)
@@ -66,18 +62,12 @@ namespace DSharpPlus.Interactivity.EventHandling
             finally
             {
                 this._requests.Remove(id);
-                Console.WriteLine("Removed request");
-                try
-                {
-                    Console.WriteLine("Cleaning up");
-                    await request.DoCleanupAsync().ConfigureAwait(false);
-                    Console.WriteLine("Cleaned up");
-                }
-                catch (Exception e)
-                {
-                    this._client.Logger.LogError(InteractivityEvents.InteractivityPaginationError, e, "There was an exception while cleaning up pagination.");
-                }
             }
+        }
+
+        public void Dispose()
+        {
+            this._client.ComponentInteractionCreated -= this.Handle;
         }
 
 
@@ -96,6 +86,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
             await this.HandlePaginationAsync(req, e).ConfigureAwait(false);
         }
+
         private async Task HandlePaginationAsync(IPaginationRequest request, ComponentInteractionCreateEventArgs args)
         {
             var buttons = this._config.PaginationButtons;
@@ -107,7 +98,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             {
                 _ when id == buttons.SkipLeft.CustomId => request.SkipLeftAsync(),
                 _ when id == buttons.SkipRight.CustomId => request.SkipRightAsync(),
-                _ when id == buttons.Stop.CustomId => StopAsync(),
+                _ when id == buttons.Stop.CustomId => request.DoCleanupAsync(),
                 _ when id == buttons.Left.CustomId => request.PreviousPageAsync(),
                 _ when id == buttons.Right.CustomId => request.NextPageAsync(),
             };
@@ -128,14 +119,6 @@ namespace DSharpPlus.Interactivity.EventHandling
 
             await this._builder.ModifyAsync(msg);
 
-            Task StopAsync() => Task.FromResult(tcs.TrySetResult(true));
-
-        }
-
-        public void Dispose()
-        {
-            this._requests.Clear();
-            this._client.ComponentInteractionCreated -= this.Handle;
         }
     }
 }
