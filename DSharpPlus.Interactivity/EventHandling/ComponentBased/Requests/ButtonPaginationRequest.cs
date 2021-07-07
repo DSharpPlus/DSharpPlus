@@ -160,8 +160,8 @@ namespace DSharpPlus.Interactivity.EventHandling
                     var buttons = (await this.GetButtonsAsync()).Select(b => b.Disable());
 
                     var builder = new DiscordMessageBuilder()
-                        .WithContent(this._message.Content)
-                        .AddEmbeds(this._message.Embeds)
+                        .WithContent(this._pages[this._index].Content)
+                        .AddEmbed(this._pages[this._index].Embed)
                         .AddComponents(buttons);
 
                     await builder.ModifyAsync(this._message);
