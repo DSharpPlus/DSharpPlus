@@ -66,20 +66,19 @@ namespace DSharpPlus.Interactivity.EventHandling
         {
             this._matchrequests[request.Id] = request;
 
-            ComponentInteractionCreateEventArgs result = null;
             try
             {
-                result = await request.Tcs.Task.ConfigureAwait(false);
+                return await request.Tcs.Task.ConfigureAwait(false);
             }
             catch (Exception e)
             {
                 this._client.Logger.LogError(InteractivityEvents.InteractivityWaitError, e, "An exception was thrown while waiting for components.");
+                return null;
             }
             finally
             {
                 this._matchrequests.TryRemove(request.Id, out _);
             }
-            return result;
         }
 
         /// <summary>
