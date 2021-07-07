@@ -27,6 +27,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using DSharpPlus.Interactivity.Enums;
 using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.Interactivity.EventHandling
@@ -84,14 +85,21 @@ namespace DSharpPlus.Interactivity.EventHandling
             if (!this._requests.TryGetValue(e.Message.Id, out var req))
                 return;
 
-            if (await req.GetUserAsync().ConfigureAwait(false) != e.User)
-                return;
-
             if (this._config.ACKPaginationButtons)
             {
                 e.Handled = true;
                 await e.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
             }
+
+            if (await req.GetUserAsync().ConfigureAwait(false) != e.User)
+            {
+                if (this._config.ResponseBehavior is InteractionResponseBehavior.Respond)
+                    await e.Interaction.CreateFollowupMessageAsync(new() {Content = this._config.ResponseMessage, IsEphemeral = true});
+
+                return;
+            }
+
+
             await this.HandlePaginationAsync(req, e).ConfigureAwait(false);
         }
 

@@ -131,9 +131,9 @@ namespace DSharpPlus.Test
             {
                 Timeout = TimeSpan.FromSeconds(10),
                 ACKPaginationButtons = true,
-                ResponseBehavior = InteractionResponseBehavior.Ack,
+                ResponseBehavior = InteractionResponseBehavior.Respond,
                 PaginationBehaviour = PaginationBehaviour.Ignore,
-                ResponseMessage = "That's not a valid button",
+                ResponseMessage = "Sorry, but this wasn't a valid option, or does not belong to you!",
                 PaginationButtons = new PaginationButtons()
                 {
                     Stop = new DiscordButtonComponent(ButtonStyle.Danger, "stop", null, false, new DiscordComponentEmoji(862259725785497620)),

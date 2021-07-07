@@ -44,9 +44,10 @@ namespace DSharpPlus.Test
                          "Donec volutpat condimentum velit. Aenean tincidunt massa eu malesuada aliquet. Suspendisse potenti. Nulla porttitor vel sem et pretium. Vestibulum tempus tortor lectus, aliquet tempus risus condimentum vel. Quisque ultricies dapibus lacus, nec mollis enim efficitur in. Aliquam laoreet ultricies lorem, quis hendrerit elit pellentesque at. Cras sit amet dignissim velit. Suspendisse vulputate aliquam faucibus. Morbi dictum magna gravida diam vehicula convallis. Sed egestas nulla lectus, id cursus libero pharetra id. Aliquam fermentum gravida dictum. Curabitur aliquam diam tortor.";
 
             var interactivity = ctx.Client.GetInteractivity();
+            var embedPages = interactivity.GeneratePagesInEmbed(lipsum);
             var pages = interactivity.GeneratePagesInContent(lipsum, SplitType.Character);
 
-            await interactivity.SendPaginatedMessageAsync(ctx.Channel, ctx.User, pages, token: new CancellationTokenSource(TimeSpan.FromSeconds(30)).Token);
+            await interactivity.SendPaginatedMessageAsync(ctx.Channel, ctx.User, embedPages, token: new CancellationTokenSource(TimeSpan.FromSeconds(30)).Token);
         }
 
     }
