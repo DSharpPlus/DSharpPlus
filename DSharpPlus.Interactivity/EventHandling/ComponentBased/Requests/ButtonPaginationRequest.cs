@@ -133,8 +133,14 @@ namespace DSharpPlus.Interactivity.EventHandling
             if (this._index is 1)
                 this._buttons.SkipLeft.Disable();
 
-            if (this._index is 0)
+            if (this._index < 1)
+            {
                 this._buttons.Left.Disable();
+                this._index = 0;
+            }
+
+            if (this.PageCount > 2)
+                this._buttons.SkipRight.Enable();
 
             this._buttons.Right.Enable();
 

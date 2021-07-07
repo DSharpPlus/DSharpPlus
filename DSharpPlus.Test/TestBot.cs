@@ -131,6 +131,7 @@ namespace DSharpPlus.Test
                 Timeout = TimeSpan.FromSeconds(10),
                 ACKPaginationButtons = true,
                 ResponseBehavior = InteractionResponseBehavior.Ack,
+                PaginationBehaviour = PaginationBehaviour.Ignore,
                 ResponseMessage = "That's not a valid button"
             };
 
