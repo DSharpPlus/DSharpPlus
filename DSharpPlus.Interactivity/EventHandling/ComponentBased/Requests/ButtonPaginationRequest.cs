@@ -47,7 +47,7 @@ namespace DSharpPlus.Interactivity.EventHandling
 
         public ButtonPaginationRequest(DiscordMessage message, DiscordUser user,
             PaginationBehaviour behavior, ButtonPaginationBehavior behaviorBehavior,
-            PaginationButtons buttons, Page[] pages, CancellationToken token)
+            PaginationButtons buttons, IEnumerable<Page> pages, CancellationToken token)
         {
             this._user = user;
             this._token = token;
@@ -73,8 +73,6 @@ namespace DSharpPlus.Interactivity.EventHandling
                 return page;
             }
 
-
-
             if (this._wrapBehavior is PaginationBehaviour.WrapAround)
                 return page;
 
@@ -85,7 +83,6 @@ namespace DSharpPlus.Interactivity.EventHandling
             this._buttons.Right.Disabled = this._index + 1 == this.PageCount;
 
             this._buttons.SkipRight.Disabled = this._index + 2 >= this.PageCount;
-
 
             return page;
         }

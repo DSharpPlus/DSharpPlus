@@ -44,7 +44,6 @@ namespace DSharpPlus.Interactivity.EventHandling
         protected readonly CancellationToken _cancellation;
         protected readonly Func<ComponentInteractionCreateEventArgs, bool> _predicate;
 
-        public bool IsMatch(ComponentInteractionCreateEventArgs args) => this._predicate(args);
         public ComponentMatchRequest(ulong id, Func<ComponentInteractionCreateEventArgs, bool> predicate, CancellationToken cancellation)
         {
             this.Id = id;
@@ -52,5 +51,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             this._cancellation = cancellation;
             this._cancellation.Register(() => this.Tcs.TrySetResult(null)); // TrySetCancelled would probably be better but I digress ~Velvet //
         }
+
+        public bool IsMatch(ComponentInteractionCreateEventArgs args) => this._predicate(args);
     }
 }
