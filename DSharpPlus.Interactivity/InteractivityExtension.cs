@@ -565,6 +565,14 @@ namespace DSharpPlus.Interactivity
         public async Task WaitForCustomPaginationAsync(IPaginationRequest request) => await this.Paginator.DoPaginationAsync(request).ConfigureAwait(false);
 
         /// <summary>
+        /// Waits for custom button-based pagination request to finish.
+        /// <br/>
+        /// This does <i><b>not</b></i> invoke <see cref="IPaginationRequest.DoCleanupAsync"/>.
+        /// </summary>
+        /// <param name="request">The request to wait for.</param>
+        public async Task WaitForCustomComponentPaginationAsync(IPaginationRequest request) => await this._compPaginator.DoPaginationAsync(request).ConfigureAwait(false);
+
+        /// <summary>
         /// Generates pages from a string, and puts them in message content.
         /// </summary>
         /// <param name="input">Input string.</param>
