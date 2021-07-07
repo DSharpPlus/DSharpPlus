@@ -62,6 +62,14 @@ namespace DSharpPlus.Interactivity.EventHandling
             finally
             {
                 this._requests.Remove(id);
+                try
+                {
+                    await request.DoCleanupAsync().ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    this._client.Logger.LogError(InteractivityEvents.InteractivityPaginationError, ex, "There was an exception while cleaning up pagination.");
+                }
             }
         }
 
@@ -98,7 +106,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             {
                 _ when id == buttons.SkipLeft.CustomId => request.SkipLeftAsync(),
                 _ when id == buttons.SkipRight.CustomId => request.SkipRightAsync(),
-                _ when id == buttons.Stop.CustomId => request.DoCleanupAsync(),
+                _ when id == buttons.Stop.CustomId => Task.FromResult(tcs.TrySetResult(true)),
                 _ when id == buttons.Left.CustomId => request.PreviousPageAsync(),
                 _ when id == buttons.Right.CustomId => request.NextPageAsync(),
             };

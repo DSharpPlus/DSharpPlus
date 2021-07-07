@@ -153,6 +153,7 @@ namespace DSharpPlus.Interactivity.EventHandling
         // This is essentially the stop method. //
         public async Task DoCleanupAsync()
         {
+            Console.WriteLine("Cleaning up.");
             switch (this._behaviorBehavior)
             {
                 case ButtonPaginationBehavior.Disable:
@@ -173,7 +174,6 @@ namespace DSharpPlus.Interactivity.EventHandling
                 case ButtonPaginationBehavior.Ignore:
                     break;
             }
-            this._tcs.TrySetResult(true);
         }
     }
 }
