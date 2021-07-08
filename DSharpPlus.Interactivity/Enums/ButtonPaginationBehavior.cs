@@ -38,6 +38,10 @@ namespace DSharpPlus.Interactivity.Enums
         /// <summary>
         /// The entire message should be deleted when pagination times out.
         /// </summary>
-        DeleteMessage
+        DeleteMessage,
+        /// <summary>
+        /// The buttons should be removed entirely when pagination times out.
+        /// </summary>
+        DeleteButtons,
     }
 }

@@ -167,6 +167,13 @@ namespace DSharpPlus.Interactivity.EventHandling
 
                     await builder.ModifyAsync(this._message);
                     break;
+                case ButtonPaginationBehavior.DeleteButtons:
+                    builder = new DiscordMessageBuilder()
+                        .WithContent(this._pages[this._index].Content)
+                        .AddEmbed(this._pages[this._index].Embed);
+
+                    await builder.ModifyAsync(this._message);
+                    break;
 
                 case ButtonPaginationBehavior.DeleteMessage:
                     await this._message.DeleteAsync();
