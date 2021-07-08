@@ -33,9 +33,10 @@ namespace DSharpPlus.Interactivity.EventHandling
     internal class ComponentMatchRequest
     {
         /// <summary>
-        /// The Id of the message to wait on.
+        /// The id of the message to wait on.
         /// </summary>
         public ulong Id { get; private set; }
+
         /// <summary>
         /// The completion source that represents the result of the match.
         /// </summary>

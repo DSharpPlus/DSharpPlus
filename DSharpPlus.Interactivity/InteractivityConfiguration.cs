@@ -99,7 +99,6 @@ namespace DSharpPlus.Interactivity
             this.ACKPaginationButtons = other.ACKPaginationButtons;
             this.PaginationButtons = other.PaginationButtons;
             this.ButtonBehavior = other.ButtonBehavior;
-
             this.PaginationBehaviour = other.PaginationBehaviour;
             this.PaginationDeletion = other.PaginationDeletion;
             this.ResponseBehavior = other.ResponseBehavior;

@@ -132,7 +132,6 @@ namespace DSharpPlus.Interactivity.Extensions
         /// <param name="user">The user to wait for.</param>
         /// <param name="id">The Id of the dropdown to wait for.</param>
         /// <param name="timeoutOverride"></param>
-
         public static Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForSelectAsync(this DiscordMessage message, DiscordUser user, string id, TimeSpan? timeoutOverride = null)
             => GetInteractivity(message).WaitForSelectAsync(message, user, id, timeoutOverride);
 

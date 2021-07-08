@@ -43,8 +43,8 @@ namespace DSharpPlus.Interactivity.EventHandling
     {
         private readonly DiscordClient _client;
         private readonly ConcurrentHashSet<ComponentMatchRequest> _emptyMatchIds = new();
-        private readonly ConcurrentDictionary<ulong, ComponentMatchRequest> _matchrequests = new();
-        private readonly ConcurrentDictionary<ulong, ComponentCollectRequest> _collectrequests = new();
+        private readonly ConcurrentDictionary<ulong, ComponentMatchRequest> _matchRequests = new();
+        private readonly ConcurrentDictionary<ulong, ComponentCollectRequest> _collectRequests = new();
 
         private readonly DiscordFollowupMessageBuilder _message;
         private readonly InteractivityConfiguration _config;
@@ -65,7 +65,7 @@ namespace DSharpPlus.Interactivity.EventHandling
         /// <returns>The returned args, or null if it timed out.</returns>
         public async Task<ComponentInteractionCreateEventArgs> WaitForMatchAsync(ComponentMatchRequest request)
         {
-            this._matchrequests[request.Id] = request;
+            this._matchRequests[request.Id] = request;
 
             try
             {
@@ -78,18 +78,18 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
             finally
             {
-                this._matchrequests.TryRemove(request.Id, out _);
+                this._matchRequests.TryRemove(request.Id, out _);
             }
         }
 
         /// <summary>
-        /// Collects reactions and returns the result when the <see cref="ComponentMatchRequest"/>'s canellation token is canceled.
+        /// Collects reactions and returns the result when the <see cref="ComponentMatchRequest"/>'s cancellation token is canceled.
         /// </summary>
         /// <param name="request">The request to wait on.</param>
-        /// <returns>The result from request's predicate over the period of time leading up to the token's canellation.</returns>
+        /// <returns>The result from request's predicate over the period of time leading up to the token's cancellation.</returns>
         public async Task<IReadOnlyList<ComponentInteractionCreateEventArgs>> CollectMatchesAsync(ComponentCollectRequest request)
         {
-            this._collectrequests[request.Id] = request;
+            this._collectRequests[request.Id] = request;
             try
             {
                 await request.Tcs.Task.ConfigureAwait(false);
@@ -104,7 +104,7 @@ namespace DSharpPlus.Interactivity.EventHandling
 
         private async Task Handle(DiscordClient _, ComponentInteractionCreateEventArgs args)
         {
-            if (this._matchrequests.TryGetValue(args.Message.Id, out var mreq))
+            if (this._matchRequests.TryGetValue(args.Message.Id, out var mreq))
             {
                 if (this._config.ACKPaginationButtons)
                 {
@@ -120,7 +120,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
 
 
-            if (this._collectrequests.TryGetValue(args.Message.Id, out var creq))
+            if (this._collectRequests.TryGetValue(args.Message.Id, out var creq))
             {
                 await args.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate).ConfigureAwait(false);
 
@@ -133,8 +133,8 @@ namespace DSharpPlus.Interactivity.EventHandling
         }
         public void Dispose()
         {
-            this._matchrequests.Clear();
-            this._collectrequests.Clear();
+            this._matchRequests.Clear();
+            this._collectRequests.Clear();
             this._client.ComponentInteractionCreated -= this.Handle;
         }
     }

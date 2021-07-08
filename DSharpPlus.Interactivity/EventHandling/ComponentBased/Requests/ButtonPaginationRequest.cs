@@ -86,6 +86,7 @@ namespace DSharpPlus.Interactivity.EventHandling
 
             return page;
         }
+
         public Task SkipLeftAsync()
         {
             if (this._wrapBehavior is PaginationBehaviour.WrapAround)
@@ -98,6 +99,7 @@ namespace DSharpPlus.Interactivity.EventHandling
 
             return Task.CompletedTask;
         }
+
         public Task SkipRightAsync()
         {
             if (this._wrapBehavior is PaginationBehaviour.WrapAround)
@@ -110,6 +112,7 @@ namespace DSharpPlus.Interactivity.EventHandling
 
             return Task.CompletedTask;
         }
+
         public Task NextPageAsync()
         {
             this._index++;
@@ -126,6 +129,7 @@ namespace DSharpPlus.Interactivity.EventHandling
 
             return Task.CompletedTask;
         }
+
         public Task PreviousPageAsync()
         {
             this._index--;
@@ -142,6 +146,7 @@ namespace DSharpPlus.Interactivity.EventHandling
 
             return Task.CompletedTask;
         }
+
         public Task<PaginationEmojis> GetEmojisAsync()
             => Task.FromException<PaginationEmojis>(new NotSupportedException("Emojis aren't supported for this request."));
 
@@ -149,7 +154,9 @@ namespace DSharpPlus.Interactivity.EventHandling
             => Task.FromResult((IEnumerable<DiscordButtonComponent>)this._buttons.ButtonArray);
 
         public Task<DiscordMessage> GetMessageAsync() => Task.FromResult(this._message);
+
         public Task<DiscordUser> GetUserAsync() => Task.FromResult(this._user);
+
         public Task<TaskCompletionSource<bool>> GetTaskCompletionSourceAsync() => Task.FromResult(this._tcs);
 
         // This is essentially the stop method. //
@@ -167,6 +174,7 @@ namespace DSharpPlus.Interactivity.EventHandling
 
                     await builder.ModifyAsync(this._message);
                     break;
+
                 case ButtonPaginationBehavior.DeleteButtons:
                     builder = new DiscordMessageBuilder()
                         .WithContent(this._pages[this._index].Content)
