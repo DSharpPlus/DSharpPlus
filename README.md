@@ -15,14 +15,13 @@ I have done my best to make this as similar to CommandsNext as possible to make 
 
 Now, on to the actual guide:
 ## Installing
-Simply search for `IDoEverything.DSharpPlus.SlashCommands`. If you're using command line:
+Simply search for `IDoEverything.DSharpPlus.SlashCommands` and install the latest version. If you're using command line:
 
 Package-Manager: `Install-Package IDoEverything.DSharpPlus.SlashCommands`
 
 .NET CLI: `dotnet add package IDoEverything.DSharpPlus.SlashCommands`
 
-The current version of the library (1.5.0) depends on the DSharpPlus nightly version. If you're using the stable nuget version, either [update to the nightly version](https://dsharpplus.github.io/articles/misc/nightly_builds.html) or downgrade to 1.4.2 of this library.
-
+The current version of the library depends on the DSharpPlus nightly version. If you're using the stable nuget version, [update to the nightly version](https://dsharpplus.github.io/articles/misc/nightly_builds.html).
 # Important: Authorizing your bot
 
 For a bot to make slash commands in a server, it must be authorized with the applications.commands scope as well. In the OAuth2 section of the developer portal, you can check the applications.commands box to generate an invite link. You can check the bot box as well to generate a link that authorizes both. If a bot is already authorized with the bot scope, you can still authorize with just the applications.commands scope without having to kick out the bot.
@@ -218,13 +217,28 @@ slash.SlashCommandErrored += async (s, e) =>
 ```
 
 ### Groups
-You can have slash commands in groups. Their structure is explained [here](https://discord.com/developers/docs/interactions/slash-commands#nested-subcommands-and-groups), I would highly recommend reading it to understand how they work. To register groups you need a container which inherits from `SlashCommandModule`. Inside this container you can register groups of commands:
+You can have slash commands in groups. Their structure is explained [here](https://discord.com/developers/docs/interactions/slash-commands#nested-subcommands-and-groups). You can simply mark your command class with the `[SlashCommandGroup]` attribute.
 ```cs
+//for regular groups
+[SlashCommandGroup("group", "description")]
 public class GroupContainer : SlashCommandModule 
 {
-    //For a group and subcommands inside the group
-    [SlashCommandGroup("group", "description")]
-    public class Group
+    [SlashCommand("command", "description")]
+    public async Task Command(InteractionContext ctx) {}
+    
+    [SlashCommand("command2", "description")]
+    public async Task Command2(InteractionContext ctx) {}
+    
+    [SlashCommand("command3", "description")]
+    public async Task Command3(InteractionContext ctx) {}
+}
+
+//For subgroups inside groups
+[SlashCommandGroup("group", "description")]
+public class SubGroupContainer
+{
+    [SlashCommandGroup("subgroup", "description")]
+    public class SubGroup
     {
         [SlashCommand("command", "description")]
         public async Task Command(InteractionContext ctx) {}
@@ -235,36 +249,18 @@ public class GroupContainer : SlashCommandModule
         [SlashCommand("command3", "description")]
         public async Task Command3(InteractionContext ctx) {}
     }
-  
-    //For subgroups inside groups
-    [SlashCommandGroup("group", "description")]
-    public class Group
+    
+    [SlashCommandGroup("subgroup2", "description")]
+    public class SubGroup2
     {
-        [SlashCommandGroup("subgroup", "description")]
-        public class SubGroup
-        {
-            [SlashCommand("command", "description")]
-            public async Task Command(InteractionContext ctx) {}
+        [SlashCommand("command", "description")]
+        public async Task Command(InteractionContext ctx) {}
     
-            [SlashCommand("command2", "description")]
-            public async Task Command2(InteractionContext ctx) {}
+        [SlashCommand("command2", "description")]
+        public async Task Command2(InteractionContext ctx) {}
     
-            [SlashCommand("command3", "description")]
-            public async Task Command3(InteractionContext ctx) {}
-        }
-    
-        [SlashCommandGroup("subgroup2", "description")]
-        public class SubGroup2
-        {
-            [SlashCommand("command", "description")]
-            public async Task Command(InteractionContext ctx) {}
-    
-            [SlashCommand("command2", "description")]
-            public async Task Command2(InteractionContext ctx) {}
-    
-            [SlashCommand("command3", "description")]
-            public async Task Command3(InteractionContext ctx) {}
-        }
+        [SlashCommand("command3", "description")]
+        public async Task Command3(InteractionContext ctx) {}
     }
 }
 ```
@@ -276,8 +272,6 @@ var slash = discord.UseSlashCommands(new SlashCommandsConfiguration
     Services = new ServiceCollection().AddSingleton<Random>().BuildServiceProvider()
 });
 ```
-(Thanks to @sssvt-drabek-stepan for adding this)
-
 Property injection is implemented, however static properties will not be replaced. If you wish for a non-static property to be left alone, assign it the `DontInject` attribute. Property Injection can be used like so:
 ```cs
 public class Commands : SlashCommandModule
