@@ -3,30 +3,37 @@
 namespace DSharpPlus.SlashCommands
 {
     /// <summary>
-    /// Marks this class a slash command group
+    /// Marks this class a slash command group.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public class SlashCommandGroupAttribute : Attribute
     {
         /// <summary>
-        /// Gets the name of this slash command group
+        /// Gets the name of this slash command group.
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; }
 
         /// <summary>
-        /// Gets the description of this slash command group
+        /// Gets the description of this slash command group.
         /// </summary>
-        public string Description { get; set; }
+        public string Description { get; }
 
         /// <summary>
-        /// Marks this class as a slash command group
+        /// Gets whether this command is enabled on default.
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="description"></param>
-        public SlashCommandGroupAttribute(string name, string description)
+        public bool DefaultPermission { get; }
+
+        /// <summary>
+        /// Marks this class as a slash command group.
+        /// </summary>
+        /// <param name="name">Sets the name of this command group.</param>
+        /// <param name="description">Sets the description of this command group.</param>
+        /// <param name="defaultPermission">Sets whether this command group is enabled on default.</param>
+        public SlashCommandGroupAttribute(string name, string description, bool defaultPermission = true)
         {
             Name = name.ToLower();
             Description = description;
+            DefaultPermission = defaultPermission;
         }
     }
 }

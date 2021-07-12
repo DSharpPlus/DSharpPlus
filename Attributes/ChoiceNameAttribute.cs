@@ -11,7 +11,7 @@ namespace DSharpPlus.SlashCommands
         /// <summary>
         /// The name.
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; }
 
         /// <summary>
         /// Sets the name for this enum choice.

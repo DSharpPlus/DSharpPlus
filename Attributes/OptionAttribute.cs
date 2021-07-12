@@ -16,7 +16,7 @@ namespace DSharpPlus.SlashCommands
         /// <summary>
         /// Gets the description of this option
         /// </summary>
-        public string Description;
+        public string Description { get; }
 
         /// <summary>
         /// Marks this parameter as an option for a slash command
