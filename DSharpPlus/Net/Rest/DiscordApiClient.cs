@@ -84,6 +84,24 @@ namespace DSharpPlus.Net
                 this.PopulateMessage(author, ret.ReferencedMessage);
             }
 
+            if (ret.Channel != null)
+                return ret;
+
+            var channel = !ret.GuildId.HasValue
+                ? new DiscordDmChannel
+                {
+                    Id = ret.ChannelId,
+                    Discord = Discord,
+                    Type = ChannelType.Private
+                }
+                : new DiscordChannel
+                {
+                    Id = ret.ChannelId,
+                    GuildId = ret.GuildId,
+                    Discord = Discord
+                };
+            ret.Channel = channel;
+
             return ret;
         }
 
