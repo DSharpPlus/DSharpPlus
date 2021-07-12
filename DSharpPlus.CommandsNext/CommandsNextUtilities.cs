@@ -297,9 +297,7 @@ namespace DSharpPlus.CommandsNext
                 return false;
 
             // check if derives from the required base class
-            var tmodule = typeof(BaseCommandModule);
-            var timodule = tmodule.GetTypeInfo();
-            if (!timodule.IsAssignableFrom(ti))
+            if (!ti.IsSubclassOf(typeof(BaseCommandModule)))
                 return false;
 
             // check if anonymous
