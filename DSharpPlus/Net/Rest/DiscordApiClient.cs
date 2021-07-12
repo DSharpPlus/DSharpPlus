@@ -97,6 +97,7 @@ namespace DSharpPlus.Net
                 : new DiscordChannel
                 {
                     Id = ret.ChannelId,
+                    GuildId = ret.GuildId,
                     Discord = Discord
                 };
             ret.Channel = channel;
