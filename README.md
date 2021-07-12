@@ -15,9 +15,13 @@ I have done my best to make this as similar to CommandsNext as possible to make 
 
 Now, on to the actual guide:
 ## Installing
+Simply search for `IDoEverything.DSharpPlus.SlashCommands`. If you're using command line:
+
 Package-Manager: `Install-Package IDoEverything.DSharpPlus.SlashCommands`
 
 .NET CLI: `dotnet add package IDoEverything.DSharpPlus.SlashCommands`
+
+The current version of the library (1.5.0) depends on the DSharpPlus nightly version. If you're using the stable nuget version, either [update to the nightly version](https://dsharpplus.github.io/articles/misc/nightly_builds.html) or downgrade to 1.4.2 of this library.
 
 # Important: Authorizing your bot
 
