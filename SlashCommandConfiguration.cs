@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace DSharpPlus.SlashCommands
 {
     /// <summary>
-    /// A configuration for a <see cref="SlashCommandsExtension"/>
+    /// A configuration for a <see cref="SlashCommandsExtension"/>.
     /// </summary>
     public class SlashCommandsConfiguration
     {

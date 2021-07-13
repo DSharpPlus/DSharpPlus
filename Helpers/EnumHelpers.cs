@@ -13,8 +13,6 @@ namespace DSharpPlus.SlashCommands
         /// <summary>
         /// Gets the name from the <see cref="ChoiceNameAttribute"/> for this enum value.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="e"></param>
         /// <returns>The name.</returns>
         public static string GetName<T>(this T e) where T : IConvertible
         {

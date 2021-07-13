@@ -4,7 +4,7 @@ using System;
 namespace DSharpPlus.SlashCommands.EventArgs
 {
     /// <summary>
-    /// Represents arguments for a <see cref="SlashCommandsExtension.SlashCommandErrored"/> event
+    /// Represents arguments for a <see cref="SlashCommandsExtension.SlashCommandErrored"/> event.
     /// </summary>
     public class SlashCommandErrorEventArgs : AsyncEventArgs
     {

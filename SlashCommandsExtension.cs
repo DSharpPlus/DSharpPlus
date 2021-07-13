@@ -57,9 +57,9 @@ namespace DSharpPlus.SlashCommands
         }
 
         /// <summary>
-        /// Registers a command class
+        /// Registers a command class.
         /// </summary>
-        /// <typeparam name="T">The command class to register</typeparam>
+        /// <typeparam name="T">The command class to register.</typeparam>
         /// <param name="guildId">The guild id to register it on. If you want global commands, leave it null.</param>
         public void RegisterCommands<T>(ulong? guildId = null) where T : SlashCommandModule
         {
@@ -68,9 +68,9 @@ namespace DSharpPlus.SlashCommands
         }
 
         /// <summary>
-        /// Registers a command class
+        /// Registers a command class.
         /// </summary>
-        /// <param name="type">The <see cref="Type"/> of the command class to register</param>
+        /// <param name="type">The <see cref="Type"/> of the command class to register.</param>
         /// <param name="guildId">The guild id to register it on. If you want global commands, leave it null.</param>
         public void RegisterCommands(Type type, ulong? guildId = null)
         {
@@ -252,7 +252,6 @@ namespace DSharpPlus.SlashCommands
             });
         }
 
-        //Handler
         private Task InteractionHandler(DiscordClient client, InteractionCreateEventArgs e)
         {
             _ = Task.Run(async () =>
@@ -600,7 +599,7 @@ namespace DSharpPlus.SlashCommands
 
 
         /// <summary>
-        /// Fires whenver the execution of a slash command fails
+        /// Fires whenver the execution of a slash command fails.
         /// </summary>
         public event AsyncEventHandler<SlashCommandsExtension, SlashCommandErrorEventArgs> SlashCommandErrored
         {
@@ -610,7 +609,7 @@ namespace DSharpPlus.SlashCommands
         private AsyncEvent<SlashCommandsExtension, SlashCommandErrorEventArgs> _error;
 
         /// <summary>
-        /// Fires when the execution of a slash command is successful
+        /// Fires when the execution of a slash command is successful.
         /// </summary>
         public event AsyncEventHandler<SlashCommandsExtension, SlashCommandExecutedEventArgs> SlashCommandExecuted
         {
