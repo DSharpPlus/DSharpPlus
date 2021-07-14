@@ -228,39 +228,30 @@ public class GroupContainer : SlashCommandModule
     
     [SlashCommand("command2", "description")]
     public async Task Command2(InteractionContext ctx) {}
-    
-    [SlashCommand("command3", "description")]
-    public async Task Command3(InteractionContext ctx) {}
 }
 
 //For subgroups inside groups
 [SlashCommandGroup("group", "description")]
-public class SubGroupContainer
+public class SubGroupContainer : SlashCommandModule
 {
     [SlashCommandGroup("subgroup", "description")]
-    public class SubGroup
+    public class SubGroup : SlashCommandModule
     {
         [SlashCommand("command", "description")]
         public async Task Command(InteractionContext ctx) {}
     
         [SlashCommand("command2", "description")]
         public async Task Command2(InteractionContext ctx) {}
-    
-        [SlashCommand("command3", "description")]
-        public async Task Command3(InteractionContext ctx) {}
     }
     
     [SlashCommandGroup("subgroup2", "description")]
-    public class SubGroup2
+    public class SubGroup2 : SlashCommandModule
     {
         [SlashCommand("command", "description")]
         public async Task Command(InteractionContext ctx) {}
     
         [SlashCommand("command2", "description")]
         public async Task Command2(InteractionContext ctx) {}
-    
-        [SlashCommand("command3", "description")]
-        public async Task Command3(InteractionContext ctx) {}
     }
 }
 ```
