@@ -57,6 +57,8 @@ namespace DSharpPlus
                 return;
             }
 
+
+
             DiscordChannel chn;
             ulong gid;
             ulong cid;

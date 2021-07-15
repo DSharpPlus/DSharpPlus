@@ -91,14 +91,14 @@ namespace DSharpPlus.Net
                 ? new DiscordDmChannel
                 {
                     Id = ret.ChannelId,
-                    Discord = Discord,
+                    Discord = this.Discord,
                     Type = ChannelType.Private
                 }
                 : new DiscordChannel
                 {
                     Id = ret.ChannelId,
                     GuildId = ret.GuildId,
-                    Discord = Discord
+                    Discord = this.Discord
                 };
             ret.Channel = channel;
 
@@ -2738,7 +2738,7 @@ namespace DSharpPlus.Net
             foreach (var perm in ret)
                 perm.Discord = this.Discord;
             return ret.ToList();
-        } 
+        }
         #endregion
 
         #region Misc
