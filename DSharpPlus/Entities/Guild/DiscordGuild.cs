@@ -461,8 +461,6 @@ namespace DSharpPlus.Entities
 
         internal DiscordGuild()
         {
-            this.Roles = new ReadOnlyConcurrentDictionary<ulong, DiscordRole>(this._roles);
-            this.Emojis = new ReadOnlyConcurrentDictionary<ulong, DiscordEmoji>(this._emojis);
             this.VoiceStates = new ReadOnlyConcurrentDictionary<ulong, DiscordVoiceState>(this._voiceStates);
             this.Members = new ReadOnlyConcurrentDictionary<ulong, DiscordMember>(this._members);
             this.Channels = new ReadOnlyConcurrentDictionary<ulong, DiscordChannel>(this._channels);
