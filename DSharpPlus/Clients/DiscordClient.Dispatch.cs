@@ -917,7 +917,7 @@ namespace DSharpPlus
 
         internal async Task OnGuildEmojisUpdateEventAsync(DiscordGuild guild, IEnumerable<DiscordEmoji> newEmojis)
         {
-            var oldEmojis = new ReadOnlyDictionary<ulong, DiscordEmoji>(guild._emojis);
+            var oldEmojis = new ConcurrentDictionary<ulong, DiscordEmoji>(guild._emojis);
             guild._emojis.Clear();
 
             foreach (var emoji in newEmojis)
@@ -1873,6 +1873,7 @@ namespace DSharpPlus
                     foreach (var c in resolved.Users)
                     {
                         c.Value.Discord = this;
+                        this.UserCache.AddOrUpdate(c.Value.Id, c.Value, (old, @new) => @new);
                     }
                 }
 
@@ -1883,6 +1884,9 @@ namespace DSharpPlus
                         c.Value.Discord = this;
                         c.Value.Id = c.Key;
                         c.Value._guild_id = guildId.Value;
+                        c.Value.User.Discord = this;
+
+                        this.UserCache.AddOrUpdate(c.Value.User.Id, c.Value.User, (old, @new) => @new);
                     }
                 }
 

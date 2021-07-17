@@ -433,7 +433,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> ModifyAsync(Optional<string> content)
-            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, default, default, default, Array.Empty<DiscordMessageFile>());
+            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, default, default, default, Array.Empty<DiscordMessageFile>(), null);
 
         /// <summary>
         /// Edits the message.
@@ -445,7 +445,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> ModifyAsync(Optional<DiscordEmbed> embed = default)
-            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, default, embed.HasValue ? new[] {embed.Value} : Array.Empty<DiscordEmbed>(), default, default, Array.Empty<DiscordMessageFile>());
+            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, default, embed.HasValue ? new[] {embed.Value} : Array.Empty<DiscordEmbed>(), default, default, Array.Empty<DiscordMessageFile>(), null);
 
         /// <summary>
         /// Edits the message.
@@ -458,7 +458,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> ModifyAsync(Optional<string> content, Optional<DiscordEmbed> embed = default)
-            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embed.HasValue ? new[] {embed.Value} : Array.Empty<DiscordEmbed>(), default, default, Array.Empty<DiscordMessageFile>());
+            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embed.HasValue ? new[] {embed.Value} : Array.Empty<DiscordEmbed>(), default, default, Array.Empty<DiscordMessageFile>(), null);
 
         /// <summary>
         /// Edits the message.
@@ -471,39 +471,41 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> ModifyAsync(Optional<string> content, Optional<IEnumerable<DiscordEmbed>> embeds = default)
-            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embeds, default, default, Array.Empty<DiscordMessageFile>());
+            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embeds, default, default, Array.Empty<DiscordMessageFile>(), null);
 
 
         /// <summary>
         /// Edits the message.
         /// </summary>
         /// <param name="builder">The builder of the message to edit.</param>
+        /// <param name="suppressEmbeds">Whether to suppress embeds on the message.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client tried to modify a message not sent by them.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordMessage> ModifyAsync(DiscordMessageBuilder builder)
+        public async Task<DiscordMessage> ModifyAsync(DiscordMessageBuilder builder, bool suppressEmbeds = false)
         {
             builder.Validate(true);
-            return await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, builder.Content, new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), builder.Mentions, builder.Components, builder.Files).ConfigureAwait(false);
+            return await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, builder.Content, new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), builder.Mentions, builder.Components, builder.Files, suppressEmbeds ? MessageFlags.SuppressedEmbeds : null).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Edits the message.
         /// </summary>
         /// <param name="action">The builder of the message to edit.</param>
+        /// <param name="suppressEmbeds">Whether to suppress embeds on the message.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client tried to modify a message not sent by them.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordMessage> ModifyAsync(Action<DiscordMessageBuilder> action)
+        public async Task<DiscordMessage> ModifyAsync(Action<DiscordMessageBuilder> action, bool suppressEmbeds = false)
         {
             var builder = new DiscordMessageBuilder();
             action(builder);
             builder.Validate(true);
-            return await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, builder.Content, new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), builder.Mentions, builder.Components, builder.Files).ConfigureAwait(false);
+            return await this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, builder.Content, new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), builder.Mentions, builder.Components, builder.Files, suppressEmbeds ? MessageFlags.SuppressedEmbeds : null).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -516,7 +518,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task ModifyEmbedSuppressionAsync(bool hideEmbeds)
-            => this.Discord.ApiClient.ModifyEmbedSuppressionAsync(hideEmbeds, this.ChannelId, this.Id);
+            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, default, default, default, default, Array.Empty<DiscordMessageFile>(), hideEmbeds ? MessageFlags.SuppressedEmbeds : null);
 
         /// <summary>
         /// Deletes the message.

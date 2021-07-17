@@ -68,6 +68,9 @@ namespace DSharpPlus.Test
             return this._emojis;
         }
 
+        public async Task<IEnumerable<DiscordButtonComponent>> GetButtonsAsync()
+            => throw new NotSupportedException("This request does not support buttons.");
+
         public async Task<DiscordMessage> GetMessageAsync()
         {
             await Task.Yield();
