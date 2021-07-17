@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
@@ -69,6 +70,12 @@ namespace DSharpPlus.Interactivity.EventHandling
         /// </summary>
         /// <returns></returns>
         Task<PaginationEmojis> GetEmojisAsync();
+
+        /// <summary>
+        /// Requests the message buttons from the pagination request.
+        /// </summary>
+        /// <returns>The buttons.</returns>
+        Task<IEnumerable<DiscordButtonComponent>> GetButtonsAsync();
 
         /// <summary>
         /// Gets pagination message from this request.

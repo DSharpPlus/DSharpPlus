@@ -55,8 +55,8 @@ namespace DSharpPlus.Interactivity.EventHandling
         internal PaginationRequest(DiscordMessage message, DiscordUser user, PaginationBehaviour behaviour, PaginationDeletion deletion,
             PaginationEmojis emojis, TimeSpan timeout, params Page[] pages)
         {
-            this._tcs = new TaskCompletionSource<bool>();
-            this._ct = new CancellationTokenSource(timeout);
+            this._tcs = new();
+            this._ct = new(timeout);
             this._ct.Token.Register(() => this._tcs.TrySetResult(true));
             this._timeout = timeout;
 
@@ -153,6 +153,9 @@ namespace DSharpPlus.Interactivity.EventHandling
 
             return this._emojis;
         }
+
+        public async Task<IEnumerable<DiscordButtonComponent>> GetButtonsAsync()
+            => throw new NotSupportedException("This request does not support buttons.");
 
         public async Task<DiscordMessage> GetMessageAsync()
         {
