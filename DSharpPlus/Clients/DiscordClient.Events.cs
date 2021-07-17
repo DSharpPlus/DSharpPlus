@@ -660,7 +660,7 @@ namespace DSharpPlus
 
         #region Error Handling
 
-        internal void EventErrorHandler<TSender, TArgs>(AsyncEvent<TSender, TArgs> asyncEvent, Exception ex, AsyncEventHandler<TSender, TArgs> handler, TSender sender, TArgs eventArgs)
+        public void EventErrorHandler<TSender, TArgs>(AsyncEvent<TSender, TArgs> asyncEvent, Exception ex, AsyncEventHandler<TSender, TArgs> handler, TSender sender, TArgs eventArgs)
             where TArgs : AsyncEventArgs
         {
             if (ex is AsyncEventTimeoutException)
