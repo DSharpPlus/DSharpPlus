@@ -73,7 +73,7 @@ namespace DSharpPlus.Test
                 ShardCount = this.Config.ShardCount,
                 MessageCacheSize = 2048,
                 LogTimestampFormat = "dd-MM-yyyy HH:mm:ss zzz",
-                Intents = DiscordIntents.All & ~DiscordIntents.GuildPresences // if 4013 is received, change to DiscordIntents.AllUnprivileged
+                Intents = DiscordIntents.All // if 4013 is received, change to DiscordIntents.AllUnprivileged
             };
             this.Discord = new DiscordClient(dcfg);
 
@@ -130,7 +130,7 @@ namespace DSharpPlus.Test
             var icfg = new InteractivityConfiguration()
             {
                 Timeout = TimeSpan.FromSeconds(10),
-                ACKPaginationButtons = true,
+                AckPaginationButtons = true,
                 ResponseBehavior = InteractionResponseBehavior.Respond,
                 PaginationBehaviour = PaginationBehaviour.Ignore,
                 ResponseMessage = "Sorry, but this wasn't a valid option, or does not belong to you!",

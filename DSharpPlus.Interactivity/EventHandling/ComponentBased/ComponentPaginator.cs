@@ -82,7 +82,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             if (!this._requests.TryGetValue(e.Message.Id, out var req))
                 return;
 
-            if (this._config.ACKPaginationButtons)
+            if (this._config.AckPaginationButtons)
             {
                 e.Handled = true;
                 await e.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
