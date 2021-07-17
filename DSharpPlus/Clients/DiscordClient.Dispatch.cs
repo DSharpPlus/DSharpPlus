@@ -1971,7 +1971,7 @@ namespace DSharpPlus
         internal async Task OnStickersUpdatedAsync(IEnumerable<DiscordMessageSticker> newStickers, JObject raw)
         {
             var guild = this.InternalGetCachedGuild((ulong)raw["guild_id"]);
-            var oldStickers = guild._stickers.ToImmutableDictionary();
+            var oldStickers = new ConcurrentDictionary<ulong, DiscordMessageSticker>(guild._stickers);
 
             guild._stickers.Clear();
 

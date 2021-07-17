@@ -493,10 +493,10 @@ namespace DSharpPlus.Entities
         /// <returns>The created sticker.</returns>
         public async Task<DiscordMessageSticker> CreateStickerAsync(string name, string? description, DiscordEmoji emoji, StickerFormat format, Stream file)
         {
-            if (emoji.Id is not 0)
+            if (emoji.Id != 0)
                 throw new InvalidOperationException("Only unicode emoji can be used for stickers.");
 
-            if (name.Length is > 30 or < 2)
+            if (name.Length > 30 || name.Length < 2)
                 throw new ArgumentOutOfRangeException(nameof(name), "Sticker name must be 2-30 characters.");
 
             if (description?.Length > 100)
@@ -523,7 +523,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="InvalidOperationException"></exception>
         public async Task<DiscordMessageSticker> ModifyStickerAsync(ulong stickerId, string? name, string? description, DiscordEmoji? emoji)
         {
-            if (emoji?.Id is not null and > 0)
+            if (emoji?.Id != 0)
                 throw new InvalidOperationException("Only unicode emojis can be used with stickers.");
 
             var sticker = await this.Discord.ApiClient.ModifyStickerAsync(this.Id, stickerId, name, description, emoji.Name).ConfigureAwait(false);

@@ -197,9 +197,9 @@ namespace DSharpPlus
         MentionEveryone = 0x0000000000020000,
 
         /// <summary>
-        /// Allows using emojis from external servers, such as twitch or nitro emojis.
+        /// Allows using emojis or stickers from external servers, such as twitch or nitro emojis.
         /// </summary>
-        [PermissionString("Use external emojis")]
+        [PermissionString("Use external emojis and stickers")]
         UseExternalEmojis = 0x0000000000040000,
 
         /// <summary>
@@ -263,16 +263,10 @@ namespace DSharpPlus
         ManageWebhooks = 0x0000000020000000,
 
         /// <summary>
-        /// Allows managing guild emoji.
+        /// Allows managing guild emoji and stickers.
         /// </summary>
-        [PermissionString("Manage emoji")]
+        [PermissionString("Manage emoji and stickers")]
         ManageEmojis = 0x0000000040000000,
-
-        /// <summary>
-        /// Allows managing guild stickers.
-        /// </summary>
-        [PermissionString("Manage stickers")]
-        ManageStickers = ManageEmojis,
 
         /// <summary>
         /// Allows the user to go live.
