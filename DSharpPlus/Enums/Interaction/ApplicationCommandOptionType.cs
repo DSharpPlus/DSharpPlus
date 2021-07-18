@@ -74,7 +74,7 @@ namespace DSharpPlus
         Mentionable,
 
         /// <summary>
-        /// Whether this paramter is a double.
+        /// Whether this parameter is a double.
         /// </summary>
         Number
     }
