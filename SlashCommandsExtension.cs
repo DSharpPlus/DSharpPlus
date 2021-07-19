@@ -22,16 +22,18 @@ namespace DSharpPlus.SlashCommands
         private static List<GroupCommand> _groupCommands { get; set; } = new List<GroupCommand>();
         private static List<SubGroupCommand> _subGroupCommands { get; set; } = new List<SubGroupCommand>();
 
+        private static List<object> _singletonModules { get; set; } = new List<object>();
+
         private List<KeyValuePair<ulong?, Type>> _updateList { get; set; } = new List<KeyValuePair<ulong?, Type>>();
         private readonly SlashCommandsConfiguration _configuration;
         private static bool _errored { get; set; } = false;
 
         /// <summary>
-        /// Gets a list of registered commands.
+        /// Gets a list of registered commands. The key is the guild id (null if global).
         /// </summary>
-        public static IReadOnlyList<DiscordApplicationCommand> RegisteredCommands
+        public static IReadOnlyDictionary<ulong?, IReadOnlyList<DiscordApplicationCommand>> RegisteredCommands
             => _registeredCommands;
-        private static List<DiscordApplicationCommand> _registeredCommands = new List<DiscordApplicationCommand>();
+        private static Dictionary<ulong?, IReadOnlyList<DiscordApplicationCommand>> _registeredCommands = new Dictionary<ulong?, IReadOnlyList<DiscordApplicationCommand>>();
 
         internal SlashCommandsExtension(SlashCommandsConfiguration configuration)
         {
@@ -146,7 +148,7 @@ namespace DSharpPlus.SlashCommands
 
                                 payload = new DiscordApplicationCommand(payload.Name, payload.Description, payload.Options?.Append(subpayload) ?? new[] { subpayload }, payload.DefaultPermission);
 
-                                groupCommands.Add(new GroupCommand { Name = groupatt.Name, ParentClass = tti, Methods = commandmethods });
+                                groupCommands.Add(new GroupCommand { Name = groupatt.Name, Methods = commandmethods });
                             }
                             var command = new SubGroupCommand { Name = groupatt.Name };
                             foreach (var subclass in subclasses)
@@ -175,13 +177,30 @@ namespace DSharpPlus.SlashCommands
                                 }
 
                                 var subpayload = new DiscordApplicationCommandOption(subgroupatt.Name, subgroupatt.Description, ApplicationCommandOptionType.SubCommandGroup, null, null, options);
-                                command.SubCommands.Add(new GroupCommand { Name = subgroupatt.Name, ParentClass = subclass, Methods = currentMethods });
+                                command.SubCommands.Add(new GroupCommand { Name = subgroupatt.Name, Methods = currentMethods });
                                 payload = new DiscordApplicationCommand(payload.Name, payload.Description, payload.Options?.Append(subpayload) ?? new[] { subpayload }, payload.DefaultPermission);
+
+                                if (subclass.GetCustomAttribute<SlashModuleLifespanAttribute>() != null)
+                                {
+                                    if (subclass.GetCustomAttribute<SlashModuleLifespanAttribute>().Lifespan == SlashModuleLifespan.Singleton)
+                                    {
+                                        _singletonModules.Add(CreateInstance(subclass, _configuration?.Services));
+                                    }
+                                }
                             }
                             if (command.SubCommands.Any()) subGroupCommands.Add(command);
                             updateList.Add(payload);
+
+
+                            if (tti.GetCustomAttribute<SlashModuleLifespanAttribute>() != null)
+                            {
+                                if (tti.GetCustomAttribute<SlashModuleLifespanAttribute>().Lifespan == SlashModuleLifespan.Singleton)
+                                {
+                                    _singletonModules.Add(CreateInstance(tti, _configuration?.Services));
+                                }
+                            }
                         }
-                        
+
                         if (ti.GetCustomAttribute<SlashCommandGroupAttribute>() == null)
                         {
                             var methods = ti.DeclaredMethods.Where(x => x.GetCustomAttribute<SlashCommandAttribute>() != null);
@@ -197,10 +216,18 @@ namespace DSharpPlus.SlashCommands
                                 parameters = parameters.Skip(1).ToArray();
                                 options = options.Concat(await ParseParameters(parameters)).ToList();
 
-                                commandMethods.Add(new CommandMethod { Method = method, Name = commandattribute.Name, ParentClass = t });
+                                commandMethods.Add(new CommandMethod { Method = method, Name = commandattribute.Name });
 
                                 var payload = new DiscordApplicationCommand(commandattribute.Name, commandattribute.Description, options, commandattribute.DefaultPermission);
                                 updateList.Add(payload);
+                            }
+
+                            if (ti.GetCustomAttribute<SlashModuleLifespanAttribute>() != null)
+                            {
+                                if (ti.GetCustomAttribute<SlashModuleLifespanAttribute>().Lifespan == SlashModuleLifespan.Singleton)
+                                {
+                                    _singletonModules.Add(CreateInstance(ti, _configuration?.Services));
+                                }
                             }
                         }
                     }
@@ -241,7 +268,7 @@ namespace DSharpPlus.SlashCommands
                         _groupCommands.AddRange(groupCommands);
                         _subGroupCommands.AddRange(subGroupCommands);
 
-                        _registeredCommands.AddRange(commands);
+                        _registeredCommands.Add(guildid, commands.ToList());
                     }
                     catch (Exception ex)
                     {
@@ -287,20 +314,11 @@ namespace DSharpPlus.SlashCommands
 
                         if (methods.Any())
                         {
-                            var method = methods.First();
+                            var method = methods.First().Method;
 
-                            var args = await ResolveInteractionCommandParameters(e, context, method.Method, e.Interaction.Data.Options);
+                            var args = await ResolveInteractionCommandParameters(e, context, method, e.Interaction.Data.Options);
 
-                            object classinstance = method.Method.IsStatic ? ActivatorUtilities.CreateInstance(_configuration?.Services, method.ParentClass) : CreateInstance(method.Method.DeclaringType, _configuration?.Services);
-
-                            await RunPreexecutionChecksAsync(method.Method, context);
-
-                            await ((SlashCommandModule)classinstance).BeforeExecutionAsync(context);
-
-                            var task = (Task)method.Method.Invoke(classinstance, args.ToArray());
-                            await task;
-
-                            await ((SlashCommandModule)classinstance).AfterExecutionAsync(context);
+                            await RunCommand(context, method, args);
                         }
                         else if (groups.Any())
                         {
@@ -308,44 +326,19 @@ namespace DSharpPlus.SlashCommands
                             var method = groups.First().Methods.First(x => x.Key == command.Name).Value;
 
                             var args = await ResolveInteractionCommandParameters(e, context, method, e.Interaction.Data.Options.First().Options);
-                            object classinstance = method.IsStatic ? ActivatorUtilities.CreateInstance(_configuration?.Services, groups.First().ParentClass) : CreateInstance(groups.First().ParentClass, _configuration?.Services);
 
-                            SlashCommandModule module = null;
-                            if (classinstance is SlashCommandModule _module)
-                                module = _module;
-
-                            await RunPreexecutionChecksAsync(method, context);
-
-                            await (module?.BeforeExecutionAsync(context) ?? Task.CompletedTask);
-
-                            var task = (Task)method.Invoke(classinstance, args.ToArray());
-                            await task;
-
-                            await (module?.AfterExecutionAsync(context) ?? Task.CompletedTask);
+                            await RunCommand(context, method, args);
                         }
                         else if (subgroups.Any())
                         {
                             var command = e.Interaction.Data.Options.First();
-                            var subgroup = subgroups.First();
-                            var group = subgroup.SubCommands.First(x => x.Name == command.Name);
+                            var group = subgroups.First().SubCommands.First(x => x.Name == command.Name);
 
                             var method = group.Methods.First(x => x.Key == command.Options.First().Name).Value;
 
                             var args = await ResolveInteractionCommandParameters(e, context, method, e.Interaction.Data.Options.First().Options.First().Options);
-                            object classinstance = method.IsStatic ? ActivatorUtilities.CreateInstance(_configuration?.Services, group.ParentClass) : CreateInstance(group.ParentClass, _configuration?.Services);
 
-                            SlashCommandModule module = null;
-                            if (classinstance is SlashCommandModule _module)
-                                module = _module;
-
-                            await RunPreexecutionChecksAsync(method, context);
-
-                            await (module?.BeforeExecutionAsync(context) ?? Task.CompletedTask);
-
-                            var task = (Task)method.Invoke(classinstance, args.ToArray());
-                            await task;
-
-                            await (module?.AfterExecutionAsync(context) ?? Task.CompletedTask);
+                            await RunCommand(context, method, args);
                         }
 
                         await _executed.InvokeAsync(this, new SlashCommandExecutedEventArgs { Context = context });
@@ -359,7 +352,29 @@ namespace DSharpPlus.SlashCommands
             return Task.CompletedTask;
         }
 
-        internal static object CreateInstance(Type t, IServiceProvider services)
+        internal async Task RunCommand(InteractionContext context, MethodInfo method, IEnumerable<object> args)
+        {
+            object classinstance;
+            if (method.DeclaringType.GetCustomAttribute<SlashModuleLifespanAttribute>() != null && method.DeclaringType.GetCustomAttribute<SlashModuleLifespanAttribute>()?.Lifespan == SlashModuleLifespan.Singleton)
+            {
+                classinstance = _singletonModules.First(x => ReferenceEquals(x.GetType(), method.DeclaringType));
+            }
+            else
+            {
+                classinstance = method.IsStatic ? ActivatorUtilities.CreateInstance(_configuration?.Services, method.DeclaringType) : CreateInstance(method.DeclaringType, _configuration?.Services);
+            }
+            SlashCommandModule module = null;
+            if (classinstance is SlashCommandModule mod)
+                module = mod;
+
+            await (module?.BeforeExecutionAsync(context) ?? Task.CompletedTask);
+
+            await (Task)method.Invoke(classinstance, args.ToArray());
+
+            await (module?.AfterExecutionAsync(context) ?? Task.CompletedTask);
+        }
+
+        internal object CreateInstance(Type t, IServiceProvider services)
         {
             var ti = t.GetTypeInfo();
             var constructors = ti.DeclaredConstructors
@@ -628,7 +643,6 @@ namespace DSharpPlus.SlashCommands
 
         public string Name;
         public MethodInfo Method;
-        public Type ParentClass;
     }
 
     internal class GroupCommand
@@ -637,7 +651,6 @@ namespace DSharpPlus.SlashCommands
 
         public string Name;
         public List<KeyValuePair<string, MethodInfo>> Methods = null;
-        public Type ParentClass;
     }
 
     internal class SubGroupCommand

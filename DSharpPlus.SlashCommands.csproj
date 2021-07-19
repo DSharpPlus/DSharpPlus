@@ -24,8 +24,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DSharpPlus" Version="4.1.0-nightly-00903" />
+    <PackageReference Include="Emzi0767.Common" Version="2.6.2" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0-preview.1.21102.12" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="DSharpPlus">
+      <HintPath>..\..\..\Documents\GitHub\DSharpPlus\DSharpPlus\bin\Debug\netstandard2.0\DSharpPlus.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
