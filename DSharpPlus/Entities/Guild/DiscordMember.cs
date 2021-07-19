@@ -223,6 +223,12 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Gets this member's banner url.
+        /// </summary>
+        [JsonIgnore]
+        public string BannerUrl => this.User.BannerUrl;
+
+        /// <summary>
         /// Gets the member's banner hash.
         /// </summary>
         [JsonIgnore]
@@ -232,10 +238,13 @@ namespace DSharpPlus.Entities
             internal set => this.User.BannerHash = value;
         }
 
+        /// <summary>
+        /// The color of this member's banner. Mutually exclusive with <see cref="BannerHash"/>.
+        /// </summary>
         [JsonIgnore]
         public override DiscordColor? BannerColor => this.User.BannerColor;
 
-            /// <summary>
+        /// <summary>
         /// Gets the member's avatar hash.
         /// </summary>
         [JsonIgnore]
