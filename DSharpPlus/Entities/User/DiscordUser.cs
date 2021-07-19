@@ -42,6 +42,7 @@ namespace DSharpPlus.Entities
             this.Username = transport.Username;
             this.Discriminator = transport.Discriminator;
             this.AvatarHash = transport.AvatarHash;
+            this._bannerColor = transport.BannerColor;
             this.IsBot = transport.IsBot;
             this.MfaEnabled = transport.MfaEnabled;
             this.Verified = transport.Verified;
@@ -71,11 +72,11 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the user's banner color, if set.
         /// </summary>
-        public DiscordColor? BannerColor
-            => string.IsNullOrEmpty(this._bannerColor) ? null : new DiscordColor(this._bannerColor);
+        public virtual DiscordColor? BannerColor
+            => this._bannerColor == 0 ? null : new DiscordColor(this._bannerColor);
 
         [JsonProperty("banner_color")]
-        internal string _bannerColor;
+        internal int _bannerColor;
 
         /// <summary>
         /// Gets the user's banner url

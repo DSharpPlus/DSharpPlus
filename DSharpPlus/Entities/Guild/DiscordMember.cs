@@ -232,7 +232,10 @@ namespace DSharpPlus.Entities
             internal set => this.User.BannerHash = value;
         }
 
-        /// <summary>
+        [JsonIgnore]
+        public override DiscordColor? BannerColor => this.User.BannerColor;
+
+            /// <summary>
         /// Gets the member's avatar hash.
         /// </summary>
         [JsonIgnore]
