@@ -302,7 +302,13 @@ namespace DSharpPlus
         /// Allows for creating and participating in private threads.
         /// </summary>
         [PermissionString("Use Private Threads")]
-        UsePrivateThreads = 0x0000001000000000
+        UsePrivateThreads = 0x0000001000000000,
+        
+        /// <summary>
+        /// Allows the usage of custom stickers from other servers.
+        /// </summary>
+        [PermissionString("Use external Stickers")]
+        UseExternalStickers = 0x0000002000000000
     }
 
     /// <summary>
