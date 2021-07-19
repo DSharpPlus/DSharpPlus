@@ -1981,8 +1981,7 @@ namespace DSharpPlus
 
             foreach (var nst in newStickers)
             {
-                if (nst.User is not null)
-                    nst.User.Discord = this;
+                nst.User?.Discord = this;
                 nst.Discord = this;
                 nst.Discord = this;
 
