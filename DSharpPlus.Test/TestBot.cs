@@ -36,6 +36,7 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Enums;
+using DSharpPlus.Interactivity.EventHandling;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Lavalink;
 using DSharpPlus.VoiceNext;
@@ -129,8 +130,18 @@ namespace DSharpPlus.Test
             var icfg = new InteractivityConfiguration()
             {
                 Timeout = TimeSpan.FromSeconds(10),
-                ResponseBehavior = InteractionResponseBehavior.Ack,
-                ResponseMessage = "That's not a valid button"
+                AckPaginationButtons = true,
+                ResponseBehavior = InteractionResponseBehavior.Respond,
+                PaginationBehaviour = PaginationBehaviour.Ignore,
+                ResponseMessage = "Sorry, but this wasn't a valid option, or does not belong to you!",
+                PaginationButtons = new PaginationButtons()
+                {
+                    Stop = new DiscordButtonComponent(ButtonStyle.Danger, "stop", null, false, new DiscordComponentEmoji(862259725785497620)),
+                    Left = new DiscordButtonComponent(ButtonStyle.Secondary, "left", null, false, new DiscordComponentEmoji(862259522478800916)),
+                    Right = new DiscordButtonComponent(ButtonStyle.Secondary, "right", null, false, new DiscordComponentEmoji(862259691212242974)),
+                    SkipLeft = new DiscordButtonComponent(ButtonStyle.Primary, "skipl", null, false, new DiscordComponentEmoji(862259605464023060)),
+                    SkipRight = new DiscordButtonComponent(ButtonStyle.Primary, "skipr", null, false, new DiscordComponentEmoji(862259654403031050))
+                }
             };
 
             this.InteractivityService = this.Discord.UseInteractivity(icfg);

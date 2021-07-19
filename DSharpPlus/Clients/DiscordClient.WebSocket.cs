@@ -220,6 +220,7 @@ namespace DSharpPlus
         internal async Task HandleSocketMessageAsync(string data)
         {
             var payload = JsonConvert.DeserializeObject<GatewayPayload>(data);
+            this._lastSequence = payload.Sequence ?? this._lastSequence;
             switch (payload.OpCode)
             {
                 case GatewayOpCode.Dispatch:
@@ -341,7 +342,7 @@ namespace DSharpPlus
             {
                 while (true)
                 {
-                    await this.SendHeartbeatAsync().ConfigureAwait(false);
+                    await this.SendHeartbeatAsync(this._lastSequence).ConfigureAwait(false);
                     await Task.Delay(this._heartbeatInterval, token).ConfigureAwait(false);
                     token.ThrowIfCancellationRequested();
                 }
@@ -397,14 +398,6 @@ namespace DSharpPlus
                 pr.Activity = act;
                 pr.Status = userStatus ?? pr.Status;
             }
-        }
-
-        internal Task SendHeartbeatAsync()
-        {
-            var _last_heartbeat = DateTimeOffset.Now;
-            var _sequence = (long)(_last_heartbeat - DiscordEpoch).TotalMilliseconds;
-
-            return this.SendHeartbeatAsync(_sequence);
         }
 
         internal async Task SendHeartbeatAsync(long seq)

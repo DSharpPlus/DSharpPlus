@@ -84,6 +84,24 @@ namespace DSharpPlus.Net
                 this.PopulateMessage(author, ret.ReferencedMessage);
             }
 
+            if (ret.Channel != null)
+                return ret;
+
+            var channel = !ret.GuildId.HasValue
+                ? new DiscordDmChannel
+                {
+                    Id = ret.ChannelId,
+                    Discord = this.Discord,
+                    Type = ChannelType.Private
+                }
+                : new DiscordChannel
+                {
+                    Id = ret.ChannelId,
+                    GuildId = ret.GuildId,
+                    Discord = this.Discord
+                };
+            ret.Channel = channel;
+
             return ret;
         }
 
@@ -917,7 +935,7 @@ namespace DSharpPlus.Net
 
             if (builder.Embeds != null)
                 foreach (var embed in builder.Embeds)
-                    if (embed.Timestamp != null)
+                    if (embed?.Timestamp != null)
                         embed.Timestamp = embed.Timestamp.Value.ToUniversalTime();
 
             var pld = new RestChannelMessageCreatePayload
@@ -2720,7 +2738,7 @@ namespace DSharpPlus.Net
             foreach (var perm in ret)
                 perm.Discord = this.Discord;
             return ret.ToList();
-        } 
+        }
         #endregion
 
         #region Misc
