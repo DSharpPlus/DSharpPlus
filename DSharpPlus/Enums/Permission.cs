@@ -27,7 +27,7 @@ namespace DSharpPlus
 {
     public static class PermissionMethods
     {
-        internal static Permissions FULL_PERMS { get; } = (Permissions)128849018879L;
+        internal static Permissions FULL_PERMS { get; } = (Permissions)274877906943L;
 
         /// <summary>
         /// Calculates whether this permission set contains the given permission.
@@ -92,7 +92,7 @@ namespace DSharpPlus
         /// Indicates all permissions are granted
         /// </summary>
         [PermissionString("All permissions")]
-        All = 128849018879,
+        All = 274877906943,
 
         /// <summary>
         /// Allows creation of instant channel invites.
