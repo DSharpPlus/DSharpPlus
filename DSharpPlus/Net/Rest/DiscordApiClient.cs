@@ -781,19 +781,14 @@ namespace DSharpPlus.Net
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
             var json = JObject.Parse(res.Response);
             var ret = json.ToDiscordObject<DiscordMessageSticker>();
-            if (json["user"] is not null) // Null = Missing stickers perm //
+
+            if (json["user"] is JObject jusr) // Null = Missing stickers perm //
             {
-                var tsr = json["user"].ToDiscordObject<TransportUser>();
+                var tsr = jusr.ToDiscordObject<TransportUser>();
                 var usr = new DiscordUser(tsr) {Discord = this.Discord};
-                usr = this.Discord.UserCache.AddOrUpdate(tsr.Id, usr, (id, old) =>
-                {
-                    old.Username = usr.Username;
-                    old.Discriminator = usr.Discriminator;
-                    old.AvatarHash = usr.AvatarHash;
-                    return old;
-                });
                 ret.User = usr;
             }
+
             ret.Discord = this.Discord;
             return ret;
         }
@@ -805,7 +800,15 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
 
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
-            var ret = JObject.Parse(res.Response).ToDiscordObject<DiscordMessageSticker>();
+            var json = JObject.Parse(res.Response);
+            var ret = json.ToDiscordObject<DiscordMessageSticker>();
+
+            if (json["user"] is JObject jusr) // Null = Missing stickers perm //
+            {
+                var tsr = jusr.ToDiscordObject<TransportUser>();
+                var usr = new DiscordUser(tsr) {Discord = this.Discord};
+                ret.User = usr;
+            }
 
             ret.Discord = this.Discord;
             return ret;
@@ -841,22 +844,15 @@ namespace DSharpPlus.Net
                 var stkr = ret[i];
                 stkr.Discord = this.Discord;
 
-                if (json[i]["user"] is JObject obj) // Null = Missing stickers perm //
+                if (json[i]["user"] is JObject jusr) // Null = Missing stickers perm //
                 {
-                    var tsr = obj.ToDiscordObject<TransportUser>();
+                    var tsr = jusr.ToDiscordObject<TransportUser>();
                     var usr = new DiscordUser(tsr) {Discord = this.Discord};
-                    usr = this.Discord.UserCache.AddOrUpdate(tsr.Id, usr, (id, old) =>
-                    {
-                        old.Username = usr.Username;
-                        old.Discriminator = usr.Discriminator;
-                        old.AvatarHash = usr.AvatarHash;
-                        return old;
-                    });
                     stkr.User = usr; // The sticker would've already populated, but this is just to ensure everything is up to date //
                 }
             }
 
-            return ret.ToList();
+            return ret;
         }
 
         internal async Task<DiscordMessageSticker> CreateGuildStickerAsync(ulong guild_id, string name, string? description, string tags, DiscordMessageFile file)
@@ -878,7 +874,15 @@ namespace DSharpPlus.Net
             };
 
             var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, null, values, new[] {file});
-            var ret = JObject.Parse(res.Response).ToDiscordObject<DiscordMessageSticker>();
+            var json = JObject.Parse(res.Response);
+            var ret = json.ToDiscordObject<DiscordMessageSticker>();
+
+            if (json["user"] is JObject jusr) // Null = Missing stickers perm //
+            {
+                var tsr = jusr.ToDiscordObject<TransportUser>();
+                var usr = new DiscordUser(tsr) {Discord = this.Discord};
+                ret.User = usr;
+            }
 
             ret.Discord = this.Discord;
 
