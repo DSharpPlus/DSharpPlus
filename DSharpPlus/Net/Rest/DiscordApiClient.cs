@@ -2831,6 +2831,9 @@ namespace DSharpPlus.Net
             ret.Discord = this.Discord;
             return ret;
         }
+        
+        internal Task<DiscordMessage> GetFollowupMessageAsync(ulong application_id, string interaction_token, ulong message_id) =>
+            this.GetWebhookMessageAsync(application_id, interaction_token, message_id);
 
         internal Task<DiscordMessage> EditFollowupMessageAsync(ulong application_id, string interaction_token, ulong message_id, DiscordWebhookBuilder builder) =>
             this.EditWebhookMessageAsync(application_id, interaction_token, message_id, builder);
