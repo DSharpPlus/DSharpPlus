@@ -6,7 +6,7 @@ namespace DSharpPlus.SlashCommands
     /// Marks this parameter as an option for a slash command.
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
-    public class OptionAttribute : Attribute
+    public sealed class OptionAttribute : Attribute
     {
         /// <summary>
         /// Gets the name of this option.

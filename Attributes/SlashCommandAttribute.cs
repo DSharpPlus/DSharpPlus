@@ -6,7 +6,7 @@ namespace DSharpPlus.SlashCommands
     /// Marks this method as a slash command.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-    public class SlashCommandAttribute : Attribute
+    public sealed class SlashCommandAttribute : Attribute
     {
         /// <summary>
         /// Gets the name of this command.

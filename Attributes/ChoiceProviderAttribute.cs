@@ -7,7 +7,7 @@ namespace DSharpPlus.SlashCommands
     /// DiscordApplicationCommandOptionChoice from external sources such as a database.
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = true)]
-    public class ChoiceProviderAttribute : Attribute
+    public sealed class ChoiceProviderAttribute : Attribute
     {
         /// <summary>
         /// The type of the provider.

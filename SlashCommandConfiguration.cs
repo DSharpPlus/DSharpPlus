@@ -6,7 +6,7 @@ namespace DSharpPlus.SlashCommands
     /// <summary>
     /// A configuration for a <see cref="SlashCommandsExtension"/>.
     /// </summary>
-    public class SlashCommandsConfiguration
+    public sealed class SlashCommandsConfiguration
     {
         /// <summary>
         /// <para>Sets the service provider.</para>

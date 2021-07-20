@@ -6,7 +6,7 @@ namespace DSharpPlus.SlashCommands
     /// Marks this class a slash command group.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-    public class SlashCommandGroupAttribute : Attribute
+    public sealed class SlashCommandGroupAttribute : Attribute
     {
         /// <summary>
         /// Gets the name of this slash command group.

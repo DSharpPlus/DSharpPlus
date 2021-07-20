@@ -16,7 +16,7 @@ namespace DSharpPlus.SlashCommands
     /// <summary>
     /// A class that handles slash commands for a client.
     /// </summary>
-    public class SlashCommandsExtension : BaseExtension
+    public sealed class SlashCommandsExtension : BaseExtension
     {
         private static List<CommandMethod> _commandMethods { get; set; } = new List<CommandMethod>();
         private static List<GroupCommand> _groupCommands { get; set; } = new List<GroupCommand>();
@@ -31,9 +31,9 @@ namespace DSharpPlus.SlashCommands
         /// <summary>
         /// Gets a list of registered commands. The key is the guild id (null if global).
         /// </summary>
-        public IReadOnlyDictionary<ulong?, IReadOnlyList<DiscordApplicationCommand>> RegisteredCommands
+        public IReadOnlyList<KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>> RegisteredCommands
             => _registeredCommands;
-        private static Dictionary<ulong?, IReadOnlyList<DiscordApplicationCommand>> _registeredCommands = new Dictionary<ulong?, IReadOnlyList<DiscordApplicationCommand>>();
+        private static List<KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>> _registeredCommands = new List<KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>>();
 
         internal SlashCommandsExtension(SlashCommandsConfiguration configuration)
         {
@@ -272,7 +272,7 @@ namespace DSharpPlus.SlashCommands
                         _groupCommands.AddRange(groupCommands);
                         _subGroupCommands.AddRange(subGroupCommands);
 
-                        _registeredCommands.Add(guildid, commands.ToList());
+                        _registeredCommands.Add(new KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>(guildid, commands.ToList()));
                     }
                     catch (Exception ex)
                     {

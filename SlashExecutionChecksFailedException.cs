@@ -6,7 +6,7 @@ namespace DSharpPlus.SlashCommands
     /// <summary>
     /// Thrown when a pre-execution check for a slash command fails.
     /// </summary>
-    public class SlashExecutionChecksFailedException : Exception
+    public sealed class SlashExecutionChecksFailedException : Exception
     {
         /// <summary>
         /// The list of failed checks.

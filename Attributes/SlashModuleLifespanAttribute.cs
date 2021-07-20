@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DSharpPlus.SlashCommands
 {
@@ -8,7 +6,7 @@ namespace DSharpPlus.SlashCommands
     /// Defines this slash command module's lifespan. Module lifespans are transient by default.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-    public class SlashModuleLifespanAttribute : Attribute
+    public sealed class SlashModuleLifespanAttribute : Attribute
     {
         /// <summary>
         /// Gets the lifespan.

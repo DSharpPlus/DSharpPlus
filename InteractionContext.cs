@@ -75,39 +75,31 @@ namespace DSharpPlus.SlashCommands
         /// <param name="type">The type of the response.</param>
         /// <param name="builder">The data to be sent, if any.</param>
         /// <returns></returns>
-        public async Task CreateResponseAsync(InteractionResponseType type, DiscordInteractionResponseBuilder builder = null)
-        {
-            await Interaction.CreateResponseAsync(type, builder);
-        }
+        public Task CreateResponseAsync(InteractionResponseType type, DiscordInteractionResponseBuilder builder = null)
+            => this.Interaction.CreateResponseAsync(type, builder);
 
         /// <summary>
         /// Edits the interaction response.
         /// </summary>
         /// <param name="builder">The data to edit the response with.</param>
         /// <returns></returns>
-        public async Task<DiscordMessage> EditResponseAsync(DiscordWebhookBuilder builder)
-        {
-            return await Interaction.EditOriginalResponseAsync(builder);
-        }
+        public Task<DiscordMessage> EditResponseAsync(DiscordWebhookBuilder builder)
+            => this.Interaction.EditOriginalResponseAsync(builder);
 
         /// <summary>
         /// Deletes the interaction response.
         /// </summary>
         /// <returns></returns>
-        public async Task DeleteResponseAsync()
-        {
-            await Interaction.DeleteOriginalResponseAsync();
-        }
+        public Task DeleteResponseAsync()
+            => this.Interaction.DeleteOriginalResponseAsync();
 
         /// <summary>
         /// Creates a follow up message to the interaction.
         /// </summary>
         /// <param name="builder">The message to be sent, in the form of a webhook.</param>
         /// <returns>The created message.</returns>
-        public async Task<DiscordMessage> FollowUpAsync(DiscordFollowupMessageBuilder builder)
-        {
-            return await Interaction.CreateFollowupMessageAsync(builder);
-        }
+        public Task<DiscordMessage> FollowUpAsync(DiscordFollowupMessageBuilder builder)
+            => this.Interaction.CreateFollowupMessageAsync(builder);
 
         /// <summary>
         /// Edits a followup message.
@@ -115,19 +107,22 @@ namespace DSharpPlus.SlashCommands
         /// <param name="followupMessageId">The id of the followup message to edit.</param>
         /// <param name="builder">The webhook builder.</param>
         /// <returns></returns>
-        public async Task<DiscordMessage> EditFollowupAsync(ulong followupMessageId, DiscordWebhookBuilder builder)
-        {
-            return await Interaction.EditFollowupMessageAsync(followupMessageId, builder);
-        }
+        public Task<DiscordMessage> EditFollowupAsync(ulong followupMessageId, DiscordWebhookBuilder builder)
+            => this.Interaction.EditFollowupMessageAsync(followupMessageId, builder);
 
         /// <summary>
         /// Deletes a followup message.
         /// </summary>
         /// <param name="followupMessageId">The id of the followup message to delete.</param>
         /// <returns></returns>
-        public async Task DeleteFollowupAsync(ulong followupMessageId)
-        {
-            await Interaction.DeleteFollowupMessageAsync(followupMessageId);
-        }
+        public Task DeleteFollowupAsync(ulong followupMessageId)
+            => this.Interaction.DeleteFollowupMessageAsync(followupMessageId);
+
+        /// <summary>
+        /// Gets the original interaction response.
+        /// </summary>
+        /// <returns>The original interaction response.</returns>
+        public Task<DiscordMessage> GetOriginalResponseAsync()
+             => this.Interaction.GetOriginalResponseAsync();
     }
 }
