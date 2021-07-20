@@ -152,7 +152,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets a previously-sent webhook message.
         /// </summary>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the webhook does not exist.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the webhook or message does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task<DiscordMessage> GetMessageAsync(ulong messageId)
