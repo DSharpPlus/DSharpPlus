@@ -23,9 +23,11 @@ namespace DSharpPlus.SlashCommands.Attributes
         /// Defines that usage of this slash command is only possible when the bot is granted a specific permission.
         /// </summary>
         /// <param name="permissions">Permissions required to execute this command.</param>
-        public SlashRequireBotPermissionsAttribute(Permissions permissions)
+        /// <param name="ignoreDms">Sets this check's behaviour in DMs. True means the check will always pass in DMs, whereas false means that it will always fail.</param>
+        public SlashRequireBotPermissionsAttribute(Permissions permissions, bool ignoreDms = true)
         {
             this.Permissions = permissions;
+            this.IgnoreDms = ignoreDms;
         }
 
         /// <summary>
