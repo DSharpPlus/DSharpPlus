@@ -184,6 +184,8 @@ public async Task ChoiceProviderCommand(InteractionContext ctx,
 
 ### Pre-execution checks
 You can define some custom attributes that function as pre-execution checks, working very similarly to `CommandsNext`. Simply create an attribute that inherits `SlashCheckBaseAttribute` and override the methods.
+
+There are also some built in ones, the same ones as on `CommandsNext` but prefix with `Slash` - for example the `SlashRequirePermissionsAttribute`
 ```cs
 public class RequireUserIdAttribute : SlashCheckBaseAttribute
 {
@@ -280,6 +282,9 @@ public class Commands : SlashCommandModule
 `UseSlashCommands` -> `UseSlashCommmandsAsync` which returns a dictionary.
 
 You'll have to foreach over it to register events.
+
+### Module Lifespans
+You can specify a module's lifespan by applying the `SlashModuleLifespan` attribute on it. Modules are transient by default.
 
 # Issues and contributing
 If you find any issues or bugs, you should join the discord server and discuss it. If it's an actual bug, you can create an [issue](https://github.com/IDoEverything/DSharpPlus.SlashCommands/issues). If you would like to contribute or make changes, feel free to open a [pull request](https://github.com/IDoEverything/DSharpPlus.SlashCommands/pulls).
