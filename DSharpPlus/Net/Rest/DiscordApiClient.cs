@@ -2124,7 +2124,7 @@ namespace DSharpPlus.Net
             var route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token{Endpoints.MESSAGES}/:message_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { webhook_id, webhook_token, message_id }, out var path);
 
-            var url = Utilities.GetApiUriFor(path, this.Discord.Configuration.UseCanary);
+            var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route);
 
             var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
