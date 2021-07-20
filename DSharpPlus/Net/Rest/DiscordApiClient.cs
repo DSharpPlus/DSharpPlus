@@ -2119,7 +2119,7 @@ namespace DSharpPlus.Net
             return ret;
         }
         
-        internal async Task<DiscordMessage> GetWebhookMessageAsync(ulong webhook_id, string webhook_token, string message_id)
+        internal async Task<DiscordMessage> GetWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong message_id)
         {
             var route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token{Endpoints.MESSAGES}/:message_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { webhook_id, webhook_token, message_id }, out var path);
@@ -2132,9 +2132,6 @@ namespace DSharpPlus.Net
             return ret;
         }
         
-        internal Task<DiscordMessage> GetWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong message_id) =>
-            this.GetWebhookMessageAsync(webhook_id, webhook_token, message_id.ToString());
-
         internal async Task<DiscordWebhook> ModifyWebhookAsync(ulong webhook_id, ulong channelId, string name, Optional<string> base64_avatar, string reason)
         {
             var pld = new RestWebhookPayload
