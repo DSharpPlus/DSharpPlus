@@ -367,6 +367,8 @@ namespace DSharpPlus.SlashCommands
             if (classinstance is SlashCommandModule mod)
                 module = mod;
 
+            await RunPreexecutionChecksAsync(method, context);
+
             await (module?.BeforeExecutionAsync(context) ?? Task.CompletedTask);
 
             await (Task)method.Invoke(classinstance, args.ToArray());
@@ -503,7 +505,18 @@ namespace DSharpPlus.SlashCommands
 
         private async Task RunPreexecutionChecksAsync(MethodInfo method, InteractionContext ctx)
         {
-            var attributes = method.GetCustomAttributes<SlashCheckBaseAttribute>(true);
+            var attributes = new List<SlashCheckBaseAttribute>();
+            attributes.AddRange(method.GetCustomAttributes<SlashCheckBaseAttribute>(true));
+            attributes.AddRange(method.DeclaringType.GetCustomAttributes<SlashCheckBaseAttribute>());
+            if (method.DeclaringType.DeclaringType != null)
+            {
+                attributes.AddRange(method.DeclaringType.DeclaringType.GetCustomAttributes<SlashCheckBaseAttribute>());
+                if (method.DeclaringType.DeclaringType.DeclaringType != null)
+                {
+                    attributes.AddRange(method.DeclaringType.DeclaringType.DeclaringType.GetCustomAttributes<SlashCheckBaseAttribute>());
+                }
+            }
+
             var dict = new Dictionary<SlashCheckBaseAttribute, bool>();
             foreach (var att in attributes)
             {
