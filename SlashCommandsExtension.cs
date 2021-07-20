@@ -31,7 +31,7 @@ namespace DSharpPlus.SlashCommands
         /// <summary>
         /// Gets a list of registered commands. The key is the guild id (null if global).
         /// </summary>
-        public static IReadOnlyDictionary<ulong?, IReadOnlyList<DiscordApplicationCommand>> RegisteredCommands
+        public IReadOnlyDictionary<ulong?, IReadOnlyList<DiscordApplicationCommand>> RegisteredCommands
             => _registeredCommands;
         private static Dictionary<ulong?, IReadOnlyList<DiscordApplicationCommand>> _registeredCommands = new Dictionary<ulong?, IReadOnlyList<DiscordApplicationCommand>>();
 
@@ -103,27 +103,30 @@ namespace DSharpPlus.SlashCommands
 
             _ = Task.Run(async () =>
             {
-                foreach (var t in types)
+                foreach (var type in types)
                 {
                     try
                     {
-                        var ti = t.GetTypeInfo();
+                        var module = type.GetTypeInfo();
 
                         var classes = new List<TypeInfo>();
-                        if (ti.GetCustomAttribute<SlashCommandGroupAttribute>() != null)
+
+                        //Add module to classes list only if it's a group
+                        if (module.GetCustomAttribute<SlashCommandGroupAttribute>() != null)
                         {
-                            classes.Add(ti);
+                            classes.Add(module);
                         }
                         else
                         {
-                            classes = ti.DeclaredNestedTypes.Where(x => x.GetCustomAttribute<SlashCommandGroupAttribute>() != null).ToList();
+                            classes = module.DeclaredNestedTypes.Where(x => x.GetCustomAttribute<SlashCommandGroupAttribute>() != null).ToList();
                         }
 
-                        foreach (var tti in classes)
+                        //Handles groups
+                        foreach (var subclassinfo in classes)
                         {
-                            var groupatt = tti.GetCustomAttribute<SlashCommandGroupAttribute>();
-                            var submethods = tti.DeclaredMethods.Where(x => x.GetCustomAttribute<SlashCommandAttribute>() != null).ToList();
-                            var subclasses = tti.DeclaredNestedTypes.Where(x => x.GetCustomAttribute<SlashCommandGroupAttribute>() != null).ToList();
+                            var groupatt = subclassinfo.GetCustomAttribute<SlashCommandGroupAttribute>();
+                            var submethods = subclassinfo.DeclaredMethods.Where(x => x.GetCustomAttribute<SlashCommandAttribute>() != null);
+                            var subclasses = subclassinfo.DeclaredNestedTypes.Where(x => x.GetCustomAttribute<SlashCommandGroupAttribute>() != null);
                             if (subclasses.Any() && submethods.Any())
                             {
                                 throw new ArgumentException("Slash command groups cannot have both subcommands and subgroups!");
@@ -192,18 +195,19 @@ namespace DSharpPlus.SlashCommands
                             updateList.Add(payload);
 
 
-                            if (tti.GetCustomAttribute<SlashModuleLifespanAttribute>() != null)
+                            if (subclassinfo.GetCustomAttribute<SlashModuleLifespanAttribute>() != null)
                             {
-                                if (tti.GetCustomAttribute<SlashModuleLifespanAttribute>().Lifespan == SlashModuleLifespan.Singleton)
+                                if (subclassinfo.GetCustomAttribute<SlashModuleLifespanAttribute>().Lifespan == SlashModuleLifespan.Singleton)
                                 {
-                                    _singletonModules.Add(CreateInstance(tti, _configuration?.Services));
+                                    _singletonModules.Add(CreateInstance(subclassinfo, _configuration?.Services));
                                 }
                             }
                         }
 
-                        if (ti.GetCustomAttribute<SlashCommandGroupAttribute>() == null)
+                        //Handles methods, only if the module isn't a group itself.
+                        if (module.GetCustomAttribute<SlashCommandGroupAttribute>() == null)
                         {
-                            var methods = ti.DeclaredMethods.Where(x => x.GetCustomAttribute<SlashCommandAttribute>() != null);
+                            var methods = module.DeclaredMethods.Where(x => x.GetCustomAttribute<SlashCommandAttribute>() != null);
                             foreach (var method in methods)
                             {
                                 var commandattribute = method.GetCustomAttribute<SlashCommandAttribute>();
@@ -222,11 +226,11 @@ namespace DSharpPlus.SlashCommands
                                 updateList.Add(payload);
                             }
 
-                            if (ti.GetCustomAttribute<SlashModuleLifespanAttribute>() != null)
+                            if (module.GetCustomAttribute<SlashModuleLifespanAttribute>() != null)
                             {
-                                if (ti.GetCustomAttribute<SlashModuleLifespanAttribute>().Lifespan == SlashModuleLifespan.Singleton)
+                                if (module.GetCustomAttribute<SlashModuleLifespanAttribute>().Lifespan == SlashModuleLifespan.Singleton)
                                 {
-                                    _singletonModules.Add(CreateInstance(ti, _configuration?.Services));
+                                    _singletonModules.Add(CreateInstance(module, _configuration?.Services));
                                 }
                             }
                         }
