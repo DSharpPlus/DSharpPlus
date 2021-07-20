@@ -14,9 +14,10 @@
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <Authors>Naamloos, afroraydude, DrCreo, Death, TiaqoY0, Axiom, Emzi0767, DSharpPlus contributors</Authors>
     <Company>DSharpPlus developers</Company>
-    <PackageLicenseUrl>https://github.com/DSharpPlus/DSharpPlus/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/DSharpPlus/DSharpPlus</PackageProjectUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/DSharpPlus/DSharpPlus/master/logo/dsharpplus.png</PackageIconUrl>
+    <PackageIcon>dsharpplus.png</PackageIcon>
     <RepositoryUrl>https://github.com/DSharpPlus/DSharpPlus</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
   </PropertyGroup>
@@ -42,5 +43,9 @@
     <AssemblyVersion>$(VersionPrefix).0</AssemblyVersion>
     <FileVersion>$(VersionPrefix).0</FileVersion>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../logo/dsharpplus.png" Pack="true" PackagePath="/" />
+  </ItemGroup>
 
 </Project>
