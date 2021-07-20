@@ -1981,9 +1981,9 @@ namespace DSharpPlus
 
             foreach (var nst in newStickers)
             {
-                if (nst.User is not null)
+                if(nst.User != null)
                     nst.User.Discord = this;
-                nst.Discord = this;
+
                 nst.Discord = this;
 
                 guild._stickers[nst.Id] = nst;
