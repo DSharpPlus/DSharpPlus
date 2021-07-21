@@ -366,6 +366,12 @@ namespace DSharpPlus.Entities
         public Task<DiscordMessage> ModifyAsync(DiscordMessage msg) => msg.ModifyAsync(this);
 
         /// <summary>
+        /// Clears all message components on this builder.
+        /// </summary>
+        public void ClearComponents()
+            => this._components.Clear();
+
+        /// <summary>
         /// Allows for clearing the Message Builder so that it can be used again to send a new message.
         /// </summary>
         public void Clear()
