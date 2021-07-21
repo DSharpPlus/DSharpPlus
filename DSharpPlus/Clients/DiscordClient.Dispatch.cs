@@ -1342,6 +1342,8 @@ namespace DSharpPlus
                     message.Content = event_message.Content;
                 message._embeds.Clear();
                 message._embeds.AddRange(event_message._embeds);
+                message._attachments.Clear();
+                message._attachments.AddRange(event_message._attachments);
                 message.Pinned = event_message.Pinned;
                 message.IsTTS = event_message.IsTTS;
             }
