@@ -58,6 +58,13 @@ namespace DSharpPlus
                 return;
             }
 
+            /* This should be fine. I think. AsyncEvent<TS, TE> has it's own event handler. */
+            await this._payloadReceived.InvokeAsync(this, new()
+            {
+                EventName = payload.EventName,
+                PayloadObject = dat
+            }).ConfigureAwait(false);
+
             DiscordChannel chn;
             ulong gid;
             ulong cid;
