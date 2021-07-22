@@ -625,7 +625,7 @@ namespace DSharpPlus.Entities
             => this.Discord.ApiClient.DeleteChannelPermissionAsync(this.Id, member.Id, reason);
 
         /// <summary>
-        /// Deletes a channel permission overwrite for specified role.
+        /// Deletes a channel permission overwrite for the specified role.
         /// </summary>
         /// <param name="role">The role to have the permission deleted.</param>
         /// <param name="reason">Reason for audit logs.</param>
