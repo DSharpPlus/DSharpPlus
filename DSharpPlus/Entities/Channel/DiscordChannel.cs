@@ -53,7 +53,7 @@ namespace DSharpPlus.Entities
         public ulong? ParentId { get; internal set; }
 
         /// <summary>
-        /// Gets the category that contains this channel.
+        /// Gets the category that contains this channel. For threads, gets the channel this thread was created in.
         /// </summary>
         [JsonIgnore]
         public DiscordChannel Parent
@@ -437,6 +437,48 @@ namespace DSharpPlus.Entities
             }
 
             return this.Discord.ApiClient.ModifyGuildChannelPositionAsync(this.Guild.Id, pmds, reason);
+        }
+
+        /// <summary>
+        /// Creates a new thread within this channel from the given message.
+        /// </summary>
+        /// <param name="message">Message to create the thread from.</param>
+        /// <param name="name">The name of the thread.</param>
+        /// <param name="archiveAfter">The auto archive duration of the thread.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns>The created thread.</returns>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel or message does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordThreadChannel> CreateThreadAsync(DiscordMessage message, string name, AutoArchiveDuration archiveAfter, string reason = null)
+        {
+            if (this.Type != ChannelType.Text && this.Type != ChannelType.News)
+                throw new ArgumentException("Threads can only be created within text or news channels.");
+            else if(message.ChannelId != this.Id)
+                throw new ArgumentException("You must use a message from this channel to create a thread.");
+
+            return this.Discord.ApiClient.CreateThreadFromMessageAsync(this.Id, message.Id, name, archiveAfter, reason);
+        }
+
+        /// <summary>
+        /// Creates a new thread within this channel..
+        /// </summary>
+        /// <param name="name">The name of the thread.</param>
+        /// <param name="privateThread">Indicates whether this thread will be private or not. Private threads require the server to be boosted.</param>
+        /// <param name="archiveAfter">The auto archive duration of the thread.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns>The created thread.</returns>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel or message does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordThreadChannel> CreateThreadAsync(string name, AutoArchiveDuration archiveAfter, bool privateThread, string reason = null)
+        {
+            if (this.Type != ChannelType.Text && this.Type != ChannelType.News)
+                throw new ArgumentException("Threads can only be created within text or news channels.");
+
+            //Check for server boosts or something
+
+            return this.Discord.ApiClient.CreateThreadAsync(this.Id, name, archiveAfter, privateThread ? ChannelType.PrivateThread : ChannelType.PublicThread, reason);
         }
 
         /// <summary>

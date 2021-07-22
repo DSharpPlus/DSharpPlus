@@ -21,30 +21,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.Collections.Generic;
 using DSharpPlus.Entities;
+using Newtonsoft.Json;
 
-namespace DSharpPlus.EventArgs
+namespace DSharpPlus.Net.Abstractions
 {
-    /// <summary>
-    /// Represents arguments for <see cref="DiscordClient.ThreadDeleted"/> event.
-    /// </summary>
-    public class ThreadDeleteEventArgs : DiscordEventArgs
+    internal sealed class RestThreadCreatePayload
     {
-        /// <summary>
-        /// Gets the thread that was deleted.
-        /// </summary>
-        public DiscordThreadChannel Thread { get; internal set; }
+        [JsonProperty("name")]
+        public string Name { get; set; }
 
-        /// <summary>
-        /// Gets the threads parent channel.
-        /// </summary>
-        public DiscordChannel Parent { get; internal set; }
+        [JsonProperty("auto_archive_duration", NullValueHandling = NullValueHandling.Ignore)]
+        public AutoArchiveDuration ArchiveAfter { get; set; }
 
-        /// <summary>
-        /// Gets the guild this thread belonged to.
-        /// </summary>
-        public DiscordGuild Guild { get; internal set; }
-
-        internal ThreadDeleteEventArgs() : base() { }
+        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
+        public ChannelType? Type { get; set; }
     }
 }

@@ -23,54 +23,33 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using DSharpPlus.Exceptions;
-using DSharpPlus.Net.Abstractions;
-using DSharpPlus.Net.Models;
-using Newtonsoft.Json;
+using System.Text;
 
-namespace DSharpPlus.Entities
+namespace DSharpPlus
 {
-    public class DiscordThreadChannelMember
+    /// <summary>
+    ///	Represents the duration in minutes to automatically archive a thread after recent activity.
+    /// </summary>
+    public enum AutoArchiveDuration : int
     {
         /// <summary>
-        /// Gets ID of the thread.
+        /// Thread will auto-archive after one hour of inactivity.
         /// </summary>
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong ThreadId { get; set; }
-        
-        /// <summary>
-        /// Gets ID of the user.
-        /// </summary>
-        [JsonProperty("user_id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong Id { get; set; }
-
-        /*public DiscordMember DiscordMember()
-        {
-            return null;
-        }*/
+        Hour = 60,
 
         /// <summary>
-        /// Gets timestamp when the user joined the thread.
+        /// Thread will auto-archive after one day of inactivity.
         /// </summary>
-        [JsonIgnore]
-        public DateTimeOffset? JoinTimeStamp
-            => !string.IsNullOrWhiteSpace(this.JoinTimeStampRaw) && DateTimeOffset.TryParse(this.JoinTimeStampRaw, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dto) ?
-                dto : null;
-
-        [JsonProperty("join_timestamp", NullValueHandling = NullValueHandling.Ignore)]
-        internal string JoinTimeStampRaw { get; set; }
+        Day = 1440,
 
         /// <summary>
-        /// Gets the client instance this object is tied to.
+        /// Thread will auto-archive after three days of inactivity.
         /// </summary>
-        [JsonIgnore]
-        internal BaseDiscordClient Discord { get; set; }
+        ThreeDays = 4320,
 
-        internal DiscordThreadChannelMember() { }
+        /// <summary>
+        /// Thread will auto-archive after one week of inactivity.
+        /// </summary>
+        Week = 10080
     }
 }
