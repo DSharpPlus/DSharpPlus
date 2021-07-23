@@ -89,6 +89,7 @@ namespace DSharpPlus.Test
             this.Discord.GuildDownloadCompleted += this.Discord_GuildDownloadCompleted;
             this.Discord.GuildUpdated += this.Discord_GuildUpdated;
             this.Discord.ChannelDeleted += this.Discord_ChannelDeleted;
+            this.Discord.ContextMenuInteractionCreated += this.Discord_ContextMenuInteractionCreated;
             //this.Discord.ComponentInteractionCreated += this.RoleMenu;
             //this.Discord.ComponentInteractionCreated += this.DiscordComponentInteractionCreated;
             //this.Discord.InteractionCreated += this.SendButton;
@@ -156,6 +157,15 @@ namespace DSharpPlus.Test
             //    _ = Task.Run(async () => await e.Message.RespondAsync(e.Message.Content)).ConfigureAwait(false);
             //};
         }
+        private async Task Discord_ContextMenuInteractionCreated(DiscordClient sender, ContextMenuInteractionCreateEventArgs e)
+        {
+            await e.Interaction.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral(true));
+
+            _ = e;
+        }
+
+
+
         private Task Discord_StickersUpdated(DiscordClient sender, GuildStickersUpdateEventArgs e)
         {
             this.Discord.Logger.LogInformation($"{e.Guild.Id}'s stickers updated: {e.StickersBefore.Count()} -> {e.StickersAfter.Count()}");

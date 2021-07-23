@@ -41,6 +41,12 @@ namespace DSharpPlus.Entities
         public ulong ApplicationId { get; internal set; }
 
         /// <summary>
+        /// Gets the type of this application command.
+        /// </summary>
+        [JsonProperty("type")]
+        public ApplicationCommandType Type { get; internal set; }
+
+        /// <summary>
         /// Gets the name of this command.
         /// </summary>
         [JsonProperty("name")]
@@ -97,7 +103,7 @@ namespace DSharpPlus.Entities
             => this.Id == other.Id;
 
         /// <summary>
-        /// Determines if two <see cref="DiscordApplicationCommand"/> objects are equal. 
+        /// Determines if two <see cref="DiscordApplicationCommand"/> objects are equal.
         /// </summary>
         /// <param name="e1">The first command object.</param>
         /// <param name="e2">The second command object.</param>
@@ -106,7 +112,7 @@ namespace DSharpPlus.Entities
             => e1.Equals(e2);
 
         /// <summary>
-        /// Determines if two <see cref="DiscordApplicationCommand"/> objects are not equal. 
+        /// Determines if two <see cref="DiscordApplicationCommand"/> objects are not equal.
         /// </summary>
         /// <param name="e1">The first command object.</param>
         /// <param name="e2">The second command object.</param>

@@ -471,6 +471,7 @@ namespace DSharpPlus
             this._messageBulkDeleted = new AsyncEvent<DiscordClient, MessageBulkDeleteEventArgs>("MESSAGE_BULK_DELETED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._interactionCreated = new AsyncEvent<DiscordClient, InteractionCreateEventArgs>("INTERACTION_CREATED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._componentInteractionCreated = new AsyncEvent<DiscordClient, ComponentInteractionCreateEventArgs>("COMPONENT_INTERACTED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
+            this._contextMenuInteractionCreated = new AsyncEvent<DiscordClient, ContextMenuInteractionCreateEventArgs>("CONTEXT_MENU_INTERACTED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._typingStarted = new AsyncEvent<DiscordClient, TypingStartEventArgs>("TYPING_STARTED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._userSettingsUpdated = new AsyncEvent<DiscordClient, UserSettingsUpdateEventArgs>("USER_SETTINGS_UPDATED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._userUpdated = new AsyncEvent<DiscordClient, UserUpdateEventArgs>("USER_UPDATED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
@@ -527,6 +528,7 @@ namespace DSharpPlus
             client.MessagesBulkDeleted += this.Client_MessageBulkDelete;
             client.InteractionCreated += this.Client_InteractionCreate;
             client.ComponentInteractionCreated += this.Client_ComponentInteractionCreate;
+            client.ContextMenuInteractionCreated += this.Client_ContextMenuInteractionCreate;
             client.TypingStarted += this.Client_TypingStart;
             client.UserSettingsUpdated += this.Client_UserSettingsUpdate;
             client.UserUpdated += this.Client_UserUpdate;
@@ -582,6 +584,8 @@ namespace DSharpPlus
             client.MessageDeleted -= this.Client_MessageDelete;
             client.MessagesBulkDeleted -= this.Client_MessageBulkDelete;
             client.InteractionCreated -= this.Client_InteractionCreate;
+            client.ComponentInteractionCreated -= this.Client_ComponentInteractionCreate;
+            client.ContextMenuInteractionCreated -= this.Client_ContextMenuInteractionCreate;
             client.TypingStarted -= this.Client_TypingStart;
             client.UserSettingsUpdated -= this.Client_UserSettingsUpdate;
             client.UserUpdated -= this.Client_UserUpdate;
