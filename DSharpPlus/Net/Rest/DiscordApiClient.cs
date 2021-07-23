@@ -2665,6 +2665,7 @@ namespace DSharpPlus.Net
             {
                 pld.Add(new RestApplicationCommandCreatePayload
                 {
+                    Type = command.Type,
                     Name = command.Name,
                     Description = command.Description,
                     Options = command.Options,
