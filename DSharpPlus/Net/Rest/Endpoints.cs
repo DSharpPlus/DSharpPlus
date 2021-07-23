@@ -48,6 +48,7 @@ namespace DSharpPlus.Net
         public const string AUTH = "/auth";
         public const string LOGIN = "/login";
         public const string CHANNELS = "/channels";
+        public const string THREADS = "/threads";
         public const string MESSAGES = "/messages";
         public const string PINS = "/pins";
         public const string USERS = "/users";

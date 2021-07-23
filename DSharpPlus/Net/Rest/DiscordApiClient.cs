@@ -1486,6 +1486,95 @@ namespace DSharpPlus.Net
 
         #endregion
 
+        #region Threads
+
+        internal async Task<DiscordThreadChannel> CreateThreadFromMessageAsync(ulong channel_id, ulong message_id, string name, AutoArchiveDuration archiveAfter, string reason)
+        {
+            var headers = Utilities.GetBaseHeaders();
+            if (!string.IsNullOrWhiteSpace(reason))
+                headers.Add(REASON_HEADER_NAME, reason);
+
+            var payload = new RestThreadCreatePayload
+            {
+                Name = name,
+                ArchiveAfter = archiveAfter
+            };
+
+            var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}/:message_id{Endpoints.THREADS}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id, message_id }, out var path); //???
+
+            var url = Utilities.GetApiUriFor(path);
+            var response = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, headers, DiscordJson.SerializeObject(payload)).ConfigureAwait(false);
+
+            var thread = JsonConvert.DeserializeObject<DiscordThreadChannel>(response.Response);
+            thread.Discord = this.Discord;
+
+            return thread;
+        }
+
+        internal async Task<DiscordThreadChannel> CreateThreadAsync(ulong channel_id, string name, AutoArchiveDuration archiveAfter, ChannelType type, string reason)
+        {
+            var headers = Utilities.GetBaseHeaders();
+            if (!string.IsNullOrWhiteSpace(reason))
+                headers.Add(REASON_HEADER_NAME, reason);
+
+            var payload = new RestThreadCreatePayload
+            {
+                Name = name,
+                ArchiveAfter = archiveAfter,
+                Type = type
+            };
+
+            var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.THREADS}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id}, out var path); //???
+
+            var url = Utilities.GetApiUriFor(path);
+            var response = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, headers, DiscordJson.SerializeObject(payload)).ConfigureAwait(false);
+
+            var thread = JsonConvert.DeserializeObject<DiscordThreadChannel>(response.Response);
+            thread.Discord = this.Discord;
+
+            return thread;
+        }
+
+        internal async Task JoinThreadAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        internal async Task LeaveThreadAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        internal async Task AddThreadMemberAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        internal async Task ListThreadMembersAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        internal async Task ListActiveThreadsAsync()
+        {
+            throw new NotImplementedException();
+        }
+        internal async Task ListPublicArchivedThreadsAsync()
+        {
+            throw new NotImplementedException();
+        }
+        internal async Task ListJoinedPrivateArchivedThreadsAsync()
+        {
+            throw new NotImplementedException();
+        }
+        internal async Task ListPrivateArchivedThreadsAsync()
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
+
         #region Member
         internal Task<DiscordUser> GetCurrentUserAsync()
             => this.GetUserAsync("@me");

@@ -337,7 +337,7 @@ namespace DSharpPlus.Test
         private Task Discord_ThreadMemberUpdated(DiscordClient client, ThreadMemberUpdateEventArgs e)
         {
             client.Logger.LogDebug(eventId: TestBotEventId, $"Thread member updated.");
-            Console.WriteLine($"Discord_ThreadMemberUpdated fired for thread {e.ThreadMember.ThreadId}. User ID {e.ThreadMember.UserId}.");
+            Console.WriteLine($"Discord_ThreadMemberUpdated fired for thread {e.ThreadMember.ThreadId}. User ID {e.ThreadMember.Id}.");
             return Task.CompletedTask;
         }
 

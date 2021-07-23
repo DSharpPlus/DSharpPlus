@@ -64,7 +64,11 @@ namespace DSharpPlus.Entities
         [JsonProperty("thread_metadata", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordThreadChannelMetadata ThreadMetadata { get; internal set; }
 
-        //thread member??
+        //thread member
+        #region Methods
+
+
+        #endregion
 
         internal DiscordThreadChannel() {}
     }
