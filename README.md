@@ -189,13 +189,20 @@ There are also some built in ones, the same ones as on `CommandsNext` but prefix
 ```cs
 public class RequireUserIdAttribute : SlashCheckBaseAttribute
 {
-    public ulong Id;
+    public ulong UserId;
     
-    public RequireUserIdAttribute(ulong id)
-        => Id = id;
+    public RequireUserIdAttribute(ulong userId)
+    {
+        this.UserId = userId;
+    }
 
     public override async Task<bool> ExecuteChecksAsync(InteractionContext ctx)
-        => ctx.User.Id == Id;
+    {
+        if (ctx.User.Id == UserId) 
+            return true;
+        else
+            return false;
+    }
 }
 ```
 Then just apply it to your command
