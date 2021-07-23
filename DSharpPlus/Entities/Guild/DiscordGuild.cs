@@ -1777,7 +1777,7 @@ namespace DSharpPlus.Entities
                     case AuditLogActionType.StickerUpdate:
                         entry = new DiscordAuditLogStickerEntry
                         {
-                            Target = this._stickers.TryGetValue(xac.TargetId.Value, out var sticker) ? sticker : new DiscordSticker { Id = xac.TargetId.Value, Discord = this.Discord }
+                            Target = this._stickers.TryGetValue(xac.TargetId.Value, out var sticker) ? sticker : new DiscordMessageSticker { Id = xac.TargetId.Value, Discord = this.Discord }
                         };
 
                         var entrysti = entry as DiscordAuditLogStickerEntry;
