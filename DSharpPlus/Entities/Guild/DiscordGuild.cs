@@ -1771,7 +1771,7 @@ namespace DSharpPlus.Entities
                         }
                         break;
                         
-                                        case AuditLogActionType.StickerCreate:
+                    case AuditLogActionType.StickerCreate:
                     case AuditLogActionType.StickerDelete:
                     case AuditLogActionType.StickerUpdate:
                         entry = new DiscordAuditLogStickerEntry
