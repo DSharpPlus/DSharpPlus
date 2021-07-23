@@ -612,6 +612,32 @@ namespace DSharpPlus.Entities
             => this.Discord.ApiClient.EditChannelPermissionsAsync(this.Id, role.Id, allow, deny, "role", reason);
 
         /// <summary>
+        /// Deletes a channel permission overwrite for the specified member.
+        /// </summary>
+        /// <param name="member">The member to have the permission deleted.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task DeleteOverwriteAsync(DiscordMember member, string reason = null)
+            => this.Discord.ApiClient.DeleteChannelPermissionAsync(this.Id, member.Id, reason);
+
+        /// <summary>
+        /// Deletes a channel permission overwrite for the specified role.
+        /// </summary>
+        /// <param name="role">The role to have the permission deleted.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task DeleteOverwriteAsync(DiscordRole role, string reason = null)
+            => this.Discord.ApiClient.DeleteChannelPermissionAsync(this.Id, role.Id, reason);
+
+        /// <summary>
         /// Post a typing indicator
         /// </summary>
         /// <returns></returns>
