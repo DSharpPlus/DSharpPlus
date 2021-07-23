@@ -29,6 +29,9 @@ namespace DSharpPlus.Net.Abstractions
 {
     internal class RestApplicationCommandCreatePayload
     {
+        [JsonProperty("type")]
+        public ApplicationCommandType Type { get; set; }
+
         [JsonProperty("name")]
         public string Name { get; set; }
 
