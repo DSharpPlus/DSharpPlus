@@ -1151,6 +1151,7 @@ namespace DSharpPlus.Entities
                 DiscordAuditLogEntry entry = null;
                 ulong t1, t2;
                 int t3, t4;
+                long t5, t6;
                 bool p1, p2;
                 switch (xac.ActionType)
                 {
