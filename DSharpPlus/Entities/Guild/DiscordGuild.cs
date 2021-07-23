@@ -1791,8 +1791,49 @@ namespace DSharpPlus.Entities
                                             After = xc.NewValueString
                                         };
                                         break;
+                                    case "description":
+                                        entrysti.DescriptionChange = new PropertyChange<string>
+                                        {
+                                            Before = xc.OldValueString,
+                                            After = xc.NewValueString
+                                        };
+                                        break;
+                                    case "tags":
+                                        entrysti.TagsChange = new PropertyChange<string>
+                                        {
+                                            Before = xc.OldValueString,
+                                            After = xc.NewValueString
+                                        };
+                                        break;
+                                    case "guild_id":
+                                        entrysti.GuildIdChange = new PropertyChange<ulong?>
+                                        {
+                                            Before = ulong.TryParse(xc.OldValueString, out var ogid) ? ogid : null,
+                                            After = ulong.TryParse(xc.NewValueString, out var ngid) ? ngid : null
+                                        };
+                                        break;
+                                    case "available":
+                                        entrysti.AvailabilityChange = new PropertyChange<bool?>
+                                        {
+                                            Before = (bool?)xc.OldValue,
+                                            After = (bool?)xc.NewValue,
+                                        };
+                                        break;
+                                    case "asset":
+                                        entrysti.AssetChange = new PropertyChange<string>
+                                        {
+                                            Before = xc.OldValueString,
+                                            After = xc.NewValueString
+                                        };
+                                        break;
+                                    case "id":
+                                        entrysti.IdChange = new PropertyChange<ulong?>
+                                        {
+                                            Before = ulong.TryParse(xc.OldValueString, out var oid) ? oid : null,
+                                            After = ulong.TryParse(xc.NewValueString, out var nid) ? nid : null
+                                        };
+                                        break;
                                     case "type":
-                                        Console.WriteLine($"{xc.Key.ToLowerInvariant()}: {xc.OldValue}");
                                         p1 = long.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t5);
                                         p2 = long.TryParse(xc.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t6);
                                         entrysti.TypeChange = new PropertyChange<StickerType?>
@@ -1802,13 +1843,8 @@ namespace DSharpPlus.Entities
                                         };
                                         break;
                                     case "format_type":
-                                        Console.WriteLine($"{xc.Key.ToLowerInvariant()}: {xc.OldValue}");
                                         p1 = long.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t5);
                                         p2 = long.TryParse(xc.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t6);
-                                        Console.WriteLine($"{xc.Key.ToLowerInvariant()}: {p1}");
-                                        Console.WriteLine($"{xc.Key.ToLowerInvariant()}: {p2}");
-                                        Console.WriteLine($"{xc.Key.ToLowerInvariant()}: {t5}");
-                                        Console.WriteLine($"{xc.Key.ToLowerInvariant()}: {t6}");
                                         entrysti.FormatChange = new PropertyChange<StickerFormat?>
                                         {
                                             Before = p1 ? (StickerFormat?)t5 : null,
