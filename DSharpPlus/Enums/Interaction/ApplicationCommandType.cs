@@ -34,7 +34,7 @@ namespace DSharpPlus
         /// <summary>
         /// This command is registered as a user context menu, and is applicable when interacting a user.
         /// </summary>
-        UserConextMenu,
+        UserContextMenu,
         /// <summary>
         /// This command is registered as a message context menu, and is applicable when interacting with a message.
         /// </summary>
