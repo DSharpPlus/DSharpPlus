@@ -459,6 +459,7 @@ namespace DSharpPlus
             this._guildBanAdded = new AsyncEvent<DiscordClient, GuildBanAddEventArgs>("GUILD_BAN_ADDED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._guildBanRemoved = new AsyncEvent<DiscordClient, GuildBanRemoveEventArgs>("GUILD_BAN_REMOVED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._guildEmojisUpdated = new AsyncEvent<DiscordClient, GuildEmojisUpdateEventArgs>("GUILD_EMOJI_UPDATED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
+            this._guildStickersUpdated = new AsyncEvent<DiscordClient, GuildStickersUpdateEventArgs>("GUILD_STICKER_UPDATED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._guildIntegrationsUpdated = new AsyncEvent<DiscordClient, GuildIntegrationsUpdateEventArgs>("GUILD_INTEGRATIONS_UPDATED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._guildMemberAdded = new AsyncEvent<DiscordClient, GuildMemberAddEventArgs>("GUILD_MEMBER_ADDED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._guildMemberRemoved = new AsyncEvent<DiscordClient, GuildMemberRemoveEventArgs>("GUILD_MEMBER_REMOVED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
@@ -515,6 +516,7 @@ namespace DSharpPlus
             client.GuildBanAdded += this.Client_GuildBanAdd;
             client.GuildBanRemoved += this.Client_GuildBanRemove;
             client.GuildEmojisUpdated += this.Client_GuildEmojisUpdate;
+            client.GuildStickersUpdated += this.Client_GuildStickersUpdate;
             client.GuildIntegrationsUpdated += this.Client_GuildIntegrationsUpdate;
             client.GuildMemberAdded += this.Client_GuildMemberAdd;
             client.GuildMemberRemoved += this.Client_GuildMemberRemove;
@@ -571,6 +573,7 @@ namespace DSharpPlus
             client.GuildBanAdded -= this.Client_GuildBanAdd;
             client.GuildBanRemoved -= this.Client_GuildBanRemove;
             client.GuildEmojisUpdated -= this.Client_GuildEmojisUpdate;
+            client.GuildStickersUpdated -= this.Client_GuildStickersUpdate;
             client.GuildIntegrationsUpdated -= this.Client_GuildIntegrationsUpdate;
             client.GuildMemberAdded -= this.Client_GuildMemberAdd;
             client.GuildMemberRemoved -= this.Client_GuildMemberRemove;
