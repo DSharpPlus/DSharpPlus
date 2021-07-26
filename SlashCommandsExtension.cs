@@ -83,8 +83,11 @@ namespace DSharpPlus.SlashCommands
         }
 
         internal Task Update(DiscordClient client, ReadyEventArgs e)
+            => Update();
+ 
+        internal Task Update()
         {
-            if (client.ShardId == 0)
+            if (Client.ShardId == 0)
             {
                 foreach (var key in _updateList.Select(x => x.Key).Distinct())
                 {
@@ -260,13 +263,13 @@ namespace DSharpPlus.SlashCommands
                         foreach (var command in commands)
                         {
                             if (commandMethods.Any(x => x.Name == command.Name))
-                                commandMethods.First(x => x.Name == command.Name).Id = command.Id;
+                                commandMethods.First(x => x.Name == command.Name).CommandId = command.Id;
 
                             else if (groupCommands.Any(x => x.Name == command.Name))
-                                groupCommands.First(x => x.Name == command.Name).Id = command.Id;
+                                groupCommands.First(x => x.Name == command.Name).CommandId = command.Id;
 
                             else if (subGroupCommands.Any(x => x.Name == command.Name))
-                                subGroupCommands.First(x => x.Name == command.Name).Id = command.Id;
+                                subGroupCommands.First(x => x.Name == command.Name).CommandId = command.Id;
                         }
                         _commandMethods.AddRange(commandMethods);
                         _groupCommands.AddRange(groupCommands);
@@ -310,9 +313,9 @@ namespace DSharpPlus.SlashCommands
                     {
                         if (_errored)
                             throw new InvalidOperationException("Slash commands failed to register properly on startup.");
-                        var methods = _commandMethods.Where(x => x.Id == e.Interaction.Data.Id);
-                        var groups = _groupCommands.Where(x => x.Id == e.Interaction.Data.Id);
-                        var subgroups = _subGroupCommands.Where(x => x.Id == e.Interaction.Data.Id);
+                        var methods = _commandMethods.Where(x => x.CommandId == e.Interaction.Data.Id);
+                        var groups = _groupCommands.Where(x => x.CommandId == e.Interaction.Data.Id);
+                        var subgroups = _subGroupCommands.Where(x => x.CommandId == e.Interaction.Data.Id);
                         if (!methods.Any() && !groups.Any() && !subgroups.Any())
                             throw new InvalidOperationException("A slash command was executed, but no command was registered for it.");
 
@@ -632,6 +635,20 @@ namespace DSharpPlus.SlashCommands
             return options;
         }
 
+        /// <summary>
+        /// <para>Refreshes your commands, used for refreshing choice providers or applying commands registered after the ready event on the discord client. 
+        /// Should only be run on the slash command extension linked to shard 0 if sharding.</para>
+        /// <para>Not recommended and should be avoided since it can make slash commands be unresponsive for a while.</para>
+        /// </summary>
+        public async Task RefreshCommands()
+        {
+            _commandMethods.Clear();
+            _groupCommands.Clear();
+            _subGroupCommands.Clear();
+            _registeredCommands.Clear();
+
+            await Update();
+        }
 
         /// <summary>
         /// Fires whenver the execution of a slash command fails.
@@ -656,24 +673,21 @@ namespace DSharpPlus.SlashCommands
 
     internal class CommandMethod
     {
-        public ulong Id;
-
+        public ulong CommandId;
         public string Name;
         public MethodInfo Method;
     }
 
     internal class GroupCommand
     {
-        public ulong Id;
-
+        public ulong CommandId;
         public string Name;
         public List<KeyValuePair<string, MethodInfo>> Methods = null;
     }
 
     internal class SubGroupCommand
     {
-        public ulong Id;
-
+        public ulong CommandId;
         public string Name;
         public List<GroupCommand> SubCommands = new List<GroupCommand>();
     }
