@@ -25,7 +25,7 @@ namespace DSharpPlus.Net
 {
     internal static class Endpoints
     {
-        public const string BASE_URI = "https://discord.com/api/v8";
+        public const string BASE_URI = "https://discord.com/api/v9";
 
         public const string ORIGINAL = "/@original";
         public const string OAUTH2 = "/oauth2";
@@ -80,5 +80,12 @@ namespace DSharpPlus.Net
         public const string CALLBACK = "/callback";
         public const string WELCOME_SCREEN = "/welcome-screen";
         public const string VOICE_STATES = "/voice-states";
+        public const string STAGE_INSTANCES = "/stage-instances";
+        public const string THREADS = "/threads";
+        public const string THREAD_PUBLIC = "/public";
+        public const string THREAD_PRIVATE = "/private";
+        public const string THREAD_ACTIVE = "/active";
+        public const string THREAD_ARCHIVED = "/archived";
+        public const string THREAD_MEMBERS = "/thread-members";
     }
 }

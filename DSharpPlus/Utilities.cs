@@ -191,6 +191,15 @@ namespace DSharpPlus
 
         internal static bool HasTypingIntents(DiscordIntents intents)
             => intents.HasIntent(DiscordIntents.GuildMessageTyping) || intents.HasIntent(DiscordIntents.DirectMessageTyping);
+        internal static bool CheckThreadAutoArchiveDurationFeature(DiscordGuild guild, ThreadAutoArchiveDuration taad)
+        {
+            return taad == ThreadAutoArchiveDuration.ThreeDays
+                ? (guild.PremiumTier.HasFlag(PremiumTier.Tier_1) || guild.Features.Contains("THREE_DAY_THREAD_ARCHIVE"))
+                : taad != ThreadAutoArchiveDuration.OneWeek || guild.PremiumTier.HasFlag(PremiumTier.Tier_2) || guild.Features.Contains("SEVEN_DAY_THREAD_ARCHIVE");
+        }
+        
+        internal static bool CheckThreadPrivateFeature(DiscordGuild guild) => guild.PremiumTier.HasFlag(PremiumTier.Tier_2) || guild.Features.Contains("PRIVATE_THREADS");
+
 
         // https://discord.com/developers/docs/topics/gateway#sharding-sharding-formula
         /// <summary>

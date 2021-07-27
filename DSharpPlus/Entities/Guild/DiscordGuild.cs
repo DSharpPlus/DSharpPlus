@@ -361,6 +361,26 @@ namespace DSharpPlus.Entities
         internal ConcurrentDictionary<string, DiscordInvite> _invites;
 
         /// <summary>
+        /// Gets a dictionary of all the active threads associated with this guild the user has permission to view. The dictionary's key is the channel ID.
+        /// </summary>
+        [JsonIgnore]
+        public IReadOnlyDictionary<ulong, DiscordThreadChannel> Threads { get; internal set; }
+
+        [JsonProperty("threads", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
+        internal ConcurrentDictionary<ulong, DiscordThreadChannel> _threads = new();
+
+        /// <summary>
+        /// Gets a dictionary of all active stage instances. The dictionary's key is the stage ID.
+        /// </summary>
+        [JsonIgnore]
+        public IReadOnlyDictionary<ulong, DiscordStageInstance> StageInstances { get; internal set; }
+
+        [JsonProperty("stage_instances", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
+        internal ConcurrentDictionary<ulong, DiscordStageInstance> _stageInstances = new();
+
+        /// <summary>
         /// Gets the guild member for current user.
         /// </summary>
         [JsonIgnore]
@@ -451,6 +471,8 @@ namespace DSharpPlus.Entities
         {
             this._current_member_lazy = new Lazy<DiscordMember>(() => (this._members != null && this._members.TryGetValue(this.Discord.CurrentUser.Id, out var member)) ? member : null);
             this._invites = new ConcurrentDictionary<string, DiscordInvite>();
+            this.Threads = new ReadOnlyConcurrentDictionary<ulong, DiscordThreadChannel>(this._threads);
+            this.StageInstances = new ReadOnlyConcurrentDictionary<ulong, DiscordStageInstance>(this._stageInstances);
         }
 
         #region Guild Methods
@@ -649,6 +671,36 @@ namespace DSharpPlus.Entities
             => this.CreateChannelAsync(name, ChannelType.Category, null, Optional.FromNoValue<string>(), null, null, overwrites, null, Optional.FromNoValue<int?>(), null, reason);
 
         /// <summary>
+        /// Creates a new stage channel in this guild.
+        /// </summary>
+        /// <param name="name">Name of the new stage channel.</param>
+        /// <param name="overwrites">Permission overwrites for this stage channel.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns>The newly-created stage channel.</returns>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/>.</exception>
+        /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="NotSupportedException">Thrown when the guilds has not enabled community.</exception>
+        public Task<DiscordChannel> CreateStageChannelAsync(string name, IEnumerable<DiscordOverwriteBuilder> overwrites = null, string reason = null)
+            => this.Features.Contains("COMMUNITY") ? this.CreateChannelAsync(name, ChannelType.Stage, null, Optional.FromNoValue<string>(), null, null, overwrites, null, Optional.FromNoValue<int?>(), null, reason) : throw new NotSupportedException("Guild has not enabled community. Can not create a stage channel.");
+
+        /// <summary>
+        /// Creates a new news channel in this guild.
+        /// </summary>
+        /// <param name="name">Name of the new stage channel.</param>
+        /// <param name="overwrites">Permission overwrites for this news channel.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns>The newly-created news channel.</returns>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/>.</exception>
+        /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="NotSupportedException">Thrown when the guilds has not enabled community.</exception>
+        public Task<DiscordChannel> CreateNewsChannelAsync(string name, IEnumerable<DiscordOverwriteBuilder> overwrites = null, string reason = null)
+            => this.Features.Contains("COMMUNITY") ? this.CreateChannelAsync(name, ChannelType.News, null, Optional.FromNoValue<string>(), null, null, overwrites, null, Optional.FromNoValue<int?>(), null, reason) : throw new NotSupportedException("Guild has not enabled community. Can not create a news channel.");
+
+        /// <summary>
         /// Creates a new voice channel in this guild.
         /// </summary>
         /// <param name="name">Name of the new channel.</param>
@@ -695,6 +747,16 @@ namespace DSharpPlus.Entities
                 ? throw new ArgumentException("Cannot specify parent of a channel category.", nameof(parent))
                 : this.Discord.ApiClient.CreateGuildChannelAsync(this.Id, name, type, parent?.Id, topic, bitrate, userLimit, overwrites, nsfw, perUserRateLimit, qualityMode, reason);
         }
+
+        /// <summary>
+        /// Gets active threads. Can contain more threads. Watch for HasMore.
+        /// </summary>
+        /// <returns><see cref="DiscordThreadResult"/></returns>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the thread does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordThreadResult> GetActiveThreadsAsync()
+                => this.Discord.ApiClient.GetActiveThreadsAsync(this.Id);
 
         // this is to commemorate the Great DAPI Channel Massacre of 2017-11-19.
         /// <summary>

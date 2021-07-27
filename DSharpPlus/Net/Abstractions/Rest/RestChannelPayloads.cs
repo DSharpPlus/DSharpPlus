@@ -49,7 +49,7 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("permission_overwrites", NullValueHandling = NullValueHandling.Ignore)]
         public IEnumerable<DiscordRestOverwrite> PermissionOverwrites { get; set; }
-
+        
         [JsonProperty("nsfw", NullValueHandling = NullValueHandling.Ignore)]
         public bool? Nsfw { get; set; }
 
@@ -58,6 +58,9 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("video_quality_mode", NullValueHandling = NullValueHandling.Ignore)]
         public VideoQualityMode? QualityMode { get; set; }
+
+        [JsonProperty("default_auto_archive_duration", NullValueHandling = NullValueHandling.Ignore)]
+        public ThreadAutoArchiveDuration? DefaultAutoArchiveDuration { get; set; }
     }
 
     internal sealed class RestChannelModifyPayload
@@ -91,6 +94,36 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("video_quality_mode", NullValueHandling = NullValueHandling.Ignore)]
         public VideoQualityMode? QualityMode { get; set; }
+
+        [JsonProperty("default_auto_archive_duration", NullValueHandling = NullValueHandling.Ignore)]
+        public ThreadAutoArchiveDuration? DefaultAutoArchiveDuration { get; set; }
+    }
+
+    internal sealed class RestThreadChannelCreatePayload
+    {
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("auto_archive_duration")]
+        public ThreadAutoArchiveDuration AutoArchiveDuration { get; set; }
+    }
+
+    internal sealed class RestThreadChannelModifyPayload
+    {
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        public string Name { get; set; }
+
+        [JsonProperty("archived", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<bool?> Archived { get; set; }
+
+        [JsonProperty("auto_archive_duration", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<ThreadAutoArchiveDuration?> AutoArchiveDuration { get; set; }
+
+        [JsonProperty("locked", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<bool?> Locked { get; set; }
+
+        [JsonProperty("rate_limit_per_user", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<int?> PerUserRateLimit { get; set; }
     }
 
     internal class RestChannelMessageEditPayload

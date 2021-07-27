@@ -533,6 +533,113 @@ namespace DSharpPlus
 
         #endregion
 
+        #region Stage Instance
+
+        /// <summary>
+        /// Fired when a Stage Instance is created.
+        /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, StageInstanceCreateEventArgs> StageInstanceCreated
+        {
+            add => this._stageInstanceCreated.Register(value);
+            remove => this._stageInstanceCreated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, StageInstanceCreateEventArgs> _stageInstanceCreated;
+
+        /// <summary>
+        /// Fired when a Stage Instance is updated.
+        /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, StageInstanceUpdateEventArgs> StageInstanceUpdated
+        {
+            add => this._stageInstanceUpdated.Register(value);
+            remove => this._stageInstanceUpdated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, StageInstanceUpdateEventArgs> _stageInstanceUpdated;
+
+        /// <summary>
+        /// Fired when a Stage Instance is deleted.
+        /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, StageInstanceDeleteEventArgs> StageInstanceDeleted
+        {
+            add => this._stageInstanceDeleted.Register(value);
+            remove => this._stageInstanceDeleted.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, StageInstanceDeleteEventArgs> _stageInstanceDeleted;
+
+        #endregion
+
+        #region Thread
+
+        /// <summary>
+        /// Fired when a thread is created.
+        /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, ThreadCreateEventArgs> ThreadCreated
+        {
+            add => this._threadCreated.Register(value);
+            remove => this._threadCreated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ThreadCreateEventArgs> _threadCreated;
+
+        /// <summary>
+        /// Fired when a thread is updated.
+        /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, ThreadUpdateEventArgs> ThreadUpdated
+        {
+            add => this._threadUpdated.Register(value);
+            remove => this._threadUpdated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ThreadUpdateEventArgs> _threadUpdated;
+
+        /// <summary>
+        /// Fired when a thread is deleted.
+        /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, ThreadDeleteEventArgs> ThreadDeleted
+        {
+            add => this._threadDeleted.Register(value);
+            remove => this._threadDeleted.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ThreadDeleteEventArgs> _threadDeleted;
+
+        /// <summary>
+        /// Fired when a thread member is updated.
+        /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, ThreadListSyncEventArgs> ThreadListSynced
+        {
+            add => this._threadListSynced.Register(value);
+            remove => this._threadListSynced.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ThreadListSyncEventArgs> _threadListSynced;
+
+        /// <summary>
+        /// Fired when a thread member is updated.
+        /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, ThreadMemberUpdateEventArgs> ThreadMemberUpdated
+        {
+            add => this._threadMemberUpdated.Register(value);
+            remove => this._threadMemberUpdated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ThreadMemberUpdateEventArgs> _threadMemberUpdated;
+
+        /// <summary>
+        /// Fired when the thread members are updated.
+        /// For this Event you need the <see cref="DiscordIntents.GuildMembers"/> or <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, ThreadMembersUpdateEventArgs> ThreadMembersUpdated
+        {
+            add => this._threadMembersUpdated.Register(value);
+            remove => this._threadMembersUpdated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ThreadMembersUpdateEventArgs> _threadMembersUpdated;
+
+        #endregion
+
         #region Voice
 
         /// <summary>

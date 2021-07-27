@@ -159,6 +159,13 @@ namespace DSharpPlus.Entities
         internal string LastPinTimestampRaw { get; set; }
 
         /// <summary>
+        /// Gets this channel's default duration for newly created threads, in minutes, to automatically archive the thread after recent activity.
+        /// </summary>
+        [JsonProperty("default_auto_archive_duration", NullValueHandling = NullValueHandling.Ignore)]
+        public ThreadAutoArchiveDuration? DefaultAutoArchiveDuration { get; internal set; }
+
+
+        /// <summary>
         /// Gets this channel's mention string.
         /// </summary>
         [JsonIgnore]
@@ -580,6 +587,117 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordInvite> CreateInviteAsync(int max_age = 86400, int max_uses = 0, bool temporary = false, bool unique = false, string reason = null)
             => this.Discord.ApiClient.CreateChannelInviteAsync(this.Id, max_age, max_uses, temporary, unique, reason);
+
+
+        #region Stage
+
+        /// <summary>
+        /// Opens a stage
+        /// </summary>
+        /// <param name="topic">Topic of stage.</param>
+        /// <param name="privacy_level">Privacy level of stage (Defaults to <see cref="StagePrivacyLevel.GUILD_ONLY"/></param>
+        /// <param name="reason">Audit log reason</param>
+        /// <returns>Stage instance</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<DiscordStageInstance> OpenStageAsync(string topic, StagePrivacyLevel privacy_level = StagePrivacyLevel.GUILD_ONLY, string reason = null)
+            => await this.Discord.ApiClient.CreateStageInstanceAsync(this.Id, topic, privacy_level, reason);
+
+        /// <summary>
+        /// Modifies a stage topic
+        /// </summary>
+        /// <param name="topic">New topic of stage.</param>
+        /// <param name="privacy_level">New privacy level of stage.</param>
+        /// <param name="reason">Audit log reason</param>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task ModifyStageAsync(Optional<string> topic, Optional<StagePrivacyLevel> privacy_level, string reason = null)
+            => await this.Discord.ApiClient.ModifyStageInstanceAsync(this.Id, topic, privacy_level, reason);
+
+        /// <summary>
+        /// Closes a stage
+        /// </summary>
+        /// <param name="reason">Audit log reason</param>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task CloseStageAsync(string reason = null)
+            => await this.Discord.ApiClient.DeleteStageInstanceAsync(this.Id, reason);
+
+        /// <summary>
+        /// Gets a stage
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.AccessChannels"/> or <see cref="Permissions.UseVoice"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<DiscordStageInstance> GetStageAsync()
+            => await this.Discord.ApiClient.GetStageInstanceAsync(this.Id);
+
+        #endregion
+
+        #region Threads
+
+        /// <summary>
+        /// Creates a thread. Depending on whether it is created inside an <see cref="ChannelType.News"/> or an <see cref="ChannelType.Text"/> it is either an <see cref="ChannelType.NewsThread"/> or an <see cref="ChannelType.PublicThread"/>
+        /// </summary>
+        /// <param name="name">The name of the thread.</param>
+        /// <param name="auto_archive_duration"><see cref="ThreadAutoArchiveDuration"/> till it gets archived. Defaults to <see cref="ThreadAutoArchiveDuration.OneHour"/></param>
+        /// <param name="reason">The reason.</param>
+        /// <returns><see cref="DiscordThreadChannel"/></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.UsePublicThreads"/> or <see cref="Permissions.SendMessages"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the guild hasn't enabled threads atm.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="NotSupportedException">Thrown when the <see cref="ThreadAutoArchiveDuration"/> cannot be modified. This happens, when the guild hasn't reached a certain boost <see cref="PremiumTier"/>.</exception>
+        public async Task<DiscordThreadChannel> CreateThreadAsync(string name, ThreadAutoArchiveDuration auto_archive_duration = ThreadAutoArchiveDuration.OneHour, string reason = null) => Utilities.CheckThreadAutoArchiveDurationFeature(this.Guild, auto_archive_duration) ? await this.Discord.ApiClient.CreateThreadWithoutMessageAsync(this.Id, name, auto_archive_duration, reason) : throw new NotSupportedException($"Cannot modify ThreadAutoArchiveDuration. Guild needs boost tier {(auto_archive_duration == ThreadAutoArchiveDuration.ThreeDays ? "one" : "two")}.");
+
+        /// <summary>
+        /// Gets joined archived private threads. Can contain more threads. Watch for HasMore.
+        /// </summary>
+        /// <param name="before">Get threads before this timestamp.</param>
+        /// <param name="limit">Defines the limit of returned <see cref="DiscordThreadResult"/>.</param>
+        /// <returns><see cref="DiscordThreadResult"/></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ReadMessageHistory"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<DiscordThreadResult> GetJoinedPrivateArchivedThreadsAsync(ulong? before, int? limit)
+            => await this.Discord.ApiClient.GetJoinedPrivateArchivedThreadsAsync(this.Id, before, limit);
+
+        /// <summary>
+        /// Gets archived public threads. Can contain more threads. Watch for HasMore.
+        /// </summary>
+        /// <param name="before">Get threads before this timestamp.</param>
+        /// <param name="limit">Defines the limit of returned <see cref="DiscordThreadResult"/>.</param>
+        /// <returns><see cref="DiscordThreadResult"/></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ReadMessageHistory"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<DiscordThreadResult> GetPublicArchivedThreadsAsync(ulong? before, int? limit)
+            => await this.Discord.ApiClient.GetPublicArchivedThreadsAsync(this.Id, before, limit);
+
+        /// <summary>
+        /// Gets archived private threads. Can contain more threads. Watch for HasMore.
+        /// </summary>
+        /// <param name="before">Get threads before this timestamp.</param>
+        /// <param name="limit">Defines the limit of returned <see cref="DiscordThreadResult"/>.</param>
+        /// <returns><see cref="DiscordThreadResult"/></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageThreads"/> or <see cref="Permissions.ReadMessageHistory"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<DiscordThreadResult> GetPrivateArchivedThreadsAsync(ulong? before, int? limit)
+            => await this.Discord.ApiClient.GetPrivateArchivedThreadsAsync(this.Id, before, limit);
+
+        #endregion
 
         /// <summary>
         /// Adds a channel permission overwrite for specified member.

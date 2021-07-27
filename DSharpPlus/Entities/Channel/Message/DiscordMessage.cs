@@ -49,7 +49,9 @@ namespace DSharpPlus.Entities
             this._stickersLazy = new Lazy<IReadOnlyList<DiscordMessageSticker>>(() => new ReadOnlyCollection<DiscordMessageSticker>(this._stickers));
             this._jumpLink = new Lazy<Uri>(() =>
             {
-                var gid = this.Channel is DiscordDmChannel ? "@me" : this.Channel.GuildId.Value.ToString(CultureInfo.InvariantCulture);
+                var gid = this.Channel != null
+                    ? this.Channel is DiscordDmChannel ? "@me" : this.Channel.GuildId.Value.ToString(CultureInfo.InvariantCulture)
+                    : this.InternalThread.GuildId.ToString(CultureInfo.InvariantCulture);
                 var cid = this.ChannelId.ToString(CultureInfo.InvariantCulture);
                 var mid = this.Id.ToString(CultureInfo.InvariantCulture);
 
@@ -96,6 +98,18 @@ namespace DSharpPlus.Entities
         }
 
         private DiscordChannel _channel;
+
+        /// <summary>
+        /// Gets the thread in which the message was sent.
+        /// </summary>
+        [JsonIgnore]
+        private DiscordThreadChannel InternalThread
+        {
+            get => (this.Discord as DiscordClient)?.InternalGetCachedThread(this.ChannelId) ?? this._thread;
+            set => this._thread = value;
+        }
+
+        private DiscordThreadChannel _thread;
 
         /// <summary>
         /// Gets the ID of the channel in which the message was sent.
@@ -274,6 +288,12 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("application", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordMessageApplication Application { get; internal set; }
+
+        /// <summary>
+        /// Gets the thread that was started from this message.
+        /// </summary>
+        [JsonProperty("thread", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordThreadChannel Thread { get; internal set; }
 
         [JsonProperty("message_reference", NullValueHandling = NullValueHandling.Ignore)]
         internal InternalDiscordMessageReference? InternalReference { get; set; }
@@ -530,6 +550,28 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task DeleteAsync(string reason = null)
             => this.Discord.ApiClient.DeleteMessageAsync(this.ChannelId, this.Id, reason);
+
+
+        /// <summary>
+        /// Creates a thread. This thread is always a <see cref="ChannelType.PrivateThread"/>
+        /// </summary>
+        /// <param name="name">The name of the thread.</param>
+        /// <param name="auto_archive_duration"><see cref="ThreadAutoArchiveDuration"/> till it gets archived. Defaults to <see cref="ThreadAutoArchiveDuration.OneHour"/></param>
+        /// <param name="reason">The reason.</param>
+        /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.UsePrivateThreads"/> or <see cref="Permissions.SendMessages"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="NotSupportedException">Thrown when the <see cref="ThreadAutoArchiveDuration"/> cannot be modified or <see cref="ChannelType.PrivateThread"/> is not enabled for guild. This happens, if the guild does not have <see cref="PremiumTier.Tier_2"/>.</exception>
+        public async Task<DiscordThreadChannel> CreateThreadAsync(string name, ThreadAutoArchiveDuration auto_archive_duration = ThreadAutoArchiveDuration.OneHour, string reason = null)
+        {
+            return Utilities.CheckThreadPrivateFeature(this.Channel.Guild)
+                ? Utilities.CheckThreadAutoArchiveDurationFeature(this.Channel.Guild, auto_archive_duration)
+                    ? await this.Discord.ApiClient.CreateThreadWithMessageAsync(this.ChannelId, this.Id, name, auto_archive_duration, reason)
+                    : throw new NotSupportedException($"Cannot modify ThreadAutoArchiveDuration. Guild needs boost tier {(auto_archive_duration == ThreadAutoArchiveDuration.ThreeDays ? "one" : "two")}.")
+                : throw new NotSupportedException($"Cannot create a private thread. Guild needs to be boost tier two.");
+        }
 
         /// <summary>
         /// Pins the message in its channel.

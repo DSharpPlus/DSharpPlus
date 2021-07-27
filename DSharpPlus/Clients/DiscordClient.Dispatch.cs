@@ -60,6 +60,9 @@ namespace DSharpPlus
             DiscordChannel chn;
             ulong gid;
             ulong cid;
+            DiscordStageInstance stg;
+            DiscordThreadChannel trd;
+            DiscordThreadChannelMember trdm;
             TransportUser usr = default;
             TransportMember mbr = default;
             TransportUser refUsr = default;
@@ -312,6 +315,60 @@ namespace DSharpPlus
 
                 case "message_reaction_remove_emoji":
                     await this.OnMessageReactionRemoveEmojiAsync((ulong)dat["message_id"], (ulong)dat["channel_id"], (ulong)dat["guild_id"], dat["emoji"]).ConfigureAwait(false);
+                    break;
+
+                #endregion
+
+                #region Stage Instance
+
+                case "stage_instance_create":
+                    stg = dat.ToObject<DiscordStageInstance>();
+                    await this.OnStageInstanceCreateEventAsync(stg).ConfigureAwait(false);
+                    break;
+
+                case "stage_instance_update":
+                    stg = dat.ToObject<DiscordStageInstance>();
+                    await this.OnStageInstanceUpdateEventAsync(stg).ConfigureAwait(false);
+                    break;
+
+                case "stage_instance_delete":
+                    stg = dat.ToObject<DiscordStageInstance>();
+                    await this.OnStageInstanceDeleteEventAsync(stg).ConfigureAwait(false);
+                    break;
+
+                #endregion
+
+                #region Thread
+
+                case "thread_create":
+                    trd = dat.ToObject<DiscordThreadChannel>();
+                    await this.OnThreadCreateEventAsync(trd).ConfigureAwait(false);
+                    break;
+
+                case "thread_update":
+                    trd = dat.ToObject<DiscordThreadChannel>();
+                    await this.OnThreadUpdateEventAsync(trd).ConfigureAwait(false);
+                    break;
+
+                case "thread_delete":
+                    trd = dat.ToObject<DiscordThreadChannel>();
+                    await this.OnThreadDeleteEventAsync(trd).ConfigureAwait(false);
+                    break;
+
+                case "thread_list_sync":
+                    gid = (ulong)dat["guild_id"]; //get guild
+                    await this.OnThreadListSyncEventAsync(this._guilds[gid], dat["channel_ids"].ToObject<IReadOnlyList<ulong?>>(), dat["threads"].ToObject<IReadOnlyList<DiscordThreadChannel>>(), dat["members"].ToObject<IReadOnlyList<DiscordThreadChannelMember>>()).ConfigureAwait(false);
+                    break;
+
+                case "thread_member_update":
+                    trdm = dat.ToObject<DiscordThreadChannelMember>();
+                    await this.OnThreadMemberUpdateEventAsync(trdm).ConfigureAwait(false);
+                    break;
+
+                case "thread_members_update":
+                    gid = (ulong)dat["guild_id"];
+
+                    await this.OnThreadMembersUpdateEventAsync(this._guilds[gid], (ulong)dat["id"], dat["added_members"]?.ToObject<IReadOnlyList<DiscordThreadChannelMember>>(), dat["removed_member_ids"]?.ToObject<IReadOnlyList<ulong?>>(), (int)dat["member_count"]).ConfigureAwait(false);
                     break;
 
                 #endregion
@@ -1586,6 +1643,197 @@ namespace DSharpPlus
             };
 
             await this._messageReactionRemovedEmoji.InvokeAsync(this, ea).ConfigureAwait(false);
+        }
+
+        #endregion
+
+        #region Stage Instance
+
+        /// <summary>
+        /// Handles the stage instance create event.
+        /// </summary>
+        /// <param name="stage">The stage.</param>
+        /// <returns>A Task.</returns>
+        internal async Task OnStageInstanceCreateEventAsync(DiscordStageInstance stage)
+        {
+            stage.Discord = this;
+
+            var guild = this.InternalGetCachedGuild(stage.GuildId);
+            guild._stageInstances[stage.Id] = stage;
+
+            await this._stageInstanceCreated.InvokeAsync(this, new StageInstanceCreateEventArgs { StageInstance = stage, Guild = stage.Guild }).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Handles the stage instance update event.
+        /// </summary>
+        /// <param name="stage">The stage.</param>
+        /// <returns>A Task.</returns>
+        internal async Task OnStageInstanceUpdateEventAsync(DiscordStageInstance stage)
+        {
+            stage.Discord = this;
+            var guild = this.InternalGetCachedGuild(stage.GuildId);
+            guild._stageInstances[stage.Id] = stage;
+
+            await this._stageInstanceUpdated.InvokeAsync(this, new StageInstanceUpdateEventArgs { StageInstance = stage, Guild = stage.Guild }).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Handles the stage instance delete event.
+        /// </summary>
+        /// <param name="stage">The stage.</param>
+        /// <returns>A Task.</returns>
+        internal async Task OnStageInstanceDeleteEventAsync(DiscordStageInstance stage)
+        {
+            stage.Discord = this;
+            var guild = this.InternalGetCachedGuild(stage.GuildId);
+            guild._stageInstances[stage.Id] = stage;
+
+            await this._stageInstanceDeleted.InvokeAsync(this, new StageInstanceDeleteEventArgs { StageInstance = stage, Guild = stage.Guild }).ConfigureAwait(false);
+        }
+
+        #endregion
+
+        #region Thread
+
+        /// <summary>
+        /// Handles the thread create event.
+        /// </summary>
+        /// <param name="thread">The thread.</param>
+        /// <returns>A Task.</returns>
+        internal async Task OnThreadCreateEventAsync(DiscordThreadChannel thread)
+        {
+            thread.Discord = this;
+            this.InternalGetCachedGuild(thread.GuildId)._threads[thread.Id] = thread;
+
+            await this._threadCreated.InvokeAsync(this, new ThreadCreateEventArgs { Thread = thread, Guild = thread.Guild, Parent = thread.Parent }).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Handles the thread update event.
+        /// </summary>
+        /// <param name="thread">The thread.</param>
+        /// <returns>A Task.</returns>
+        internal async Task OnThreadUpdateEventAsync(DiscordThreadChannel thread)
+        {
+            if (thread == null)
+                return;
+
+            thread.Discord = this;
+            var guild = thread.Guild;
+
+            var threadNew = this.InternalGetCachedThread(thread.Id);
+            DiscordThreadChannel threadOld = null;
+
+            if (threadNew != null)
+            {
+                threadOld = new DiscordThreadChannel
+                {
+                    Discord = this,
+                    Type = threadNew.Type,
+                    ThreadMetadata = thread.ThreadMetadata,
+                    _threadMembers = threadNew._threadMembers,
+                    ParentId = thread.ParentId,
+                    OwnerId = thread.OwnerId,
+                    Name = thread.Name,
+                    LastMessageId = threadNew.LastMessageId,
+                    MessageCount = thread.MessageCount,
+                    MemberCount = thread.MemberCount,
+                    GuildId = thread.GuildId,
+                    LastPinTimestampRaw = threadNew.LastPinTimestampRaw,
+                    PerUserRateLimit = threadNew.PerUserRateLimit
+                };
+
+                threadNew.ThreadMetadata = thread.ThreadMetadata;
+                threadNew.ParentId = thread.ParentId;
+                threadNew.OwnerId = thread.OwnerId;
+                threadNew.Name = thread.Name;
+                threadNew.LastMessageId = thread.LastMessageId.HasValue ? thread.LastMessageId : threadOld.LastMessageId;
+                threadNew.MessageCount = thread.MessageCount;
+                threadNew.MemberCount = thread.MemberCount;
+                threadNew.GuildId = thread.GuildId;
+            }
+
+            guild._threads[thread.Id] = thread;
+
+            await this._threadUpdated.InvokeAsync(this, new ThreadUpdateEventArgs { ThreadAfter = threadNew, ThreadBefore = threadOld, Guild = thread.Guild, Parent = thread.Parent }).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Handles the thread delete event.
+        /// </summary>
+        /// <param name="thread">The thread.</param>
+        /// <returns>A Task.</returns>
+        internal async Task OnThreadDeleteEventAsync(DiscordThreadChannel thread)
+        {
+            if (thread == null)
+                return;
+
+            thread.Discord = this;
+
+            var gld = thread.Guild;
+            if (gld._threads.TryRemove(thread.Id, out var cachedThread))
+                thread = cachedThread;
+
+            await this._threadDeleted.InvokeAsync(this, new ThreadDeleteEventArgs { Thread = thread, Guild = thread.Guild, Parent = thread.Parent, Type = thread.Type }).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Handles the thread list sync event.
+        /// </summary>
+        /// <param name="guild">The guild.</param>
+        /// <param name="channel_ids">The channel_ids.</param>
+        /// <param name="threads">The threads.</param>
+        /// <param name="members">The members.</param>
+        /// <returns>A Task.</returns>
+        internal async Task OnThreadListSyncEventAsync(DiscordGuild guild, IReadOnlyList<ulong?> channel_ids, IReadOnlyList<DiscordThreadChannel> threads, IReadOnlyList<DiscordThreadChannelMember> members)
+        {
+            guild.Discord = this;
+
+            var channels = channel_ids.Select(x => guild.GetChannel(x.Value)); //getting channel objects
+            foreach (var chan in channels)
+            {
+                chan.Discord = this;
+            }
+
+            await this._threadListSynced.InvokeAsync(this, new ThreadListSyncEventArgs { Guild = guild, Channels = channels.ToList().AsReadOnly(), Threads = threads, Members = members.ToList().AsReadOnly() }).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Handles the thread member update event.
+        /// </summary>
+        /// <param name="member">The member.</param>
+        /// <returns>A Task.</returns>
+        internal async Task OnThreadMemberUpdateEventAsync(DiscordThreadChannelMember member)
+        {
+            member.Discord = this;
+
+            await this._threadMemberUpdated.InvokeAsync(this, new ThreadMemberUpdateEventArgs { ThreadMember = member }).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Handles the thread members update event.
+        /// </summary>
+        /// <param name="guild">The guild.</param>
+        /// <param name="thread_id">The thread_id.</param>
+        /// <param name="addedMembers">The added members.</param>
+        /// <param name="removed_member_ids">The removed_member_ids.</param>
+        /// <param name="member_count">The member_count.</param>
+        /// <returns>A Task.</returns>
+        internal async Task OnThreadMembersUpdateEventAsync(DiscordGuild guild, ulong thread_id, IReadOnlyList<DiscordThreadChannelMember> addedMembers, IReadOnlyList<ulong?> removed_member_ids, int member_count)
+        {
+            guild.Discord = this;
+
+            var threadMembersUpdateArg = new ThreadMembersUpdateEventArgs
+            {
+                Guild = guild,
+                ThreadId = thread_id,
+                AddedMembers = addedMembers ?? Array.Empty<DiscordThreadChannelMember>(),
+                RemovedMemberIds = removed_member_ids ?? Array.Empty<ulong?>(),
+                MemberCount = member_count
+            };
+
+            await this._threadMembersUpdated.InvokeAsync(this, threadMembersUpdateArg).ConfigureAwait(false);
         }
 
         #endregion

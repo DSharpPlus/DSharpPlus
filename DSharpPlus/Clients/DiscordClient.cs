@@ -205,6 +205,15 @@ namespace DSharpPlus
             this._applicationCommandCreated = new AsyncEvent<DiscordClient, ApplicationCommandEventArgs>("APPLICATION_COMMAND_CREATED", EventExecutionLimit, this.EventErrorHandler);
             this._applicationCommandUpdated = new AsyncEvent<DiscordClient, ApplicationCommandEventArgs>("APPLICATION_COMMAND_UPDATED", EventExecutionLimit, this.EventErrorHandler);
             this._applicationCommandDeleted = new AsyncEvent<DiscordClient, ApplicationCommandEventArgs>("APPLICATION_COMMAND_DELETED", EventExecutionLimit, this.EventErrorHandler);
+            this._stageInstanceCreated = new AsyncEvent<DiscordClient, StageInstanceCreateEventArgs>("STAGE_INSTANCE_CREATED", EventExecutionLimit, this.EventErrorHandler);
+            this._stageInstanceUpdated = new AsyncEvent<DiscordClient, StageInstanceUpdateEventArgs>("STAGE_INSTANCE_UPDATED", EventExecutionLimit, this.EventErrorHandler);
+            this._stageInstanceDeleted = new AsyncEvent<DiscordClient, StageInstanceDeleteEventArgs>("STAGE_INSTANCE_DELETED", EventExecutionLimit, this.EventErrorHandler);
+            this._threadCreated = new AsyncEvent<DiscordClient, ThreadCreateEventArgs>("THREAD_CREATED", EventExecutionLimit, this.EventErrorHandler);
+            this._threadUpdated = new AsyncEvent<DiscordClient, ThreadUpdateEventArgs>("THREAD_UPDATED", EventExecutionLimit, this.EventErrorHandler);
+            this._threadDeleted = new AsyncEvent<DiscordClient, ThreadDeleteEventArgs>("THREAD_DELETED", EventExecutionLimit, this.EventErrorHandler);
+            this._threadListSynced = new AsyncEvent<DiscordClient, ThreadListSyncEventArgs>("THREAD_LIST_SYNCED", EventExecutionLimit, this.EventErrorHandler);
+            this._threadMemberUpdated = new AsyncEvent<DiscordClient, ThreadMemberUpdateEventArgs>("THREAD_MEMBER_UPDATED", EventExecutionLimit, this.EventErrorHandler);
+            this._threadMembersUpdated = new AsyncEvent<DiscordClient, ThreadMembersUpdateEventArgs>("THREAD_MEMBERS_UPDATED", EventExecutionLimit, this.EventErrorHandler);
 
             this._guilds.Clear();
 
@@ -380,6 +389,17 @@ namespace DSharpPlus
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task<DiscordChannel> GetChannelAsync(ulong id)
             => this.InternalGetCachedChannel(id) ?? await this.ApiClient.GetChannelAsync(id).ConfigureAwait(false);
+
+        /// <summary>
+        /// Gets a thread
+        /// </summary>
+        /// <param name="id">The id of the thread to get.</param>
+        /// <returns></returns>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the thread does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<DiscordThreadChannel> GetThreadAsync(ulong id)
+            => this.InternalGetCachedThread(id) ?? await this.ApiClient.GetThreadAsync(id).ConfigureAwait(false);
 
         /// <summary>
         /// Sends a message
@@ -759,6 +779,20 @@ namespace DSharpPlus
             return null;
         }
 
+        /// <summary>
+        /// Internals the get cached thread.
+        /// </summary>
+        /// <param name="threadId">The thread id.</param>
+        /// <returns>A DiscordThreadChannel.</returns>
+        internal DiscordThreadChannel InternalGetCachedThread(ulong threadId)
+        {
+            foreach (var guild in this.Guilds.Values)
+                if (guild.Threads.TryGetValue(threadId, out var foundThread))
+                    return foundThread;
+
+            return null;
+        }
+
         private void UpdateMessage(DiscordMessage message, TransportUser author, DiscordGuild guild, TransportMember member)
         {
             if (author != null)
@@ -872,8 +906,21 @@ namespace DSharpPlus
                 }
             }
 
+            if (newGuild._threads != null && newGuild._threads.Count > 0)
+            {
+                foreach (var thread in newGuild._threads.Values)
+                {
+                    if (guild._threads.TryGetValue(thread.Id, out _)) continue;
+
+                    guild._threads[thread.Id] = thread;
+                }
+            }
+
             foreach (var newEmoji in newGuild._emojis.Values)
                 _ = guild._emojis.GetOrAdd(newEmoji.Id, _ => newEmoji);
+
+            foreach (var newStageInstance in newGuild._stageInstances.Values)
+                _ = guild._stageInstances.GetOrAdd(newStageInstance.Id, _ => newStageInstance);
 
             if (rawMembers != null)
             {
