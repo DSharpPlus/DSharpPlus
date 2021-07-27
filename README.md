@@ -108,7 +108,9 @@ You can also override `BeforeExecutionAsync` and `AfterExecutionAsync` to run co
 ### Arguments
 If you want the user to be able to give more data to the command, you can add some arguments.
 
-Arguments must have the `Option` attribute, and can only be of type `string`, `long`, `bool`, `DiscordUser`, `DiscordChannel`, `DiscordRole` and `Enum`. If you want to make them optional, you can assign a default value as well.
+Arguments must have the `Option` attribute, and can only be of type `string`, `long`, `bool`, `double`, `DiscordUser`, `DiscordChannel`, `DiscordRole`, `SnowflakeObject` and `Enum`. If you want to make them optional, you can assign a default value.
+
+A `SnowflakeObject` parameter defines it as a `Mentionable`, which means it accepts both roles and users. You have to cast the value to `DiscordMember`, `DiscordUser` or `DiscordRole` depending on its type.
 
 You can also predefine some choices for the option. Choices only work for `string` and `long` arguments. THere are several ways to use them:
 1. With the `Choice` attribute. You can add multiple attributes to add multiple choices.
