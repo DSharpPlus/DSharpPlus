@@ -28,7 +28,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using DSharpPlus.Exceptions;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Models;
@@ -387,16 +386,9 @@ namespace DSharpPlus.Entities
         {
             var mdl = new ChannelEditModel();
             action(mdl);
-
-            if (mdl.DefaultAutoArchiveDuration.HasValue)
-            {
-                if (!Utilities.CheckThreadAutoArchiveDurationFeature(this.Guild, mdl.DefaultAutoArchiveDuration.Value))
-                    throw new NotSupportedException($"Cannot modify DefaultAutoArchiveDuration. Guild needs boost tier {(mdl.DefaultAutoArchiveDuration.Value == ThreadAutoArchiveDuration.ThreeDays ? "one" : "two")}.");
-            }
-
             return this.Discord.ApiClient.ModifyChannelAsync(this.Id, mdl.Name, mdl.Position, mdl.Topic, mdl.Nsfw,
                 mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.PerUserRateLimit, mdl.RtcRegion.IfPresent(r => r?.Id),
-                mdl.QualityMode, mdl.DefaultAutoArchiveDuration, mdl.AuditLogReason);
+                mdl.QualityMode, mdl.AuditLogReason);
         }
 
         /// <summary>

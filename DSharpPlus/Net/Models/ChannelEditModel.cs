@@ -81,11 +81,6 @@ namespace DSharpPlus.Net.Models
         /// </summary>
         public VideoQualityMode? QualityMode { internal get; set; }
 
-        /// <summary>
-        /// Sets this channel's default duration for newly created threads, in minutes, to automatically archive the thread after recent activity.
-        /// </summary>
-        public ThreadAutoArchiveDuration? DefaultAutoArchiveDuration { internal get; set; }
-
         internal ChannelEditModel() { }
     }
 }
