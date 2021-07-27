@@ -560,6 +560,81 @@ namespace DSharpPlus.Entities
         public PropertyChange<int?> ExpireBehavior { get; internal set; }
     }
 
+
+
+    /// <summary>
+    /// Represents a audit log stage entry.
+    /// </summary>
+    public sealed class DiscordAuditLogStageEntry : DiscordAuditLogEntry
+    {
+        /// <summary>
+        /// Gets the affected stage instance
+        /// </summary>
+        public DiscordStageInstance Target { get; internal set; }
+
+        /// <summary>
+        /// Gets the description of stage instance's topic change.
+        /// </summary>
+        public PropertyChange<string> TopicChange { get; internal set; }
+
+        /// <summary>
+        /// Gets the description of stage instance's privacy level change.
+        /// </summary>
+        public PropertyChange<StagePrivacyLevel?> PrivacyLevelChange { get; internal set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DiscordAuditLogStageEntry"/> class.
+        /// </summary>
+        internal DiscordAuditLogStageEntry() { }
+    }
+
+
+    /// <summary>
+    /// Represents a audit log thread entry.
+    /// </summary>
+    public sealed class DiscordAuditLogThreadEntry : DiscordAuditLogEntry
+    {
+        /// <summary>
+        /// Gets the affected thread
+        /// </summary>
+        public DiscordThreadChannel Target { get; internal set; }
+
+        /// <summary>
+        /// Gets the name of the thread.
+        /// </summary>
+        public PropertyChange<string> NameChange { get; internal set; }
+
+        /// <summary>
+        /// Gets the type of the thread.
+        /// </summary>
+        public PropertyChange<ChannelType?> TypeChange { get; internal set; }
+
+        /// <summary>
+        /// Gets the archived state of the thread.
+        /// </summary>
+        public PropertyChange<bool?> ArchivedChange { get; internal set; }
+
+        /// <summary>
+        /// Gets the locked state of the thread.
+        /// </summary>
+        public PropertyChange<bool?> LockedChange { get; internal set; }
+
+        /// <summary>
+        /// Gets the new auto archive duration of the thread.
+        /// </summary>
+        public PropertyChange<ThreadAutoArchiveDuration?> AutoArchiveDurationChange { get; internal set; }
+
+        /// <summary>
+        /// Gets the new ratelimit of the thread.
+        /// </summary>
+        public PropertyChange<int?> PerUserRateLimitChange { get; internal set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DiscordAuditLogThreadEntry"/> class.
+        /// </summary>
+        internal DiscordAuditLogThreadEntry() { }
+    }
+
     /// <summary>
     /// Indicates audit log action category.
     /// </summary>
@@ -768,6 +843,22 @@ namespace DSharpPlus.Entities
         /// Indicates that an integration was deleted.
         /// </summary>
         IntegrationDelete = 82,
+
+        /// <summary>
+        /// Indicates that an stage instance was created.
+        /// </summary>
+        StageInstanceCreate = 83,
+
+        /// <summary>
+        /// Indicates that an stage instance was updated.
+        /// </summary>
+        StageInstanceUpdate = 84,
+
+        /// <summary>
+        /// Indicates that an stage instance was deleted.
+        /// </summary>
+        StageInstanceDelete = 85,
+
         /// <summary>
         /// Indicates that an sticker was created.
         /// </summary>
@@ -782,5 +873,20 @@ namespace DSharpPlus.Entities
         /// Indicates that an sticker was deleted.
         /// </summary>
         StickerDelete = 92,
+
+        /// <summary>
+        /// Indicates that an thread was created.
+        /// </summary>
+        ThreadCreate = 110,
+
+        /// <summary>
+        /// Indicates that an thread was updated.
+        /// </summary>
+        ThreadUpdate = 111,
+
+        /// <summary>
+        /// Indicates that an thread was deleted.
+        /// </summary>
+        ThreadDelete = 112,
     }
 }

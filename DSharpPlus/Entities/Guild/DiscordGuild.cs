@@ -1209,6 +1209,7 @@ namespace DSharpPlus.Entities
                 DiscordAuditLogEntry entry = null;
                 ulong t1, t2;
                 int t3, t4;
+                long t5, t6;
                 bool p1, p2;
                 switch (xac.ActionType)
                 {
@@ -1958,6 +1959,116 @@ namespace DSharpPlus.Entities
                         }
                         break;
 
+                    case AuditLogActionType.StageInstanceCreate:
+                    case AuditLogActionType.StageInstanceDelete:
+                    case AuditLogActionType.StageInstanceUpdate:
+                        entry = new DiscordAuditLogStageEntry
+                        {
+                            Target = this._stageInstances.TryGetValue(xac.TargetId.Value, out var stage) ? stage : new DiscordStageInstance { Id = xac.TargetId.Value, Discord = this.Discord }
+                        };
+
+                        var entrysta = entry as DiscordAuditLogStageEntry;
+                        foreach (var xc in xac.Changes)
+                        {
+                            switch (xc.Key.ToLowerInvariant())
+                            {
+                                case "topic":
+                                    entrysta.TopicChange = new PropertyChange<string>
+                                    {
+                                        Before = xc.OldValueString,
+                                        After = xc.NewValueString
+                                    };
+                                    break;
+                                case "privacy_level":
+                                    entrysta.PrivacyLevelChange = new PropertyChange<StagePrivacyLevel?>
+                                    {
+                                        Before = long.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t5) ? (StagePrivacyLevel?)t5 : null,
+                                        After = long.TryParse(xc.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t6) ? (StagePrivacyLevel?)t6 : null,
+                                    };
+                                    break;
+
+                                default:
+                                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in stage instance update: {0} - this should be reported to library developers", xc.Key);
+                                    break;
+                            }
+                        }
+                        break;
+
+
+                    case AuditLogActionType.ThreadCreate:
+                    case AuditLogActionType.ThreadDelete:
+                    case AuditLogActionType.ThreadUpdate:
+                        entry = new DiscordAuditLogThreadEntry
+                        {
+                            Target = this._threads.TryGetValue(xac.TargetId.Value, out var thread) ? thread : new DiscordThreadChannel { Id = xac.TargetId.Value, Discord = this.Discord }
+                        };
+
+                        var entrythr = entry as DiscordAuditLogThreadEntry;
+                        foreach (var xc in xac.Changes)
+                        {
+                            switch (xc.Key.ToLowerInvariant())
+                            {
+                                case "name":
+                                    entrythr.NameChange = new PropertyChange<string>
+                                    {
+                                        Before = xc.OldValue != null ? xc.OldValueString : null,
+                                        After = xc.NewValue != null ? xc.NewValueString : null
+                                    };
+                                    break;
+
+                                case "type":
+                                    p1 = ulong.TryParse(xc.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t1);
+                                    p2 = ulong.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t2);
+
+                                    entrythr.TypeChange = new PropertyChange<ChannelType?>
+                                    {
+                                        Before = p1 ? (ChannelType?)t1 : null,
+                                        After = p2 ? (ChannelType?)t2 : null
+                                    };
+                                    break;
+
+                                case "archived":
+                                    entrythr.ArchivedChange = new PropertyChange<bool?>
+                                    {
+                                        Before = xc.OldValue != null ? (bool?)xc.OldValue : null,
+                                        After = xc.NewValue != null ? (bool?)xc.NewValue : null
+                                    };
+                                    break;
+
+                                case "locked":
+                                    entrythr.LockedChange = new PropertyChange<bool?>
+                                    {
+                                        Before = xc.OldValue != null ? (bool?)xc.OldValue : null,
+                                        After = xc.NewValue != null ? (bool?)xc.NewValue : null
+                                    };
+                                    break;
+
+                                case "auto_archive_duration":
+                                    p1 = ulong.TryParse(xc.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t1);
+                                    p2 = ulong.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t2);
+
+                                    entrythr.AutoArchiveDurationChange = new PropertyChange<ThreadAutoArchiveDuration?>
+                                    {
+                                        Before = p1 ? (ThreadAutoArchiveDuration?)t1 : null,
+                                        After = p2 ? (ThreadAutoArchiveDuration?)t2 : null
+                                    };
+                                    break;
+
+                                case "rate_limit_per_user":
+                                    entrythr.PerUserRateLimitChange = new PropertyChange<int?>
+                                    {
+                                        Before = (int?)(long?)xc.OldValue,
+                                        After = (int?)(long?)xc.NewValue
+                                    };
+                                    break;
+
+                                default:
+                                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in thread update: {0} - this should be reported to library developers", xc.Key);
+                                    break;
+                            }
+                        }
+                        break;
+
                     default:
                         this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown audit log action type: {0} - this should be reported to library developers", (int)xac.ActionType);
                         break;
@@ -1968,9 +2079,9 @@ namespace DSharpPlus.Entities
 
                 entry.ActionCategory = xac.ActionType switch
                 {
-                    AuditLogActionType.ChannelCreate or AuditLogActionType.EmojiCreate or AuditLogActionType.InviteCreate or AuditLogActionType.OverwriteCreate or AuditLogActionType.RoleCreate or AuditLogActionType.WebhookCreate or AuditLogActionType.IntegrationCreate => AuditLogActionCategory.Create,
-                    AuditLogActionType.ChannelDelete or AuditLogActionType.EmojiDelete or AuditLogActionType.InviteDelete or AuditLogActionType.MessageDelete or AuditLogActionType.MessageBulkDelete or AuditLogActionType.OverwriteDelete or AuditLogActionType.RoleDelete or AuditLogActionType.WebhookDelete or AuditLogActionType.IntegrationDelete => AuditLogActionCategory.Delete,
-                    AuditLogActionType.ChannelUpdate or AuditLogActionType.EmojiUpdate or AuditLogActionType.InviteUpdate or AuditLogActionType.MemberRoleUpdate or AuditLogActionType.MemberUpdate or AuditLogActionType.OverwriteUpdate or AuditLogActionType.RoleUpdate or AuditLogActionType.WebhookUpdate or AuditLogActionType.IntegrationUpdate => AuditLogActionCategory.Update,
+                    AuditLogActionType.ChannelCreate or AuditLogActionType.EmojiCreate or AuditLogActionType.InviteCreate or AuditLogActionType.OverwriteCreate or AuditLogActionType.RoleCreate or AuditLogActionType.WebhookCreate or AuditLogActionType.IntegrationCreate or AuditLogActionType.StageInstanceCreate or AuditLogActionType.ThreadCreate => AuditLogActionCategory.Create,
+                    AuditLogActionType.ChannelDelete or AuditLogActionType.EmojiDelete or AuditLogActionType.InviteDelete or AuditLogActionType.MessageDelete or AuditLogActionType.MessageBulkDelete or AuditLogActionType.OverwriteDelete or AuditLogActionType.RoleDelete or AuditLogActionType.WebhookDelete or AuditLogActionType.IntegrationDelete or AuditLogActionType.StageInstanceDelete or AuditLogActionType.ThreadDelete => AuditLogActionCategory.Delete,
+                    AuditLogActionType.ChannelUpdate or AuditLogActionType.EmojiUpdate or AuditLogActionType.InviteUpdate or AuditLogActionType.MemberRoleUpdate or AuditLogActionType.MemberUpdate or AuditLogActionType.OverwriteUpdate or AuditLogActionType.RoleUpdate or AuditLogActionType.WebhookUpdate or AuditLogActionType.IntegrationUpdate or AuditLogActionType.StageInstanceUpdate or AuditLogActionType.ThreadUpdate => AuditLogActionCategory.Update,
                     _ => AuditLogActionCategory.Other,
                 };
                 entry.Discord = this.Discord;
