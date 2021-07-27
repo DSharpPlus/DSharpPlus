@@ -93,12 +93,10 @@ namespace DSharpPlus.Entities
         {
             get
             {
-                return this.Discord as DiscordClient is null
+                return this.Discord as DiscordClient == null
                     ? this._channel
                     : (this.Discord as DiscordClient).InternalGetCachedThread(this.ChannelId) ?? (this.Discord as DiscordClient).InternalGetCachedChannel(this.ChannelId);
             }
-
-            //get => (this.Discord as DiscordClient)?.InternalGetCachedChannel(this.ChannelId) ?? this._channel;
             internal set => this._channel = value;
         }
 
