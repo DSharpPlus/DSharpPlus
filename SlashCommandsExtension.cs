@@ -461,6 +461,8 @@ namespace DSharpPlus.SlashCommands
                         args.Add((long)option.Value);
                     else if (ReferenceEquals(parameter.ParameterType, typeof(bool)))
                         args.Add((bool)option.Value);
+                    else if (ReferenceEquals(parameter.ParameterType, typeof(double)))
+                        args.Add((double)option.Value);
                     else if (ReferenceEquals(parameter.ParameterType, typeof(DiscordUser)))
                     {
                         if (e.Interaction.Data.Resolved.Members != null &&
@@ -500,6 +502,25 @@ namespace DSharpPlus.SlashCommands
                         else
                         {
                             args.Add(e.Interaction.Guild.GetRole((ulong)option.Value));
+                        }
+                    }
+                    else if (ReferenceEquals(parameter.ParameterType, typeof(SnowflakeObject)))
+                    {
+                        if (e.Interaction.Data.Resolved.Roles != null && e.Interaction.Data.Resolved.Roles.TryGetValue((ulong)option.Value, out var role))
+                        {
+                            args.Add(role);
+                        }
+                        else if (e.Interaction.Data.Resolved.Members != null && e.Interaction.Data.Resolved.Members.TryGetValue((ulong)option.Value, out var member))
+                        {
+                            args.Add(member);
+                        }
+                        else if (e.Interaction.Data.Resolved.Users != null && e.Interaction.Data.Resolved.Users.TryGetValue((ulong)option.Value, out var user))
+                        {
+                            args.Add(user);
+                        }
+                        else
+                        {
+                            throw new ArgumentException("Error resolving mentionable option.");
                         }
                     }
                     else
@@ -578,17 +599,21 @@ namespace DSharpPlus.SlashCommands
                 parametertype = ApplicationCommandOptionType.Integer;
             else if (ReferenceEquals(type, typeof(bool)))
                 parametertype = ApplicationCommandOptionType.Boolean;
+            else if (ReferenceEquals(type, typeof(double)))
+                parametertype = ApplicationCommandOptionType.Number;
             else if (ReferenceEquals(type, typeof(DiscordChannel)))
                 parametertype = ApplicationCommandOptionType.Channel;
             else if (ReferenceEquals(type, typeof(DiscordUser)))
                 parametertype = ApplicationCommandOptionType.User;
             else if (ReferenceEquals(type, typeof(DiscordRole)))
                 parametertype = ApplicationCommandOptionType.Role;
+            else if (ReferenceEquals(type, typeof(SnowflakeObject)))
+                parametertype = ApplicationCommandOptionType.Mentionable;
             else if (type.IsEnum)
                 parametertype = ApplicationCommandOptionType.String;
 
             else
-                throw new ArgumentException("Cannot convert type! Argument types must be string, long, bool, DiscordChannel, DiscordUser, DiscordRole or an Enum.");
+                throw new ArgumentException("Cannot convert type! Argument types must be string, long, bool, double, DiscordChannel, DiscordUser, DiscordRole, SnowflakeObject or an Enum.");
 
             return parametertype;
         }
