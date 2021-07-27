@@ -257,7 +257,7 @@ namespace DSharpPlus.Entities
 
         [JsonProperty("stickers", NullValueHandling = NullValueHandling.Ignore)]
         [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
-        internal ConcurrentDictionary<ulong, DiscordMessageSticker> _stickers = new();
+        internal ConcurrentDictionary<ulong, DiscordMessageSticker> _stickers;
 
         /// <summary>
         /// Gets a collection of this guild's emojis.

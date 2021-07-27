@@ -187,7 +187,7 @@ namespace DSharpPlus.Lavalink
             if (config.Region != null && this.Discord.VoiceRegions.Values.Contains(config.Region))
                 this.Region = config.Region;
 
-            this.ConnectedGuilds = new ConcurrentDictionary<ulong, LavalinkGuildConnection>(this._connectedGuilds);
+            this.ConnectedGuilds = new ReadOnlyConcurrentDictionary<ulong, LavalinkGuildConnection>(this._connectedGuilds);
             this.Statistics = new LavalinkStatistics();
 
             this._lavalinkSocketError = new AsyncEvent<LavalinkNodeConnection, SocketErrorEventArgs>("LAVALINK_SOCKET_ERROR", TimeSpan.Zero, this.Discord.EventErrorHandler);

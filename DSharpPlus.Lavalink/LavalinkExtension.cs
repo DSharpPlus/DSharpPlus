@@ -56,7 +56,7 @@ namespace DSharpPlus.Lavalink
         /// </summary>
         internal LavalinkExtension()
         {
-            this.ConnectedNodes = new ConcurrentDictionary<ConnectionEndpoint, LavalinkNodeConnection>(this._connectedNodes);
+            this.ConnectedNodes = new ReadOnlyConcurrentDictionary<ConnectionEndpoint, LavalinkNodeConnection>(this._connectedNodes);
         }
 
         /// <summary>
