@@ -31,7 +31,7 @@ using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.Interactivity.EventHandling
 {
-    internal class Paginator
+    internal class Paginator : IPaginator
     {
         DiscordClient _client;
         ConcurrentHashSet<IPaginationRequest> _requests;

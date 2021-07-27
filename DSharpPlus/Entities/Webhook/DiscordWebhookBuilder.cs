@@ -317,6 +317,12 @@ namespace DSharpPlus.Entities
         public async Task<DiscordMessage> ModifyAsync(DiscordWebhook webhook, ulong messageId) => await webhook.EditMessageAsync(messageId, this).ConfigureAwait(false);
 
         /// <summary>
+        /// Clears all message components on this builder.
+        /// </summary>
+        public void ClearComponents()
+            => this._components.Clear();
+
+        /// <summary>
         /// Allows for clearing the Webhook Builder so that it can be used again to send a new message.
         /// </summary>
         public void Clear()

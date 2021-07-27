@@ -20,62 +20,45 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+using System.Collections.Generic;
+using Newtonsoft.Json;
 
-namespace DSharpPlus
+namespace DSharpPlus.Entities
 {
     /// <summary>
-    /// Represents the type of parameter when invoking an interaction.
+    /// Represents a Discord message sticker pack.
     /// </summary>
-    public enum ApplicationCommandOptionType
+    public sealed class DiscordMessageStickerPack : SnowflakeObject
     {
         /// <summary>
-        /// Whether this parameter is another subcommand.
+        /// Gets this pack's Id.
         /// </summary>
-        SubCommand = 1,
+        [JsonProperty("id")]
+        public ulong Id { get; internal set; }
 
         /// <summary>
-        /// Whether this parameter is apart of a subcommand group.
+        /// Gets the stickers contained in this pack.
         /// </summary>
-        SubCommandGroup,
+        public IReadOnlyDictionary<ulong, DiscordMessageSticker> Stickers => this._stickers;
+
+        [JsonProperty("stickers")]
+        internal Dictionary<ulong, DiscordMessageSticker> _stickers = new();
 
         /// <summary>
-        /// Whether this parameter is a string.
+        /// Gets the name of this sticker pack.
         /// </summary>
-        String,
+        [JsonProperty("name")]
+        public string Name { get; internal set; }
+
+        [JsonProperty("sku_id")]
+        public ulong SkuId { get; internal set; }
 
         /// <summary>
-        /// Whether this parameter is an integer.
+        /// Gets the Id of this pack's cover.
         /// </summary>
-        Integer,
+        [JsonProperty("cover_sticker_id")]
+        public ulong CoverStickerId { get; internal set; }
 
-        /// <summary>
-        /// Whether this parameter is a boolean.
-        /// </summary>
-        Boolean,
-
-        /// <summary>
-        /// Whether this parameter is a Discord user.
-        /// </summary>
-        User,
-
-        /// <summary>
-        /// Whether this parameter is a Discord channel.
-        /// </summary>
-        Channel,
-
-        /// <summary>
-        /// Whether this parameter is a Discord role.
-        /// </summary>
-        Role,
-
-        /// <summary>
-        /// Whether this parameter is a mentionable (role or user).
-        /// </summary>
-        Mentionable,
-
-        /// <summary>
-        /// Whether this parameter is a double.
-        /// </summary>
-        Number
+        internal DiscordMessageStickerPack() { }
     }
 }

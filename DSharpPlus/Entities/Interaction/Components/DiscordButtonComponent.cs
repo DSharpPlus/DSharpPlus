@@ -35,32 +35,66 @@ namespace DSharpPlus.Entities
         /// The style of the button.
         /// </summary>
         [JsonProperty("style", NullValueHandling = NullValueHandling.Ignore)]
-        public ButtonStyle Style { get; set; }
+        public ButtonStyle Style { get; internal set; }
 
         /// <summary>
         /// The text to apply to the button. If this is not specified <see cref="Emoji"/> becomes required.
         /// </summary>
         [JsonProperty("label", NullValueHandling = NullValueHandling.Ignore)]
-        public string Label { get; set; }
+        public string Label { get; internal set; }
 
         /// <summary>
         /// Whether this button can be pressed.
         /// </summary>
         [JsonProperty("disabled", NullValueHandling = NullValueHandling.Ignore)]
-        public bool Disabled { get; set; }
+        public bool Disabled { get; internal set; }
 
         /// <summary>
         /// The emoji to add to the button. Can be used in conjunction with a label, or as standalone. Must be added if label is not specified.
         /// </summary>
         [JsonProperty("emoji", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordComponentEmoji Emoji { get; set; }
+        public DiscordComponentEmoji Emoji { get; internal set; }
+
+        /// <summary>
+        /// Enables this component if it was disabled before.
+        /// </summary>
+        /// <returns>The current component.</returns>
+        public DiscordButtonComponent Enable()
+        {
+            this.Disabled = false;
+            return this;
+        }
+
+        /// <summary>
+        /// Disables this component.
+        /// </summary>
+        /// <returns>The current component.</returns>
+        public DiscordButtonComponent Disable()
+        {
+            this.Disabled = true;
+            return this;
+        }
 
         /// <summary>
         /// Constructs a new <see cref="DiscordButtonComponent"/>.
         /// </summary>
-        public DiscordButtonComponent()
+        internal DiscordButtonComponent()
         {
             this.Type = ComponentType.Button;
+        }
+
+
+        /// <summary>
+        /// Constucts a new button based on another button.
+        /// </summary>
+        /// <param name="other">The button to copy.</param>
+        public DiscordButtonComponent(DiscordButtonComponent other) : this()
+        {
+            this.CustomId = other.CustomId;
+            this.Style = other.Style;
+            this.Label = other.Label;
+            this.Disabled = other.Disabled;
+            this.Emoji = other.Emoji;
         }
 
         /// <summary>

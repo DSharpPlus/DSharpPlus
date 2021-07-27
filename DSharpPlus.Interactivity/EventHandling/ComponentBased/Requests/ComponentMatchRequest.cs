@@ -20,62 +20,39 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using DSharpPlus.EventArgs;
 
-namespace DSharpPlus
+namespace DSharpPlus.Interactivity.EventHandling
 {
     /// <summary>
-    /// Represents the type of parameter when invoking an interaction.
+    /// Represents a match that is being waited for.
     /// </summary>
-    public enum ApplicationCommandOptionType
+    internal class ComponentMatchRequest
     {
         /// <summary>
-        /// Whether this parameter is another subcommand.
+        /// The id of the message to wait on.
         /// </summary>
-        SubCommand = 1,
+        public ulong Id { get; private set; }
 
         /// <summary>
-        /// Whether this parameter is apart of a subcommand group.
+        /// The completion source that represents the result of the match.
         /// </summary>
-        SubCommandGroup,
+        public TaskCompletionSource<ComponentInteractionCreateEventArgs> Tcs { get; private set; } = new();
 
-        /// <summary>
-        /// Whether this parameter is a string.
-        /// </summary>
-        String,
+        protected readonly CancellationToken _cancellation;
+        protected readonly Func<ComponentInteractionCreateEventArgs, bool> _predicate;
 
-        /// <summary>
-        /// Whether this parameter is an integer.
-        /// </summary>
-        Integer,
+        public ComponentMatchRequest(ulong id, Func<ComponentInteractionCreateEventArgs, bool> predicate, CancellationToken cancellation)
+        {
+            this.Id = id;
+            this._predicate = predicate;
+            this._cancellation = cancellation;
+            this._cancellation.Register(() => this.Tcs.TrySetResult(null)); // TrySetCancelled would probably be better but I digress ~Velvet //
+        }
 
-        /// <summary>
-        /// Whether this parameter is a boolean.
-        /// </summary>
-        Boolean,
-
-        /// <summary>
-        /// Whether this parameter is a Discord user.
-        /// </summary>
-        User,
-
-        /// <summary>
-        /// Whether this parameter is a Discord channel.
-        /// </summary>
-        Channel,
-
-        /// <summary>
-        /// Whether this parameter is a Discord role.
-        /// </summary>
-        Role,
-
-        /// <summary>
-        /// Whether this parameter is a mentionable (role or user).
-        /// </summary>
-        Mentionable,
-
-        /// <summary>
-        /// Whether this parameter is a double.
-        /// </summary>
-        Number
+        public bool IsMatch(ComponentInteractionCreateEventArgs args) => this._predicate(args);
     }
 }

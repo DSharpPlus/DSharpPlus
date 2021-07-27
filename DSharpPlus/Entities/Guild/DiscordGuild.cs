@@ -243,17 +243,27 @@ namespace DSharpPlus.Entities
         /// Gets a collection of this guild's roles.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyDictionary<ulong, DiscordRole> Roles => new ConcurrentDictionary<ulong, DiscordRole>(this._roles);
+        public IReadOnlyDictionary<ulong, DiscordRole> Roles => new ReadOnlyConcurrentDictionary<ulong, DiscordRole>(this._roles);
 
         [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
         [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
         internal ConcurrentDictionary<ulong, DiscordRole> _roles;
 
         /// <summary>
+        /// Gets a collection of this guild's stickers.
+        /// </summary>
+        [JsonIgnore]
+        public IReadOnlyDictionary<ulong, DiscordMessageSticker> Stickers => new ReadOnlyConcurrentDictionary<ulong, DiscordMessageSticker>(this._stickers);
+
+        [JsonProperty("stickers", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
+        internal ConcurrentDictionary<ulong, DiscordMessageSticker> _stickers = new();
+
+        /// <summary>
         /// Gets a collection of this guild's emojis.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyDictionary<ulong, DiscordEmoji> Emojis => new ConcurrentDictionary<ulong, DiscordEmoji>(this._emojis);
+        public IReadOnlyDictionary<ulong, DiscordEmoji> Emojis => new ReadOnlyConcurrentDictionary<ulong, DiscordEmoji>(this._emojis);
 
         [JsonProperty("emojis", NullValueHandling = NullValueHandling.Ignore)]
         [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
@@ -332,7 +342,7 @@ namespace DSharpPlus.Entities
         /// the voice state corresponds to.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyDictionary<ulong, DiscordVoiceState> VoiceStates => new ConcurrentDictionary<ulong, DiscordVoiceState>(this._voiceStates);
+        public IReadOnlyDictionary<ulong, DiscordVoiceState> VoiceStates => new ReadOnlyConcurrentDictionary<ulong, DiscordVoiceState>(this._voiceStates);
 
         [JsonProperty("voice_states", NullValueHandling = NullValueHandling.Ignore)]
         [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
@@ -342,7 +352,7 @@ namespace DSharpPlus.Entities
         /// Gets a dictionary of all the members that belong to this guild. The dictionary's key is the member ID.
         /// </summary>
         [JsonIgnore] // TODO overhead of => vs Lazy? it's a struct
-        public IReadOnlyDictionary<ulong, DiscordMember> Members => new ConcurrentDictionary<ulong, DiscordMember>(this._members);
+        public IReadOnlyDictionary<ulong, DiscordMember> Members => new ReadOnlyConcurrentDictionary<ulong, DiscordMember>(this._members);
 
         [JsonProperty("members", NullValueHandling = NullValueHandling.Ignore)]
         [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
@@ -352,7 +362,7 @@ namespace DSharpPlus.Entities
         /// Gets a dictionary of all the channels associated with this guild. The dictionary's key is the channel ID.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyDictionary<ulong, DiscordChannel> Channels => new ConcurrentDictionary<ulong, DiscordChannel>(this._channels);
+        public IReadOnlyDictionary<ulong, DiscordChannel> Channels => new ReadOnlyConcurrentDictionary<ulong, DiscordChannel>(this._channels);
 
         [JsonProperty("channels", NullValueHandling = NullValueHandling.Ignore)]
         [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
@@ -364,21 +374,21 @@ namespace DSharpPlus.Entities
         /// Gets a dictionary of all the active threads associated with this guild the user has permission to view. The dictionary's key is the channel ID.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyDictionary<ulong, DiscordThreadChannel> Threads { get; internal set; }
+        public IReadOnlyDictionary<ulong, DiscordThreadChannel> Threads => new ReadOnlyConcurrentDictionary<ulong, DiscordThreadChannel>(this._threads);
 
         [JsonProperty("threads", NullValueHandling = NullValueHandling.Ignore)]
         [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
-        internal ConcurrentDictionary<ulong, DiscordThreadChannel> _threads = new();
+        internal ConcurrentDictionary<ulong, DiscordThreadChannel> _threads;
 
         /// <summary>
         /// Gets a dictionary of all active stage instances. The dictionary's key is the stage ID.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyDictionary<ulong, DiscordStageInstance> StageInstances { get; internal set; }
+        public IReadOnlyDictionary<ulong, DiscordStageInstance> StageInstances => new ReadOnlyConcurrentDictionary<ulong, DiscordStageInstance>(this._stageInstances);
 
         [JsonProperty("stage_instances", NullValueHandling = NullValueHandling.Ignore)]
         [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
-        internal ConcurrentDictionary<ulong, DiscordStageInstance> _stageInstances = new();
+        internal ConcurrentDictionary<ulong, DiscordStageInstance> _stageInstances;
 
         /// <summary>
         /// Gets the guild member for current user.
@@ -471,8 +481,6 @@ namespace DSharpPlus.Entities
         {
             this._current_member_lazy = new Lazy<DiscordMember>(() => (this._members != null && this._members.TryGetValue(this.Discord.CurrentUser.Id, out var member)) ? member : null);
             this._invites = new ConcurrentDictionary<string, DiscordInvite>();
-            this.Threads = new ReadOnlyConcurrentDictionary<ulong, DiscordThreadChannel>(this._threads);
-            this.StageInstances = new ReadOnlyConcurrentDictionary<ulong, DiscordStageInstance>(this._stageInstances);
         }
 
         #region Guild Methods

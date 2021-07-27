@@ -20,62 +20,28 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-
-namespace DSharpPlus
+namespace DSharpPlus.Interactivity.Enums
 {
     /// <summary>
-    /// Represents the type of parameter when invoking an interaction.
+    /// Represents options of how to handle pagination timing out.
     /// </summary>
-    public enum ApplicationCommandOptionType
+    public enum ButtonPaginationBehavior
     {
         /// <summary>
-        /// Whether this parameter is another subcommand.
+        /// The buttons should be disabled when pagination times out.
         /// </summary>
-        SubCommand = 1,
-
+        Disable,
         /// <summary>
-        /// Whether this parameter is apart of a subcommand group.
+        /// The buttons should be left as is when pagination times out.
         /// </summary>
-        SubCommandGroup,
-
+        Ignore,
         /// <summary>
-        /// Whether this parameter is a string.
+        /// The entire message should be deleted when pagination times out.
         /// </summary>
-        String,
-
+        DeleteMessage,
         /// <summary>
-        /// Whether this parameter is an integer.
+        /// The buttons should be removed entirely when pagination times out.
         /// </summary>
-        Integer,
-
-        /// <summary>
-        /// Whether this parameter is a boolean.
-        /// </summary>
-        Boolean,
-
-        /// <summary>
-        /// Whether this parameter is a Discord user.
-        /// </summary>
-        User,
-
-        /// <summary>
-        /// Whether this parameter is a Discord channel.
-        /// </summary>
-        Channel,
-
-        /// <summary>
-        /// Whether this parameter is a Discord role.
-        /// </summary>
-        Role,
-
-        /// <summary>
-        /// Whether this parameter is a mentionable (role or user).
-        /// </summary>
-        Mentionable,
-
-        /// <summary>
-        /// Whether this parameter is a double.
-        /// </summary>
-        Number
+        DeleteButtons,
     }
 }

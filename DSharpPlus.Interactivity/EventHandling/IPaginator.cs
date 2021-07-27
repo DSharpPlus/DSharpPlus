@@ -20,62 +20,22 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+using System.Threading.Tasks;
 
-namespace DSharpPlus
+namespace DSharpPlus.Interactivity.EventHandling
 {
-    /// <summary>
-    /// Represents the type of parameter when invoking an interaction.
-    /// </summary>
-    public enum ApplicationCommandOptionType
+    internal interface IPaginator
     {
         /// <summary>
-        /// Whether this parameter is another subcommand.
+        /// Paginates.
         /// </summary>
-        SubCommand = 1,
+        /// <param name="request">The request to paginate.</param>
+        /// <returns>A task that completes when the pagination finishes or times out.</returns>
+        Task DoPaginationAsync(IPaginationRequest request);
 
         /// <summary>
-        /// Whether this parameter is apart of a subcommand group.
+        /// Disposes this EventWaiter
         /// </summary>
-        SubCommandGroup,
-
-        /// <summary>
-        /// Whether this parameter is a string.
-        /// </summary>
-        String,
-
-        /// <summary>
-        /// Whether this parameter is an integer.
-        /// </summary>
-        Integer,
-
-        /// <summary>
-        /// Whether this parameter is a boolean.
-        /// </summary>
-        Boolean,
-
-        /// <summary>
-        /// Whether this parameter is a Discord user.
-        /// </summary>
-        User,
-
-        /// <summary>
-        /// Whether this parameter is a Discord channel.
-        /// </summary>
-        Channel,
-
-        /// <summary>
-        /// Whether this parameter is a Discord role.
-        /// </summary>
-        Role,
-
-        /// <summary>
-        /// Whether this parameter is a mentionable (role or user).
-        /// </summary>
-        Mentionable,
-
-        /// <summary>
-        /// Whether this parameter is a double.
-        /// </summary>
-        Number
+        void Dispose();
     }
 }

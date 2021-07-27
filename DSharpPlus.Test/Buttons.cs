@@ -22,12 +22,14 @@
 // SOFTWARE.
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
+using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.Extensions;
 
 
@@ -38,29 +40,14 @@ namespace DSharpPlus.Test
         [Command]
         public async Task Sendbuttons(CommandContext ctx)
         {
-            var p = new DiscordButtonComponent(ButtonStyle.Primary, "P_", "Blurple", emoji: new DiscordComponentEmoji( 833475075474063421));
-            var c = new DiscordButtonComponent(ButtonStyle.Secondary, "C_", "Grey", emoji: new DiscordComponentEmoji(833475015114358854));
-            var b = new DiscordButtonComponent(ButtonStyle.Success, "B_", "Green", emoji: new DiscordComponentEmoji(831306677449785394));
-            var y = new DiscordButtonComponent(ButtonStyle.Danger, "Y_", "Red", emoji: new DiscordComponentEmoji(833886629792972860));
-            var z = new DiscordLinkButtonComponent("https://velvetthepanda.dev", "Link", false, new DiscordComponentEmoji(826108356656758794));
+            var lipsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer tellus lectus, tristique at turpis nec, ultrices vestibulum mi. Praesent aliquam et neque sit amet suscipit. Nullam nec pulvinar leo. Integer pharetra mauris ac imperdiet vestibulum. Maecenas eu tellus at nisi bibendum pharetra a nec ligula. Curabitur euismod est sem, non tempus felis varius eu. Duis molestie quis ante sed elementum. Suspendisse in diam bibendum, cursus metus vel, imperdiet dolor. Etiam rutrum, justo sed vehicula ultrices, massa augue mollis odio, sed placerat diam orci in erat. Sed pulvinar felis eget lacus imperdiet fringilla. Nunc blandit, orci quis varius varius, nibh diam scelerisque dolor, a cursus ex dui non diam. Etiam a erat eros. Nulla porttitor venenatis ligula, ac tincidunt mauris auctor quis. Vivamus ut gravida urna, eu finibus enim. Quisque vitae vestibulum metus. Vestibulum non leo ut odio pharetra mattis." +
+                         "Donec volutpat condimentum velit. Aenean tincidunt massa eu malesuada aliquet. Suspendisse potenti. Nulla porttitor vel sem et pretium. Vestibulum tempus tortor lectus, aliquet tempus risus condimentum vel. Quisque ultricies dapibus lacus, nec mollis enim efficitur in. Aliquam laoreet ultricies lorem, quis hendrerit elit pellentesque at. Cras sit amet dignissim velit. Suspendisse vulputate aliquam faucibus. Morbi dictum magna gravida diam vehicula convallis. Sed egestas nulla lectus, id cursus libero pharetra id. Aliquam fermentum gravida dictum. Curabitur aliquam diam tortor.";
 
-            var d1 = new DiscordButtonComponent(ButtonStyle.Primary, "disabled", "and", true);
-            var d2 = new DiscordButtonComponent(ButtonStyle.Secondary, "disabled2", "these", true);
-            var d3 = new DiscordButtonComponent(ButtonStyle.Success, "disabled3", "are", true);
-            var d4 = new DiscordButtonComponent(ButtonStyle.Danger, "disabled4", "disabled~!", true);
+            var interactivity = ctx.Client.GetInteractivity();
+            var embedPages = interactivity.GeneratePagesInEmbed(lipsum);
+            var pages = interactivity.GeneratePagesInContent(lipsum, SplitType.Character);
 
-
-            var builder = new DiscordMessageBuilder();
-
-            builder
-                .WithContent("Buttons!")
-                .AddComponents(p)
-                .AddComponents(c, b)
-                .AddComponents(y, z)
-                .AddComponents(d1, d2, d3, d4);
-
-            await builder.SendAsync(ctx.Channel);
-
+            await interactivity.SendPaginatedMessageAsync(ctx.Channel, ctx.User, embedPages, token: new CancellationTokenSource(TimeSpan.FromSeconds(30)).Token);
         }
 
     }

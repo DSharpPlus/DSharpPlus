@@ -80,6 +80,8 @@ namespace DSharpPlus.Net
         public const string CALLBACK = "/callback";
         public const string WELCOME_SCREEN = "/welcome-screen";
         public const string VOICE_STATES = "/voice-states";
+        public const string STICKERS = "/stickers";
+        public const string STICKERPACKS = "/sticker-packs";
         public const string STAGE_INSTANCES = "/stage-instances";
         public const string THREADS = "/threads";
         public const string THREAD_PUBLIC = "/public";

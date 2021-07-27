@@ -64,6 +64,8 @@ namespace DSharpPlus.Entities
             }
         }
 
+        public DiscordMessageSticker Sticker { get; set; }
+
         /// <summary>
         /// Gets the Embeds to be sent.
         /// </summary>
@@ -117,6 +119,17 @@ namespace DSharpPlus.Entities
         public DiscordMessageBuilder WithContent(string content)
         {
             this.Content = content;
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a sticker to the message. Sticker must be from current guild.
+        /// </summary>
+        /// <param name="sticker">The sticker to add.</param>
+        /// <returns>The current builder to be chained.</returns>
+        public DiscordMessageBuilder WithSticker(DiscordMessageSticker sticker)
+        {
+            this.Sticker = sticker;
             return this;
         }
 
@@ -189,6 +202,9 @@ namespace DSharpPlus.Entities
         /// <returns>The current builder to be chained.</returns>
         public DiscordMessageBuilder WithEmbed(DiscordEmbed embed)
         {
+            if (embed == null)
+                return this;
+
             this.Embed = embed;
             return this;
         }
@@ -200,6 +216,8 @@ namespace DSharpPlus.Entities
         /// <returns>The current builder to be chained.</returns>
         public DiscordMessageBuilder AddEmbed(DiscordEmbed embed)
         {
+            if (embed == null)
+                return this; //Providing null embeds will produce a 400 response from Discord.//
             this._embeds.Add(embed);
             return this;
         }
@@ -348,6 +366,12 @@ namespace DSharpPlus.Entities
         public Task<DiscordMessage> ModifyAsync(DiscordMessage msg) => msg.ModifyAsync(this);
 
         /// <summary>
+        /// Clears all message components on this builder.
+        /// </summary>
+        public void ClearComponents()
+            => this._components.Clear();
+
+        /// <summary>
         /// Allows for clearing the Message Builder so that it can be used again to send a new message.
         /// </summary>
         public void Clear()
@@ -378,8 +402,8 @@ namespace DSharpPlus.Entities
             }
             else
             {
-                if (this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && (!this.Embeds?.Any() ?? true))
-                    throw new ArgumentException("You must specify content, an embed, or at least one file.");
+                if (this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && (!this.Embeds?.Any() ?? true) && this.Sticker is null)
+                    throw new ArgumentException("You must specify content, an embed, a sticker, or at least one file.");
 
                 if (this.Components.Count > 5)
                     throw new InvalidOperationException("You can only have 5 action rows per message.");

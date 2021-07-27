@@ -64,7 +64,7 @@ namespace DSharpPlus.Entities
         {
             this.Discord = other.Discord;
 
-            this._attachments = other._attachments; // the attachments cannot change, thus no need to copy and reallocate.
+            this._attachments = new List<DiscordAttachment>(other._attachments);
             this._embeds = new List<DiscordEmbed>(other._embeds);
 
             if (other._mentionedChannels != null)
@@ -332,7 +332,7 @@ namespace DSharpPlus.Entities
         public IReadOnlyList<DiscordMessageSticker> Stickers
             => this._stickersLazy.Value;
 
-        [JsonProperty("stickers", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("sticker_items", NullValueHandling = NullValueHandling.Ignore)]
         internal List<DiscordMessageSticker> _stickers = new();
         [JsonIgnore]
         private readonly Lazy<IReadOnlyList<DiscordMessageSticker>> _stickersLazy;

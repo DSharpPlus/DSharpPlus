@@ -399,9 +399,9 @@ namespace DSharpPlus.VoiceNext
                 }
 
                 // Provided by Laura#0090 (214796473689178133); this is Python, but adaptable:
-                // 
+                //
                 // delay = max(0, self.delay + ((start_time + self.delay * loops) + - time.time()))
-                // 
+                //
                 // self.delay
                 //   sample size
                 // start_time
@@ -523,7 +523,7 @@ namespace DSharpPlus.VoiceNext
                 if (opusSpan[0] == 0x90)
                 {
                     // I'm not 100% sure what this header is/does, however removing the data causes no
-                    // real issues, and has the added benefit of removing a lot of noise. 
+                    // real issues, and has the added benefit of removing a lot of noise.
                     opusSpan = opusSpan.Slice(2);
                 }
 
@@ -720,8 +720,7 @@ namespace DSharpPlus.VoiceNext
             this.IsInitialized = false;
             this.TokenSource.Cancel();
             this.SenderTokenSource.Cancel();
-            if (this.Configuration.EnableIncoming)
-                this.ReceiverTokenSource.Cancel();
+            this.ReceiverTokenSource?.Cancel();
 
             try
             {

@@ -46,9 +46,11 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// Defines that usage of this command is only possible when the bot is granted a specific permission.
         /// </summary>
         /// <param name="permissions">Permissions required to execute this command.</param>
-        public RequireBotPermissionsAttribute(Permissions permissions)
+        /// <param name="ignoreDms">Sets this check's behaviour in DMs. True means the check will always pass in DMs, whereas false means that it will always fail.</param>
+        public RequireBotPermissionsAttribute(Permissions permissions, bool ignoreDms = true)
         {
             this.Permissions = permissions;
+            this.IgnoreDms = ignoreDms;
         }
 
         public override async Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
