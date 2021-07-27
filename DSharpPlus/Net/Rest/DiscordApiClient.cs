@@ -968,7 +968,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal Task ModifyChannelAsync(ulong channel_id, string name, int? position, Optional<string> topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? user_limit, Optional<int?> perUserRateLimit, Optional<string> rtcRegion, VideoQualityMode? qualityMode, string reason)
+        internal Task ModifyChannelAsync(ulong channel_id, string name, int? position, Optional<string> topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? user_limit, Optional<int?> perUserRateLimit, Optional<string> rtcRegion, VideoQualityMode? qualityMode, ThreadAutoArchiveDuration? autoArchiveDuration, string reason)
         {
             var pld = new RestChannelModifyPayload
             {
@@ -982,6 +982,7 @@ namespace DSharpPlus.Net
                 PerUserRateLimit = perUserRateLimit,
                 RtcRegion = rtcRegion,
                 QualityMode = qualityMode,
+                DefaultAutoArchiveDuration = autoArchiveDuration
             };
 
             var headers = Utilities.GetBaseHeaders();
