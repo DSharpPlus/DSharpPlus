@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using DSharpPlus.Entities;
 
@@ -37,19 +38,25 @@ namespace DSharpPlus.EventArgs
         public int MemberCount { get; internal set; }
 
         /// <summary>
-        /// Gets the id of the users who were removed from the thread.
+        /// Gets the ids of the users who were removed from the thread.
         /// </summary>
+        [Obsolete] //temporary usage
         public IReadOnlyList<ulong?> RemovedMemberIds { get; internal set; }
 
         /// <summary>
-        /// Gets the users who were added to the thread.
+        /// Gets the members who were removed from the thread.
+        /// </summary>
+        public IReadOnlyList<DiscordMember> RemovedMembers { get; internal set; }
+
+        /// <summary>
+        /// Gets the members who were added to the thread.
         /// </summary>
         public IReadOnlyList<DiscordThreadChannelMember> AddedMembers { get; internal set; }
 
         /// <summary>
-        /// Gets the id of the thread.
+        /// Gets the thread associated with the member changes.
         /// </summary>
-        public ulong ThreadId { get; internal set; }
+        public DiscordThreadChannel Thread { get; internal set; }
 
         /// <summary>
         /// Gets the guild.

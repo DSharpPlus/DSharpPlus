@@ -49,6 +49,11 @@ namespace DSharpPlus.Net
         public const string LOGIN = "/login";
         public const string CHANNELS = "/channels";
         public const string THREADS = "/threads";
+        public const string THREAD_MEMBERS = "/thread-members";
+        public const string ACTIVE = "/active ";
+        public const string ARCHIVED = "/archived";
+        public const string PUBLIC = "/public";
+        public const string PRIVATE = "/private";
         public const string MESSAGES = "/messages";
         public const string PINS = "/pins";
         public const string USERS = "/users";

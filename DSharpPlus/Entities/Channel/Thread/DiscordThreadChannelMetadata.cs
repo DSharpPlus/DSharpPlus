@@ -44,12 +44,6 @@ namespace DSharpPlus.Entities
         public bool IsArchived { get; internal set; }
 
         /// <summary>
-        /// Gets the ID of the user that last archived or unarchived the thread.
-        /// </summary>
-        [JsonProperty("archiver_id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong? ArchiverId { get; internal set; }
-
-        /// <summary>
         ///	Gets the duration in minutes to automatically archive the thread after recent activity. Can be set to: 60, 1440, 4320, 10080.
         /// </summary>
         [JsonProperty("auto_archive_duration", NullValueHandling = NullValueHandling.Ignore)]

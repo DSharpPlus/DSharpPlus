@@ -440,48 +440,6 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Creates a new thread within this channel from the given message.
-        /// </summary>
-        /// <param name="message">Message to create the thread from.</param>
-        /// <param name="name">The name of the thread.</param>
-        /// <param name="archiveAfter">The auto archive duration of the thread.</param>
-        /// <param name="reason">Reason for audit logs.</param>
-        /// <returns>The created thread.</returns>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel or message does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordThreadChannel> CreateThreadAsync(DiscordMessage message, string name, AutoArchiveDuration archiveAfter, string reason = null)
-        {
-            if (this.Type != ChannelType.Text && this.Type != ChannelType.News)
-                throw new ArgumentException("Threads can only be created within text or news channels.");
-            else if(message.ChannelId != this.Id)
-                throw new ArgumentException("You must use a message from this channel to create a thread.");
-
-            return this.Discord.ApiClient.CreateThreadFromMessageAsync(this.Id, message.Id, name, archiveAfter, reason);
-        }
-
-        /// <summary>
-        /// Creates a new thread within this channel..
-        /// </summary>
-        /// <param name="name">The name of the thread.</param>
-        /// <param name="privateThread">Indicates whether this thread will be private or not. Private threads require the server to be boosted.</param>
-        /// <param name="archiveAfter">The auto archive duration of the thread.</param>
-        /// <param name="reason">Reason for audit logs.</param>
-        /// <returns>The created thread.</returns>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel or message does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordThreadChannel> CreateThreadAsync(string name, AutoArchiveDuration archiveAfter, bool privateThread, string reason = null)
-        {
-            if (this.Type != ChannelType.Text && this.Type != ChannelType.News)
-                throw new ArgumentException("Threads can only be created within text or news channels.");
-
-            //Check for server boosts or something
-
-            return this.Discord.ApiClient.CreateThreadAsync(this.Id, name, archiveAfter, privateThread ? ChannelType.PrivateThread : ChannelType.PublicThread, reason);
-        }
-
-        /// <summary>
         /// Returns a list of messages before a certain message.
         /// <param name="limit">The amount of messages to fetch.</param>
         /// <param name="before">Message to fetch before from.</param>
@@ -709,7 +667,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task TriggerTypingAsync()
         {
-            return this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News
+            return this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News && this.Type != ChannelType.PublicThread && this.Type != ChannelType.PrivateThread && this.Type != ChannelType.NewsThread
                 ? throw new ArgumentException("Cannot start typing in a non-text channel.")
                 : this.Discord.ApiClient.TriggerTypingAsync(this.Id);
         }
@@ -905,6 +863,57 @@ namespace DSharpPlus.Entities
                 return $"Channel #{this.Name} ({this.Id})";
             return !string.IsNullOrWhiteSpace(this.Name) ? $"Channel {this.Name} ({this.Id})" : $"Channel {this.Id}";
         }
+
+        #region ThreadMethods
+
+        /// <summary>
+        /// Creates a new thread within this channel from the given message.
+        /// </summary>
+        /// <param name="message">Message to create the thread from.</param>
+        /// <param name="name">The name of the thread.</param>
+        /// <param name="archiveAfter">The auto archive duration of the thread. 3 day and 7 day archive durations require a level 1 and 2 server boost respectively.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns>The created thread.</returns>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel or message does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordThreadChannel> CreateThreadAsync(DiscordMessage message, string name, AutoArchiveDuration archiveAfter, string reason = null)
+        {
+            if (this.Type != ChannelType.Text && this.Type != ChannelType.News)
+                throw new ArgumentException("Threads can only be created within text or news channels.");
+            else if (message.ChannelId != this.Id)
+                throw new ArgumentException("You must use a message from this channel to create a thread.");
+            else if ((archiveAfter == AutoArchiveDuration.ThreeDays && this.Guild.Features.Contains("THREE_DAY_THREAD_ARCHIVE")) || (archiveAfter == AutoArchiveDuration.Week && this.Guild.Features.Contains("SEVEN_DAY_THREAD_ARCHIVE")))
+                throw new ArgumentException("This archive duration requires the guild to be boosted or have these archive durations enabled."); //are guild features always cached?
+
+            return this.Discord.ApiClient.CreateThreadFromMessageAsync(this.Id, message.Id, name, archiveAfter, reason);
+        }
+
+        /// <summary>
+        /// Creates a new thread within this channel..
+        /// </summary>
+        /// <param name="name">The name of the thread.</param>
+        /// <param name="archiveAfter">The auto archive duration of the thread. 3 day and 7 day archive durations require a level 1 and 2 server boost respectively.</param>
+        /// <param name="privateThread">Indicates whether this thread will be private or not. Private threads requires a level 2 server boost and can only be created within channels of type <see cref="ChannelType.Text"/>.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns>The created thread.</returns>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel or message does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordThreadChannel> CreateThreadAsync(string name, AutoArchiveDuration archiveAfter, bool privateThread, string reason = null)
+        {
+            if (this.Type != ChannelType.Text && this.Type != ChannelType.News)
+                throw new ArgumentException("Threads can only be created within text or news channels.");
+            else if (this.Type != ChannelType.Text && privateThread)
+                throw new ArgumentException("Private threads can only be created within a text channels.");
+            else if ((archiveAfter == AutoArchiveDuration.ThreeDays && this.Guild.Features.Contains("THREE_DAY_THREAD_ARCHIVE")) || (archiveAfter == AutoArchiveDuration.Week && this.Guild.Features.Contains("SEVEN_DAY_THREAD_ARCHIVE")))
+                throw new ArgumentException("This archive duration requires the guild to be boosted or have these archive durations enabled."); //are guild features always cached?
+
+            return this.Discord.ApiClient.CreateThreadAsync(this.Id, name, archiveAfter, privateThread ? ChannelType.PrivateThread : ChannelType.PublicThread, reason);
+        }
+
+        #endregion
+
         #endregion
 
         /// <summary>

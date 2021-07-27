@@ -1870,6 +1870,7 @@ namespace DSharpPlus
                     MessageCount = cthread.MessageCount,
                     MemberCount = cthread.MemberCount,
                     ThreadMetadata = cthread.ThreadMetadata,
+                    CurrentMember = cthread.CurrentMember,
                     //threadMembers,
                 };
 
@@ -1893,6 +1894,7 @@ namespace DSharpPlus
             if (guild != null)
             {
                 guild._threads[thread.Id] = thread;
+                guild.Discord = this;
             }
 
             await this._threadUpdated.InvokeAsync(this, updateEvent).ConfigureAwait(false);
@@ -1917,30 +1919,56 @@ namespace DSharpPlus
             guild.Discord = this;
 
             var channels = channel_ids.Select(x => guild.GetChannel(x.Value)); //getting channel objects
-            foreach (var chan in channels)
+            foreach (var channel in channels)
             {
-                chan.Discord = this;
+                channel.Discord = this;
+            }
+            foreach(var thread in threads)
+            {
+                thread.Discord = this;
+                guild._threads[thread.Id] = thread;
+                thread.CurrentMember = members.SingleOrDefault(x => x.ThreadId == thread.Id);
+            }
+            foreach(var member in members)
+            {
+                member.Discord = this;
+                member._guild_id = guild.Id;
             }
 
-            await this._threadListSynced.InvokeAsync(this, new ThreadListSyncEventArgs { Guild = guild, Channels = channels.ToList().AsReadOnly(), Threads = threads, Members = members.ToList().AsReadOnly() }).ConfigureAwait(false);
+            await this._threadListSynced.InvokeAsync(this, new ThreadListSyncEventArgs { Guild = guild, Channels = channels.ToList().AsReadOnly(), Threads = threads, CurrentMembers = members.ToList().AsReadOnly() }).ConfigureAwait(false);
         }
 
         internal async Task OnThreadMemberUpdateEventAsync(DiscordThreadChannelMember member)
         {
             member.Discord = this;
+            var thread = this.InternalGetCachedThread(member.ThreadId);
 
-            await this._threadMemberUpdated.InvokeAsync(this, new ThreadMemberUpdateEventArgs { ThreadMember = member }).ConfigureAwait(false);
+            member._guild_id = thread.Guild.Id;
+            thread.CurrentMember = member;
+            thread.Guild._threads[member.ThreadId] = thread;
+
+            await this._threadMemberUpdated.InvokeAsync(this, new ThreadMemberUpdateEventArgs { ThreadMember = member, Thread = thread }).ConfigureAwait(false);
         }
 
         internal async Task OnThreadMembersUpdateEventAsync(DiscordGuild guild, ulong thread_id, IReadOnlyList<DiscordThreadChannelMember> addedMembers, IReadOnlyList<ulong?> removed_member_ids, int member_count)
         {
             guild.Discord = this;
 
+            if (addedMembers == null)
+                addedMembers = Array.Empty<DiscordThreadChannelMember>();
+            else
+                foreach (var threadMember in addedMembers)
+                {
+                    threadMember.Discord = this;
+                    threadMember._guild_id = guild.Id;
+                }
+                    
+
             var threadMembersUpdateArg = new ThreadMembersUpdateEventArgs
             {
                 Guild = guild,
-                ThreadId = thread_id,
-                AddedMembers = addedMembers ?? Array.Empty<DiscordThreadChannelMember>(),
+                Thread = this.InternalGetCachedThread(thread_id),
+                AddedMembers = addedMembers,
                 RemovedMemberIds = removed_member_ids ?? Array.Empty<ulong?>(),
                 MemberCount = member_count
             };

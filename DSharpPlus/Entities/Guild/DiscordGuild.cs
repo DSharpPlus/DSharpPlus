@@ -871,6 +871,16 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Gets the active and private threads for this guild.
+        /// </summary>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task ListActiveThreadsAsync()
+        {
+            await this.Discord.ApiClient.ListActiveThreadsAsync(this.Id);
+            //set discord
+        }
+
+        /// <summary>
         /// Gets an invite from this guild from an invite code.
         /// </summary>
         /// <param name="code">The invite code</param>

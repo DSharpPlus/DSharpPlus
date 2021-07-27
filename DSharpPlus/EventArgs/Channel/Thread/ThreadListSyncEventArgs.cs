@@ -34,7 +34,7 @@ namespace DSharpPlus.EventArgs
         /// <summary>
         /// Gets all thread member objects from the synced threads for the current user, indicating which threads the current user has been added to
         /// </summary>
-        public IReadOnlyList<DiscordThreadChannelMember> Members { get; internal set; }
+        public IReadOnlyList<DiscordThreadChannelMember> CurrentMembers { get; internal set; }
 
         /// <summary>
         /// Gets all active threads in the given channels that the current user can access.

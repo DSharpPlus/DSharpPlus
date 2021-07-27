@@ -1526,7 +1526,7 @@ namespace DSharpPlus.Net
             };
 
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.THREADS}";
-            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id}, out var path); //???
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id}, out var path);
 
             var url = Utilities.GetApiUriFor(path);
             var response = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, headers, DiscordJson.SerializeObject(payload)).ConfigureAwait(false);
@@ -1537,42 +1537,101 @@ namespace DSharpPlus.Net
             return thread;
         }
 
-        internal async Task JoinThreadAsync()
+        internal async Task JoinThreadAsync(ulong channel_id)
         {
-            throw new NotImplementedException();
+            var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.THREAD_MEMBERS}{Endpoints.ME}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id}, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            _ = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PUT, route).ConfigureAwait(false);
         }
 
-        internal async Task LeaveThreadAsync()
+        internal async Task LeaveThreadAsync(ulong channel_id)
         {
-            throw new NotImplementedException();
+            var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.THREAD_MEMBERS}{Endpoints.ME}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id}, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            _ = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route).ConfigureAwait(false);
         }
 
-        internal async Task AddThreadMemberAsync()
+        internal async Task AddThreadMemberAsync(ulong channel_id, ulong user_id)
         {
-            throw new NotImplementedException();
+            //be able send messages in thread
+            //thread not archived
+
+            var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.THREAD_MEMBERS}/:user_id";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id, user_id}, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            _ = this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PUT, route);
         }
 
-        internal async Task ListThreadMembersAsync()
+        internal async Task RemoveThreadMemberAsync(ulong channel_id, ulong user_id)
         {
-            throw new NotImplementedException();
+            //Requires the MANAGE_THREADS permission, or the creator of the thread if it is a GUILD_PRIVATE_THREAD.
+            //Also requires the thread is not archived
+
+            var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.THREAD_MEMBERS}/:user_id";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id, user_id}, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            _ = this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route).ConfigureAwait(false);
         }
 
-        internal async Task ListActiveThreadsAsync()
+        internal async Task<IReadOnlyList<DiscordThreadChannelMember>> ListThreadMembersAsync(ulong channel_id)
+        {
+            var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.THREAD_MEMBERS}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id}, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var response = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
+
+            var threadMembers = JsonConvert.DeserializeObject<List<DiscordThreadChannelMember>>(response.Response);
+            return new ReadOnlyCollection<DiscordThreadChannelMember>(threadMembers);
+        }
+
+        internal async Task<IReadOnlyList<DiscordThreadChannel>> ListActiveThreadsAsync(ulong guild_id)
+        {
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.THREADS}{Endpoints.ACTIVE}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { guild_id}, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var response = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
+
+            var threads = JsonConvert.DeserializeObject<List<DiscordThreadChannel>>(response.Headers["threads"]);
+            var threadMembers = JsonConvert.DeserializeObject<List<DiscordThreadChannelMember>>(response.Headers["members"]);
+            foreach (var thread in threads)
+            {
+                thread.CurrentMember = threadMembers.SingleOrDefault(x => x.ThreadId == thread.Id);
+                thread.Discord = this.Discord;
+            }
+
+            return new ReadOnlyCollection<DiscordThreadChannel>(threads);
+        }
+        internal async Task ListPublicArchivedThreadsAsync(ulong channel_id, ulong? fetchBefore, int? limit)
         {
             throw new NotImplementedException();
+            // READ_MESSAGE_HISTORY permission.
+            // Threads are ordered by archive_timestamp, in descending order
+
+            var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.THREADS}{Endpoints.ARCHIVED}{Endpoints.PUBLIC}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id}, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var response = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
         }
-        internal async Task ListPublicArchivedThreadsAsync()
-        {
-            throw new NotImplementedException();
-        }
-        internal async Task ListJoinedPrivateArchivedThreadsAsync()
-        {
-            throw new NotImplementedException();
-        }
+
         internal async Task ListPrivateArchivedThreadsAsync()
         {
             throw new NotImplementedException();
         }
+
+        internal async Task ListJoinedPrivateArchivedThreadsAsync()
+        {
+            throw new NotImplementedException();
+        }
+        
         #endregion
 
         #region Member

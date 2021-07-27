@@ -396,7 +396,7 @@ namespace DSharpPlus
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task<DiscordChannel> GetChannelAsync(ulong id)
-            => this.InternalGetCachedChannel(id) ?? await this.ApiClient.GetChannelAsync(id).ConfigureAwait(false);
+            => this.InternalGetCachedChannel(id) ?? this.InternalGetCachedThread(id) ?? await this.ApiClient.GetChannelAsync(id).ConfigureAwait(false);
 
         /// <summary>
         /// Sends a message
@@ -797,6 +797,7 @@ namespace DSharpPlus
                 message.Author = this.UpdateUser(usr, guild?.Id, guild, member);
             }
 
+            //var channel = this.InternalGetCachedThread(message.ChannelId) ?? this.InternalGetCachedChannel(message.ChannelId);
             var channel = this.InternalGetCachedChannel(message.ChannelId);
 
             if (channel != null) return;
