@@ -247,6 +247,7 @@ namespace DSharpPlus.VoiceNext
             }
         }
 
-        public void Dispose() => throw new NotImplementedException();
+        public void Dispose()
+            => this.WriteSemaphore?.Dispose();
     }
 }
