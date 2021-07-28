@@ -38,13 +38,7 @@ namespace DSharpPlus.EventArgs
         public int MemberCount { get; internal set; }
 
         /// <summary>
-        /// Gets the ids of the users who were removed from the thread.
-        /// </summary>
-        [Obsolete] //temporary usage
-        public IReadOnlyList<ulong?> RemovedMemberIds { get; internal set; }
-
-        /// <summary>
-        /// Gets the members who were removed from the thread.
+        /// Gets the members who were removed from the thread. These could be skeleton objects depending on cache state.
         /// </summary>
         public IReadOnlyList<DiscordMember> RemovedMembers { get; internal set; }
 

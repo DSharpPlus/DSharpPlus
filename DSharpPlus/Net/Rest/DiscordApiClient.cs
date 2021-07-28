@@ -1004,6 +1004,10 @@ namespace DSharpPlus.Net
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
 
             var ret = JsonConvert.DeserializeObject<DiscordChannel>(res.Response);
+
+            if(ret.IsThread)
+                ret = JsonConvert.DeserializeObject<DiscordThreadChannel>(res.Response);
+
             ret.Discord = this.Discord;
             foreach (var xo in ret._permissionOverwrites)
             {
@@ -1537,46 +1541,40 @@ namespace DSharpPlus.Net
             return thread;
         }
 
-        internal async Task JoinThreadAsync(ulong channel_id)
+        internal Task JoinThreadAsync(ulong channel_id)
         {
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.THREAD_MEMBERS}{Endpoints.ME}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id}, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            _ = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PUT, route).ConfigureAwait(false);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PUT, route);
         }
 
-        internal async Task LeaveThreadAsync(ulong channel_id)
+        internal Task LeaveThreadAsync(ulong channel_id)
         {
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.THREAD_MEMBERS}{Endpoints.ME}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id}, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            _ = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route).ConfigureAwait(false);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route);
         }
 
-        internal async Task AddThreadMemberAsync(ulong channel_id, ulong user_id)
+        internal Task AddThreadMemberAsync(ulong channel_id, ulong user_id)
         {
-            //be able send messages in thread
-            //thread not archived
-
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.THREAD_MEMBERS}/:user_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id, user_id}, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            _ = this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PUT, route);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PUT, route);
         }
 
-        internal async Task RemoveThreadMemberAsync(ulong channel_id, ulong user_id)
+        internal Task RemoveThreadMemberAsync(ulong channel_id, ulong user_id)
         {
-            //Requires the MANAGE_THREADS permission, or the creator of the thread if it is a GUILD_PRIVATE_THREAD.
-            //Also requires the thread is not archived
-
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.THREAD_MEMBERS}/:user_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id, user_id}, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            _ = this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route).ConfigureAwait(false);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route);
         }
 
         internal async Task<IReadOnlyList<DiscordThreadChannelMember>> ListThreadMembersAsync(ulong channel_id)
@@ -1599,15 +1597,26 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var response = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
 
-            var threads = JsonConvert.DeserializeObject<List<DiscordThreadChannel>>(response.Headers["threads"]);
-            var threadMembers = JsonConvert.DeserializeObject<List<DiscordThreadChannelMember>>(response.Headers["members"]);
-            foreach (var thread in threads)
+            var parsed = new
             {
-                thread.CurrentMember = threadMembers.SingleOrDefault(x => x.ThreadId == thread.Id);
+                threads = new List<DiscordThreadChannel>(),
+                members = new List<DiscordThreadChannelMember>()
+            };
+
+            parsed = JsonConvert.DeserializeAnonymousType(response.Response, parsed);
+
+            foreach (var thread in parsed.threads)
                 thread.Discord = this.Discord;
+            foreach (var member in parsed.members)
+            {
+                member.Discord = this.Discord;
+                member._guild_id = guild_id;
+                var thread = parsed.threads.SingleOrDefault(x => x.Id == member.ThreadId);
+                if (thread != null)
+                    thread.CurrentMember = member;
             }
 
-            return new ReadOnlyCollection<DiscordThreadChannel>(threads);
+            return new ReadOnlyCollection<DiscordThreadChannel>(parsed.threads);
         }
         internal async Task ListPublicArchivedThreadsAsync(ulong channel_id, ulong? fetchBefore, int? limit)
         {

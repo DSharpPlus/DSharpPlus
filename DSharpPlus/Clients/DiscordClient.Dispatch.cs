@@ -1853,6 +1853,8 @@ namespace DSharpPlus
             thread.Discord = this;
 
             var guild = thread.Guild;
+            guild.Discord = this;
+
             var cthread = this.InternalGetCachedThread(thread.Id);
 
             if (cthread != null) //thread is cached
@@ -1890,11 +1892,7 @@ namespace DSharpPlus
                     Guild = thread.Guild,
                     Parent = thread.Parent
                 };
-            }
-            if (guild != null)
-            {
                 guild._threads[thread.Id] = thread;
-                guild.Discord = this;
             }
 
             await this._threadUpdated.InvokeAsync(this, updateEvent).ConfigureAwait(false);
@@ -1941,8 +1939,8 @@ namespace DSharpPlus
         internal async Task OnThreadMemberUpdateEventAsync(DiscordThreadChannelMember member)
         {
             member.Discord = this;
-            var thread = this.InternalGetCachedThread(member.ThreadId);
 
+            var thread = this.InternalGetCachedThread(member.ThreadId);
             member._guild_id = thread.Guild.Id;
             thread.CurrentMember = member;
             thread.Guild._threads[member.ThreadId] = thread;
@@ -1952,24 +1950,47 @@ namespace DSharpPlus
 
         internal async Task OnThreadMembersUpdateEventAsync(DiscordGuild guild, ulong thread_id, IReadOnlyList<DiscordThreadChannelMember> addedMembers, IReadOnlyList<ulong?> removed_member_ids, int member_count)
         {
+            var thread = this.InternalGetCachedThread(thread_id);
+            thread.Discord = this;
             guild.Discord = this;
 
-            if (addedMembers == null)
-                addedMembers = Array.Empty<DiscordThreadChannelMember>();
+            var removedMembers = new List<DiscordMember>();
+            if (removed_member_ids != null)
+            {
+                foreach (var removedId in removed_member_ids)
+                {
+                    if (guild._members.ContainsKey(removedId.Value))
+                        removedMembers.Add(guild._members[removedId.Value]);
+                    else
+                        removedMembers.Add(new DiscordMember { Id = removedId.Value, _guild_id = guild.Id, Discord = this }); //skeleton objects
+                }
+            }
             else
+                removed_member_ids = Array.Empty<ulong?>();
+            if (addedMembers != null)
+            {
                 foreach (var threadMember in addedMembers)
                 {
                     threadMember.Discord = this;
                     threadMember._guild_id = guild.Id;
+
+                    if(threadMember.Id == this.CurrentUser.Id)
+                        thread.CurrentMember = threadMember;
                 }
-                    
+            }
+            else
+                addedMembers = Array.Empty<DiscordThreadChannelMember>();
+
+            if (removed_member_ids.Contains(this.CurrentUser.Id)) //indicates the bot was removed from the thread
+                thread.CurrentMember = new Optional<DiscordThreadChannelMember>();
+            thread.MemberCount = member_count;
 
             var threadMembersUpdateArg = new ThreadMembersUpdateEventArgs
             {
                 Guild = guild,
-                Thread = this.InternalGetCachedThread(thread_id),
+                Thread = thread,
                 AddedMembers = addedMembers,
-                RemovedMemberIds = removed_member_ids ?? Array.Empty<ulong?>(),
+                RemovedMembers = removedMembers,
                 MemberCount = member_count
             };
 

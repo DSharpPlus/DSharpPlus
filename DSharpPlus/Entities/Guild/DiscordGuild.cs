@@ -873,11 +873,14 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the active and private threads for this guild.
         /// </summary>
+        /// <returns>A read only list of all the active and private threads the user can access in the server.</returns>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task ListActiveThreadsAsync()
+        public async Task<IReadOnlyList<DiscordThreadChannel>> ListActiveThreadsAsync()
         {
-            await this.Discord.ApiClient.ListActiveThreadsAsync(this.Id);
-            //set discord
+            var threads = await this.Discord.ApiClient.ListActiveThreadsAsync(this.Id);
+            foreach (var thread in threads)
+                this._threads[thread.Id] = thread;
+            return threads;
         }
 
         /// <summary>

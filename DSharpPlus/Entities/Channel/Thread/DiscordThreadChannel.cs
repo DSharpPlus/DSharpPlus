@@ -47,19 +47,19 @@ namespace DSharpPlus.Entities
         public ulong OwnerId { get; internal set; }
 
         /// <summary>
-        /// Gets the approximate count of messages in a thread, up to 50.
+        /// Gets the approximate count of messages in a thread, capped to 50.
         /// </summary>
         [JsonProperty("message_count", NullValueHandling = NullValueHandling.Ignore)]
         public int? MessageCount { get; internal set; }
 
         /// <summary>
-        /// Gets the approximate count of members in a thread, up to 50.
+        /// Gets the approximate count of members in a thread, capped to 50.
         /// </summary>
         [JsonProperty("member_count", NullValueHandling = NullValueHandling.Ignore)]
         public int? MemberCount { get; internal set; }
 
         /// <summary>
-        /// Represents the thread member for the current user in this thread. If the user has joined the thread, this will have a value.
+        /// Represents the current member for this thread. This will have a value if the user has joined the thread.
         /// </summary>
         [JsonProperty("member", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<DiscordThreadChannelMember> CurrentMember { get; internal set; }
@@ -76,14 +76,12 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Makes the current user join the thread.
         /// </summary>
-        /// <returns></returns>
         public async Task JoinThreadAsync()
             => await this.Discord.ApiClient.JoinThreadAsync(this.Id);
 
         /// <summary>
         /// Makes the current user leave the thread.
         /// </summary>
-        /// <returns></returns>
         public async Task LeaveThreadAsync()
             => await this.Discord.ApiClient.LeaveThreadAsync(this.Id);
 
@@ -117,7 +115,7 @@ namespace DSharpPlus.Entities
         {
             if (this.ThreadMetadata.IsArchived)
                 throw new InvalidOperationException("You cannot remove members from an archived thread.");
-            //check for message send permissions
+            //check for message send permissions // Requires the MANAGE_THREADS permission, or the creator of the thread if it is a GUILD_PRIVATE_THREAD.
             await this.Discord.ApiClient.RemoveThreadMemberAsync(this.Id, member.Id);
         }
 
