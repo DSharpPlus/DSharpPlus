@@ -63,7 +63,12 @@ namespace DSharpPlus.Entities
         [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
         internal int UserFlags { get; set; }
 
-        //get member object
+        /// <summary>
+        /// Gets the DiscordMember that represents this ThreadMember. Can be a skeleton object.
+        /// </summary>
+        [JsonIgnore]
+        public DiscordMember Member
+            => this.Guild != null ? (this.Guild.Members.TryGetValue(this.Id, out var member) ? member : new DiscordMember { Id = Id, _guild_id = _guild_id, Discord = Discord}) : null;
 
         /// <summary>
         /// Gets the category that contains this channel. For threads, gets the channel this thread was created in.
