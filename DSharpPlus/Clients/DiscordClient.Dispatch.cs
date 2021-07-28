@@ -1925,12 +1925,14 @@ namespace DSharpPlus
             {
                 thread.Discord = this;
                 guild._threads[thread.Id] = thread;
-                thread.CurrentMember = members.SingleOrDefault(x => x.ThreadId == thread.Id);
             }
             foreach(var member in members)
             {
                 member.Discord = this;
                 member._guild_id = guild.Id;
+                var thread = threads.SingleOrDefault(x => x.Id == member.ThreadId);
+                if (thread != null)
+                    thread.CurrentMember = member;
             }
 
             await this._threadListSynced.InvokeAsync(this, new ThreadListSyncEventArgs { Guild = guild, Channels = channels.ToList().AsReadOnly(), Threads = threads, CurrentMembers = members.ToList().AsReadOnly() }).ConfigureAwait(false);
