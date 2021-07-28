@@ -38,7 +38,7 @@ namespace DSharpPlus.EventArgs
         /// <summary>
         /// Gets the pre-update thread.
         /// </summary>
-        public Optional<DiscordThreadChannel> ThreadBefore { get; internal set; }
+        public DiscordThreadChannel ThreadBefore { get; internal set; }
 
         /// <summary>
         /// Gets the threads parent channel.

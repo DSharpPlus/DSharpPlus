@@ -536,10 +536,10 @@ namespace DSharpPlus
                         xo._channel_id = xc.Id;
                     }
                 }
-                foreach (var xc in guild.Threads.Values)
+                foreach (var xt in guild.Threads.Values)
                 {
-                    xc.GuildId = guild.Id;
-                    xc.Discord = this;
+                    xt.GuildId = guild.Id;
+                    xt.Discord = this;
                 }
 
                 if (guild._roles == null)
@@ -1837,7 +1837,7 @@ namespace DSharpPlus
         internal async Task OnThreadCreateEventAsync(DiscordThreadChannel thread)
         {
             thread.Discord = this;
-            this.InternalGetCachedGuild(thread.GuildId)._threads[thread.Id] = thread;
+            this.InternalGetCachedGuild(thread.GuildId)._threads.AddOrUpdate(thread.Id, thread, (oldThread, newThread) => newThread);
 
             await this._threadCreated.InvokeAsync(this, new ThreadCreateEventArgs { Thread = thread, Guild = thread.Guild, Parent = thread.Parent }).ConfigureAwait(false);
         }
@@ -1879,7 +1879,7 @@ namespace DSharpPlus
                 updateEvent = new ThreadUpdateEventArgs
                 {
                     ThreadAfter = thread,
-                    ThreadBefore = new Optional<DiscordThreadChannel>(threadOld),
+                    ThreadBefore = threadOld,
                     Guild = thread.Guild,
                     Parent = thread.Parent
                 };
@@ -1921,15 +1921,18 @@ namespace DSharpPlus
             {
                 channel.Discord = this;
             }
+
             foreach(var thread in threads)
             {
                 thread.Discord = this;
                 guild._threads[thread.Id] = thread;
             }
+
             foreach(var member in members)
             {
                 member.Discord = this;
                 member._guild_id = guild.Id;
+
                 var thread = threads.SingleOrDefault(x => x.Id == member.ThreadId);
                 if (thread != null)
                     thread.CurrentMember = member;
@@ -1945,7 +1948,7 @@ namespace DSharpPlus
             var thread = this.InternalGetCachedThread(member.ThreadId);
             member._guild_id = thread.Guild.Id;
             thread.CurrentMember = member;
-            thread.Guild._threads[member.ThreadId] = thread;
+            thread.Guild._threads.AddOrUpdate(member.ThreadId, thread, (oldThread, newThread) => newThread);
 
             await this._threadMemberUpdated.InvokeAsync(this, new ThreadMemberUpdateEventArgs { ThreadMember = member, Thread = thread }).ConfigureAwait(false);
         }
@@ -1961,10 +1964,7 @@ namespace DSharpPlus
             {
                 foreach (var removedId in removed_member_ids)
                 {
-                    if (guild._members.ContainsKey(removedId.Value))
-                        removedMembers.Add(guild._members[removedId.Value]);
-                    else
-                        removedMembers.Add(new DiscordMember { Id = removedId.Value, _guild_id = guild.Id, Discord = this }); //skeleton objects
+                    removedMembers.Add(guild._members.TryGetValue(removedId.Value, out var member) ? member: new DiscordMember { Id = removedId.Value, _guild_id = guild.Id, Discord = this });
                 }
             }
             else
