@@ -31,12 +31,6 @@ namespace DSharpPlus.Entities
     public sealed class DiscordMessageStickerPack : SnowflakeObject
     {
         /// <summary>
-        /// Gets this pack's Id.
-        /// </summary>
-        [JsonProperty("id")]
-        public ulong Id { get; internal set; }
-
-        /// <summary>
         /// Gets the stickers contained in this pack.
         /// </summary>
         public IReadOnlyDictionary<ulong, DiscordMessageSticker> Stickers => this._stickers;
@@ -50,6 +44,9 @@ namespace DSharpPlus.Entities
         [JsonProperty("name")]
         public string Name { get; internal set; }
 
+        /// <summary>
+        /// Gets the Id of this pack's SKU.
+        /// </summary>
         [JsonProperty("sku_id")]
         public ulong SkuId { get; internal set; }
 
@@ -58,6 +55,18 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("cover_sticker_id")]
         public ulong CoverStickerId { get; internal set; }
+
+        /// <summary>
+        /// Gets the description of this sticker pack.
+        /// </summary>
+        [JsonProperty("description")]
+        public string Description { get; internal set; }
+
+        /// <summary>
+        /// Gets the Id of the sticker pack's banner image.
+        /// </summary>
+        [JsonProperty("banner_asset_id")]
+        public ulong BannerAssetId { get; internal set; }
 
         internal DiscordMessageStickerPack() { }
     }

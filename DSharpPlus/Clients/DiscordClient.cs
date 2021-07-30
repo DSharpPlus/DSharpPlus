@@ -357,6 +357,13 @@ namespace DSharpPlus
             => this.ApiClient.GetStickerAsync(stickerId);
 
         /// <summary>
+        /// Gets a collection of sticker packs that may be used by nitro users.
+        /// </summary>
+        /// <returns></returns>
+        public Task<IReadOnlyList<DiscordMessageStickerPack>> GetStickerPacksAsync()
+            => this.ApiClient.GetStickerPacksAsync();
+
+        /// <summary>
         /// Gets a user
         /// </summary>
         /// <param name="userId">Id of the user</param>

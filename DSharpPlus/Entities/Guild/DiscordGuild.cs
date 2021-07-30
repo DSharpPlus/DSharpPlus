@@ -2127,12 +2127,67 @@ namespace DSharpPlus.Entities
         /// <returns>The modified screening form.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client doesn't have the <see cref="Permissions.ManageGuild"/> permission, or community is not enabled on this guild.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordGuildMembershipScreening> ModifyMembershipScreeningFormAsync(Action<MembershipScreeningEditModel> action)
+        public Task<DiscordGuildMembershipScreening> ModifyMembershipScreeningFormAsync(Action<MembershipScreeningEditModel> action)
         {
             var mdl = new MembershipScreeningEditModel();
             action(mdl);
-            return await this.Discord.ApiClient.ModifyGuildMembershipScreeningFormAsync(this.Id, mdl.Enabled, mdl.Fields, mdl.Description);
+            return this.Discord.ApiClient.ModifyGuildMembershipScreeningFormAsync(this.Id, mdl.Enabled, mdl.Fields, mdl.Description);
         }
+
+        /// <summary>
+        /// Gets a list of stickers from this guild.
+        /// </summary>
+        /// <returns></returns>
+        public Task<IReadOnlyList<DiscordMessageSticker>> GetStickersAsync()
+            => this.Discord.ApiClient.GetGuildStickersAsync(this.Id);
+
+        /// <summary>
+        /// Gets a sticker from this guild.
+        /// </summary>
+        /// <param name="stickerId">The id of the sticker.</param>
+        /// <returns></returns>
+        public Task<DiscordMessageSticker> GetStickerAsync(ulong stickerId)
+            => this.Discord.ApiClient.GetGuildStickerAsync(this.Id, stickerId);
+
+        /*
+        /// <summary>
+        /// Creates a sticker in this guild.
+        /// </summary>
+        /// <param name="name">The name of the sticker.</param>
+        /// <param name="description">The description of the sticker.</param>
+        /// <param name="tags">The tags of the sticker.</param>
+        /// <param name="imageName">The image name of the sticker.</param>
+        /// <param name="imageContents">The image content of the sticker.</param>
+        /// <returns></returns>
+        public Task<DiscordMessageSticker> CreateStickerAsync(string name, string description, string tags, string imageName, Stream imageContents, StickerFormat format)
+        {
+            string contentType = null, extension = null;
+
+            if(format == StickerFormat.PNG || format == StickerFormat.APNG)
+            {
+                contentType = "image/png";
+                extension = "png";
+            }
+            else
+            {
+                contentType = "application/json";
+                extension = "json";
+            }
+
+
+            return this.Discord.ApiClient.CreateGuildStickerAsync(this.Id, name, description ?? string.Empty, tags, new DiscordMessageFile(imageName, imageContents, null, extension, contentType));
+        }
+        */
+
+        public Task<DiscordMessageSticker> ModifyStickerAsync(ulong stickerId, Action<StickerEditModel> action)
+        {
+            var mdl = new StickerEditModel();
+            action(mdl);
+            return this.Discord.ApiClient.ModifyStickerAsync(this.Id, stickerId, mdl.Name, mdl.Description, mdl.Tags);
+        }
+
+        public Task DeleteStickerAsync(ulong stickerId)
+            => this.Discord.ApiClient.DeleteStickerAsync(this.Id, stickerId);
 
         /// <summary>
         /// Gets all the slash commands in this guild.

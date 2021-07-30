@@ -772,7 +772,7 @@ namespace DSharpPlus.Net
 
         #region Stickers
 
-        internal async Task<DiscordMessageSticker> GetGuildStickerAsync(ulong sticker_id, ulong guild_id)
+        internal async Task<DiscordMessageSticker> GetGuildStickerAsync(ulong guild_id, ulong sticker_id)
         {
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.STICKERS}/:sticker_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new {guild_id, sticker_id}, out var path);
@@ -855,7 +855,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessageSticker> CreateGuildStickerAsync(ulong guild_id, string name, string? description, string tags, DiscordMessageFile file)
+        internal async Task<DiscordMessageSticker> CreateGuildStickerAsync(ulong guild_id, string name, string description, string tags, DiscordMessageFile file)
         {
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.STICKERS}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new {guild_id}, out var path);
@@ -889,10 +889,10 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessageSticker> ModifyStickerAsync(ulong guild_id, ulong sticker_id, string? name, string? description, string? tags)
+        internal async Task<DiscordMessageSticker> ModifyStickerAsync(ulong guild_id, ulong sticker_id, Optional<string> name, Optional<string> description, Optional<string> tags)
         {
-            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.STICKERS}";
-            var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new {guild_id}, out var path);
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.STICKERS}/:sticker_id";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new {guild_id, sticker_id}, out var path);
             var url = Utilities.GetApiUriFor(path);
 
             var pld = new RestStickerModifyPayload()
@@ -902,12 +902,7 @@ namespace DSharpPlus.Net
                 Tags = tags
             };
 
-            var values = new Dictionary<string, string>
-            {
-                ["payload_json"] = DiscordJson.SerializeObject(pld)
-            };
-
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, payload: DiscordJson.SerializeObject(pld));
             var ret = JObject.Parse(res.Response).ToDiscordObject<DiscordMessageSticker>();
             ret.Discord = this.Discord;
 
