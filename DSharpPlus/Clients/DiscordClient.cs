@@ -886,6 +886,9 @@ namespace DSharpPlus
             foreach (var newEmoji in newGuild._emojis.Values)
                 _ = guild._emojis.GetOrAdd(newEmoji.Id, _ => newEmoji);
 
+            foreach (var newSticker in newGuild._stickers.Values)
+                _ = guild._stickers.GetOrAdd(newSticker.Id, _ => newSticker);
+
             if (rawMembers != null)
             {
                 guild._members.Clear();

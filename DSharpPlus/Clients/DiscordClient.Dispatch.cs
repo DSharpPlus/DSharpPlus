@@ -723,6 +723,8 @@ namespace DSharpPlus
                 guild._roles = new ConcurrentDictionary<ulong, DiscordRole>();
             if (guild._emojis == null)
                 guild._emojis = new ConcurrentDictionary<ulong, DiscordEmoji>();
+            if (guild._stickers == null)
+                guild._stickers = new ConcurrentDictionary<ulong, DiscordMessageSticker>();
             if (guild._voiceStates == null)
                 guild._voiceStates = new ConcurrentDictionary<ulong, DiscordVoiceState>();
             if (guild._members == null)
