@@ -551,13 +551,13 @@ namespace DSharpPlus.Interactivity
         /// <param name="channel">The channel to send it on.</param>
         /// <param name="user">User to give control.</param>
         /// <param name="pages">The pages.</param>
-        /// <param name="buttons">Pagination buttons (leave null to default to ones on configuration).</param>
+        /// <param name="buttons">Pagination buttons (pass null to use buttons defined in <see cref="InteractivityConfiguration"/>).</param>
         /// <param name="behaviour">Pagination behaviour.</param>
         /// <param name="deletion">Deletion behaviour</param>
         /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
         public async Task SendPaginatedMessageAsync(
-            DiscordChannel channel, DiscordUser user, IEnumerable<Page> pages, PaginationButtons buttons,
-            PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default, CancellationToken? token = default)
+            DiscordChannel channel, DiscordUser user, IEnumerable<Page> pages, CancellationToken? token, PaginationButtons buttons = null,
+            PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default)
         {
             var bhv = behaviour ?? this.Config.PaginationBehaviour;
             var del = deletion ?? this.Config.ButtonBehavior;
