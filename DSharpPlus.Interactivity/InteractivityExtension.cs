@@ -134,7 +134,7 @@ namespace DSharpPlus.Interactivity
         /// <returns>A <see cref="InteractivityResult{T}"/> with the result of button that was pressed, if any.</returns>
         /// <exception cref="InvalidOperationException">Thrown when attempting to wait for a message that is not authored by the current user.</exception>
         /// <exception cref="ArgumentException">Thrown when the message does not contain a button with the specified Id, or any buttons at all.</exception>
-        public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(DiscordMessage message, IEnumerable<DiscordButtonComponent> buttons, CancellationToken? token = null)
+        public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(DiscordMessage message, IEnumerable<DiscordButtonComponent> buttons, CancellationToken? token)
         {
             if (message.Author != this.Client.CurrentUser)
                 throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
@@ -185,7 +185,7 @@ namespace DSharpPlus.Interactivity
         /// <returns>A <see cref="InteractivityResult{T}"/> with the result of button that was pressed, if any.</returns>
         /// <exception cref="InvalidOperationException">Thrown when attempting to wait for a message that is not authored by the current user.</exception>
         /// <exception cref="ArgumentException">Thrown when the message does not contain a button with the specified Id, or any buttons at all.</exception>
-        public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(DiscordMessage message, CancellationToken? token = null)
+        public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(DiscordMessage message, CancellationToken? token)
         {
             if (message.Author != this.Client.CurrentUser)
                 throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
@@ -227,7 +227,7 @@ namespace DSharpPlus.Interactivity
         /// <returns>A <see cref="InteractivityResult{T}"/> with the result of button that was pressed, if any.</returns>
         /// <exception cref="InvalidOperationException">Thrown when attempting to wait for a message that is not authored by the current user.</exception>
         /// <exception cref="ArgumentException">Thrown when the message does not contain a button with the specified Id, or any buttons at all.</exception>
-        public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(DiscordMessage message, DiscordUser user, CancellationToken? token = null)
+        public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(DiscordMessage message, DiscordUser user, CancellationToken? token)
         {
             if (message.Author != this.Client.CurrentUser)
                 throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
@@ -267,7 +267,7 @@ namespace DSharpPlus.Interactivity
         /// <returns>A <see cref="InteractivityResult{T}"/> with the result of the operation.</returns>
         /// <exception cref="InvalidOperationException">Thrown when attempting to wait for a message that is not authored by the current user.</exception>
         /// <exception cref="ArgumentException">Thrown when the message does not contain a button with the specified Id, or any buttons at all.</exception>
-        public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(DiscordMessage message, string id, CancellationToken? token = null)
+        public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(DiscordMessage message, string id, CancellationToken? token)
         {
             if (message.Author != this.Client.CurrentUser)
                 throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
@@ -306,7 +306,7 @@ namespace DSharpPlus.Interactivity
         /// <param name="id">The Id of the dropdown to wait on.</param>
         /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
         /// <exception cref="ArgumentException">Thrown when the message does not have any dropdowns or any dropdown with the specified Id.</exception>
-        public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForSelectAsync(DiscordMessage message, string id, CancellationToken? token = null)
+        public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForSelectAsync(DiscordMessage message, string id, CancellationToken? token)
         {
             if (!message.Components.Any())
                 throw new ArgumentException("Message doesn't contain any components!");
@@ -348,7 +348,7 @@ namespace DSharpPlus.Interactivity
         /// <param name="id">The Id of the dropdown to wait on.</param>
         /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
         /// <exception cref="ArgumentException">Thrown when the message does not have any dropdowns or any dropdown with the specified Id.</exception>
-        public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForSelectAsync(DiscordMessage message, DiscordUser user, string id, CancellationToken? token = null)
+        public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForSelectAsync(DiscordMessage message, DiscordUser user, string id, CancellationToken? token)
         {
             if (!message.Components.Any())
                 throw new ArgumentException("Message doesn't contain any components!");
@@ -556,7 +556,7 @@ namespace DSharpPlus.Interactivity
         /// <param name="deletion">Deletion behaviour</param>
         /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
         public async Task SendPaginatedMessageAsync(
-            DiscordChannel channel, DiscordUser user, IEnumerable<Page> pages, PaginationButtons buttons = null,
+            DiscordChannel channel, DiscordUser user, IEnumerable<Page> pages, PaginationButtons buttons,
             PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default, CancellationToken? token = default)
         {
             var bhv = behaviour ?? this.Config.PaginationBehaviour;
