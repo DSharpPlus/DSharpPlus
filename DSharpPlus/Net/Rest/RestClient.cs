@@ -444,7 +444,19 @@ namespace DSharpPlus.Net
                 {
                     var i = 1;
                     foreach (var f in mprequest.Files)
-                        content.Add(new StreamContent(f.Value), $"file{i++.ToString(CultureInfo.InvariantCulture)}", f.Key);
+                    {
+                        var sc = new StreamContent(f.Stream);
+
+                        if (f.ContentType != null)
+                            sc.Headers.ContentType = new MediaTypeHeaderValue(f.ContentType);
+
+                        if (f.FileType != null)
+                            f.FileName += '.' + f.FileType;
+
+                        var count = mprequest._removeFileCount ? i++.ToString(CultureInfo.InvariantCulture) : string.Empty;
+
+                        content.Add(sc, $"file{count}", f.FileName);
+                    }
                 }
 
                 req.Content = content;

@@ -2149,17 +2149,16 @@ namespace DSharpPlus.Entities
         public Task<DiscordMessageSticker> GetStickerAsync(ulong stickerId)
             => this.Discord.ApiClient.GetGuildStickerAsync(this.Id, stickerId);
 
-        /*
         /// <summary>
         /// Creates a sticker in this guild.
         /// </summary>
         /// <param name="name">The name of the sticker.</param>
         /// <param name="description">The description of the sticker.</param>
         /// <param name="tags">The tags of the sticker.</param>
-        /// <param name="imageName">The image name of the sticker.</param>
         /// <param name="imageContents">The image content of the sticker.</param>
+        /// <param name="format">The image format of the sticker.</param>
         /// <returns></returns>
-        public Task<DiscordMessageSticker> CreateStickerAsync(string name, string description, string tags, string imageName, Stream imageContents, StickerFormat format)
+        public Task<DiscordMessageSticker> CreateStickerAsync(string name, string description, string tags, Stream imageContents, StickerFormat format)
         {
             string contentType = null, extension = null;
 
@@ -2175,9 +2174,9 @@ namespace DSharpPlus.Entities
             }
 
 
-            return this.Discord.ApiClient.CreateGuildStickerAsync(this.Id, name, description ?? string.Empty, tags, new DiscordMessageFile(imageName, imageContents, null, extension, contentType));
+            return this.Discord.ApiClient.CreateGuildStickerAsync(this.Id, name, description ?? string.Empty, tags, new DiscordMessageFile(null, imageContents, null, extension, contentType));
         }
-        */
+
 
         public Task<DiscordMessageSticker> ModifyStickerAsync(ulong stickerId, Action<StickerEditModel> action)
         {

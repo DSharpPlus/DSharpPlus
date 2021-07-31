@@ -42,14 +42,17 @@ namespace DSharpPlus.Net
         /// <summary>
         /// Gets the dictionary of files attached to this request.
         /// </summary>
-        public IReadOnlyDictionary<string, Stream> Files { get; }
+        public IReadOnlyCollection<DiscordMessageFile> Files { get; }
+
+        internal bool _removeFileCount;
 
         internal MultipartWebRequest(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, string route, IReadOnlyDictionary<string, string> headers = null, IReadOnlyDictionary<string, string> values = null,
-            IReadOnlyCollection<DiscordMessageFile> files = null, double? ratelimit_wait_override = null)
+            IReadOnlyCollection<DiscordMessageFile> files = null, double? ratelimit_wait_override = null, bool removeFileCount = false)
             : base(client, bucket, url, method, route, headers, ratelimit_wait_override)
         {
             this.Values = values;
-            this.Files = files.ToDictionary(x => x.FileName, x => x.Stream);
+            this.Files = files;
+            this._removeFileCount = removeFileCount;
         }
     }
 }

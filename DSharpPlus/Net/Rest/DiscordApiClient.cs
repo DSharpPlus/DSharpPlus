@@ -861,16 +861,11 @@ namespace DSharpPlus.Net
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new {guild_id}, out var path);
             var url = Utilities.GetApiUriFor(path);
 
-            var pld = new RestStickerCreatePayload()
-            {
-                Name = name,
-                Description = description,
-                Tags = tags
-            };
-
             var values = new Dictionary<string, string>
             {
-                ["payload_json"] = DiscordJson.SerializeObject(pld)
+                ["name"] = name,
+                ["description"] = description,
+                ["tags"] = tags,
             };
 
             var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, null, values, new[] {file});

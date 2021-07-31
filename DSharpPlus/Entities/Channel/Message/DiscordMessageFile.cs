@@ -32,7 +32,7 @@ namespace DSharpPlus.Entities
     {
         internal DiscordMessageFile(string fileName, Stream stream, long? resetPositionTo, string fileType = null, string contentType = null)
         {
-            this.FileName = fileName;
+            this.FileName = fileName ?? "file";
             this.FileType = fileType;
             this.ContentType = contentType;
             this.Stream = stream;
