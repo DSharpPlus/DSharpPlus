@@ -551,10 +551,10 @@ namespace DSharpPlus.Interactivity
         /// <param name="channel">The channel to send it on.</param>
         /// <param name="user">User to give control.</param>
         /// <param name="pages">The pages.</param>
-        /// <param name="buttons">Pagination buttons (leave null to default to ones on configuration.</param>
+        /// <param name="buttons">Pagination buttons (leave null to default to ones on configuration).</param>
         /// <param name="behaviour">Pagination behaviour.</param>
         /// <param name="deletion">Deletion behaviour</param>
-        /// <param name="token">Cancellation token.</param>
+        /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
         public async Task SendPaginatedMessageAsync(
             DiscordChannel channel, DiscordUser user, IEnumerable<Page> pages, PaginationButtons buttons = null,
             PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default, CancellationToken? token = default)
@@ -588,7 +588,7 @@ namespace DSharpPlus.Interactivity
         /// <param name="c">Channel to send paginated message in.</param>
         /// <param name="u">User to give control.</param>
         /// <param name="pages">Pages.</param>
-        /// <param name="emojis">Pagination emojis (emojis set to null get disabled).</param>
+        /// <param name="emojis">Pagination emojis.</param>
         /// <param name="behaviour">Pagination behaviour (when hitting max and min indices).</param>
         /// <param name="deletion">Deletion behaviour.</param>
         /// <param name="timeoutoverride">Override timeout period.</param>
