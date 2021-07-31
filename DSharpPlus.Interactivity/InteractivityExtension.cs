@@ -118,7 +118,7 @@ namespace DSharpPlus.Interactivity
         /// </summary>
         /// <param name="message">The message to wait on.</param>
         /// <param name="buttons">A collection of buttons to listen for.</param>
-        /// <param name="token">Override the timeout period in <see cref="InteractivityConfiguration"/>.</param>
+        /// <param name="timeoutOverride">Override the timeout period in <see cref="InteractivityConfiguration"/>.</param>
         /// <returns>A <see cref="InteractivityResult{T}"/> with the result of button that was pressed, if any.</returns>
         /// <exception cref="InvalidOperationException">Thrown when attempting to wait for a message that is not authored by the current user.</exception>
         /// <exception cref="ArgumentException">Thrown when the message does not contain a button with the specified Id, or any buttons at all.</exception>
@@ -155,6 +155,16 @@ namespace DSharpPlus.Interactivity
 
             return new(res is null, res);
         }
+
+        /// <summary>
+        /// Waits for any button on the specified message to be pressed.
+        /// </summary>
+        /// <param name="message">The message to wait for the button on.</param>
+        /// <returns>A <see cref="InteractivityResult{T}"/> with the result of button that was pressed, if any.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when attempting to wait for a message that is not authored by the current user.</exception>
+        /// <exception cref="ArgumentException">Thrown when the message does not contain a button with the specified Id, or any buttons at all.</exception>
+        public Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(DiscordMessage message)
+            => this.WaitForButtonAsync(message, token: null);
 
         /// <summary>
         /// Waits for any button on the specified message to be pressed.
@@ -253,7 +263,7 @@ namespace DSharpPlus.Interactivity
         /// </summary>
         /// <param name="message">The message to wait for the button on.</param>
         /// <param name="id">The Id of the button to wait for.</param>
-        /// <param name="timeoutOverride">Override the timeout period specified in <see cref="InteractivityConfiguration"/>.</param>
+        /// <param name="token">Cancellation token.</param>
         /// <returns>A <see cref="InteractivityResult{T}"/> with the result of the operation.</returns>
         /// <exception cref="InvalidOperationException">Thrown when attempting to wait for a message that is not authored by the current user.</exception>
         /// <exception cref="ArgumentException">Thrown when the message does not contain a button with the specified Id, or any buttons at all.</exception>
@@ -535,6 +545,16 @@ namespace DSharpPlus.Interactivity
             return res;
         }
 
+        /// <summary>
+        /// Sends a paginated message with buttons.
+        /// </summary>
+        /// <param name="channel">The channel to send it on.</param>
+        /// <param name="user">User to give control.</param>
+        /// <param name="pages">The pages.</param>
+        /// <param name="buttons">Pagination buttons (leave null to default to ones on configuration.</param>
+        /// <param name="behaviour">Pagination behaviour.</param>
+        /// <param name="deletion">Deletion behaviour</param>
+        /// <param name="token">Cancellation token.</param>
         public async Task SendPaginatedMessageAsync(
             DiscordChannel channel, DiscordUser user, IEnumerable<Page> pages, PaginationButtons buttons = null,
             PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default, CancellationToken? token = default)
@@ -561,7 +581,6 @@ namespace DSharpPlus.Interactivity
             await this._compPaginator.DoPaginationAsync(req).ConfigureAwait(false);
         }
 
-
         /// <summary>
         /// Sends a paginated message.
         /// For this Event you need the <see cref="DiscordIntents.GuildMessageReactions"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
@@ -573,7 +592,6 @@ namespace DSharpPlus.Interactivity
         /// <param name="behaviour">Pagination behaviour (when hitting max and min indices).</param>
         /// <param name="deletion">Deletion behaviour.</param>
         /// <param name="timeoutoverride">Override timeout period.</param>
-        /// <returns></returns>
         public async Task SendPaginatedMessageAsync(DiscordChannel c, DiscordUser u, IEnumerable<Page> pages, PaginationEmojis emojis = null,
             PaginationBehaviour? behaviour = default, PaginationDeletion? deletion = default, TimeSpan? timeoutoverride = null)
         {
