@@ -550,7 +550,7 @@ namespace DSharpPlus
         /// <param name="content">New message content</param>
         /// <returns></returns>
         public Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content)
-            => this.ApiClient.EditMessageAsync(channel_id, message_id, content, default, default, default, Array.Empty<DiscordMessageFile>(), null);
+            => this.ApiClient.EditMessageAsync(channel_id, message_id, content, default, default, default, Array.Empty<DiscordMessageFile>(), null, default);
 
         /// <summary>
         /// Edits a message
@@ -560,7 +560,7 @@ namespace DSharpPlus
         /// <param name="embed">New message embed</param>
         /// <returns></returns>
         public Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<DiscordEmbed> embed)
-            => this.ApiClient.EditMessageAsync(channel_id, message_id, default, embed.HasValue ? new[] {embed.Value} : Array.Empty<DiscordEmbed>(), default, default, Array.Empty<DiscordMessageFile>(), null);
+            => this.ApiClient.EditMessageAsync(channel_id, message_id, default, embed.HasValue ? new[] {embed.Value} : Array.Empty<DiscordEmbed>(), default, default, Array.Empty<DiscordMessageFile>(), null, default);
 
         /// <summary>
         /// Edits a message
@@ -569,12 +569,13 @@ namespace DSharpPlus
         /// <param name="message_id">Message id</param>
         /// <param name="builder">The builder of the message to edit.</param>
         /// <param name="suppressEmbeds">Whether to suppress embeds on the message.</param>
+        /// <param name="attachments">Attached files to keep.</param>
         /// <returns></returns>
-        public async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, DiscordMessageBuilder builder, bool suppressEmbeds = false)
+        public async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, DiscordMessageBuilder builder, bool suppressEmbeds = false, IEnumerable<DiscordAttachment> attachments = default)
         {
             builder.Validate(true);
 
-            return await this.ApiClient.EditMessageAsync(channel_id, message_id, builder.Content, new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), builder.Mentions, builder.Components, builder.Files, suppressEmbeds ? MessageFlags.SuppressedEmbeds : null).ConfigureAwait(false);
+            return await this.ApiClient.EditMessageAsync(channel_id, message_id, builder.Content, new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), builder.Mentions, builder.Components, builder.Files, suppressEmbeds ? MessageFlags.SuppressedEmbeds : null, attachments).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -584,7 +585,7 @@ namespace DSharpPlus
         /// <param name="message_id">Message id</param>
         /// <param name="hideEmbeds">Whether to hide all embeds.</param>
         public Task ModifyEmbedSuppressionAsync(ulong channel_id, ulong message_id, bool hideEmbeds)
-            => this.ApiClient.EditMessageAsync(channel_id, message_id, default, default, default, default, Array.Empty<DiscordMessageFile>(), hideEmbeds ? MessageFlags.SuppressedEmbeds : null);
+            => this.ApiClient.EditMessageAsync(channel_id, message_id, default, default, default, default, Array.Empty<DiscordMessageFile>(), hideEmbeds ? MessageFlags.SuppressedEmbeds : null, default);
 
         /// <summary>
         /// Deletes a message
@@ -1312,12 +1313,13 @@ namespace DSharpPlus
         /// <param name="webhook_token">Webhook token</param>
         /// <param name="messageId">The id of the message to edit.</param>
         /// <param name="builder">The builder of the message to edit.</param>
+        /// <param name="attachments">Attached files to keep.</param>
         /// <returns>The modified <see cref="DiscordMessage"/></returns>
-        public async Task<DiscordMessage> EditWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong messageId, DiscordWebhookBuilder builder)
+        public async Task<DiscordMessage> EditWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong messageId, DiscordWebhookBuilder builder, IEnumerable<DiscordAttachment> attachments = default)
         {
             builder.Validate(true);
 
-            return await this.ApiClient.EditWebhookMessageAsync(webhook_id, webhook_token, messageId, builder).ConfigureAwait(false);
+            return await this.ApiClient.EditWebhookMessageAsync(webhook_id, webhook_token, messageId, builder, attachments).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -1532,12 +1534,13 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="interactionToken">The token of the interaction.</param>
         /// <param name="builder">The webhook builder.</param>
+        /// <param name="attachments">Attached files to keep.</param>
         /// <returns>The <see cref="DiscordMessage"/> edited.</returns>
-        public async Task<DiscordMessage> EditOriginalInteractionResponseAsync(string interactionToken, DiscordWebhookBuilder builder)
+        public async Task<DiscordMessage> EditOriginalInteractionResponseAsync(string interactionToken, DiscordWebhookBuilder builder, IEnumerable<DiscordAttachment> attachments = default)
         {
             builder.Validate(isInteractionResponse: true);
 
-            return await this.ApiClient.EditOriginalInteractionResponseAsync(this.CurrentApplication.Id, interactionToken, builder);
+            return await this.ApiClient.EditOriginalInteractionResponseAsync(this.CurrentApplication.Id, interactionToken, builder, attachments);
         }
 
         /// <summary>
@@ -1566,12 +1569,13 @@ namespace DSharpPlus
         /// <param name="interactionToken">The token of the interaction.</param>
         /// <param name="messageId">The id of the follow up message.</param>
         /// <param name="builder">The webhook builder.</param>
+        /// <param name="attachments">Attached files to keep.</param>
         /// <returns>The <see cref="DiscordMessage"/> edited.</returns>
-        public async Task<DiscordMessage> EditFollowupMessageAsync(string interactionToken, ulong messageId, DiscordWebhookBuilder builder)
+        public async Task<DiscordMessage> EditFollowupMessageAsync(string interactionToken, ulong messageId, DiscordWebhookBuilder builder, IEnumerable<DiscordAttachment> attachments = default)
         {
             builder.Validate(isFollowup: true);
 
-            return await this.ApiClient.EditFollowupMessageAsync(this.CurrentApplication.Id, interactionToken, messageId, builder);
+            return await this.ApiClient.EditFollowupMessageAsync(this.CurrentApplication.Id, interactionToken, messageId, builder, attachments);
         }
 
         /// <summary>

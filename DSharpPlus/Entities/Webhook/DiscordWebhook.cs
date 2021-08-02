@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using DSharpPlus.Net;
@@ -154,15 +155,16 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="messageId">The id of the message to edit.</param>
         /// <param name="builder">The builder of the message to edit.</param>
+        /// <param name="attachments">Attached files to keep.</param>
         /// <returns>The modified <see cref="DiscordMessage"/></returns>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the webhook does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordMessage> EditMessageAsync(ulong messageId, DiscordWebhookBuilder builder)
+        public async Task<DiscordMessage> EditMessageAsync(ulong messageId, DiscordWebhookBuilder builder, IEnumerable<DiscordAttachment> attachments = default)
         {
             builder.Validate(true);
 
-            return await (this.Discord?.ApiClient ?? this.ApiClient).EditWebhookMessageAsync(this.Id, this.Token, messageId, builder).ConfigureAwait(false);
+            return await (this.Discord?.ApiClient ?? this.ApiClient).EditWebhookMessageAsync(this.Id, this.Token, messageId, builder, attachments).ConfigureAwait(false);
         }
 
         /// <summary>

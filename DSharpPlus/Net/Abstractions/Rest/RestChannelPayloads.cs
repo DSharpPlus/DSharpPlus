@@ -113,6 +113,9 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
         public MessageFlags? Flags { get; set; }
 
+        [JsonProperty("attachments", NullValueHandling = NullValueHandling.Ignore)]
+        public IEnumerable<DiscordAttachment> Attachments { get; set; }
+
         [JsonIgnore]
         public bool HasEmbed { get; set; }
 
