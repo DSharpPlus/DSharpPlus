@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using DSharpPlus.Net.Abstractions;
 using Newtonsoft.Json;
@@ -322,6 +323,11 @@ namespace DSharpPlus.Entities
         /// </summary>
         public string SpectateSecret { get; internal set; }
 
+        /// <summary>
+        /// Gets the buttons for the rich presence.
+        /// </summary>
+        public IReadOnlyList<string> Buttons { get; internal set; }
+
         internal DiscordRichPresence() { }
 
         internal DiscordRichPresence(TransportActivity rawGame)
@@ -347,6 +353,7 @@ namespace DSharpPlus.Entities
             this.JoinSecret = other.JoinSecret;
             this.MatchSecret = other.MatchSecret;
             this.SpectateSecret = other.SpectateSecret;
+            this.Buttons = other.Buttons;
         }
 
         internal void UpdateWith(TransportActivity rawGame)
@@ -368,6 +375,7 @@ namespace DSharpPlus.Entities
             this.JoinSecret = rawGame?.Secrets?.Join;
             this.MatchSecret = rawGame?.Secrets?.Match;
             this.SpectateSecret = rawGame?.Secrets?.Spectate;
+            this.Buttons = rawGame?.Buttons;
 
             var lid = rawGame?.Assets?.LargeImage;
             if (lid != null)
