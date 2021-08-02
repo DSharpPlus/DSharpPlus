@@ -1938,11 +1938,14 @@ namespace DSharpPlus.Net
         #endregion
 
         #region Invite
-        internal async Task<DiscordInvite> GetInviteAsync(string invite_code, bool? with_counts)
+        internal async Task<DiscordInvite> GetInviteAsync(string invite_code, bool? with_counts, bool? with_expiration)
         {
             var urlparams = new Dictionary<string, string>();
             if (with_counts.HasValue)
+            {
                 urlparams["with_counts"] = with_counts?.ToString();
+                urlparams["with_expiration"] = with_expiration?.ToString();
+            }
 
             var route = $"{Endpoints.INVITES}/:invite_code";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { invite_code }, out var path);

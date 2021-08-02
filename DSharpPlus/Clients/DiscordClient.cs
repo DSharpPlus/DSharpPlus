@@ -553,12 +553,13 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="code">The invite code.</param>
         /// <param name="withCounts">Whether to include presence and total member counts in the returned invite.</param>
+        /// <param name="withExpiration">Whether to include the expiration date in the returned invite.</param>
         /// <returns>The requested Invite.</returns>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the invite does not exists.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordInvite> GetInviteByCodeAsync(string code, bool? withCounts = null)
-            => this.ApiClient.GetInviteAsync(code, withCounts);
+        public Task<DiscordInvite> GetInviteByCodeAsync(string code, bool? withCounts = null, bool? withExpiration = null)
+            => this.ApiClient.GetInviteAsync(code, withCounts, withExpiration);
 
         /// <summary>
         /// Gets a list of connections
