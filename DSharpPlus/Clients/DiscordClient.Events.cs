@@ -602,6 +602,31 @@ namespace DSharpPlus
 
         #endregion
 
+        #region Integration
+
+        public event AsyncEventHandler<DiscordClient, IntegrationCreateEventArgs> IntegrationCreated
+        {
+            add => this._integrationCreated.Register(value);
+            remove => this._integrationCreated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, IntegrationCreateEventArgs> _integrationCreated;
+
+        public event AsyncEventHandler<DiscordClient, IntegrationUpdateEventArgs> IntegrationUpdated
+        {
+            add => this._integrationUpdated.Register(value);
+            remove => this._integrationUpdated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, IntegrationUpdateEventArgs> _integrationUpdated;
+
+        public event AsyncEventHandler<DiscordClient, IntegrationDeleteEventArgs> IntegrationDeleted
+        {
+            add => this._integrationDeleted.Register(value);
+            remove => this._integrationDeleted.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, IntegrationDeleteEventArgs> _integrationDeleted;
+
+        #endregion
+
         #region Misc
 
         /// <summary>
