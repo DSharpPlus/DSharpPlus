@@ -79,5 +79,8 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
         public IEnumerable<DiscordActionRowComponent> Components { get; set; }
+
+        [JsonProperty("attachments", NullValueHandling = NullValueHandling.Ignore)]
+        public IEnumerable<DiscordAttachment> Attachments { get; set; }
     }
 }

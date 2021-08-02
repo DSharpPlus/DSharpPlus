@@ -1195,7 +1195,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content, Optional<IEnumerable<DiscordEmbed>> embeds, IEnumerable<IMention> mentions, IReadOnlyList<DiscordActionRowComponent> components, IReadOnlyCollection<DiscordMessageFile> files, MessageFlags? flags)
+        internal async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content, Optional<IEnumerable<DiscordEmbed>> embeds, IEnumerable<IMention> mentions, IReadOnlyList<DiscordActionRowComponent> components, IReadOnlyCollection<DiscordMessageFile> files, MessageFlags? flags, IEnumerable<DiscordAttachment> attachments)
         {
             if (embeds.HasValue && embeds.Value != null)
                 foreach (var embed in embeds.Value)
@@ -1209,7 +1209,8 @@ namespace DSharpPlus.Net
                 HasEmbed = embeds.HasValue && (embeds.Value?.Any() ?? false),
                 Embeds = embeds.HasValue && (embeds.Value?.Any() ?? false) ? embeds.Value : null,
                 Components = components,
-                Flags = flags
+                Flags = flags,
+                Attachments = attachments
             };
 
             if (mentions != null)
@@ -2253,7 +2254,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessage> EditWebhookMessageAsync(ulong webhook_id, string webhook_token, string message_id, DiscordWebhookBuilder builder)
+        internal async Task<DiscordMessage> EditWebhookMessageAsync(ulong webhook_id, string webhook_token, string message_id, DiscordWebhookBuilder builder, IEnumerable<DiscordAttachment> attachments)
         {
             builder.Validate(true);
 
@@ -2263,6 +2264,7 @@ namespace DSharpPlus.Net
                 Embeds = builder.Embeds,
                 Mentions = builder.Mentions,
                 Components = builder.Components,
+                Attachments = attachments
             };
 
             var route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token{Endpoints.MESSAGES}/:message_id";
@@ -2285,8 +2287,8 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal Task<DiscordMessage> EditWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong message_id, DiscordWebhookBuilder builder) =>
-            this.EditWebhookMessageAsync(webhook_id, webhook_token, message_id.ToString(), builder);
+        internal Task<DiscordMessage> EditWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong message_id, DiscordWebhookBuilder builder, IEnumerable<DiscordAttachment> attachments) =>
+            this.EditWebhookMessageAsync(webhook_id, webhook_token, message_id.ToString(), builder, attachments);
 
         internal async Task DeleteWebhookMessageAsync(ulong webhook_id, string webhook_token, string message_id)
         {
@@ -2775,8 +2777,8 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal Task<DiscordMessage> EditOriginalInteractionResponseAsync(ulong application_id, string interaction_token, DiscordWebhookBuilder builder) =>
-            this.EditWebhookMessageAsync(application_id, interaction_token, "@original", builder);
+        internal Task<DiscordMessage> EditOriginalInteractionResponseAsync(ulong application_id, string interaction_token, DiscordWebhookBuilder builder, IEnumerable<DiscordAttachment> attachments) =>
+            this.EditWebhookMessageAsync(application_id, interaction_token, "@original", builder, attachments);
 
         internal Task DeleteOriginalInteractionResponseAsync(ulong application_id, string interaction_token) =>
             this.DeleteWebhookMessageAsync(application_id, interaction_token, "@original");
@@ -2822,8 +2824,8 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal Task<DiscordMessage> EditFollowupMessageAsync(ulong application_id, string interaction_token, ulong message_id, DiscordWebhookBuilder builder) =>
-            this.EditWebhookMessageAsync(application_id, interaction_token, message_id, builder);
+        internal Task<DiscordMessage> EditFollowupMessageAsync(ulong application_id, string interaction_token, ulong message_id, DiscordWebhookBuilder builder, IEnumerable<DiscordAttachment> attachments) =>
+            this.EditWebhookMessageAsync(application_id, interaction_token, message_id, builder, attachments);
 
         internal Task DeleteFollowupMessageAsync(ulong application_id, string interaction_token, ulong message_id) =>
             this.DeleteWebhookMessageAsync(application_id, interaction_token, message_id);

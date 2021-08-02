@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -120,12 +121,13 @@ namespace DSharpPlus.Entities
         /// Edits the original interaction response.
         /// </summary>
         /// <param name="builder">The webhook builder.</param>
+        /// <param name="attachments">Attached files to keep.</param>
         /// <returns>The <see cref="DiscordMessage"/> edited.</returns>
-        public async Task<DiscordMessage> EditOriginalResponseAsync(DiscordWebhookBuilder builder)
+        public async Task<DiscordMessage> EditOriginalResponseAsync(DiscordWebhookBuilder builder, IEnumerable<DiscordAttachment> attachments = default)
         {
             builder.Validate(isInteractionResponse: true);
 
-            return await this.Discord.ApiClient.EditOriginalInteractionResponseAsync(this.Discord.CurrentApplication.Id, this.Token, builder);
+            return await this.Discord.ApiClient.EditOriginalInteractionResponseAsync(this.Discord.CurrentApplication.Id, this.Token, builder, attachments);
         }
 
         /// <summary>
@@ -151,12 +153,13 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="messageId">The id of the follow up message.</param>
         /// <param name="builder">The webhook builder.</param>
+        /// <param name="attachments">Attached files to keep.</param>
         /// <returns>The <see cref="DiscordMessage"/> edited.</returns>
-        public async Task<DiscordMessage> EditFollowupMessageAsync(ulong messageId, DiscordWebhookBuilder builder)
+        public async Task<DiscordMessage> EditFollowupMessageAsync(ulong messageId, DiscordWebhookBuilder builder, IEnumerable<DiscordAttachment> attachments = default)
         {
             builder.Validate(isFollowup: true);
 
-            return await this.Discord.ApiClient.EditFollowupMessageAsync(this.Discord.CurrentApplication.Id, this.Token, messageId, builder);
+            return await this.Discord.ApiClient.EditFollowupMessageAsync(this.Discord.CurrentApplication.Id, this.Token, messageId, builder, attachments);
         }
 
         /// <summary>
