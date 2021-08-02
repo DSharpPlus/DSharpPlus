@@ -1130,7 +1130,7 @@ namespace DSharpPlus
         /// <param name="withCounts">Whether to include presence and total member counts in the returned invite.</param>
         /// <param name="withExpiration">Whether to include the expiration date in the returned invite.</param>
         /// <returns></returns>
-        public Task<DiscordInvite> GetInvite(string invite_code, bool? withCounts = null, bool? withExpiration = null)
+        public Task<DiscordInvite> GetInviteAsync(string invite_code, bool? withCounts = null, bool? withExpiration = null)
             => this.ApiClient.GetInviteAsync(invite_code, withCounts, withExpiration);
 
         /// <summary>
