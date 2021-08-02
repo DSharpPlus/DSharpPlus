@@ -83,6 +83,7 @@ namespace DSharpPlus.Entities
             this.Pinned = other.Pinned;
             this.TimestampRaw = other.TimestampRaw;
             this.WebhookId = other.WebhookId;
+            this.ApplicationId = other.ApplicationId;
         }
 
         /// <summary>
@@ -331,6 +332,12 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("interaction", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordMessageInteraction Interaction { get; internal set; }
+
+        /// <summary>
+        /// Gets the id of the interaction application, if a response to an interaction.
+        /// </summary>
+        [JsonProperty("application_id", NullValueHandling = NullValueHandling.Ignore)]
+        public ulong? ApplicationId { get; internal set; }
 
         internal DiscordMessageReference InternalBuildMessageReference()
         {
