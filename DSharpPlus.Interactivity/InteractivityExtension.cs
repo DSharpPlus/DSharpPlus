@@ -556,8 +556,8 @@ namespace DSharpPlus.Interactivity
         /// <param name="deletion">Deletion behaviour</param>
         /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
         public async Task SendPaginatedMessageAsync(
-            DiscordChannel channel, DiscordUser user, IEnumerable<Page> pages, CancellationToken? token, PaginationButtons buttons = null,
-            PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default)
+            DiscordChannel channel, DiscordUser user, IEnumerable<Page> pages, PaginationButtons buttons,
+            PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default, CancellationToken token = default)
         {
             var bhv = behaviour ?? this.Config.PaginationBehaviour;
             var del = deletion ?? this.Config.ButtonBehavior;
@@ -569,14 +569,11 @@ namespace DSharpPlus.Interactivity
 
             var message = await builder.SendAsync(channel).ConfigureAwait(false);
 
-            var req = new ButtonPaginationRequest(message, user, bhv, del, bts, pages.ToArray(), token.Value);
+            var req = new ButtonPaginationRequest(message, user, bhv, del, bts, pages.ToArray(), token);
 
             await builder // We *COULD* just construct a req with a null message and grab the buttons from that, but eh. //
                 .AddComponents(await req.GetButtonsAsync().ConfigureAwait(false))
                 .ModifyAsync(message).ConfigureAwait(false);
-
-            token ??= new CancellationTokenSource(this.Config.Timeout).Token;
-
 
             await this._compPaginator.DoPaginationAsync(req).ConfigureAwait(false);
         }
@@ -585,20 +582,20 @@ namespace DSharpPlus.Interactivity
         /// Sends a paginated message.
         /// For this Event you need the <see cref="DiscordIntents.GuildMessageReactions"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
         /// </summary>
-        /// <param name="c">Channel to send paginated message in.</param>
-        /// <param name="u">User to give control.</param>
+        /// <param name="channel">Channel to send paginated message in.</param>
+        /// <param name="user">User to give control.</param>
         /// <param name="pages">Pages.</param>
         /// <param name="emojis">Pagination emojis.</param>
         /// <param name="behaviour">Pagination behaviour (when hitting max and min indices).</param>
         /// <param name="deletion">Deletion behaviour.</param>
         /// <param name="timeoutoverride">Override timeout period.</param>
-        public async Task SendPaginatedMessageAsync(DiscordChannel c, DiscordUser u, IEnumerable<Page> pages, PaginationEmojis emojis = null,
+        public async Task SendPaginatedMessageAsync(DiscordChannel channel, DiscordUser user, IEnumerable<Page> pages, PaginationEmojis emojis,
             PaginationBehaviour? behaviour = default, PaginationDeletion? deletion = default, TimeSpan? timeoutoverride = null)
         {
             var builder = new DiscordMessageBuilder()
                 .WithContent(pages.First().Content)
                 .WithEmbed(pages.First().Embed);
-            var m = await builder.SendAsync(c).ConfigureAwait(false);
+            var m = await builder.SendAsync(channel).ConfigureAwait(false);
 
             var timeout = timeoutoverride ?? this.Config.Timeout;
 
@@ -606,10 +603,16 @@ namespace DSharpPlus.Interactivity
             var del = deletion ?? this.Config.PaginationDeletion;
             var ems = emojis ?? this.Config.PaginationEmojis;
 
-            var prequest = new PaginationRequest(m, u, bhv, del, ems, timeout, pages.ToArray());
+            var prequest = new PaginationRequest(m, user, bhv, del, ems, timeout, pages.ToArray());
 
             await this.Paginator.DoPaginationAsync(prequest).ConfigureAwait(false);
         }
+
+
+        /// <inheritdoc cref="SendPaginatedMessageAsync(DSharpPlus.Entities.DiscordChannel,DSharpPlus.Entities.DiscordUser,System.Collections.Generic.IEnumerable{DSharpPlus.Interactivity.Page},DSharpPlus.Interactivity.EventHandling.PaginationButtons,System.Nullable{DSharpPlus.Interactivity.Enums.PaginationBehaviour},System.Nullable{DSharpPlus.Interactivity.Enums.ButtonPaginationBehavior},System.Threading.CancellationToken)"/>
+        /// <remarks>This is the "default" overload for SendPaginatedMessageAsync, and will use buttons. Feel free to specify default(PaginationEmojis) to use reactions and emojis specified in <see cref="InteractivityConfiguration"/>, instead. </remarks>
+        public async Task SendPaginatedMessageAsync(DiscordChannel channel, DiscordUser user, IEnumerable<Page> pages, PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default, CancellationToken token = default)
+            => this.SendPaginatedMessageAsync(channel, user, pages, default, behaviour, deletion, token);
 
         /// <summary>
         /// Waits for a custom pagination request to finish.

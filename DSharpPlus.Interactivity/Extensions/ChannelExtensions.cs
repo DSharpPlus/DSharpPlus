@@ -101,8 +101,8 @@ namespace DSharpPlus.Interactivity.Extensions
         /// <param name="deletion">Deletion behaviour</param>
         /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
         /// <exception cref="InvalidOperationException">Thrown if interactivity is not enabled for the client associated with the channel.</exception>
-        public static Task SendPaginatedMessageAsync(this DiscordChannel channel, DiscordUser user, IEnumerable<Page> pages, PaginationButtons buttons = null, PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default, CancellationToken? token = default)
-            => GetInteractivity(channel).SendPaginatedMessageAsync(channel, user, pages, token, buttons, behaviour, deletion);
+        public static Task SendPaginatedMessageAsync(this DiscordChannel channel, DiscordUser user, IEnumerable<Page> pages, PaginationButtons buttons = null, PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default, CancellationToken token = default)
+            => GetInteractivity(channel).SendPaginatedMessageAsync(channel, user, pages, buttons, behaviour, deletion, token);
 
         /// <summary>
         /// Retrieves an interactivity instance from a channel instance.
