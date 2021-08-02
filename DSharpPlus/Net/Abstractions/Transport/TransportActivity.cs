@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
@@ -128,6 +129,9 @@ namespace DSharpPlus.Net.Abstractions
         /// </summary>
         [JsonProperty("secrets", NullValueHandling = NullValueHandling.Ignore)]
         public GameSecrets Secrets { get; internal set; }
+
+        [JsonProperty("buttons", NullValueHandling = NullValueHandling.Ignore)]
+        public IReadOnlyList<string> Buttons { get; internal set; }
 
         internal TransportActivity() { }
 
