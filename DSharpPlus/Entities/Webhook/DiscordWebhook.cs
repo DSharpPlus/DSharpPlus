@@ -78,6 +78,24 @@ namespace DSharpPlus.Entities
         [JsonProperty("token", NullValueHandling = NullValueHandling.Ignore)]
         public string Token { get; internal set; }
 
+        /// <summary>
+        /// A partial guild object for the guild of the channel this channel follower webhook is following.
+        /// </summary>
+        [JsonProperty("source_guild", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordGuild SourceGuild { get; internal set; }
+
+        /// <summary>
+        /// A partial channel object for the channel this channel follower webhook is following.
+        /// </summary>
+        [JsonProperty("source_channel", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordChannel SourceChannel { get; internal set; }
+
+        /// <summary>
+        /// Gets the webhook's url. Only returned when using the webhook.incoming OAuth2 scope.
+        /// </summary>
+        [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
+        public string Url { get; internal set; }
+
         internal DiscordWebhook() { }
 
         /// <summary>
