@@ -589,6 +589,9 @@ namespace DSharpPlus
 
         #region Integration
 
+        /// <summary>
+        /// Fired when an integration is created.
+        /// </summary>
         public event AsyncEventHandler<DiscordClient, IntegrationCreateEventArgs> IntegrationCreated
         {
             add => this._integrationCreated.Register(value);
@@ -596,6 +599,9 @@ namespace DSharpPlus
         }
         private AsyncEvent<DiscordClient, IntegrationCreateEventArgs> _integrationCreated;
 
+        /// <summary>
+        /// Fired when an integration is updated.
+        /// </summary>
         public event AsyncEventHandler<DiscordClient, IntegrationUpdateEventArgs> IntegrationUpdated
         {
             add => this._integrationUpdated.Register(value);
@@ -603,6 +609,9 @@ namespace DSharpPlus
         }
         private AsyncEvent<DiscordClient, IntegrationUpdateEventArgs> _integrationUpdated;
 
+        /// <summary>
+        /// Fired when an integration is deleted.
+        /// </summary>
         public event AsyncEventHandler<DiscordClient, IntegrationDeleteEventArgs> IntegrationDeleted
         {
             add => this._integrationDeleted.Register(value);
