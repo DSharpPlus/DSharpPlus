@@ -38,7 +38,7 @@ namespace DSharpPlus.CommandsNext.Attributes
         public Permissions Permissions { get; }
 
         /// <summary>
-        /// Gets or sets this check's behaviour in DMs. True means the check will always pass in DMs, whereas false means that it will always fail.
+        /// Gets this check's behaviour in DMs. True means the check will always pass in DMs, whereas false means that it will always fail.
         /// </summary>
         public bool IgnoreDms { get; } = true;
 
