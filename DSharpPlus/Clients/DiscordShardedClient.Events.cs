@@ -93,6 +93,16 @@ namespace DSharpPlus
         }
         private AsyncEvent<DiscordClient, HeartbeatEventArgs> _heartbeated;
 
+        /// <summary>
+        /// Fired on heartbeat attempt cancellation due to too many failed heartbeats.
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, ZombiedEventArgs> Zombied
+        {
+            add => this._zombied.Register(value);
+            remove => this._zombied.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ZombiedEventArgs> _zombied;
+
         #endregion
 
         #region Channel
@@ -821,6 +831,9 @@ namespace DSharpPlus
 
         private Task Client_HeartBeated(DiscordClient client, HeartbeatEventArgs e)
             => this._heartbeated.InvokeAsync(client, e);
+
+        private Task Client_Zombied(DiscordClient client, ZombiedEventArgs e)
+            => this._zombied.InvokeAsync(client, e);
 
         private Task Client_ApplicationCommandCreated(DiscordClient client, ApplicationCommandEventArgs e)
             => this._applicationCommandCreated.InvokeAsync(client, e);
