@@ -16,8 +16,8 @@ message builder:
 For sending files, you'll have to use the MessageBuilder to construct your message, see example below:
 
 ```cs
- using (var fs = new FileStream("ADumbFile.txt", FileMode.Open, FileAccess.Read))
- {
+using (var fs = new FileStream("ADumbFile.txt", FileMode.Open, FileAccess.Read))
+{
     var msg = await new DiscordMessageBuilder()
         .WithContent("Here is a really dumb file that I am testing with.")
         .WithFiles(new Dictionary<string, Stream>() { { "ADumbFile1.txt", fs } })
