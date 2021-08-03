@@ -2,6 +2,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Generic;
 
 namespace DSharpPlus.SlashCommands
 {
@@ -82,9 +83,10 @@ namespace DSharpPlus.SlashCommands
         /// Edits the interaction response.
         /// </summary>
         /// <param name="builder">The data to edit the response with.</param>
+        /// <param name="attachments">Attached files to keep.</param>
         /// <returns></returns>
-        public Task<DiscordMessage> EditResponseAsync(DiscordWebhookBuilder builder)
-            => this.Interaction.EditOriginalResponseAsync(builder);
+        public Task<DiscordMessage> EditResponseAsync(DiscordWebhookBuilder builder, IEnumerable<DiscordAttachment> attachments = default)
+            => this.Interaction.EditOriginalResponseAsync(builder, attachments);
 
         /// <summary>
         /// Deletes the interaction response.
@@ -106,9 +108,10 @@ namespace DSharpPlus.SlashCommands
         /// </summary>
         /// <param name="followupMessageId">The id of the followup message to edit.</param>
         /// <param name="builder">The webhook builder.</param>
+        /// <param name="attachments">Attached files to keep.</param>
         /// <returns></returns>
-        public Task<DiscordMessage> EditFollowupAsync(ulong followupMessageId, DiscordWebhookBuilder builder)
-            => this.Interaction.EditFollowupMessageAsync(followupMessageId, builder);
+        public Task<DiscordMessage> EditFollowupAsync(ulong followupMessageId, DiscordWebhookBuilder builder, IEnumerable<DiscordAttachment> attachments = default)
+            => this.Interaction.EditFollowupMessageAsync(followupMessageId, builder, attachments);
 
         /// <summary>
         /// Deletes a followup message.
