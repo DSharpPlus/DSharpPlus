@@ -26,7 +26,7 @@ namespace DSharpPlus.SlashCommands
         public OptionAttribute(string name, string description)
         {
             if(name.Length > 32)
-                throw new ArgumentException("Slash command option names cannot go over 100 characters.");
+                throw new ArgumentException("Slash command option names cannot go over 32 characters.");
             if (description.Length > 100)
                 throw new ArgumentException("Slash command option descriptions cannot go over 100 characters.");
             Name = name.ToLower();

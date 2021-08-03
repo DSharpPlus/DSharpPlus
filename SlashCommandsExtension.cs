@@ -376,11 +376,14 @@ namespace DSharpPlus.SlashCommands
 
             await RunPreexecutionChecksAsync(method, context);
 
-            await (module?.BeforeExecutionAsync(context) ?? Task.CompletedTask);
+            var shouldExecute = await (module?.BeforeExecutionAsync(context) ?? Task.FromResult(true));
 
-            await (Task)method.Invoke(classinstance, args.ToArray());
+            if (shouldExecute)
+            {
+                await (Task)method.Invoke(classinstance, args.ToArray());
 
-            await (module?.AfterExecutionAsync(context) ?? Task.CompletedTask);
+                await (module?.AfterExecutionAsync(context) ?? Task.CompletedTask);
+            }
         }
 
         internal object CreateInstance(Type t, IServiceProvider services)

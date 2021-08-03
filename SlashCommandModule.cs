@@ -11,8 +11,9 @@ namespace DSharpPlus.SlashCommands
         /// Called before the execution of command in the module.
         /// </summary>
         /// <param name="ctx">The context.</param>
-        public virtual Task BeforeExecutionAsync(InteractionContext ctx)
-            => Task.CompletedTask;
+        /// <returns> Whether or not to execute the slash command. </returns>
+        public virtual Task<bool> BeforeExecutionAsync(InteractionContext ctx)
+            => Task.FromResult(true);
 
         /// <summary>
         /// Called after the execution of a command in the module.
