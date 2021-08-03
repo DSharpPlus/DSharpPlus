@@ -138,7 +138,7 @@ namespace DSharpPlus
                 Summary = tapp.Summary,
                 IconHash = tapp.IconHash,
                 RpcOrigins = tapp.RpcOrigins != null ? new ReadOnlyCollection<string>(tapp.RpcOrigins) : null,
-                Flags = 0,
+                Flags = tapp.Flags,
                 RequiresCodeGrant = tapp.BotRequiresCodeGrant,
                 IsPublic = tapp.IsPublicBot,
                 CoverImageHash = null

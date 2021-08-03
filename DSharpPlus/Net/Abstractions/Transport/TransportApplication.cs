@@ -59,6 +59,9 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("team", NullValueHandling = NullValueHandling.Include)]
         public TransportTeam Team { get; set; }
 
+        [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
+        public ApplicationFlags? Flags { get; set; }
+
         // These are dispatch (store) properties - can't imagine them being needed in bots
         //[JsonProperty("verify_key", NullValueHandling = NullValueHandling.Include)]
         //public string VerifyKey { get; set; }
