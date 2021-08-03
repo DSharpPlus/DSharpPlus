@@ -105,6 +105,8 @@ public async Task TestCommand(InteractionContext ctx)
 }
 ```
 You can also override `BeforeExecutionAsync` and `AfterExecutionAsync` to run code before and after all the commands in a module. This does not apply to groups, you have the override them individually for the group's class.
+`BeforeExecutionAsync` can also be used to prevent the command from running.
+
 ### Arguments
 If you want the user to be able to give more data to the command, you can add some arguments.
 
