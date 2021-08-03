@@ -58,7 +58,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the application's flags.
         /// </summary>
-        public int Flags { get; internal set; }
+        public ApplicationFlags? Flags { get; internal set; }
 
         /// <summary>
         /// Gets the application's owners.
