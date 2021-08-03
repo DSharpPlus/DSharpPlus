@@ -85,9 +85,10 @@ namespace DSharpPlus
         /// <param name="iconb64">New guild's icon (base64)</param>
         /// <param name="verification_level">New guild's verification level</param>
         /// <param name="default_message_notifications">New guild's default message notification level</param>
+        /// <param name="system_channel_flags">New guild's system channel flags</param>
         /// <returns></returns>
-        public Task<DiscordGuild> CreateGuildAsync(string name, string region_id, string iconb64, VerificationLevel? verification_level, DefaultMessageNotifications? default_message_notifications)
-            => this.ApiClient.CreateGuildAsync(name, region_id, iconb64, verification_level, default_message_notifications);
+        public Task<DiscordGuild> CreateGuildAsync(string name, string region_id, string iconb64, VerificationLevel? verification_level, DefaultMessageNotifications? default_message_notifications, SystemChannelFlags? system_channel_flags)
+            => this.ApiClient.CreateGuildAsync(name, region_id, iconb64, verification_level, default_message_notifications, system_channel_flags);
 
         /// <summary>
         /// Creates a guild from a template. This requires the bot to be in less than 10 guilds total.

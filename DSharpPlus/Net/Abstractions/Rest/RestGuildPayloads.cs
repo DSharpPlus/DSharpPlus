@@ -58,6 +58,9 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("channels", NullValueHandling = NullValueHandling.Ignore)]
         public IEnumerable<RestChannelCreatePayload> Channels { get; set; }
+
+        [JsonProperty("system_channel_flags", NullValueHandling = NullValueHandling.Ignore)]
+        public SystemChannelFlags? SystemChannelFlags { get; set; }
     }
 
     internal sealed class RestGuildCreateFromTemplatePayload

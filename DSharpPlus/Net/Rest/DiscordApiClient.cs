@@ -217,7 +217,8 @@ namespace DSharpPlus.Net
         }
 
         internal async Task<DiscordGuild> CreateGuildAsync(string name, string region_id, Optional<string> iconb64, VerificationLevel? verification_level,
-            DefaultMessageNotifications? default_message_notifications)
+            DefaultMessageNotifications? default_message_notifications,
+            SystemChannelFlags? system_channel_flags)
         {
             var pld = new RestGuildCreatePayload
             {
@@ -225,7 +226,8 @@ namespace DSharpPlus.Net
                 RegionId = region_id,
                 DefaultMessageNotifications = default_message_notifications,
                 VerificationLevel = verification_level,
-                IconBase64 = iconb64
+                IconBase64 = iconb64,
+                SystemChannelFlags = system_channel_flags
             };
 
             var route = $"{Endpoints.GUILDS}";

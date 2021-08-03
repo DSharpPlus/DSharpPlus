@@ -477,12 +477,14 @@ namespace DSharpPlus
         /// <param name="icon">Stream containing the icon for the guild.</param>
         /// <param name="verificationLevel">Verification level for the guild.</param>
         /// <param name="defaultMessageNotifications">Default message notification settings for the guild.</param>
+        /// <param name="systemChannelFlags">System channel flags fopr the guild.</param>
         /// <returns>The created guild.</returns>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordGuild> CreateGuildAsync(string name, string region = null, Optional<Stream> icon = default, VerificationLevel? verificationLevel = null,
-            DefaultMessageNotifications? defaultMessageNotifications = null)
+            DefaultMessageNotifications? defaultMessageNotifications = null,
+            SystemChannelFlags? systemChannelFlags = null)
         {
             var iconb64 = Optional.FromNoValue<string>();
             if (icon.HasValue && icon.Value != null)
@@ -491,7 +493,7 @@ namespace DSharpPlus
             else if (icon.HasValue)
                 iconb64 = null;
 
-            return this.ApiClient.CreateGuildAsync(name, region, iconb64, verificationLevel, defaultMessageNotifications);
+            return this.ApiClient.CreateGuildAsync(name, region, iconb64, verificationLevel, defaultMessageNotifications, systemChannelFlags);
         }
 
         /// <summary>
