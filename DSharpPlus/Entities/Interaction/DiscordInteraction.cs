@@ -68,7 +68,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public DiscordChannel Channel
-            => (this.Discord as DiscordClient).InternalGetCachedChannel(this.ChannelId);
+            => (this.Discord as DiscordClient).InternalGetCachedChannel(this.ChannelId) ?? (this.Guild == null ? new DiscordDmChannel { Id = this.ChannelId, Type = ChannelType.Private, Discord = this.Discord } : null);
 
         /// <summary>
         /// Gets the user that invoked this interaction.
