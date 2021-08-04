@@ -31,7 +31,7 @@ namespace DSharpPlus.Test
     public class StickerTestCommands : BaseCommandModule
     {
         [Command("send_sticker")]
-        public async Task SendSticker(CommandContext ctx)
+        public async Task SendStickerAsync(CommandContext ctx)
         {
             if (ctx.Message.Stickers.Count() is 0)
             {
