@@ -149,6 +149,13 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Gets a follow up message.
+        /// </summary>
+        /// <param name="messageId">The id of the follow up message.</param>
+        public Task<DiscordMessage> GetFollowupMessageAsync(ulong messageId) =>
+            this.Discord.ApiClient.GetFollowupMessageAsync(this.Discord.CurrentApplication.Id, this.Token, messageId);
+
+        /// <summary>
         /// Edits a follow up message.
         /// </summary>
         /// <param name="messageId">The id of the follow up message.</param>
