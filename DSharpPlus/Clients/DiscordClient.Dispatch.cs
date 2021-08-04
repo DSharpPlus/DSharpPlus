@@ -378,16 +378,16 @@ namespace DSharpPlus
                     await this.OnApplicationCommandDeleteAsync(dat.ToObject<DiscordApplicationCommand>(), (ulong?)dat["guild_id"]).ConfigureAwait(false);
                     break;
 
-                // The following are not documented and thus ignored for the time being.
-                // Please update these if they are documented :)
-
                 case "integration_create":
+                    await this.OnIntegrationCreateAsync(dat.ToObject<DiscordIntegration>(), (ulong)dat["guild_id"]).ConfigureAwait(false);
                     break;
 
                 case "integration_update":
+                    await this.OnIntegrationUpdateAsync(dat.ToObject<DiscordIntegration>(), (ulong)dat["guild_id"]).ConfigureAwait(false);
                     break;
 
                 case "integration_delete":
+                    await this.OnIntegrationDeleteAsync((ulong)dat["id"], (ulong)dat["guild_id"], (ulong?)dat["application_id"]).ConfigureAwait(false);
                     break;
 
                 #endregion
@@ -1849,6 +1849,77 @@ namespace DSharpPlus
             };
 
             await this._applicationCommandDeleted.InvokeAsync(this, ea).ConfigureAwait(false);
+        }
+
+        #endregion
+
+        #region Integration
+
+        internal async Task OnIntegrationCreateAsync(DiscordIntegration integration, ulong guild_id)
+        {
+            var guild = this.InternalGetCachedGuild(guild_id);
+
+            if (guild == null)
+            {
+                guild = new DiscordGuild
+                {
+                    Id = guild_id,
+                    Discord = this
+                };
+            }
+
+            var ea = new IntegrationCreateEventArgs
+            {
+                Guild = guild,
+                Integration = integration
+            };
+
+            await this._integrationCreated.InvokeAsync(this, ea).ConfigureAwait(false);
+        }
+
+        internal async Task OnIntegrationUpdateAsync(DiscordIntegration integration, ulong guild_id)
+        {
+            var guild = this.InternalGetCachedGuild(guild_id);
+
+            if (guild == null)
+            {
+                guild = new DiscordGuild
+                {
+                    Id = guild_id,
+                    Discord = this
+                };
+            }
+
+            var ea = new IntegrationUpdateEventArgs
+            {
+                Guild = guild,
+                Integration = integration
+            };
+
+            await this._integrationUpdated.InvokeAsync(this, ea).ConfigureAwait(false);
+        }
+
+        internal async Task OnIntegrationDeleteAsync(ulong integration_id, ulong guild_id, ulong? application_id)
+        {
+            var guild = this.InternalGetCachedGuild(guild_id);
+
+            if (guild == null)
+            {
+                guild = new DiscordGuild
+                {
+                    Id = guild_id,
+                    Discord = this
+                };
+            }
+
+            var ea = new IntegrationDeleteEventArgs
+            {
+                Guild = guild,
+                Applicationid = application_id,
+                IntegrationId = integration_id
+            };
+
+            await this._integrationDeleted.InvokeAsync(this, ea).ConfigureAwait(false);
         }
 
         #endregion
