@@ -31,7 +31,7 @@ namespace DSharpPlus.Net.Abstractions
         public string Name { get; set; }
 
         [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
-        public string? Description { get; set; }
+        public string Description { get; set; }
 
         [JsonProperty("tags", NullValueHandling = NullValueHandling.Ignore)]
         public string Tags { get; set; }

@@ -92,7 +92,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public IEnumerable<string> Tags
-            => this._internalTags != null ? this._internalTags.Split(',') : Array.Empty<string>();
+            => this.InternalTags != null ? this.InternalTags.Split(',') : Array.Empty<string>();
 
         /// <summary>
         /// Gets the asset hash of the sticker.
@@ -113,7 +113,7 @@ namespace DSharpPlus.Entities
         public StickerFormat FormatType { get; internal set; }
 
         [JsonProperty("tags", NullValueHandling = NullValueHandling.Ignore)]
-        internal string _internalTags { get; set; }
+        internal string InternalTags { get; set; }
 
         public string BannerUrl => $"https://cdn.discordapp.com/app-assets/710982414301790216/store/{this.BannerAssetId}.png?size=4096";
 

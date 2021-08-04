@@ -38,20 +38,20 @@ namespace DSharpPlus.Test
     /// </summary>
     public class TestBotPaginator : IPaginationRequest
     {
-        private readonly List<Page> pages;
+        private readonly List<Page> _pages;
         private readonly TaskCompletionSource<bool> _tcs;
         private readonly CancellationTokenSource _cts;
         private readonly DiscordMessage _msg;
-        private int index = 0;
+        private int _index = 0;
         private readonly PaginationEmojis _emojis;
         private readonly DiscordUser _usr;
 
         public int PageCount
-            => this.pages.Count;
+            => this._pages.Count;
 
         public TestBotPaginator(DiscordClient client, DiscordUser usr, DiscordMessage msg, List<Page> pages)
         {
-            this.pages = pages;
+            this._pages = pages;
             this._tcs = new TaskCompletionSource<bool>();
             this._cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
             this._cts.Token.Register(() => this._tcs.TrySetResult(true));
@@ -68,7 +68,7 @@ namespace DSharpPlus.Test
             return this._emojis;
         }
 
-        public async Task<IEnumerable<DiscordButtonComponent>> GetButtonsAsync()
+        public Task<IEnumerable<DiscordButtonComponent>> GetButtonsAsync()
             => throw new NotSupportedException("This request does not support buttons.");
 
         public async Task<DiscordMessage> GetMessageAsync()
@@ -80,7 +80,7 @@ namespace DSharpPlus.Test
         public async Task<Page> GetPageAsync()
         {
             await Task.Yield();
-            return this.pages[this.index];
+            return this._pages[this._index];
         }
 
         public async Task<TaskCompletionSource<bool>> GetTaskCompletionSourceAsync()
@@ -99,30 +99,30 @@ namespace DSharpPlus.Test
         {
             await Task.Yield();
 
-            if (this.index < this.pages.Count - 1)
-                this.index++;
+            if (this._index < this._pages.Count - 1)
+                this._index++;
         }
 
         public async Task PreviousPageAsync()
         {
             await Task.Yield();
 
-            if (this.index > 0)
-                this.index--;
+            if (this._index > 0)
+                this._index--;
         }
 
         public async Task SkipLeftAsync()
         {
             await Task.Yield();
 
-            this.index = 0;
+            this._index = 0;
         }
 
         public async Task SkipRightAsync()
         {
             await Task.Yield();
 
-            this.index = this.pages.Count - 1;
+            this._index = this._pages.Count - 1;
         }
     }
 }
