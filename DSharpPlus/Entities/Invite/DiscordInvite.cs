@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using System.Globalization;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -117,6 +118,16 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("revoked", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsRevoked { get; internal set; }
+
+        /// <summary>
+        /// Gets the expiration date of this invite.
+        /// </summary>
+        [JsonIgnore]
+        public DateTimeOffset? ExpiresAt
+            => !string.IsNullOrWhiteSpace(this.ExpiresAtRaw) && DateTimeOffset.TryParse(this.ExpiresAtRaw, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dto) ? dto : null;
+
+        [JsonProperty("expires_at", NullValueHandling = NullValueHandling.Ignore)]
+        internal string ExpiresAtRaw { get; set; }
 
         internal DiscordInvite() { }
 

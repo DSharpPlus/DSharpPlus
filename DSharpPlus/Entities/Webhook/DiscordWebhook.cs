@@ -79,6 +79,24 @@ namespace DSharpPlus.Entities
         [JsonProperty("token", NullValueHandling = NullValueHandling.Ignore)]
         public string Token { get; internal set; }
 
+        /// <summary>
+        /// A partial guild object for the guild of the channel this channel follower webhook is following.
+        /// </summary>
+        [JsonProperty("source_guild", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordGuild SourceGuild { get; internal set; }
+
+        /// <summary>
+        /// A partial channel object for the channel this channel follower webhook is following.
+        /// </summary>
+        [JsonProperty("source_channel", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordChannel SourceChannel { get; internal set; }
+
+        /// <summary>
+        /// Gets the webhook's url. Only returned when using the webhook.incoming OAuth2 scope.
+        /// </summary>
+        [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
+        public string Url { get; internal set; }
+
         internal DiscordWebhook() { }
 
         /// <summary>
@@ -149,6 +167,15 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task ExecuteGithubAsync(string json)
             => (this.Discord?.ApiClient ?? this.ApiClient).ExecuteWebhookGithubAsync(this.Id, this.Token, json);
+
+        /// <summary>
+        /// Gets a previously-sent webhook message.
+        /// </summary>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the webhook or message does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<DiscordMessage> GetMessageAsync(ulong messageId)
+            => await (this.Discord?.ApiClient ?? this.ApiClient).GetWebhookMessageAsync(this.Id, this.Token, messageId).ConfigureAwait(false);
 
         /// <summary>
         /// Edits a previously-sent webhook message.
