@@ -68,7 +68,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public DiscordChannel Channel
-            => (this.Discord as DiscordClient).InternalGetCachedChannel(this.ChannelId);
+            => (this.Discord as DiscordClient).InternalGetCachedChannel(this.ChannelId) ?? (this.Guild == null ? new DiscordDmChannel { Id = this.ChannelId, Type = ChannelType.Private, Discord = this.Discord } : null);
 
         /// <summary>
         /// Gets the user that invoked this interaction.
@@ -147,6 +147,13 @@ namespace DSharpPlus.Entities
 
             return await this.Discord.ApiClient.CreateFollowupMessageAsync(this.Discord.CurrentApplication.Id, this.Token, builder);
         }
+
+        /// <summary>
+        /// Gets a follow up message.
+        /// </summary>
+        /// <param name="messageId">The id of the follow up message.</param>
+        public Task<DiscordMessage> GetFollowupMessageAsync(ulong messageId) =>
+            this.Discord.ApiClient.GetFollowupMessageAsync(this.Discord.CurrentApplication.Id, this.Token, messageId);
 
         /// <summary>
         /// Edits a follow up message.
