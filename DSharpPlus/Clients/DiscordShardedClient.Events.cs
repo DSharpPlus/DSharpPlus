@@ -585,6 +585,16 @@ namespace DSharpPlus
         }
         private AsyncEvent<DiscordClient, ApplicationCommandEventArgs> _applicationCommandDeleted;
 
+        /// <summary>
+        /// Fired when the guild application command is updated.
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, GuildApplicationCommandCountEventArgs> GuildApplicationCommandCountUpdated
+        {
+            add => this._guildApplicationCommandCountUpdated.Register(value);
+            remove => this._guildApplicationCommandCountUpdated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, GuildApplicationCommandCountEventArgs> _guildApplicationCommandCountUpdated;
+        
         #endregion
 
         #region Integration
@@ -864,6 +874,9 @@ namespace DSharpPlus
 
         private Task Client_ApplicationCommandDeleted(DiscordClient client, ApplicationCommandEventArgs e)
             => this._applicationCommandDeleted.InvokeAsync(client, e);
+        
+        private Task Client_GuildApplicationCommandCountUpdated(DiscordClient client, GuildApplicationCommandCountEventArgs e)
+            => this._guildApplicationCommandCountUpdated.InvokeAsync(client, e);
 
         private Task Client_IntegrationCreated(DiscordClient client, IntegrationCreateEventArgs e)
             => this._integrationCreated.InvokeAsync(client, e);
