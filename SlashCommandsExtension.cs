@@ -362,14 +362,26 @@ namespace DSharpPlus.SlashCommands
         internal async Task RunCommand(InteractionContext context, MethodInfo method, IEnumerable<object> args)
         {
             object classinstance;
-            if (method.DeclaringType.GetCustomAttribute<SlashModuleLifespanAttribute>() != null && method.DeclaringType.GetCustomAttribute<SlashModuleLifespanAttribute>()?.Lifespan == SlashModuleLifespan.Singleton)
+            SlashModuleLifespan moduleLifespan = (method.DeclaringType.GetCustomAttribute<SlashModuleLifespanAttribute>() != null ? method.DeclaringType.GetCustomAttribute<SlashModuleLifespanAttribute>()?.Lifespan : SlashModuleLifespan.Transient) ?? SlashModuleLifespan.Transient;
+
+            switch (moduleLifespan)
             {
-                classinstance = _singletonModules.First(x => ReferenceEquals(x.GetType(), method.DeclaringType));
+                case SlashModuleLifespan.Scoped:
+                    classinstance = method.IsStatic ? ActivatorUtilities.CreateInstance(_configuration?.Services.CreateScope().ServiceProvider, method.DeclaringType) : CreateInstance(method.DeclaringType, _configuration?.Services);
+                    break;
+                
+                case SlashModuleLifespan.Transient:
+                    classinstance = method.IsStatic ? ActivatorUtilities.CreateInstance(_configuration?.Services, method.DeclaringType) : CreateInstance(method.DeclaringType, _configuration?.Services);
+                    break;
+                
+                case SlashModuleLifespan.Singleton:
+                    classinstance = _singletonModules.First(x => ReferenceEquals(x.GetType(), method.DeclaringType));
+                    break;
+                
+                default:
+                    throw new Exception($"An unknown {nameof(SlashModuleLifespanAttribute)} scope was specified on command {context.CommandName}");
             }
-            else
-            {
-                classinstance = method.IsStatic ? ActivatorUtilities.CreateInstance(_configuration?.Services, method.DeclaringType) : CreateInstance(method.DeclaringType, _configuration?.Services);
-            }
+            
             SlashCommandModule module = null;
             if (classinstance is SlashCommandModule mod)
                 module = mod;
