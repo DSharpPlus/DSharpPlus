@@ -600,6 +600,16 @@ namespace DSharpPlus
         }
         private AsyncEvent<DiscordClient, ApplicationCommandEventArgs> _applicationCommandDeleted;
 
+        /// <summary>
+        /// Fired when a new application command is registered.
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, GuildApplicationCommandCountEventArgs> GuildApplicationCommandCountUpdated
+        {
+            add => this._guildApplicationCommandCountUpdated.Register(value);
+            remove => this._guildApplicationCommandCountUpdated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, GuildApplicationCommandCountEventArgs> _guildApplicationCommandCountUpdated;
+        
         #endregion
 
         #region Integration
