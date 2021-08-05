@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -146,7 +147,7 @@ namespace DSharpPlus.Interactivity
                 throw new ArgumentException("You must specify at least one button to listen for.");
 
             var res = await this.ComponentEventWaiter
-                .WaitForMatchAsync(new(message.Id,
+                .WaitForMatchAsync(new(message.Id.ToString(CultureInfo.InvariantCulture),
                     c =>
                         c.Interaction.Data.ComponentType == ComponentType.Button &&
                         buttons.Any(b => b.CustomId == c.Id), token));
@@ -188,17 +189,15 @@ namespace DSharpPlus.Interactivity
             if (message.Author != this.Client.CurrentUser)
                 throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
 
-            if (message.Components is null || !message.Components.Select(a => a.Components).Any())
+            if (message.Components is null || !message.Components.Select(a => a.Components).OfType<DiscordButtonComponent>().Any())
                 throw new ArgumentException("Message does not contain any buttons.");
 
             var ids = message.Components.SelectMany(m => m.Components).Select(c => c.CustomId);
 
-
-
             var result =
                 await this
                 .ComponentEventWaiter
-                .WaitForMatchAsync(new(message.Id, c => c.Interaction.Data.ComponentType == ComponentType.Button, token))
+                .WaitForMatchAsync(new(message.Id.ToString(), c => c.Interaction.Data.ComponentType == ComponentType.Button && ids.Contains(c.Id), token))
                 .ConfigureAwait(false);
 
             return new(result is null, result);
@@ -237,7 +236,7 @@ namespace DSharpPlus.Interactivity
 
             var result = await this
                 .ComponentEventWaiter
-                .WaitForMatchAsync(new(message.Id, (c) => c.Interaction.Data.ComponentType is ComponentType.Button && c.User == user, token))
+                .WaitForMatchAsync(new(message.Id.ToString(CultureInfo.InvariantCulture), (c) => c.Interaction.Data.ComponentType is ComponentType.Button && c.User == user, token))
                 .ConfigureAwait(false);
 
             return new(result is null, result);
@@ -280,7 +279,7 @@ namespace DSharpPlus.Interactivity
 
             var result = await this
                 .ComponentEventWaiter
-                .WaitForMatchAsync(new(message.Id, (c) => c.Interaction.Data.ComponentType is ComponentType.Button && c.Id == id, token))
+                .WaitForMatchAsync(new($"{id}_{message.Id}", (c) => c.Interaction.Data.ComponentType is ComponentType.Button && c.Id == id, token))
                 .ConfigureAwait(false);
 
             return new(result is null, result);
@@ -319,7 +318,7 @@ namespace DSharpPlus.Interactivity
 
             var result = await this
                 .ComponentEventWaiter
-                .WaitForMatchAsync(new(message.Id, (c) => c.Interaction.Data.ComponentType is ComponentType.Select && c.Id == id, token))
+                .WaitForMatchAsync(new($"{id}_{message.Id}", (c) => c.Interaction.Data.ComponentType is ComponentType.Select && c.Id == id, token))
                 .ConfigureAwait(false);
 
             return new(result is null, result);
@@ -359,11 +358,10 @@ namespace DSharpPlus.Interactivity
 
             var result = await this
                 .ComponentEventWaiter
-                .WaitForMatchAsync(new(message.Id, (c) => c.Id == id && c.User == user, token)).ConfigureAwait(false);
+                .WaitForMatchAsync(new($"{id}_{message.Id}", (c) => c.Id == id && c.User == user, token)).ConfigureAwait(false);
 
             return new(result is null, result);
         }
-
 
         /// <summary>
         /// Waits for a specific message.
