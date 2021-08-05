@@ -389,6 +389,11 @@ namespace DSharpPlus
                 case "integration_delete":
                     await this.OnIntegrationDeleteAsync((ulong)dat["id"], (ulong)dat["guild_id"], (ulong?)dat["application_id"]).ConfigureAwait(false);
                     break;
+                    
+                case "guild_application_command_counts_update":
+                    var counts = dat["application_command_counts"];
+                    await this.OnGuildApplicationCommandCountsUpdateAsync((int)counts["1"], (int)counts["2"], (int)counts["3"], (ulong)dat["guild_id"]).ConfigureAwait(false);
+                    break;
 
                 #endregion
 
@@ -1849,6 +1854,30 @@ namespace DSharpPlus
             };
 
             await this._applicationCommandDeleted.InvokeAsync(this, ea).ConfigureAwait(false);
+        }
+        
+                internal async Task OnGuildApplicationCommandCountsUpdateAsync(int sc, int ucmc, int mcmc, ulong guild_id)
+        {
+            var guild = this.InternalGetCachedGuild(guild_id);
+
+            if (guild == null)
+            {
+                guild = new DiscordGuild
+                {
+                    Id = guild_id,
+                    Discord = this
+                };
+            }
+
+            var ea = new GuildApplicationCommandCountEventArgs
+            {
+                SlashCommands = sc,
+                UserContextMenuCommands = ucmc,
+                MessageContextMenuCommands = mcmc,
+                Guild = guild
+            };
+
+            await this._guildApplicationCommandCountUpdated.InvokeAsync(this, ea).ConfigureAwait(false);
         }
 
         #endregion
