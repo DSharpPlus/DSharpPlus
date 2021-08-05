@@ -24,6 +24,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -104,7 +105,8 @@ namespace DSharpPlus.Interactivity.EventHandling
 
         private async Task Handle(DiscordClient _, ComponentInteractionCreateEventArgs args)
         {
-            if (this._matchRequests.TryGetValue(args.Id, out var mreq))
+            if (this._matchRequests.TryGetValue(args.Id, out var mreq) ||
+                this._matchRequests.TryGetValue(args.Message.Id.ToString(CultureInfo.InvariantCulture), out mreq))
             {
                 if (mreq.IsMatch(args))
                     mreq.Tcs.TrySetResult(args);
@@ -114,7 +116,8 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
 
 
-            if (this._collectRequests.TryGetValue(args.Id, out var creq))
+            if (this._collectRequests.TryGetValue(args.Id, out var creq) ||
+                this._collectRequests.TryGetValue(args.Message.Id.ToString(CultureInfo.InvariantCulture), out creq))
             {
                 await args.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate).ConfigureAwait(false);
 

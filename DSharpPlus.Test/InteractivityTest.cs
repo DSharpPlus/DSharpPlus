@@ -49,11 +49,11 @@ namespace DSharpPlus.Test
             var itv = ctx.Client.GetInteractivity();
             var cts = new CancellationTokenSource();
 
-            var one = itv.WaitForButtonAsync(msg, "button", cts.Token);
-            var two = itv.WaitForSelectAsync(msg, "select", cts.Token);
+        var one = itv.WaitForButtonAsync(msg, "button", cts.Token);
+        var two = itv.WaitForSelectAsync(msg, "select", cts.Token);
 
-            var task = await await Task.WhenAny(one, two);
-            await task.Result?.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
+        var task = await await Task.WhenAny(one, two);
+        await task.Result?.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
 
             if (task.TimedOut)
                 await ctx.RespondAsync("Both timed out, sorry!");
