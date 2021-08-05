@@ -601,7 +601,7 @@ namespace DSharpPlus
         private AsyncEvent<DiscordClient, ApplicationCommandEventArgs> _applicationCommandDeleted;
 
         /// <summary>
-        /// Fired when a new application command is registered.
+        /// Fired when the guild application command is updated.
         /// </summary>
         public event AsyncEventHandler<DiscordClient, GuildApplicationCommandCountEventArgs> GuildApplicationCommandCountUpdated
         {
