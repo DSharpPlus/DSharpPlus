@@ -272,14 +272,14 @@ namespace DSharpPlus.Interactivity
             if (message.Components is null || !message.Components.Select(a => a.Components).Any())
                 throw new ArgumentException("Message does not contain any buttons.");
 
-            if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is ComponentType.Button && c.CustomId == id))
+            if (!message.Components.SelectMany(c => c.Components).OfType<DiscordButtonComponent>().Any(c => c.CustomId == id))
                 throw new ArgumentException($"Message does not contain button with Id of '{id}'.");
 
 
 
             var result = await this
                 .ComponentEventWaiter
-                .WaitForMatchAsync(new($"{id}_{message.Id}", (c) => c.Interaction.Data.ComponentType is ComponentType.Button && c.Id == id, token))
+                .WaitForMatchAsync(new(id, (c) => c.Interaction.Data.ComponentType is ComponentType.Button && c.Id == id, token))
                 .ConfigureAwait(false);
 
             return new(result is null, result);
@@ -318,7 +318,7 @@ namespace DSharpPlus.Interactivity
 
             var result = await this
                 .ComponentEventWaiter
-                .WaitForMatchAsync(new($"{id}_{message.Id}", (c) => c.Interaction.Data.ComponentType is ComponentType.Select && c.Id == id, token))
+                .WaitForMatchAsync(new(id, (c) => c.Interaction.Data.ComponentType is ComponentType.Select && c.Id == id, token))
                 .ConfigureAwait(false);
 
             return new(result is null, result);
@@ -358,7 +358,7 @@ namespace DSharpPlus.Interactivity
 
             var result = await this
                 .ComponentEventWaiter
-                .WaitForMatchAsync(new($"{id}_{message.Id}", (c) => c.Id == id && c.User == user, token)).ConfigureAwait(false);
+                .WaitForMatchAsync(new(id, (c) => c.Id == id && c.User == user, token)).ConfigureAwait(false);
 
             return new(result is null, result);
         }
