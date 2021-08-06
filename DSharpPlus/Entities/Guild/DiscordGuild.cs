@@ -1069,7 +1069,14 @@ namespace DSharpPlus.Entities
         /// <returns>Requested channel.</returns>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public DiscordChannel GetChannel(ulong id)
-            => (this._channels != null && this._channels.TryGetValue(id, out var channel)) ? channel : null;
+        {
+            // force the cache to update if it is either null or the channel is not found
+            if (!this._channels.TryGetValue(id, out var channel) || this._channels == null)
+                this._channels = (ConcurrentDictionary<ulong, DiscordChannel>)
+                    this.Discord.ApiClient.GetGuildChannelsAsync(this.Id).GetAwaiter().GetResult();
+
+            return (channel == null) ? channel : null;
+        }
 
         /// <summary>
         /// Gets audit log entries for this guild.
