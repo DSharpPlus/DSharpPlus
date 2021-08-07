@@ -472,12 +472,12 @@ namespace DSharpPlus.SlashCommands
                         args.Add(option.Value.ToString());
                     else if (parameter.ParameterType.IsEnum)
                         args.Add(Enum.Parse(parameter.ParameterType, (string)option.Value));
-                    else if (ReferenceEquals(parameter.ParameterType, typeof(long)))
-                        args.Add((long)option.Value);
-                    else if (ReferenceEquals(parameter.ParameterType, typeof(bool)))
-                        args.Add((bool)option.Value);
-                    else if (ReferenceEquals(parameter.ParameterType, typeof(double)))
-                        args.Add((double)option.Value);
+                    else if (ReferenceEquals(parameter.ParameterType, typeof(long)) || ReferenceEquals(parameter.ParameterType, typeof(long?)))
+                        args.Add((long?)option.Value);
+                    else if (ReferenceEquals(parameter.ParameterType, typeof(bool)) || ReferenceEquals(parameter.ParameterType, typeof(bool?)))
+                        args.Add((bool?)option.Value);
+                    else if (ReferenceEquals(parameter.ParameterType, typeof(double)) || ReferenceEquals(parameter.ParameterType, typeof(double?)))
+                        args.Add((double?)option.Value);
                     else if (ReferenceEquals(parameter.ParameterType, typeof(DiscordUser)))
                     {
                         if (e.Interaction.Data.Resolved.Members != null &&
@@ -610,11 +610,11 @@ namespace DSharpPlus.SlashCommands
             ApplicationCommandOptionType parametertype;
             if (ReferenceEquals(type, typeof(string)))
                 parametertype = ApplicationCommandOptionType.String;
-            else if (ReferenceEquals(type, typeof(long)))
+            else if (ReferenceEquals(type, typeof(long)) || ReferenceEquals(type, typeof(long?)))
                 parametertype = ApplicationCommandOptionType.Integer;
-            else if (ReferenceEquals(type, typeof(bool)))
+            else if (ReferenceEquals(type, typeof(bool)) || ReferenceEquals(type, typeof(bool?)))
                 parametertype = ApplicationCommandOptionType.Boolean;
-            else if (ReferenceEquals(type, typeof(double)))
+            else if (ReferenceEquals(type, typeof(double)) || ReferenceEquals(type, typeof(double?)))
                 parametertype = ApplicationCommandOptionType.Number;
             else if (ReferenceEquals(type, typeof(DiscordChannel)))
                 parametertype = ApplicationCommandOptionType.Channel;
