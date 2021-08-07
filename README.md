@@ -86,6 +86,8 @@ An interaction expires in 3 seconds unless you make a response. If the code you 
 
 The second argument is a type of [`DiscordInteractionResponseBuilder`](https://dsharpplus.github.io/api/DSharpPlus.Entities.DiscordInteractionResponseBuilder.html). It functions similarly to the DiscordMessageBuilder, except you cannot send files, and you can have multiple embeds.
 
+If you want to send a file, you'll have to edit the response.
+
 A simple response would be like:
 ```cs
 [SlashCommand("test", "A slash command made to test the DSharpPlusSlashCommands library!")]
