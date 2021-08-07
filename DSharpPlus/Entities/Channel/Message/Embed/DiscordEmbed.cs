@@ -33,6 +33,12 @@ namespace DSharpPlus.Entities
     public sealed class DiscordEmbed
     {
         /// <summary>
+        /// Gets the number of character in the embed.
+        /// </summary>
+        [JsonIgnore]
+        public int CharCount { get; internal set; }
+
+        /// <summary>
         /// Gets the embed's title.
         /// </summary>
         [JsonProperty("title", NullValueHandling = NullValueHandling.Ignore)]
