@@ -440,10 +440,7 @@ namespace DSharpPlus.Entities
                 Value = value
             };
 
-            Console.WriteLine(this.CharCount);
-            Console.WriteLine(embed.CharCount);
             this.CharCount += embed.CharCount;
-            Console.WriteLine(this.CharCount);
             this._fields.Add(embed);
             return this;
         }
