@@ -306,7 +306,10 @@ namespace DSharpPlus.SlashCommands
                         CommandName = e.Interaction.Data.Name,
                         InteractionId = e.Interaction.Id,
                         Token = e.Interaction.Token,
-                        Services = _configuration?.Services
+                        Services = _configuration?.Services,
+                        ResolvedUserMentions = e.Interaction.Data.Resolved.Users.Values.ToList(),
+                        ResolvedRoleMentions = e.Interaction.Data.Resolved.Roles.Values.ToList(),
+                        ResolvedChannelMentions = e.Interaction.Data.Resolved.Channels.Values.ToList(),
                     };
 
                     try

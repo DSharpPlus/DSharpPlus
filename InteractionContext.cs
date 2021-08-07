@@ -61,6 +61,21 @@ namespace DSharpPlus.SlashCommands
         /// Gets the name of the command.
         /// </summary>
         public string CommandName { get; internal set; }
+
+        /// <summary>
+        /// Gets the users mentioned in the command parameters.
+        /// </summary>
+        public IReadOnlyList<DiscordUser> ResolvedUserMentions { get; internal set; }
+
+        /// <summary>
+        /// Gets the roles mentioned in the command parameters.
+        /// </summary>
+        public IReadOnlyList<DiscordRole> ResolvedRoleMentions { get; internal set; }
+
+        /// <summary>
+        /// Gets the channels mentioned in the command parameters.
+        /// </summary>
+        public IReadOnlyList<DiscordChannel> ResolvedChannelMentions { get; internal set; }
         
         /// <summary>
         /// <para>Gets the service provider.</para>
