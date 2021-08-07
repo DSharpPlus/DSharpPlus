@@ -443,7 +443,7 @@ namespace DSharpPlus.Entities
         public DiscordEmbedBuilder RemoveFieldAt(int index)
         {
             var field = this._fields[index];
-            this.CharCount -= field.CharCount;
+            this._charCount -= field.CharCount;
             this._fields.RemoveAt(index);
             return this;
         }

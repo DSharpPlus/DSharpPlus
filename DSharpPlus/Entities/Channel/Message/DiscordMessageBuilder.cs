@@ -52,6 +52,21 @@ namespace DSharpPlus.Entities
 
 
         /// <summary>
+        /// Gets the total number of characters within the message's embeds.
+        /// </summary>
+        public int EmbedsCharCount
+        {
+            get => _embedsCharCount;
+            private set
+            {
+                if (_embedsCharCount + value > 6000)
+                    throw new ArgumentException("Total number of characters in a message's embeds may not exceed 6000.");
+                _embedsCharCount += value;
+            }
+        }
+        private int _embedsCharCount;
+
+        /// <summary>
         /// Gets or sets the embed for the builder. This will always set the builder to have one embed.
         /// </summary>
         public DiscordEmbed Embed
@@ -205,6 +220,7 @@ namespace DSharpPlus.Entities
             if (embed == null)
                 return this;
 
+            this.EmbedsCharCount += embed.CharCount;
             this.Embed = embed;
             return this;
         }
@@ -218,6 +234,8 @@ namespace DSharpPlus.Entities
         {
             if (embed == null)
                 return this; //Providing null embeds will produce a 400 response from Discord.//
+
+            this.EmbedsCharCount += embed.CharCount;
             this._embeds.Add(embed);
             return this;
         }
@@ -229,7 +247,11 @@ namespace DSharpPlus.Entities
         /// <returns>The current builder to be chained.</returns>
         public DiscordMessageBuilder AddEmbeds(IEnumerable<DiscordEmbed> embeds)
         {
-            this._embeds.AddRange(embeds);
+            foreach (var embed in embeds)
+            {
+                this.EmbedsCharCount += embed.CharCount;
+                this._embeds.Add(embed);
+            }
             return this;
         }
 
@@ -377,6 +399,7 @@ namespace DSharpPlus.Entities
         public void Clear()
         {
             this.Content = "";
+            this._embedsCharCount = 0;
             this._embeds.Clear();
             this.IsTTS = false;
             this.Mentions = null;
