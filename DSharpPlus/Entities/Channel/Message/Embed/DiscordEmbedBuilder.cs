@@ -42,9 +42,9 @@ namespace DSharpPlus.Entities
             get => _charCount;
             private set
             {
-                if (_charCount + value > 6000)
+                if (value > 6000)
                     throw new ArgumentException("Total number of characters in an embed may not exceed 6000");
-                _charCount += value;
+                this._charCount = value;
             }
         }
         private int _charCount;
@@ -57,9 +57,15 @@ namespace DSharpPlus.Entities
             get => this._title;
             set
             {
-                if (value != null && value.Length > 256)
-                    throw new ArgumentException("Title length cannot exceed 256 characters.", nameof(value));
-                this.CharCount += value.Length;
+                this._charCount -= this._title == null ? 0 : this._title.Length;
+
+                if (value != null)
+                {
+                    if (value.Length > 256)
+                        throw new ArgumentException("Title length cannot exceed 256 characters.", nameof(value));
+                    this.CharCount += value.Length;
+                }
+
                 this._title = value;
             }
         }
@@ -73,9 +79,15 @@ namespace DSharpPlus.Entities
             get => this._description;
             set
             {
-                if (value != null && value.Length > 4096)
-                    throw new ArgumentException("Description length cannot exceed 4096 characters.", nameof(value));
-                this.CharCount += value.Length;
+                this._charCount -= this._description == null ? 0 : this._description.Length;
+
+                if (value != null)
+                {
+                    if (value.Length > 4096)
+                        throw new ArgumentException("Description length cannot exceed 4096 characters.", nameof(value));
+                    this.CharCount += value.Length;
+                }
+
                 this._description = value;
             }
         }
@@ -352,8 +364,7 @@ namespace DSharpPlus.Entities
             {
                 if (name.Length > 256)
                     throw new ArgumentException("Author name length cannot exceed 256 characters.", nameof(name));
-                else
-                    this.CharCount += name.Length;
+                this.CharCount += name.Length;
             }
 
             this.Author = string.IsNullOrEmpty(name) && string.IsNullOrEmpty(url) && string.IsNullOrEmpty(iconUrl)
@@ -379,8 +390,7 @@ namespace DSharpPlus.Entities
             {
                 if (text.Length > 2048)
                     throw new ArgumentException("Footer text length cannot exceed 2048 characters.", nameof(text));
-                else
-                    this.CharCount += text.Length;
+                this.CharCount += text.Length;
             }
 
             this.Footer = string.IsNullOrEmpty(text) && string.IsNullOrEmpty(iconUrl)
@@ -430,7 +440,10 @@ namespace DSharpPlus.Entities
                 Value = value
             };
 
+            Console.WriteLine(this.CharCount);
+            Console.WriteLine(embed.CharCount);
             this.CharCount += embed.CharCount;
+            Console.WriteLine(this.CharCount);
             this._fields.Add(embed);
             return this;
         }

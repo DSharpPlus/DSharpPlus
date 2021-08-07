@@ -45,6 +45,7 @@ namespace DSharpPlus.Entities
             get => _name;
             set
             {
+                this.CharCount -= this._name == null ? 0 : this._name.Length;
                 this._name = value;
                 this.CharCount += value == null ? 0 : value.Length;
             }
@@ -60,6 +61,7 @@ namespace DSharpPlus.Entities
             get => _value;
             set
             {
+                this.CharCount -= this._value == null ? 0 : this._value.Length;
                 this._value = value;
                 this.CharCount += value == null ? 0 : value.Length;
             }

@@ -59,9 +59,9 @@ namespace DSharpPlus.Entities
             get => _embedsCharCount;
             private set
             {
-                if (_embedsCharCount + value > 6000)
+                if (value > 6000)
                     throw new ArgumentException("Total number of characters in a message's embeds may not exceed 6000.");
-                _embedsCharCount += value;
+                _embedsCharCount = value;
             }
         }
         private int _embedsCharCount;
