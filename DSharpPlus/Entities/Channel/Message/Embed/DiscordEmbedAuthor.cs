@@ -33,6 +33,12 @@ namespace DSharpPlus.Entities
     public sealed class DiscordEmbedAuthor
     {
         /// <summary>
+        /// Gets the number of characters in the author.
+        /// </summary>
+        [JsonIgnore]
+        public int CharCount => this.Name == null ? 0 : this.Name.Length;
+
+        /// <summary>
         /// Gets the name of the author.
         /// </summary>
         [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]

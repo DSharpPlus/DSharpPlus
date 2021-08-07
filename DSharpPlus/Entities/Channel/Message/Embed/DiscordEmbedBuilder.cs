@@ -533,7 +533,7 @@ namespace DSharpPlus.Entities
             /// <summary>
             /// Gets the number of characters in the author.
             /// </summary>
-            public int CharCount => this._name.Length;
+            public int CharCount => this._name == null ? 0 : this._name.Length;
 
             /// <summary>
             /// Gets or sets the name of the author.
@@ -579,7 +579,7 @@ namespace DSharpPlus.Entities
             /// <summary>
             /// Gets the number of characters in the footer.
             /// </summary>
-            public int CharCount => this._text.Length;
+            public int CharCount => this._text == null ? 0 : this._text.Length;
 
             /// <summary>
             /// Gets or sets the text of the footer.

@@ -32,6 +32,12 @@ namespace DSharpPlus.Entities
     public sealed class DiscordEmbedFooter
     {
         /// <summary>
+        /// Gets the number of characters in the footer.
+        /// </summary>
+        [JsonIgnore]
+        public int CharCount => this.Text == null ? 0 : this.Text.Length;
+
+        /// <summary>
         /// Gets the footer's text.
         /// </summary>
         [JsonProperty("text", NullValueHandling = NullValueHandling.Ignore)]
