@@ -1071,10 +1071,17 @@ namespace DSharpPlus.Entities
         public DiscordChannel GetChannel(ulong id)
             => (this._channels != null && this._channels.TryGetValue(id, out var channel)) ? channel : null;
 
+        /// <summary>
+        /// Gets a channel from this guild by its ID, and if it is not found cached, requests it from the API.
+        /// </summary>
+        /// <param name="id">Id of the channel to get.</param>
+        /// <returns>Requested channel.</returns>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown then the client does not have permission to access the channel.</exception>
         public async Task<DiscordChannel> GetChannelAsync(ulong id)
         {
             if (!this._channels.TryGetValue(id, out var channel) || this._channels == null )
-                _channels = (ConcurrentDictionary<ulong, DiscordChannel>)await this.Discord.ApiClient.GetGuildChannelsAsync(this.Id);
+                this._channels = (ConcurrentDictionary<ulong, DiscordChannel>)await this.Discord.ApiClient.GetGuildChannelsAsync(this.Id);
 
             if (channel == null)
                 this._channels.TryGetValue(id, out channel);
