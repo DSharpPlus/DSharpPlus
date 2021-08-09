@@ -215,13 +215,11 @@ namespace DSharpPlus.SlashCommands
                             {
                                 var commandattribute = method.GetCustomAttribute<SlashCommandAttribute>();
 
-                                var options = new List<DiscordApplicationCommandOption>();
-
                                 var parameters = method.GetParameters();
                                 if (parameters.Length == 0 || parameters == null || !ReferenceEquals(parameters.FirstOrDefault()?.ParameterType, typeof(InteractionContext)))
                                     throw new ArgumentException($"The first argument must be an InteractionContext!");
                                 parameters = parameters.Skip(1).ToArray();
-                                options = options.Concat(await ParseParameters(parameters)).ToList();
+                                var options = await ParseParameters(parameters);
 
                                 commandMethods.Add(new CommandMethod { Method = method, Name = commandattribute.Name });
 
@@ -370,7 +368,7 @@ namespace DSharpPlus.SlashCommands
             switch (moduleLifespan)
             {
                 case SlashModuleLifespan.Scoped:
-                    classinstance = method.IsStatic ? ActivatorUtilities.CreateInstance(_configuration?.Services.CreateScope().ServiceProvider, method.DeclaringType) : CreateInstance(method.DeclaringType, _configuration?.Services);
+                    classinstance = method.IsStatic ? ActivatorUtilities.CreateInstance(_configuration?.Services.CreateScope().ServiceProvider, method.DeclaringType) : CreateInstance(method.DeclaringType, _configuration?.Services.CreateScope().ServiceProvider);
                     break;
                 
                 case SlashModuleLifespan.Transient:
