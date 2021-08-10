@@ -21,38 +21,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using DSharpPlus.Entities;
 
-namespace DSharpPlus.Net
+namespace DSharpPlus.EventArgs
 {
     /// <summary>
-    /// Represents a multipart HTTP request.
+    /// Represents arguments for <see cref="DiscordClient.IntegrationUpdated"/>
     /// </summary>
-    internal sealed class MultipartWebRequest : BaseRestRequest
+    public sealed class IntegrationUpdateEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// Gets the dictionary of values attached to this request.
+        /// Gets the integration.
         /// </summary>
-        public IReadOnlyDictionary<string, string> Values { get; }
+        public DiscordIntegration Integration { get; internal set; }
 
         /// <summary>
-        /// Gets the dictionary of files attached to this request.
+        /// Gets the guild the integration was updated in.
         /// </summary>
-        public IReadOnlyCollection<DiscordMessageFile> Files { get; }
-
-        internal bool _removeFileCount;
-
-        internal MultipartWebRequest(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, string route, IReadOnlyDictionary<string, string> headers = null, IReadOnlyDictionary<string, string> values = null,
-            IReadOnlyCollection<DiscordMessageFile> files = null, double? ratelimit_wait_override = null, bool removeFileCount = false)
-            : base(client, bucket, url, method, route, headers, ratelimit_wait_override)
-        {
-            this.Values = values;
-            this.Files = files;
-            this._removeFileCount = removeFileCount;
-        }
+        public DiscordGuild Guild { get; internal set; }
     }
 }

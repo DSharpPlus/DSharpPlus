@@ -657,6 +657,40 @@ namespace DSharpPlus
 
         #endregion
 
+        #region Integration
+
+        /// <summary>
+        /// Fired when an integration is created.
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, IntegrationCreateEventArgs> IntegrationCreated
+        {
+            add => this._integrationCreated.Register(value);
+            remove => this._integrationCreated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, IntegrationCreateEventArgs> _integrationCreated;
+
+        /// <summary>
+        /// Fired when an integration is updated.
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, IntegrationUpdateEventArgs> IntegrationUpdated
+        {
+            add => this._integrationUpdated.Register(value);
+            remove => this._integrationUpdated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, IntegrationUpdateEventArgs> _integrationUpdated;
+
+        /// <summary>
+        /// Fired when an integration is deleted.
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, IntegrationDeleteEventArgs> IntegrationDeleted
+        {
+            add => this._integrationDeleted.Register(value);
+            remove => this._integrationDeleted.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, IntegrationDeleteEventArgs> _integrationDeleted;
+
+        #endregion
+
         #region Misc
 
         /// <summary>
@@ -900,6 +934,15 @@ namespace DSharpPlus
 
         private Task Client_ApplicationCommandDeleted(DiscordClient client, ApplicationCommandEventArgs e)
             => this._applicationCommandDeleted.InvokeAsync(client, e);
+
+        private Task Client_IntegrationCreated(DiscordClient client, IntegrationCreateEventArgs e)
+            => this._integrationCreated.InvokeAsync(client, e);
+
+        private Task Client_IntegrationUpdated(DiscordClient client, IntegrationUpdateEventArgs e)
+            => this._integrationUpdated.InvokeAsync(client, e);
+
+        private Task Client_IntegrationDeleted(DiscordClient client, IntegrationDeleteEventArgs e)
+            => this._integrationDeleted.InvokeAsync(client, e);
 
         #endregion
     }

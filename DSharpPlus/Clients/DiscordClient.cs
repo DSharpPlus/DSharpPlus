@@ -206,6 +206,9 @@ namespace DSharpPlus
             this._applicationCommandCreated = new AsyncEvent<DiscordClient, ApplicationCommandEventArgs>("APPLICATION_COMMAND_CREATED", EventExecutionLimit, this.EventErrorHandler);
             this._applicationCommandUpdated = new AsyncEvent<DiscordClient, ApplicationCommandEventArgs>("APPLICATION_COMMAND_UPDATED", EventExecutionLimit, this.EventErrorHandler);
             this._applicationCommandDeleted = new AsyncEvent<DiscordClient, ApplicationCommandEventArgs>("APPLICATION_COMMAND_DELETED", EventExecutionLimit, this.EventErrorHandler);
+            this._integrationCreated = new AsyncEvent<DiscordClient, IntegrationCreateEventArgs>("INTEGRATION_CREATED", EventExecutionLimit, this.EventErrorHandler);
+            this._integrationUpdated = new AsyncEvent<DiscordClient, IntegrationUpdateEventArgs>("INTEGRATION_UPDATED", EventExecutionLimit, this.EventErrorHandler);
+            this._integrationDeleted = new AsyncEvent<DiscordClient, IntegrationDeleteEventArgs>("INTEGRATION_DELETED", EventExecutionLimit, this.EventErrorHandler);
 
             this._threadCreated = new AsyncEvent<DiscordClient, ThreadCreateEventArgs>("THREAD_CREATED", EventExecutionLimit, this.EventErrorHandler);
             this._threadUpdated = new AsyncEvent<DiscordClient, ThreadUpdateEventArgs>("THREAD_UPDATED", EventExecutionLimit, this.EventErrorHandler);
@@ -362,6 +365,13 @@ namespace DSharpPlus
         /// <returns>The specified sticker</returns>
         public Task<DiscordMessageSticker> GetStickerAsync(ulong stickerId)
             => this.ApiClient.GetStickerAsync(stickerId);
+
+        /// <summary>
+        /// Gets a collection of sticker packs that may be used by nitro users.
+        /// </summary>
+        /// <returns></returns>
+        public Task<IReadOnlyList<DiscordMessageStickerPack>> GetStickerPacksAsync()
+            => this.ApiClient.GetStickerPacksAsync();
 
         /// <summary>
         /// Gets a user
@@ -553,12 +563,13 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="code">The invite code.</param>
         /// <param name="withCounts">Whether to include presence and total member counts in the returned invite.</param>
+        /// <param name="withExpiration">Whether to include the expiration date in the returned invite.</param>
         /// <returns>The requested Invite.</returns>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the invite does not exists.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordInvite> GetInviteByCodeAsync(string code, bool? withCounts = null)
-            => this.ApiClient.GetInviteAsync(code, withCounts);
+        public Task<DiscordInvite> GetInviteByCodeAsync(string code, bool? withCounts = null, bool? withExpiration = null)
+            => this.ApiClient.GetInviteAsync(code, withCounts, withExpiration);
 
         /// <summary>
         /// Gets a list of connections
@@ -911,6 +922,9 @@ namespace DSharpPlus
 
             foreach (var newEmoji in newGuild._emojis.Values)
                 _ = guild._emojis.GetOrAdd(newEmoji.Id, _ => newEmoji);
+
+            foreach (var newSticker in newGuild._stickers.Values)
+                _ = guild._stickers.GetOrAdd(newSticker.Id, _ => newSticker);
 
             if (rawMembers != null)
             {

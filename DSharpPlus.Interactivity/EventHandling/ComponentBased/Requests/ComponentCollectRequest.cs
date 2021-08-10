@@ -34,6 +34,6 @@ namespace DSharpPlus.Interactivity.EventHandling
     {
         public ConcurrentBag<ComponentInteractionCreateEventArgs> Collected { get; private set; }
 
-        public ComponentCollectRequest(ulong id, Func<ComponentInteractionCreateEventArgs, bool> predicate, CancellationToken cancellation) : base(id, predicate, cancellation) { }
+        public ComponentCollectRequest(string id, Func<ComponentInteractionCreateEventArgs, bool> predicate, CancellationToken cancellation) : base(id, predicate, cancellation) { }
     }
 }

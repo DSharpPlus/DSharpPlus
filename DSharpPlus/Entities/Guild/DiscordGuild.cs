@@ -1174,6 +1174,7 @@ namespace DSharpPlus.Entities
                 DiscordAuditLogEntry entry = null;
                 ulong t1, t2;
                 int t3, t4;
+                long t5, t6;
                 bool p1, p2;
                 switch (xac.ActionType)
                 {
@@ -1793,6 +1794,94 @@ namespace DSharpPlus.Entities
                             }
                         }
                         break;
+                        
+                    case AuditLogActionType.StickerCreate:
+                    case AuditLogActionType.StickerDelete:
+                    case AuditLogActionType.StickerUpdate:
+                        entry = new DiscordAuditLogStickerEntry
+                        {
+                            Target = this._stickers.TryGetValue(xac.TargetId.Value, out var sticker) ? sticker : new DiscordMessageSticker { Id = xac.TargetId.Value, Discord = this.Discord }
+                        };
+
+                        var entrysti = entry as DiscordAuditLogStickerEntry;
+                        foreach (var xc in xac.Changes)
+                        {
+                                switch (xc.Key.ToLowerInvariant())
+                                {
+                                    case "name":
+                                        entrysti.NameChange = new PropertyChange<string>
+                                        {
+                                            Before = xc.OldValueString,
+                                            After = xc.NewValueString
+                                        };
+                                        break;
+                                    case "description":
+                                        entrysti.DescriptionChange = new PropertyChange<string>
+                                        {
+                                            Before = xc.OldValueString,
+                                            After = xc.NewValueString
+                                        };
+                                        break;
+                                    case "tags":
+                                        entrysti.TagsChange = new PropertyChange<string>
+                                        {
+                                            Before = xc.OldValueString,
+                                            After = xc.NewValueString
+                                        };
+                                        break;
+                                    case "guild_id":
+                                        entrysti.GuildIdChange = new PropertyChange<ulong?>
+                                        {
+                                            Before = ulong.TryParse(xc.OldValueString, out var ogid) ? ogid : null,
+                                            After = ulong.TryParse(xc.NewValueString, out var ngid) ? ngid : null
+                                        };
+                                        break;
+                                    case "available":
+                                        entrysti.AvailabilityChange = new PropertyChange<bool?>
+                                        {
+                                            Before = (bool?)xc.OldValue,
+                                            After = (bool?)xc.NewValue,
+                                        };
+                                        break;
+                                    case "asset":
+                                        entrysti.AssetChange = new PropertyChange<string>
+                                        {
+                                            Before = xc.OldValueString,
+                                            After = xc.NewValueString
+                                        };
+                                        break;
+                                    case "id":
+                                        entrysti.IdChange = new PropertyChange<ulong?>
+                                        {
+                                            Before = ulong.TryParse(xc.OldValueString, out var oid) ? oid : null,
+                                            After = ulong.TryParse(xc.NewValueString, out var nid) ? nid : null
+                                        };
+                                        break;
+                                    case "type":
+                                        p1 = long.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t5);
+                                        p2 = long.TryParse(xc.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t6);
+                                        entrysti.TypeChange = new PropertyChange<StickerType?>
+                                        {
+                                            Before = p1 ? (StickerType?)t5 : null,
+                                            After = p2 ? (StickerType?)t6 : null
+                                        };
+                                        break;
+                                    case "format_type":
+                                        p1 = long.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t5);
+                                        p2 = long.TryParse(xc.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t6);
+                                        entrysti.FormatChange = new PropertyChange<StickerFormat?>
+                                        {
+                                            Before = p1 ? (StickerFormat?)t5 : null,
+                                            After = p2 ? (StickerFormat?)t6 : null
+                                        };
+                                        break;
+
+                                    default:
+                                        this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in sticker update: {0} - this should be reported to library developers", xc.Key);
+                                        break;
+                                }
+                        }
+                        break;
 
                     case AuditLogActionType.MessageDelete:
                     case AuditLogActionType.MessageBulkDelete:
@@ -1933,9 +2022,9 @@ namespace DSharpPlus.Entities
 
                 entry.ActionCategory = xac.ActionType switch
                 {
-                    AuditLogActionType.ChannelCreate or AuditLogActionType.EmojiCreate or AuditLogActionType.InviteCreate or AuditLogActionType.OverwriteCreate or AuditLogActionType.RoleCreate or AuditLogActionType.WebhookCreate or AuditLogActionType.IntegrationCreate => AuditLogActionCategory.Create,
-                    AuditLogActionType.ChannelDelete or AuditLogActionType.EmojiDelete or AuditLogActionType.InviteDelete or AuditLogActionType.MessageDelete or AuditLogActionType.MessageBulkDelete or AuditLogActionType.OverwriteDelete or AuditLogActionType.RoleDelete or AuditLogActionType.WebhookDelete or AuditLogActionType.IntegrationDelete => AuditLogActionCategory.Delete,
-                    AuditLogActionType.ChannelUpdate or AuditLogActionType.EmojiUpdate or AuditLogActionType.InviteUpdate or AuditLogActionType.MemberRoleUpdate or AuditLogActionType.MemberUpdate or AuditLogActionType.OverwriteUpdate or AuditLogActionType.RoleUpdate or AuditLogActionType.WebhookUpdate or AuditLogActionType.IntegrationUpdate => AuditLogActionCategory.Update,
+                    AuditLogActionType.ChannelCreate or AuditLogActionType.EmojiCreate or AuditLogActionType.InviteCreate or AuditLogActionType.OverwriteCreate or AuditLogActionType.RoleCreate or AuditLogActionType.WebhookCreate or AuditLogActionType.IntegrationCreate or AuditLogActionType.StickerCreate => AuditLogActionCategory.Create,
+                    AuditLogActionType.ChannelDelete or AuditLogActionType.EmojiDelete or AuditLogActionType.InviteDelete or AuditLogActionType.MessageDelete or AuditLogActionType.MessageBulkDelete or AuditLogActionType.OverwriteDelete or AuditLogActionType.RoleDelete or AuditLogActionType.WebhookDelete or AuditLogActionType.IntegrationDelete or AuditLogActionType.StickerDelete => AuditLogActionCategory.Delete,
+                    AuditLogActionType.ChannelUpdate or AuditLogActionType.EmojiUpdate or AuditLogActionType.InviteUpdate or AuditLogActionType.MemberRoleUpdate or AuditLogActionType.MemberUpdate or AuditLogActionType.OverwriteUpdate or AuditLogActionType.RoleUpdate or AuditLogActionType.WebhookUpdate or AuditLogActionType.IntegrationUpdate or AuditLogActionType.StickerUpdate => AuditLogActionCategory.Update,
                     _ => AuditLogActionCategory.Other,
                 };
                 entry.Discord = this.Discord;
@@ -2150,12 +2239,66 @@ namespace DSharpPlus.Entities
         /// <returns>The modified screening form.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client doesn't have the <see cref="Permissions.ManageGuild"/> permission, or community is not enabled on this guild.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordGuildMembershipScreening> ModifyMembershipScreeningFormAsync(Action<MembershipScreeningEditModel> action)
+        public Task<DiscordGuildMembershipScreening> ModifyMembershipScreeningFormAsync(Action<MembershipScreeningEditModel> action)
         {
             var mdl = new MembershipScreeningEditModel();
             action(mdl);
-            return await this.Discord.ApiClient.ModifyGuildMembershipScreeningFormAsync(this.Id, mdl.Enabled, mdl.Fields, mdl.Description);
+            return this.Discord.ApiClient.ModifyGuildMembershipScreeningFormAsync(this.Id, mdl.Enabled, mdl.Fields, mdl.Description);
         }
+
+        /// <summary>
+        /// Gets a list of stickers from this guild.
+        /// </summary>
+        /// <returns></returns>
+        public Task<IReadOnlyList<DiscordMessageSticker>> GetStickersAsync()
+            => this.Discord.ApiClient.GetGuildStickersAsync(this.Id);
+
+        /// <summary>
+        /// Gets a sticker from this guild.
+        /// </summary>
+        /// <param name="stickerId">The id of the sticker.</param>
+        /// <returns></returns>
+        public Task<DiscordMessageSticker> GetStickerAsync(ulong stickerId)
+            => this.Discord.ApiClient.GetGuildStickerAsync(this.Id, stickerId);
+
+        /// <summary>
+        /// Creates a sticker in this guild.
+        /// </summary>
+        /// <param name="name">The name of the sticker.</param>
+        /// <param name="description">The description of the sticker.</param>
+        /// <param name="tags">The tags of the sticker.</param>
+        /// <param name="imageContents">The image content of the sticker.</param>
+        /// <param name="format">The image format of the sticker.</param>
+        /// <returns></returns>
+        public Task<DiscordMessageSticker> CreateStickerAsync(string name, string description, string tags, Stream imageContents, StickerFormat format)
+        {
+            string contentType = null, extension = null;
+
+            if(format == StickerFormat.PNG || format == StickerFormat.APNG)
+            {
+                contentType = "image/png";
+                extension = "png";
+            }
+            else
+            {
+                contentType = "application/json";
+                extension = "json";
+            }
+
+
+            return this.Discord.ApiClient.CreateGuildStickerAsync(this.Id, name, description ?? string.Empty, tags, new DiscordMessageFile(null, imageContents, null, extension, contentType));
+        }
+
+
+        public Task<DiscordMessageSticker> ModifyStickerAsync(ulong stickerId, Action<StickerEditModel> action)
+        {
+            var mdl = new StickerEditModel();
+            action(mdl);
+            return this.Discord.ApiClient.ModifyStickerAsync(this.Id, stickerId, mdl.Name, mdl.Description, mdl.Tags);
+        }
+
+        public Task DeleteStickerAsync(ulong stickerId)
+            => this.Discord.ApiClient.DeleteStickerAsync(this.Id, stickerId);
 
         /// <summary>
         /// Gets all the slash commands in this guild.

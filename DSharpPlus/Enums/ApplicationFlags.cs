@@ -20,54 +20,43 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-using System.Collections.Generic;
-using Newtonsoft.Json;
 
-namespace DSharpPlus.Entities
+
+namespace DSharpPlus
 {
     /// <summary>
-    /// Represents a Discord message sticker pack.
+    /// Represents flags for a discord application.
     /// </summary>
-    public sealed class DiscordMessageStickerPack : SnowflakeObject
+    public enum ApplicationFlags
     {
         /// <summary>
-        /// Gets the stickers contained in this pack.
+        /// Indicates that the application is approved for the <see cref="DiscordIntents.GuildPresences"/> intent.
         /// </summary>
-        public IReadOnlyDictionary<ulong, DiscordMessageSticker> Stickers => this._stickers;
-
-        [JsonProperty("stickers")]
-        internal Dictionary<ulong, DiscordMessageSticker> _stickers = new();
+        GatewayPresence = 1 << 12,
 
         /// <summary>
-        /// Gets the name of this sticker pack.
+        /// Indicates that the application is awaiting approval for the <see cref="DiscordIntents.GuildPresences"/> intent.
         /// </summary>
-        [JsonProperty("name")]
-        public string Name { get; internal set; }
+        GatewayPresenceLimited = 1 << 13,
 
         /// <summary>
-        /// Gets the Id of this pack's SKU.
+        /// Indicates that the application is approved for the <see cref="DiscordIntents.GuildMembers"/> intent.
         /// </summary>
-        [JsonProperty("sku_id")]
-        public ulong SkuId { get; internal set; }
+        GatewayGuildMembers = 1 << 14,
 
         /// <summary>
-        /// Gets the Id of this pack's cover.
+        /// Indicates that the application is awaiting approval for the <see cref="DiscordIntents.GuildMembers"/> intent.
         /// </summary>
-        [JsonProperty("cover_sticker_id")]
-        public ulong CoverStickerId { get; internal set; }
+        GatewayGuildMembersLimited = 1 << 15,
 
         /// <summary>
-        /// Gets the description of this sticker pack.
+        /// Indicates that the application is awaiting verification.
         /// </summary>
-        [JsonProperty("description")]
-        public string Description { get; internal set; }
+        VerificationPendingGuildLimit = 1 << 16,
 
         /// <summary>
-        /// Gets the Id of the sticker pack's banner image.
+        /// Indicates that the application is a voice channel application.
         /// </summary>
-        [JsonProperty("banner_asset_id")]
-        public ulong BannerAssetId { get; internal set; }
-
-        internal DiscordMessageStickerPack() { }
+        Embedded = 1 << 17
     }
 }

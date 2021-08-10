@@ -20,6 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+using DSharpPlus.Entities;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Abstractions
@@ -30,7 +31,7 @@ namespace DSharpPlus.Net.Abstractions
         public string Name { get; set; }
 
         [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
-        public string? Description { get; set; }
+        public string Description { get; set; }
 
         [JsonProperty("tags", NullValueHandling = NullValueHandling.Ignore)]
         public string Tags { get; set; }
@@ -39,12 +40,12 @@ namespace DSharpPlus.Net.Abstractions
     internal class RestStickerModifyPayload
     {
         [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
-        public string? Name { get; set; }
+        public Optional<string> Name { get; set; }
 
         [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
-        public string? Description { get; set; }
+        public Optional<string> Description { get; set; }
 
         [JsonProperty("tags", NullValueHandling = NullValueHandling.Ignore)]
-        public string? Tags { get; set; }
+        public Optional<string> Tags { get; set; }
     }
 }
