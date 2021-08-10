@@ -51,6 +51,16 @@ namespace DSharpPlus.Entities
         public string IconHash { get; internal set; }
 
         /// <summary>
+        /// Gets the application's terms of service URL.
+        /// </summary>
+        public string? TermsOfServiceUrl { get; internal set; }
+
+        /// <summary>
+        /// Gets the application's privacy policy URL.
+        /// </summary>
+        public string? PrivacyPolicyUrl { get; internal set; }
+
+        /// <summary>
         /// Gets the application's allowed RPC origins.
         /// </summary>
         public IReadOnlyList<string> RpcOrigins { get; internal set; }
