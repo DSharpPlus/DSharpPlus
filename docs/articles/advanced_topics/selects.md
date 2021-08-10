@@ -51,7 +51,7 @@ Dropdown options are somewhat more involved than handling buttons, but they're s
 
 Dropdowns can have up to **25** options, but must have at least 1.
 
-Dropdown articles consist of several parts:
+Dropdown options consist of several parts:
 
 - Label
 - Value
