@@ -20,37 +20,24 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-using System.Linq;
-using System.Threading.Tasks;
-using DSharpPlus.CommandsNext;
-using DSharpPlus.CommandsNext.Attributes;
+
 using DSharpPlus.Entities;
 
-namespace DSharpPlus.Test
+namespace DSharpPlus.EventArgs
 {
-    public class StickerTestCommands : BaseCommandModule
+    /// <summary>
+    /// Represents arguments for <see cref="DiscordClient.IntegrationCreated"/>
+    /// </summary>
+    public sealed class IntegrationCreateEventArgs : DiscordEventArgs
     {
-        [Command("send_sticker")]
-        public async Task SendStickerAsync(CommandContext ctx)
-        {
-            if (ctx.Message.Stickers.Count() is 0)
-            {
-                await ctx.RespondAsync("Send a sticker!");
-                return;
-            }
+        /// <summary>
+        /// Gets the integration.
+        /// </summary>
+        public DiscordIntegration Integration { get; internal set; }
 
-            var str = ctx.Message.Stickers.First();
-
-            if (!ctx.Guild.Stickers.TryGetValue(str.Id, out _))
-            {
-                await ctx.RespondAsync("Send a sticker from this guild!");
-                return;
-            }
-
-            var builder = new DiscordMessageBuilder();
-            builder.Sticker = str;
-
-            await ctx.RespondAsync(builder);
-        }
+        /// <summary>
+        /// Gets the guild the integration was added to.
+        /// </summary>
+        public DiscordGuild Guild { get; internal set; }
     }
 }

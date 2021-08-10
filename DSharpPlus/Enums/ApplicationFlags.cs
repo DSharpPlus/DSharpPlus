@@ -20,39 +20,43 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using DSharpPlus.EventArgs;
 
-namespace DSharpPlus.Interactivity.EventHandling
+
+namespace DSharpPlus
 {
     /// <summary>
-    /// Represents a match that is being waited for.
+    /// Represents flags for a discord application.
     /// </summary>
-    internal class ComponentMatchRequest
+    public enum ApplicationFlags
     {
         /// <summary>
-        /// The id to wait on. This should be uniquely formatted to avoid collisions.
+        /// Indicates that the application is approved for the <see cref="DiscordIntents.GuildPresences"/> intent.
         /// </summary>
-        public string Id { get; private set; }
+        GatewayPresence = 1 << 12,
 
         /// <summary>
-        /// The completion source that represents the result of the match.
+        /// Indicates that the application is awaiting approval for the <see cref="DiscordIntents.GuildPresences"/> intent.
         /// </summary>
-        public TaskCompletionSource<ComponentInteractionCreateEventArgs> Tcs { get; private set; } = new();
+        GatewayPresenceLimited = 1 << 13,
 
-        protected readonly CancellationToken _cancellation;
-        protected readonly Func<ComponentInteractionCreateEventArgs, bool> _predicate;
+        /// <summary>
+        /// Indicates that the application is approved for the <see cref="DiscordIntents.GuildMembers"/> intent.
+        /// </summary>
+        GatewayGuildMembers = 1 << 14,
 
-        public ComponentMatchRequest(string id, Func<ComponentInteractionCreateEventArgs, bool> predicate, CancellationToken cancellation)
-        {
-            this.Id = id;
-            this._predicate = predicate;
-            this._cancellation = cancellation;
-            this._cancellation.Register(() => this.Tcs.TrySetResult(null)); // TrySetCancelled would probably be better but I digress ~Velvet //
-        }
+        /// <summary>
+        /// Indicates that the application is awaiting approval for the <see cref="DiscordIntents.GuildMembers"/> intent.
+        /// </summary>
+        GatewayGuildMembersLimited = 1 << 15,
 
-        public bool IsMatch(ComponentInteractionCreateEventArgs args) => this._predicate(args);
+        /// <summary>
+        /// Indicates that the application is awaiting verification.
+        /// </summary>
+        VerificationPendingGuildLimit = 1 << 16,
+
+        /// <summary>
+        /// Indicates that the application is a voice channel application.
+        /// </summary>
+        Embedded = 1 << 17
     }
 }
