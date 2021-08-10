@@ -20,37 +20,45 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-using System.Linq;
+using System;
+using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using DSharpPlus.Interactivity.Extensions;
 
 namespace DSharpPlus.Test
 {
-    public class StickerTestCommands : BaseCommandModule
+    public class InteractivityTest : BaseCommandModule
     {
-        [Command("send_sticker")]
-        public async Task SendStickerAsync(CommandContext ctx)
+        [Command("wait")]
+        public async Task WaitForCompsAsync(CommandContext ctx)
         {
-            if (ctx.Message.Stickers.Count() is 0)
-            {
-                await ctx.RespondAsync("Send a sticker!");
-                return;
-            }
+            var comps = new DiscordMessageBuilder()
+                .WithContent("** **")
+                .AddComponents(new DiscordButtonComponent(ButtonStyle.Primary, "button", "Push me"))
+                .AddComponents(new DiscordSelectComponent("select", "Context menus coming soon", new DiscordSelectComponentOption[]
+                {
+                    new DiscordSelectComponentOption("1", "one", "The first"),
+                    new DiscordSelectComponentOption("2", "two", "The second"),
+                }));
 
-            var str = ctx.Message.Stickers.First();
+            var msg = await comps.SendAsync(ctx.Channel);
 
-            if (!ctx.Guild.Stickers.TryGetValue(str.Id, out _))
-            {
-                await ctx.RespondAsync("Send a sticker from this guild!");
-                return;
-            }
+            var itv = ctx.Client.GetInteractivity();
+            var cts = new CancellationTokenSource();
 
-            var builder = new DiscordMessageBuilder();
-            builder.Sticker = str;
+        var one = itv.WaitForButtonAsync(msg, "button", cts.Token);
+        var two = itv.WaitForSelectAsync(msg, "select", cts.Token);
 
-            await ctx.RespondAsync(builder);
+        var task = await await Task.WhenAny(one, two);
+        await task.Result?.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
+
+            if (task.TimedOut)
+                await ctx.RespondAsync("Both timed out, sorry!");
+            else
+                await ctx.RespondAsync($"You picked the {task.Result.Id}");
         }
     }
 }

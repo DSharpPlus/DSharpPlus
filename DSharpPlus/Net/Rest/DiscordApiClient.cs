@@ -772,7 +772,7 @@ namespace DSharpPlus.Net
 
         #region Stickers
 
-        internal async Task<DiscordMessageSticker> GetGuildStickerAsync(ulong sticker_id, ulong guild_id)
+        internal async Task<DiscordMessageSticker> GetGuildStickerAsync(ulong guild_id, ulong sticker_id)
         {
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.STICKERS}/:sticker_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new {guild_id, sticker_id}, out var path);
@@ -855,22 +855,17 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessageSticker> CreateGuildStickerAsync(ulong guild_id, string name, string? description, string tags, DiscordMessageFile file)
+        internal async Task<DiscordMessageSticker> CreateGuildStickerAsync(ulong guild_id, string name, string description, string tags, DiscordMessageFile file)
         {
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.STICKERS}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new {guild_id}, out var path);
             var url = Utilities.GetApiUriFor(path);
 
-            var pld = new RestStickerCreatePayload()
-            {
-                Name = name,
-                Description = description,
-                Tags = tags
-            };
-
             var values = new Dictionary<string, string>
             {
-                ["payload_json"] = DiscordJson.SerializeObject(pld)
+                ["name"] = name,
+                ["description"] = description,
+                ["tags"] = tags,
             };
 
             var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, null, values, new[] {file});
@@ -889,10 +884,10 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessageSticker> ModifyStickerAsync(ulong guild_id, ulong sticker_id, string? name, string? description, string? tags)
+        internal async Task<DiscordMessageSticker> ModifyStickerAsync(ulong guild_id, ulong sticker_id, Optional<string> name, Optional<string> description, Optional<string> tags)
         {
-            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.STICKERS}";
-            var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new {guild_id}, out var path);
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.STICKERS}/:sticker_id";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new {guild_id, sticker_id}, out var path);
             var url = Utilities.GetApiUriFor(path);
 
             var pld = new RestStickerModifyPayload()
@@ -902,12 +897,7 @@ namespace DSharpPlus.Net
                 Tags = tags
             };
 
-            var values = new Dictionary<string, string>
-            {
-                ["payload_json"] = DiscordJson.SerializeObject(pld)
-            };
-
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, payload: DiscordJson.SerializeObject(pld));
             var ret = JObject.Parse(res.Response).ToDiscordObject<DiscordMessageSticker>();
             ret.Discord = this.Discord;
 
@@ -1209,7 +1199,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content, Optional<IEnumerable<DiscordEmbed>> embeds, IEnumerable<IMention> mentions, IReadOnlyList<DiscordActionRowComponent> components, IReadOnlyCollection<DiscordMessageFile> files, MessageFlags? flags)
+        internal async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content, Optional<IEnumerable<DiscordEmbed>> embeds, IEnumerable<IMention> mentions, IReadOnlyList<DiscordActionRowComponent> components, IReadOnlyCollection<DiscordMessageFile> files, MessageFlags? flags, IEnumerable<DiscordAttachment> attachments)
         {
             if (embeds.HasValue && embeds.Value != null)
                 foreach (var embed in embeds.Value)
@@ -1223,7 +1213,8 @@ namespace DSharpPlus.Net
                 HasEmbed = embeds.HasValue && (embeds.Value?.Any() ?? false),
                 Embeds = embeds.HasValue && (embeds.Value?.Any() ?? false) ? embeds.Value : null,
                 Components = components,
-                Flags = flags
+                Flags = flags,
+                Attachments = attachments
             };
 
             if (mentions != null)
@@ -2105,11 +2096,14 @@ namespace DSharpPlus.Net
         #endregion
 
         #region Invite
-        internal async Task<DiscordInvite> GetInviteAsync(string invite_code, bool? with_counts)
+        internal async Task<DiscordInvite> GetInviteAsync(string invite_code, bool? with_counts, bool? with_expiration)
         {
             var urlparams = new Dictionary<string, string>();
             if (with_counts.HasValue)
+            {
                 urlparams["with_counts"] = with_counts?.ToString();
+                urlparams["with_expiration"] = with_expiration?.ToString();
+            }
 
             var route = $"{Endpoints.INVITES}/:invite_code";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { invite_code }, out var path);
@@ -2275,7 +2269,20 @@ namespace DSharpPlus.Net
 
             return ret;
         }
+        
+        internal async Task<DiscordMessage> GetWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong message_id)
+        {
+            var route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token{Endpoints.MESSAGES}/:message_id";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { webhook_id, webhook_token, message_id }, out var path);
 
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route);
+
+            var ret = JsonConvert.DeserializeObject<DiscordMessage>(res.Response);
+            ret.Discord = this.Discord;
+            return ret;
+        }
+        
         internal async Task<DiscordWebhook> ModifyWebhookAsync(ulong webhook_id, ulong channelId, string name, Optional<string> base64_avatar, string reason)
         {
             var pld = new RestWebhookPayload
@@ -2420,7 +2427,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessage> EditWebhookMessageAsync(ulong webhook_id, string webhook_token, string message_id, DiscordWebhookBuilder builder)
+        internal async Task<DiscordMessage> EditWebhookMessageAsync(ulong webhook_id, string webhook_token, string message_id, DiscordWebhookBuilder builder, IEnumerable<DiscordAttachment> attachments)
         {
             builder.Validate(true);
 
@@ -2430,6 +2437,7 @@ namespace DSharpPlus.Net
                 Embeds = builder.Embeds,
                 Mentions = builder.Mentions,
                 Components = builder.Components,
+                Attachments = attachments
             };
 
             var route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token{Endpoints.MESSAGES}/:message_id";
@@ -2452,8 +2460,8 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal Task<DiscordMessage> EditWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong message_id, DiscordWebhookBuilder builder) =>
-            this.EditWebhookMessageAsync(webhook_id, webhook_token, message_id.ToString(), builder);
+        internal Task<DiscordMessage> EditWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong message_id, DiscordWebhookBuilder builder, IEnumerable<DiscordAttachment> attachments) =>
+            this.EditWebhookMessageAsync(webhook_id, webhook_token, message_id.ToString(), builder, attachments);
 
         internal async Task DeleteWebhookMessageAsync(ulong webhook_id, string webhook_token, string message_id)
         {
@@ -2942,8 +2950,8 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal Task<DiscordMessage> EditOriginalInteractionResponseAsync(ulong application_id, string interaction_token, DiscordWebhookBuilder builder) =>
-            this.EditWebhookMessageAsync(application_id, interaction_token, "@original", builder);
+        internal Task<DiscordMessage> EditOriginalInteractionResponseAsync(ulong application_id, string interaction_token, DiscordWebhookBuilder builder, IEnumerable<DiscordAttachment> attachments) =>
+            this.EditWebhookMessageAsync(application_id, interaction_token, "@original", builder, attachments);
 
         internal Task DeleteOriginalInteractionResponseAsync(ulong application_id, string interaction_token) =>
             this.DeleteWebhookMessageAsync(application_id, interaction_token, "@original");
@@ -2988,9 +2996,12 @@ namespace DSharpPlus.Net
             ret.Discord = this.Discord;
             return ret;
         }
+        
+        internal Task<DiscordMessage> GetFollowupMessageAsync(ulong application_id, string interaction_token, ulong message_id) =>
+            this.GetWebhookMessageAsync(application_id, interaction_token, message_id);
 
-        internal Task<DiscordMessage> EditFollowupMessageAsync(ulong application_id, string interaction_token, ulong message_id, DiscordWebhookBuilder builder) =>
-            this.EditWebhookMessageAsync(application_id, interaction_token, message_id, builder);
+        internal Task<DiscordMessage> EditFollowupMessageAsync(ulong application_id, string interaction_token, ulong message_id, DiscordWebhookBuilder builder, IEnumerable<DiscordAttachment> attachments) =>
+            this.EditWebhookMessageAsync(application_id, interaction_token, message_id, builder, attachments);
 
         internal Task DeleteFollowupMessageAsync(ulong application_id, string interaction_token, ulong message_id) =>
             this.DeleteWebhookMessageAsync(application_id, interaction_token, message_id);

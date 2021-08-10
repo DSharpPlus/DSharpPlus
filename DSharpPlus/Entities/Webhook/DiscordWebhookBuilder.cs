@@ -256,7 +256,7 @@ namespace DSharpPlus.Entities
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
         public DiscordWebhookBuilder AddFiles(Dictionary<string, Stream> files, bool resetStreamPosition = false)
         {
-            if (this.Files.Count() + files.Count() >= 10)
+            if (this.Files.Count() + files.Count() > 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
             foreach (var file in files)

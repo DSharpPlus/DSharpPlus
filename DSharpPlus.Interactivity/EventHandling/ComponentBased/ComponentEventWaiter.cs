@@ -24,6 +24,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -43,8 +44,8 @@ namespace DSharpPlus.Interactivity.EventHandling
     {
         private readonly DiscordClient _client;
         private readonly ConcurrentHashSet<ComponentMatchRequest> _emptyMatchIds = new();
-        private readonly ConcurrentDictionary<ulong, ComponentMatchRequest> _matchRequests = new();
-        private readonly ConcurrentDictionary<ulong, ComponentCollectRequest> _collectRequests = new();
+        private readonly ConcurrentDictionary<string, ComponentMatchRequest> _matchRequests = new();
+        private readonly ConcurrentDictionary<string, ComponentCollectRequest> _collectRequests = new();
 
         private readonly DiscordFollowupMessageBuilder _message;
         private readonly InteractivityConfiguration _config;
@@ -104,14 +105,9 @@ namespace DSharpPlus.Interactivity.EventHandling
 
         private async Task Handle(DiscordClient _, ComponentInteractionCreateEventArgs args)
         {
-            if (this._matchRequests.TryGetValue(args.Message.Id, out var mreq))
+            if (this._matchRequests.TryGetValue(args.Id, out var mreq) ||
+                this._matchRequests.TryGetValue(args.Message.Id.ToString(CultureInfo.InvariantCulture), out mreq))
             {
-                if (this._config.AckPaginationButtons)
-                {
-                    await args.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate).ConfigureAwait(false);
-                    args.Handled = true;
-                }
-
                 if (mreq.IsMatch(args))
                     mreq.Tcs.TrySetResult(args);
 
@@ -120,7 +116,8 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
 
 
-            if (this._collectRequests.TryGetValue(args.Message.Id, out var creq))
+            if (this._collectRequests.TryGetValue(args.Id, out var creq) ||
+                this._collectRequests.TryGetValue(args.Message.Id.ToString(CultureInfo.InvariantCulture), out creq))
             {
                 await args.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate).ConfigureAwait(false);
 

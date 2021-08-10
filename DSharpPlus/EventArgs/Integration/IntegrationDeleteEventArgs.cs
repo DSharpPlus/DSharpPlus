@@ -20,54 +20,29 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-using System.Collections.Generic;
-using Newtonsoft.Json;
 
-namespace DSharpPlus.Entities
+using DSharpPlus.Entities;
+
+namespace DSharpPlus.EventArgs
 {
     /// <summary>
-    /// Represents a Discord message sticker pack.
+    /// Represents arguments for <see cref="DiscordClient.IntegrationDeleted"/>
     /// </summary>
-    public sealed class DiscordMessageStickerPack : SnowflakeObject
+    public sealed class IntegrationDeleteEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// Gets the stickers contained in this pack.
+        /// Gets the id of the integration.
         /// </summary>
-        public IReadOnlyDictionary<ulong, DiscordMessageSticker> Stickers => this._stickers;
-
-        [JsonProperty("stickers")]
-        internal Dictionary<ulong, DiscordMessageSticker> _stickers = new();
+        public ulong IntegrationId { get; internal set; }
 
         /// <summary>
-        /// Gets the name of this sticker pack.
+        /// Gets the guild the integration was removed from.
         /// </summary>
-        [JsonProperty("name")]
-        public string Name { get; internal set; }
+        public DiscordGuild Guild { get; internal set; }
 
         /// <summary>
-        /// Gets the Id of this pack's SKU.
+        /// Gets the id of the bot or OAuth2 application for the integration.
         /// </summary>
-        [JsonProperty("sku_id")]
-        public ulong SkuId { get; internal set; }
-
-        /// <summary>
-        /// Gets the Id of this pack's cover.
-        /// </summary>
-        [JsonProperty("cover_sticker_id")]
-        public ulong CoverStickerId { get; internal set; }
-
-        /// <summary>
-        /// Gets the description of this sticker pack.
-        /// </summary>
-        [JsonProperty("description")]
-        public string Description { get; internal set; }
-
-        /// <summary>
-        /// Gets the Id of the sticker pack's banner image.
-        /// </summary>
-        [JsonProperty("banner_asset_id")]
-        public ulong BannerAssetId { get; internal set; }
-
-        internal DiscordMessageStickerPack() { }
+        public ulong? Applicationid { get; internal set; }
     }
 }
