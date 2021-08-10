@@ -451,7 +451,7 @@ namespace DSharpPlus.Net
                         if (f.FileType != null)
                             f.FileName += '.' + f.FileType;
 
-                        var count = mprequest._removeFileCount ? i++.ToString(CultureInfo.InvariantCulture) : string.Empty;
+                        var count = !mprequest._removeFileCount ? i++.ToString(CultureInfo.InvariantCulture) : string.Empty;
 
                         content.Add(sc, $"file{count}", f.FileName);
                     }
