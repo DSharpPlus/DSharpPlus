@@ -33,9 +33,9 @@ namespace DSharpPlus.Interactivity.EventHandling
     internal class ComponentMatchRequest
     {
         /// <summary>
-        /// The id of the message to wait on.
+        /// The id to wait on. This should be uniquely formatted to avoid collisions.
         /// </summary>
-        public ulong Id { get; private set; }
+        public string Id { get; private set; }
 
         /// <summary>
         /// The completion source that represents the result of the match.
@@ -45,7 +45,7 @@ namespace DSharpPlus.Interactivity.EventHandling
         protected readonly CancellationToken _cancellation;
         protected readonly Func<ComponentInteractionCreateEventArgs, bool> _predicate;
 
-        public ComponentMatchRequest(ulong id, Func<ComponentInteractionCreateEventArgs, bool> predicate, CancellationToken cancellation)
+        public ComponentMatchRequest(string id, Func<ComponentInteractionCreateEventArgs, bool> predicate, CancellationToken cancellation)
         {
             this.Id = id;
             this._predicate = predicate;
