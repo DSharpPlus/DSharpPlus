@@ -163,7 +163,7 @@ namespace DSharpPlus.Interactivity
         /// <exception cref="InvalidOperationException">Thrown when attempting to wait for a message that is not authored by the current user.</exception>
         /// <exception cref="ArgumentException">Thrown when the message does not contain a button with the specified Id, or any buttons at all.</exception>
         public Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(DiscordMessage message)
-            => this.WaitForButtonAsync(message);
+            => this.WaitForButtonAsync(message, null);
 
         /// <summary>
         /// Waits for any button on the specified message to be pressed.
