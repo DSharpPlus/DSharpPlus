@@ -99,6 +99,7 @@ namespace DSharpPlus.Entities
 
             var optionsList = options != null ? new ReadOnlyCollection<DiscordApplicationCommandOption>(options.ToList()) : null;
 
+            this.Type = type;
             this.Name = name;
             this.Description = description;
             this.Options = optionsList;
