@@ -140,7 +140,7 @@ namespace DSharpPlus.Interactivity
             if (message.Author != this.Client.CurrentUser)
                 throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
 
-            if (message.Components is null || !message.Components.Select(a => a.Components).Any())
+            if (message.Components is null || !message.Components.Any(a => a.Components.Any(c => c is DiscordButtonComponent)))
                 throw new ArgumentException("Message does not contain any buttons.");
 
             if (!buttons.Any())
@@ -189,7 +189,7 @@ namespace DSharpPlus.Interactivity
             if (message.Author != this.Client.CurrentUser)
                 throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
 
-            if (message.Components is null || !message.Components.Select(a => a.Components).OfType<DiscordButtonComponent>().Any())
+            if (message.Components is null || !message.Components.Any(a => a.Components.Any(c => c is DiscordButtonComponent)))
                 throw new ArgumentException("Message does not contain any buttons.");
 
             var ids = message.Components.SelectMany(m => m.Components).Select(c => c.CustomId);
@@ -229,7 +229,7 @@ namespace DSharpPlus.Interactivity
             if (message.Author != this.Client.CurrentUser)
                 throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
 
-            if (message.Components is null || !message.Components.Select(a => a.Components).Any())
+            if (message.Components is null || !message.Components.Any(a => a.Components.Any(c => c is DiscordButtonComponent)))
                 throw new ArgumentException("Message does not contain any buttons.");
 
 
@@ -269,7 +269,7 @@ namespace DSharpPlus.Interactivity
             if (message.Author != this.Client.CurrentUser)
                 throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
 
-            if (message.Components is null || !message.Components.Select(a => a.Components).Any())
+            if (message.Components is null || !message.Components.Any(a => a.Components.Any(c => c is DiscordButtonComponent)))
                 throw new ArgumentException("Message does not contain any buttons.");
 
             if (!message.Components.SelectMany(c => c.Components).OfType<DiscordButtonComponent>().Any(c => c.CustomId == id))
