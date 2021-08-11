@@ -90,7 +90,6 @@ namespace DSharpPlus.Entities
             }
             else
             {
-
                 if (!string.IsNullOrWhiteSpace(description))
                     throw new ArgumentException("Context menus do not support descriptions.");
 
