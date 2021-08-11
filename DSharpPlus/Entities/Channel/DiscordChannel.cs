@@ -556,6 +556,22 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Gets the threads that are public and archived for this channel.
+        /// </summary>
+        /// <returns>List of all the threads that are public and archived for this channel, in descending order by their archive time.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ReadMessageHistory"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<IReadOnlyList<DiscordThreadChannel>> ListPublicArchivedThreadsAsync()
+        {
+            if (this.Type != ChannelType.Text && this.Type != ChannelType.News)
+                throw new System.InvalidOperationException();
+
+            return await this.Discord.ApiClient.ListPublicArchivedThreadsAsync(this.GuildId.Value, this.Id, null, default);
+        }
+
+        /// <summary>
         /// Deletes multiple messages if they are less than 14 days old.  If they are older, none of the messages will be deleted and you will receive a <see cref="Exceptions.BadRequestException"/> error.
         /// </summary>
         /// <param name="messages">A collection of messages to delete.</param>

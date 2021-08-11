@@ -110,6 +110,7 @@ namespace DSharpPlus.Entities
         /// Removes the given DiscordMember from this thread. Requires an unarchived thread and send message permissions.
         /// </summary>
         /// <param name="member">The member to remove from the thread.</param>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageThreads"/> permission.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task RemoveThreadMemberAsync(DiscordMember member)
         {

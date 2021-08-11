@@ -59,7 +59,7 @@ namespace DSharpPlus
             }
 
             DiscordChannel chn;
-            DiscordThreadChannel trd;
+            DiscordThreadChannel thread;
             ulong gid;
             ulong cid;
             TransportUser usr = default;
@@ -350,23 +350,23 @@ namespace DSharpPlus
                 #region Thread
 
                 case "thread_create":
-                    trd = dat.ToDiscordObject<DiscordThreadChannel>();
-                    await this.OnThreadCreateEventAsync(trd).ConfigureAwait(false);
+                    thread = dat.ToDiscordObject<DiscordThreadChannel>();
+                    await this.OnThreadCreateEventAsync(thread).ConfigureAwait(false);
                     break;
 
                 case "thread_update":
-                    trd = dat.ToDiscordObject<DiscordThreadChannel>();
-                    await this.OnThreadUpdateEventAsync(trd).ConfigureAwait(false);
+                    thread = dat.ToDiscordObject<DiscordThreadChannel>();
+                    await this.OnThreadUpdateEventAsync(thread).ConfigureAwait(false);
                     break;
 
                 case "thread_delete":
-                    trd = dat.ToDiscordObject<DiscordThreadChannel>();
-                    await this.OnThreadDeleteEventAsync(trd).ConfigureAwait(false);
+                    thread = dat.ToDiscordObject<DiscordThreadChannel>();
+                    await this.OnThreadDeleteEventAsync(thread).ConfigureAwait(false);
                     break;
 
                 case "thread_list_sync":
                     gid = (ulong)dat["guild_id"]; //get guild
-                    await this.OnThreadListSyncEventAsync(this._guilds[gid], dat["channel_ids"].ToDiscordObject<IReadOnlyList<ulong?>>(), dat["threads"].ToObject<IReadOnlyList<DiscordThreadChannel>>(), dat["members"].ToObject<IReadOnlyList<DiscordThreadChannelMember>>()).ConfigureAwait(false);
+                    await this.OnThreadListSyncEventAsync(this._guilds[gid], dat["channel_ids"].ToDiscordObject<IReadOnlyList<ulong>>(), dat["threads"].ToObject<IReadOnlyList<DiscordThreadChannel>>(), dat["members"].ToObject<IReadOnlyList<DiscordThreadChannelMember>>()).ConfigureAwait(false);
                     break;
 
                 case "thread_member_update":
@@ -1914,11 +1914,11 @@ namespace DSharpPlus
             await this._threadDeleted.InvokeAsync(this, new ThreadDeleteEventArgs { Thread = thread, Guild = thread.Guild, Parent = thread.Parent}).ConfigureAwait(false);
         }
 
-        internal async Task OnThreadListSyncEventAsync(DiscordGuild guild, IReadOnlyList<ulong?> channel_ids, IReadOnlyList<DiscordThreadChannel> threads, IReadOnlyList<DiscordThreadChannelMember> members)
+        internal async Task OnThreadListSyncEventAsync(DiscordGuild guild, IReadOnlyList<ulong>? channel_ids, IReadOnlyList<DiscordThreadChannel> threads, IReadOnlyList<DiscordThreadChannelMember> members)
         {
             guild.Discord = this;
+            var channels = channel_ids.Select(x => guild.GetChannel(x) ?? new DiscordChannel{ Id = x, GuildId = guild.Id}); //getting channel objects
 
-            var channels = channel_ids.Select(x => guild.GetChannel(x.Value)); //getting channel objects
             foreach (var channel in channels)
             {
                 channel.Discord = this;

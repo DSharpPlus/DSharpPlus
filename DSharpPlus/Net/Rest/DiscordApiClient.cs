@@ -1609,21 +1609,49 @@ namespace DSharpPlus.Net
 
             return new ReadOnlyCollection<DiscordThreadChannel>(parsed.threads);
         }
-        internal async Task ListPublicArchivedThreadsAsync(ulong channel_id, ulong? fetchBefore, int? limit)
+
+        internal async Task<IReadOnlyList<DiscordThreadChannel>> ListPublicArchivedThreadsAsync(ulong guild_id, ulong channel_id, ulong? before, int limit)
         {
-            throw new NotImplementedException();
-            // READ_MESSAGE_HISTORY permission.
-            // Threads are ordered by archive_timestamp, in descending order
+            // Permission: READ_MESSAGE_HISTORY permission.
+            // Ordered by archive_timestamp, in descending order
+            // Handle "has_more" //Test params
+
+            var queryParams = new Dictionary<string, string>();
+            if (before != null)
+                queryParams["before"] = before?.ToString(CultureInfo.InvariantCulture);
+            if (limit > 0)
+                queryParams["limit"] = limit.ToString(CultureInfo.InvariantCulture);
 
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.THREADS}{Endpoints.ARCHIVED}{Endpoints.PUBLIC}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id}, out var path);
 
-            var url = Utilities.GetApiUriFor(path);
+            var url = Utilities.GetApiUriFor(path, queryParams.Any() ? BuildQueryString(queryParams) : "");
             var response = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
+
+            var parsed = new 
+            {
+                threads = new List<DiscordThreadChannel>(),
+                members = new List<DiscordThreadChannelMember>()
+            };
+            parsed = JsonConvert.DeserializeAnonymousType(response.Response, parsed);
+
+            foreach (var thread in parsed.threads)
+                thread.Discord = this.Discord;
+            foreach (var member in parsed.members)
+            {
+                member.Discord = this.Discord;
+                member._guild_id = guild_id;
+                var thread = parsed.threads.SingleOrDefault(x => x.Id == member.ThreadId);
+                if (thread != null)
+                    thread.CurrentMember = member;
+            }
+
+            return new ReadOnlyCollection<DiscordThreadChannel>(parsed.threads);
         }
 
         internal async Task ListPrivateArchivedThreadsAsync()
         {
+            //Permissions: READ_MESSAGE_HISTORY & MANAGE_THREADS
             throw new NotImplementedException();
         }
 
