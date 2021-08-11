@@ -26,7 +26,7 @@ using Newtonsoft.Json;
 namespace DSharpPlus.Entities
 {
     /// <summary>
-    /// Represents a permission for a slash command.
+    /// Represents a permission for a application command.
     /// </summary>
     public class DiscordApplicationCommandPermission
     {
@@ -49,7 +49,7 @@ namespace DSharpPlus.Entities
         public bool Permission { get; internal set; }
 
         /// <summary>
-        /// Represents a permission for a slash command.
+        /// Represents a permission for a application command.
         /// </summary>
         /// <param name="role">The role to contruct the permission for.</param>
         /// <param name="permission">Whether the command should be enabled for the role.</param>
@@ -61,7 +61,7 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Represents a permission for a slash command.
+        /// Represents a permission for a application command.
         /// </summary>
         /// <param name="member">The member to construct the permission for.</param>
         /// <param name="permission">Whether the command should be enabled for the role.</param>

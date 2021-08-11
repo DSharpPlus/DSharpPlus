@@ -2030,7 +2030,7 @@ namespace DSharpPlus
                         Interaction = interaction,
                         TargetUser = targetMember ?? targetUser,
                         TargetMessage = targetMessage,
-                        Type = targetUser == null ? ApplicationCommandType.MessageContextMenu : ApplicationCommandType.UserContextMenu,
+                        Type = interaction.Data.Type,
                     };
                     await this._contextMenuInteractionCreated.InvokeAsync(this, ctea).ConfigureAwait(false);
                 }

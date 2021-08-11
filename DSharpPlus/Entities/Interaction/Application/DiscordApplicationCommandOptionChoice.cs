@@ -54,9 +54,9 @@ namespace DSharpPlus.Entities
                 throw new InvalidOperationException($"Only {typeof(string)}, {typeof(long)}, {typeof(double)} or {typeof(int)} types may be passed to a command option choice.");
 
             if (name.Length > 100)
-                throw new ArgumentException("Slash command choice name cannot exceed 100 characters.", nameof(name));
+                throw new ArgumentException("Application command choice name cannot exceed 100 characters.", nameof(name));
             if (value is string val && val.Length > 100)
-                throw new ArgumentException("Slash command choice value cannot exceed 100 characters.", nameof(value));
+                throw new ArgumentException("Application command choice value cannot exceed 100 characters.", nameof(value));
 
             this.Name = name;
             this.Value = value;

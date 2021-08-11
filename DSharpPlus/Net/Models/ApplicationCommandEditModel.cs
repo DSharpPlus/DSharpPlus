@@ -38,7 +38,7 @@ namespace DSharpPlus.Net.Models
             set
             {
                 if (value.Value.Length > 32)
-                    throw new ArgumentException("Slash command name cannot exceed 32 characters.", nameof(value));
+                    throw new ArgumentException("Application command name cannot exceed 32 characters.", nameof(value));
                 this._name = value;
             }
         }
@@ -53,7 +53,7 @@ namespace DSharpPlus.Net.Models
             set
             {
                 if (value.Value.Length > 100)
-                    throw new ArgumentException("Slash command description cannot exceed 100 characters.", nameof(value));
+                    throw new ArgumentException("Application command description cannot exceed 100 characters.", nameof(value));
                 this._description = value;
             }
         }

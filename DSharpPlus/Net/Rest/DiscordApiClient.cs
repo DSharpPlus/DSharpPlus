@@ -2542,7 +2542,7 @@ namespace DSharpPlus.Net
         }
         #endregion
 
-        #region Slash Commands
+        #region Application Commands
         internal async Task<IReadOnlyList<DiscordApplicationCommand>> GetGlobalApplicationCommandsAsync(ulong application_id)
         {
             var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.COMMANDS}";

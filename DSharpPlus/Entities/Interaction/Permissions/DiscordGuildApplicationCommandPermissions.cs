@@ -29,7 +29,7 @@ using Newtonsoft.Json;
 namespace DSharpPlus.Entities
 {
     /// <summary>
-    /// Represents the guild permissions for a slash command.
+    /// Represents the guild permissions for a application command.
     /// </summary>
     public class DiscordGuildApplicationCommandPermissions : SnowflakeObject
     {
@@ -53,7 +53,7 @@ namespace DSharpPlus.Entities
             => (this.Discord as DiscordClient).InternalGetCachedGuild(this.GuildId);
 
         /// <summary>
-        /// Gets the permissions for the slash command in the guild.
+        /// Gets the permissions for the application command in the guild.
         /// </summary>
         [JsonProperty("permissions")]
         public IReadOnlyList<DiscordApplicationCommandPermission> Permissions { get; internal set; }
@@ -61,10 +61,10 @@ namespace DSharpPlus.Entities
         internal DiscordGuildApplicationCommandPermissions() { }
 
         /// <summary>
-        /// Represents the guild application command permissions for a slash command.
+        /// Represents the guild application command permissions for a application command.
         /// </summary>
         /// <param name="commandId">The id of the command.</param>
-        /// <param name="permissions">The permissions for the slash command.</param>
+        /// <param name="permissions">The permissions for the application command.</param>
         public DiscordGuildApplicationCommandPermissions(ulong commandId, IEnumerable<DiscordApplicationCommandPermission> permissions)
         {
             this.Id = commandId;
