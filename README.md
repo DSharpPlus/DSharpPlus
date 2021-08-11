@@ -42,9 +42,9 @@ var slash = discord.UseSlashCommands();
 ```
 
 ## Making a command class
-Similar to CommandsNext, you can make a module for slash commands and make it inherit from `SlashCommandModule`
+Similar to CommandsNext, you can make a module for slash commands and make it inherit from `ApplicationCommandModule`
 ```cs
-public class SlashCommands : SlashCommandModule
+public class SlashCommands : ApplicationCommandModule
 {
   //commands
 }
@@ -68,13 +68,10 @@ On to the exciting part.
 
 Slash command methods must be `Task`s and have the `SlashCommand` attribute. The first argument for the method must be an `InteractionContext`. Let's make a simple slash command:
 ```cs
-public class SlashCommands : SlashCommandModule
+public class SlashCommands : BaseCommandModule
 {
     [SlashCommand("test", "A slash command made to test the DSharpPlusSlashCommands library!")]
-    public async Task TestCommand(InteractionContext ctx)
-    {
-    
-    }
+    public async Task TestCommand(InteractionContext ctx) { }
 }
 ```
 
@@ -251,7 +248,7 @@ You can have slash commands in groups. Their structure is explained [here](https
 ```cs
 //for regular groups
 [SlashCommandGroup("group", "description")]
-public class GroupContainer : SlashCommandModule 
+public class GroupContainer : ApplicationCommandModule 
 {
     [SlashCommand("command", "description")]
     public async Task Command(InteractionContext ctx) {}
@@ -262,10 +259,10 @@ public class GroupContainer : SlashCommandModule
 
 //For subgroups inside groups
 [SlashCommandGroup("group", "description")]
-public class SubGroupContainer : SlashCommandModule
+public class SubGroupContainer : ApplicationCommandModule
 {
     [SlashCommandGroup("subgroup", "description")]
-    public class SubGroup : SlashCommandModule
+    public class SubGroup : ApplicationCommandModule
     {
         [SlashCommand("command", "description")]
         public async Task Command(InteractionContext ctx) {}
@@ -275,7 +272,7 @@ public class SubGroupContainer : SlashCommandModule
     }
     
     [SlashCommandGroup("subgroup2", "description")]
-    public class SubGroup2 : SlashCommandModule
+    public class SubGroup2 : ApplicationCommandModule
     {
         [SlashCommand("command", "description")]
         public async Task Command(InteractionContext ctx) {}
@@ -295,7 +292,7 @@ var slash = discord.UseSlashCommands(new SlashCommandsConfiguration
 ```
 Property injection is implemented, however static properties will not be replaced. If you wish for a non-static property to be left alone, assign it the `DontInject` attribute. Property Injection can be used like so:
 ```cs
-public class Commands : SlashCommandModule
+public class Commands : ApplicationCommandModule
 {
     public Database Database { private get; set; } // The get accessor is optionally public, but the set accessor must be public.
 
