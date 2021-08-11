@@ -68,7 +68,7 @@ On to the exciting part.
 
 Slash command methods must be `Task`s and have the `SlashCommand` attribute. The first argument for the method must be an `InteractionContext`. Let's make a simple slash command:
 ```cs
-public class SlashCommands : BaseCommandModule
+public class SlashCommands : ApplicationCommandModule
 {
     [SlashCommand("test", "A slash command made to test the DSharpPlusSlashCommands library!")]
     public async Task TestCommand(InteractionContext ctx) { }
