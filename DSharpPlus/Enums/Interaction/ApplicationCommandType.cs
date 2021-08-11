@@ -30,7 +30,7 @@ namespace DSharpPlus
         /// <summary>
         /// This command is registered as a slash-command, aka "Chat Input".
         /// </summary>
-        SlashCommand,
+        SlashCommand = 1,
         /// <summary>
         /// This command is registered as a user context menu, and is applicable when interacting a user.
         /// </summary>
