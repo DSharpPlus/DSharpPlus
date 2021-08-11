@@ -9,7 +9,7 @@ Join the [Discord server](https://discord.gg/2ZhXXVJYhU) for any questions, help
 
 # Documentation
 
-DSharpPlus doesn't currently have a slash command framework. You can use this library to implement slash commands into your bot.
+DSharpPlus doesn't currently have a slash command framework. You can use this library to implement slash commands and context menus into your bot.
 
 I have done my best to make this as similar to CommandsNext as possible to make it a smooth experience. However, the library does not support registering or editing commands at runtime. While you can make commands at runtime using the methods on the client, if you have a command class registered for that guild/globally if you're making global commands, it will be overwritten (therefore probably deleted) on the next startup due to the limitations of the bulk overwrite endpoint.
 
@@ -63,7 +63,7 @@ slash.RegisterCommands<SlashCommands>();
 ```
 *Make sure that you register them before your `ConnectAsync`*
 
-## Making Commands!
+## Making Slash Commands!
 On to the exciting part. 
 
 Slash command methods must be `Task`s and have the `SlashCommand` attribute. The first argument for the method must be an `InteractionContext`. Let's make a simple slash command:
@@ -185,64 +185,6 @@ public async Task ChoiceProviderCommand(InteractionContext ctx,
 }
 ```
 
-### Pre-execution checks
-You can define some custom attributes that function as pre-execution checks, working very similarly to `CommandsNext`. Simply create an attribute that inherits `SlashCheckBaseAttribute` and override the methods.
-
-There are also some built in ones, the same ones as on `CommandsNext` but prefix with `Slash` - for example the `SlashRequirePermissionsAttribute`
-```cs
-public class RequireUserIdAttribute : SlashCheckBaseAttribute
-{
-    public ulong UserId;
-    
-    public RequireUserIdAttribute(ulong userId)
-    {
-        this.UserId = userId;
-    }
-
-    public override async Task<bool> ExecuteChecksAsync(InteractionContext ctx)
-    {
-        if (ctx.User.Id == UserId) 
-            return true;
-        else
-            return false;
-    }
-}
-
-```
-Then just apply it to your command
-```cs
-[SlashCommand("admin", "runs sneaky admin things")]
-[RequireUserId(0000000000000)]
-public async Task Admin(InteractionContext ctx) { //secrets }
-```
-To provide a custom error message when an execution check fails, hook the `SlashCommandErrored` event on your `SlashCommandsExtension`
-```cs
-SlashCommandsExtension slash = //assigned;
-slash.SlashCommandErrored += async (s, e) =>
-{
-    if(e.Exception is SlashExecutionChecksFailedException slex)
-    {
-        foreach (var check in slex.FailedChecks)
-          if (check is RequireUserIdAttribute att)
-              await e.Context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent($"Only <@{att.Id}> can run this command!"));
-    }
-};
-```
-Or to use a built in one:
-```cs
-[SlashCommand("ban", "Bans a user")]
-[SlashRequirePermissions(Permissions.BanMembers)]
-public async Task Ban(InteractionContext ctx, [Option("user", "User to ban")] DiscordUser user,
-    [Choice("None", 0)]
-    [Choice("1 Day", 1)]
-    [Choice("1 Week", 7)]
-    [Option("deletedays", "Number of days of message history to delete")] long deleteDays = 0)
-{
-    await ctx.Guild.BanMemberAsync(user.Id, (int)deleteDays);
-    await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent($"Banned {user.Username}"));
-}
-```
-
 ### Groups
 You can have slash commands in groups. Their structure is explained [here](https://discord.com/developers/docs/interactions/slash-commands#nested-subcommands-and-groups). You can simply mark your command class with the `[SlashCommandGroup]` attribute.
 ```cs
@@ -282,6 +224,80 @@ public class SubGroupContainer : ApplicationCommandModule
     }
 }
 ```
+
+## Context Menus
+Context menus are commands that show up when you right click on a user or a message. Their implementation is fairly similar to slash commands.
+```cs
+//For user commands
+[ContextMenu(ApplicationCommandType.UserContextMenu, "User Menu")]
+public async Task UserMenu(ContextMenuContext ctx) { }
+
+//For message commands
+[ContextMenu(ApplicationCommandType.MessageContextMenu, "Message Menu")]
+public async Task MessageMenu(ContextMenuContext ctx) { }
+```
+Responding works exactly the same as slash commands. You cannot define any arguments.
+
+### Pre-execution checks
+You can define some custom attributes that function as pre-execution checks, working very similarly to `CommandsNext`. Simply create an attribute that inherits `SlashCheckBaseAttribute` for slash commands, and `ContextMenuCheckBaseAttribute` for context menus and override the methods.
+
+There are also some built in ones for slash commands, the same ones as on `CommandsNext` but prefix with `Slash` - for example the `SlashRequirePermissionsAttribute`
+```cs
+public class RequireUserIdAttribute : SlashCheckBaseAttribute
+{
+    public ulong UserId;
+    
+    public RequireUserIdAttribute(ulong userId)
+    {
+        this.UserId = userId;
+    }
+
+    public override async Task<bool> ExecuteChecksAsync(InteractionContext ctx)
+    {
+        if (ctx.User.Id == UserId) 
+            return true;
+        else
+            return false;
+    }
+}
+
+```
+Then just apply it to your command
+```cs
+[SlashCommand("admin", "runs sneaky admin things")]
+[RequireUserId(0000000000000)]
+public async Task Admin(InteractionContext ctx) { //secrets }
+```
+To provide a custom error message when an execution check fails, hook the `SlashCommandErrored` event for slash commands, and `ContextMenuErrored` event for context menus on your `SlashCommandsExtension`
+```cs
+SlashCommandsExtension slash = //assigned;
+slash.SlashCommandErrored += async (s, e) =>
+{
+    if(e.Exception is SlashExecutionChecksFailedException slex)
+    {
+        foreach (var check in slex.FailedChecks)
+          if (check is RequireUserIdAttribute att)
+              await e.Context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent($"Only <@{att.Id}> can run this command!"));
+    }
+};
+```
+Context menus throw `ContextMenuExecutionChecksFailedException`.
+
+To use a built in one:
+```cs
+[SlashCommand("ban", "Bans a user")]
+[SlashRequirePermissions(Permissions.BanMembers)]
+public async Task Ban(InteractionContext ctx, [Option("user", "User to ban")] DiscordUser user,
+    [Choice("None", 0)]
+    [Choice("1 Day", 1)]
+    [Choice("1 Week", 7)]
+    [Option("deletedays", "Number of days of message history to delete")] long deleteDays = 0)
+{
+    await ctx.Guild.BanMemberAsync(user.Id, (int)deleteDays);
+    await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent($"Banned {user.Username}"));
+}
+```
+
 ### Dependency Injection
 To pass in a service collection, provide a `SlashCommandsConfiguration` in `UseSlashCommands`.
 ```cs
