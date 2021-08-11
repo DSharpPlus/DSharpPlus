@@ -23,7 +23,7 @@
 namespace DSharpPlus
 {
     /// <summary>
-    /// Represents the type of an <see cref="DiscordApplicationCommand"/>.
+    /// Represents the type of an <see cref="Entities.DiscordApplicationCommand"/>.
     /// </summary>
     public enum ApplicationCommandType
     {
