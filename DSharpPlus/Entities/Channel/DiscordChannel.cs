@@ -251,7 +251,13 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> SendMessageAsync(string content)
         {
-            return this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News
+            return this.Type != ChannelType.Text &&
+                this.Type != ChannelType.PublicThread &&
+                this.Type != ChannelType.PrivateThread &&
+                this.Type != ChannelType.NewsThread &&
+                this.Type != ChannelType.Private &&
+                this.Type != ChannelType.Group &&
+                this.Type != ChannelType.News
                 ? throw new ArgumentException("Cannot send a text message to a non-text channel.")
                 : this.Discord.ApiClient.CreateMessageAsync(this.Id, content, null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
         }
@@ -267,7 +273,13 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> SendMessageAsync(DiscordEmbed embed)
         {
-            return this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News
+            return this.Type != ChannelType.Text &&
+                this.Type != ChannelType.PublicThread &&
+                this.Type != ChannelType.PrivateThread &&
+                this.Type != ChannelType.NewsThread &&
+                this.Type != ChannelType.Private &&
+                this.Type != ChannelType.Group &&
+                this.Type != ChannelType.News
                 ? throw new ArgumentException("Cannot send a text message to a non-text channel.")
                 : this.Discord.ApiClient.CreateMessageAsync(this.Id, null, new[] {embed}, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
         }
@@ -284,7 +296,13 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> SendMessageAsync(string content, DiscordEmbed embed)
         {
-            return this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News
+            return this.Type != ChannelType.Text &&
+                this.Type != ChannelType.PublicThread &&
+                this.Type != ChannelType.PrivateThread &&
+                this.Type != ChannelType.NewsThread &&
+                this.Type != ChannelType.Private &&
+                this.Type != ChannelType.Group &&
+                this.Type != ChannelType.News
                 ? throw new ArgumentException("Cannot send a text message to a non-text channel.")
                 : this.Discord.ApiClient.CreateMessageAsync(this.Id, content, new[] {embed}, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
         }
@@ -488,7 +506,13 @@ namespace DSharpPlus.Entities
 
         private async Task<IReadOnlyList<DiscordMessage>> GetMessagesInternalAsync(int limit = 100, ulong? before = null, ulong? after = null, ulong? around = null)
         {
-            if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
+            if (this.Type != ChannelType.Text &&
+                this.Type != ChannelType.PublicThread &&
+                this.Type != ChannelType.PrivateThread &&
+                this.Type != ChannelType.NewsThread &&
+                this.Type != ChannelType.Private &&
+                this.Type != ChannelType.Group &&
+                this.Type != ChannelType.News)
                 throw new ArgumentException("Cannot get the messages of a non-text channel.");
 
             if (limit < 0)
@@ -667,7 +691,13 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task TriggerTypingAsync()
         {
-            return this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News && this.Type != ChannelType.PublicThread && this.Type != ChannelType.PrivateThread && this.Type != ChannelType.NewsThread
+            return this.Type != ChannelType.Text &&
+                this.Type != ChannelType.PublicThread &&
+                this.Type != ChannelType.PrivateThread &&
+                this.Type != ChannelType.NewsThread &&
+                this.Type != ChannelType.Private &&
+                this.Type != ChannelType.Group &&
+                this.Type != ChannelType.News
                 ? throw new ArgumentException("Cannot start typing in a non-text channel.")
                 : this.Discord.ApiClient.TriggerTypingAsync(this.Id);
         }
@@ -682,7 +712,13 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<IReadOnlyList<DiscordMessage>> GetPinnedMessagesAsync()
         {
-            return this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News
+            return this.Type != ChannelType.Text &&
+                this.Type != ChannelType.PublicThread &&
+                this.Type != ChannelType.PrivateThread &&
+                this.Type != ChannelType.NewsThread &&
+                this.Type != ChannelType.Private &&
+                this.Type != ChannelType.Group &&
+                this.Type != ChannelType.News
                 ? throw new ArgumentException("A non-text channel does not have pinned messages.")
                 : this.Discord.ApiClient.GetPinnedMessagesAsync(this.Id);
         }
