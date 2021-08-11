@@ -41,6 +41,12 @@ namespace DSharpPlus.Entities
         public ulong ApplicationId { get; internal set; }
 
         /// <summary>
+        /// Gets the type of this application command.
+        /// </summary>
+        [JsonProperty("type")]
+        public ApplicationCommandType Type { get; internal set; }
+
+        /// <summary>
         /// Gets the name of this command.
         /// </summary>
         [JsonProperty("name")]
@@ -71,14 +77,26 @@ namespace DSharpPlus.Entities
         /// <param name="description">The description of the command.</param>
         /// <param name="options">Optional parameters for this command.</param>
         /// <param name="defaultPermission">Whether the command is enabled by default when the application is added to a guild.</param>
-        public DiscordApplicationCommand(string name, string description, IEnumerable<DiscordApplicationCommandOption> options = null, bool? defaultPermission = null)
+        public DiscordApplicationCommand(string name, string description, IEnumerable<DiscordApplicationCommandOption> options = null, bool? defaultPermission = null, ApplicationCommandType type = ApplicationCommandType.SlashCommand)
         {
-            if (!Utilities.IsValidSlashCommandName(name))
-                throw new ArgumentException("Invalid slash command name specified. It must be below 32 characters and not contain any whitespace.", nameof(name));
-            if (name.Any(ch => char.IsUpper(ch)))
-                throw new ArgumentException("Slash command name cannot have any upper case characters.", nameof(name));
-            if (description.Length > 100)
-                throw new ArgumentException("Slash command description cannot exceed 100 characters.", nameof(description));
+            if (type == ApplicationCommandType.SlashCommand)
+            {
+                if (!Utilities.IsValidSlashCommandName(name))
+                    throw new ArgumentException("Invalid slash command name specified. It must be below 32 characters and not contain any whitespace.", nameof(name));
+                if (name.Any(ch => char.IsUpper(ch)))
+                    throw new ArgumentException("Slash command name cannot have any upper case characters.", nameof(name));
+                if (description.Length > 100)
+                    throw new ArgumentException("Slash command description cannot exceed 100 characters.", nameof(description));
+            }
+            else
+            {
+
+                if (!string.IsNullOrWhiteSpace(description))
+                    throw new ArgumentException("Context menus do not support descriptions.");
+
+                if (options?.Any() ?? false)
+                    throw new ArgumentException("Context menus do not support options.");
+            }
 
             var optionsList = options != null ? new ReadOnlyCollection<DiscordApplicationCommandOption>(options.ToList()) : null;
 
@@ -97,7 +115,7 @@ namespace DSharpPlus.Entities
             => this.Id == other.Id;
 
         /// <summary>
-        /// Determines if two <see cref="DiscordApplicationCommand"/> objects are equal. 
+        /// Determines if two <see cref="DiscordApplicationCommand"/> objects are equal.
         /// </summary>
         /// <param name="e1">The first command object.</param>
         /// <param name="e2">The second command object.</param>
@@ -106,7 +124,7 @@ namespace DSharpPlus.Entities
             => e1.Equals(e2);
 
         /// <summary>
-        /// Determines if two <see cref="DiscordApplicationCommand"/> objects are not equal. 
+        /// Determines if two <see cref="DiscordApplicationCommand"/> objects are not equal.
         /// </summary>
         /// <param name="e1">The first command object.</param>
         /// <param name="e2">The second command object.</param>
