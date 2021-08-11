@@ -1,15 +1,15 @@
 ﻿using DSharpPlus.Entities;
-using System;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace DSharpPlus.SlashCommands
 {
     /// <summary>
-    /// Represents a context for an interaction.
+    /// Respresents a base context for application command contexts.
     /// </summary>
-    public sealed class InteractionContext
+    public class BaseContext
     {
         /// <summary>
         /// Gets the interaction that was created.
@@ -32,7 +32,7 @@ namespace DSharpPlus.SlashCommands
         public DiscordChannel Channel { get; internal set; }
 
         /// <summary>
-        /// Gets the user which executed this interactio.
+        /// Gets the user which executed this interaction.
         /// </summary>
         public DiscordUser User { get; internal set; }
 
@@ -63,20 +63,10 @@ namespace DSharpPlus.SlashCommands
         public string CommandName { get; internal set; }
 
         /// <summary>
-        /// Gets the users mentioned in the command parameters.
+        /// Gets the type of this interaction.
         /// </summary>
-        public IReadOnlyList<DiscordUser> ResolvedUserMentions { get; internal set; }
+        public ApplicationCommandType Type { get; internal set;}
 
-        /// <summary>
-        /// Gets the roles mentioned in the command parameters.
-        /// </summary>
-        public IReadOnlyList<DiscordRole> ResolvedRoleMentions { get; internal set; }
-
-        /// <summary>
-        /// Gets the channels mentioned in the command parameters.
-        /// </summary>
-        public IReadOnlyList<DiscordChannel> ResolvedChannelMentions { get; internal set; }
-        
         /// <summary>
         /// <para>Gets the service provider.</para>
         /// <para>This allows passing data around without resorting to static members.</para>

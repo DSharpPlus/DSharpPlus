@@ -65,7 +65,7 @@ namespace DSharpPlus.SlashCommands
         /// <typeparam name="T">The command class to register.</typeparam>
         /// <param name="modules">The modules to register it on.</param>
         /// <param name="guildId">The guild id to register it on. If you want global commands, leave it null.</param>
-        public static void RegisterCommands<T>(this IReadOnlyDictionary<int, SlashCommandsExtension> modules, ulong? guildId = null) where T : SlashCommandModule
+        public static void RegisterCommands<T>(this IReadOnlyDictionary<int, SlashCommandsExtension> modules, ulong? guildId = null) where T : ApplicationCommandModule
         {
             foreach (var module in modules.Values)
                 module.RegisterCommands<T>(guildId);
