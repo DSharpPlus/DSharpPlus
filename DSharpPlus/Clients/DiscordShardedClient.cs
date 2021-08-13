@@ -610,6 +610,7 @@ namespace DSharpPlus
             client.MessageReactionRemovedEmoji -= this.Client_MessageReactionRemovedEmoji;
             client.WebhooksUpdated -= this.Client_WebhooksUpdate;
             client.Heartbeated -= this.Client_HeartBeated;
+            client.Zombied -= this.Client_Zombied;
             client.ApplicationCommandCreated -= this.Client_ApplicationCommandCreated;
             client.ApplicationCommandUpdated -= this.Client_ApplicationCommandUpdated;
             client.ApplicationCommandDeleted -= this.Client_ApplicationCommandDeleted;
