@@ -730,6 +730,17 @@ namespace DSharpPlus
         private AsyncEvent<DiscordClient, ComponentInteractionCreateEventArgs> _componentInteractionCreated;
 
         /// <summary>
+        /// Fired when a user uses a context menu.
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, ContextMenuInteractionCreateEventArgs> ContextMenuInteractionCreated
+        {
+            add => this._contextMenuInteractionCreated.Register(value);
+            remove => this._contextMenuInteractionCreated.Unregister(value);
+        }
+
+        private AsyncEvent<DiscordClient, ContextMenuInteractionCreateEventArgs> _contextMenuInteractionCreated;
+
+        /// <summary>
         /// Fired when a user starts typing in a channel.
         /// </summary>
         public event AsyncEventHandler<DiscordClient, TypingStartEventArgs> TypingStarted

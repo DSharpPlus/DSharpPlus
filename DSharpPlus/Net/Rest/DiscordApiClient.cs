@@ -2727,7 +2727,7 @@ namespace DSharpPlus.Net
         }
         #endregion
 
-        #region Slash Commands
+        #region Application Commands
         internal async Task<IReadOnlyList<DiscordApplicationCommand>> GetGlobalApplicationCommandsAsync(ulong application_id)
         {
             var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.COMMANDS}";
@@ -2749,6 +2749,7 @@ namespace DSharpPlus.Net
             {
                 pld.Add(new RestApplicationCommandCreatePayload
                 {
+                    Type = command.Type,
                     Name = command.Name,
                     Description = command.Description,
                     Options = command.Options,
@@ -2772,6 +2773,7 @@ namespace DSharpPlus.Net
         {
             var pld = new RestApplicationCommandCreatePayload
             {
+                Type = command.Type,
                 Name = command.Name,
                 Description = command.Description,
                 Options = command.Options,
@@ -2856,6 +2858,7 @@ namespace DSharpPlus.Net
             {
                 pld.Add(new RestApplicationCommandCreatePayload
                 {
+                    Type = command.Type,
                     Name = command.Name,
                     Description = command.Description,
                     Options = command.Options,
@@ -2879,6 +2882,7 @@ namespace DSharpPlus.Net
         {
             var pld = new RestApplicationCommandCreatePayload
             {
+                Type = command.Type,
                 Name = command.Name,
                 Description = command.Description,
                 Options = command.Options,

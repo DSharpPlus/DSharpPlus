@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System.Collections.Generic;
+using System.Globalization;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
@@ -64,7 +65,7 @@ namespace DSharpPlus.Entities
                     ApplicationCommandOptionType.User => ulong.Parse(this._value),
                     ApplicationCommandOptionType.Role => ulong.Parse(this._value),
                     ApplicationCommandOptionType.Mentionable => ulong.Parse(this._value),
-                    ApplicationCommandOptionType.Number => double.Parse(this._value),
+                    ApplicationCommandOptionType.Number => double.Parse(this._value, CultureInfo.InvariantCulture),
                     _ => this._value,
                 };
             }

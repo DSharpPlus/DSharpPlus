@@ -23,6 +23,7 @@
 
 using System;
 using System.Threading.Tasks;
+using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Emzi0767.Utilities;
 using Microsoft.Extensions.Logging;
@@ -714,6 +715,17 @@ namespace DSharpPlus
         private AsyncEvent<DiscordClient, ComponentInteractionCreateEventArgs> _componentInteractionCreated;
 
         /// <summary>
+        /// Fired when a user uses a context menu.
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, ContextMenuInteractionCreateEventArgs> ContextMenuInteractionCreated
+        {
+            add => this._contextMenuInteractionCreated.Register(value);
+            remove => this._contextMenuInteractionCreated.Unregister(value);
+        }
+
+        private AsyncEvent<DiscordClient, ContextMenuInteractionCreateEventArgs> _contextMenuInteractionCreated;
+
+        /// <summary>
         /// Fired when a user starts typing in a channel.
         /// </summary>
         public event AsyncEventHandler<DiscordClient, TypingStartEventArgs> TypingStarted
@@ -920,6 +932,10 @@ namespace DSharpPlus
 
         private Task Client_ComponentInteractionCreate(DiscordClient client, ComponentInteractionCreateEventArgs e)
             => this._componentInteractionCreated.InvokeAsync(client, e);
+
+        private Task Client_ContextMenuInteractionCreate(DiscordClient client, ContextMenuInteractionCreateEventArgs e)
+            => this._contextMenuInteractionCreated.InvokeAsync(client, e);
+
         private Task Client_WebhooksUpdate(DiscordClient client, WebhooksUpdateEventArgs e)
             => this._webhooksUpdated.InvokeAsync(client, e);
 

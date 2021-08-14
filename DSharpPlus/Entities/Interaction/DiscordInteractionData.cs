@@ -57,6 +57,12 @@ namespace DSharpPlus.Entities
         public string CustomId { get; internal set; }
 
         /// <summary>
+        /// The Id of the target. Applicable for context menus.
+        /// </summary>
+        [JsonProperty("target_id", NullValueHandling = NullValueHandling.Ignore)]
+        internal ulong? Target { get; set; }
+
+        /// <summary>
         /// The type of component that invoked this interaction, if applicable.
         /// </summary>
         [JsonProperty("component_type", NullValueHandling = NullValueHandling.Ignore)]
@@ -64,5 +70,8 @@ namespace DSharpPlus.Entities
 
         [JsonProperty("values", NullValueHandling = NullValueHandling.Ignore)]
         public string[] Values { get; internal set; } = Array.Empty<string>();
+
+        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
+        public ApplicationCommandType Type { get; internal set; }
     }
 }

@@ -20,25 +20,24 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-
 namespace DSharpPlus
 {
     /// <summary>
-    /// Represents the type of interaction used.
+    /// Represents the type of an <see cref="Entities.DiscordApplicationCommand"/>.
     /// </summary>
-    public enum InteractionType
+    public enum ApplicationCommandType
     {
         /// <summary>
-        /// Sent when registering an HTTP interaction endpoint with Discord. Must be replied to with a Pong.
+        /// This command is registered as a slash-command, aka "Chat Input".
         /// </summary>
-        Ping = 1,
+        SlashCommand = 1,
         /// <summary>
-        /// An application command.
+        /// This command is registered as a user context menu, and is applicable when interacting a user.
         /// </summary>
-        ApplicationCommand = 2,
+        UserContextMenu,
         /// <summary>
-        /// A component.
+        /// This command is registered as a message context menu, and is applicable when interacting with a message.
         /// </summary>
-        Component = 3
+        MessageContextMenu
     }
 }

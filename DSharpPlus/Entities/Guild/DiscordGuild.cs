@@ -2302,14 +2302,14 @@ namespace DSharpPlus.Entities
             => this.Discord.ApiClient.DeleteStickerAsync(this.Id, stickerId);
 
         /// <summary>
-        /// Gets all the slash commands in this guild.
+        /// Gets all the application commands in this guild.
         /// </summary>
-        /// <returns>A list of slash commands in this guild.</returns>
+        /// <returns>A list of application commands in this guild.</returns>
         public Task<IReadOnlyList<DiscordApplicationCommand>> GetApplicationCommandsAsync() =>
             this.Discord.ApiClient.GetGuildApplicationCommandsAsync(this.Discord.CurrentApplication.Id, this.Id);
 
         /// <summary>
-        /// Overwrites the existing slash commands in this guild. New commands are automatically created and missing commands are automatically delete
+        /// Overwrites the existing application commands in this guild. New commands are automatically created and missing commands are automatically delete
         /// </summary>
         /// <param name="commands">The list of commands to overwrite with.</param>
         /// <returns>The list of guild commands</returns>
@@ -2317,7 +2317,7 @@ namespace DSharpPlus.Entities
             this.Discord.ApiClient.BulkOverwriteGuildApplicationCommandsAsync(this.Discord.CurrentApplication.Id, this.Id, commands);
 
         /// <summary>
-        /// Creates or overwrites a slash command in this guild.
+        /// Creates or overwrites a application command in this guild.
         /// </summary>
         /// <param name="command">The command to create.</param>
         /// <returns>The created command.</returns>
@@ -2325,7 +2325,7 @@ namespace DSharpPlus.Entities
             this.Discord.ApiClient.CreateGuildApplicationCommandAsync(this.Discord.CurrentApplication.Id, this.Id, command);
 
         /// <summary>
-        /// Edits a slash command in this guild.
+        /// Edits a application command in this guild.
         /// </summary>
         /// <param name="commandId">The id of the command to edit.</param>
         /// <param name="action">Action to perform.</param>
@@ -2360,14 +2360,14 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Gets all slash command permissions in this guild.
+        /// Gets all application command permissions in this guild.
         /// </summary>
         /// <returns>A list of permissions.</returns>
         public Task<IReadOnlyList<DiscordGuildApplicationCommandPermissions>> GetApplicationCommandsPermissionsAsync()
             => this.Discord.ApiClient.GetGuildApplicationCommandPermissionsAsync(this.Discord.CurrentApplication.Id, this.Id);
 
         /// <summary>
-        /// Gets permissions for a slash command in this guild.
+        /// Gets permissions for a application command in this guild.
         /// </summary>
         /// <param name="command">The command to get them for.</param>
         /// <returns>The permissions.</returns>
@@ -2375,7 +2375,7 @@ namespace DSharpPlus.Entities
             => this.Discord.ApiClient.GetApplicationCommandPermissionsAsync(this.Discord.CurrentApplication.Id, this.Id, command.Id);
 
         /// <summary>
-        /// Edits permissions for a slash command in this guild.
+        /// Edits permissions for a application command in this guild.
         /// </summary>
         /// <param name="command">The command to edit permissions for.</param>
         /// <param name="permissions">The list of permissions to use.</param>
@@ -2384,7 +2384,7 @@ namespace DSharpPlus.Entities
             => this.Discord.ApiClient.EditApplicationCommandPermissionsAsync(this.Discord.CurrentApplication.Id, this.Id, command.Id, permissions);
 
         /// <summary>
-        /// Batch edits permissions for a slash command in this guild.
+        /// Batch edits permissions for a application command in this guild.
         /// </summary>
         /// <param name="permissions">The list of permissions to use.</param>
         /// <returns>A list of edited permissions.</returns>

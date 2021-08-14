@@ -29,13 +29,16 @@ namespace DSharpPlus.Net.Abstractions
 {
     internal class RestApplicationCommandCreatePayload
     {
+        [JsonProperty("type")]
+        public ApplicationCommandType Type { get; set; }
+
         [JsonProperty("name")]
         public string Name { get; set; }
 
-        [JsonProperty("description")]
+        [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
         public string Description { get; set; }
 
-        [JsonProperty("options")]
+        [JsonProperty("options", NullValueHandling = NullValueHandling.Ignore)]
         public IEnumerable<DiscordApplicationCommandOption> Options { get; set; }
 
         [JsonProperty("default_permission", NullValueHandling = NullValueHandling.Ignore)]
