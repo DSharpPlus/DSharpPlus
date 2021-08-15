@@ -28,8 +28,14 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents a Discord integration account.
     /// </summary>
-    public class DiscordIntegrationAccount : SnowflakeObject
+    public class DiscordIntegrationAccount
     {
+        /// <summary>
+        /// Gets the ID of this object. This ID is a string and not a snowflake ulong.
+        /// </summary>
+        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        public string Id { get; internal set; }
+
         /// <summary>
         /// Gets the name of the account.
         /// </summary>
