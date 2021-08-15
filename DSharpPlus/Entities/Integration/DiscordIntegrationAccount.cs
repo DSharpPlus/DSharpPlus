@@ -31,7 +31,7 @@ namespace DSharpPlus.Entities
     public class DiscordIntegrationAccount
     {
         /// <summary>
-        /// Gets the ID of this object. This ID is a string and not a snowflake ulong.
+        /// Gets the ID of the account.
         /// </summary>
         [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
         public string Id { get; internal set; }
