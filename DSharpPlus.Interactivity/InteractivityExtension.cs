@@ -271,7 +271,7 @@ namespace DSharpPlus.Interactivity
                 throw new ArgumentException("Message doesn't contain any components.");
 
             if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is ComponentType.Button))
-                throw new ArgumentException("Message does not contain any select components.");
+                throw new ArgumentException("Message does not contain any button components.");
 
             if (!message.Components.SelectMany(c => c.Components).OfType<DiscordButtonComponent>().Any(c => c.CustomId == id))
                 throw new ArgumentException($"Message does not contain button with Id of '{id}'.");
