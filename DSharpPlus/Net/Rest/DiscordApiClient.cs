@@ -1213,8 +1213,7 @@ namespace DSharpPlus.Net
                 Attachments = attachments
             };
 
-            if (mentions != null)
-                pld.Mentions = new DiscordMentions(mentions);
+            pld.Mentions = new DiscordMentions(mentions ?? Mentions.None);
 
             var values = new Dictionary<string, string>
             {
