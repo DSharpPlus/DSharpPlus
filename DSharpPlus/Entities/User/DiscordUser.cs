@@ -74,10 +74,10 @@ namespace DSharpPlus.Entities
         /// Gets the user's banner color, if set. Mutually exclusive with <see cref="BannerHash"/>.
         /// </summary>
         public virtual DiscordColor? BannerColor
-            => this._bannerColor == 0 ? null : new DiscordColor(this._bannerColor);
+            => !this._bannerColor.HasValue ? null : new DiscordColor(this._bannerColor.Value);
 
         [JsonProperty("accent_color")]
-        internal int _bannerColor;
+        internal int? _bannerColor;
 
         /// <summary>
         /// Gets the user's banner url.

@@ -43,7 +43,7 @@ namespace DSharpPlus.Net.Abstractions
         public string BannerHash { get; internal set; }
 
         [JsonProperty("accent_color")]
-        public int BannerColor { get; internal set; }
+        public int? BannerColor { get; internal set; }
 
         [JsonProperty("bot", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsBot { get; internal set; }
