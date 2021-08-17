@@ -44,7 +44,7 @@ namespace DSharpPlus.Entities
         public bool IsArchived { get; internal set; }
 
         /// <summary>
-        ///	Gets the duration in minutes to automatically archive the thread after recent activity. Can be set to: 60, 1440, 4320, 10080.
+        /// Gets the duration in minutes to automatically archive the thread after recent activity. Can be set to: 60, 1440, 4320, 10080.
         /// </summary>
         [JsonProperty("auto_archive_duration", NullValueHandling = NullValueHandling.Ignore)]
         public AutoArchiveDuration AutoArchiveDuration { get; internal set; }

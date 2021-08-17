@@ -590,7 +590,7 @@ namespace DSharpPlus
         private AsyncEvent<DiscordClient, ThreadDeleteEventArgs> _threadDeleted;
 
         /// <summary>
-        /// Fired when a thread member is updated.
+        /// Fired when the current member gains access to a channel(s).
         /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
         /// </summary>
         public event AsyncEventHandler<DiscordClient, ThreadListSyncEventArgs> ThreadListSynced

@@ -190,13 +190,13 @@ namespace DSharpPlus.Entities
         /// Gets this channel's threads. This applies only to text and news channels.
         /// </summary>
         [JsonIgnore]
-        public IEnumerable<DiscordThreadChannel> Threads
+        public IReadOnlyList<DiscordThreadChannel> Threads
         {
             get
             {
                 return !(this.Type == ChannelType.Text || this.Type == ChannelType.News)
                     ? throw new ArgumentException("Only text channels can have threads.")
-                    : this.Guild._threads.Values.Where(e => e.ParentId == this.Id);
+                    : this.Guild._threads.Values.Where(e => e.ParentId == this.Id).ToList().AsReadOnly();
             }
         }
 

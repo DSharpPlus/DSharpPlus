@@ -28,7 +28,7 @@ using System.Text;
 namespace DSharpPlus
 {
     /// <summary>
-    ///	Represents the duration in minutes to automatically archive a thread after recent activity.
+    /// Represents the duration in minutes to automatically archive a thread after recent activity.
     /// </summary>
     public enum AutoArchiveDuration : int
     {

@@ -62,7 +62,7 @@ namespace DSharpPlus.Entities
         /// Represents the current member for this thread. This will have a value if the user has joined the thread.
         /// </summary>
         [JsonProperty("member", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordThreadChannelMember> CurrentMember { get; internal set; }
+        public DiscordThreadChannelMember CurrentMember { get; internal set; }
 
         /// <summary>
         /// Gets the approximate count of members in a thread, up to 50.

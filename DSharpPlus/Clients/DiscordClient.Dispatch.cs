@@ -1986,7 +1986,7 @@ namespace DSharpPlus
                 addedMembers = Array.Empty<DiscordThreadChannelMember>();
 
             if (removed_member_ids.Contains(this.CurrentUser.Id)) //indicates the bot was removed from the thread
-                thread.CurrentMember = new Optional<DiscordThreadChannelMember>();
+                thread.CurrentMember = null;
             thread.MemberCount = member_count;
 
             var threadMembersUpdateArg = new ThreadMembersUpdateEventArgs
