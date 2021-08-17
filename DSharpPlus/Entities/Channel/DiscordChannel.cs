@@ -169,13 +169,13 @@ namespace DSharpPlus.Entities
         /// Gets this channel's children. This applies only to channel categories.
         /// </summary>
         [JsonIgnore]
-        public IEnumerable<DiscordChannel> Children
+        public IReadOnlyList<DiscordChannel> Children
         {
             get
             {
                 return !this.IsCategory
                     ? throw new ArgumentException("Only channel categories contain children.")
-                    : this.Guild._channels.Values.Where(e => e.ParentId == this.Id);
+                    : this.Guild._channels.Values.Where(e => e.ParentId == this.Id).ToList().AsReadOnly();
             }
         }
 
@@ -183,7 +183,7 @@ namespace DSharpPlus.Entities
         /// Gets the list of members currently in the channel (if voice channel), or members who can see the channel (otherwise).
         /// </summary>
         [JsonIgnore]
-        public virtual IEnumerable<DiscordMember> Users
+        public virtual IReadOnlyList<DiscordMember> Users
         {
             get
             {
@@ -191,8 +191,8 @@ namespace DSharpPlus.Entities
                     throw new InvalidOperationException("Cannot query users outside of guild channels.");
 
                 return this.Type == ChannelType.Voice || this.Type == ChannelType.Stage
-                    ? this.Guild.Members.Values.Where(x => x.VoiceState?.ChannelId == this.Id)
-                    : this.Guild.Members.Values.Where(x => (this.PermissionsFor(x) & Permissions.AccessChannels) == Permissions.AccessChannels);
+                    ? this.Guild.Members.Values.Where(x => x.VoiceState?.ChannelId == this.Id).ToList().AsReadOnly()
+                    : this.Guild.Members.Values.Where(x => (this.PermissionsFor(x) & Permissions.AccessChannels) == Permissions.AccessChannels).ToList().AsReadOnly();
             }
         }
 
