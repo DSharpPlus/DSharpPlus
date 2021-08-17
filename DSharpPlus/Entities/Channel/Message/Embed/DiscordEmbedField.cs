@@ -31,42 +31,16 @@ namespace DSharpPlus.Entities
     public sealed class DiscordEmbedField
     {
         /// <summary>
-        /// Gets the number of characters in the field.
-        /// </summary>
-        [JsonIgnore]
-        public int CharCount { get; private set; }
-
-        /// <summary>
         /// Gets the name of the field.
         /// </summary>
         [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
-        public string Name
-        {
-            get => _name;
-            set
-            {
-                this.CharCount -= this._name == null ? 0 : this._name.Length;
-                this._name = value;
-                this.CharCount += value == null ? 0 : value.Length;
-            }
-        }
-        private string _name;
+        public string Name { get; set; }
 
         /// <summary>
         /// Gets the value of the field.
         /// </summary>
         [JsonProperty("value", NullValueHandling = NullValueHandling.Ignore)]
-        public string Value 
-        {
-            get => _value;
-            set
-            {
-                this.CharCount -= this._value == null ? 0 : this._value.Length;
-                this._value = value;
-                this.CharCount += value == null ? 0 : value.Length;
-            }
-        }
-        private string _value;
+        public string Value { get; set; }
 
         /// <summary>
         /// Gets whether or not this field should display inline.

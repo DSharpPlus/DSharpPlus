@@ -39,15 +39,24 @@ namespace DSharpPlus.Entities
         /// </summary>
         public int CharCount
         {
-            get => _charCount;
-            private set
+            get
             {
-                if (value > 6000)
-                    throw new ArgumentException("Total number of characters in an embed may not exceed 6000");
-                this._charCount = value;
+                int count = 0;
+
+                count += this._title == null ? 0 : this._title.Length;
+                count += this._description == null ? 0 : this._description.Length;
+                count += (this.Author == null || this.Author.Name == null) ? 0 : this.Author.Name.Length;
+                count += (this.Footer == null || this.Footer.Text == null) ? 0 : this.Footer.Text.Length;
+
+                foreach (DiscordEmbedField field in this._fields)
+                {
+                    count += field.Name == null ? 0 : field.Name.Length;
+                    count += field.Value == null ? 0 : field.Value.Length;
+                }
+
+                return count;
             }
         }
-        private int _charCount;
 
         /// <summary>
         /// Gets or sets the embed's title.
@@ -57,15 +66,8 @@ namespace DSharpPlus.Entities
             get => this._title;
             set
             {
-                this._charCount -= this._title == null ? 0 : this._title.Length;
-
-                if (value != null)
-                {
-                    if (value.Length > 256)
-                        throw new ArgumentException("Title length cannot exceed 256 characters.", nameof(value));
-                    this.CharCount += value.Length;
-                }
-
+                if (value != null && value.Length > 256)
+                    throw new ArgumentException("Title length cannot exceed 256 characters.", nameof(value));
                 this._title = value;
             }
         }
@@ -79,15 +81,8 @@ namespace DSharpPlus.Entities
             get => this._description;
             set
             {
-                this._charCount -= this._description == null ? 0 : this._description.Length;
-
-                if (value != null)
-                {
-                    if (value.Length > 4096)
-                        throw new ArgumentException("Description length cannot exceed 4096 characters.", nameof(value));
-                    this.CharCount += value.Length;
-                }
-
+                if (value != null && value.Length > 4096)
+                    throw new ArgumentException("Description length cannot exceed 4096 characters.", nameof(value));
                 this._description = value;
             }
         }
@@ -159,7 +154,6 @@ namespace DSharpPlus.Entities
         public DiscordEmbedBuilder(DiscordEmbed original)
             : this()
         {
-            this.CharCount = 0;
             this.Title = original.Title;
             this.Description = original.Description;
             this.Url = original.Url?.ToString();
@@ -191,16 +185,10 @@ namespace DSharpPlus.Entities
                 };
 
             if (original.Fields?.Any() == true)
-            {
-                foreach (var field in original.Fields)
-                {
-                    this.CharCount += field.CharCount;
-                    this._fields.Add(field);
-                }
-            }
+                this._fields.AddRange(original.Fields);
 
             while (this._fields.Count > 25)
-                this.RemoveFieldAt(this._fields.Count - 1);
+                this._fields.RemoveAt(this._fields.Count - 1);
         }
 
         /// <summary>
@@ -360,13 +348,6 @@ namespace DSharpPlus.Entities
         /// <returns>This embed builder.</returns>
         public DiscordEmbedBuilder WithAuthor(string name = null, string url = null, string iconUrl = null)
         {
-            if (name != null)
-            {
-                if (name.Length > 256)
-                    throw new ArgumentException("Author name length cannot exceed 256 characters.", nameof(name));
-                this.CharCount += name.Length;
-            }
-
             this.Author = string.IsNullOrEmpty(name) && string.IsNullOrEmpty(url) && string.IsNullOrEmpty(iconUrl)
                 ? null
                 : new EmbedAuthor
@@ -386,12 +367,8 @@ namespace DSharpPlus.Entities
         /// <returns>This embed builder.</returns>
         public DiscordEmbedBuilder WithFooter(string text = null, string iconUrl = null)
         {
-            if (text != null)
-            {
-                if (text.Length > 2048)
-                    throw new ArgumentException("Footer text length cannot exceed 2048 characters.", nameof(text));
-                this.CharCount += text.Length;
-            }
+            if (text != null && text.Length > 2048)
+                throw new ArgumentException("Footer text length cannot exceed 2048 characters.", nameof(text));
 
             this.Footer = string.IsNullOrEmpty(text) && string.IsNullOrEmpty(iconUrl)
                 ? null
@@ -433,15 +410,12 @@ namespace DSharpPlus.Entities
             if (this._fields.Count >= 25)
                 throw new InvalidOperationException("Cannot add more than 25 fields.");
 
-            var embed = new DiscordEmbedField
+            this._fields.Add(new DiscordEmbedField
             {
                 Inline = inline,
                 Name = name,
                 Value = value
-            };
-
-            this.CharCount += embed.CharCount;
-            this._fields.Add(embed);
+            });
             return this;
         }
 
@@ -452,8 +426,6 @@ namespace DSharpPlus.Entities
         /// <returns>This embed builder.</returns>
         public DiscordEmbedBuilder RemoveFieldAt(int index)
         {
-            var field = this._fields[index];
-            this._charCount -= field.CharCount;
             this._fields.RemoveAt(index);
             return this;
         }
@@ -466,8 +438,7 @@ namespace DSharpPlus.Entities
         /// <returns>This embed builder.</returns>
         public DiscordEmbedBuilder RemoveFieldRange(int index, int count)
         {
-            for (int i = index; i < index + count - 1; i++)
-                this.RemoveFieldAt(i);
+            this._fields.RemoveRange(index, count);
             return this;
         }
 
@@ -477,8 +448,7 @@ namespace DSharpPlus.Entities
         /// <returns>This embed builder.</returns>
         public DiscordEmbedBuilder ClearFields()
         {
-            for (int i = this._fields.Count; i > -1; i--)
-                this.RemoveFieldAt(i);
+            this._fields.Clear();
             return this;
         }
 
@@ -490,7 +460,6 @@ namespace DSharpPlus.Entities
         {
             var embed = new DiscordEmbed
             {
-                CharCount = this._charCount,
                 Title = this._title,
                 Description = this._description,
                 Url = this._url,
@@ -541,11 +510,6 @@ namespace DSharpPlus.Entities
         public class EmbedAuthor
         {
             /// <summary>
-            /// Gets the number of characters in the author.
-            /// </summary>
-            public int CharCount => this._name == null ? 0 : this._name.Length;
-
-            /// <summary>
             /// Gets or sets the name of the author.
             /// </summary>
             public string Name
@@ -586,11 +550,6 @@ namespace DSharpPlus.Entities
         /// </summary>
         public class EmbedFooter
         {
-            /// <summary>
-            /// Gets the number of characters in the footer.
-            /// </summary>
-            public int CharCount => this._text == null ? 0 : this._text.Length;
-
             /// <summary>
             /// Gets or sets the text of the footer.
             /// </summary>
