@@ -43,6 +43,7 @@ namespace DSharpPlus.Entities
             this.Discriminator = transport.Discriminator;
             this.AvatarHash = transport.AvatarHash;
             this._bannerColor = transport.BannerColor;
+            this.BannerHash = transport.BannerHash;
             this.IsBot = transport.IsBot;
             this.MfaEnabled = transport.MfaEnabled;
             this.Verified = transport.Verified;
