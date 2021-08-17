@@ -976,7 +976,8 @@ namespace DSharpPlus.Entities
                         old.Username = usr.Username;
                         old.Discord = usr.Discord;
                         old.AvatarHash = usr.AvatarHash;
-
+                        old.BannerHash = usr.BannerHash;
+                        old._bannerColor = usr._bannerColor;
                         return old;
                     });
 
@@ -1123,6 +1124,8 @@ namespace DSharpPlus.Entities
                     old.Username = xu.Username;
                     old.Discriminator = xu.Discriminator;
                     old.AvatarHash = xu.AvatarHash;
+                    old.BannerHash = xu.BannerHash;
+                    old._bannerColor = xu._bannerColor;
                     return old;
                 });
             }
@@ -1771,7 +1774,7 @@ namespace DSharpPlus.Entities
                             }
                         }
                         break;
-                        
+
                     case AuditLogActionType.StickerCreate:
                     case AuditLogActionType.StickerDelete:
                     case AuditLogActionType.StickerUpdate:

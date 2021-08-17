@@ -471,6 +471,8 @@ namespace DSharpPlus
                         old.Username = xu.Username;
                         old.Discriminator = xu.Discriminator;
                         old.AvatarHash = xu.AvatarHash;
+                        old.BannerHash = xu.BannerHash;
+                        old._bannerColor = xu._bannerColor;
                         return old;
                     });
 
@@ -530,6 +532,8 @@ namespace DSharpPlus
                             old.Username = xu.Username;
                             old.Discriminator = xu.Discriminator;
                             old.AvatarHash = xu.AvatarHash;
+                            old.BannerHash = xu.BannerHash;
+                            old._bannerColor = xu._bannerColor;
                             return old;
                         });
 
@@ -958,6 +962,8 @@ namespace DSharpPlus
                 old.Username = usr.Username;
                 old.Discriminator = usr.Discriminator;
                 old.AvatarHash = usr.AvatarHash;
+                old.BannerHash = usr.BannerHash;
+                old._bannerColor = usr._bannerColor;
                 return old;
             });
 
@@ -979,6 +985,8 @@ namespace DSharpPlus
                 old.Username = usr.Username;
                 old.Discriminator = usr.Discriminator;
                 old.AvatarHash = usr.AvatarHash;
+                old.BannerHash = usr.BannerHash;
+                old._bannerColor = usr._bannerColor;
                 return old;
             });
 
@@ -1004,6 +1012,8 @@ namespace DSharpPlus
                 old.Username = usr.Username;
                 old.Discriminator = usr.Discriminator;
                 old.AvatarHash = usr.AvatarHash;
+                old.BannerHash = usr.BannerHash;
+                old._bannerColor = usr._bannerColor;
                 return old;
             });
 
@@ -1050,6 +1060,8 @@ namespace DSharpPlus
                 old.Username = usr.Username;
                 old.Discriminator = usr.Discriminator;
                 old.AvatarHash = usr.AvatarHash;
+                old.BannerHash = usr.BannerHash;
+                old._bannerColor = usr._bannerColor;
                 return old;
             });
 

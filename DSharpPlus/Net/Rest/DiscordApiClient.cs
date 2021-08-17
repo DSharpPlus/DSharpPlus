@@ -193,7 +193,8 @@ namespace DSharpPlus.Net
                     old.Username = usr.Username;
                     old.Discord = usr.Discord;
                     old.AvatarHash = usr.AvatarHash;
-
+                    old.BannerHash = usr.BannerHash;
+                    old._bannerColor = usr._bannerColor;
                     return old;
                 });
 
@@ -343,6 +344,8 @@ namespace DSharpPlus.Net
                         old.Username = usr.Username;
                         old.Discriminator = usr.Discriminator;
                         old.AvatarHash = usr.AvatarHash;
+                        old.BannerHash = usr.BannerHash;
+                        old._bannerColor = usr._bannerColor;
                         return old;
                     });
                 }
@@ -1514,6 +1517,8 @@ namespace DSharpPlus.Net
                 old.Username = usr.Username;
                 old.Discriminator = usr.Discriminator;
                 old.AvatarHash = usr.AvatarHash;
+                old.BannerHash = usr.BannerHash;
+                old._bannerColor = usr._bannerColor;
                 return old;
             });
 
@@ -2112,7 +2117,7 @@ namespace DSharpPlus.Net
 
             return ret;
         }
-        
+
         internal async Task<DiscordMessage> GetWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong message_id)
         {
             var route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token{Endpoints.MESSAGES}/:message_id";
@@ -2125,7 +2130,7 @@ namespace DSharpPlus.Net
             ret.Discord = this.Discord;
             return ret;
         }
-        
+
         internal async Task<DiscordWebhook> ModifyWebhookAsync(ulong webhook_id, ulong channelId, string name, Optional<string> base64_avatar, string reason)
         {
             var pld = new RestWebhookPayload
@@ -2374,6 +2379,8 @@ namespace DSharpPlus.Net
                     old.Username = usr.Username;
                     old.Discriminator = usr.Discriminator;
                     old.AvatarHash = usr.AvatarHash;
+                    old.BannerHash = usr.BannerHash;
+                    old._bannerColor = usr._bannerColor;
                     return old;
                 });
 
@@ -2843,7 +2850,7 @@ namespace DSharpPlus.Net
             ret.Discord = this.Discord;
             return ret;
         }
-        
+
         internal Task<DiscordMessage> GetFollowupMessageAsync(ulong application_id, string interaction_token, ulong message_id) =>
             this.GetWebhookMessageAsync(application_id, interaction_token, message_id);
 

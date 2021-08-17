@@ -260,6 +260,8 @@ namespace DSharpPlus
                         old.Username = usr.Username;
                         old.Discord = usr.Discord;
                         old.AvatarHash = usr.AvatarHash;
+                        old.BannerHash = usr.BannerHash;
+                        old._bannerColor = usr._bannerColor;
 
                         return old;
                     });

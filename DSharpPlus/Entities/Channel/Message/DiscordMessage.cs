@@ -411,6 +411,8 @@ namespace DSharpPlus.Entities
                         old.Username = usr.Username;
                         old.Discriminator = usr.Discriminator;
                         old.AvatarHash = usr.AvatarHash;
+                        old.BannerHash = usr.BannerHash;
+                        old._bannerColor = usr._bannerColor;
                         return old;
                     });
 
