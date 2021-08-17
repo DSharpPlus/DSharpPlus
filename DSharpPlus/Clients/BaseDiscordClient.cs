@@ -137,6 +137,8 @@ namespace DSharpPlus
                 Description = tapp.Description,
                 Summary = tapp.Summary,
                 IconHash = tapp.IconHash,
+                TermsOfServiceUrl = tapp.TermsOfServiceUrl,
+                PrivacyPolicyUrl = tapp.PrivacyPolicyUrl,
                 RpcOrigins = tapp.RpcOrigins != null ? new ReadOnlyCollection<string>(tapp.RpcOrigins) : null,
                 Flags = tapp.Flags,
                 RequiresCodeGrant = tapp.BotRequiresCodeGrant,

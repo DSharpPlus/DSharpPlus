@@ -20,28 +20,24 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-
-using Newtonsoft.Json;
-
-namespace DSharpPlus.Entities
+namespace DSharpPlus
 {
     /// <summary>
-    /// Represents a Discord integration account.
+    /// Represents the type of an <see cref="Entities.DiscordApplicationCommand"/>.
     /// </summary>
-    public class DiscordIntegrationAccount
+    public enum ApplicationCommandType
     {
         /// <summary>
-        /// Gets the ID of the account.
+        /// This command is registered as a slash-command, aka "Chat Input".
         /// </summary>
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
-        public string Id { get; internal set; }
-
+        SlashCommand = 1,
         /// <summary>
-        /// Gets the name of the account.
+        /// This command is registered as a user context menu, and is applicable when interacting a user.
         /// </summary>
-        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
-        public string Name { get; internal set; }
-
-        internal DiscordIntegrationAccount() { }
+        UserContextMenu,
+        /// <summary>
+        /// This command is registered as a message context menu, and is applicable when interacting with a message.
+        /// </summary>
+        MessageContextMenu
     }
 }

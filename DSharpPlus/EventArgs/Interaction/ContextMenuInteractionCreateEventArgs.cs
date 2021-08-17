@@ -20,53 +20,31 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-
-using System;
-using System.Collections.Generic;
+using System.Linq;
 using DSharpPlus.Entities;
 
-namespace DSharpPlus.Net.Models
+namespace DSharpPlus.EventArgs
 {
-    public class ApplicationCommandEditModel
+    public sealed class ContextMenuInteractionCreateEventArgs : InteractionCreateEventArgs
     {
         /// <summary>
-        /// Sets the command's new name.
+        /// The type of context menu that was used. This is never <see cref="ApplicationCommandType.SlashCommand"/>.
         /// </summary>
-        public Optional<string> Name
-        {
-            internal get => this._name;
-            set
-            {
-                if (value.Value.Length > 32)
-                    throw new ArgumentException("Application command name cannot exceed 32 characters.", nameof(value));
-                this._name = value;
-            }
-        }
-        private Optional<string> _name;
+        public ApplicationCommandType Type { get; internal set; } //TODO: Set this
 
         /// <summary>
-        /// Sets the command's new description
+        /// The user that invoked this interaction. Can be casted to a member if this was on a guild.
         /// </summary>
-        public Optional<string> Description
-        {
-            internal get => this._description;
-            set
-            {
-                if (value.Value.Length > 100)
-                    throw new ArgumentException("Application command description cannot exceed 100 characters.", nameof(value));
-                this._description = value;
-            }
-        }
-        private Optional<string> _description;
+        public DiscordUser User => this.Interaction.User;
 
         /// <summary>
-        /// Sets the command's new options.
+        /// The user this interaction targets, if applicable.
         /// </summary>
-        public Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> Options { internal get; set; }
+        public DiscordUser TargetUser { get; internal set; }
 
         /// <summary>
-        /// Sets whether the command is enabled by default when the application is added to a guild.
+        /// The message this interaction targets, if applicable.
         /// </summary>
-        public Optional<bool?> DefaultPermission { internal get; set; }
+        public DiscordMessage TargetMessage { get; internal set; }
     }
 }

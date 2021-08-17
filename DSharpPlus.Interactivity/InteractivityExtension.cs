@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -134,35 +135,25 @@ namespace DSharpPlus.Interactivity
         /// <returns>A <see cref="InteractivityResult{T}"/> with the result of button that was pressed, if any.</returns>
         /// <exception cref="InvalidOperationException">Thrown when attempting to wait for a message that is not authored by the current user.</exception>
         /// <exception cref="ArgumentException">Thrown when the message does not contain a button with the specified Id, or any buttons at all.</exception>
-        public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(DiscordMessage message, IEnumerable<DiscordButtonComponent> buttons, CancellationToken token = default)
+        public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(DiscordMessage message, IEnumerable<DiscordButtonComponent> buttons, CancellationToken token)
         {
             if (message.Author != this.Client.CurrentUser)
                 throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
 
-            if (message.Components is null || !message.Components.Select(a => a.Components).Any())
+            if (message.Components is null || !message.Components.Any(a => a.Components.Any(c => c is DiscordButtonComponent)))
                 throw new ArgumentException("Message does not contain any buttons.");
 
             if (!buttons.Any())
                 throw new ArgumentException("You must specify at least one button to listen for.");
 
             var res = await this.ComponentEventWaiter
-                .WaitForMatchAsync(new(message.Id,
+                .WaitForMatchAsync(new(message.Id.ToString(CultureInfo.InvariantCulture),
                     c =>
                         c.Interaction.Data.ComponentType == ComponentType.Button &&
                         buttons.Any(b => b.CustomId == c.Id), token));
 
             return new(res is null, res);
         }
-
-        /// <summary>
-        /// Waits for any button on the specified message to be pressed.
-        /// </summary>
-        /// <param name="message">The message to wait for the button on.</param>
-        /// <returns>A <see cref="InteractivityResult{T}"/> with the result of button that was pressed, if any.</returns>
-        /// <exception cref="InvalidOperationException">Thrown when attempting to wait for a message that is not authored by the current user.</exception>
-        /// <exception cref="ArgumentException">Thrown when the message does not contain a button with the specified Id, or any buttons at all.</exception>
-        public Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(DiscordMessage message)
-            => this.WaitForButtonAsync(message);
 
         /// <summary>
         /// Waits for any button on the specified message to be pressed.
@@ -183,22 +174,20 @@ namespace DSharpPlus.Interactivity
         /// <returns>A <see cref="InteractivityResult{T}"/> with the result of button that was pressed, if any.</returns>
         /// <exception cref="InvalidOperationException">Thrown when attempting to wait for a message that is not authored by the current user.</exception>
         /// <exception cref="ArgumentException">Thrown when the message does not contain a button with the specified Id, or any buttons at all.</exception>
-        public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(DiscordMessage message, CancellationToken token = default)
+        public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(DiscordMessage message, CancellationToken token)
         {
             if (message.Author != this.Client.CurrentUser)
                 throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
 
-            if (message.Components is null || !message.Components.Select(a => a.Components).Any())
+            if (message.Components is null || !message.Components.Any(a => a.Components.Any(c => c is DiscordButtonComponent)))
                 throw new ArgumentException("Message does not contain any buttons.");
 
             var ids = message.Components.SelectMany(m => m.Components).Select(c => c.CustomId);
 
-
-
             var result =
                 await this
                 .ComponentEventWaiter
-                .WaitForMatchAsync(new(message.Id, c => c.Interaction.Data.ComponentType == ComponentType.Button, token))
+                .WaitForMatchAsync(new(message.Id.ToString(), c => c.Interaction.Data.ComponentType == ComponentType.Button && ids.Contains(c.Id), token))
                 .ConfigureAwait(false);
 
             return new(result is null, result);
@@ -225,19 +214,17 @@ namespace DSharpPlus.Interactivity
         /// <returns>A <see cref="InteractivityResult{T}"/> with the result of button that was pressed, if any.</returns>
         /// <exception cref="InvalidOperationException">Thrown when attempting to wait for a message that is not authored by the current user.</exception>
         /// <exception cref="ArgumentException">Thrown when the message does not contain a button with the specified Id, or any buttons at all.</exception>
-        public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(DiscordMessage message, DiscordUser user, CancellationToken token = default)
+        public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(DiscordMessage message, DiscordUser user, CancellationToken token)
         {
             if (message.Author != this.Client.CurrentUser)
                 throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
 
-            if (message.Components is null || !message.Components.Select(a => a.Components).Any())
+            if (message.Components is null || !message.Components.Any(a => a.Components.Any(c => c is DiscordButtonComponent)))
                 throw new ArgumentException("Message does not contain any buttons.");
-
-
 
             var result = await this
                 .ComponentEventWaiter
-                .WaitForMatchAsync(new(message.Id, (c) => c.Interaction.Data.ComponentType is ComponentType.Button && c.User == user, token))
+                .WaitForMatchAsync(new(message.Id.ToString(CultureInfo.InvariantCulture), (c) => c.Interaction.Data.ComponentType is ComponentType.Button && c.User == user, token))
                 .ConfigureAwait(false);
 
             return new(result is null, result);
@@ -265,26 +252,93 @@ namespace DSharpPlus.Interactivity
         /// <returns>A <see cref="InteractivityResult{T}"/> with the result of the operation.</returns>
         /// <exception cref="InvalidOperationException">Thrown when attempting to wait for a message that is not authored by the current user.</exception>
         /// <exception cref="ArgumentException">Thrown when the message does not contain a button with the specified Id, or any buttons at all.</exception>
-        public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(DiscordMessage message, string id, CancellationToken token = default)
+        public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(DiscordMessage message, string id, CancellationToken token)
         {
             if (message.Author != this.Client.CurrentUser)
                 throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
 
-            if (message.Components is null || !message.Components.Select(a => a.Components).Any())
+            if (message.Components is null || !message.Components.Any(a => a.Components.Any(c => c is DiscordButtonComponent)))
                 throw new ArgumentException("Message does not contain any buttons.");
 
-            if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is ComponentType.Button && c.CustomId == id))
+            if (!message.Components.SelectMany(c => c.Components).OfType<DiscordButtonComponent>().Any(c => c.CustomId == id))
                 throw new ArgumentException($"Message does not contain button with Id of '{id}'.");
-
-
 
             var result = await this
                 .ComponentEventWaiter
-                .WaitForMatchAsync(new(message.Id, (c) => c.Interaction.Data.ComponentType is ComponentType.Button && c.Id == id, token))
+                .WaitForMatchAsync(new(id, (c) => c.Interaction.Data.ComponentType is ComponentType.Button && c.Id == id, token))
                 .ConfigureAwait(false);
 
             return new(result is null, result);
         }
+
+        /// <summary>
+        /// Waits for any button to be interacted with.
+        /// </summary>
+        /// <param name="message">The message to wait on.</param>
+        /// <param name="predicate">The predicate to filter interactions by.</param>
+        /// <param name="timeoutOverride">Override the timeout specified in <see cref="InteractivityConfiguration"/></param>
+        public Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(DiscordMessage message, Func<ComponentInteractionCreateEventArgs, bool> predicate, TimeSpan? timeoutOverride = null)
+            => this.WaitForButtonAsync(message, predicate, this.GetCancellationToken(timeoutOverride));
+
+        /// <summary>
+        /// Waits for any button to be interacted with.
+        /// </summary>
+        /// <param name="message">The message to wait on.</param>
+        /// <param name="predicate">The predicate to filter interactions by.</param>
+        /// <param name="token">A token to cancel interactivity with at any time. Pass <see cref="CancellationToken.None"/> to wait indefinitely.</param>
+        public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(DiscordMessage message, Func<ComponentInteractionCreateEventArgs, bool> predicate, CancellationToken token)
+        {
+            if (!message.Components.Any())
+                throw new ArgumentException("Message doesn't contain any components!");
+
+            var bcmps = message.Components.SelectMany(c => c.Components).Where(c => c.Type is ComponentType.Button).ToList();
+
+            if (!bcmps.Any())
+                throw new ArgumentException("Message doesn't contain any buttons!");
+
+            var result = await this
+                .ComponentEventWaiter
+                .WaitForMatchAsync(new(message.Id.ToString(CultureInfo.InvariantCulture), c => c.Interaction.Data.ComponentType is ComponentType.Select && predicate(c), token))
+                .ConfigureAwait(false);
+
+            return new(result is null, result);
+        }
+
+        /// <summary>
+        /// Waits for any dropdown to be interacted with.
+        /// </summary>
+        /// <param name="message">The message to wait for.</param>
+        /// <param name="predicate">A filter predicate.</param>
+        /// <param name="timeoutOverride">Override the timeout period specified in <see cref="InteractivityConfiguration"/>.</param>
+        /// <exception cref="ArgumentException">Thrown when the message doesn't contain any dropdowns</exception>
+        public Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForSelectAsync(DiscordMessage message, Func<ComponentInteractionCreateEventArgs, bool> predicate, TimeSpan? timeoutOverride = null)
+            => this.WaitForSelectAsync(message, predicate, this.GetCancellationToken(timeoutOverride));
+
+        /// <summary>
+        /// Waits for any dropdown to be interacted with.
+        /// </summary>
+        /// <param name="message">The message to wait for.</param>
+        /// <param name="predicate">A filter predicate.</param>
+        /// <param name="token">A token that can be used to cancel interactivity. Pass <see cref="CancellationToken.None"/> to wait indefinitely.</param>
+        /// <exception cref="ArgumentException">Thrown when the message doesn't contain any dropdowns</exception>
+        public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForSelectAsync(DiscordMessage message, Func<ComponentInteractionCreateEventArgs, bool> predicate, CancellationToken token)
+        {
+            if (!message.Components.Any())
+                throw new ArgumentException("Message doesn't contain any components!");
+
+            var scmps = message.Components.SelectMany(c => c.Components).Where(c => c.Type is ComponentType.Select).ToList();
+
+            if (!scmps.Any())
+                throw new ArgumentException("Message doesn't contain any select menus!");
+
+            var result = await this
+                .ComponentEventWaiter
+                .WaitForMatchAsync(new(message.Id.ToString(CultureInfo.InvariantCulture), c => c.Interaction.Data.ComponentType is ComponentType.Select && predicate(c), token))
+                .ConfigureAwait(false);
+
+            return new(result is null, result);
+        }
+
 
         /// <summary>
         /// Waits for a dropdown to be interacted with.
@@ -304,7 +358,7 @@ namespace DSharpPlus.Interactivity
         /// <param name="id">The Id of the dropdown to wait on.</param>
         /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
         /// <exception cref="ArgumentException">Thrown when the message does not have any dropdowns or any dropdown with the specified Id.</exception>
-        public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForSelectAsync(DiscordMessage message, string id, CancellationToken token = default)
+        public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForSelectAsync(DiscordMessage message, string id, CancellationToken token)
         {
             if (!message.Components.Any())
                 throw new ArgumentException("Message doesn't contain any components!");
@@ -319,7 +373,7 @@ namespace DSharpPlus.Interactivity
 
             var result = await this
                 .ComponentEventWaiter
-                .WaitForMatchAsync(new(message.Id, (c) => c.Interaction.Data.ComponentType is ComponentType.Select && c.Id == id, token))
+                .WaitForMatchAsync(new(id, (c) => c.Interaction.Data.ComponentType is ComponentType.Select && c.Id == id, token))
                 .ConfigureAwait(false);
 
             return new(result is null, result);
@@ -344,7 +398,7 @@ namespace DSharpPlus.Interactivity
         /// <param name="id">The Id of the dropdown to wait on.</param>
         /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
         /// <exception cref="ArgumentException">Thrown when the message does not have any dropdowns or any dropdown with the specified Id.</exception>
-        public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForSelectAsync(DiscordMessage message, DiscordUser user, string id, CancellationToken token = default)
+        public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForSelectAsync(DiscordMessage message, DiscordUser user, string id, CancellationToken token)
         {
             if (!message.Components.Any())
                 throw new ArgumentException("Message doesn't contain any components!");
@@ -359,11 +413,10 @@ namespace DSharpPlus.Interactivity
 
             var result = await this
                 .ComponentEventWaiter
-                .WaitForMatchAsync(new(message.Id, (c) => c.Id == id && c.User == user, token)).ConfigureAwait(false);
+                .WaitForMatchAsync(new(id, (c) => c.Id == id && c.User == user, token)).ConfigureAwait(false);
 
             return new(result is null, result);
         }
-
 
         /// <summary>
         /// Waits for a specific message.

@@ -98,6 +98,16 @@ namespace DSharpPlus
         }
         private AsyncEvent<DiscordClient, HeartbeatEventArgs> _heartbeated;
 
+        /// <summary>
+        /// Fired on heartbeat attempt cancellation due to too many failed heartbeats.
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, ZombiedEventArgs> Zombied
+        {
+            add => this._zombied.Register(value);
+            remove => this._zombied.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ZombiedEventArgs> _zombied;
+
         #endregion
 
         #region Channel
@@ -658,6 +668,17 @@ namespace DSharpPlus
         }
 
         private AsyncEvent<DiscordClient, ComponentInteractionCreateEventArgs> _componentInteractionCreated;
+
+        /// <summary>
+        /// Fired when a user uses a context menu.
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, ContextMenuInteractionCreateEventArgs> ContextMenuInteractionCreated
+        {
+            add => this._contextMenuInteractionCreated.Register(value);
+            remove => this._contextMenuInteractionCreated.Unregister(value);
+        }
+
+        private AsyncEvent<DiscordClient, ContextMenuInteractionCreateEventArgs> _contextMenuInteractionCreated;
 
         /// <summary>
         /// Fired when a user starts typing in a channel.

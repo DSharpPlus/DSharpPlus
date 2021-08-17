@@ -21,27 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using Newtonsoft.Json;
+using System;
 
-namespace DSharpPlus.Entities
+namespace DSharpPlus.EventArgs
 {
     /// <summary>
-    /// Represents a Discord integration account.
+    /// Represents arguments for <see cref="DiscordClient.Zombied"/> event.
     /// </summary>
-    public class DiscordIntegrationAccount
+    public class ZombiedEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// Gets the ID of the account.
+        /// Gets how many heartbeat failures have occured.
         /// </summary>
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
-        public string Id { get; internal set; }
+        public int Failures { get; internal set; }
 
         /// <summary>
-        /// Gets the name of the account.
+        /// Gets whether the zombie event occured whilst guilds are downloading.
         /// </summary>
-        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
-        public string Name { get; internal set; }
+        public bool GuildDownloadCompleted { get; internal set; }
 
-        internal DiscordIntegrationAccount() { }
+        internal ZombiedEventArgs() : base() { }
     }
 }

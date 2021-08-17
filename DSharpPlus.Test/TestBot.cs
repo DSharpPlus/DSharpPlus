@@ -156,6 +156,7 @@ namespace DSharpPlus.Test
             //    _ = Task.Run(async () => await e.Message.RespondAsync(e.Message.Content)).ConfigureAwait(false);
             //};
         }
+
         private Task Discord_StickersUpdated(DiscordClient sender, GuildStickersUpdateEventArgs e)
         {
             this.Discord.Logger.LogInformation($"{e.Guild.Id}'s stickers updated: {e.StickersBefore.Count()} -> {e.StickersAfter.Count()}");
