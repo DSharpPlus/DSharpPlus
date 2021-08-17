@@ -942,7 +942,7 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Creates a new thread within this channel..
+        /// Creates a new thread within this channel.
         /// </summary>
         /// <param name="name">The name of the thread.</param>
         /// <param name="archiveAfter">The auto archive duration of the thread. 3 day and 7 day archive durations require a level 1 and 2 server boost respectively.</param>
