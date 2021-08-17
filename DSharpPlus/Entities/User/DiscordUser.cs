@@ -98,7 +98,6 @@ namespace DSharpPlus.Entities
         [JsonProperty("avatar", NullValueHandling = NullValueHandling.Ignore)]
         public virtual string AvatarHash { get; internal set; }
 
-
         /// <summary>
         /// Gets the user's avatar URL.
         /// </summary>
