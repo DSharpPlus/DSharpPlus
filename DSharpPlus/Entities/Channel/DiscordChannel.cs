@@ -175,7 +175,7 @@ namespace DSharpPlus.Entities
             {
                 return !this.IsCategory
                     ? throw new ArgumentException("Only channel categories contain children.")
-                    : this.Guild._channels.Values.Where(e => e.ParentId == this.Id).ToList().AsReadOnly();
+                    : this.Guild._channels.Values.Where(e => e.ParentId == this.Id).ToList();
             }
         }
 
@@ -191,8 +191,8 @@ namespace DSharpPlus.Entities
                     throw new InvalidOperationException("Cannot query users outside of guild channels.");
 
                 return this.Type == ChannelType.Voice || this.Type == ChannelType.Stage
-                    ? this.Guild.Members.Values.Where(x => x.VoiceState?.ChannelId == this.Id).ToList().AsReadOnly()
-                    : this.Guild.Members.Values.Where(x => (this.PermissionsFor(x) & Permissions.AccessChannels) == Permissions.AccessChannels).ToList().AsReadOnly();
+                    ? this.Guild.Members.Values.Where(x => x.VoiceState?.ChannelId == this.Id).ToList()
+                    : this.Guild.Members.Values.Where(x => (this.PermissionsFor(x) & Permissions.AccessChannels) == Permissions.AccessChannels).ToList();
             }
         }
 
