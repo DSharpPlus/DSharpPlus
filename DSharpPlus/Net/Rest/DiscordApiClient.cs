@@ -188,14 +188,7 @@ namespace DSharpPlus.Net
             {
                 var usr = new DiscordUser(xtm.User) { Discord = this.Discord };
 
-                this.Discord.UserCache.AddOrUpdate(xtm.User.Id, usr, (id, old) =>
-                {
-                    old.Username = usr.Username;
-                    old.Discord = usr.Discord;
-                    old.AvatarHash = usr.AvatarHash;
-
-                    return old;
-                });
+                this.Discord.UpdateUserCache(usr);
 
                 mbrs.Add(new DiscordMember(xtm) { Discord = this.Discord, _guild_id = guild_id });
             }
@@ -338,13 +331,7 @@ namespace DSharpPlus.Net
                 if (!this.Discord.TryGetCachedUserInternal(xb.RawUser.Id, out var usr))
                 {
                     usr = new DiscordUser(xb.RawUser) { Discord = this.Discord };
-                    usr = this.Discord.UserCache.AddOrUpdate(usr.Id, usr, (id, old) =>
-                    {
-                        old.Username = usr.Username;
-                        old.Discriminator = usr.Discriminator;
-                        old.AvatarHash = usr.AvatarHash;
-                        return old;
-                    });
+                    usr = this.Discord.UpdateUserCache(usr);
                 }
 
                 xb.User = usr;
@@ -1509,13 +1496,7 @@ namespace DSharpPlus.Net
             var tm = JsonConvert.DeserializeObject<TransportMember>(res.Response);
 
             var usr = new DiscordUser(tm.User) { Discord = this.Discord };
-            usr = this.Discord.UserCache.AddOrUpdate(tm.User.Id, usr, (id, old) =>
-            {
-                old.Username = usr.Username;
-                old.Discriminator = usr.Discriminator;
-                old.AvatarHash = usr.AvatarHash;
-                return old;
-            });
+            usr = this.Discord.UpdateUserCache(usr);
 
             return new DiscordMember(tm)
             {
@@ -2369,13 +2350,7 @@ namespace DSharpPlus.Net
             foreach (var xr in reacters_raw)
             {
                 var usr = new DiscordUser(xr) { Discord = this.Discord };
-                usr = this.Discord.UserCache.AddOrUpdate(xr.Id, usr, (id, old) =>
-                {
-                    old.Username = usr.Username;
-                    old.Discriminator = usr.Discriminator;
-                    old.AvatarHash = usr.AvatarHash;
-                    return old;
-                });
+                usr = this.Discord.UpdateUserCache(usr);
 
                 reacters.Add(usr);
             }
