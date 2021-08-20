@@ -255,14 +255,7 @@ namespace DSharpPlus
                         continue;
 
                     var usr = new DiscordUser(xtm.User) { Discord = this };
-                    this.UserCache.AddOrUpdate(xtm.User.Id, usr, (id, old) =>
-                    {
-                        old.Username = usr.Username;
-                        old.Discord = usr.Discord;
-                        old.AvatarHash = usr.AvatarHash;
-
-                        return old;
-                    });
+                    this.UpdateUserCache(usr);
                 }
 
                 recmbr.AddRange(tms.Select(xtm => new DiscordMember(xtm) { Discord = this, _guild_id = guild_id }));
