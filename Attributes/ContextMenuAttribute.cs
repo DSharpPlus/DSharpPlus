@@ -19,17 +19,24 @@ namespace DSharpPlus.SlashCommands
         public ApplicationCommandType Type { get; internal set; }
 
         /// <summary>
+        /// Gets whether this command is enabled by default.
+        /// </summary>
+        public bool DefaultPermission { get; internal set;}
+
+        /// <summary>
         /// Marks this method as a context menu.
         /// </summary>
         /// <param name="type">The type of the context menu.</param>
         /// <param name="name">The name of the context menu.</param>
-        public ContextMenuAttribute(ApplicationCommandType type, string name)
+        /// <param name="defaultPermission">Sets whether the command should be enabled by default.</param>
+        public ContextMenuAttribute(ApplicationCommandType type, string name, bool defaultPermission = true)
         {
             if (type == ApplicationCommandType.SlashCommand)
                 throw new ArgumentException("Context menus cannot be of type SlashCommand.");
 
             this.Type = type;
             this.Name = name;
+            this.DefaultPermission = defaultPermission;
         }
     }
 }

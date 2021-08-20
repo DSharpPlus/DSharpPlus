@@ -238,7 +238,7 @@ namespace DSharpPlus.SlashCommands
                             foreach (var contextMethod in contextMethods)
                             {
                                 var contextAttribute = contextMethod.GetCustomAttribute<ContextMenuAttribute>();
-                                var command = new DiscordApplicationCommand(contextAttribute.Name, null, type: contextAttribute.Type);
+                                var command = new DiscordApplicationCommand(contextAttribute.Name, null, type: contextAttribute.Type, defaultPermission: contextAttribute.DefaultPermission);
 
                                 var parameters = contextMethod.GetParameters();
                                 if (parameters.Length == 0 || parameters == null || !ReferenceEquals(parameters.FirstOrDefault()?.ParameterType, typeof(ContextMenuContext)))
@@ -558,17 +558,17 @@ namespace DSharpPlus.SlashCommands
                 {
                     var option = options.Single(x => x.Name == parameter.GetCustomAttribute<OptionAttribute>().Name.ToLower());
 
-                    if (ReferenceEquals(parameter.ParameterType, typeof(string)))
+                    if (parameter.ParameterType == typeof(string))
                         args.Add(option.Value.ToString());
                     else if (parameter.ParameterType.IsEnum)
                         args.Add(Enum.Parse(parameter.ParameterType, (string)option.Value));
-                    else if (ReferenceEquals(parameter.ParameterType, typeof(long)) || ReferenceEquals(parameter.ParameterType, typeof(long?)))
+                    else if (parameter.ParameterType == typeof(long) || parameter.ParameterType == typeof(long?))
                         args.Add((long?)option.Value);
-                    else if (ReferenceEquals(parameter.ParameterType, typeof(bool)) || ReferenceEquals(parameter.ParameterType, typeof(bool?)))
+                    else if (parameter.ParameterType == typeof(bool) || parameter.ParameterType == typeof(bool?))
                         args.Add((bool?)option.Value);
-                    else if (ReferenceEquals(parameter.ParameterType, typeof(double)) || ReferenceEquals(parameter.ParameterType, typeof(double?)))
+                    else if (parameter.ParameterType == typeof(double) || parameter.ParameterType == typeof(double?))
                         args.Add((double?)option.Value);
-                    else if (ReferenceEquals(parameter.ParameterType, typeof(DiscordUser)))
+                    else if (parameter.ParameterType == typeof(DiscordUser))
                     {
                         if (e.Interaction.Data.Resolved.Members != null &&
                             e.Interaction.Data.Resolved.Members.TryGetValue((ulong)option.Value, out var member))
@@ -585,7 +585,7 @@ namespace DSharpPlus.SlashCommands
                             args.Add(await Client.GetUserAsync((ulong)option.Value));
                         }
                     }
-                    else if (ReferenceEquals(parameter.ParameterType, typeof(DiscordChannel)))
+                    else if (parameter.ParameterType == typeof(DiscordChannel))
                     {
                         if (e.Interaction.Data.Resolved.Channels != null &&
                             e.Interaction.Data.Resolved.Channels.TryGetValue((ulong)option.Value, out var channel))
@@ -597,7 +597,7 @@ namespace DSharpPlus.SlashCommands
                             args.Add(e.Interaction.Guild.GetChannel((ulong)option.Value));
                         }
                     }
-                    else if (ReferenceEquals(parameter.ParameterType, typeof(DiscordRole)))
+                    else if (parameter.ParameterType == typeof(DiscordRole))
                     {
                         if (e.Interaction.Data.Resolved.Roles != null &&
                             e.Interaction.Data.Resolved.Roles.TryGetValue((ulong)option.Value, out var role))
@@ -609,7 +609,7 @@ namespace DSharpPlus.SlashCommands
                             args.Add(e.Interaction.Guild.GetRole((ulong)option.Value));
                         }
                     }
-                    else if (ReferenceEquals(parameter.ParameterType, typeof(SnowflakeObject)))
+                    else if (parameter.ParameterType == typeof(SnowflakeObject))
                     {
                         if (e.Interaction.Data.Resolved.Roles != null && e.Interaction.Data.Resolved.Roles.TryGetValue((ulong)option.Value, out var role))
                         {
@@ -725,21 +725,21 @@ namespace DSharpPlus.SlashCommands
         private ApplicationCommandOptionType GetParameterType(Type type)
         {
             ApplicationCommandOptionType parametertype;
-            if (ReferenceEquals(type, typeof(string)))
+            if (type == typeof(string))
                 parametertype = ApplicationCommandOptionType.String;
-            else if (ReferenceEquals(type, typeof(long)) || ReferenceEquals(type, typeof(long?)))
+            else if (type == typeof(long) || type == typeof(long?))
                 parametertype = ApplicationCommandOptionType.Integer;
-            else if (ReferenceEquals(type, typeof(bool)) || ReferenceEquals(type, typeof(bool?)))
+            else if (type == typeof(bool) || type == typeof(bool?))
                 parametertype = ApplicationCommandOptionType.Boolean;
-            else if (ReferenceEquals(type, typeof(double)) || ReferenceEquals(type, typeof(double?)))
+            else if (type == typeof(double) || type == typeof(double?))
                 parametertype = ApplicationCommandOptionType.Number;
-            else if (ReferenceEquals(type, typeof(DiscordChannel)))
+            else if (type == typeof(DiscordChannel))
                 parametertype = ApplicationCommandOptionType.Channel;
-            else if (ReferenceEquals(type, typeof(DiscordUser)))
+            else if (type == typeof(DiscordUser))
                 parametertype = ApplicationCommandOptionType.User;
-            else if (ReferenceEquals(type, typeof(DiscordRole)))
+            else if (type == typeof(DiscordRole))
                 parametertype = ApplicationCommandOptionType.Role;
-            else if (ReferenceEquals(type, typeof(SnowflakeObject)))
+            else if (type == typeof(SnowflakeObject))
                 parametertype = ApplicationCommandOptionType.Mentionable;
             else if (type.IsEnum)
                 parametertype = ApplicationCommandOptionType.String;
