@@ -1705,9 +1705,12 @@ namespace DSharpPlus
             var vstateNew = raw.ToObject<DiscordVoiceState>();
             vstateNew.Discord = this;
 
-            gld._voiceStates.TryGetValue(uid, out var vstateOld);
+            gld._voiceStates.TryRemove(uid, out var vstateOld);
 
-            gld._voiceStates[vstateNew.UserId] = vstateNew;
+            if (vstateNew.Channel is not null)
+            {
+                gld._voiceStates[vstateNew.UserId] = vstateNew;
+            }
 
             if (gld._members.TryGetValue(uid, out var mbr))
             {
