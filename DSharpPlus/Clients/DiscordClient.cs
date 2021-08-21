@@ -204,6 +204,7 @@ namespace DSharpPlus
             this._messageReactionRemovedEmoji = new AsyncEvent<DiscordClient, MessageReactionRemoveEmojiEventArgs>("MESSAGE_REACTION_REMOVED_EMOJI", EventExecutionLimit, this.EventErrorHandler);
             this._webhooksUpdated = new AsyncEvent<DiscordClient, WebhooksUpdateEventArgs>("WEBHOOKS_UPDATED", EventExecutionLimit, this.EventErrorHandler);
             this._heartbeated = new AsyncEvent<DiscordClient, HeartbeatEventArgs>("HEARTBEATED", EventExecutionLimit, this.EventErrorHandler);
+            this._zombied = new AsyncEvent<DiscordClient, ZombiedEventArgs>("ZOMBIED", EventExecutionLimit, this.EventErrorHandler);
             this._applicationCommandCreated = new AsyncEvent<DiscordClient, ApplicationCommandEventArgs>("APPLICATION_COMMAND_CREATED", EventExecutionLimit, this.EventErrorHandler);
             this._applicationCommandUpdated = new AsyncEvent<DiscordClient, ApplicationCommandEventArgs>("APPLICATION_COMMAND_UPDATED", EventExecutionLimit, this.EventErrorHandler);
             this._applicationCommandDeleted = new AsyncEvent<DiscordClient, ApplicationCommandEventArgs>("APPLICATION_COMMAND_DELETED", EventExecutionLimit, this.EventErrorHandler);
@@ -392,6 +393,8 @@ namespace DSharpPlus
                 old.Username = usr.Username;
                 old.Discriminator = usr.Discriminator;
                 old.AvatarHash = usr.AvatarHash;
+                old.BannerHash = usr.BannerHash;
+                old._bannerColor = usr._bannerColor;
                 return old;
             });
 
@@ -839,13 +842,7 @@ namespace DSharpPlus
                 {
                     usr = new DiscordUser(mbr.User) { Discord = this };
 
-                    _ = this.UserCache.AddOrUpdate(usr.Id, usr, (id, old) =>
-                    {
-                        old.Username = usr.Username;
-                        old.Discriminator = usr.Discriminator;
-                        old.AvatarHash = usr.AvatarHash;
-                        return old;
-                    });
+                    this.UpdateUserCache( usr);
 
                     usr = new DiscordMember(mbr) { Discord = this, _guild_id = guildId.Value };
                 }
@@ -874,13 +871,7 @@ namespace DSharpPlus
             }
             else if (usr.Username != null) // check if not a skeleton user
             {
-                _ = this.UserCache.AddOrUpdate(usr.Id, usr, (id, old) =>
-                {
-                    old.Username = usr.Username;
-                    old.Discriminator = usr.Discriminator;
-                    old.AvatarHash = usr.AvatarHash;
-                    return old;
-                });
+                this.UpdateUserCache(usr);
             }
 
             return usr;
@@ -936,14 +927,7 @@ namespace DSharpPlus
                     var xtm = xj.ToDiscordObject<TransportMember>();
 
                     var xu = new DiscordUser(xtm.User) { Discord = this };
-                    _ = this.UserCache.AddOrUpdate(xtm.User.Id, xu, (id, old) =>
-                    {
-                        old.Username = xu.Username;
-                        old.Discriminator = xu.Discriminator;
-                        old.AvatarHash = xu.AvatarHash;
-                        old.PremiumType = xu.PremiumType;
-                        return old;
-                    });
+                    this.UpdateUserCache(xu);
 
                     guild._members[xtm.User.Id] = new DiscordMember(xtm) { Discord = this, _guild_id = guild.Id };
                 }

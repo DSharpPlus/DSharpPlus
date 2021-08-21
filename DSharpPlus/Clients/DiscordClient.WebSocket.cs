@@ -406,14 +406,32 @@ namespace DSharpPlus
         {
             var more_than_5 = Volatile.Read(ref this._skippedHeartbeats) > 5;
             var guilds_comp = Volatile.Read(ref this._guildDownloadCompleted);
+
             if (guilds_comp && more_than_5)
             {
                 this.Logger.LogCritical(LoggerEvents.HeartbeatFailure, "Server failed to acknowledge more than 5 heartbeats - connection is zombie");
+
+                var args = new ZombiedEventArgs
+                {
+                    Failures = Volatile.Read(ref this._skippedHeartbeats),
+                    GuildDownloadCompleted = true
+                };
+                await this._zombied.InvokeAsync(this, args).ConfigureAwait(false);
+
                 await this.InternalReconnectAsync(code: 4001, message: "Too many heartbeats missed").ConfigureAwait(false);
+
                 return;
             }
-            else if (!guilds_comp && more_than_5)
+
+            if (!guilds_comp && more_than_5)
             {
+                var args = new ZombiedEventArgs
+                {
+                    Failures = Volatile.Read(ref this._skippedHeartbeats),
+                    GuildDownloadCompleted = false
+                };
+                await this._zombied.InvokeAsync(this, args).ConfigureAwait(false);
+
                 this.Logger.LogWarning(LoggerEvents.HeartbeatFailure, "Server failed to acknowledge more than 5 heartbeats, but the guild download is still running - check your connection speed");
             }
 

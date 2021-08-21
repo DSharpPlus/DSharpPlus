@@ -500,13 +500,7 @@ namespace DSharpPlus
                 foreach (var xr in recips_raw)
                 {
                     var xu = new DiscordUser(xr) { Discord = this };
-                    xu = this.UserCache.AddOrUpdate(xr.Id, xu, (id, old) =>
-                    {
-                        old.Username = xu.Username;
-                        old.Discriminator = xu.Discriminator;
-                        old.AvatarHash = xu.AvatarHash;
-                        return old;
-                    });
+                    xu = this.UpdateUserCache(xu);
 
                     recipients.Add(xu);
                 }
@@ -566,13 +560,7 @@ namespace DSharpPlus
                         var xtm = xj.ToObject<TransportMember>();
 
                         var xu = new DiscordUser(xtm.User) { Discord = this };
-                        xu = this.UserCache.AddOrUpdate(xtm.User.Id, xu, (id, old) =>
-                        {
-                            old.Username = xu.Username;
-                            old.Discriminator = xu.Discriminator;
-                            old.AvatarHash = xu.AvatarHash;
-                            return old;
-                        });
+                        xu = this.UpdateUserCache(xu);
 
                         guild._members[xtm.User.Id] = new DiscordMember(xtm) { Discord = this, _guild_id = guild.Id };
                     }
@@ -1010,13 +998,7 @@ namespace DSharpPlus
         internal async Task OnGuildBanAddEventAsync(TransportUser user, DiscordGuild guild)
         {
             var usr = new DiscordUser(user) { Discord = this };
-            usr = this.UserCache.AddOrUpdate(user.Id, usr, (id, old) =>
-            {
-                old.Username = usr.Username;
-                old.Discriminator = usr.Discriminator;
-                old.AvatarHash = usr.AvatarHash;
-                return old;
-            });
+            usr = this.UpdateUserCache(usr);
 
             if (!guild.Members.TryGetValue(user.Id, out var mbr))
                 mbr = new DiscordMember(usr) { Discord = this, _guild_id = guild.Id };
@@ -1031,13 +1013,7 @@ namespace DSharpPlus
         internal async Task OnGuildBanRemoveEventAsync(TransportUser user, DiscordGuild guild)
         {
             var usr = new DiscordUser(user) { Discord = this };
-            usr = this.UserCache.AddOrUpdate(user.Id, usr, (id, old) =>
-            {
-                old.Username = usr.Username;
-                old.Discriminator = usr.Discriminator;
-                old.AvatarHash = usr.AvatarHash;
-                return old;
-            });
+            usr = this.UpdateUserCache(usr);
 
             if (!guild.Members.TryGetValue(user.Id, out var mbr))
                 mbr = new DiscordMember(usr) { Discord = this, _guild_id = guild.Id };
@@ -1056,13 +1032,7 @@ namespace DSharpPlus
         internal async Task OnGuildMemberAddEventAsync(TransportMember member, DiscordGuild guild)
         {
             var usr = new DiscordUser(member.User) { Discord = this };
-            usr = this.UserCache.AddOrUpdate(member.User.Id, usr, (id, old) =>
-            {
-                old.Username = usr.Username;
-                old.Discriminator = usr.Discriminator;
-                old.AvatarHash = usr.AvatarHash;
-                return old;
-            });
+            usr = this.UpdateUserCache(usr);
 
             var mbr = new DiscordMember(member)
             {
@@ -1089,7 +1059,7 @@ namespace DSharpPlus
                 mbr = new DiscordMember(usr) { Discord = this, _guild_id = guild.Id };
             guild.MemberCount--;
 
-            _ = this.UserCache.AddOrUpdate(user.Id, usr, (old, @new) => @new);
+            this.UpdateUserCache(usr);
 
             var ea = new GuildMemberRemoveEventArgs
             {
@@ -1102,13 +1072,7 @@ namespace DSharpPlus
         internal async Task OnGuildMemberUpdateEventAsync(TransportMember member, DiscordGuild guild, IEnumerable<ulong> roles, string nick, bool? pending)
         {
             var usr = new DiscordUser(member.User) { Discord = this };
-            usr = this.UserCache.AddOrUpdate(usr.Id, usr, (id, old) =>
-            {
-                old.Username = usr.Username;
-                old.Discriminator = usr.Discriminator;
-                old.AvatarHash = usr.AvatarHash;
-                return old;
-            });
+            usr = this.UpdateUserCache(usr);
 
             if (!guild.Members.TryGetValue(member.User.Id, out var mbr))
                 mbr = new DiscordMember(usr) { Discord = this, _guild_id = guild.Id };
@@ -2155,7 +2119,7 @@ namespace DSharpPlus
         internal async Task OnInteractionCreateAsync(ulong? guildId, ulong channelId, TransportUser user, TransportMember member, DiscordInteraction interaction)
         {
             var usr = new DiscordUser(user) { Discord = this };
-            this.UserCache.AddOrUpdate(usr.Id, usr, (old, @new) => @new);
+            this.UpdateUserCache(usr);
 
             if (member != null)
                 usr = new DiscordMember(member) { _guild_id = guildId.Value, Discord = this };
@@ -2174,7 +2138,7 @@ namespace DSharpPlus
                     foreach (var c in resolved.Users)
                     {
                         c.Value.Discord = this;
-                        this.UserCache.AddOrUpdate(c.Value.Id, c.Value, (old, @new) => @new);
+                        this.UpdateUserCache(c.Value);
                     }
                 }
 
@@ -2187,7 +2151,7 @@ namespace DSharpPlus
                         c.Value._guild_id = guildId.Value;
                         c.Value.User.Discord = this;
 
-                        this.UserCache.AddOrUpdate(c.Value.User.Id, c.Value.User, (old, @new) => @new);
+                        this.UpdateUserCache(c.Value.User);
                     }
                 }
 

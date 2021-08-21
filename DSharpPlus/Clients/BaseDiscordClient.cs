@@ -195,7 +195,7 @@ namespace DSharpPlus
             if (this.CurrentUser == null)
             {
                 this.CurrentUser = await this.ApiClient.GetCurrentUserAsync().ConfigureAwait(false);
-                this.UserCache.AddOrUpdate(this.CurrentUser.Id, this.CurrentUser, (id, xu) => this.CurrentUser);
+                this.UpdateUserCache(this.CurrentUser);
             }
 
             if (this.Configuration.TokenType == TokenType.Bot && this.CurrentApplication == null)
@@ -247,6 +247,17 @@ namespace DSharpPlus
 
             user = new DiscordUser { Id = user_id, Discord = this };
             return false;
+        }
+
+        internal DiscordUser UpdateUserCache(DiscordUser newUser)
+        {
+            return this.UserCache.AddOrUpdate(newUser.Id, newUser, (id, old) =>
+            {
+                old.Username = newUser.Username;
+                old.Discriminator = newUser.Discriminator;
+                old.AvatarHash = newUser.AvatarHash;
+                return old;
+            });
         }
 
         /// <summary>

@@ -995,14 +995,7 @@ namespace DSharpPlus.Entities
                 {
                     var usr = new DiscordUser(xtm.User) { Discord = this.Discord };
 
-                    usr = this.Discord.UserCache.AddOrUpdate(xtm.User.Id, usr, (id, old) =>
-                    {
-                        old.Username = usr.Username;
-                        old.Discord = usr.Discord;
-                        old.AvatarHash = usr.AvatarHash;
-
-                        return old;
-                    });
+                    usr = this.Discord.UpdateUserCache(usr);
 
                     recmbr.Add(new DiscordMember(xtm) { Discord = this.Discord, _guild_id = this.Id });
                 }
@@ -1142,13 +1135,7 @@ namespace DSharpPlus.Entities
                     AvatarHash = xau.AvatarHash
                 };
                 var xu = new DiscordUser(xtu) { Discord = this.Discord };
-                xu = this.Discord.UserCache.AddOrUpdate(xu.Id, xu, (id, old) =>
-                {
-                    old.Username = xu.Username;
-                    old.Discriminator = xu.Discriminator;
-                    old.AvatarHash = xu.AvatarHash;
-                    return old;
-                });
+                xu = this.Discord.UpdateUserCache(xu);
             }
 
             var ahr = alrs.SelectMany(xa => xa.Webhooks)

@@ -409,13 +409,7 @@ namespace DSharpPlus.Entities
                 foreach (var usr in this._mentionedUsers)
                 {
                     usr.Discord = this.Discord;
-                    this.Discord.UserCache.AddOrUpdate(usr.Id, usr, (id, old) =>
-                    {
-                        old.Username = usr.Username;
-                        old.Discriminator = usr.Discriminator;
-                        old.AvatarHash = usr.AvatarHash;
-                        return old;
-                    });
+                    this.Discord.UpdateUserCache(usr);
 
                     mentionedUsers.Add(guild._members.TryGetValue(usr.Id, out var member) ? member : usr);
                 }
