@@ -21,7 +21,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using DSharpPlus.Net.Serialization;
@@ -30,37 +29,35 @@ using Newtonsoft.Json;
 namespace DSharpPlus.Entities
 {
     /// <summary>
-    /// Represents a Discord integration. These appear on the profile as linked 3rd party accounts.
+    /// Represents a guild preview.
     /// </summary>
     public class DiscordGuildPreview : SnowflakeObject
     {
         /// <summary>
-        /// Gets the integration name.
+        /// Gets the guild's name.
         /// </summary>
         [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
         public string Name { get; internal set; }
 
         /// <summary>
-        /// Gets the integration type.
+        /// Gets the guild's icon.
         /// </summary>
         [JsonProperty("icon", NullValueHandling = NullValueHandling.Ignore)]
         public string Icon { get; internal set; }
 
 
         /// <summary>
-        /// Gets the integration type.
+        /// Gets the guild's splash.
         /// </summary>
         [JsonProperty("splash", NullValueHandling = NullValueHandling.Ignore)]
         public string Splash { get; internal set; }
 
 
         /// <summary>
-        /// Gets the integration type.
+        /// Gets the guild's discovery splash.
         /// </summary>
         [JsonProperty("discovery_splash", NullValueHandling = NullValueHandling.Ignore)]
         public string DiscoverySplash { get; internal set; }
-
-
 
         /// <summary>
         /// Gets a collection of this guild's emojis.
@@ -72,7 +69,6 @@ namespace DSharpPlus.Entities
         [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
         internal ConcurrentDictionary<ulong, DiscordEmoji> _emojis;
 
-
         /// <summary>
         /// Gets a collection of this guild's features.
         /// </summary>
@@ -80,20 +76,20 @@ namespace DSharpPlus.Entities
         public IReadOnlyList<string> Features { get; internal set; }
 
         /// <summary>
-        /// Gets the integration type.
+        /// Gets the approximate member count.
         /// </summary>
         [JsonProperty("approximate_member_count")]
         public int ApproximateMemberCount { get; internal set; }
 
         /// <summary>
-        /// Gets the integration type.
+        /// Gets the approximate presence count.
         /// </summary>
         [JsonProperty("approximate_presence_count")]
         public int ApproximatePresenceCount { get; internal set; }
 
 
         /// <summary>
-        /// Gets the integration type.
+        /// Gets the description for the guild, if the guild is discoverable.
         /// </summary>
         [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
         public string Description { get; internal set; }

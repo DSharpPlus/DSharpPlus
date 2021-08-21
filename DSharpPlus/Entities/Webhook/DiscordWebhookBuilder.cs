@@ -23,7 +23,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -63,34 +62,87 @@ namespace DSharpPlus.Entities
                 this._content = value;
             }
         }
+
         private string _content;
 
         /// <summary>
         /// Embeds to send on this webhook request.
         /// </summary>
-        public IReadOnlyList<DiscordEmbed> Embeds { get; }
+        public IReadOnlyList<DiscordEmbed> Embeds => this._embeds;
         private readonly List<DiscordEmbed> _embeds = new();
 
         /// <summary>
         /// Files to send on this webhook request.
         /// </summary>
-        public IReadOnlyCollection<DiscordMessageFile> Files => this._files;
-
-        internal readonly List<DiscordMessageFile> _files = new();
+        public IReadOnlyList<DiscordMessageFile> Files => this._files;
+        private readonly List<DiscordMessageFile> _files = new();
 
         /// <summary>
         /// Mentions to send on this webhook request.
         /// </summary>
-        public IEnumerable<IMention> Mentions { get; }
+        public IReadOnlyList<IMention> Mentions => this._mentions;
         private readonly List<IMention> _mentions = new();
+
+
+        public IReadOnlyList<DiscordActionRowComponent> Components => this._components;
+        private readonly List<DiscordActionRowComponent> _components = new();
+
 
         /// <summary>
         /// Constructs a new empty webhook request builder.
         /// </summary>
-        public DiscordWebhookBuilder()
+        public DiscordWebhookBuilder() { } // I still see no point in initializing collections with empty collections. //
+
+
+        /// <summary>
+        /// Adds a row of components to the builder, up to 5 components per row, and up to 5 rows per message.
+        /// </summary>
+        /// <param name="components">The components to add to the builder.</param>
+        /// <returns>The current builder to be chained.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">No components were passed.</exception>
+        public DiscordWebhookBuilder AddComponents(params DiscordComponent[] components)
+            => this.AddComponents((IEnumerable<DiscordComponent>)components);
+
+
+        /// <summary>
+        /// Appends several rows of components to the builder
+        /// </summary>
+        /// <param name="components">The rows of components to add, holding up to five each.</param>
+        /// <returns></returns>
+        public DiscordWebhookBuilder AddComponents(IEnumerable<DiscordActionRowComponent> components)
         {
-            this.Embeds = new ReadOnlyCollection<DiscordEmbed>(this._embeds);
-            this.Mentions = new ReadOnlyCollection<IMention>(this._mentions);
+            var ara = components.ToArray();
+
+            if (ara.Length + this._components.Count > 5)
+                throw new ArgumentException("ActionRow count exceeds maximum of five.");
+
+            foreach (var ar in ara)
+                this._components.Add(ar);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a row of components to the builder, up to 5 components per row, and up to 5 rows per message.
+        /// </summary>
+        /// <param name="components">The components to add to the builder.</param>
+        /// <returns>The current builder to be chained.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">No components were passed.</exception>
+        public DiscordWebhookBuilder AddComponents(IEnumerable<DiscordComponent> components)
+        {
+            var cmpArr = components.ToArray();
+            var count = cmpArr.Length;
+
+            if (!cmpArr.Any())
+                throw new ArgumentOutOfRangeException(nameof(components), "You must provide at least one component");
+
+            if (count > 5)
+                throw new ArgumentException("Cannot add more than 5 components per action row!");
+
+            var comp = new DiscordActionRowComponent(cmpArr);
+            this._components.Add(comp);
+
+            return this;
         }
 
         /// <summary>
@@ -204,7 +256,7 @@ namespace DSharpPlus.Entities
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
         public DiscordWebhookBuilder AddFiles(Dictionary<string, Stream> files, bool resetStreamPosition = false)
         {
-            if (this.Files.Count() + files.Count() >= 10)
+            if (this.Files.Count() + files.Count() > 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
             foreach (var file in files)
@@ -263,6 +315,12 @@ namespace DSharpPlus.Entities
         /// <param name="messageId">The id of the message to modify.</param>
         /// <returns>The modified message</returns>
         public async Task<DiscordMessage> ModifyAsync(DiscordWebhook webhook, ulong messageId) => await webhook.EditMessageAsync(messageId, this).ConfigureAwait(false);
+
+        /// <summary>
+        /// Clears all message components on this builder.
+        /// </summary>
+        public void ClearComponents()
+            => this._components.Clear();
 
         /// <summary>
         /// Allows for clearing the Webhook Builder so that it can be used again to send a new message.

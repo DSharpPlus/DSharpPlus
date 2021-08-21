@@ -24,7 +24,7 @@
   - name: Message Builder
     href: beyond_basics/messagebuilder.md
 - name: Commands
-  items:  
+  items:
   - name: Introduction
     href: commands/intro.md
   - name: Command Attributes
@@ -59,6 +59,12 @@
       href: audio/voicenext/receive.md
 - name: Interactivity
   href: interactivity.md
+- name: Advanced Topics
+  items:
+  - name: Buttons
+    href: advanced_topics/buttons.md
+  - name: Select Menus
+    href: advanced_topcs/selects.md
 - name: Hosting
   href: hosting.md
 - name: Version Migration

@@ -234,7 +234,7 @@ namespace DSharpPlus.Lavalink
             {
                 try
                 {
-                    if (_backoff != 0)
+                    if (this._backoff != 0)
                     {
                         await Task.Delay(this._backoff).ConfigureAwait(false);
                         this._backoff = Math.Min(this._backoff * 2, MaximumBackoff);
@@ -253,14 +253,14 @@ namespace DSharpPlus.Lavalink
                 { throw; }
                 catch (Exception ex)
                 {
-                    if (this._backoff != MaximumBackoff)
-                    {
-                        this.Discord.Logger.LogCritical(LavalinkEvents.LavalinkConnectionError, ex, $"Failed to connect to Lavalink, retrying in {this._backoff} ms.");
-                    }
-                    else
+                    if(!this.Configuration.SocketAutoReconnect || this._backoff == MaximumBackoff)
                     {
                         this.Discord.Logger.LogCritical(LavalinkEvents.LavalinkConnectionError, ex, "Failed to connect to Lavalink.");
                         throw ex;
+                    }
+                    else
+                    {
+                        this.Discord.Logger.LogCritical(LavalinkEvents.LavalinkConnectionError, ex, $"Failed to connect to Lavalink, retrying in {this._backoff} ms.");
                     }
                 }
             }

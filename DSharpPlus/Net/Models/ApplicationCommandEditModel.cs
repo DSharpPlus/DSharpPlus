@@ -38,7 +38,7 @@ namespace DSharpPlus.Net.Models
             set
             {
                 if (value.Value.Length > 32)
-                    throw new ArgumentException("Slash command name cannot exceed 32 characters.", nameof(value));
+                    throw new ArgumentException("Application command name cannot exceed 32 characters.", nameof(value));
                 this._name = value;
             }
         }
@@ -53,7 +53,7 @@ namespace DSharpPlus.Net.Models
             set
             {
                 if (value.Value.Length > 100)
-                    throw new ArgumentException("Slash command description cannot exceed 100 characters.", nameof(value));
+                    throw new ArgumentException("Application command description cannot exceed 100 characters.", nameof(value));
                 this._description = value;
             }
         }
@@ -63,5 +63,10 @@ namespace DSharpPlus.Net.Models
         /// Sets the command's new options.
         /// </summary>
         public Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> Options { internal get; set; }
+
+        /// <summary>
+        /// Sets whether the command is enabled by default when the application is added to a guild.
+        /// </summary>
+        public Optional<bool?> DefaultPermission { internal get; set; }
     }
 }

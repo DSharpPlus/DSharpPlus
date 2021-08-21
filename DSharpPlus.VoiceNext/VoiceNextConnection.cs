@@ -399,9 +399,9 @@ namespace DSharpPlus.VoiceNext
                 }
 
                 // Provided by Laura#0090 (214796473689178133); this is Python, but adaptable:
-                // 
+                //
                 // delay = max(0, self.delay + ((start_time + self.delay * loops) + - time.time()))
-                // 
+                //
                 // self.delay
                 //   sample size
                 // start_time
@@ -432,7 +432,7 @@ namespace DSharpPlus.VoiceNext
                 await client.SendAsync(data, length).ConfigureAwait(false);
                 ArrayPool<byte>.Shared.Return(data);
 
-                if (!rawPacket.Silence && _queueCount == 0)
+                if (!rawPacket.Silence && this._queueCount == 0)
                 {
                     var nullpcm = new byte[this.AudioFormat.CalculateSampleSize(20)];
                     for (var i = 0; i < 3; i++)
@@ -442,7 +442,7 @@ namespace DSharpPlus.VoiceNext
                         await this.EnqueuePacketAsync(new RawVoicePacket(nullpacketmem, 20, true)).ConfigureAwait(false);
                     }
                 }
-                else if (_queueCount == 0)
+                else if (this._queueCount == 0)
                 {
                     await this.SendSpeakingAsync(false).ConfigureAwait(false);
                     this.PlayingWait?.SetResult(true);
@@ -523,7 +523,7 @@ namespace DSharpPlus.VoiceNext
                 if (opusSpan[0] == 0x90)
                 {
                     // I'm not 100% sure what this header is/does, however removing the data causes no
-                    // real issues, and has the added benefit of removing a lot of noise. 
+                    // real issues, and has the added benefit of removing a lot of noise.
                     opusSpan = opusSpan.Slice(2);
                 }
 
@@ -720,8 +720,7 @@ namespace DSharpPlus.VoiceNext
             this.IsInitialized = false;
             this.TokenSource.Cancel();
             this.SenderTokenSource.Cancel();
-            if (this.Configuration.EnableIncoming)
-                this.ReceiverTokenSource.Cancel();
+            this.ReceiverTokenSource?.Cancel();
 
             try
             {

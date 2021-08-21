@@ -21,23 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
-using System.Threading;
 
 namespace DSharpPlus
 {
     /// <summary>
     /// Read-only view of a given <see cref="ConcurrentDictionary{TKey,TValue}"/>.
     /// </summary>
-    /// <remarks>
-    /// This type exists because <see cref="ConcurrentDictionary{TKey,TValue}"/> is not an
-    /// <see cref="IReadOnlyDictionary{TKey,TValue}"/> in .NET Standard 1.1.
-    /// </remarks>
     /// <typeparam name="TKey">The type of keys in the dictionary.</typeparam>
     /// <typeparam name="TValue">The type of values in the dictionary.</typeparam>
     internal readonly struct ReadOnlyConcurrentDictionary<TKey, TValue> : IReadOnlyDictionary<TKey, TValue>

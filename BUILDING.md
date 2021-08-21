@@ -62,7 +62,7 @@ Building this way outputs NuGet packages, and a documentation package. Ensure yo
 ### GNU/Linux
 When all necessary prerequisites are installed, you can proceed to building. There are technically 2 ways to build the library, though both of them perform the same steps, they are just invoked slightly differently.
 
-#### Through Visual Studio COde
+#### Through Visual Studio Code
 1. Open Visual Studio Code and open the folder to which you cloned DSharpPlus as your workspace.
 2. Select Build > Run Task...
 3. Select `buildRelease` task and wait for it to finish.

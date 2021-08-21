@@ -20,15 +20,40 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-
 namespace DSharpPlus
 {
     /// <summary>
-    /// Represents the type of interaction used.
+    /// Denotes the type of formatting to use for timestamps.
     /// </summary>
-    public enum InteractionType
+    public enum TimestampFormat : byte
     {
-        Ping = 1,
-        ApplicationCommand
+        /// <summary>
+        /// A short date. e.g. 18/06/2021.
+        /// </summary>
+        ShortDate = (byte)'d',
+        /// <summary>
+        /// A long date. e.g. 18 June 2021.
+        /// </summary>
+        LongDate = (byte)'D',
+        /// <summary>
+        /// A short date and time. e.g. 18 June 2021 03:50.
+        /// </summary>
+        ShortDateTime = (byte)'f',
+        /// <summary>
+        /// A long date and time. e.g. Friday 18 June 2021 03:50.
+        /// </summary>
+        LongDateTime = (byte)'F',
+        /// <summary>
+        /// A short time. e.g. 03:50.
+        /// </summary>
+        ShortTime = (byte)'t',
+        /// <summary>
+        /// A long time. e.g. 03:50:15.
+        /// </summary>
+        LongTime = (byte)'T',
+        /// <summary>
+        /// The time relative to the client. e.g. An hour ago.
+        /// </summary>
+        RelativeTime = (byte)'R'
     }
 }

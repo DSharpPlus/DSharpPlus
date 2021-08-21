@@ -54,13 +54,13 @@ namespace DSharpPlus.Interactivity.EventHandling
         public EventWaiter(DiscordClient client)
         {
             this._client = client;
-            var tinfo = _client.GetType().GetTypeInfo();
+            var tinfo = this._client.GetType().GetTypeInfo();
             var handler = tinfo.DeclaredFields.First(x => x.FieldType == typeof(AsyncEvent<DiscordClient, T>));
             this._matchrequests = new ConcurrentHashSet<MatchRequest<T>>();
             this._collectrequests = new ConcurrentHashSet<CollectRequest<T>>();
-            this._event = (AsyncEvent<DiscordClient, T>)handler.GetValue(_client);
+            this._event = (AsyncEvent<DiscordClient, T>)handler.GetValue(this._client);
             this._handler = new AsyncEventHandler<DiscordClient, T>(this.HandleEvent);
-            this._event.Register(_handler);
+            this._event.Register(this._handler);
         }
 
         /// <summary>
@@ -111,9 +111,9 @@ namespace DSharpPlus.Interactivity.EventHandling
 
         private Task HandleEvent(DiscordClient client, T eventargs)
         {
-            if (!disposed)
+            if (!this.disposed)
             {
-                foreach (var req in _matchrequests)
+                foreach (var req in this._matchrequests)
                 {
                     if (req._predicate(eventargs))
                     {
@@ -121,7 +121,7 @@ namespace DSharpPlus.Interactivity.EventHandling
                     }
                 }
 
-                foreach (var req in _collectrequests)
+                foreach (var req in this._collectrequests)
                 {
                     if (req._predicate(eventargs))
                     {
@@ -145,7 +145,7 @@ namespace DSharpPlus.Interactivity.EventHandling
         {
             this.disposed = true;
             if (this._event != null)
-                this._event.Unregister(_handler);
+                this._event.Unregister(this._handler);
 
             this._event = null;
             this._handler = null;

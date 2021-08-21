@@ -27,7 +27,7 @@ namespace DSharpPlus
 {
     public static class PermissionMethods
     {
-        internal static Permissions FULL_PERMS { get; } = (Permissions)8589934591;
+        internal static Permissions FULL_PERMS { get; } = (Permissions)274877906943L;
 
         /// <summary>
         /// Calculates whether this permission set contains the given permission.
@@ -56,7 +56,7 @@ namespace DSharpPlus
     }
 
     /// <summary>
-    /// Wether a permission is allowed, denied or unset
+    /// Whether a permission is allowed, denied or unset
     /// </summary>
     public enum PermissionLevel
     {
@@ -92,7 +92,7 @@ namespace DSharpPlus
         /// Indicates all permissions are granted
         /// </summary>
         [PermissionString("All permissions")]
-        All = 8589934591,
+        All = 274877906943,
 
         /// <summary>
         /// Allows creation of instant channel invites.
@@ -197,9 +197,9 @@ namespace DSharpPlus
         MentionEveryone = 0x0000000000020000,
 
         /// <summary>
-        /// Allows using emojis from external servers, such as twitch or nitro emojis.
+        /// Allows using emojis or stickers from external servers, such as twitch or nitro emojis.
         /// </summary>
-        [PermissionString("Use external emojis")]
+        [PermissionString("Use external emojis and stickers")]
         UseExternalEmojis = 0x0000000000040000,
 
         /// <summary>
@@ -263,9 +263,9 @@ namespace DSharpPlus
         ManageWebhooks = 0x0000000020000000,
 
         /// <summary>
-        /// Allows managing guild emoji.
+        /// Allows managing guild emoji and stickers.
         /// </summary>
-        [PermissionString("Manage emoji")]
+        [PermissionString("Manage emoji and stickers")]
         ManageEmojis = 0x0000000040000000,
 
         /// <summary>
@@ -281,10 +281,34 @@ namespace DSharpPlus
         UseSlashCommands = 0x0000000080000000,
 
         /// <summary>
-        /// Allows the user to request to speak in stage channels.
+        /// Allows for requesting to speak in stage channels.
         /// </summary>
         [PermissionString("Request to speak")]
-        RequestToSpeak = 0x0000000100000000
+        RequestToSpeak = 0x0000000100000000,
+
+        /// <summary>
+        /// Allows for deleting and archiving threads, and viewing all private threads.
+        /// </summary>
+        [PermissionString("Manage Threads")]
+        ManageThreads = 0x0000000400000000,
+
+        /// <summary>
+        /// Allows for creating and participating in threads.
+        /// </summary>
+        [PermissionString("Use Public Threads")]
+        UsePublicThreads = 0x0000000800000000,
+
+        /// <summary>
+        /// Allows for creating and participating in private threads.
+        /// </summary>
+        [PermissionString("Use Private Threads")]
+        UsePrivateThreads = 0x0000001000000000,
+        
+        /// <summary>
+        /// Allows the usage of custom stickers from other servers.
+        /// </summary>
+        [PermissionString("Use external Stickers")]
+        UseExternalStickers = 0x0000002000000000
     }
 
     /// <summary>

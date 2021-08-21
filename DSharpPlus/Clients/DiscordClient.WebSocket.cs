@@ -220,6 +220,7 @@ namespace DSharpPlus
         internal async Task HandleSocketMessageAsync(string data)
         {
             var payload = JsonConvert.DeserializeObject<GatewayPayload>(data);
+            this._lastSequence = payload.Sequence ?? this._lastSequence;
             switch (payload.OpCode)
             {
                 case GatewayOpCode.Dispatch:
@@ -330,7 +331,7 @@ namespace DSharpPlus
                 Timestamp = DateTimeOffset.Now
             };
 
-            await _heartbeated.InvokeAsync(this, args).ConfigureAwait(false);
+            await this._heartbeated.InvokeAsync(this, args).ConfigureAwait(false);
         }
 
         internal async Task HeartbeatLoopAsync()
@@ -341,7 +342,7 @@ namespace DSharpPlus
             {
                 while (true)
                 {
-                    await this.SendHeartbeatAsync().ConfigureAwait(false);
+                    await this.SendHeartbeatAsync(this._lastSequence).ConfigureAwait(false);
                     await Task.Delay(this._heartbeatInterval, token).ConfigureAwait(false);
                     token.ThrowIfCancellationRequested();
                 }
@@ -399,26 +400,36 @@ namespace DSharpPlus
             }
         }
 
-        internal Task SendHeartbeatAsync()
-        {
-            var _last_heartbeat = DateTimeOffset.Now;
-            var _sequence = (long)(_last_heartbeat - DiscordEpoch).TotalMilliseconds;
-
-            return this.SendHeartbeatAsync(_sequence);
-        }
-
         internal async Task SendHeartbeatAsync(long seq)
         {
             var more_than_5 = Volatile.Read(ref this._skippedHeartbeats) > 5;
             var guilds_comp = Volatile.Read(ref this._guildDownloadCompleted);
+
             if (guilds_comp && more_than_5)
             {
                 this.Logger.LogCritical(LoggerEvents.HeartbeatFailure, "Server failed to acknowledge more than 5 heartbeats - connection is zombie");
+
+                var args = new ZombiedEventArgs
+                {
+                    Failures = Volatile.Read(ref this._skippedHeartbeats),
+                    GuildDownloadCompleted = true
+                };
+                await this._zombied.InvokeAsync(this, args).ConfigureAwait(false);
+
                 await this.InternalReconnectAsync(code: 4001, message: "Too many heartbeats missed").ConfigureAwait(false);
+
                 return;
             }
-            else if (!guilds_comp && more_than_5)
+
+            if (!guilds_comp && more_than_5)
             {
+                var args = new ZombiedEventArgs
+                {
+                    Failures = Volatile.Read(ref this._skippedHeartbeats),
+                    GuildDownloadCompleted = false
+                };
+                await this._zombied.InvokeAsync(this, args).ConfigureAwait(false);
+
                 this.Logger.LogWarning(LoggerEvents.HeartbeatFailure, "Server failed to acknowledge more than 5 heartbeats, but the guild download is still running - check your connection speed");
             }
 

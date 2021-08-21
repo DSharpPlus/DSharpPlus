@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
@@ -114,7 +115,7 @@ namespace DSharpPlus.Net.Abstractions
         public PresenceAssets Assets { get; internal set; }
 
         /// <summary>
-        /// Gets or sets infromation about current game's timestamps.
+        /// Gets or sets information about current game's timestamps.
         /// 
         /// This is a component of the rich presence, and, as such, can only be used by regular users.
         /// </summary>
@@ -122,12 +123,15 @@ namespace DSharpPlus.Net.Abstractions
         public GameTimestamps Timestamps { get; internal set; }
 
         /// <summary>
-        /// Gets or sets infromation about current game's secret values.
+        /// Gets or sets information about current game's secret values.
         /// 
         /// This is a component of the rich presence, and, as such, can only be used by regular users.
         /// </summary>
         [JsonProperty("secrets", NullValueHandling = NullValueHandling.Ignore)]
         public GameSecrets Secrets { get; internal set; }
+
+        [JsonProperty("buttons", NullValueHandling = NullValueHandling.Ignore)]
+        public IReadOnlyList<string> Buttons { get; internal set; }
 
         internal TransportActivity() { }
 

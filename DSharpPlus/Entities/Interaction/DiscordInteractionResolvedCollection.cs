@@ -21,7 +21,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
@@ -56,5 +55,10 @@ namespace DSharpPlus.Entities
         [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
         public IReadOnlyDictionary<ulong, DiscordRole> Roles { get; internal set; }
 
+        /// <summary>
+        /// Gets the resolved message objects, if any.
+        /// </summary>
+        [JsonProperty("messages", NullValueHandling = NullValueHandling.Ignore)]
+        public IReadOnlyDictionary<ulong, DiscordMessage> Messages { get; internal set; }
     }
 }

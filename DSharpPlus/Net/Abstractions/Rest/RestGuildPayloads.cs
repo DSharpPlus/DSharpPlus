@@ -133,6 +133,12 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("position", NullValueHandling = NullValueHandling.Ignore)]
         public int Position { get; set; }
+
+        [JsonProperty("lock_permissions", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? LockPermissions { get; set; }
+
+        [JsonProperty("parent_id", NullValueHandling = NullValueHandling.Ignore)]
+        public ulong? ParentId { get; set; }
     }
 
     internal sealed class RestGuildRoleReorderPayload

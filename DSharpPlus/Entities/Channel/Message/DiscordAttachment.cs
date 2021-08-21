@@ -64,13 +64,13 @@ namespace DSharpPlus.Entities
         /// Gets the height. Applicable only if the attachment is an image.
         /// </summary>
         [JsonProperty("height", NullValueHandling = NullValueHandling.Ignore)]
-        public int Height { get; internal set; }
+        public int? Height { get; internal set; }
 
         /// <summary>
         /// Gets the width. Applicable only if the attachment is an image.
         /// </summary>
         [JsonProperty("width", NullValueHandling = NullValueHandling.Ignore)]
-        public int Width { get; internal set; }
+        public int? Width { get; internal set; }
 
         internal DiscordAttachment() { }
     }

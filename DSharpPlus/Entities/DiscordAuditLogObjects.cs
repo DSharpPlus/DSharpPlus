@@ -76,32 +76,32 @@ namespace DSharpPlus.Entities
         public DiscordGuild Target { get; internal set; }
 
         /// <summary>
-        /// Gets the the description of guild name's change.
+        /// Gets the description of guild name's change.
         /// </summary>
         public PropertyChange<string> NameChange { get; internal set; }
 
         /// <summary>
-        /// Gets the the description of owner's change.
+        /// Gets the description of owner's change.
         /// </summary>
         public PropertyChange<DiscordMember> OwnerChange { get; internal set; }
 
         /// <summary>
-        /// Gets the the description of icon's change.
+        /// Gets the description of icon's change.
         /// </summary>
         public PropertyChange<string> IconChange { get; internal set; }
 
         /// <summary>
-        /// Gets the the description of verification level's change.
+        /// Gets the description of verification level's change.
         /// </summary>
         public PropertyChange<VerificationLevel> VerificationLevelChange { get; internal set; }
 
         /// <summary>
-        /// Gets the the description of afk channel's change.
+        /// Gets the description of afk channel's change.
         /// </summary>
         public PropertyChange<DiscordChannel> AfkChannelChange { get; internal set; }
 
         /// <summary>
-        /// Gets the the description of widget channel's change.
+        /// Gets the description of widget channel's change.
         /// </summary>
         public PropertyChange<DiscordChannel> EmbedChannelChange { get; internal set; }
 
@@ -418,6 +418,61 @@ namespace DSharpPlus.Entities
         internal DiscordAuditLogEmojiEntry() { }
     }
 
+    public sealed class DiscordAuditLogStickerEntry : DiscordAuditLogEntry
+    {
+        /// <summary>
+        /// Gets the affected sticker.
+        /// </summary>
+        public DiscordMessageSticker Target { get; internal set; }
+
+        /// <summary>
+        /// Gets the description of sticker's name change.
+        /// </summary>
+        public PropertyChange<string> NameChange { get; internal set; }
+
+        /// <summary>
+        /// Gets the description of sticker's description change.
+        /// </summary>
+        public PropertyChange<string> DescriptionChange { get; internal set; }
+
+        /// <summary>
+        /// Gets the description of sticker's tags change.
+        /// </summary>
+        public PropertyChange<string> TagsChange { get; internal set; }
+
+        /// <summary>
+        /// Gets the description of sticker's tags change.
+        /// </summary>
+        public PropertyChange<string> AssetChange { get; internal set; }
+
+        /// <summary>
+        /// Gets the description of sticker's guild id change.
+        /// </summary>
+        public PropertyChange<ulong?> GuildIdChange { get; internal set; }
+
+        /// <summary>
+        /// Gets the description of sticker's availability change.
+        /// </summary>
+        public PropertyChange<bool?> AvailabilityChange { get; internal set; }
+
+        /// <summary>
+        /// Gets the description of sticker's id change.
+        /// </summary>
+        public PropertyChange<ulong?> IdChange { get; internal set; }
+
+        /// <summary>
+        /// Gets the description of sticker's type change.
+        /// </summary>
+        public PropertyChange<StickerType?> TypeChange { get; internal set; }
+
+        /// <summary>
+        /// Gets the description of sticker's format change.
+        /// </summary>
+        public PropertyChange<StickerFormat?> FormatChange { get; internal set; }
+
+        internal DiscordAuditLogStickerEntry() { }
+    }
+
     public sealed class DiscordAuditLogMessageEntry : DiscordAuditLogEntry
     {
         /// <summary>
@@ -713,5 +768,19 @@ namespace DSharpPlus.Entities
         /// Indicates that an integration was deleted.
         /// </summary>
         IntegrationDelete = 82,
+        /// <summary>
+        /// Indicates that an sticker was created.
+        /// </summary>
+        StickerCreate = 90,
+
+        /// <summary>
+        /// Indicates that an sticker was updated.
+        /// </summary>
+        StickerUpdate = 91,
+
+        /// <summary>
+        /// Indicates that an sticker was deleted.
+        /// </summary>
+        StickerDelete = 92,
     }
 }

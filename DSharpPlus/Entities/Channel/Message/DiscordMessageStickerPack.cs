@@ -20,27 +20,54 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+using System.Collections.Generic;
+using Newtonsoft.Json;
 
-namespace DSharpPlus
+namespace DSharpPlus.Entities
 {
     /// <summary>
-    /// Represents the type of interaction response
+    /// Represents a Discord message sticker pack.
     /// </summary>
-    public enum InteractionResponseType
+    public sealed class DiscordMessageStickerPack : SnowflakeObject
     {
         /// <summary>
-        /// Acknowledges a Ping.
+        /// Gets the stickers contained in this pack.
         /// </summary>
-        Pong = 1,
+        public IReadOnlyDictionary<ulong, DiscordMessageSticker> Stickers => this._stickers;
+
+        [JsonProperty("stickers")]
+        internal Dictionary<ulong, DiscordMessageSticker> _stickers = new();
 
         /// <summary>
-        /// Responds to the interaction with a message.
+        /// Gets the name of this sticker pack.
         /// </summary>
-        ChannelMessageWithSource = 4,
+        [JsonProperty("name")]
+        public string Name { get; internal set; }
 
         /// <summary>
-        /// Acknowledges an interaction to edit to a response later. The user sees a "thinking" state.
+        /// Gets the Id of this pack's SKU.
         /// </summary>
-        DeferredChannelMessageWithSource = 5
+        [JsonProperty("sku_id")]
+        public ulong SkuId { get; internal set; }
+
+        /// <summary>
+        /// Gets the Id of this pack's cover.
+        /// </summary>
+        [JsonProperty("cover_sticker_id")]
+        public ulong CoverStickerId { get; internal set; }
+
+        /// <summary>
+        /// Gets the description of this sticker pack.
+        /// </summary>
+        [JsonProperty("description")]
+        public string Description { get; internal set; }
+
+        /// <summary>
+        /// Gets the Id of the sticker pack's banner image.
+        /// </summary>
+        [JsonProperty("banner_asset_id")]
+        public ulong BannerAssetId { get; internal set; }
+
+        internal DiscordMessageStickerPack() { }
     }
 }

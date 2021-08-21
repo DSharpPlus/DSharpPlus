@@ -23,11 +23,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DSharpPlus.Entities
 {
@@ -67,35 +64,78 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Embeds to send on followup message.
         /// </summary>
-        public IReadOnlyList<DiscordEmbed> Embeds { get; }
+        public IReadOnlyList<DiscordEmbed> Embeds => this._embeds;
         private readonly List<DiscordEmbed> _embeds = new();
 
         /// <summary>
         /// Files to send on this followup message.
         /// </summary>
-        public IReadOnlyCollection<DiscordMessageFile> Files => this._files;
+        public IReadOnlyList<DiscordMessageFile> Files => this._files;
+        private readonly List<DiscordMessageFile> _files = new();
 
-        internal readonly List<DiscordMessageFile> _files = new();
+        /// <summary>
+        /// Components to send on this followup message.
+        /// </summary>
+        public IReadOnlyList<DiscordActionRowComponent> Components => this._components;
+        private readonly List<DiscordActionRowComponent> _components = new();
 
         /// <summary>
         /// Mentions to send on this followup message.
         /// </summary>
-        public IEnumerable<IMention> Mentions { get; }
+        public IReadOnlyList<IMention> Mentions => this._mentions;
         private readonly List<IMention> _mentions = new();
 
+
         /// <summary>
-        /// Constructs a new empty followup message builder.
+        /// Appends a collection of components to the message.
         /// </summary>
-        public DiscordFollowupMessageBuilder()
+        /// <param name="components">The collection of components to add.</param>
+        /// <returns>The builder to chain calls with.</returns>
+        /// <exception cref="ArgumentException"><paramref name="components"/> contained more than 5 components.</exception>
+        public DiscordFollowupMessageBuilder AddComponents(params DiscordComponent[] components)
+            => this.AddComponents((IEnumerable<DiscordComponent>)components);
+
+        /// <summary>
+        /// Appends several rows of components to the message
+        /// </summary>
+        /// <param name="components">The rows of components to add, holding up to five each.</param>
+        /// <returns></returns>
+        public DiscordFollowupMessageBuilder AddComponents(IEnumerable<DiscordActionRowComponent> components)
         {
-            this.Embeds = new ReadOnlyCollection<DiscordEmbed>(this._embeds);
-            this.Mentions = new ReadOnlyCollection<IMention>(this._mentions);
+            var ara = components.ToArray();
+
+            if (ara.Length + this._components.Count > 5)
+                throw new ArgumentException("ActionRow count exceeds maximum of five.");
+
+            foreach (var ar in ara)
+                this._components.Add(ar);
+
+            return this;
         }
 
+        /// <summary>
+        /// Appends a collection of components to the message.
+        /// </summary>
+        /// <param name="components">The collection of components to add.</param>
+        /// <returns>The builder to chain calls with.</returns>
+        /// <exception cref="ArgumentException"><paramref name="components"/> contained more than 5 components.</exception>
+        public DiscordFollowupMessageBuilder AddComponents(IEnumerable<DiscordComponent> components)
+        {
+            var compArr = components.ToArray();
+            var count = compArr.Length;
+
+            if (count > 5)
+                throw new ArgumentException("Cannot add more than 5 components per action row!");
+
+            var arc = new DiscordActionRowComponent(compArr);
+            this._components.Add(arc);
+            return this;
+        }
         /// <summary>
         /// Indicates if the followup message must use text-to-speech.
         /// </summary>
         /// <param name="tts">Text-to-speech</param>
+        /// <returns>The builder to chain calls with.</returns>
         public DiscordFollowupMessageBuilder WithTTS(bool tts)
         {
             this.IsTTS = tts;
@@ -106,6 +146,7 @@ namespace DSharpPlus.Entities
         /// Sets the message to send with the followup message..
         /// </summary>
         /// <param name="content">Message to send.</param>
+        /// <returns>The builder to chain calls with.</returns>
         public DiscordFollowupMessageBuilder WithContent(string content)
         {
             this.Content = content;
@@ -116,6 +157,7 @@ namespace DSharpPlus.Entities
         /// Adds an embed to the followup message.
         /// </summary>
         /// <param name="embed">Embed to add.</param>
+        /// <returns>The builder to chain calls with.</returns>
         public DiscordFollowupMessageBuilder AddEmbed(DiscordEmbed embed)
         {
             this._embeds.Add(embed);
@@ -126,6 +168,7 @@ namespace DSharpPlus.Entities
         /// Adds the given embeds to the followup message.
         /// </summary>
         /// <param name="embeds">Embeds to add.</param>
+        /// <returns>The builder to chain calls with.</returns>
         public DiscordFollowupMessageBuilder AddEmbeds(IEnumerable<DiscordEmbed> embeds)
         {
             this._embeds.AddRange(embeds);
@@ -138,9 +181,10 @@ namespace DSharpPlus.Entities
         /// <param name="filename">Name of the file.</param>
         /// <param name="data">File data.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
+        /// <returns>The builder to chain calls with.</returns>
         public DiscordFollowupMessageBuilder AddFile(string filename, Stream data, bool resetStreamPosition = false)
         {
-            if (this.Files.Count() >= 10)
+            if (this.Files.Count >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
             if (this._files.Any(x => x.FileName == filename))
@@ -159,10 +203,10 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="stream">The Stream to the file.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
-        /// <returns></returns>
+        /// <returns>The builder to chain calls with.</returns>
         public DiscordFollowupMessageBuilder AddFile(FileStream stream, bool resetStreamPosition = false)
         {
-            if (this.Files.Count() >= 10)
+            if (this.Files.Count >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
             if (this._files.Any(x => x.FileName == stream.Name))
@@ -181,9 +225,10 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="files">Dictionary of file name and file data.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
+        /// <returns>The builder to chain calls with.</returns>
         public DiscordFollowupMessageBuilder AddFiles(Dictionary<string, Stream> files, bool resetStreamPosition = false)
         {
-            if (this.Files.Count() + files.Count() >= 10)
+            if (this.Files.Count + files.Count > 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
 
             foreach (var file in files)
@@ -205,6 +250,7 @@ namespace DSharpPlus.Entities
         /// Adds the mention to the mentions to parse, etc. with the followup message.
         /// </summary>
         /// <param name="mention">Mention to add.</param>
+        /// <returns>The builder to chain calls with.</returns>
         public DiscordFollowupMessageBuilder AddMention(IMention mention)
         {
             this._mentions.Add(mention);
@@ -215,6 +261,7 @@ namespace DSharpPlus.Entities
         /// Adds the mentions to the mentions to parse, etc. with the followup message.
         /// </summary>
         /// <param name="mentions">Mentions to add.</param>
+        /// <returns>The builder to chain calls with.</returns>
         public DiscordFollowupMessageBuilder AddMentions(IEnumerable<IMention> mentions)
         {
             this._mentions.AddRange(mentions);
@@ -225,11 +272,18 @@ namespace DSharpPlus.Entities
         /// Sets the followup message to be ephemeral.
         /// </summary>
         /// <param name="ephemeral">Ephemeral.</param>
+        /// <returns>The builder to chain calls with.</returns>
         public DiscordFollowupMessageBuilder AsEphemeral(bool ephemeral)
         {
             this.IsEphemeral = ephemeral;
             return this;
         }
+
+        /// <summary>
+        /// Clears all message components on this builder.
+        /// </summary>
+        public void ClearComponents()
+            => this._components.Clear();
 
         /// <summary>
         /// Allows for clearing the Followup Message builder so that it can be used again to send a new message.
@@ -242,6 +296,7 @@ namespace DSharpPlus.Entities
             this._mentions.Clear();
             this._files.Clear();
             this.IsEphemeral = false;
+            this._components.Clear();
         }
 
         internal void Validate()

@@ -177,6 +177,12 @@ namespace DSharpPlus
                 yield return ulong.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
         }
 
+        internal static bool IsValidSlashCommandName(string name)
+        {
+            var regex = new Regex(@"^[\w-]{1,32}$", RegexOptions.ECMAScript);
+            return regex.IsMatch(name);
+        }
+
         internal static bool HasMessageIntents(DiscordIntents intents)
             => intents.HasIntent(DiscordIntents.GuildMessages) || intents.HasIntent(DiscordIntents.DirectMessages);
 
@@ -194,7 +200,7 @@ namespace DSharpPlus
         /// <param name="shardCount">The total amount of shards.</param>
         /// <returns>The shard id.</returns>
         public static int GetShardId(ulong guildId, int shardCount)
-            => (int)(guildId >> 22) % shardCount;
+            => (int)((guildId >> 22) % (ulong)shardCount);
 
         /// <summary>
         /// Helper method to create a <see cref="DateTimeOffset"/> from Unix time seconds for targets that do not support this natively.
@@ -239,7 +245,7 @@ namespace DSharpPlus
         }
 
         /// <summary>
-        /// Helper method to calculate Unix time seconsd from a <see cref="DateTimeOffset"/> for targets that do not support this natively.
+        /// Helper method to calculate Unix time seconds from a <see cref="DateTimeOffset"/> for targets that do not support this natively.
         /// </summary>
         /// <param name="dto"><see cref="DateTimeOffset"/> to calculate Unix time for.</param>
         /// <returns>Calculated Unix time.</returns>

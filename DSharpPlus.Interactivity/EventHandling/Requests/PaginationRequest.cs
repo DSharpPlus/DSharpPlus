@@ -40,7 +40,7 @@ namespace DSharpPlus.Interactivity.EventHandling
         private readonly DiscordMessage _message;
         private readonly PaginationEmojis _emojis;
         private readonly DiscordUser _user;
-        private int index = 0;
+        private int _index = 0;
 
         /// <summary>
         /// Creates a new Pagination request
@@ -55,9 +55,9 @@ namespace DSharpPlus.Interactivity.EventHandling
         internal PaginationRequest(DiscordMessage message, DiscordUser user, PaginationBehaviour behaviour, PaginationDeletion deletion,
             PaginationEmojis emojis, TimeSpan timeout, params Page[] pages)
         {
-            this._tcs = new TaskCompletionSource<bool>();
-            this._ct = new CancellationTokenSource(timeout);
-            this._ct.Token.Register(() => _tcs.TrySetResult(true));
+            this._tcs = new();
+            this._ct = new(timeout);
+            this._ct.Token.Register(() => this._tcs.TrySetResult(true));
             this._timeout = timeout;
 
             this._message = message;
@@ -74,7 +74,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
         }
 
-        public int PageCount => _pages.Count;
+        public int PageCount => this._pages.Count;
 
         public PaginationDeletion PaginationDeletion { get; }
 
@@ -82,42 +82,42 @@ namespace DSharpPlus.Interactivity.EventHandling
         {
             await Task.Yield();
 
-            return _pages[index];
+            return this._pages[this._index];
         }
 
         public async Task SkipLeftAsync()
         {
             await Task.Yield();
 
-            index = 0;
+            this._index = 0;
         }
 
         public async Task SkipRightAsync()
         {
             await Task.Yield();
 
-            index = _pages.Count - 1;
+            this._index = this._pages.Count - 1;
         }
 
         public async Task NextPageAsync()
         {
             await Task.Yield();
 
-            switch (_behaviour)
+            switch (this._behaviour)
             {
                 case PaginationBehaviour.Ignore:
-                    if (index == _pages.Count - 1)
+                    if (this._index == this._pages.Count - 1)
                         break;
                     else
-                        index++;
+                        this._index++;
 
                     break;
 
                 case PaginationBehaviour.WrapAround:
-                    if (index == _pages.Count - 1)
-                        index = 0;
+                    if (this._index == this._pages.Count - 1)
+                        this._index = 0;
                     else
-                        index++;
+                        this._index++;
 
                     break;
             }
@@ -127,21 +127,21 @@ namespace DSharpPlus.Interactivity.EventHandling
         {
             await Task.Yield();
 
-            switch (_behaviour)
+            switch (this._behaviour)
             {
                 case PaginationBehaviour.Ignore:
-                    if (index == 0)
+                    if (this._index == 0)
                         break;
                     else
-                        index--;
+                        this._index--;
 
                     break;
 
                 case PaginationBehaviour.WrapAround:
-                    if (index == 0)
-                        index = _pages.Count - 1;
+                    if (this._index == 0)
+                        this._index = this._pages.Count - 1;
                     else
-                        index--;
+                        this._index--;
 
                     break;
             }
@@ -153,6 +153,9 @@ namespace DSharpPlus.Interactivity.EventHandling
 
             return this._emojis;
         }
+
+        public Task<IEnumerable<DiscordButtonComponent>> GetButtonsAsync()
+            => throw new NotSupportedException("This request does not support buttons.");
 
         public async Task<DiscordMessage> GetMessageAsync()
         {
@@ -170,14 +173,14 @@ namespace DSharpPlus.Interactivity.EventHandling
 
         public async Task DoCleanupAsync()
         {
-            switch (PaginationDeletion)
+            switch (this.PaginationDeletion)
             {
                 case PaginationDeletion.DeleteEmojis:
-                    await _message.DeleteAllReactionsAsync().ConfigureAwait(false);
+                    await this._message.DeleteAllReactionsAsync().ConfigureAwait(false);
                     break;
 
                 case PaginationDeletion.DeleteMessage:
-                    await _message.DeleteAsync().ConfigureAwait(false);
+                    await this._message.DeleteAsync().ConfigureAwait(false);
                     break;
 
                 case PaginationDeletion.KeepEmojis:
@@ -220,11 +223,11 @@ namespace DSharpPlus.Interactivity
 
         public PaginationEmojis()
         {
-            Left = DiscordEmoji.FromUnicode("◀");
-            Right = DiscordEmoji.FromUnicode("▶");
-            SkipLeft = DiscordEmoji.FromUnicode("⏮");
-            SkipRight = DiscordEmoji.FromUnicode("⏭");
-            Stop = DiscordEmoji.FromUnicode("⏹");
+            this.Left = DiscordEmoji.FromUnicode("◀");
+            this.Right = DiscordEmoji.FromUnicode("▶");
+            this.SkipLeft = DiscordEmoji.FromUnicode("⏮");
+            this.SkipRight = DiscordEmoji.FromUnicode("⏭");
+            this.Stop = DiscordEmoji.FromUnicode("⏹");
         }
     }
 

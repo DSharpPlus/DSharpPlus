@@ -29,6 +29,9 @@ namespace DSharpPlus.Net.Abstractions
 {
     internal class TransportMember
     {
+        [JsonProperty("avatar", NullValueHandling = NullValueHandling.Ignore)]
+        public string AvatarHash { get; internal set; }
+
         [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
         public TransportUser User { get; internal set; }
 

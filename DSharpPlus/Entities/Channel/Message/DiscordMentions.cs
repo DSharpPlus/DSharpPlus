@@ -61,24 +61,19 @@ namespace DSharpPlus.Entities
         [JsonProperty("replied_user", NullValueHandling = NullValueHandling.Ignore)]
         public bool? RepliedUser { get; }
 
-        internal DiscordMentions(IEnumerable<IMention> mentions, bool mention = false)
+        internal DiscordMentions(IEnumerable<IMention> mentions, bool mention = false, bool repliedUser = false)
         {
             //Null check just to be safe
             if (mentions == null) return;
 
-            //If we have no item in our mentions, its likely to be a empty array. 
+            this.RepliedUser = repliedUser;
+            //If we have no item in our mentions, its likely to be a empty array.
             // This is a special case were we want parse to be a empty array
             // Doing this allows for "no parsing"
             if (!mentions.Any())
             {
                 this.Parse = Array.Empty<string>();
-                this.RepliedUser = mention;
                 return;
-            }
-
-            if (mention)
-            {
-                this.RepliedUser = mention;
             }
 
 
@@ -107,12 +102,11 @@ namespace DSharpPlus.Entities
                             parse.Add(ParseRoles);      //We have role ID, so let all users through
                         break;
 
-                    case EveryoneMention e:
+                    case EveryoneMention:
                         parse.Add(ParseEveryone);
                         break;
 
-                    case RepliedUserMention _:
-                        this.RepliedUser = mention;
+                    case RepliedUserMention:
                         break;
                 }
             }

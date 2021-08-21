@@ -54,6 +54,24 @@ namespace DSharpPlus
             => $"`{content}`";
 
         /// <summary>
+        /// Creates a rendered timestamp.
+        /// </summary>
+        /// <param name="time">The time from now.</param>
+        /// <param name="format">The format to render the timestamp in. Defaults to relative.</param>
+        /// <returns>A formatted timestamp relative to now.</returns>
+        public static string Timestamp(TimeSpan time, TimestampFormat format = TimestampFormat.RelativeTime)
+            => $"<t:{(DateTimeOffset.UtcNow + time).ToUnixTimeSeconds()}:{(char)format}>";
+
+        /// <summary>
+        /// Creates a rendered timestamp.
+        /// </summary>
+        /// <param name="time">The time from now.</param>
+        /// <param name="format">The format to render the timestamp in. Defaults to relative.</param>
+        /// <returns>A formatted timestamp relative to now.</returns>
+        public static string Timestamp(DateTime time, TimestampFormat format = TimestampFormat.RelativeTime)
+            => Timestamp(time.ToUniversalTime() - DateTime.UtcNow, format);
+
+        /// <summary>
         /// Creates bold text.
         /// </summary>
         /// <param name="content">Text to bolden.</param>

@@ -82,7 +82,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <exception cref="InvalidOperationException">If this <see cref="Optional{T}"/> has no value.</exception>
         public T Value => this.HasValue ? this._val : throw new InvalidOperationException("Value is not set.");
-        object IOptional.RawValue => _val;
+        object IOptional.RawValue => this._val;
 
         private readonly T _val;
 

@@ -40,14 +40,14 @@ namespace DSharpPlus
         /// Gets the dictionary of guilds cached by this client.
         /// </summary>
         public override IReadOnlyDictionary<ulong, DiscordGuild> Guilds
-            => _guilds_lazy.Value;
+            => this._guilds_lazy.Value;
 
         internal Dictionary<ulong, DiscordGuild> _guilds = new();
         private Lazy<IReadOnlyDictionary<ulong, DiscordGuild>> _guilds_lazy;
 
         public DiscordRestClient(DiscordConfiguration config) : base(config)
         {
-            disposed = false;
+            this.disposed = false;
         }
 
         /// <summary>
@@ -57,15 +57,26 @@ namespace DSharpPlus
         public async Task InitializeCacheAsync()
         {
             await base.InitializeAsync().ConfigureAwait(false);
-            _guilds_lazy = new Lazy<IReadOnlyDictionary<ulong, DiscordGuild>>(() => new ReadOnlyDictionary<ulong, DiscordGuild>(_guilds));
+            this._guilds_lazy = new Lazy<IReadOnlyDictionary<ulong, DiscordGuild>>(() => new ReadOnlyDictionary<ulong, DiscordGuild>(this._guilds));
             var gs = await this.ApiClient.GetCurrentUserGuildsAsync(100, null, null).ConfigureAwait(false);
             foreach (var g in gs)
             {
-                _guilds[g.Id] = g;
+                this._guilds[g.Id] = g;
             }
         }
 
         #region Guild
+
+        /// <summary>
+        /// Searches the given guild for members who's display name start with the specified name.
+        /// </summary>
+        /// <param name="guild_id">The Id of the guild to search.</param>
+        /// <param name="name">The name to search for.</param>
+        /// <param name="limit">The maximum amount of members to return. Max 1000. Defaults to 1.</param>
+        /// <returns>The members found, if any.</returns>
+        public Task<IReadOnlyList<DiscordMember>> SearchMembersAsync(ulong guild_id, string name, int? limit = 1)
+            => this.ApiClient.SearchMembersAsync(guild_id, name, limit);
+
         /// <summary>
         /// Creates a new guild
         /// </summary>
@@ -158,12 +169,21 @@ namespace DSharpPlus
         }
 
         /// <summary>
-        /// Gets guild bans
+        /// Gets guild bans.
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
-        /// <returns></returns>
+        /// <param name="guild_id">The Id of the guild to get the bans from.</param>
+        /// <returns>A collection of the guild's bans.</returns>
         public Task<IReadOnlyList<DiscordBan>> GetGuildBansAsync(ulong guild_id)
             => this.ApiClient.GetGuildBansAsync(guild_id);
+
+        /// <summary>
+        /// Gets the ban of the specified user. Requires Ban Members permission.
+        /// </summary>
+        /// <param name="guild_id">The Id of the guild to get the ban from.</param>
+        /// <param name="user_id">The Id of the user to get the ban for.</param>
+        /// <returns>A guild ban object.</returns>
+        public Task<DiscordBan> GetGuildBanAsync(ulong guild_id, ulong user_id)
+            => this.ApiClient.GetGuildBanAsync(guild_id, user_id);
 
         /// <summary>
         /// Creates guild ban
@@ -235,14 +255,7 @@ namespace DSharpPlus
                         continue;
 
                     var usr = new DiscordUser(xtm.User) { Discord = this };
-                    this.UserCache.AddOrUpdate(xtm.User.Id, usr, (id, old) =>
-                    {
-                        old.Username = usr.Username;
-                        old.Discord = usr.Discord;
-                        old.AvatarHash = usr.AvatarHash;
-
-                        return old;
-                    });
+                    this.UpdateUserCache(usr);
                 }
 
                 recmbr.AddRange(tms.Select(xtm => new DiscordMember(xtm) { Discord = this, _guild_id = guild_id }));
@@ -297,12 +310,14 @@ namespace DSharpPlus
         /// <param name="channel_id">Channel id</param>
         /// <param name="position">Channel position</param>
         /// <param name="reason">Reason this position was modified</param>
+        /// <param name="lockPermissions">Whether to sync channel permissions with the parent, if moving to a new category.</param>
+        /// <param name="parentId">The new parent id if the channel is to be moved to a new category.</param>
         /// <returns></returns>
-        public Task UpdateChannelPositionAsync(ulong guild_id, ulong channel_id, int position, string reason)
+        public Task UpdateChannelPositionAsync(ulong guild_id, ulong channel_id, int position, string reason, bool? lockPermissions = null, ulong? parentId = null)
         {
             var rgcrps = new List<RestGuildChannelReorderPayload>()
             {
-                new RestGuildChannelReorderPayload { ChannelId = channel_id, Position = position }
+                new RestGuildChannelReorderPayload { ChannelId = channel_id, Position = position, LockPermissions = lockPermissions, ParentId = parentId }
             };
             return this.ApiClient.ModifyGuildChannelPositionAsync(guild_id, rgcrps, reason);
         }
@@ -370,13 +385,14 @@ namespace DSharpPlus
         /// <param name="overwrites">Channel overwrites</param>
         /// <param name="nsfw">Whether this channel should be marked as NSFW</param>
         /// <param name="perUserRateLimit">Slow mode timeout for users.</param>
+        /// <param name="qualityMode">Voice channel video quality mode.</param>
         /// <param name="reason">Reason this channel was created</param>
         /// <returns></returns>
-        public Task<DiscordChannel> CreateGuildChannelAsync(ulong id, string name, ChannelType type, ulong? parent, Optional<string> topic, int? bitrate, int? userLimit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, Optional<int?> perUserRateLimit, string reason)
+        public Task<DiscordChannel> CreateGuildChannelAsync(ulong id, string name, ChannelType type, ulong? parent, Optional<string> topic, int? bitrate, int? userLimit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, Optional<int?> perUserRateLimit, VideoQualityMode? qualityMode, string reason)
         {
             return type != ChannelType.Category && type != ChannelType.Text && type != ChannelType.Voice && type != ChannelType.News && type != ChannelType.Store && type != ChannelType.Stage
                 ? throw new ArgumentException("Channel type must be text, voice, stage, or category.", nameof(type))
-                : this.ApiClient.CreateGuildChannelAsync(id, name, type, parent, topic, bitrate, userLimit, overwrites, nsfw, perUserRateLimit, reason);
+                : this.ApiClient.CreateGuildChannelAsync(id, name, type, parent, topic, bitrate, userLimit, overwrites, nsfw, perUserRateLimit, qualityMode, reason);
         }
 
         /// <summary>
@@ -392,10 +408,11 @@ namespace DSharpPlus
         /// <param name="userLimit">New voice channel user limit</param>
         /// <param name="perUserRateLimit">Slow mode timeout for users.</param>
         /// <param name="rtcRegion">New region override.</param>
+        /// <param name="qualityMode">New video quality mode.</param>
         /// <param name="reason">Reason why this channel was modified</param>
         /// <returns></returns>
-        public Task ModifyChannelAsync(ulong id, string name, int? position, Optional<string> topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? userLimit, Optional<int?> perUserRateLimit, Optional<DiscordVoiceRegion> rtcRegion, string reason)
-            => this.ApiClient.ModifyChannelAsync(id, name, position, topic, nsfw, parent, bitrate, userLimit, perUserRateLimit, rtcRegion.IfPresent(e => e?.Id), reason);
+        public Task ModifyChannelAsync(ulong id, string name, int? position, Optional<string> topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? userLimit, Optional<int?> perUserRateLimit, Optional<DiscordVoiceRegion> rtcRegion, VideoQualityMode? qualityMode, string reason)
+            => this.ApiClient.ModifyChannelAsync(id, name, position, topic, nsfw, parent, bitrate, userLimit, perUserRateLimit, rtcRegion.IfPresent(e => e?.Id), qualityMode, reason);
 
         /// <summary>
         /// Modifies a channel
@@ -410,7 +427,7 @@ namespace DSharpPlus
 
             return this.ApiClient.ModifyChannelAsync(channelId, mdl.Name, mdl.Position, mdl.Topic, mdl.Nsfw,
                 mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.PerUserRateLimit, mdl.RtcRegion.IfPresent(e => e?.Id),
-                mdl.AuditLogReason);
+                mdl.QualityMode, mdl.AuditLogReason);
         }
 
         /// <summary>
@@ -455,7 +472,7 @@ namespace DSharpPlus
         /// <param name="embed">Embed to attach</param>
         /// <returns></returns>
         public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, DiscordEmbed embed)
-            => this.ApiClient.CreateMessageAsync(channel_id, null, embed, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
+            => this.ApiClient.CreateMessageAsync(channel_id, null, new[] {embed}, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
 
         /// <summary>
         /// Sends a message
@@ -465,7 +482,7 @@ namespace DSharpPlus
         /// <param name="embed">Embed to attach</param>
         /// <returns></returns>
         public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content, DiscordEmbed embed)
-            => this.ApiClient.CreateMessageAsync(channel_id, content, embed, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
+            => this.ApiClient.CreateMessageAsync(channel_id, content, new[] {embed}, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
 
         /// <summary>
         /// Sends a message
@@ -526,7 +543,7 @@ namespace DSharpPlus
         /// <param name="content">New message content</param>
         /// <returns></returns>
         public Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content)
-            => this.ApiClient.EditMessageAsync(channel_id, message_id, content, default, default);
+            => this.ApiClient.EditMessageAsync(channel_id, message_id, content, default, default, default, Array.Empty<DiscordMessageFile>(), null, default);
 
         /// <summary>
         /// Edits a message
@@ -536,7 +553,7 @@ namespace DSharpPlus
         /// <param name="embed">New message embed</param>
         /// <returns></returns>
         public Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<DiscordEmbed> embed)
-            => this.ApiClient.EditMessageAsync(channel_id, message_id, default, embed, default);
+            => this.ApiClient.EditMessageAsync(channel_id, message_id, default, embed.HasValue ? new[] {embed.Value} : Array.Empty<DiscordEmbed>(), default, default, Array.Empty<DiscordMessageFile>(), null, default);
 
         /// <summary>
         /// Edits a message
@@ -544,13 +561,24 @@ namespace DSharpPlus
         /// <param name="channel_id">Channel id</param>
         /// <param name="message_id">Message id</param>
         /// <param name="builder">The builder of the message to edit.</param>
+        /// <param name="suppressEmbeds">Whether to suppress embeds on the message.</param>
+        /// <param name="attachments">Attached files to keep.</param>
         /// <returns></returns>
-        public async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, DiscordMessageBuilder builder)
+        public async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, DiscordMessageBuilder builder, bool suppressEmbeds = false, IEnumerable<DiscordAttachment> attachments = default)
         {
             builder.Validate(true);
 
-            return await this.ApiClient.EditMessageAsync(channel_id, message_id, builder.Content, builder.Embed, builder.Mentions).ConfigureAwait(false);
+            return await this.ApiClient.EditMessageAsync(channel_id, message_id, builder.Content, new Optional<IEnumerable<DiscordEmbed>>(builder.Embeds), builder.Mentions, builder.Components, builder.Files, suppressEmbeds ? MessageFlags.SuppressedEmbeds : null, attachments).ConfigureAwait(false);
         }
+
+        /// <summary>
+        /// Modifes the visibility of embeds in a message.
+        /// </summary>
+        /// <param name="channel_id">Channel id</param>
+        /// <param name="message_id">Message id</param>
+        /// <param name="hideEmbeds">Whether to hide all embeds.</param>
+        public Task ModifyEmbedSuppressionAsync(ulong channel_id, ulong message_id, bool hideEmbeds)
+            => this.ApiClient.EditMessageAsync(channel_id, message_id, default, default, default, default, Array.Empty<DiscordMessageFile>(), hideEmbeds ? MessageFlags.SuppressedEmbeds : null, default);
 
         /// <summary>
         /// Deletes a message
@@ -723,7 +751,7 @@ namespace DSharpPlus
         /// <param name="channel_id">Id of the news channel the message to crosspost belongs to</param>
         /// <param name="message_id">Id of the message to crosspost</param>
         /// <exception cref="UnauthorizedException">
-        ///     Thrown when the current user doesn't have <see cref="Permissions.ManageWebhooks"/> and/or <see cref="Permissions.SendMessages"/> 
+        ///     Thrown when the current user doesn't have <see cref="Permissions.ManageWebhooks"/> and/or <see cref="Permissions.SendMessages"/>
         /// </exception>
         public Task<DiscordMessage> CrosspostMessageAsync(ulong channel_id, ulong message_id)
             => this.ApiClient.CrosspostMessageAsync(channel_id, message_id);
@@ -1094,9 +1122,10 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="invite_code">The invite code.</param>
         /// <param name="withCounts">Whether to include presence and total member counts in the returned invite.</param>
+        /// <param name="withExpiration">Whether to include the expiration date in the returned invite.</param>
         /// <returns></returns>
-        public Task<DiscordInvite> GetInvite(string invite_code, bool? withCounts = null)
-            => this.ApiClient.GetInviteAsync(invite_code, withCounts);
+        public Task<DiscordInvite> GetInviteAsync(string invite_code, bool? withCounts = null, bool? withExpiration = null)
+            => this.ApiClient.GetInviteAsync(invite_code, withCounts, withExpiration);
 
         /// <summary>
         /// Removes an invite
@@ -1278,12 +1307,13 @@ namespace DSharpPlus
         /// <param name="webhook_token">Webhook token</param>
         /// <param name="messageId">The id of the message to edit.</param>
         /// <param name="builder">The builder of the message to edit.</param>
+        /// <param name="attachments">Attached files to keep.</param>
         /// <returns>The modified <see cref="DiscordMessage"/></returns>
-        public async Task<DiscordMessage> EditWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong messageId, DiscordWebhookBuilder builder)
+        public async Task<DiscordMessage> EditWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong messageId, DiscordWebhookBuilder builder, IEnumerable<DiscordAttachment> attachments = default)
         {
             builder.Validate(true);
 
-            return await this.ApiClient.EditWebhookMessageAsync(webhook_id, webhook_token, messageId, builder).ConfigureAwait(false);
+            return await this.ApiClient.EditWebhookMessageAsync(webhook_id, webhook_token, messageId, builder, attachments).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -1365,16 +1395,16 @@ namespace DSharpPlus
             => this.ApiClient.DeleteAllReactionsAsync(channel_id, message_id, reason);
         #endregion
 
-        #region Slash Commands
+        #region Application Commands
         /// <summary>
-        /// Gets all the global slash commands for this application.
+        /// Gets all the global application commands for this application.
         /// </summary>
-        /// <returns>A list of global slash commands.</returns>
+        /// <returns>A list of global application commands.</returns>
         public Task<IReadOnlyList<DiscordApplicationCommand>> GetGlobalApplicationCommandsAsync() =>
             this.ApiClient.GetGlobalApplicationCommandsAsync(this.CurrentApplication.Id);
 
         /// <summary>
-        /// Overwrites the existing global slash commands. New commands are automatically created and missing commands are automatically deleted.
+        /// Overwrites the existing global application commands. New commands are automatically created and missing commands are automatically deleted.
         /// </summary>
         /// <param name="commands">The list of commands to overwrite with.</param>
         /// <returns>The list of global commands.</returns>
@@ -1382,7 +1412,7 @@ namespace DSharpPlus
             this.ApiClient.BulkOverwriteGlobalApplicationCommandsAsync(this.CurrentApplication.Id, commands);
 
         /// <summary>
-        /// Creates or overwrites a global slash command.
+        /// Creates or overwrites a global application command.
         /// </summary>
         /// <param name="command">The command to create.</param>
         /// <returns>The created command.</returns>
@@ -1390,7 +1420,7 @@ namespace DSharpPlus
             this.ApiClient.CreateGlobalApplicationCommandAsync(this.CurrentApplication.Id, command);
 
         /// <summary>
-        /// Gets a global slash command by its id.
+        /// Gets a global application command by its id.
         /// </summary>
         /// <param name="commandId">The id of the command to get.</param>
         /// <returns>The command with the id.</returns>
@@ -1398,7 +1428,7 @@ namespace DSharpPlus
             this.ApiClient.GetGlobalApplicationCommandAsync(this.CurrentApplication.Id, commandId);
 
         /// <summary>
-        /// Edits a global slash command.
+        /// Edits a global application command.
         /// </summary>
         /// <param name="commandId">The id of the command to edit.</param>
         /// <param name="action">Action to perform.</param>
@@ -1408,26 +1438,26 @@ namespace DSharpPlus
             var mdl = new ApplicationCommandEditModel();
             action(mdl);
             var applicationId = this.CurrentApplication?.Id ?? (await this.GetCurrentApplicationAsync()).Id;
-            return await this.ApiClient.EditGlobalApplicationCommandAsync(applicationId, commandId, mdl.Name, mdl.Description, mdl.Options);
+            return await this.ApiClient.EditGlobalApplicationCommandAsync(applicationId, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission);
         }
 
         /// <summary>
-        /// Deletes a global slash command.
+        /// Deletes a global application command.
         /// </summary>
         /// <param name="commandId">The id of the command to delete.</param>
         public Task DeleteGlobalApplicationCommandAsync(ulong commandId) =>
             this.ApiClient.DeleteGlobalApplicationCommandAsync(this.CurrentApplication.Id, commandId);
 
         /// <summary>
-        /// Gets all the slash commands for a guild.
+        /// Gets all the application commands for a guild.
         /// </summary>
-        /// <param name="guildId">The id of the guild to get slash commands for.</param>
-        /// <returns>A list of slash commands in the guild.</returns>
+        /// <param name="guildId">The id of the guild to get application commands for.</param>
+        /// <returns>A list of application commands in the guild.</returns>
         public Task<IReadOnlyList<DiscordApplicationCommand>> GetGuildApplicationCommandsAsync(ulong guildId) =>
             this.ApiClient.GetGuildApplicationCommandsAsync(this.CurrentApplication.Id, guildId);
 
         /// <summary>
-        /// Overwrites the existing slash commands in a guild. New commands are automatically created and missing commands are automatically deleted.
+        /// Overwrites the existing application commands in a guild. New commands are automatically created and missing commands are automatically deleted.
         /// </summary>
         /// <param name="guildId">The id of the guild.</param>
         /// <param name="commands">The list of commands to overwrite with.</param>
@@ -1436,27 +1466,27 @@ namespace DSharpPlus
             this.ApiClient.BulkOverwriteGuildApplicationCommandsAsync(this.CurrentApplication.Id, guildId, commands);
 
         /// <summary>
-        /// Creates or overwrites a guild slash command.
+        /// Creates or overwrites a guild application command.
         /// </summary>
-        /// <param name="guildId">The id of the guild to create the slash command in.</param>
+        /// <param name="guildId">The id of the guild to create the application command in.</param>
         /// <param name="command">The command to create.</param>
         /// <returns>The created command.</returns>
         public Task<DiscordApplicationCommand> CreateGuildApplicationCommandAsync(ulong guildId, DiscordApplicationCommand command) =>
             this.ApiClient.CreateGuildApplicationCommandAsync(this.CurrentApplication.Id, guildId, command);
 
         /// <summary>
-        /// Gets a slash command in a guild by its id.
+        /// Gets a application command in a guild by its id.
         /// </summary>
-        /// <param name="guildId">The id of the guild the slash command is in.</param>
+        /// <param name="guildId">The id of the guild the application command is in.</param>
         /// <param name="commandId">The id of the command to get.</param>
         /// <returns>The command with the id.</returns>
         public Task<DiscordApplicationCommand> GetGuildApplicationCommandAsync(ulong guildId, ulong commandId) =>
              this.ApiClient.GetGuildApplicationCommandAsync(this.CurrentApplication.Id, guildId, commandId);
 
         /// <summary>
-        /// Edits a slash command in a guild.
+        /// Edits a application command in a guild.
         /// </summary>
-        /// <param name="guildId">The id of the guild the slash command is in.</param>
+        /// <param name="guildId">The id of the guild the application command is in.</param>
         /// <param name="commandId">The id of the command to edit.</param>
         /// <param name="action">Action to perform.</param>
         /// <returns>The edited command.</returns>
@@ -1465,13 +1495,13 @@ namespace DSharpPlus
             var mdl = new ApplicationCommandEditModel();
             action(mdl);
             var applicationId = this.CurrentApplication?.Id ?? (await this.GetCurrentApplicationAsync()).Id;
-            return await this.ApiClient.EditGuildApplicationCommandAsync(applicationId, guildId, commandId, mdl.Name, mdl.Description, mdl.Options);
+            return await this.ApiClient.EditGuildApplicationCommandAsync(applicationId, guildId, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission);
         }
 
         /// <summary>
-        /// Deletes a slash command in a guild.
+        /// Deletes a application command in a guild.
         /// </summary>
-        /// <param name="guildId">The id of the guild to delete the slash command in.</param>
+        /// <param name="guildId">The id of the guild to delete the application command in.</param>
         /// <param name="commandId">The id of the command.</param>
         public Task DeleteGuildApplicationCommandAsync(ulong guildId, ulong commandId) =>
             this.ApiClient.DeleteGuildApplicationCommandAsync(this.CurrentApplication.Id, guildId, commandId);
@@ -1487,16 +1517,24 @@ namespace DSharpPlus
             this.ApiClient.CreateInteractionResponseAsync(interactionId, interactionToken, type, builder);
 
         /// <summary>
+        /// Gets the original interaction response.
+        /// </summary>
+        /// <returns>The original message that was sent. This <b>does not work on ephemeral messages.</b></returns>
+        public Task<DiscordMessage> GetOriginalInteractionResponseAsync(string interactionToken) =>
+            this.ApiClient.GetOriginalInteractionResponseAsync(this.CurrentApplication.Id, interactionToken);
+
+        /// <summary>
         /// Edits the original interaction response.
         /// </summary>
         /// <param name="interactionToken">The token of the interaction.</param>
         /// <param name="builder">The webhook builder.</param>
+        /// <param name="attachments">Attached files to keep.</param>
         /// <returns>The <see cref="DiscordMessage"/> edited.</returns>
-        public async Task<DiscordMessage> EditOriginalInteractionResponseAsync(string interactionToken, DiscordWebhookBuilder builder)
+        public async Task<DiscordMessage> EditOriginalInteractionResponseAsync(string interactionToken, DiscordWebhookBuilder builder, IEnumerable<DiscordAttachment> attachments = default)
         {
             builder.Validate(isInteractionResponse: true);
 
-            return await this.ApiClient.EditOriginalInteractionResponseAsync(this.CurrentApplication.Id, interactionToken, builder);
+            return await this.ApiClient.EditOriginalInteractionResponseAsync(this.CurrentApplication.Id, interactionToken, builder, attachments);
         }
 
         /// <summary>
@@ -1525,12 +1563,13 @@ namespace DSharpPlus
         /// <param name="interactionToken">The token of the interaction.</param>
         /// <param name="messageId">The id of the follow up message.</param>
         /// <param name="builder">The webhook builder.</param>
+        /// <param name="attachments">Attached files to keep.</param>
         /// <returns>The <see cref="DiscordMessage"/> edited.</returns>
-        public async Task<DiscordMessage> EditFollowupMessageAsync(string interactionToken, ulong messageId, DiscordWebhookBuilder builder)
+        public async Task<DiscordMessage> EditFollowupMessageAsync(string interactionToken, ulong messageId, DiscordWebhookBuilder builder, IEnumerable<DiscordAttachment> attachments = default)
         {
             builder.Validate(isFollowup: true);
 
-            return await this.ApiClient.EditFollowupMessageAsync(this.CurrentApplication.Id, interactionToken, messageId, builder);
+            return await this.ApiClient.EditFollowupMessageAsync(this.CurrentApplication.Id, interactionToken, messageId, builder, attachments);
         }
 
         /// <summary>
@@ -1540,6 +1579,42 @@ namespace DSharpPlus
         /// <param name="messageId">The id of the follow up message.</param>
         public Task DeleteFollowupMessageAsync(string interactionToken, ulong messageId) =>
             this.ApiClient.DeleteFollowupMessageAsync(this.CurrentApplication.Id, interactionToken, messageId);
+
+        /// <summary>
+        /// Gets all application command permissions in a guild.
+        /// </summary>
+        /// <param name="guildId">The guild id.</param>
+        /// <returns>A list of permissions.</returns>
+        public Task<IReadOnlyList<DiscordGuildApplicationCommandPermissions>> GetGuildApplicationCommandsPermissionsAsync(ulong guildId)
+            => this.ApiClient.GetGuildApplicationCommandPermissionsAsync(this.CurrentApplication.Id, guildId);
+
+        /// <summary>
+        /// Gets permissions for a application command in a guild.
+        /// </summary>
+        /// <param name="guildId">The guild id.</param>
+        /// <param name="commandId">The id of the command to get them for.</param>
+        /// <returns>The permissions.</returns>
+        public Task<DiscordGuildApplicationCommandPermissions> GetGuildApplicationCommandPermissionsAsync(ulong guildId, ulong commandId)
+            => this.ApiClient.GetApplicationCommandPermissionsAsync(this.CurrentApplication.Id, guildId, commandId);
+
+        /// <summary>
+        /// Edits permissions for a application command in a guild.
+        /// </summary>
+        /// <param name="guildId">The guild id.</param>
+        /// <param name="commandId">The id of the command to edit permissions for.</param>
+        /// <param name="permissions">The list of permissions to use.</param>
+        /// <returns>The edited permissions.</returns>
+        public Task<DiscordGuildApplicationCommandPermissions> EditApplicationCommandPermissionsAsync(ulong guildId, ulong commandId, IEnumerable<DiscordApplicationCommandPermission> permissions)
+            => this.ApiClient.EditApplicationCommandPermissionsAsync(this.CurrentApplication.Id, guildId, commandId, permissions);
+
+        /// <summary>
+        /// Batch edits permissions for a application command in a guild.
+        /// </summary>
+        /// <param name="guildId">The guild id.</param>
+        /// <param name="permissions">The list of permissions to use.</param>
+        /// <returns>A list of edited permissions.</returns>
+        public Task<IReadOnlyList<DiscordGuildApplicationCommandPermissions>> BatchEditApplicationCommandPermissionsAsync(ulong guildId, IEnumerable<DiscordGuildApplicationCommandPermissions> permissions)
+            => this.ApiClient.BatchEditApplicationCommandPermissionsAsync(this.CurrentApplication.Id, guildId, permissions);
         #endregion
 
         #region Misc
@@ -1566,10 +1641,10 @@ namespace DSharpPlus
         /// </summary>
         public override void Dispose()
         {
-            if (disposed)
+            if (this.disposed)
                 return;
-            disposed = true;
-            _guilds = null;
+            this.disposed = true;
+            this._guilds = null;
             this.ApiClient.Rest.Dispose();
         }
     }

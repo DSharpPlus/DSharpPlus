@@ -21,9 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -68,7 +66,7 @@ namespace DSharpPlus.Entities
             => !string.IsNullOrWhiteSpace(this.IconHash) ? $"https://cdn.discordapp.com/channel-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.IconHash}.png" : null;
 
         /// <summary>
-        /// Only use for Group DMs! Whitelised bots only. Requires user's oauth2 access token
+        /// Only use for Group DMs! Whitelisted bots only. Requires user's oauth2 access token
         /// </summary>
         /// <param name="user_id">The id of the user to add.</param>
         /// <param name="accesstoken">The OAuth2 access token.</param>

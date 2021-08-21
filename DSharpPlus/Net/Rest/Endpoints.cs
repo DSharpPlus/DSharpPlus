@@ -25,8 +25,10 @@ namespace DSharpPlus.Net
 {
     internal static class Endpoints
     {
+
         public const string BASE_URI = "https://discord.com/api/v8";
 
+        public const string ORIGINAL = "/@original";
         public const string OAUTH2 = "/oauth2";
         public const string APPLICATIONS = "/applications";
         public const string REACTIONS = "/reactions";
@@ -48,6 +50,7 @@ namespace DSharpPlus.Net
         public const string PINS = "/pins";
         public const string USERS = "/users";
         public const string GUILDS = "/guilds";
+        public const string SEARCH = "/search";
         public const string INVITES = "/invites";
         public const string ROLES = "/roles";
         public const string MEMBERS = "/members";
@@ -64,7 +67,6 @@ namespace DSharpPlus.Net
         public const string NICK = "/nick";
         public const string ASSETS = "/assets";
         public const string EMOJIS = "/emojis";
-        public const string SUPPRESS_EMBEDS = "/suppress-embeds";
         public const string VANITY_URL = "/vanity-url";
         public const string WIDGET_PNG = "/widget.png";
         public const string PREVIEW = "/preview";
@@ -79,5 +81,7 @@ namespace DSharpPlus.Net
         public const string CALLBACK = "/callback";
         public const string WELCOME_SCREEN = "/welcome-screen";
         public const string VOICE_STATES = "/voice-states";
+        public const string STICKERS = "/stickers";
+        public const string STICKERPACKS = "/sticker-packs";
     }
 }

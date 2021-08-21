@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -80,6 +81,13 @@ namespace DSharpPlus.Entities
         /// <param name="options">The optional subcommands for this parameter.</param>
         public DiscordApplicationCommandOption(string name, string description, ApplicationCommandOptionType type, bool? required = null, IEnumerable<DiscordApplicationCommandOptionChoice> choices = null, IEnumerable<DiscordApplicationCommandOption> options = null)
         {
+            if (!Utilities.IsValidSlashCommandName(name))
+                throw new ArgumentException("Invalid slash command option name specified. It must be below 32 characters and not contain any whitespace.", nameof(name));
+            if (name.Any(ch => char.IsUpper(ch)))
+                throw new ArgumentException("Slash command option name cannot have any upper case characters.", nameof(name));
+            if (description.Length > 100)
+                throw new ArgumentException("Slash command option description cannot exceed 100 characters.", nameof(description));
+
             var choiceList = choices != null ? new ReadOnlyCollection<DiscordApplicationCommandOptionChoice>(choices.ToList()) : null;
             var optionList = options != null ? new ReadOnlyCollection<DiscordApplicationCommandOption>(options.ToList()) : null;
 

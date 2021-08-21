@@ -52,7 +52,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             this._tcs = new TaskCompletionSource<bool>();
             this._ct = new CancellationTokenSource(timeout);
             this._predicate = predicate;
-            this._ct.Token.Register(() => _tcs.TrySetResult(true));
+            this._ct.Token.Register(() => this._tcs.TrySetResult(true));
             this._timeout = timeout;
             this._collected = new ConcurrentHashSet<T>();
         }

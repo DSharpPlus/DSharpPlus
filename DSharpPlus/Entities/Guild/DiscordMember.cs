@@ -24,9 +24,10 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Models;
 using Newtonsoft.Json;
@@ -62,10 +63,26 @@ namespace DSharpPlus.Entities
             this.Nickname = mbr.Nickname;
             this.PremiumSince = mbr.PremiumSince;
             this.IsPending = mbr.IsPending;
-
+            this._avatarHash = mbr.AvatarHash;
             this._role_ids = mbr.Roles ?? new List<ulong>();
             this._role_ids_lazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(this._role_ids));
         }
+
+        /// <summary>
+        /// Gets the member's avatar for the current guild.
+        /// </summary>
+        [JsonIgnore]
+        public string GuildAvatarHash => this._avatarHash ?? this.User.AvatarHash;
+
+        /// <summary>
+        /// Gets the members avatar url for the current guild.
+        /// </summary>
+        [JsonIgnore]
+        public string GuildAvatarUrl
+            => !string.IsNullOrWhiteSpace(this.GuildAvatarHash) ? (this.GuildAvatarHash.StartsWith("a_") ? $"https://cdn.discordapp.com{Endpoints.GUILDS}/{this._guild_id}{Endpoints.USERS}/{this.Id}{Endpoints.AVATARS}/{this.GuildAvatarHash}.gif?size=1024" : $"https://cdn.discordapp.com{Endpoints.GUILDS}/{this._guild_id}{Endpoints.USERS}/{this.Id}{Endpoints.AVATARS}/{this.GuildAvatarHash}.png?size=1024") : this.DefaultAvatarUrl;
+
+        [JsonIgnore]
+        internal string _avatarHash;
 
         /// <summary>
         /// Gets this member's nickname.
@@ -157,7 +174,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public DiscordGuild Guild
-            => this.Discord.Guilds[_guild_id];
+            => this.Discord.Guilds[this._guild_id];
 
         /// <summary>
         /// Gets whether this member is the Guild owner.
@@ -172,6 +189,15 @@ namespace DSharpPlus.Entities
         [JsonIgnore]
         public int Hierarchy
             => this.IsOwner ? int.MaxValue : this.RoleIds.Count == 0 ? 0 : this.Roles.Max(x => x.Position);
+
+
+        /// <summary>
+        /// Gets the permissions for the current member.
+        /// </summary>
+        [JsonIgnore]
+        public Permissions Permissions => this.GetPermissions();
+
+
 
         #region Overridden user properties
         [JsonIgnore]
@@ -197,8 +223,31 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Gets this member's banner url.
+        /// </summary>
+        [JsonIgnore]
+        public string BannerUrl => this.User.BannerUrl;
+
+        /// <summary>
+        /// Gets the member's banner hash.
+        /// </summary>
+        [JsonIgnore]
+        public override string BannerHash
+        {
+            get => this.User.BannerHash;
+            internal set => this.User.BannerHash = value;
+        }
+
+        /// <summary>
+        /// The color of this member's banner. Mutually exclusive with <see cref="BannerHash"/>.
+        /// </summary>
+        [JsonIgnore]
+        public override DiscordColor? BannerColor => this.User.BannerColor;
+
+        /// <summary>
         /// Gets the member's avatar hash.
         /// </summary>
+        [JsonIgnore]
         public override string AvatarHash
         {
             get => this.User.AvatarHash;
@@ -373,7 +422,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task SetMuteAsync(bool mute, string reason = null)
-            => this.Discord.ApiClient.ModifyGuildMemberAsync(_guild_id, this.Id, default, default, mute, default, default, reason);
+            => this.Discord.ApiClient.ModifyGuildMemberAsync(this._guild_id, this.Id, default, default, mute, default, default, reason);
 
         /// <summary>
         /// Sets this member's voice deaf status.
@@ -386,7 +435,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task SetDeafAsync(bool deaf, string reason = null)
-            => this.Discord.ApiClient.ModifyGuildMemberAsync(_guild_id, this.Id, default, default, default, deaf, default, reason);
+            => this.Discord.ApiClient.ModifyGuildMemberAsync(this._guild_id, this.Id, default, default, default, deaf, default, reason);
 
         /// <summary>
         /// Modifies this member.
@@ -423,7 +472,7 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Grants a role to the member. 
+        /// Grants a role to the member.
         /// </summary>
         /// <param name="role">Role to grant.</param>
         /// <param name="reason">Reason for audit logs.</param>
@@ -528,6 +577,7 @@ namespace DSharpPlus.Entities
         public Permissions PermissionsIn(DiscordChannel channel)
             => channel.PermissionsFor(this);
 
+
         /// <summary>
         /// Returns a string representation of this member.
         /// </summary>
@@ -593,5 +643,29 @@ namespace DSharpPlus.Entities
         /// <returns>Whether the two members are not equal.</returns>
         public static bool operator !=(DiscordMember e1, DiscordMember e2)
             => !(e1 == e2);
+
+        /// <summary>
+        /// Get's the current member's roles based on the sum of the permissions of their given roles.
+        /// </summary>
+        private Permissions GetPermissions()
+        {
+            if (this.Guild.OwnerId == this.Id)
+                return PermissionMethods.FULL_PERMS;
+
+            Permissions perms;
+
+            // assign @everyone permissions
+            var everyoneRole = this.Guild.EveryoneRole;
+            perms = everyoneRole.Permissions;
+
+            // assign permissions from member's roles (in order)
+            perms |= this.Roles.Aggregate(Permissions.None, (c, role) => c | role.Permissions);
+
+            // Adminstrator grants all permissions and cannot be overridden
+            if ((perms & Permissions.Administrator) == Permissions.Administrator)
+                return PermissionMethods.FULL_PERMS;
+
+            return perms;
+        }
     }
 }

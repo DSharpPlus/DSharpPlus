@@ -354,7 +354,7 @@ namespace DSharpPlus.CommandsNext
             var args = new object[constructorArgs.Length];
 
             if (constructorArgs.Length != 0 && services == null)
-                throw new InvalidOperationException("Dependency collection needs to be specified for parametered constructors.");
+                throw new InvalidOperationException("Dependency collection needs to be specified for parameterized constructors.");
 
             // inject via constructor
             if (constructorArgs.Length != 0)

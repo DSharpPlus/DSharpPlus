@@ -106,6 +106,9 @@ namespace DSharpPlus.Lavalink
             this.Password = other.Password;
             this.ResumeKey = other.ResumeKey;
             this.ResumeTimeout = other.ResumeTimeout;
+            this.SocketAutoReconnect = other.SocketAutoReconnect;
+            this.Region = other.Region;
+            this.WebSocketCloseTimeout = other.WebSocketCloseTimeout;
         }
     }
 }

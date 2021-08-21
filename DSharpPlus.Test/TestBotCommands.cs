@@ -21,15 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using DSharpPlus.Interactivity.Extensions;
 
 namespace DSharpPlus.Test
 {
@@ -203,7 +206,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("SendSomeFile")]
-        public async Task SendSomeFile(CommandContext ctx)
+        public async Task SendSomeFileAsync(CommandContext ctx)
         {
             using (var fs = new FileStream("ADumbFile.txt", FileMode.Open, FileAccess.Read))
             {
@@ -268,7 +271,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("CreateSomeFile")]
-        public async Task CreateSomeFile(CommandContext ctx, string fileName, [RemainingText] string fileBody)
+        public async Task CreateSomeFileAsync(CommandContext ctx, string fileName, [RemainingText] string fileBody)
         {
             using (var fs = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite))
             using (var sw = new StreamWriter(fs))
@@ -302,7 +305,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("SendWebhookFiles")]
-        public async Task SendWebhookFiles(CommandContext ctx)
+        public async Task SendWebhookFilesAsync(CommandContext ctx)
         {
             var webhook = await ctx.Channel.CreateWebhookAsync("webhook-test");
 
@@ -406,7 +409,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("mentionusers")]
-        public async Task MentionAllMentionedUsers(CommandContext ctx, [RemainingText][Description("Just a string so that DSharpPlus will parse no matter what I say")] string mentionedUsers)
+        public async Task MentionAllMentionedUsersAsync(CommandContext ctx, [RemainingText][Description("Just a string so that DSharpPlus will parse no matter what I say")] string mentionedUsers)
         {
             var content = "You didn't have any users to mention";
             if (ctx.Message.MentionedUsers.Any())
@@ -416,7 +419,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("mentionroles")]
-        public async Task MentionAllMentionedRoles(CommandContext ctx, [RemainingText][Description("Just a string so that DSharpPlus will parse no matter what I say")] string mentionedRoles)
+        public async Task MentionAllMentionedRolesAsync(CommandContext ctx, [RemainingText][Description("Just a string so that DSharpPlus will parse no matter what I say")] string mentionedRoles)
         {
             var content = "You didn't have any roles to mention";
             if (ctx.Message.MentionedRoles.Any())
@@ -426,7 +429,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("mentionchannels")]
-        public async Task MentionChannels(CommandContext ctx, [RemainingText][Description("Just a string so that DSharpPlus will parse no matter what I say")] string mentionedChannels)
+        public async Task MentionChannelsAsync(CommandContext ctx, [RemainingText][Description("Just a string so that DSharpPlus will parse no matter what I say")] string mentionedChannels)
         {
             var content = "You didn't have any channels to mention";
             if (ctx.Message.MentionedChannels.Any())
@@ -436,7 +439,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("getmessagementions")]
-        public async Task GetMessageMentions(CommandContext ctx, ulong msgId)
+        public async Task GetMessageMentionsAsync(CommandContext ctx, ulong msgId)
         {
             var msg = await ctx.Channel.GetMessageAsync(msgId);
             var contentBuilder = new StringBuilder("You didn't mention any user, channel, or role.");
@@ -452,7 +455,7 @@ namespace DSharpPlus.Test
             await ctx.RespondAsync(contentBuilder.ToString());
         }
         [Command("getattachmenttype")]
-        public async Task GetAttachmentsTypes(CommandContext ctx, ulong? messageId = null)
+        public async Task GetAttachmentsTypesAsync(CommandContext ctx, ulong? messageId = null)
         {
             if (messageId is null)
                 messageId = ctx.Message.Id;
@@ -470,6 +473,66 @@ namespace DSharpPlus.Test
                 }
             }
             await ctx.RespondAsync(contentBuilder.ToString());
+        }
+        [Command("createvoices")]
+        public async Task CreateVoiceChannelsAsync(CommandContext ctx, DiscordChannel channel)
+        {
+            if (channel.Type != ChannelType.Voice)
+            {
+                await ctx.RespondAsync("Channel is not a voice channel.");
+                return;
+            }
+
+            var cNull = await ctx.Guild.CreateVoiceChannelAsync(channel.Name + " [Null]", channel.Parent, null, null, null, null, null);
+            var cAuto = await ctx.Guild.CreateVoiceChannelAsync(channel.Name + " [Auto]", channel.Parent, null, null, null, VideoQualityMode.Auto, null);
+            var cFull = await ctx.Guild.CreateVoiceChannelAsync(channel.Name + " [Full]", channel.Parent, null, null, null, VideoQualityMode.Full, null);
+
+            await ctx.RespondAsync($"{cNull.Mention}, {cAuto.Mention}, and {cFull.Mention} created. Delete channels? (Y)");
+            var result = await ctx.Message.GetNextMessageAsync(m => m.Content.Equals("Y", StringComparison.OrdinalIgnoreCase), TimeSpan.FromMinutes(1));
+
+            if(!result.TimedOut)
+            {
+                await cNull.DeleteAsync();
+                await cAuto.DeleteAsync();
+                await cFull.DeleteAsync();
+            }
+        }
+
+        [Command("createchannel")]
+        public async Task CreateGuildChannelsAsync(CommandContext ctx, [RemainingText] string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                await ctx.RespondAsync("You must provide a channel name");
+                return;
+            }
+
+            var channel = await ctx.Guild.CreateTextChannelAsync(name);
+            var msg = await ctx.RespondAsync($"{channel.Mention} created. Delete? (Y)");
+            var result = await ctx.Message.GetNextMessageAsync(m => m.Content.Equals("y", StringComparison.OrdinalIgnoreCase), TimeSpan.FromMinutes(1));
+
+            if (!result.TimedOut)
+            {
+                await channel.DeleteAsync();
+                await ctx.RespondAsync("Channel deleted");
+            }
+        }
+
+        [Command("pc")]
+        [Aliases("purgechat")]
+        [Description("Purges chat")]
+        [RequirePermissions(Permissions.ManageChannels)]
+        public async Task PurgeChatAsync(CommandContext ctx)
+        {
+            DiscordChannel channel = ctx.Channel;
+            var z = ctx.Channel.Position;
+            var x = await channel.CloneAsync();
+            await channel.DeleteAsync();
+            await x.ModifyPositionAsync(z);
+            var embed2 = new DiscordEmbedBuilder()
+                .WithTitle("✅ Purged")
+                .WithFooter($"foo");
+            await x.SendMessageAsync(embed: embed2);
         }
     }
 }

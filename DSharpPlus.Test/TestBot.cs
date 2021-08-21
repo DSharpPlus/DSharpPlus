@@ -33,7 +33,10 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Exceptions;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using DSharpPlus.Exceptions;
 using DSharpPlus.Interactivity;
+using DSharpPlus.Interactivity.Enums;
+using DSharpPlus.Interactivity.EventHandling;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Lavalink;
 using DSharpPlus.VoiceNext;
@@ -63,7 +66,7 @@ namespace DSharpPlus.Test
             {
                 AutoReconnect = true,
                 LargeThreshold = 250,
-                MinimumLogLevel = LogLevel.Debug,
+                MinimumLogLevel = LogLevel.Trace,
                 Token = this.Config.Token,
                 TokenType = TokenType.Bot,
                 ShardId = shardid,
@@ -76,6 +79,7 @@ namespace DSharpPlus.Test
 
             // events
             this.Discord.Ready += this.Discord_Ready;
+            this.Discord.GuildStickersUpdated += this.Discord_StickersUpdated;
             this.Discord.GuildAvailable += this.Discord_GuildAvailable;
             //Discord.PresenceUpdated += this.Discord_PresenceUpdated;
             //Discord.ClientErrored += this.Discord_ClientErrored;
@@ -85,7 +89,9 @@ namespace DSharpPlus.Test
             this.Discord.GuildDownloadCompleted += this.Discord_GuildDownloadCompleted;
             this.Discord.GuildUpdated += this.Discord_GuildUpdated;
             this.Discord.ChannelDeleted += this.Discord_ChannelDeleted;
-
+            //this.Discord.ComponentInteractionCreated += this.RoleMenu;
+            //this.Discord.ComponentInteractionCreated += this.DiscordComponentInteractionCreated;
+            //this.Discord.InteractionCreated += this.SendButton;
             // For event timeout testing
             //Discord.GuildDownloadCompleted += async (s, e) =>
             //{
@@ -124,7 +130,19 @@ namespace DSharpPlus.Test
             // interactivity service
             var icfg = new InteractivityConfiguration()
             {
-                Timeout = TimeSpan.FromSeconds(3)
+                Timeout = TimeSpan.FromSeconds(10),
+                AckPaginationButtons = true,
+                ResponseBehavior = InteractionResponseBehavior.Respond,
+                PaginationBehaviour = PaginationBehaviour.Ignore,
+                ResponseMessage = "Sorry, but this wasn't a valid option, or does not belong to you!",
+                PaginationButtons = new PaginationButtons()
+                {
+                    Stop = new DiscordButtonComponent(ButtonStyle.Danger, "stop", null, false, new DiscordComponentEmoji(862259725785497620)),
+                    Left = new DiscordButtonComponent(ButtonStyle.Secondary, "left", null, false, new DiscordComponentEmoji(862259522478800916)),
+                    Right = new DiscordButtonComponent(ButtonStyle.Secondary, "right", null, false, new DiscordComponentEmoji(862259691212242974)),
+                    SkipLeft = new DiscordButtonComponent(ButtonStyle.Primary, "skipl", null, false, new DiscordComponentEmoji(862259605464023060)),
+                    SkipRight = new DiscordButtonComponent(ButtonStyle.Primary, "skipr", null, false, new DiscordComponentEmoji(862259654403031050))
+                }
             };
 
             this.InteractivityService = this.Discord.UseInteractivity(icfg);
@@ -137,6 +155,12 @@ namespace DSharpPlus.Test
 
             //    _ = Task.Run(async () => await e.Message.RespondAsync(e.Message.Content)).ConfigureAwait(false);
             //};
+        }
+
+        private Task Discord_StickersUpdated(DiscordClient sender, GuildStickersUpdateEventArgs e)
+        {
+            this.Discord.Logger.LogInformation($"{e.Guild.Id}'s stickers updated: {e.StickersBefore.Count()} -> {e.StickersAfter.Count()}");
+            return Task.CompletedTask;
         }
 
         public async Task RunAsync()

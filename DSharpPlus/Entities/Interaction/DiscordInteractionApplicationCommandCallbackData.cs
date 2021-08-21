@@ -41,6 +41,9 @@ namespace DSharpPlus.Entities
         public IEnumerable<IMention> Mentions { get; internal set; }
 
         [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
-        public int? Flags { get; internal set; }
+        public MessageFlags? Flags { get; internal set; }
+
+        [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
+        public IReadOnlyCollection<DiscordActionRowComponent> Components { get; internal set; }
     }
 }

@@ -55,6 +55,9 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("rate_limit_per_user")]
         public Optional<int?> PerUserRateLimit { get; set; }
+
+        [JsonProperty("video_quality_mode", NullValueHandling = NullValueHandling.Ignore)]
+        public VideoQualityMode? QualityMode { get; set; }
     }
 
     internal sealed class RestChannelModifyPayload
@@ -85,6 +88,9 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("rtc_region")]
         public Optional<string> RtcRegion { get; set; }
+
+        [JsonProperty("video_quality_mode", NullValueHandling = NullValueHandling.Ignore)]
+        public VideoQualityMode? QualityMode { get; set; }
     }
 
     internal class RestChannelMessageEditPayload
@@ -95,11 +101,20 @@ namespace DSharpPlus.Net.Abstractions
         [JsonIgnore]
         public bool HasContent { get; set; }
 
-        [JsonProperty("embed", NullValueHandling = NullValueHandling.Include)]
-        public DiscordEmbed Embed { get; set; }
+        [JsonProperty("embeds", NullValueHandling = NullValueHandling.Ignore)]
+        public IEnumerable<DiscordEmbed> Embeds { get; set; }
 
         [JsonProperty("allowed_mentions", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordMentions Mentions { get; set; }
+
+        [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
+        public IReadOnlyCollection<DiscordActionRowComponent> Components { get; set; }
+
+        [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
+        public MessageFlags? Flags { get; set; }
+
+        [JsonProperty("attachments", NullValueHandling = NullValueHandling.Ignore)]
+        public IEnumerable<DiscordAttachment> Attachments { get; set; }
 
         [JsonIgnore]
         public bool HasEmbed { get; set; }
@@ -116,8 +131,12 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("tts", NullValueHandling = NullValueHandling.Ignore)]
         public bool? IsTTS { get; set; }
 
+        [JsonProperty("sticker_ids", NullValueHandling = NullValueHandling.Ignore)]
+        public IEnumerable<ulong> StickersIds { get; set; } // Discord sends an array, but you can only have one* sticker on a message //
+
         [JsonProperty("message_reference", NullValueHandling = NullValueHandling.Ignore)]
         public InternalDiscordMessageReference? MessageReference { get; set; }
+
     }
 
     internal sealed class RestChannelMessageCreateMultipartPayload
@@ -128,8 +147,8 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("tts", NullValueHandling = NullValueHandling.Ignore)]
         public bool? IsTTS { get; set; }
 
-        [JsonProperty("embed", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordEmbed Embed { get; set; }
+        [JsonProperty("embeds", NullValueHandling = NullValueHandling.Ignore)]
+        public IEnumerable<DiscordEmbed> Embeds { get; set; }
 
         [JsonProperty("allowed_mentions", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordMentions Mentions { get; set; }

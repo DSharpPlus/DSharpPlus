@@ -76,6 +76,11 @@ namespace DSharpPlus.Net.Models
         /// </summary>
         public Optional<DiscordVoiceRegion> RtcRegion { internal get; set; }
 
+        /// <summary>
+        /// <para>Sets the voice channel's video quality.</para>
+        /// </summary>
+        public VideoQualityMode? QualityMode { internal get; set; }
+
         internal ChannelEditModel() { }
     }
 }

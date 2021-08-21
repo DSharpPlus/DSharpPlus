@@ -31,7 +31,7 @@ using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.Interactivity.EventHandling
 {
-    internal class Paginator
+    internal class Paginator : IPaginator
     {
         DiscordClient _client;
         ConcurrentHashSet<IPaginationRequest> _requests;
@@ -79,12 +79,12 @@ namespace DSharpPlus.Interactivity.EventHandling
 
         private Task HandleReactionAdd(DiscordClient client, MessageReactionAddEventArgs eventargs)
         {
-            if (_requests.Count == 0)
+            if (this._requests.Count == 0)
                 return Task.CompletedTask;
 
             _ = Task.Run(async () =>
             {
-                foreach (var req in _requests)
+                foreach (var req in this._requests)
                 {
                     var emojis = await req.GetEmojisAsync().ConfigureAwait(false);
                     var msg = await req.GetMessageAsync().ConfigureAwait(false);
@@ -114,7 +114,7 @@ namespace DSharpPlus.Interactivity.EventHandling
                                 await msg.DeleteReactionAsync(eventargs.Emoji, eventargs.User).ConfigureAwait(false);
                             }
                         }
-                        else if (eventargs.User.Id != _client.CurrentUser.Id)
+                        else if (eventargs.User.Id != this._client.CurrentUser.Id)
                         {
                             if (eventargs.Emoji != emojis.Left &&
                                eventargs.Emoji != emojis.SkipLeft &&
@@ -133,12 +133,12 @@ namespace DSharpPlus.Interactivity.EventHandling
 
         private Task HandleReactionRemove(DiscordClient client, MessageReactionRemoveEventArgs eventargs)
         {
-            if (_requests.Count == 0)
+            if (this._requests.Count == 0)
                 return Task.CompletedTask;
 
             _ = Task.Run(async () =>
             {
-                foreach (var req in _requests)
+                foreach (var req in this._requests)
                 {
                     var emojis = await req.GetEmojisAsync().ConfigureAwait(false);
                     var msg = await req.GetMessageAsync().ConfigureAwait(false);
@@ -173,12 +173,12 @@ namespace DSharpPlus.Interactivity.EventHandling
 
         private Task HandleReactionClear(DiscordClient client, MessageReactionsClearEventArgs eventargs)
         {
-            if (_requests.Count == 0)
+            if (this._requests.Count == 0)
                 return Task.CompletedTask;
 
             _ = Task.Run(async () =>
             {
-                foreach (var req in _requests)
+                foreach (var req in this._requests)
                 {
                     var msg = await req.GetMessageAsync().ConfigureAwait(false);
 

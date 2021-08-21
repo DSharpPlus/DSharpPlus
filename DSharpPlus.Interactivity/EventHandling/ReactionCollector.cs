@@ -62,28 +62,28 @@ namespace DSharpPlus.Interactivity.EventHandling
         public ReactionCollector(DiscordClient client)
         {
             this._client = client;
-            var tinfo = _client.GetType().GetTypeInfo();
+            var tinfo = this._client.GetType().GetTypeInfo();
 
-            _requests = new ConcurrentHashSet<ReactionCollectRequest>();
+            this._requests = new ConcurrentHashSet<ReactionCollectRequest>();
 
             // Grabbing all three events from client
             var handler = tinfo.DeclaredFields.First(x => x.FieldType == typeof(AsyncEvent<DiscordClient, MessageReactionAddEventArgs>));
 
-            this._reactionAddEvent = (AsyncEvent<DiscordClient, MessageReactionAddEventArgs>)handler.GetValue(_client);
+            this._reactionAddEvent = (AsyncEvent<DiscordClient, MessageReactionAddEventArgs>)handler.GetValue(this._client);
             this._reactionAddHandler = new AsyncEventHandler<DiscordClient, MessageReactionAddEventArgs>(this.HandleReactionAdd);
-            this._reactionAddEvent.Register(_reactionAddHandler);
+            this._reactionAddEvent.Register(this._reactionAddHandler);
 
             handler = tinfo.DeclaredFields.First(x => x.FieldType == typeof(AsyncEvent<DiscordClient, MessageReactionRemoveEventArgs>));
 
-            this._reactionRemoveEvent = (AsyncEvent<DiscordClient, MessageReactionRemoveEventArgs>)handler.GetValue(_client);
+            this._reactionRemoveEvent = (AsyncEvent<DiscordClient, MessageReactionRemoveEventArgs>)handler.GetValue(this._client);
             this._reactionRemoveHandler = new AsyncEventHandler<DiscordClient, MessageReactionRemoveEventArgs>(this.HandleReactionRemove);
-            this._reactionRemoveEvent.Register(_reactionRemoveHandler);
+            this._reactionRemoveEvent.Register(this._reactionRemoveHandler);
 
             handler = tinfo.DeclaredFields.First(x => x.FieldType == typeof(AsyncEvent<DiscordClient, MessageReactionsClearEventArgs>));
 
-            this._reactionClearEvent = (AsyncEvent<DiscordClient, MessageReactionsClearEventArgs>)handler.GetValue(_client);
+            this._reactionClearEvent = (AsyncEvent<DiscordClient, MessageReactionsClearEventArgs>)handler.GetValue(this._client);
             this._reactionClearHandler = new AsyncEventHandler<DiscordClient, MessageReactionsClearEventArgs>(this.HandleReactionClear);
-            this._reactionClearEvent.Register(_reactionClearHandler);
+            this._reactionClearEvent.Register(this._reactionClearHandler);
         }
 
         public async Task<ReadOnlyCollection<Reaction>> CollectAsync(ReactionCollectRequest request)
@@ -111,7 +111,7 @@ namespace DSharpPlus.Interactivity.EventHandling
         private Task HandleReactionAdd(DiscordClient client, MessageReactionAddEventArgs eventargs)
         {
             // foreach request add
-            foreach (var req in _requests)
+            foreach (var req in this._requests)
             {
                 if (req.message.Id == eventargs.Message.Id)
                 {
@@ -138,7 +138,7 @@ namespace DSharpPlus.Interactivity.EventHandling
         private Task HandleReactionRemove(DiscordClient client, MessageReactionRemoveEventArgs eventargs)
         {
             // foreach request remove
-            foreach (var req in _requests)
+            foreach (var req in this._requests)
             {
                 if (req.message.Id == eventargs.Message.Id)
                 {
@@ -158,7 +158,7 @@ namespace DSharpPlus.Interactivity.EventHandling
         private Task HandleReactionClear(DiscordClient client, MessageReactionsClearEventArgs eventargs)
         {
             // foreach request add
-            foreach (var req in _requests)
+            foreach (var req in this._requests)
             {
                 if (req.message.Id == eventargs.Message.Id)
                 {
@@ -191,8 +191,8 @@ namespace DSharpPlus.Interactivity.EventHandling
             this._reactionClearEvent = null;
             this._reactionClearHandler = null;
 
-            _requests.Clear();
-            _requests = null;
+            this._requests.Clear();
+            this._requests = null;
         }
     }
 
@@ -206,12 +206,12 @@ namespace DSharpPlus.Interactivity.EventHandling
 
         public ReactionCollectRequest(DiscordMessage msg, TimeSpan timeout)
         {
-            message = msg;
-            _collected = new ConcurrentHashSet<Reaction>();
-            _timeout = timeout;
-            _tcs = new TaskCompletionSource<Reaction>();
-            _ct = new CancellationTokenSource(_timeout);
-            _ct.Token.Register(() => _tcs.TrySetResult(null));
+            this.message = msg;
+            this._collected = new ConcurrentHashSet<Reaction>();
+            this._timeout = timeout;
+            this._tcs = new TaskCompletionSource<Reaction>();
+            this._ct = new CancellationTokenSource(this._timeout);
+            this._ct.Token.Register(() => this._tcs.TrySetResult(null));
         }
 
         ~ReactionCollectRequest()

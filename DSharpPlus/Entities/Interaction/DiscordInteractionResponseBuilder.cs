@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace DSharpPlus.Entities
 {
@@ -60,22 +61,82 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Embeds to send on this interaction response.
         /// </summary>
-        public IReadOnlyList<DiscordEmbed> Embeds { get; }
+        public IReadOnlyList<DiscordEmbed> Embeds => this._embeds;
         private readonly List<DiscordEmbed> _embeds = new();
+
+        public IReadOnlyList<DiscordActionRowComponent> Components => this._components;
+        private readonly List<DiscordActionRowComponent> _components = new();
+
 
         /// <summary>
         /// Mentions to send on this interaction response.
         /// </summary>
-        public IEnumerable<IMention> Mentions { get; }
+        public IEnumerable<IMention> Mentions => this._mentions;
         private readonly List<IMention> _mentions = new();
 
         /// <summary>
         /// Constructs a new empty interaction response builder.
         /// </summary>
-        public DiscordInteractionResponseBuilder()
+        public DiscordInteractionResponseBuilder() { }
+
+
+        /// <summary>
+        /// Constructs a new <see cref="DiscordInteractionResponseBuilder"/> based on an existing <see cref="DiscordMessageBuilder"/>.
+        /// </summary>
+        /// <param name="builder">The builder to copy.</param>
+        public DiscordInteractionResponseBuilder(DiscordMessageBuilder builder)
         {
-            this.Embeds = new ReadOnlyCollection<DiscordEmbed>(this._embeds);
-            this.Mentions = new ReadOnlyCollection<IMention>(this._mentions);
+            this._content = builder.Content;
+            this._mentions = builder.Mentions;
+            this._embeds.AddRange(builder.Embeds);
+            this._components.AddRange(builder.Components);
+        }
+
+
+        /// <summary>
+        /// Appends a collection of components to the builder. Each call will append to a new row.
+        /// </summary>
+        /// <param name="components">The components to append. Up to five.</param>
+        /// <returns>The current builder to chain calls with.</returns>
+        /// <exception cref="ArgumentException">Thrown when passing more than 5 components.</exception>
+        public DiscordInteractionResponseBuilder AddComponents(params DiscordComponent[] components)
+            => this.AddComponents((IEnumerable<DiscordComponent>)components);
+
+        /// <summary>
+        /// Appends several rows of components to the message
+        /// </summary>
+        /// <param name="components">The rows of components to add, holding up to five each.</param>
+        /// <returns></returns>
+        public DiscordInteractionResponseBuilder AddComponents(IEnumerable<DiscordActionRowComponent> components)
+        {
+            var ara = components.ToArray();
+
+            if (ara.Length + this._components.Count > 5)
+                throw new ArgumentException("ActionRow count exceeds maximum of five.");
+
+            foreach (var ar in ara)
+                this._components.Add(ar);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Appends a collection of components to the builder. Each call will append to a new row.
+        /// </summary>
+        /// <param name="components">The components to append. Up to five.</param>
+        /// <returns>The current builder to chain calls with.</returns>
+        /// <exception cref="ArgumentException">Thrown when passing more than 5 components.</exception>
+        public DiscordInteractionResponseBuilder AddComponents(IEnumerable<DiscordComponent> components)
+        {
+            var compArr = components.ToArray();
+            var count = compArr.Length;
+
+            if (count > 5)
+                throw new ArgumentException("Cannot add more than 5 components per action row!");
+
+            var arc = new DiscordActionRowComponent(compArr);
+            this._components.Add(arc);
+            return this;
         }
 
         /// <summary>
@@ -149,6 +210,12 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Clears all message components on this builder.
+        /// </summary>
+        public void ClearComponents()
+            => this._components.Clear();
+
+        /// <summary>
         /// Allows for clearing the Interaction Response Builder so that it can be used again to send a new response.
         /// </summary>
         public void Clear()
@@ -158,6 +225,7 @@ namespace DSharpPlus.Entities
             this.IsTTS = false;
             this.IsEphemeral = false;
             this._mentions.Clear();
+            this._components.Clear();
         }
     }
 }
