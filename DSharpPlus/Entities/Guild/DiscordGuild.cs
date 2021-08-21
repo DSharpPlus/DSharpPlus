@@ -875,7 +875,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <returns>A list of all the active and private threads the user can access in the server.</returns>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<IReadOnlyList<DiscordThreadChannel>> ListActiveThreadsAsync()
+        public async Task<ThreadQueryResult> ListActiveThreadsAsync()
         {
             var threads = await this.Discord.ApiClient.ListActiveThreadsAsync(this.Id);
             // Gateway handles thread cache (if it does it properly

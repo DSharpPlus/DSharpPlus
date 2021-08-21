@@ -1567,7 +1567,7 @@ namespace DSharpPlus.Net
             return new ReadOnlyCollection<DiscordThreadChannelMember>(threadMembers);
         }
 
-        internal async Task<IReadOnlyList<DiscordThreadChannel>> ListActiveThreadsAsync(ulong guild_id)
+        internal async Task<ThreadQueryResult> ListActiveThreadsAsync(ulong guild_id)
         {
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.THREADS}{Endpoints.ACTIVE}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { guild_id}, out var path);
@@ -1575,33 +1575,28 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var response = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
 
-            var parsed = new
-            {
-                threads = new List<DiscordThreadChannel>(),
-                members = new List<DiscordThreadChannelMember>()
-            };
+            var result = JsonConvert.DeserializeObject<ThreadQueryResult>(response.Response);
+            result.HasMore = false;
 
-            parsed = JsonConvert.DeserializeAnonymousType(response.Response, parsed);
-
-            foreach (var thread in parsed.threads)
+            foreach (var thread in result.Threads)
                 thread.Discord = this.Discord;
-            foreach (var member in parsed.members)
+            foreach (var member in result.Members)
             {
                 member.Discord = this.Discord;
                 member._guild_id = guild_id;
-                var thread = parsed.threads.SingleOrDefault(x => x.Id == member.ThreadId);
+                var thread = result.Threads.SingleOrDefault(x => x.Id == member.ThreadId);
                 if (thread != null)
                     thread.CurrentMember = member;
             }
 
-            return new ReadOnlyCollection<DiscordThreadChannel>(parsed.threads);
+            return result;
         }
 
-        internal async Task<IReadOnlyList<DiscordThreadChannel>> ListPublicArchivedThreadsAsync(ulong guild_id, ulong channel_id, ulong? before, int limit)
+        internal async Task<ThreadQueryResult> ListPublicArchivedThreadsAsync(ulong guild_id, ulong channel_id, ulong? before, int limit)
         {
             // Permission: READ_MESSAGE_HISTORY permission.
             // Ordered by archive_timestamp, in descending order
-            // Handle "has_more" //Test params
+            // Test params
 
             var queryParams = new Dictionary<string, string>();
             if (before != null)
@@ -1615,36 +1610,81 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path, queryParams.Any() ? BuildQueryString(queryParams) : "");
             var response = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
 
-            var parsed = new 
-            {
-                threads = new List<DiscordThreadChannel>(),
-                members = new List<DiscordThreadChannelMember>()
-            };
-            parsed = JsonConvert.DeserializeAnonymousType(response.Response, parsed);
+            var result = JsonConvert.DeserializeObject<ThreadQueryResult>(response.Response);
 
-            foreach (var thread in parsed.threads)
+            foreach (var thread in result.Threads)
                 thread.Discord = this.Discord;
-            foreach (var member in parsed.members)
+            foreach (var member in result.Members)
             {
                 member.Discord = this.Discord;
                 member._guild_id = guild_id;
-                var thread = parsed.threads.SingleOrDefault(x => x.Id == member.ThreadId);
+                var thread = result.Threads.SingleOrDefault(x => x.Id == member.ThreadId);
                 if (thread != null)
                     thread.CurrentMember = member;
             }
 
-            return new ReadOnlyCollection<DiscordThreadChannel>(parsed.threads);
+            return result;
         }
 
-        internal async Task ListPrivateArchivedThreadsAsync()
+        internal async Task<ThreadQueryResult> ListPrivateArchivedThreadsAsync(ulong guild_id, ulong channel_id, ulong? before, int limit)
         {
             //Permissions: READ_MESSAGE_HISTORY & MANAGE_THREADS
-            throw new NotImplementedException();
+            var queryParams = new Dictionary<string, string>();
+            if (before != null)
+                queryParams["before"] = before?.ToString(CultureInfo.InvariantCulture);
+            if (limit > 0)
+                queryParams["limit"] = limit.ToString(CultureInfo.InvariantCulture);
+
+            var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.THREADS}{Endpoints.ARCHIVED}{Endpoints.PRIVATE}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id}, out var path);
+
+            var url = Utilities.GetApiUriFor(path, queryParams.Any() ? BuildQueryString(queryParams) : "");
+            var response = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
+
+            var result = JsonConvert.DeserializeObject<ThreadQueryResult>(response.Response);
+
+            foreach (var thread in result.Threads)
+                thread.Discord = this.Discord;
+            foreach (var member in result.Members)
+            {
+                member.Discord = this.Discord;
+                member._guild_id = guild_id;
+                var thread = result.Threads.SingleOrDefault(x => x.Id == member.ThreadId);
+                if (thread != null)
+                    thread.CurrentMember = member;
+            }
+
+            return result;
         }
 
-        internal async Task ListJoinedPrivateArchivedThreadsAsync()
+        internal async Task<ThreadQueryResult> ListJoinedPrivateArchivedThreadsAsync(ulong guild_id, ulong channel_id, ulong? before, int limit)
         {
-            throw new NotImplementedException();
+            var queryParams = new Dictionary<string, string>();
+            if (before != null)
+                queryParams["before"] = before?.ToString(CultureInfo.InvariantCulture);
+            if (limit > 0)
+                queryParams["limit"] = limit.ToString(CultureInfo.InvariantCulture);
+
+            var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.USERS}{Endpoints.ME}{Endpoints.THREADS}{Endpoints.ARCHIVED}{Endpoints.PUBLIC}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id}, out var path);
+
+            var url = Utilities.GetApiUriFor(path, queryParams.Any() ? BuildQueryString(queryParams) : "");
+            var response = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
+
+            var result = JsonConvert.DeserializeObject<ThreadQueryResult>(response.Response);
+
+            foreach (var thread in result.Threads)
+                thread.Discord = this.Discord;
+            foreach (var member in result.Members)
+            {
+                member.Discord = this.Discord;
+                member._guild_id = guild_id;
+                var thread = result.Threads.SingleOrDefault(x => x.Id == member.ThreadId);
+                if (thread != null)
+                    thread.CurrentMember = member;
+            }
+
+            return result;
         }
         
         #endregion

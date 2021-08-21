@@ -558,17 +558,49 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the threads that are public and archived for this channel.
         /// </summary>
-        /// <returns>List of all the threads that are public and archived for this channel, in descending order by their archive time.</returns>
+        /// <returns>A <seealso cref="ThreadQueryResult"/> containing the threads for this query and if an other call will yield more threads.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ReadMessageHistory"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<IReadOnlyList<DiscordThreadChannel>> ListPublicArchivedThreadsAsync()
+        public Task<ThreadQueryResult> ListPublicArchivedThreadsAsync(DateTimeOffset? before = null, int limit = 0)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.News)
                 throw new System.InvalidOperationException();
 
-            return await this.Discord.ApiClient.ListPublicArchivedThreadsAsync(this.GuildId.Value, this.Id, null, default);
+            return this.Discord.ApiClient.ListPublicArchivedThreadsAsync(this.GuildId.Value, this.Id, (ulong?) before?.ToUnixTimeSeconds(), limit);
+        }
+
+        /// <summary>
+        /// Gets the threads that are private and archived for this channel.
+        /// </summary>
+        /// <returns>A <seealso cref="ThreadQueryResult"/> containing the threads for this query and if an other call will yield more threads.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ReadMessageHistory"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<ThreadQueryResult> ListPrivateArchivedThreadsAsync(DateTimeOffset? before = null, int limit = 0)
+        {
+            if (this.Type != ChannelType.Text && this.Type != ChannelType.News)
+                throw new System.InvalidOperationException();
+
+            return this.Discord.ApiClient.ListPrivateArchivedThreadsAsync(this.GuildId.Value, this.Id, (ulong?) before?.ToUnixTimeSeconds(), limit);
+        }
+
+        /// <summary>
+        /// Gets the private and archived threads that the current member has joined in this channel.
+        /// </summary>
+        /// <returns>A <seealso cref="ThreadQueryResult"/> containing the threads for this query and if an other call will yield more threads.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ReadMessageHistory"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<ThreadQueryResult> ListJoinedPrivateArchivedThreadsAsync(DateTimeOffset? before = null, int limit = 0)
+        {
+            if (this.Type != ChannelType.Text && this.Type != ChannelType.News)
+                throw new System.InvalidOperationException();
+
+            return this.Discord.ApiClient.ListJoinedPrivateArchivedThreadsAsync(this.GuildId.Value, this.Id, (ulong?) before?.ToUnixTimeSeconds(), limit);
         }
 
         /// <summary>
