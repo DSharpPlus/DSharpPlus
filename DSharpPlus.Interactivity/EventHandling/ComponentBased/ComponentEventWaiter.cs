@@ -107,7 +107,7 @@ namespace DSharpPlus.Interactivity.EventHandling
 
         private async Task Handle(DiscordClient _, ComponentInteractionCreateEventArgs args)
         {
-            foreach (var mreq in this._matchRequests)
+            foreach (var mreq in this._matchRequests.ToArray())
             {
                 if (mreq.Message == args.Message && mreq.IsMatch(args))
                     mreq.Tcs.TrySetResult(args);
@@ -117,7 +117,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
 
 
-            foreach (var creq in this._collectRequests)
+            foreach (var creq in this._collectRequests.ToArray())
             {
                 if (creq.Message == args.Message && creq.IsMatch(args))
                 {
