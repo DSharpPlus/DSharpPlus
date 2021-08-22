@@ -298,7 +298,7 @@ namespace DSharpPlus.Interactivity
 
             var result = await this
                 .ComponentEventWaiter
-                .WaitForMatchAsync(new(message, c => c.Interaction.Data.ComponentType is ComponentType.Select && predicate(c), token))
+                .WaitForMatchAsync(new(message, c => c.Interaction.Data.ComponentType is ComponentType.Button && predicate(c), token))
                 .ConfigureAwait(false);
 
             return new(result is null, result);
