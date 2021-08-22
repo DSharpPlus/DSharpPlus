@@ -147,7 +147,7 @@ namespace DSharpPlus.Interactivity
                 throw new ArgumentException("You must specify at least one button to listen for.");
 
             var res = await this.ComponentEventWaiter
-                .WaitForMatchAsync(new(message.Id.ToString(CultureInfo.InvariantCulture),
+                .WaitForMatchAsync(new(message,
                     c =>
                         c.Interaction.Data.ComponentType == ComponentType.Button &&
                         buttons.Any(b => b.CustomId == c.Id), token));
@@ -187,7 +187,7 @@ namespace DSharpPlus.Interactivity
             var result =
                 await this
                 .ComponentEventWaiter
-                .WaitForMatchAsync(new(message.Id.ToString(), c => c.Interaction.Data.ComponentType == ComponentType.Button && ids.Contains(c.Id), token))
+                .WaitForMatchAsync(new(message, c => c.Interaction.Data.ComponentType == ComponentType.Button && ids.Contains(c.Id), token))
                 .ConfigureAwait(false);
 
             return new(result is null, result);
@@ -224,7 +224,7 @@ namespace DSharpPlus.Interactivity
 
             var result = await this
                 .ComponentEventWaiter
-                .WaitForMatchAsync(new(message.Id.ToString(CultureInfo.InvariantCulture), (c) => c.Interaction.Data.ComponentType is ComponentType.Button && c.User == user, token))
+                .WaitForMatchAsync(new(message, (c) => c.Interaction.Data.ComponentType is ComponentType.Button && c.User == user, token))
                 .ConfigureAwait(false);
 
             return new(result is null, result);
@@ -265,7 +265,7 @@ namespace DSharpPlus.Interactivity
 
             var result = await this
                 .ComponentEventWaiter
-                .WaitForMatchAsync(new(id, (c) => c.Interaction.Data.ComponentType is ComponentType.Button && c.Id == id, token))
+                .WaitForMatchAsync(new(message, (c) => c.Interaction.Data.ComponentType is ComponentType.Button && c.Id == id, token))
                 .ConfigureAwait(false);
 
             return new(result is null, result);
@@ -298,7 +298,7 @@ namespace DSharpPlus.Interactivity
 
             var result = await this
                 .ComponentEventWaiter
-                .WaitForMatchAsync(new(message.Id.ToString(CultureInfo.InvariantCulture), c => c.Interaction.Data.ComponentType is ComponentType.Select && predicate(c), token))
+                .WaitForMatchAsync(new(message, c => c.Interaction.Data.ComponentType is ComponentType.Select && predicate(c), token))
                 .ConfigureAwait(false);
 
             return new(result is null, result);
@@ -333,7 +333,7 @@ namespace DSharpPlus.Interactivity
 
             var result = await this
                 .ComponentEventWaiter
-                .WaitForMatchAsync(new(message.Id.ToString(CultureInfo.InvariantCulture), c => c.Interaction.Data.ComponentType is ComponentType.Select && predicate(c), token))
+                .WaitForMatchAsync(new(message, c => c.Interaction.Data.ComponentType is ComponentType.Select && predicate(c), token))
                 .ConfigureAwait(false);
 
             return new(result is null, result);
@@ -373,7 +373,7 @@ namespace DSharpPlus.Interactivity
 
             var result = await this
                 .ComponentEventWaiter
-                .WaitForMatchAsync(new(id, (c) => c.Interaction.Data.ComponentType is ComponentType.Select && c.Id == id, token))
+                .WaitForMatchAsync(new(message, (c) => c.Interaction.Data.ComponentType is ComponentType.Select && c.Id == id, token))
                 .ConfigureAwait(false);
 
             return new(result is null, result);
@@ -413,7 +413,7 @@ namespace DSharpPlus.Interactivity
 
             var result = await this
                 .ComponentEventWaiter
-                .WaitForMatchAsync(new(id, (c) => c.Id == id && c.User == user, token)).ConfigureAwait(false);
+                .WaitForMatchAsync(new(message, (c) => c.Id == id && c.User == user, token)).ConfigureAwait(false);
 
             return new(result is null, result);
         }

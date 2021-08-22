@@ -43,9 +43,8 @@ namespace DSharpPlus.Interactivity.EventHandling
     internal class ComponentEventWaiter : IDisposable
     {
         private readonly DiscordClient _client;
-        private readonly ConcurrentHashSet<ComponentMatchRequest> _emptyMatchIds = new();
-        private readonly ConcurrentDictionary<string, ComponentMatchRequest> _matchRequests = new();
-        private readonly ConcurrentDictionary<string, ComponentCollectRequest> _collectRequests = new();
+        private readonly ConcurrentHashSet<ComponentMatchRequest> _matchRequests = new();
+        private readonly ConcurrentHashSet<ComponentCollectRequest> _collectRequests = new();
 
         private readonly DiscordFollowupMessageBuilder _message;
         private readonly InteractivityConfiguration _config;
@@ -66,7 +65,7 @@ namespace DSharpPlus.Interactivity.EventHandling
         /// <returns>The returned args, or null if it timed out.</returns>
         public async Task<ComponentInteractionCreateEventArgs> WaitForMatchAsync(ComponentMatchRequest request)
         {
-            this._matchRequests[request.Id] = request;
+            this._matchRequests.Add(request);
 
             try
             {
@@ -79,7 +78,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
             finally
             {
-                this._matchRequests.TryRemove(request.Id, out _);
+                this._matchRequests.TryRemove(request);
             }
         }
 
@@ -90,7 +89,7 @@ namespace DSharpPlus.Interactivity.EventHandling
         /// <returns>The result from request's predicate over the period of time leading up to the token's cancellation.</returns>
         public async Task<IReadOnlyList<ComponentInteractionCreateEventArgs>> CollectMatchesAsync(ComponentCollectRequest request)
         {
-            this._collectRequests[request.Id] = request;
+            this._collectRequests.Add(request);
             try
             {
                 await request.Tcs.Task.ConfigureAwait(false);
@@ -99,16 +98,18 @@ namespace DSharpPlus.Interactivity.EventHandling
             {
                 this._client.Logger.LogError(InteractivityEvents.InteractivityCollectorError, e, "There was an error while collecting component event args.");
             }
-
+            finally
+            {
+                this._collectRequests.TryRemove(request);
+            }
             return request.Collected.ToArray();
         }
 
         private async Task Handle(DiscordClient _, ComponentInteractionCreateEventArgs args)
         {
-            if (this._matchRequests.TryGetValue(args.Id, out var mreq) ||
-                this._matchRequests.TryGetValue(args.Message.Id.ToString(CultureInfo.InvariantCulture), out mreq))
+            foreach (var mreq in this._matchRequests)
             {
-                if (mreq.IsMatch(args))
+                if (mreq.Message == args.Message && mreq.IsMatch(args))
                     mreq.Tcs.TrySetResult(args);
 
                 else if (this._config.ResponseBehavior is InteractionResponseBehavior.Respond)
@@ -116,16 +117,18 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
 
 
-            if (this._collectRequests.TryGetValue(args.Id, out var creq) ||
-                this._collectRequests.TryGetValue(args.Message.Id.ToString(CultureInfo.InvariantCulture), out creq))
+            foreach (var creq in this._collectRequests)
             {
-                await args.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate).ConfigureAwait(false);
+                if (creq.Message == args.Message && creq.IsMatch(args))
+                {
+                    await args.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate).ConfigureAwait(false);
 
-                if (creq.IsMatch(args))
-                    creq.Collected.Add(args);
+                    if (creq.IsMatch(args))
+                        creq.Collected.Add(args);
 
-                else if (this._config.ResponseBehavior is InteractionResponseBehavior.Respond)
-                    await args.Interaction.CreateFollowupMessageAsync(this._message).ConfigureAwait(false);
+                    else if (this._config.ResponseBehavior is InteractionResponseBehavior.Respond)
+                        await args.Interaction.CreateFollowupMessageAsync(this._message).ConfigureAwait(false);
+                }
             }
         }
         public void Dispose()
