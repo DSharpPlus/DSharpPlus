@@ -396,10 +396,10 @@ namespace DSharpPlus.Entities
 
         private IMention[] GetMentions()
         {
-            if (this.ReferencedMessage != null && this._mentionedUsers.Contains(this.ReferencedMessage.Author))
-                return new IMention[] {new RepliedUserMention() }; // Return null to allow all mentions
-
             var mentions = new List<IMention>();
+
+            if (this.ReferencedMessage != null && this._mentionedUsers.Contains(this.ReferencedMessage.Author))
+               mentions.Add(new RepliedUserMention()); // Return null to allow all mentions
 
             if (this._mentionedUsers.Any())
                 mentions.AddRange(this._mentionedUsers.Select(m => (IMention)new UserMention(m)));
