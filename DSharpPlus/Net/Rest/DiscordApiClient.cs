@@ -2738,6 +2738,11 @@ namespace DSharpPlus.Net
 
         internal async Task CreateInteractionResponseAsync(ulong interaction_id, string interaction_token, InteractionResponseType type, DiscordInteractionResponseBuilder builder)
         {
+            if (builder?.Embeds != null)
+                foreach (var embed in builder.Embeds)
+                    if (embed.Timestamp != null)
+                        embed.Timestamp = embed.Timestamp.Value.ToUniversalTime();
+
             var pld = new RestInteractionResponsePayload
             {
                 Type = type,
@@ -2752,11 +2757,29 @@ namespace DSharpPlus.Net
                 } : null
             };
 
+            var values = new Dictionary<string, string>();
+
+            if (builder != null)
+                if (!string.IsNullOrEmpty(builder.Content) || builder.Embeds?.Count() > 0 || builder.IsTTS == true || builder.Mentions != null)
+                    values["payload_json"] = DiscordJson.SerializeObject(pld);
+
             var route = $"{Endpoints.INTERACTIONS}/:interaction_id/:interaction_token{Endpoints.CALLBACK}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { interaction_id, interaction_token }, out var path);
 
-            var url = Utilities.GetApiUriFor(path);
-            await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld));
+            var url = Utilities.GetApiUriBuilderFor(path).AddParameter("wait", "true").Build();
+            if (builder != null)
+            {
+                await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, values: values, files: builder.Files);
+
+                foreach (var file in builder.Files.Where(x => x.ResetPositionTo.HasValue))
+                {
+                    file.Stream.Position = file.ResetPositionTo.Value;
+                }
+            }
+            else
+            {
+                await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld));
+            }
         }
 
         internal async Task<DiscordMessage> GetOriginalInteractionResponseAsync(ulong application_id, string interaction_token)
