@@ -397,8 +397,8 @@ namespace DSharpPlus.Entities
 
             if (isModify)
             {
-                if (this.ReplyId.HasValue)
-                    throw new ArgumentException("You cannot change the ReplyID when modifying a message");
+                if (this.ReplyId.HasValue) ;
+                //throw new ArgumentException("You cannot change the ReplyID when modifying a message");
             }
             else
             {

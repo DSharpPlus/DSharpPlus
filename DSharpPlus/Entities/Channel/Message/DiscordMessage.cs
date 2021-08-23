@@ -187,6 +187,9 @@ namespace DSharpPlus.Entities
 
         [JsonIgnore]
         internal List<DiscordRole> _mentionedRoles;
+
+        private List<DiscordRole> _rawMentionedRoles;
+
         [JsonIgnore]
         private readonly Lazy<IReadOnlyList<DiscordRole>> _mentionedRolesLazy;
 
@@ -391,7 +394,21 @@ namespace DSharpPlus.Entities
             return reference;
         }
 
+        private IMention[] GetMentions()
+        {
+            if (this.ReferencedMessage != null && this._mentionedUsers.Contains(this.ReferencedMessage.Author))
+                return new IMention[] {new RepliedUserMention() }; // Return null to allow all mentions
 
+            var mentions = new List<IMention>();
+
+            if (this._mentionedUsers.Any())
+                mentions.AddRange(this._mentionedUsers.Select(m => (IMention)new UserMention(m)));
+
+            if (this._rawMentionedRoles.Any())
+                mentions.AddRange(this._rawMentionedRoles.Select(r => (IMention)new RoleMention(r)));
+
+            return mentions.ToArray();
+        }
 
         internal void PopulateMentions()
         {
@@ -413,9 +430,11 @@ namespace DSharpPlus.Entities
             }
             if (!string.IsNullOrWhiteSpace(this.Content))
             {
-                mentionedUsers.UnionWith(Utilities.GetUserMentions(this).Select(this.Discord.GetCachedOrEmptyUserInternal));
+                // un-comment if I broke it //
+                //mentionedUsers.UnionWith(Utilities.GetUserMentions(this).Select(this.Discord.GetCachedOrEmptyUserInternal));
                 if (guild != null)
                 {
+                    this._rawMentionedRoles = new List<DiscordRole>(this._mentionedRoles);
                     this._mentionedRoles = this._mentionedRoles.Union(Utilities.GetRoleMentions(this).Select(xid => guild.GetRole(xid))).ToList();
                     this._mentionedChannels = this._mentionedChannels.Union(Utilities.GetChannelMentions(this).Select(xid => guild.GetChannel(xid))).ToList();
                 }
@@ -434,7 +453,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> ModifyAsync(Optional<string> content)
-            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, default, default, default, Array.Empty<DiscordMessageFile>(), null, default);
+            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, default, this.GetMentions(), default, Array.Empty<DiscordMessageFile>(), null, default);
 
         /// <summary>
         /// Edits the message.
