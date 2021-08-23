@@ -69,6 +69,9 @@ namespace DSharpPlus.Entities
                 this._mentionedChannels = new List<DiscordChannel>(other._mentionedChannels);
             if (other._mentionedRoles != null)
                 this._mentionedRoles = new List<DiscordRole>(other._mentionedRoles);
+            if (other._mentionedRoleIds != null)
+                this._mentionedRoleIds = new List<ulong>(other._mentionedRoleIds);
+
             this._mentionedUsers = new List<DiscordUser>(other._mentionedUsers);
             this._reactions = new List<DiscordReaction>(other._reactions);
             this._stickers = new List<DiscordMessageSticker>(other._stickers);
@@ -188,7 +191,8 @@ namespace DSharpPlus.Entities
         [JsonIgnore]
         internal List<DiscordRole> _mentionedRoles;
 
-        private List<DiscordRole> _rawMentionedRoles;
+        [JsonProperty("mention_roles")]
+        internal List<ulong> _mentionedRoleIds;
 
         [JsonIgnore]
         private readonly Lazy<IReadOnlyList<DiscordRole>> _mentionedRolesLazy;
@@ -404,8 +408,8 @@ namespace DSharpPlus.Entities
             if (this._mentionedUsers.Any())
                 mentions.AddRange(this._mentionedUsers.Select(m => (IMention)new UserMention(m)));
 
-            if (this._rawMentionedRoles.Any())
-                mentions.AddRange(this._rawMentionedRoles.Select(r => (IMention)new RoleMention(r)));
+            if (this._mentionedRoleIds.Any())
+                mentions.AddRange(this._mentionedRoleIds.Select(r => (IMention)new RoleMention(r)));
 
             return mentions.ToArray();
         }
@@ -434,7 +438,6 @@ namespace DSharpPlus.Entities
                 //mentionedUsers.UnionWith(Utilities.GetUserMentions(this).Select(this.Discord.GetCachedOrEmptyUserInternal));
                 if (guild != null)
                 {
-                    this._rawMentionedRoles = new List<DiscordRole>(this._mentionedRoles);
                     this._mentionedRoles = this._mentionedRoles.Union(Utilities.GetRoleMentions(this).Select(xid => guild.GetRole(xid))).ToList();
                     this._mentionedChannels = this._mentionedChannels.Union(Utilities.GetChannelMentions(this).Select(xid => guild.GetChannel(xid))).ToList();
                 }
