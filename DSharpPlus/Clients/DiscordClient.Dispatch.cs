@@ -1707,7 +1707,7 @@ namespace DSharpPlus
 
             gld._voiceStates.TryRemove(uid, out var vstateOld);
 
-            if (vstateNew.Channel is not null)
+            if (vstateNew.Channel != null)
             {
                 gld._voiceStates[vstateNew.UserId] = vstateNew;
             }
