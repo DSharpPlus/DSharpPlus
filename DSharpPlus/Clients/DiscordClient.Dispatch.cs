@@ -696,8 +696,6 @@ namespace DSharpPlus
 
         internal async Task OnGuildCreateEventAsync(DiscordGuild guild, JArray rawMembers, IEnumerable<DiscordPresence> presences)
         {
-            Console.WriteLine($"{guild.Name} : {guild.StageInstances?.Count}");
-
             if (presences != null)
             {
                 foreach (var xp in presences)
