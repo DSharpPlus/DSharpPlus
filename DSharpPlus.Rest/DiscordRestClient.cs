@@ -755,6 +755,47 @@ namespace DSharpPlus
         /// </exception>
         public Task<DiscordMessage> CrosspostMessageAsync(ulong channel_id, ulong message_id)
             => this.ApiClient.CrosspostMessageAsync(channel_id, message_id);
+
+        /// <summary>
+        /// Creates a stage instance in a stage channel.
+        /// </summary>
+        /// <param name="channelId">The id of the stage channel to create it in.</param>
+        /// <param name="topic">The topic of the stage instance.</param>
+        /// <param name="privacyLevel">The privacy level of the stage instance.</param>
+        /// <param name="reason">The reason the stage instance was created.</param>
+        /// <returns>The created stage instance.</returns>
+        public Task<DiscordStageInstance> CreateStageInstanceAsync(ulong channelId, string topic, PrivacyLevel? privacyLevel = null, string reason = null)
+            => this.ApiClient.CreateStageInstanceAsync(channelId, topic, privacyLevel, reason);
+
+        /// <summary>
+        /// Gets a stage instance in a stage channel.
+        /// </summary>
+        /// <param name="channelId">The id of the channel.</param>
+        /// <returns>The stage instance in the channel.</returns>
+        public Task<DiscordStageInstance> GetStageInstanceAsync(ulong channelId)
+            => this.ApiClient.GetStageInstanceAsync(channelId);
+
+        /// <summary>
+        /// Modifies a stage instance in a stage channel.
+        /// </summary>
+        /// <param name="channelId">The id of the channel to modify the stage instance of.</param>
+        /// <param name="action">Action to perform.</param>
+        /// <returns>The modified stage instance.</returns>
+        public async Task<DiscordStageInstance> ModifyStageInstanceAsync(ulong channelId, Action<StageInstanceEditModel> action)
+        {
+            var mdl = new StageInstanceEditModel();
+            action(mdl);
+            return await this.ApiClient.ModifyStageInstanceAsync(channelId, mdl.Topic, mdl.PrivacyLevel, mdl.AuditLogReason);
+        }
+
+        /// <summary>
+        /// Deletes a stage instance in a stage channel.
+        /// </summary>
+        /// <param name="channelId">The id of the channel to delete the stage instance of.</param>
+        /// <param name="reason">The reason the stage instance was deleted.</param>
+        public Task DeleteStageInstanceAsync(ulong channelId, string reason = null)
+            => this.ApiClient.DeleteStageInstanceAsync(channelId, reason);
+
         #endregion
 
         #region Member
