@@ -645,10 +645,15 @@ namespace DSharpPlus.Interactivity
             var del = deletion ?? this.Config.ButtonBehavior;
             var bts = buttons ?? this.Config.PaginationButtons;
 
+            bts = new(bts); // Copy //
+            bts.SkipLeft.Disable();
+            bts.Left.Disable();
+
             var builder = new DiscordInteractionResponseBuilder()
                 .WithContent(pages.First().Content)
                 .AddEmbed(pages.First().Embed)
-                .AsEphemeral(ephemeral);
+                .AsEphemeral(ephemeral)
+                .AddComponents(bts.ButtonArray);
 
             await interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
             var message = await interaction.GetOriginalResponseAsync();
