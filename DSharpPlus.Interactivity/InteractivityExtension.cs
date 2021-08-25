@@ -610,17 +610,18 @@ namespace DSharpPlus.Interactivity
             var del = deletion ?? this.Config.ButtonBehavior;
             var bts = buttons ?? this.Config.PaginationButtons;
 
+            bts = new(bts);
+            bts.SkipLeft.Disable();
+            bts.Left.Disable();
+
             var builder = new DiscordMessageBuilder()
                 .WithContent(pages.First().Content)
-                .WithEmbed(pages.First().Embed);
+                .WithEmbed(pages.First().Embed)
+                .AddComponents(bts.ButtonArray);
 
             var message = await builder.SendAsync(channel).ConfigureAwait(false);
 
             var req = new ButtonPaginationRequest(message, user, bhv, del, bts, pages.ToArray(), token);
-
-            await builder // We *COULD* just construct a req with a null message and grab the buttons from that, but eh. //
-                .AddComponents(await req.GetButtonsAsync().ConfigureAwait(false))
-                .ModifyAsync(message).ConfigureAwait(false);
 
             await this._compPaginator.DoPaginationAsync(req).ConfigureAwait(false);
         }

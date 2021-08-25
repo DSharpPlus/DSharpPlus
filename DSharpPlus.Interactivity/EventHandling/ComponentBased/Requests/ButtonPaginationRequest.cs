@@ -76,13 +76,13 @@ namespace DSharpPlus.Interactivity.EventHandling
             if (this._wrapBehavior is PaginationBehaviour.WrapAround)
                 return page;
 
-            this._buttons.SkipLeft.Disabled = this._index > 2;
+            this._buttons.SkipLeft.Disabled = this._index < 2;
 
-            this._buttons.Left.Disabled = this._index is 0;
+            this._buttons.Left.Disabled = this._index < 1;
 
-            this._buttons.Right.Disabled = this._index == this.PageCount + 1;
+            this._buttons.Right.Disabled = this._index == this.PageCount - 1;
 
-            this._buttons.SkipRight.Disabled = this._index <= this.PageCount - 2;
+            this._buttons.SkipRight.Disabled = this._index >= this.PageCount - 2;
 
             return page;
         }
