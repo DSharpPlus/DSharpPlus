@@ -632,7 +632,7 @@ namespace DSharpPlus.Interactivity
         /// </para>
         /// </summary>
         /// <param name="interaction">The interaction to create a response to.</param>
-        /// <param name="ephemeral">Whether the response should be ephermaral.</param>
+        /// <param name="ephemeral">Whether the response should be ephemeral.</param>
         /// <param name="user">The user to listen for button presses from.</param>
         /// <param name="pages">The pages to paginate.</param>
         /// <param name="buttons">Optional: custom buttons</param>
