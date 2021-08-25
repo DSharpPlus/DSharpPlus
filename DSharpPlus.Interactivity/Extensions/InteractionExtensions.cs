@@ -31,7 +31,7 @@ namespace DSharpPlus.Interactivity.Extensions
 {
     public static class InteractionExtensions
     {
-        public static Task SendPaginatedMessageAsync(this DiscordInteraction interaction, bool ephemeral, DiscordUser user, IEnumerable<Page> pages, PaginationButtons? buttons = null, PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default, CancellationToken token = default)
-            => MessageExtensions.GetInteractivity(interaction.Message).SendPaginatedMessageAsync(interaction, ephemeral, user, pages, buttons, behaviour, deletion, token);
+        public static Task SendPaginatedResponseAsync(this DiscordInteraction interaction, bool ephemeral, DiscordUser user, IEnumerable<Page> pages, PaginationButtons? buttons = null, PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default, CancellationToken token = default)
+            => MessageExtensions.GetInteractivity(interaction.Message).SendPaginatedResponseAsync(interaction, ephemeral, user, pages, buttons, behaviour, deletion, token);
     }
 }
