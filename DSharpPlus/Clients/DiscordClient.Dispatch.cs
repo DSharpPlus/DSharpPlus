@@ -392,6 +392,22 @@ namespace DSharpPlus
 
                 #endregion
 
+                #region Stage Instance
+
+                case "stage_instance_create":
+                    await this.OnStageInstanceCreateAsync(dat.ToObject<DiscordStageInstance>());
+                    break;
+
+                case "stage_instance_update":
+                    await this.OnStageInstanceUpdateAsync(dat.ToObject<DiscordStageInstance>());
+                    break;
+
+                case "stage_instance_delete":
+                    await this.OnStageInstanceDeleteAsync(dat.ToObject<DiscordStageInstance>());
+                    break;
+
+                #endregion
+
                 #region Misc
 
                 case "gift_code_update": //Not supposed to be dispatched to bots
@@ -717,6 +733,8 @@ namespace DSharpPlus
                 guild._voiceStates = new ConcurrentDictionary<ulong, DiscordVoiceState>();
             if (guild._members == null)
                 guild._members = new ConcurrentDictionary<ulong, DiscordMember>();
+            if (guild._stageInstances == null)
+                guild._stageInstances = new ConcurrentDictionary<ulong, DiscordStageInstance>();
 
             this.UpdateCachedGuild(eventGuild, rawMembers);
 
@@ -754,6 +772,8 @@ namespace DSharpPlus
                 xr.Discord = this;
                 xr._guild_id = guild.Id;
             }
+            foreach (var instance in guild._stageInstances.Values)
+                instance.Discord = this;
 
             var old = Volatile.Read(ref this._guildDownloadCompleted);
             var dcompl = this._guilds.Values.All(xg => !xg.IsUnavailable);
@@ -1887,6 +1907,62 @@ namespace DSharpPlus
             };
 
             await this._integrationDeleted.InvokeAsync(this, ea).ConfigureAwait(false);
+        }
+
+        #endregion
+
+        #region Stage Instance
+
+        internal async Task OnStageInstanceCreateAsync(DiscordStageInstance instance)
+        {
+            instance.Discord = this;
+
+            var guild = this.InternalGetCachedGuild(instance.GuildId);
+
+            guild._stageInstances[instance.Id] = instance;
+
+            var eventArgs = new StageInstanceCreateEventArgs
+            {
+                StageInstance = instance
+            };
+
+            await this._stageInstanceCreated.InvokeAsync(this, eventArgs).ConfigureAwait(false);
+        }
+
+        internal async Task OnStageInstanceUpdateAsync(DiscordStageInstance instance)
+        {
+            instance.Discord = this;
+
+            var guild = this.InternalGetCachedGuild(instance.GuildId);
+
+            if (!guild._stageInstances.TryRemove(instance.Id, out var oldInstance))
+                oldInstance = new DiscordStageInstance { Id = instance.Id, GuildId = instance.GuildId, ChannelId = instance.ChannelId };
+
+            guild._stageInstances[instance.Id] = instance;
+
+            var eventArgs = new StageInstanceUpdateEventArgs
+            {
+                StageInstanceBefore = oldInstance,
+                StageInstanceAfter = instance
+            };
+
+            await this._stageInstanceUpdated.InvokeAsync(this, eventArgs).ConfigureAwait(false);
+        }
+
+        internal async Task OnStageInstanceDeleteAsync(DiscordStageInstance instance)
+        {
+            instance.Discord = this;
+
+            var guild = this.InternalGetCachedGuild(instance.GuildId);
+
+            guild._stageInstances.TryRemove(instance.Id, out _);
+
+            var eventArgs = new StageInstanceDeleteEventArgs
+            {
+                StageInstance = instance
+            };
+
+            await this._stageInstanceDeleted.InvokeAsync(this, eventArgs).ConfigureAwait(false);
         }
 
         #endregion
