@@ -449,7 +449,7 @@ namespace DSharpPlus.Entities
         /// Gets the stage instances in this guild.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyDictionary<ulong, DiscordStageInstance> StageInstances => new ReadOnlyConcurrentDictionary<ulong, DiscordStageInstance>(_stageInstances);
+        public IReadOnlyDictionary<ulong, DiscordStageInstance> StageInstances => new ReadOnlyConcurrentDictionary<ulong, DiscordStageInstance>(this._stageInstances);
 
         [JsonProperty("stage_instances", NullValueHandling = NullValueHandling.Ignore)]
         [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
@@ -1768,7 +1768,7 @@ namespace DSharpPlus.Entities
                             }
                         }
                         break;
-                        
+
                     case AuditLogActionType.StickerCreate:
                     case AuditLogActionType.StickerDelete:
                     case AuditLogActionType.StickerUpdate:
