@@ -277,8 +277,15 @@ namespace DSharpPlus
         /// <summary>
         /// Allows the user to use slash commands.
         /// </summary>
+        [Obsolete("Replaced by UseApplicationCommands", false)]
         [PermissionString("Use slash commands")]
         UseSlashCommands = 0x0000000080000000,
+        
+        /// <summary>
+        /// Allows the user to use application commands.
+        /// </summary>
+        [PermissionString("Use application commands")]
+        UseApplicationCommands = 0x0000000080000000,
 
         /// <summary>
         /// Allows for requesting to speak in stage channels.
