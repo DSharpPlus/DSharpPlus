@@ -395,13 +395,6 @@ namespace DSharpPlus.Entities
             if (this._embeds.Count > 10)
                 throw new ArgumentException("A message can only have up to 10 embeds.");
 
-            if (isModify)
-            {
-                if (this.ReplyId.HasValue)
-                    throw new ArgumentException("You cannot change the ReplyID when modifying a message");
-            }
-            else
-            {
                 if (this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && (!this.Embeds?.Any() ?? true) && this.Sticker is null)
                     throw new ArgumentException("You must specify content, an embed, a sticker, or at least one file.");
 
@@ -410,7 +403,6 @@ namespace DSharpPlus.Entities
 
                 if (this.Components.Any(c => c.Components.Count > 5))
                     throw new InvalidOperationException("Action rows can only have 5 components");
-            }
         }
     }
 }
