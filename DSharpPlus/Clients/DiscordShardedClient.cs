@@ -500,6 +500,9 @@ namespace DSharpPlus
             this._threadListSynced = new AsyncEvent<DiscordClient, ThreadListSyncEventArgs>("THREAD_LIST_SYNCED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._threadMemberUpdated = new AsyncEvent<DiscordClient, ThreadMemberUpdateEventArgs>("THREAD_MEMBER_UPDATED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._threadMembersUpdated = new AsyncEvent<DiscordClient, ThreadMembersUpdateEventArgs>("THREAD_MEMBERS_UPDATED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
+            this._stageInstanceCreated = new AsyncEvent<DiscordClient, StageInstanceCreateEventArgs>("STAGE_INSTANCE_CREATED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
+            this._stageInstanceUpdated = new AsyncEvent<DiscordClient, StageInstanceUpdateEventArgs>("STAGE_INSTANCE_UPDAED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
+            this._stageInstanceDeleted = new AsyncEvent<DiscordClient, StageInstanceDeleteEventArgs>("STAGE_INSTANCE_DELETED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
         }
 
         private void HookEventHandlers(DiscordClient client)
@@ -562,6 +565,9 @@ namespace DSharpPlus
             client.IntegrationCreated += this.Client_IntegrationCreated;
             client.IntegrationUpdated += this.Client_IntegrationUpdated;
             client.IntegrationDeleted += this.Client_IntegrationDeleted;
+            client.StageInstanceCreated += this.Client_StageInstanceCreated;
+            client.StageInstanceUpdated += this.Client_StageInstanceUpdated;
+            client.StageInstanceDeleted += this.Client_StageInstanceDeleted;
         }
 
         private void UnhookEventHandlers(DiscordClient client)
@@ -624,6 +630,9 @@ namespace DSharpPlus
             client.IntegrationCreated -= this.Client_IntegrationCreated;
             client.IntegrationUpdated -= this.Client_IntegrationUpdated;
             client.IntegrationDeleted -= this.Client_IntegrationDeleted;
+            client.StageInstanceCreated -= this.Client_StageInstanceCreated;
+            client.StageInstanceUpdated -= this.Client_StageInstanceUpdated;
+            client.StageInstanceDeleted -= this.Client_StageInstanceDeleted;
         }
 
         private int GetShardIdFromGuilds(ulong id)

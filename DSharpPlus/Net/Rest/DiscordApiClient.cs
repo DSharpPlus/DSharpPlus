@@ -1466,6 +1466,82 @@ namespace DSharpPlus.Net
             return JsonConvert.DeserializeObject<DiscordMessage>(response.Response);
         }
 
+        internal async Task<DiscordStageInstance> CreateStageInstanceAsync(ulong channelId, string topic, PrivacyLevel? privacyLevel, string reason)
+        {
+            var headers = Utilities.GetBaseHeaders();
+            if (!string.IsNullOrWhiteSpace(reason))
+                headers[REASON_HEADER_NAME] = reason;
+
+            var pld = new RestCreateStageInstancePayload
+            {
+                ChannelId = channelId,
+                Topic = topic,
+                PrivacyLevel = privacyLevel
+            };
+
+            var route = $"{Endpoints.STAGE_INSTANCES}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var response = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, headers, DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
+
+            var stage = JsonConvert.DeserializeObject<DiscordStageInstance>(response.Response);
+            stage.Discord = this.Discord;
+
+            return stage;
+        }
+
+        internal async Task<DiscordStageInstance> GetStageInstanceAsync(ulong channel_id)
+        {
+            var route = $"{Endpoints.STAGE_INSTANCES}/:channel_id";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { channel_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var response = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
+
+            var stage = JsonConvert.DeserializeObject<DiscordStageInstance>(response.Response);
+            stage.Discord = this.Discord;
+
+            return stage;
+        }
+
+        internal async Task<DiscordStageInstance> ModifyStageInstanceAsync(ulong channel_id, Optional<string> topic, Optional<PrivacyLevel> privacyLevel, string reason)
+        {
+            var headers = Utilities.GetBaseHeaders();
+            if (!string.IsNullOrWhiteSpace(reason))
+                headers[REASON_HEADER_NAME] = reason;
+
+            var pld = new RestModifyStageInstancePayload
+            {
+                Topic = topic,
+                PrivacyLevel = privacyLevel
+            };
+
+            var route = $"{Endpoints.STAGE_INSTANCES}/:channel_id";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { channel_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var response = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, headers, DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
+
+            var stage = JsonConvert.DeserializeObject<DiscordStageInstance>(response.Response);
+            stage.Discord = this.Discord;
+
+            return stage;
+        }
+
+        internal async Task DeleteStageInstanceAsync(ulong channel_id, string reason)
+        {
+            var headers = Utilities.GetBaseHeaders();
+            if (!string.IsNullOrWhiteSpace(reason))
+                headers[REASON_HEADER_NAME] = reason;
+
+            var route = $"{Endpoints.STAGE_INSTANCES}/:channel_id";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { channel_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route, headers);
+        }
+
         #endregion
 
         #region Threads
@@ -2963,6 +3039,11 @@ namespace DSharpPlus.Net
 
         internal async Task CreateInteractionResponseAsync(ulong interaction_id, string interaction_token, InteractionResponseType type, DiscordInteractionResponseBuilder builder)
         {
+            if (builder?.Embeds != null)
+                foreach (var embed in builder.Embeds)
+                    if (embed.Timestamp != null)
+                        embed.Timestamp = embed.Timestamp.Value.ToUniversalTime();
+
             var pld = new RestInteractionResponsePayload
             {
                 Type = type,
@@ -2977,11 +3058,29 @@ namespace DSharpPlus.Net
                 } : null
             };
 
+            var values = new Dictionary<string, string>();
+
+            if (builder != null)
+                if (!string.IsNullOrEmpty(builder.Content) || builder.Embeds?.Count() > 0 || builder.IsTTS == true || builder.Mentions != null)
+                    values["payload_json"] = DiscordJson.SerializeObject(pld);
+
             var route = $"{Endpoints.INTERACTIONS}/:interaction_id/:interaction_token{Endpoints.CALLBACK}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { interaction_id, interaction_token }, out var path);
 
-            var url = Utilities.GetApiUriFor(path);
-            await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld));
+            var url = Utilities.GetApiUriBuilderFor(path).AddParameter("wait", "true").Build();
+            if (builder != null)
+            {
+                await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, values: values, files: builder.Files);
+
+                foreach (var file in builder.Files.Where(x => x.ResetPositionTo.HasValue))
+                {
+                    file.Stream.Position = file.ResetPositionTo.Value;
+                }
+            }
+            else
+            {
+                await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld));
+            }
         }
 
         internal async Task<DiscordMessage> GetOriginalInteractionResponseAsync(ulong application_id, string interaction_token)
