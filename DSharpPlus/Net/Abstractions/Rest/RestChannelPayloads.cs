@@ -210,4 +210,25 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("token", NullValueHandling = NullValueHandling.Include)]
         public string Token { get; set; }
     }
+
+    internal sealed class RestCreateStageInstancePayload
+    {
+        [JsonProperty("channel_id")]
+        public ulong ChannelId { get; set; }
+
+        [JsonProperty("topic")]
+        public string Topic { get ; set; }
+
+        [JsonProperty("privacy_level", NullValueHandling = NullValueHandling.Ignore)]
+        public PrivacyLevel? PrivacyLevel { get; set; }
+    }
+
+    internal sealed class RestModifyStageInstancePayload
+    {
+        [JsonProperty("topic")]
+        public Optional<string> Topic { get; set; }
+
+        [JsonProperty("privacy_level")]
+        public Optional<PrivacyLevel> PrivacyLevel { get; set; }
+    }
 }

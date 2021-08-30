@@ -455,6 +455,16 @@ namespace DSharpPlus.Entities
         [JsonProperty("nsfw", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsNSFW { get; internal set; }
 
+        /// <summary>
+        /// Gets the stage instances in this guild.
+        /// </summary>
+        [JsonIgnore]
+        public IReadOnlyDictionary<ulong, DiscordStageInstance> StageInstances => new ReadOnlyConcurrentDictionary<ulong, DiscordStageInstance>(_stageInstances);
+
+        [JsonProperty("stage_instances", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
+        internal ConcurrentDictionary<ulong, DiscordStageInstance> _stageInstances;
+
         // Seriously discord?
 
         // I need to work on this
