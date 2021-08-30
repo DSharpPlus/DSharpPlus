@@ -865,55 +865,6 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Creates a stage instance in this stage channel.
-        /// </summary>
-        /// <param name="topic">The topic of the stage instance.</param>
-        /// <param name="privacyLevel">The privacy level of the stage instance.</param>
-        /// <param name="reason">The reason the stage instance was created.</param>
-        /// <returns>The created stage instance.</returns>
-        public async Task<DiscordStageInstance> CreateStageInstanceAsync(string topic, PrivacyLevel? privacyLevel = null, string reason = null)
-        {
-            if (this.Type != ChannelType.Stage)
-                throw new ArgumentException("A stage instance can only be created in a stage channel.");
-
-            return await this.Discord.ApiClient.CreateStageInstanceAsync(this.Id, topic, privacyLevel, reason);
-        }
-
-        /// <summary>
-        /// Gets the stage instance in this stage channel.
-        /// </summary>
-        /// <returns>The stage instance in the channel.</returns>
-        public async Task<DiscordStageInstance> GetStageInstanceAsync()
-        {
-            if (this.Type != ChannelType.Stage)
-                throw new ArgumentException("A stage instance can only be created in a stage channel.");
-
-            return await this.Discord.ApiClient.GetStageInstanceAsync(this.Id);
-        }
-
-        /// <summary>
-        /// Modifies the stage instance in this stage channel.
-        /// </summary>
-        /// <param name="action">Action to perform.</param>
-        /// <returns>The modified stage instance.</returns>
-        public async Task<DiscordStageInstance> ModifyStageInstanceAsync(Action<StageInstanceEditModel> action)
-        {
-            if (this.Type != ChannelType.Stage)
-                throw new ArgumentException("A stage instance can only be created in a stage channel.");
-
-            var mdl = new StageInstanceEditModel();
-            action(mdl);
-            return await this.Discord.ApiClient.ModifyStageInstanceAsync(this.Id, mdl.Topic, mdl.PrivacyLevel, mdl.AuditLogReason);
-        }
-
-        /// <summary>
-        /// Deletes the stage instance in this stage channel.
-        /// </summary>
-        /// <param name="reason">The reason the stage instance was deleted.</param>
-        public Task DeleteStageInstanceAsync(string reason = null)
-            => this.Discord.ApiClient.DeleteStageInstanceAsync(this.Id, reason);
-
-        /// <summary>
         /// Calculates permissions for a given member.
         /// </summary>
         /// <param name="mbr">Member to calculate permissions for.</param>

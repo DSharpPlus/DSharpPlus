@@ -716,40 +716,6 @@ namespace DSharpPlus
 
         #endregion
 
-        #region Stage Instance
-
-        /// <summary>
-        /// Fired when a stage instance is created.
-        /// </summary>
-        public event AsyncEventHandler<DiscordClient, StageInstanceCreateEventArgs> StageInstanceCreated
-        {
-            add => this._stageInstanceCreated.Register(value);
-            remove => this._stageInstanceCreated.Unregister(value);
-        }
-        private AsyncEvent<DiscordClient, StageInstanceCreateEventArgs> _stageInstanceCreated;
-
-        /// <summary>
-        /// Fired when a stage instance is updated.
-        /// </summary>
-        public event AsyncEventHandler<DiscordClient, StageInstanceUpdateEventArgs> StageInstanceUpdated
-        {
-            add => this._stageInstanceUpdated.Register(value);
-            remove => this._stageInstanceUpdated.Unregister(value);
-        }
-        private AsyncEvent<DiscordClient, StageInstanceUpdateEventArgs> _stageInstanceUpdated;
-
-        /// <summary>
-        /// Fired when a stage instance is deleted.
-        /// </summary>
-        public event AsyncEventHandler<DiscordClient, StageInstanceDeleteEventArgs> StageInstanceDeleted
-        {
-            add => this._stageInstanceDeleted.Register(value);
-            remove => this._stageInstanceDeleted.Unregister(value);
-        }
-        private AsyncEvent<DiscordClient, StageInstanceDeleteEventArgs> _stageInstanceDeleted;
-
-        #endregion
-
         #region Misc
 
         /// <summary>

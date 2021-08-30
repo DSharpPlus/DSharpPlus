@@ -64,7 +64,7 @@
   - name: Buttons
     href: advanced_topics/buttons.md
   - name: Select Menus
-    href: advanced_topics/selects.md
+    href: advanced_topcs/selects.md
 - name: Hosting
   href: hosting.md
 - name: Version Migration
