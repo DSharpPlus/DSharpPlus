@@ -628,16 +628,17 @@ namespace DSharpPlus.Entities
         /// Creates a new thread within this channel from this message.
         /// </summary>
         /// <param name="name">The name of the thread.</param>
-        /// <param name="archiveAfter">The auto archive duration of the thread.</param>
+        /// <param name="archiveAfter">The auto archive duration of the thread. Three and seven day archive options are locked behind level 2 and level 3 server boosts respectively.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The created thread.</returns>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel or message does not exist.</exception>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordThreadChannel> CreateThreadAsync(string name, AutoArchiveDuration archiveAfter, string reason = null)
         {
             if (this.Channel.Type != ChannelType.Text && this.Channel.Type != ChannelType.News)
-                throw new ArgumentException("Threads can only be created within text or news channels.");
+                throw new InvalidOperationException("Threads can only be created within text or news channels.");
 
             return this.Discord.ApiClient.CreateThreadFromMessageAsync(this.Channel.Id, this.Id, name, archiveAfter, reason);
         }

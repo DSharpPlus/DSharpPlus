@@ -1670,10 +1670,6 @@ namespace DSharpPlus.Net
 
         internal async Task<ThreadQueryResult> ListPublicArchivedThreadsAsync(ulong guild_id, ulong channel_id, ulong? before, int limit)
         {
-            // Permission: READ_MESSAGE_HISTORY permission.
-            // Ordered by archive_timestamp, in descending order
-            // Test params
-
             var queryParams = new Dictionary<string, string>();
             if (before != null)
                 queryParams["before"] = before?.ToString(CultureInfo.InvariantCulture);
@@ -1704,7 +1700,6 @@ namespace DSharpPlus.Net
 
         internal async Task<ThreadQueryResult> ListPrivateArchivedThreadsAsync(ulong guild_id, ulong channel_id, ulong? before, int limit)
         {
-            //Permissions: READ_MESSAGE_HISTORY & MANAGE_THREADS
             var queryParams = new Dictionary<string, string>();
             if (before != null)
                 queryParams["before"] = before?.ToString(CultureInfo.InvariantCulture);

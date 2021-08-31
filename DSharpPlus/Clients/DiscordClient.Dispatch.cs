@@ -1852,7 +1852,7 @@ namespace DSharpPlus
                 {
                     Discord = this,
                     GuildId = cthread.GuildId,
-                    OwnerId = cthread.OwnerId,
+                    CreatorId = cthread.CreatorId,
                     ParentId = cthread.ParentId,
                     Id = cthread.Id,
                     Name = cthread.Name,

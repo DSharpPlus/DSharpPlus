@@ -44,7 +44,7 @@ namespace DSharpPlus.Entities
         /// Gets the ID of this thread's creator.
         /// </summary>
         [JsonProperty("owner_id", NullValueHandling = NullValueHandling.Ignore)]
-        public ulong OwnerId { get; internal set; }
+        public ulong CreatorId { get; internal set; }
 
         /// <summary>
         /// Gets the approximate count of messages in a thread, capped to 50.
@@ -70,23 +70,25 @@ namespace DSharpPlus.Entities
         [JsonProperty("thread_metadata", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordThreadChannelMetadata ThreadMetadata { get; internal set; }
 
-        //thread member
         #region Methods
 
         /// <summary>
         /// Makes the current user join the thread.
         /// </summary>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task JoinThreadAsync()
             => await this.Discord.ApiClient.JoinThreadAsync(this.Id);
 
         /// <summary>
         /// Makes the current user leave the thread.
         /// </summary>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task LeaveThreadAsync()
             => await this.Discord.ApiClient.LeaveThreadAsync(this.Id);
 
         /// <summary>
         /// Returns a full list of the thread members in this thread.
+        /// Requires the <see cref="DiscordIntents.GuildMembers"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
         /// </summary>
         /// <returns>A collection of all threads members in this thread.</returns>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -97,12 +99,12 @@ namespace DSharpPlus.Entities
         /// Adds the given DiscordMember to this thread. Requires an unarchived thread and send message permissions.
         /// </summary>
         /// <param name="member">The member to add to the thread.</param>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/>.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task AddThreadMemberAsync(DiscordMember member)
         {
             if (this.ThreadMetadata.IsArchived)
                 throw new InvalidOperationException("You cannot add members to an archived thread.");
-            //check for message send permissions
             await this.Discord.ApiClient.AddThreadMemberAsync(this.Id, member.Id);
         }
 
@@ -110,13 +112,12 @@ namespace DSharpPlus.Entities
         /// Removes the given DiscordMember from this thread. Requires an unarchived thread and send message permissions.
         /// </summary>
         /// <param name="member">The member to remove from the thread.</param>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageThreads"/> permission.</exception>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageThreads"/> permission, or is not the creator of the thread if it is private.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task RemoveThreadMemberAsync(DiscordMember member)
         {
             if (this.ThreadMetadata.IsArchived)
                 throw new InvalidOperationException("You cannot remove members from an archived thread.");
-            //check for message send permissions // Requires the MANAGE_THREADS permission, or the creator of the thread if it is a GUILD_PRIVATE_THREAD.
             await this.Discord.ApiClient.RemoveThreadMemberAsync(this.Id, member.Id);
         }
 

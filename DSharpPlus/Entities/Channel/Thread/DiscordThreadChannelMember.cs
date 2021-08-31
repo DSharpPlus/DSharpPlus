@@ -94,5 +94,65 @@ namespace DSharpPlus.Entities
         internal BaseDiscordClient Discord { get; set; }
 
         internal DiscordThreadChannelMember() { }
+
+        /// <summary>
+        /// Checks whether this <see cref="DiscordThreadChannelMember"/> is equal to another object.
+        /// </summary>
+        /// <param name="obj">Object to compare to.</param>
+        /// <returns>Whether the object is equal to this <see cref="DiscordThreadChannelMember"/>.</returns>
+        public override bool Equals(object obj) => this.Equals(obj as DiscordThreadChannelMember);
+
+        /// <summary>
+        /// Checks whether this <see cref="DiscordThreadChannelMember"/> is equal to another <see cref="DiscordThreadChannelMember"/>.
+        /// </summary>
+        /// <param name="e"><see cref="DiscordThreadChannelMember"/> to compare to.</param>
+        /// <returns>Whether the <see cref="DiscordThreadChannelMember"/> is equal to this <see cref="DiscordThreadChannelMember"/>.</returns>
+        public bool Equals(DiscordThreadChannelMember e)
+        {
+            if (e is null)
+                return false;
+
+            return ReferenceEquals(this, e) ? true : this.Id == e.Id && this.ThreadId == e.ThreadId;
+        }
+
+        /// <summary>
+        /// Gets the hash code for this <see cref="DiscordThreadChannelMember"/>.
+        /// </summary>
+        /// <returns>The hash code for this <see cref="DiscordThreadChannelMember"/>.</returns>
+        public override int GetHashCode()
+        {
+            var hash = 13;
+
+            hash = (hash * 7) + this.Id.GetHashCode();
+            hash = (hash * 7) + this.ThreadId.GetHashCode();
+
+            return hash;
+        }
+
+        /// <summary>
+        /// Gets whether the two <see cref="DiscordThreadChannelMember"/> objects are equal.
+        /// </summary>
+        /// <param name="e1">First message to compare.</param>
+        /// <param name="e2">Second message to compare.</param>
+        /// <returns>Whether the two messages are equal.</returns>
+        public static bool operator ==(DiscordThreadChannelMember e1, DiscordThreadChannelMember e2)
+        {
+            var o1 = e1 as object;
+            var o2 = e2 as object;
+
+            if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
+                return false;
+
+            return o1 == null && o2 == null ? true : e1.Id == e2.Id && e1.ThreadId == e2.ThreadId;
+        }
+
+        /// <summary>
+        /// Gets whether the two <see cref="DiscordThreadChannelMember"/> objects are not equal.
+        /// </summary>
+        /// <param name="e1">First message to compare.</param>
+        /// <param name="e2">Second message to compare.</param>
+        /// <returns>Whether the two messages are not equal.</returns>
+        public static bool operator !=(DiscordThreadChannelMember e1, DiscordThreadChannelMember e2)
+            => !(e1 == e2);
     }
 }

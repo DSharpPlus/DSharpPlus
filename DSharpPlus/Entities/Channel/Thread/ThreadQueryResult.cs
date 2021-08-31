@@ -35,7 +35,7 @@ namespace DSharpPlus.Entities
         public bool HasMore { get; internal set; }
 
         /// <summary>
-        /// Gets the list of threads returned by the query.
+        /// Gets the list of threads returned by the query. Generally ordered by <seealso cref="DiscordThreadChannelMetadata.ArchiveTimestamp"/> in descending order.
         /// </summary>
         [JsonProperty("threads", NullValueHandling = NullValueHandling.Ignore)]
         public IReadOnlyList<DiscordThreadChannel> Threads { get; internal set; }

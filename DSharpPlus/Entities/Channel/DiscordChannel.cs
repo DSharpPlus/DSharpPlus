@@ -575,7 +575,7 @@ namespace DSharpPlus.Entities
         /// Gets the threads that are private and archived for this channel.
         /// </summary>
         /// <returns>A <seealso cref="ThreadQueryResult"/> containing the threads for this query and if an other call will yield more threads.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ReadMessageHistory"/> permission.</exception>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ReadMessageHistory"/> and the <see cref="Permissions.ManageThreads"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
@@ -1041,8 +1041,11 @@ namespace DSharpPlus.Entities
                 throw new InvalidOperationException("News threads can only be created within a news channels.");
             else if(threadType != ChannelType.PublicThread && threadType != ChannelType.PrivateThread && threadType != ChannelType.NewsThread)
                 throw new ArgumentException("Given channel type for creating a thread is not a valid type of thread.");
-            else if ((archiveAfter == AutoArchiveDuration.ThreeDays && this.Guild.Features.Contains("THREE_DAY_THREAD_ARCHIVE")) || (archiveAfter == AutoArchiveDuration.Week && this.Guild.Features.Contains("SEVEN_DAY_THREAD_ARCHIVE")))
-                throw new ArgumentException("This archive duration requires the guild to be boosted or have these archive durations enabled."); //are guild features always cached?
+            else if ((archiveAfter == AutoArchiveDuration.ThreeDays && !this.Guild.Features.Contains("THREE_DAY_THREAD_ARCHIVE")) || (archiveAfter == AutoArchiveDuration.Week && !this.Guild.Features.Contains("SEVEN_DAY_THREAD_ARCHIVE")))
+                throw new ArgumentException("This archive duration requires the guild to be boosted or have these archive durations enabled.");
+            else if(threadType == ChannelType.PrivateThread && !this.Guild.Features.Contains("PRIVATE_THREADS"))
+                throw new ArgumentException("This guild cannot create private threads.");
+
             return this.Discord.ApiClient.CreateThreadAsync(this.Id, name, archiveAfter, threadType, reason);
         }
 
