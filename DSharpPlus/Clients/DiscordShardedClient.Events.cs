@@ -1016,6 +1016,24 @@ namespace DSharpPlus
         private Task Client_StageInstanceDeleted(DiscordClient client, StageInstanceDeleteEventArgs e)
             => this._stageInstanceDeleted.InvokeAsync(client, e);
 
+        private Task Client_ThreadCreated(DiscordClient client, ThreadCreateEventArgs e)
+            => this._threadCreated.InvokeAsync(client, e);
+
+        private Task Client_ThreadUpdated(DiscordClient client, ThreadUpdateEventArgs e)
+            => this._threadUpdated.InvokeAsync(client, e);
+
+        private Task Client_ThreadDeleted(DiscordClient client, ThreadDeleteEventArgs e)
+            => this._threadDeleted.InvokeAsync(client, e);
+
+        private Task Client_ThreadListSynced(DiscordClient client, ThreadListSyncEventArgs e)
+            => this._threadListSynced.InvokeAsync(client, e);
+
+        private Task Client_ThreadMemberUpdated(DiscordClient client, ThreadMemberUpdateEventArgs e)
+            => this._threadMemberUpdated.InvokeAsync(client, e);
+
+        private Task Client_ThreadMembersUpdated(DiscordClient client, ThreadMembersUpdateEventArgs e)
+            => this._threadMembersUpdated.InvokeAsync(client, e);
+
         #endregion
     }
 }
