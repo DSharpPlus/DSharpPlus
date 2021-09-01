@@ -453,7 +453,7 @@ namespace DSharpPlus.Entities
 
         [JsonProperty("stage_instances", NullValueHandling = NullValueHandling.Ignore)]
         [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
-        internal ConcurrentDictionary<ulong, DiscordStageInstance> _stageInstances;
+        internal ConcurrentDictionary<ulong, DiscordStageInstance> _stageInstances = new();
 
         // Seriously discord?
 
