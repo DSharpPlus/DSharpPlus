@@ -552,9 +552,6 @@ namespace DSharpPlus
             client.WebhooksUpdated += this.Client_WebhooksUpdate;
             client.Heartbeated += this.Client_HeartBeated;
             client.Zombied += this.Client_Zombied;
-            client.ApplicationCommandCreated += this.Client_ApplicationCommandCreated;
-            client.ApplicationCommandUpdated += this.Client_ApplicationCommandUpdated;
-            client.ApplicationCommandDeleted += this.Client_ApplicationCommandDeleted;
             client.IntegrationCreated += this.Client_IntegrationCreated;
             client.IntegrationUpdated += this.Client_IntegrationUpdated;
             client.IntegrationDeleted += this.Client_IntegrationDeleted;
@@ -617,9 +614,6 @@ namespace DSharpPlus
             client.WebhooksUpdated -= this.Client_WebhooksUpdate;
             client.Heartbeated -= this.Client_HeartBeated;
             client.Zombied -= this.Client_Zombied;
-            client.ApplicationCommandCreated -= this.Client_ApplicationCommandCreated;
-            client.ApplicationCommandUpdated -= this.Client_ApplicationCommandUpdated;
-            client.ApplicationCommandDeleted -= this.Client_ApplicationCommandDeleted;
             client.IntegrationCreated -= this.Client_IntegrationCreated;
             client.IntegrationUpdated -= this.Client_IntegrationUpdated;
             client.IntegrationDeleted -= this.Client_IntegrationDeleted;

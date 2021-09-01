@@ -569,6 +569,7 @@ namespace DSharpPlus
         /// <summary>
         /// Fired when a new application command is registered.
         /// </summary>
+        [Obsolete("This event has been removed by discord and does not fire anymore.", false)]
         public event AsyncEventHandler<DiscordClient, ApplicationCommandEventArgs> ApplicationCommandCreated
         {
             add => this._applicationCommandCreated.Register(value);
@@ -579,6 +580,7 @@ namespace DSharpPlus
         /// <summary>
         /// Fired when an application command is updated.
         /// </summary>
+        [Obsolete("This event has been removed by discord and does not fire anymore.", false)]
         public event AsyncEventHandler<DiscordClient, ApplicationCommandEventArgs> ApplicationCommandUpdated
         {
             add => this._applicationCommandUpdated.Register(value);
@@ -589,6 +591,7 @@ namespace DSharpPlus
         /// <summary>
         /// Fired when an application command is deleted.
         /// </summary>
+        [Obsolete("This event has been removed by discord and does not fire anymore.", false)]
         public event AsyncEventHandler<DiscordClient, ApplicationCommandEventArgs> ApplicationCommandDeleted
         {
             add => this._applicationCommandDeleted.Register(value);
@@ -918,15 +921,6 @@ namespace DSharpPlus
 
         private Task Client_Zombied(DiscordClient client, ZombiedEventArgs e)
             => this._zombied.InvokeAsync(client, e);
-
-        private Task Client_ApplicationCommandCreated(DiscordClient client, ApplicationCommandEventArgs e)
-            => this._applicationCommandCreated.InvokeAsync(client, e);
-
-        private Task Client_ApplicationCommandUpdated(DiscordClient client, ApplicationCommandEventArgs e)
-            => this._applicationCommandUpdated.InvokeAsync(client, e);
-
-        private Task Client_ApplicationCommandDeleted(DiscordClient client, ApplicationCommandEventArgs e)
-            => this._applicationCommandDeleted.InvokeAsync(client, e);
 
         private Task Client_IntegrationCreated(DiscordClient client, IntegrationCreateEventArgs e)
             => this._integrationCreated.InvokeAsync(client, e);

@@ -583,6 +583,7 @@ namespace DSharpPlus
         /// <summary>
         /// Fired when a new application command is registered.
         /// </summary>
+        [Obsolete("This event has been removed by discord and does not fire anymore.", false)]
         public event AsyncEventHandler<DiscordClient, ApplicationCommandEventArgs> ApplicationCommandCreated
         {
             add => this._applicationCommandCreated.Register(value);
@@ -593,6 +594,7 @@ namespace DSharpPlus
         /// <summary>
         /// Fired when an application command is updated.
         /// </summary>
+        [Obsolete("This event has been removed by discord and does not fire anymore.", false)]
         public event AsyncEventHandler<DiscordClient, ApplicationCommandEventArgs> ApplicationCommandUpdated
         {
             add => this._applicationCommandUpdated.Register(value);
@@ -603,6 +605,7 @@ namespace DSharpPlus
         /// <summary>
         /// Fired when an application command is deleted.
         /// </summary>
+        [Obsolete("This event has been removed by discord and does not fire anymore.", false)]
         public event AsyncEventHandler<DiscordClient, ApplicationCommandEventArgs> ApplicationCommandDeleted
         {
             add => this._applicationCommandDeleted.Register(value);
