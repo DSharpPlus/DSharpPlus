@@ -383,7 +383,7 @@ namespace DSharpPlus.VoiceNext
             var synchronizerTicks = (double)Stopwatch.GetTimestamp();
             var synchronizerResolution = Stopwatch.Frequency * 0.005;
             var tickResolution = 10_000_000.0 / Stopwatch.Frequency;
-            this.Discord.Logger.LogDebug(VoiceNextEvents.Misc, "Timer accuracy: {0}/{1} (high resolution? {2})", Stopwatch.Frequency, synchronizerResolution, Stopwatch.IsHighResolution);
+            this.Discord.Logger.LogDebug(VoiceNextEvents.Misc, "Timer accuracy: {Frequency}/{Resolution} (high resolution? {IsHighRes})", Stopwatch.Frequency, synchronizerResolution, Stopwatch.IsHighResolution);
 
             while (!token.IsCancellationRequested)
             {
@@ -611,7 +611,7 @@ namespace DSharpPlus.VoiceNext
                     return;
 
                 var tdelta = (int)((Stopwatch.GetTimestamp() - timestamp) / (double)Stopwatch.Frequency * 1000);
-                this.Discord.Logger.LogDebug(VoiceNextEvents.VoiceKeepalive, "Received UDP keepalive {0} (ping {1}ms)", keepalive, tdelta);
+                this.Discord.Logger.LogDebug(VoiceNextEvents.VoiceKeepalive, "Received UDP keepalive {KeepAlive} (ping {Ping}ms)", keepalive, tdelta);
                 Volatile.Write(ref this._udpPing, tdelta);
             }
             catch (Exception ex)
@@ -810,7 +810,7 @@ namespace DSharpPlus.VoiceNext
                 Address = ip,
                 Port = port
             };
-            this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceHandshake, "Endpoint dicovery finished - discovered endpoint is {0}:{1}", ip, port);
+            this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceHandshake, "Endpoint dicovery finished - discovered endpoint is {Ip}:{Port}", ip, port);
 
             void PreparePacket(byte[] packet)
             {
@@ -835,7 +835,7 @@ namespace DSharpPlus.VoiceNext
             this.SelectedEncryptionMode = selectedEncryptionMode.Value;
 
             // Ready
-            this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceHandshake, "Selected encryption mode is {0}", selectedEncryptionMode.Key);
+            this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceHandshake, "Selected encryption mode is {EncryptionMode}", selectedEncryptionMode.Key);
             var vsp = new VoiceDispatch
             {
                 OpCode = 1,
@@ -863,7 +863,7 @@ namespace DSharpPlus.VoiceNext
         private async Task Stage2(VoiceSessionDescriptionPayload voiceSessionDescription)
         {
             this.SelectedEncryptionMode = Sodium.SupportedModes[voiceSessionDescription.Mode.ToLowerInvariant()];
-            this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceHandshake, "Discord updated encryption mode - new mode is {0}", this.SelectedEncryptionMode);
+            this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceHandshake, "Discord updated encryption mode - new mode is {EncryptionMode}", this.SelectedEncryptionMode);
 
             // start keepalive
             this.KeepaliveTokenSource = new CancellationTokenSource();
@@ -945,7 +945,7 @@ namespace DSharpPlus.VoiceNext
                     var dt = DateTime.Now;
                     var ping = (int)(dt - this.LastHeartbeat).TotalMilliseconds;
                     Volatile.Write(ref this._wsPing, ping);
-                    this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceDispatch, "Received HEARTBEAT_ACK (OP6, {0}ms)", ping);
+                    this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceDispatch, "Received HEARTBEAT_ACK (OP6, {Heartbeat}ms)", ping);
                     this.LastHeartbeat = dt;
                     break;
 
@@ -997,14 +997,14 @@ namespace DSharpPlus.VoiceNext
                     break;
 
                 default:
-                    this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceDispatch, "Received unknown voice opcode (OP{0})", opc);
+                    this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceDispatch, "Received unknown voice opcode (OP{Op})", opc);
                     break;
             }
         }
 
         private async Task VoiceWS_SocketClosed(IWebSocketClient client, SocketCloseEventArgs e)
         {
-            this.Discord.Logger.LogDebug(VoiceNextEvents.VoiceConnectionClose, "Voice WebSocket closed ({0}, '{1}')", e.CloseCode, e.CloseMessage);
+            this.Discord.Logger.LogDebug(VoiceNextEvents.VoiceConnectionClose, "Voice WebSocket closed ({CloseCode}, '{CloseMessage}')", e.CloseCode, e.CloseMessage);
 
             // generally this should not be disposed on all disconnects, only on requested ones
             // or something

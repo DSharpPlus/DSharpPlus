@@ -54,7 +54,7 @@ namespace DSharpPlus
         {
             if (payload.Data is not JObject dat)
             {
-                this.Logger.LogWarning(LoggerEvents.WebSocketReceive, "Invalid payload body (this message is probably safe to ignore); opcode: {0} event: {1}; payload: {2}", payload.OpCode, payload.EventName, payload.Data);
+                this.Logger.LogWarning(LoggerEvents.WebSocketReceive, "Invalid payload body (this message is probably safe to ignore); opcode: {Op} event: {Event}; payload: {Payload}", payload.OpCode, payload.EventName, payload.Data);
                 return;
             }
 
@@ -176,7 +176,7 @@ namespace DSharpPlus
                     {
                         // discord fires this event inconsistently if the current user leaves a guild.
                         if (usr.Id != this.CurrentUser.Id)
-                            this.Logger.LogError(LoggerEvents.WebSocketReceive, "Could not find {0} in guild cache", gid);
+                            this.Logger.LogError(LoggerEvents.WebSocketReceive, "Could not find {Guild} in guild cache", gid);
                         return;
                     }
 
@@ -436,7 +436,7 @@ namespace DSharpPlus
 
                 default:
                     await this.OnUnknownEventAsync(payload).ConfigureAwait(false);
-                    this.Logger.LogWarning(LoggerEvents.WebSocketReceive, "Unknown event: {0}\npayload: {1}", payload.EventName, payload.Data);
+                    this.Logger.LogWarning(LoggerEvents.WebSocketReceive, "Unknown event: {EventName}\npayload: {Payload}", payload.EventName, payload.Data);
                     break;
 
                     #endregion

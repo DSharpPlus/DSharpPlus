@@ -175,13 +175,13 @@ namespace DSharpPlus.Test
 
         private Task Discord_GuildAvailable(DiscordClient client, GuildCreateEventArgs e)
         {
-            client.Logger.LogInformation(TestBotEventId, "Guild available: '{0}'", e.Guild.Name);
+            client.Logger.LogInformation(TestBotEventId, "Guild available: '{Guild}'", e.Guild.Name);
             return Task.CompletedTask;
         }
 
         private Task Discord_GuildCreated(DiscordClient client, GuildCreateEventArgs e)
         {
-            client.Logger.LogInformation(TestBotEventId, "Guild created: '{0}'", e.Guild.Name);
+            client.Logger.LogInformation(TestBotEventId, "Guild created: '{Guild}'", e.Guild.Name);
             return Task.CompletedTask;
         }
 
@@ -200,7 +200,7 @@ namespace DSharpPlus.Test
 
         private Task Discord_VoiceStateUpdated(DiscordClient client, VoiceStateUpdateEventArgs e)
         {
-            client.Logger.LogDebug(TestBotEventId, "Voice state changed for '{0}' (mute: {1} -> {2}; deaf: {3} -> {4})", e.User, e.Before?.IsServerMuted, e.After.IsServerMuted, e.Before?.IsServerDeafened, e.After.IsServerDeafened);
+            client.Logger.LogDebug(TestBotEventId, "Voice state changed for '{User}' (mute: {MutedBefore} -> {MutedAfter}; deaf: {DeafBefore} -> {DeafAfter})", e.User, e.Before?.IsServerMuted, e.After.IsServerMuted, e.Before?.IsServerDeafened, e.After.IsServerDeafened);
             return Task.CompletedTask;
         }
 
@@ -215,7 +215,7 @@ namespace DSharpPlus.Test
             if (e.Exception is CommandNotFoundException && (e.Command == null || e.Command.QualifiedName != "help"))
                 return;
 
-            e.Context.Client.Logger.LogError(TestBotEventId, e.Exception, "Exception occurred during {0}'s invocation of '{1}'", e.Context.User.Username, e.Context.Command.QualifiedName);
+            e.Context.Client.Logger.LogError(TestBotEventId, e.Exception, "Exception occurred during {User}'s invocation of '{Command}'", e.Context.User.Username, e.Context.Command.QualifiedName);
 
             var exs = new List<Exception>();
             if (e.Exception is AggregateException ae)
@@ -243,7 +243,7 @@ namespace DSharpPlus.Test
 
         private Task CommandsNextService_CommandExecuted(CommandsNextExtension cnext, CommandExecutionEventArgs e)
         {
-            e.Context.Client.Logger.LogInformation(TestBotEventId, "User {0} executed '{1}' in {2}", e.Context.User.Username, e.Command.QualifiedName, e.Context.Channel.Name);
+            e.Context.Client.Logger.LogInformation(TestBotEventId, "User {User} executed '{Command}' in {Channel}", e.Context.User.Username, e.Command.QualifiedName, e.Context.Channel.Name);
             return Task.CompletedTask;
         }
 
@@ -262,12 +262,12 @@ namespace DSharpPlus.Test
 
                     if (bfr is null)
                     {
-                        client.Logger.LogDebug(TestBotEventId, "Guild update: property {0} in before was null", prop.Name);
+                        client.Logger.LogDebug(TestBotEventId, "Guild update: property {Property} in before was null", prop.Name);
                     }
 
                     if (aft is null)
                     {
-                        client.Logger.LogDebug(TestBotEventId, "Guild update: property {0} in after was null", prop.Name);
+                        client.Logger.LogDebug(TestBotEventId, "Guild update: property {Property} in after was null", prop.Name);
                     }
 
                     if (bfr is null || aft is null)
