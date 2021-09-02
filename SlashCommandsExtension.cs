@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
 using DSharpPlus.SlashCommands.EventArgs;
+
 using Emzi0767.Utilities;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -98,7 +101,7 @@ namespace DSharpPlus.SlashCommands
         //To be run on ready
         internal Task Update(DiscordClient client, ReadyEventArgs e)
             => Update();
- 
+
         //Actual method for registering, used for RegisterCommands and on Ready
         internal Task Update()
         {
@@ -115,7 +118,7 @@ namespace DSharpPlus.SlashCommands
         }
 
         //Method for registering commands for a target from modules
-        private void RegisterCommands(IEnumerable<Type> types, ulong? guildid)
+        private void RegisterCommands(IEnumerable<Type> types, ulong? guildId)
         {
             //Initialize empty lists to be added to the global ones at the end
             var commandMethods = new List<CommandMethod>();
@@ -172,7 +175,7 @@ namespace DSharpPlus.SlashCommands
                                     throw new ArgumentException($"The first argument must be an InteractionContext!");
                                 parameters = parameters.Skip(1).ToArray();
 
-                                var options = await ParseParameters(parameters);
+                                var options = await ParseParameters(parameters, guildId);
 
                                 //Creates the subcommand and adds it to the main command
                                 var subpayload = new DiscordApplicationCommandOption(commandAttribute.Name, commandAttribute.Description, ApplicationCommandOptionType.SubCommand, null, null, options);
@@ -204,7 +207,7 @@ namespace DSharpPlus.SlashCommands
                                     if (parameters.Length == 0 || parameters == null || !ReferenceEquals(parameters.First().ParameterType, typeof(InteractionContext)))
                                         throw new ArgumentException($"The first argument must be an InteractionContext!");
                                     parameters = parameters.Skip(1).ToArray();
-                                    suboptions = suboptions.Concat(await ParseParameters(parameters)).ToList();
+                                    suboptions = suboptions.Concat(await ParseParameters(parameters, guildId)).ToList();
 
                                     var subsubpayload = new DiscordApplicationCommandOption(commatt.Name, commatt.Description, ApplicationCommandOptionType.SubCommand, null, null, suboptions);
                                     options.Add(subsubpayload);
@@ -252,7 +255,7 @@ namespace DSharpPlus.SlashCommands
                                 if (parameters.Length == 0 || parameters == null || !ReferenceEquals(parameters.FirstOrDefault()?.ParameterType, typeof(InteractionContext)))
                                     throw new ArgumentException($"The first argument must be an InteractionContext!");
                                 parameters = parameters.Skip(1).ToArray();
-                                var options = await ParseParameters(parameters);
+                                var options = await ParseParameters(parameters, guildId);
 
                                 commandMethods.Add(new CommandMethod { Method = method, Name = commandattribute.Name });
 
@@ -304,13 +307,13 @@ namespace DSharpPlus.SlashCommands
                     {
                         IEnumerable<DiscordApplicationCommand> commands;
                         //Creates a guild command if a guild id is specified, otherwise global
-                        if (guildid == null)
+                        if (guildId == null)
                         {
                             commands = await Client.BulkOverwriteGlobalApplicationCommandsAsync(updateList);
                         }
                         else
                         {
-                            commands = await Client.BulkOverwriteGuildApplicationCommandsAsync(guildid.Value, updateList);
+                            commands = await Client.BulkOverwriteGuildApplicationCommandsAsync(guildId.Value, updateList);
                         }
                         //Checks against the ids and adds them to the command method lists
                         foreach (var command in commands)
@@ -333,7 +336,7 @@ namespace DSharpPlus.SlashCommands
                         _subGroupCommands.AddRange(subGroupCommands);
                         _contextMenuCommands.AddRange(contextMenuCommands);
 
-                        _registeredCommands.Add(new KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>(guildid, commands.ToList()));
+                        _registeredCommands.Add(new KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>(guildId, commands.ToList()));
                     }
                     catch (Exception ex)
                     {
@@ -483,21 +486,21 @@ namespace DSharpPlus.SlashCommands
                     //Accounts for static methods and adds DI
                     classInstance = method.IsStatic ? ActivatorUtilities.CreateInstance(_configuration?.Services.CreateScope().ServiceProvider, method.DeclaringType) : CreateInstance(method.DeclaringType, _configuration?.Services.CreateScope().ServiceProvider);
                     break;
-                
+
                 case SlashModuleLifespan.Transient:
                     //Accounts for static methods and adds DI
                     classInstance = method.IsStatic ? ActivatorUtilities.CreateInstance(_configuration?.Services, method.DeclaringType) : CreateInstance(method.DeclaringType, _configuration?.Services);
                     break;
-                
+
                 //If singleton, gets it from the singleton list
                 case SlashModuleLifespan.Singleton:
                     classInstance = _singletonModules.First(x => ReferenceEquals(x.GetType(), method.DeclaringType));
                     break;
-                
+
                 default:
                     throw new Exception($"An unknown {nameof(SlashModuleLifespanAttribute)} scope was specified on command {context.CommandName}");
             }
-            
+
             ApplicationCommandModule module = null;
             if (classInstance is ApplicationCommandModule mod)
                 module = mod;
@@ -730,7 +733,7 @@ namespace DSharpPlus.SlashCommands
         }
 
         //Gets the choices from a choice provider
-        private async Task<List<DiscordApplicationCommandOptionChoice>> GetChoiceAttributesFromProvider(IEnumerable<ChoiceProviderAttribute> customAttributes)
+        private async Task<List<DiscordApplicationCommandOptionChoice>> GetChoiceAttributesFromProvider(IEnumerable<ChoiceProviderAttribute> customAttributes, ulong? guildId)
         {
             var choices = new List<DiscordApplicationCommandOptionChoice>();
             foreach (var choiceProviderAttribute in customAttributes)
@@ -743,7 +746,7 @@ namespace DSharpPlus.SlashCommands
                 {
                     var instance = Activator.CreateInstance(choiceProviderAttribute.ProviderType);
                     //Gets the choices from the method
-                    var result = await (Task<IEnumerable<DiscordApplicationCommandOptionChoice>>)method.Invoke(instance, null);
+                    var result = await (Task<IEnumerable<DiscordApplicationCommandOptionChoice>>)method.Invoke(instance, new Object[] { guildId, this._configuration.Services });
 
                     if (result.Any())
                     {
@@ -807,7 +810,7 @@ namespace DSharpPlus.SlashCommands
         }
 
         //Handles the parameters for a slash command
-        private async Task<List<DiscordApplicationCommandOption>> ParseParameters(ParameterInfo[] parameters)
+        private async Task<List<DiscordApplicationCommandOption>> ParseParameters(ParameterInfo[] parameters, ulong? guildId)
         {
             var options = new List<DiscordApplicationCommandOption>();
             foreach (var parameter in parameters)
@@ -833,7 +836,7 @@ namespace DSharpPlus.SlashCommands
                 var choiceProviders = parameter.GetCustomAttributes<ChoiceProviderAttribute>();
                 if (choiceProviders.Any())
                 {
-                    choices = await GetChoiceAttributesFromProvider(choiceProviders);
+                    choices = await GetChoiceAttributesFromProvider(choiceProviders, guildId);
                 }
 
                 options.Add(new DiscordApplicationCommandOption(optionattribute.Name, optionattribute.Description, parametertype, !parameter.IsOptional, choices));
