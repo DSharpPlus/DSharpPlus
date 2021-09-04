@@ -126,6 +126,11 @@ namespace DSharpPlus
         /// <summary>
         /// Message reminding you to invite people to help you build the server.
         /// </summary>
-        GuildInviteReminder = 22
+        GuildInviteReminder = 22,
+
+        /// <summary>
+        /// Message indicating a context menu was executed.
+        /// </summary>
+        ContextMenuCommand = 23
     }
 }
