@@ -169,7 +169,7 @@ namespace DSharpPlus
                 try
                 {
                     this.Logger.LogTrace(LoggerEvents.GatewayWsRx, msg);
-                    await this.HandleSocketMessageAsync(msg);
+                    await this.HandleSocketMessageAsync(msg).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {

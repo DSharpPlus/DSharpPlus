@@ -395,15 +395,15 @@ namespace DSharpPlus
                 #region Stage Instance
 
                 case "stage_instance_create":
-                    await this.OnStageInstanceCreateAsync(dat.ToObject<DiscordStageInstance>());
+                    await this.OnStageInstanceCreateAsync(dat.ToObject<DiscordStageInstance>()).ConfigureAwait(false);
                     break;
 
                 case "stage_instance_update":
-                    await this.OnStageInstanceUpdateAsync(dat.ToObject<DiscordStageInstance>());
+                    await this.OnStageInstanceUpdateAsync(dat.ToObject<DiscordStageInstance>()).ConfigureAwait(false);
                     break;
 
                 case "stage_instance_delete":
-                    await this.OnStageInstanceDeleteAsync(dat.ToObject<DiscordStageInstance>());
+                    await this.OnStageInstanceDeleteAsync(dat.ToObject<DiscordStageInstance>()).ConfigureAwait(false);
                     break;
 
                 #endregion
@@ -2148,7 +2148,7 @@ namespace DSharpPlus
                 StickersAfter = guild.Stickers
             };
 
-            await this._guildStickersUpdated.InvokeAsync(this, sea);
+            await this._guildStickersUpdated.InvokeAsync(this, sea).ConfigureAwait(false);
         }
 
         internal async Task OnUnknownEventAsync(GatewayPayload payload)

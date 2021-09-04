@@ -150,7 +150,7 @@ namespace DSharpPlus.Interactivity
                 .WaitForMatchAsync(new(message.Id.ToString(CultureInfo.InvariantCulture),
                     c =>
                         c.Interaction.Data.ComponentType == ComponentType.Button &&
-                        buttons.Any(b => b.CustomId == c.Id), token));
+                        buttons.Any(b => b.CustomId == c.Id), token)).ConfigureAwait(false);
 
             return new(res is null, res);
         }
@@ -656,12 +656,12 @@ namespace DSharpPlus.Interactivity
                 .AsEphemeral(ephemeral)
                 .AddComponents(bts.ButtonArray);
 
-            await interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
-            var message = await interaction.GetOriginalResponseAsync();
+            await interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder).ConfigureAwait(false);
+            var message = await interaction.GetOriginalResponseAsync().ConfigureAwait(false);
 
             var req = new InteractionPaginationRequest(interaction, message, user, bhv, del, bts, pages, token);
 
-            await this._compPaginator.DoPaginationAsync(req);
+            await this._compPaginator.DoPaginationAsync(req).ConfigureAwait(false);
         }
 
         /// <inheritdoc cref="SendPaginatedMessageAsync(DSharpPlus.Entities.DiscordChannel,DSharpPlus.Entities.DiscordUser,System.Collections.Generic.IEnumerable{DSharpPlus.Interactivity.Page},DSharpPlus.Interactivity.EventHandling.PaginationButtons,System.Nullable{DSharpPlus.Interactivity.Enums.PaginationBehaviour},System.Nullable{DSharpPlus.Interactivity.Enums.ButtonPaginationBehavior},System.Threading.CancellationToken)"/>
@@ -847,7 +847,7 @@ namespace DSharpPlus.Interactivity
                 _ => throw new ArgumentException("Unknown enum value.")
             };
 
-            await at;
+            await at.ConfigureAwait(false);
         }
     }
 }
