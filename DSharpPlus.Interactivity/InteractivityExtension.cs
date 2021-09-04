@@ -610,19 +610,58 @@ namespace DSharpPlus.Interactivity
             var del = deletion ?? this.Config.ButtonBehavior;
             var bts = buttons ?? this.Config.PaginationButtons;
 
+            bts = new(bts);
+            bts.SkipLeft.Disable();
+            bts.Left.Disable();
+
             var builder = new DiscordMessageBuilder()
                 .WithContent(pages.First().Content)
-                .WithEmbed(pages.First().Embed);
+                .WithEmbed(pages.First().Embed)
+                .AddComponents(bts.ButtonArray);
 
             var message = await builder.SendAsync(channel).ConfigureAwait(false);
 
             var req = new ButtonPaginationRequest(message, user, bhv, del, bts, pages.ToArray(), token);
 
-            await builder // We *COULD* just construct a req with a null message and grab the buttons from that, but eh. //
-                .AddComponents(await req.GetButtonsAsync().ConfigureAwait(false))
-                .ModifyAsync(message).ConfigureAwait(false);
-
             await this._compPaginator.DoPaginationAsync(req).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Sends a paginated message in response to an interaction.
+        /// <para>
+        /// <b>Pass the interaction directly. Interactivity will ACK it.</b>
+        /// </para>
+        /// </summary>
+        /// <param name="interaction">The interaction to create a response to.</param>
+        /// <param name="ephemeral">Whether the response should be ephemeral.</param>
+        /// <param name="user">The user to listen for button presses from.</param>
+        /// <param name="pages">The pages to paginate.</param>
+        /// <param name="buttons">Optional: custom buttons</param>
+        /// <param name="behaviour">Pagination behaviour.</param>
+        /// <param name="deletion">Deletion behaviour</param>
+        /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
+        public async Task SendPaginatedResponseAsync(DiscordInteraction interaction, bool ephemeral, DiscordUser user, IEnumerable<Page> pages, PaginationButtons? buttons = null, PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default, CancellationToken token = default)
+        {
+            var bhv = behaviour ?? this.Config.PaginationBehaviour;
+            var del = deletion ?? this.Config.ButtonBehavior;
+            var bts = buttons ?? this.Config.PaginationButtons;
+
+            bts = new(bts); // Copy //
+            bts.SkipLeft.Disable();
+            bts.Left.Disable();
+
+            var builder = new DiscordInteractionResponseBuilder()
+                .WithContent(pages.First().Content)
+                .AddEmbed(pages.First().Embed)
+                .AsEphemeral(ephemeral)
+                .AddComponents(bts.ButtonArray);
+
+            await interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+            var message = await interaction.GetOriginalResponseAsync();
+
+            var req = new InteractionPaginationRequest(interaction, message, user, bhv, del, bts, pages, token);
+
+            await this._compPaginator.DoPaginationAsync(req);
         }
 
         /// <inheritdoc cref="SendPaginatedMessageAsync(DSharpPlus.Entities.DiscordChannel,DSharpPlus.Entities.DiscordUser,System.Collections.Generic.IEnumerable{DSharpPlus.Interactivity.Page},DSharpPlus.Interactivity.EventHandling.PaginationButtons,System.Nullable{DSharpPlus.Interactivity.Enums.PaginationBehaviour},System.Nullable{DSharpPlus.Interactivity.Enums.ButtonPaginationBehavior},System.Threading.CancellationToken)"/>
