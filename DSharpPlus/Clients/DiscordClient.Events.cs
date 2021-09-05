@@ -583,6 +583,7 @@ namespace DSharpPlus
         /// <summary>
         /// Fired when a new application command is registered.
         /// </summary>
+        [Obsolete("This event has been removed by discord and does not fire anymore.", false)]
         public event AsyncEventHandler<DiscordClient, ApplicationCommandEventArgs> ApplicationCommandCreated
         {
             add => this._applicationCommandCreated.Register(value);
@@ -593,6 +594,7 @@ namespace DSharpPlus
         /// <summary>
         /// Fired when an application command is updated.
         /// </summary>
+        [Obsolete("This event has been removed by discord and does not fire anymore.", false)]
         public event AsyncEventHandler<DiscordClient, ApplicationCommandEventArgs> ApplicationCommandUpdated
         {
             add => this._applicationCommandUpdated.Register(value);
@@ -603,6 +605,7 @@ namespace DSharpPlus
         /// <summary>
         /// Fired when an application command is deleted.
         /// </summary>
+        [Obsolete("This event has been removed by discord and does not fire anymore.", false)]
         public event AsyncEventHandler<DiscordClient, ApplicationCommandEventArgs> ApplicationCommandDeleted
         {
             add => this._applicationCommandDeleted.Register(value);
@@ -643,6 +646,40 @@ namespace DSharpPlus
             remove => this._integrationDeleted.Unregister(value);
         }
         private AsyncEvent<DiscordClient, IntegrationDeleteEventArgs> _integrationDeleted;
+
+        #endregion
+
+        #region Stage Instance
+
+        /// <summary>
+        /// Fired when a stage instance is created.
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, StageInstanceCreateEventArgs> StageInstanceCreated
+        {
+            add => this._stageInstanceCreated.Register(value);
+            remove => this._stageInstanceCreated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, StageInstanceCreateEventArgs> _stageInstanceCreated;
+
+        /// <summary>
+        /// Fired when a stage instance is updated.
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, StageInstanceUpdateEventArgs> StageInstanceUpdated
+        {
+            add => this._stageInstanceUpdated.Register(value);
+            remove => this._stageInstanceUpdated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, StageInstanceUpdateEventArgs> _stageInstanceUpdated;
+
+        /// <summary>
+        /// Fired when a stage instance is deleted.
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, StageInstanceDeleteEventArgs> StageInstanceDeleted
+        {
+            add => this._stageInstanceDeleted.Register(value);
+            remove => this._stageInstanceDeleted.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, StageInstanceDeleteEventArgs> _stageInstanceDeleted;
 
         #endregion
 

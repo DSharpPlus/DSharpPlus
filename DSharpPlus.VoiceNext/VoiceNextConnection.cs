@@ -721,6 +721,12 @@ namespace DSharpPlus.VoiceNext
             this.TokenSource.Cancel();
             this.SenderTokenSource.Cancel();
             this.ReceiverTokenSource?.Cancel();
+            this.KeepaliveTokenSource.Cancel();
+
+            this.TokenSource.Dispose();
+            this.SenderTokenSource.Dispose();
+            this.ReceiverTokenSource?.Dispose();
+            this.KeepaliveTokenSource.Dispose();
 
             try
             {

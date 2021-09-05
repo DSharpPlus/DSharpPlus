@@ -83,5 +83,6 @@ namespace DSharpPlus.Net
         public const string VOICE_STATES = "/voice-states";
         public const string STICKERS = "/stickers";
         public const string STICKERPACKS = "/sticker-packs";
+        public const string STAGE_INSTANCES = "/stage-instances";
     }
 }
