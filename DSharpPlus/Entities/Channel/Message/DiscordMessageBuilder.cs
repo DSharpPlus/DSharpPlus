@@ -342,7 +342,7 @@ namespace DSharpPlus.Entities
         /// <param name="mention">If we should mention the user in the reply.</param>
         /// <param name="failOnInvalidReply">Whether sending a reply that references an invalid message should be </param>
         /// <returns>The current builder to be chained.</returns>
-        public DiscordMessageBuilder WithReply(ulong messageId, bool mention = false, bool failOnInvalidReply = false)
+        public DiscordMessageBuilder WithReply(ulong? messageId, bool mention = false, bool failOnInvalidReply = false)
         {
             this.ReplyId = messageId;
             this.MentionOnReply = mention;
@@ -360,6 +360,7 @@ namespace DSharpPlus.Entities
 
         /// <summary>
         /// Sends the modified message.
+        /// <para>Note: Message replies cannot be modified. To clear the reply, simply pass <see langword="null"/> to <see cref="WithReply"/>.</para>
         /// </summary>
         /// <param name="msg">The original Message to modify.</param>
         /// <returns>The current builder to be chained.</returns>
