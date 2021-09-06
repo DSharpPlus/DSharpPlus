@@ -918,8 +918,9 @@ namespace DSharpPlus
                 guild._roles[role.Id] = role;
             }
 
-            foreach (var newStageInstance in newGuild._stageInstances.Values)
-                _ = guild._stageInstances.GetOrAdd(newStageInstance.Id, _ => newStageInstance);
+            if (newGuild._stageInstances != null)
+                foreach (var newStageInstance in newGuild._stageInstances.Values)
+                    _ = guild._stageInstances.GetOrAdd(newStageInstance.Id, _ => newStageInstance);
 
             guild.Name = newGuild.Name;
             guild.AfkChannelId = newGuild.AfkChannelId;
