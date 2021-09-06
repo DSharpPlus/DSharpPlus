@@ -71,6 +71,12 @@ namespace DSharpPlus.Entities
         public bool? DefaultPermission { get; internal set; }
 
         /// <summary>
+        /// Gets the version of this command.
+        /// </summary>
+        [JsonProperty("version")]
+        public ulong Version { get; internal set; }
+
+        /// <summary>
         /// Creates a new instance of a <see cref="DiscordApplicationCommand"/>.
         /// </summary>
         /// <param name="name">The name of the command.</param>
