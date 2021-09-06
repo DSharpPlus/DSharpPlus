@@ -147,7 +147,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public DiscordMember Member
-            => new(this.TransportMember) { Discord = this.Discord };
+            => this.Guild.Members.TryGetValue(this.TransportMember.User.Id, out var member) ? member : new DiscordMember(this.TransportMember) { Discord = this.Discord };
 
         [JsonProperty("member", NullValueHandling = NullValueHandling.Ignore)]
         internal TransportMember TransportMember { get; set; }
