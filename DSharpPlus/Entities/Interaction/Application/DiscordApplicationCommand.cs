@@ -71,7 +71,7 @@ namespace DSharpPlus.Entities
         public bool? DefaultPermission { get; internal set; }
 
         /// <summary>
-        /// An autoincrementing version identifier for this command updated during substantial record changes.
+        /// Gets the autoincrementing version number for this command. 
         /// </summary>
         [JsonProperty("version")]
         public ulong Version { get; internal set; }
