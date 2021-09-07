@@ -2307,7 +2307,7 @@ namespace DSharpPlus.Entities
         {
             var mdl = new ApplicationCommandEditModel();
             action(mdl);
-            return await this.Discord.ApiClient.EditGuildApplicationCommandAsync(this.Discord.CurrentApplication.Id, this.Id, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission);
+            return await this.Discord.ApiClient.EditGuildApplicationCommandAsync(this.Discord.CurrentApplication.Id, this.Id, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -2329,7 +2329,7 @@ namespace DSharpPlus.Entities
         {
             var mdl = new WelcomeScreenEditModel();
             action(mdl);
-            return await this.Discord.ApiClient.ModifyGuildWelcomeScreenAsync(this.Id, mdl.Enabled, mdl.WelcomeChannels, mdl.Description);
+            return await this.Discord.ApiClient.ModifyGuildWelcomeScreenAsync(this.Id, mdl.Enabled, mdl.WelcomeChannels, mdl.Description).ConfigureAwait(false);
         }
 
         /// <summary>
