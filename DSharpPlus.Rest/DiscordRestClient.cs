@@ -472,7 +472,7 @@ namespace DSharpPlus
         /// <param name="embed">Embed to attach</param>
         /// <returns></returns>
         public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, DiscordEmbed embed)
-            => this.ApiClient.CreateMessageAsync(channel_id, null, new[] {embed}, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
+            => this.ApiClient.CreateMessageAsync(channel_id, null, new[] { embed }, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
 
         /// <summary>
         /// Sends a message
@@ -482,7 +482,7 @@ namespace DSharpPlus
         /// <param name="embed">Embed to attach</param>
         /// <returns></returns>
         public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content, DiscordEmbed embed)
-            => this.ApiClient.CreateMessageAsync(channel_id, content, new[] {embed}, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
+            => this.ApiClient.CreateMessageAsync(channel_id, content, embed != null ? new[] { embed } : null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
 
         /// <summary>
         /// Sends a message
