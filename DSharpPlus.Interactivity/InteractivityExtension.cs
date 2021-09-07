@@ -150,7 +150,7 @@ namespace DSharpPlus.Interactivity
                 .WaitForMatchAsync(new(message.Id.ToString(CultureInfo.InvariantCulture),
                     c =>
                         c.Interaction.Data.ComponentType == ComponentType.Button &&
-                        buttons.Any(b => b.CustomId == c.Id), token));
+                        buttons.Any(b => b.CustomId == c.Id), token)).ConfigureAwait(false);
 
             return new(res is null, res);
         }
@@ -866,7 +866,7 @@ namespace DSharpPlus.Interactivity
                 _ => throw new ArgumentException("Unknown enum value.")
             };
 
-            await at;
+            await at.ConfigureAwait(false);
         }
     }
 }

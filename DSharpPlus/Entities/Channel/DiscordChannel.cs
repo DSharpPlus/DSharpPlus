@@ -756,7 +756,7 @@ namespace DSharpPlus.Entities
             if (this.Type != ChannelType.Stage)
                 throw new ArgumentException("Voice state can only be updated in a stage channel.");
 
-            await this.Discord.ApiClient.UpdateCurrentUserVoiceStateAsync(this.GuildId.Value, this.Id, suppress, requestToSpeakTimestamp);
+            await this.Discord.ApiClient.UpdateCurrentUserVoiceStateAsync(this.GuildId.Value, this.Id, suppress, requestToSpeakTimestamp).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -771,7 +771,7 @@ namespace DSharpPlus.Entities
             if (this.Type != ChannelType.Stage)
                 throw new ArgumentException("A stage instance can only be created in a stage channel.");
 
-            return await this.Discord.ApiClient.CreateStageInstanceAsync(this.Id, topic, privacyLevel, reason);
+            return await this.Discord.ApiClient.CreateStageInstanceAsync(this.Id, topic, privacyLevel, reason).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -783,7 +783,7 @@ namespace DSharpPlus.Entities
             if (this.Type != ChannelType.Stage)
                 throw new ArgumentException("A stage instance can only be created in a stage channel.");
 
-            return await this.Discord.ApiClient.GetStageInstanceAsync(this.Id);
+            return await this.Discord.ApiClient.GetStageInstanceAsync(this.Id).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -798,7 +798,7 @@ namespace DSharpPlus.Entities
 
             var mdl = new StageInstanceEditModel();
             action(mdl);
-            return await this.Discord.ApiClient.ModifyStageInstanceAsync(this.Id, mdl.Topic, mdl.PrivacyLevel, mdl.AuditLogReason);
+            return await this.Discord.ApiClient.ModifyStageInstanceAsync(this.Id, mdl.Topic, mdl.PrivacyLevel, mdl.AuditLogReason).ConfigureAwait(false);
         }
 
         /// <summary>
