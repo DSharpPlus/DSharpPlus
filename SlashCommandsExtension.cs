@@ -215,6 +215,24 @@ namespace DSharpPlus.SlashCommands
                                     currentMethods.Add(new KeyValuePair<string, MethodInfo>(commatt.Name, subsubmethod));
                                 }
 
+                                //Subgroups Context Menus
+                                var contextMethods = subclass.DeclaredMethods.Where(x => x.GetCustomAttribute<ContextMenuAttribute>() != null);
+                                foreach (var contextMethod in contextMethods)
+                                {
+                                    var contextAttribute = contextMethod.GetCustomAttribute<ContextMenuAttribute>();
+                                    var ctxCommand = new DiscordApplicationCommand(contextAttribute.Name, null, type: contextAttribute.Type, defaultPermission: contextAttribute.DefaultPermission);
+
+                                    var parameters = contextMethod.GetParameters();
+                                    if (parameters?.Length is null or 0 || !ReferenceEquals(parameters.FirstOrDefault()?.ParameterType, typeof(ContextMenuContext)))
+                                        throw new ArgumentException($"The first argument must be a ContextMenuContext!");
+                                    if (parameters.Length > 1)
+                                        throw new ArgumentException($"A context menu cannot have parameters!");
+
+                                    contextMenuCommands.Add(new ContextMenuCommand { Method = contextMethod, Name = contextAttribute.Name });
+
+                                    updateList.Add(ctxCommand);
+                                }
+
                                 //Adds the group to the command and method lists
                                 var subpayload = new DiscordApplicationCommandOption(subGroupAttribute.Name, subGroupAttribute.Description, ApplicationCommandOptionType.SubCommandGroup, null, null, options);
                                 command.SubCommands.Add(new GroupCommand { Name = subGroupAttribute.Name, Methods = currentMethods });
@@ -242,7 +260,7 @@ namespace DSharpPlus.SlashCommands
                             }
                         }
 
-                        //Handles methods and context menus, only if the module isn't a group itself
+                        //Handles methods, only if the module isn't a group itself
                         if (module.GetCustomAttribute<SlashCommandGroupAttribute>() == null)
                         {
                             //Slash commands (again, similar to the one for groups)
@@ -271,7 +289,7 @@ namespace DSharpPlus.SlashCommands
                                 var command = new DiscordApplicationCommand(contextAttribute.Name, null, type: contextAttribute.Type, defaultPermission: contextAttribute.DefaultPermission);
 
                                 var parameters = contextMethod.GetParameters();
-                                if (parameters.Length == 0 || parameters == null || !ReferenceEquals(parameters.FirstOrDefault()?.ParameterType, typeof(ContextMenuContext)))
+                                if (parameters?.Length is null or 0 || !ReferenceEquals(parameters.FirstOrDefault()?.ParameterType, typeof(ContextMenuContext)))
                                     throw new ArgumentException($"The first argument must be a ContextMenuContext!");
                                 if (parameters.Length > 1)
                                     throw new ArgumentException($"A context menu cannot have parameters!");
