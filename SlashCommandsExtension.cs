@@ -160,6 +160,10 @@ namespace DSharpPlus.SlashCommands
                                 throw new ArgumentException("Slash command groups cannot have both subcommands and subgroups!");
                             }
 
+                            //Group context menus
+                            var contextMethods = subclassinfo.DeclaredMethods.Where(x => x.GetCustomAttribute<ContextMenuAttribute>() != null);
+                            AddContextMenus(contextMethods);
+
                             //Initializes the command
                             var payload = new DiscordApplicationCommand(groupAttribute.Name, groupAttribute.Description, defaultPermission: groupAttribute.DefaultPermission);
 
@@ -216,22 +220,8 @@ namespace DSharpPlus.SlashCommands
                                 }
 
                                 //Subgroups Context Menus
-                                var contextMethods = subclass.DeclaredMethods.Where(x => x.GetCustomAttribute<ContextMenuAttribute>() != null);
-                                foreach (var contextMethod in contextMethods)
-                                {
-                                    var contextAttribute = contextMethod.GetCustomAttribute<ContextMenuAttribute>();
-                                    var ctxCommand = new DiscordApplicationCommand(contextAttribute.Name, null, type: contextAttribute.Type, defaultPermission: contextAttribute.DefaultPermission);
-
-                                    var parameters = contextMethod.GetParameters();
-                                    if (parameters?.Length is null or 0 || !ReferenceEquals(parameters.FirstOrDefault()?.ParameterType, typeof(ContextMenuContext)))
-                                        throw new ArgumentException($"The first argument must be a ContextMenuContext!");
-                                    if (parameters.Length > 1)
-                                        throw new ArgumentException($"A context menu cannot have parameters!");
-
-                                    contextMenuCommands.Add(new ContextMenuCommand { Method = contextMethod, Name = contextAttribute.Name });
-
-                                    updateList.Add(ctxCommand);
-                                }
+                                var subContextMethods = subclass.DeclaredMethods.Where(x => x.GetCustomAttribute<ContextMenuAttribute>() != null);
+                                AddContextMenus(subContextMethods);
 
                                 //Adds the group to the command and method lists
                                 var subpayload = new DiscordApplicationCommandOption(subGroupAttribute.Name, subGroupAttribute.Description, ApplicationCommandOptionType.SubCommandGroup, null, null, options);
@@ -283,6 +273,20 @@ namespace DSharpPlus.SlashCommands
 
                             //Context Menus
                             var contextMethods = module.DeclaredMethods.Where(x => x.GetCustomAttribute<ContextMenuAttribute>() != null);
+                            AddContextMenus(contextMethods);
+
+                            //Accounts for lifespans
+                            if (module.GetCustomAttribute<SlashModuleLifespanAttribute>() != null)
+                            {
+                                if (module.GetCustomAttribute<SlashModuleLifespanAttribute>().Lifespan == SlashModuleLifespan.Singleton)
+                                {
+                                    _singletonModules.Add(CreateInstance(module, _configuration?.Services));
+                                }
+                            }
+                        }
+
+                        void AddContextMenus(IEnumerable<MethodInfo> contextMethods)
+                        {
                             foreach (var contextMethod in contextMethods)
                             {
                                 var contextAttribute = contextMethod.GetCustomAttribute<ContextMenuAttribute>();
@@ -297,15 +301,6 @@ namespace DSharpPlus.SlashCommands
                                 contextMenuCommands.Add(new ContextMenuCommand { Method = contextMethod, Name = contextAttribute.Name });
 
                                 updateList.Add(command);
-                            }
-
-                            //Accounts for lifespans
-                            if (module.GetCustomAttribute<SlashModuleLifespanAttribute>() != null)
-                            {
-                                if (module.GetCustomAttribute<SlashModuleLifespanAttribute>().Lifespan == SlashModuleLifespan.Singleton)
-                                {
-                                    _singletonModules.Add(CreateInstance(module, _configuration?.Services));
-                                }
                             }
                         }
                     }
