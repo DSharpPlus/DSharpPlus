@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
     <Authors>IDoEverything, Epictek, sssvt-drabek-stepan, tygore587, VelvetThePanda, OoLunar</Authors>
     <Description>An extension for DSharpPlus to make slash commands easy</Description>
     <PackageLicenseFile></PackageLicenseFile>
