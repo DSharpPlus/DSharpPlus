@@ -22,19 +22,19 @@ namespace DSharpPlus.SlashCommands
     public sealed class SlashCommandsExtension : BaseExtension
     {
         //A list of methods for top level commands
-        private static List<CommandMethod> _commandMethods { get; set; } = new List<CommandMethod>();
+        private static List<CommandMethod> _commandMethods { get; set; } = new();
         //List of groups
-        private static List<GroupCommand> _groupCommands { get; set; } = new List<GroupCommand>();
+        private static List<GroupCommand> _groupCommands { get; set; } = new();
         //List of groups with subgroups
-        private static List<SubGroupCommand> _subGroupCommands { get; set; } = new List<SubGroupCommand>();
+        private static List<SubGroupCommand> _subGroupCommands { get; set; } = new();
         //List of context menus
-        private static List<ContextMenuCommand> _contextMenuCommands { get; set; } = new List<ContextMenuCommand>();
+        private static List<ContextMenuCommand> _contextMenuCommands { get; set; } = new();
 
         //Singleton modules
-        private static List<object> _singletonModules { get; set; } = new List<object>();
+        private static List<object> _singletonModules { get; set; } = new();
 
         //List of modules to register
-        private List<KeyValuePair<ulong?, Type>> _updateList { get; set; } = new List<KeyValuePair<ulong?, Type>>();
+        private List<KeyValuePair<ulong?, Type>> _updateList { get; set; } = new();
         //Configuration for DI
         private readonly SlashCommandsConfiguration _configuration;
         //Set to true if anything fails when registering
@@ -43,9 +43,8 @@ namespace DSharpPlus.SlashCommands
         /// <summary>
         /// Gets a list of registered commands. The key is the guild id (null if global).
         /// </summary>
-        public IReadOnlyList<KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>> RegisteredCommands
-            => _registeredCommands;
-        private static List<KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>> _registeredCommands = new List<KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>>();
+        public IReadOnlyList<KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>> RegisteredCommands => _registeredCommands;
+        private static List<KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>> _registeredCommands = new();
 
         internal SlashCommandsExtension(SlashCommandsConfiguration configuration)
         {
@@ -80,8 +79,8 @@ namespace DSharpPlus.SlashCommands
         /// <param name="guildId">The guild id to register it on. If you want global commands, leave it null.</param>
         public void RegisterCommands<T>(ulong? guildId = null) where T : ApplicationCommandModule
         {
-            if (Client.ShardId == 0)
-                _updateList.Add(new KeyValuePair<ulong?, Type>(guildId, typeof(T)));
+            if (Client.ShardId is 0)
+                _updateList.Add(new(guildId, typeof(T)));
         }
 
         /// <summary>
@@ -94,19 +93,18 @@ namespace DSharpPlus.SlashCommands
             if (!typeof(ApplicationCommandModule).IsAssignableFrom(type))
                 throw new ArgumentException("Command classes have to inherit from ApplicationCommandModule", nameof(type));
             //If sharding, only register for shard 0
-            if (Client.ShardId == 0)
-                _updateList.Add(new KeyValuePair<ulong?, Type>(guildId, type));
+            if (Client.ShardId is 0)
+                _updateList.Add(new(guildId, type));
         }
 
         //To be run on ready
-        internal Task Update(DiscordClient client, ReadyEventArgs e)
-            => Update();
+        internal Task Update(DiscordClient client, ReadyEventArgs e) => Update();
 
         //Actual method for registering, used for RegisterCommands and on Ready
         internal Task Update()
         {
             //Only update for shard 0
-            if (Client.ShardId == 0)
+            if (Client.ShardId is 0)
             {
                 //Groups commands by guild id or global
                 foreach (var key in _updateList.Select(x => x.Key).Distinct())
@@ -175,7 +173,7 @@ namespace DSharpPlus.SlashCommands
 
                                 //Gets the paramaters and accounts for InteractionContext
                                 var parameters = submethod.GetParameters();
-                                if (parameters.Length == 0 || parameters == null || !ReferenceEquals(parameters.First().ParameterType, typeof(InteractionContext)))
+                                if (parameters?.Length is null or 0 || !ReferenceEquals(parameters.First().ParameterType, typeof(InteractionContext)))
                                     throw new ArgumentException($"The first argument must be an InteractionContext!");
                                 parameters = parameters.Skip(1).ToArray();
 
@@ -186,8 +184,8 @@ namespace DSharpPlus.SlashCommands
                                 payload = new DiscordApplicationCommand(payload.Name, payload.Description, payload.Options?.Append(subpayload) ?? new[] { subpayload }, payload.DefaultPermission);
 
                                 //Adds it to the method lists
-                                commandmethods.Add(new KeyValuePair<string, MethodInfo>(commandAttribute.Name, submethod));
-                                groupCommands.Add(new GroupCommand { Name = groupAttribute.Name, Methods = commandmethods });
+                                commandmethods.Add(new(commandAttribute.Name, submethod));
+                                groupCommands.Add(new() { Name = groupAttribute.Name, Methods = commandmethods });
                             }
 
                             var command = new SubGroupCommand { Name = groupAttribute.Name };
@@ -208,15 +206,15 @@ namespace DSharpPlus.SlashCommands
                                     var suboptions = new List<DiscordApplicationCommandOption>();
                                     var commatt = subsubmethod.GetCustomAttribute<SlashCommandAttribute>();
                                     var parameters = subsubmethod.GetParameters();
-                                    if (parameters.Length == 0 || parameters == null || !ReferenceEquals(parameters.First().ParameterType, typeof(InteractionContext)))
+                                    if (parameters?.Length is null or 0 || !ReferenceEquals(parameters.First().ParameterType, typeof(InteractionContext)))
                                         throw new ArgumentException($"The first argument must be an InteractionContext!");
                                     parameters = parameters.Skip(1).ToArray();
                                     suboptions = suboptions.Concat(await ParseParameters(parameters, guildId)).ToList();
 
                                     var subsubpayload = new DiscordApplicationCommandOption(commatt.Name, commatt.Description, ApplicationCommandOptionType.SubCommand, null, null, suboptions);
                                     options.Add(subsubpayload);
-                                    commandmethods.Add(new KeyValuePair<string, MethodInfo>(commatt.Name, subsubmethod));
-                                    currentMethods.Add(new KeyValuePair<string, MethodInfo>(commatt.Name, subsubmethod));
+                                    commandmethods.Add(new(commatt.Name, subsubmethod));
+                                    currentMethods.Add(new(commatt.Name, subsubmethod));
                                 }
 
                                 //Subgroups Context Menus
@@ -225,47 +223,45 @@ namespace DSharpPlus.SlashCommands
 
                                 //Adds the group to the command and method lists
                                 var subpayload = new DiscordApplicationCommandOption(subGroupAttribute.Name, subGroupAttribute.Description, ApplicationCommandOptionType.SubCommandGroup, null, null, options);
-                                command.SubCommands.Add(new GroupCommand { Name = subGroupAttribute.Name, Methods = currentMethods });
+                                command.SubCommands.Add(new() { Name = subGroupAttribute.Name, Methods = currentMethods });
                                 payload = new DiscordApplicationCommand(payload.Name, payload.Description, payload.Options?.Append(subpayload) ?? new[] { subpayload }, payload.DefaultPermission);
 
                                 //Accounts for lifespans for the sub group
-                                if (subclass.GetCustomAttribute<SlashModuleLifespanAttribute>() != null)
+                                if (subclass.GetCustomAttribute<SlashModuleLifespanAttribute>() is not null and { Lifespan: SlashModuleLifespan.Singleton })
                                 {
-                                    if (subclass.GetCustomAttribute<SlashModuleLifespanAttribute>().Lifespan == SlashModuleLifespan.Singleton)
-                                    {
-                                        _singletonModules.Add(CreateInstance(subclass, _configuration?.Services));
-                                    }
+                                    _singletonModules.Add(CreateInstance(subclass, _configuration?.Services));
                                 }
                             }
-                            if (command.SubCommands.Any()) subGroupCommands.Add(command);
+
+                            if (command.SubCommands.Any())
+                                subGroupCommands.Add(command);
+
                             updateList.Add(payload);
 
                             //Accounts for lifespans
-                            if (subclassinfo.GetCustomAttribute<SlashModuleLifespanAttribute>() != null)
+                            if (subclassinfo.GetCustomAttribute<SlashModuleLifespanAttribute>() is not null and { Lifespan: SlashModuleLifespan.Singleton })
                             {
-                                if (subclassinfo.GetCustomAttribute<SlashModuleLifespanAttribute>().Lifespan == SlashModuleLifespan.Singleton)
-                                {
-                                    _singletonModules.Add(CreateInstance(subclassinfo, _configuration?.Services));
-                                }
+                                _singletonModules.Add(CreateInstance(subclassinfo, _configuration?.Services));
                             }
                         }
 
                         //Handles methods, only if the module isn't a group itself
-                        if (module.GetCustomAttribute<SlashCommandGroupAttribute>() == null)
+                        if (module.GetCustomAttribute<SlashCommandGroupAttribute>() is null)
                         {
                             //Slash commands (again, similar to the one for groups)
                             var methods = module.DeclaredMethods.Where(x => x.GetCustomAttribute<SlashCommandAttribute>() != null);
+
                             foreach (var method in methods)
                             {
                                 var commandattribute = method.GetCustomAttribute<SlashCommandAttribute>();
 
                                 var parameters = method.GetParameters();
-                                if (parameters.Length == 0 || parameters == null || !ReferenceEquals(parameters.FirstOrDefault()?.ParameterType, typeof(InteractionContext)))
+                                if (parameters?.Length is null or 0 || !ReferenceEquals(parameters.FirstOrDefault()?.ParameterType, typeof(InteractionContext)))
                                     throw new ArgumentException($"The first argument must be an InteractionContext!");
                                 parameters = parameters.Skip(1).ToArray();
                                 var options = await ParseParameters(parameters, guildId);
 
-                                commandMethods.Add(new CommandMethod { Method = method, Name = commandattribute.Name });
+                                commandMethods.Add(new() { Method = method, Name = commandattribute.Name });
 
                                 var payload = new DiscordApplicationCommand(commandattribute.Name, commandattribute.Description, options, commandattribute.DefaultPermission);
                                 updateList.Add(payload);
@@ -276,12 +272,9 @@ namespace DSharpPlus.SlashCommands
                             AddContextMenus(contextMethods);
 
                             //Accounts for lifespans
-                            if (module.GetCustomAttribute<SlashModuleLifespanAttribute>() != null)
+                            if (module.GetCustomAttribute<SlashModuleLifespanAttribute>() is not null and { Lifespan: SlashModuleLifespan.Singleton })
                             {
-                                if (module.GetCustomAttribute<SlashModuleLifespanAttribute>().Lifespan == SlashModuleLifespan.Singleton)
-                                {
-                                    _singletonModules.Add(CreateInstance(module, _configuration?.Services));
-                                }
+                                _singletonModules.Add(CreateInstance(module, _configuration?.Services));
                             }
                         }
 
@@ -311,23 +304,21 @@ namespace DSharpPlus.SlashCommands
                             Client.Logger.LogCritical(brex, $"There was an error registering application commands: {brex.JsonMessage}");
                         else
                             Client.Logger.LogCritical(ex, $"There was an error registering application commands");
+
                         _errored = true;
                     }
                 }
+
                 if (!_errored)
                 {
                     try
                     {
                         IEnumerable<DiscordApplicationCommand> commands;
                         //Creates a guild command if a guild id is specified, otherwise global
-                        if (guildId == null)
-                        {
-                            commands = await Client.BulkOverwriteGlobalApplicationCommandsAsync(updateList);
-                        }
-                        else
-                        {
-                            commands = await Client.BulkOverwriteGuildApplicationCommandsAsync(guildId.Value, updateList);
-                        }
+                        commands = guildId is null
+                            ? await Client.BulkOverwriteGlobalApplicationCommandsAsync(updateList)
+                            : await Client.BulkOverwriteGuildApplicationCommandsAsync(guildId.Value, updateList);
+
                         //Checks against the ids and adds them to the command method lists
                         foreach (var command in commands)
                         {
@@ -349,7 +340,7 @@ namespace DSharpPlus.SlashCommands
                         _subGroupCommands.AddRange(subGroupCommands);
                         _contextMenuCommands.AddRange(contextMenuCommands);
 
-                        _registeredCommands.Add(new KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>(guildId, commands.ToList()));
+                        _registeredCommands.Add(new(guildId, commands.ToList()));
                     }
                     catch (Exception ex)
                     {
@@ -357,6 +348,7 @@ namespace DSharpPlus.SlashCommands
                             Client.Logger.LogCritical(brex, $"There was an error registering application commands: {brex.JsonMessage}");
                         else
                             Client.Logger.LogCritical(ex, $"There was an error registering application commands");
+
                         _errored = true;
                     }
                 }
@@ -679,15 +671,15 @@ namespace DSharpPlus.SlashCommands
                         else
                             throw new ArgumentException("Error resolving mentionable option.");
                     }
-					else if (parameter.ParameterType == typeof(DiscordEmoji))
-					{
+                    else if (parameter.ParameterType == typeof(DiscordEmoji))
+                    {
                         var value = option.Value.ToString();
 
                         if (DiscordEmoji.TryFromUnicode(Client, value, out var emoji) || DiscordEmoji.TryFromName(Client, value, out emoji))
                             args.Add(emoji);
                         else
                             throw new ArgumentException("Error parsing emoji parameter.");
-					}
+                    }
                     else
                         throw new ArgumentException("Error resolving interaction.");
                 }
@@ -812,11 +804,12 @@ namespace DSharpPlus.SlashCommands
                 return ApplicationCommandOptionType.String;
             else if (type == typeof(SnowflakeObject))
                 return ApplicationCommandOptionType.Mentionable;
+
             else if (type.IsEnum)
                 return ApplicationCommandOptionType.String;
 
             else
-                throw new ArgumentException("Cannot convert type! Argument types must be string, long, bool, double, DiscordChannel, DiscordUser, DiscordRole, SnowflakeObject or an Enum.");
+                throw new ArgumentException("Cannot convert type! Argument types must be string, long, bool, double, DiscordChannel, DiscordUser, DiscordRole, DiscordEmoji, SnowflakeObject or an Enum.");
         }
 
         //Gets choices from choice attributes
