@@ -747,7 +747,7 @@ namespace DSharpPlus.SlashCommands
         }
 
         //Gets the choices from a choice provider
-        private async Task<List<DiscordApplicationCommandOptionChoice>> GetChoiceAttributesFromProvider(IEnumerable<ChoiceProviderAttribute> customAttributes, ulong? guildId)
+        private async Task<List<DiscordApplicationCommandOptionChoice>> GetChoiceAttributesFromProvider(IEnumerable<ChoiceProviderAttribute> customAttributes)
         {
             var choices = new List<DiscordApplicationCommandOptionChoice>();
             foreach (var choiceProviderAttribute in customAttributes)
@@ -760,7 +760,7 @@ namespace DSharpPlus.SlashCommands
                 {
                     var instance = Activator.CreateInstance(choiceProviderAttribute.ProviderType);
                     //Gets the choices from the method
-                    var result = await (Task<IEnumerable<DiscordApplicationCommandOptionChoice>>)method.Invoke(instance, new Object[] { guildId, this._configuration.Services });
+                    var result = await (Task<IEnumerable<DiscordApplicationCommandOptionChoice>>)method.Invoke(instance, null);
 
                     if (result.Any())
                     {
@@ -850,7 +850,7 @@ namespace DSharpPlus.SlashCommands
                 var choiceProviders = parameter.GetCustomAttributes<ChoiceProviderAttribute>();
                 if (choiceProviders.Any())
                 {
-                    choices = await GetChoiceAttributesFromProvider(choiceProviders, guildId);
+                    choices = await GetChoiceAttributesFromProvider(choiceProviders);
                 }
 
                 options.Add(new DiscordApplicationCommandOption(optionattribute.Name, optionattribute.Description, parametertype, !parameter.IsOptional, choices));
