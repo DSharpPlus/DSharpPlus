@@ -210,7 +210,8 @@ namespace DSharpPlus.Net
         }
 
         internal async Task<DiscordGuild> CreateGuildAsync(string name, string region_id, Optional<string> iconb64, VerificationLevel? verification_level,
-            DefaultMessageNotifications? default_message_notifications)
+            DefaultMessageNotifications? default_message_notifications,
+            SystemChannelFlags? system_channel_flags)
         {
             var pld = new RestGuildCreatePayload
             {
@@ -218,7 +219,8 @@ namespace DSharpPlus.Net
                 RegionId = region_id,
                 DefaultMessageNotifications = default_message_notifications,
                 VerificationLevel = verification_level,
-                IconBase64 = iconb64
+                IconBase64 = iconb64,
+                SystemChannelFlags = system_channel_flags
             };
 
             var route = $"{Endpoints.GUILDS}";
@@ -279,7 +281,10 @@ namespace DSharpPlus.Net
             Optional<DefaultMessageNotifications> defaultMessageNotifications, Optional<MfaLevel> mfaLevel,
             Optional<ExplicitContentFilter> explicitContentFilter, Optional<ulong?> afkChannelId,
             Optional<int> afkTimeout, Optional<string> iconb64, Optional<ulong> ownerId, Optional<string> splashb64,
-            Optional<ulong?> systemChannelId, string reason)
+            Optional<ulong?> systemChannelId, Optional<string> banner, Optional<string> description,
+            Optional<string> discorverySplash, Optional<IEnumerable<string>> features, Optional<string> preferredLocale,
+            Optional<ulong?> publicUpdatesChannelId, Optional<ulong?> rulesChannelId, Optional<SystemChannelFlags> systemChannelFlags,
+            string reason)
         {
             var pld = new RestGuildModifyPayload
             {
@@ -294,7 +299,15 @@ namespace DSharpPlus.Net
                 IconBase64 = iconb64,
                 SplashBase64 = splashb64,
                 OwnerId = ownerId,
-                SystemChannelId = systemChannelId
+                SystemChannelId = systemChannelId,
+                Banner = banner,
+                Description = description,
+                DiscoverySplash = discorverySplash,
+                Features = features,
+                PreferredLocale = preferredLocale,
+                PublicUpdatesChannelId = publicUpdatesChannelId,
+                RulesChannelId = rulesChannelId,
+                SystemChannelFlags = systemChannelFlags
             };
 
             var headers = Utilities.GetBaseHeaders();

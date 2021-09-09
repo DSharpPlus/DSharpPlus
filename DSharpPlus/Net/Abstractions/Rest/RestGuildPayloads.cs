@@ -58,6 +58,9 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("channels", NullValueHandling = NullValueHandling.Ignore)]
         public IEnumerable<RestChannelCreatePayload> Channels { get; set; }
+
+        [JsonProperty("system_channel_flags", NullValueHandling = NullValueHandling.Ignore)]
+        public SystemChannelFlags? SystemChannelFlags { get; set; }
     }
 
     internal sealed class RestGuildCreateFromTemplatePayload
@@ -106,6 +109,30 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("system_channel_id", NullValueHandling = NullValueHandling.Include)]
         public Optional<ulong?> SystemChannelId { get; set; }
+
+        [JsonProperty("banner")]
+        public Optional<string> Banner { get; set; }
+
+        [JsonProperty("discorvery_splash")]
+        public Optional<string> DiscoverySplash { get; set; }
+
+        [JsonProperty("system_channel_flags")]
+        public Optional<SystemChannelFlags> SystemChannelFlags { get; set; }
+
+        [JsonProperty("rules_channel_id")]
+        public Optional<ulong?> RulesChannelId { get; set; }
+
+        [JsonProperty("public_updates_channel_id")]
+        public Optional<ulong?> PublicUpdatesChannelId { get; set; }
+
+        [JsonProperty("preferred_locale")]
+        public Optional<string> PreferredLocale { get; set; }
+
+        [JsonProperty("description")]
+        public Optional<string> Description { get; set; }
+
+        [JsonProperty("features")]
+        public Optional<IEnumerable<string>> Features { get; set; }
     }
 
     internal sealed class RestGuildMemberAddPayload : IOAuth2Payload

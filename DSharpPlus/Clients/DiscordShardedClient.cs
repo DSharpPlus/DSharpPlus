@@ -142,11 +142,11 @@ namespace DSharpPlus
             {
                 if (this.Configuration.TokenType != TokenType.Bot)
                     this.Logger.LogWarning(LoggerEvents.Misc, "You are logging in with a token that is not a bot token. This is not officially supported by Discord, and can result in your account being terminated if you aren't careful.");
-                this.Logger.LogInformation(LoggerEvents.Startup, "DSharpPlus, version {0}", this._versionString.Value);
+                this.Logger.LogInformation(LoggerEvents.Startup, "DSharpPlus, version {Version}", this._versionString.Value);
 
                 var shardc = await this.InitializeShardsAsync().ConfigureAwait(false);
                 var connectTasks = new List<Task>();
-                this.Logger.LogInformation(LoggerEvents.ShardStartup, "Booting {0} shards.", shardc);
+                this.Logger.LogInformation(LoggerEvents.ShardStartup, "Booting {ShardCount} shards.", shardc);
 
                 for (var i = 0; i < shardc; i++)
                 {
@@ -381,7 +381,7 @@ namespace DSharpPlus
 
             client._isShard = true;
             await client.ConnectAsync().ConfigureAwait(false);
-            this.Logger.LogInformation(LoggerEvents.ShardStartup, "Booted shard {0}.", i);
+            this.Logger.LogInformation(LoggerEvents.ShardStartup, "Booted shard {Shard}.", i);
 
             if (this.CurrentUser == null)
                 this.CurrentUser = client.CurrentUser;
@@ -402,7 +402,7 @@ namespace DSharpPlus
                 throw new InvalidOperationException("This client has not been started.");
 
             if (enableLogger)
-                this.Logger.LogInformation(LoggerEvents.ShardShutdown, "Disposing {0} shards.", this._shards.Count);
+                this.Logger.LogInformation(LoggerEvents.ShardShutdown, "Disposing {ShardCount} shards.", this._shards.Count);
 
             this._isStarted = false;
             this._voiceRegionsLazy = null;
@@ -420,7 +420,7 @@ namespace DSharpPlus
                     client.Dispose();
 
                     if (enableLogger)
-                        this.Logger.LogInformation(LoggerEvents.ShardShutdown, "Disconnected shard {0}.", i);
+                        this.Logger.LogInformation(LoggerEvents.ShardShutdown, "Disconnected shard {Shard}.", i);
                 }
             }
 

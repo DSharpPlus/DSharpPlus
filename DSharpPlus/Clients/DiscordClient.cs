@@ -285,7 +285,7 @@ namespace DSharpPlus
             {
                 if (this.Configuration.TokenType != TokenType.Bot)
                     this.Logger.LogWarning(LoggerEvents.Misc, "You are logging in with a token that is not a bot token. This is not officially supported by Discord, and can result in your account being terminated if you aren't careful.");
-                this.Logger.LogInformation(LoggerEvents.Startup, "DSharpPlus, version {0}", this.VersionString);
+                this.Logger.LogInformation(LoggerEvents.Startup, "DSharpPlus, version {Version}", this.VersionString);
             }
 
             while (i-- > 0 || this.Configuration.ReconnectIndefinitely)
@@ -318,7 +318,7 @@ namespace DSharpPlus
                     cex = ex;
                     if (i <= 0 && !this.Configuration.ReconnectIndefinitely) break;
 
-                    this.Logger.LogError(LoggerEvents.ConnectionFailure, ex, "Connection attempt failed, retrying in {0}s", w / 1000);
+                    this.Logger.LogError(LoggerEvents.ConnectionFailure, ex, "Connection attempt failed, retrying in {Seconds}s", w / 1000);
                     await Task.Delay(w).ConfigureAwait(false);
 
                     if (i > 0)
@@ -487,12 +487,14 @@ namespace DSharpPlus
         /// <param name="icon">Stream containing the icon for the guild.</param>
         /// <param name="verificationLevel">Verification level for the guild.</param>
         /// <param name="defaultMessageNotifications">Default message notification settings for the guild.</param>
+        /// <param name="systemChannelFlags">System channel flags fopr the guild.</param>
         /// <returns>The created guild.</returns>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordGuild> CreateGuildAsync(string name, string region = null, Optional<Stream> icon = default, VerificationLevel? verificationLevel = null,
-            DefaultMessageNotifications? defaultMessageNotifications = null)
+            DefaultMessageNotifications? defaultMessageNotifications = null,
+            SystemChannelFlags? systemChannelFlags = null)
         {
             var iconb64 = Optional.FromNoValue<string>();
             if (icon.HasValue && icon.Value != null)
@@ -501,7 +503,7 @@ namespace DSharpPlus
             else if (icon.HasValue)
                 iconb64 = null;
 
-            return this.ApiClient.CreateGuildAsync(name, region, iconb64, verificationLevel, defaultMessageNotifications);
+            return this.ApiClient.CreateGuildAsync(name, region, iconb64, verificationLevel, defaultMessageNotifications, systemChannelFlags);
         }
 
         /// <summary>
