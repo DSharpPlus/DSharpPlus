@@ -212,6 +212,12 @@ namespace DSharpPlus.Entities
         public DiscordVoiceRegion RtcRegion
             => this.RtcRegionId != null ? this.Discord.VoiceRegions[this.RtcRegionId] : null;
 
+        /// <summary>
+        /// Only sent on the resolved channels of interaction responses for application commands. Gets the permissions of the user in this channel who invoked the command.
+        /// </summary>
+        [JsonProperty("permissions")]
+        public Permissions? UserPermissions { get; internal set; }
+
         internal DiscordChannel()
         {
             this._permissionOverwritesLazy = new Lazy<IReadOnlyList<DiscordOverwrite>>(() => new ReadOnlyCollection<DiscordOverwrite>(this._permissionOverwrites));
@@ -381,7 +387,7 @@ namespace DSharpPlus.Entities
             action(mdl);
             return this.Discord.ApiClient.ModifyChannelAsync(this.Id, mdl.Name, mdl.Position, mdl.Topic, mdl.Nsfw,
                 mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.PerUserRateLimit, mdl.RtcRegion.IfPresent(r => r?.Id),
-                mdl.QualityMode, mdl.AuditLogReason);
+                mdl.QualityMode, mdl.Type, mdl.PermissionOverwrites, mdl.AuditLogReason);
         }
 
         /// <summary>
