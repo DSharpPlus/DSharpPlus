@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Threading;
+using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 
 namespace DSharpPlus.Interactivity.EventHandling
@@ -34,6 +35,7 @@ namespace DSharpPlus.Interactivity.EventHandling
     {
         public ConcurrentBag<ComponentInteractionCreateEventArgs> Collected { get; private set; }
 
-        public ComponentCollectRequest(string id, Func<ComponentInteractionCreateEventArgs, bool> predicate, CancellationToken cancellation) : base(id, predicate, cancellation) { }
+        public ComponentCollectRequest(DiscordMessage message, Func<ComponentInteractionCreateEventArgs, bool> predicate, CancellationToken cancellation) :
+            base(message, predicate, cancellation) { }
     }
 }
