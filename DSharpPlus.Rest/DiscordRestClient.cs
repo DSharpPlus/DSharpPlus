@@ -85,9 +85,10 @@ namespace DSharpPlus
         /// <param name="iconb64">New guild's icon (base64)</param>
         /// <param name="verification_level">New guild's verification level</param>
         /// <param name="default_message_notifications">New guild's default message notification level</param>
+        /// <param name="system_channel_flags">New guild's system channel flags</param>
         /// <returns></returns>
-        public Task<DiscordGuild> CreateGuildAsync(string name, string region_id, string iconb64, VerificationLevel? verification_level, DefaultMessageNotifications? default_message_notifications)
-            => this.ApiClient.CreateGuildAsync(name, region_id, iconb64, verification_level, default_message_notifications);
+        public Task<DiscordGuild> CreateGuildAsync(string name, string region_id, string iconb64, VerificationLevel? verification_level, DefaultMessageNotifications? default_message_notifications, SystemChannelFlags? system_channel_flags)
+            => this.ApiClient.CreateGuildAsync(name, region_id, iconb64, verification_level, default_message_notifications, system_channel_flags);
 
         /// <summary>
         /// Creates a guild from a template. This requires the bot to be in less than 10 guilds total.
@@ -123,6 +124,14 @@ namespace DSharpPlus
         /// <param name="owner_id">New guild owner id</param>
         /// <param name="splashb64">New guild spalsh (base64)</param>
         /// <param name="systemChannelId">New guild system channel id</param>
+        /// <param name="banner">New guild banner</param>
+        /// <param name="description">New guild description</param>
+        /// <param name="discorverySplash">New guild Discovery splash</param>
+        /// <param name="features">List of new <see cref="https://discord.com/developers/docs/resources/guild#guild-object-guild-features">guild features</see></param>
+        /// <param name="preferredLocale">New preferred locale</param>
+        /// <param name="publicUpdatesChannelId">New updates channel id</param>
+        /// <param name="rulesChannelId">New rules channel id</param>
+        /// <param name="systemChannelFlags">New system channel flags</param>
         /// <param name="reason">Modify reason</param>
         /// <returns></returns>
         public Task<DiscordGuild> ModifyGuildAsync(ulong guild_id, Optional<string> name,
@@ -130,9 +139,12 @@ namespace DSharpPlus
             Optional<DefaultMessageNotifications> default_message_notifications, Optional<MfaLevel> mfa_level,
             Optional<ExplicitContentFilter> explicit_content_filter, Optional<ulong?> afk_channel_id,
             Optional<int> afk_timeout, Optional<string> iconb64, Optional<ulong> owner_id, Optional<string> splashb64,
-            Optional<ulong?> systemChannelId, string reason)
+            Optional<ulong?> systemChannelId, Optional<string> banner, Optional<string> description,
+            Optional<string> discorverySplash, Optional<IEnumerable<string>> features, Optional<string> preferredLocale,
+            Optional<ulong?> publicUpdatesChannelId, Optional<ulong?> rulesChannelId, Optional<SystemChannelFlags> systemChannelFlags,
+            string reason)
             => this.ApiClient.ModifyGuildAsync(guild_id, name, region, verification_level, default_message_notifications, mfa_level, explicit_content_filter, afk_channel_id, afk_timeout, iconb64,
-                owner_id, splashb64, systemChannelId, reason);
+                owner_id, splashb64, systemChannelId, banner, description, discorverySplash, features, preferredLocale, publicUpdatesChannelId, rulesChannelId, systemChannelFlags, reason);
 
         /// <summary>
         /// Modifies a guild
@@ -165,7 +177,8 @@ namespace DSharpPlus
 
             return await this.ApiClient.ModifyGuildAsync(guild_id, mdl.Name, mdl.Region.IfPresent(x => x.Id), mdl.VerificationLevel, mdl.DefaultMessageNotifications,
                 mdl.MfaLevel, mdl.ExplicitContentFilter, mdl.AfkChannel.IfPresent(x => x?.Id), mdl.AfkTimeout, iconb64, mdl.Owner.IfPresent(x => x.Id),
-                splashb64, mdl.SystemChannel.IfPresent(x => x?.Id), mdl.AuditLogReason).ConfigureAwait(false);
+                splashb64, mdl.SystemChannel.IfPresent(x => x?.Id), mdl.Banner, mdl.Description, mdl.DiscoverySplash, mdl.Features, mdl.PreferredLocale,
+                mdl.PublicUpdatesChannel.IfPresent(e => e?.Id), mdl.RulesChannel.IfPresent(e => e?.Id), mdl.SystemChannelFlags, mdl.AuditLogReason).ConfigureAwait(false);
         }
 
         /// <summary>
