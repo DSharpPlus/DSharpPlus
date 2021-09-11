@@ -27,7 +27,7 @@ namespace DSharpPlus
 {
     public static class PermissionMethods
     {
-        internal static Permissions FULL_PERMS { get; } = (Permissions)549755813887L;
+        internal static Permissions FULL_PERMS { get; } = (Permissions)1099511627775L;
 
         /// <summary>
         /// Calculates whether this permission set contains the given permission.
@@ -92,7 +92,7 @@ namespace DSharpPlus
         /// Indicates all permissions are granted
         /// </summary>
         [PermissionString("All permissions")]
-        All = 549755813887,
+        All = 1099511627775,
 
         /// <summary>
         /// Allows creation of instant channel invites.
@@ -335,7 +335,13 @@ namespace DSharpPlus
         /// Allows for sending messages in threads.
         /// </summary>
         [PermissionString("Send messages in Threads")]
-        SendMessagesInThreads = 0x0000004000000000
+        SendMessagesInThreads = 0x0000004000000000,
+        
+        /// <summary>
+        /// Allows for launching activities (applications with the `EMBEDDED` flag) in a voice channel.     
+        /// </summary>
+        [PermissionString("Start Embedded Activities")]
+        StartEmbeddedActivities = 0x0000008000000000
     }
 
     /// <summary>
