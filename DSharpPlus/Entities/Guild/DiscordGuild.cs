@@ -370,6 +370,16 @@ namespace DSharpPlus.Entities
         [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
         internal ConcurrentDictionary<ulong, DiscordChannel> _channels;
 
+        /// <summary>
+        /// Gets a dictionary of all the active threads associated with this guild the user has permission to view. The dictionary's key is the channel ID.
+        /// </summary>
+        [JsonIgnore]
+        public IReadOnlyDictionary<ulong, DiscordThreadChannel> Threads => new ReadOnlyConcurrentDictionary<ulong, DiscordThreadChannel>(this._threads);
+
+        [JsonProperty("threads", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
+        internal ConcurrentDictionary<ulong, DiscordThreadChannel> _threads = new();
+
         internal ConcurrentDictionary<string, DiscordInvite> _invites;
 
         /// <summary>
@@ -871,6 +881,20 @@ namespace DSharpPlus.Entities
                 this.Discord.InternalVoiceRegions.TryAdd(xvr.Id, xvr);
 
             return vrs;
+        }
+
+        /// <summary>
+        /// Gets the active and private threads for this guild.
+        /// </summary>
+        /// <returns>A list of all the active and private threads the user can access in the server.</returns>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<ThreadQueryResult> ListActiveThreadsAsync()
+        {
+            var threads = await this.Discord.ApiClient.ListActiveThreadsAsync(this.Id);
+            // Gateway handles thread cache (if it does it properly
+            /*foreach (var thread in threads)
+                this._threads[thread.Id] = thread;*/
+            return threads;
         }
 
         /// <summary>

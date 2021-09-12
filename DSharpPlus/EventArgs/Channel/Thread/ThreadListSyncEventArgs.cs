@@ -21,71 +21,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace DSharpPlus
+using System.Collections.Generic;
+using DSharpPlus.Entities;
+
+namespace DSharpPlus.EventArgs
 {
     /// <summary>
-    /// Represents a channel's type.
+    /// Represents arguments for <see cref="DiscordClient.ThreadListSynced"/> event.
     /// </summary>
-    public enum ChannelType : int
+    public class ThreadListSyncEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// Indicates that this is a text channel.
+        /// Gets all thread member objects, indicating which threads the current user has been added to.
         /// </summary>
-        Text = 0,
+        public IReadOnlyList<DiscordThreadChannelMember> CurrentMembers { get; internal set; }
 
         /// <summary>
-        /// Indicates that this is a private channel.
+        /// Gets all active threads in the given channels that the current user can access.
         /// </summary>
-        Private = 1,
+        public IReadOnlyList<DiscordThreadChannel> Threads { get; internal set; }
 
         /// <summary>
-        /// Indicates that this is a voice channel.
+        /// Gets the parent channels whose threads are being synced. May contain channels that have no active threads as well.
         /// </summary>
-        Voice = 2,
+        public IReadOnlyList<DiscordChannel> Channels { get; internal set; }
 
         /// <summary>
-        /// Indicates that this is a group direct message channel.
+        /// Gets the guild being synced.
         /// </summary>
-        Group = 3,
+        public DiscordGuild Guild { get; internal set; }
 
-        /// <summary>
-        /// Indicates that this is a channel category.
-        /// </summary>
-        Category = 4,
-
-        /// <summary>
-        /// Indicates that this is a news channel.
-        /// </summary>
-        News = 5,
-
-        /// <summary>
-        /// Indicates that this is a store channel.
-        /// </summary>
-        Store = 6,
-
-        /// <summary>
-        /// Indicates that this is a thread within a news channel.
-        /// </summary>
-        NewsThread = 10,
-        
-        /// <summary>
-        /// Indicates that this is a public thread within a channel.
-        /// </summary>
-        PublicThread = 11,
-
-        /// <summary>
-        /// Indicates that this is a private thread within a channel.
-        /// </summary>
-        PrivateThread = 12,
-
-        /// <summary>
-        /// Indicates that this is a stage channel.
-        /// </summary>
-        Stage = 13,
-
-        /// <summary>
-        /// Indicates unknown channel type.
-        /// </summary>
-        Unknown = int.MaxValue
+        internal ThreadListSyncEventArgs() : base() { }
     }
 }

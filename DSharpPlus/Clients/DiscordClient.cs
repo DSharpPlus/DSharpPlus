@@ -215,6 +215,15 @@ namespace DSharpPlus
             this._stageInstanceUpdated = new AsyncEvent<DiscordClient, StageInstanceUpdateEventArgs>("STAGE_INSTANCE_UPDAED", EventExecutionLimit, this.EventErrorHandler);
             this._stageInstanceDeleted = new AsyncEvent<DiscordClient, StageInstanceDeleteEventArgs>("STAGE_INSTANCE_DELETED", EventExecutionLimit, this.EventErrorHandler);
 
+            #region Threads
+            this._threadCreated = new AsyncEvent<DiscordClient, ThreadCreateEventArgs>("THREAD_CREATED", EventExecutionLimit, this.EventErrorHandler);
+            this._threadUpdated = new AsyncEvent<DiscordClient, ThreadUpdateEventArgs>("THREAD_UPDATED", EventExecutionLimit, this.EventErrorHandler);
+            this._threadDeleted = new AsyncEvent<DiscordClient, ThreadDeleteEventArgs>("THREAD_DELETED", EventExecutionLimit, this.EventErrorHandler);
+            this._threadListSynced = new AsyncEvent<DiscordClient, ThreadListSyncEventArgs>("THREAD_LIST_SYNCED", EventExecutionLimit, this.EventErrorHandler);
+            this._threadMemberUpdated = new AsyncEvent<DiscordClient, ThreadMemberUpdateEventArgs>("THREAD_MEMBER_UPDATED", EventExecutionLimit, this.EventErrorHandler);
+            this._threadMembersUpdated = new AsyncEvent<DiscordClient, ThreadMembersUpdateEventArgs>("THREAD_MEMBERS_UPDATED", EventExecutionLimit, this.EventErrorHandler);
+            #endregion
+
             this._guilds.Clear();
 
             this._presencesLazy = new Lazy<IReadOnlyDictionary<ulong, DiscordPresence>>(() => new ReadOnlyDictionary<ulong, DiscordPresence>(this._presences));
@@ -406,7 +415,7 @@ namespace DSharpPlus
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task<DiscordChannel> GetChannelAsync(ulong id)
-            => this.InternalGetCachedChannel(id) ?? await this.ApiClient.GetChannelAsync(id).ConfigureAwait(false);
+            => this.InternalGetCachedThread(id) ?? this.InternalGetCachedChannel(id) ?? await this.ApiClient.GetChannelAsync(id).ConfigureAwait(false);
 
         /// <summary>
         /// Sends a message
@@ -764,6 +773,15 @@ namespace DSharpPlus
 
         #region Internal Caching Methods
 
+        internal DiscordThreadChannel InternalGetCachedThread(ulong threadId)
+        {
+            foreach (var guild in this.Guilds.Values)
+                if (guild.Threads.TryGetValue(threadId, out var foundThread))
+                    return foundThread;
+
+            return null;
+        }
+
         internal DiscordChannel InternalGetCachedChannel(ulong channelId)
         {
             DiscordDmChannel foundDmChannel = default;
@@ -801,7 +819,7 @@ namespace DSharpPlus
                 message.Author = this.UpdateUser(usr, guild?.Id, guild, member);
             }
 
-            var channel = this.InternalGetCachedChannel(message.ChannelId);
+            var channel = this.InternalGetCachedChannel(message.ChannelId) ?? this.InternalGetCachedThread(message.ChannelId);
 
             if (channel != null) return;
 
@@ -888,6 +906,15 @@ namespace DSharpPlus
                     }
 
                     guild._channels[channel.Id] = channel;
+                }
+            }
+            if (newGuild._threads != null && newGuild._threads.Count > 0)
+            {
+                foreach (var thread in newGuild._threads.Values)
+                {
+                    if (guild._threads.TryGetValue(thread.Id, out _)) continue;
+
+                    guild._threads[thread.Id] = thread;
                 }
             }
 

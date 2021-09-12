@@ -496,6 +496,15 @@ namespace DSharpPlus
             this._stageInstanceCreated = new AsyncEvent<DiscordClient, StageInstanceCreateEventArgs>("STAGE_INSTANCE_CREATED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._stageInstanceUpdated = new AsyncEvent<DiscordClient, StageInstanceUpdateEventArgs>("STAGE_INSTANCE_UPDAED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._stageInstanceDeleted = new AsyncEvent<DiscordClient, StageInstanceDeleteEventArgs>("STAGE_INSTANCE_DELETED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
+
+            #region ThreadEvents
+            this._threadCreated = new AsyncEvent<DiscordClient, ThreadCreateEventArgs>("THREAD_CREATED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
+            this._threadUpdated = new AsyncEvent<DiscordClient, ThreadUpdateEventArgs>("THREAD_UPDATED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
+            this._threadDeleted = new AsyncEvent<DiscordClient, ThreadDeleteEventArgs>("THREAD_DELETED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
+            this._threadListSynced = new AsyncEvent<DiscordClient, ThreadListSyncEventArgs>("THREAD_LIST_SYNCED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
+            this._threadMemberUpdated = new AsyncEvent<DiscordClient, ThreadMemberUpdateEventArgs>("THREAD_MEMBER_UPDATED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
+            this._threadMembersUpdated = new AsyncEvent<DiscordClient, ThreadMembersUpdateEventArgs>("THREAD_MEMBERS_UPDATED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
+            #endregion
         }
 
         private void HookEventHandlers(DiscordClient client)
@@ -558,6 +567,15 @@ namespace DSharpPlus
             client.StageInstanceCreated += this.Client_StageInstanceCreated;
             client.StageInstanceUpdated += this.Client_StageInstanceUpdated;
             client.StageInstanceDeleted += this.Client_StageInstanceDeleted;
+
+            #region ThreadEvents
+            client.ThreadCreated += this.Client_ThreadCreated;
+            client.ThreadUpdated += this.Client_ThreadUpdated;
+            client.ThreadDeleted += this.Client_ThreadDeleted;
+            client.ThreadListSynced += this.Client_ThreadListSynced;
+            client.ThreadMemberUpdated += this.Client_ThreadMemberUpdated;
+            client.ThreadMembersUpdated += this.Client_ThreadMembersUpdated;
+            #endregion
         }
 
         private void UnhookEventHandlers(DiscordClient client)
@@ -620,6 +638,15 @@ namespace DSharpPlus
             client.StageInstanceCreated -= this.Client_StageInstanceCreated;
             client.StageInstanceUpdated -= this.Client_StageInstanceUpdated;
             client.StageInstanceDeleted -= this.Client_StageInstanceDeleted;
+
+            #region ThreadEvents
+            client.ThreadCreated -= this.Client_ThreadCreated;
+            client.ThreadUpdated -= this.Client_ThreadUpdated;
+            client.ThreadDeleted -= this.Client_ThreadDeleted;
+            client.ThreadListSynced -= this.Client_ThreadListSynced;
+            client.ThreadMemberUpdated -= this.Client_ThreadMemberUpdated;
+            client.ThreadMembersUpdated -= this.Client_ThreadMembersUpdated;
+            #endregion
         }
 
         private int GetShardIdFromGuilds(ulong id)

@@ -99,6 +99,13 @@ namespace DSharpPlus.Test
             //    throw new Exception("Flippin' tables");
             //};
 
+            this.Discord.ThreadCreated += this.Discord_ThreadCreated;
+            this.Discord.ThreadUpdated += this.Discord_ThreadUpdated;
+            this.Discord.ThreadDeleted += this.Discord_ThreadDeleted;
+            this.Discord.ThreadListSynced += this.Discord_ThreadListSynced;
+            this.Discord.ThreadMemberUpdated += this.Discord_ThreadMemberUpdated;
+            this.Discord.ThreadMembersUpdated += this.Discord_ThreadMembersUpdated;
+
             // voice config and the voice service itself
             var vcfg = new VoiceNextConfiguration
             {
@@ -302,6 +309,43 @@ namespace DSharpPlus.Test
             {
                 Console.WriteLine("TargetId: " + entry.Target.Id);
             }
+        }
+
+        private Task Discord_ThreadCreated(DiscordClient client, ThreadCreateEventArgs e)
+        {
+            client.Logger.LogDebug(eventId: TestBotEventId, $"Thread created in {e.Guild.Name}. Thread Name: {e.Thread.Name}");
+            return Task.CompletedTask;
+        }
+
+        private Task Discord_ThreadUpdated(DiscordClient client, ThreadUpdateEventArgs e)
+        {
+            client.Logger.LogDebug(eventId: TestBotEventId, $"Thread updated in {e.Guild.Name}. New Thread Name: {e.ThreadAfter.Name}");
+            return Task.CompletedTask;
+        }
+
+        private Task Discord_ThreadDeleted(DiscordClient client, ThreadDeleteEventArgs e)
+        {
+            client.Logger.LogDebug(eventId: TestBotEventId, $"Thread deleted in {e.Guild.Name}. Thread Name: {e.Thread.Name ?? "Unknown"}");
+            return Task.CompletedTask;
+        }
+
+        private Task Discord_ThreadListSynced(DiscordClient client, ThreadListSyncEventArgs e)
+        {
+            client.Logger.LogDebug(eventId: TestBotEventId, $"Threads synced in {e.Guild.Name}.");
+            return Task.CompletedTask;
+        }
+
+        private Task Discord_ThreadMemberUpdated(DiscordClient client, ThreadMemberUpdateEventArgs e)
+        {
+            client.Logger.LogDebug(eventId: TestBotEventId, $"Thread member updated.");
+            Console.WriteLine($"Discord_ThreadMemberUpdated fired for thread {e.ThreadMember.ThreadId}. User ID {e.ThreadMember.Id}.");
+            return Task.CompletedTask;
+        }
+
+        private Task Discord_ThreadMembersUpdated(DiscordClient client, ThreadMembersUpdateEventArgs e)
+        {
+            client.Logger.LogDebug(eventId: TestBotEventId, $"Thread members updated in {e.Guild.Name}.");
+            return Task.CompletedTask;
         }
     }
 }

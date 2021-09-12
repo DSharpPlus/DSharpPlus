@@ -21,71 +21,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
+using System.Collections.Generic;
+using System.Text;
+
 namespace DSharpPlus
 {
     /// <summary>
-    /// Represents a channel's type.
+    /// Represents the duration in minutes to automatically archive a thread after recent activity.
     /// </summary>
-    public enum ChannelType : int
+    public enum AutoArchiveDuration : int
     {
         /// <summary>
-        /// Indicates that this is a text channel.
+        /// Thread will auto-archive after one hour of inactivity.
         /// </summary>
-        Text = 0,
+        Hour = 60,
 
         /// <summary>
-        /// Indicates that this is a private channel.
+        /// Thread will auto-archive after one day of inactivity.
         /// </summary>
-        Private = 1,
+        Day = 1440,
 
         /// <summary>
-        /// Indicates that this is a voice channel.
+        /// Thread will auto-archive after three days of inactivity.
         /// </summary>
-        Voice = 2,
+        ThreeDays = 4320,
 
         /// <summary>
-        /// Indicates that this is a group direct message channel.
+        /// Thread will auto-archive after one week of inactivity.
         /// </summary>
-        Group = 3,
-
-        /// <summary>
-        /// Indicates that this is a channel category.
-        /// </summary>
-        Category = 4,
-
-        /// <summary>
-        /// Indicates that this is a news channel.
-        /// </summary>
-        News = 5,
-
-        /// <summary>
-        /// Indicates that this is a store channel.
-        /// </summary>
-        Store = 6,
-
-        /// <summary>
-        /// Indicates that this is a thread within a news channel.
-        /// </summary>
-        NewsThread = 10,
-        
-        /// <summary>
-        /// Indicates that this is a public thread within a channel.
-        /// </summary>
-        PublicThread = 11,
-
-        /// <summary>
-        /// Indicates that this is a private thread within a channel.
-        /// </summary>
-        PrivateThread = 12,
-
-        /// <summary>
-        /// Indicates that this is a stage channel.
-        /// </summary>
-        Stage = 13,
-
-        /// <summary>
-        /// Indicates unknown channel type.
-        /// </summary>
-        Unknown = int.MaxValue
+        Week = 10080
     }
 }
