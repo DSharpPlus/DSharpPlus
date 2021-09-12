@@ -1862,7 +1862,6 @@ namespace DSharpPlus
                     MemberCount = cthread.MemberCount,
                     ThreadMetadata = cthread.ThreadMetadata,
                     CurrentMember = cthread.CurrentMember,
-                    //threadMembers,
                 };
 
                 updateEvent = new ThreadUpdateEventArgs

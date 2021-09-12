@@ -817,8 +817,7 @@ namespace DSharpPlus
                 message.Author = this.UpdateUser(usr, guild?.Id, guild, member);
             }
 
-            //var channel = this.InternalGetCachedThread(message.ChannelId) ?? this.InternalGetCachedChannel(message.ChannelId);
-            var channel = this.InternalGetCachedChannel(message.ChannelId);
+            var channel = this.InternalGetCachedChannel(message.ChannelId) ?? this.InternalGetCachedThread(message.ChannelId);
 
             if (channel != null) return;
 
