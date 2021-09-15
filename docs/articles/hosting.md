@@ -32,7 +32,7 @@ environment, particularly the shell (command line), and concepts such as SSH.
 
 There are several well-known, trusted, and cheap providers:
 
-* [Host Pls](https://host-pls.com/) - A hosting solution made by Discord bot developers. Based in America, starting from $2.49/mo.
+* [Xenyth Cloud](https://xenyth.cloud/) - A premium hosting solution made by Discord bot developers. Based in Canada, starting from $2.5/mo.
 * [Vultr](https://www.vultr.com/products/cloud-compute/) - Based in the US with datacenters in many regions, including APAC. Starting at $2.50/mo.
 * [DigitalOcean](https://www.digitalocean.com/products/droplets/) - The gold standard, US based. Locations available world wide. Starting from $5.00/mo.
 * [Linode](https://www.linode.com/products/shared/) - US based host with many datacenters around the world. Starting at $5.00/mo.
