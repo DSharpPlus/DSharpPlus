@@ -213,7 +213,8 @@ namespace DSharpPlus.Entities
             => this.RtcRegionId != null ? this.Discord.VoiceRegions[this.RtcRegionId] : null;
 
         /// <summary>
-        /// Only sent on the resolved channels of interaction responses for application commands. Gets the permissions of the user in this channel who invoked the command.
+        /// Gets the permissions of the user who invoked the command in this channel.
+        /// <para>Only sent on the resolved channels of interaction responses for application commands.</para>
         /// </summary>
         [JsonProperty("permissions")]
         public Permissions? UserPermissions { get; internal set; }
