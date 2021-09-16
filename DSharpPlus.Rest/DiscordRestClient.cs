@@ -47,7 +47,7 @@ namespace DSharpPlus
 
         public DiscordRestClient(DiscordConfiguration config) : base(config)
         {
-            this.disposed = false;
+            this._disposed = false;
         }
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace DSharpPlus
         /// <param name="banner">New guild banner</param>
         /// <param name="description">New guild description</param>
         /// <param name="discorverySplash">New guild Discovery splash</param>
-        /// <param name="features">List of new <see cref="https://discord.com/developers/docs/resources/guild#guild-object-guild-features">guild features</see></param>
+        /// <param name="features">List of new <see href="https://discord.com/developers/docs/resources/guild#guild-object-guild-features">guild features</see></param>
         /// <param name="preferredLocale">New preferred locale</param>
         /// <param name="publicUpdatesChannelId">New updates channel id</param>
         /// <param name="rulesChannelId">New rules channel id</param>
@@ -1689,15 +1689,15 @@ namespace DSharpPlus
             => this.ApiClient.GetTemplateAsync(code);
         #endregion
 
-        private bool disposed;
+        private bool _disposed;
         /// <summary>
         /// Disposes of this DiscordRestClient
         /// </summary>
         public override void Dispose()
         {
-            if (this.disposed)
+            if (this._disposed)
                 return;
-            this.disposed = true;
+            this._disposed = true;
             this._guilds = null;
             this.ApiClient.Rest.Dispose();
         }

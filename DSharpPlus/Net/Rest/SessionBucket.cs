@@ -57,7 +57,7 @@ namespace DSharpPlus.Net
         public int MaxConcurrency { get; internal set; }
 
         [JsonProperty("reset_after")]
-        internal int resetAfter { get; set; }
+        internal int ResetAfterInternal { get; set; }
 
 #pragma warning disable CS0114
         public override string ToString()

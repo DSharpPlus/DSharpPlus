@@ -123,9 +123,7 @@ namespace DSharpPlus.Entities
         /// <param name="e"><see cref="Optional{T}"/> to compare to.</param>
         /// <returns>Whether the <see cref="Optional{T}"/> is equal to this <see cref="Optional{T}"/>.</returns>
         public bool Equals(Optional<T> e)
-        {
-            return !this.HasValue && !e.HasValue ? true : this.HasValue == e.HasValue && this.Value.Equals(e.Value);
-        }
+            => (!this.HasValue && !e.HasValue) || (this.HasValue == e.HasValue && this.Value.Equals(e.Value));
 
         /// <summary>
         /// Checks whether the value of this <see cref="Optional{T}"/> is equal to specified object.
@@ -175,7 +173,7 @@ namespace DSharpPlus.Entities
         public Optional<TTarget> IfPresent<TTarget>(Func<T, TTarget> mapper) => this.HasValue ? new Optional<TTarget>(mapper(this.Value)) : default;
     }
 
-    /// <seealso cref="DiscordJson.Serializer"/>
+    /// <seealso cref="DiscordJson._serializer"/>
     internal sealed class OptionalJsonContractResolver : DefaultContractResolver
     {
         protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)

@@ -141,9 +141,7 @@ namespace DSharpPlus.VoiceNext
         /// <param name="guild">Guild to get VoiceNext connection for.</param>
         /// <returns>VoiceNext connection for the specified guild.</returns>
         public VoiceNextConnection GetConnection(DiscordGuild guild)
-        {
-            return this.ActiveConnections.ContainsKey(guild.Id) ? this.ActiveConnections[guild.Id] : null;
-        }
+            => this.ActiveConnections.ContainsKey(guild.Id) ? this.ActiveConnections[guild.Id] : null;
 
         private async Task Vnc_VoiceDisconnected(DiscordGuild guild)
         {

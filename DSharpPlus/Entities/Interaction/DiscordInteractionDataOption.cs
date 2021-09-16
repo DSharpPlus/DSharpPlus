@@ -45,7 +45,7 @@ namespace DSharpPlus.Entities
         public ApplicationCommandOptionType Type { get; internal set; }
 
         [JsonProperty("value")]
-        internal string _value { get; set; }
+        internal string InternalValue { get; set; }
 
         /// <summary>
         /// Gets the value of this interaction parameter. 
@@ -58,15 +58,15 @@ namespace DSharpPlus.Entities
             {
                 return this.Type switch
                 {
-                    ApplicationCommandOptionType.Boolean => bool.Parse(this._value),
-                    ApplicationCommandOptionType.Integer => long.Parse(this._value),
-                    ApplicationCommandOptionType.String => this._value,
-                    ApplicationCommandOptionType.Channel => ulong.Parse(this._value),
-                    ApplicationCommandOptionType.User => ulong.Parse(this._value),
-                    ApplicationCommandOptionType.Role => ulong.Parse(this._value),
-                    ApplicationCommandOptionType.Mentionable => ulong.Parse(this._value),
-                    ApplicationCommandOptionType.Number => double.Parse(this._value, CultureInfo.InvariantCulture),
-                    _ => this._value,
+                    ApplicationCommandOptionType.Boolean => bool.Parse(this.InternalValue),
+                    ApplicationCommandOptionType.Integer => long.Parse(this.InternalValue),
+                    ApplicationCommandOptionType.String => this.InternalValue,
+                    ApplicationCommandOptionType.Channel => ulong.Parse(this.InternalValue),
+                    ApplicationCommandOptionType.User => ulong.Parse(this.InternalValue),
+                    ApplicationCommandOptionType.Role => ulong.Parse(this.InternalValue),
+                    ApplicationCommandOptionType.Mentionable => ulong.Parse(this.InternalValue),
+                    ApplicationCommandOptionType.Number => double.Parse(this.InternalValue, CultureInfo.InvariantCulture),
+                    _ => this.InternalValue,
                 };
             }
         }

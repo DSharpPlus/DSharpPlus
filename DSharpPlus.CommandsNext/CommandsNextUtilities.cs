@@ -190,7 +190,7 @@ namespace DSharpPlus.CommandsNext
             return s.Remove(li - ll + 1, ll);
         }
 
-        internal static async Task<ArgumentBindingResult> BindArguments(CommandContext ctx, bool ignoreSurplus)
+        internal static async Task<ArgumentBindingResult> BindArgumentsAsync(CommandContext ctx, bool ignoreSurplus)
         {
             var command = ctx.Command;
             var overload = ctx.Overload;

@@ -194,17 +194,17 @@ namespace DSharpPlus.Lavalink.Entities
         /// </summary>
         public int AverageDeficitFramesPerMinute { get; private set; }
 
-        internal bool Updated;
+        internal bool _updated;
 
         internal LavalinkStatistics()
         {
-            this.Updated = false;
+            this._updated = false;
         }
 
         internal void Update(LavalinkStats newStats)
         {
-            if (!this.Updated)
-                this.Updated = true;
+            if (!this._updated)
+                this._updated = true;
 
             this.ActivePlayers = newStats.ActivePlayers;
             this.TotalPlayers = newStats.TotalPlayers;

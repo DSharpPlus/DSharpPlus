@@ -151,7 +151,7 @@ namespace DSharpPlus.Lavalink
         {
             Array.Sort(nodes, (a, b) =>
             {
-                if (!a.Statistics.Updated || !b.Statistics.Updated)
+                if (!a.Statistics._updated || !b.Statistics._updated)
                     return 0;
 
                 //https://github.com/FredBoat/Lavalink-Client/blob/48bc27784f57be5b95d2ff2eff6665451b9366f5/src/main/java/lavalink/client/io/LavalinkLoadBalancer.java#L122

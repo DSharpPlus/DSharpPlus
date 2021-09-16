@@ -367,7 +367,7 @@ namespace DSharpPlus.Entities
 
             var ovrs = new List<DiscordOverwriteBuilder>();
             foreach (var ovr in this._permissionOverwrites)
-                ovrs.Add(await new DiscordOverwriteBuilder().FromAsync(ovr).ConfigureAwait(false));
+                ovrs.Add(await new DiscordOverwriteBuilder(member: null).FromAsync(ovr).ConfigureAwait(false));
 
             int? bitrate = this.Bitrate;
             int? userLimit = this.UserLimit;

@@ -53,12 +53,12 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the application's terms of service URL.
         /// </summary>
-        public string? TermsOfServiceUrl { get; internal set; }
+        public string TermsOfServiceUrl { get; internal set; }
 
         /// <summary>
         /// Gets the application's privacy policy URL.
         /// </summary>
-        public string? PrivacyPolicyUrl { get; internal set; }
+        public string PrivacyPolicyUrl { get; internal set; }
 
         /// <summary>
         /// Gets the application's allowed RPC origins.

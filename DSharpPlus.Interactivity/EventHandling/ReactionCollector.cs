@@ -113,7 +113,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             // foreach request add
             foreach (var req in this._requests)
             {
-                if (req.message.Id == eventargs.Message.Id)
+                if (req._message.Id == eventargs.Message.Id)
                 {
                     if (req._collected.Any(x => x.Emoji == eventargs.Emoji && x.Users.Any(y => y.Id == eventargs.User.Id)))
                     {
@@ -140,7 +140,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             // foreach request remove
             foreach (var req in this._requests)
             {
-                if (req.message.Id == eventargs.Message.Id)
+                if (req._message.Id == eventargs.Message.Id)
                 {
                     if (req._collected.Any(x => x.Emoji == eventargs.Emoji && x.Users.Any(y => y.Id == eventargs.User.Id)))
                     {
@@ -160,7 +160,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             // foreach request add
             foreach (var req in this._requests)
             {
-                if (req.message.Id == eventargs.Message.Id)
+                if (req._message.Id == eventargs.Message.Id)
                 {
                     req._collected.Clear();
                 }
@@ -201,12 +201,12 @@ namespace DSharpPlus.Interactivity.EventHandling
         internal TaskCompletionSource<Reaction> _tcs;
         internal CancellationTokenSource _ct;
         internal TimeSpan _timeout;
-        internal DiscordMessage message;
+        internal DiscordMessage _message;
         internal ConcurrentHashSet<Reaction> _collected;
 
         public ReactionCollectRequest(DiscordMessage msg, TimeSpan timeout)
         {
-            this.message = msg;
+            this._message = msg;
             this._collected = new ConcurrentHashSet<Reaction>();
             this._timeout = timeout;
             this._tcs = new TaskCompletionSource<Reaction>();
@@ -224,7 +224,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             GC.SuppressFinalize(this);
             this._ct.Dispose();
             this._tcs = null;
-            this.message = null;
+            this._message = null;
             this._collected?.Clear();
             this._collected = null;
         }

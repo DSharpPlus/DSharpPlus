@@ -45,7 +45,7 @@ namespace DSharpPlus.Interactivity.EventHandling
         AsyncEventHandler<DiscordClient, T> _handler;
         ConcurrentHashSet<MatchRequest<T>> _matchrequests;
         ConcurrentHashSet<CollectRequest<T>> _collectrequests;
-        bool disposed = false;
+        private bool _disposed = false;
 
         /// <summary>
         /// Creates a new Eventwaiter object.
@@ -111,7 +111,7 @@ namespace DSharpPlus.Interactivity.EventHandling
 
         private Task HandleEvent(DiscordClient client, T eventargs)
         {
-            if (!this.disposed)
+            if (!this._disposed)
             {
                 foreach (var req in this._matchrequests)
                 {
@@ -143,7 +143,7 @@ namespace DSharpPlus.Interactivity.EventHandling
         /// </summary>
         public void Dispose()
         {
-            this.disposed = true;
+            this._disposed = true;
             if (this._event != null)
                 this._event.Unregister(this._handler);
 

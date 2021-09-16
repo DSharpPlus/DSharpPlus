@@ -200,7 +200,7 @@ namespace DSharpPlus.Net
                         if (this.UseResetAfter)
                         {
                             delay = bucket.ResetAfter.Value;
-                            resetDate = bucket._resetAfterOffset;
+                            resetDate = bucket.ResetAfterOffset;
                         }
 
                         if (delay < new TimeSpan(-TimeSpan.TicksPerMinute))
@@ -546,7 +546,7 @@ namespace DSharpPlus.Net
                 newReset = clienttime + bucket.ResetAfter.Value + (request.RateLimitWaitOverride.HasValue
                     ? resetdelta
                     : TimeSpan.Zero);
-                bucket._resetAfterOffset = newReset;
+                bucket.ResetAfterOffset = newReset;
             }
             else
                 bucket.Reset = newReset;
@@ -591,7 +591,7 @@ namespace DSharpPlus.Net
             // Only update the hash once, due to a bug on Discord's end.
             // This will cause issues if the bucket hashes are dynamically changed from the API while running,
             // in which case, Dispose will need to be called to clear the caches.
-            if (bucket.IsUnlimited && newHash != oldHash)
+            if (bucket._isUnlimited && newHash != oldHash)
             {
                 this.Logger.LogDebug(LoggerEvents.RestHashMover, "Updating hash in {Hash}: \"{OldHash}\" -> \"{NewHash}\"", hashKey, oldHash, newHash);
                 var bucketId = RateLimitBucket.GenerateBucketId(newHash, bucket.GuildId, bucket.ChannelId, bucket.WebhookId);
@@ -647,13 +647,13 @@ namespace DSharpPlus.Net
                     var value = kvp.Value;
 
                     // Don't remove the bucket if it's currently being handled by the rest client, unless it's an unlimited bucket.
-                    if (this.RequestQueue.ContainsKey(value.BucketId) && !value.IsUnlimited)
+                    if (this.RequestQueue.ContainsKey(value.BucketId) && !value._isUnlimited)
                         continue;
 
-                    var resetOffset = this.UseResetAfter ? value._resetAfterOffset : value.Reset;
+                    var resetOffset = this.UseResetAfter ? value.ResetAfterOffset : value.Reset;
 
                     // Don't remove the bucket if it's reset date is less than now + the additional wait time, unless it's an unlimited bucket.
-                    if (resetOffset != null && !value.IsUnlimited && (resetOffset > DateTimeOffset.UtcNow || DateTimeOffset.UtcNow - resetOffset < this._bucketCleanupDelay))
+                    if (resetOffset != null && !value._isUnlimited && (resetOffset > DateTimeOffset.UtcNow || DateTimeOffset.UtcNow - resetOffset < this._bucketCleanupDelay))
                         continue;
 
                     _ = this.HashesToBuckets.TryRemove(key, out _);
