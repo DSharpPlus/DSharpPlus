@@ -958,8 +958,16 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal Task ModifyChannelAsync(ulong channel_id, string name, int? position, Optional<string> topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? user_limit, Optional<int?> perUserRateLimit, Optional<string> rtcRegion, VideoQualityMode? qualityMode, string reason)
+        internal Task ModifyChannelAsync(ulong channel_id, string name, int? position, Optional<string> topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? user_limit, Optional<int?> perUserRateLimit, Optional<string> rtcRegion, VideoQualityMode? qualityMode, Optional<ChannelType> type, IEnumerable<DiscordOverwriteBuilder> permissionOverwrites, string reason)
         {
+            List<DiscordRestOverwrite> restoverwrites = null;
+            if (permissionOverwrites != null)
+            {
+                restoverwrites = new List<DiscordRestOverwrite>();
+                foreach (var ow in permissionOverwrites)
+                    restoverwrites.Add(ow.Build());
+            }
+
             var pld = new RestChannelModifyPayload
             {
                 Name = name,
@@ -972,6 +980,8 @@ namespace DSharpPlus.Net
                 PerUserRateLimit = perUserRateLimit,
                 RtcRegion = rtcRegion,
                 QualityMode = qualityMode,
+                Type = type,
+                PermissionOverwrites = restoverwrites
             };
 
             var headers = Utilities.GetBaseHeaders();
