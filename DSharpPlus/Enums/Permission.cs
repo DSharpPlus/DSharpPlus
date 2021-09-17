@@ -314,13 +314,13 @@ namespace DSharpPlus
         UsePrivateThreads = 0x0000001000000000,
         
         /// <summary>
-        /// Allows for creating threads.
+        /// Allows for creating private threads.
         /// </summary>
         [PermissionString("Create Public Threads")]
         CreatePublicThreads = 0x0000000800000000,
 
         /// <summary>
-        /// Allows for private threads.
+        /// Allows for creating private threads.
         /// </summary>
         [PermissionString("Create Private Threads")]
         CreatePrivateThreads = 0x0000001000000000,
