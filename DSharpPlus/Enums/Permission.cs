@@ -302,14 +302,14 @@ namespace DSharpPlus
         /// <summary>
         /// Allows for creating and participating in threads.
         /// </summary>
-        [Obsolete("Replaced by CreatePublicThreads & SendMessagesInThreads", false)]
+        [Obsolete("Replaced by CreatePublicThreads and SendMessagesInThreads", false)]
         [PermissionString("Use Public Threads")]
         UsePublicThreads = 0x0000000800000000,
 
         /// <summary>
         /// Allows for creating and participating in private threads.
         /// </summary>
-        [Obsolete("Replaced by CreatePrivateThreads & SendMessagesInThreads", false)]
+        [Obsolete("Replaced by CreatePrivateThreads and SendMessagesInThreads", false)]
         [PermissionString("Use Private Threads")]
         UsePrivateThreads = 0x0000001000000000,
         
