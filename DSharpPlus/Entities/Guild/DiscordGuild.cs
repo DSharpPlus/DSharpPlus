@@ -2133,7 +2133,7 @@ namespace DSharpPlus.Entities
             name = name.Trim();
             return name.Length < 2 || name.Length > 50
                 ? throw new ArgumentException("Emoji name needs to be between 2 and 50 characters long.")
-                : this.Discord.ApiClient.ModifyGuildEmojiAsync(this.Id, id, name, roles?.Select(xr => xr.Id), reason);
+                : this.Discord.ApiClient.ModifyGuildEmojiAsync(this.Id, id, name, roles, reason);
         }
 
         /// <summary>
