@@ -106,8 +106,14 @@ namespace DSharpPlus.Lavalink
         /// <returns>A collection of tracks matching the criteria.</returns>
         public Task<LavalinkLoadResult> GetTracksAsync(string searchQuery, LavalinkSearchType type = LavalinkSearchType.Youtube)
         {
-            var prefix = type == LavalinkSearchType.Youtube ? "ytsearch" : "scsearch";
-            var str = WebUtility.UrlEncode($"{prefix}:{searchQuery}");
+            var prefix = type switch
+            {
+                LavalinkSearchType.Youtube => "ytsearch:",
+                LavalinkSearchType.SoundCloud => "scsearch:",
+                LavalinkSearchType.Plain => "",
+                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+            };
+            var str = WebUtility.UrlEncode(prefix + "searchQuery");
             var tracksUri = new Uri($"{this.RestEndpoint.ToHttpString()}{Endpoints.LOAD_TRACKS}?identifier={str}");
             return this.InternalResolveTracksAsync(tracksUri);
         }
