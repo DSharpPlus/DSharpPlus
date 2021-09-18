@@ -1430,6 +1430,8 @@ namespace DSharpPlus
             var ea = new MessageDeleteEventArgs
             {
                 Message = msg,
+                Channel = channel,
+                Guild = guild,
             };
             await this._messageDeleted.InvokeAsync(this, ea).ConfigureAwait(false);
         }
@@ -1635,6 +1637,8 @@ namespace DSharpPlus
             var ea = new MessageReactionRemoveEmojiEventArgs
             {
                 Message = msg,
+                Channel = channel,
+                Guild = guild,
                 Emoji = emoji
             };
 

@@ -33,14 +33,12 @@ namespace DSharpPlus.EventArgs
         /// <summary>
         /// Gets the channel the removed reactions were in.
         /// </summary>
-        public DiscordChannel Channel
-            => this.Message.Channel;
+        public DiscordChannel Channel { get; internal set; }
 
         /// <summary>
         /// Gets the guild the removed reactions were in.
         /// </summary>
-        public DiscordGuild Guild
-            => this.Channel.Guild;
+        public DiscordGuild Guild { get; internal set; }
 
         /// <summary>
         /// Gets the message that had the removed reactions.
