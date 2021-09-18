@@ -2113,6 +2113,30 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Modifies a this guild's custom emoji.
+        /// </summary>
+        /// <param name="id">The id of the emoji to delete.</param>
+        /// <param name="name">New name for the emoji.</param>
+        /// <param name="roles">Roles for which the emoji will be available. This works only if your application is whitelisted as integration.</param>
+        /// <param name="reason">Reason for audit log.</param>
+        /// <returns>The modified emoji.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageEmojis"/> permission.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordGuildEmoji> ModifyEmojiAsync(ulong id, string name, IEnumerable<DiscordRole> roles = null, string reason = null)
+        {
+            if (this.Emojis.ContainsKey(id))
+                throw new ArgumentException("This emoji does not belong to this guild.");
+
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentNullException(nameof(name));
+
+            name = name.Trim();
+            return name.Length < 2 || name.Length > 50
+                ? throw new ArgumentException("Emoji name needs to be between 2 and 50 characters long.")
+                : this.Discord.ApiClient.ModifyGuildEmojiAsync(this.Id, id, name, roles?.Select(xr => xr.Id), reason);
+        }
+
+        /// <summary>
         /// Deletes this guild's custom emoji.
         /// </summary>
         /// <param name="emoji">Emoji to delete.</param>
@@ -2128,6 +2152,21 @@ namespace DSharpPlus.Entities
             return emoji.Guild.Id != this.Id
                 ? throw new ArgumentException("This emoji does not belong to this guild.")
                 : this.Discord.ApiClient.DeleteGuildEmojiAsync(this.Id, emoji.Id, reason);
+        }
+
+        /// <summary>
+        /// Deletes this guild's custom emoji.
+        /// </summary>
+        /// <param name="id">The id of the emoji to delete.</param>
+        /// <param name="reason">Reason for audit log.</param>
+        /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageEmojis"/> permission.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task DeleteEmojiAsync(ulong id, string reason = null)
+        {
+            return this.Emojis.ContainsKey(id)
+                ? throw new ArgumentException("This emoji does not belong to this guild.")
+                : this.Discord.ApiClient.DeleteGuildEmojiAsync(this.Id, id, reason);
         }
 
         /// <summary>
