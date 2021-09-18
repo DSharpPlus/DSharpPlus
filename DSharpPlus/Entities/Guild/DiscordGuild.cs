@@ -2117,12 +2117,12 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="id">The id of the emoji to delete.</param>
         /// <param name="name">New name for the emoji.</param>
-        /// <param name="roles">Roles for which the emoji will be available. This works only if your application is whitelisted as integration.</param>
+        /// <param name="roles">Role ids for which the emoji will be available. This works only if your application is whitelisted as integration.</param>
         /// <param name="reason">Reason for audit log.</param>
         /// <returns>The modified emoji.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageEmojis"/> permission.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordGuildEmoji> ModifyEmojiAsync(ulong id, string name, IEnumerable<DiscordRole> roles = null, string reason = null)
+        public Task<DiscordGuildEmoji> ModifyEmojiAsync(ulong id, string name, IEnumerable<ulong> roles = null, string reason = null)
         {
             if (this.Emojis.ContainsKey(id))
                 throw new ArgumentException("This emoji does not belong to this guild.");
