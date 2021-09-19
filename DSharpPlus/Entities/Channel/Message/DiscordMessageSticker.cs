@@ -128,7 +128,8 @@ namespace DSharpPlus.Entities
         {
             StickerFormat.PNG => ".png",
             StickerFormat.APNG => ".apng",
-            StickerFormat.LOTTIE => ".json"
+            StickerFormat.LOTTIE => ".json",
+            _ => ".png"
         };
     }
 

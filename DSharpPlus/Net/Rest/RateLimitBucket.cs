@@ -62,7 +62,7 @@ namespace DSharpPlus.Net
 
             internal set
             {
-                this.IsUnlimited = value.Contains(UNLIMITED_HASH);
+                this._isUnlimited = value.Contains(UNLIMITED_HASH);
 
                 if (this.BucketId != null && !this.BucketId.StartsWith(value))
                 {
@@ -108,7 +108,7 @@ namespace DSharpPlus.Net
         /// </summary>
         public TimeSpan? ResetAfter { get; internal set; } = null;
 
-        internal DateTimeOffset _resetAfterOffset { get; set; }
+        internal DateTimeOffset ResetAfterOffset { get; set; }
 
         internal volatile int _remaining;
 
@@ -116,7 +116,7 @@ namespace DSharpPlus.Net
         /// Gets whether this bucket has it's ratelimit determined.
         /// <para>This will be <see langword="false"/> if the ratelimit is determined.</para>
         /// </summary>
-        internal volatile bool IsUnlimited;
+        internal volatile bool _isUnlimited;
 
         /// <summary>
         /// If the initial request for this bucket that is deterternining the rate limits is currently executing
@@ -147,7 +147,7 @@ namespace DSharpPlus.Net
         /// </summary>
         internal volatile int _limitResetting;
 
-        private static readonly string UNLIMITED_HASH = "unlimited";
+        private const string UNLIMITED_HASH = "unlimited";
 
         internal RateLimitBucket(string hash, string guild_id, string channel_id, string webhook_id)
         {
@@ -187,7 +187,7 @@ namespace DSharpPlus.Net
             var channelId = this.ChannelId != string.Empty ? this.ChannelId : "channel_id";
             var webhookId = this.WebhookId != string.Empty ? this.WebhookId : "webhook_id";
 
-            return $"rate limit bucket [{this.Hash}:{guildId}:{channelId}:{webhookId}] [{this.Remaining}/{this.Maximum}] {(this.ResetAfter.HasValue ? this._resetAfterOffset : this.Reset)}";
+            return $"rate limit bucket [{this.Hash}:{guildId}:{channelId}:{webhookId}] [{this.Remaining}/{this.Maximum}] {(this.ResetAfter.HasValue ? this.ResetAfterOffset : this.Reset)}";
         }
 
         /// <summary>
@@ -225,7 +225,7 @@ namespace DSharpPlus.Net
         internal async Task TryResetLimitAsync(DateTimeOffset now)
         {
             if (this.ResetAfter.HasValue)
-                this.ResetAfter = this._resetAfterOffset - now;
+                this.ResetAfter = this.ResetAfterOffset - now;
 
             if (this._nextReset == 0)
                 return;

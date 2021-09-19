@@ -294,8 +294,8 @@ namespace DSharpPlus
             //There is a delay from parsing here.
             timer.Stop();
 
-            info.SessionBucket.resetAfter -= (int)timer.ElapsedMilliseconds;
-            info.SessionBucket.ResetAfter = DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(info.SessionBucket.resetAfter);
+            info.SessionBucket.ResetAfterInternal -= (int)timer.ElapsedMilliseconds;
+            info.SessionBucket.ResetAfter = DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(info.SessionBucket.ResetAfterInternal);
 
             return info;
 

@@ -200,12 +200,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public DiscordPresence Presence
-        {
-            get
-            {
-                return this.Discord is DiscordClient dc ? dc.Presences.TryGetValue(this.Id, out var presence) ? presence : null : null;
-            }
-        }
+            => this.Discord is DiscordClient dc ? dc.Presences.TryGetValue(this.Id, out var presence) ? presence : null : null;
 
         /// <summary>
         /// Gets the user's avatar URL, in requested format and size.
