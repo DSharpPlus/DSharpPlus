@@ -78,7 +78,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
             catch (Exception ex)
             {
-                this._client.Logger.LogError(InteractivityEvents.InteractivityWaitError, ex, "An exception occurred while waiting for {0}", typeof(T).Name);
+                this._client.Logger.LogError(InteractivityEvents.InteractivityWaitError, ex, "An exception occurred while waiting for {Request}", typeof(T).Name);
             }
             finally
             {
@@ -98,7 +98,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
             catch (Exception ex)
             {
-                this._client.Logger.LogError(InteractivityEvents.InteractivityWaitError, ex, "An exception occurred while collecting from {0}", typeof(T).Name);
+                this._client.Logger.LogError(InteractivityEvents.InteractivityWaitError, ex, "An exception occurred while collecting from {Request}", typeof(T).Name);
             }
             finally
             {

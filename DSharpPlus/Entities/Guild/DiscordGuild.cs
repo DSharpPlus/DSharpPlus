@@ -370,6 +370,16 @@ namespace DSharpPlus.Entities
         [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
         internal ConcurrentDictionary<ulong, DiscordChannel> _channels;
 
+        /// <summary>
+        /// Gets a dictionary of all the active threads associated with this guild the user has permission to view. The dictionary's key is the channel ID.
+        /// </summary>
+        [JsonIgnore]
+        public IReadOnlyDictionary<ulong, DiscordThreadChannel> Threads => new ReadOnlyConcurrentDictionary<ulong, DiscordThreadChannel>(this._threads);
+
+        [JsonProperty("threads", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
+        internal ConcurrentDictionary<ulong, DiscordThreadChannel> _threads = new();
+
         internal ConcurrentDictionary<string, DiscordInvite> _invites;
 
         /// <summary>
@@ -449,7 +459,7 @@ namespace DSharpPlus.Entities
         /// Gets the stage instances in this guild.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyDictionary<ulong, DiscordStageInstance> StageInstances => new ReadOnlyConcurrentDictionary<ulong, DiscordStageInstance>(_stageInstances);
+        public IReadOnlyDictionary<ulong, DiscordStageInstance> StageInstances => new ReadOnlyConcurrentDictionary<ulong, DiscordStageInstance>(this._stageInstances);
 
         [JsonProperty("stage_instances", NullValueHandling = NullValueHandling.Ignore)]
         [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
@@ -546,7 +556,10 @@ namespace DSharpPlus.Entities
             return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, mdl.Name, mdl.Region.IfPresent(e => e.Id),
                 mdl.VerificationLevel, mdl.DefaultMessageNotifications, mdl.MfaLevel, mdl.ExplicitContentFilter,
                 mdl.AfkChannel.IfPresent(e => e?.Id), mdl.AfkTimeout, iconb64, mdl.Owner.IfPresent(e => e.Id), splashb64,
-                mdl.SystemChannel.IfPresent(e => e?.Id), mdl.AuditLogReason).ConfigureAwait(false);
+                mdl.SystemChannel.IfPresent(e => e?.Id), mdl.Banner,
+                mdl.Description, mdl.DiscoverySplash, mdl.Features, mdl.PreferredLocale,
+                mdl.PublicUpdatesChannel.IfPresent(e => e?.Id), mdl.RulesChannel.IfPresent(e => e?.Id),
+                mdl.SystemChannelFlags, mdl.AuditLogReason).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -868,6 +881,20 @@ namespace DSharpPlus.Entities
                 this.Discord.InternalVoiceRegions.TryAdd(xvr.Id, xvr);
 
             return vrs;
+        }
+
+        /// <summary>
+        /// Gets the active and private threads for this guild.
+        /// </summary>
+        /// <returns>A list of all the active and private threads the user can access in the server.</returns>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<ThreadQueryResult> ListActiveThreadsAsync()
+        {
+            var threads = await this.Discord.ApiClient.ListActiveThreadsAsync(this.Id);
+            // Gateway handles thread cache (if it does it properly
+            /*foreach (var thread in threads)
+                this._threads[thread.Id] = thread;*/
+            return threads;
         }
 
         /// <summary>
@@ -1269,7 +1296,7 @@ namespace DSharpPlus.Entities
                                     break;
 
                                 default:
-                                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in guild update: {0} - this should be reported to library developers", xc.Key);
+                                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in guild update: {Key} - this should be reported to library developers", xc.Key);
                                     break;
                             }
                         }
@@ -1356,7 +1383,7 @@ namespace DSharpPlus.Entities
                                     break;
 
                                 default:
-                                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in channel update: {0} - this should be reported to library developers", xc.Key);
+                                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in channel update: {Key} - this should be reported to library developers", xc.Key);
                                     break;
                             }
                         }
@@ -1418,7 +1445,7 @@ namespace DSharpPlus.Entities
                                     break;
 
                                 default:
-                                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in overwrite update: {0} - this should be reported to library developers", xc.Key);
+                                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in overwrite update: {Key} - this should be reported to library developers", xc.Key);
                                     break;
                             }
                         }
@@ -1492,7 +1519,7 @@ namespace DSharpPlus.Entities
                                     break;
 
                                 default:
-                                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in member update: {0} - this should be reported to library developers", xc.Key);
+                                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in member update: {Key} - this should be reported to library developers", xc.Key);
                                     break;
                             }
                         }
@@ -1563,7 +1590,7 @@ namespace DSharpPlus.Entities
                                     break;
 
                                 default:
-                                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in role update: {0} - this should be reported to library developers", xc.Key);
+                                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in role update: {Key} - this should be reported to library developers", xc.Key);
                                     break;
                             }
                         }
@@ -1675,7 +1702,7 @@ namespace DSharpPlus.Entities
                                     break;
 
                                 default:
-                                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in invite update: {0} - this should be reported to library developers", xc.Key);
+                                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in invite update: {Key} - this should be reported to library developers", xc.Key);
                                     break;
                             }
                         }
@@ -1735,7 +1762,7 @@ namespace DSharpPlus.Entities
                                     break;
 
                                 default:
-                                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in webhook update: {0} - this should be reported to library developers", xc.Key);
+                                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in webhook update: {Key} - this should be reported to library developers", xc.Key);
                                     break;
                             }
                         }
@@ -1763,12 +1790,12 @@ namespace DSharpPlus.Entities
                                     break;
 
                                 default:
-                                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in emote update: {0} - this should be reported to library developers", xc.Key);
+                                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in emote update: {Key} - this should be reported to library developers", xc.Key);
                                     break;
                             }
                         }
                         break;
-                        
+
                     case AuditLogActionType.StickerCreate:
                     case AuditLogActionType.StickerDelete:
                     case AuditLogActionType.StickerUpdate:
@@ -1851,7 +1878,7 @@ namespace DSharpPlus.Entities
                                         break;
 
                                     default:
-                                        this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in sticker update: {0} - this should be reported to library developers", xc.Key);
+                                        this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in sticker update: {Key} - this should be reported to library developers", xc.Key);
                                         break;
                                 }
                         }
@@ -1980,7 +2007,7 @@ namespace DSharpPlus.Entities
                                     break;
 
                                 default:
-                                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in integration update: {0} - this should be reported to library developers", xc.Key);
+                                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in integration update: {Key} - this should be reported to library developers", xc.Key);
                                     break;
                             }
                         }
@@ -2307,7 +2334,7 @@ namespace DSharpPlus.Entities
         {
             var mdl = new ApplicationCommandEditModel();
             action(mdl);
-            return await this.Discord.ApiClient.EditGuildApplicationCommandAsync(this.Discord.CurrentApplication.Id, this.Id, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission);
+            return await this.Discord.ApiClient.EditGuildApplicationCommandAsync(this.Discord.CurrentApplication.Id, this.Id, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -2329,7 +2356,7 @@ namespace DSharpPlus.Entities
         {
             var mdl = new WelcomeScreenEditModel();
             action(mdl);
-            return await this.Discord.ApiClient.ModifyGuildWelcomeScreenAsync(this.Id, mdl.Enabled, mdl.WelcomeChannels, mdl.Description);
+            return await this.Discord.ApiClient.ModifyGuildWelcomeScreenAsync(this.Id, mdl.Enabled, mdl.WelcomeChannels, mdl.Description).ConfigureAwait(false);
         }
 
         /// <summary>

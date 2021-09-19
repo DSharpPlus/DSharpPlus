@@ -20,22 +20,26 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-using System;
-using System.Collections.Concurrent;
-using System.Threading;
-using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
 
-namespace DSharpPlus.Interactivity.EventHandling
+using DSharpPlus.Entities;
+
+namespace DSharpPlus.EventArgs
 {
     /// <summary>
-    /// Represents a component event that is being waited for.
+    /// Represents arguments for <see cref="DiscordClient.ThreadMemberUpdated"/> event.
     /// </summary>
-    internal sealed class ComponentCollectRequest : ComponentMatchRequest
+    public class ThreadMemberUpdateEventArgs : DiscordEventArgs
     {
-        public ConcurrentBag<ComponentInteractionCreateEventArgs> Collected { get; private set; }
+        /// <summary>
+        /// Gets the thread member that was updated.
+        /// </summary>
+        public DiscordThreadChannelMember ThreadMember { get; internal set; }
 
-        public ComponentCollectRequest(DiscordMessage message, Func<ComponentInteractionCreateEventArgs, bool> predicate, CancellationToken cancellation) :
-            base(message, predicate, cancellation) { }
+        /// <summary>
+        /// Gets the thread the current member was updated for.
+        /// </summary>
+        public DiscordThreadChannel Thread { get; internal set; }
+
+        internal ThreadMemberUpdateEventArgs() : base() { }
     }
 }

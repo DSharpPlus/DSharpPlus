@@ -20,22 +20,22 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-using System;
-using System.Collections.Concurrent;
-using System.Threading;
+
+using System.Collections.Generic;
 using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
+using Newtonsoft.Json;
 
-namespace DSharpPlus.Interactivity.EventHandling
+namespace DSharpPlus.Net.Abstractions
 {
-    /// <summary>
-    /// Represents a component event that is being waited for.
-    /// </summary>
-    internal sealed class ComponentCollectRequest : ComponentMatchRequest
+    internal sealed class RestThreadCreatePayload
     {
-        public ConcurrentBag<ComponentInteractionCreateEventArgs> Collected { get; private set; }
+        [JsonProperty("name")]
+        public string Name { get; set; }
 
-        public ComponentCollectRequest(DiscordMessage message, Func<ComponentInteractionCreateEventArgs, bool> predicate, CancellationToken cancellation) :
-            base(message, predicate, cancellation) { }
+        [JsonProperty("auto_archive_duration", NullValueHandling = NullValueHandling.Ignore)]
+        public AutoArchiveDuration ArchiveAfter { get; set; }
+
+        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
+        public ChannelType? Type { get; set; }
     }
 }

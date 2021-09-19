@@ -566,7 +566,7 @@ namespace DSharpPlus.Entities
             if (channel.Type != ChannelType.Stage)
                 throw new ArgumentException("Voice state can only be updated in a stage channel.");
 
-            await this.Discord.ApiClient.UpdateUserVoiceStateAsync(this.Guild.Id, this.Id, channel.Id, suppress);
+            await this.Discord.ApiClient.UpdateUserVoiceStateAsync(this.Guild.Id, this.Id, channel.Id, suppress).ConfigureAwait(false);
         }
 
         /// <summary>

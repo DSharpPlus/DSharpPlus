@@ -147,10 +147,10 @@ namespace DSharpPlus.Interactivity
                 throw new ArgumentException("You must specify at least one button to listen for.");
 
             var res = await this.ComponentEventWaiter
-                .WaitForMatchAsync(new(message.Id.ToString(CultureInfo.InvariantCulture),
+                .WaitForMatchAsync(new(message,
                     c =>
                         c.Interaction.Data.ComponentType == ComponentType.Button &&
-                        buttons.Any(b => b.CustomId == c.Id), token));
+                        buttons.Any(b => b.CustomId == c.Id), token)).ConfigureAwait(false);
 
             return new(res is null, res);
         }
@@ -187,7 +187,7 @@ namespace DSharpPlus.Interactivity
             var result =
                 await this
                 .ComponentEventWaiter
-                .WaitForMatchAsync(new(message.Id.ToString(), c => c.Interaction.Data.ComponentType == ComponentType.Button && ids.Contains(c.Id), token))
+                .WaitForMatchAsync(new(message, c => c.Interaction.Data.ComponentType == ComponentType.Button && ids.Contains(c.Id), token))
                 .ConfigureAwait(false);
 
             return new(result is null, result);
@@ -224,7 +224,7 @@ namespace DSharpPlus.Interactivity
 
             var result = await this
                 .ComponentEventWaiter
-                .WaitForMatchAsync(new(message.Id.ToString(CultureInfo.InvariantCulture), (c) => c.Interaction.Data.ComponentType is ComponentType.Button && c.User == user, token))
+                .WaitForMatchAsync(new(message, (c) => c.Interaction.Data.ComponentType is ComponentType.Button && c.User == user, token))
                 .ConfigureAwait(false);
 
             return new(result is null, result);
@@ -265,7 +265,7 @@ namespace DSharpPlus.Interactivity
 
             var result = await this
                 .ComponentEventWaiter
-                .WaitForMatchAsync(new(id, (c) => c.Interaction.Data.ComponentType is ComponentType.Button && c.Id == id, token))
+                .WaitForMatchAsync(new(message, (c) => c.Interaction.Data.ComponentType is ComponentType.Button && c.Id == id, token))
                 .ConfigureAwait(false);
 
             return new(result is null, result);
@@ -298,7 +298,7 @@ namespace DSharpPlus.Interactivity
 
             var result = await this
                 .ComponentEventWaiter
-                .WaitForMatchAsync(new(message.Id.ToString(CultureInfo.InvariantCulture), c => c.Interaction.Data.ComponentType is ComponentType.Select && predicate(c), token))
+                .WaitForMatchAsync(new(message, c => c.Interaction.Data.ComponentType is ComponentType.Button && predicate(c), token))
                 .ConfigureAwait(false);
 
             return new(result is null, result);
@@ -333,7 +333,7 @@ namespace DSharpPlus.Interactivity
 
             var result = await this
                 .ComponentEventWaiter
-                .WaitForMatchAsync(new(message.Id.ToString(CultureInfo.InvariantCulture), c => c.Interaction.Data.ComponentType is ComponentType.Select && predicate(c), token))
+                .WaitForMatchAsync(new(message, c => c.Interaction.Data.ComponentType is ComponentType.Select && predicate(c), token))
                 .ConfigureAwait(false);
 
             return new(result is null, result);
@@ -373,7 +373,7 @@ namespace DSharpPlus.Interactivity
 
             var result = await this
                 .ComponentEventWaiter
-                .WaitForMatchAsync(new(id, (c) => c.Interaction.Data.ComponentType is ComponentType.Select && c.Id == id, token))
+                .WaitForMatchAsync(new(message, (c) => c.Interaction.Data.ComponentType is ComponentType.Select && c.Id == id, token))
                 .ConfigureAwait(false);
 
             return new(result is null, result);
@@ -413,7 +413,7 @@ namespace DSharpPlus.Interactivity
 
             var result = await this
                 .ComponentEventWaiter
-                .WaitForMatchAsync(new(id, (c) => c.Id == id && c.User == user, token)).ConfigureAwait(false);
+                .WaitForMatchAsync(new(message, (c) => c.Id == id && c.User == user, token)).ConfigureAwait(false);
 
             return new(result is null, result);
         }
@@ -611,8 +611,12 @@ namespace DSharpPlus.Interactivity
             var bts = buttons ?? this.Config.PaginationButtons;
 
             bts = new(bts);
-            bts.SkipLeft.Disable();
-            bts.Left.Disable();
+
+            if (this.Config.PaginationBehaviour is PaginationBehaviour.Ignore)
+            {
+                bts.SkipLeft.Disable();
+                bts.Left.Disable();
+            }
 
             var builder = new DiscordMessageBuilder()
                 .WithContent(pages.First().Content)
@@ -621,9 +625,64 @@ namespace DSharpPlus.Interactivity
 
             var message = await builder.SendAsync(channel).ConfigureAwait(false);
 
-            var req = new ButtonPaginationRequest(message, user, bhv, del, bts, pages.ToArray(), token);
+            var req = new ButtonPaginationRequest(message, user, bhv, del, bts, pages.ToArray(), token == default ? this.GetCancellationToken() : token);
 
             await this._compPaginator.DoPaginationAsync(req).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Sends a paginated message with buttons.
+        /// </summary>
+        /// <param name="channel">The channel to send it on.</param>
+        /// <param name="user">User to give control.</param>
+        /// <param name="pages">The pages.</param>
+        /// <param name="buttons">Pagination buttons (pass null to use buttons defined in <see cref="InteractivityConfiguration"/>).</param>
+        /// <param name="behaviour">Pagination behaviour.</param>
+        /// <param name="deletion">Deletion behaviour</param>
+        /// <param name="timeoutoverride">Override timeout period.</param>
+        public Task SendPaginatedMessageAsync(
+            DiscordChannel channel, DiscordUser user, IEnumerable<Page> pages, PaginationButtons buttons, TimeSpan? timeoutoverride,
+            PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default)
+            => this.SendPaginatedMessageAsync(channel, user, pages, buttons, behaviour, deletion, this.GetCancellationToken(timeoutoverride));
+
+        /// <inheritdoc cref="SendPaginatedMessageAsync(DiscordChannel, DiscordUser, IEnumerable{Page}, PaginationButtons, PaginationBehaviour?, ButtonPaginationBehavior?, CancellationToken)"/>
+        /// <remarks>This is the "default" overload for SendPaginatedMessageAsync, and will use buttons. Feel free to specify default(PaginationEmojis) to use reactions and emojis specified in <see cref="InteractivityConfiguration"/>, instead. </remarks>
+        public Task SendPaginatedMessageAsync(DiscordChannel channel, DiscordUser user, IEnumerable<Page> pages, PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default, CancellationToken token = default)
+            => this.SendPaginatedMessageAsync(channel, user, pages, default, behaviour, deletion, token);
+
+        /// <inheritdoc cref="SendPaginatedMessageAsync(DiscordChannel, DiscordUser, IEnumerable{Page}, PaginationButtons, TimeSpan?, PaginationBehaviour?, ButtonPaginationBehavior?)"/>
+        /// <remarks>This is the "default" overload for SendPaginatedMessageAsync, and will use buttons. Feel free to specify default(PaginationEmojis) to use reactions and emojis specified in <see cref="InteractivityConfiguration"/>, instead. </remarks>
+        public Task SendPaginatedMessageAsync(DiscordChannel channel, DiscordUser user, IEnumerable<Page> pages, TimeSpan? timeoutoverride, PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default)
+            => this.SendPaginatedMessageAsync(channel, user, pages, timeoutoverride, behaviour, deletion);
+
+        /// <summary>
+        /// Sends a paginated message.
+        /// For this Event you need the <see cref="DiscordIntents.GuildMessageReactions"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// </summary>
+        /// <param name="channel">Channel to send paginated message in.</param>
+        /// <param name="user">User to give control.</param>
+        /// <param name="pages">Pages.</param>
+        /// <param name="emojis">Pagination emojis.</param>
+        /// <param name="behaviour">Pagination behaviour (when hitting max and min indices).</param>
+        /// <param name="deletion">Deletion behaviour.</param>
+        /// <param name="timeoutoverride">Override timeout period.</param>
+        public async Task SendPaginatedMessageAsync(DiscordChannel channel, DiscordUser user, IEnumerable<Page> pages, PaginationEmojis emojis,
+            PaginationBehaviour? behaviour = default, PaginationDeletion? deletion = default, TimeSpan? timeoutoverride = null)
+        {
+            var builder = new DiscordMessageBuilder()
+                .WithContent(pages.First().Content)
+                .WithEmbed(pages.First().Embed);
+            var m = await builder.SendAsync(channel).ConfigureAwait(false);
+
+            var timeout = timeoutoverride ?? this.Config.Timeout;
+
+            var bhv = behaviour ?? this.Config.PaginationBehaviour;
+            var del = deletion ?? this.Config.PaginationDeletion;
+            var ems = emojis ?? this.Config.PaginationEmojis;
+
+            var prequest = new PaginationRequest(m, user, bhv, del, ems, timeout, pages.ToArray());
+
+            await this.Paginator.DoPaginationAsync(prequest).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -662,42 +721,6 @@ namespace DSharpPlus.Interactivity
             var req = new InteractionPaginationRequest(interaction, message, user, bhv, del, bts, pages, token);
 
             await this._compPaginator.DoPaginationAsync(req);
-        }
-
-        /// <inheritdoc cref="SendPaginatedMessageAsync(DSharpPlus.Entities.DiscordChannel,DSharpPlus.Entities.DiscordUser,System.Collections.Generic.IEnumerable{DSharpPlus.Interactivity.Page},DSharpPlus.Interactivity.EventHandling.PaginationButtons,System.Nullable{DSharpPlus.Interactivity.Enums.PaginationBehaviour},System.Nullable{DSharpPlus.Interactivity.Enums.ButtonPaginationBehavior},System.Threading.CancellationToken)"/>
-        /// <remarks>This is the "default" overload for SendPaginatedMessageAsync, and will use buttons. Feel free to specify default(PaginationEmojis) to use reactions and emojis specified in <see cref="InteractivityConfiguration"/>, instead. </remarks>
-        public Task SendPaginatedMessageAsync(DiscordChannel channel, DiscordUser user, IEnumerable<Page> pages, PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default, CancellationToken token = default)
-            => this.SendPaginatedMessageAsync(channel, user, pages, default, behaviour, deletion, token);
-
-
-        /// <summary>
-        /// Sends a paginated message.
-        /// For this Event you need the <see cref="DiscordIntents.GuildMessageReactions"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
-        /// </summary>
-        /// <param name="channel">Channel to send paginated message in.</param>
-        /// <param name="user">User to give control.</param>
-        /// <param name="pages">Pages.</param>
-        /// <param name="emojis">Pagination emojis.</param>
-        /// <param name="behaviour">Pagination behaviour (when hitting max and min indices).</param>
-        /// <param name="deletion">Deletion behaviour.</param>
-        /// <param name="timeoutoverride">Override timeout period.</param>
-        public async Task SendPaginatedMessageAsync(DiscordChannel channel, DiscordUser user, IEnumerable<Page> pages, PaginationEmojis emojis,
-            PaginationBehaviour? behaviour = default, PaginationDeletion? deletion = default, TimeSpan? timeoutoverride = null)
-        {
-            var builder = new DiscordMessageBuilder()
-                .WithContent(pages.First().Content)
-                .WithEmbed(pages.First().Embed);
-            var m = await builder.SendAsync(channel).ConfigureAwait(false);
-
-            var timeout = timeoutoverride ?? this.Config.Timeout;
-
-            var bhv = behaviour ?? this.Config.PaginationBehaviour;
-            var del = deletion ?? this.Config.PaginationDeletion;
-            var ems = emojis ?? this.Config.PaginationEmojis;
-
-            var prequest = new PaginationRequest(m, user, bhv, del, ems, timeout, pages.ToArray());
-
-            await this.Paginator.DoPaginationAsync(prequest).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -835,7 +858,7 @@ namespace DSharpPlus.Interactivity
             return res;
         }
 
-        private CancellationToken GetCancellationToken(TimeSpan? timeout) => new CancellationTokenSource(timeout ?? this.Config.Timeout).Token;
+        private CancellationToken GetCancellationToken(TimeSpan? timeout = null) => new CancellationTokenSource(timeout ?? this.Config.Timeout).Token;
 
         private async Task HandleInvalidInteraction(DiscordInteraction interaction)
         {
@@ -847,7 +870,7 @@ namespace DSharpPlus.Interactivity
                 _ => throw new ArgumentException("Unknown enum value.")
             };
 
-            await at;
+            await at.ConfigureAwait(false);
         }
     }
 }

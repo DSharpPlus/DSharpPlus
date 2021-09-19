@@ -578,6 +578,76 @@ namespace DSharpPlus
 
         #endregion
 
+        #region Thread
+
+        /// <summary>
+        /// Fired when a thread is created.
+        /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, ThreadCreateEventArgs> ThreadCreated
+        {
+            add => this._threadCreated.Register(value);
+            remove => this._threadCreated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ThreadCreateEventArgs> _threadCreated;
+
+        /// <summary>
+        /// Fired when a thread is updated.
+        /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, ThreadUpdateEventArgs> ThreadUpdated
+        {
+            add => this._threadUpdated.Register(value);
+            remove => this._threadUpdated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ThreadUpdateEventArgs> _threadUpdated;
+
+        /// <summary>
+        /// Fired when a thread is deleted.
+        /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, ThreadDeleteEventArgs> ThreadDeleted
+        {
+            add => this._threadDeleted.Register(value);
+            remove => this._threadDeleted.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ThreadDeleteEventArgs> _threadDeleted;
+
+        /// <summary>
+        /// Fired when the current member gains access to a channel(s).
+        /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, ThreadListSyncEventArgs> ThreadListSynced
+        {
+            add => this._threadListSynced.Register(value);
+            remove => this._threadListSynced.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ThreadListSyncEventArgs> _threadListSynced;
+
+        /// <summary>
+        /// Fired when a thread member is updated.
+        /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, ThreadMemberUpdateEventArgs> ThreadMemberUpdated
+        {
+            add => this._threadMemberUpdated.Register(value);
+            remove => this._threadMemberUpdated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ThreadMemberUpdateEventArgs> _threadMemberUpdated;
+
+        /// <summary>
+        /// Fired when the thread members are updated.
+        /// For this Event you need the <see cref="DiscordIntents.GuildMembers"/> or <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, ThreadMembersUpdateEventArgs> ThreadMembersUpdated
+        {
+            add => this._threadMembersUpdated.Register(value);
+            remove => this._threadMembersUpdated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ThreadMembersUpdateEventArgs> _threadMembersUpdated;
+
+        #endregion
+
         #region Application
 
         /// <summary>
@@ -770,12 +840,12 @@ namespace DSharpPlus
                 return;
             }
 
-            this.Logger.LogError(LoggerEvents.EventHandlerException, ex, "Event handler exception for event {0} thrown from {1} (defined in {2})", asyncEvent.Name, handler.Method, handler.Method.DeclaringType);
+            this.Logger.LogError(LoggerEvents.EventHandlerException, ex, "Event handler exception for event {Event} thrown from {Method} (defined in {DeclaryingType})", asyncEvent.Name, handler.Method, handler.Method.DeclaringType);
             this._clientErrored.InvokeAsync(this, new ClientErrorEventArgs { EventName = asyncEvent.Name, Exception = ex }).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         private void Goof<TSender, TArgs>(AsyncEvent<TSender, TArgs> asyncEvent, Exception ex, AsyncEventHandler<TSender, TArgs> handler, TSender sender, TArgs eventArgs)
-            where TArgs : AsyncEventArgs => this.Logger.LogCritical(LoggerEvents.EventHandlerException, ex, "Exception event handler {0} (defined in {1}) threw an exception", handler.Method, handler.Method.DeclaringType);
+            where TArgs : AsyncEventArgs => this.Logger.LogCritical(LoggerEvents.EventHandlerException, ex, "Exception event handler {Method} (defined in {DeclaringType}) threw an exception", handler.Method, handler.Method.DeclaringType);
 
         #endregion
     }

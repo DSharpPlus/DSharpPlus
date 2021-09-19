@@ -546,5 +546,11 @@ namespace DSharpPlus.Test
                 .WithFooter($"foo");
             await x.SendMessageAsync(embed: embed2);
         }
+        [Command("ping"), Aliases("p")]
+        public async Task PingAsync(CommandContext ctx)
+        {
+            await ctx.TriggerTypingAsync();
+            await ctx.RespondAsync($"Pong: {ctx.Client.Ping}ms");
+        }
     }
 }
