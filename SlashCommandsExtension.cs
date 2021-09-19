@@ -853,7 +853,9 @@ namespace DSharpPlus.SlashCommands
                     choices = await GetChoiceAttributesFromProvider(choiceProviders);
                 }
 
-                options.Add(new DiscordApplicationCommandOption(optionattribute.Name, optionattribute.Description, parametertype, !parameter.IsOptional, choices));
+                var channelTypes = parameter.GetCustomAttribute<ChannelTypesAttribute>()?.ChannelTypes ?? null;
+
+                options.Add(new DiscordApplicationCommandOption(optionattribute.Name, optionattribute.Description, parametertype, !parameter.IsOptional, choices, null, channelTypes));
             }
 
             return options;

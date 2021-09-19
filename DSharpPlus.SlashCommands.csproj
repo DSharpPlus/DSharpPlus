@@ -10,7 +10,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/IDoEverything/DSharpPlus.SlashCommands</RepositoryUrl>
     <PackageId>IDoEverything.DSharpPlus.SlashCommands</PackageId>
-    <Version>2.0.3</Version>
+    <Version>2.0.4</Version>
     <Company>IDoEverything</Company>
   </PropertyGroup>
 
@@ -26,7 +26,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DSharpPlus" Version="4.2.0-nightly-00957" />
+    <PackageReference Include="DSharpPlus" Version="4.2.0-nightly-00995" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
     <PackageReference Include="Emzi0767.Common" Version="2.6.2" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
