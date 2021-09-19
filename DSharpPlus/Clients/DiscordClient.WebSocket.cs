@@ -45,7 +45,7 @@ namespace DSharpPlus
         private DateTimeOffset _lastHeartbeat;
         private Task _heartbeatTask;
 
-        internal static DateTimeOffset DiscordEpoch = new(2015, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        internal static readonly DateTimeOffset _discordEpoch = new(2015, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
         private int _skippedHeartbeats = 0;
         private long _lastSequence;
