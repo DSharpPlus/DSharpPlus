@@ -85,9 +85,10 @@ namespace DSharpPlus
         /// <param name="iconb64">New guild's icon (base64)</param>
         /// <param name="verification_level">New guild's verification level</param>
         /// <param name="default_message_notifications">New guild's default message notification level</param>
+        /// <param name="system_channel_flags">New guild's system channel flags</param>
         /// <returns></returns>
-        public Task<DiscordGuild> CreateGuildAsync(string name, string region_id, string iconb64, VerificationLevel? verification_level, DefaultMessageNotifications? default_message_notifications)
-            => this.ApiClient.CreateGuildAsync(name, region_id, iconb64, verification_level, default_message_notifications);
+        public Task<DiscordGuild> CreateGuildAsync(string name, string region_id, string iconb64, VerificationLevel? verification_level, DefaultMessageNotifications? default_message_notifications, SystemChannelFlags? system_channel_flags)
+            => this.ApiClient.CreateGuildAsync(name, region_id, iconb64, verification_level, default_message_notifications, system_channel_flags);
 
         /// <summary>
         /// Creates a guild from a template. This requires the bot to be in less than 10 guilds total.
@@ -123,6 +124,14 @@ namespace DSharpPlus
         /// <param name="owner_id">New guild owner id</param>
         /// <param name="splashb64">New guild spalsh (base64)</param>
         /// <param name="systemChannelId">New guild system channel id</param>
+        /// <param name="banner">New guild banner</param>
+        /// <param name="description">New guild description</param>
+        /// <param name="discorverySplash">New guild Discovery splash</param>
+        /// <param name="features">List of new <see cref="https://discord.com/developers/docs/resources/guild#guild-object-guild-features">guild features</see></param>
+        /// <param name="preferredLocale">New preferred locale</param>
+        /// <param name="publicUpdatesChannelId">New updates channel id</param>
+        /// <param name="rulesChannelId">New rules channel id</param>
+        /// <param name="systemChannelFlags">New system channel flags</param>
         /// <param name="reason">Modify reason</param>
         /// <returns></returns>
         public Task<DiscordGuild> ModifyGuildAsync(ulong guild_id, Optional<string> name,
@@ -130,9 +139,12 @@ namespace DSharpPlus
             Optional<DefaultMessageNotifications> default_message_notifications, Optional<MfaLevel> mfa_level,
             Optional<ExplicitContentFilter> explicit_content_filter, Optional<ulong?> afk_channel_id,
             Optional<int> afk_timeout, Optional<string> iconb64, Optional<ulong> owner_id, Optional<string> splashb64,
-            Optional<ulong?> systemChannelId, string reason)
+            Optional<ulong?> systemChannelId, Optional<string> banner, Optional<string> description,
+            Optional<string> discorverySplash, Optional<IEnumerable<string>> features, Optional<string> preferredLocale,
+            Optional<ulong?> publicUpdatesChannelId, Optional<ulong?> rulesChannelId, Optional<SystemChannelFlags> systemChannelFlags,
+            string reason)
             => this.ApiClient.ModifyGuildAsync(guild_id, name, region, verification_level, default_message_notifications, mfa_level, explicit_content_filter, afk_channel_id, afk_timeout, iconb64,
-                owner_id, splashb64, systemChannelId, reason);
+                owner_id, splashb64, systemChannelId, banner, description, discorverySplash, features, preferredLocale, publicUpdatesChannelId, rulesChannelId, systemChannelFlags, reason);
 
         /// <summary>
         /// Modifies a guild
@@ -165,7 +177,8 @@ namespace DSharpPlus
 
             return await this.ApiClient.ModifyGuildAsync(guild_id, mdl.Name, mdl.Region.IfPresent(x => x.Id), mdl.VerificationLevel, mdl.DefaultMessageNotifications,
                 mdl.MfaLevel, mdl.ExplicitContentFilter, mdl.AfkChannel.IfPresent(x => x?.Id), mdl.AfkTimeout, iconb64, mdl.Owner.IfPresent(x => x.Id),
-                splashb64, mdl.SystemChannel.IfPresent(x => x?.Id), mdl.AuditLogReason).ConfigureAwait(false);
+                splashb64, mdl.SystemChannel.IfPresent(x => x?.Id), mdl.Banner, mdl.Description, mdl.DiscoverySplash, mdl.Features, mdl.PreferredLocale,
+                mdl.PublicUpdatesChannel.IfPresent(e => e?.Id), mdl.RulesChannel.IfPresent(e => e?.Id), mdl.SystemChannelFlags, mdl.AuditLogReason).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -367,7 +380,7 @@ namespace DSharpPlus
         {
             var mdl = new MembershipScreeningEditModel();
             action(mdl);
-            return await this.ApiClient.ModifyGuildMembershipScreeningFormAsync(guild_id, mdl.Enabled, mdl.Fields, mdl.Description);
+            return await this.ApiClient.ModifyGuildMembershipScreeningFormAsync(guild_id, mdl.Enabled, mdl.Fields, mdl.Description).ConfigureAwait(false);
         }
         #endregion
 
@@ -409,10 +422,12 @@ namespace DSharpPlus
         /// <param name="perUserRateLimit">Slow mode timeout for users.</param>
         /// <param name="rtcRegion">New region override.</param>
         /// <param name="qualityMode">New video quality mode.</param>
+        /// <param name="type">New channel type.</param>
+        /// <param name="permissionOverwrites">New channel permission overwrites.</param>
         /// <param name="reason">Reason why this channel was modified</param>
         /// <returns></returns>
-        public Task ModifyChannelAsync(ulong id, string name, int? position, Optional<string> topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? userLimit, Optional<int?> perUserRateLimit, Optional<DiscordVoiceRegion> rtcRegion, VideoQualityMode? qualityMode, string reason)
-            => this.ApiClient.ModifyChannelAsync(id, name, position, topic, nsfw, parent, bitrate, userLimit, perUserRateLimit, rtcRegion.IfPresent(e => e?.Id), qualityMode, reason);
+        public Task ModifyChannelAsync(ulong id, string name, int? position, Optional<string> topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? userLimit, Optional<int?> perUserRateLimit, Optional<DiscordVoiceRegion> rtcRegion, VideoQualityMode? qualityMode, Optional<ChannelType> type, IEnumerable<DiscordOverwriteBuilder> permissionOverwrites, string reason)
+            => this.ApiClient.ModifyChannelAsync(id, name, position, topic, nsfw, parent, bitrate, userLimit, perUserRateLimit, rtcRegion.IfPresent(e => e?.Id), qualityMode, type, permissionOverwrites, reason);
 
         /// <summary>
         /// Modifies a channel
@@ -427,7 +442,7 @@ namespace DSharpPlus
 
             return this.ApiClient.ModifyChannelAsync(channelId, mdl.Name, mdl.Position, mdl.Topic, mdl.Nsfw,
                 mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.PerUserRateLimit, mdl.RtcRegion.IfPresent(e => e?.Id),
-                mdl.QualityMode, mdl.AuditLogReason);
+                mdl.QualityMode, mdl.Type, mdl.PermissionOverwrites, mdl.AuditLogReason);
         }
 
         /// <summary>
@@ -472,7 +487,7 @@ namespace DSharpPlus
         /// <param name="embed">Embed to attach</param>
         /// <returns></returns>
         public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, DiscordEmbed embed)
-            => this.ApiClient.CreateMessageAsync(channel_id, null, new[] {embed}, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
+            => this.ApiClient.CreateMessageAsync(channel_id, null, embed != null ? new[] { embed } : null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
 
         /// <summary>
         /// Sends a message
@@ -482,7 +497,7 @@ namespace DSharpPlus
         /// <param name="embed">Embed to attach</param>
         /// <returns></returns>
         public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content, DiscordEmbed embed)
-            => this.ApiClient.CreateMessageAsync(channel_id, content, new[] {embed}, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
+            => this.ApiClient.CreateMessageAsync(channel_id, content, embed != null ? new[] { embed } : null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
 
         /// <summary>
         /// Sends a message
@@ -785,7 +800,7 @@ namespace DSharpPlus
         {
             var mdl = new StageInstanceEditModel();
             action(mdl);
-            return await this.ApiClient.ModifyStageInstanceAsync(channelId, mdl.Topic, mdl.PrivacyLevel, mdl.AuditLogReason);
+            return await this.ApiClient.ModifyStageInstanceAsync(channelId, mdl.Topic, mdl.PrivacyLevel, mdl.AuditLogReason).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -1153,7 +1168,7 @@ namespace DSharpPlus
         {
             var mdl = new WelcomeScreenEditModel();
             action(mdl);
-            return await this.ApiClient.ModifyGuildWelcomeScreenAsync(guildId, mdl.Enabled, mdl.WelcomeChannels, mdl.Description);
+            return await this.ApiClient.ModifyGuildWelcomeScreenAsync(guildId, mdl.Enabled, mdl.WelcomeChannels, mdl.Description).ConfigureAwait(false);
         }
         #endregion
 
@@ -1478,8 +1493,8 @@ namespace DSharpPlus
         {
             var mdl = new ApplicationCommandEditModel();
             action(mdl);
-            var applicationId = this.CurrentApplication?.Id ?? (await this.GetCurrentApplicationAsync()).Id;
-            return await this.ApiClient.EditGlobalApplicationCommandAsync(applicationId, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission);
+            var applicationId = this.CurrentApplication?.Id ?? (await this.GetCurrentApplicationAsync().ConfigureAwait(false)).Id;
+            return await this.ApiClient.EditGlobalApplicationCommandAsync(applicationId, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -1535,8 +1550,8 @@ namespace DSharpPlus
         {
             var mdl = new ApplicationCommandEditModel();
             action(mdl);
-            var applicationId = this.CurrentApplication?.Id ?? (await this.GetCurrentApplicationAsync()).Id;
-            return await this.ApiClient.EditGuildApplicationCommandAsync(applicationId, guildId, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission);
+            var applicationId = this.CurrentApplication?.Id ?? (await this.GetCurrentApplicationAsync().ConfigureAwait(false)).Id;
+            return await this.ApiClient.EditGuildApplicationCommandAsync(applicationId, guildId, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -1575,7 +1590,7 @@ namespace DSharpPlus
         {
             builder.Validate(isInteractionResponse: true);
 
-            return await this.ApiClient.EditOriginalInteractionResponseAsync(this.CurrentApplication.Id, interactionToken, builder, attachments);
+            return await this.ApiClient.EditOriginalInteractionResponseAsync(this.CurrentApplication.Id, interactionToken, builder, attachments).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -1595,7 +1610,7 @@ namespace DSharpPlus
         {
             builder.Validate();
 
-            return await this.ApiClient.CreateFollowupMessageAsync(this.CurrentApplication.Id, interactionToken, builder);
+            return await this.ApiClient.CreateFollowupMessageAsync(this.CurrentApplication.Id, interactionToken, builder).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -1610,7 +1625,7 @@ namespace DSharpPlus
         {
             builder.Validate(isFollowup: true);
 
-            return await this.ApiClient.EditFollowupMessageAsync(this.CurrentApplication.Id, interactionToken, messageId, builder, attachments);
+            return await this.ApiClient.EditFollowupMessageAsync(this.CurrentApplication.Id, interactionToken, messageId, builder, attachments).ConfigureAwait(false);
         }
 
         /// <summary>

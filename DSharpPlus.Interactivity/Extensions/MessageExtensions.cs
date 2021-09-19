@@ -238,14 +238,12 @@ namespace DSharpPlus.Interactivity.Extensions
         /// <summary>
         /// Retrieves an interactivity instance from a message instance.
         /// </summary>
-        private static InteractivityExtension GetInteractivity(DiscordMessage message)
+        internal static InteractivityExtension GetInteractivity(DiscordMessage message)
         {
             var client = (DiscordClient)message.Discord;
             var interactivity = client.GetInteractivity();
 
-            return interactivity == null
-                ? throw new InvalidOperationException($"Interactivity is not enabled for this {(client._isShard ? "shard" : "client")}.")
-                : interactivity;
+            return interactivity ?? throw new InvalidOperationException($"Interactivity is not enabled for this {(client._isShard ? "shard" : "client")}.");
         }
     }
 }

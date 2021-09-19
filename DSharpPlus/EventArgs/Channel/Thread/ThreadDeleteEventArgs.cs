@@ -20,22 +20,31 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-using System;
-using System.Collections.Concurrent;
-using System.Threading;
-using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
 
-namespace DSharpPlus.Interactivity.EventHandling
+using DSharpPlus.Entities;
+
+namespace DSharpPlus.EventArgs
 {
     /// <summary>
-    /// Represents a component event that is being waited for.
+    /// Represents arguments for <see cref="DiscordClient.ThreadDeleted"/> event.
     /// </summary>
-    internal sealed class ComponentCollectRequest : ComponentMatchRequest
+    public class ThreadDeleteEventArgs : DiscordEventArgs
     {
-        public ConcurrentBag<ComponentInteractionCreateEventArgs> Collected { get; private set; }
+        /// <summary>
+        /// Gets the thread that was deleted.
+        /// </summary>
+        public DiscordThreadChannel Thread { get; internal set; }
 
-        public ComponentCollectRequest(DiscordMessage message, Func<ComponentInteractionCreateEventArgs, bool> predicate, CancellationToken cancellation) :
-            base(message, predicate, cancellation) { }
+        /// <summary>
+        /// Gets the threads parent channel.
+        /// </summary>
+        public DiscordChannel Parent { get; internal set; }
+
+        /// <summary>
+        /// Gets the guild this thread belonged to.
+        /// </summary>
+        public DiscordGuild Guild { get; internal set; }
+
+        internal ThreadDeleteEventArgs() : base() { }
     }
 }

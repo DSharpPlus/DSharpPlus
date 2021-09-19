@@ -21,12 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.Runtime.InteropServices;
+
 namespace DSharpPlus.Net
 {
     internal static class Endpoints
     {
-
-        public const string BASE_URI = "https://discord.com/api/v8";
+        public const string API_VERSION = "9";
+        public const string BASE_URI = "https://discord.com/api/v" + API_VERSION;
 
         public const string ORIGINAL = "/@original";
         public const string OAUTH2 = "/oauth2";
@@ -46,6 +48,12 @@ namespace DSharpPlus.Net
         public const string AUTH = "/auth";
         public const string LOGIN = "/login";
         public const string CHANNELS = "/channels";
+        public const string THREADS = "/threads";
+        public const string THREAD_MEMBERS = "/thread-members";
+        public const string ACTIVE = "/active ";
+        public const string ARCHIVED = "/archived";
+        public const string PUBLIC = "/public";
+        public const string PRIVATE = "/private";
         public const string MESSAGES = "/messages";
         public const string PINS = "/pins";
         public const string USERS = "/users";

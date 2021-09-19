@@ -111,7 +111,7 @@ namespace DSharpPlus.CommandsNext.Converters
                 return ret;
             }
 
-            var searchResult = await ctx.Guild.SearchMembersAsync(value);
+            var searchResult = await ctx.Guild.SearchMembersAsync(value).ConfigureAwait(false);
             if (searchResult.Any())
                 return Optional.FromValue(searchResult.First());
 

@@ -47,13 +47,13 @@ namespace DSharpPlus.Entities
         public ulong? GuildId { get; internal set; }
 
         /// <summary>
-        /// Gets ID of the category that contains this channel.
+        /// Gets ID of the category that contains this channel. For threads, gets the ID of the channel this thread was created in.
         /// </summary>
         [JsonProperty("parent_id", NullValueHandling = NullValueHandling.Include)]
         public ulong? ParentId { get; internal set; }
 
         /// <summary>
-        /// Gets the category that contains this channel.
+        /// Gets the category that contains this channel. For threads, gets the channel this thread was created in.
         /// </summary>
         [JsonIgnore]
         public DiscordChannel Parent
@@ -90,6 +90,13 @@ namespace DSharpPlus.Entities
         [JsonIgnore]
         public bool IsCategory
             => this.Type == ChannelType.Category;
+
+        /// <summary>
+        /// Gets whether this channel is a thread.
+        /// </summary>
+        [JsonIgnore]
+        public bool IsThread
+            => this.Type == ChannelType.PrivateThread || this.Type == ChannelType.PublicThread || this.Type == ChannelType.NewsThread;
 
         /// <summary>
         /// Gets the guild to which this channel belongs.
@@ -180,6 +187,20 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Gets this channel's threads. This applies only to text and news channels.
+        /// </summary>
+        [JsonIgnore]
+        public IReadOnlyList<DiscordThreadChannel> Threads
+        {
+            get
+            {
+                return !(this.Type == ChannelType.Text || this.Type == ChannelType.News)
+                    ? throw new ArgumentException("Only text channels can have threads.")
+                    : this.Guild._threads.Values.Where(e => e.ParentId == this.Id).ToList().AsReadOnly();
+            }
+        }
+
+        /// <summary>
         /// Gets the list of members currently in the channel (if voice channel), or members who can see the channel (otherwise).
         /// </summary>
         [JsonIgnore]
@@ -212,6 +233,13 @@ namespace DSharpPlus.Entities
         public DiscordVoiceRegion RtcRegion
             => this.RtcRegionId != null ? this.Discord.VoiceRegions[this.RtcRegionId] : null;
 
+        /// <summary>
+        /// Gets the permissions of the user who invoked the command in this channel.
+        /// <para>Only sent on the resolved channels of interaction responses for application commands.</para>
+        /// </summary>
+        [JsonProperty("permissions")]
+        public Permissions? UserPermissions { get; internal set; }
+
         internal DiscordChannel()
         {
             this._permissionOverwritesLazy = new Lazy<IReadOnlyList<DiscordOverwrite>>(() => new ReadOnlyCollection<DiscordOverwrite>(this._permissionOverwrites));
@@ -230,7 +258,13 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> SendMessageAsync(string content)
         {
-            return this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News
+            return this.Type != ChannelType.Text &&
+                this.Type != ChannelType.PublicThread &&
+                this.Type != ChannelType.PrivateThread &&
+                this.Type != ChannelType.NewsThread &&
+                this.Type != ChannelType.Private &&
+                this.Type != ChannelType.Group &&
+                this.Type != ChannelType.News
                 ? throw new ArgumentException("Cannot send a text message to a non-text channel.")
                 : this.Discord.ApiClient.CreateMessageAsync(this.Id, content, null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
         }
@@ -246,9 +280,15 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> SendMessageAsync(DiscordEmbed embed)
         {
-            return this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News
+            return this.Type != ChannelType.Text &&
+                this.Type != ChannelType.PublicThread &&
+                this.Type != ChannelType.PrivateThread &&
+                this.Type != ChannelType.NewsThread &&
+                this.Type != ChannelType.Private &&
+                this.Type != ChannelType.Group &&
+                this.Type != ChannelType.News
                 ? throw new ArgumentException("Cannot send a text message to a non-text channel.")
-                : this.Discord.ApiClient.CreateMessageAsync(this.Id, null, new[] {embed}, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
+                : this.Discord.ApiClient.CreateMessageAsync(this.Id, null, embed != null ? new[] { embed } : null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
         }
 
         /// <summary>
@@ -263,9 +303,15 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> SendMessageAsync(string content, DiscordEmbed embed)
         {
-            return this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News
+            return this.Type != ChannelType.Text &&
+                this.Type != ChannelType.PublicThread &&
+                this.Type != ChannelType.PrivateThread &&
+                this.Type != ChannelType.NewsThread &&
+                this.Type != ChannelType.Private &&
+                this.Type != ChannelType.Group &&
+                this.Type != ChannelType.News
                 ? throw new ArgumentException("Cannot send a text message to a non-text channel.")
-                : this.Discord.ApiClient.CreateMessageAsync(this.Id, content, new[] {embed}, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
+                : this.Discord.ApiClient.CreateMessageAsync(this.Id, content, embed != null ? new[] { embed } : null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
         }
 
         /// <summary>
@@ -381,7 +427,7 @@ namespace DSharpPlus.Entities
             action(mdl);
             return this.Discord.ApiClient.ModifyChannelAsync(this.Id, mdl.Name, mdl.Position, mdl.Topic, mdl.Nsfw,
                 mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.PerUserRateLimit, mdl.RtcRegion.IfPresent(r => r?.Id),
-                mdl.QualityMode, mdl.AuditLogReason);
+                mdl.QualityMode, mdl.Type, mdl.PermissionOverwrites, mdl.AuditLogReason);
         }
 
         /// <summary>
@@ -467,7 +513,13 @@ namespace DSharpPlus.Entities
 
         private async Task<IReadOnlyList<DiscordMessage>> GetMessagesInternalAsync(int limit = 100, ulong? before = null, ulong? after = null, ulong? around = null)
         {
-            if (this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News)
+            if (this.Type != ChannelType.Text &&
+                this.Type != ChannelType.PublicThread &&
+                this.Type != ChannelType.PrivateThread &&
+                this.Type != ChannelType.NewsThread &&
+                this.Type != ChannelType.Private &&
+                this.Type != ChannelType.Group &&
+                this.Type != ChannelType.News)
                 throw new ArgumentException("Cannot get the messages of a non-text channel.");
 
             if (limit < 0)
@@ -508,6 +560,54 @@ namespace DSharpPlus.Entities
             while (remaining > 0 && lastCount > 0);
 
             return new ReadOnlyCollection<DiscordMessage>(msgs);
+        }
+
+        /// <summary>
+        /// Gets the threads that are public and archived for this channel.
+        /// </summary>
+        /// <returns>A <seealso cref="ThreadQueryResult"/> containing the threads for this query and if an other call will yield more threads.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ReadMessageHistory"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<ThreadQueryResult> ListPublicArchivedThreadsAsync(DateTimeOffset? before = null, int limit = 0)
+        {
+            if (this.Type != ChannelType.Text && this.Type != ChannelType.News)
+                throw new System.InvalidOperationException();
+
+            return this.Discord.ApiClient.ListPublicArchivedThreadsAsync(this.GuildId.Value, this.Id, (ulong?) before?.ToUnixTimeSeconds(), limit);
+        }
+
+        /// <summary>
+        /// Gets the threads that are private and archived for this channel.
+        /// </summary>
+        /// <returns>A <seealso cref="ThreadQueryResult"/> containing the threads for this query and if an other call will yield more threads.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ReadMessageHistory"/> and the <see cref="Permissions.ManageThreads"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<ThreadQueryResult> ListPrivateArchivedThreadsAsync(DateTimeOffset? before = null, int limit = 0)
+        {
+            if (this.Type != ChannelType.Text && this.Type != ChannelType.News)
+                throw new System.InvalidOperationException();
+
+            return this.Discord.ApiClient.ListPrivateArchivedThreadsAsync(this.GuildId.Value, this.Id, (ulong?) before?.ToUnixTimeSeconds(), limit);
+        }
+
+        /// <summary>
+        /// Gets the private and archived threads that the current member has joined in this channel.
+        /// </summary>
+        /// <returns>A <seealso cref="ThreadQueryResult"/> containing the threads for this query and if an other call will yield more threads.</returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ReadMessageHistory"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<ThreadQueryResult> ListJoinedPrivateArchivedThreadsAsync(DateTimeOffset? before = null, int limit = 0)
+        {
+            if (this.Type != ChannelType.Text && this.Type != ChannelType.News)
+                throw new System.InvalidOperationException();
+
+            return this.Discord.ApiClient.ListJoinedPrivateArchivedThreadsAsync(this.GuildId.Value, this.Id, (ulong?) before?.ToUnixTimeSeconds(), limit);
         }
 
         /// <summary>
@@ -646,7 +746,13 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task TriggerTypingAsync()
         {
-            return this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News
+            return this.Type != ChannelType.Text &&
+                this.Type != ChannelType.PublicThread &&
+                this.Type != ChannelType.PrivateThread &&
+                this.Type != ChannelType.NewsThread &&
+                this.Type != ChannelType.Private &&
+                this.Type != ChannelType.Group &&
+                this.Type != ChannelType.News
                 ? throw new ArgumentException("Cannot start typing in a non-text channel.")
                 : this.Discord.ApiClient.TriggerTypingAsync(this.Id);
         }
@@ -661,7 +767,13 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<IReadOnlyList<DiscordMessage>> GetPinnedMessagesAsync()
         {
-            return this.Type != ChannelType.Text && this.Type != ChannelType.Private && this.Type != ChannelType.Group && this.Type != ChannelType.News
+            return this.Type != ChannelType.Text &&
+                this.Type != ChannelType.PublicThread &&
+                this.Type != ChannelType.PrivateThread &&
+                this.Type != ChannelType.NewsThread &&
+                this.Type != ChannelType.Private &&
+                this.Type != ChannelType.Group &&
+                this.Type != ChannelType.News
                 ? throw new ArgumentException("A non-text channel does not have pinned messages.")
                 : this.Discord.ApiClient.GetPinnedMessagesAsync(this.Id);
         }
@@ -756,7 +868,7 @@ namespace DSharpPlus.Entities
             if (this.Type != ChannelType.Stage)
                 throw new ArgumentException("Voice state can only be updated in a stage channel.");
 
-            await this.Discord.ApiClient.UpdateCurrentUserVoiceStateAsync(this.GuildId.Value, this.Id, suppress, requestToSpeakTimestamp);
+            await this.Discord.ApiClient.UpdateCurrentUserVoiceStateAsync(this.GuildId.Value, this.Id, suppress, requestToSpeakTimestamp).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -771,7 +883,7 @@ namespace DSharpPlus.Entities
             if (this.Type != ChannelType.Stage)
                 throw new ArgumentException("A stage instance can only be created in a stage channel.");
 
-            return await this.Discord.ApiClient.CreateStageInstanceAsync(this.Id, topic, privacyLevel, reason);
+            return await this.Discord.ApiClient.CreateStageInstanceAsync(this.Id, topic, privacyLevel, reason).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -783,7 +895,7 @@ namespace DSharpPlus.Entities
             if (this.Type != ChannelType.Stage)
                 throw new ArgumentException("A stage instance can only be created in a stage channel.");
 
-            return await this.Discord.ApiClient.GetStageInstanceAsync(this.Id);
+            return await this.Discord.ApiClient.GetStageInstanceAsync(this.Id).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -798,7 +910,7 @@ namespace DSharpPlus.Entities
 
             var mdl = new StageInstanceEditModel();
             action(mdl);
-            return await this.Discord.ApiClient.ModifyStageInstanceAsync(this.Id, mdl.Topic, mdl.PrivacyLevel, mdl.AuditLogReason);
+            return await this.Discord.ApiClient.ModifyStageInstanceAsync(this.Id, mdl.Topic, mdl.PrivacyLevel, mdl.AuditLogReason).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -891,6 +1003,61 @@ namespace DSharpPlus.Entities
                 return $"Channel #{this.Name} ({this.Id})";
             return !string.IsNullOrWhiteSpace(this.Name) ? $"Channel {this.Name} ({this.Id})" : $"Channel {this.Id}";
         }
+
+        #region ThreadMethods
+
+        /// <summary>
+        /// Creates a new thread within this channel from the given message.
+        /// </summary>
+        /// <param name="message">Message to create the thread from.</param>
+        /// <param name="name">The name of the thread.</param>
+        /// <param name="archiveAfter">The auto archive duration of the thread. 3 day and 7 day archive durations require a level 1 and 2 server boost respectively.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns>The created thread.</returns>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel or message does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordThreadChannel> CreateThreadAsync(DiscordMessage message, string name, AutoArchiveDuration archiveAfter, string reason = null)
+        {
+            if (this.Type != ChannelType.Text && this.Type != ChannelType.News)
+                throw new ArgumentException("Threads can only be created within text or news channels.");
+            else if (message.ChannelId != this.Id)
+                throw new ArgumentException("You must use a message from this channel to create a thread.");
+            else if ((archiveAfter == AutoArchiveDuration.ThreeDays && this.Guild.Features.Contains("THREE_DAY_THREAD_ARCHIVE")) || (archiveAfter == AutoArchiveDuration.Week && this.Guild.Features.Contains("SEVEN_DAY_THREAD_ARCHIVE")))
+                throw new ArgumentException("This archive duration requires the guild to be boosted or have these archive durations enabled."); //are guild features always cached?
+
+            return this.Discord.ApiClient.CreateThreadFromMessageAsync(this.Id, message.Id, name, archiveAfter, reason);
+        }
+
+        /// <summary>
+        /// Creates a new thread within this channel.
+        /// </summary>
+        /// <param name="name">The name of the thread.</param>
+        /// <param name="archiveAfter">The auto archive duration of the thread. 3 day and 7 day archive durations require a level 1 and 2 server boost respectively.</param>
+        /// <param name="threadType">The type of thread to create, either a public, news or, private thread. Private threads requires a level 2 server boost and can only be created within channels of type <see cref="ChannelType.Text"/>.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns>The created thread.</returns>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel or message does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordThreadChannel> CreateThreadAsync(string name, AutoArchiveDuration archiveAfter, ChannelType threadType, string reason = null)
+        {
+            if (this.Type != ChannelType.Text && this.Type != ChannelType.News)
+                throw new InvalidOperationException("Threads can only be created within text or news channels.");
+            else if(this.Type != ChannelType.News && threadType == ChannelType.NewsThread)
+                throw new InvalidOperationException("News threads can only be created within a news channels.");
+            else if(threadType != ChannelType.PublicThread && threadType != ChannelType.PrivateThread && threadType != ChannelType.NewsThread)
+                throw new ArgumentException("Given channel type for creating a thread is not a valid type of thread.");
+            else if ((archiveAfter == AutoArchiveDuration.ThreeDays && !this.Guild.Features.Contains("THREE_DAY_THREAD_ARCHIVE")) || (archiveAfter == AutoArchiveDuration.Week && !this.Guild.Features.Contains("SEVEN_DAY_THREAD_ARCHIVE")))
+                throw new ArgumentException("This archive duration requires the guild to be boosted or have these archive durations enabled.");
+            else if(threadType == ChannelType.PrivateThread && !this.Guild.Features.Contains("PRIVATE_THREADS"))
+                throw new ArgumentException("This guild cannot create private threads.");
+
+            return this.Discord.ApiClient.CreateThreadAsync(this.Id, name, archiveAfter, threadType, reason);
+        }
+
+        #endregion
+
         #endregion
 
         /// <summary>

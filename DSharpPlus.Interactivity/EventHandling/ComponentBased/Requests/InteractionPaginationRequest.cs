@@ -22,7 +22,6 @@
 // SOFTWARE.
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,12 +30,16 @@ using DSharpPlus.Interactivity.Enums;
 
 namespace DSharpPlus.Interactivity.EventHandling
 {
-    internal class ButtonPaginationRequest : IPaginationRequest
+    internal class InteractionPaginationRequest : IPaginationRequest
     {
         private int _index;
         private readonly List<Page> _pages = new();
 
         private readonly TaskCompletionSource<bool> _tcs = new();
+
+
+        private DiscordInteraction _lastInteraction;
+        private CancellationTokenSource _interactionCts;
 
         private readonly CancellationToken _token;
         private readonly DiscordUser _user;
@@ -45,7 +48,8 @@ namespace DSharpPlus.Interactivity.EventHandling
         private readonly PaginationBehaviour _wrapBehavior;
         private readonly ButtonPaginationBehavior _behaviorBehavior;
 
-        public ButtonPaginationRequest(DiscordMessage message, DiscordUser user,
+
+        public InteractionPaginationRequest(DiscordInteraction interaction, DiscordMessage message, DiscordUser user,
             PaginationBehaviour behavior, ButtonPaginationBehavior behaviorBehavior,
             PaginationButtons buttons, IEnumerable<Page> pages, CancellationToken token)
         {
@@ -57,10 +61,19 @@ namespace DSharpPlus.Interactivity.EventHandling
             this._behaviorBehavior = behaviorBehavior;
             this._pages.AddRange(pages);
 
+            this.RegenerateCTS(interaction);
             this._token.Register(() => this._tcs.TrySetResult(false));
         }
 
         public int PageCount => this._pages.Count;
+
+        internal void RegenerateCTS(DiscordInteraction interaction)
+        {
+            this._interactionCts?.Dispose();
+            this._lastInteraction = interaction;
+            this._interactionCts = new(TimeSpan.FromSeconds((60 * 15) - 5));
+            this._interactionCts.Token.Register(() => this._tcs.TrySetResult(false));
+        }
 
         public Task<Page> GetPageAsync()
         {
@@ -68,11 +81,7 @@ namespace DSharpPlus.Interactivity.EventHandling
 
             if (this.PageCount is 1)
             {
-                this._buttons.SkipLeft.Disable();
-                this._buttons.Left.Disable();
-                this._buttons.Right.Disable();
-                this._buttons.SkipRight.Disable();
-
+                this._buttons.ButtonArray.Select(b => b.Disable());
                 this._buttons.Stop.Enable();
                 return page;
             }
@@ -84,7 +93,7 @@ namespace DSharpPlus.Interactivity.EventHandling
 
             this._buttons.Left.Disabled = this._index < 1;
 
-            this._buttons.Right.Disabled = this._index >= this.PageCount - 1;
+            this._buttons.Right.Disabled = this._index == this.PageCount - 1;
 
             this._buttons.SkipRight.Disabled = this._index >= this.PageCount - 2;
 
@@ -169,26 +178,28 @@ namespace DSharpPlus.Interactivity.EventHandling
             switch (this._behaviorBehavior)
             {
                 case ButtonPaginationBehavior.Disable:
-                    var buttons = this._buttons.ButtonArray.Select(b => b.Disable());
+                    var buttons = this._buttons.ButtonArray
+                        .Select(b => new DiscordButtonComponent(b))
+                        .Select(b => b.Disable());
 
-                    var builder = new DiscordMessageBuilder()
+                    var builder = new DiscordWebhookBuilder()
                         .WithContent(this._pages[this._index].Content)
                         .AddEmbed(this._pages[this._index].Embed)
                         .AddComponents(buttons);
 
-                    await builder.ModifyAsync(this._message).ConfigureAwait(false);
+                    await this._lastInteraction.EditOriginalResponseAsync(builder).ConfigureAwait(false);
                     break;
 
                 case ButtonPaginationBehavior.DeleteButtons:
-                    builder = new DiscordMessageBuilder()
+                    builder = new DiscordWebhookBuilder()
                         .WithContent(this._pages[this._index].Content)
                         .AddEmbed(this._pages[this._index].Embed);
 
-                    await builder.ModifyAsync(this._message).ConfigureAwait(false);
+                    await this._lastInteraction.EditOriginalResponseAsync(builder).ConfigureAwait(false);
                     break;
 
                 case ButtonPaginationBehavior.DeleteMessage:
-                    await this._message.DeleteAsync().ConfigureAwait(false);
+                    await this._lastInteraction.DeleteOriginalResponseAsync().ConfigureAwait(false);
                     break;
 
                 case ButtonPaginationBehavior.Ignore:

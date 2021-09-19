@@ -54,11 +54,12 @@ namespace DSharpPlus
         {
             if (payload.Data is not JObject dat)
             {
-                this.Logger.LogWarning(LoggerEvents.WebSocketReceive, "Invalid payload body (this message is probably safe to ignore); opcode: {0} event: {1}; payload: {2}", payload.OpCode, payload.EventName, payload.Data);
+                this.Logger.LogWarning(LoggerEvents.WebSocketReceive, "Invalid payload body (this message is probably safe to ignore); opcode: {Op} event: {Event}; payload: {Payload}", payload.OpCode, payload.EventName, payload.Data);
                 return;
             }
 
             DiscordChannel chn;
+            DiscordThreadChannel thread;
             ulong gid;
             ulong cid;
             TransportUser usr = default;
@@ -176,7 +177,7 @@ namespace DSharpPlus
                     {
                         // discord fires this event inconsistently if the current user leaves a guild.
                         if (usr.Id != this.CurrentUser.Id)
-                            this.Logger.LogError(LoggerEvents.WebSocketReceive, "Could not find {0} in guild cache", gid);
+                            this.Logger.LogError(LoggerEvents.WebSocketReceive, "Could not find {Guild} in guild cache", gid);
                         return;
                     }
 
@@ -346,6 +347,39 @@ namespace DSharpPlus
 
                 #endregion
 
+                #region Thread
+
+                case "thread_create":
+                    thread = dat.ToDiscordObject<DiscordThreadChannel>();
+                    await this.OnThreadCreateEventAsync(thread).ConfigureAwait(false);
+                    break;
+
+                case "thread_update":
+                    thread = dat.ToDiscordObject<DiscordThreadChannel>();
+                    await this.OnThreadUpdateEventAsync(thread).ConfigureAwait(false);
+                    break;
+
+                case "thread_delete":
+                    thread = dat.ToDiscordObject<DiscordThreadChannel>();
+                    await this.OnThreadDeleteEventAsync(thread).ConfigureAwait(false);
+                    break;
+
+                case "thread_list_sync":
+                    gid = (ulong)dat["guild_id"]; //get guild
+                    await this.OnThreadListSyncEventAsync(this._guilds[gid], dat["channel_ids"].ToDiscordObject<IReadOnlyList<ulong>>(), dat["threads"].ToObject<IReadOnlyList<DiscordThreadChannel>>(), dat["members"].ToObject<IReadOnlyList<DiscordThreadChannelMember>>()).ConfigureAwait(false);
+                    break;
+
+                case "thread_member_update":
+                    await this.OnThreadMemberUpdateEventAsync(dat.ToDiscordObject<DiscordThreadChannelMember>()).ConfigureAwait(false);
+                    break;
+
+                case "thread_members_update":
+                    gid = (ulong)dat["guild_id"];
+                    await this.OnThreadMembersUpdateEventAsync(this._guilds[gid], (ulong)dat["id"], dat["added_members"]?.ToObject<IReadOnlyList<DiscordThreadChannelMember>>(), dat["removed_member_ids"]?.ToObject<IReadOnlyList<ulong?>>(), (int)dat["member_count"]).ConfigureAwait(false);
+                    break;
+
+                #endregion
+
                 #region Interaction/Integration/Application
 
                 case "interaction_create":
@@ -395,15 +429,15 @@ namespace DSharpPlus
                 #region Stage Instance
 
                 case "stage_instance_create":
-                    await this.OnStageInstanceCreateAsync(dat.ToObject<DiscordStageInstance>());
+                    await this.OnStageInstanceCreateAsync(dat.ToObject<DiscordStageInstance>()).ConfigureAwait(false);
                     break;
 
                 case "stage_instance_update":
-                    await this.OnStageInstanceUpdateAsync(dat.ToObject<DiscordStageInstance>());
+                    await this.OnStageInstanceUpdateAsync(dat.ToObject<DiscordStageInstance>()).ConfigureAwait(false);
                     break;
 
                 case "stage_instance_delete":
-                    await this.OnStageInstanceDeleteAsync(dat.ToObject<DiscordStageInstance>());
+                    await this.OnStageInstanceDeleteAsync(dat.ToObject<DiscordStageInstance>()).ConfigureAwait(false);
                     break;
 
                 #endregion
@@ -436,7 +470,7 @@ namespace DSharpPlus
 
                 default:
                     await this.OnUnknownEventAsync(payload).ConfigureAwait(false);
-                    this.Logger.LogWarning(LoggerEvents.WebSocketReceive, "Unknown event: {0}\npayload: {1}", payload.EventName, payload.Data);
+                    this.Logger.LogWarning(LoggerEvents.WebSocketReceive, "Unknown event: {EventName}\npayload: {Payload}", payload.EventName, payload.Data);
                     break;
 
                     #endregion
@@ -499,6 +533,8 @@ namespace DSharpPlus
 
                 if (guild._channels == null)
                     guild._channels = new ConcurrentDictionary<ulong, DiscordChannel>();
+                if (guild._threads == null)
+                    guild._threads = new ConcurrentDictionary<ulong, DiscordThreadChannel>();
 
                 foreach (var xc in guild.Channels.Values)
                 {
@@ -509,6 +545,11 @@ namespace DSharpPlus
                         xo.Discord = this;
                         xo._channel_id = xc.Id;
                     }
+                }
+                foreach (var xt in guild.Threads.Values)
+                {
+                    xt.GuildId = guild.Id;
+                    xt.Discord = this;
                 }
 
                 if (guild._roles == null)
@@ -723,6 +764,8 @@ namespace DSharpPlus
 
             if (guild._channels == null)
                 guild._channels = new ConcurrentDictionary<ulong, DiscordChannel>();
+            if (guild._threads == null)
+                guild._threads = new ConcurrentDictionary<ulong, DiscordThreadChannel>();
             if (guild._roles == null)
                 guild._roles = new ConcurrentDictionary<ulong, DiscordRole>();
             if (guild._emojis == null)
@@ -760,6 +803,11 @@ namespace DSharpPlus
                     xo.Discord = this;
                     xo._channel_id = xc.Id;
                 }
+            }
+            foreach (var xt in guild._threads.Values)
+            {
+                xt.GuildId = guild.Id;
+                xt.Discord = this;
             }
             foreach (var xe in guild._emojis.Values)
                 xe.Discord = this;
@@ -837,6 +885,7 @@ namespace DSharpPlus
                     VoiceRegionId = gld.VoiceRegionId,
                     IsNSFW = gld.IsNSFW,
                     _channels = new ConcurrentDictionary<ulong, DiscordChannel>(),
+                    _threads = new ConcurrentDictionary<ulong, DiscordThreadChannel>(),
                     _emojis = new ConcurrentDictionary<ulong, DiscordEmoji>(),
                     _members = new ConcurrentDictionary<ulong, DiscordMember>(),
                     _roles = new ConcurrentDictionary<ulong, DiscordRole>(),
@@ -844,6 +893,7 @@ namespace DSharpPlus
                 };
 
                 foreach (var kvp in gld._channels) oldGuild._channels[kvp.Key] = kvp.Value;
+                foreach (var kvp in gld._threads) oldGuild._threads[kvp.Key] = kvp.Value;
                 foreach (var kvp in gld._emojis) oldGuild._emojis[kvp.Key] = kvp.Value;
                 foreach (var kvp in gld._roles) oldGuild._roles[kvp.Key] = kvp.Value;
                 foreach (var kvp in gld._voiceStates) oldGuild._voiceStates[kvp.Key] = kvp.Value;
@@ -857,6 +907,8 @@ namespace DSharpPlus
 
             if (guild._channels == null)
                 guild._channels = new ConcurrentDictionary<ulong, DiscordChannel>();
+            if (guild._threads == null)
+                guild._threads = new ConcurrentDictionary<ulong, DiscordThreadChannel>();
             if (guild._roles == null)
                 guild._roles = new ConcurrentDictionary<ulong, DiscordRole>();
             if (guild._emojis == null)
@@ -877,6 +929,11 @@ namespace DSharpPlus
                     xo.Discord = this;
                     xo._channel_id = xc.Id;
                 }
+            }
+            foreach (var xc in guild._threads.Values)
+            {
+                xc.GuildId = guild.Id;
+                xc.Discord = this;
             }
             foreach (var xe in guild._emojis.Values)
                 xe.Discord = this;
@@ -1737,6 +1794,11 @@ namespace DSharpPlus
                 mbr.IsMuted = vstateNew.IsServerMuted;
                 mbr.IsDeafened = vstateNew.IsServerDeafened;
             }
+            else
+            {
+                var transportMbr = vstateNew.TransportMember;
+                this.UpdateUser(new DiscordUser(transportMbr.User) { Discord = this }, gid, gld, transportMbr);
+            }
 
             var ea = new VoiceStateUpdateEventArgs
             {
@@ -1760,6 +1822,174 @@ namespace DSharpPlus
                 Guild = guild
             };
             await this._voiceServerUpdated.InvokeAsync(this, ea).ConfigureAwait(false);
+        }
+
+        #endregion
+
+        #region Thread
+
+        internal async Task OnThreadCreateEventAsync(DiscordThreadChannel thread)
+        {
+            thread.Discord = this;
+            this.InternalGetCachedGuild(thread.GuildId)._threads.AddOrUpdate(thread.Id, thread, (oldThread, newThread) => newThread);
+
+            await this._threadCreated.InvokeAsync(this, new ThreadCreateEventArgs { Thread = thread, Guild = thread.Guild, Parent = thread.Parent }).ConfigureAwait(false);
+        }
+
+        internal async Task OnThreadUpdateEventAsync(DiscordThreadChannel thread)
+        {
+            if (thread == null)
+                return;
+
+            DiscordThreadChannel threadOld;
+            ThreadUpdateEventArgs updateEvent;
+
+            thread.Discord = this;
+
+            var guild = thread.Guild;
+            guild.Discord = this;
+
+            var cthread = this.InternalGetCachedThread(thread.Id);
+
+            if (cthread != null) //thread is cached
+            {
+                threadOld = new DiscordThreadChannel
+                {
+                    Discord = this,
+                    GuildId = cthread.GuildId,
+                    CreatorId = cthread.CreatorId,
+                    ParentId = cthread.ParentId,
+                    Id = cthread.Id,
+                    Name = cthread.Name,
+                    Type = cthread.Type,
+                    LastMessageId = cthread.LastMessageId,
+                    MessageCount = cthread.MessageCount,
+                    MemberCount = cthread.MemberCount,
+                    ThreadMetadata = cthread.ThreadMetadata,
+                    CurrentMember = cthread.CurrentMember,
+                };
+
+                updateEvent = new ThreadUpdateEventArgs
+                {
+                    ThreadAfter = thread,
+                    ThreadBefore = threadOld,
+                    Guild = thread.Guild,
+                    Parent = thread.Parent
+                };
+            }
+            else
+            {
+                updateEvent = new ThreadUpdateEventArgs
+                {
+                    ThreadAfter = thread,
+                    Guild = thread.Guild,
+                    Parent = thread.Parent
+                };
+                guild._threads[thread.Id] = thread;
+            }
+
+            await this._threadUpdated.InvokeAsync(this, updateEvent).ConfigureAwait(false);
+        }
+
+        internal async Task OnThreadDeleteEventAsync(DiscordThreadChannel thread)
+        {
+            if (thread == null)
+                return;
+
+            thread.Discord = this;
+
+            var gld = thread.Guild;
+            if (gld._threads.TryRemove(thread.Id, out var cachedThread))
+                thread = cachedThread;
+
+            await this._threadDeleted.InvokeAsync(this, new ThreadDeleteEventArgs { Thread = thread, Guild = thread.Guild, Parent = thread.Parent}).ConfigureAwait(false);
+        }
+
+        internal async Task OnThreadListSyncEventAsync(DiscordGuild guild, IReadOnlyList<ulong>? channel_ids, IReadOnlyList<DiscordThreadChannel> threads, IReadOnlyList<DiscordThreadChannelMember> members)
+        {
+            guild.Discord = this;
+            var channels = channel_ids.Select(x => guild.GetChannel(x) ?? new DiscordChannel{ Id = x, GuildId = guild.Id}); //getting channel objects
+
+            foreach (var channel in channels)
+            {
+                channel.Discord = this;
+            }
+
+            foreach(var thread in threads)
+            {
+                thread.Discord = this;
+                guild._threads[thread.Id] = thread;
+            }
+
+            foreach(var member in members)
+            {
+                member.Discord = this;
+                member._guild_id = guild.Id;
+
+                var thread = threads.SingleOrDefault(x => x.Id == member.ThreadId);
+                if (thread != null)
+                    thread.CurrentMember = member;
+            }
+
+            await this._threadListSynced.InvokeAsync(this, new ThreadListSyncEventArgs { Guild = guild, Channels = channels.ToList().AsReadOnly(), Threads = threads, CurrentMembers = members.ToList().AsReadOnly() }).ConfigureAwait(false);
+        }
+
+        internal async Task OnThreadMemberUpdateEventAsync(DiscordThreadChannelMember member)
+        {
+            member.Discord = this;
+
+            var thread = this.InternalGetCachedThread(member.ThreadId);
+            member._guild_id = thread.Guild.Id;
+            thread.CurrentMember = member;
+            thread.Guild._threads.AddOrUpdate(member.ThreadId, thread, (oldThread, newThread) => newThread);
+
+            await this._threadMemberUpdated.InvokeAsync(this, new ThreadMemberUpdateEventArgs { ThreadMember = member, Thread = thread }).ConfigureAwait(false);
+        }
+
+        internal async Task OnThreadMembersUpdateEventAsync(DiscordGuild guild, ulong thread_id, IReadOnlyList<DiscordThreadChannelMember> addedMembers, IReadOnlyList<ulong?> removed_member_ids, int member_count)
+        {
+            var thread = this.InternalGetCachedThread(thread_id);
+            thread.Discord = this;
+            guild.Discord = this;
+
+            var removedMembers = new List<DiscordMember>();
+            if (removed_member_ids != null)
+            {
+                foreach (var removedId in removed_member_ids)
+                {
+                    removedMembers.Add(guild._members.TryGetValue(removedId.Value, out var member) ? member: new DiscordMember { Id = removedId.Value, _guild_id = guild.Id, Discord = this });
+                }
+            }
+            else
+                removed_member_ids = Array.Empty<ulong?>();
+            if (addedMembers != null)
+            {
+                foreach (var threadMember in addedMembers)
+                {
+                    threadMember.Discord = this;
+                    threadMember._guild_id = guild.Id;
+
+                    if(threadMember.Id == this.CurrentUser.Id)
+                        thread.CurrentMember = threadMember;
+                }
+            }
+            else
+                addedMembers = Array.Empty<DiscordThreadChannelMember>();
+
+            if (removed_member_ids.Contains(this.CurrentUser.Id)) //indicates the bot was removed from the thread
+                thread.CurrentMember = null;
+            thread.MemberCount = member_count;
+
+            var threadMembersUpdateArg = new ThreadMembersUpdateEventArgs
+            {
+                Guild = guild,
+                Thread = thread,
+                AddedMembers = addedMembers,
+                RemovedMembers = removedMembers,
+                MemberCount = member_count
+            };
+
+            await this._threadMembersUpdated.InvokeAsync(this, threadMembersUpdateArg).ConfigureAwait(false);
         }
 
         #endregion
@@ -1972,16 +2202,21 @@ namespace DSharpPlus
         internal async Task OnInteractionCreateAsync(ulong? guildId, ulong channelId, TransportUser user, TransportMember member, DiscordInteraction interaction)
         {
             var usr = new DiscordUser(user) { Discord = this };
-            this.UpdateUserCache(usr);
 
-            if (member != null)
-                usr = new DiscordMember(member) { _guild_id = guildId.Value, Discord = this };
-
-            interaction.User = usr;
             interaction.ChannelId = channelId;
             interaction.GuildId = guildId;
             interaction.Discord = this;
             interaction.Data.Discord = this;
+
+            if (member != null)
+            {
+                usr = new DiscordMember(member) { _guild_id = guildId.Value, Discord = this };
+                this.UpdateUser(usr, guildId, interaction.Guild, member);
+            }
+            else
+                this.UpdateUserCache(usr);
+
+            interaction.User = usr;
 
             var resolved = interaction.Data.Resolved;
             if (resolved != null)
@@ -2148,7 +2383,7 @@ namespace DSharpPlus
                 StickersAfter = guild.Stickers
             };
 
-            await this._guildStickersUpdated.InvokeAsync(this, sea);
+            await this._guildStickersUpdated.InvokeAsync(this, sea).ConfigureAwait(false);
         }
 
         internal async Task OnUnknownEventAsync(GatewayPayload payload)

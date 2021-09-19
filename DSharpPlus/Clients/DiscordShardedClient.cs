@@ -142,11 +142,11 @@ namespace DSharpPlus
             {
                 if (this.Configuration.TokenType != TokenType.Bot)
                     this.Logger.LogWarning(LoggerEvents.Misc, "You are logging in with a token that is not a bot token. This is not officially supported by Discord, and can result in your account being terminated if you aren't careful.");
-                this.Logger.LogInformation(LoggerEvents.Startup, "DSharpPlus, version {0}", this._versionString.Value);
+                this.Logger.LogInformation(LoggerEvents.Startup, "DSharpPlus, version {Version}", this._versionString.Value);
 
                 var shardc = await this.InitializeShardsAsync().ConfigureAwait(false);
                 var connectTasks = new List<Task>();
-                this.Logger.LogInformation(LoggerEvents.ShardStartup, "Booting {0} shards.", shardc);
+                this.Logger.LogInformation(LoggerEvents.ShardStartup, "Booting {ShardCount} shards.", shardc);
 
                 for (var i = 0; i < shardc; i++)
                 {
@@ -381,7 +381,7 @@ namespace DSharpPlus
 
             client._isShard = true;
             await client.ConnectAsync().ConfigureAwait(false);
-            this.Logger.LogInformation(LoggerEvents.ShardStartup, "Booted shard {0}.", i);
+            this.Logger.LogInformation(LoggerEvents.ShardStartup, "Booted shard {Shard}.", i);
 
             if (this.CurrentUser == null)
                 this.CurrentUser = client.CurrentUser;
@@ -402,7 +402,7 @@ namespace DSharpPlus
                 throw new InvalidOperationException("This client has not been started.");
 
             if (enableLogger)
-                this.Logger.LogInformation(LoggerEvents.ShardShutdown, "Disposing {0} shards.", this._shards.Count);
+                this.Logger.LogInformation(LoggerEvents.ShardShutdown, "Disposing {ShardCount} shards.", this._shards.Count);
 
             this._isStarted = false;
             this._voiceRegionsLazy = null;
@@ -420,7 +420,7 @@ namespace DSharpPlus
                     client.Dispose();
 
                     if (enableLogger)
-                        this.Logger.LogInformation(LoggerEvents.ShardShutdown, "Disconnected shard {0}.", i);
+                        this.Logger.LogInformation(LoggerEvents.ShardShutdown, "Disconnected shard {Shard}.", i);
                 }
             }
 
@@ -496,6 +496,15 @@ namespace DSharpPlus
             this._stageInstanceCreated = new AsyncEvent<DiscordClient, StageInstanceCreateEventArgs>("STAGE_INSTANCE_CREATED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._stageInstanceUpdated = new AsyncEvent<DiscordClient, StageInstanceUpdateEventArgs>("STAGE_INSTANCE_UPDAED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._stageInstanceDeleted = new AsyncEvent<DiscordClient, StageInstanceDeleteEventArgs>("STAGE_INSTANCE_DELETED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
+
+            #region ThreadEvents
+            this._threadCreated = new AsyncEvent<DiscordClient, ThreadCreateEventArgs>("THREAD_CREATED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
+            this._threadUpdated = new AsyncEvent<DiscordClient, ThreadUpdateEventArgs>("THREAD_UPDATED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
+            this._threadDeleted = new AsyncEvent<DiscordClient, ThreadDeleteEventArgs>("THREAD_DELETED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
+            this._threadListSynced = new AsyncEvent<DiscordClient, ThreadListSyncEventArgs>("THREAD_LIST_SYNCED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
+            this._threadMemberUpdated = new AsyncEvent<DiscordClient, ThreadMemberUpdateEventArgs>("THREAD_MEMBER_UPDATED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
+            this._threadMembersUpdated = new AsyncEvent<DiscordClient, ThreadMembersUpdateEventArgs>("THREAD_MEMBERS_UPDATED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
+            #endregion
         }
 
         private void HookEventHandlers(DiscordClient client)
@@ -552,15 +561,21 @@ namespace DSharpPlus
             client.WebhooksUpdated += this.Client_WebhooksUpdate;
             client.Heartbeated += this.Client_HeartBeated;
             client.Zombied += this.Client_Zombied;
-            client.ApplicationCommandCreated += this.Client_ApplicationCommandCreated;
-            client.ApplicationCommandUpdated += this.Client_ApplicationCommandUpdated;
-            client.ApplicationCommandDeleted += this.Client_ApplicationCommandDeleted;
             client.IntegrationCreated += this.Client_IntegrationCreated;
             client.IntegrationUpdated += this.Client_IntegrationUpdated;
             client.IntegrationDeleted += this.Client_IntegrationDeleted;
             client.StageInstanceCreated += this.Client_StageInstanceCreated;
             client.StageInstanceUpdated += this.Client_StageInstanceUpdated;
             client.StageInstanceDeleted += this.Client_StageInstanceDeleted;
+
+            #region ThreadEvents
+            client.ThreadCreated += this.Client_ThreadCreated;
+            client.ThreadUpdated += this.Client_ThreadUpdated;
+            client.ThreadDeleted += this.Client_ThreadDeleted;
+            client.ThreadListSynced += this.Client_ThreadListSynced;
+            client.ThreadMemberUpdated += this.Client_ThreadMemberUpdated;
+            client.ThreadMembersUpdated += this.Client_ThreadMembersUpdated;
+            #endregion
         }
 
         private void UnhookEventHandlers(DiscordClient client)
@@ -617,15 +632,21 @@ namespace DSharpPlus
             client.WebhooksUpdated -= this.Client_WebhooksUpdate;
             client.Heartbeated -= this.Client_HeartBeated;
             client.Zombied -= this.Client_Zombied;
-            client.ApplicationCommandCreated -= this.Client_ApplicationCommandCreated;
-            client.ApplicationCommandUpdated -= this.Client_ApplicationCommandUpdated;
-            client.ApplicationCommandDeleted -= this.Client_ApplicationCommandDeleted;
             client.IntegrationCreated -= this.Client_IntegrationCreated;
             client.IntegrationUpdated -= this.Client_IntegrationUpdated;
             client.IntegrationDeleted -= this.Client_IntegrationDeleted;
             client.StageInstanceCreated -= this.Client_StageInstanceCreated;
             client.StageInstanceUpdated -= this.Client_StageInstanceUpdated;
             client.StageInstanceDeleted -= this.Client_StageInstanceDeleted;
+
+            #region ThreadEvents
+            client.ThreadCreated -= this.Client_ThreadCreated;
+            client.ThreadUpdated -= this.Client_ThreadUpdated;
+            client.ThreadDeleted -= this.Client_ThreadDeleted;
+            client.ThreadListSynced -= this.Client_ThreadListSynced;
+            client.ThreadMemberUpdated -= this.Client_ThreadMemberUpdated;
+            client.ThreadMembersUpdated -= this.Client_ThreadMembersUpdated;
+            #endregion
         }
 
         private int GetShardIdFromGuilds(ulong id)

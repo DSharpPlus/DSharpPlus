@@ -20,22 +20,28 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-using System;
-using System.Collections.Concurrent;
-using System.Threading;
-using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
 
-namespace DSharpPlus.Interactivity.EventHandling
+using System.Collections.Generic;
+using Newtonsoft.Json;
+
+namespace DSharpPlus.Entities
 {
-    /// <summary>
-    /// Represents a component event that is being waited for.
-    /// </summary>
-    internal sealed class ComponentCollectRequest : ComponentMatchRequest
+    public class ThreadQueryResult
     {
-        public ConcurrentBag<ComponentInteractionCreateEventArgs> Collected { get; private set; }
+        /// <summary>
+        /// Gets whether additional calls will yield more threads.
+        /// </summary>
+        [JsonProperty("has_more", NullValueHandling = NullValueHandling.Ignore)]
+        public bool HasMore { get; internal set; }
 
-        public ComponentCollectRequest(DiscordMessage message, Func<ComponentInteractionCreateEventArgs, bool> predicate, CancellationToken cancellation) :
-            base(message, predicate, cancellation) { }
+        /// <summary>
+        /// Gets the list of threads returned by the query. Generally ordered by <seealso cref="DiscordThreadChannelMetadata.ArchiveTimestamp"/> in descending order.
+        /// </summary>
+        [JsonProperty("threads", NullValueHandling = NullValueHandling.Ignore)]
+        public IReadOnlyList<DiscordThreadChannel> Threads { get; internal set; }
+
+        [JsonProperty("members", NullValueHandling = NullValueHandling.Ignore)]
+        internal IReadOnlyList<DiscordThreadChannelMember> Members { get; set; }
+
     }
 }

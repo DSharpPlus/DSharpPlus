@@ -434,7 +434,7 @@ namespace DSharpPlus.Lavalink
         {
             if (this.IsConnected && e.CloseCode != 1001 && e.CloseCode != -1)
             {
-                this.Discord.Logger.LogWarning(LavalinkEvents.LavalinkConnectionClosed, "Connection broken ({0}, '{1}'), reconnecting", e.CloseCode, e.CloseMessage);
+                this.Discord.Logger.LogWarning(LavalinkEvents.LavalinkConnectionClosed, "Connection broken ({CloseCode}, '{CloseMessage}'), reconnecting", e.CloseCode, e.CloseMessage);
                 await this._disconnected.InvokeAsync(this, new NodeDisconnectedEventArgs(this, false)).ConfigureAwait(false);
 
                 if (this.Configuration.SocketAutoReconnect)
@@ -442,7 +442,7 @@ namespace DSharpPlus.Lavalink
             }
             else if (e.CloseCode != 1001 && e.CloseCode != -1)
             {
-                this.Discord.Logger.LogInformation(LavalinkEvents.LavalinkConnectionClosed, "Connection closed ({0}, '{1}')", e.CloseCode, e.CloseMessage);
+                this.Discord.Logger.LogInformation(LavalinkEvents.LavalinkConnectionClosed, "Connection closed ({CloseCode}, '{CloseMessage}')", e.CloseCode, e.CloseMessage);
                 this.NodeDisconnected?.Invoke(this);
                 await this._disconnected.InvokeAsync(this, new NodeDisconnectedEventArgs(this, true)).ConfigureAwait(false);
             }

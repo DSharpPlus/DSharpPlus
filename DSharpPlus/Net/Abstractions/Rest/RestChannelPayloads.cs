@@ -65,6 +65,9 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
         public string Name { get; set; }
 
+        [JsonProperty("type")]
+        public Optional<ChannelType> Type { get; set; }
+
         [JsonProperty("position", NullValueHandling = NullValueHandling.Ignore)]
         public int? Position { get; set; }
 
@@ -82,6 +85,9 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("user_limit", NullValueHandling = NullValueHandling.Ignore)]
         public int? UserLimit { get; set; }
+
+        [JsonProperty("permission_overwrites", NullValueHandling = NullValueHandling.Ignore)]
+        public IEnumerable<DiscordRestOverwrite> PermissionOverwrites { get; set; }
 
         [JsonProperty("rate_limit_per_user")]
         public Optional<int?> PerUserRateLimit { get; set; }

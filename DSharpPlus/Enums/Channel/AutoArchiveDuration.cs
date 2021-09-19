@@ -20,22 +20,36 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-using System;
-using System.Collections.Concurrent;
-using System.Threading;
-using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
 
-namespace DSharpPlus.Interactivity.EventHandling
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace DSharpPlus
 {
     /// <summary>
-    /// Represents a component event that is being waited for.
+    /// Represents the duration in minutes to automatically archive a thread after recent activity.
     /// </summary>
-    internal sealed class ComponentCollectRequest : ComponentMatchRequest
+    public enum AutoArchiveDuration : int
     {
-        public ConcurrentBag<ComponentInteractionCreateEventArgs> Collected { get; private set; }
+        /// <summary>
+        /// Thread will auto-archive after one hour of inactivity.
+        /// </summary>
+        Hour = 60,
 
-        public ComponentCollectRequest(DiscordMessage message, Func<ComponentInteractionCreateEventArgs, bool> predicate, CancellationToken cancellation) :
-            base(message, predicate, cancellation) { }
+        /// <summary>
+        /// Thread will auto-archive after one day of inactivity.
+        /// </summary>
+        Day = 1440,
+
+        /// <summary>
+        /// Thread will auto-archive after three days of inactivity.
+        /// </summary>
+        ThreeDays = 4320,
+
+        /// <summary>
+        /// Thread will auto-archive after one week of inactivity.
+        /// </summary>
+        Week = 10080
     }
 }

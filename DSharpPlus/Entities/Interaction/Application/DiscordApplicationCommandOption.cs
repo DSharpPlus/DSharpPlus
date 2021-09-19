@@ -71,6 +71,12 @@ namespace DSharpPlus.Entities
         public IReadOnlyCollection<DiscordApplicationCommandOption> Options { get; internal set; }
 
         /// <summary>
+        /// Gets the channel types this command parameter is restricted to, if of type <see cref="ApplicationCommandOptionType.Channel"/>..
+        /// </summary>
+        [JsonProperty("channel_types", NullValueHandling = NullValueHandling.Ignore)]
+        public IReadOnlyCollection<ChannelType> ChannelTypes { get; internal set; }
+
+        /// <summary>
         /// Creates a new instance of a <see cref="DiscordApplicationCommandOption"/>.
         /// </summary>
         /// <param name="name">The name of this parameter.</param>
@@ -79,7 +85,8 @@ namespace DSharpPlus.Entities
         /// <param name="required">Whether the parameter is required.</param>
         /// <param name="choices">The optional choice selection for this parameter.</param>
         /// <param name="options">The optional subcommands for this parameter.</param>
-        public DiscordApplicationCommandOption(string name, string description, ApplicationCommandOptionType type, bool? required = null, IEnumerable<DiscordApplicationCommandOptionChoice> choices = null, IEnumerable<DiscordApplicationCommandOption> options = null)
+        /// <param name="channelTypes">The channel types to be restricted to for this parameter, if of type <see cref="ApplicationCommandOptionType.Channel"/>.</param>
+        public DiscordApplicationCommandOption(string name, string description, ApplicationCommandOptionType type, bool? required = null, IEnumerable<DiscordApplicationCommandOptionChoice> choices = null, IEnumerable<DiscordApplicationCommandOption> options = null, IEnumerable<ChannelType> channelTypes = null)
         {
             if (!Utilities.IsValidSlashCommandName(name))
                 throw new ArgumentException("Invalid slash command option name specified. It must be below 32 characters and not contain any whitespace.", nameof(name));
@@ -90,6 +97,7 @@ namespace DSharpPlus.Entities
 
             var choiceList = choices != null ? new ReadOnlyCollection<DiscordApplicationCommandOptionChoice>(choices.ToList()) : null;
             var optionList = options != null ? new ReadOnlyCollection<DiscordApplicationCommandOption>(options.ToList()) : null;
+            var channelTypeList = channelTypes != null ? new ReadOnlyCollection<ChannelType>(channelTypes.ToList()) : null;
 
             this.Name = name;
             this.Description = description;
@@ -97,6 +105,7 @@ namespace DSharpPlus.Entities
             this.Required = required;
             this.Choices = choiceList;
             this.Options = optionList;
+            this.ChannelTypes = channelTypeList;
         }
     }
 }

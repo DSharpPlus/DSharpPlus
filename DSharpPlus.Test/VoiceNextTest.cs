@@ -21,21 +21,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 using System;
-using System.Collections.Concurrent;
-using System.Threading;
-using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
+using System.Threading.Tasks;
+using DSharpPlus.CommandsNext;
+using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.VoiceNext;
+using Microsoft.Extensions.Logging;
 
-namespace DSharpPlus.Interactivity.EventHandling
+namespace DSharpPlus.Test
 {
-    /// <summary>
-    /// Represents a component event that is being waited for.
-    /// </summary>
-    internal sealed class ComponentCollectRequest : ComponentMatchRequest
+    public class VoiceNextTest : BaseCommandModule
     {
-        public ConcurrentBag<ComponentInteractionCreateEventArgs> Collected { get; private set; }
+        static VoiceNextTest() => TaskScheduler.UnobservedTaskException += OhNo;
+        private static void OhNo(object sender, UnobservedTaskExceptionEventArgs e) { Console.Error.WriteLine("SOMETHING WENT TERRIBLY WRONG WHEN DISCONNECTING"); }
 
-        public ComponentCollectRequest(DiscordMessage message, Func<ComponentInteractionCreateEventArgs, bool> predicate, CancellationToken cancellation) :
-            base(message, predicate, cancellation) { }
+        [Command]
+        public async Task Join(CommandContext ctx)
+        {
+            var vnext = ctx.Client.GetVoiceNext();
+            await vnext.ConnectAsync(ctx.Member.VoiceState.Channel);
+        }
+
+        [Command]
+        public async Task Leave(CommandContext ctx)
+        {
+            var vnext = ctx.Client.GetVoiceNext();
+
+            vnext.GetConnection(ctx.Guild)?.Disconnect(); // Calls .Dispose(); //
+        }
     }
 }

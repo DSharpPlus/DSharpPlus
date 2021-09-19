@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.Collections.Generic;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.Net.Models
@@ -80,6 +81,17 @@ namespace DSharpPlus.Net.Models
         /// <para>Sets the voice channel's video quality.</para>
         /// </summary>
         public VideoQualityMode? QualityMode { internal get; set; }
+
+        /// <summary>
+        /// <para>Sets the channel's type.</para>
+        /// <para>This can only be used to convert between text and news channels.</para>
+        /// </summary>
+        public Optional<ChannelType> Type { internal get; set; }
+
+        /// <summary>
+        /// <para>Sets the channel's permission overwrites.</para>
+        /// </summary>
+        public IEnumerable<DiscordOverwriteBuilder> PermissionOverwrites { internal get; set; }
 
         internal ChannelEditModel() { }
     }
