@@ -1112,7 +1112,7 @@ namespace DSharpPlus.Net
             if (builder.ReplyId != null)
                 pld.MessageReference = new InternalDiscordMessageReference { MessageId = builder.ReplyId, FailIfNotExists = builder.FailOnInvalidReply };
 
-            if (builder.Mentions != null || builder.ReplyId != null)
+            //if (builder.Mentions != null || builder.ReplyId != null)
                 pld.Mentions = new DiscordMentions(builder.Mentions ?? Mentions.All, builder.Mentions?.Any() ?? false, builder.MentionOnReply);
 
             if (builder.Files.Count == 0)
@@ -1227,8 +1227,7 @@ namespace DSharpPlus.Net
                 Attachments = attachments
             };
 
-            if (mentions != null)
-                pld.Mentions = new DiscordMentions(mentions);
+            pld.Mentions = new DiscordMentions(mentions ?? Mentions.None, false, mentions?.OfType<RepliedUserMention>().Any() ?? false);
 
             var values = new Dictionary<string, string>
             {
@@ -1780,7 +1779,7 @@ namespace DSharpPlus.Net
 
             return result;
         }
-        
+
         #endregion
 
         #region Member
@@ -2412,7 +2411,7 @@ namespace DSharpPlus.Net
 
             return ret;
         }
-        
+
         internal async Task<DiscordMessage> GetWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong message_id)
         {
             var route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token{Endpoints.MESSAGES}/:message_id";
@@ -2425,7 +2424,7 @@ namespace DSharpPlus.Net
             ret.Discord = this.Discord;
             return ret;
         }
-        
+
         internal async Task<DiscordWebhook> ModifyWebhookAsync(ulong webhook_id, ulong channelId, string name, Optional<string> base64_avatar, string reason)
         {
             var pld = new RestWebhookPayload
@@ -3162,7 +3161,7 @@ namespace DSharpPlus.Net
             ret.Discord = this.Discord;
             return ret;
         }
-        
+
         internal Task<DiscordMessage> GetFollowupMessageAsync(ulong application_id, string interaction_token, ulong message_id) =>
             this.GetWebhookMessageAsync(application_id, interaction_token, message_id);
 
