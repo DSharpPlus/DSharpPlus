@@ -2138,11 +2138,9 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public DiscordChannel GetDefaultChannel()
         {
-            return this._channels != null
-                ? this._channels.Values.Where(xc => xc.Type == ChannelType.Text)
+            return this._channels?.Values.Where(xc => xc.Type == ChannelType.Text)
                     .OrderBy(xc => xc.Position)
-                    .FirstOrDefault(xc => (xc.PermissionsFor(this.CurrentMember) & DSharpPlus.Permissions.AccessChannels) == DSharpPlus.Permissions.AccessChannels)
-                : null;
+                    .FirstOrDefault(xc => (xc.PermissionsFor(this.CurrentMember) & DSharpPlus.Permissions.AccessChannels) == DSharpPlus.Permissions.AccessChannels);
         }
 
         /// <summary>

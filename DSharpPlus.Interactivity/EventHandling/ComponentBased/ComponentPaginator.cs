@@ -116,6 +116,7 @@ namespace DSharpPlus.Interactivity.EventHandling
                 _ when id == buttons.Stop.CustomId => Task.FromResult(tcs.TrySetResult(true)),
                 _ when id == buttons.Left.CustomId => request.PreviousPageAsync(),
                 _ when id == buttons.Right.CustomId => request.NextPageAsync(),
+                _ => Task.CompletedTask
             };
 
             await paginationTask.ConfigureAwait(false);

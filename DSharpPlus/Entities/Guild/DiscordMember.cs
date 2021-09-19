@@ -223,12 +223,6 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Gets this member's banner url.
-        /// </summary>
-        [JsonIgnore]
-        public string BannerUrl => this.User.BannerUrl;
-
-        /// <summary>
         /// Gets the member's banner hash.
         /// </summary>
         [JsonIgnore]

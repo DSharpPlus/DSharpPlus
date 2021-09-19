@@ -784,8 +784,7 @@ namespace DSharpPlus
 
         internal DiscordChannel InternalGetCachedChannel(ulong channelId)
         {
-            DiscordDmChannel foundDmChannel = default;
-
+            var foundDmChannel = default(DiscordDmChannel);
             if (this._privateChannels?.TryGetValue(channelId, out foundDmChannel) == true)
                 return foundDmChannel;
 

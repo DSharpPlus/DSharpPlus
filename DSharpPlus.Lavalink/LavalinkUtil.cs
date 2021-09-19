@@ -102,9 +102,9 @@ namespace DSharpPlus.Lavalink
     /// </summary>
     internal class JavaBinaryReader : BinaryReader
     {
-        private static readonly Encoding Utf8NoBom = new UTF8Encoding();
+        private static readonly Encoding _utf8NoBom = new UTF8Encoding();
 
-        public JavaBinaryReader(Stream ms) : base(ms, Utf8NoBom)
+        public JavaBinaryReader(Stream ms) : base(ms, _utf8NoBom)
         {
         }
 

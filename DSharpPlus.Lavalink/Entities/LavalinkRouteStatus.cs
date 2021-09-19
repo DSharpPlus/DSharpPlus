@@ -33,7 +33,7 @@ namespace DSharpPlus.Lavalink.Entities
         /// </summary>
         [JsonIgnore]
         public LavalinkRoutePlannerType? Class
-            => this.GetLavalinkRoutePlannerType(this._class);
+            => this.GetLavalinkRoutePlannerType(this.ClassInternal);
 
         /// <summary>
         /// Gets the details of the route planner.
@@ -42,7 +42,7 @@ namespace DSharpPlus.Lavalink.Entities
         public LavalinkRouteStatusDetails Details { get; internal set; }
 
         [JsonProperty("class", NullValueHandling = NullValueHandling.Ignore)]
-        internal string _class { get; set; }
+        internal string ClassInternal { get; set; }
 
         private LavalinkRoutePlannerType? GetLavalinkRoutePlannerType(string type)
         {

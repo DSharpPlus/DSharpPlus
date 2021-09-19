@@ -746,9 +746,9 @@ namespace DSharpPlus
                     xp.Activity = new DiscordActivity(xp.RawActivity);
                     if (xp.RawActivities != null)
                     {
-                        xp.InternalActivities = new DiscordActivity[xp.RawActivities.Length];
+                        xp._internalActivities = new DiscordActivity[xp.RawActivities.Length];
                         for (var i = 0; i < xp.RawActivities.Length; i++)
-                            xp.InternalActivities[i] = new DiscordActivity(xp.RawActivities[i]);
+                            xp._internalActivities[i] = new DiscordActivity(xp.RawActivities[i]);
                     }
                     this._presences[xp.InternalUser.Id] = xp;
                 }
@@ -1172,9 +1172,9 @@ namespace DSharpPlus
 
                     if (xp.RawActivities != null)
                     {
-                        xp.InternalActivities = new DiscordActivity[xp.RawActivities.Length];
+                        xp._internalActivities = new DiscordActivity[xp.RawActivities.Length];
                         for (var j = 0; j < xp.RawActivities.Length; j++)
-                            xp.InternalActivities[j] = new DiscordActivity(xp.RawActivities[j]);
+                            xp._internalActivities[j] = new DiscordActivity(xp.RawActivities[j]);
                     }
 
                     pres.Add(xp);
@@ -1670,17 +1670,17 @@ namespace DSharpPlus
             // reuse arrays / avoid linq (this is a hot zone)
             if (presence.Activities == null || rawPresence["activities"] == null)
             {
-                presence.InternalActivities = Array.Empty<DiscordActivity>();
+                presence._internalActivities = Array.Empty<DiscordActivity>();
             }
             else
             {
-                if (presence.InternalActivities.Length != presence.RawActivities.Length)
-                    presence.InternalActivities = new DiscordActivity[presence.RawActivities.Length];
+                if (presence._internalActivities.Length != presence.RawActivities.Length)
+                    presence._internalActivities = new DiscordActivity[presence.RawActivities.Length];
 
-                for (var i = 0; i < presence.InternalActivities.Length; i++)
-                    presence.InternalActivities[i] = new DiscordActivity(presence.RawActivities[i]);
+                for (var i = 0; i < presence._internalActivities.Length; i++)
+                    presence._internalActivities[i] = new DiscordActivity(presence.RawActivities[i]);
 
-                if (presence.InternalActivities.Length > 0)
+                if (presence._internalActivities.Length > 0)
                 {
                     presence.RawActivity = presence.RawActivities[0];
 
@@ -1905,7 +1905,7 @@ namespace DSharpPlus
             await this._threadDeleted.InvokeAsync(this, new ThreadDeleteEventArgs { Thread = thread, Guild = thread.Guild, Parent = thread.Parent}).ConfigureAwait(false);
         }
 
-        internal async Task OnThreadListSyncEventAsync(DiscordGuild guild, IReadOnlyList<ulong>? channel_ids, IReadOnlyList<DiscordThreadChannel> threads, IReadOnlyList<DiscordThreadChannelMember> members)
+        internal async Task OnThreadListSyncEventAsync(DiscordGuild guild, IReadOnlyList<ulong> channel_ids, IReadOnlyList<DiscordThreadChannel> threads, IReadOnlyList<DiscordThreadChannelMember> members)
         {
             guild.Discord = this;
             var channels = channel_ids.Select(x => guild.GetChannel(x) ?? new DiscordChannel{ Id = x, GuildId = guild.Id}); //getting channel objects
