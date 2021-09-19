@@ -58,18 +58,27 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="time">The time from now.</param>
         /// <param name="format">The format to render the timestamp in. Defaults to relative.</param>
-        /// <returns>A formatted timestamp relative to now.</returns>
+        /// <returns>A formatted timestamp.</returns>
         public static string Timestamp(TimeSpan time, TimestampFormat format = TimestampFormat.RelativeTime)
-            => $"<t:{(DateTimeOffset.UtcNow + time).ToUnixTimeSeconds()}:{(char)format}>";
+            => Timestamp(DateTimeOffset.UtcNow + time, format);
 
         /// <summary>
         /// Creates a rendered timestamp.
         /// </summary>
         /// <param name="time">The time from now.</param>
         /// <param name="format">The format to render the timestamp in. Defaults to relative.</param>
-        /// <returns>A formatted timestamp relative to now.</returns>
+        /// <returns>A formatted timestamp.</returns>
         public static string Timestamp(DateTime time, TimestampFormat format = TimestampFormat.RelativeTime)
-            => Timestamp(time.ToUniversalTime() - DateTime.UtcNow, format);
+            => Timestamp(new DateTimeOffset(time.ToUniversalTime()), format);
+
+        /// <summary>
+        /// Creates a rendered timestamp.
+        /// </summary>
+        /// <param name="time">Timestamp to format.</param>
+        /// <param name="format">The format to render the timestamp in. Defaults to relative.</param>
+        /// <returns>A formatted timestamp.</returns>
+        public static string Timestamp(DateTimeOffset time, TimestampFormat format = TimestampFormat.RelativeTime)
+            => $"<t:{time.ToUnixTimeSeconds()}:{(char)format}>";
 
         /// <summary>
         /// Creates bold text.
