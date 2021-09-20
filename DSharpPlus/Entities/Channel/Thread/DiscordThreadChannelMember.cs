@@ -68,7 +68,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public DiscordMember Member
-            => this.Guild != null ? (this.Guild._members.TryGetValue(this.Id, out var member) ? member : new DiscordMember { Id = Id, _guild_id = _guild_id, Discord = Discord}) : null;
+            => this.Guild != null ? (this.Guild._members.TryGetValue(this.Id, out var member) ? member : new DiscordMember { Id = this.Id, _guild_id = this._guild_id, Discord = this.Discord}) : null;
 
         /// <summary>
         /// Gets the category that contains this channel. For threads, gets the channel this thread was created in.
