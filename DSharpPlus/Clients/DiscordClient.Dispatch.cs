@@ -721,7 +721,15 @@ namespace DSharpPlus
             var channel = this.InternalGetCachedChannel(channelId) ?? this.InternalGetCachedThread(channelId);
 
             if (channel == null)
-                return;
+            {
+                channel = new DiscordDmChannel
+                {
+                    Id = channelId,
+                    Discord = this,
+                    Type = ChannelType.Private
+                };
+                this._privateChannels.AddOrUpdate(channelId, (DiscordDmChannel)channel, (oldChannel, channel) => channel);
+            }
 
             var ea = new ChannelPinsUpdateEventArgs
             {
@@ -1407,8 +1415,19 @@ namespace DSharpPlus
 
         internal async Task OnMessageDeleteEventAsync(ulong messageId, ulong channelId, ulong? guildId)
         {
-            var channel = this.InternalGetCachedChannel(channelId) ?? this.InternalGetCachedThread(channelId);
             var guild = this.InternalGetCachedGuild(guildId);
+            var channel = this.InternalGetCachedChannel(channelId) ?? this.InternalGetCachedThread(channelId);
+
+            if (channel == null)
+            {
+                channel = new DiscordDmChannel
+                {
+                    Id = channelId,
+                    Discord = this,
+                    Type = ChannelType.Private
+                };
+                this._privateChannels.AddOrUpdate(channelId, (DiscordDmChannel)channel, (oldChannel, channel) => channel);
+            }
 
             if (channel == null
                 || this.Configuration.MessageCacheSize == 0
@@ -1479,6 +1498,18 @@ namespace DSharpPlus
         {
             var channel = this.InternalGetCachedChannel(channelId) ?? this.InternalGetCachedThread(channelId);
             var guild = this.InternalGetCachedGuild(guildId);
+
+            if (channel == null)
+            {
+                channel = new DiscordDmChannel
+                {
+                    Id = channelId,
+                    Discord = this,
+                    Type = ChannelType.Private
+                };
+                this._privateChannels.AddOrUpdate(channelId, (DiscordDmChannel)channel, (oldChannel, channel) => channel);
+            }
+
             emoji.Discord = this;
 
             var usr = this.UpdateUser(new DiscordUser { Id = userId, Discord = this }, guildId, guild, mbr);
@@ -1526,6 +1557,17 @@ namespace DSharpPlus
         internal async Task OnMessageReactionRemoveAsync(ulong userId, ulong messageId, ulong channelId, ulong? guildId, DiscordEmoji emoji)
         {
             var channel = this.InternalGetCachedChannel(channelId) ?? this.InternalGetCachedThread(channelId);
+
+            if (channel == null)
+            {
+                channel = new DiscordDmChannel
+                {
+                    Id = channelId,
+                    Discord = this,
+                    Type = ChannelType.Private
+                };
+                this._privateChannels.AddOrUpdate(channelId, (DiscordDmChannel)channel, (oldChannel, channel) => channel);
+            }
 
             emoji.Discord = this;
 
@@ -1610,6 +1652,17 @@ namespace DSharpPlus
         {
             var guild = this.InternalGetCachedGuild(guildId);
             var channel = this.InternalGetCachedChannel(channelId) ?? this.InternalGetCachedThread(channelId);
+
+            if (channel == null)
+            {
+                channel = new DiscordDmChannel
+                {
+                    Id = channelId,
+                    Discord = this,
+                    Type = ChannelType.Private
+                };
+                this._privateChannels.AddOrUpdate(channelId, (DiscordDmChannel)channel, (oldChannel, channel) => channel);
+            }
 
             if (channel == null
                 || this.Configuration.MessageCacheSize == 0
