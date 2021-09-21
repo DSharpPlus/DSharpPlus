@@ -150,16 +150,14 @@ namespace DSharpPlus.CommandsNext.Converters
             if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var cid))
             {
                 var result = await ctx.Client.GetChannelAsync(cid).ConfigureAwait(false);
-                var ret = result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordChannel>();
-                return ret;
+                return result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordChannel>();
             }
 
             var m = ChannelRegex.Match(value);
             if (m.Success && ulong.TryParse(m.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out cid))
             {
                 var result = await ctx.Client.GetChannelAsync(cid).ConfigureAwait(false);
-                var ret = result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordChannel>();
-                return ret;
+                return result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordChannel>();
             }
 
             var cs = ctx.Config.CaseSensitive;
@@ -167,7 +165,7 @@ namespace DSharpPlus.CommandsNext.Converters
                 value = value.ToLowerInvariant();
 
             var chn = ctx.Guild?.Channels.Values.FirstOrDefault(xc => (cs ? xc.Name : xc.Name.ToLowerInvariant()) == value) ??
-            ctx.Guild?.Threads.Values.FirstOrDefault(thread => (cs ? thread.Name : thread.Name.ToLowerInvariant()) == value);
+            ctx.Guild?.Threads.Values.FirstOrDefault(xThread => (cs ? xThread.Name : xThread.Name.ToLowerInvariant()) == value);
 
             return chn != null ? Optional.FromValue(chn) : Optional.FromNoValue<DiscordChannel>();
         }
@@ -191,25 +189,23 @@ namespace DSharpPlus.CommandsNext.Converters
             if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var threadId))
             {
                 var result = ctx.Client.InternalGetCachedThread(threadId);
-                var ret = result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordThreadChannel>();
-                return ret;
+                return result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordThreadChannel>();
             }
 
             var m = ThreadRegex.Match(value);
             if (m.Success && ulong.TryParse(m.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out threadId))
             {
                 var result = ctx.Client.InternalGetCachedThread(threadId);
-                var ret = result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordThreadChannel>();
-                return ret;
+                return result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordThreadChannel>();
             }
 
             var cs = ctx.Config.CaseSensitive;
             if (!cs)
                 value = value.ToLowerInvariant();
 
-            var foundThread = ctx.Guild?.Threads.Values.FirstOrDefault(thread => (cs ? thread.Name : thread.Name.ToLowerInvariant()) == value);
+            var thread = ctx.Guild?.Threads.Values.FirstOrDefault(xThread => (cs ? xThread.Name : xThread.Name.ToLowerInvariant()) == value);
 
-            return foundThread != null ? Optional.FromValue(foundThread) : Optional.FromNoValue<DiscordThreadChannel>();
+            return thread != null ? Optional.FromValue(thread) : Optional.FromNoValue<DiscordThreadChannel>();
         }
     }
 
