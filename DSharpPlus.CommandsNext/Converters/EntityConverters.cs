@@ -166,8 +166,50 @@ namespace DSharpPlus.CommandsNext.Converters
             if (!cs)
                 value = value.ToLowerInvariant();
 
-            var chn = ctx.Guild?.Channels.Values.FirstOrDefault(xc => (cs ? xc.Name : xc.Name.ToLowerInvariant()) == value);
+            var chn = ctx.Guild?.Channels.Values.FirstOrDefault(xc => (cs ? xc.Name : xc.Name.ToLowerInvariant()) == value) ??
+            ctx.Guild?.Threads.Values.FirstOrDefault(thread => (cs ? thread.Name : thread.Name.ToLowerInvariant()) == value);
+
             return chn != null ? Optional.FromValue(chn) : Optional.FromNoValue<DiscordChannel>();
+        }
+    }
+
+    public class DiscordThreadChannelConverter : IArgumentConverter<DiscordThreadChannel>
+    {
+        private static Regex ThreadRegex { get; }
+
+        static DiscordThreadChannelConverter()
+        {
+#if NETSTANDARD1_3
+            ThreadRegex = new Regex(@"^<#(\d+)>$", RegexOptions.ECMAScript);
+#else
+            ThreadRegex = new Regex(@"^<#(\d+)>$", RegexOptions.ECMAScript | RegexOptions.Compiled);
+#endif
+        }
+
+        async Task<Optional<DiscordThreadChannel>> IArgumentConverter<DiscordThreadChannel>.ConvertAsync(string value, CommandContext ctx)
+        {
+            if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var threadId))
+            {
+                var result = ctx.Client.InternalGetCachedThread(threadId);
+                var ret = result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordThreadChannel>();
+                return ret;
+            }
+
+            var m = ThreadRegex.Match(value);
+            if (m.Success && ulong.TryParse(m.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out threadId))
+            {
+                var result = ctx.Client.InternalGetCachedThread(threadId);
+                var ret = result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordThreadChannel>();
+                return ret;
+            }
+
+            var cs = ctx.Config.CaseSensitive;
+            if (!cs)
+                value = value.ToLowerInvariant();
+
+            var foundThread = ctx.Guild?.Threads.Values.FirstOrDefault(thread => (cs ? thread.Name : thread.Name.ToLowerInvariant()) == value);
+
+            return foundThread != null ? Optional.FromValue(foundThread) : Optional.FromNoValue<DiscordThreadChannel>();
         }
     }
 
