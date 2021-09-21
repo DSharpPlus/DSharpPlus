@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.Versioning;
 
 namespace DSharpPlus.Entities
 {
@@ -77,6 +78,8 @@ namespace DSharpPlus.Entities
         public IReadOnlyList<DiscordActionRowComponent> Components => this._components;
         private readonly List<DiscordActionRowComponent> _components = new();
 
+        public IReadOnlyList<DiscordAutoCompleteChoice> Choices => this._choices;
+        private readonly List<DiscordAutoCompleteChoice> _choices = new();
 
         /// <summary>
         /// Mentions to send on this interaction response.
@@ -148,6 +151,21 @@ namespace DSharpPlus.Entities
             this._components.Add(arc);
             return this;
         }
+
+        public DiscordInteractionResponseBuilder AddAutoCompleteChoice(DiscordAutoCompleteChoice choice)
+        {
+            this._choices.Add(choice);
+            return this;
+        }
+
+        public DiscordInteractionResponseBuilder AddAutoCompleteChoices(IEnumerable<DiscordAutoCompleteChoice> choices)
+        {
+            this._choices.AddRange(choices);
+            return this;
+        }
+
+        public DiscordInteractionResponseBuilder AddAutoCompleteChoices(params DiscordAutoCompleteChoice[] choices)
+            => this.AddAutoCompleteChoices((IEnumerable<DiscordAutoCompleteChoice>)choices);
 
         /// <summary>
         /// Indicates if the interaction response will be text-to-speech.

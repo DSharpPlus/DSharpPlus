@@ -20,33 +20,39 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-
-using System.Collections.Generic;
+using System;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
 {
-    internal class DiscordInteractionApplicationCommandCallbackData
+    public sealed class DiscordAutoCompleteChoice
     {
-        [JsonProperty("tts", NullValueHandling = NullValueHandling.Ignore)]
-        public bool? IsTTS { get; internal set; }
+        /// <summary>
+        /// Gets the name of this option which will be presented to the user.
+        /// </summary>
+        [JsonProperty("name")]
+        public string Name { get; internal set; }
 
-        [JsonProperty("content", NullValueHandling = NullValueHandling.Ignore)]
-        public string Content { get; internal set; }
+        /// <summary>
+        /// Gets the value of this option.
+        /// </summary>
+        [JsonProperty("value")]
+        public string Value { get; internal set; }
 
-        [JsonProperty("embeds", NullValueHandling = NullValueHandling.Ignore)]
-        public IEnumerable<DiscordEmbed> Embeds { get; internal set; }
+        /// <summary>
+        /// Creates a new instance of <see cref="DiscordAutoCompleteChoice"/>.
+        /// </summary>
+        /// <param name="name">The name of this option, which will be presented to the user.</param>
+        /// <param name="value">The value of this option.</param>
+        public DiscordAutoCompleteChoice(string name, string value)
+        {
+            if (name.Length > 100)
+                throw new ArgumentException("Application command choice name cannot exceed 100 characters.", nameof(name));
+            if (value is string val && val.Length > 100)
+                throw new ArgumentException("Application command choice value cannot exceed 100 characters.", nameof(value));
 
-        [JsonProperty("allowed_mentions", NullValueHandling = NullValueHandling.Ignore)]
-        public IEnumerable<IMention> Mentions { get; internal set; }
-
-        [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
-        public MessageFlags? Flags { get; internal set; }
-
-        [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
-        public IReadOnlyCollection<DiscordActionRowComponent> Components { get; internal set; }
-
-        [JsonProperty("options")]
-        public IReadOnlyCollection<DiscordAutoCompleteChoice> Choices { get; internal set; }
+            this.Name = name;
+            this.Value = value;
+        }
     }
 }

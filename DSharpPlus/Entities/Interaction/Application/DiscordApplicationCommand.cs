@@ -71,7 +71,7 @@ namespace DSharpPlus.Entities
         public bool? DefaultPermission { get; internal set; }
 
         /// <summary>
-        /// Gets the autoincrementing version number for this command. 
+        /// Gets the autoincrementing version number for this command.
         /// </summary>
         [JsonProperty("version")]
         public ulong Version { get; internal set; }
@@ -86,7 +86,7 @@ namespace DSharpPlus.Entities
         /// <param name="type">The type of the application command</param>
         public DiscordApplicationCommand(string name, string description, IEnumerable<DiscordApplicationCommandOption> options = null, bool? defaultPermission = null, ApplicationCommandType type = ApplicationCommandType.SlashCommand)
         {
-            if (type == ApplicationCommandType.SlashCommand)
+            if (type is ApplicationCommandType.SlashCommand)
             {
                 if (!Utilities.IsValidSlashCommandName(name))
                     throw new ArgumentException("Invalid slash command name specified. It must be below 32 characters and not contain any whitespace.", nameof(name));
