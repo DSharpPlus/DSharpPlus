@@ -53,13 +53,19 @@ namespace DSharpPlus.Entities
         public string Description { get; internal set; }
 
         /// <summary>
+        /// Gets whether this option will auto-complete.
+        /// </summary>
+        [JsonProperty("autocomplete")]
+        public bool? AutoComplete { get; internal set; }
+
+        /// <summary>
         /// Gets whether this command parameter is required.
         /// </summary>
         [JsonProperty("required", NullValueHandling = NullValueHandling.Ignore)]
         public bool? Required { get; internal set; }
 
         /// <summary>
-        /// Gets the optional choices for this command parameter.
+        /// Gets the optional choices for this command parameter. Not applicable for auto-complete options.
         /// </summary>
         [JsonProperty("choices", NullValueHandling = NullValueHandling.Ignore)]
         public IReadOnlyCollection<DiscordApplicationCommandOptionChoice> Choices { get; internal set; }
@@ -86,7 +92,7 @@ namespace DSharpPlus.Entities
         /// <param name="choices">The optional choice selection for this parameter.</param>
         /// <param name="options">The optional subcommands for this parameter.</param>
         /// <param name="channelTypes">The channel types to be restricted to for this parameter, if of type <see cref="ApplicationCommandOptionType.Channel"/>.</param>
-        public DiscordApplicationCommandOption(string name, string description, ApplicationCommandOptionType type, bool? required = null, IEnumerable<DiscordApplicationCommandOptionChoice> choices = null, IEnumerable<DiscordApplicationCommandOption> options = null, IEnumerable<ChannelType> channelTypes = null)
+        public DiscordApplicationCommandOption(string name, string description, ApplicationCommandOptionType type, bool? required = null, bool? autocomplete = null, IEnumerable<DiscordApplicationCommandOptionChoice> choices = null, IEnumerable<DiscordApplicationCommandOption> options = null, IEnumerable<ChannelType> channelTypes = null)
         {
             if (!Utilities.IsValidSlashCommandName(name))
                 throw new ArgumentException("Invalid slash command option name specified. It must be below 32 characters and not contain any whitespace.", nameof(name));
@@ -94,6 +100,8 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("Slash command option name cannot have any upper case characters.", nameof(name));
             if (description.Length > 100)
                 throw new ArgumentException("Slash command option description cannot exceed 100 characters.", nameof(description));
+            if ((autocomplete ?? false) && (choices?.Any() ?? false))
+                throw new InvalidOperationException("Auto-complete slash command options cannot provide choices.");
 
             var choiceList = choices != null ? new ReadOnlyCollection<DiscordApplicationCommandOptionChoice>(choices.ToList()) : null;
             var optionList = options != null ? new ReadOnlyCollection<DiscordApplicationCommandOption>(options.ToList()) : null;
@@ -102,6 +110,7 @@ namespace DSharpPlus.Entities
             this.Name = name;
             this.Description = description;
             this.Type = type;
+            this.AutoComplete = autocomplete;
             this.Required = required;
             this.Choices = choiceList;
             this.Options = optionList;
