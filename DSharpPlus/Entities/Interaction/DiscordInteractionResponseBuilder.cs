@@ -78,6 +78,9 @@ namespace DSharpPlus.Entities
         public IReadOnlyList<DiscordActionRowComponent> Components => this._components;
         private readonly List<DiscordActionRowComponent> _components = new();
 
+        /// <summary>
+        /// The choices to send on this interaction response. Mutually exclusive with content, embed, and components.
+        /// </summary>
         public IReadOnlyList<DiscordAutoCompleteChoice> Choices => this._choices;
         private readonly List<DiscordAutoCompleteChoice> _choices = new();
 
@@ -152,18 +155,33 @@ namespace DSharpPlus.Entities
             return this;
         }
 
+        /// <summary>
+        /// Adds a single auto-complete choice to the builder.
+        /// </summary>
+        /// <param name="choice">The choice to add.</param>
+        /// <returns>The current builder to chain calls with.</returns>
         public DiscordInteractionResponseBuilder AddAutoCompleteChoice(DiscordAutoCompleteChoice choice)
         {
             this._choices.Add(choice);
             return this;
         }
 
+        /// <summary>
+        /// Adds auto-complete choices to the builder.
+        /// </summary>
+        /// <param name="choices">The choices to add.</param>
+        /// <returns>The current builder to chain calls with.</returns>
         public DiscordInteractionResponseBuilder AddAutoCompleteChoices(IEnumerable<DiscordAutoCompleteChoice> choices)
         {
             this._choices.AddRange(choices);
             return this;
         }
 
+        /// <summary>
+        /// Adds auto-complete choices to the builder.
+        /// </summary>
+        /// <param name="choices">The choices to add.</param>
+        /// <returns>The current builder to chain calls with.</returns>
         public DiscordInteractionResponseBuilder AddAutoCompleteChoices(params DiscordAutoCompleteChoice[] choices)
             => this.AddAutoCompleteChoices((IEnumerable<DiscordAutoCompleteChoice>)choices);
 

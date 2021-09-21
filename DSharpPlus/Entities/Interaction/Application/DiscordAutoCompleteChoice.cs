@@ -25,6 +25,9 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
 {
+    /// <summary>
+    /// Represents an option for a user to select for auto-completion.
+    /// </summary>
     public sealed class DiscordAutoCompleteChoice
     {
         /// <summary>
