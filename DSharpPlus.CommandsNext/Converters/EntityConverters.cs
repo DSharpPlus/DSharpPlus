@@ -203,7 +203,7 @@ namespace DSharpPlus.CommandsNext.Converters
             if (!cs)
                 value = value.ToLowerInvariant();
 
-            var thread = ctx.Guild?.Threads.Values.FirstOrDefault(xThread => (cs ? xThread.Name : xThread.Name.ToLowerInvariant()) == value);
+            var thread = ctx.Guild?.Threads.Values.FirstOrDefault(xt => (cs ? xt.Name : xt.Name.ToLowerInvariant()) == value);
 
             return thread != null ? Optional.FromValue(thread) : Optional.FromNoValue<DiscordThreadChannel>();
         }
