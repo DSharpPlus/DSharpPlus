@@ -89,6 +89,8 @@ namespace DSharpPlus.Test
             this.Discord.GuildDownloadCompleted += this.Discord_GuildDownloadCompleted;
             this.Discord.GuildUpdated += this.Discord_GuildUpdated;
             this.Discord.ChannelDeleted += this.Discord_ChannelDeleted;
+
+            this.Discord.InteractionCreated += this.Discord_InteractionCreated;
             //this.Discord.ComponentInteractionCreated += this.RoleMenu;
             //this.Discord.ComponentInteractionCreated += this.DiscordComponentInteractionCreated;
             //this.Discord.InteractionCreated += this.SendButton;
@@ -162,6 +164,26 @@ namespace DSharpPlus.Test
 
             //    _ = Task.Run(async () => await e.Message.RespondAsync(e.Message.Content)).ConfigureAwait(false);
             //};
+        }
+
+        private async Task Discord_InteractionCreated(DiscordClient sender, InteractionCreateEventArgs e)
+        {
+            if (e.Interaction.Type != InteractionType.AutoComplete)
+                return;
+
+            this.Discord.Logger.LogInformation($"AutoComplete: Focused: {e.Interaction.Data.Options.First().Focused}, Data: {e.Interaction.Data.Options.First().Value}");
+
+            var option = e.Interaction.Data.Options.First();
+
+            if (string.IsNullOrEmpty(option.Value as string))
+                return;
+
+            var builder = new DiscordInteractionResponseBuilder()
+                .AddAutoCompleteChoice(new DiscordAutoCompleteChoice(option.Value as string, "pog ig"));
+
+            await e.Interaction.CreateResponseAsync(InteractionResponseType.AutoCompleteResult, builder);
+
+            return;
         }
 
         private Task Discord_StickersUpdated(DiscordClient sender, GuildStickersUpdateEventArgs e)
