@@ -200,12 +200,12 @@ namespace DSharpPlus.CommandsNext.Converters
             }
 
             var cs = ctx.Config.CaseSensitive;
-            if (!cs)​
-                value = value.ToLowerInvariant();​​​​​
+            if (!cs)
+                value = value.ToLowerInvariant();
 
-            var thread = ctx.Guild?.Threads.Values.FirstOrDefault(x​​t => (cs ? x​​t.Name : x​​t.Name.ToLowerInvariant()) == value);
+            var thread = ctx.Guild?.Threads.Values.FirstOrDefault(xThread => (cs ? xThread.Name : xThread.Name.ToLowerInvariant()) == value);
 
-            return thread != null ? Optional.FromValue(thread) : Optional.FromNoValu​​e<DiscordThreadChannel>();
+            return thread != null ? Optional.FromValue(thread) : Optional.FromNoValue<DiscordThreadChannel>();
         }
     }
 
