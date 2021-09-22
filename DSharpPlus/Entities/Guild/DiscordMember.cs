@@ -223,6 +223,22 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Gets the member's banner hash.
+        /// </summary>
+        [JsonIgnore]
+        public override string BannerHash
+        {
+            get => this.User.BannerHash;
+            internal set => this.User.BannerHash = value;
+        }
+
+        /// <summary>
+        /// The color of this member's banner. Mutually exclusive with <see cref="BannerHash"/>.
+        /// </summary>
+        [JsonIgnore]
+        public override DiscordColor? BannerColor => this.User.BannerColor;
+
+        /// <summary>
         /// Gets the member's avatar hash.
         /// </summary>
         [JsonIgnore]
@@ -544,7 +560,7 @@ namespace DSharpPlus.Entities
             if (channel.Type != ChannelType.Stage)
                 throw new ArgumentException("Voice state can only be updated in a stage channel.");
 
-            await this.Discord.ApiClient.UpdateUserVoiceStateAsync(this.Guild.Id, this.Id, channel.Id, suppress);
+            await this.Discord.ApiClient.UpdateUserVoiceStateAsync(this.Guild.Id, this.Id, channel.Id, suppress).ConfigureAwait(false);
         }
 
         /// <summary>

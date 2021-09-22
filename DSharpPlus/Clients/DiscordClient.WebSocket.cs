@@ -28,6 +28,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.WebSocket;
 using Microsoft.Extensions.Logging;
@@ -44,7 +45,7 @@ namespace DSharpPlus
         private DateTimeOffset _lastHeartbeat;
         private Task _heartbeatTask;
 
-        internal static DateTimeOffset DiscordEpoch = new(2015, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        internal static readonly DateTimeOffset _discordEpoch = new(2015, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
         private int _skippedHeartbeats = 0;
         private long _lastSequence;
@@ -75,6 +76,7 @@ namespace DSharpPlus
             return Task.CompletedTask;
         }
 
+        /* GATEWAY VERSION IS IN THIS METHOD!! If you need to update the Gateway Version, look for gwuri ~Velvet */
         internal async Task InternalConnectAsync()
         {
             SocketLock socketLock = null;
@@ -134,7 +136,7 @@ namespace DSharpPlus
             this._webSocketClient.ExceptionThrown += SocketOnException;
 
             var gwuri = new QueryUriBuilder(this.GatewayUri)
-                .AddParameter("v", "8")
+                .AddParameter("v", "9")
                 .AddParameter("encoding", "json");
 
             if (this.Configuration.GatewayCompressionLevel == GatewayCompressionLevel.Stream)
@@ -169,7 +171,7 @@ namespace DSharpPlus
                 try
                 {
                     this.Logger.LogTrace(LoggerEvents.GatewayWsRx, msg);
-                    await this.HandleSocketMessageAsync(msg);
+                    await this.HandleSocketMessageAsync(msg).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -189,14 +191,14 @@ namespace DSharpPlus
                 if (!this._disposed)
                     this._cancelTokenSource.Cancel();
 
-                this.Logger.LogDebug(LoggerEvents.ConnectionClose, "Connection closed ({0}, '{1}')", e.CloseCode, e.CloseMessage);
+                this.Logger.LogDebug(LoggerEvents.ConnectionClose, "Connection closed ({CloseCode}, '{CloseMessage}')", e.CloseCode, e.CloseMessage);
                 await this._socketClosed.InvokeAsync(this, e).ConfigureAwait(false);
 
 
 
                 if (this.Configuration.AutoReconnect && (e.CloseCode < 4001 || e.CloseCode >= 5000))
                 {
-                    this.Logger.LogCritical(LoggerEvents.ConnectionClose, "Connection terminated ({0}, '{1}'), reconnecting", e.CloseCode, e.CloseMessage);
+                    this.Logger.LogCritical(LoggerEvents.ConnectionClose, "Connection terminated ({CloseCode}, '{CloseMessage}'), reconnecting", e.CloseCode, e.CloseMessage);
 
                     if (this._status == null)
                         await this.ConnectAsync().ConfigureAwait(false);
@@ -208,7 +210,7 @@ namespace DSharpPlus
                 }
                 else
                 {
-                    this.Logger.LogCritical(LoggerEvents.ConnectionClose, "Connection terminated ({0}, '{1}')", e.CloseCode, e.CloseMessage);
+                    this.Logger.LogCritical(LoggerEvents.ConnectionClose, "Connection terminated ({CloseCode}, '{CloseMessage}')", e.CloseCode, e.CloseMessage);
                 }
             }
         }
@@ -248,7 +250,7 @@ namespace DSharpPlus
                     break;
 
                 default:
-                    this.Logger.LogWarning(LoggerEvents.WebSocketReceive, "Unknown Discord opcode: {0}\nPayload: {1}", payload.OpCode, payload.Data);
+                    this.Logger.LogWarning(LoggerEvents.WebSocketReceive, "Unknown Discord opcode: {Op}\nPayload: {Payload}", payload.OpCode, payload.Data);
                     break;
             }
         }
@@ -321,7 +323,7 @@ namespace DSharpPlus
 
             var ping = (int)(DateTime.Now - this._lastHeartbeat).TotalMilliseconds;
 
-            this.Logger.LogTrace(LoggerEvents.WebSocketReceive, "Received HEARTBEAT_ACK (OP11, {0}ms)", ping);
+            this.Logger.LogTrace(LoggerEvents.WebSocketReceive, "Received HEARTBEAT_ACK (OP11, {Heartbeat}ms)", ping);
 
             Volatile.Write(ref this._ping, ping);
 
@@ -471,7 +473,7 @@ namespace DSharpPlus
             var payloadstr = JsonConvert.SerializeObject(payload);
             await this.WsSendAsync(payloadstr).ConfigureAwait(false);
 
-            this.Logger.LogDebug(LoggerEvents.Intents, "Registered gateway intents ({0})", this.Configuration.Intents);
+            this.Logger.LogDebug(LoggerEvents.Intents, "Registered gateway intents ({Intents})", this.Configuration.Intents);
         }
 
         internal async Task SendResumeAsync()

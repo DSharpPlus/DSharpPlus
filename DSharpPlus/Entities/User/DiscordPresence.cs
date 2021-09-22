@@ -58,10 +58,10 @@ namespace DSharpPlus.Entities
         /// Gets the user's current activities.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyList<DiscordActivity> Activities => this.InternalActivities;
+        public IReadOnlyList<DiscordActivity> Activities => this._internalActivities;
 
         [JsonIgnore]
-        internal DiscordActivity[] InternalActivities;
+        internal DiscordActivity[] _internalActivities;
 
         [JsonProperty("activities", NullValueHandling = NullValueHandling.Ignore)]
         internal TransportActivity[] RawActivities { get; set; }
@@ -95,7 +95,7 @@ namespace DSharpPlus.Entities
             this.Discord = other.Discord;
             this.Activity = other.Activity;
             this.RawActivity = other.RawActivity;
-            this.InternalActivities = (DiscordActivity[])other.InternalActivities?.Clone();
+            this._internalActivities = (DiscordActivity[])other._internalActivities?.Clone();
             this.RawActivities = (TransportActivity[])other.RawActivities?.Clone();
             this.Status = other.Status;
             this.InternalUser = new TransportUser(other.InternalUser);

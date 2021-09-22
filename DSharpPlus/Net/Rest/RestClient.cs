@@ -143,7 +143,7 @@ namespace DSharpPlus.Net
             if (!bucket.RouteHashes.Contains(bucketId))
                 bucket.RouteHashes.Add(bucketId);
 
-            // Add the current route to the request queue, which indexes the amount 
+            // Add the current route to the request queue, which indexes the amount
             // of requests occurring to the bucket id.
             _ = this.RequestQueue.TryGetValue(bucketId, out var count);
 
@@ -193,14 +193,14 @@ namespace DSharpPlus.Net
                     // Decrement the remaining number of requests as there can be other concurrent requests before this one finishes and has a chance to update the bucket
                     if (Interlocked.Decrement(ref bucket._remaining) < 0)
                     {
-                        this.Logger.LogDebug(LoggerEvents.RatelimitDiag, "Request for {0} is blocked", bucket.ToString());
+                        this.Logger.LogDebug(LoggerEvents.RatelimitDiag, "Request for {Bucket} is blocked", bucket.ToString());
                         var delay = bucket.Reset - now;
                         var resetDate = bucket.Reset;
 
                         if (this.UseResetAfter)
                         {
                             delay = bucket.ResetAfter.Value;
-                            resetDate = bucket._resetAfterOffset;
+                            resetDate = bucket.ResetAfterOffset;
                         }
 
                         if (delay < new TimeSpan(-TimeSpan.TicksPerMinute))
@@ -219,10 +219,10 @@ namespace DSharpPlus.Net
 
                         return;
                     }
-                    this.Logger.LogDebug(LoggerEvents.RatelimitDiag, "Request for {0} is allowed", bucket.ToString());
+                    this.Logger.LogDebug(LoggerEvents.RatelimitDiag, "Request for {Bucket} is allowed", bucket.ToString());
                 }
                 else
-                    this.Logger.LogDebug(LoggerEvents.RatelimitDiag, "Initial request for {0} is allowed", bucket.ToString());
+                    this.Logger.LogDebug(LoggerEvents.RatelimitDiag, "Initial request for {Bucket} is allowed", bucket.ToString());
 
                 var req = this.BuildRequest(request);
                 var response = new RestResponse();
@@ -244,7 +244,7 @@ namespace DSharpPlus.Net
                 }
                 catch (HttpRequestException httpex)
                 {
-                    this.Logger.LogError(LoggerEvents.RestError, httpex, "Request to {0} triggered an HttpException", request.Url);
+                    this.Logger.LogError(LoggerEvents.RestError, httpex, "Request to {Url} triggered an HttpException", request.Url);
                     request.SetFaulted(httpex);
                     this.FailInitialRateLimitTest(request, ratelimitTcs);
                     return;
@@ -298,7 +298,7 @@ namespace DSharpPlus.Net
                             }
                             else
                             {
-                                this.Logger.LogError(LoggerEvents.RatelimitHit, "Ratelimit hit, requeueing request to {0}", request.Url);
+                                this.Logger.LogError(LoggerEvents.RatelimitHit, "Ratelimit hit, requeueing request to {Url}", request.Url);
                                 await wait.ConfigureAwait(false);
                                 this.ExecuteRequestAsync(request, bucket, ratelimitTcs)
                                     .LogTaskFault(this.Logger, LogLevel.Error, LoggerEvents.RestError, "Error while retrying request");
@@ -323,7 +323,7 @@ namespace DSharpPlus.Net
             }
             catch (Exception ex)
             {
-                this.Logger.LogError(LoggerEvents.RestError, ex, "Request to {0} triggered an exception", request.Url);
+                this.Logger.LogError(LoggerEvents.RestError, ex, "Request to {Url} triggered an exception", request.Url);
 
                 // if something went wrong and we couldn't get rate limits for the first request here, allow the next request to run
                 if (bucket != null && ratelimitTcs != null && bucket._limitTesting != 0)
@@ -340,7 +340,7 @@ namespace DSharpPlus.Net
                 _ = this.RequestQueue.TryGetValue(bucket.BucketId, out var count);
                 this.RequestQueue[bucket.BucketId] = Interlocked.Decrement(ref count);
 
-                // If it's 0 or less, we can remove the bucket from the active request queue, 
+                // If it's 0 or less, we can remove the bucket from the active request queue,
                 // along with any of its past routes.
                 if (count <= 0)
                 {
@@ -546,7 +546,7 @@ namespace DSharpPlus.Net
                 newReset = clienttime + bucket.ResetAfter.Value + (request.RateLimitWaitOverride.HasValue
                     ? resetdelta
                     : TimeSpan.Zero);
-                bucket._resetAfterOffset = newReset;
+                bucket.ResetAfterOffset = newReset;
             }
             else
                 bucket.Reset = newReset;
@@ -588,12 +588,12 @@ namespace DSharpPlus.Net
                 return;
             }
 
-            // Only update the hash once, due to a bug on Discord's end. 
-            // This will cause issues if the bucket hashes are dynamically changed from the API while running, 
+            // Only update the hash once, due to a bug on Discord's end.
+            // This will cause issues if the bucket hashes are dynamically changed from the API while running,
             // in which case, Dispose will need to be called to clear the caches.
-            if (bucket.IsUnlimited && newHash != oldHash)
+            if (bucket._isUnlimited && newHash != oldHash)
             {
-                this.Logger.LogDebug(LoggerEvents.RestHashMover, "Updating hash in {0}: \"{1}\" -> \"{2}\"", hashKey, oldHash, newHash);
+                this.Logger.LogDebug(LoggerEvents.RestHashMover, "Updating hash in {Hash}: \"{OldHash}\" -> \"{NewHash}\"", hashKey, oldHash, newHash);
                 var bucketId = RateLimitBucket.GenerateBucketId(newHash, bucket.GuildId, bucket.ChannelId, bucket.WebhookId);
 
                 _ = this.RoutesToHashes.AddOrUpdate(hashKey, newHash, (key, oldHash) =>
@@ -647,13 +647,13 @@ namespace DSharpPlus.Net
                     var value = kvp.Value;
 
                     // Don't remove the bucket if it's currently being handled by the rest client, unless it's an unlimited bucket.
-                    if (this.RequestQueue.ContainsKey(value.BucketId) && !value.IsUnlimited)
+                    if (this.RequestQueue.ContainsKey(value.BucketId) && !value._isUnlimited)
                         continue;
 
-                    var resetOffset = this.UseResetAfter ? value._resetAfterOffset : value.Reset;
+                    var resetOffset = this.UseResetAfter ? value.ResetAfterOffset : value.Reset;
 
                     // Don't remove the bucket if it's reset date is less than now + the additional wait time, unless it's an unlimited bucket.
-                    if (resetOffset != null && !value.IsUnlimited && (resetOffset > DateTimeOffset.UtcNow || DateTimeOffset.UtcNow - resetOffset < this._bucketCleanupDelay))
+                    if (resetOffset != null && !value._isUnlimited && (resetOffset > DateTimeOffset.UtcNow || DateTimeOffset.UtcNow - resetOffset < this._bucketCleanupDelay))
                         continue;
 
                     _ = this.HashesToBuckets.TryRemove(key, out _);
@@ -662,7 +662,7 @@ namespace DSharpPlus.Net
                 }
 
                 if (removedBuckets > 0)
-                    this.Logger.LogDebug(LoggerEvents.RestCleaner, "Removed {0} unused bucket{1}: [{2}]", removedBuckets, removedBuckets > 1 ? "s" : string.Empty, bucketIdStrBuilder.ToString().TrimEnd(',', ' '));
+                    this.Logger.LogDebug(LoggerEvents.RestCleaner, "Removed {BucketCount} unused bucket{BucketPlural}: [{BucketId}]", removedBuckets, removedBuckets > 1 ? "s" : string.Empty, bucketIdStrBuilder.ToString().TrimEnd(',', ' '));
 
                 if (this.HashesToBuckets.Count == 0)
                     break;

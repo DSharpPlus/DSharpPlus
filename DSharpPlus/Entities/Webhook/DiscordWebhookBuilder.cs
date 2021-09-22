@@ -66,6 +66,11 @@ namespace DSharpPlus.Entities
         private string _content;
 
         /// <summary>
+        /// Id of the thread to send the webhook request to.
+        /// </summary>
+        public ulong? ThreadId { get; set; }
+
+        /// <summary>
         /// Embeds to send on this webhook request.
         /// </summary>
         public IReadOnlyList<DiscordEmbed> Embeds => this._embeds;
@@ -191,7 +196,9 @@ namespace DSharpPlus.Entities
         /// <param name="embed">Embed to add.</param>
         public DiscordWebhookBuilder AddEmbed(DiscordEmbed embed)
         {
-            this._embeds.Add(embed);
+            if (embed != null)
+                this._embeds.Add(embed);
+
             return this;
         }
 
@@ -291,6 +298,16 @@ namespace DSharpPlus.Entities
         public DiscordWebhookBuilder AddMentions(IEnumerable<IMention> mentions)
         {
             this._mentions.AddRange(mentions);
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the id of the thread to execute the webhhok on.
+        /// </summary>
+        /// <param name="threadId">The id of the thread</param>
+        public DiscordWebhookBuilder WithThreadId(ulong? threadId)
+        {
+            this.ThreadId = threadId;
             return this;
         }
 

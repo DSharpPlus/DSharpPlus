@@ -102,7 +102,7 @@ namespace DSharpPlus.CommandsNext
                 foreach (var ovl in this.Overloads.OrderByDescending(x => x.Priority))
                 {
                     ctx.Overload = ovl;
-                    var args = await CommandsNextUtilities.BindArguments(ctx, ctx.Config.IgnoreExtraArguments).ConfigureAwait(false);
+                    var args = await CommandsNextUtilities.BindArgumentsAsync(ctx, ctx.Config.IgnoreExtraArguments).ConfigureAwait(false);
 
                     if (!args.IsSuccessful)
                         continue;

@@ -54,7 +54,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             try
             {
                 var tcs = await request.GetTaskCompletionSourceAsync().ConfigureAwait(false);
-                await tcs.Task;
+                await tcs.Task.ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -85,17 +85,19 @@ namespace DSharpPlus.Interactivity.EventHandling
             if (this._config.AckPaginationButtons)
             {
                 e.Handled = true;
-                await e.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
+                await e.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate).ConfigureAwait(false);
             }
 
             if (await req.GetUserAsync().ConfigureAwait(false) != e.User)
             {
                 if (this._config.ResponseBehavior is InteractionResponseBehavior.Respond)
-                    await e.Interaction.CreateFollowupMessageAsync(new() {Content = this._config.ResponseMessage, IsEphemeral = true});
+                    await e.Interaction.CreateFollowupMessageAsync(new() {Content = this._config.ResponseMessage, IsEphemeral = true}).ConfigureAwait(false);
 
                 return;
             }
 
+            if (req is InteractionPaginationRequest ipr)
+                ipr.RegenerateCTS(e.Interaction); // Necessary to ensure we don't prematurely yeet the CTS //
 
             await this.HandlePaginationAsync(req, e).ConfigureAwait(false);
         }
@@ -114,6 +116,7 @@ namespace DSharpPlus.Interactivity.EventHandling
                 _ when id == buttons.Stop.CustomId => Task.FromResult(tcs.TrySetResult(true)),
                 _ when id == buttons.Left.CustomId => request.PreviousPageAsync(),
                 _ when id == buttons.Right.CustomId => request.NextPageAsync(),
+                _ => Task.CompletedTask
             };
 
             await paginationTask.ConfigureAwait(false);
@@ -122,15 +125,28 @@ namespace DSharpPlus.Interactivity.EventHandling
                 return;
 
             var page = await request.GetPageAsync().ConfigureAwait(false);
+            var bts = await request.GetButtonsAsync().ConfigureAwait(false);
+
+            if (request is InteractionPaginationRequest ipr)
+            {
+                var builder = new DiscordWebhookBuilder()
+                    .WithContent(page.Content)
+                    .AddEmbed(page.Embed)
+                    .AddComponents(bts);
+
+                await args.Interaction.EditOriginalResponseAsync(builder).ConfigureAwait(false);
+                return;
+            }
+
 
             this._builder.Clear();
 
             this._builder
                 .WithContent(page.Content)
                 .AddEmbed(page.Embed)
-                .AddComponents(await request.GetButtonsAsync().ConfigureAwait(false));
+                .AddComponents(bts);
 
-            await this._builder.ModifyAsync(msg);
+            await this._builder.ModifyAsync(msg).ConfigureAwait(false);
 
         }
     }

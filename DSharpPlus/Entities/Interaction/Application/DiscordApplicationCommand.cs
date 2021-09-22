@@ -71,12 +71,19 @@ namespace DSharpPlus.Entities
         public bool? DefaultPermission { get; internal set; }
 
         /// <summary>
+        /// Gets the autoincrementing version number for this command. 
+        /// </summary>
+        [JsonProperty("version")]
+        public ulong Version { get; internal set; }
+
+        /// <summary>
         /// Creates a new instance of a <see cref="DiscordApplicationCommand"/>.
         /// </summary>
         /// <param name="name">The name of the command.</param>
         /// <param name="description">The description of the command.</param>
         /// <param name="options">Optional parameters for this command.</param>
         /// <param name="defaultPermission">Whether the command is enabled by default when the application is added to a guild.</param>
+        /// <param name="type">The type of the application command</param>
         public DiscordApplicationCommand(string name, string description, IEnumerable<DiscordApplicationCommandOption> options = null, bool? defaultPermission = null, ApplicationCommandType type = ApplicationCommandType.SlashCommand)
         {
             if (type == ApplicationCommandType.SlashCommand)

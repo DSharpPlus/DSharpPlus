@@ -88,6 +88,18 @@ namespace DSharpPlus.Test
                     .WithDescription(msg.Content));
         }
 
+        [Command("editmention")]
+        public async Task EditMentionsAsync(CommandContext ctx)
+        {
+            var builder = new DiscordMessageBuilder()
+                .WithContent("Mentioning <@&879398655130472508> and <@743323785549316197>")
+                .WithReply(ctx.Message.Id, true)
+                .WithAllowedMention(new RoleMention(879398655130472508));
+                //.WithAllowedMention(new UserMention(743323785549316197));//.WithAllowedMention(new RoleMention(879398655130472508));
+
+            var msg = await builder.SendAsync(ctx.Channel);
+            await msg.ModifyAsync("Mentioning <@&879398655130472508> and <@743323785549316197>, but edited!");
+        }
 
         [Command("mention"), Description("Attempts to mention a user")]
         public async Task MentionablesAsync(CommandContext ctx, DiscordUser user)
@@ -533,6 +545,12 @@ namespace DSharpPlus.Test
                 .WithTitle("✅ Purged")
                 .WithFooter($"foo");
             await x.SendMessageAsync(embed: embed2);
+        }
+        [Command("ping"), Aliases("p")]
+        public async Task PingAsync(CommandContext ctx)
+        {
+            await ctx.TriggerTypingAsync();
+            await ctx.RespondAsync($"Pong: {ctx.Client.Ping}ms");
         }
     }
 }

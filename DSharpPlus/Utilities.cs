@@ -259,7 +259,7 @@ namespace DSharpPlus
         /// <returns>Computed timestamp.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static DateTimeOffset GetSnowflakeTime(this ulong snowflake)
-            => DiscordClient.DiscordEpoch.AddMilliseconds(snowflake >> 22);
+            => DiscordClient._discordEpoch.AddMilliseconds(snowflake >> 22);
 
         /// <summary>
         /// Converts this <see cref="Permissions"/> into human-readable format.

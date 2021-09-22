@@ -342,11 +342,18 @@ namespace DSharpPlus.Entities
         /// <param name="mention">If we should mention the user in the reply.</param>
         /// <param name="failOnInvalidReply">Whether sending a reply that references an invalid message should be </param>
         /// <returns>The current builder to be chained.</returns>
-        public DiscordMessageBuilder WithReply(ulong messageId, bool mention = false, bool failOnInvalidReply = false)
+        public DiscordMessageBuilder WithReply(ulong? messageId, bool mention = false, bool failOnInvalidReply = false)
         {
             this.ReplyId = messageId;
             this.MentionOnReply = mention;
             this.FailOnInvalidReply = failOnInvalidReply;
+
+            if (mention)
+            {
+                this.Mentions ??= new List<IMention>();
+                this.Mentions.Add(new RepliedUserMention());
+            }
+
             return this;
         }
 
@@ -360,6 +367,7 @@ namespace DSharpPlus.Entities
 
         /// <summary>
         /// Sends the modified message.
+        /// <para>Note: Message replies cannot be modified. To clear the reply, simply pass <see langword="null"/> to <see cref="WithReply"/>.</para>
         /// </summary>
         /// <param name="msg">The original Message to modify.</param>
         /// <returns>The current builder to be chained.</returns>
@@ -395,22 +403,14 @@ namespace DSharpPlus.Entities
             if (this._embeds.Count > 10)
                 throw new ArgumentException("A message can only have up to 10 embeds.");
 
-            if (isModify)
-            {
-                if (this.ReplyId.HasValue)
-                    throw new ArgumentException("You cannot change the ReplyID when modifying a message");
-            }
-            else
-            {
-                if (this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && (!this.Embeds?.Any() ?? true) && this.Sticker is null)
-                    throw new ArgumentException("You must specify content, an embed, a sticker, or at least one file.");
+            if (this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && (!this.Embeds?.Any() ?? true) && this.Sticker is null)
+                throw new ArgumentException("You must specify content, an embed, a sticker, or at least one file.");
 
-                if (this.Components.Count > 5)
-                    throw new InvalidOperationException("You can only have 5 action rows per message.");
+            if (this.Components.Count > 5)
+                throw new InvalidOperationException("You can only have 5 action rows per message.");
 
-                if (this.Components.Any(c => c.Components.Count > 5))
-                    throw new InvalidOperationException("Action rows can only have 5 components");
-            }
+            if (this.Components.Any(c => c.Components.Count > 5))
+                throw new InvalidOperationException("Action rows can only have 5 components");
         }
     }
 }
