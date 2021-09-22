@@ -747,7 +747,10 @@ namespace DSharpPlus.SlashCommands
         }
 
         //Gets the choices from a choice provider
-        private async Task<List<DiscordApplicationCommandOptionChoice>> GetChoiceAttributesFromProvider(IEnumerable<ChoiceProviderAttribute> customAttributes)
+        private async Task<List<DiscordApplicationCommandOptionChoice>> GetChoiceAttributesFromProvider(
+            IEnumerable<ChoiceProviderAttribute> customAttributes,
+            ulong? guildId
+        )
         {
             var choices = new List<DiscordApplicationCommandOptionChoice>();
             foreach (var choiceProviderAttribute in customAttributes)
@@ -759,6 +762,17 @@ namespace DSharpPlus.SlashCommands
                 else
                 {
                     var instance = Activator.CreateInstance(choiceProviderAttribute.ProviderType);
+
+                    // Abstract class offers more properties that can be set
+                    if (choiceProviderAttribute.ProviderType.IsSubclassOf(typeof(ChoiceProvider)))
+                    {
+                        choiceProviderAttribute.ProviderType.GetProperty(nameof(ChoiceProvider.GuildId))
+                            ?.SetValue(instance, guildId);
+
+                        choiceProviderAttribute.ProviderType.GetProperty(nameof(ChoiceProvider.Services))
+                            ?.SetValue(instance, _configuration.Services);
+                    }
+
                     //Gets the choices from the method
                     var result = await (Task<IEnumerable<DiscordApplicationCommandOptionChoice>>)method.Invoke(instance, null);
 
@@ -850,7 +864,7 @@ namespace DSharpPlus.SlashCommands
                 var choiceProviders = parameter.GetCustomAttributes<ChoiceProviderAttribute>();
                 if (choiceProviders.Any())
                 {
-                    choices = await GetChoiceAttributesFromProvider(choiceProviders);
+                    choices = await GetChoiceAttributesFromProvider(choiceProviders, guildId);
                 }
 
                 var channelTypes = parameter.GetCustomAttribute<ChannelTypesAttribute>()?.ChannelTypes ?? null;
