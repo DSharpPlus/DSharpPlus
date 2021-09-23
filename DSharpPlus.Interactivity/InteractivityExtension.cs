@@ -140,11 +140,15 @@ namespace DSharpPlus.Interactivity
             if (message.Author != this.Client.CurrentUser)
                 throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
 
-            if (message.Components is null || !message.Components.Any(a => a.Components.Any(c => c is DiscordButtonComponent)))
-                throw new ArgumentException("Message does not contain any buttons.");
-
             if (!buttons.Any())
                 throw new ArgumentException("You must specify at least one button to listen for.");
+
+            if (!message.Components.Any())
+                throw new ArgumentException("Provided message does not contain any components.");
+
+            if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is ComponentType.Button))
+                throw new ArgumentException("Provided message does not contain any button components.");
+
 
             var res = await this.ComponentEventWaiter
                 .WaitForMatchAsync(new(message,
@@ -179,8 +183,11 @@ namespace DSharpPlus.Interactivity
             if (message.Author != this.Client.CurrentUser)
                 throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
 
-            if (message.Components is null || !message.Components.Any(a => a.Components.Any(c => c is DiscordButtonComponent)))
-                throw new ArgumentException("Message does not contain any buttons.");
+            if (!message.Components.Any())
+                throw new ArgumentException("Provided message does not contain any components.");
+
+            if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is ComponentType.Button))
+                throw new ArgumentException("Provided message does not contain any button components.");
 
             var ids = message.Components.SelectMany(m => m.Components).Select(c => c.CustomId);
 
@@ -219,8 +226,11 @@ namespace DSharpPlus.Interactivity
             if (message.Author != this.Client.CurrentUser)
                 throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
 
-            if (message.Components is null || !message.Components.Any(a => a.Components.Any(c => c is DiscordButtonComponent)))
-                throw new ArgumentException("Message does not contain any buttons.");
+            if (!message.Components.Any())
+                throw new ArgumentException("Provided message does not contain any components.");
+
+            if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is ComponentType.Button))
+                throw new ArgumentException("Provided message does not contain any button components.");
 
             var result = await this
                 .ComponentEventWaiter
@@ -257,11 +267,14 @@ namespace DSharpPlus.Interactivity
             if (message.Author != this.Client.CurrentUser)
                 throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
 
-            if (message.Components is null || !message.Components.Any(a => a.Components.Any(c => c is DiscordButtonComponent)))
-                throw new ArgumentException("Message does not contain any buttons.");
+            if (!message.Components.Any())
+                throw new ArgumentException("Provided message does not contain any components.");
+
+            if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is ComponentType.Button))
+                throw new ArgumentException("Provided message does not contain any button components.");
 
             if (!message.Components.SelectMany(c => c.Components).OfType<DiscordButtonComponent>().Any(c => c.CustomId == id))
-                throw new ArgumentException($"Message does not contain button with Id of '{id}'.");
+                throw new ArgumentException($"Provided message does not contain button with Id of '{id}'.");
 
             var result = await this
                 .ComponentEventWaiter
@@ -288,13 +301,14 @@ namespace DSharpPlus.Interactivity
         /// <param name="token">A token to cancel interactivity with at any time. Pass <see cref="CancellationToken.None"/> to wait indefinitely.</param>
         public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(DiscordMessage message, Func<ComponentInteractionCreateEventArgs, bool> predicate, CancellationToken token)
         {
+            if (message.Author != this.Client.CurrentUser)
+                throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
+
             if (!message.Components.Any())
-                throw new ArgumentException("Message doesn't contain any components!");
+                throw new ArgumentException("Provided message does not contain any components.");
 
-            var bcmps = message.Components.SelectMany(c => c.Components).Where(c => c.Type is ComponentType.Button).ToList();
-
-            if (!bcmps.Any())
-                throw new ArgumentException("Message doesn't contain any buttons!");
+            if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is ComponentType.Button))
+                throw new ArgumentException("Provided message does not contain any button components.");
 
             var result = await this
                 .ComponentEventWaiter
@@ -323,13 +337,15 @@ namespace DSharpPlus.Interactivity
         /// <exception cref="ArgumentException">Thrown when the message doesn't contain any dropdowns</exception>
         public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForSelectAsync(DiscordMessage message, Func<ComponentInteractionCreateEventArgs, bool> predicate, CancellationToken token)
         {
+            if (message.Author != this.Client.CurrentUser)
+                throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
+
             if (!message.Components.Any())
-                throw new ArgumentException("Message doesn't contain any components!");
+                throw new ArgumentException("Provided message does not contain any components.");
 
-            var scmps = message.Components.SelectMany(c => c.Components).Where(c => c.Type is ComponentType.Select).ToList();
+            if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is ComponentType.Select))
+                throw new ArgumentException("Provided message does not contain any select components.");
 
-            if (!scmps.Any())
-                throw new ArgumentException("Message doesn't contain any select menus!");
 
             var result = await this
                 .ComponentEventWaiter
@@ -360,16 +376,17 @@ namespace DSharpPlus.Interactivity
         /// <exception cref="ArgumentException">Thrown when the message does not have any dropdowns or any dropdown with the specified Id.</exception>
         public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForSelectAsync(DiscordMessage message, string id, CancellationToken token)
         {
+            if (message.Author != this.Client.CurrentUser)
+                throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
+
             if (!message.Components.Any())
-                throw new ArgumentException("Message doesn't contain any components!");
+                throw new ArgumentException("Provided message does not contain any components.");
 
-            var scmps = message.Components.SelectMany(c => c.Components).Where(c => c.Type is ComponentType.Select).ToList();
+            if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is ComponentType.Select))
+                throw new ArgumentException("Provided message does not contain any select components.");
 
-            if (!scmps.Any())
-                throw new ArgumentException("Message doesn't contain any select menus!");
-
-            if (scmps.All(c => c.CustomId != id))
-                throw new ArgumentException("Message doesn't contain a select menu with that Id!");
+            if (!message.Components.SelectMany(c => c.Components).OfType<DiscordButtonComponent>().Any(c => c.CustomId == id))
+                throw new ArgumentException($"Provided message does not contain select component with Id of '{id}'.");
 
             var result = await this
                 .ComponentEventWaiter
@@ -400,16 +417,17 @@ namespace DSharpPlus.Interactivity
         /// <exception cref="ArgumentException">Thrown when the message does not have any dropdowns or any dropdown with the specified Id.</exception>
         public async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForSelectAsync(DiscordMessage message, DiscordUser user, string id, CancellationToken token)
         {
+            if (message.Author != this.Client.CurrentUser)
+                throw new InvalidOperationException("Interaction events are only sent to the application that created them.");
+
             if (!message.Components.Any())
-                throw new ArgumentException("Message doesn't contain any components!");
+                throw new ArgumentException("Provided message does not contain any components.");
 
-            var scmps = message.Components.SelectMany(c => c.Components).Where(c => c.Type is ComponentType.Select).ToList();
+            if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is ComponentType.Select))
+                throw new ArgumentException("Provided message does not contain any select components.");
 
-            if (!scmps.Any())
-                throw new ArgumentException("Message doesn't contain any select menus!");
-
-            if (scmps.All(c => c.CustomId != id))
-                throw new ArgumentException("Message doesn't contain a select menu with that Id!");
+            if (!message.Components.SelectMany(c => c.Components).OfType<DiscordButtonComponent>().Any(c => c.CustomId == id))
+                throw new ArgumentException($"Provided message does not contain button with Id of '{id}'.");
 
             var result = await this
                 .ComponentEventWaiter
