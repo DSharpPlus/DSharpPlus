@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Authors>IDoEverything, Epictek, SakuraIsayeki, sssvt-drabek-stepan, tygore587, VelvetThePanda, OoLunar</Authors>
+    <Description>An extension for DSharpPlus to make slash commands easy</Description>
+    <PackageLicenseFile></PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/IDoEverything/DSharpPlus.SlashCommands</PackageProjectUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <RepositoryUrl>https://github.com/IDoEverything/DSharpPlus.SlashCommands</RepositoryUrl>
+    <PackageId>IDoEverything.DSharpPlus.SlashCommands</PackageId>
+    <Version>2.0.4</Version>
+    <Company>IDoEverything</Company>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <WarningLevel>3</WarningLevel>
+    <DocumentationFile>obj\Debug\netstandard2.0\DSharpPlus.SlashCommands.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <WarningLevel>5</WarningLevel>
+    <DocumentationFile>obj\Debug\netstandard2.0\DSharpPlus.SlashCommands.xml</DocumentationFile>
+    <NoWarn>1701;1702;NU5104</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DSharpPlus" Version="4.2.0-nightly-00995" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
+    <PackageReference Include="Emzi0767.Common" Version="2.6.2" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
+  </ItemGroup>
+
+</Project>
