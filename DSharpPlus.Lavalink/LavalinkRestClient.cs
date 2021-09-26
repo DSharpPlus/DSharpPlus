@@ -113,7 +113,7 @@ namespace DSharpPlus.Lavalink
                 LavalinkSearchType.Plain => "",
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
-            var str = WebUtility.UrlEncode(prefix + "searchQuery");
+            var str = WebUtility.UrlEncode(prefix + searchQuery);
             var tracksUri = new Uri($"{this.RestEndpoint.ToHttpString()}{Endpoints.LOAD_TRACKS}?identifier={str}");
             return this.InternalResolveTracksAsync(tracksUri);
         }
