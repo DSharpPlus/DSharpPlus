@@ -89,6 +89,7 @@ namespace DSharpPlus.CommandsNext
                 [typeof(DiscordMember)] = new DiscordMemberConverter(),
                 [typeof(DiscordRole)] = new DiscordRoleConverter(),
                 [typeof(DiscordChannel)] = new DiscordChannelConverter(),
+                [typeof(DiscordThreadChannel)] = new DiscordThreadChannelConverter(),
                 [typeof(DiscordGuild)] = new DiscordGuildConverter(),
                 [typeof(DiscordMessage)] = new DiscordMessageConverter(),
                 [typeof(DiscordEmoji)] = new DiscordEmojiConverter(),
