@@ -19,7 +19,7 @@ namespace DSharpPlus.SlashCommands
         /// <param name="name">The name for this enum choice.</param>
         public ChoiceNameAttribute(string name)
         {
-            Name = name;
+            this.Name = name;
         }
     }
 }

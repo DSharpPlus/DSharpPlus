@@ -20,7 +20,7 @@ namespace DSharpPlus.SlashCommands
         /// <param name="providerType">The type of the provider.</param>
         public ChoiceProviderAttribute(Type providerType)
         {
-            ProviderType = providerType;
+            this.ProviderType = providerType;
         }
     }
 }

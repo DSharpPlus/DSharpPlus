@@ -31,9 +31,9 @@ namespace DSharpPlus.SlashCommands
         /// <param name="defaultPermission">Sets whether this command group is enabled on default.</param>
         public SlashCommandGroupAttribute(string name, string description, bool defaultPermission = true)
         {
-            Name = name.ToLower();
-            Description = description;
-            DefaultPermission = defaultPermission;
+            this.Name = name.ToLower();
+            this.Description = description;
+            this.DefaultPermission = defaultPermission;
         }
     }
 }

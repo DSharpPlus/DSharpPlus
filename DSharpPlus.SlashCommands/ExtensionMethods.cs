@@ -46,7 +46,7 @@ namespace DSharpPlus.SlashCommands
         public static async Task<IReadOnlyDictionary<int, SlashCommandsExtension>> UseSlashCommandsAsync(this DiscordShardedClient client, SlashCommandsConfiguration config = null)
         {
             var modules = new Dictionary<int, SlashCommandsExtension>();
-            await (Task)client.GetType().GetMethod("InitializeShardsAsync", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(client, null);
+            await client.InitializeShardsAsync();
             foreach(var shard in client.ShardClients.Values)
             {
                 var scomm = shard.GetSlashCommands();
