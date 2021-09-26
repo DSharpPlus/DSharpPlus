@@ -1,27 +1,10 @@
-# DSharpPlus.SlashCommands
-
-[![Nuget](https://img.shields.io/nuget/vpre/IDoEverything.DSharpPlus.SlashCommands?style=flat-square)](https://www.nuget.org/packages/IDoEverything.DSharpPlus.SlashCommands)
-[![Discord](https://img.shields.io/discord/801857343930761281?label=Discord&logo=Discord&style=flat-square)](https://discord.gg/2ZhXXVJYhU)
-
-An extension for [DSharpPlus](https://github.com/DSharpPlus/DSharpPlus) to make slash commands easier.
-
-Join the [Discord server](https://discord.gg/2ZhXXVJYhU) for any questions, help or discussion.
-
 # Documentation
 
-DSharpPlus doesn't currently have a slash command framework. You can use this library to implement slash commands and context menus into your bot.
+This is the documentation for the slash commands extension for DSharpPlus (it also supports context menus). This is a direct merge of IDoEverything's slash command extension, so if you've been using that one you shouldn't need to make any changes in your code.
 
-I have done my best to make this as similar to CommandsNext as possible to make it a smooth experience. However, the library does not support registering or editing commands at runtime. While you can make commands at runtime using the methods on the client, if you have a command class registered for that guild/globally if you're making global commands, it will be overwritten (therefore probably deleted) on the next startup due to the limitations of the bulk overwrite endpoint.
+There are some caveats to the usage of the library that you should note:
 
-Now, on to the actual guide:
-## Installing
-Simply search for `IDoEverything.DSharpPlus.SlashCommands` and install the latest version. If you're using command line:
-
-Package-Manager: `Install-Package IDoEverything.DSharpPlus.SlashCommands`
-
-.NET CLI: `dotnet add package IDoEverything.DSharpPlus.SlashCommands`
-
-The current version of the library depends on the DSharpPlus nightly version. If you're using the stable nuget version, [update to the nightly version](https://dsharpplus.github.io/articles/misc/nightly_builds.html).
+It does not support registering or editing commands at runtime. While you can make commands at runtime using the methods on the client, if you have a command class registered for that guild/globally if you're making global commands, it will be overwritten (therefore probably deleted) on the next startup due to the limitations of the bulk overwrite endpoint. If your usage of slash commands depends on dynamically registering commands, this extension will not work for you.
 # Important: Authorizing your bot
 
 For a bot to make slash commands in a server, it must be authorized with the applications.commands scope as well. In the OAuth2 section of the developer portal, you can check the applications.commands box to generate an invite link. You can check the bot box as well to generate a link that authorizes both. If a bot is already authorized with the bot scope, you can still authorize with just the applications.commands scope without having to kick out the bot.
@@ -64,7 +47,7 @@ slash.RegisterCommands<SlashCommands>();
 *Make sure that you register them before your `ConnectAsync`*
 
 ## Making Slash Commands!
-On to the exciting part. 
+On to the exciting part.
 
 Slash command methods must be `Task`s and have the `SlashCommand` attribute. The first argument for the method must be an `InteractionContext`. Let's make a simple slash command:
 ```cs
@@ -87,7 +70,7 @@ If you want to send a file, you'll have to edit the response.
 
 A simple response would be like:
 ```cs
-[SlashCommand("test", "A slash command made to test the DSharpPlusSlashCommands library!")]
+[SlashCommand("test", "A slash command made to test the DSharpPlus Slash Commands extension!")]
 public async Task TestCommand(InteractionContext ctx)
 {
     await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Success!"));
@@ -95,13 +78,13 @@ public async Task TestCommand(InteractionContext ctx)
 ```
 If your code will take some time to execute:
 ```cs
-[SlashCommand("delaytest", "A slash command made to test the DSharpPlusSlashCommands library!")]
+[SlashCommand("delaytest", "A slash command made to test the DSharpPlus Slash Commands extension!")]
 public async Task DelayTestCommand(InteractionContext ctx)
 {
     await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
-    
+
     //Some time consuming task like a database call or a complex operation
-    
+
     await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Thanks for waiting!"));
 }
 ```
@@ -116,12 +99,12 @@ Arguments must have the `Option` attribute, and can be of type:
 * `long` or `long?`
 * `bool` or `bool?`
 * `double` or `double?`
-* `DiscordUser` - This can be cast to `DiscordMember` if the command is run in a guild 
+* `DiscordUser` - This can be cast to `DiscordMember` if the command is run in a guild
 * `DiscordChannel`
 * `DiscordRole`
 * `SnowflakeObject` - This can accept both a user and a role; you can cast it `DiscordUser`, `DiscordMember` or `DiscordRole` to get the actual object
 * `Enum` - This can used for choices through an enum; read further
- 
+
 If you want to make them optional, you can assign a default value.
 
 You can also predefine some choices for the option. Choices only work for `string`, `long` or `double` arguments. THere are several ways to use them:
@@ -155,7 +138,7 @@ public enum MyEnum
     [ChoiceName("Option 3")]
     option3
 }
-    
+
 [SlashCommand("enum", "Test enum")]
 public async Task EnumCommand(InteractionContext ctx, [Option("enum", "enum option")]MyEnum myEnum = MyEnum.option1)
 {
@@ -175,7 +158,7 @@ public class TestChoiceProvider : IChoiceProvider
         };
     }
 }
-        
+
 [SlashCommand("choiceprovider", "test")]
 public async Task ChoiceProviderCommand(InteractionContext ctx,
     [ChoiceProvider(typeof(TestChoiceProvider))]
@@ -190,11 +173,11 @@ You can have slash commands in groups. Their structure is explained [here](https
 ```cs
 //for regular groups
 [SlashCommandGroup("group", "description")]
-public class GroupContainer : ApplicationCommandModule 
+public class GroupContainer : ApplicationCommandModule
 {
     [SlashCommand("command", "description")]
     public async Task Command(InteractionContext ctx) {}
-    
+
     [SlashCommand("command2", "description")]
     public async Task Command2(InteractionContext ctx) {}
 }
@@ -208,17 +191,17 @@ public class SubGroupContainer : ApplicationCommandModule
     {
         [SlashCommand("command", "description")]
         public async Task Command(InteractionContext ctx) {}
-    
+
         [SlashCommand("command2", "description")]
         public async Task Command2(InteractionContext ctx) {}
     }
-    
+
     [SlashCommandGroup("subgroup2", "description")]
     public class SubGroup2 : ApplicationCommandModule
     {
         [SlashCommand("command", "description")]
         public async Task Command(InteractionContext ctx) {}
-    
+
         [SlashCommand("command2", "description")]
         public async Task Command2(InteractionContext ctx) {}
     }
@@ -246,7 +229,7 @@ There are also some built in ones for slash commands, the same ones as on `Comma
 public class RequireUserIdAttribute : SlashCheckBaseAttribute
 {
     public ulong UserId;
-    
+
     public RequireUserIdAttribute(ulong userId)
     {
         this.UserId = userId;
@@ -254,7 +237,7 @@ public class RequireUserIdAttribute : SlashCheckBaseAttribute
 
     public override async Task<bool> ExecuteChecksAsync(InteractionContext ctx)
     {
-        if (ctx.User.Id == UserId) 
+        if (ctx.User.Id == UserId)
             return true;
         else
             return false;
@@ -326,9 +309,3 @@ You'll have to foreach over it to register events.
 
 ### Module Lifespans
 You can specify a module's lifespan by applying the `SlashModuleLifespan` attribute on it. Modules are transient by default.
-
-# Issues and contributing
-If you find any issues or bugs, you should join the discord server and discuss it. If it's an actual bug, you can create an [issue](https://github.com/IDoEverything/DSharpPlus.SlashCommands/issues). If you would like to contribute or make changes, feel free to open a [pull request](https://github.com/IDoEverything/DSharpPlus.SlashCommands/pulls).
-
-# Questions?
-Join the [discord server](https://discord.gg/2ZhXXVJYhU)!
