@@ -59,6 +59,11 @@ namespace DSharpPlus.Net.Models
         /// </summary>
         public Stream IconStream { internal get; set; }
 
+        /// <summary>
+        /// The format of the icon being uploaded, if any.
+        /// </summary>
+        public ImageFormat Format { internal get; set; }
+
         internal RoleEditModel()
         {
             this.Name = null;
