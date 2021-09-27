@@ -212,8 +212,11 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("mentionable", NullValueHandling = NullValueHandling.Ignore)]
         public bool? Mentionable { get; set; }
 
-        [JsonProperty("emoji", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("unicode_emoji", NullValueHandling = NullValueHandling.Ignore)]
         public string Emoji { get; set; }
+
+        [JsonProperty("icon", NullValueHandling = NullValueHandling.Ignore)]
+        public string Icon { get; set; }
     }
 
     internal sealed class RestGuildPruneResultPayload

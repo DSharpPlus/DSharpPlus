@@ -2013,8 +2013,16 @@ namespace DSharpPlus.Net
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route, headers);
         }
 
-        internal async Task<DiscordRole> CreateGuildRoleAsync(ulong guild_id, string name, Permissions? permissions, int? color, bool? hoist, bool? mentionable, string reason, DiscordMessageFile icon, string emoji)
+        internal async Task<DiscordRole> CreateGuildRoleAsync(ulong guild_id, string name, Permissions? permissions, int? color, bool? hoist, bool? mentionable, string reason, Stream icon, string emoji)
         {
+            string image = null;
+
+            if (icon != null)
+            {
+                using var it = new ImageTool(icon);
+                image = it.GetBase64();
+            }
+
             var pld = new RestGuildRolePayload
             {
                 Name = name,
@@ -2022,7 +2030,8 @@ namespace DSharpPlus.Net
                 Color = color,
                 Hoist = hoist,
                 Mentionable = mentionable,
-                Emoji = emoji
+                Emoji = emoji,
+                Icon = image
             };
 
             var headers = Utilities.GetBaseHeaders();
@@ -2034,20 +2043,7 @@ namespace DSharpPlus.Net
 
             var url = Utilities.GetApiUriFor(path);
 
-            RestResponse res;
-            if (icon is null)
-            {
-                res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, headers, DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
-            }
-            else
-            {
-                var values = new Dictionary<string, string>()
-                {
-                    ["payload_json"] = DiscordJson.SerializeObject(pld)
-                };
-
-                res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, headers, values, new[] { icon });
-            }
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, headers, DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
 
             var ret = JsonConvert.DeserializeObject<DiscordRole>(res.Response);
             ret.Discord = this.Discord;
