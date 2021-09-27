@@ -1234,7 +1234,9 @@ namespace DSharpPlus
                 IsMentionable = newRole.IsMentionable,
                 Name = newRole.Name,
                 Permissions = newRole.Permissions,
-                Position = newRole.Position
+                Position = newRole.Position,
+                IconHash = newRole.IconHash,
+                _emoji = newRole._emoji
             };
 
             newRole._guild_id = guild.Id;
@@ -1245,6 +1247,8 @@ namespace DSharpPlus
             newRole.Name = role.Name;
             newRole.Permissions = role.Permissions;
             newRole.Position = role.Position;
+            newRole._emoji = role._emoji;
+            newRole.IconHash = role.IconHash;
 
             var ea = new GuildRoleUpdateEventArgs
             {
