@@ -57,6 +57,9 @@ namespace DSharpPlus.Entities
         [JsonProperty("hoist", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsHoisted { get; internal set; }
 
+        /// <summary>
+        /// The url for this role's icon, if set.
+        /// </summary>
         public string IconUrl => this.IconHash != null ? $"https://cdn.discordapp.com/role-icons/{this.Id}/{this.IconHash}.png" : null;
 
         /// <summary>
