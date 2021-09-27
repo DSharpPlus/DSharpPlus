@@ -975,7 +975,7 @@ namespace DSharpPlus
         /// <param name="emoji">The emoji to add to this role. Must be unicode.</param>
         /// <returns></returns>
         public Task<DiscordRole> ModifyGuildRoleAsync(ulong guild_id, ulong role_id, string name, Permissions? permissions, DiscordColor? color, bool? hoist, bool? mentionable, string reason, Stream icon, DiscordEmoji emoji)
-            => this.ApiClient.ModifyGuildRoleAsync(guild_id, role_id, name, permissions, color.HasValue ? (int?)color.Value.Value : null, hoist, mentionable, reason, icon, emoji);
+            => this.ApiClient.ModifyGuildRoleAsync(guild_id, role_id, name, permissions, color.HasValue ? (int?)color.Value.Value : null, hoist, mentionable, reason, icon, emoji?.ToString());
 
         /// <summary>
         /// Modifies a role
@@ -1016,7 +1016,7 @@ namespace DSharpPlus
         /// <param name="emoji">The emoji to add to this role. Must be unicode.</param>
         /// <returns></returns>
         public Task<DiscordRole> CreateGuildRoleAsync(ulong guild_id, string name, Permissions? permissions, int? color, bool? hoist, bool? mentionable, string reason, Stream icon = null, DiscordEmoji emoji = null)
-            => this.ApiClient.CreateGuildRoleAsync(guild_id, name, permissions, color, hoist, mentionable, reason, icon , emoji);
+            => this.ApiClient.CreateGuildRoleAsync(guild_id, name, permissions, color, hoist, mentionable, reason, icon , emoji?.ToString());
         #endregion
 
         #region Prune
