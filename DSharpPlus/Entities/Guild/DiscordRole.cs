@@ -74,7 +74,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         public DiscordEmoji Emoji => this._emoji != null ? DiscordEmoji.FromUnicode(this._emoji) : null;
 
-        [JsonProperty("emoji")]
+        [JsonProperty("unicode_emoji")]
         internal string _emoji;
 
         /// <summary>
