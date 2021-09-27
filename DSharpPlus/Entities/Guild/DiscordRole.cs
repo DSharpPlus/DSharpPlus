@@ -150,6 +150,8 @@ namespace DSharpPlus.Entities
         /// <param name="hoist">New role hoist</param>
         /// <param name="mentionable">Whether this role is mentionable</param>
         /// <param name="reason">Reason why we made this change</param>
+        /// <param name="icon">The icon to add to this role</param>
+        /// <param name="emoji">The emoji to add to this role. Must be unicode.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the role does not exist.</exception>

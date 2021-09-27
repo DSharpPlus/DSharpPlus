@@ -39,6 +39,7 @@ namespace DSharpPlus.Test
             await ctx.RespondAsync(
                 $"Role: {role.Mention}\n" +
                 $"Role has icon: {role.IconHash != null}\n" +
+                $"Associated emoji: {role.Emoji}\n +" +
                 $"Role icon: {role.IconUrl ?? "Not applicable"}");
         }
 
