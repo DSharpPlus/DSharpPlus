@@ -162,6 +162,9 @@ namespace DSharpPlus.Entities
         /// <returns>The current builder to chain calls with.</returns>
         public DiscordInteractionResponseBuilder AddAutoCompleteChoice(DiscordAutoCompleteChoice choice)
         {
+            if (this._choices.Count >= 25)
+                throw new ArgumentException("Maximum of 25 choices per response.");
+
             this._choices.Add(choice);
             return this;
         }
@@ -173,6 +176,9 @@ namespace DSharpPlus.Entities
         /// <returns>The current builder to chain calls with.</returns>
         public DiscordInteractionResponseBuilder AddAutoCompleteChoices(IEnumerable<DiscordAutoCompleteChoice> choices)
         {
+            if (this._choices.Count >= 25 || this._choices.Count + choices.Count() > 25)
+                throw new ArgumentException("Maximum of 25 choices per response.");
+
             this._choices.AddRange(choices);
             return this;
         }
@@ -346,6 +352,7 @@ namespace DSharpPlus.Entities
             this._mentions.Clear();
             this._components.Clear();
             this._files.Clear();
+            this._choices.Clear();
         }
     }
 }
