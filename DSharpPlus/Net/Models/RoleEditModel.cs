@@ -57,7 +57,7 @@ namespace DSharpPlus.Net.Models
         /// <summary>
         /// The stream to use for uploading a new role icon.
         /// </summary>
-        public Stream IconStream { internal get; set; }
+        public Stream Icon { internal get; set; }
 
         /// <summary>
         /// The format of the icon being uploaded, if any.

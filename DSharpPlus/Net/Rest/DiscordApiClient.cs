@@ -1972,15 +1972,25 @@ namespace DSharpPlus.Net
             }
         }
 
-        internal async Task<DiscordRole> ModifyGuildRoleAsync(ulong guild_id, ulong role_id, string name, Permissions? permissions, int? color, bool? hoist, bool? mentionable, string reason)
+        internal async Task<DiscordRole> ModifyGuildRoleAsync(ulong guild_id, ulong role_id, string name, Permissions? permissions, int? color, bool? hoist, bool? mentionable, string reason, Stream icon, string emoji)
         {
+            string image = null;
+
+            if (icon != null)
+            {
+                using var it = new ImageTool(icon);
+                image = it.GetBase64();
+            }
+
             var pld = new RestGuildRolePayload
             {
                 Name = name,
                 Permissions = permissions & PermissionMethods.FULL_PERMS,
                 Color = color,
                 Hoist = hoist,
-                Mentionable = mentionable
+                Mentionable = mentionable,
+                Emoji = emoji,
+                Icon = image
             };
 
             var headers = Utilities.GetBaseHeaders();

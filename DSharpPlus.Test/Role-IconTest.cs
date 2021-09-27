@@ -60,5 +60,23 @@ namespace DSharpPlus.Test
 
             await ctx.Member.GrantRoleAsync(role);
         }
+
+        [Command]
+        public async Task Edit(CommandContext ctx, DiscordRole role)
+        {
+            if (!ctx.Message.Attachments.Any())
+            {
+                await ctx.RespondAsync("Provide an image please");
+                return;
+            }
+
+            new WebClient().DownloadFile(ctx.Message.Attachments.First().Url, "./icon.png");
+
+            var stream = File.OpenRead("./icon.png");
+            await role.ModifyAsync(icon: stream);
+
+            await ctx.RespondAsync($"Edited role! {role.Mention}");
+
+        }
     }
 }
