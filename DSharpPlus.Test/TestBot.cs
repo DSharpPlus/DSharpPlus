@@ -172,6 +172,9 @@ namespace DSharpPlus.Test
 
         public async Task RunAsync()
         {
+            await this.Discord.ConnectAsync();
+            return;
+
             var act = new DiscordActivity("the screams of your ancestors", ActivityType.ListeningTo);
             await this.Discord.ConnectAsync(act, UserStatus.DoNotDisturb).ConfigureAwait(false);
         }

@@ -1011,8 +1011,8 @@ namespace DSharpPlus
         /// <param name="mentionable">Whether this role should be mentionable</param>
         /// <param name="reason">Reason why this role was created</param>
         /// <returns></returns>
-        public Task<DiscordRole> CreateGuildRoleAsync(ulong guild_id, string name, Permissions? permissions, int? color, bool? hoist, bool? mentionable, string reason)
-            => this.ApiClient.CreateGuildRoleAsync(guild_id, name, permissions, color, hoist, mentionable, reason);
+        public Task<DiscordRole> CreateGuildRoleAsync(ulong guild_id, string name, Permissions? permissions, int? color, bool? hoist, bool? mentionable, string reason, Stream icon = null, ImageFormat format = ImageFormat.Png, DiscordEmoji emoji = null)
+            => this.ApiClient.CreateGuildRoleAsync(guild_id, name, permissions, color, hoist, mentionable, reason, icon != null ? new DiscordMessageFile("icon", icon, null, format.ToString(), "image/" + format.ToString()) : null, emoji);
         #endregion
 
         #region Prune

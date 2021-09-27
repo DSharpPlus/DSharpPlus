@@ -1077,11 +1077,14 @@ namespace DSharpPlus.Entities
         /// <param name="hoist">Whether the role is to be hoisted.</param>
         /// <param name="mentionable">Whether the role is to be mentionable.</param>
         /// <param name="reason">Reason for audit logs.</param>
+        /// <param name="icon">The stream continaing the role's icon.</param>
+        /// <param name="extension">The file extension of the role icon.</param>
+        /// <param name="emoji">The emoji to assign with the role icon.</param>
         /// <returns>The newly-created role.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordRole> CreateRoleAsync(string name = null, Permissions? permissions = null, DiscordColor? color = null, bool? hoist = null, bool? mentionable = null, string reason = null)
-            => this.Discord.ApiClient.CreateGuildRoleAsync(this.Id, name, permissions, color?.Value, hoist, mentionable, reason);
+        public Task<DiscordRole> CreateRoleAsync(string name = null, Permissions? permissions = null, DiscordColor? color = null, bool? hoist = null, bool? mentionable = null, string reason = null, Stream icon = null, ImageFormat extension = ImageFormat.Png, DiscordEmoji emoji = null)
+            => this.Discord.ApiClient.CreateGuildRoleAsync(this.Id, name, permissions, color?.Value, hoist, mentionable, reason, icon != null ? new DiscordMessageFile("icon", icon, null, extension.ToString(), "image/" + extension.ToString()) : null, emoji);
 
         /// <summary>
         /// Gets a role from this guild by its ID.
