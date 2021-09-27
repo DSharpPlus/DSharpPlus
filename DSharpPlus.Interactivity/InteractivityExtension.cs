@@ -385,7 +385,7 @@ namespace DSharpPlus.Interactivity
             if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is ComponentType.Select))
                 throw new ArgumentException("Provided message does not contain any select components.");
 
-            if (!message.Components.SelectMany(c => c.Components).OfType<DiscordButtonComponent>().Any(c => c.CustomId == id))
+            if (message.Components.SelectMany(c => c.Components).OfType<DiscordSelectComponent>().All(c => c.CustomId != id))
                 throw new ArgumentException($"Provided message does not contain select component with Id of '{id}'.");
 
             var result = await this
@@ -426,7 +426,7 @@ namespace DSharpPlus.Interactivity
             if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is ComponentType.Select))
                 throw new ArgumentException("Provided message does not contain any select components.");
 
-            if (!message.Components.SelectMany(c => c.Components).OfType<DiscordButtonComponent>().Any(c => c.CustomId == id))
+            if (message.Components.SelectMany(c => c.Components).OfType<DiscordSelectComponent>().All(c => c.CustomId != id))
                 throw new ArgumentException($"Provided message does not contain button with Id of '{id}'.");
 
             var result = await this
