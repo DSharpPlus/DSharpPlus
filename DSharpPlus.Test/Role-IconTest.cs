@@ -39,7 +39,7 @@ namespace DSharpPlus.Test
             await ctx.RespondAsync(
                 $"Role: {role.Mention}\n" +
                 $"Role has icon: {role.IconHash != null}\n" +
-                $"Associated emoji: {role.Emoji}\n +" +
+                $"Associated emoji: {role.Emoji}\n" +
                 $"Role icon: {role.IconUrl ?? "Not applicable"}");
         }
 
@@ -75,6 +75,15 @@ namespace DSharpPlus.Test
 
             var stream = File.OpenRead("./icon.png");
             await role.ModifyAsync(icon: stream);
+
+            await ctx.RespondAsync($"Edited role! {role.Mention}");
+
+        }
+
+        [Command]
+        public async Task Edit(CommandContext ctx, DiscordRole role, DiscordEmoji emoji)
+        {
+            await role.ModifyAsync(emoji: emoji);
 
             await ctx.RespondAsync($"Edited role! {role.Mention}");
 
