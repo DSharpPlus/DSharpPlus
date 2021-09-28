@@ -92,6 +92,7 @@ namespace DSharpPlus.Entities
         /// <param name="choices">The optional choice selection for this parameter.</param>
         /// <param name="options">The optional subcommands for this parameter.</param>
         /// <param name="channelTypes">The channel types to be restricted to for this parameter, if of type <see cref="ApplicationCommandOptionType.Channel"/>.</param>
+        /// <param name="autocomplete">Whether this parameter is autocomplete. If true, <paramref name="choices"/> must not be provided.</param>
         public DiscordApplicationCommandOption(string name, string description, ApplicationCommandOptionType type, bool? required = null, IEnumerable<DiscordApplicationCommandOptionChoice> choices = null, IEnumerable<DiscordApplicationCommandOption> options = null, IEnumerable<ChannelType> channelTypes = null, bool? autocomplete = null)
         {
             if (!Utilities.IsValidSlashCommandName(name))
