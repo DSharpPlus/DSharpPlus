@@ -48,6 +48,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{430C
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Lavalink", "DSharpPlus.Lavalink\DSharpPlus.Lavalink.csproj", "{A8B8FB09-C6AF-4F28-89B8-B53EE0DCE6E5}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.SlashCommands", "DSharpPlus.SlashCommands\DSharpPlus.SlashCommands.csproj", "{B505958E-CCD1-4141-9555-2AF35C4F5F48}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -81,6 +83,10 @@ Global
 		{A8B8FB09-C6AF-4F28-89B8-B53EE0DCE6E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A8B8FB09-C6AF-4F28-89B8-B53EE0DCE6E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A8B8FB09-C6AF-4F28-89B8-B53EE0DCE6E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B505958E-CCD1-4141-9555-2AF35C4F5F48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B505958E-CCD1-4141-9555-2AF35C4F5F48}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B505958E-CCD1-4141-9555-2AF35C4F5F48}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B505958E-CCD1-4141-9555-2AF35C4F5F48}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

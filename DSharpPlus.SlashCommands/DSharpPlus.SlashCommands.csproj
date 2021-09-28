@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="../DSharpPlus.targets" />
+
+  <PropertyGroup>
+    <AssemblyName>DSharpPlus.SlashCommands</AssemblyName>
+    <RootNamespace>DSharpPlus.SlashCommands</RootNamespace>
+    <OutputType>Library</OutputType>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>DSharpPlus.SlashCommands</PackageId>
+    <Description>An extension for DSharpPlus to make slash commands easy</Description>
+    <PackageTags>discord, discord-api, bots, discord-bots, dsharp, dsharpplus, csharp, dotnet, vb-net, fsharp, commands, slash-commands, interactions</PackageTags>
+    <Authors>IDoEverything, Epictek, SakuraIsayeki, sssvt-drabek-stepan, tygore587, VelvetThePanda, OoLunar</Authors>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj" />
+  </ItemGroup>
+
+</Project>
