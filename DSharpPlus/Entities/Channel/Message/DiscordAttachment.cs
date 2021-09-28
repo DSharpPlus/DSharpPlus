@@ -73,10 +73,10 @@ namespace DSharpPlus.Entities
         public int? Width { get; internal set; }
 
         /// <summary>
-        /// Gets whether the attachemnt is ephemeral.
+        /// Gets whether this attachment is ephemeral.
         /// </summary>
         [JsonProperty("ephemeral", NullValueHandling = NullValueHandling.Ignore)]
-        public bool Ephemeral { get; internal set; }
+        public bool? Ephemeral { get; internal set; }
 
         internal DiscordAttachment() { }
     }
