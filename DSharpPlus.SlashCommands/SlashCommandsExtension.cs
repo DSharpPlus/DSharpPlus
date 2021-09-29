@@ -97,6 +97,21 @@ namespace DSharpPlus.SlashCommands
                 this._updateList.Add(new(guildId, type));
         }
 
+        /// <summary>
+        /// Registers all command classes from a given assembly.
+        /// </summary>
+        /// <param name="assembly">Assembly to register command classes from.</param>
+        /// <param name="guildId">The guild id to register it on. If you want global commands, leave it null.</param>
+        public void RegisterCommands(Assembly assembly, ulong? guildId = null)
+        {
+            var types = assembly.ExportedTypes.Where(xt =>
+                typeof(ApplicationCommandModule).IsAssignableFrom(xt) &&
+                !xt.GetTypeInfo().IsNested);
+            
+            foreach (Type xt in types)
+                RegisterCommands(xt, guildId);
+        }
+
         //To be run on ready
         internal Task Update(DiscordClient client, ReadyEventArgs e) => this.Update();
 
