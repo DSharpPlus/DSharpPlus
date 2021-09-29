@@ -49,8 +49,8 @@ namespace DSharpPlus.Entities
         /// <param name="value">The value of this option.</param>
         public DiscordAutoCompleteChoice(string name, object value)
         {
-            if (value is not (string or int))
-                throw new ArgumentException($"Object type must be of {typeof(int)} or {typeof(string)}", nameof(value));
+            if (value is not (string or int or long))
+                throw new ArgumentException($"Object type must be of {typeof(int)} or {typeof(string)} or {typeof(long)}", nameof(value));
 
             if (name.Length > 100)
                 throw new ArgumentException("Application command choice name cannot exceed 100 characters.", nameof(name));
