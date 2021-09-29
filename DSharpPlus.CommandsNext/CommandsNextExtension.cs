@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -51,6 +52,8 @@ namespace DSharpPlus.CommandsNext
         private MethodInfo ConvertGeneric { get; }
         private Dictionary<Type, string> UserFriendlyTypeNames { get; }
         internal Dictionary<Type, IArgumentConverter> ArgumentConverters { get; }
+        internal CultureInfo DefaultParserCulture
+            => this.Config.DefaultParserCulture;
 
         /// <summary>
         /// Gets the service provider this CommandsNext module was configured with.
