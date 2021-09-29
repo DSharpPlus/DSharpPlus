@@ -630,7 +630,7 @@ namespace DSharpPlus.Interactivity
 
             bts = new(bts);
 
-            if (this.Config.PaginationBehaviour is PaginationBehaviour.Ignore)
+            if (bhv is PaginationBehaviour.Ignore)
             {
                 bts.SkipLeft.Disable();
                 bts.Left.Disable();
@@ -724,8 +724,12 @@ namespace DSharpPlus.Interactivity
             var bts = buttons ?? this.Config.PaginationButtons;
 
             bts = new(bts); // Copy //
-            bts.SkipLeft.Disable();
-            bts.Left.Disable();
+
+            if (bhv is PaginationBehaviour.Ignore)
+            {
+                bts.SkipLeft.Disable();
+                bts.Left.Disable();
+            }
 
             var builder = new DiscordInteractionResponseBuilder()
                 .WithContent(pages.First().Content)
