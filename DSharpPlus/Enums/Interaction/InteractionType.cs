@@ -32,13 +32,20 @@ namespace DSharpPlus
         /// Sent when registering an HTTP interaction endpoint with Discord. Must be replied to with a Pong.
         /// </summary>
         Ping = 1,
+
         /// <summary>
         /// An application command.
         /// </summary>
         ApplicationCommand = 2,
+
         /// <summary>
         /// A component.
         /// </summary>
-        Component = 3
+        Component = 3,
+
+        /// <summary>
+        /// An autocomplete field.
+        /// </summary>
+        AutoComplete = 4,
     }
 }

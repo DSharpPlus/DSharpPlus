@@ -45,5 +45,8 @@ namespace DSharpPlus.Entities
 
         [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
         public IReadOnlyCollection<DiscordActionRowComponent> Components { get; internal set; }
+
+        [JsonProperty("choices")]
+        public IReadOnlyCollection<DiscordAutoCompleteChoice> Choices { get; internal set; }
     }
 }

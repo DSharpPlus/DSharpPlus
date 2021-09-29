@@ -3073,7 +3073,8 @@ namespace DSharpPlus.Net
                     IsTTS = builder.IsTTS,
                     Mentions = builder.Mentions,
                     Flags = builder.IsEphemeral ? MessageFlags.Ephemeral : 0,
-                    Components = builder.Components
+                    Components = builder.Components,
+                    Choices = builder.Choices
                 } : null
             };
 
