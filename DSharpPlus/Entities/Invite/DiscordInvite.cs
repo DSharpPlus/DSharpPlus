@@ -146,7 +146,7 @@ namespace DSharpPlus.Entities
         /// Gets stage instance data for this invite if it is for a stage instance channel.
         /// </summary>
         [JsonProperty("stage_instance")]
-        public DiscordStageInvite StageInstance { get; set; }
+        public DiscordStageInvite StageInstance { get; internal set; }
 
         internal DiscordInvite() { }
 

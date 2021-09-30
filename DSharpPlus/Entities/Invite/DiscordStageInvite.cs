@@ -36,24 +36,24 @@ namespace DSharpPlus.Entities
         /// Gets the members that are currently speaking in the stage channel.
         /// </summary>
         [JsonProperty("members")]
-        public IReadOnlyCollection<DiscordMember> Members { get; }
+        public IReadOnlyCollection<DiscordMember> Members { get; internal set; }
 
         /// <summary>
         /// Gets the number of participants in the stage channel.
         /// </summary>
         [JsonProperty("participant_count")]
-        public int ParticipantCount { get; }
+        public int ParticipantCount { get; internal set; }
 
         /// <summary>
         /// Gets the number of speakers in the stage channel.
         /// </summary>
         [JsonProperty("speaker_count")]
-        public int SpeakerCount { get; }
+        public int SpeakerCount { get; internal set; }
 
         /// <summary>
         /// Gets the topic of the stage channel.
         /// </summary>
         [JsonProperty("topic")]
-        public string Topic { get; }
+        public string Topic { get; internal set; }
     }
 }
