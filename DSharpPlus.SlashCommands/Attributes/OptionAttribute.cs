@@ -18,6 +18,9 @@ namespace DSharpPlus.SlashCommands
         /// </summary>
         public string Description { get; }
 
+        /// <summary>
+        /// Gets whether this option should autocomplete.
+        /// </summary>
         public bool Autocomplete { get; }
 
         /// <summary>

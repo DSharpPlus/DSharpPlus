@@ -391,7 +391,11 @@ namespace DSharpPlus.SlashCommands
 
                 var channelTypes = parameter.GetCustomAttribute<ChannelTypesAttribute>()?.ChannelTypes ?? null;
 
-                options.Add(new DiscordApplicationCommandOption(optionattribute.Name, optionattribute.Description, parametertype, !parameter.IsOptional, choices, null, channelTypes, parameter.GetCustomAttribute<AutocompleteAttribute>() != null || optionattribute.Autocomplete));
+                var autocompleteAttribute = parameter.GetCustomAttribute<AutocompleteAttribute>();
+                if (autocompleteAttribute != null && autocompleteAttribute.Provider.GetMethod(nameof(IAutocompleteProvider.Provider)) == null)
+                    throw new ArgumentException("Autocomplete providers must inherit from IAutocompleteProvider.");
+
+                options.Add(new DiscordApplicationCommandOption(optionattribute.Name, optionattribute.Description, parametertype, !parameter.IsOptional, choices, null, channelTypes, autocompleteAttribute != null || optionattribute.Autocomplete));
             }
 
             return options;
