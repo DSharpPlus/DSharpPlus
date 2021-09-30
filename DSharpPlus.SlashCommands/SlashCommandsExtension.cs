@@ -66,6 +66,8 @@ namespace DSharpPlus.SlashCommands
             this._slashExecuted = new AsyncEvent<SlashCommandsExtension, SlashCommandExecutedEventArgs>("SLASHCOMMAND_EXECUTED", TimeSpan.Zero, null);
             this._contextMenuErrored = new AsyncEvent<SlashCommandsExtension, ContextMenuErrorEventArgs>("CONTEXTMENU_ERRORED", TimeSpan.Zero, null);
             this._contextMenuExecuted = new AsyncEvent<SlashCommandsExtension, ContextMenuExecutedEventArgs>("CONTEXTMENU_EXECUTED", TimeSpan.Zero, null);
+            this._autocompleteErrored = new AsyncEvent<SlashCommandsExtension, AutocompleteErrorEventArgs>("AUTOCOMPLETE_ERRORED", TimeSpan.Zero, this.Client.EventErrorHandler);
+            this._autocompleteExecuted = new AsyncEvent<SlashCommandsExtension, AutocompleteExecutedEventArgs>("AUTOCOMPLETE_EXECUTED", TimeSpan.Zero, this.Client.EventErrorHandler);
 
             this.Client.Ready += this.Update;
             this.Client.InteractionCreated += this.InteractionHandler;
@@ -389,7 +391,7 @@ namespace DSharpPlus.SlashCommands
 
                 var channelTypes = parameter.GetCustomAttribute<ChannelTypesAttribute>()?.ChannelTypes ?? null;
 
-                options.Add(new DiscordApplicationCommandOption(optionattribute.Name, optionattribute.Description, parametertype, !parameter.IsOptional, choices, null, channelTypes));
+                options.Add(new DiscordApplicationCommandOption(optionattribute.Name, optionattribute.Description, parametertype, !parameter.IsOptional, choices, null, channelTypes, parameter.GetCustomAttribute<AutocompleteAttribute>() != null || optionattribute.Autocomplete));
             }
 
             return options;
@@ -451,28 +453,25 @@ namespace DSharpPlus.SlashCommands
         {
             if (type == typeof(string))
                 return ApplicationCommandOptionType.String;
-            else if (type == typeof(long) || type == typeof(long?))
+            if (type == typeof(long) || type == typeof(long?))
                 return ApplicationCommandOptionType.Integer;
-            else if (type == typeof(bool) || type == typeof(bool?))
+            if (type == typeof(bool) || type == typeof(bool?))
                 return ApplicationCommandOptionType.Boolean;
-            else if (type == typeof(double) || type == typeof(double?))
+            if (type == typeof(double) || type == typeof(double?))
                 return ApplicationCommandOptionType.Number;
-            else if (type == typeof(DiscordChannel))
+            if (type == typeof(DiscordChannel))
                 return ApplicationCommandOptionType.Channel;
-            else if (type == typeof(DiscordUser))
+            if (type == typeof(DiscordUser))
                 return ApplicationCommandOptionType.User;
-            else if (type == typeof(DiscordRole))
+            if (type == typeof(DiscordRole))
                 return ApplicationCommandOptionType.Role;
-            else if (type == typeof(DiscordEmoji))
+            if (type == typeof(DiscordEmoji))
                 return ApplicationCommandOptionType.String;
-            else if (type == typeof(SnowflakeObject))
+            if (type == typeof(SnowflakeObject))
                 return ApplicationCommandOptionType.Mentionable;
-
-            else if (type.IsEnum)
+            if (type.IsEnum)
                 return ApplicationCommandOptionType.String;
-
-            else
-                throw new ArgumentException("Cannot convert type! Argument types must be string, long, bool, double, DiscordChannel, DiscordUser, DiscordRole, DiscordEmoji, SnowflakeObject or an Enum.");
+            throw new ArgumentException("Cannot convert type! Argument types must be string, long, bool, double, DiscordChannel, DiscordUser, DiscordRole, DiscordEmoji, SnowflakeObject or an Enum.");
         }
 
         //Gets choices from choice attributes
@@ -549,7 +548,6 @@ namespace DSharpPlus.SlashCommands
                         {
                             var command = e.Interaction.Data.Options.First();
                             var group = subgroups.First().SubCommands.First(x => x.Name == command.Name);
-
                             var method = group.Methods.First(x => x.Key == command.Options.First().Name).Value;
 
                             var args = await this.ResolveInteractionCommandParameters(e, context, method, e.Interaction.Data.Options.First().Options.First().Options);
@@ -562,6 +560,54 @@ namespace DSharpPlus.SlashCommands
                     catch (Exception ex)
                     {
                         await this._slashError.InvokeAsync(this, new SlashCommandErrorEventArgs { Context = context, Exception = ex });
+                    }
+                }
+
+                //Handles autcomplete interactions
+                if (e.Interaction.Type == InteractionType.AutoComplete)
+                {
+                    if (_errored)
+                        throw new InvalidOperationException("Slash commands failed to register properly on startup.");
+
+                    //Gets the method for the command
+                    var methods = _commandMethods.Where(x => x.CommandId == e.Interaction.Data.Id);
+                    var groups = _groupCommands.Where(x => x.CommandId == e.Interaction.Data.Id);
+                    var subgroups = _subGroupCommands.Where(x => x.CommandId == e.Interaction.Data.Id);
+                    if (!methods.Any() && !groups.Any() && !subgroups.Any())
+                        throw new InvalidOperationException("An autocomplete interaction was created, but no command was registered for it.");
+
+                    if (methods.Any())
+                    {
+                        var method = methods.First().Method;
+
+                        var options = e.Interaction.Data.Options;
+                        //Gets the focused option
+                        var focusedOption = options.First(o => o.Focused);
+                        var parameter = method.GetParameters().Skip(1).First(p => p.GetCustomAttribute<OptionAttribute>().Name == focusedOption.Name);
+                        await this.RunAutocomplete(e.Interaction, parameter, options, focusedOption);
+                    }
+
+                    if (groups.Any())
+                    {
+                        var command = e.Interaction.Data.Options.First();
+                        var method = groups.First().Methods.First(x => x.Key == command.Name).Value;
+
+                        var options = command.Options;
+                        var focusedOption = options.First(o => o.Focused);
+                        var parameter = method.GetParameters().Skip(1).First(p => p.GetCustomAttribute<OptionAttribute>().Name == focusedOption.Name);
+                        await this.RunAutocomplete(e.Interaction, parameter, options, focusedOption);
+                    }
+
+                    if (subgroups.Any())
+                    {
+                        var command = e.Interaction.Data.Options.First();
+                        var group = subgroups.First().SubCommands.First(x => x.Name == command.Name);
+                        var method = group.Methods.First(x => x.Key == command.Options.First().Name).Value;
+
+                        var options = command.Options.First().Options;
+                        var focusedOption = options.First(o => o.Focused);
+                        var parameter = method.GetParameters().Skip(1).First(p => p.GetCustomAttribute<OptionAttribute>().Name == focusedOption.Name);
+                        await this.RunAutocomplete(e.Interaction, parameter, options, focusedOption);
                     }
                 }
             });
@@ -881,6 +927,47 @@ namespace DSharpPlus.SlashCommands
             }
         }
 
+        //Actually handles autocomplete interactions
+        private async Task RunAutocomplete(DiscordInteraction interaction, ParameterInfo parameter, IEnumerable<DiscordInteractionDataOption> options, DiscordInteractionDataOption focusedOption)
+        {
+            var context = new AutocompleteContext
+            {
+                Interaction = interaction,
+                Options = options.ToList(),
+                FocusedOption = focusedOption
+            };
+
+            try
+            {
+                //Gets the provider
+                var provider = parameter.GetCustomAttribute<AutocompleteAttribute>()?.Provider;
+                if (provider == null) return;
+
+                var providerMethod = provider.GetMethod(nameof(IAutocompleteProvider.Provider));
+                var providerInstance = Activator.CreateInstance(provider);
+
+                var choices = await (Task<IEnumerable<DiscordAutoCompleteChoice>>) providerMethod.Invoke(providerInstance, new[] { context });
+                await interaction.CreateResponseAsync(InteractionResponseType.AutoCompleteResult, new DiscordInteractionResponseBuilder().AddAutoCompleteChoices(choices));
+
+                await this._autocompleteExecuted.InvokeAsync(this,
+                    new()
+                    {
+                        Context = context,
+                        ProviderType = provider
+                    });
+            }
+            catch (Exception ex)
+            {
+                await this._autocompleteErrored.InvokeAsync(this,
+                    new AutocompleteErrorEventArgs()
+                    {
+                        Exception = ex,
+                        Context = context,
+                        ProviderType = parameter.GetCustomAttribute<AutocompleteAttribute>()?.Provider
+                    });
+            }
+        }
+
         #endregion
 
         /// <summary>
@@ -903,7 +990,7 @@ namespace DSharpPlus.SlashCommands
         /// </summary>
         public event AsyncEventHandler<SlashCommandsExtension, SlashCommandErrorEventArgs> SlashCommandErrored
         {
-            add { this._slashError.Register(value); }
+            add => this._slashError.Register(value);
             remove { this._slashError.Unregister(value); }
         }
         private AsyncEvent<SlashCommandsExtension, SlashCommandErrorEventArgs> _slashError;
@@ -913,8 +1000,8 @@ namespace DSharpPlus.SlashCommands
         /// </summary>
         public event AsyncEventHandler<SlashCommandsExtension, SlashCommandExecutedEventArgs> SlashCommandExecuted
         {
-            add { this._slashExecuted.Register(value); }
-            remove { this._slashExecuted.Unregister(value); }
+            add => this._slashExecuted.Register(value);
+            remove => this._slashExecuted.Unregister(value);
         }
         private AsyncEvent<SlashCommandsExtension, SlashCommandExecutedEventArgs> _slashExecuted;
 
@@ -923,8 +1010,8 @@ namespace DSharpPlus.SlashCommands
         /// </summary>
         public event AsyncEventHandler<SlashCommandsExtension, ContextMenuErrorEventArgs> ContextMenuErrored
         {
-            add { this._contextMenuErrored.Register(value); }
-            remove { this._contextMenuErrored.Unregister(value); }
+            add => this._contextMenuErrored.Register(value);
+            remove => this._contextMenuErrored.Unregister(value);
         }
         private AsyncEvent<SlashCommandsExtension, ContextMenuErrorEventArgs> _contextMenuErrored;
 
@@ -933,10 +1020,24 @@ namespace DSharpPlus.SlashCommands
         /// </summary>
         public event AsyncEventHandler<SlashCommandsExtension, ContextMenuExecutedEventArgs> ContextMenuExecuted
         {
-            add { this._contextMenuExecuted.Register(value); }
-            remove { this._contextMenuExecuted.Unregister(value); }
+            add => this._contextMenuExecuted.Register(value);
+            remove => this._contextMenuExecuted.Unregister(value);
         }
         private AsyncEvent<SlashCommandsExtension, ContextMenuExecutedEventArgs> _contextMenuExecuted;
+
+        public event AsyncEventHandler<SlashCommandsExtension, AutocompleteErrorEventArgs> AutocompleteErrored
+        {
+            add => this._autocompleteErrored.Register(value);
+            remove => this._autocompleteErrored.Register(value);
+        }
+        private AsyncEvent<SlashCommandsExtension, AutocompleteErrorEventArgs> _autocompleteErrored;
+
+        public event AsyncEventHandler<SlashCommandsExtension, AutocompleteExecutedEventArgs> AutocompleteExecuted
+        {
+            add => this._autocompleteExecuted.Register(value);
+            remove => this._autocompleteExecuted.Register(value);
+        }
+        private AsyncEvent<SlashCommandsExtension, AutocompleteExecutedEventArgs> _autocompleteExecuted;
     }
 
     //I'm not sure if creating separate classes is the cleanest thing here but I can't think of anything else so these stay
