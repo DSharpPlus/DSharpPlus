@@ -954,7 +954,7 @@ namespace DSharpPlus
 
             if (mdl.Nickname.HasValue && this.CurrentUser.Id == member_id)
             {
-                await this.ApiClient.ModifyCurrentMemberNicknameAsync(guild_id, mdl.Nickname.Value,
+                await this.ApiClient.ModifyCurrentMemberAsync(guild_id, mdl.Nickname.Value,
                     mdl.AuditLogReason).ConfigureAwait(false);
                 await this.ApiClient.ModifyGuildMemberAsync(guild_id, member_id, Optional.FromNoValue<string>(),
                     mdl.Roles.IfPresent(e => e.Select(xr => xr.Id)), mdl.Muted, mdl.Deafened,
@@ -975,8 +975,20 @@ namespace DSharpPlus
         /// <param name="nick">Nickname</param>
         /// <param name="reason">Reason why you set it to this</param>
         /// <returns></returns>
+        [Obsolete("This method is depreciated and will be removed in a future version. Please use ModifyCurrentMemberAsync instead.", false)]
         public Task ModifyCurrentMemberNicknameAsync(ulong guild_id, string nick, string reason)
-            => this.ApiClient.ModifyCurrentMemberNicknameAsync(guild_id, nick, reason);
+            => this.ApiClient.ModifyCurrentMemberAsync(guild_id, nick, reason);
+
+        /// <summary>
+        /// Changes the current user's nickname in a guild.
+        /// </summary>
+        /// <param name="guild_id">Guild id</param>
+        /// <param name="nickname">Nickname</param>
+        /// <param name="reason">Reason why you set it to this</param>
+        /// <returns></returns>
+        public Task ModifyCurrentMemberAsync(ulong guild_id, string nickname, string reason)
+            => this.ApiClient.ModifyCurrentMemberAsync(guild_id, nickname, reason);
+
         #endregion
 
         #region Roles

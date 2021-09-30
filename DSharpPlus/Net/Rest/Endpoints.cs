@@ -72,7 +72,6 @@ namespace DSharpPlus.Net
         public const string VOICE = "/voice";
         public const string AUDIT_LOGS = "/audit-logs";
         public const string ACK = "/ack";
-        public const string NICK = "/nick";
         public const string ASSETS = "/assets";
         public const string EMOJIS = "/emojis";
         public const string VANITY_URL = "/vanity-url";
