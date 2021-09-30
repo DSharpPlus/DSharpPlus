@@ -36,8 +36,14 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// The components contained within the action row.
         /// </summary>
+        public IReadOnlyCollection<DiscordComponent> Components
+        {
+            get => _components ?? new List<DiscordComponent>();
+            set => _components = new List<DiscordComponent>(value);
+        }
+
         [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
-        public IReadOnlyCollection<DiscordComponent> Components { get; internal set; }
+        private List<DiscordComponent> _components;
 
         public DiscordActionRowComponent(IEnumerable<DiscordComponent> components) : this()
         {
