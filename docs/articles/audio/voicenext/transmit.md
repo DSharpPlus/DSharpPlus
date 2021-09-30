@@ -1,5 +1,5 @@
 ---
-uid: voicenext_transmit
+uid: articles.audio.voicenext.transmit
 title: Transmitting
 ---
 
@@ -8,29 +8,31 @@ title: Transmitting
 ### Enable VoiceNext
 Install the `DSharpPlus.VoiceNext` package from NuGet.
 
-![NuGet Package Manager](/images/voicenext_transmit_01.png)
+![NuGet Package Manager][0]
 
-Then use the `UseVoiceNext` extension method on your instance of `DiscordClient`.
+Then use the @DSharpPlus.VoiceNext.DiscordClientExtensions.UseVoiceNext* extension method on your instance of
+@DSharpPlus.DiscordClient.
 ```cs
 var discord = new DiscordClient();
 discord.UseVoiceNext();
 ```
 
 ### Connect
-Joining a voice channel is *very* easy; simply use the `ConnectAsync` extension method on `DiscordChannel`.
+Joining a voice channel is *very* easy; simply use the @DSharpPlus.VoiceNext.DiscordClientExtensions.ConnectAsync*
+extension method on @DSharpPlus.Entites.DiscordChannel.
 ```cs
 DiscordChannel channel;
 VoiceNextConnection connection = await channel.ConnectAsync();
 ```
 
 ### Transmit
-Discord requires that we send Opus encoded stereo PCM audio data at a sample rate of 48,000 Hz.
+Discord requires that we send Opus encoded stereo PCM audio data at a sample rate of 48kHz.
 
-You'll need to convert your audio source to PCM S16LE using your preferred program for media conversion, then read 
-that data into a `Stream` object or an array of `byte` to be used with VoiceNext. Opus encoding of the PCM data will 
-be done automatically by VoiceNext before sending it to Discord.
+You'll need to convert your audio source to PCM S16LE using your preferred program for media conversion, then read that
+data into a `Stream` object or an array of `byte` to be used with VoiceNext. Opus encoding of the PCM data will be done
+automatically by VoiceNext before sending it to Discord.
 
-This example will use [ffmpeg](https://ffmpeg.org/about.html) to convert an MP3 file to a PCM stream.
+This example will use [ffmpeg][1] to convert an MP3 file to a PCM stream.
 ```cs
 var filePath = "funiculi_funicula.mp3";
 var ffmpeg = Process.Start(new ProcessStartInfo
@@ -44,9 +46,9 @@ var ffmpeg = Process.Start(new ProcessStartInfo
 Stream pcm = ffmpeg.StandardOutput.BaseStream;
 ```
 
-Now that our audio is the correct format, we'll need to get a *transmit sink* for the channel we're connected to.
-You can think of the transmit stream as our direct interface with a voice channel; any data written to one will be 
-processed by VoiceNext, queued, and sent to Discord which will then be output to the connected voice channel.
+Now that our audio is the correct format, we'll need to get a *transmit sink* for the channel we're connected to. You
+can think of the transmit stream as our direct interface with a voice channel; any data written to one will be processed
+by VoiceNext, queued, and sent to Discord which will then be output to the connected voice channel.
 ```cs
 VoiceTransmitSink transmit = connection.GetTransmitSink();
 ```
@@ -55,12 +57,13 @@ Once we have a transmit sink, we can 'play' our audio by copying our PCM data to
 ```cs
 await pcm.CopyToAsync(transmit);
 ```
-`Stream#CopyToAsync()` will copy PCM data from the input stream to the output sink, up to the sink's configured 
-capacity, at which point it will wait until it can copy more. This means that the call will hold the task's execution, 
+
+`Stream#CopyToAsync()` will copy PCM data from the input stream to the output sink, up to the sink's configured
+capacity, at which point it will wait until it can copy more. This means that the call will hold the task's execution,
 until such time that the entire input stream has been consumed, and enqueued in the sink.
 
-This operation cannot be cancelled. If you'd like to have finer control of the playback, you should instead consider 
-using `Stream#ReadAsync()` and `VoiceTransmitSink#WriteAsync()` to manually copy small portions of PCM data to the 
+This operation cannot be cancelled. If you'd like to have finer control of the playback, you should instead consider
+using `Stream#ReadAsync()` and `VoiceTransmitSink#WriteAsync()` to manually copy small portions of PCM data to the
 transmit sink.
 
 ### Disconnect
@@ -116,3 +119,7 @@ private Stream ConvertAudioToPcm(string filePath)
     return ffmpeg.StandardOutput.BaseStream;
 }
 ```
+
+<!-- LINKS -->
+[0]:  /images/voicenext_transmit_01.png
+[1]:  https://ffmpeg.org/about.html

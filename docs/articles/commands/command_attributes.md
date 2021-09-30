@@ -1,12 +1,11 @@
 ---
-uid: commands_command_attributes
+uid: articles.commands.command_attributes
 title: Command Attributes
 ---
 
 ## Built-In Attributes
 CommandsNext has a variety of built-in attributes to enhance your commands and provide some access control.
 The majority of these attributes can be applied to your command methods and command groups.
-
 - @DSharpPlus.CommandsNext.Attributes.AliasesAttribute
 - @DSharpPlus.CommandsNext.Attributes.CooldownAttribute
 - @DSharpPlus.CommandsNext.Attributes.DescriptionAttribute
@@ -28,7 +27,8 @@ The majority of these attributes can be applied to your command methods and comm
 
 ## Custom Attributes
 If the above attributes don't meet your needs, CommandsNext also gives you the option of writing your own!
-Simply create a new class which inherits from `CheckBaseAttribute` and implement the required method.
+Simply create a new class which inherits from @DSharpPlus.CommandsNext.Attributes.CheckBaseAttribute and implement the
+required method.
 
 Our example below will only allow a command to be ran during a specified year.
 ```cs
@@ -48,9 +48,8 @@ public class RequireYearAttribute : CheckBaseAttribute
 }
 ```
 
-<br/>
-You'll also need to apply the `AttributeUsage` attribute to your attribute.<br/>
-For our example attribute, we'll set it to only be usable once on methods.
+You'll also need to apply the `AttributeUsage` attribute to your attribute. For our example attribute, we'll set it to
+only be usable once on methods.
 ```cs
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 public class RequireYearAttribute : CheckBaseAttribute
@@ -59,7 +58,7 @@ public class RequireYearAttribute : CheckBaseAttribute
 }
 ```
 
-You can provide feedback to the user using the `CommandsNextExtension#CommandErrored` event.
+You can provide feedback to the user using the @DSharpPlus.CommandsNext.CommandsNextExtension.CommandErrored event.
 ```cs
 private async Task MainAsync()
 {
@@ -83,7 +82,6 @@ private async Task CmdErroredHandler(CommandsNextExtension _, CommandErrorEventA
 }
 ```
 
-<br/>
 Once you've got all of that completed, you'll be able to use it on a command!
 ```cs
 [Command("generic"), RequireYear(2030)]
@@ -93,4 +91,7 @@ public async Task GenericCommand(CommandContext ctx, string generic)
 }
 ```
 
-![Generic Image](/images/commands_command_attributes_01.png)
+![Generic Image][0]
+
+<!-- LINKS -->
+[0]:  /images/commands_command_attributes_01.png

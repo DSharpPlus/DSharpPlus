@@ -1,9 +1,10 @@
 - name: Articles
   href: articles/
+  topicUid: articles.preamble
 - name: FAQ
-  href: faq.md
+  topicUid: faq
 - name: API Documentation
   href: api/
-  homepage: api/index.md
+  topicUid: apidocs
 - name: Voice Natives
-  href: natives/index.md
+  topicUid: natives
