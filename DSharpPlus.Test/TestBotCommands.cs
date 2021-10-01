@@ -552,5 +552,9 @@ namespace DSharpPlus.Test
             await ctx.TriggerTypingAsync();
             await ctx.RespondAsync($"Pong: {ctx.Client.Ping}ms");
         }
+
+        [Command("parsedate")]
+        public async Task ParseDateTimeAsync(CommandContext ctx, DateTimeOffset dto)
+            => await ctx.RespondAsync(dto.ToString("yyyy-MM-ddTHH:mm:ss.ffffffzzz"));
     }
 }

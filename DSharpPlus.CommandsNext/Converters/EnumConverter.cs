@@ -28,6 +28,10 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.CommandsNext.Converters
 {
+    /// <summary>
+    /// Converts a string to an enum type.
+    /// </summary>
+    /// <typeparam name="T">Type of enum to convert.</typeparam>
     public class EnumConverter<T> : IArgumentConverter<T> where T : struct, IComparable, IConvertible, IFormattable
     {
         Task<Optional<T>> IArgumentConverter<T>.ConvertAsync(string value, CommandContext ctx)

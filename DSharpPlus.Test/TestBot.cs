@@ -24,16 +24,15 @@
 #pragma warning disable CS0618
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Exceptions;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using DSharpPlus.Exceptions;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.EventHandling;
@@ -129,6 +128,7 @@ namespace DSharpPlus.Test
                 Services = depco.BuildServiceProvider(true),
                 IgnoreExtraArguments = false,
                 UseDefaultCommandHandler = true,
+                DefaultParserCulture = CultureInfo.InvariantCulture
             };
             this.CommandsNextService = this.Discord.UseCommandsNext(cncfg);
             this.CommandsNextService.CommandErrored += this.CommandsNextService_CommandErrored;
