@@ -556,5 +556,13 @@ namespace DSharpPlus.Test
         [Command("parsedate")]
         public async Task ParseDateTimeAsync(CommandContext ctx, DateTimeOffset dto)
             => await ctx.RespondAsync(dto.ToString("yyyy-MM-ddTHH:mm:ss.ffffffzzz"));
+
+        [Command("longlongman")]
+        public async Task LongLongManAsync(CommandContext ctx)
+        {
+            await ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":mshourglass:"));
+            await Task.Delay(2_000);
+            await ctx.RespondAsync(DiscordEmoji.FromName(ctx.Client, ":msokhand:"));
+        }
     }
 }
