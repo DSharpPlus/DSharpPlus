@@ -33,6 +33,7 @@ using DSharpPlus.CommandsNext.Builders;
 using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.CommandsNext.Entities;
 using DSharpPlus.CommandsNext.Exceptions;
+using DSharpPlus.CommandsNext.Executors;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Emzi0767.Utilities;
@@ -197,6 +198,8 @@ namespace DSharpPlus.CommandsNext
                         this.AddToCommandDictionary(xc.Build(null));
             }
 
+            if (this.Config.CommandExecutor is ParallelQueuedCommandExecutor pqce)
+                this.Client.Logger.LogDebug(CommandsNextEvents.Misc, "Using parallel executor with degree {0}", pqce.Parallelism);
         }
         #endregion
 
@@ -238,7 +241,7 @@ namespace DSharpPlus.CommandsNext
                 return;
             }
 
-            _ = Task.Run(async () => await this.ExecuteCommandAsync(ctx).ConfigureAwait(false));
+            await this.Config.CommandExecutor.ExecuteAsync(ctx).ConfigureAwait(false);
         }
 
         /// <summary>

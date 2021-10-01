@@ -31,6 +31,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Exceptions;
+using DSharpPlus.CommandsNext.Executors;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
@@ -128,7 +129,8 @@ namespace DSharpPlus.Test
                 Services = depco.BuildServiceProvider(true),
                 IgnoreExtraArguments = false,
                 UseDefaultCommandHandler = true,
-                DefaultParserCulture = CultureInfo.InvariantCulture
+                DefaultParserCulture = CultureInfo.InvariantCulture,
+                //CommandExecutor = new ParallelQueuedCommandExecutor(2),
             };
             this.CommandsNextService = this.Discord.UseCommandsNext(cncfg);
             this.CommandsNextService.CommandErrored += this.CommandsNextService_CommandErrored;
