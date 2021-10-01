@@ -45,7 +45,7 @@ namespace DSharpPlus.CommandsNext
     /// <summary>
     /// This is the class which handles command registration, management, and execution. 
     /// </summary>
-    public class CommandsNextExtension : BaseExtension
+    public class CommandsNextExtension : BaseExtension, IDisposable
     {
         private CommandsNextConfiguration Config { get; }
         private HelpFormatterFactory HelpFormatter { get; }
@@ -159,6 +159,12 @@ namespace DSharpPlus.CommandsNext
         /// </summary>
         /// <typeparam name="T">Type of the formatter to use.</typeparam>
         public void SetHelpFormatter<T>() where T : BaseHelpFormatter => this.HelpFormatter.SetFormatterType<T>();
+
+        /// <summary>
+        /// Disposes of this the resources used by CNext.
+        /// </summary>
+        public void Dispose()
+            => this.Config.CommandExecutor.Dispose();
 
         #region DiscordClient Registration
         /// <summary>
