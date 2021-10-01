@@ -1,14 +1,14 @@
 ---
-uid: beyond_basics_events
+uid: articles.beyond_basics.events
 title: DSharpPlus Events
 ---
 
 # Consuming Events
-DSharpPlus makes use of *asynchronous events* which will execute each handler asynchronously in sequential order. 
-This event system will require event handlers have a `Task` return type and take two parameters.
+DSharpPlus makes use of *asynchronous events* which will execute each handler asynchronously in sequential order. This
+event system will require event handlers have a `Task` return type and take two parameters.
 
-The first parameter will contain an instance of the object which fired the event.<br/>
-The second parameter will contain an arguments object for the specific event you're handling.
+The first parameter will contain an instance of the object which fired the event. The second parameter will contain an
+arguments object for the specific event you're handling.
 
 Below is a snippet demonstrating this with a lambda expression.
 ```cs
@@ -54,13 +54,13 @@ private Task MemberAddedHandler(DiscordClient s, GuildMemberAddEventArgs e)
 ```
 
 # Avoiding Deadlocks
-Despite the fact that your event handlers are executed asynchronously, they are also executed one at a time on the gateway thread for consistency. 
-This means that each handler must complete its execution before others can be dispatched. 
+Despite the fact that your event handlers are executed asynchronously, they are also executed one at a time on the
+gateway thread for consistency. This means that each handler must complete its execution before others can be
+dispatched. 
 
-Because of this, executing code in your event handlers that runs for an extended period of time may inadvertently 
-create brief unresponsiveness or, even worse, cause a [deadlock](https://en.wikipedia.org/wiki/Deadlock).
-To prevent such issues, any event handler that has the potential to take more than 2 seconds to execute should have its logic offloaded to a `Task.Run`.
-
+Because of this, executing code in your event handlers that runs for an extended period of time may inadvertently create
+brief unresponsiveness or, even worse, cause a [deadlock][0]. To prevent such issues, any event handler that has the
+potential to take more than 2 seconds to execute should have its logic offloaded to a `Task.Run`.
 ```cs
 discord.MessageCreated += (s, e) =>
 {
@@ -78,4 +78,9 @@ discord.MessageCreated += (s, e) =>
 	return Task.CompletedTask;
 };
 ```
-Doing this will allow the handler to complete its execution quicker, which will in turn allow other handlers to be executed and prevent the gateway thread from being blocked.
+
+Doing this will allow the handler to complete its execution quicker, which will in turn allow other handlers to be
+executed and prevent the gateway thread from being blocked.
+
+<!-- LINKS -->
+[0]:  https://en.wikipedia.org/wiki/Deadlock

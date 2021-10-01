@@ -1,85 +1,85 @@
 - name: Preamble
-  href: preamble.md
+  topicUid: articles.preamble
 - name: The Basics
   items:
   - name: Creating a Bot Account
-    href: basics/bot_account.md
+    topicUid: articles.basics.bot_account
   - name: Writing Your First Bot
-    href: basics/first_bot.md
+    topicUid: articles.basics.first_bot
 - name: Beyond Basics
   items:
   - name: Events
-    href: beyond_basics/events.md
+    topicUid: articles.beyond_basics.events
   - name: Logging
-    href: beyond_basics/logging/default.md
+    topicUid: articles.beyond_basics.logging.default
     items:
     - name: The Default Logger
-      href: beyond_basics/logging/default.md
+      topicUid: articles.beyond_basics.logging.default
     - name: Third Party Loggers
-      href: beyond_basics/logging/third_party.md
+      topicUid: articles.beyond_basics.logging.third_party
   - name: Intents
-    href: beyond_basics/intents.md
+    topicUid: articles.beyond_basics.intents
   - name: Sharding
-    href: beyond_basics/sharding.md
+    topicUid: articles.beyond_basics.sharding
   - name: Message Builder
-    href: beyond_basics/messagebuilder.md
+    topicUid: articles.beyond_basics.messagebuilder
 - name: Commands
   items:
   - name: Introduction
-    href: commands/intro.md
+    topicUid: articles.commands.intro
   - name: Command Attributes
-    href: commands/command_attributes.md
+    topicUid: articles.commands.command_attributes
   - name: Dependency Injection
-    href: commands/dependency_injection.md
+    topicUid: articles.commands.dependency_injection
   - name: Customization
     items:
     - name: Help Formatter
-      href: commands/help_formatter.md
+      topicUid: articles.commands.help_formatter
     - name: Argument Converters
-      href: commands/argument_converters.md
+      topicUid: articles.commands.argument_converters
     - name: Command Handler
-      href: commands/command_handler.md
+      topicUid: articles.commands.command_handler
 - name: Audio
   items:
   - name: Lavalink
     items:
     - name: Setup
-      href: audio/lavalink/setup.md
+      topicUid: articles.audio.lavalink.setup
     - name: Configuration
-      href: audio/lavalink/configuration.md
+      topicUid: articles.audio.lavalink.configuration
     - name: Music Commands
-      href: audio/lavalink/music_commands.md
+      topicUid: articles.audio.lavalink.music_commands
   - name: VoiceNext
     items:
     - name: Prerequisites
-      href: audio/voicenext/prerequisites.md
+      topicUid: articles.audio.voicenext.prerequisites
     - name: Transmitting
-      href: audio/voicenext/transmit.md
+      topicUid: articles.audio.voicenext.transmit
     - name: Receiving
-      href: audio/voicenext/receive.md
+      topicUid: articles.audio.voicenext.receive
 - name: Interactivity
-  href: interactivity.md
+  topicUid: articles.interactivity
 - name: Advanced Topics
   items:
   - name: Buttons
-    href: advanced_topics/buttons.md
+    topicUid: articles.advanced_topics.buttons
   - name: Select Menus
-    href: advanced_topics/selects.md
+    topicUid: articles.advanced_topics.selects
 - name: Hosting
-  href: hosting.md
+  topicUid: articles.hosting
 - name: Version Migration
   items:
   - name: DiscordSharp to DSharpPlus
-    href: migration/dsharp.md
+    topicUid: articles.migration.dsharp
   - name: 2.x to 3.x
-    href: migration/2x_to_3x.md
+    topicUid: articles.migration.2x_to_3x
   - name: 3.x to 4.x
-    href: migration/3x_to_4x.md
+    topicUid: articles.migration.3x_to_4x
 - name: Miscellaneous
   items:
   - name: Nightly Builds
-    href: misc/nightly_builds.md
+    topicUid: articles.misc.nightly_builds
   - name: Debug Symbols
-    href: misc/debug_symbols.md
+    topicUid: articles.misc.debug_symbols
   - name: Reporting Issues
-    href: misc/reporting_issues.md
+    topicUid: articles.misc.reporting_issues
