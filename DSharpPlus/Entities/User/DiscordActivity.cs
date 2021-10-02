@@ -182,8 +182,10 @@ namespace DSharpPlus.Entities
             this.Name = other.Name;
             this.ActivityType = other.ActivityType;
             this.StreamUrl = other.StreamUrl;
-            this.RichPresence = new DiscordRichPresence(other.RichPresence);
-            this.CustomStatus = new DiscordCustomStatus(other.CustomStatus);
+            if(other.RichPresence != null)
+                this.RichPresence = new DiscordRichPresence(other.RichPresence);
+            if(other.CustomStatus != null)
+                this.CustomStatus = new DiscordCustomStatus(other.CustomStatus);
         }
 
         internal void UpdateWith(TransportActivity rawActivity)
