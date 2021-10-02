@@ -939,6 +939,14 @@ namespace DSharpPlus.Entities
             // user allow > user deny > role allow > role deny > everyone allow > everyone deny
             // thanks to meew0
 
+
+            // Two notes about this: //
+            // One: Threads are always synced to their parent. //
+            // Two: Threads always have a parent present(?). //
+            // If this is a thread, calculate on the parent; doing this on a thread does not work. //
+            if (this.IsThread)
+                return this.Parent.PermissionsFor(mbr);
+
             if (this.IsPrivate || this.Guild == null)
                 return Permissions.None;
 
