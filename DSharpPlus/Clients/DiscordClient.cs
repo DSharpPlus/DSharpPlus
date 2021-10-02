@@ -384,12 +384,13 @@ namespace DSharpPlus
         /// Gets a user
         /// </summary>
         /// <param name="userId">Id of the user</param>
+        /// <param name="updateCache">Whether to always make a REST request and update cache. Passing true will update the user, updating stale properties such as <see cref="DiscordUser.BannerHash"/>.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordUser> GetUserAsync(ulong userId)
+        public async Task<DiscordUser> GetUserAsync(ulong userId, bool updateCache = false)
         {
-            if (this.TryGetCachedUserInternal(userId, out var usr))
+            if (!updateCache && this.TryGetCachedUserInternal(userId, out var usr))
                 return usr;
 
             usr = await this.ApiClient.GetUserAsync(userId).ConfigureAwait(false);
