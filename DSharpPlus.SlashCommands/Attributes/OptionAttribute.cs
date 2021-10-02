@@ -19,11 +19,17 @@ namespace DSharpPlus.SlashCommands
         public string Description { get; }
 
         /// <summary>
+        /// Gets whether this option should autocomplete.
+        /// </summary>
+        public bool Autocomplete { get; }
+
+        /// <summary>
         /// Marks this parameter as an option for a slash command.
         /// </summary>
         /// <param name="name">The name of the option.</param>
         /// <param name="description">The description of the option.</param>
-        public OptionAttribute(string name, string description)
+        /// <param name="autocomplete">Whether this option should autocomplete.</param>
+        public OptionAttribute(string name, string description, bool autocomplete = false)
         {
             if(name.Length > 32)
                 throw new ArgumentException("Slash command option names cannot go over 32 characters.");
@@ -31,6 +37,7 @@ namespace DSharpPlus.SlashCommands
                 throw new ArgumentException("Slash command option descriptions cannot go over 100 characters.");
             this.Name = name.ToLower();
             this.Description = description;
+            this.Autocomplete = autocomplete;
         }
     }
 }
