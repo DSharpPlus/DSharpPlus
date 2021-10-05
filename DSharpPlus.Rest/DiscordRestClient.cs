@@ -980,11 +980,11 @@ namespace DSharpPlus
             => this.ApiClient.ModifyCurrentMemberAsync(guild_id, nick, reason);
 
         /// <summary>
-        /// Changes the current user's nickname in a guild.
+        /// Changes the current user in a guild.
         /// </summary>
         /// <param name="guild_id">Guild id</param>
-        /// <param name="nickname">Nickname</param>
-        /// <param name="reason">Reason why you set it to this</param>
+        /// <param name="nickname">Nickname to set</param>
+        /// <param name="reason">Audit log reason</param>
         /// <returns></returns>
         public Task ModifyCurrentMemberAsync(ulong guild_id, string nickname, string reason)
             => this.ApiClient.ModifyCurrentMemberAsync(guild_id, nickname, reason);
