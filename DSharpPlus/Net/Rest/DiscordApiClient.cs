@@ -1908,7 +1908,7 @@ namespace DSharpPlus.Net
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, headers, payload: DiscordJson.SerializeObject(pld));
         }
 
-        internal Task ModifyCurrentMemberNicknameAsync(ulong guild_id, string nick, string reason)
+        internal Task ModifyCurrentMemberAsync(ulong guild_id, string nick, string reason)
         {
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
@@ -1919,7 +1919,7 @@ namespace DSharpPlus.Net
                 Nickname = nick
             };
 
-            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.MEMBERS}{Endpoints.ME}{Endpoints.NICK}";
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.MEMBERS}{Endpoints.ME}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
