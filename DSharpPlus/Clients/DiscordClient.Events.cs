@@ -629,7 +629,7 @@ namespace DSharpPlus
         /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
         /// </summary>
         /// <remarks>
-        /// This event is mostly documented for completeness
+        /// This event is mostly documented for completeness, and it not fired every time
         /// DM channels in which no prior messages were received or sent.
         /// </remarks>
         public event AsyncEventHandler<DiscordClient, ThreadMemberUpdateEventArgs> ThreadMemberUpdated
