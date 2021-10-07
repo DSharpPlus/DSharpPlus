@@ -625,7 +625,7 @@ namespace DSharpPlus
         private AsyncEvent<DiscordClient, ThreadListSyncEventArgs> _threadListSynced;
 
         /// <summary>
-        /// Fired when the thread member for the bot is updated.
+        /// Fired when the thread member for the current user is updated.
         /// For this Event you need the <see cref="DiscordIntents.Guilds"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
         /// </summary>
         /// <remarks>
