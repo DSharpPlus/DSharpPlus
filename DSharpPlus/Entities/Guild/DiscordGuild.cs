@@ -2300,11 +2300,30 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Modifies a sticker in this guild.
+        /// </summary>
+        /// <param name="sticker">Sticker to modify.</param>
+        /// <param name="action">Action to perform.</param>
+        public Task<DiscordMessageSticker> ModifyStickerAsync(DiscordMessageSticker sticker, Action<StickerEditModel> action)
+        {
+            var mdl = new StickerEditModel();
+            action(mdl);
+            return this.Discord.ApiClient.ModifyStickerAsync(this.Id, sticker.Id, mdl.Name, mdl.Description, mdl.Tags);
+        }
+
+        /// <summary>
         /// Deletes a sticker in this guild.
         /// </summary>
         /// <param name="stickerId">The id of the sticker.</param>
         public Task DeleteStickerAsync(ulong stickerId)
             => this.Discord.ApiClient.DeleteStickerAsync(this.Id, stickerId);
+
+        /// <summary>
+        /// Deletes a sticker in this guild.
+        /// </summary>
+        /// <param name="sticker">Sticker to delete.</param>
+        public Task DeleteStickerAsync(DiscordMessageSticker sticker)
+            => this.Discord.ApiClient.DeleteStickerAsync(this.Id, sticker.Id);
 
         /// <summary>
         /// Gets all the application commands in this guild.

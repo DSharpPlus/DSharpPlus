@@ -91,7 +91,7 @@ namespace DSharpPlus.Entities
         /// Gets the list of tags for the sticker.
         /// </summary>
         [JsonIgnore]
-        public IEnumerable<string> Tags
+        public string[] Tags
             => this.InternalTags != null ? this.InternalTags.Split(',') : Array.Empty<string>();
 
         /// <summary>
