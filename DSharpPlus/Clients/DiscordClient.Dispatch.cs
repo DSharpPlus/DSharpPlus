@@ -2002,6 +2002,10 @@ namespace DSharpPlus
         internal async Task OnThreadMembersUpdateEventAsync(DiscordGuild guild, ulong thread_id, IReadOnlyList<DiscordThreadChannelMember> addedMembers, IReadOnlyList<ulong?> removed_member_ids, int member_count)
         {
             var thread = this.InternalGetCachedThread(thread_id);
+
+            if (thread == null) // edge case
+                return;
+
             thread.Discord = this;
             guild.Discord = this;
 
