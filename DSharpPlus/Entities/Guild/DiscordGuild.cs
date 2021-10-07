@@ -965,6 +965,15 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets a member of this guild by their user ID.
         /// </summary>
+        /// <param name="user">DiscordUser of the member to get.</param>
+        /// <returns>The requested member.</returns>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordMember> GetMemberAsync(DiscordUser user)
+            => GetMemberAsync(user.Id);
+
+        /// <summary>
+        /// Gets a member of this guild by their user ID.
+        /// </summary>
         /// <param name="userId">ID of the member to get.</param>
         /// <returns>The requested member.</returns>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
