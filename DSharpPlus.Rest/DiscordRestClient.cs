@@ -1784,7 +1784,8 @@ namespace DSharpPlus
         /// <param name="tags">The tags of the sticker.</param>
         /// <param name="imageContents">The image content of the sticker.</param>
         /// <param name="format">The image format of the sticker.</param>
-        public Task<DiscordMessageSticker> CreateGuildStickerAsync(ulong guildId, string name, string description, string tags, Stream imageContents, StickerFormat format)
+        /// <param name="reason">Reason for audit log.</param>
+        public Task<DiscordMessageSticker> CreateGuildStickerAsync(ulong guildId, string name, string description, string tags, Stream imageContents, StickerFormat format, string reason = null)
         {
             string contentType = null, extension = null;
 
@@ -1799,7 +1800,7 @@ namespace DSharpPlus
                 extension = "json";
             }
 
-            return this.ApiClient.CreateGuildStickerAsync(guildId, name, description ?? string.Empty, tags, new DiscordMessageFile(null, imageContents, null, extension, contentType));
+            return this.ApiClient.CreateGuildStickerAsync(guildId, name, description ?? string.Empty, tags, new DiscordMessageFile(null, imageContents, null, extension, contentType), reason);
         }
 
         /// <summary>
@@ -1808,11 +1809,12 @@ namespace DSharpPlus
         /// <param name="guildId">The id of the guild.</param>
         /// <param name="stickerId">The id of the sticker.</param>
         /// <param name="action">Action to perform.</param>
-        public Task<DiscordMessageSticker> ModifyGuildStickerAsync(ulong guildId, ulong stickerId, Action<StickerEditModel> action)
+        /// <param name="reason">Reason for audit log.</param>
+        public Task<DiscordMessageSticker> ModifyGuildStickerAsync(ulong guildId, ulong stickerId, Action<StickerEditModel> action, string reason = null)
         {
             var mdl = new StickerEditModel();
             action(mdl);
-            return this.ApiClient.ModifyStickerAsync(guildId, stickerId, mdl.Name, mdl.Description, mdl.Tags);
+            return this.ApiClient.ModifyStickerAsync(guildId, stickerId, mdl.Name, mdl.Description, mdl.Tags, reason);
         }
 
         /// <summary>
@@ -1820,9 +1822,10 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="guildId">The id of the guild.</param>
         /// <param name="stickerId">The id of the sticker.</param>
+        /// <param name="reason">Reason for audit log.</param>
         /// <returns></returns>
-        public Task DeleteGuildStickerAsync(ulong guildId, ulong stickerId)
-            => this.ApiClient.DeleteStickerAsync(guildId, stickerId);
+        public Task DeleteGuildStickerAsync(ulong guildId, ulong stickerId, string reason = null)
+            => this.ApiClient.DeleteStickerAsync(guildId, stickerId, reason);
 
         #endregion
 

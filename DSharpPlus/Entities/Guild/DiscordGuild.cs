@@ -2268,8 +2268,9 @@ namespace DSharpPlus.Entities
         /// <param name="tags">The tags of the sticker.</param>
         /// <param name="imageContents">The image content of the sticker.</param>
         /// <param name="format">The image format of the sticker.</param>
+        /// <param name="reason">Reason for audit log.</param>
         /// <returns></returns>
-        public Task<DiscordMessageSticker> CreateStickerAsync(string name, string description, string tags, Stream imageContents, StickerFormat format)
+        public Task<DiscordMessageSticker> CreateStickerAsync(string name, string description, string tags, Stream imageContents, StickerFormat format, string reason = null)
         {
             string contentType = null, extension = null;
 
@@ -2284,7 +2285,7 @@ namespace DSharpPlus.Entities
                 extension = "json";
             }
 
-            return this.Discord.ApiClient.CreateGuildStickerAsync(this.Id, name, description ?? string.Empty, tags, new DiscordMessageFile(null, imageContents, null, extension, contentType));
+            return this.Discord.ApiClient.CreateGuildStickerAsync(this.Id, name, description ?? string.Empty, tags, new DiscordMessageFile(null, imageContents, null, extension, contentType), reason);
         }
 
         /// <summary>
@@ -2292,11 +2293,12 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="stickerId">The id of the sticker.</param>
         /// <param name="action">Action to perform.</param>
-        public Task<DiscordMessageSticker> ModifyStickerAsync(ulong stickerId, Action<StickerEditModel> action)
+        /// <param name="reason">Reason for audit log.</param>
+        public Task<DiscordMessageSticker> ModifyStickerAsync(ulong stickerId, Action<StickerEditModel> action, string reason = null)
         {
             var mdl = new StickerEditModel();
             action(mdl);
-            return this.Discord.ApiClient.ModifyStickerAsync(this.Id, stickerId, mdl.Name, mdl.Description, mdl.Tags);
+            return this.Discord.ApiClient.ModifyStickerAsync(this.Id, stickerId, mdl.Name, mdl.Description, mdl.Tags, reason);
         }
 
         /// <summary>
@@ -2304,26 +2306,29 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="sticker">Sticker to modify.</param>
         /// <param name="action">Action to perform.</param>
-        public Task<DiscordMessageSticker> ModifyStickerAsync(DiscordMessageSticker sticker, Action<StickerEditModel> action)
+        /// <param name="reason">Reason for audit log.</param>
+        public Task<DiscordMessageSticker> ModifyStickerAsync(DiscordMessageSticker sticker, Action<StickerEditModel> action, string reason = null)
         {
             var mdl = new StickerEditModel();
             action(mdl);
-            return this.Discord.ApiClient.ModifyStickerAsync(this.Id, sticker.Id, mdl.Name, mdl.Description, mdl.Tags);
+            return this.Discord.ApiClient.ModifyStickerAsync(this.Id, sticker.Id, mdl.Name, mdl.Description, mdl.Tags, reason);
         }
 
         /// <summary>
         /// Deletes a sticker in this guild.
         /// </summary>
         /// <param name="stickerId">The id of the sticker.</param>
-        public Task DeleteStickerAsync(ulong stickerId)
-            => this.Discord.ApiClient.DeleteStickerAsync(this.Id, stickerId);
+        /// <param name="reason">Reason for audit log.</param>
+        public Task DeleteStickerAsync(ulong stickerId, string reason = null)
+            => this.Discord.ApiClient.DeleteStickerAsync(this.Id, stickerId, reason);
 
         /// <summary>
         /// Deletes a sticker in this guild.
         /// </summary>
         /// <param name="sticker">Sticker to delete.</param>
-        public Task DeleteStickerAsync(DiscordMessageSticker sticker)
-            => this.Discord.ApiClient.DeleteStickerAsync(this.Id, sticker.Id);
+        /// <param name="reason">Reason for audit log.</param>
+        public Task DeleteStickerAsync(DiscordMessageSticker sticker, string reason = null)
+            => this.Discord.ApiClient.DeleteStickerAsync(this.Id, sticker.Id, reason);
 
         /// <summary>
         /// Gets all the application commands in this guild.
