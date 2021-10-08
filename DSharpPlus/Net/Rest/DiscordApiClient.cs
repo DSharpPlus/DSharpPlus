@@ -909,7 +909,7 @@ namespace DSharpPlus.Net
             var ret = JObject.Parse(res.Response).ToDiscordObject<DiscordMessageSticker>();
             ret.Discord = this.Discord;
 
-            return null;
+            return ret;
         }
 
         internal async Task DeleteStickerAsync(ulong guild_id, ulong sticker_id, string reason)
