@@ -477,6 +477,19 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task GrantRoleAsync(DiscordRole role, string reason = null)
             => this.Discord.ApiClient.AddGuildMemberRoleAsync(this.Guild.Id, this.Id, role.Id, reason);
+            
+        /// <summary>
+        /// Grants a role to the member.
+        /// </summary>
+        /// <param name="roleId">Id of a role to grant.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task GrantRoleAsync(ulong roleId, string reason = null)
+            => this.Discord.ApiClient.AddGuildMemberRoleAsync(this.Guild.Id, this.Id, roleId, reason);
 
         /// <summary>
         /// Revokes a role from a member.
@@ -490,6 +503,19 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task RevokeRoleAsync(DiscordRole role, string reason = null)
             => this.Discord.ApiClient.RemoveGuildMemberRoleAsync(this.Guild.Id, this.Id, role.Id, reason);
+            
+        /// <summary>
+        /// Revokes a role from a member.
+        /// </summary>
+        /// <param name="roleId">Id of a role to revoke.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task RevokeRoleAsync(ulong roleId, string reason = null)
+            => this.Discord.ApiClient.RemoveGuildMemberRoleAsync(this.Guild.Id, this.Id, roleId, reason);
 
         /// <summary>
         /// Sets the member's roles to ones specified.
