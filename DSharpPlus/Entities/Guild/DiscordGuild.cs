@@ -2298,7 +2298,7 @@ namespace DSharpPlus.Entities
         {
             var mdl = new StickerEditModel();
             action(mdl);
-            return this.Discord.ApiClient.ModifyStickerAsync(this.Id, stickerId, mdl.Name, mdl.Description, mdl.Tags, reason);
+            return this.Discord.ApiClient.ModifyStickerAsync(this.Id, stickerId, mdl.Name, mdl.Description, mdl.Tags, reason ?? mdl.AuditLogReason);
         }
 
         /// <summary>
