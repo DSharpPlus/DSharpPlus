@@ -46,6 +46,6 @@ namespace DSharpPlus.Interactivity.Extensions
         /// <param name="deletion">Deletion behaviour</param>
         /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
         public static Task SendPaginatedResponseAsync(this DiscordInteraction interaction, bool ephemeral, DiscordUser user, IEnumerable<Page> pages, PaginationButtons buttons = null, PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default, CancellationToken token = default)
-            => MessageExtensions.GetInteractivity(interaction.Message).SendPaginatedResponseAsync(interaction, ephemeral, user, pages, buttons, behaviour, deletion, token);
+            => ChannelExtensions.GetInteractivity(interaction.Channel).SendPaginatedResponseAsync(interaction, ephemeral, user, pages, buttons, behaviour, deletion, token);
     }
 }
