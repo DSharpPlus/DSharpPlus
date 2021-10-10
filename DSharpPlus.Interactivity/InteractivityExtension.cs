@@ -630,10 +630,21 @@ namespace DSharpPlus.Interactivity
 
             bts = new(bts);
 
+            if (pages.Count() is 1)
+            {
+                bts.SkipLeft.Disable();
+                bts.Left.Disable();
+                bts.Right.Disable();
+                bts.SkipRight.Disable();
+            }
+
             if (bhv is PaginationBehaviour.Ignore)
             {
                 bts.SkipLeft.Disable();
                 bts.Left.Disable();
+
+                if (pages.Count() is 2)
+                    bts.SkipRight.Disable();
             }
 
             var builder = new DiscordMessageBuilder()
@@ -725,10 +736,21 @@ namespace DSharpPlus.Interactivity
 
             bts = new(bts); // Copy //
 
+            if (pages.Count() is 1)
+            {
+                bts.SkipLeft.Disable();
+                bts.Left.Disable();
+                bts.Right.Disable();
+                bts.SkipRight.Disable();
+            }
+
             if (bhv is PaginationBehaviour.Ignore)
             {
                 bts.SkipLeft.Disable();
                 bts.Left.Disable();
+
+                if (pages.Count() is 2)
+                    bts.SkipRight.Disable();
             }
 
             var builder = new DiscordInteractionResponseBuilder()
