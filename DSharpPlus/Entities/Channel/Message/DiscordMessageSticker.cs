@@ -91,8 +91,8 @@ namespace DSharpPlus.Entities
         /// Gets the list of tags for the sticker.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyCollection<string> Tags
-            => Array.AsReadOnly( this.InternalTags != null ? this.InternalTags.Split(',') : Array.Empty<string>() );
+        public IReadOnlyList<string> Tags
+            => this.InternalTags != null ? this.InternalTags.Split(',') : Array.Empty<string>();
 
         /// <summary>
         /// Gets the asset hash of the sticker.
