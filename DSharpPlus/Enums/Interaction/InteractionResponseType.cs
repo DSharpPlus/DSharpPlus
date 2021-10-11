@@ -52,5 +52,10 @@ namespace DSharpPlus
         /// Responds to a component interaction by editing the message it's attached to.
         /// </summary>
         UpdateMessage = 7,
+
+        /// <summary>
+        /// Responds to an auto-complete request.
+        /// </summary>
+        AutoCompleteResult = 8
     }
 }

@@ -33,7 +33,7 @@ namespace DSharpPlus.CommandsNext.Converters
     {
         Task<Optional<DateTime>> IArgumentConverter<DateTime>.ConvertAsync(string value, CommandContext ctx)
         {
-            return DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var result)
+            return DateTime.TryParse(value, ctx.CommandsNext.DefaultParserCulture, DateTimeStyles.None, out var result)
                 ? Task.FromResult(new Optional<DateTime>(result))
                 : Task.FromResult(Optional.FromNoValue<DateTime>());
         }
@@ -43,7 +43,7 @@ namespace DSharpPlus.CommandsNext.Converters
     {
         Task<Optional<DateTimeOffset>> IArgumentConverter<DateTimeOffset>.ConvertAsync(string value, CommandContext ctx)
         {
-            return DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var result)
+            return DateTimeOffset.TryParse(value, ctx.CommandsNext.DefaultParserCulture, DateTimeStyles.None, out var result)
                 ? Task.FromResult(Optional.FromValue(result))
                 : Task.FromResult(Optional.FromNoValue<DateTimeOffset>());
         }
@@ -67,13 +67,13 @@ namespace DSharpPlus.CommandsNext.Converters
             if (value == "0")
                 return Task.FromResult(Optional.FromValue(TimeSpan.Zero));
 
-            if (int.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out _))
+            if (int.TryParse(value, NumberStyles.Number, ctx.CommandsNext.DefaultParserCulture, out _))
                 return Task.FromResult(Optional.FromNoValue<TimeSpan>());
 
             if (!ctx.Config.CaseSensitive)
                 value = value.ToLowerInvariant();
 
-            if (TimeSpan.TryParse(value, CultureInfo.InvariantCulture, out var result))
+            if (TimeSpan.TryParse(value, ctx.CommandsNext.DefaultParserCulture, out var result))
                 return Task.FromResult(Optional.FromValue(result));
 
             var gps = new string[] { "days", "hours", "minutes", "seconds" };
@@ -92,7 +92,7 @@ namespace DSharpPlus.CommandsNext.Converters
                     continue;
 
                 var gpt = gpc[gpc.Length - 1];
-                int.TryParse(gpc.Substring(0, gpc.Length - 1), NumberStyles.Integer, CultureInfo.InvariantCulture, out var val);
+                int.TryParse(gpc.Substring(0, gpc.Length - 1), NumberStyles.Integer, ctx.CommandsNext.DefaultParserCulture, out var val);
                 switch (gpt)
                 {
                     case 'd':

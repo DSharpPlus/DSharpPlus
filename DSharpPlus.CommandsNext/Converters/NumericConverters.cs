@@ -41,7 +41,7 @@ namespace DSharpPlus.CommandsNext.Converters
     {
         Task<Optional<sbyte>> IArgumentConverter<sbyte>.ConvertAsync(string value, CommandContext ctx)
         {
-            return sbyte.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result)
+            return sbyte.TryParse(value, NumberStyles.Integer, ctx.CommandsNext.DefaultParserCulture, out var result)
                 ? Task.FromResult(Optional.FromValue(result))
                 : Task.FromResult(Optional.FromNoValue<sbyte>());
         }
@@ -51,7 +51,7 @@ namespace DSharpPlus.CommandsNext.Converters
     {
         Task<Optional<byte>> IArgumentConverter<byte>.ConvertAsync(string value, CommandContext ctx)
         {
-            return byte.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result)
+            return byte.TryParse(value, NumberStyles.Integer, ctx.CommandsNext.DefaultParserCulture, out var result)
                 ? Task.FromResult(Optional.FromValue(result))
                 : Task.FromResult(Optional.FromNoValue<byte>());
         }
@@ -61,7 +61,7 @@ namespace DSharpPlus.CommandsNext.Converters
     {
         Task<Optional<short>> IArgumentConverter<short>.ConvertAsync(string value, CommandContext ctx)
         {
-            return short.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result)
+            return short.TryParse(value, NumberStyles.Integer, ctx.CommandsNext.DefaultParserCulture, out var result)
                 ? Task.FromResult(Optional.FromValue(result))
                 : Task.FromResult(Optional.FromNoValue<short>());
         }
@@ -71,7 +71,7 @@ namespace DSharpPlus.CommandsNext.Converters
     {
         Task<Optional<ushort>> IArgumentConverter<ushort>.ConvertAsync(string value, CommandContext ctx)
         {
-            return ushort.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result)
+            return ushort.TryParse(value, NumberStyles.Integer, ctx.CommandsNext.DefaultParserCulture, out var result)
                 ? Task.FromResult(Optional.FromValue(result))
                 : Task.FromResult(Optional.FromNoValue<ushort>());
         }
@@ -81,7 +81,7 @@ namespace DSharpPlus.CommandsNext.Converters
     {
         Task<Optional<int>> IArgumentConverter<int>.ConvertAsync(string value, CommandContext ctx)
         {
-            return int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result)
+            return int.TryParse(value, NumberStyles.Integer, ctx.CommandsNext.DefaultParserCulture, out var result)
                 ? Task.FromResult(Optional.FromValue(result))
                 : Task.FromResult(Optional.FromNoValue<int>());
         }
@@ -91,7 +91,7 @@ namespace DSharpPlus.CommandsNext.Converters
     {
         Task<Optional<uint>> IArgumentConverter<uint>.ConvertAsync(string value, CommandContext ctx)
         {
-            return uint.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result)
+            return uint.TryParse(value, NumberStyles.Integer, ctx.CommandsNext.DefaultParserCulture, out var result)
                 ? Task.FromResult(Optional.FromValue(result))
                 : Task.FromResult(Optional.FromNoValue<uint>());
         }
@@ -101,7 +101,7 @@ namespace DSharpPlus.CommandsNext.Converters
     {
         Task<Optional<long>> IArgumentConverter<long>.ConvertAsync(string value, CommandContext ctx)
         {
-            return long.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result)
+            return long.TryParse(value, NumberStyles.Integer, ctx.CommandsNext.DefaultParserCulture, out var result)
                 ? Task.FromResult(Optional.FromValue(result))
                 : Task.FromResult(Optional.FromNoValue<long>());
         }
@@ -111,7 +111,7 @@ namespace DSharpPlus.CommandsNext.Converters
     {
         Task<Optional<ulong>> IArgumentConverter<ulong>.ConvertAsync(string value, CommandContext ctx)
         {
-            return ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result)
+            return ulong.TryParse(value, NumberStyles.Integer, ctx.CommandsNext.DefaultParserCulture, out var result)
                 ? Task.FromResult(Optional.FromValue(result))
                 : Task.FromResult(Optional.FromNoValue<ulong>());
         }
@@ -121,7 +121,7 @@ namespace DSharpPlus.CommandsNext.Converters
     {
         Task<Optional<float>> IArgumentConverter<float>.ConvertAsync(string value, CommandContext ctx)
         {
-            return float.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out var result)
+            return float.TryParse(value, NumberStyles.Number, ctx.CommandsNext.DefaultParserCulture, out var result)
                 ? Task.FromResult(Optional.FromValue(result))
                 : Task.FromResult(Optional.FromNoValue<float>());
         }
@@ -131,7 +131,7 @@ namespace DSharpPlus.CommandsNext.Converters
     {
         Task<Optional<double>> IArgumentConverter<double>.ConvertAsync(string value, CommandContext ctx)
         {
-            return double.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out var result)
+            return double.TryParse(value, NumberStyles.Number, ctx.CommandsNext.DefaultParserCulture, out var result)
                 ? Task.FromResult(Optional.FromValue(result))
                 : Task.FromResult(Optional.FromNoValue<double>());
         }
@@ -141,7 +141,7 @@ namespace DSharpPlus.CommandsNext.Converters
     {
         Task<Optional<decimal>> IArgumentConverter<decimal>.ConvertAsync(string value, CommandContext ctx)
         {
-            return decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out var result)
+            return decimal.TryParse(value, NumberStyles.Number, ctx.CommandsNext.DefaultParserCulture, out var result)
                 ? Task.FromResult(Optional.FromValue(result))
                 : Task.FromResult(Optional.FromNoValue<decimal>());
         }

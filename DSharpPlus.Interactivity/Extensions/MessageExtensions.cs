@@ -120,7 +120,7 @@ namespace DSharpPlus.Interactivity.Extensions
         /// <param name="message">The message to wait on.</param>
         /// <param name="predicate">The predicate to filter interactions by.</param>
         /// <param name="timeoutOverride">Override the timeout specified in <see cref="InteractivityConfiguration"/></param>
-        public static Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(this DiscordMessage message, Func<ComponentInteractionCreateEventArgs, bool> predicate, TimeSpan? timeoutOverride)
+        public static Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButtonAsync(this DiscordMessage message, Func<ComponentInteractionCreateEventArgs, bool> predicate, TimeSpan? timeoutOverride = null)
             => GetInteractivity(message).WaitForButtonAsync(message, predicate, timeoutOverride);
 
         /// <summary>

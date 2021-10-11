@@ -382,6 +382,35 @@ namespace DSharpPlus
             action(mdl);
             return await this.ApiClient.ModifyGuildMembershipScreeningFormAsync(guild_id, mdl.Enabled, mdl.Fields, mdl.Description).ConfigureAwait(false);
         }
+
+        /// <summary>
+        /// Gets a guild's vanity url
+        /// </summary>
+        /// <param name="guildId">The id of the guild.</param>
+        /// <returns>The guild's vanity url.</returns>
+        public Task<DiscordInvite> GetGuildVanityUrlAsync(ulong guildId)
+            => this.ApiClient.GetGuildVanityUrlAsync(guildId);
+
+        /// <summary>
+        /// Updates the current user's suppress state in a stage channel.
+        /// </summary>
+        /// <param name="guildId">The id of the guild.</param>
+        /// <param name="channelId">The id of the channel.</param>
+        /// <param name="suppress">Toggles the suppress state.</param>
+        /// <param name="requestToSpeakTimestamp">Sets the time the user requested to speak.</param>
+        public Task UpdateCurrentUserVoiceStateAsync(ulong guildId, ulong channelId, bool? suppress, DateTimeOffset? requestToSpeakTimestamp = null)
+            => this.ApiClient.UpdateCurrentUserVoiceStateAsync(guildId, channelId, suppress, requestToSpeakTimestamp);
+
+        /// <summary>
+        /// Updates a member's suppress state in a stage channel.
+        /// </summary>
+        /// <param name="guildId">The id of the guild.</param>
+        /// <param name="userId">The id of the member.</param>
+        /// <param name="channelId">The id of the stage channel.</param>
+        /// <param name="suppress">Toggles the member's suppress state.</param>
+        /// <returns></returns>
+        public Task UpdateUserVoiceStateAsync(ulong guildId, ulong userId, ulong channelId, bool? suppress)
+            => this.ApiClient.UpdateUserVoiceStateAsync(guildId, userId, channelId, suppress);
         #endregion
 
         #region Channel
@@ -811,6 +840,14 @@ namespace DSharpPlus
         public Task DeleteStageInstanceAsync(ulong channelId, string reason = null)
             => this.ApiClient.DeleteStageInstanceAsync(channelId, reason);
 
+        /// <summary>
+        /// Pins a message.
+        /// </summary>
+        /// <param name="channelId">The id of the channel the message is in.</param>
+        /// <param name="messageId">The id of the message.</param>
+        public Task PinMessageAsync(ulong channelId, ulong messageId)
+            => this.ApiClient.PinMessageAsync(channelId, messageId);
+
         #endregion
 
         #region Member
@@ -917,7 +954,7 @@ namespace DSharpPlus
 
             if (mdl.Nickname.HasValue && this.CurrentUser.Id == member_id)
             {
-                await this.ApiClient.ModifyCurrentMemberNicknameAsync(guild_id, mdl.Nickname.Value,
+                await this.ApiClient.ModifyCurrentMemberAsync(guild_id, mdl.Nickname.Value,
                     mdl.AuditLogReason).ConfigureAwait(false);
                 await this.ApiClient.ModifyGuildMemberAsync(guild_id, member_id, Optional.FromNoValue<string>(),
                     mdl.Roles.IfPresent(e => e.Select(xr => xr.Id)), mdl.Muted, mdl.Deafened,
@@ -938,8 +975,20 @@ namespace DSharpPlus
         /// <param name="nick">Nickname</param>
         /// <param name="reason">Reason why you set it to this</param>
         /// <returns></returns>
+        [Obsolete("This method is depreciated and will be removed in a future version. Please use ModifyCurrentMemberAsync instead.", false)]
         public Task ModifyCurrentMemberNicknameAsync(ulong guild_id, string nick, string reason)
-            => this.ApiClient.ModifyCurrentMemberNicknameAsync(guild_id, nick, reason);
+            => this.ApiClient.ModifyCurrentMemberAsync(guild_id, nick, reason);
+
+        /// <summary>
+        /// Changes the current user in a guild.
+        /// </summary>
+        /// <param name="guild_id">Guild id</param>
+        /// <param name="nickname">Nickname to set</param>
+        /// <param name="reason">Audit log reason</param>
+        /// <returns></returns>
+        public Task ModifyCurrentMemberAsync(ulong guild_id, string nickname, string reason)
+            => this.ApiClient.ModifyCurrentMemberAsync(guild_id, nickname, reason);
+
         #endregion
 
         #region Roles
@@ -1174,6 +1223,14 @@ namespace DSharpPlus
             action(mdl);
             return await this.ApiClient.ModifyGuildWelcomeScreenAsync(guildId, mdl.Enabled, mdl.WelcomeChannels, mdl.Description).ConfigureAwait(false);
         }
+
+        /// <summary>
+        /// Gets a guild preview.
+        /// </summary>
+        /// <param name="guildId">The id of the guild.</param>
+        public Task<DiscordGuildPreview> GetGuildPreviewAsync(ulong guildId)
+            => this.ApiClient.GetGuildPreviewAsync(guildId);
+
         #endregion
 
         #region Invites
@@ -1453,6 +1510,17 @@ namespace DSharpPlus
         /// <returns></returns>
         public Task DeleteAllReactionsAsync(ulong channel_id, ulong message_id, string reason)
             => this.ApiClient.DeleteAllReactionsAsync(channel_id, message_id, reason);
+
+        /// <summary>
+        /// Deletes all reactions of a specific reaction for a message.
+        /// </summary>
+        /// <param name="channelid">The id of the channel.</param>
+        /// <param name="messageId">The id of the message.</param>
+        /// <param name="emoji">The emoji to clear.</param>
+        /// <returns></returns>
+        public Task DeleteReactionsEmojiAsync(ulong channelid, ulong messageId, string emoji)
+            => this.ApiClient.DeleteReactionsEmojiAsync(channelid, messageId, emoji);
+
         #endregion
 
         #region Application Commands
@@ -1675,6 +1743,258 @@ namespace DSharpPlus
         /// <returns>A list of edited permissions.</returns>
         public Task<IReadOnlyList<DiscordGuildApplicationCommandPermissions>> BatchEditApplicationCommandPermissionsAsync(ulong guildId, IEnumerable<DiscordGuildApplicationCommandPermissions> permissions)
             => this.ApiClient.BatchEditApplicationCommandPermissionsAsync(this.CurrentApplication.Id, guildId, permissions);
+
+        public Task<DiscordMessage> GetFollowupMessageAsync(string interactionToken, ulong messageId)
+            => this.ApiClient.GetFollowupMessageAsync(this.CurrentApplication.Id, interactionToken, messageId);
+
+        #endregion
+
+        #region Stickers
+
+        /// <summary>
+        /// Gets a sticker from a guild.
+        /// </summary>
+        /// <param name="guildId">The id of the guild.</param>
+        /// <param name="stickerId">The id of the sticker.</param>
+        public Task<DiscordMessageSticker> GetGuildStickerAsync(ulong guildId, ulong stickerId)
+            => this.ApiClient.GetGuildStickerAsync(guildId, stickerId);
+
+        /// <summary>
+        /// Gets a sticker by its id.
+        /// </summary>
+        /// <param name="stickerId">The id of the sticker.</param>
+        public Task<DiscordMessageSticker> GetStickerAsync(ulong stickerId)
+            => this.ApiClient.GetStickerAsync(stickerId);
+
+        /// <summary>
+        /// Gets a collection of sticker packs that may be used by nitro users.
+        /// </summary>
+        public Task<IReadOnlyList<DiscordMessageStickerPack>> GetStickerPacksAsync()
+            => this.ApiClient.GetStickerPacksAsync();
+
+        /// <summary>
+        /// Gets a list of stickers from a guild.
+        /// </summary>
+        /// <param name="guildId">The id of the guild.</param>
+        public Task<IReadOnlyList<DiscordMessageSticker>> GetGuildStickersAsync(ulong guildId)
+            => this.ApiClient.GetGuildStickersAsync(guildId);
+
+        /// <summary>
+        /// Creates a sticker in a guild.
+        /// </summary>
+        /// <param name="guildId">The id of the guild.</param>
+        /// <param name="name">The name of the sticker.</param>
+        /// <param name="description">The description of the sticker.</param>
+        /// <param name="tags">The tags of the sticker.</param>
+        /// <param name="imageContents">The image content of the sticker.</param>
+        /// <param name="format">The image format of the sticker.</param>
+        public Task<DiscordMessageSticker> CreateGuildStickerAsync(ulong guildId, string name, string description, string tags, Stream imageContents, StickerFormat format)
+        {
+            string contentType = null, extension = null;
+
+            if(format == StickerFormat.PNG || format == StickerFormat.APNG)
+            {
+                contentType = "image/png";
+                extension = "png";
+            }
+            else
+            {
+                contentType = "application/json";
+                extension = "json";
+            }
+
+            return this.ApiClient.CreateGuildStickerAsync(guildId, name, description ?? string.Empty, tags, new DiscordMessageFile(null, imageContents, null, extension, contentType));
+        }
+
+        /// <summary>
+        /// Modifies a sticker in a guild.
+        /// </summary>
+        /// <param name="guildId">The id of the guild.</param>
+        /// <param name="stickerId">The id of the sticker.</param>
+        /// <param name="action">Action to perform.</param>
+        public Task<DiscordMessageSticker> ModifyGuildStickerAsync(ulong guildId, ulong stickerId, Action<StickerEditModel> action)
+        {
+            var mdl = new StickerEditModel();
+            action(mdl);
+            return this.ApiClient.ModifyStickerAsync(guildId, stickerId, mdl.Name, mdl.Description, mdl.Tags);
+        }
+
+        /// <summary>
+        /// Deletes a sticker in a guild.
+        /// </summary>
+        /// <param name="guildId">The id of the guild.</param>
+        /// <param name="stickerId">The id of the sticker.</param>
+        /// <returns></returns>
+        public Task DeleteGuildStickerAsync(ulong guildId, ulong stickerId)
+            => this.ApiClient.DeleteStickerAsync(guildId, stickerId);
+
+        #endregion
+
+        #region Threads
+
+         /// <summary>
+         /// Creates a thread from a message.
+         /// </summary>
+         /// <param name="channelId">The id of the channel.</param>
+         /// <param name="messageId">The id of the message </param>
+         /// <param name="name">The name of the thread.</param>
+         /// <param name="archiveAfter">The auto archive duration.</param>
+         /// <param name="reason">Reason for audit logs.</param>
+         public Task<DiscordThreadChannel> CreateThreadFromMessageAsync(ulong channelId, ulong messageId, string name, AutoArchiveDuration archiveAfter, string reason = null)
+            => this.ApiClient.CreateThreadFromMessageAsync(channelId, messageId, name, archiveAfter, reason);
+
+         /// <summary>
+         /// Creates a thread.
+         /// </summary>
+         /// <param name="channelId">The id of the channel.</param>
+         /// <param name="name">The name of the thread.</param>
+         /// <param name="archiveAfter">The auto archive duration.</param>
+         /// <param name="threadType">The type of the thread.</param>
+         /// <param name="reason">Reason for audit logs.</param>
+         /// <returns></returns>
+         public Task<DiscordThreadChannel> CreateThreadAsync(ulong channelId, string name, AutoArchiveDuration archiveAfter, ChannelType threadType, string reason = null)
+            => this.ApiClient.CreateThreadAsync(channelId, name, archiveAfter, threadType, reason);
+
+         /// <summary>
+         /// Joins a thread.
+         /// </summary>
+         /// <param name="threadId">The id of the thread.</param>
+         public Task JoinThreadAsync(ulong threadId)
+             => this.ApiClient.JoinThreadAsync(threadId);
+
+         /// <summary>
+         /// Leaves a thread.
+         /// </summary>
+         /// <param name="threadId">The id of the thread.</param>
+         public Task LeaveThreadAsync(ulong threadId)
+             => this.ApiClient.LeaveThreadAsync(threadId);
+
+         /// <summary>
+         /// Adds a member to a thread.
+         /// </summary>
+         /// <param name="threadId">The id of the thread.</param>
+         /// <param name="userId">The id of the member.</param>
+         public Task AddThreadMemberAsync(ulong threadId, ulong userId)
+             => this.ApiClient.AddThreadMemberAsync(threadId, userId);
+
+         /// <summary>
+         /// Removes a member from a thread.
+         /// </summary>
+         /// <param name="threadId">The id of the thread.</param>
+         /// <param name="userId">The id of the member.</param>
+         public Task RemoveThreadMemberAsync(ulong threadId, ulong userId)
+             => this.ApiClient.RemoveThreadMemberAsync(threadId, userId);
+
+         /// <summary>
+         /// Lists the members of a thread.
+         /// </summary>
+         /// <param name="threadId">The id of the thread.</param>
+         public Task<IReadOnlyList<DiscordThreadChannelMember>> ListThreadMembersAsync(ulong threadId)
+             => this.ApiClient.ListThreadMembersAsync(threadId);
+
+         /// <summary>
+         /// Lists the active threads of a guild.
+         /// </summary>
+         /// <param name="guildId">The id of the guild.</param>
+         public Task<ThreadQueryResult> ListActiveThreadAsync(ulong guildId)
+             => this.ApiClient.ListActiveThreadsAsync(guildId);
+
+         /// <summary>
+         /// Gets the threads that are public and archived for a channel.
+         /// </summary>
+         /// <param name="guildId">The id of the guild.</param>
+         /// <param name="channelId">The id of the channel.</param>
+         /// <param name="before">Date to filter by.</param>
+         /// <param name="limit">Limit.</param>
+         public Task<ThreadQueryResult> ListPublicArchivedThreadsAsync(ulong guildId, ulong channelId, DateTimeOffset? before = null, int limit = 0)
+            => this.ApiClient.ListPublicArchivedThreadsAsync(guildId, channelId, (ulong?) before?.ToUnixTimeSeconds(), limit);
+
+         /// <summary>
+         /// Gets the threads that are public and archived for a channel.
+         /// </summary>
+         /// <param name="guildId">The id of the guild.</param>
+         /// <param name="channelId">The id of the channel.</param>
+         /// <param name="before">Date to filter by.</param>
+         /// <param name="limit">Limit.</param>
+         public Task<ThreadQueryResult> ListPrivateArchivedThreadAsync(ulong guildId, ulong channelId, DateTimeOffset? before = null, int limit = 0)
+            => this.ApiClient.ListPrivateArchivedThreadsAsync(guildId, channelId, (ulong?) before?.ToUnixTimeSeconds(), limit);
+
+         /// <summary>
+         /// Gets the private archived threads the user has joined for a channel.
+         /// </summary>
+         /// <param name="guildId">The id of the guild.</param>
+         /// <param name="channelId">The id of the channel.</param>
+         /// <param name="before">Date to filter by.</param>
+         /// <param name="limit">Limit.</param>
+         public Task<ThreadQueryResult> ListJoinedPrivateArchivedThreadsAsync(ulong guildId, ulong channelId, DateTimeOffset? before = null, int limit = 0)
+            => this.ApiClient.ListJoinedPrivateArchivedThreadsAsync(guildId, channelId, (ulong?) before?.ToUnixTimeSeconds(), limit);
+
+        #endregion
+
+        #region Emoji
+
+        /// <summary>
+        /// Gets a guild's emojis.
+        /// </summary>
+        /// <param name="guildId">The id of the guild.</param>
+        public Task<IReadOnlyList<DiscordGuildEmoji>> GetGuildEmojisAsync(ulong guildId)
+            => this.ApiClient.GetGuildEmojisAsync(guildId);
+
+        /// <summary>
+        /// Gets a guild emoji.
+        /// </summary>
+        /// <param name="guildId">The id of the guild.</param>
+        /// <param name="emojiId">The id of the emoji.</param>
+        public Task<DiscordGuildEmoji> GetGuildEmojiAsync(ulong guildId, ulong emojiId)
+            => this.ApiClient.GetGuildEmojiAsync(guildId, emojiId);
+
+        /// <summary>
+        /// Creates an emoji in a guild.
+        /// </summary>
+        /// <param name="name">Name of the emoji.</param>
+        /// <param name="guildId">The id of the guild.</param>
+        /// <param name="image">Image to use as the emoji.</param>
+        /// <param name="roles">Roles for which the emoji will be available.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        public Task<DiscordGuildEmoji> CreateEmojiAsync(ulong guildId, string name, Stream image, IEnumerable<ulong> roles = null, string reason = null)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentNullException(nameof(name));
+
+            name = name.Trim();
+            if (name.Length < 2 || name.Length > 50)
+                throw new ArgumentException("Emoji name needs to be between 2 and 50 characters long.");
+
+            if (image == null)
+                throw new ArgumentNullException(nameof(image));
+
+            string image64 = null;
+            using (var imgtool = new ImageTool(image))
+                image64 = imgtool.GetBase64();
+
+            return this.ApiClient.CreateGuildEmojiAsync(guildId, name, image64, roles, reason);
+        }
+
+        /// <summary>
+        /// Modifies a guild's emoji.
+        /// </summary>
+        /// <param name="guildId">The id of the guild.</param>
+        /// <param name="emojiId">The id of the emoji.</param>
+        /// <param name="name">New name of the emoji.</param>
+        /// <param name="roles">Roles for which the emoji will be available.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        public Task<DiscordGuildEmoji> ModifyGuildEmojiAsync(ulong guildId, ulong emojiId, string name, IEnumerable<ulong> roles = null, string reason = null)
+            => this.ApiClient.ModifyGuildEmojiAsync(guildId, emojiId, name, roles, reason);
+
+        /// <summary>
+        /// Deletes a guild's emoji.
+        /// </summary>
+        /// <param name="guildId">The id of the guild.</param>
+        /// <param name="emojiId">The id of the emoji.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        public Task DeleteGuildEmojiAsync(ulong guildId, ulong emojiId, string reason = null)
+            => this.ApiClient.DeleteGuildEmojiAsync(guildId, emojiId, reason);
+
         #endregion
 
         #region Misc

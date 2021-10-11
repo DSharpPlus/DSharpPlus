@@ -2285,11 +2285,14 @@ namespace DSharpPlus.Entities
                 extension = "json";
             }
 
-
             return this.Discord.ApiClient.CreateGuildStickerAsync(this.Id, name, description ?? string.Empty, tags, new DiscordMessageFile(null, imageContents, null, extension, contentType));
         }
 
-
+        /// <summary>
+        /// Modifies a sticker in this guild.
+        /// </summary>
+        /// <param name="stickerId">The id of the sticker.</param>
+        /// <param name="action">Action to perform.</param>
         public Task<DiscordMessageSticker> ModifyStickerAsync(ulong stickerId, Action<StickerEditModel> action)
         {
             var mdl = new StickerEditModel();
@@ -2297,6 +2300,10 @@ namespace DSharpPlus.Entities
             return this.Discord.ApiClient.ModifyStickerAsync(this.Id, stickerId, mdl.Name, mdl.Description, mdl.Tags);
         }
 
+        /// <summary>
+        /// Deletes a sticker in this guild.
+        /// </summary>
+        /// <param name="stickerId">The id of the sticker.</param>
         public Task DeleteStickerAsync(ulong stickerId)
             => this.Discord.ApiClient.DeleteStickerAsync(this.Id, stickerId);
 

@@ -44,7 +44,8 @@
     "resource": [
       {
         "files": [
-          "images/**"
+          "images/**",
+          "langword_mapping.yml"
         ],
         "exclude": [
           "obj/**",
@@ -65,9 +66,13 @@
     ],
     "dest": "_site",
     "globalMetadata": {
+      "_appTitle": "DSharpPlus documentation",
       "_appFooter": "© 2016-2021 DSharpPlus Contributors",
       "_enableSearch": "true"
     },
+    "xrefService": [
+      "https://xref.docs.microsoft.com/query?uid={uid}"
+    ],
     "globalMetadataFiles": [],
     "fileMetadataFiles": [],
     "template": [

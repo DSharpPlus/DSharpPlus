@@ -68,9 +68,9 @@ namespace DSharpPlus.CommandsNext
         /// Gets the member who triggered the execution. This property is null for commands sent over direct messages.
         /// </summary>
         public DiscordMember Member
-            => this._lazyAssMember.Value;
+            => this._lazyMember.Value;
 
-        private readonly Lazy<DiscordMember> _lazyAssMember;
+        private readonly Lazy<DiscordMember> _lazyMember;
 
         /// <summary>
         /// Gets the CommandsNext service instance that handled this command.
@@ -113,7 +113,7 @@ namespace DSharpPlus.CommandsNext
 
         internal CommandContext()
         {
-            this._lazyAssMember = new Lazy<DiscordMember>(() => this.Guild != null && this.Guild.Members.TryGetValue(this.User.Id, out var member) ? member : this.Guild?.GetMemberAsync(this.User.Id).ConfigureAwait(false).GetAwaiter().GetResult());
+            this._lazyMember = new Lazy<DiscordMember>(() => this.Guild != null && this.Guild.Members.TryGetValue(this.User.Id, out var member) ? member : this.Guild?.GetMemberAsync(this.User.Id).ConfigureAwait(false).GetAwaiter().GetResult());
         }
 
         /// <summary>

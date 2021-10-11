@@ -1,19 +1,19 @@
 ---
-uid: audio_lavalink_configuration
+uid: articles.audio.lavalink.configuration
 title: Lavalink Configuration
 ---
 
 # Setting up DSharpPlus.Lavalink
-
 ## Configuring Your Client
-
-To begin using DSharpPlus's Lavalink client, you will need to add the `DSharpPlus.Lavalink` nuget package. Once installed, simply add these namespaces at the top of your bot file:
+To begin using DSharpPlus's Lavalink client, you will need to add the `DSharpPlus.Lavalink` nuget package. Once
+installed, simply add these namespaces at the top of your bot file:
 ```csharp
 using DSharpPlus.Net;
 using DSharpPlus.Lavalink;
 ```
 
-After that, we will need to create a configuration for our extension to use. This is where the special values from the server configuration are used.
+After that, we will need to create a configuration for our extension to use. This is where the special values from the
+server configuration are used.
 ```csharp
 var endpoint = new ConnectionEndpoint
 {
@@ -28,21 +28,21 @@ var lavalinkConfig = new LavalinkConfiguration
     SocketEndpoint = endpoint
 };
 ```
+
 Finally, initialize the extension.
 ```csharp
 var lavalink = Discord.UseLavalink();
 ```
 
 ## Connecting with Lavalink
-
-We are now ready to connect to the server. Call the Lavalink extension's connect method and pass the configuration. Make sure to call this **after** your Discord client connects. This can be called either directly after your client's connect method or in your client's ready event.
-
+We are now ready to connect to the server. Call the Lavalink extension's connect method and pass the configuration. Make
+sure to call this **after** your Discord client connects. This can be called either directly after your client's connect
+method or in your client's ready event.
 ```csharp
 LavalinkNode = await Lavalink.ConnectAsync(lavalinkConfig);
 ```
 
-Your main bot file should now look like this: 
-
+Your main bot file should now look like this:
 ```csharp
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -93,14 +93,14 @@ namespace MyFirstMusicBot
     }
 }
 ```
-We are now ready to start the bot. If everything is configured properly, you should see a Lavalink connection appear in your DSharpPlus console:
 
+We are now ready to start the bot. If everything is configured properly, you should see a Lavalink connection appear in
+your DSharpPlus console:
 ```
 [2020-10-10 17:56:07 -04:00] [403 /LavalinkConn] [Debug] Connection to Lavalink node established
 ```
 
 And a client connection appear in your Lavalink console: 
-
 ```
 INFO 5180 --- [  XNIO-1 task-1] io.undertow.servlet                      : Initializing Spring DispatcherServlet 'dispatcherServlet'
 INFO 5180 --- [  XNIO-1 task-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'

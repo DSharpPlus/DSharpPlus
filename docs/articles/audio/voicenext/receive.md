@@ -1,13 +1,14 @@
 ---
-uid: voicenext_receive
+uid: articles.audio.voicenext.receive
 title: Receiving
 ---
 
 ## Receiving with VoiceNext
 
 ### Enable Receiver
-Receiving incoming audio is disabled by default to save on bandwidth, as most users will never make use of incoming data.
-This can be changed by providing a configuration object to `DiscordClient#UseVoiceNext()`.
+Receiving incoming audio is disabled by default to save on bandwidth, as most users will never make use of incoming
+data. This can be changed by providing a configuration object to 
+@DSharpPlus.VoiceNext.DiscordClientExtensions.UseVoiceNext*.
 ```cs
 var discord = new DiscordClient();
 
@@ -25,20 +26,24 @@ VoiceNextConnection connection = await channel.ConnectAsync();
 ```
 
 ### Write Event Handler
-We'll be able to receive incoming audio from the `VoiceReceived` event fired by `VoiceNextConnection`.
+We'll be able to receive incoming audio from the @DSharpPlus.VoiceNext.VoiceNextConnection.VoiceReceived event fired by
+@DSharpPlus.VoiceNext.VoiceNextConnection.
 ```cs
 connection.VoiceReceived += ReceiveHandler;
 ```
 
 Writing the logic for this event handler will depend on your overall goal. 
 
-The event arguments will contain a PCM audio packet for you to make use of.
-You can convert each packet to another format, concatenate them all together, feed them into an external program, or process the packets any way that'll suit your needs.
+The event arguments will contain a PCM audio packet for you to make use of. You can convert each packet to another
+format, concatenate them all together, feed them into an external program, or process the packets any way that'll suit
+your needs.
 
-When a user is speaking, `VoiceReceived` should fire once every twenty milliseconds and its packet will contain around twenty milliseconds worth of audio; this can vary due to differences in client settings.
-To help keep track of the torrent of packets for each user, you can use user IDs in combination the synchronization value (SSRC) sent by Discord to determine the source of each packet.
+When a user is speaking, @DSharpPlus.VoiceNext.VoiceNextConnection.VoiceReceived should fire once every twenty
+milliseconds and its packet will contain around twenty milliseconds worth of audio; this can vary due to differences in
+client settings. To help keep track of the torrent of packets for each user, you can use user IDs in combination the
+synchronization value (SSRC) sent by Discord to determine the source of each packet.
 
-This short-and-simple example will use [ffmpeg](https://ffmpeg.org/about.html) to convert each packet to a *wav* file.
+This short-and-simple example will use [ffmpeg][0] to convert each packet to a *wav* file.
 ```cs
 private async Task ReceiveHandler(VoiceNextConnection _, VoiceReceiveEventArgs args)
 {
@@ -54,11 +59,9 @@ private async Task ReceiveHandler(VoiceNextConnection _, VoiceReceiveEventArgs a
 }
 ```
 
-<br/>
 That's really all there is to it. Connect to a voice channel, hook an event, process the data as you see fit.
 
-![Wav Files](/images/voicenext_receive_01.png)
-
+![Wav Files][1]
 
 ## Example Commands
 ```cs
@@ -99,3 +102,7 @@ private async Task VoiceReceiveHandler(VoiceNextConnection connection, VoiceRece
     ffmpeg.Dispose();
 }
 ```
+
+<!-- LINKS -->
+[0]:  https://ffmpeg.org/about.html
+[1]:  /images/voicenext_receive_01.png

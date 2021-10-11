@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -32,6 +33,7 @@ using DSharpPlus.CommandsNext.Builders;
 using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.CommandsNext.Entities;
 using DSharpPlus.CommandsNext.Exceptions;
+using DSharpPlus.CommandsNext.Executors;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Emzi0767.Utilities;
@@ -43,7 +45,7 @@ namespace DSharpPlus.CommandsNext
     /// <summary>
     /// This is the class which handles command registration, management, and execution. 
     /// </summary>
-    public class CommandsNextExtension : BaseExtension
+    public class CommandsNextExtension : BaseExtension, IDisposable
     {
         private CommandsNextConfiguration Config { get; }
         private HelpFormatterFactory HelpFormatter { get; }
@@ -51,6 +53,8 @@ namespace DSharpPlus.CommandsNext
         private MethodInfo ConvertGeneric { get; }
         private Dictionary<Type, string> UserFriendlyTypeNames { get; }
         internal Dictionary<Type, IArgumentConverter> ArgumentConverters { get; }
+        internal CultureInfo DefaultParserCulture
+            => this.Config.DefaultParserCulture;
 
         /// <summary>
         /// Gets the service provider this CommandsNext module was configured with.
@@ -89,6 +93,7 @@ namespace DSharpPlus.CommandsNext
                 [typeof(DiscordMember)] = new DiscordMemberConverter(),
                 [typeof(DiscordRole)] = new DiscordRoleConverter(),
                 [typeof(DiscordChannel)] = new DiscordChannelConverter(),
+                [typeof(DiscordThreadChannel)] = new DiscordThreadChannelConverter(),
                 [typeof(DiscordGuild)] = new DiscordGuildConverter(),
                 [typeof(DiscordMessage)] = new DiscordMessageConverter(),
                 [typeof(DiscordEmoji)] = new DiscordEmojiConverter(),
@@ -155,6 +160,12 @@ namespace DSharpPlus.CommandsNext
         /// <typeparam name="T">Type of the formatter to use.</typeparam>
         public void SetHelpFormatter<T>() where T : BaseHelpFormatter => this.HelpFormatter.SetFormatterType<T>();
 
+        /// <summary>
+        /// Disposes of this the resources used by CNext.
+        /// </summary>
+        public void Dispose()
+            => this.Config.CommandExecutor.Dispose();
+
         #region DiscordClient Registration
         /// <summary>
         /// DO NOT USE THIS MANUALLY.
@@ -193,6 +204,8 @@ namespace DSharpPlus.CommandsNext
                         this.AddToCommandDictionary(xc.Build(null));
             }
 
+            if (this.Config.CommandExecutor is ParallelQueuedCommandExecutor pqce)
+                this.Client.Logger.LogDebug(CommandsNextEvents.Misc, "Using parallel executor with degree {0}", pqce.Parallelism);
         }
         #endregion
 
@@ -234,7 +247,7 @@ namespace DSharpPlus.CommandsNext
                 return;
             }
 
-            _ = Task.Run(async () => await this.ExecuteCommandAsync(ctx).ConfigureAwait(false));
+            await this.Config.CommandExecutor.ExecuteAsync(ctx).ConfigureAwait(false);
         }
 
         /// <summary>

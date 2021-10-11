@@ -23,10 +23,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Converters;
+using DSharpPlus.CommandsNext.Executors;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -125,6 +127,18 @@ namespace DSharpPlus.CommandsNext
         public bool UseDefaultCommandHandler { internal get; set; } = true;
 
         /// <summary>
+        /// <para>Gets or sets the default culture for parsers.</para>
+        /// <para>Defaults to invariant.</para>
+        /// </summary>
+        public CultureInfo DefaultParserCulture { internal get; set; } = CultureInfo.InvariantCulture;
+
+        /// <summary>
+        /// <para>Gets or sets the default command exector.</para>
+        /// <para>This alters the behaviour, execution, and scheduling method of command execution.</para>
+        /// </summary>
+        public ICommandExecutor CommandExecutor { internal get; set; } = new ParallelQueuedCommandExecutor();
+
+        /// <summary>
         /// Creates a new instance of <see cref="CommandsNextConfiguration"/>.
         /// </summary>
         public CommandsNextConfiguration() { }
@@ -146,6 +160,8 @@ namespace DSharpPlus.CommandsNext
             this.Services = other.Services;
             this.StringPrefixes = other.StringPrefixes?.ToArray();
             this.DmHelp = other.DmHelp;
+            this.DefaultParserCulture = other.DefaultParserCulture;
+            this.CommandExecutor = other.CommandExecutor;
         }
     }
 }

@@ -11,7 +11,7 @@
 
   <PropertyGroup>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <Authors>Naamloos, afroraydude, DrCreo, Death, TiaqoY0, Axiom, Emzi0767, DSharpPlus contributors</Authors>
+    <Authors>Naamloos, afroraydude, DrCreo, Death, TiaqoY0, Axiom, Emzi0767, IDoEverything, Velvet, DSharpPlus contributors</Authors>
     <Company>DSharpPlus developers</Company>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/DSharpPlus/DSharpPlus</PackageProjectUrl>

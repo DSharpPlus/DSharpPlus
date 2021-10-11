@@ -450,7 +450,7 @@ namespace DSharpPlus.Entities
 
             if (mdl.Nickname.HasValue && this.Discord.CurrentUser.Id == this.Id)
             {
-                await this.Discord.ApiClient.ModifyCurrentMemberNicknameAsync(this.Guild.Id, mdl.Nickname.Value,
+                await this.Discord.ApiClient.ModifyCurrentMemberAsync(this.Guild.Id, mdl.Nickname.Value,
                     mdl.AuditLogReason).ConfigureAwait(false);
 
                 await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, Optional.FromNoValue<string>(),

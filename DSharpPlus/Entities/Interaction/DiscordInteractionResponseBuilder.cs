@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.Versioning;
 
 namespace DSharpPlus.Entities
 {
@@ -77,6 +78,11 @@ namespace DSharpPlus.Entities
         public IReadOnlyList<DiscordActionRowComponent> Components => this._components;
         private readonly List<DiscordActionRowComponent> _components = new();
 
+        /// <summary>
+        /// The choices to send on this interaction response. Mutually exclusive with content, embed, and components.
+        /// </summary>
+        public IReadOnlyList<DiscordAutoCompleteChoice> Choices => this._choices;
+        private readonly List<DiscordAutoCompleteChoice> _choices = new();
 
         /// <summary>
         /// Mentions to send on this interaction response.
@@ -148,6 +154,42 @@ namespace DSharpPlus.Entities
             this._components.Add(arc);
             return this;
         }
+
+        /// <summary>
+        /// Adds a single auto-complete choice to the builder.
+        /// </summary>
+        /// <param name="choice">The choice to add.</param>
+        /// <returns>The current builder to chain calls with.</returns>
+        public DiscordInteractionResponseBuilder AddAutoCompleteChoice(DiscordAutoCompleteChoice choice)
+        {
+            if (this._choices.Count >= 25)
+                throw new ArgumentException("Maximum of 25 choices per response.");
+
+            this._choices.Add(choice);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds auto-complete choices to the builder.
+        /// </summary>
+        /// <param name="choices">The choices to add.</param>
+        /// <returns>The current builder to chain calls with.</returns>
+        public DiscordInteractionResponseBuilder AddAutoCompleteChoices(IEnumerable<DiscordAutoCompleteChoice> choices)
+        {
+            if (this._choices.Count >= 25 || this._choices.Count + choices.Count() > 25)
+                throw new ArgumentException("Maximum of 25 choices per response.");
+
+            this._choices.AddRange(choices);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds auto-complete choices to the builder.
+        /// </summary>
+        /// <param name="choices">The choices to add.</param>
+        /// <returns>The current builder to chain calls with.</returns>
+        public DiscordInteractionResponseBuilder AddAutoCompleteChoices(params DiscordAutoCompleteChoice[] choices)
+            => this.AddAutoCompleteChoices((IEnumerable<DiscordAutoCompleteChoice>)choices);
 
         /// <summary>
         /// Indicates if the interaction response will be text-to-speech.
@@ -310,6 +352,7 @@ namespace DSharpPlus.Entities
             this._mentions.Clear();
             this._components.Clear();
             this._files.Clear();
+            this._choices.Clear();
         }
     }
 }
