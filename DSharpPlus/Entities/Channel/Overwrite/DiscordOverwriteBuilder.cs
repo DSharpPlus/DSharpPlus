@@ -72,7 +72,6 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Creates a new Discord permission overwrite builder. This class can be used to construct permission overwrites for guild channels, used when creating channels.
         /// </summary>
-        [Obsolete("Will be removed in 5.0. Use specialized constructors instead", false)]
         public DiscordOverwriteBuilder()
         {
 
