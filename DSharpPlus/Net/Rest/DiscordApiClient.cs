@@ -26,6 +26,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -1971,15 +1972,25 @@ namespace DSharpPlus.Net
             }
         }
 
-        internal async Task<DiscordRole> ModifyGuildRoleAsync(ulong guild_id, ulong role_id, string name, Permissions? permissions, int? color, bool? hoist, bool? mentionable, string reason)
+        internal async Task<DiscordRole> ModifyGuildRoleAsync(ulong guild_id, ulong role_id, string name, Permissions? permissions, int? color, bool? hoist, bool? mentionable, string reason, Stream icon, string emoji)
         {
+            string image = null;
+
+            if (icon != null)
+            {
+                using var it = new ImageTool(icon);
+                image = it.GetBase64();
+            }
+
             var pld = new RestGuildRolePayload
             {
                 Name = name,
                 Permissions = permissions & PermissionMethods.FULL_PERMS,
                 Color = color,
                 Hoist = hoist,
-                Mentionable = mentionable
+                Mentionable = mentionable,
+                Emoji = emoji,
+                Icon = image
             };
 
             var headers = Utilities.GetBaseHeaders();
@@ -2012,15 +2023,25 @@ namespace DSharpPlus.Net
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route, headers);
         }
 
-        internal async Task<DiscordRole> CreateGuildRoleAsync(ulong guild_id, string name, Permissions? permissions, int? color, bool? hoist, bool? mentionable, string reason)
+        internal async Task<DiscordRole> CreateGuildRoleAsync(ulong guild_id, string name, Permissions? permissions, int? color, bool? hoist, bool? mentionable, string reason, Stream icon, string emoji)
         {
+            string image = null;
+
+            if (icon != null)
+            {
+                using var it = new ImageTool(icon);
+                image = it.GetBase64();
+            }
+
             var pld = new RestGuildRolePayload
             {
                 Name = name,
                 Permissions = permissions & PermissionMethods.FULL_PERMS,
                 Color = color,
                 Hoist = hoist,
-                Mentionable = mentionable
+                Mentionable = mentionable,
+                Emoji = emoji,
+                Icon = image
             };
 
             var headers = Utilities.GetBaseHeaders();
@@ -2031,6 +2052,7 @@ namespace DSharpPlus.Net
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { guild_id }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
+
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, headers, DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
 
             var ret = JsonConvert.DeserializeObject<DiscordRole>(res.Response);

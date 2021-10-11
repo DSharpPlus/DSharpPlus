@@ -1020,9 +1020,11 @@ namespace DSharpPlus
         /// <param name="hoist">Whether this role should be hoisted</param>
         /// <param name="mentionable">Whether this role should be mentionable</param>
         /// <param name="reason">Why this role was modified</param>
+        /// <param name="icon">The icon to add to this role</param>
+        /// <param name="emoji">The emoji to add to this role. Must be unicode.</param>
         /// <returns></returns>
-        public Task<DiscordRole> ModifyGuildRoleAsync(ulong guild_id, ulong role_id, string name, Permissions? permissions, DiscordColor? color, bool? hoist, bool? mentionable, string reason)
-            => this.ApiClient.ModifyGuildRoleAsync(guild_id, role_id, name, permissions, color.HasValue ? (int?)color.Value.Value : null, hoist, mentionable, reason);
+        public Task<DiscordRole> ModifyGuildRoleAsync(ulong guild_id, ulong role_id, string name, Permissions? permissions, DiscordColor? color, bool? hoist, bool? mentionable, string reason, Stream icon, DiscordEmoji emoji)
+            => this.ApiClient.ModifyGuildRoleAsync(guild_id, role_id, name, permissions, color.HasValue ? (int?)color.Value.Value : null, hoist, mentionable, reason, icon, emoji?.ToString());
 
         /// <summary>
         /// Modifies a role
@@ -1036,7 +1038,7 @@ namespace DSharpPlus
             var mdl = new RoleEditModel();
             action(mdl);
 
-            return this.ModifyGuildRoleAsync(guild_id, role_id, mdl.Name, mdl.Permissions, mdl.Color, mdl.Hoist, mdl.Mentionable, mdl.AuditLogReason);
+            return this.ModifyGuildRoleAsync(guild_id, role_id, mdl.Name, mdl.Permissions, mdl.Color, mdl.Hoist, mdl.Mentionable, mdl.AuditLogReason, mdl.Icon, mdl.Emoji);
         }
 
         /// <summary>
@@ -1059,9 +1061,11 @@ namespace DSharpPlus
         /// <param name="hoist">Whether this role should be hoisted</param>
         /// <param name="mentionable">Whether this role should be mentionable</param>
         /// <param name="reason">Reason why this role was created</param>
+        /// <param name="icon">The icon to add to this role</param>
+        /// <param name="emoji">The emoji to add to this role. Must be unicode.</param>
         /// <returns></returns>
-        public Task<DiscordRole> CreateGuildRoleAsync(ulong guild_id, string name, Permissions? permissions, int? color, bool? hoist, bool? mentionable, string reason)
-            => this.ApiClient.CreateGuildRoleAsync(guild_id, name, permissions, color, hoist, mentionable, reason);
+        public Task<DiscordRole> CreateGuildRoleAsync(ulong guild_id, string name, Permissions? permissions, int? color, bool? hoist, bool? mentionable, string reason, Stream icon = null, DiscordEmoji emoji = null)
+            => this.ApiClient.CreateGuildRoleAsync(guild_id, name, permissions, color, hoist, mentionable, reason, icon , emoji?.ToString());
         #endregion
 
         #region Prune
