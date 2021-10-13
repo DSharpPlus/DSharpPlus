@@ -35,6 +35,6 @@ namespace DSharpPlus
         /// <summary>
         /// Represents an invite to an embedded application.
         /// </summary>
-        EmbeddedApplication = 1
+        EmbeddedApplication = 2
     }
 }
