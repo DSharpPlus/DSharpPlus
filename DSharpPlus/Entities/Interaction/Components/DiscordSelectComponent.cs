@@ -63,6 +63,26 @@ namespace DSharpPlus.Entities
         [JsonProperty("max_values", NullValueHandling = NullValueHandling.Ignore)]
         public int? MaximumSelectedValues { get; internal set; }
 
+        /// <summary>
+        /// Enables this component if it was disabled before.
+        /// </summary>
+        /// <returns>The current component.</returns>
+        public DiscordSelectComponent Enable()
+        {
+            this.Disabled = false;
+            return this;
+        }
+
+        /// <summary>
+        /// Disables this component.
+        /// </summary>
+        /// <returns>The current component.</returns>
+        public DiscordSelectComponent Disable()
+        {
+            this.Disabled = true;
+            return this;
+        }
+
         internal DiscordSelectComponent()
         {
             this.Type = ComponentType.Select;
