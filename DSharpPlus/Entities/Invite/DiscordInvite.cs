@@ -68,7 +68,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the type of user who the invite is for.
         /// </summary>
-        [Obsolete("This property is depreciated and will be removed in a future version. Please use InviteTargetType instead.", false)]
+        [Obsolete("This property is depreciated and will be removed in a future version. Please use TargetType instead.", false)]
         [JsonProperty("target_user_type", NullValueHandling = NullValueHandling.Ignore)]
         public TargetUserType? TargetUserType { get; internal set; }
 
