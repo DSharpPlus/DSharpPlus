@@ -140,7 +140,7 @@ Along with the typical `WaitForMessageAsync` and `WaitForReactionAsync` methods 
 More information about how interactivity works can be found in [the interactivity article](xref:interactivity)
 
 Since buttons create interactions, there are also two additional properties in the configuration:
-- RepsonseBehavior
+- ResponseBehavior
 - ResponseMessage
 
 ResponseBehavior is what interactivity will do when handling something that isn't a valid valid button, in the context of waiting for a specific button. It defaults to `Ignore`, which will cause the interaction fail.
