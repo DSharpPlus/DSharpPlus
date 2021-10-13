@@ -228,6 +228,11 @@ namespace DSharpPlus
                     await this.OnInviteDeleteEventAsync(cid, gid, dat).ConfigureAwait(false);
                     break;
 
+                case "guild_join_request_delete":
+                    gid = (ulong)dat["guild_id"];
+
+                    await this.OnGuildJoinRequestDeleteEventAsync(gid, dat["user_id"].ToDiscordObject<TransportUser>()).ConfigureAwait(false);
+                    break;
                 #endregion
 
                 #region Message
@@ -476,7 +481,6 @@ namespace DSharpPlus
                     #endregion
             }
         }
-
 
         #endregion
 
@@ -1314,6 +1318,24 @@ namespace DSharpPlus
                 Invite = invite
             };
             await this._inviteDeleted.InvokeAsync(this, ea).ConfigureAwait(false);
+        }
+
+
+        private async Task OnGuildJoinRequestDeleteEventAsync(ulong gid, TransportUser tusr)
+        {
+            var guild = this.InternalGetCachedGuild(gid);
+
+            this.TryGetCachedUserInternal(tusr.Id, out var cusr);
+
+            cusr ??= new DiscordUser(tusr) { Discord = this }; // If they weren't in cache, they probably aren't worth caching? //
+
+            var ea = new GuildJoinRequestDeleteEventArgs()
+            {
+                User = cusr,
+                Guild = guild
+            };
+
+            await this._guildJoinRequestDeleted.InvokeAsync(this, ea).ConfigureAwait(false);
         }
 
         #endregion

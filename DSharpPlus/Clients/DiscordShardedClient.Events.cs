@@ -399,6 +399,18 @@ namespace DSharpPlus
         }
         private AsyncEvent<DiscordClient, InviteDeleteEventArgs> _inviteDeleted;
 
+        /// <summary>
+        /// Fired when a member leaves before passing membership screening.
+        /// For this Event you need the <see cref="DiscordIntents.Guilds"/> and <see cref="DiscordIntents.GuildMembers"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, GuildJoinRequestDeleteEventArgs> GuildJoinRequestDeleted
+        {
+            add => this._guildJoinRequestDeleted.Register(value);
+            remove => this._guildJoinRequestDeleted.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, GuildJoinRequestDeleteEventArgs> _guildJoinRequestDeleted;
+
+
         #endregion
 
         #region Message
@@ -895,6 +907,9 @@ namespace DSharpPlus
 
         private Task Client_InviteDeleted(DiscordClient client, InviteDeleteEventArgs e)
             => this._inviteDeleted.InvokeAsync(client, e);
+
+        private Task Client_GuildJoinRequestDeleted(DiscordClient client, GuildJoinRequestDeleteEventArgs e)
+            => this._guildJoinRequestDeleted.InvokeAsync(client, e);
 
         private Task Client_PresenceUpdate(DiscordClient client, PresenceUpdateEventArgs e)
             => this._presenceUpdated.InvokeAsync(client, e);

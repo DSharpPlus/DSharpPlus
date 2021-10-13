@@ -454,6 +454,7 @@ namespace DSharpPlus
             this._guildDownloadCompleted = new AsyncEvent<DiscordClient, GuildDownloadCompletedEventArgs>("GUILD_DOWNLOAD_COMPLETED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._inviteCreated = new AsyncEvent<DiscordClient, InviteCreateEventArgs>("INVITE_CREATED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._inviteDeleted = new AsyncEvent<DiscordClient, InviteDeleteEventArgs>("INVITE_DELETED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
+            this._guildJoinRequestDeleted = new AsyncEvent<DiscordClient, GuildJoinRequestDeleteEventArgs>("GUILD_JOIN_REQUEST_DELETED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._messageCreated = new AsyncEvent<DiscordClient, MessageCreateEventArgs>("MESSAGE_CREATED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._presenceUpdated = new AsyncEvent<DiscordClient, PresenceUpdateEventArgs>("PRESENCE_UPDATED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._guildBanAdded = new AsyncEvent<DiscordClient, GuildBanAddEventArgs>("GUILD_BAN_ADDED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
@@ -528,6 +529,7 @@ namespace DSharpPlus
             client.GuildDownloadCompleted += this.Client_GuildDownloadCompleted;
             client.InviteCreated += this.Client_InviteCreated;
             client.InviteDeleted += this.Client_InviteDeleted;
+            client.GuildJoinRequestDeleted += this.Client_GuildJoinRequestDeleted;
             client.MessageCreated += this.Client_MessageCreated;
             client.PresenceUpdated += this.Client_PresenceUpdate;
             client.GuildBanAdded += this.Client_GuildBanAdd;
@@ -599,6 +601,7 @@ namespace DSharpPlus
             client.GuildDownloadCompleted -= this.Client_GuildDownloadCompleted;
             client.InviteCreated -= this.Client_InviteCreated;
             client.InviteDeleted -= this.Client_InviteDeleted;
+            client.GuildJoinRequestDeleted -= this.Client_GuildJoinRequestDeleted;
             client.MessageCreated -= this.Client_MessageCreated;
             client.PresenceUpdated -= this.Client_PresenceUpdate;
             client.GuildBanAdded -= this.Client_GuildBanAdd;
