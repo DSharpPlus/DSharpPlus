@@ -110,8 +110,7 @@ namespace DSharpPlus.SlashCommands
                 typeof(ApplicationCommandModule).IsAssignableFrom(xt) &&
                 !xt.GetTypeInfo().IsNested);
             
-            foreach (Type xt in types)
-                RegisterCommands(xt, guildId);
+            foreach (Type xt in types) this.RegisterCommands(xt, guildId);
         }
 
         //To be run on ready
