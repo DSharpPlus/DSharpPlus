@@ -630,7 +630,7 @@ namespace DSharpPlus.Interactivity
 
             bts = new(bts);
 
-            if (pages.Count() is 1)
+            if (pages.Count() == 1)
             {
                 bts.SkipLeft.Disable();
                 bts.Left.Disable();
@@ -643,7 +643,7 @@ namespace DSharpPlus.Interactivity
                 bts.SkipLeft.Disable();
                 bts.Left.Disable();
 
-                if (pages.Count() is 2)
+                if (pages.Count() == 2)
                     bts.SkipRight.Disable();
             }
 
@@ -736,7 +736,7 @@ namespace DSharpPlus.Interactivity
 
             bts = new(bts); // Copy //
 
-            if (pages.Count() is 1)
+            if (pages.Count() == 1)
             {
                 bts.SkipLeft.Disable();
                 bts.Left.Disable();
@@ -749,7 +749,7 @@ namespace DSharpPlus.Interactivity
                 bts.SkipLeft.Disable();
                 bts.Left.Disable();
 
-                if (pages.Count() is 2)
+                if (pages.Count() == 2)
                     bts.SkipRight.Disable();
             }
 
