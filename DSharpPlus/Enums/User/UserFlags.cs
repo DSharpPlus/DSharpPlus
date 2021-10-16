@@ -110,11 +110,5 @@ namespace DSharpPlus
         /// The bot receives interactions via HTTP.
         /// </summary>
         HttpInteractionsBot = 1 << 19,
-
-        /// <summary>
-        /// The user has been reported as a spammer.
-        /// </summary>
-        Spammer = 1 << 20
-
     }
 }
