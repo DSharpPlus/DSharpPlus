@@ -47,7 +47,7 @@ namespace DSharpPlus
         DiscordPartner = 1 << 1,
 
         /// <summary>
-        /// The user has the HypeSquad badge. 
+        /// The user has the HypeSquad badge.
         /// </summary>
         HypeSquadEvents = 1 << 2,
 
@@ -100,10 +100,21 @@ namespace DSharpPlus
         /// The user is a verified bot developer.
         /// </summary>
         VerifiedBotDeveloper = 1 << 17,
-        
+
         /// <summary>
         /// The user is a discord certified moderator.
         /// </summary>
-        DiscordCertifiedModerator = 1 << 18
+        DiscordCertifiedModerator = 1 << 18,
+
+        /// <summary>
+        /// The bot receives interactions via HTTP.
+        /// </summary>
+        HttpInteractionsBot = 1 << 19,
+
+        /// <summary>
+        /// The user has been reported as a spammer.
+        /// </summary>
+        Spammer = 1 << 20
+
     }
 }
