@@ -207,6 +207,14 @@ namespace DSharpPlus.Net
 
             var ban = json.ToObject<DiscordBan>();
 
+            if (!this.Discord.TryGetCachedUserInternal(ban.RawUser.Id, out var usr))
+            {
+                usr = new DiscordUser(ban.RawUser) { Discord = this.Discord };
+                usr = this.Discord.UpdateUserCache(usr);
+            }
+
+            ban.User = usr;
+
             return ban;
         }
 
