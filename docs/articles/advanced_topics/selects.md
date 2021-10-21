@@ -73,7 +73,7 @@ Emoji is the same as a button. You can pass an emoji id, a unicode emote or a Di
 
 > [!WARNING]
 > When using DiscordComponentEmoji's string overload, you **MUST** use the unicode representation of the emoji you want.
-> ex: 👋 and not :wave:
+> ex: `👋` and not `:wave:`
 
 # Putting it all together
 
