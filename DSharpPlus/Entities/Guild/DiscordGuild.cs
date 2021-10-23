@@ -2262,11 +2262,11 @@ namespace DSharpPlus.Entities
             => this.Discord.ApiClient.GetGuildStickerAsync(this.Id, stickerId);
 
         /// <summary>
-        /// Creates a sticker in this guild.
+        /// Creates a sticker in this guild. Lottie stickers can only be created on verified and/or partnered servers.
         /// </summary>
         /// <param name="name">The name of the sticker.</param>
         /// <param name="description">The description of the sticker.</param>
-        /// <param name="tags">The tags of the sticker.</param>
+        /// <param name="tags">The tags of the sticker. This must be a unicode emoji.</param>
         /// <param name="imageContents">The image content of the sticker.</param>
         /// <param name="format">The image format of the sticker.</param>
         /// <returns></returns>
@@ -2281,6 +2281,9 @@ namespace DSharpPlus.Entities
             }
             else
             {
+                if (!this.Features.Contains("PARTNERED") && !this.Features.Contains("VERIFIED"))
+                    throw new InvalidOperationException("Lottie stickers can only be created on partnered or verified guilds.");
+
                 contentType = "application/json";
                 extension = "json";
             }
