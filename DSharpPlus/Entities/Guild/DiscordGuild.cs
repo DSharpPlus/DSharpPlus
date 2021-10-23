@@ -2269,8 +2269,9 @@ namespace DSharpPlus.Entities
         /// <param name="tags">The tags of the sticker. This must be a unicode emoji.</param>
         /// <param name="imageContents">The image content of the sticker.</param>
         /// <param name="format">The image format of the sticker.</param>
+        /// /// <param name="reason">The reason this sticker is being created.</param>
         /// <returns></returns>
-        public Task<DiscordMessageSticker> CreateStickerAsync(string name, string description, string tags, Stream imageContents, StickerFormat format)
+        public Task<DiscordMessageSticker> CreateStickerAsync(string name, string description, string tags, Stream imageContents, StickerFormat format, string reason = null)
         {
             string contentType = null, extension = null;
 
@@ -2288,7 +2289,7 @@ namespace DSharpPlus.Entities
                 extension = "json";
             }
 
-            return this.Discord.ApiClient.CreateGuildStickerAsync(this.Id, name, description ?? string.Empty, tags, new DiscordMessageFile(null, imageContents, null, extension, contentType));
+            return this.Discord.ApiClient.CreateGuildStickerAsync(this.Id, name, description ?? string.Empty, tags, new DiscordMessageFile(null, imageContents, null, extension, contentType), reason);
         }
 
         /// <summary>

@@ -1788,7 +1788,8 @@ namespace DSharpPlus
         /// <param name="tags">The tags of the sticker.</param>
         /// <param name="imageContents">The image content of the sticker.</param>
         /// <param name="format">The image format of the sticker.</param>
-        public Task<DiscordMessageSticker> CreateGuildStickerAsync(ulong guildId, string name, string description, string tags, Stream imageContents, StickerFormat format)
+        /// <param name="reason">The reason this sticker is being created.</param>
+        public Task<DiscordMessageSticker> CreateGuildStickerAsync(ulong guildId, string name, string description, string tags, Stream imageContents, StickerFormat format, string reason = null)
         {
             string contentType = null, extension = null;
 
@@ -1803,7 +1804,7 @@ namespace DSharpPlus
                 extension = "json";
             }
 
-            return this.ApiClient.CreateGuildStickerAsync(guildId, name, description ?? string.Empty, tags, new DiscordMessageFile(null, imageContents, null, extension, contentType));
+            return this.ApiClient.CreateGuildStickerAsync(guildId, name, description ?? string.Empty, tags, new DiscordMessageFile(null, imageContents, null, extension, contentType), reason);
         }
 
         /// <summary>
