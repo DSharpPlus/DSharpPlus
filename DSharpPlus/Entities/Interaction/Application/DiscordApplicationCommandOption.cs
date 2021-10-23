@@ -83,6 +83,18 @@ namespace DSharpPlus.Entities
         public IReadOnlyCollection<ChannelType> ChannelTypes { get; internal set; }
 
         /// <summary>
+        /// Gets the minimum value for this slash command parameter.
+        /// </summary>
+        [JsonProperty("min_value", NullValueHandling = NullValueHandling.Ignore)]
+        public object MinValue { get; internal set; }
+
+        /// <summary>
+        /// Gets the maximum value for this slash command parameter.
+        /// </summary>
+        [JsonProperty("max_value", NullValueHandling = NullValueHandling.Ignore)]
+        public object MaxValue { get; internal set; }
+
+        /// <summary>
         /// Creates a new instance of a <see cref="DiscordApplicationCommandOption"/>.
         /// </summary>
         /// <param name="name">The name of this parameter.</param>
@@ -93,7 +105,9 @@ namespace DSharpPlus.Entities
         /// <param name="options">The optional subcommands for this parameter.</param>
         /// <param name="channelTypes">The channel types to be restricted to for this parameter, if of type <see cref="ApplicationCommandOptionType.Channel"/>.</param>
         /// <param name="autocomplete">Whether this parameter is autocomplete. If true, <paramref name="choices"/> must not be provided.</param>
-        public DiscordApplicationCommandOption(string name, string description, ApplicationCommandOptionType type, bool? required = null, IEnumerable<DiscordApplicationCommandOptionChoice> choices = null, IEnumerable<DiscordApplicationCommandOption> options = null, IEnumerable<ChannelType> channelTypes = null, bool? autocomplete = null)
+        /// <param name="minValue">The minimum value for this parameter. Only valid for types <see cref="ApplicationCommandOptionType.Integer"/> or <see cref="ApplicationCommandOptionType.Number"/>.</param>
+        /// <param name="maxValue">The maximum value for this parameter. Only valid for types <see cref="ApplicationCommandOptionType.Integer"/> or <see cref="ApplicationCommandOptionType.Number"/>.</param>
+        public DiscordApplicationCommandOption(string name, string description, ApplicationCommandOptionType type, bool? required = null, IEnumerable<DiscordApplicationCommandOptionChoice> choices = null, IEnumerable<DiscordApplicationCommandOption> options = null, IEnumerable<ChannelType> channelTypes = null, bool? autocomplete = null, object minValue = null, object maxValue = null)
         {
             if (!Utilities.IsValidSlashCommandName(name))
                 throw new ArgumentException("Invalid slash command option name specified. It must be below 32 characters and not contain any whitespace.", nameof(name));
@@ -116,6 +130,8 @@ namespace DSharpPlus.Entities
             this.Choices = choiceList;
             this.Options = optionList;
             this.ChannelTypes = channelTypeList;
+            this.MinValue = minValue;
+            this.MaxValue = maxValue;
         }
     }
 }

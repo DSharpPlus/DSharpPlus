@@ -1,4 +1,4 @@
-// This file is part of the DSharpPlus project.
+﻿// This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
 // Copyright (c) 2016-2021 DSharpPlus Contributors
@@ -21,22 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using Newtonsoft.Json;
+using System.Threading.Tasks;
+using DSharpPlus.Entities;
+using DSharpPlus.SlashCommands;
 
 namespace DSharpPlus.Test
 {
-    internal sealed class TestBotConfig
+    public class SlashCommandMinMaxTest : ApplicationCommandModule
     {
-        [JsonProperty("token")]
-        public string Token { get; private set; } = string.Empty;
-
-        [JsonProperty("command_prefixes")]
-        public string[] CommandPrefixes { get; private set; } = new[] { "d#", "d#+" };
-
-        [JsonProperty("shards")]
-        public int ShardCount { get; private set; } = 1;
-
-        [JsonProperty("slash_command_guild")]
-        public ulong SlashCommandGuild { get; private set; }
+        [SlashCommand("minmax", "testing min and max")]
+        public async Task MinMax(InteractionContext ctx, [Option("value", "value with limits")] [Minimum(5), Maximum(7)] long thing)
+        {
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(thing.ToString()));
+        }
     }
 }

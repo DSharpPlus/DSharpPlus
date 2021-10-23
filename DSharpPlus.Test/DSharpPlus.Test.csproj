@@ -48,6 +48,7 @@
   <ItemGroup>
     <ProjectReference Include="..\DSharpPlus.Lavalink\DSharpPlus.Lavalink.csproj" />
     <ProjectReference Include="..\DSharpPlus.Rest\DSharpPlus.Rest.csproj" />
+    <ProjectReference Include="..\DSharpPlus.SlashCommands\DSharpPlus.SlashCommands.csproj" />
     <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj" />
     <ProjectReference Include="..\DSharpPlus.CommandsNext\DSharpPlus.CommandsNext.csproj" />
     <ProjectReference Include="..\DSharpPlus.Interactivity\DSharpPlus.Interactivity.csproj" />
