@@ -20,16 +20,51 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using DSharpPlus.Exceptions;
 
 namespace DSharpPlus.Test
 {
     public class StickerTestCommands : BaseCommandModule
     {
+        private static readonly HttpClient _client = new HttpClient();
+
+        [Command]
+        public async Task CreateStickerAsync(CommandContext ctx)
+        {
+            var mref = ctx.Message.ReferencedMessage;
+
+            if (mref is null)
+            {
+                await ctx.RespondAsync("How to use this command: Reply to a message with an image that's exactly 320x320");
+                return;
+            }
+
+            if (mref.Attachments.Count is 0 || !mref.Attachments[0].FileName.EndsWith("png"))
+            {
+                await ctx.RespondAsync("You must reply to a message with an image (e.g. my_sticker.png)");
+                return;
+            }
+
+            var ms = new MemoryStream(await _client.GetByteArrayAsync(mref.Attachments[0].Url));
+
+            try
+            {
+                await ctx.Guild.CreateStickerAsync("sticker!", "A sticker", "✔", ms, StickerFormat.PNG);
+            }
+            catch (BadRequestException e)
+            {
+                await ctx.RespondAsync(e.JsonMessage);
+            }
+
+        }
+
         [Command("send_sticker")]
         public async Task SendStickerAsync(CommandContext ctx)
         {
