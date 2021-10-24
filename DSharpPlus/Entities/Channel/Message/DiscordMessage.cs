@@ -406,10 +406,10 @@ namespace DSharpPlus.Entities
             if (this.ReferencedMessage != null && this._mentionedUsers.Contains(this.ReferencedMessage.Author))
                mentions.Add(new RepliedUserMention()); // Return null to allow all mentions
 
-            if (this._mentionedUsers.Any())
+            if (this._mentionedUsers?.Any() ?? false)
                 mentions.AddRange(this._mentionedUsers.Select(m => (IMention)new UserMention(m)));
 
-            if (this._mentionedRoleIds.Any())
+            if (this._mentionedRoleIds?.Any() ?? false)
                 mentions.AddRange(this._mentionedRoleIds.Select(r => (IMention)new RoleMention(r)));
 
             return mentions.ToArray();
