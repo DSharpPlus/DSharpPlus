@@ -573,7 +573,7 @@ namespace DSharpPlus.Entities
         public Task<ThreadQueryResult> ListPublicArchivedThreadsAsync(DateTimeOffset? before = null, int limit = 0)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.News)
-                throw new System.InvalidOperationException();
+                throw new InvalidOperationException();
 
             return this.Discord.ApiClient.ListPublicArchivedThreadsAsync(this.GuildId.Value, this.Id, (ulong?) before?.ToUnixTimeSeconds(), limit);
         }
@@ -589,7 +589,7 @@ namespace DSharpPlus.Entities
         public Task<ThreadQueryResult> ListPrivateArchivedThreadsAsync(DateTimeOffset? before = null, int limit = 0)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.News)
-                throw new System.InvalidOperationException();
+                throw new InvalidOperationException();
 
             return this.Discord.ApiClient.ListPrivateArchivedThreadsAsync(this.GuildId.Value, this.Id, (ulong?) before?.ToUnixTimeSeconds(), limit);
         }
@@ -605,7 +605,7 @@ namespace DSharpPlus.Entities
         public Task<ThreadQueryResult> ListJoinedPrivateArchivedThreadsAsync(DateTimeOffset? before = null, int limit = 0)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.News)
-                throw new System.InvalidOperationException();
+                throw new InvalidOperationException();
 
             return this.Discord.ApiClient.ListJoinedPrivateArchivedThreadsAsync(this.GuildId.Value, this.Id, (ulong?) before?.ToUnixTimeSeconds(), limit);
         }
