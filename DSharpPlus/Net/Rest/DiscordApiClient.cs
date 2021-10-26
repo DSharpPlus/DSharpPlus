@@ -156,9 +156,11 @@ namespace DSharpPlus.Net
         }
 
         private Task<RestResponse> DoMultipartAsync(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, string route, IReadOnlyDictionary<string, string> headers = null, IReadOnlyDictionary<string, string> values = null,
-            IReadOnlyCollection<DiscordMessageFile> files = null, double? ratelimitWaitOverride = null)
+            IReadOnlyCollection<DiscordMessageFile> files = null, double? ratelimitWaitOverride = null, bool removeFileCount = false)
         {
             var req = new MultipartWebRequest(client, bucket, url, method, route, headers, values, files, ratelimitWaitOverride);
+            req._removeFileCount = removeFileCount;
+
 
             if (this.Discord != null)
                 this.Rest.ExecuteRequestAsync(req).LogTaskFault(this.Discord.Logger, LogLevel.Error, LoggerEvents.RestError, "Error while executing request");
@@ -866,13 +868,16 @@ namespace DSharpPlus.Net
 
         internal async Task<DiscordMessageSticker> CreateGuildStickerAsync(ulong guild_id, string name, string description, string tags, DiscordMessageFile file, string reason)
         {
-            var headers = new Dictionary<string, string>();
+            var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
                 headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.STICKERS}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new {guild_id}, out var path);
             var url = Utilities.GetApiUriFor(path);
+
+            if (!string.IsNullOrEmpty(reason))
+                headers[REASON_HEADER_NAME] = reason;
 
             var values = new Dictionary<string, string>
             {
@@ -881,7 +886,7 @@ namespace DSharpPlus.Net
                 ["tags"] = tags,
             };
 
-            var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, headers: headers, values: values, files: new[] {file}).ConfigureAwait(false);
+            var res = await this.DoMultipartAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, headers, values, new[] {file}, removeFileCount: true).ConfigureAwait(false);
             var json = JObject.Parse(res.Response);
             var ret = json.ToDiscordObject<DiscordMessageSticker>();
 
