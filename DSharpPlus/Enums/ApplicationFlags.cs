@@ -57,6 +57,16 @@ namespace DSharpPlus
         /// <summary>
         /// Indicates that the application is a voice channel application.
         /// </summary>
-        Embedded = 1 << 17
+        Embedded = 1 << 17,
+        
+        /// <summary>
+        /// The application can track message content.
+        /// </summary>
+        GatewayMessageContent = 1 << 18,
+
+        /// <summary>
+        /// The application can track message content (limited).
+        /// </summary>
+        GatewayMessageContentLimited = 1 << 19
     }
 }
