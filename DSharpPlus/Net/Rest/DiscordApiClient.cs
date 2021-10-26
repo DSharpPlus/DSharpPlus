@@ -868,15 +868,13 @@ namespace DSharpPlus.Net
 
         internal async Task<DiscordMessageSticker> CreateGuildStickerAsync(ulong guild_id, string name, string description, string tags, DiscordMessageFile file, string reason)
         {
-            var headers = new Dictionary<string, string>();
+            var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
                 headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.STICKERS}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new {guild_id}, out var path);
             var url = Utilities.GetApiUriFor(path);
-
-            var headers = Utilities.GetBaseHeaders();
 
             if (!string.IsNullOrEmpty(reason))
                 headers[REASON_HEADER_NAME] = reason;
