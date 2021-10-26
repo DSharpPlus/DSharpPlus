@@ -1109,6 +1109,7 @@ namespace DSharpPlus
             var nick_old = mbr.Nickname;
             var pending_old = mbr.IsPending;
             var roles_old = new ReadOnlyCollection<DiscordRole>(new List<DiscordRole>(mbr.Roles));
+            var avatar_old = mbr.GuildAvatarHash;
 
             mbr._avatarHash = member.AvatarHash;
             mbr.Nickname = nick;
@@ -1123,10 +1124,12 @@ namespace DSharpPlus
 
                 NicknameAfter = mbr.Nickname,
                 RolesAfter = new ReadOnlyCollection<DiscordRole>(new List<DiscordRole>(mbr.Roles)),
+                AvatarHashAfter = mbr.AvatarHash,
                 PendingAfter = mbr.IsPending,
 
                 NicknameBefore = nick_old,
                 RolesBefore = roles_old,
+                AvatarHashBefore = avatar_old,
                 PendingBefore = pending_old,
             };
             await this._guildMemberUpdated.InvokeAsync(this, ea).ConfigureAwait(false);

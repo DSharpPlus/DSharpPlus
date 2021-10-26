@@ -57,6 +57,16 @@ namespace DSharpPlus.EventArgs
         public string NicknameBefore { get; internal set; }
 
         /// <summary>
+        /// Gets the member's old avatar hash.
+        /// </summary>
+        public string AvatarHashBefore { get; internal set; }
+
+        /// <summary>
+        /// Gets the member's new avatar hash.
+        /// </summary>
+        public string AvatarHashAfter { get; internal set; }
+
+        /// <summary>
         /// Gets whether the member had passed membership screening before the update
         /// </summary>
         public bool? PendingBefore { get; internal set; }
