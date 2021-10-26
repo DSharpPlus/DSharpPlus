@@ -406,11 +406,14 @@ namespace DSharpPlus.SlashCommands
 
                 var channelTypes = parameter.GetCustomAttribute<ChannelTypesAttribute>()?.ChannelTypes ?? null;
 
+                var minimum = parameter.GetCustomAttribute<MinimumAttribute>()?.Value ?? null;
+                var maximum = parameter.GetCustomAttribute<MaximumAttribute>()?.Value ?? null;
+
                 var autocompleteAttribute = parameter.GetCustomAttribute<AutocompleteAttribute>();
                 if (autocompleteAttribute != null && autocompleteAttribute.Provider.GetMethod(nameof(IAutocompleteProvider.Provider)) == null)
                     throw new ArgumentException("Autocomplete providers must inherit from IAutocompleteProvider.");
 
-                options.Add(new DiscordApplicationCommandOption(optionattribute.Name, optionattribute.Description, parametertype, !parameter.IsOptional, choices, null, channelTypes, autocompleteAttribute != null || optionattribute.Autocomplete));
+                options.Add(new DiscordApplicationCommandOption(optionattribute.Name, optionattribute.Description, parametertype, !parameter.IsOptional, choices, null, channelTypes, (autocompleteAttribute != null || optionattribute.Autocomplete), minimum, maximum));
             }
 
             return options;

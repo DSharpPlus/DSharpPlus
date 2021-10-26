@@ -39,6 +39,8 @@ using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.EventHandling;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Lavalink;
+using DSharpPlus.SlashCommands;
+using DSharpPlus.SlashCommands.EventArgs;
 using DSharpPlus.VoiceNext;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -55,6 +57,7 @@ namespace DSharpPlus.Test
         private CommandsNextExtension CommandsNextService { get; }
         private InteractivityExtension InteractivityService { get; }
         private LavalinkExtension LavalinkService { get; }
+        private SlashCommandsExtension SlashCommandService { get; }
 
         public TestBot(TestBotConfig cfg, int shardid)
         {
@@ -158,6 +161,13 @@ namespace DSharpPlus.Test
 
             this.InteractivityService = this.Discord.UseInteractivity(icfg);
             this.LavalinkService = this.Discord.UseLavalink();
+
+            this.SlashCommandService = this.Discord.UseSlashCommands();
+            this.SlashCommandService.SlashCommandErrored += this.SlashCommandService_CommandErrored;
+            this.SlashCommandService.SlashCommandExecuted += this.SlashCommandService_CommandExecuted;
+
+            if (this.Config.SlashCommandGuild != 0)
+                this.SlashCommandService.RegisterCommands(typeof(TestBot).GetTypeInfo().Assembly, this.Config.SlashCommandGuild);
 
             //this.Discord.MessageCreated += async e =>
             //{
@@ -278,6 +288,18 @@ namespace DSharpPlus.Test
         private Task CommandsNextService_CommandExecuted(CommandsNextExtension cnext, CommandExecutionEventArgs e)
         {
             e.Context.Client.Logger.LogInformation(TestBotEventId, "User {User} executed '{Command}' in {Channel}", e.Context.User.Username, e.Command.QualifiedName, e.Context.Channel.Name);
+            return Task.CompletedTask;
+        }
+
+        private Task SlashCommandService_CommandErrored(SlashCommandsExtension sc, SlashCommandErrorEventArgs e)
+        {
+            e.Context.Client.Logger.LogError(TestBotEventId, e.Exception, "Exception occurred during {User}'s invocation of '{Command}'", e.Context.User.Username, e.Context.CommandName);
+            return Task.CompletedTask;
+        }
+
+        private Task SlashCommandService_CommandExecuted(SlashCommandsExtension sc, SlashCommandExecutedEventArgs e)
+        {
+            e.Context.Client.Logger.LogInformation(TestBotEventId, "User {User} executed '{Command}' in {Channel}", e.Context.User.Username, e.Context.CommandName, e.Context.Channel.Name);
             return Task.CompletedTask;
         }
 

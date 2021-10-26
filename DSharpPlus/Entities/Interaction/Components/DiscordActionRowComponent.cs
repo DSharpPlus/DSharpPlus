@@ -38,8 +38,8 @@ namespace DSharpPlus.Entities
         /// </summary>
         public IReadOnlyCollection<DiscordComponent> Components
         {
-            get => _components ?? new List<DiscordComponent>();
-            set => _components = new List<DiscordComponent>(value);
+            get => this._components ?? new List<DiscordComponent>();
+            set => this._components = new List<DiscordComponent>(value);
         }
 
         [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]

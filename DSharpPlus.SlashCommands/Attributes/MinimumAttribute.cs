@@ -1,4 +1,4 @@
-// This file is part of the DSharpPlus project.
+﻿// This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
 // Copyright (c) 2016-2021 DSharpPlus Contributors
@@ -21,22 +21,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using Newtonsoft.Json;
+using System;
 
-namespace DSharpPlus.Test
+namespace DSharpPlus.SlashCommands
 {
-    internal sealed class TestBotConfig
+    /// <summary>
+    /// Sets a minimum value for this slash command option. Only valid for <see cref="long"/> or <see cref="double"/> parameters.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
+    public class MinimumAttribute : Attribute
     {
-        [JsonProperty("token")]
-        public string Token { get; private set; } = string.Empty;
+        /// <summary>
+        /// The value.
+        /// </summary>
+        public object Value { get; internal set; }
 
-        [JsonProperty("command_prefixes")]
-        public string[] CommandPrefixes { get; private set; } = new[] { "d#", "d#+" };
+        /// <summary>
+        /// Sets a minimum value for this slash command option. Only valid for <see cref="long"/> or <see cref="double"/> parameters.
+        /// </summary>
+        public MinimumAttribute(long value)
+        {
+            this.Value = value;
+        }
 
-        [JsonProperty("shards")]
-        public int ShardCount { get; private set; } = 1;
-
-        [JsonProperty("slash_command_guild")]
-        public ulong SlashCommandGuild { get; private set; }
+        /// <summary>
+        /// Sets a minimum value for this slash command option. Only valid for <see cref="long"/> or <see cref="double"/> parameters.
+        /// </summary>
+        public MinimumAttribute(double value)
+        {
+            this.Value = value;
+        }
     }
 }
