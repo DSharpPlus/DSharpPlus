@@ -39,14 +39,22 @@ namespace DSharpPlus.Test
         {
             var msg = ctx.Message;
 
-            var cs1 = code.IndexOf("```") + 3;
-            cs1 = code.IndexOf('\n', cs1) + 1;
-            var cs2 = code.LastIndexOf("```");
+            var cs = string.Empty;
+            if (code.Trim().StartsWith("```"))
+            {
+                var cs1 = code.IndexOf("```") + 3;
+                cs1 = code.IndexOf('\n', cs1) + 1;
+                var cs2 = code.LastIndexOf("```");
 
-            if (cs1 == -1 || cs2 == -1)
-                throw new ArgumentException("You need to wrap the code into a code block.");
+                if (cs1 == -1 || cs2 == -1)
+                    throw new ArgumentException("You need to wrap the code into a code block.");
 
-            var cs = code.Substring(cs1, cs2 - cs1);
+                cs = code.Substring(cs1, cs2 - cs1);
+            }
+            else
+            {
+                cs = code;
+            }
 
             msg = await ctx.RespondAsync(embed: new DiscordEmbedBuilder()
                 .WithColor(new DiscordColor("#FF007F"))

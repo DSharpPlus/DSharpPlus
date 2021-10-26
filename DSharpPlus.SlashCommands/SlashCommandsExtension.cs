@@ -109,8 +109,9 @@ namespace DSharpPlus.SlashCommands
             var types = assembly.ExportedTypes.Where(xt =>
                 typeof(ApplicationCommandModule).IsAssignableFrom(xt) &&
                 !xt.GetTypeInfo().IsNested);
-            
-            foreach (Type xt in types) this.RegisterCommands(xt, guildId);
+
+            foreach (Type xt in types)
+                this.RegisterCommands(xt, guildId);
         }
 
         //To be run on ready
@@ -392,7 +393,7 @@ namespace DSharpPlus.SlashCommands
                 //From attributes
                 var choices = this.GetChoiceAttributesFromParameter(parameter.GetCustomAttributes<ChoiceAttribute>());
                 //From enums
-                if (parameter.ParameterType.IsEnum)
+                if (parameter.ParameterType.IsEnum || Nullable.GetUnderlyingType(parameter.ParameterType)?.IsEnum == true)
                 {
                     choices = GetChoiceAttributesFromEnumParameter(parameter.ParameterType);
                 }
@@ -459,6 +460,10 @@ namespace DSharpPlus.SlashCommands
         private static List<DiscordApplicationCommandOptionChoice> GetChoiceAttributesFromEnumParameter(Type enumParam)
         {
             var choices = new List<DiscordApplicationCommandOptionChoice>();
+            if (enumParam.IsGenericType && enumParam.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                enumParam = Nullable.GetUnderlyingType(enumParam);
+            }
             foreach (Enum enumValue in Enum.GetValues(enumParam))
             {
                 choices.Add(new DiscordApplicationCommandOptionChoice(enumValue.GetName(), enumValue.ToString()));
@@ -487,7 +492,7 @@ namespace DSharpPlus.SlashCommands
                 return ApplicationCommandOptionType.String;
             if (type == typeof(SnowflakeObject))
                 return ApplicationCommandOptionType.Mentionable;
-            if (type.IsEnum)
+            if (type.IsEnum || Nullable.GetUnderlyingType(type)?.IsEnum == true)
                 return ApplicationCommandOptionType.String;
             throw new ArgumentException("Cannot convert type! Argument types must be string, long, bool, double, DiscordChannel, DiscordUser, DiscordRole, DiscordEmoji, SnowflakeObject or an Enum.");
         }
@@ -822,6 +827,8 @@ namespace DSharpPlus.SlashCommands
                         args.Add(option.Value.ToString());
                     else if (parameter.ParameterType.IsEnum)
                         args.Add(Enum.Parse(parameter.ParameterType, (string)option.Value));
+                    else if (Nullable.GetUnderlyingType(parameter.ParameterType)?.IsEnum == true)
+                        args.Add(Enum.Parse(Nullable.GetUnderlyingType(parameter.ParameterType), (string)option.Value));
                     else if (parameter.ParameterType == typeof(long) || parameter.ParameterType == typeof(long?))
                         args.Add((long?)option.Value);
                     else if (parameter.ParameterType == typeof(bool) || parameter.ParameterType == typeof(bool?))
