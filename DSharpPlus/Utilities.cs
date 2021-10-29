@@ -192,6 +192,21 @@ namespace DSharpPlus
         internal static bool HasTypingIntents(DiscordIntents intents)
             => intents.HasIntent(DiscordIntents.GuildMessageTyping) || intents.HasIntent(DiscordIntents.DirectMessageTyping);
 
+        internal static bool CanSendMessage(DiscordChannel channel)
+            => channel.Type switch
+            {
+                ChannelType.Text => true,
+                ChannelType.Voice => true,
+                ChannelType.Group => true,
+                ChannelType.Private => true,
+                ChannelType.PublicThread => true,
+                ChannelType.PrivateThread => true,
+                ChannelType.NewsThread => true,
+                ChannelType.News => true,
+                _ => false,
+            };
+
+
         // https://discord.com/developers/docs/topics/gateway#sharding-sharding-formula
         /// <summary>
         /// Gets a shard id from a guild id and total shard count.
