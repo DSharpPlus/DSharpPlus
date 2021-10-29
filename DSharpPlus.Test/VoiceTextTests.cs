@@ -44,8 +44,6 @@ namespace DSharpPlus.Test
 
             var channel = ctx.Member.VoiceState.Channel;
 
-            await ctx.RespondAsync("Testing text-related features and API client methods.");
-
             var s = new Stack<string>();
 
             try
@@ -53,35 +51,36 @@ namespace DSharpPlus.Test
                 await channel.SendMessageAsync("Testing Guild Voice Text (1/5).");
                 this.ChannelPassed(s, "content");
             }
-            catch { this.ChannelFailed(s, "content"); }
+            catch { this.ChannelFaileds, "content"); }
 
 
             try
-            { 
-                await channel.SendMessageAsync(new DiscordEmbedBuilder().WithTitle("Testing Guild Voice Text (2/5)")); 
+            {
+                await channel.SendMessageAsync(new DiscordEmbedBuilder().WithTitle("Testing Guild Voice Text (2/5)"));
                 this.ChannelPassed(s, "embed");
             }
-            catch { this.ChannelFailed(s, "embed"); }
-            
+            catch { this.ChannelFaileds, "embed"); }
+
             try
             {
                 await channel.SendMessageAsync("Testing Guild Voice Text (3/5)", new DiscordEmbedBuilder().WithTitle("Testing Guild Voice Text (3/5)"));
                 this.ChannelPassed(s, "embed, content");
             }
-            catch { this.ChannelFailed(s, "embed, content"); }
+            catch { this.ChannelFaileds, "embed, content"); }
 
             try
             {
                 await channel.SendMessageAsync(new DiscordMessageBuilder().WithContent("Testing Guild Voice Text (4/5)").WithEmbed(new DiscordEmbedBuilder().WithTitle("Testing Guild Voice Text (4/5)")));
+                this.ChannelPassed(s, "embed, content");
             }
-            catch { this.ChannelFailed(s, "builder"); }
+            catch { this.ChannelFaileds, "builder"); }
 
             try
             {
                 await channel.SendMessageAsync(b => b.WithContent("Testing Guild Voice Text (5/5)").WithEmbed(new DiscordEmbedBuilder().WithTitle("Testing Guild Voice Text (5/5)")));
                 this.ChannelPassed(s, "Action<DiscordMessageBuilder>");
             }
-            catch { this.ChannelFailed(s, "Action<DiscordMessageBuilder>"); }
+            catch { this.ChannelFaileds, "Action<DiscordMessageBuilder>"); }
 
             var sb = new StringBuilder();
             while (s.TryPop(out var res))
@@ -90,8 +89,8 @@ namespace DSharpPlus.Test
             await ctx.RespondAsync(sb.ToString());
         }
 
-        private void ChannelPassed(Stack<string> stack, string test) => stack.Push($"<:check:777724297627172884> {nameof(DiscordChannel.SendMessageAsync)} ({test}) **ChannelPassed**");
+        private void ChannelPassed(Stack<string> stack, string test) => stack.Push($"<:check:777724297627172884> {nameof(DiscordChannel.SendMessageAsync)} ({test}) **Passed**");
 
-        private void ChannelFailed(Stack<string> stack, string test) => stack.Push($"<:cross:777724316115796011> {nameof(DiscordChannel.SendMessageAsync)} ({test}) **ChannelFailed**");
+        private void ChannelFailed(Stack<string> stack, string test) => stack.Push($"<:cross:777724316115796011> {nameof(DiscordChannel.SendMessageAsync)} ({test}) **Failed**");
     }
 }
