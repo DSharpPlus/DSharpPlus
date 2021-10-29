@@ -51,7 +51,7 @@ namespace DSharpPlus.Test
                 await channel.SendMessageAsync("Testing Guild Voice Text (1/5).");
                 this.ChannelPassed(s, "content");
             }
-            catch { this.ChannelFaileds, "content"); }
+            catch { this.ChannelFailed(s, "content"); }
 
 
             try
@@ -59,28 +59,28 @@ namespace DSharpPlus.Test
                 await channel.SendMessageAsync(new DiscordEmbedBuilder().WithTitle("Testing Guild Voice Text (2/5)"));
                 this.ChannelPassed(s, "embed");
             }
-            catch { this.ChannelFaileds, "embed"); }
+            catch { this.ChannelFailed(s, "embed"); }
 
             try
             {
                 await channel.SendMessageAsync("Testing Guild Voice Text (3/5)", new DiscordEmbedBuilder().WithTitle("Testing Guild Voice Text (3/5)"));
                 this.ChannelPassed(s, "embed, content");
             }
-            catch { this.ChannelFaileds, "embed, content"); }
+            catch { this.ChannelFailed(s, "embed, content"); }
 
             try
             {
                 await channel.SendMessageAsync(new DiscordMessageBuilder().WithContent("Testing Guild Voice Text (4/5)").WithEmbed(new DiscordEmbedBuilder().WithTitle("Testing Guild Voice Text (4/5)")));
                 this.ChannelPassed(s, "embed, content");
             }
-            catch { this.ChannelFaileds, "builder"); }
+            catch { this.ChannelFailed(s, "builder"); }
 
             try
             {
                 await channel.SendMessageAsync(b => b.WithContent("Testing Guild Voice Text (5/5)").WithEmbed(new DiscordEmbedBuilder().WithTitle("Testing Guild Voice Text (5/5)")));
                 this.ChannelPassed(s, "Action<DiscordMessageBuilder>");
             }
-            catch { this.ChannelFaileds, "Action<DiscordMessageBuilder>"); }
+            catch { this.ChannelFailed(s, "Action<DiscordMessageBuilder>"); }
 
             var sb = new StringBuilder();
             while (s.TryPop(out var res))
