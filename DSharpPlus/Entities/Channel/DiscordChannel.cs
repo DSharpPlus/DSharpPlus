@@ -194,7 +194,7 @@ namespace DSharpPlus.Entities
         {
             get
             {
-                return !(this.Type == ChannelType.Text || this.Type == ChannelType.News)
+                return !(this.Type == ChannelType.Text || this.Type == ChannelType.News /* || this.Type == ChannelType.Voice /* Uncomment on the left if threads are in fact supported at the time */)
                     ? throw new ArgumentException("Only text channels can have threads.")
                     : this.Guild._threads.Values.Where(e => e.ParentId == this.Id).ToList().AsReadOnly();
             }
@@ -258,15 +258,10 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> SendMessageAsync(string content)
         {
-            return this.Type != ChannelType.Text &&
-                this.Type != ChannelType.PublicThread &&
-                this.Type != ChannelType.PrivateThread &&
-                this.Type != ChannelType.NewsThread &&
-                this.Type != ChannelType.Private &&
-                this.Type != ChannelType.Group &&
-                this.Type != ChannelType.News
-                ? throw new ArgumentException("Cannot send a text message to a non-text channel.")
-                : this.Discord.ApiClient.CreateMessageAsync(this.Id, content, null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
+            if (!Utilities.IsTextableChannel(this)) //NOTE: InvalidOperationException would be more apt, but would be a breaking change.
+                throw new ArgumentException($"{this.Type} channels do not support sending text messages.");
+
+            return this.Discord.ApiClient.CreateMessageAsync(this.Id, content, null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
         }
 
         /// <summary>
@@ -280,15 +275,10 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> SendMessageAsync(DiscordEmbed embed)
         {
-            return this.Type != ChannelType.Text &&
-                this.Type != ChannelType.PublicThread &&
-                this.Type != ChannelType.PrivateThread &&
-                this.Type != ChannelType.NewsThread &&
-                this.Type != ChannelType.Private &&
-                this.Type != ChannelType.Group &&
-                this.Type != ChannelType.News
-                ? throw new ArgumentException("Cannot send a text message to a non-text channel.")
-                : this.Discord.ApiClient.CreateMessageAsync(this.Id, null, embed != null ? new[] { embed } : null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
+            if (!Utilities.IsTextableChannel(this))
+                throw new ArgumentException($"{this.Type} channels do not support sending text messages.");
+
+           return this.Discord.ApiClient.CreateMessageAsync(this.Id, null, embed != null ? new[] { embed } : null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
         }
 
         /// <summary>
@@ -303,15 +293,10 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> SendMessageAsync(string content, DiscordEmbed embed)
         {
-            return this.Type != ChannelType.Text &&
-                this.Type != ChannelType.PublicThread &&
-                this.Type != ChannelType.PrivateThread &&
-                this.Type != ChannelType.NewsThread &&
-                this.Type != ChannelType.Private &&
-                this.Type != ChannelType.Group &&
-                this.Type != ChannelType.News
-                ? throw new ArgumentException("Cannot send a text message to a non-text channel.")
-                : this.Discord.ApiClient.CreateMessageAsync(this.Id, content, embed != null ? new[] { embed } : null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
+            if (!Utilities.IsTextableChannel(this))
+                throw new ArgumentException($"{this.Type} channels do not support sending text messages.");
+
+            return this.Discord.ApiClient.CreateMessageAsync(this.Id, content, embed != null ? new[] { embed } : null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
         }
 
         /// <summary>
@@ -324,7 +309,12 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> SendMessageAsync(DiscordMessageBuilder builder)
-            => this.Discord.ApiClient.CreateMessageAsync(this.Id, builder);
+        {
+            if (!Utilities.IsTextableChannel(this))
+                throw new ArgumentException($"{this.Type} channels do not support sending text messages.");
+
+            return this.Discord.ApiClient.CreateMessageAsync(this.Id, builder);
+        }
 
         /// <summary>
         /// Sends a message to this channel.
@@ -337,6 +327,9 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> SendMessageAsync(Action<DiscordMessageBuilder> action)
         {
+            if (!Utilities.IsTextableChannel(this))
+                throw new ArgumentException($"{this.Type} channels do not support sending text messages.");
+
             var builder = new DiscordMessageBuilder();
             action(builder);
 
@@ -513,14 +506,8 @@ namespace DSharpPlus.Entities
 
         private async Task<IReadOnlyList<DiscordMessage>> GetMessagesInternalAsync(int limit = 100, ulong? before = null, ulong? after = null, ulong? around = null)
         {
-            if (this.Type != ChannelType.Text &&
-                this.Type != ChannelType.PublicThread &&
-                this.Type != ChannelType.PrivateThread &&
-                this.Type != ChannelType.NewsThread &&
-                this.Type != ChannelType.Private &&
-                this.Type != ChannelType.Group &&
-                this.Type != ChannelType.News)
-                throw new ArgumentException("Cannot get the messages of a non-text channel.");
+            if (!Utilities.IsTextableChannel(this))
+                throw new ArgumentException($"Cannot get the messages of a {this.Type} channel.");
 
             if (limit < 0)
                 throw new ArgumentException("Cannot get a negative number of messages.");
