@@ -1029,8 +1029,7 @@ namespace DSharpPlus
             var usr = new DiscordUser(user) { Discord = this };
             usr = this.UpdateUserCache(usr);
 
-            if (!guild.Members.TryGetValue(user.Id, out var mbr))
-                mbr = new DiscordMember(usr) { Discord = this, _guild_id = guild.Id };
+            var mbr = guild.GetOrCacheMember(usr);
             var ea = new GuildBanAddEventArgs
             {
                 Guild = guild,
@@ -1044,8 +1043,7 @@ namespace DSharpPlus
             var usr = new DiscordUser(user) { Discord = this };
             usr = this.UpdateUserCache(usr);
 
-            if (!guild.Members.TryGetValue(user.Id, out var mbr))
-                mbr = new DiscordMember(usr) { Discord = this, _guild_id = guild.Id };
+            var mbr = guild.GetOrCacheMember(usr);
             var ea = new GuildBanRemoveEventArgs
             {
                 Guild = guild,
@@ -1084,7 +1082,7 @@ namespace DSharpPlus
         {
             var usr = new DiscordUser(user);
 
-            if (!guild._members.TryRemove(user.Id, out var mbr))
+            if (!guild._members.TryRemove(user.Id, out var mbr)) // This is removing, so it's OK to init but not cache //
                 mbr = new DiscordMember(usr) { Discord = this, _guild_id = guild.Id };
             guild.MemberCount--;
 
@@ -1103,8 +1101,7 @@ namespace DSharpPlus
             var usr = new DiscordUser(member.User) { Discord = this };
             usr = this.UpdateUserCache(usr);
 
-            if (!guild.Members.TryGetValue(member.User.Id, out var mbr))
-                mbr = new DiscordMember(usr) { Discord = this, _guild_id = guild.Id };
+            var mbr = guild.GetOrCacheMember(usr);
 
             var nick_old = mbr.Nickname;
             var pending_old = mbr.IsPending;
@@ -1579,12 +1576,10 @@ namespace DSharpPlus
             emoji.Discord = this;
 
             if (!this.UserCache.TryGetValue(userId, out var usr))
-                usr = new DiscordUser { Id = userId, Discord = this };
+                usr = this.UpdateUserCache(new DiscordUser { Id = userId, Discord = this });
 
             if (channel?.Guild != null)
-                usr = channel.Guild.Members.TryGetValue(userId, out var member)
-                    ? member
-                    : new DiscordMember(usr) { Discord = this, _guild_id = channel.GuildId.Value };
+                usr = channel.Guild.GetOrCacheMember(usr);
 
             if (channel == null
                 || this.Configuration.MessageCacheSize == 0

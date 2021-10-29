@@ -2482,6 +2482,15 @@ namespace DSharpPlus.Entities
         /// <returns>Whether the two members are not equal.</returns>
         public static bool operator !=(DiscordGuild e1, DiscordGuild e2)
             => !(e1 == e2);
+
+        /// <summary>
+        /// A helper method to get or cache a member based on a user.
+        /// </summary>
+        /// <param name="user">The user to pull from cache, or construct a member from if they're not present.</param>
+        /// <returns>The (newly) cached member.</returns>
+        internal DiscordMember GetOrCacheMember(DiscordUser user)
+            => this.Members.TryGetValue(user.Id, out var member) ? member :
+                this._members[user.Id] = new DiscordMember(user) { Discord = this.Discord, _guild_id = this.Id };
     }
 
     /// <summary>
