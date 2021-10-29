@@ -71,16 +71,16 @@ namespace DSharpPlus.Test
             try
             {
                 await channel.SendMessageAsync(new DiscordMessageBuilder().WithContent("Testing Guild Voice Text (4/5)").WithEmbed(new DiscordEmbedBuilder().WithTitle("Testing Guild Voice Text (4/5)")));
-                this.ChannelPassed(s, "embed, content");
+                this.ChannelPassed(s, "builder");
             }
             catch { this.ChannelFailed(s, "builder"); }
 
             try
             {
                 await channel.SendMessageAsync(b => b.WithContent("Testing Guild Voice Text (5/5)").WithEmbed(new DiscordEmbedBuilder().WithTitle("Testing Guild Voice Text (5/5)")));
-                this.ChannelPassed(s, "Action<DiscordMessageBuilder>");
+                this.ChannelPassed(s, "builder [action]");
             }
-            catch { this.ChannelFailed(s, "Action<DiscordMessageBuilder>"); }
+            catch { this.ChannelFailed(s, "builder [action]"); }
 
             var sb = new StringBuilder();
             while (s.TryPop(out var res))
