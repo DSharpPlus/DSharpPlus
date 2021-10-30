@@ -726,7 +726,8 @@ namespace DSharpPlus
                 {
                     Id = channelId,
                     Discord = this,
-                    Type = ChannelType.Private
+                    Type = ChannelType.Private,
+                    Recipients = new DiscordUser[] {}
                 };
                 this._privateChannels.AddOrUpdate(channelId, (DiscordDmChannel)channel, (oldChannel, channel) => channel);
             }
@@ -1431,7 +1432,9 @@ namespace DSharpPlus
                 {
                     Id = channelId,
                     Discord = this,
-                    Type = ChannelType.Private
+                    Type = ChannelType.Private,
+                    Recipients = new DiscordUser[] {}
+
                 };
                 this._privateChannels.AddOrUpdate(channelId, (DiscordDmChannel)channel, (oldChannel, channel) => channel);
             }
@@ -1567,21 +1570,22 @@ namespace DSharpPlus
         {
             var channel = this.InternalGetCachedChannel(channelId) ?? this.InternalGetCachedThread(channelId);
 
+            emoji.Discord = this;
+
+            if (!this.UserCache.TryGetValue(userId, out var usr))
+                usr = new DiscordUser { Id = userId, Discord = this };
+
             if (channel == null)
             {
                 channel = new DiscordDmChannel
                 {
                     Id = channelId,
                     Discord = this,
-                    Type = ChannelType.Private
+                    Type = ChannelType.Private,
+                    Recipients = new DiscordUser[] { usr }
                 };
                 this._privateChannels.AddOrUpdate(channelId, (DiscordDmChannel)channel, (oldChannel, channel) => channel);
             }
-
-            emoji.Discord = this;
-
-            if (!this.UserCache.TryGetValue(userId, out var usr))
-                usr = new DiscordUser { Id = userId, Discord = this };
 
             if (channel?.Guild != null)
                 usr = channel.Guild.Members.TryGetValue(userId, out var member)
@@ -1668,7 +1672,8 @@ namespace DSharpPlus
                 {
                     Id = channelId,
                     Discord = this,
-                    Type = ChannelType.Private
+                    Type = ChannelType.Private,
+                    Recipients = new DiscordUser[] { }
                 };
                 this._privateChannels.AddOrUpdate(channelId, (DiscordDmChannel)channel, (oldChannel, channel) => channel);
             }
