@@ -1506,20 +1506,22 @@ namespace DSharpPlus
             var channel = this.InternalGetCachedChannel(channelId) ?? this.InternalGetCachedThread(channelId);
             var guild = this.InternalGetCachedGuild(guildId);
 
+            emoji.Discord = this;
+
+            var usr = this.UpdateUser(new DiscordUser { Id = userId, Discord = this }, guildId, guild, mbr);
+
             if (channel == null)
             {
                 channel = new DiscordDmChannel
                 {
                     Id = channelId,
                     Discord = this,
-                    Type = ChannelType.Private
+                    Type = ChannelType.Private,
+                    Recipients = new DiscordUser[] { usr }
                 };
                 this._privateChannels.AddOrUpdate(channelId, (DiscordDmChannel)channel, (oldChannel, channel) => channel);
             }
 
-            emoji.Discord = this;
-
-            var usr = this.UpdateUser(new DiscordUser { Id = userId, Discord = this }, guildId, guild, mbr);
 
             if (channel == null
                 || this.Configuration.MessageCacheSize == 0
