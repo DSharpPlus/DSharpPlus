@@ -727,7 +727,7 @@ namespace DSharpPlus
                     Id = channelId,
                     Discord = this,
                     Type = ChannelType.Private,
-                    Recipients = new DiscordUser[] {}
+                    Recipients = Array.Empty<DiscordUser>()
                 };
                 this._privateChannels.AddOrUpdate(channelId, (DiscordDmChannel)channel, (oldChannel, channel) => channel);
             }
@@ -1433,7 +1433,7 @@ namespace DSharpPlus
                     Id = channelId,
                     Discord = this,
                     Type = ChannelType.Private,
-                    Recipients = new DiscordUser[] {}
+                    Recipients = Array.Empty<DiscordUser>()
 
                 };
                 this._privateChannels.AddOrUpdate(channelId, (DiscordDmChannel)channel, (oldChannel, channel) => channel);
@@ -1673,7 +1673,7 @@ namespace DSharpPlus
                     Id = channelId,
                     Discord = this,
                     Type = ChannelType.Private,
-                    Recipients = new DiscordUser[] { }
+                    Recipients = Array.Empty<DiscordUser>()
                 };
                 this._privateChannels.AddOrUpdate(channelId, (DiscordDmChannel)channel, (oldChannel, channel) => channel);
             }
