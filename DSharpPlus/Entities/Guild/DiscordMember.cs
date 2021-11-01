@@ -327,7 +327,7 @@ namespace DSharpPlus.Entities
             DiscordDmChannel dm = default;
 
             if (this.Discord is DiscordClient dc)
-                dm = dc._privateChannels.Values.FirstOrDefault(x => x.Recipients[0].Id == this.Id);
+                dm = dc._privateChannels.Values.FirstOrDefault(x => x.Recipients.FirstOrDefault() == this);
 
             return dm != null ? Task.FromResult(dm) : this.Discord.ApiClient.CreateDmAsync(this.Id);
         }
