@@ -42,7 +42,7 @@ namespace DSharpPlus.Interactivity
     public class InteractivityExtension : BaseExtension
     {
 
-        #pragma warning disable IDE1006 // Naming Styles
+#pragma warning disable IDE1006 // Naming Styles
         internal InteractivityConfiguration Config { get; }
 
         private EventWaiter<MessageCreateEventArgs> MessageCreatedWaiter;
@@ -62,7 +62,7 @@ namespace DSharpPlus.Interactivity
         private Paginator Paginator;
         private  ComponentPaginator _compPaginator;
 
-        #pragma warning restore IDE1006 // Naming Styles
+#pragma warning restore IDE1006 // Naming Styles
 
         internal InteractivityExtension(InteractivityConfiguration cfg)
         {
@@ -728,7 +728,8 @@ namespace DSharpPlus.Interactivity
         /// <param name="behaviour">Pagination behaviour.</param>
         /// <param name="deletion">Deletion behaviour</param>
         /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
-        public async Task SendPaginatedResponseAsync(DiscordInteraction interaction, bool ephemeral, DiscordUser user, IEnumerable<Page> pages, PaginationButtons buttons = null, PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default, CancellationToken token = default)
+        /// <param name="asEditResponse">If the response as edit of previous response.</param>
+        public async Task SendPaginatedResponseAsync(DiscordInteraction interaction, bool ephemeral, DiscordUser user, IEnumerable<Page> pages, PaginationButtons buttons = null, PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default, CancellationToken token = default, bool asEditResponse = false)
         {
             var bhv = behaviour ?? this.Config.PaginationBehaviour;
             var del = deletion ?? this.Config.ButtonBehavior;
@@ -753,13 +754,25 @@ namespace DSharpPlus.Interactivity
                     bts.SkipRight.Disable();
             }
 
-            var builder = new DiscordInteractionResponseBuilder()
-                .WithContent(pages.First().Content)
-                .AddEmbed(pages.First().Embed)
-                .AsEphemeral(ephemeral)
-                .AddComponents(bts.ButtonArray);
+            if (asEditResponse)
+            {
+                var builder = new DiscordWebhookBuilder()
+                    .WithContent(pages.First().Content)
+                    .AddEmbed(pages.First().Embed)
+                    .AddComponents(bts.ButtonArray);
 
-            await interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+                await interaction.EditOriginalResponseAsync(builder);
+            }
+            else
+            {
+                var builder = new DiscordInteractionResponseBuilder()
+                    .WithContent(pages.First().Content)
+                    .AddEmbed(pages.First().Embed)
+                    .AsEphemeral(ephemeral)
+                    .AddComponents(bts.ButtonArray);
+
+                await interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+            }
             var message = await interaction.GetOriginalResponseAsync();
 
             var req = new InteractionPaginationRequest(interaction, message, user, bhv, del, bts, pages, token);
