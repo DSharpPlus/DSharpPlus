@@ -55,6 +55,11 @@ namespace DSharpPlus
         /// <summary>
         /// Server setup tips are disabled.
         /// </summary>
-        SuppressGuildReminderNotifications = 1 << 2
+        SuppressGuildReminderNotifications = 1 << 2,
+
+        /// <summary>
+        /// Server join messages suppress the wave sticker button.
+        /// </summary>
+        SuppressJoinNotificationReplies = 1 << 3
     }
 }
