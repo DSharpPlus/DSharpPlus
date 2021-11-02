@@ -754,6 +754,7 @@ namespace DSharpPlus.Interactivity
                     bts.SkipRight.Disable();
             }
 
+            DiscordMessage message;
             if (asEditResponse)
             {
                 var builder = new DiscordWebhookBuilder()
@@ -761,7 +762,7 @@ namespace DSharpPlus.Interactivity
                     .AddEmbed(pages.First().Embed)
                     .AddComponents(bts.ButtonArray);
 
-                await interaction.EditOriginalResponseAsync(builder);
+                message = await interaction.EditOriginalResponseAsync(builder);
             }
             else
             {
@@ -772,8 +773,8 @@ namespace DSharpPlus.Interactivity
                     .AddComponents(bts.ButtonArray);
 
                 await interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+                message = await interaction.GetOriginalResponseAsync();
             }
-            var message = await interaction.GetOriginalResponseAsync();
 
             var req = new InteractionPaginationRequest(interaction, message, user, bhv, del, bts, pages, token);
 
