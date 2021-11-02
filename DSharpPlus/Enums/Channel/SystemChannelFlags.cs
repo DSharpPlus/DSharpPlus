@@ -58,7 +58,7 @@ namespace DSharpPlus
         SuppressGuildReminderNotifications = 1 << 2,
 
         /// <summary>
-        /// Server join messages supress wave CTA button.
+        /// Server join messages suppress the wave sticker button.
         /// </summary>
         SuppressJoinNotificationReplies = 1 << 3
     }
