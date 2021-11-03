@@ -961,6 +961,12 @@ namespace DSharpPlus.SlashCommands
             var context = new AutocompleteContext
             {
                 Interaction = interaction,
+                Client = this.Client,
+                Services = this._configuration?.Services,
+                SlashCommandsExtension = this,
+                Guild = interaction.Guild,
+                Channel = interaction.Channel,
+                User = interaction.User,
                 Options = options.ToList(),
                 FocusedOption = focusedOption
             };
