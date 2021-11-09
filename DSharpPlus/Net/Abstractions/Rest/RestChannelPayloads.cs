@@ -188,6 +188,15 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("unique", NullValueHandling = NullValueHandling.Ignore)]
         public bool Unique { get; set; }
+
+        [JsonProperty("target_type", NullValueHandling = NullValueHandling.Ignore)]
+        public InviteTargetType? TargetType { get; set; }
+
+        [JsonProperty("target_user_id", NullValueHandling = NullValueHandling.Ignore)]
+        public ulong? TargetUserId { get; set; }
+
+        [JsonProperty("target_application_id", NullValueHandling = NullValueHandling.Ignore)]
+        public ulong? TargetApplicationId { get; set; }
     }
 
     internal sealed class RestChannelPermissionEditPayload
