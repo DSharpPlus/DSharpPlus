@@ -661,9 +661,12 @@ namespace DSharpPlus
         /// <param name="temporary">Whether this invite should be temporary</param>
         /// <param name="unique">Whether this invite should be unique (false might return an existing invite)</param>
         /// <param name="reason">Why you made an invite</param>
+        /// <param name="targetType">The target type of the invite, for stream and embedded application invites.</param>
+        /// <param name="targetUserId">The id of the target user.</param>
+        /// <param name="targetApplicationId">The id of the target application.</param>
         /// <returns></returns>
-        public Task<DiscordInvite> CreateChannelInviteAsync(ulong channel_id, int max_age, int max_uses, bool temporary, bool unique, string reason)
-            => this.ApiClient.CreateChannelInviteAsync(channel_id, max_age, max_uses, temporary, unique, reason);
+        public Task<DiscordInvite> CreateChannelInviteAsync(ulong channel_id, int max_age, int max_uses, bool temporary, bool unique, string reason, InviteTargetType? targetType = null, ulong? targetUserId = null, ulong? targetApplicationId = null)
+            => this.ApiClient.CreateChannelInviteAsync(channel_id, max_age, max_uses, temporary, unique, reason, targetType, targetUserId, targetApplicationId);
 
         /// <summary>
         /// Deletes channel overwrite
