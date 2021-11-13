@@ -3121,7 +3121,7 @@ namespace DSharpPlus.Net
                     Content = builder.Content,
                     Embeds = builder.Embeds,
                     IsTTS = builder.IsTTS,
-                    Mentions = builder.Mentions,
+                    Mentions = new DiscordMentions(builder.Mentions ?? Mentions.All, builder.Mentions?.Any() ?? false),
                     Flags = builder.IsEphemeral ? MessageFlags.Ephemeral : 0,
                     Components = builder.Components,
                     Choices = builder.Choices
