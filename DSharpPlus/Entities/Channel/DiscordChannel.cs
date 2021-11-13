@@ -1034,7 +1034,7 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("Threads can only be created within text or news channels.");
             else if (message.ChannelId != this.Id)
                 throw new ArgumentException("You must use a message from this channel to create a thread.");
-            else if ((archiveAfter == AutoArchiveDuration.ThreeDays && this.Guild.Features.Contains("THREE_DAY_THREAD_ARCHIVE")) || (archiveAfter == AutoArchiveDuration.Week && this.Guild.Features.Contains("SEVEN_DAY_THREAD_ARCHIVE")))
+            else if ((archiveAfter == AutoArchiveDuration.ThreeDays && !this.Guild.Features.Contains("THREE_DAY_THREAD_ARCHIVE")) || (archiveAfter == AutoArchiveDuration.Week && !this.Guild.Features.Contains("SEVEN_DAY_THREAD_ARCHIVE")))
                 throw new ArgumentException("This archive duration requires the guild to be boosted or have these archive durations enabled."); //are guild features always cached?
 
             return this.Discord.ApiClient.CreateThreadFromMessageAsync(this.Id, message.Id, name, archiveAfter, reason);
