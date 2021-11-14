@@ -66,6 +66,7 @@ namespace DSharpPlus.Entities
             this._avatarHash = mbr.AvatarHash;
             this._role_ids = mbr.Roles ?? new List<ulong>();
             this._role_ids_lazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(this._role_ids));
+            this.CommunicationDisabledUntil = mbr.CommunicationDisabledUntil;
         }
 
         /// <summary>
