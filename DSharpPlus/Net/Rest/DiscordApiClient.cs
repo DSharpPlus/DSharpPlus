@@ -1915,7 +1915,7 @@ namespace DSharpPlus.Net
 
         internal Task ModifyGuildMemberAsync(ulong guild_id, ulong user_id, Optional<string> nick,
             Optional<IEnumerable<ulong>> role_ids, Optional<bool> mute, Optional<bool> deaf,
-            Optional<ulong?> voice_channel_id, string reason)
+            Optional<ulong?> voice_channel_id, Optional<DateTimeOffset?> communication_disabled_until, string reason)
         {
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
@@ -1927,7 +1927,8 @@ namespace DSharpPlus.Net
                 RoleIds = role_ids,
                 Deafen = deaf,
                 Mute = mute,
-                VoiceChannelId = voice_channel_id
+                VoiceChannelId = voice_channel_id,
+                CommunicationDisabledUntil = communication_disabled_until
             };
 
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.MEMBERS}/:user_id";

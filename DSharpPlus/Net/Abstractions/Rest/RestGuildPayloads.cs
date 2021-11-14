@@ -193,6 +193,9 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("channel_id")]
         public Optional<ulong?> VoiceChannelId { get; set; }
+
+        [JsonProperty("communication_disbaled_until")]
+        public Optional<DateTimeOffset?> CommunicationDisabledUntil { get; set; }
     }
 
     internal sealed class RestGuildRolePayload
