@@ -1105,6 +1105,33 @@ namespace DSharpPlus.Net
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route, Utilities.GetBaseHeaders(), null).ConfigureAwait(false);
         }
 
+        internal async Task<IReadOnlyList<DiscordUser>> GetScheduledGuildEventUsersAsync(ulong guild_id, ulong guild_scheduled_event_id, bool with_members = false, bool with_counts = false)
+        {
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.EVENTS}/:guild_scheduled_event_id{Endpoints.USERS}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id, guild_scheduled_event_id }, out var path);
+
+            var query = new Dictionary<string, string>() { { "with_members", with_members.ToString() }, { "with_counts", with_counts.ToString() } };
+
+            var url = Utilities.GetApiUriFor(path, BuildQueryString(query));
+
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route, new Dictionary<string, string>(), string.Empty).ConfigureAwait(false);
+
+            var job = JArray.Parse(res.Response);
+
+            if (with_members)
+                return job.Select(t =>
+                {
+                    var mbr = DiscordJson.ToDiscordObject<DiscordMember>(t["guild_member"]);
+                    mbr.Discord = this.Discord;
+                    mbr._guild_id = guild_id;
+
+                    return mbr;
+                }).ToList().AsReadOnly();
+
+            else return job.Select(t => new DiscordUser(t.ToObject<TransportUser>()) { Discord = this.Discord}).ToList().AsReadOnly();
+        }
+
+
         internal async Task<DiscordScheduledGuildEvent> GetScheduledGuildEventAsync(ulong guild_id, ulong guild_scheduled_event_id)
         {
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.EVENTS}/:guild_scheduled_event_id";
