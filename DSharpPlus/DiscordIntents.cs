@@ -130,7 +130,7 @@ namespace DSharpPlus
 
         /// <summary>
         /// Whether to include guild reaction events.
-        /// <para>These include <see cref="DiscordClient.MessageReactionAdded"/>, <see cref="DiscordClient.MessageReactionRemoved"/>, <see cref="DiscordClient.MessageReactionsCleared"/>,</para> 
+        /// <para>These include <see cref="DiscordClient.MessageReactionAdded"/>, <see cref="DiscordClient.MessageReactionRemoved"/>, <see cref="DiscordClient.MessageReactionsCleared"/>,</para>
         /// <para>and <see cref="DiscordClient.MessageReactionRemovedEmoji"/>.</para>
         /// </summary>
         GuildMessageReactions = 1 << 10,
@@ -164,12 +164,14 @@ namespace DSharpPlus
         /// </summary>
         DirectMessageTyping = 1 << 14,
 
+        ScheduledGuildEvents = 1 << 16,
+
         /// <summary>
         /// Includes all unprivileged intents.
         /// <para>These are all intents excluding <see cref="DiscordIntents.GuildMembers"/> and <see cref="DiscordIntents.GuildPresences"/>.</para>
         /// </summary>
         AllUnprivileged = Guilds | GuildBans | GuildEmojis | GuildIntegrations | GuildWebhooks | GuildInvites | GuildVoiceStates | GuildMessages |
-            GuildMessageReactions | GuildMessageTyping | DirectMessages | DirectMessageReactions | DirectMessageTyping,
+            GuildMessageReactions | GuildMessageTyping | DirectMessages | DirectMessageReactions | DirectMessageTyping | ScheduledGuildEvents,
 
         /// <summary>
         /// Includes all intents.
