@@ -164,6 +164,10 @@ namespace DSharpPlus
         /// </summary>
         DirectMessageTyping = 1 << 14,
 
+        /// <summary>
+        /// Whether to include scheduled event messages.
+        /// //TODO: reference events
+        /// </summary>
         ScheduledGuildEvents = 1 << 16,
 
         /// <summary>

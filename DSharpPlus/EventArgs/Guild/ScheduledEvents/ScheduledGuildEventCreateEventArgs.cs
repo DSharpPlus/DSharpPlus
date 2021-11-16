@@ -20,60 +20,35 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-using System;
 using DSharpPlus.Entities;
-using Newtonsoft.Json;
 
-namespace DSharpPlus.Net.Models
+namespace DSharpPlus.EventArgs
 {
-    public class ScheduledGuildEventEditModel : BaseEditModel
+    /// <summary>
+    /// Fired when a new scheduled guild event is created.
+    /// </summary>
+    public class ScheduledGuildEventCreateEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// The new name of the event.
+        /// The guild this event is scheduled for.
         /// </summary>
-        public Optional<string> Name { get; set; }
+        public DiscordGuild Guild => this.Event.Guild;
 
         /// <summary>
-        /// The new description of the event.
+        /// The channel this event is scheduled for, if applicable.
         /// </summary>
-        public Optional<string> Description { get; set; }
+        public DiscordChannel Channel => this.Event.Channel;
 
         /// <summary>
-        /// The new channel ID of the event.
+        /// The user that created the event.
         /// </summary>
-        public Optional<DiscordChannel> Channel { get; set; }
+        public DiscordUser Creator => this.Event.Creator;
 
         /// <summary>
-        /// The new privacy of the event.
+        /// The event that was created.
         /// </summary>
-        public Optional<ScheduledGuildEventPrivacyLevel> PrivacyLevel { get; set; }
+        public DiscordScheduledGuildEvent Event { get; internal set; }
 
-        /// <summary>
-        /// The type of the event.
-        /// </summary>
-        public Optional<ScheduledGuildEventType> Type { get; set; }
-
-        /// <summary>
-        /// The new time of the event.
-        /// </summary>
-        public Optional<DateTimeOffset> StartTime { get; set; }
-
-        /// <summary>
-        /// The new end time of the event.
-        /// </summary>
-        public Optional<DateTimeOffset> EndTime { get; set; }
-
-        /// <summary>
-        /// The new metadata of the event.
-        /// </summary>
-        public Optional<DiscordScheduledGuildEventMetadata> Metadata { get; set; }
-
-        /// <summary>
-        /// The new status of the event.
-        /// </summary>
-        public Optional<ScheduledGuildEventStatus> Status { get; set; }
-
-        internal ScheduledGuildEventEditModel() { }
-
+        internal ScheduledGuildEventCreateEventArgs() : base() { }
     }
 }
