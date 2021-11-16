@@ -180,6 +180,36 @@ namespace DSharpPlus.Net.Abstractions
         public DiscordScheduledGuildEventMetadata Metadata { get; set; }
     }
 
+    internal sealed class RestScheduledGuildEventModifyPayload
+    {
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<string> Name { get; set; }
+
+        [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<string> Description { get; set; }
+
+        [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<ulong> ChannelId { get; set; }
+
+        [JsonProperty("privacy_level", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<ScheduledGuildEventPrivacyLevel> PrivacyLevel { get; set; }
+
+        [JsonProperty("entity_type", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<ScheduledGuildEventType> Type { get; set; }
+
+        [JsonProperty("scheduled_start_time", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<DateTimeOffset> StartTime { get; set; }
+
+        [JsonProperty("scheduled_end_time", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<DateTimeOffset> EndTime { get; set; }
+
+        [JsonProperty("entity_metadata", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<DiscordScheduledGuildEventMetadata> Metadata { get; set; }
+
+        [JsonProperty("status", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<ScheduledGuildEventStatus> Status { get; set; }
+    }
+
     internal sealed class RestGuildChannelReorderPayload
     {
         [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
