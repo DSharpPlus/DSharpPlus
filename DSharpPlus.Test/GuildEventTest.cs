@@ -20,10 +20,33 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace DSharpPlus.Net.Models
-{
-    public class ScheduledEventEditModel : BaseEditModel
-    {
+using System;
+using System.Threading.Tasks;
+using DSharpPlus.CommandsNext;
+using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.Entities;
+using DSharpPlus.Exceptions;
 
+namespace DSharpPlus.Test
+{
+    public class GuildEventTest : BaseCommandModule
+    {
+        [Command("create_event")]
+        public async Task CreateEvent(CommandContext ctx, string name, string location = null, [RemainingText] string description = null)
+        {
+            try
+            {
+                await ctx.Guild.CreateEventAsync(name, description, null, ScheduledGuildEventType.External, ScheduledGuildEventPrivacyLevel.GuildOnly, DateTimeOffset.Now + TimeSpan.FromMinutes(10), DateTimeOffset.Now + TimeSpan.FromMinutes(15), location);
+                await ctx.RespondAsync("Event created!");
+            }
+            catch (BadRequestException ex)
+            {
+                await ctx.RespondAsync(ex.JsonMessage);
+            }
+            catch (Exception ex)
+            {
+                await ctx.RespondAsync(ex.Message);
+            }
+        }
     }
 }

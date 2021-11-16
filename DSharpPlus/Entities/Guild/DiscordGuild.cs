@@ -499,6 +499,99 @@ namespace DSharpPlus.Entities
         #region Guild Methods
 
         /// <summary>
+        /// Creates a new scheduled event in this guild.
+        /// </summary>
+        /// <param name="name">The name of the event to create</param>
+        /// <param name="description">The description of the event</param>
+        /// <param name="channelId">If a <see cref="ScheduledGuildEventType.StageInstance"/> or <see cref="ScheduledGuildEventType.VoiceChannel"/>, the id of the channel the event will be hosted in</param>
+        /// <param name="type">The type of the event. <see paramref="channelId"/> must be supplied if not an external event</param>
+        /// <param name="privacyLevel">Whether this event is visible to everyone, or just guild members</param>
+        /// <param name="start">When this event starts. Must be in the future, and before the end date</param>
+        /// <param name="end">When this event ends. If supplied, must be in the future and after the end date. Passing null will result in the event not having an end date.</param>
+        /// <param name="location">Where this event takes place. Only applicable if the type is <see cref="ScheduledGuildEventType.External"/></param>
+        /// <returns>The created event.</returns>
+        public Task<DiscordScheduledGuildEvent> CreateEventAsync(string name, string description, ulong? channelId, ScheduledGuildEventType type, ScheduledGuildEventPrivacyLevel privacyLevel, DateTimeOffset start, DateTimeOffset? end, string location = null)
+        {
+            if (start <= DateTimeOffset.Now)
+                throw new ArgumentOutOfRangeException("The start time for an event must be in the future.");
+
+            if (end != null && end <= start)
+                throw new ArgumentOutOfRangeException("The end time for an event must be after the start time.");
+
+            DiscordScheduledGuildEventMetadata metadata = null;
+
+            if (!string.IsNullOrEmpty(location))
+                metadata = new DiscordScheduledGuildEventMetadata()
+                {
+                    Location = location
+                };
+
+            return this.Discord.ApiClient.CreateScheduledGuildEventAsync(this.Id, name, description, channelId, start, end, type, privacyLevel, metadata);
+        }
+
+        /// <summary>
+        /// Starts a scheduled event in this guild.
+        /// </summary>
+        /// <param name="guildEvent">The event to cancel.</param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        public Task StartEventAsync(DiscordScheduledGuildEvent guildEvent)
+        {
+            if (guildEvent.Status is not ScheduledGuildEventStatus.Scheduled)
+                throw new InvalidOperationException("The event must be scheduled for it to be started.");
+
+            return this.ModifyEventAsync(guildEvent, m => m.Status = ScheduledGuildEventStatus.Active);
+        }
+
+        /// <summary>
+        /// Cancels an event. The event must be scheduled for it to be cancelled.
+        /// </summary>
+        /// <param name="guildEvent">The event to delete.</param>
+        public Task CancelEventAsync(DiscordScheduledGuildEvent guildEvent)
+        {
+            if (guildEvent.Status is not ScheduledGuildEventStatus.Scheduled)
+                throw new InvalidOperationException("The event must be scheduled for it to be cancelled.");
+
+            return this.ModifyEventAsync(guildEvent, m => m.Status = ScheduledGuildEventStatus.Cancelled);
+        }
+
+        /// <summary>
+        /// Modifies an existing scheduled event in this guild.
+        /// </summary>
+        /// <param name="guildEvent">The event to modify.</param>
+        /// <param name="mdl">The action to perform on this event</param>
+        /// <param name="reason">The reason this event is being modified</param>
+        /// <returns>The modified object</returns>
+        /// <exception cref="ArgumentException"></exception>
+        public Task ModifyEventAsync(DiscordScheduledGuildEvent guildEvent, Action<ScheduledGuildEventEditModel> mdl, string reason = null)
+        {
+            var model = new ScheduledGuildEventEditModel();
+            mdl(model);
+
+            if (model.Type.HasValue && model.Type.Value is (ScheduledGuildEventType.StageInstance or ScheduledGuildEventType.VoiceChannel))
+                if (!model.Channel.HasValue)
+                    throw new ArgumentException("Channel must be supplied if the event is a stage instance or voice channel event.");
+
+            return this.Discord.ApiClient.ModifyScheduledGuildEventAsync(
+                this.Id, guildEvent.Id,
+                model.Name, model.Description,
+                model.Channel.IfPresent(c => c.Id),
+                model.StartTime, model.EndTime,
+                model.Type, model.PrivacyLevel,
+                model.Metadata, model.Status);
+        }
+
+        /// <summary>
+        /// Deletes an exising scheduled event in this guild.
+        /// </summary>
+        /// <param name="guildEvent"></param>
+        /// <param name="reason"></param>
+        /// <returns></returns>
+        public Task DeleteEventAsync(DiscordScheduledGuildEvent guildEvent, string reason = null)
+            => this.Discord.ApiClient.DeleteScheduledGuildEventAsync(this.Id, guildEvent.Id, reason);
+
+
+        /// <summary>
         /// Searches the current guild for members who's display name start with the specified name.
         /// </summary>
         /// <param name="name">The name to search for.</param>
