@@ -170,10 +170,10 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("entity_type", NullValueHandling = NullValueHandling.Ignore)]
         public ScheduledGuildEventType Type { get; set; }
 
-        [JsonProperty("scheduled_start_time", NullValueHandling = NullValueHandling.Ignore)] // Null = no end date
+        [JsonProperty("scheduled_start_time", NullValueHandling = NullValueHandling.Ignore)]
         public DateTimeOffset StartTime { get; set; }
 
-        [JsonProperty("scheduled_end_time", NullValueHandling = NullValueHandling.Include)]
+        [JsonProperty("scheduled_end_time", NullValueHandling = NullValueHandling.Ignore)]// Null = no end date
         public DateTimeOffset? EndTime { get; set; }
 
         [JsonProperty("entity_metadata", NullValueHandling = NullValueHandling.Ignore)]
