@@ -1131,7 +1131,6 @@ namespace DSharpPlus.Net
             else return job.Select(t => new DiscordUser(t.ToObject<TransportUser>()) { Discord = this.Discord}).ToList().AsReadOnly();
         }
 
-
         internal async Task<DiscordScheduledGuildEvent> GetScheduledGuildEventAsync(ulong guild_id, ulong guild_scheduled_event_id)
         {
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.EVENTS}/:guild_scheduled_event_id";
