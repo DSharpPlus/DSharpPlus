@@ -25,8 +25,14 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
 {
+    /// <summary>
+    /// A scheduled event on a guild, which notifies all people that are interested in it.
+    /// </summary>
     public sealed class DiscordScheduledGuildEvent : SnowflakeObject
     {
+        /// <summary>
+        /// The name of the event.
+        /// </summary>
         [JsonProperty("name")]
         public string Name { get; internal set; }
 
