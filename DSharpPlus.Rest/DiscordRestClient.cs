@@ -108,6 +108,48 @@ namespace DSharpPlus
         public Task<IReadOnlyList<DiscordScheduledGuildEvent>> GetScheduledGuildEventsAsync(ulong guildId)
             => this.ApiClient.GetScheduledGuildEventsAsync(guildId);
 
+        /// <summary>
+        /// Gets the users interested in the guild event.
+        /// </summary>
+        /// <param name="guildId">The id of the guild the event resides on.</param>
+        /// <param name="eventId">The id of the event.</param>
+        /// <param name="limit">How many users to query.</param>
+        /// <param name="after">Fetch users after this id.</param>
+        /// <param name="before">Fetch users before this id.</param>
+        /// <returns>The users interested in the event.</returns>
+        public async Task<IReadOnlyList<DiscordUser>> GetScheduledGuildEventUsersAsync(ulong guildId, ulong eventId, int limit = 100, ulong? after = null, ulong? before = null)
+        {
+            var remaining = limit;
+            ulong? last = null;
+            var isAfter = after != null;
+
+            var users = new List<DiscordUser>();
+
+            int lastCount;
+            do
+            {
+                var fetchSize = remaining > 100 ? 100 : remaining;
+                var fetch = await this.ApiClient.GetScheduledGuildEventUsersAsync(guildId, eventId, true, fetchSize, !isAfter ? last ?? before : null, isAfter ? last ?? after : null);
+
+                lastCount = fetch.Count;
+                remaining -= lastCount;
+
+                if (!isAfter)
+                {
+                    users.AddRange(fetch);
+                    last = fetch.LastOrDefault()?.Id;
+                }
+                else
+                {
+                    users.InsertRange(0, fetch);
+                    last = fetch.FirstOrDefault()?.Id;
+                }
+            }
+            while (remaining > 0 && lastCount > 0);
+
+
+            return users.AsReadOnly();
+        }
 
         #endregion
 
