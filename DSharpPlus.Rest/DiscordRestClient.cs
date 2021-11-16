@@ -83,7 +83,13 @@ namespace DSharpPlus
         public Task<DiscordScheduledGuildEvent> CreateScheduledGuildEventAsync(ulong guildId, string name, string description, ulong? channelId, ScheduledGuildEventType type, ScheduledGuildEventPrivacyLevel privacyLevel, DateTimeOffset start, DateTimeOffset? end, string location = null)
             => this.ApiClient.CreateScheduledGuildEventAsync(guildId, name, description, channelId,  start, end, type, privacyLevel, new DiscordScheduledGuildEventMetadata(location));
 
-
+        /// <summary>
+        /// Delete a scheduled guild event.
+        /// </summary>
+        /// <param name="guildId">The id the guild the event resides on.</param>
+        /// <param name="eventId">The id of the event to delete.</param>
+        public Task DeleteScheduledGuildEventAsync(ulong guildId, ulong eventId)
+            => this.ApiClient.DeleteScheduledGuildEventAsync(guildId, eventId);
         #endregion
 
         #region Guild
