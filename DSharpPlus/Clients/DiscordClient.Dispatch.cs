@@ -116,11 +116,11 @@ namespace DSharpPlus
                         await this.OnScheduledGuildEventCreateEventAsync(cevt).ConfigureAwait(false);
                         break;
                     case "guild_scheduled_event_delete":
-                        gid = (ulong)dat["guild_id"];
                         var devt = dat.ToObject<DiscordScheduledGuildEvent>();
-                        await this.OnScheduledGuildEventDeleteEventAsync(gid, devt, dat).ConfigureAwait(false);
+                        await this.OnScheduledGuildEventDeleteEventAsync(devt).ConfigureAwait(false);
                         break;
                     case "guild_scheduled_event_update":
+
                         break;
                     case "guild_scheduled_event_user_add":
                         break;
@@ -786,9 +786,9 @@ namespace DSharpPlus
             await this._scheduledGuildEventCreated.InvokeAsync(this, new ScheduledGuildEventCreateEventArgs { Event = evt }).ConfigureAwait(false);
         }
 
-        private async Task OnScheduledGuildEventDeleteEventAsync(ulong guildId, DiscordScheduledGuildEvent evt, JObject evtRaw)
+        private async Task OnScheduledGuildEventDeleteEventAsync(DiscordScheduledGuildEvent evt)
         {
-            var guild = this.InternalGetCachedGuild(guildId);
+            var guild = this.InternalGetCachedGuild(evt.GuildId);
 
             if (guild == null) // ??? //
                 return;
@@ -796,9 +796,6 @@ namespace DSharpPlus
             guild._scheduledEvents.TryRemove(evt.Id, out var _);
 
             evt.Discord = this;
-
-            if (evtRaw["creator"]?["id"] != null)
-                evt.Creator = this.GetCachedOrEmptyUserInternal(evtRaw["creator"]["id"].ToObject<ulong>());
 
             if (evt.Creator != null)
                 evt.Creator.Discord = this;
@@ -811,6 +808,7 @@ namespace DSharpPlus
                     foreach (var s in evt.Metadata._speakerIds)
                     {
                         var speaker = this.GetCachedOrEmptyUserInternal(s);
+
                         if (speaker != null)
                             sl.Add(speaker);
                     }
