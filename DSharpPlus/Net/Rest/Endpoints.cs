@@ -49,6 +49,7 @@ namespace DSharpPlus.Net
         public const string LOGIN = "/login";
         public const string CHANNELS = "/channels";
         public const string THREADS = "/threads";
+        public const string EVENTS = "/scheduled-events";
         public const string THREAD_MEMBERS = "/thread-members";
         public const string ACTIVE = "/active ";
         public const string ARCHIVED = "/archived";
