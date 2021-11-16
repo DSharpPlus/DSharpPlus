@@ -501,14 +501,14 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Creates a new scheduled event in this guild.
         /// </summary>
-        /// <param name="name">The name of the event to create</param>
-        /// <param name="description">The description of the event</param>
+        /// <param name="name">The name of the event to create, up to 100 characters.</param>
+        /// <param name="description">The description of the event, up to 1000 characters.</param>
         /// <param name="channelId">If a <see cref="ScheduledGuildEventType.StageInstance"/> or <see cref="ScheduledGuildEventType.VoiceChannel"/>, the id of the channel the event will be hosted in</param>
-        /// <param name="type">The type of the event. <see paramref="channelId"/> must be supplied if not an external event</param>
-        /// <param name="privacyLevel">Whether this event is visible to everyone, or just guild members</param>
-        /// <param name="start">When this event starts. Must be in the future, and before the end date</param>
-        /// <param name="end">When this event ends. If supplied, must be in the future and after the end date. Passing null will result in the event not having an end date.</param>
-        /// <param name="location">Where this event takes place. Only applicable if the type is <see cref="ScheduledGuildEventType.External"/></param>
+        /// <param name="type">The type of the event. <see paramref="channelId"/> must be supplied if not an external event.</param>
+        /// <param name="privacyLevel">The privacy level of thi</param>
+        /// <param name="start">When this event starts. Must be in the future, and before the end date.</param>
+        /// <param name="end">When this event ends. If supplied, must be in the future and after the end date. This is requred for <see cref="ScheduledGuildEventType.External"/>.</param>
+        /// <param name="location">Where this event takes place, up to 100 characters. Only applicable if the type is <see cref="ScheduledGuildEventType.External"/></param>
         /// <returns>The created event.</returns>
         public Task<DiscordScheduledGuildEvent> CreateEventAsync(string name, string description, ulong? channelId, ScheduledGuildEventType type, ScheduledGuildEventPrivacyLevel privacyLevel, DateTimeOffset start, DateTimeOffset? end, string location = null)
         {
