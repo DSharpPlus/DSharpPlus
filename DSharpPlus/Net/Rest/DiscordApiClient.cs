@@ -1021,7 +1021,7 @@ namespace DSharpPlus.Net
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, headers, DiscordJson.SerializeObject(pld));
         }
 
-        internal async Task<IReadOnlyList<DiscordScheduledGuildEvent>> GetGuildScheduledGuildEventsAsync(ulong guild_id, bool with_user_counts = false)
+        internal async Task<IReadOnlyList<DiscordScheduledGuildEvent>> GetScheduledGuildEventsAsync(ulong guild_id, bool with_user_counts = false)
         {
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.EVENTS}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
