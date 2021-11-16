@@ -1101,15 +1101,12 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task DeleteScheduledGuildEventAsync(ulong guild_id, ulong guild_scheduled_event_id, string reason = null)
+        internal async Task DeleteScheduledGuildEventAsync(ulong guild_id, ulong guild_scheduled_event_id)
         {
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.EVENTS}/:guild_scheduled_event_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { guild_id, guild_scheduled_event_id }, out var path);
 
             var headers = Utilities.GetBaseHeaders();
-
-            if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
 
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route, headers, null).ConfigureAwait(false);
