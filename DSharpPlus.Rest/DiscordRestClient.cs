@@ -65,6 +65,9 @@ namespace DSharpPlus
             }
         }
 
+        #region Scheduled Guild Events
+        #endregion
+
         #region Guild
 
         /// <summary>

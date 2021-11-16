@@ -1040,26 +1040,6 @@ namespace DSharpPlus.Net
 
                 if (xe.Creator != null)
                     xe.Creator.Discord = this.Discord;
-
-                if (xe.Metadata != null)
-                {
-                    var sl = new List<DiscordUser>();
-                    foreach (var xm in xe.Metadata._speakerIds)
-                    {
-                        if (this.Discord.TryGetCachedUserInternal(xm, out var usr))
-                        {
-                            sl.Add(usr);
-                        }
-                        else
-                        {
-                            usr = new DiscordUser() { Id = xm, Discord = this.Discord };
-                            this.Discord.UpdateUserCache(usr);
-                            sl.Add(usr);
-                        }
-                    }
-
-                    xe.Metadata.Speakers = sl.AsReadOnly();
-                }
             }
 
             return ret.AsReadOnly();
@@ -1162,22 +1142,6 @@ namespace DSharpPlus.Net
             if (ret.Creator != null)
                 ret.Creator.Discord = this.Discord;
 
-            if (ret.Metadata != null)
-            {
-                var sl = new List<DiscordUser>();
-
-                foreach (var xm in ret.Metadata._speakerIds)
-                    if (this.Discord.TryGetCachedUserInternal(xm, out var usr))
-                        sl.Add(usr);
-                    else
-                    {
-                        usr = new DiscordUser() { Id = xm, Discord = this.Discord };
-                        this.Discord.UpdateUserCache(usr);
-                        sl.Add(usr);
-                    }
-                ret.Metadata.Speakers = sl.AsReadOnly();
-            }
-
             return ret;
         }
 
@@ -1213,22 +1177,6 @@ namespace DSharpPlus.Net
 
             if (ret.Creator != null)
                 ret.Creator.Discord = this.Discord;
-
-            if (ret.Metadata != null)
-            {
-                var sl = new List<DiscordUser>();
-
-                foreach (var xm in ret.Metadata._speakerIds)
-                    if (this.Discord.TryGetCachedUserInternal(xm, out var usr))
-                        sl.Add(usr);
-                    else
-                    {
-                        usr = new DiscordUser() { Id = xm, Discord = this.Discord };
-                        this.Discord.UpdateUserCache(usr);
-                        sl.Add(usr);
-                    }
-                ret.Metadata.Speakers = sl.AsReadOnly();
-            }
 
             return ret;
         }

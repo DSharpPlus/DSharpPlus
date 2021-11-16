@@ -782,16 +782,6 @@ namespace DSharpPlus
                 this.UpdateUserCache(evt.Creator);
             }
 
-            if (evt.Metadata != null && evt.Metadata._speakerIds.Any())
-            {
-                foreach (var speakerId in evt.Metadata._speakerIds)
-                {
-                    var speaker = this.GetCachedOrEmptyUserInternal(speakerId);
-                    if (speaker != null)
-                        speaker.Discord = this;
-                }
-            }
-
             evt.Guild._scheduledEvents.AddOrUpdate(evt.Id, evt, (old, newEvt) => newEvt);
 
             await this._scheduledGuildEventCreated.InvokeAsync(this, new ScheduledGuildEventCreateEventArgs { Event = evt }).ConfigureAwait(false);
@@ -814,22 +804,6 @@ namespace DSharpPlus
                 this.UpdateUserCache(evt.Creator);
             }
 
-            if (evt.Metadata != null)
-                foreach (var r in evt.Metadata?._speakerIds)
-                {
-                    var sl = new List<DiscordUser>();
-
-                    foreach (var s in evt.Metadata._speakerIds)
-                    {
-                        var speaker = this.GetCachedOrEmptyUserInternal(s);
-
-                        if (speaker != null)
-                            sl.Add(speaker);
-                    }
-
-                    evt.Metadata.Speakers = sl.ToArray();
-                }
-
             await this._scheduledGuildEventDeleted.InvokeAsync(this, new ScheduledGuildEventDeleteEventArgs { Event = evt }).ConfigureAwait(false);
         }
 
@@ -841,18 +815,6 @@ namespace DSharpPlus
             {
                 evt.Creator.Discord = this;
                 this.UpdateUserCache(evt.Creator);
-            }
-
-           if (evt.Metadata != null) {
-                if (evt.Metadata._speakerIds.Any())
-                {
-                    foreach (var speakerId in evt.Metadata._speakerIds)
-                    {
-                        var speaker = this.GetCachedOrEmptyUserInternal(speakerId);
-                        if (speaker != null)
-                            speaker.Discord = this;
-                    }
-                }
             }
 
             var guild = this.InternalGetCachedGuild(evt.GuildId);
@@ -974,26 +936,6 @@ namespace DSharpPlus
             foreach (var xe in guild._scheduledEvents.Values)
             {
                 xe.Discord = this;
-
-                if (xe.Metadata != null)
-                {
-                    var sl = new List<DiscordUser>();
-                    foreach (var xm in xe.Metadata._speakerIds)
-                    {
-                        if (this.TryGetCachedUserInternal(xm, out var usr))
-                        {
-                            sl.Add(usr);
-                        }
-                        else
-                        {
-                            usr = new DiscordUser() { Id = xm, Discord = this };
-                            this.UpdateUserCache(usr);
-                            sl.Add(usr);
-                        }
-                    }
-
-                    xe.Metadata.Speakers = sl.AsReadOnly();
-                }
 
                 if (xe.Creator != null)
                     xe.Creator.Discord = this;

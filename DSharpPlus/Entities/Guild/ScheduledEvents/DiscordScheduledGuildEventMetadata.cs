@@ -27,14 +27,6 @@ namespace DSharpPlus.Entities
 {
     public sealed class DiscordScheduledGuildEventMetadata
     {
-        /// <summary>
-        /// For stage instance events: Who will be speaking.
-        /// </summary>
-        [JsonIgnore]
-        public IReadOnlyList<DiscordUser> Speakers { get; internal set; }
-
-        [JsonProperty("speaker_ids")]
-        internal ulong[] _speakerIds;
 
         /// <summary>
         /// If this is an external event, where this event is hosted.
@@ -44,9 +36,8 @@ namespace DSharpPlus.Entities
 
         internal DiscordScheduledGuildEventMetadata() { }
 
-        public DiscordScheduledGuildEventMetadata(ulong[] speakerIds, string location)
+        public DiscordScheduledGuildEventMetadata(string location)
         {
-            this._speakerIds = speakerIds;
             this.Location = location;
         }
     }
