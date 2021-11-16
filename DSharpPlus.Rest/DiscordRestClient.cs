@@ -108,6 +108,32 @@ namespace DSharpPlus
         public Task<IReadOnlyList<DiscordScheduledGuildEvent>> GetScheduledGuildEventsAsync(ulong guildId)
             => this.ApiClient.GetScheduledGuildEventsAsync(guildId);
 
+
+        /// <summary>
+        /// Modify a scheduled guild event.
+        /// </summary>
+        /// <param name="guildId">The id of the guild the event resides on.</param>
+        /// <param name="eventId">The id of the event to modify.</param>
+        /// <param name="mdl">The action to apply to the event.</param>
+        /// <returns>The modified event.</returns>
+        public Task<DiscordScheduledGuildEvent> ModifyScheduledGuildEventAsync(ulong guildId, ulong eventId, Action<ScheduledGuildEventEditModel> mdl)
+        {
+            var model = new ScheduledGuildEventEditModel();
+            mdl(model);
+
+            if (model.Type.HasValue && model.Type.Value is (ScheduledGuildEventType.StageInstance or ScheduledGuildEventType.VoiceChannel))
+                if (!model.Channel.HasValue)
+                    throw new ArgumentException("Channel must be supplied if the event is a stage instance or voice channel event.");
+
+            return this.ApiClient.ModifyScheduledGuildEventAsync(
+                guildId, eventId,
+                model.Name, model.Description,
+                model.Channel.IfPresent(c => c.Id),
+                model.StartTime, model.EndTime,
+                model.Type, model.PrivacyLevel,
+                model.Metadata, model.Status);
+        }
+
         /// <summary>
         /// Gets the users interested in the guild event.
         /// </summary>
