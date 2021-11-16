@@ -1021,6 +1021,50 @@ namespace DSharpPlus.Net
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, headers, DiscordJson.SerializeObject(pld));
         }
 
+        internal async Task<IReadOnlyList<DiscordScheduledGuildEvent>> GetGuildScheduledEventsAsync(ulong guild_id, bool with_user_counts = false)
+        {
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.EVENTS}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
+
+            var query = new Dictionary<string, string>() { { "with_counts", with_user_counts.ToString() } };
+
+            var url = Utilities.GetApiUriFor(path, BuildQueryString(query));
+
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route, new Dictionary<string, string>(), string.Empty).ConfigureAwait(false);
+
+            var ret = JsonConvert.DeserializeObject<IEnumerable<DiscordScheduledGuildEvent>>(res.Response).ToList();
+
+            foreach (var xe in ret)
+            {
+                xe.Discord = this.Discord;
+
+                if (xe.Creator != null)
+                    xe.Creator.Discord = this.Discord;
+
+                if (xe.Metadata != null)
+                {
+                    var sl = new List<DiscordUser>();
+                    foreach (var xm in xe.Metadata._speakerIds)
+                    {
+                        if (this.Discord.TryGetCachedUserInternal(xm, out var usr))
+                        {
+                            sl.Add(usr);
+                        }
+                        else
+                        {
+                            usr = new DiscordUser() { Id = xm, Discord = this.Discord };
+                            this.Discord.UpdateUserCache(usr);
+                            sl.Add(usr);
+                        }
+                    }
+
+                    xe.Metadata.Speakers = sl.AsReadOnly();
+                }
+            }
+
+            return ret.AsReadOnly();
+        }
+
         internal async Task<DiscordChannel> GetChannelAsync(ulong channel_id)
         {
             var route = $"{Endpoints.CHANNELS}/:channel_id";
