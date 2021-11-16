@@ -66,6 +66,24 @@ namespace DSharpPlus
         }
 
         #region Scheduled Guild Events
+
+        /// <summary>
+        /// Creates a new scheduled guild event.
+        /// </summary>
+        /// <param name="guildId">The guild to create an event on.</param>
+        /// <param name="name">The name of the event, up to 100 characters.</param>
+        /// <param name="description">The description of the event, up to 1000 characters.</param>
+        /// <param name="channelId">The channel the event will take place in, if applicable.</param>
+        /// <param name="type">The type of event. If <see cref="ScheduledGuildEventType.External"/>, a end time must be specified.</param>
+        /// <param name="privacyLevel">The privacy level of the event. Currently only <see cref="GuildOnly"/></param>
+        /// <param name="start">When the event starts. Must be in the future and before the end date, if specified.</param>
+        /// <param name="end">When the event ends. Required for <see cref="ScheduledGuildEventType.External"/></param>
+        /// <param name="location">Where this location takes place.</param>
+        /// <returns>The created event.</returns>
+        public Task<DiscordScheduledGuildEvent> CreateScheduledGuildEventAsync(ulong guildId, string name, string description, ulong? channelId, ScheduledGuildEventType type, ScheduledGuildEventPrivacyLevel privacyLevel, DateTimeOffset start, DateTimeOffset? end, string location = null)
+            => this.ApiClient.CreateScheduledGuildEventAsync(guildId, name, description, channelId,  start, end, type, privacyLevel, new DiscordScheduledGuildEventMetadata(location));
+
+
         #endregion
 
         #region Guild
