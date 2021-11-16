@@ -588,8 +588,55 @@ namespace DSharpPlus.Entities
         /// <param name="reason"></param>
         /// <returns></returns>
         public Task DeleteEventAsync(DiscordScheduledGuildEvent guildEvent, string reason = null)
-            => this.Discord.ApiClient.DeleteScheduledGuildEventAsync(this.Id, guildEvent.Id, reason);
+            => this.Discord.ApiClient.DeleteScheduledGuildEventAsync(this.Id, guildEvent.Id);
 
+        /// <summary>
+        /// Gets the currently active or scheduled events in this guild.
+        /// </summary>
+        /// <returns>The active and scheduled events on the server, if any.</returns>
+        public Task<IReadOnlyList<DiscordScheduledGuildEvent>> GetEventsAsync()
+            => this.Discord.ApiClient.GetScheduledGuildEventsAsync(this.Id);
+
+        /// <summary>
+        /// Gets a list of users who are interested in this event.
+        /// </summary>
+        /// <param name="guildEvent">The event to query users from</param>
+        /// <param name="limit">How many users to fetch.</param>
+        /// <param name="after">Fetch users after this id. Mutually exclusive with before</param>
+        /// <param name="before">Fetch users before this id. Mutually exclusive with after</param>
+        public async Task<IReadOnlyList<DiscordUser>> GetEventUsersAsync(DiscordScheduledGuildEvent guildEvent, int limit = 100, ulong? after = null, ulong? before = null)
+        {
+            var remaining = limit;
+            ulong? last = null;
+            var isAfter = after != null;
+
+            var users = new List<DiscordUser>();
+
+            int lastCount;
+            do
+            {
+                var fetchSize = remaining > 100 ? 100 : remaining;
+                var fetch = await this.Discord.ApiClient.GetScheduledGuildEventUsersAsync(this.Id, guildEvent.Id, true, fetchSize, !isAfter ? last ?? before : null, isAfter ? last ?? after : null);
+
+                lastCount = fetch.Count;
+                remaining -= lastCount;
+
+                if (!isAfter)
+                {
+                    users.AddRange(fetch);
+                    last = fetch.LastOrDefault()?.Id;
+                }
+                else
+                {
+                    users.InsertRange(0, fetch);
+                    last = fetch.FirstOrDefault()?.Id;
+                }
+            }
+            while (remaining > 0 && lastCount > 0);
+
+
+            return users.AsReadOnly();
+        }
 
         /// <summary>
         /// Searches the current guild for members who's display name start with the specified name.
