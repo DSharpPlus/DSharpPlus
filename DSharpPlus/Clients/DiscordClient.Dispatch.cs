@@ -109,6 +109,26 @@ namespace DSharpPlus
 
                 #endregion
 
+                #region Scheduled Guild Events
+
+                    case "guild_scheduled_event_create":
+                        var cevt = dat.ToObject<DiscordScheduledGuildEvent>();
+                        await this.OnScheduledGuildEventCreateEventAsync(cevt).ConfigureAwait(false);
+                        break;
+                    case "guild_scheduled_event_delete":
+                        gid = (ulong)dat["guild_id"];
+                        var devt = dat.ToObject<DiscordScheduledGuildEvent>();
+                        await this.OnScheduledGuildEventDeleteEventAsync(gid, devt, dat).ConfigureAwait(false);
+                        break;
+                    case "guild_scheduled_event_update":
+                        break;
+                    case "guild_scheduled_event_user_add":
+                        break;
+                    case "guild_scheduled_event_user_remove":
+                        break;
+
+                #endregion
+
                 #region Guild
 
                 case "guild_create":
@@ -738,6 +758,67 @@ namespace DSharpPlus
                 LastPinTimestamp = lastPinTimestamp
             };
             await this._channelPinsUpdated.InvokeAsync(this, ea).ConfigureAwait(false);
+        }
+
+        #endregion
+
+        #region Scheduled Guild Events
+
+        private async Task OnScheduledGuildEventCreateEventAsync(DiscordScheduledGuildEvent evt)
+        {
+            evt.Discord = this;
+
+            if (evt.Creator != null)
+                evt.Creator.Discord = this;
+
+            if (evt.Metadata != null && evt.Metadata._speakerIds.Any())
+            {
+                foreach (var speakerId in evt.Metadata._speakerIds)
+                {
+                    var speaker = this.GetCachedOrEmptyUserInternal(speakerId);
+                    if (speaker != null)
+                        speaker.Discord = this;
+                }
+            }
+
+            evt.Guild._scheduledEvents.AddOrUpdate(evt.Id, evt, (old, newEvt) => newEvt);
+
+            await this._scheduledGuildEventCreated.InvokeAsync(this, new ScheduledGuildEventCreateEventArgs { Event = evt }).ConfigureAwait(false);
+        }
+
+        private async Task OnScheduledGuildEventDeleteEventAsync(ulong guildId, DiscordScheduledGuildEvent evt, JObject evtRaw)
+        {
+            var guild = this.InternalGetCachedGuild(guildId);
+
+            if (guild == null) // ??? //
+                return;
+
+            guild._scheduledEvents.TryRemove(evt.Id, out var _);
+
+            evt.Discord = this;
+
+            if (evtRaw["creator"]?["id"] != null)
+                evt.Creator = this.GetCachedOrEmptyUserInternal(evtRaw["creator"]["id"].ToObject<ulong>());
+
+            if (evt.Creator != null)
+                evt.Creator.Discord = this;
+
+            if (evt.Metadata != null)
+                foreach (var r in evt.Metadata?._speakerIds)
+                {
+                    var sl = new List<DiscordUser>();
+
+                    foreach (var s in evt.Metadata._speakerIds)
+                    {
+                        var speaker = this.GetCachedOrEmptyUserInternal(s);
+                        if (speaker != null)
+                            sl.Add(speaker);
+                    }
+
+                    evt.Metadata.Speakers = sl.ToArray();
+                }
+
+            await this._scheduledGuildEventDeleted.InvokeAsync(this, new ScheduledGuildEventDeleteEventArgs { Event = evt }).ConfigureAwait(false);
         }
 
         #endregion
