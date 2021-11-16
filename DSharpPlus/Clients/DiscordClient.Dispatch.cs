@@ -120,7 +120,8 @@ namespace DSharpPlus
                         await this.OnScheduledGuildEventDeleteEventAsync(devt).ConfigureAwait(false);
                         break;
                     case "guild_scheduled_event_update":
-
+                        var uevt = dat.ToObject<DiscordScheduledGuildEvent>();
+                        await this.OnScheduledGuildEventUpdateEventAsync(uevt).ConfigureAwait(false);
                         break;
                     case "guild_scheduled_event_user_add":
                         break;
@@ -769,7 +770,10 @@ namespace DSharpPlus
             evt.Discord = this;
 
             if (evt.Creator != null)
+            {
                 evt.Creator.Discord = this;
+                this.UpdateUserCache(evt.Creator);
+            }
 
             if (evt.Metadata != null && evt.Metadata._speakerIds.Any())
             {
@@ -798,7 +802,10 @@ namespace DSharpPlus
             evt.Discord = this;
 
             if (evt.Creator != null)
+            {
                 evt.Creator.Discord = this;
+                this.UpdateUserCache(evt.Creator);
+            }
 
             if (evt.Metadata != null)
                 foreach (var r in evt.Metadata?._speakerIds)
@@ -817,6 +824,40 @@ namespace DSharpPlus
                 }
 
             await this._scheduledGuildEventDeleted.InvokeAsync(this, new ScheduledGuildEventDeleteEventArgs { Event = evt }).ConfigureAwait(false);
+        }
+
+        private async Task OnScheduledGuildEventUpdateEventAsync(DiscordScheduledGuildEvent evt)
+        {
+            evt.Discord = this;
+
+            if (evt.Creator != null)
+            {
+                evt.Creator.Discord = this;
+                this.UpdateUserCache(evt.Creator);
+            }
+
+           if (evt.Metadata != null) {
+                if (evt.Metadata._speakerIds.Any())
+                {
+                    foreach (var speakerId in evt.Metadata._speakerIds)
+                    {
+                        var speaker = this.GetCachedOrEmptyUserInternal(speakerId);
+                        if (speaker != null)
+                            speaker.Discord = this;
+                    }
+                }
+            }
+
+            var guild = this.InternalGetCachedGuild(evt.GuildId);
+            guild._scheduledEvents.TryGetValue(evt.GuildId, out var oldEvt);
+
+            evt.Guild._scheduledEvents.AddOrUpdate(evt.Id, evt, (old, newEvt) => newEvt);
+
+
+           if (evt.Status is ScheduledGuildEventStatus.Completed)
+               await this._scheduledGuildEventCompleted.InvokeAsync(this, new ScheduledGuildEventCompletedEventArgs() { Event = evt }).ConfigureAwait(false);
+           else
+               await this._scheduledGuildEventUpdated.InvokeAsync(this, new ScheduledGuildEventUpdateEventArgs() {EventBefore = oldEvt, EventAfter = evt}).ConfigureAwait(false);
         }
 
         #endregion
