@@ -1021,7 +1021,38 @@ namespace DSharpPlus.Net
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, headers, DiscordJson.SerializeObject(pld));
         }
 
-        internal async Task<IReadOnlyList<DiscordScheduledGuildEvent>> GetGuildScheduledEventsAsync(ulong guild_id, bool with_user_counts = false)
+        internal async Task<DiscordScheduledGuildEvent> CreateScheduledGuildEventAsync(ulong guild_id, string name, string description, ulong? channel_id, DateTimeOffset start_time, DateTimeOffset? end_time, ScheduledGuildEventType type, ScheduledGuildEventPrivacyLevel privacy_level, DiscordScheduledGuildEventMetadata metadata)
+        {
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.EVENTS}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { guild_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+
+            var pld = new RestScheduledGuildEventCreatePayload
+            {
+                Name = name,
+                Description = description,
+                ChannelId = channel_id,
+                StartTime = start_time,
+                EndTime = end_time,
+                Type = type,
+                PrivacyLevel = privacy_level,
+                Metadata = metadata
+            };
+
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, Utilities.GetBaseHeaders(), DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
+
+            var ret = JsonConvert.DeserializeObject<DiscordScheduledGuildEvent>(res.Response);
+
+            ret.Discord = this.Discord;
+
+            if (ret.Creator != null)
+                ret.Creator.Discord = this.Discord;
+
+            return ret;
+        }
+
+        internal async Task<IReadOnlyList<DiscordScheduledGuildEvent>> GetGuildScheduledGuildEventsAsync(ulong guild_id, bool with_user_counts = false)
         {
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.EVENTS}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
@@ -1064,6 +1095,8 @@ namespace DSharpPlus.Net
 
             return ret.AsReadOnly();
         }
+
+
 
         internal async Task<DiscordChannel> GetChannelAsync(ulong channel_id)
         {
