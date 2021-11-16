@@ -27,7 +27,7 @@ namespace DSharpPlus.EventArgs
     /// <summary>
     /// Fired when someone unsubcribes from an event.
     /// </summary>
-    public class ScheduledEventUserRemoveEventArgs : ScheduledEventUserAddEventArgs
+    public class ScheduledGuildEventUserRemoveEventArgs : ScheduledGuildEventUserAddEventArgs
     {
         /// <summary>
         /// The guild the event is scheduled for.
@@ -43,6 +43,6 @@ namespace DSharpPlus.EventArgs
         /// The user that unsubscribed from the event.
         /// </summary>
         public DiscordUser User { get; internal set; }
-        internal ScheduledEventUserRemoveEventArgs() : base() {}
+        internal ScheduledGuildEventUserRemoveEventArgs() : base() {}
     }
 }

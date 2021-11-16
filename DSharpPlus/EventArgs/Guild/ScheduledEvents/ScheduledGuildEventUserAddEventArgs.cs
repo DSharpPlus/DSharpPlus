@@ -27,7 +27,7 @@ namespace DSharpPlus.EventArgs
     /// <summary>
     /// Fired when someone subscribes to the scheduled event.
     /// </summary>
-    public class ScheduledEventUserAddEventArgs : DiscordEventArgs
+    public class ScheduledGuildEventUserAddEventArgs : DiscordEventArgs
     {
         /// <summary>
         /// The guild the event is scheduled for.
@@ -44,6 +44,6 @@ namespace DSharpPlus.EventArgs
         /// </summary>
         public DiscordUser User { get; internal set; }
 
-        internal ScheduledEventUserAddEventArgs() : base() { }
+        internal ScheduledGuildEventUserAddEventArgs() : base() { }
     }
 }
