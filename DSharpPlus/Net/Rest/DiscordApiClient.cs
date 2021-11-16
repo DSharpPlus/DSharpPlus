@@ -1065,10 +1065,15 @@ namespace DSharpPlus.Net
             return ret.AsReadOnly();
         }
 
-        internal async Task<DiscordScheduledGuildEvent> CreateScheduledGuildEventAsync(ulong guild_id, string name, string description, ulong? channel_id, DateTimeOffset start_time, DateTimeOffset? end_time, ScheduledGuildEventType type, ScheduledGuildEventPrivacyLevel privacy_level, DiscordScheduledGuildEventMetadata metadata)
+        internal async Task<DiscordScheduledGuildEvent> CreateScheduledGuildEventAsync(ulong guild_id, string name, string description, ulong? channel_id, DateTimeOffset start_time, DateTimeOffset? end_time, ScheduledGuildEventType type, ScheduledGuildEventPrivacyLevel privacy_level, DiscordScheduledGuildEventMetadata metadata, string reason = null)
         {
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.EVENTS}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { guild_id }, out var path);
+
+            var headers = Utilities.GetBaseHeaders();
+
+            if (!string.IsNullOrWhiteSpace(reason))
+                headers.Add(REASON_HEADER_NAME, reason);
 
             var url = Utilities.GetApiUriFor(path);
 
@@ -1084,7 +1089,7 @@ namespace DSharpPlus.Net
                 Metadata = metadata
             };
 
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, Utilities.GetBaseHeaders(), DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, headers, DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
 
             var ret = JsonConvert.DeserializeObject<DiscordScheduledGuildEvent>(res.Response);
 
@@ -1096,13 +1101,18 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task DeleteScheduledGuildEventAsync(ulong guild_id, ulong guild_scheduled_event_id)
+        internal async Task DeleteScheduledGuildEventAsync(ulong guild_id, ulong guild_scheduled_event_id, string reason = null)
         {
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.EVENTS}/:guild_scheduled_event_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { guild_id, guild_scheduled_event_id }, out var path);
 
+            var headers = Utilities.GetBaseHeaders();
+
+            if (!string.IsNullOrWhiteSpace(reason))
+                headers.Add(REASON_HEADER_NAME, reason);
+
             var url = Utilities.GetApiUriFor(path);
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route, Utilities.GetBaseHeaders(), null).ConfigureAwait(false);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route, headers, null).ConfigureAwait(false);
         }
 
         internal async Task<IReadOnlyList<DiscordUser>> GetScheduledGuildEventUsersAsync(ulong guild_id, ulong guild_scheduled_event_id, bool with_members = false, int limit = 1, ulong? before = null, ulong? after = null)
@@ -1174,10 +1184,15 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordScheduledGuildEvent> ModifyScheduledGuildEventAsync(ulong guild_id, ulong guild_scheduled_event_id, Optional<string> name, Optional<string> description, Optional<ulong> channel_id, Optional<DateTimeOffset> start_time, Optional<DateTimeOffset> end_time, Optional<ScheduledGuildEventType> type, Optional<ScheduledGuildEventPrivacyLevel> privacy_level, Optional<DiscordScheduledGuildEventMetadata> metadata, Optional<ScheduledGuildEventStatus> status)
+        internal async Task<DiscordScheduledGuildEvent> ModifyScheduledGuildEventAsync(ulong guild_id, ulong guild_scheduled_event_id, Optional<string> name, Optional<string> description, Optional<ulong> channel_id, Optional<DateTimeOffset> start_time, Optional<DateTimeOffset> end_time, Optional<ScheduledGuildEventType> type, Optional<ScheduledGuildEventPrivacyLevel> privacy_level, Optional<DiscordScheduledGuildEventMetadata> metadata, Optional<ScheduledGuildEventStatus> status, string reason = null)
         {
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.EVENTS}/:guild_scheduled_event_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id, guild_scheduled_event_id }, out var path);
+
+            var headers = Utilities.GetBaseHeaders();
+
+            if (!string.IsNullOrWhiteSpace(reason))
+                headers.Add(REASON_HEADER_NAME, reason);
 
             var url = Utilities.GetApiUriFor(path);
             var pld = new RestScheduledGuildEventModifyPayload
@@ -1193,7 +1208,7 @@ namespace DSharpPlus.Net
                 Status = status
             };
 
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, Utilities.GetBaseHeaders(), DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, headers, DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
 
             var ret = JsonConvert.DeserializeObject<DiscordScheduledGuildEvent>(res.Response);
 
