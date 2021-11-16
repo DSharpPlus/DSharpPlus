@@ -28,11 +28,6 @@ namespace DSharpPlus.Entities
     public enum ScheduledGuildEventType
     {
         /// <summary>
-        /// There is no associated location for the event.
-        /// </summary>
-        None = 0,
-
-        /// <summary>
         /// The event will be hosted in a stage channel.
         /// </summary>
         StageInstance = 1,
