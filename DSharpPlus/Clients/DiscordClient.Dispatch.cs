@@ -787,6 +787,8 @@ namespace DSharpPlus
                 guild._members = new ConcurrentDictionary<ulong, DiscordMember>();
             if (guild._stageInstances == null)
                 guild._stageInstances = new ConcurrentDictionary<ulong, DiscordStageInstance>();
+            if (guild._scheduledEvents == null)
+                guild._scheduledEvents = new ConcurrentDictionary<ulong, DiscordScheduledGuildEvent>();
 
             this.UpdateCachedGuild(eventGuild, rawMembers);
 
@@ -802,6 +804,34 @@ namespace DSharpPlus
             guild.IsNSFW = eventGuild.IsNSFW;
 
             foreach (var kvp in eventGuild._voiceStates) guild._voiceStates[kvp.Key] = kvp.Value;
+
+            foreach (var xe in guild._scheduledEvents.Values)
+            {
+                xe.Discord = this;
+
+                if (xe.Metadata != null)
+                {
+                    var sl = new List<DiscordUser>();
+                    foreach (var xm in xe.Metadata._speakerIds)
+                    {
+                        if (this.TryGetCachedUserInternal(xm, out var usr))
+                        {
+                            sl.Add(usr);
+                        }
+                        else
+                        {
+                            usr = new DiscordUser() { Id = xm, Discord = this };
+                            this.UpdateUserCache(usr);
+                            sl.Add(usr);
+                        }
+                    }
+
+                    xe.Metadata.Speakers = sl.AsReadOnly();
+                }
+
+                if (xe.Creator != null)
+                    xe.Creator.Discord = this;
+            }
 
             foreach (var xc in guild._channels.Values)
             {
