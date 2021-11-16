@@ -240,6 +240,17 @@ namespace DSharpPlus.Entities
         public ulong? ApplicationId { get; internal set; }
 
         /// <summary>
+        /// Sceduled events for this guild.
+        /// </summary>
+        public IReadOnlyDictionary<ulong, DiscordScheduledGuildEvent> ScheduledEvents
+            => new ReadOnlyConcurrentDictionary<ulong, DiscordScheduledGuildEvent>(this._scheduledEvents);
+
+        [JsonProperty("guild_scheduled_events")]
+        [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
+        internal ConcurrentDictionary<ulong, DiscordScheduledGuildEvent> _scheduledEvents = new();
+
+
+        /// <summary>
         /// Gets a collection of this guild's roles.
         /// </summary>
         [JsonIgnore]
