@@ -90,6 +90,25 @@ namespace DSharpPlus
         /// <param name="eventId">The id of the event to delete.</param>
         public Task DeleteScheduledGuildEventAsync(ulong guildId, ulong eventId)
             => this.ApiClient.DeleteScheduledGuildEventAsync(guildId, eventId);
+
+        /// <summary>
+        /// Gets a specific scheduled guild event.
+        /// </summary>
+        /// <param name="guildId">The id of the guild the event resides on.</param>
+        /// <param name="eventId">The id of the event to get</param>
+        /// <returns>The requested event.</returns>
+        public Task<DiscordScheduledGuildEvent> GetScheduledGuildEventAsync(ulong guildId, ulong eventId)
+            => this.ApiClient.GetScheduledGuildEventAsync(guildId, eventId);
+
+        /// <summary>
+        /// Gets all available scheduled guild events.
+        /// </summary>
+        /// <param name="guildId">The id of the guild to query.</param>
+        /// <returns>All active and scheduled events.</returns>
+        public Task<IReadOnlyList<DiscordScheduledGuildEvent>> GetScheduledGuildEventsAsync(ulong guildId)
+            => this.ApiClient.GetScheduledGuildEventsAsync(guildId);
+
+
         #endregion
 
         #region Guild
