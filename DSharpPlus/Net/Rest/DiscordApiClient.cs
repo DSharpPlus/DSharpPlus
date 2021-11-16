@@ -1105,12 +1105,21 @@ namespace DSharpPlus.Net
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route, Utilities.GetBaseHeaders(), null).ConfigureAwait(false);
         }
 
-        internal async Task<IReadOnlyList<DiscordUser>> GetScheduledGuildEventUsersAsync(ulong guild_id, ulong guild_scheduled_event_id, bool with_members = false, bool with_counts = false)
+        internal async Task<IReadOnlyList<DiscordUser>> GetScheduledGuildEventUsersAsync(ulong guild_id, ulong guild_scheduled_event_id, bool with_members = false, int limit = 1, ulong? before = null, ulong? after = null)
         {
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.EVENTS}/:guild_scheduled_event_id{Endpoints.USERS}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id, guild_scheduled_event_id }, out var path);
 
-            var query = new Dictionary<string, string>() { { "with_members", with_members.ToString() }, { "with_counts", with_counts.ToString() } };
+            var query = new Dictionary<string, string>() { { "with_members", with_members.ToString() } };
+
+            if (limit > 0)
+                query.Add("limit", limit.ToString(CultureInfo.InvariantCulture));
+
+            if (before != null)
+                query.Add("before", before.Value.ToString(CultureInfo.InvariantCulture));
+
+            if (after != null)
+                query.Add("after", after.Value.ToString(CultureInfo.InvariantCulture));
 
             var url = Utilities.GetApiUriFor(path, BuildQueryString(query));
 
