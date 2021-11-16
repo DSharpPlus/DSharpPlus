@@ -43,5 +43,11 @@ namespace DSharpPlus.Entities
         public string Location { get; internal set; }
 
         internal DiscordScheduledGuildEventMetadata() { }
+
+        public DiscordScheduledGuildEventMetadata(ulong[] speakerIds, string location)
+        {
+            this._speakerIds = speakerIds;
+            this.Location = location;
+        }
     }
 }
