@@ -153,7 +153,7 @@ namespace DSharpPlus.Net.Abstractions
         public bool? Deaf { get; set; }
     }
 
-    internal sealed class RestScheduledEventCreatePayload
+    internal sealed class RestScheduledGuildEventCreatePayload
     {
         [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
         public string Name { get; set; }
