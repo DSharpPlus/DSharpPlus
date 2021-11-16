@@ -124,10 +124,17 @@ namespace DSharpPlus
                         await this.OnScheduledGuildEventUpdateEventAsync(uevt).ConfigureAwait(false);
                         break;
                     case "guild_scheduled_event_user_add":
+                        gid = (ulong)dat["guild_id"];
+                        var uid = (ulong)dat["user_id"];
+                        var eid = (ulong)dat["event_id"];
+                        await this.OnScheduledGuildEventUserAddEventAsync(gid, eid, uid).ConfigureAwait(false);
                         break;
                     case "guild_scheduled_event_user_remove":
+                        gid = (ulong)dat["guild_id"];
+                        uid = (ulong)dat["user_id"];
+                        eid = (ulong)dat["event_id"];
+                        await this.OnScheduledGuildEventUserRemoveEventAsync(gid, eid, uid).ConfigureAwait(false);
                         break;
-
                 #endregion
 
                 #region Guild
@@ -853,11 +860,50 @@ namespace DSharpPlus
 
             evt.Guild._scheduledEvents.AddOrUpdate(evt.Id, evt, (old, newEvt) => newEvt);
 
-
            if (evt.Status is ScheduledGuildEventStatus.Completed)
                await this._scheduledGuildEventCompleted.InvokeAsync(this, new ScheduledGuildEventCompletedEventArgs() { Event = evt }).ConfigureAwait(false);
            else
                await this._scheduledGuildEventUpdated.InvokeAsync(this, new ScheduledGuildEventUpdateEventArgs() {EventBefore = oldEvt, EventAfter = evt}).ConfigureAwait(false);
+        }
+
+        private async Task OnScheduledGuildEventUserAddEventAsync(ulong guildId, ulong eventId, ulong userId)
+        {
+            var guild = this.InternalGetCachedGuild(guildId);
+            var evt = guild._scheduledEvents.GetOrAdd(eventId, new DiscordScheduledGuildEvent()
+            {
+                Id = eventId,
+                GuildId = guildId,
+                Discord = this,
+                UserCount = 0
+            });
+
+            evt.UserCount++;
+
+            var user =
+                guild.Members.TryGetValue(userId, out var mbr) ? mbr :
+                this.GetCachedOrEmptyUserInternal(userId) ?? new DiscordUser() {Id = userId , Discord = this};
+
+            await this._scheduledGuildEventUserAdded.InvokeAsync(this, new ScheduledGuildEventUserAddEventArgs() {Event = evt, User = user}).ConfigureAwait(false);
+        }
+
+        private async Task OnScheduledGuildEventUserRemoveEventAsync(ulong guildId, ulong eventId, ulong userId)
+        {
+            var guild = this.InternalGetCachedGuild(guildId);
+            var evt = guild._scheduledEvents.GetOrAdd(eventId, new DiscordScheduledGuildEvent()
+            {
+                Id = eventId,
+                GuildId = guildId,
+                Discord = this,
+                UserCount = 0
+            });
+
+            evt.UserCount = evt.UserCount is 0 ? 0 : evt.UserCount - 1;
+
+            var user =
+                guild.Members.TryGetValue(userId, out var mbr) ? mbr :
+                this.GetCachedOrEmptyUserInternal(userId) ?? new DiscordUser() {Id = userId , Discord = this};
+
+            await this._scheduledGuildEventUserRemoved.InvokeAsync(this, new ScheduledGuildEventUserRemoveEventArgs() {Event = evt, User = user}).ConfigureAwait(false);
         }
 
         #endregion
