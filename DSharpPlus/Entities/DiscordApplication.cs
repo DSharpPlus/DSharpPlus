@@ -51,6 +51,11 @@ namespace DSharpPlus.Entities
         public string IconHash { get; internal set; }
 
         /// <summary>
+        /// The application's tags, for discoverability.
+        /// </summary>
+        public IReadOnlyList<string> Tags { get; set; }
+
+        /// <summary>
         /// Gets the application's terms of service URL.
         /// </summary>
         public string TermsOfServiceUrl { get; internal set; }
@@ -102,6 +107,7 @@ namespace DSharpPlus.Entities
         public DiscordTeam Team { get; internal set; }
 
         private IReadOnlyList<DiscordApplicationAsset> Assets { get; set; }
+
 
         internal DiscordApplication() { }
 
