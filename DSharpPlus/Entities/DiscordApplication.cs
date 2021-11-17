@@ -53,7 +53,17 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// The application's tags, for discoverability.
         /// </summary>
-        public IReadOnlyList<string> Tags { get; set; }
+        public IReadOnlyList<string> Tags { get; internal set; }
+
+        /// <summary>
+        /// A custom url for the Add To Server button.
+        /// </summary>
+        public string CustomInstallUrl { get; internal set; }
+
+        /// <summary>
+        /// Install parameters for adding the application to a guild, including its scopes and permissions.
+        /// </summary>
+        public ApplicationInstallParams InstallParams { get; internal set; }
 
         /// <summary>
         /// Gets the application's terms of service URL.

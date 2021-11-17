@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System.Collections.Generic;
+using DSharpPlus.Entities;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Abstractions
@@ -42,6 +43,12 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("summary", NullValueHandling = NullValueHandling.Include)]
         public string Summary { get; set; }
+
+        [JsonProperty("custom_install_url")]
+        public string CustomInstallUrl { get; set; }
+
+        [JsonProperty("install_params", NullValueHandling = NullValueHandling.Include)]
+        public ApplicationInstallParams InstallParams { get; set; }
 
         [JsonProperty("bot_public", NullValueHandling = NullValueHandling.Include)]
         public bool IsPublicBot { get; set; }
