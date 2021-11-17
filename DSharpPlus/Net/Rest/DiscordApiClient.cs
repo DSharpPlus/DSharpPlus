@@ -1112,19 +1112,17 @@ namespace DSharpPlus.Net
 
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route, new Dictionary<string, string>(), string.Empty).ConfigureAwait(false);
 
-            var job = JObject.Parse(res.Response)["users"].AsJEnumerable();
+            var jto = JToken.Parse(res.Response);
 
-            var ret = new List<DiscordUser>(); // Should probably document that this can be a mix of DiscordUser and DiscordMember
-
-            foreach (var j in job)
-            {
-                if (j["guild_member"] is JObject jm)
-                    ret.Add(new DiscordMember(jm.ToObject<TransportMember>()) { Discord = this.Discord });
-                else
-                    ret.Add(j.ToObject<DiscordUser>());
-            }
-
-            return ret.AsReadOnly();
+            return (jto as JArray ?? jto["users"] as JArray)
+                .Select(j => (DiscordUser)
+                        j
+                        .SelectToken("member")?
+                        .ToObject<DiscordMember>() ??
+                        j
+                        .SelectToken("user")
+                        .ToObject<DiscordUser>())
+                .ToArray();
         }
 
         internal async Task<DiscordScheduledGuildEvent> GetScheduledGuildEventAsync(ulong guild_id, ulong guild_scheduled_event_id)
