@@ -1,7 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
@@ -493,11 +495,13 @@ namespace DSharpPlus.SlashCommands
                 return ApplicationCommandOptionType.Role;
             if (type == typeof(DiscordEmoji))
                 return ApplicationCommandOptionType.String;
+            if (type == typeof(TimeSpan?))
+                return ApplicationCommandOptionType.String;
             if (type == typeof(SnowflakeObject))
                 return ApplicationCommandOptionType.Mentionable;
             if (type.IsEnum || Nullable.GetUnderlyingType(type)?.IsEnum == true)
                 return ApplicationCommandOptionType.String;
-            throw new ArgumentException("Cannot convert type! Argument types must be string, long, bool, double, DiscordChannel, DiscordUser, DiscordRole, DiscordEmoji, SnowflakeObject or an Enum.");
+            throw new ArgumentException("Cannot convert type! Argument types must be string, long, bool, double, TimeSpan?, DiscordChannel, DiscordUser, DiscordRole, DiscordEmoji, SnowflakeObject or an Enum.");
         }
 
         //Gets choices from choice attributes
@@ -838,6 +842,70 @@ namespace DSharpPlus.SlashCommands
                         args.Add((bool?)option.Value);
                     else if (parameter.ParameterType == typeof(double) || parameter.ParameterType == typeof(double?))
                         args.Add((double?)option.Value);
+                    else if (parameter.ParameterType == typeof(TimeSpan?))
+                    {
+                        var timeSpanRegex = new Regex(@"^(?<days>\d+d\s*)?(?<hours>\d{1,2}h\s*)?(?<minutes>\d{1,2}m\s*)?(?<seconds>\d{1,2}s\s*)?$", RegexOptions.ECMAScript);
+                        var value = option.Value.ToString();
+                        if (value == "0")
+                        {
+                            args.Add(TimeSpan.Zero);
+                            continue;
+                        }
+                        if (int.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out _))
+                        {
+                            args.Add(null);
+                            continue;
+                        }
+                        value = value.ToLowerInvariant();
+
+                        if (TimeSpan.TryParse(value, CultureInfo.InvariantCulture, out var result))
+                        {
+                            args.Add(result);
+                            continue;
+                        }
+                        var gps = new string[] { "days", "hours", "minutes", "seconds" };
+                        var mtc = timeSpanRegex.Match(value);
+                        if (!mtc.Success)
+                        {
+                            args.Add(null);
+                            continue;
+                        }
+
+                        var d = 0;
+                        var h = 0;
+                        var m = 0;
+                        var s = 0;
+                        foreach (var gp in gps)
+                        {
+                            var gpc = mtc.Groups[gp].Value;
+                            if (string.IsNullOrWhiteSpace(gpc))
+                                continue;
+                            gpc = gpc.Trim();
+
+                            var gpt = gpc[gpc.Length - 1];
+                            int.TryParse(gpc.Substring(0, gpc.Length - 1), NumberStyles.Integer, CultureInfo.InvariantCulture, out var val);
+                            switch (gpt)
+                            {
+                                case 'd':
+                                    d = val;
+                                    break;
+
+                                case 'h':
+                                    h = val;
+                                    break;
+
+                                case 'm':
+                                    m = val;
+                                    break;
+
+                                case 's':
+                                    s = val;
+                                    break;
+                            }
+                        }
+                        result = new TimeSpan(d, h, m, s);
+                        args.Add(result);
+                    }
                     else if (parameter.ParameterType == typeof(DiscordUser))
                     {
                         //Checks through resolved
