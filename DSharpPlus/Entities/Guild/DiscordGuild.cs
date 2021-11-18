@@ -519,7 +519,17 @@ namespace DSharpPlus.Entities
                 throw new ArgumentOutOfRangeException("The end time for an event must be after the start time.");
 
             DiscordScheduledGuildEventMetadata metadata = null;
-
+            switch (type)
+            {
+                case ScheduledGuildEventType.Stage or ScheduledGuildEventType.Voice when channelId == null:
+                    throw new ArgumentException($"{nameof(channelId)} must not be null when type is {type}", nameof(channelId));
+                case ScheduledGuildEventType.External when channelId != null:
+                    throw new ArgumentException($"{nameof(channelId)} must be null when using external event type", nameof(channelId));
+                case ScheduledGuildEventType.External when location == null:
+                    throw new ArgumentException($"{nameof(location)} must not be null when using external event type", nameof(location));
+                case ScheduledGuildEventType.External when end == null:
+                    throw new ArgumentException($"{nameof(endTime)} must not be null when using external event type", nameof(endTime));
+            }
             if (!string.IsNullOrEmpty(location))
                 metadata = new DiscordScheduledGuildEventMetadata()
                 {
