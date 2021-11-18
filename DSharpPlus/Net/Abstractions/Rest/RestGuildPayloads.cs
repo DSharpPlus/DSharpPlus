@@ -189,7 +189,7 @@ namespace DSharpPlus.Net.Abstractions
         public Optional<string> Description { get; set; }
 
         [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<ulong> ChannelId { get; set; }
+        public Optional<ulong?> ChannelId { get; set; }
 
         [JsonProperty("privacy_level", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<ScheduledGuildEventPrivacyLevel> PrivacyLevel { get; set; }

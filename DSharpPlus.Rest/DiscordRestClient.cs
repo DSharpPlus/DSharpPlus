@@ -137,7 +137,7 @@ namespace DSharpPlus
             return this.ApiClient.ModifyScheduledGuildEventAsync(
                 guildId, eventId,
                 model.Name, model.Description,
-                model.Channel.IfPresent(c => c.Id),
+                model.Channel.IfPresent(c => c?.Id),
                 model.StartTime, model.EndTime,
                 model.Type, model.PrivacyLevel,
                 model.Metadata, model.Status);
