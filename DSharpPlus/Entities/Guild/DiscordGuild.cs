@@ -521,14 +521,14 @@ namespace DSharpPlus.Entities
             DiscordScheduledGuildEventMetadata metadata = null;
             switch (type)
             {
-                case ScheduledGuildEventType.Stage or ScheduledGuildEventType.Voice when channelId == null:
+                case ScheduledGuildEventType.StageInstance or ScheduledGuildEventType.VoiceChannel when channelId == null:
                     throw new ArgumentException($"{nameof(channelId)} must not be null when type is {type}", nameof(channelId));
                 case ScheduledGuildEventType.External when channelId != null:
                     throw new ArgumentException($"{nameof(channelId)} must be null when using external event type", nameof(channelId));
                 case ScheduledGuildEventType.External when location == null:
                     throw new ArgumentException($"{nameof(location)} must not be null when using external event type", nameof(location));
                 case ScheduledGuildEventType.External when end == null:
-                    throw new ArgumentException($"{nameof(endTime)} must not be null when using external event type", nameof(endTime));
+                    throw new ArgumentException($"{nameof(end)} must not be null when using external event type", nameof(end));
             }
             if (!string.IsNullOrEmpty(location))
                 metadata = new DiscordScheduledGuildEventMetadata()
