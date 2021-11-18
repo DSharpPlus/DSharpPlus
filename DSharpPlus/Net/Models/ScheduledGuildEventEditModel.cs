@@ -39,9 +39,9 @@ namespace DSharpPlus.Net.Models
         public Optional<string> Description { get; set; }
 
         /// <summary>
-        /// The new channel ID of the event.
+        /// The new channel ID of the event. This must be set to null for external events.
         /// </summary>
-        public Optional<DiscordChannel> Channel { get; set; }
+        public Optional<DiscordChannel?> Channel { get; set; }
 
         /// <summary>
         /// The new privacy of the event.

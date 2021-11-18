@@ -125,6 +125,15 @@ namespace DSharpPlus
                 if (!model.Channel.HasValue)
                     throw new ArgumentException("Channel must be supplied if the event is a stage instance or voice channel event.");
 
+            if (model.Type.HasValue && model.Type.Value is ScheduledGuildEventType.External)
+            {
+                if (!model.EndTime.HasValue)
+                    throw new ArgumentException("End must be supplied if the event is an external event.");
+
+                if (model.Channel.HasValue && model.Channel.Value != null)
+                    throw new ArgumentException("Channel must not be supplied if the event is an external event.");
+            }
+
             return this.ApiClient.ModifyScheduledGuildEventAsync(
                 guildId, eventId,
                 model.Name, model.Description,
