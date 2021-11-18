@@ -130,9 +130,16 @@ namespace DSharpPlus
                 if (!model.EndTime.HasValue)
                     throw new ArgumentException("End must be supplied if the event is an external event.");
 
+                if (!model.Metadata.HasValue || string.IsNullOrEmpty(model.Metadata.Value.Location))
+                    throw new ArgumentException("Location must be supplied if the event is an external event.");
+
                 if (model.Channel.HasValue && model.Channel.Value != null)
                     throw new ArgumentException("Channel must not be supplied if the event is an external event.");
             }
+
+            // We only have an ID to work off of, so we have no validation as to the current state of the event.
+            if (model.Status.HasValue && model.Status.Value is ScheduledGuildEventStatus.Scheduled)
+                throw new ArgumentException("Status cannot be set to scheduled.");
 
             return this.ApiClient.ModifyScheduledGuildEventAsync(
                 guildId, eventId,

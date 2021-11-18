@@ -578,10 +578,19 @@ namespace DSharpPlus.Entities
             var model = new ScheduledGuildEventEditModel();
             mdl(model);
 
-            if (model.Type.HasValue && model.Type.Value is (ScheduledGuildEventType.StageInstance or ScheduledGuildEventType.VoiceChannel))
+            if (model.Type.HasValue && model.Type.Value is not ScheduledGuildEventType.External)
             {
                 if (!model.Channel.HasValue)
                     throw new ArgumentException("Channel must be supplied if the event is a stage instance or voice channel event.");
+
+                if (model.Type.Value is ScheduledGuildEventType.StageInstance && model.Channel.Value.Type is not ChannelType.Stage)
+                    throw new ArgumentException("Channel must be a stage channel if the event is a stage instance event.");
+
+                if (model.Type.Value is ScheduledGuildEventType.VoiceChannel && model.Channel.Value.Type is not ChannelType.Voice)
+                    throw new ArgumentException("Channel must be a voice channel if the event is a voice channel event.");
+
+                if (model.EndTime.HasValue && model.EndTime.Value < guildEvent.StartTime)
+                    throw new ArgumentException("End time must be after the start time.");
             }
 
             if (model.Type.HasValue && model.Type.Value is ScheduledGuildEventType.External)
@@ -589,8 +598,32 @@ namespace DSharpPlus.Entities
                 if (!model.EndTime.HasValue)
                     throw new ArgumentException("End must be supplied if the event is an external event.");
 
+                if (!model.Metadata.HasValue || string.IsNullOrEmpty(model.Metadata.Value.Location))
+                    throw new ArgumentException("Location must be supplied if the event is an external event.");
+
                 if (model.Channel.HasValue && model.Channel.Value != null)
                     throw new ArgumentException("Channel must not be supplied if the event is an external event.");
+            }
+
+            if (guildEvent.Status is ScheduledGuildEventStatus.Completed)
+                throw new ArgumentException("The event must not be completed for it to be modified.");
+
+            if (guildEvent.Status is ScheduledGuildEventStatus.Cancelled)
+                throw new ArgumentException("The event must not be cancelled for it to be modified.");
+
+            if (model.Status.HasValue)
+            {
+                switch (model.Status.Value)
+                {
+                    case ScheduledGuildEventStatus.Scheduled:
+                        throw new ArgumentException("Status must not be set to scheduled.");
+                    case ScheduledGuildEventStatus.Active when guildEvent.Status is not ScheduledGuildEventStatus.Scheduled:
+                        throw new ArgumentException("Event status must be scheduled to progress to active.");
+                    case ScheduledGuildEventStatus.Completed when guildEvent.Status is not ScheduledGuildEventStatus.Active:
+                        throw new ArgumentException("Event status must be active to progress to completed.");
+                    case ScheduledGuildEventStatus.Cancelled when guildEvent.Status is not ScheduledGuildEventStatus.Scheduled:
+                        throw new ArgumentException("Event status must be scheduled to progress to cancelled.");
+                }
             }
 
             return this.Discord.ApiClient.ModifyScheduledGuildEventAsync(
