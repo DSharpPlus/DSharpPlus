@@ -38,7 +38,7 @@ namespace DSharpPlus.Entities
         public IEnumerable<DiscordEmbed> Embeds { get; internal set; }
 
         [JsonProperty("allowed_mentions", NullValueHandling = NullValueHandling.Ignore)]
-        public IEnumerable<IMention> Mentions { get; internal set; }
+        public DiscordMentions Mentions { get; internal set; }
 
         [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
         public MessageFlags? Flags { get; internal set; }

@@ -427,6 +427,8 @@ namespace DSharpPlus.Net
             if (request is MultipartWebRequest mprequest)
             {
                 this.Logger.LogTrace(LoggerEvents.RestTx, "<multipart request>");
+                if (mprequest.Values.TryGetValue("payload_json", out var payload))
+                    this.Logger.LogTrace(LoggerEvents.RestTx, payload);
 
                 var boundary = "---------------------------" + DateTime.Now.Ticks.ToString("x");
 
