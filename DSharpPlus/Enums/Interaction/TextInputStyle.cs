@@ -20,47 +20,20 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-
 namespace DSharpPlus
 {
     /// <summary>
-    /// Represents the type of interaction response
+    /// The style for a <see cref="DSharpPlus.Entities.DiscordTextInputComponent"/>
     /// </summary>
-    public enum InteractionResponseType
+    public enum TextInputStyle
     {
         /// <summary>
-        /// Acknowledges a Ping.
+        /// A short, single-line input
         /// </summary>
-        Pong = 1,
-
+        Short,
         /// <summary>
-        /// Responds to the interaction with a message.
+        /// A longer, multi-line input
         /// </summary>
-        ChannelMessageWithSource = 4,
-
-        /// <summary>
-        /// Acknowledges an interaction to edit to a response later. The user sees a "thinking" state.
-        /// </summary>
-        DeferredChannelMessageWithSource = 5,
-
-        /// <summary>
-        /// Acknowledges a component interaction to allow a response later.
-        /// </summary>
-        DeferredMessageUpdate = 6,
-
-        /// <summary>
-        /// Responds to a component interaction by editing the message it's attached to.
-        /// </summary>
-        UpdateMessage = 7,
-
-        /// <summary>
-        /// Responds to an auto-complete request.
-        /// </summary>
-        AutoCompleteResult = 8,
-
-        /// <summary>
-        /// Respond to an interaction with a modal popup.
-        /// </summary>
-        Modal = 9,
+        Paragraph
     }
 }

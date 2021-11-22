@@ -38,6 +38,10 @@ namespace DSharpPlus
         /// <summary>
         /// A select menu.
         /// </summary>
-        Select = 3
+        Select = 3,
+        /// <summary>
+        /// An input field.
+        /// </summary>
+        FormInput = 4,
     }
 }

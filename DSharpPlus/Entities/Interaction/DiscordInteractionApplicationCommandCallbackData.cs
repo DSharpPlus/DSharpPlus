@@ -31,6 +31,12 @@ namespace DSharpPlus.Entities
         [JsonProperty("tts", NullValueHandling = NullValueHandling.Ignore)]
         public bool? IsTTS { get; internal set; }
 
+        [JsonProperty("custom_id", NullValueHandling = NullValueHandling.Ignore)]
+        public string CustomId { get; internal set; }
+
+        [JsonProperty("title", NullValueHandling = NullValueHandling.Ignore)]
+        public string Title { get; internal set; }
+
         [JsonProperty("content", NullValueHandling = NullValueHandling.Ignore)]
         public string Content { get; internal set; }
 

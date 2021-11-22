@@ -47,5 +47,10 @@ namespace DSharpPlus
         /// An autocomplete field.
         /// </summary>
         AutoComplete = 4,
+
+        /// <summary>
+        /// A modal was submitted.
+        /// </summary>
+        ModalSubmit = 5
     }
 }

@@ -20,47 +20,34 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using DSharpPlus.Entities;
+using Newtonsoft.Json;
 
-namespace DSharpPlus
+namespace DSharpPlus.EventArgs
 {
     /// <summary>
-    /// Represents the type of interaction response
+    /// Fired when a modal is submitted. Note that this event is fired only if the modal is submitted by the user, and not if the modal is closed.
     /// </summary>
-    public enum InteractionResponseType
+    public class ModalSubmitEventArgs : InteractionCreateEventArgs
     {
         /// <summary>
-        /// Acknowledges a Ping.
+        /// A dictionary of submitted fields, keyed on the custom id of the input component.
         /// </summary>
-        Pong = 1,
+        [JsonIgnore]
+        public IReadOnlyDictionary<string, string> Values { get; internal set; }
 
-        /// <summary>
-        /// Responds to the interaction with a message.
-        /// </summary>
-        ChannelMessageWithSource = 4,
+        internal ModalSubmitEventArgs(DiscordInteraction interaction)
+        {
+            this.Interaction = interaction;
 
-        /// <summary>
-        /// Acknowledges an interaction to edit to a response later. The user sees a "thinking" state.
-        /// </summary>
-        DeferredChannelMessageWithSource = 5,
+            var dict = new Dictionary<string, string>();
 
-        /// <summary>
-        /// Acknowledges a component interaction to allow a response later.
-        /// </summary>
-        DeferredMessageUpdate = 6,
-
-        /// <summary>
-        /// Responds to a component interaction by editing the message it's attached to.
-        /// </summary>
-        UpdateMessage = 7,
-
-        /// <summary>
-        /// Responds to an auto-complete request.
-        /// </summary>
-        AutoCompleteResult = 8,
-
-        /// <summary>
-        /// Respond to an interaction with a modal popup.
-        /// </summary>
-        Modal = 9,
+            foreach (var component in interaction.Data._components)
+                if (component.Components.First() is DiscordTextInputComponent input)
+                    dict.Add(input.CustomId, input.Value);
+        }
     }
 }

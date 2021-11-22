@@ -46,6 +46,16 @@ namespace DSharpPlus.Entities
         public bool IsEphemeral { get; set; }
 
         /// <summary>
+        /// The custom id to send with this interaction response. Only applicable when creating a modal.
+        /// </summary>
+        public string CustomId { get; set; }
+
+        /// <summary>
+        /// The title to send with this interaction response. Only applicable
+        /// </summary>
+        public string Title { get; set; }
+
+        /// <summary>
         /// Content of the message to send.
         /// </summary>
         public string Content
