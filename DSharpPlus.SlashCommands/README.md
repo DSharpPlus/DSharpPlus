@@ -107,7 +107,7 @@ Arguments must have the `Option` attribute, and can be of type:
 
 If you want to make them optional, you can assign a default value.
 
-You can also predefine some choices for the option. Choices only work for `string`, `long` or `double` arguments. THere are several ways to use them:
+You can also predefine some choices for the option. Custom choices only work for `string`, `long` or `double` arguments (for `DiscordChannel` arguments, `ChannelTypes` attribute can be used to limit the types of channels that can be chosen). There are several ways to use them:
 1. Using the `Choice` attribute. You can add multiple attributes to add multiple choices.
 2. You can define choices using enums. See the example below.
 3. You can use a `ChoiceProvider` to run code to get the choices from a database or similar. See the example below.
