@@ -67,6 +67,7 @@ namespace DSharpPlus.SlashCommands
             this._slashExecuted = new AsyncEvent<SlashCommandsExtension, SlashCommandExecutedEventArgs>("SLASHCOMMAND_EXECUTED", TimeSpan.Zero, this.Client.EventErrorHandler);
             this._contextMenuErrored = new AsyncEvent<SlashCommandsExtension, ContextMenuErrorEventArgs>("CONTEXTMENU_ERRORED", TimeSpan.Zero, this.Client.EventErrorHandler);
             this._contextMenuExecuted = new AsyncEvent<SlashCommandsExtension, ContextMenuExecutedEventArgs>("CONTEXTMENU_EXECUTED", TimeSpan.Zero, this.Client.EventErrorHandler);
+            this._contextMenuReceived = new AsyncEvent<SlashCommandsExtension, ContextMenuReceivedEventArgs>("CONTEXTMENU_RECEIVED", TimeSpan.Zero, this.Client.EventErrorHandler);
             this._autocompleteErrored = new AsyncEvent<SlashCommandsExtension, AutocompleteErrorEventArgs>("AUTOCOMPLETE_ERRORED", TimeSpan.Zero, this.Client.EventErrorHandler);
             this._autocompleteExecuted = new AsyncEvent<SlashCommandsExtension, AutocompleteExecutedEventArgs>("AUTOCOMPLETE_EXECUTED", TimeSpan.Zero, this.Client.EventErrorHandler);
 
@@ -739,6 +740,8 @@ namespace DSharpPlus.SlashCommands
             //Context menus
             if (context is ContextMenuContext CMContext)
             {
+                await this._contextMenuReceived.InvokeAsync(this, new ContextMenuReceivedEventArgs() { Context = CMContext });
+
                 await this.RunPreexecutionChecksAsync(method, CMContext);
 
                 //This null check actually shouldn't be necessary for context menus but I'll keep it in just in case
@@ -1033,6 +1036,16 @@ namespace DSharpPlus.SlashCommands
         private AsyncEvent<SlashCommandsExtension, SlashCommandErrorEventArgs> _slashError;
 
         /// <summary>
+        /// Fires when a slash command has been received ans is to be executed
+        /// </summary>
+        public event AsyncEventHandler<SlashCommandsExtension, SlashCommandReceivedEventArgs> SlashCommandReceived
+        {
+            add => this._slashReceived.Register(value);
+            remove => this._slashReceived.Unregister(value);
+        }
+        private AsyncEvent<SlashCommandsExtension, SlashCommandReceivedEventArgs> _slashReceived;
+
+        /// <summary>
         /// Fires when the execution of a slash command is successful.
         /// </summary>
         public event AsyncEventHandler<SlashCommandsExtension, SlashCommandExecutedEventArgs> SlashCommandExecuted
@@ -1051,6 +1064,16 @@ namespace DSharpPlus.SlashCommands
             remove => this._contextMenuErrored.Unregister(value);
         }
         private AsyncEvent<SlashCommandsExtension, ContextMenuErrorEventArgs> _contextMenuErrored;
+
+        /// <summary>
+        /// Fire when a context menu has been received ans is to be executed
+        /// </summary>
+        public event AsyncEventHandler<SlashCommandsExtension, ContextMenuReceivedEventArgs> ContextMenuReceived
+        {
+            add => this._contextMenuReceived.Register(value);
+            remove => this._contextMenuReceived.Unregister(value);
+        }
+        private AsyncEvent<SlashCommandsExtension, ContextMenuReceivedEventArgs> _contextMenuReceived;
 
         /// <summary>
         /// Fire when the execution of a context menu is successful.
