@@ -292,10 +292,19 @@ namespace DSharpPlus.Test
             return Task.CompletedTask;
         }
 
-        private Task SlashCommandService_CommandErrored(SlashCommandsExtension sc, SlashCommandErrorEventArgs e)
+        private async Task SlashCommandService_CommandErrored(SlashCommandsExtension sc, SlashCommandErrorEventArgs e)
         {
             e.Context.Client.Logger.LogError(TestBotEventId, e.Exception, "Exception occurred during {User}'s invocation of '{Command}'", e.Context.User.Username, e.Context.CommandName);
-            return Task.CompletedTask;
+
+            var emoji = DiscordEmoji.FromName(e.Context.Client, ":no_entry:");
+
+            // let's wrap the response into an embed
+            var embed = new DiscordEmbedBuilder {
+                Title = "Error",
+                Description = $"{emoji} Error!",
+                Color = new DiscordColor(0xFF0000) // red
+            };
+            await e.Context.CreateResponseAsync(embed);
         }
 
         private Task SlashCommandService_CommandReceived(SlashCommandsExtension sc, SlashCommandReceivedEventArgs e)

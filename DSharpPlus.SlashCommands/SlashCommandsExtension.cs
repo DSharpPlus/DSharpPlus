@@ -722,7 +722,7 @@ namespace DSharpPlus.SlashCommands
             //Slash commands
             if (context is InteractionContext slashContext)
             {
-                await this._slashReceived.InvokeAsync(this, new SlashCommandReceivedEventArgs { Context = slashContext });
+                await this._slashReceived.InvokeAsync(this, new SlashCommandReceivedEventArgs { Context = slashContext }, AsyncEventExceptionMode.ThrowAll);
 
                 await this.RunPreexecutionChecksAsync(method, slashContext);
 
@@ -740,7 +740,7 @@ namespace DSharpPlus.SlashCommands
             //Context menus
             if (context is ContextMenuContext CMContext)
             {
-                await this._contextMenuReceived.InvokeAsync(this, new ContextMenuReceivedEventArgs() { Context = CMContext });
+                await this._contextMenuReceived.InvokeAsync(this, new ContextMenuReceivedEventArgs() { Context = CMContext }, AsyncEventExceptionMode.ThrowAll);
 
                 await this.RunPreexecutionChecksAsync(method, CMContext);
 
