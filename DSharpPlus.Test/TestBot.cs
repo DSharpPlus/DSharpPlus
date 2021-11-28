@@ -164,6 +164,7 @@ namespace DSharpPlus.Test
 
             this.SlashCommandService = this.Discord.UseSlashCommands();
             this.SlashCommandService.SlashCommandErrored += this.SlashCommandService_CommandErrored;
+            this.SlashCommandService.SlashCommandReceived += this.SlashCommandService_CommandReceived;
             this.SlashCommandService.SlashCommandExecuted += this.SlashCommandService_CommandExecuted;
 
             if (this.Config.SlashCommandGuild != 0)
@@ -294,6 +295,12 @@ namespace DSharpPlus.Test
         private Task SlashCommandService_CommandErrored(SlashCommandsExtension sc, SlashCommandErrorEventArgs e)
         {
             e.Context.Client.Logger.LogError(TestBotEventId, e.Exception, "Exception occurred during {User}'s invocation of '{Command}'", e.Context.User.Username, e.Context.CommandName);
+            return Task.CompletedTask;
+        }
+
+        private Task SlashCommandService_CommandReceived(SlashCommandsExtension sc, SlashCommandReceivedEventArgs e)
+        {
+            e.Context.Client.Logger.LogInformation(TestBotEventId, "User {User} tries to execute '{Command}' in {Channel}", e.Context.User.Username, e.Context.CommandName, e.Context.Channel.Name);
             return Task.CompletedTask;
         }
 
