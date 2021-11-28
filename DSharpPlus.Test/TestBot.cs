@@ -164,7 +164,7 @@ namespace DSharpPlus.Test
 
             this.SlashCommandService = this.Discord.UseSlashCommands();
             this.SlashCommandService.SlashCommandErrored += this.SlashCommandService_CommandErrored;
-            this.SlashCommandService.SlashCommandReceived += this.SlashCommandService_CommandReceived;
+            this.SlashCommandService.SlashCommandInvoked += this.SlashCommandService_CommandReceived;
             this.SlashCommandService.SlashCommandExecuted += this.SlashCommandService_CommandExecuted;
 
             if (this.Config.SlashCommandGuild != 0)
@@ -307,7 +307,7 @@ namespace DSharpPlus.Test
             await e.Context.CreateResponseAsync(embed);
         }
 
-        private Task SlashCommandService_CommandReceived(SlashCommandsExtension sc, SlashCommandReceivedEventArgs e)
+        private Task SlashCommandService_CommandReceived(SlashCommandsExtension sc, SlashCommandInvokedEventArgs e)
         {
             e.Context.Client.Logger.LogInformation(TestBotEventId, "User {User} tries to execute '{Command}' in {Channel}", e.Context.User.Username, e.Context.CommandName, e.Context.Channel.Name);
             return Task.CompletedTask;
