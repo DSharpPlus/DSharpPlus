@@ -48,10 +48,10 @@ namespace DSharpPlus.Entities
         public string Value { get; internal set; }
 
         /// <summary>
-        /// Optional minimum length for this input. Must be a positive integer, if set.
+        /// Optional minimum length for this input. Set to 0 for optional.
         /// </summary>
         [JsonProperty("min_length", NullValueHandling = NullValueHandling.Ignore)]
-        public int? MinimumLength { get; set; }
+        public int MinimumLength { get; set; }
 
         /// <summary>
         /// Optional maximum length for this input. Must be a positive integer, if set.
@@ -70,7 +70,7 @@ namespace DSharpPlus.Entities
             this.Type = ComponentType.FormInput;
         }
 
-        public DiscordModalInputComponent(string label, string customId, string placeholder = null, TextInputStyle style = TextInputStyle.Short, int? min_length = null, int? max_length = null)
+        public DiscordModalInputComponent(string label, string customId, string placeholder = null, TextInputStyle style = TextInputStyle.Short, int min_length = 0, int? max_length = null)
         {
             this.CustomId = customId;
             this.Type = ComponentType.FormInput;
