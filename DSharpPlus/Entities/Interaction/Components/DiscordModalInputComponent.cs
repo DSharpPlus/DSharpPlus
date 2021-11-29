@@ -27,7 +27,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// A text-input field. Like selects, this can only be used once per action row.
     /// </summary>
-    public sealed class DiscordTextInputComponent : DiscordComponent
+    public sealed class DiscordModalInputComponent : DiscordComponent
     {
         /// <summary>
         /// Optional placeholder text for this input.
@@ -65,12 +65,12 @@ namespace DSharpPlus.Entities
         [JsonProperty("style")]
         public TextInputStyle Style { get; set; }
 
-        public DiscordTextInputComponent()
+        public DiscordModalInputComponent()
         {
             this.Type = ComponentType.FormInput;
         }
 
-        public DiscordTextInputComponent(string label, string customId, string placeholder = null, TextInputStyle style = TextInputStyle.Short, int? min_length = null, int? max_length = null)
+        public DiscordModalInputComponent(string label, string customId, string placeholder = null, TextInputStyle style = TextInputStyle.Short, int? min_length = null, int? max_length = null)
         {
             this.CustomId = customId;
             this.Type = ComponentType.FormInput;

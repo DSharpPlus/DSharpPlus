@@ -94,6 +94,8 @@ namespace DSharpPlus.Test
             this.Discord.ChannelDeleted += this.Discord_ChannelDeleted;
 
             this.Discord.InteractionCreated += this.Discord_InteractionCreated;
+            this.Discord.ComponentInteractionCreated+= this.Discord_ModalCheck;
+            this.Discord.ModalSubmitted += this.Discord_ModalSubmitted;
             //this.Discord.ComponentInteractionCreated += this.RoleMenu;
             //this.Discord.ComponentInteractionCreated += this.DiscordComponentInteractionCreated;
             //this.Discord.InteractionCreated += this.SendButton;
@@ -176,6 +178,23 @@ namespace DSharpPlus.Test
 
             //    _ = Task.Run(async () => await e.Message.RespondAsync(e.Message.Content)).ConfigureAwait(false);
             //};
+        }
+
+
+        private async Task Discord_ModalSubmitted(DiscordClient sender, ModalSubmitEventArgs e)
+        {
+            await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder().WithContent("Thank you!"));
+
+            this.Discord.Logger.LogInformation("Got callback from user {User}, {Modal}", e.Interaction.User, e.Values);
+        }
+
+        private async Task Discord_ModalCheck(DiscordClient sender, ComponentInteractionCreateEventArgs e)
+        {
+            if (e.Id == "modal")
+                await e.Interaction.CreateResponseAsync(InteractionResponseType.Modal, new DiscordInteractionResponseBuilder()
+                    .WithTitle("Test!")
+                    .WithCustomId("owo")
+                    .AddComponents(new DiscordModalInputComponent("Some label", "some_id", "Placeholder!")));
         }
 
         private async Task Discord_InteractionCreated(DiscordClient sender, InteractionCreateEventArgs e)

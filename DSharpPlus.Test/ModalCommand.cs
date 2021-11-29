@@ -20,22 +20,16 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+using System.Threading.Tasks;
+using DSharpPlus.CommandsNext;
+using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 
-namespace DSharpPlus
+namespace DSharpPlus.Test
 {
-    /// <summary>
-    /// The style for a <see cref="DiscordModalInputComponent"/>
-    /// </summary>
-    public enum TextInputStyle
+    public class ModalCommand : BaseCommandModule
     {
-        /// <summary>
-        /// A short, single-line input
-        /// </summary>
-        Short = 1,
-        /// <summary>
-        /// A longer, multi-line input
-        /// </summary>
-        Paragraph = 2
+        [Command]
+        public async Task Modal(CommandContext ctx) => await ctx.RespondAsync(m => m.WithContent("\u200b").AddComponents(new DiscordButtonComponent(ButtonStyle.Primary, "modal", "Press for modal")));
     }
 }
