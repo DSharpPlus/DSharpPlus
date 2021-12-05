@@ -828,7 +828,8 @@ namespace DSharpPlus
                 {
                     Id = message.ChannelId,
                     Discord = this,
-                    Type = ChannelType.Private
+                    Type = ChannelType.Private,
+                    Recipients = new DiscordUser[] { message.Author }
                 }
                 : new DiscordChannel
                 {
