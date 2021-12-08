@@ -194,7 +194,11 @@ namespace DSharpPlus.Test
                 await e.Interaction.CreateResponseAsync(InteractionResponseType.Modal, new DiscordInteractionResponseBuilder()
                     .WithTitle("Test!")
                     .WithCustomId("owo")
-                    .AddComponents(new DiscordModalInputComponent("Some label", "some_id", "Placeholder!")));
+                    .AddComponents(new DiscordModalInputComponent("Short, optional", "short_opt", "Placeholder!"))
+                    .AddComponents(new DiscordModalInputComponent("Long, optional", "long_opt", "Placeholder 2!", style: TextInputStyle.Paragraph))
+                    .AddComponents(new DiscordModalInputComponent("Short, required", "short_req", "Placeholder 3!", style:  TextInputStyle.Short, min_length: 10, max_length: 20))
+                    .AddComponents(new DiscordModalInputComponent("Long, required", "long_req", "Placeholder 4!", "Lorem Ipsum", true, TextInputStyle.Paragraph, 100, 300))
+                );
         }
 
         private async Task Discord_InteractionCreated(DiscordClient sender, InteractionCreateEventArgs e)
