@@ -3,9 +3,9 @@
 namespace DSharpPlus.SlashCommands.EventArgs
 {
     /// <summary>
-    /// Represents arguments for a <see cref="SlashCommandsExtension.ContextMenuExecuted"/>
+    /// Represents arguments for a <see cref="SlashCommandsExtension.ContextMenuInvoked"/>
     /// </summary>
-    public sealed class ContextMenuExecutedEventArgs : AsyncEventArgs
+    public sealed class ContextMenuInvokedEventArgs : AsyncEventArgs
     {
         /// <summary>
         /// The context of the command.

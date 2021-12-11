@@ -1,7 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
@@ -63,9 +65,11 @@ namespace DSharpPlus.SlashCommands
             this.Client = client;
 
             this._slashError = new AsyncEvent<SlashCommandsExtension, SlashCommandErrorEventArgs>("SLASHCOMMAND_ERRORED", TimeSpan.Zero, this.Client.EventErrorHandler);
+            this._slashInvoked = new AsyncEvent<SlashCommandsExtension, SlashCommandInvokedEventArgs>("SLASHCOMMAND_RECEIVED", TimeSpan.Zero, this.Client.EventErrorHandler);
             this._slashExecuted = new AsyncEvent<SlashCommandsExtension, SlashCommandExecutedEventArgs>("SLASHCOMMAND_EXECUTED", TimeSpan.Zero, this.Client.EventErrorHandler);
             this._contextMenuErrored = new AsyncEvent<SlashCommandsExtension, ContextMenuErrorEventArgs>("CONTEXTMENU_ERRORED", TimeSpan.Zero, this.Client.EventErrorHandler);
             this._contextMenuExecuted = new AsyncEvent<SlashCommandsExtension, ContextMenuExecutedEventArgs>("CONTEXTMENU_EXECUTED", TimeSpan.Zero, this.Client.EventErrorHandler);
+            this._contextMenuInvoked = new AsyncEvent<SlashCommandsExtension, ContextMenuInvokedEventArgs>("CONTEXTMENU_RECEIVED", TimeSpan.Zero, this.Client.EventErrorHandler);
             this._autocompleteErrored = new AsyncEvent<SlashCommandsExtension, AutocompleteErrorEventArgs>("AUTOCOMPLETE_ERRORED", TimeSpan.Zero, this.Client.EventErrorHandler);
             this._autocompleteExecuted = new AsyncEvent<SlashCommandsExtension, AutocompleteExecutedEventArgs>("AUTOCOMPLETE_EXECUTED", TimeSpan.Zero, this.Client.EventErrorHandler);
 
@@ -493,11 +497,13 @@ namespace DSharpPlus.SlashCommands
                 return ApplicationCommandOptionType.Role;
             if (type == typeof(DiscordEmoji))
                 return ApplicationCommandOptionType.String;
+            if (type == typeof(TimeSpan?))
+                return ApplicationCommandOptionType.String;
             if (type == typeof(SnowflakeObject))
                 return ApplicationCommandOptionType.Mentionable;
             if (type.IsEnum || Nullable.GetUnderlyingType(type)?.IsEnum == true)
                 return ApplicationCommandOptionType.String;
-            throw new ArgumentException("Cannot convert type! Argument types must be string, long, bool, double, DiscordChannel, DiscordUser, DiscordRole, DiscordEmoji, SnowflakeObject or an Enum.");
+            throw new ArgumentException("Cannot convert type! Argument types must be string, long, bool, double, TimeSpan?, DiscordChannel, DiscordUser, DiscordRole, DiscordEmoji, SnowflakeObject or an Enum.");
         }
 
         //Gets choices from choice attributes
@@ -720,6 +726,8 @@ namespace DSharpPlus.SlashCommands
             //Slash commands
             if (context is InteractionContext slashContext)
             {
+                await this._slashInvoked.InvokeAsync(this, new SlashCommandInvokedEventArgs { Context = slashContext }, AsyncEventExceptionMode.ThrowAll);
+
                 await this.RunPreexecutionChecksAsync(method, slashContext);
 
                 //Runs BeforeExecution and accounts for groups that don't inherit from ApplicationCommandModule
@@ -736,6 +744,8 @@ namespace DSharpPlus.SlashCommands
             //Context menus
             if (context is ContextMenuContext CMContext)
             {
+                await this._contextMenuInvoked.InvokeAsync(this, new ContextMenuInvokedEventArgs() { Context = CMContext }, AsyncEventExceptionMode.ThrowAll);
+
                 await this.RunPreexecutionChecksAsync(method, CMContext);
 
                 //This null check actually shouldn't be necessary for context menus but I'll keep it in just in case
@@ -838,6 +848,70 @@ namespace DSharpPlus.SlashCommands
                         args.Add((bool?)option.Value);
                     else if (parameter.ParameterType == typeof(double) || parameter.ParameterType == typeof(double?))
                         args.Add((double?)option.Value);
+                    else if (parameter.ParameterType == typeof(TimeSpan?))
+                    {
+                        var timeSpanRegex = new Regex(@"^(?<days>\d+d\s*)?(?<hours>\d{1,2}h\s*)?(?<minutes>\d{1,2}m\s*)?(?<seconds>\d{1,2}s\s*)?$", RegexOptions.ECMAScript);
+                        var value = option.Value.ToString();
+                        if (value == "0")
+                        {
+                            args.Add(TimeSpan.Zero);
+                            continue;
+                        }
+                        if (int.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out _))
+                        {
+                            args.Add(null);
+                            continue;
+                        }
+                        value = value.ToLowerInvariant();
+
+                        if (TimeSpan.TryParse(value, CultureInfo.InvariantCulture, out var result))
+                        {
+                            args.Add(result);
+                            continue;
+                        }
+                        var gps = new string[] { "days", "hours", "minutes", "seconds" };
+                        var mtc = timeSpanRegex.Match(value);
+                        if (!mtc.Success)
+                        {
+                            args.Add(null);
+                            continue;
+                        }
+
+                        var d = 0;
+                        var h = 0;
+                        var m = 0;
+                        var s = 0;
+                        foreach (var gp in gps)
+                        {
+                            var gpc = mtc.Groups[gp].Value;
+                            if (string.IsNullOrWhiteSpace(gpc))
+                                continue;
+                            gpc = gpc.Trim();
+
+                            var gpt = gpc[gpc.Length - 1];
+                            int.TryParse(gpc.Substring(0, gpc.Length - 1), NumberStyles.Integer, CultureInfo.InvariantCulture, out var val);
+                            switch (gpt)
+                            {
+                                case 'd':
+                                    d = val;
+                                    break;
+
+                                case 'h':
+                                    h = val;
+                                    break;
+
+                                case 'm':
+                                    m = val;
+                                    break;
+
+                                case 's':
+                                    s = val;
+                                    break;
+                            }
+                        }
+                        result = new TimeSpan(d, h, m, s);
+                        args.Add(result);
+                    }
                     else if (parameter.ParameterType == typeof(DiscordUser))
                     {
                         //Checks through resolved
@@ -1030,6 +1104,16 @@ namespace DSharpPlus.SlashCommands
         private AsyncEvent<SlashCommandsExtension, SlashCommandErrorEventArgs> _slashError;
 
         /// <summary>
+        /// Fired when a slash command has been received and is to be executed
+        /// </summary>
+        public event AsyncEventHandler<SlashCommandsExtension, SlashCommandInvokedEventArgs> SlashCommandInvoked
+        {
+            add => this._slashInvoked.Register(value);
+            remove => this._slashInvoked.Unregister(value);
+        }
+        private AsyncEvent<SlashCommandsExtension, SlashCommandInvokedEventArgs> _slashInvoked;
+
+        /// <summary>
         /// Fires when the execution of a slash command is successful.
         /// </summary>
         public event AsyncEventHandler<SlashCommandsExtension, SlashCommandExecutedEventArgs> SlashCommandExecuted
@@ -1048,6 +1132,16 @@ namespace DSharpPlus.SlashCommands
             remove => this._contextMenuErrored.Unregister(value);
         }
         private AsyncEvent<SlashCommandsExtension, ContextMenuErrorEventArgs> _contextMenuErrored;
+
+        /// <summary>
+        /// Fired when a context menu has been received and is to be executed
+        /// </summary>
+        public event AsyncEventHandler<SlashCommandsExtension, ContextMenuInvokedEventArgs> ContextMenuInvoked
+        {
+            add => this._contextMenuInvoked.Register(value);
+            remove => this._contextMenuInvoked.Unregister(value);
+        }
+        private AsyncEvent<SlashCommandsExtension, ContextMenuInvokedEventArgs> _contextMenuInvoked;
 
         /// <summary>
         /// Fire when the execution of a context menu is successful.
