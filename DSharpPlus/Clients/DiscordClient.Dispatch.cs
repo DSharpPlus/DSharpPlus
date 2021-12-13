@@ -109,6 +109,34 @@ namespace DSharpPlus
 
                 #endregion
 
+                #region Scheduled Guild Events
+
+                    case "guild_scheduled_event_create":
+                        var cevt = dat.ToObject<DiscordScheduledGuildEvent>();
+                        await this.OnScheduledGuildEventCreateEventAsync(cevt).ConfigureAwait(false);
+                        break;
+                    case "guild_scheduled_event_delete":
+                        var devt = dat.ToObject<DiscordScheduledGuildEvent>();
+                        await this.OnScheduledGuildEventDeleteEventAsync(devt).ConfigureAwait(false);
+                        break;
+                    case "guild_scheduled_event_update":
+                        var uevt = dat.ToObject<DiscordScheduledGuildEvent>();
+                        await this.OnScheduledGuildEventUpdateEventAsync(uevt).ConfigureAwait(false);
+                        break;
+                    case "guild_scheduled_event_user_add":
+                        gid = (ulong)dat["guild_id"];
+                        var uid = (ulong)dat["user_id"];
+                        var eid = (ulong)dat["event_id"];
+                        await this.OnScheduledGuildEventUserAddEventAsync(gid, eid, uid).ConfigureAwait(false);
+                        break;
+                    case "guild_scheduled_event_user_remove":
+                        gid = (ulong)dat["guild_id"];
+                        uid = (ulong)dat["user_id"];
+                        eid = (ulong)dat["event_id"];
+                        await this.OnScheduledGuildEventUserRemoveEventAsync(gid, eid, uid).ConfigureAwait(false);
+                        break;
+                #endregion
+
                 #region Guild
 
                 case "guild_create":
@@ -743,6 +771,106 @@ namespace DSharpPlus
 
         #endregion
 
+        #region Scheduled Guild Events
+
+        private async Task OnScheduledGuildEventCreateEventAsync(DiscordScheduledGuildEvent evt)
+        {
+            evt.Discord = this;
+
+            if (evt.Creator != null)
+            {
+                evt.Creator.Discord = this;
+                this.UpdateUserCache(evt.Creator);
+            }
+
+            evt.Guild._scheduledEvents.AddOrUpdate(evt.Id, evt, (old, newEvt) => newEvt);
+
+            await this._scheduledGuildEventCreated.InvokeAsync(this, new ScheduledGuildEventCreateEventArgs { Event = evt }).ConfigureAwait(false);
+        }
+
+        private async Task OnScheduledGuildEventDeleteEventAsync(DiscordScheduledGuildEvent evt)
+        {
+            var guild = this.InternalGetCachedGuild(evt.GuildId);
+
+            if (guild == null) // ??? //
+                return;
+
+            guild._scheduledEvents.TryRemove(evt.Id, out var _);
+
+            evt.Discord = this;
+
+            if (evt.Creator != null)
+            {
+                evt.Creator.Discord = this;
+                this.UpdateUserCache(evt.Creator);
+            }
+
+            await this._scheduledGuildEventDeleted.InvokeAsync(this, new ScheduledGuildEventDeleteEventArgs { Event = evt }).ConfigureAwait(false);
+        }
+
+        private async Task OnScheduledGuildEventUpdateEventAsync(DiscordScheduledGuildEvent evt)
+        {
+            evt.Discord = this;
+
+            if (evt.Creator != null)
+            {
+                evt.Creator.Discord = this;
+                this.UpdateUserCache(evt.Creator);
+            }
+
+            var guild = this.InternalGetCachedGuild(evt.GuildId);
+            guild._scheduledEvents.TryGetValue(evt.GuildId, out var oldEvt);
+
+            evt.Guild._scheduledEvents.AddOrUpdate(evt.Id, evt, (old, newEvt) => newEvt);
+
+           if (evt.Status is ScheduledGuildEventStatus.Completed)
+               await this._scheduledGuildEventCompleted.InvokeAsync(this, new ScheduledGuildEventCompletedEventArgs() { Event = evt }).ConfigureAwait(false);
+           else
+               await this._scheduledGuildEventUpdated.InvokeAsync(this, new ScheduledGuildEventUpdateEventArgs() {EventBefore = oldEvt, EventAfter = evt}).ConfigureAwait(false);
+        }
+
+        private async Task OnScheduledGuildEventUserAddEventAsync(ulong guildId, ulong eventId, ulong userId)
+        {
+            var guild = this.InternalGetCachedGuild(guildId);
+            var evt = guild._scheduledEvents.GetOrAdd(eventId, new DiscordScheduledGuildEvent()
+            {
+                Id = eventId,
+                GuildId = guildId,
+                Discord = this,
+                UserCount = 0
+            });
+
+            evt.UserCount++;
+
+            var user =
+                guild.Members.TryGetValue(userId, out var mbr) ? mbr :
+                this.GetCachedOrEmptyUserInternal(userId) ?? new DiscordUser() {Id = userId , Discord = this};
+
+            await this._scheduledGuildEventUserAdded.InvokeAsync(this, new ScheduledGuildEventUserAddEventArgs() {Event = evt, User = user}).ConfigureAwait(false);
+        }
+
+        private async Task OnScheduledGuildEventUserRemoveEventAsync(ulong guildId, ulong eventId, ulong userId)
+        {
+            var guild = this.InternalGetCachedGuild(guildId);
+            var evt = guild._scheduledEvents.GetOrAdd(eventId, new DiscordScheduledGuildEvent()
+            {
+                Id = eventId,
+                GuildId = guildId,
+                Discord = this,
+                UserCount = 0
+            });
+
+            evt.UserCount = evt.UserCount is 0 ? 0 : evt.UserCount - 1;
+
+            var user =
+                guild.Members.TryGetValue(userId, out var mbr) ? mbr :
+                this.GetCachedOrEmptyUserInternal(userId) ?? new DiscordUser() {Id = userId , Discord = this};
+
+            await this._scheduledGuildEventUserRemoved.InvokeAsync(this, new ScheduledGuildEventUserRemoveEventArgs() {Event = evt, User = user}).ConfigureAwait(false);
+        }
+
+        #endregion
+
         #region Guild
 
         internal async Task OnGuildCreateEventAsync(DiscordGuild guild, JArray rawMembers, IEnumerable<DiscordPresence> presences)
@@ -788,6 +916,8 @@ namespace DSharpPlus
                 guild._members = new ConcurrentDictionary<ulong, DiscordMember>();
             if (guild._stageInstances == null)
                 guild._stageInstances = new ConcurrentDictionary<ulong, DiscordStageInstance>();
+            if (guild._scheduledEvents == null)
+                guild._scheduledEvents = new ConcurrentDictionary<ulong, DiscordScheduledGuildEvent>();
 
             this.UpdateCachedGuild(eventGuild, rawMembers);
 
@@ -803,6 +933,14 @@ namespace DSharpPlus
             guild.IsNSFW = eventGuild.IsNSFW;
 
             foreach (var kvp in eventGuild._voiceStates) guild._voiceStates[kvp.Key] = kvp.Value;
+
+            foreach (var xe in guild._scheduledEvents.Values)
+            {
+                xe.Discord = this;
+
+                if (xe.Creator != null)
+                    xe.Creator.Discord = this;
+            }
 
             foreach (var xc in guild._channels.Values)
             {
