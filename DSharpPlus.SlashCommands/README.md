@@ -169,7 +169,7 @@ public async Task ChoiceProviderCommand(InteractionContext ctx,
 ```
 
 ### Groups
-You can have slash commands in groups. Their structure is explained [here](https://discord.com/developers/docs/interactions/slash-commands#nested-subcommands-and-groups). You can simply mark your command class with the `[SlashCommandGroup]` attribute.
+You can have slash commands in groups. Their structure is explained [here](https://discord.com/developers/docs/interactions/application-commands#subcommands-and-subcommand-groups). You can simply mark your command class with the `[SlashCommandGroup]` attribute.
 ```cs
 //for regular groups
 [SlashCommandGroup("group", "description")]
