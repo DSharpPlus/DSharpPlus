@@ -365,33 +365,47 @@ namespace DSharpPlus.Entities
         /// <returns>This embed builder.</returns>
         public DiscordEmbedBuilder AddField(string name, string value, bool inline = false)
         {
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                if (name == null)
-                    throw new ArgumentNullException(nameof(name));
-                throw new ArgumentException("Name cannot be empty or whitespace.", nameof(name));
-            }
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                if (value == null)
-                    throw new ArgumentNullException(nameof(value));
-                throw new ArgumentException("Value cannot be empty or whitespace.", nameof(value));
-            }
-
-            if (name.Length > 256)
-                throw new ArgumentException("Embed field name length cannot exceed 256 characters.");
-            if (value.Length > 1024)
-                throw new ArgumentException("Embed field value length cannot exceed 1024 characters.");
-
             if (this._fields.Count >= 25)
                 throw new InvalidOperationException("Cannot add more than 25 fields.");
 
-            this._fields.Add(new DiscordEmbedField
+            this._fields.Add(new DiscordEmbedFieldBuilder
             {
-                Inline = inline,
                 Name = name,
-                Value = value
+                Value = value,
+                Inline = inline
             });
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a field to this embed.
+        /// </summary>
+        /// <param name="field">Field to add.</param>
+        /// <returns>The current builder to be chained.</returns>
+        public DiscordEmbedBuilder AddField(DiscordEmbedField field)
+        {
+            if (this._fields.Count >= 25)
+                throw new InvalidOperationException("Cannot add more than 25 fields.");
+
+            this._fields.Add(field);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds multiple fields to this embed.
+        /// </summary>
+        /// <param name="fields">Fields to add.</param>
+        /// <returns>The current builder to be chained.</returns>
+        public DiscordEmbedBuilder AddFields(IEnumerable<DiscordEmbedField> fields)
+        {
+            var fieldsArray = fields.ToArray();
+
+            if (fieldsArray.Length + this._fields.Count > 25)
+                throw new InvalidOperationException("Cannot add more than 25 fields.");
+
+            foreach (var field in fieldsArray)
+                this._fields.Add(field);
+
             return this;
         }
 
