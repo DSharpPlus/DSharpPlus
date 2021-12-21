@@ -844,7 +844,7 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("Cannot place a member in a non-voice channel!"); // be a little more angry, let em learn!!1
 
             await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, member.Id, default, default, default,
-                default, this.Id, null).ConfigureAwait(false);
+                default, this.Id, default, null).ConfigureAwait(false);
         }
 
         /// <summary>

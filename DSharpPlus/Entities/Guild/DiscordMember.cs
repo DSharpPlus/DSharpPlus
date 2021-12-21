@@ -66,6 +66,7 @@ namespace DSharpPlus.Entities
             this._avatarHash = mbr.AvatarHash;
             this._role_ids = mbr.Roles ?? new List<ulong>();
             this._role_ids_lazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(this._role_ids));
+            this.CommunicationDisabledUntil = mbr.CommunicationDisabledUntil;
         }
 
         /// <summary>
@@ -96,6 +97,13 @@ namespace DSharpPlus.Entities
         [JsonIgnore]
         public string DisplayName
             => this.Nickname ?? this.Username;
+
+
+        /// <summary>
+        /// How long this member's communication will be supressed for.
+        /// </summary>
+        [JsonProperty("communication_disabled_until",  NullValueHandling = NullValueHandling.Include)]
+        public DateTimeOffset? CommunicationDisabledUntil { get; internal set; }
 
         /// <summary>
         /// List of role ids
@@ -406,6 +414,14 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Times-out a member and restricts their ability to send messages, add reactions, speak in threads, and join voice channels.
+        /// </summary>
+        /// <param name="until">How long the timeout should last. Set to <langword="null"/> or a time in the past to remove the timeout.</param>
+        /// <param name="reason">Why this member is being restricted.</param>
+        public Task TimeoutAsync(DateTimeOffset? until, string reason = default)
+            => this.Discord.ApiClient.ModifyGuildMemberAsync(this._guild_id, this.Id, default, default, default, default, default, until, reason);
+
+        /// <summary>
         /// Sets this member's voice mute status.
         /// </summary>
         /// <param name="mute">Whether the member is to be muted.</param>
@@ -416,7 +432,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task SetMuteAsync(bool mute, string reason = null)
-            => this.Discord.ApiClient.ModifyGuildMemberAsync(this._guild_id, this.Id, default, default, mute, default, default, reason);
+            => this.Discord.ApiClient.ModifyGuildMemberAsync(this._guild_id, this.Id, default, default, mute, default, default, default, reason);
 
         /// <summary>
         /// Sets this member's voice deaf status.
@@ -429,7 +445,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task SetDeafAsync(bool deaf, string reason = null)
-            => this.Discord.ApiClient.ModifyGuildMemberAsync(this._guild_id, this.Id, default, default, default, deaf, default, reason);
+            => this.Discord.ApiClient.ModifyGuildMemberAsync(this._guild_id, this.Id, default, default, default, deaf, default, default, reason);
 
         /// <summary>
         /// Modifies this member.
@@ -455,13 +471,13 @@ namespace DSharpPlus.Entities
 
                 await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, Optional.FromNoValue<string>(),
                     mdl.Roles.IfPresent(e => e.Select(xr => xr.Id)), mdl.Muted, mdl.Deafened,
-                    mdl.VoiceChannel.IfPresent(e => e?.Id), mdl.AuditLogReason).ConfigureAwait(false);
+                    mdl.VoiceChannel.IfPresent(e => e?.Id), default, mdl.AuditLogReason).ConfigureAwait(false);
             }
             else
             {
                 await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, mdl.Nickname,
                     mdl.Roles.IfPresent(e => e.Select(xr => xr.Id)), mdl.Muted, mdl.Deafened,
-                    mdl.VoiceChannel.IfPresent(e => e?.Id), mdl.AuditLogReason).ConfigureAwait(false);
+                    mdl.VoiceChannel.IfPresent(e => e?.Id), mdl.CommunicationDisabledUntil, mdl.AuditLogReason).ConfigureAwait(false);
             }
         }
 
@@ -503,7 +519,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task ReplaceRolesAsync(IEnumerable<DiscordRole> roles, string reason = null)
             => this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, default,
-                new Optional<IEnumerable<ulong>>(roles.Select(xr => xr.Id)), default, default, default, reason);
+                new Optional<IEnumerable<ulong>>(roles.Select(xr => xr.Id)), default, default, default, default, reason);
 
         /// <summary>
         /// Bans a this member from their guild.

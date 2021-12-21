@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using DSharpPlus.Entities;
 
@@ -37,7 +38,7 @@ namespace DSharpPlus.Net.Models
         /// </summary>
         public Optional<List<DiscordRole>> Roles { internal get; set; }
         /// <summary>
-        /// Whether this user should be muted
+        /// Whether this user should be muted in voice channels
         /// </summary>
         public Optional<bool> Muted { internal get; set; }
         /// <summary>
@@ -48,6 +49,11 @@ namespace DSharpPlus.Net.Models
         /// Voice channel to move this user to, set to null to kick
         /// </summary>
         public Optional<DiscordChannel> VoiceChannel { internal get; set; }
+
+        /// <summary>
+        /// Whether this member should have communication restricted
+        /// </summary>
+        public Optional<DateTimeOffset?> CommunicationDisabledUntil { internal get; set; }
 
         internal MemberEditModel()
         {

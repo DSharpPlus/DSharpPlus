@@ -347,7 +347,13 @@ namespace DSharpPlus
         /// Allows for launching activities (applications with the `EMBEDDED` flag) in a voice channel.
         /// </summary>
         [PermissionString("Start Embedded Activities")]
-        StartEmbeddedActivities = 0x0000008000000000
+        StartEmbeddedActivities = 0x0000008000000000,
+
+        /// <summary>
+        /// Allows for moderating (Timeout) members in a guild.
+        /// </summary>
+        [PermissionString("Moderate Members")]
+        ModerateMembers = 0x0000010000000000
     }
 
     /// <summary>

@@ -1054,7 +1054,7 @@ namespace DSharpPlus
             => this.ApiClient.GetCurrentUserGuildsAsync(limit, before, after);
 
         /// <summary>
-        /// Modifies guild member
+        /// Modifies guild member.
         /// </summary>
         /// <param name="guild_id">Guild id</param>
         /// <param name="user_id">User id</param>
@@ -1063,12 +1063,13 @@ namespace DSharpPlus
         /// <param name="mute">Whether this user should be muted</param>
         /// <param name="deaf">Whether this user should be deafened</param>
         /// <param name="voice_channel_id">Voice channel to move this user to</param>
+        /// <param name="communication_disabled_until">How long this member should be timed out for. Requires MODERATE_MEMBERS permission.</param>
         /// <param name="reason">Reason this user was modified</param>
         /// <returns></returns>
         public Task ModifyGuildMemberAsync(ulong guild_id, ulong user_id, Optional<string> nick,
             Optional<IEnumerable<ulong>> role_ids, Optional<bool> mute, Optional<bool> deaf,
-            Optional<ulong?> voice_channel_id, string reason)
-            => this.ApiClient.ModifyGuildMemberAsync(guild_id, user_id, nick, role_ids, mute, deaf, voice_channel_id, reason);
+            Optional<ulong?> voice_channel_id, Optional<DateTimeOffset?> communication_disabled_until, string reason)
+            => this.ApiClient.ModifyGuildMemberAsync(guild_id, user_id, nick, role_ids, mute, deaf, voice_channel_id, communication_disabled_until, reason);
 
         /// <summary>
         /// Modifies a member
@@ -1091,13 +1092,13 @@ namespace DSharpPlus
                     mdl.AuditLogReason).ConfigureAwait(false);
                 await this.ApiClient.ModifyGuildMemberAsync(guild_id, member_id, Optional.FromNoValue<string>(),
                     mdl.Roles.IfPresent(e => e.Select(xr => xr.Id)), mdl.Muted, mdl.Deafened,
-                    mdl.VoiceChannel.IfPresent(e => e?.Id), mdl.AuditLogReason).ConfigureAwait(false);
+                    mdl.VoiceChannel.IfPresent(e => e?.Id), default, mdl.AuditLogReason).ConfigureAwait(false);
             }
             else
             {
                 await this.ApiClient.ModifyGuildMemberAsync(guild_id, member_id, mdl.Nickname,
                     mdl.Roles.IfPresent(e => e.Select(xr => xr.Id)), mdl.Muted, mdl.Deafened,
-                    mdl.VoiceChannel.IfPresent(e => e?.Id), mdl.AuditLogReason).ConfigureAwait(false);
+                    mdl.VoiceChannel.IfPresent(e => e?.Id), mdl.CommunicationDisabledUntil, mdl.AuditLogReason).ConfigureAwait(false);
             }
         }
 

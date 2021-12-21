@@ -214,7 +214,7 @@ namespace DSharpPlus
 
                 case "guild_member_update":
                     gid = (ulong)dat["guild_id"];
-                    await this.OnGuildMemberUpdateEventAsync(dat.ToDiscordObject<TransportMember>(), this._guilds[gid], dat["roles"].ToObject<IEnumerable<ulong>>(), (string)dat["nick"], (bool?)dat["pending"]).ConfigureAwait(false);
+                    await this.OnGuildMemberUpdateEventAsync(dat.ToDiscordObject<TransportMember>(), this._guilds[gid], dat["roles"].ToObject<IEnumerable<ulong>>(), (string)dat["nick"], (bool?)dat["pending"], (DateTimeOffset?)dat["communication_disabled_until"]).ConfigureAwait(false);
                     break;
 
                 case "guild_members_chunk":
@@ -1237,7 +1237,7 @@ namespace DSharpPlus
             await this._guildMemberRemoved.InvokeAsync(this, ea).ConfigureAwait(false);
         }
 
-        internal async Task OnGuildMemberUpdateEventAsync(TransportMember member, DiscordGuild guild, IEnumerable<ulong> roles, string nick, bool? pending)
+        internal async Task OnGuildMemberUpdateEventAsync(TransportMember member, DiscordGuild guild, IEnumerable<ulong> roles, string nick, bool? pending, DateTimeOffset? comunication_disabled_until)
         {
             var usr = new DiscordUser(member.User) { Discord = this };
             usr = this.UpdateUserCache(usr);
@@ -1249,12 +1249,14 @@ namespace DSharpPlus
             var pending_old = mbr.IsPending;
             var roles_old = new ReadOnlyCollection<DiscordRole>(new List<DiscordRole>(mbr.Roles));
             var avatar_old = mbr.GuildAvatarHash;
+            var commm_old = mbr.CommunicationDisabledUntil;
 
             mbr._avatarHash = member.AvatarHash;
             mbr.Nickname = nick;
             mbr.IsPending = pending;
             mbr._role_ids.Clear();
             mbr._role_ids.AddRange(roles);
+            mbr.CommunicationDisabledUntil = comunication_disabled_until;
 
             var ea = new GuildMemberUpdateEventArgs
             {
@@ -1265,11 +1267,13 @@ namespace DSharpPlus
                 RolesAfter = new ReadOnlyCollection<DiscordRole>(new List<DiscordRole>(mbr.Roles)),
                 AvatarHashAfter = mbr.AvatarHash,
                 PendingAfter = mbr.IsPending,
+                CommunicationDisabledUntilAfter = mbr.CommunicationDisabledUntil,
 
                 NicknameBefore = nick_old,
                 RolesBefore = roles_old,
                 AvatarHashBefore = avatar_old,
                 PendingBefore = pending_old,
+                CommunicationDisabledUntilBefore = commm_old
             };
             await this._guildMemberUpdated.InvokeAsync(this, ea).ConfigureAwait(false);
         }
