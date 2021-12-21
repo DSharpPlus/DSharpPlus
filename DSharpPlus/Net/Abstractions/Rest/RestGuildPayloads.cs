@@ -194,7 +194,7 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("channel_id")]
         public Optional<ulong?> VoiceChannelId { get; set; }
 
-        [JsonProperty("communication_disbaled_until")]
+        [JsonProperty("communication_disabled_until", NullValueHandling = NullValueHandling.Include)]
         public Optional<DateTimeOffset?> CommunicationDisabledUntil { get; set; }
     }
 
