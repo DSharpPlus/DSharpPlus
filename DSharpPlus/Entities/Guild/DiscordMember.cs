@@ -414,11 +414,11 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Disables communications on the guild for this member.
+        /// Times-out a member and restricts their ability to send messages, add reactions, speak in threads, and join voice channels.
         /// </summary>
-        /// <param name="until">The time the restriction should be lifted. Set to <langword="null"/> to enable communication.</param>
+        /// <param name="until">How long the timeout should last. Set to <langword="null"/> or a time in the past to remove the timeout.</param>
         /// <param name="reason">Why this member is being restricted.</param>
-        public Task DisableCommunicationAsync(DateTimeOffset? until, string reason = default)
+        public Task TimeoutAsync(DateTimeOffset? until, string reason = default)
             => this.Discord.ApiClient.ModifyGuildMemberAsync(this._guild_id, this.Id, default, default, default, default, default, until, reason);
 
         /// <summary>

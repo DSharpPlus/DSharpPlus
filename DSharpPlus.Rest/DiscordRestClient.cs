@@ -924,7 +924,7 @@ namespace DSharpPlus
             => this.ApiClient.GetCurrentUserGuildsAsync(limit, before, after);
 
         /// <summary>
-        /// Modifies guild member
+        /// Modifies guild member.
         /// </summary>
         /// <param name="guild_id">Guild id</param>
         /// <param name="user_id">User id</param>
@@ -933,6 +933,7 @@ namespace DSharpPlus
         /// <param name="mute">Whether this user should be muted</param>
         /// <param name="deaf">Whether this user should be deafened</param>
         /// <param name="voice_channel_id">Voice channel to move this user to</param>
+        /// <param name="communication_disabled_until">How long this member should be timed out for. Requires MODERATE_MEMBERS permission.</param>
         /// <param name="reason">Reason this user was modified</param>
         /// <returns></returns>
         public Task ModifyGuildMemberAsync(ulong guild_id, ulong user_id, Optional<string> nick,
