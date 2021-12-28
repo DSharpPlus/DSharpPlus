@@ -72,12 +72,22 @@ namespace DSharpPlus
         /// <summary>
         /// Fired when the client enters ready state.
         /// </summary>
+	[Obsolete("This event is being replaced with DiscordClient.Connected to clarify it's meaning. Please use this instead!")]
         public event AsyncEventHandler<DiscordClient, ReadyEventArgs> Ready
         {
             add => this._ready.Register(value);
             remove => this._ready.Unregister(value);
         }
         private AsyncEvent<DiscordClient, ReadyEventArgs> _ready;
+	
+	/// <summary>
+	/// Fired when the client enters ready state (connection established).
+	/// </summary>
+	public event AsyncEventHandler<DiscordClient, ReadyEventArgs> Connected
+	{
+	    add => this._ready.Register(value);
+	    remove => this._ready.Unregister(value);
+	}
 
         /// <summary>
         /// Fired whenever a session is resumed.
