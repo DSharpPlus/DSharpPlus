@@ -46,6 +46,7 @@ namespace DSharpPlus.Net.Serialization
             var cmp = type switch
             {
                 ComponentType.ActionRow => new DiscordActionRowComponent(),
+                ComponentType.Button when (int)job["style"] is 5 => new DiscordLinkButtonComponent(),
                 ComponentType.Button => new DiscordButtonComponent(),
                 ComponentType.Select => new DiscordSelectComponent(),
                 _ => new DiscordComponent() { Type = type.Value }
