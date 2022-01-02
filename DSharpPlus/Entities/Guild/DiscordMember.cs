@@ -73,14 +73,13 @@ namespace DSharpPlus.Entities
         /// Gets the member's avatar for the current guild.
         /// </summary>
         [JsonIgnore]
-        public string GuildAvatarHash => this._avatarHash ?? this.User.AvatarHash;
+        public string GuildAvatarHash => this._avatarHash;
 
         /// <summary>
         /// Gets the members avatar url for the current guild.
         /// </summary>
         [JsonIgnore]
-        public string GuildAvatarUrl
-            => !string.IsNullOrWhiteSpace(this.GuildAvatarHash) ? (this.GuildAvatarHash.StartsWith("a_") ? $"https://cdn.discordapp.com{Endpoints.GUILDS}/{this._guild_id}{Endpoints.USERS}/{this.Id}{Endpoints.AVATARS}/{this.GuildAvatarHash}.gif?size=1024" : $"https://cdn.discordapp.com{Endpoints.GUILDS}/{this._guild_id}{Endpoints.USERS}/{this.Id}{Endpoints.AVATARS}/{this.GuildAvatarHash}.png?size=1024") : this.DefaultAvatarUrl;
+        public string GuildAvatarUrl => string.IsNullOrWhiteSpace(this.GuildAvatarHash) ? null : $"https://cdn.discordapp.com{Endpoints.GUILDS}/{this._guild_id}{Endpoints.USERS}/{this.Id}{Endpoints.AVATARS}/{this.GuildAvatarHash}.{(this.GuildAvatarHash.StartsWith("a_") ? "gif" : "png")}?size=1024";
 
         [JsonIgnore]
         internal string _avatarHash;
@@ -621,7 +620,8 @@ namespace DSharpPlus.Entities
                 _ => throw new ArgumentOutOfRangeException(nameof(imageFormat)),
             };
             var stringImageSize = imageSize.ToString(CultureInfo.InvariantCulture);
-            return $"https://cdn.discordapp.com/guilds/{this._guild_id}/users/{this.Id.ToString(CultureInfo.InvariantCulture)}/avatars/{this.GuildAvatarHash}.{stringImageFormat}?size={stringImageSize}";
+
+            return $"https://cdn.discordapp.com{Endpoints.GUILDS}/{this._guild_id}{Endpoints.USERS}/{this.Id}{Endpoints.AVATARS}/{this.GuildAvatarHash}.{stringImageFormat}?size={stringImageSize}";
         }
 
 
