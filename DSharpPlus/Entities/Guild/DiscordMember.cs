@@ -102,7 +102,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// How long this member's communication will be supressed for.
         /// </summary>
-        [JsonProperty("communication_disabled_until",  NullValueHandling = NullValueHandling.Include)]
+        [JsonProperty("communication_disabled_until", NullValueHandling = NullValueHandling.Include)]
         public DateTimeOffset? CommunicationDisabledUntil { get; internal set; }
 
         /// <summary>
@@ -416,7 +416,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Times-out a member and restricts their ability to send messages, add reactions, speak in threads, and join voice channels.
         /// </summary>
-        /// <param name="until">How long the timeout should last. Set to <langword="null"/> or a time in the past to remove the timeout.</param>
+        /// <param name="until">How long the timeout should last. Set to <see langword="null"/> or a time in the past to remove the timeout.</param>
         /// <param name="reason">Why this member is being restricted.</param>
         public Task TimeoutAsync(DateTimeOffset? until, string reason = default)
             => this.Discord.ApiClient.ModifyGuildMemberAsync(this._guild_id, this.Id, default, default, default, default, default, until, reason);
@@ -587,6 +587,45 @@ namespace DSharpPlus.Entities
         public Permissions PermissionsIn(DiscordChannel channel)
             => channel.PermissionsFor(this);
 
+        /// <summary>
+        /// Constructs the url for a guild member's avatar, defaulting to the user's avatar if none is set.
+        /// </summary>
+        /// <param name="imageFormat">The image format of the avatar to get.</param>
+        /// <param name="imageSize">The maximum size of the avatar. Must be a power of two, minimum 16, maximum 4096.</param>
+        /// <returns>The URL of the user's avatar.</returns>
+        public string GetGuildAvatarUrl(ImageFormat imageFormat, ushort imageSize = 1024)
+        {
+            // Run this if statement before any others to prevent running the if statements twice.
+            if (!string.IsNullOrWhiteSpace(this.AvatarHash))
+            {
+                return this.GetAvatarUrl(imageFormat, imageSize);
+            }
+
+            if (imageFormat == ImageFormat.Unknown)
+                throw new ArgumentException("You must specify valid image format.", nameof(imageFormat));
+
+            // Makes sure the image size is in between Discord's allowed range.
+            if (imageSize < 16 || imageSize > 4096)
+                throw new ArgumentOutOfRangeException("Image Size is not in between 16 and 4096: " + nameof(imageSize));
+
+            // Checks to see if the image size is a power of two.
+            if (imageSize is 0 && (imageSize & (imageSize - 1)) is not 0)
+                throw new ArgumentOutOfRangeException("Image size is not a power of two: " + nameof(imageSize));
+
+            // Get the string varients of the method parameters to use in the urls.
+            var stringImageFormat = imageFormat switch
+            {
+                ImageFormat.Gif => "gif",
+                ImageFormat.Jpeg => "jpg",
+                ImageFormat.Png => "png",
+                ImageFormat.WebP => "webp",
+                ImageFormat.Auto => !string.IsNullOrWhiteSpace(this.AvatarHash) ? (this.AvatarHash.StartsWith("a_") ? "gif" : "png") : "png",
+                _ => throw new ArgumentOutOfRangeException(nameof(imageFormat)),
+            };
+            var stringImageSize = imageSize.ToString(CultureInfo.InvariantCulture);
+            return $"https://cdn.discordapp.com/guilds/{this._guild_id}/users/{this.Id.ToString(CultureInfo.InvariantCulture)}/avatars/{this.AvatarHash}.{stringImageFormat}?size={stringImageSize}";
+        }
+
 
         /// <summary>
         /// Returns a string representation of this member.
@@ -611,7 +650,7 @@ namespace DSharpPlus.Entities
             if (e is null)
                 return false;
 
-            return ReferenceEquals(this, e) ? true : this.Id == e.Id && this._guild_id == e._guild_id;
+            return ReferenceEquals(this, e) || (this.Id == e.Id && this._guild_id == e._guild_id);
         }
 
         /// <summary>
@@ -642,7 +681,7 @@ namespace DSharpPlus.Entities
             if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
                 return false;
 
-            return o1 == null && o2 == null ? true : e1.Id == e2.Id && e1._guild_id == e2._guild_id;
+            return (o1 == null && o2 == null) || (e1.Id == e2.Id && e1._guild_id == e2._guild_id);
         }
 
         /// <summary>
