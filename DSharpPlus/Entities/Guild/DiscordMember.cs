@@ -596,7 +596,7 @@ namespace DSharpPlus.Entities
         public string GetGuildAvatarUrl(ImageFormat imageFormat, ushort imageSize = 1024)
         {
             // Run this if statement before any others to prevent running the if statements twice.
-            if (!string.IsNullOrWhiteSpace(this.AvatarHash))
+            if (string.IsNullOrWhiteSpace(this.AvatarHash))
             {
                 return this.GetAvatarUrl(imageFormat, imageSize);
             }
@@ -623,7 +623,7 @@ namespace DSharpPlus.Entities
                 _ => throw new ArgumentOutOfRangeException(nameof(imageFormat)),
             };
             var stringImageSize = imageSize.ToString(CultureInfo.InvariantCulture);
-            return $"https://cdn.discordapp.com/guilds/{this._guild_id}/users/{this.Id.ToString(CultureInfo.InvariantCulture)}/avatars/{this.AvatarHash}.{stringImageFormat}?size={stringImageSize}";
+            return $"https://cdn.discordapp.com/guilds/{this._guild_id}/users/{this.Id.ToString(CultureInfo.InvariantCulture)}/avatars/{this.GuildAvatarHash}.{stringImageFormat}?size={stringImageSize}";
         }
 
 
