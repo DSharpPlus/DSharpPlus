@@ -606,7 +606,7 @@ namespace DSharpPlus.Entities
                 throw new ArgumentOutOfRangeException("Image Size is not in between 16 and 4096: " + nameof(imageSize));
 
             // Checks to see if the image size is not a power of two.
-            if (imageSize is 0 && (imageSize & (imageSize - 1)) is not 0)
+            if (!(imageSize is not 0 && (imageSize & (imageSize - 1)) is 0))
                 throw new ArgumentOutOfRangeException("Image size is not a power of two: " + nameof(imageSize));
 
             // Get the string varients of the method parameters to use in the urls.
