@@ -597,9 +597,7 @@ namespace DSharpPlus.Entities
         {
             // Run this if statement before any others to prevent running the if statements twice.
             if (string.IsNullOrWhiteSpace(this.GuildAvatarHash))
-            {
                 return this.GetAvatarUrl(imageFormat, imageSize);
-            }
 
             if (imageFormat == ImageFormat.Unknown)
                 throw new ArgumentException("You must specify valid image format.", nameof(imageFormat));
@@ -608,7 +606,7 @@ namespace DSharpPlus.Entities
             if (imageSize < 16 || imageSize > 4096)
                 throw new ArgumentOutOfRangeException("Image Size is not in between 16 and 4096: " + nameof(imageSize));
 
-            // Checks to see if the image size is a power of two.
+            // Checks to see if the image size is not a power of two.
             if (imageSize is 0 && (imageSize & (imageSize - 1)) is not 0)
                 throw new ArgumentOutOfRangeException("Image size is not a power of two: " + nameof(imageSize));
 
