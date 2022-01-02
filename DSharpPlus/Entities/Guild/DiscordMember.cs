@@ -596,7 +596,7 @@ namespace DSharpPlus.Entities
         public string GetGuildAvatarUrl(ImageFormat imageFormat, ushort imageSize = 1024)
         {
             // Run this if statement before any others to prevent running the if statements twice.
-            if (string.IsNullOrWhiteSpace(this.AvatarHash))
+            if (string.IsNullOrWhiteSpace(this.GuildAvatarHash))
             {
                 return this.GetAvatarUrl(imageFormat, imageSize);
             }
