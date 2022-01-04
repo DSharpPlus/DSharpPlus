@@ -29,8 +29,19 @@ namespace DSharpPlus.Net.Models
 {
     public class ThreadChannelEditModel : ChannelEditModel
     {
+        /// <summary>
+        /// Sets if the thread is archived
+        /// </summary>
         public bool? IsArchived { internal get; set; }
+
+        /// <summary>
+        /// Sets AutoArchiveDuration of the thread
+        /// </summary>
         public AutoArchiveDuration? AutoArchiveDuration { internal get; set; }
+
+        /// <summary>
+        /// Sets if anyone can unarchive a thread
+        /// </summary>
         public bool? Locked { internal get; set; }
 
         internal ThreadChannelEditModel() { }
