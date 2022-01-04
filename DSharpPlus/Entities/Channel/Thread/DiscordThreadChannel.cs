@@ -121,6 +121,24 @@ namespace DSharpPlus.Entities
             await this.Discord.ApiClient.RemoveThreadMemberAsync(this.Id, member.Id);
         }
 
+        /// <summary>
+        /// Modifies the current thread.
+        /// </summary>
+        /// <param name="action">Action to perform on this thread</param>
+        /// <returns></returns>
+        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
+        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task ModifyAsync(Action<ThreadChannelEditModel> action)
+        {
+            var mdl = new ThreadChannelEditModel();
+            action(mdl);
+            return this.Discord.ApiClient.ModifyThreadChannelAsync(this.Id, mdl.Name, mdl.Position, mdl.Topic, mdl.Nsfw,
+                mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.PerUserRateLimit, mdl.RtcRegion.IfPresent(r => r?.Id),
+                mdl.QualityMode, mdl.Type, mdl.PermissionOverwrites, mdl.IsArchived, mdl.AutoArchiveDuration, mdl.Locked, mdl.AuditLogReason);
+        }
+
         #endregion
 
         internal DiscordThreadChannel() {}

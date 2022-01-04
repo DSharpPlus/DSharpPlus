@@ -1021,6 +1021,46 @@ namespace DSharpPlus.Net
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, headers, DiscordJson.SerializeObject(pld));
         }
 
+        internal Task ModifyThreadChannelAsync(ulong channel_id, string name, int? position, Optional<string> topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? user_limit, Optional<int?> perUserRateLimit, Optional<string> rtcRegion, VideoQualityMode? qualityMode, Optional<ChannelType> type, IEnumerable<DiscordOverwriteBuilder> permissionOverwrites, bool? isArchived, AutoArchiveDuration? autoArchiveDuration, bool? locked, string reason)
+        {
+            List<DiscordRestOverwrite> restoverwrites = null;
+            if (permissionOverwrites != null)
+            {
+                restoverwrites = new List<DiscordRestOverwrite>();
+                foreach (var ow in permissionOverwrites)
+                    restoverwrites.Add(ow.Build());
+            }
+
+            var pld = new RestThreadChannelModifyPayload
+            {
+                Name = name,
+                Position = position,
+                Topic = topic,
+                Nsfw = nsfw,
+                Parent = parent,
+                Bitrate = bitrate,
+                UserLimit = user_limit,
+                PerUserRateLimit = perUserRateLimit,
+                RtcRegion = rtcRegion,
+                QualityMode = qualityMode,
+                Type = type,
+                PermissionOverwrites = restoverwrites,
+                IsArchived = isArchived,
+                ArchiveDuration = autoArchiveDuration,
+                Locked = locked
+            };
+
+            var headers = Utilities.GetBaseHeaders();
+            if (!string.IsNullOrWhiteSpace(reason))
+                headers.Add(REASON_HEADER_NAME, reason);
+
+            var route = $"{Endpoints.CHANNELS}/:channel_id";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { channel_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, headers, DiscordJson.SerializeObject(pld));
+        }
+
         internal async Task<DiscordChannel> GetChannelAsync(ulong channel_id)
         {
             var route = $"{Endpoints.CHANNELS}/:channel_id";
