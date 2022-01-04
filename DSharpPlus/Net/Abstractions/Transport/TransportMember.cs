@@ -41,6 +41,9 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
         public List<ulong> Roles { get; internal set; }
 
+        [JsonProperty("communication_disabled_until", NullValueHandling = NullValueHandling.Include)]
+        public DateTimeOffset? CommunicationDisabledUntil { get; internal set; }
+
         [JsonProperty("joined_at", NullValueHandling = NullValueHandling.Ignore)]
         public DateTime JoinedAt { get; internal set; }
 

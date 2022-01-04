@@ -20,44 +20,27 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-
-using System;
 using System.Collections.Generic;
-using DSharpPlus.Entities;
+using Newtonsoft.Json;
 
-namespace DSharpPlus.Net.Models
+namespace DSharpPlus.Entities
 {
-    public class MemberEditModel : BaseEditModel
+    /// <summary>
+    /// Metadata for a <see cref="DiscordScheduledGuildEvent"/>.
+    /// </summary>
+    public sealed class DiscordScheduledGuildEventMetadata
     {
         /// <summary>
-        /// New nickname
+        /// If this is an external event, where this event is hosted.
         /// </summary>
-        public Optional<string> Nickname { internal get; set; }
-        /// <summary>
-        /// New roles
-        /// </summary>
-        public Optional<List<DiscordRole>> Roles { internal get; set; }
-        /// <summary>
-        /// Whether this user should be muted in voice channels
-        /// </summary>
-        public Optional<bool> Muted { internal get; set; }
-        /// <summary>
-        /// Whether this user should be deafened
-        /// </summary>
-        public Optional<bool> Deafened { internal get; set; }
-        /// <summary>
-        /// Voice channel to move this user to, set to null to kick
-        /// </summary>
-        public Optional<DiscordChannel> VoiceChannel { internal get; set; }
+        [JsonProperty("location")]
+        public string Location { get; internal set; }
 
-        /// <summary>
-        /// Whether this member should have communication restricted
-        /// </summary>
-        public Optional<DateTimeOffset?> CommunicationDisabledUntil { internal get; set; }
+        internal DiscordScheduledGuildEventMetadata() { }
 
-        internal MemberEditModel()
+        public DiscordScheduledGuildEventMetadata(string location)
         {
-
+            this.Location = location;
         }
     }
 }

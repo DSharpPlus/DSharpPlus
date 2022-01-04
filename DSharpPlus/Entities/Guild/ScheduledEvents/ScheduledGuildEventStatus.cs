@@ -20,44 +20,31 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-
-using System;
-using System.Collections.Generic;
-using DSharpPlus.Entities;
-
-namespace DSharpPlus.Net.Models
+namespace DSharpPlus.Entities
 {
-    public class MemberEditModel : BaseEditModel
+    /// <summary>
+    /// Represents the status of a <see cref="DiscordScheduledGuildEvent"/>.
+    /// </summary>
+    public enum ScheduledGuildEventStatus
     {
         /// <summary>
-        /// New nickname
+        /// This event is scheduled.
         /// </summary>
-        public Optional<string> Nickname { internal get; set; }
-        /// <summary>
-        /// New roles
-        /// </summary>
-        public Optional<List<DiscordRole>> Roles { internal get; set; }
-        /// <summary>
-        /// Whether this user should be muted in voice channels
-        /// </summary>
-        public Optional<bool> Muted { internal get; set; }
-        /// <summary>
-        /// Whether this user should be deafened
-        /// </summary>
-        public Optional<bool> Deafened { internal get; set; }
-        /// <summary>
-        /// Voice channel to move this user to, set to null to kick
-        /// </summary>
-        public Optional<DiscordChannel> VoiceChannel { internal get; set; }
+        Scheduled = 1,
 
         /// <summary>
-        /// Whether this member should have communication restricted
+        /// This event is currently running.
         /// </summary>
-        public Optional<DateTimeOffset?> CommunicationDisabledUntil { internal get; set; }
+        Active = 2,
 
-        internal MemberEditModel()
-        {
+        /// <summary>
+        /// This event has finished running.
+        /// </summary>
+        Completed = 3,
 
-        }
+        /// <summary>
+        /// This event has been cancelled.
+        /// </summary>
+        Cancelled = 4
     }
 }

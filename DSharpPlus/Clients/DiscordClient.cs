@@ -173,6 +173,12 @@ namespace DSharpPlus
             this._inviteDeleted = new AsyncEvent<DiscordClient, InviteDeleteEventArgs>("INVITE_DELETED", EventExecutionLimit, this.EventErrorHandler);
             this._messageCreated = new AsyncEvent<DiscordClient, MessageCreateEventArgs>("MESSAGE_CREATED", EventExecutionLimit, this.EventErrorHandler);
             this._presenceUpdated = new AsyncEvent<DiscordClient, PresenceUpdateEventArgs>("PRESENCE_UPDATED", EventExecutionLimit, this.EventErrorHandler);
+            this._scheduledGuildEventCreated = new AsyncEvent<DiscordClient, ScheduledGuildEventCreateEventArgs>("SCHEDULED_GUILD_EVENT_CREATED", EventExecutionLimit, this.EventErrorHandler);
+            this._scheduledGuildEventDeleted = new AsyncEvent<DiscordClient, ScheduledGuildEventDeleteEventArgs>("SCHEDULED_GUILD_EVENT_DELETED", EventExecutionLimit, this.EventErrorHandler);
+            this._scheduledGuildEventUpdated = new AsyncEvent<DiscordClient, ScheduledGuildEventUpdateEventArgs>("SCHEDULED_GUILD_EVENT_UPDATED", EventExecutionLimit, this.EventErrorHandler);
+            this._scheduledGuildEventCompleted = new AsyncEvent<DiscordClient, ScheduledGuildEventCompletedEventArgs>("SCHEDULED_GUILD_EVENT_COMPLETED", EventExecutionLimit, this.EventErrorHandler);
+            this._scheduledGuildEventUserAdded = new AsyncEvent<DiscordClient, ScheduledGuildEventUserAddEventArgs>("SCHEDULED_GUILD_EVENT_USER_ADDED", EventExecutionLimit, this.EventErrorHandler);
+            this._scheduledGuildEventUserRemoved = new AsyncEvent<DiscordClient, ScheduledGuildEventUserRemoveEventArgs>("SCHEDULED_GUILD_EVENT_USER_REMOVED", EventExecutionLimit, this.EventErrorHandler);
             this._guildBanAdded = new AsyncEvent<DiscordClient, GuildBanAddEventArgs>("GUILD_BAN_ADD", EventExecutionLimit, this.EventErrorHandler);
             this._guildBanRemoved = new AsyncEvent<DiscordClient, GuildBanRemoveEventArgs>("GUILD_BAN_REMOVED", EventExecutionLimit, this.EventErrorHandler);
             this._guildEmojisUpdated = new AsyncEvent<DiscordClient, GuildEmojisUpdateEventArgs>("GUILD_EMOJI_UPDATED", EventExecutionLimit, this.EventErrorHandler);
@@ -828,7 +834,8 @@ namespace DSharpPlus
                 {
                     Id = message.ChannelId,
                     Discord = this,
-                    Type = ChannelType.Private
+                    Type = ChannelType.Private,
+                    Recipients = new DiscordUser[] { message.Author }
                 }
                 : new DiscordChannel
                 {

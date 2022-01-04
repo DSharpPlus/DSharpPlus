@@ -23,41 +23,23 @@
 
 using System;
 using System.Collections.Generic;
-using DSharpPlus.Entities;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using DSharpPlus.SlashCommands;
 
-namespace DSharpPlus.Net.Models
+namespace DSharpPlus.Test
 {
-    public class MemberEditModel : BaseEditModel
+    public class SlashCommandsTimeSpanConverterTest : ApplicationCommandModule
     {
-        /// <summary>
-        /// New nickname
-        /// </summary>
-        public Optional<string> Nickname { internal get; set; }
-        /// <summary>
-        /// New roles
-        /// </summary>
-        public Optional<List<DiscordRole>> Roles { internal get; set; }
-        /// <summary>
-        /// Whether this user should be muted in voice channels
-        /// </summary>
-        public Optional<bool> Muted { internal get; set; }
-        /// <summary>
-        /// Whether this user should be deafened
-        /// </summary>
-        public Optional<bool> Deafened { internal get; set; }
-        /// <summary>
-        /// Voice channel to move this user to, set to null to kick
-        /// </summary>
-        public Optional<DiscordChannel> VoiceChannel { internal get; set; }
-
-        /// <summary>
-        /// Whether this member should have communication restricted
-        /// </summary>
-        public Optional<DateTimeOffset?> CommunicationDisabledUntil { internal get; set; }
-
-        internal MemberEditModel()
+        [SlashCommand("timespanTest", "Command to test timespan parsing")]
+        public async Task TimeSpanTest(InteractionContext ctx, [Option("timespan", "Time span")] TimeSpan? timespan)
         {
+            await ctx.DeferAsync();
+            await ctx.EditResponseAsync(new Entities.DiscordWebhookBuilder().WithContent(timespan == null ? "Invalid time span" : timespan.ToString()));
 
         }
+
+
     }
 }

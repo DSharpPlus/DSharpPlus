@@ -20,44 +20,26 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-
-using System;
-using System.Collections.Generic;
-using DSharpPlus.Entities;
-
-namespace DSharpPlus.Net.Models
+namespace DSharpPlus.Entities
 {
-    public class MemberEditModel : BaseEditModel
+    /// <summary>
+    /// Declares the type of a <see cref="DiscordScheduledGuildEvent"/>.
+    /// </summary>
+    public enum ScheduledGuildEventType
     {
         /// <summary>
-        /// New nickname
+        /// The event will be hosted in a stage channel.
         /// </summary>
-        public Optional<string> Nickname { internal get; set; }
-        /// <summary>
-        /// New roles
-        /// </summary>
-        public Optional<List<DiscordRole>> Roles { internal get; set; }
-        /// <summary>
-        /// Whether this user should be muted in voice channels
-        /// </summary>
-        public Optional<bool> Muted { internal get; set; }
-        /// <summary>
-        /// Whether this user should be deafened
-        /// </summary>
-        public Optional<bool> Deafened { internal get; set; }
-        /// <summary>
-        /// Voice channel to move this user to, set to null to kick
-        /// </summary>
-        public Optional<DiscordChannel> VoiceChannel { internal get; set; }
+        StageInstance = 1,
 
         /// <summary>
-        /// Whether this member should have communication restricted
+        /// The event will be hosted in a voice channel.
         /// </summary>
-        public Optional<DateTimeOffset?> CommunicationDisabledUntil { internal get; set; }
+        VoiceChannel = 2,
 
-        internal MemberEditModel()
-        {
-
-        }
+        /// <summary>
+        /// The event will be hosted in a custom location.
+        /// </summary>
+        External = 3
     }
 }

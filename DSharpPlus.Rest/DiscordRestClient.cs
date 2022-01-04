@@ -65,6 +65,136 @@ namespace DSharpPlus
             }
         }
 
+        #region Scheduled Guild Events
+
+        /// <summary>
+        /// Creates a new scheduled guild event.
+        /// </summary>
+        /// <param name="guildId">The guild to create an event on.</param>
+        /// <param name="name">The name of the event, up to 100 characters.</param>
+        /// <param name="description">The description of the event, up to 1000 characters.</param>
+        /// <param name="channelId">The channel the event will take place in, if applicable.</param>
+        /// <param name="type">The type of event. If <see cref="ScheduledGuildEventType.External"/>, a end time must be specified.</param>
+        /// <param name="privacyLevel">The privacy level of the event. Currently only <see cref="GuildOnly"/></param>
+        /// <param name="start">When the event starts. Must be in the future and before the end date, if specified.</param>
+        /// <param name="end">When the event ends. Required for <see cref="ScheduledGuildEventType.External"/></param>
+        /// <param name="location">Where this location takes place.</param>
+        /// <returns>The created event.</returns>
+        public Task<DiscordScheduledGuildEvent> CreateScheduledGuildEventAsync(ulong guildId, string name, string description, ulong? channelId, ScheduledGuildEventType type, ScheduledGuildEventPrivacyLevel privacyLevel, DateTimeOffset start, DateTimeOffset? end, string location = null)
+            => this.ApiClient.CreateScheduledGuildEventAsync(guildId, name, description, channelId,  start, end, type, privacyLevel, new DiscordScheduledGuildEventMetadata(location));
+
+        /// <summary>
+        /// Delete a scheduled guild event.
+        /// </summary>
+        /// <param name="guildId">The id the guild the event resides on.</param>
+        /// <param name="eventId">The id of the event to delete.</param>
+        public Task DeleteScheduledGuildEventAsync(ulong guildId, ulong eventId)
+            => this.ApiClient.DeleteScheduledGuildEventAsync(guildId, eventId);
+
+        /// <summary>
+        /// Gets a specific scheduled guild event.
+        /// </summary>
+        /// <param name="guildId">The id of the guild the event resides on.</param>
+        /// <param name="eventId">The id of the event to get</param>
+        /// <returns>The requested event.</returns>
+        public Task<DiscordScheduledGuildEvent> GetScheduledGuildEventAsync(ulong guildId, ulong eventId)
+            => this.ApiClient.GetScheduledGuildEventAsync(guildId, eventId);
+
+        /// <summary>
+        /// Gets all available scheduled guild events.
+        /// </summary>
+        /// <param name="guildId">The id of the guild to query.</param>
+        /// <returns>All active and scheduled events.</returns>
+        public Task<IReadOnlyList<DiscordScheduledGuildEvent>> GetScheduledGuildEventsAsync(ulong guildId)
+            => this.ApiClient.GetScheduledGuildEventsAsync(guildId);
+
+
+        /// <summary>
+        /// Modify a scheduled guild event.
+        /// </summary>
+        /// <param name="guildId">The id of the guild the event resides on.</param>
+        /// <param name="eventId">The id of the event to modify.</param>
+        /// <param name="mdl">The action to apply to the event.</param>
+        /// <returns>The modified event.</returns>
+        public Task<DiscordScheduledGuildEvent> ModifyScheduledGuildEventAsync(ulong guildId, ulong eventId, Action<ScheduledGuildEventEditModel> mdl)
+        {
+            var model = new ScheduledGuildEventEditModel();
+            mdl(model);
+
+            if (model.Type.HasValue && model.Type.Value is (ScheduledGuildEventType.StageInstance or ScheduledGuildEventType.VoiceChannel))
+                if (!model.Channel.HasValue)
+                    throw new ArgumentException("Channel must be supplied if the event is a stage instance or voice channel event.");
+
+            if (model.Type.HasValue && model.Type.Value is ScheduledGuildEventType.External)
+            {
+                if (!model.EndTime.HasValue)
+                    throw new ArgumentException("End must be supplied if the event is an external event.");
+
+                if (!model.Metadata.HasValue || string.IsNullOrEmpty(model.Metadata.Value.Location))
+                    throw new ArgumentException("Location must be supplied if the event is an external event.");
+
+                if (model.Channel.HasValue && model.Channel.Value != null)
+                    throw new ArgumentException("Channel must not be supplied if the event is an external event.");
+            }
+
+            // We only have an ID to work off of, so we have no validation as to the current state of the event.
+            if (model.Status.HasValue && model.Status.Value is ScheduledGuildEventStatus.Scheduled)
+                throw new ArgumentException("Status cannot be set to scheduled.");
+
+            return this.ApiClient.ModifyScheduledGuildEventAsync(
+                guildId, eventId,
+                model.Name, model.Description,
+                model.Channel.IfPresent(c => c?.Id),
+                model.StartTime, model.EndTime,
+                model.Type, model.PrivacyLevel,
+                model.Metadata, model.Status);
+        }
+
+        /// <summary>
+        /// Gets the users interested in the guild event.
+        /// </summary>
+        /// <param name="guildId">The id of the guild the event resides on.</param>
+        /// <param name="eventId">The id of the event.</param>
+        /// <param name="limit">How many users to query.</param>
+        /// <param name="after">Fetch users after this id.</param>
+        /// <param name="before">Fetch users before this id.</param>
+        /// <returns>The users interested in the event.</returns>
+        public async Task<IReadOnlyList<DiscordUser>> GetScheduledGuildEventUsersAsync(ulong guildId, ulong eventId, int limit = 100, ulong? after = null, ulong? before = null)
+        {
+            var remaining = limit;
+            ulong? last = null;
+            var isAfter = after != null;
+
+            var users = new List<DiscordUser>();
+
+            int lastCount;
+            do
+            {
+                var fetchSize = remaining > 100 ? 100 : remaining;
+                var fetch = await this.ApiClient.GetScheduledGuildEventUsersAsync(guildId, eventId, true, fetchSize, !isAfter ? last ?? before : null, isAfter ? last ?? after : null);
+
+                lastCount = fetch.Count;
+                remaining -= lastCount;
+
+                if (!isAfter)
+                {
+                    users.AddRange(fetch);
+                    last = fetch.LastOrDefault()?.Id;
+                }
+                else
+                {
+                    users.InsertRange(0, fetch);
+                    last = fetch.FirstOrDefault()?.Id;
+                }
+            }
+            while (remaining > 0 && lastCount > 0);
+
+
+            return users.AsReadOnly();
+        }
+
+        #endregion
+
         #region Guild
 
         /// <summary>
@@ -924,7 +1054,7 @@ namespace DSharpPlus
             => this.ApiClient.GetCurrentUserGuildsAsync(limit, before, after);
 
         /// <summary>
-        /// Modifies guild member
+        /// Modifies guild member.
         /// </summary>
         /// <param name="guild_id">Guild id</param>
         /// <param name="user_id">User id</param>
@@ -933,12 +1063,13 @@ namespace DSharpPlus
         /// <param name="mute">Whether this user should be muted</param>
         /// <param name="deaf">Whether this user should be deafened</param>
         /// <param name="voice_channel_id">Voice channel to move this user to</param>
+        /// <param name="communication_disabled_until">How long this member should be timed out for. Requires MODERATE_MEMBERS permission.</param>
         /// <param name="reason">Reason this user was modified</param>
         /// <returns></returns>
         public Task ModifyGuildMemberAsync(ulong guild_id, ulong user_id, Optional<string> nick,
             Optional<IEnumerable<ulong>> role_ids, Optional<bool> mute, Optional<bool> deaf,
-            Optional<ulong?> voice_channel_id, string reason)
-            => this.ApiClient.ModifyGuildMemberAsync(guild_id, user_id, nick, role_ids, mute, deaf, voice_channel_id, reason);
+            Optional<ulong?> voice_channel_id, Optional<DateTimeOffset?> communication_disabled_until, string reason)
+            => this.ApiClient.ModifyGuildMemberAsync(guild_id, user_id, nick, role_ids, mute, deaf, voice_channel_id, communication_disabled_until, reason);
 
         /// <summary>
         /// Modifies a member
@@ -961,13 +1092,13 @@ namespace DSharpPlus
                     mdl.AuditLogReason).ConfigureAwait(false);
                 await this.ApiClient.ModifyGuildMemberAsync(guild_id, member_id, Optional.FromNoValue<string>(),
                     mdl.Roles.IfPresent(e => e.Select(xr => xr.Id)), mdl.Muted, mdl.Deafened,
-                    mdl.VoiceChannel.IfPresent(e => e?.Id), mdl.AuditLogReason).ConfigureAwait(false);
+                    mdl.VoiceChannel.IfPresent(e => e?.Id), default, mdl.AuditLogReason).ConfigureAwait(false);
             }
             else
             {
                 await this.ApiClient.ModifyGuildMemberAsync(guild_id, member_id, mdl.Nickname,
                     mdl.Roles.IfPresent(e => e.Select(xr => xr.Id)), mdl.Muted, mdl.Deafened,
-                    mdl.VoiceChannel.IfPresent(e => e?.Id), mdl.AuditLogReason).ConfigureAwait(false);
+                    mdl.VoiceChannel.IfPresent(e => e?.Id), mdl.CommunicationDisabledUntil, mdl.AuditLogReason).ConfigureAwait(false);
             }
         }
 

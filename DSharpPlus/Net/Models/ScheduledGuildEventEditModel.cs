@@ -20,44 +20,60 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-
 using System;
-using System.Collections.Generic;
 using DSharpPlus.Entities;
+using Newtonsoft.Json;
 
 namespace DSharpPlus.Net.Models
 {
-    public class MemberEditModel : BaseEditModel
+    public class ScheduledGuildEventEditModel : BaseEditModel
     {
         /// <summary>
-        /// New nickname
+        /// The new name of the event.
         /// </summary>
-        public Optional<string> Nickname { internal get; set; }
-        /// <summary>
-        /// New roles
-        /// </summary>
-        public Optional<List<DiscordRole>> Roles { internal get; set; }
-        /// <summary>
-        /// Whether this user should be muted in voice channels
-        /// </summary>
-        public Optional<bool> Muted { internal get; set; }
-        /// <summary>
-        /// Whether this user should be deafened
-        /// </summary>
-        public Optional<bool> Deafened { internal get; set; }
-        /// <summary>
-        /// Voice channel to move this user to, set to null to kick
-        /// </summary>
-        public Optional<DiscordChannel> VoiceChannel { internal get; set; }
+        public Optional<string> Name { get; set; }
 
         /// <summary>
-        /// Whether this member should have communication restricted
+        /// The new description of the event.
         /// </summary>
-        public Optional<DateTimeOffset?> CommunicationDisabledUntil { internal get; set; }
+        public Optional<string> Description { get; set; }
 
-        internal MemberEditModel()
-        {
+        /// <summary>
+        /// The new channel ID of the event. This must be set to null for external events.
+        /// </summary>
+        public Optional<DiscordChannel?> Channel { get; set; }
 
-        }
+        /// <summary>
+        /// The new privacy of the event.
+        /// </summary>
+        public Optional<ScheduledGuildEventPrivacyLevel> PrivacyLevel { get; set; }
+
+        /// <summary>
+        /// The type of the event.
+        /// </summary>
+        public Optional<ScheduledGuildEventType> Type { get; set; }
+
+        /// <summary>
+        /// The new time of the event.
+        /// </summary>
+        public Optional<DateTimeOffset> StartTime { get; set; }
+
+        /// <summary>
+        /// The new end time of the event.
+        /// </summary>
+        public Optional<DateTimeOffset> EndTime { get; set; }
+
+        /// <summary>
+        /// The new metadata of the event.
+        /// </summary>
+        public Optional<DiscordScheduledGuildEventMetadata> Metadata { get; set; }
+
+        /// <summary>
+        /// The new status of the event.
+        /// </summary>
+        public Optional<ScheduledGuildEventStatus> Status { get; set; }
+
+        internal ScheduledGuildEventEditModel() { }
+
     }
 }

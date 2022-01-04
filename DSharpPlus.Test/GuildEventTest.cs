@@ -20,44 +20,33 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-
 using System;
-using System.Collections.Generic;
+using System.Threading.Tasks;
+using DSharpPlus.CommandsNext;
+using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using DSharpPlus.Exceptions;
 
-namespace DSharpPlus.Net.Models
+namespace DSharpPlus.Test
 {
-    public class MemberEditModel : BaseEditModel
+    public class GuildEventTest : BaseCommandModule
     {
-        /// <summary>
-        /// New nickname
-        /// </summary>
-        public Optional<string> Nickname { internal get; set; }
-        /// <summary>
-        /// New roles
-        /// </summary>
-        public Optional<List<DiscordRole>> Roles { internal get; set; }
-        /// <summary>
-        /// Whether this user should be muted in voice channels
-        /// </summary>
-        public Optional<bool> Muted { internal get; set; }
-        /// <summary>
-        /// Whether this user should be deafened
-        /// </summary>
-        public Optional<bool> Deafened { internal get; set; }
-        /// <summary>
-        /// Voice channel to move this user to, set to null to kick
-        /// </summary>
-        public Optional<DiscordChannel> VoiceChannel { internal get; set; }
-
-        /// <summary>
-        /// Whether this member should have communication restricted
-        /// </summary>
-        public Optional<DateTimeOffset?> CommunicationDisabledUntil { internal get; set; }
-
-        internal MemberEditModel()
+        [Command("create_event")]
+        public async Task CreateEvent(CommandContext ctx, string name, string location = null, [RemainingText] string description = null)
         {
-
+            try
+            {
+                await ctx.Guild.CreateEventAsync(name, description, null, ScheduledGuildEventType.External, ScheduledGuildEventPrivacyLevel.GuildOnly, DateTimeOffset.Now + TimeSpan.FromMinutes(10), DateTimeOffset.Now + TimeSpan.FromMinutes(15), location);
+                await ctx.RespondAsync("Event created!");
+            }
+            catch (BadRequestException ex)
+            {
+                await ctx.RespondAsync(ex.JsonMessage);
+            }
+            catch (Exception ex)
+            {
+                await ctx.RespondAsync(ex.Message);
+            }
         }
     }
 }
