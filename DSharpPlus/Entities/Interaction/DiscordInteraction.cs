@@ -103,7 +103,7 @@ namespace DSharpPlus.Entities
         internal DiscordMessage Message { get; set; }
 
         /// <summary>
-        /// Gets the selected language of the invoking user.
+        /// Gets the locale of the user that invoked this interaction.
         /// </summary>
         [JsonProperty("locale")]
         public string? Locale { get; set; }
