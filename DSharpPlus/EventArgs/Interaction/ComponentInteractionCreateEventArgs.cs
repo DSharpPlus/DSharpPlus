@@ -61,6 +61,16 @@ namespace DSharpPlus.EventArgs
         /// </summary>
         public DiscordMessage Message { get; internal set; }
 
+        /// <summary>
+        /// The locale of the user that invoked this interaction.
+        /// </summary>
+        public string Locale => this.Interaction.Locale;
+
+        /// <summary>
+        /// The guild's locale that the user invoked in.
+        /// </summary>
+        public string GuildLocale => this.Interaction.GuildLocale;
+
         internal ComponentInteractionCreateEventArgs() { }
     }
 }

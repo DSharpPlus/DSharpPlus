@@ -103,6 +103,18 @@ namespace DSharpPlus.Entities
         internal DiscordMessage Message { get; set; }
 
         /// <summary>
+        /// Gets the locale of the user that invoked this interaction.
+        /// </summary>
+        [JsonProperty("locale")]
+        public string? Locale { get; internal set; }
+
+        /// <summary>
+        /// Gets the guild's preferred locale, if invoked in a guild.
+        /// </summary>
+        [JsonProperty("guild_locale")]
+        public string? GuildLocale { get; internal set; }
+
+        /// <summary>
         /// Creates a response to this interaction.
         /// </summary>
         /// <param name="type">The type of the response.</param>
