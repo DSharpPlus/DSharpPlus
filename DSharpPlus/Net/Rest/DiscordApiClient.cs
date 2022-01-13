@@ -3029,7 +3029,8 @@ namespace DSharpPlus.Net
                     Description = command.Description,
                     Options = command.Options,
                     DefaultPermission = command.DefaultPermission,
-                    AllowDMUsage = command.AllowDMUsage
+                    AllowDMUsage = command.AllowDMUsage,
+                    DefaultMemberPermissions = command.DefaultMemberPermissions
                 });
             }
 
