@@ -2913,7 +2913,9 @@ namespace DSharpPlus.Net
                     Name = command.Name,
                     Description = command.Description,
                     Options = command.Options,
-                    DefaultPermission = command.DefaultPermission
+                    DefaultPermission = command.DefaultPermission,
+                    AllowDMUsage = command.AllowDMUsage,
+                    DefaultMemberPermissions = command.DefaultMemberPermissions
                 });
             }
 
@@ -2937,7 +2939,9 @@ namespace DSharpPlus.Net
                 Name = command.Name,
                 Description = command.Description,
                 Options = command.Options,
-                DefaultPermission = command.DefaultPermission
+                DefaultPermission = command.DefaultPermission,
+                AllowDMUsage = command.AllowDMUsage,
+                DefaultMemberPermissions = command.DefaultMemberPermissions
             };
 
             var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.COMMANDS}";
@@ -2966,14 +2970,16 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordApplicationCommand> EditGlobalApplicationCommandAsync(ulong application_id, ulong command_id, Optional<string> name, Optional<string> description, Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options, Optional<bool?> defaultPermission)
+        internal async Task<DiscordApplicationCommand> EditGlobalApplicationCommandAsync(ulong application_id, ulong command_id, Optional<string> name, Optional<string> description, Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options, Optional<bool?> defaultPermission, Optional<bool> allowDMUsage, Optional<Permissions?> defaultMemberPermissions)
         {
             var pld = new RestApplicationCommandEditPayload
             {
                 Name = name,
                 Description = description,
                 Options = options,
-                DefaultPermission = defaultPermission
+                DefaultPermission = defaultPermission,
+                AllowDMUsage = allowDMUsage,
+                DefaultMemberPermissions = defaultMemberPermissions
             };
 
             var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.COMMANDS}/:command_id";
@@ -3022,7 +3028,8 @@ namespace DSharpPlus.Net
                     Name = command.Name,
                     Description = command.Description,
                     Options = command.Options,
-                    DefaultPermission = command.DefaultPermission
+                    DefaultPermission = command.DefaultPermission,
+                    AllowDMUsage = command.AllowDMUsage
                 });
             }
 
@@ -3046,7 +3053,9 @@ namespace DSharpPlus.Net
                 Name = command.Name,
                 Description = command.Description,
                 Options = command.Options,
-                DefaultPermission = command.DefaultPermission
+                DefaultPermission = command.DefaultPermission,
+                AllowDMUsage = command.AllowDMUsage,
+                DefaultMemberPermissions = command.DefaultMemberPermissions
             };
 
             var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.GUILDS}/:guild_id{Endpoints.COMMANDS}";
@@ -3075,14 +3084,16 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordApplicationCommand> EditGuildApplicationCommandAsync(ulong application_id, ulong guild_id, ulong command_id, Optional<string> name, Optional<string> description, Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options, Optional<bool?> defaultPermission)
+        internal async Task<DiscordApplicationCommand> EditGuildApplicationCommandAsync(ulong application_id, ulong guild_id, ulong command_id, Optional<string> name, Optional<string> description, Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options, Optional<bool?> defaultPermission, Optional<bool> allowDMUsage, Optional<Permissions?> defaultMemberPermissions)
         {
             var pld = new RestApplicationCommandEditPayload
             {
                 Name = name,
                 Description = description,
                 Options = options,
-                DefaultPermission = defaultPermission
+                DefaultPermission = defaultPermission,
+                AllowDMUsage = allowDMUsage,
+                DefaultMemberPermissions = defaultMemberPermissions
             };
 
             var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.GUILDS}/:guild_id{Endpoints.COMMANDS}/:command_id";

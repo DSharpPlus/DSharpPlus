@@ -43,6 +43,13 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("default_permission", NullValueHandling = NullValueHandling.Ignore)]
         public bool? DefaultPermission { get; set; }
+
+        [JsonProperty("dm_permissions", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? AllowDMUsage { get; set; }
+
+        [JsonProperty("default_member_permissions", NullValueHandling = NullValueHandling.Ignore)]
+        public Permissions? DefaultMemberPermissions { get; set; }
+
     }
 
     internal class RestApplicationCommandEditPayload
@@ -58,6 +65,12 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("default_permission", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<bool?> DefaultPermission { get; set; }
+
+        [JsonProperty("dm_permissions", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<bool> AllowDMUsage { get; set; }
+
+        [JsonProperty("default_member_permissions", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<Permissions?> DefaultMemberPermissions { get; set; }
     }
 
     internal class RestInteractionResponsePayload

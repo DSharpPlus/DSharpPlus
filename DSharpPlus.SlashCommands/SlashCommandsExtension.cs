@@ -169,6 +169,10 @@ namespace DSharpPlus.SlashCommands
                         foreach (var subclassinfo in classes)
                         {
                             //Gets the attribute and methods in the group
+
+                            var allowDMs = true;
+                            var v2Permissions = subclassinfo.GetCustomAttribute<SlashCommandPermissionsAttribute>();
+
                             var groupAttribute = subclassinfo.GetCustomAttribute<SlashCommandGroupAttribute>();
                             var submethods = subclassinfo.DeclaredMethods.Where(x => x.GetCustomAttribute<SlashCommandAttribute>() != null);
                             var subclasses = subclassinfo.DeclaredNestedTypes.Where(x => x.GetCustomAttribute<SlashCommandGroupAttribute>() != null);
@@ -495,6 +499,8 @@ namespace DSharpPlus.SlashCommands
                 return ApplicationCommandOptionType.String;
             if (type == typeof(SnowflakeObject))
                 return ApplicationCommandOptionType.Mentionable;
+            if (type == typeof(DiscordAttachment))
+                return ApplicationCommandOptionType.Attachment;
             if (type.IsEnum || Nullable.GetUnderlyingType(type)?.IsEnum == true)
                 return ApplicationCommandOptionType.String;
             throw new ArgumentException("Cannot convert type! Argument types must be string, long, bool, double, DiscordChannel, DiscordUser, DiscordRole, DiscordEmoji, SnowflakeObject or an Enum.");
