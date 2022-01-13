@@ -170,8 +170,8 @@ namespace DSharpPlus.SlashCommands
                         {
                             //Gets the attribute and methods in the group
 
-                            var allowDMs = true;
-                            var v2Permissions = subclassinfo.GetCustomAttribute<SlashCommandPermissionsAttribute>();
+                            var allowDMs = subclassinfo.GetCustomAttribute<GuildOnlyAttribute>() is null;
+                            var v2Permissions = subclassinfo.GetCustomAttribute<SlashCommandPermissionsAttribute>()?.Permissions;
 
                             var groupAttribute = subclassinfo.GetCustomAttribute<SlashCommandGroupAttribute>();
                             var submethods = subclassinfo.DeclaredMethods.Where(x => x.GetCustomAttribute<SlashCommandAttribute>() != null);
@@ -186,7 +186,7 @@ namespace DSharpPlus.SlashCommands
                             AddContextMenus(contextMethods);
 
                             //Initializes the command
-                            var payload = new DiscordApplicationCommand(groupAttribute.Name, groupAttribute.Description, defaultPermission: groupAttribute.DefaultPermission);
+                            var payload = new DiscordApplicationCommand(groupAttribute.Name, groupAttribute.Description, defaultPermission: groupAttribute.DefaultPermission, allowDMUsage: allowDMs, defaultMemberPermissions: v2Permissions);
 
                             var commandmethods = new List<KeyValuePair<string, MethodInfo>>();
                             //Handles commands in the group

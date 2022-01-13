@@ -97,7 +97,7 @@ namespace DSharpPlus.Entities
         /// <param name="options">Optional parameters for this command.</param>
         /// <param name="defaultPermission">Whether the command is enabled by default when the application is added to a guild.</param>
         /// <param name="type">The type of the application command</param>
-        public DiscordApplicationCommand(string name, string description, IEnumerable<DiscordApplicationCommandOption> options = null, bool? defaultPermission = null, ApplicationCommandType type = ApplicationCommandType.SlashCommand, bool? AllowDMUsage = null, Permissions? Permissions = null)
+        public DiscordApplicationCommand(string name, string description, IEnumerable<DiscordApplicationCommandOption> options = null, bool? defaultPermission = null, ApplicationCommandType type = ApplicationCommandType.SlashCommand, bool? allowDMUsage = null, Permissions? defaultMemberPermissions = null)
         {
             if (type is ApplicationCommandType.SlashCommand)
             {
@@ -124,6 +124,8 @@ namespace DSharpPlus.Entities
             this.Description = description;
             this.Options = optionsList;
             this.DefaultPermission = defaultPermission;
+            this.AllowDMUsage = allowDMUsage;
+            this.DefaultMemberPermissions = defaultMemberPermissions;
         }
 
         /// <summary>
