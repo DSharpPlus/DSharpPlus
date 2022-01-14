@@ -121,8 +121,11 @@ namespace DSharpPlus.Entities
             await this.Discord.ApiClient.RemoveThreadMemberAsync(this.Id, member.Id);
         }
 
+        public async Task<DiscordThreadChannelMember> GetThreadMemberAsync(DiscordMember member)
+            => await this.Discord.ApiClient.GetThreadMemberAsync(this.Id, member.Id);
+
         #endregion
 
-        internal DiscordThreadChannel() {}
+        internal DiscordThreadChannel() { }
     }
 }
