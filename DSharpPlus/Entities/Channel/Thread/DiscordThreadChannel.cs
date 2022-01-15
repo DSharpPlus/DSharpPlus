@@ -121,8 +121,16 @@ namespace DSharpPlus.Entities
             await this.Discord.ApiClient.RemoveThreadMemberAsync(this.Id, member.Id);
         }
 
+        /// <summary>
+        /// Returns a thread member object for the specified user if they are a member of the thread, returns a 404 response otherwise.
+        /// </summary>
+        /// <param name="member">The guild member to retrieve.</param>
+        /// <exception cref="NotFoundException">Thrown when a GuildMember has not joined the channel thread.</exception>
+        public async Task<DiscordThreadChannelMember> GetThreadMemberAsync(DiscordMember member)
+            => await this.Discord.ApiClient.GetThreadMemberAsync(this.Id, member.Id);
+
         #endregion
 
-        internal DiscordThreadChannel() {}
+        internal DiscordThreadChannel() { }
     }
 }
