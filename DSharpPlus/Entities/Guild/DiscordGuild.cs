@@ -463,7 +463,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Whether the guild has the boost progress bar enabled.
         /// </summary>
-        [JsonProperty("premium_progress_bar_enabled", NullValueHandling = NullValueHandling.Include)]
+        [JsonProperty("premium_progress_bar_enabled", NullValueHandling = NullValueHandling.Ignore)]
         public bool PremiumProgressBarEnabled { get; internal set; }
 
         /// <summary>
