@@ -1060,13 +1060,14 @@ namespace DSharpPlus.Entities
         /// Removes an integration from this guild.
         /// </summary>
         /// <param name="integration">Integration to remove.</param>
+        /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the guild does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task DeleteIntegrationAsync(DiscordIntegration integration)
-            => this.Discord.ApiClient.DeleteGuildIntegrationAsync(this.Id, integration);
+        public Task DeleteIntegrationAsync(DiscordIntegration integration, string reason)
+            => this.Discord.ApiClient.DeleteGuildIntegrationAsync(this.Id, integration, reason);
 
         /// <summary>
         /// Forces re-synchronization of an integration for this guild.
@@ -2593,14 +2594,15 @@ namespace DSharpPlus.Entities
         /// Modifies this guild's welcome screen.
         /// </summary>
         /// <param name="action">Action to perform.</param>
+        /// <param name="reason">Reason for audit log.</param>
         /// <returns>The modified welcome screen.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client doesn't have the <see cref="Permissions.ManageGuild"/> permission, or community is not enabled on this guild.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordGuildWelcomeScreen> ModifyWelcomeScreenAsync(Action<WelcomeScreenEditModel> action)
+        public async Task<DiscordGuildWelcomeScreen> ModifyWelcomeScreenAsync(Action<WelcomeScreenEditModel> action, string reason)
         {
             var mdl = new WelcomeScreenEditModel();
             action(mdl);
-            return await this.Discord.ApiClient.ModifyGuildWelcomeScreenAsync(this.Id, mdl.Enabled, mdl.WelcomeChannels, mdl.Description).ConfigureAwait(false);
+            return await this.Discord.ApiClient.ModifyGuildWelcomeScreenAsync(this.Id, mdl.Enabled, mdl.WelcomeChannels, mdl.Description, reason).ConfigureAwait(false);
         }
 
         /// <summary>
