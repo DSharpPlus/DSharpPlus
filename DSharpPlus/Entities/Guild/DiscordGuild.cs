@@ -461,6 +461,12 @@ namespace DSharpPlus.Entities
         public int? PremiumSubscriptionCount { get; internal set; }
 
         /// <summary>
+        /// Whether the guild has the boost progress bar enabled.
+        /// </summary>
+        [JsonProperty("premium_progress_bar_enabled", NullValueHandling = NullValueHandling.Ignore)]
+        public bool PremiumProgressBarEnabled { get; internal set; }
+
+        /// <summary>
         /// Gets whether this guild is designated as NSFW.
         /// </summary>
         [JsonProperty("nsfw", NullValueHandling = NullValueHandling.Ignore)]
@@ -2013,80 +2019,80 @@ namespace DSharpPlus.Entities
                         var entrysti = entry as DiscordAuditLogStickerEntry;
                         foreach (var xc in xac.Changes)
                         {
-                                switch (xc.Key.ToLowerInvariant())
-                                {
-                                    case "name":
-                                        entrysti.NameChange = new PropertyChange<string>
-                                        {
-                                            Before = xc.OldValueString,
-                                            After = xc.NewValueString
-                                        };
-                                        break;
-                                    case "description":
-                                        entrysti.DescriptionChange = new PropertyChange<string>
-                                        {
-                                            Before = xc.OldValueString,
-                                            After = xc.NewValueString
-                                        };
-                                        break;
-                                    case "tags":
-                                        entrysti.TagsChange = new PropertyChange<string>
-                                        {
-                                            Before = xc.OldValueString,
-                                            After = xc.NewValueString
-                                        };
-                                        break;
-                                    case "guild_id":
-                                        entrysti.GuildIdChange = new PropertyChange<ulong?>
-                                        {
-                                            Before = ulong.TryParse(xc.OldValueString, out var ogid) ? ogid : null,
-                                            After = ulong.TryParse(xc.NewValueString, out var ngid) ? ngid : null
-                                        };
-                                        break;
-                                    case "available":
-                                        entrysti.AvailabilityChange = new PropertyChange<bool?>
-                                        {
-                                            Before = (bool?)xc.OldValue,
-                                            After = (bool?)xc.NewValue,
-                                        };
-                                        break;
-                                    case "asset":
-                                        entrysti.AssetChange = new PropertyChange<string>
-                                        {
-                                            Before = xc.OldValueString,
-                                            After = xc.NewValueString
-                                        };
-                                        break;
-                                    case "id":
-                                        entrysti.IdChange = new PropertyChange<ulong?>
-                                        {
-                                            Before = ulong.TryParse(xc.OldValueString, out var oid) ? oid : null,
-                                            After = ulong.TryParse(xc.NewValueString, out var nid) ? nid : null
-                                        };
-                                        break;
-                                    case "type":
-                                        p1 = long.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t5);
-                                        p2 = long.TryParse(xc.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t6);
-                                        entrysti.TypeChange = new PropertyChange<StickerType?>
-                                        {
-                                            Before = p1 ? (StickerType?)t5 : null,
-                                            After = p2 ? (StickerType?)t6 : null
-                                        };
-                                        break;
-                                    case "format_type":
-                                        p1 = long.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t5);
-                                        p2 = long.TryParse(xc.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t6);
-                                        entrysti.FormatChange = new PropertyChange<StickerFormat?>
-                                        {
-                                            Before = p1 ? (StickerFormat?)t5 : null,
-                                            After = p2 ? (StickerFormat?)t6 : null
-                                        };
-                                        break;
+                            switch (xc.Key.ToLowerInvariant())
+                            {
+                                case "name":
+                                    entrysti.NameChange = new PropertyChange<string>
+                                    {
+                                        Before = xc.OldValueString,
+                                        After = xc.NewValueString
+                                    };
+                                    break;
+                                case "description":
+                                    entrysti.DescriptionChange = new PropertyChange<string>
+                                    {
+                                        Before = xc.OldValueString,
+                                        After = xc.NewValueString
+                                    };
+                                    break;
+                                case "tags":
+                                    entrysti.TagsChange = new PropertyChange<string>
+                                    {
+                                        Before = xc.OldValueString,
+                                        After = xc.NewValueString
+                                    };
+                                    break;
+                                case "guild_id":
+                                    entrysti.GuildIdChange = new PropertyChange<ulong?>
+                                    {
+                                        Before = ulong.TryParse(xc.OldValueString, out var ogid) ? ogid : null,
+                                        After = ulong.TryParse(xc.NewValueString, out var ngid) ? ngid : null
+                                    };
+                                    break;
+                                case "available":
+                                    entrysti.AvailabilityChange = new PropertyChange<bool?>
+                                    {
+                                        Before = (bool?)xc.OldValue,
+                                        After = (bool?)xc.NewValue,
+                                    };
+                                    break;
+                                case "asset":
+                                    entrysti.AssetChange = new PropertyChange<string>
+                                    {
+                                        Before = xc.OldValueString,
+                                        After = xc.NewValueString
+                                    };
+                                    break;
+                                case "id":
+                                    entrysti.IdChange = new PropertyChange<ulong?>
+                                    {
+                                        Before = ulong.TryParse(xc.OldValueString, out var oid) ? oid : null,
+                                        After = ulong.TryParse(xc.NewValueString, out var nid) ? nid : null
+                                    };
+                                    break;
+                                case "type":
+                                    p1 = long.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t5);
+                                    p2 = long.TryParse(xc.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t6);
+                                    entrysti.TypeChange = new PropertyChange<StickerType?>
+                                    {
+                                        Before = p1 ? (StickerType?)t5 : null,
+                                        After = p2 ? (StickerType?)t6 : null
+                                    };
+                                    break;
+                                case "format_type":
+                                    p1 = long.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t5);
+                                    p2 = long.TryParse(xc.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t6);
+                                    entrysti.FormatChange = new PropertyChange<StickerFormat?>
+                                    {
+                                        Before = p1 ? (StickerFormat?)t5 : null,
+                                        After = p2 ? (StickerFormat?)t6 : null
+                                    };
+                                    break;
 
-                                    default:
-                                        this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in sticker update: {Key} - this should be reported to library developers", xc.Key);
-                                        break;
-                                }
+                                default:
+                                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in sticker update: {Key} - this should be reported to library developers", xc.Key);
+                                    break;
+                            }
                         }
                         break;
 
@@ -2480,7 +2486,7 @@ namespace DSharpPlus.Entities
         {
             string contentType = null, extension = null;
 
-            if(format == StickerFormat.PNG || format == StickerFormat.APNG)
+            if (format == StickerFormat.PNG || format == StickerFormat.APNG)
             {
                 contentType = "image/png";
                 extension = "png";

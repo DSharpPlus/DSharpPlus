@@ -555,10 +555,10 @@ namespace DSharpPlus
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task<DiscordGuild> GetGuildAsync(ulong id, bool? withCounts = null)
         {
-            if (this._guilds.TryGetValue(id, out var guild) && (!withCounts.HasValue || !withCounts.Value))
-                return guild;
+            //if (this._guilds.TryGetValue(id, out var guild) && (!withCounts.HasValue || !withCounts.Value))
+            //    return guild;
 
-            guild = await this.ApiClient.GetGuildAsync(id, withCounts).ConfigureAwait(false);
+            DiscordGuild guild = await this.ApiClient.GetGuildAsync(id, withCounts).ConfigureAwait(false);
             var channels = await this.ApiClient.GetGuildChannelsAsync(guild.Id).ConfigureAwait(false);
             foreach (var channel in channels) guild._channels[channel.Id] = channel;
 
@@ -855,7 +855,7 @@ namespace DSharpPlus
                 {
                     usr = new DiscordUser(mbr.User) { Discord = this };
 
-                    this.UpdateUserCache( usr);
+                    this.UpdateUserCache(usr);
 
                     usr = new DiscordMember(mbr) { Discord = this, _guild_id = guildId.Value };
                 }
@@ -989,6 +989,7 @@ namespace DSharpPlus
             guild.PreferredLocale = newGuild.PreferredLocale;
             guild.RulesChannelId = newGuild.RulesChannelId;
             guild.PublicUpdatesChannelId = newGuild.PublicUpdatesChannelId;
+            guild.PremiumProgressBarEnabled = newGuild.PremiumProgressBarEnabled;
 
             // fields not sent for update:
             // - guild.Channels
