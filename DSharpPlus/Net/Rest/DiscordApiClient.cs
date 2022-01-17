@@ -1229,7 +1229,7 @@ namespace DSharpPlus.Net
 
             var ret = JsonConvert.DeserializeObject<DiscordChannel>(res.Response);
 
-            if(ret.IsThread)
+            if (ret.IsThread)
                 ret = JsonConvert.DeserializeObject<DiscordThreadChannel>(res.Response);
 
             ret.Discord = this.Discord;
@@ -1337,7 +1337,7 @@ namespace DSharpPlus.Net
                 pld.MessageReference = new InternalDiscordMessageReference { MessageId = builder.ReplyId, FailIfNotExists = builder.FailOnInvalidReply };
 
             //if (builder.Mentions != null || builder.ReplyId != null)
-                pld.Mentions = new DiscordMentions(builder.Mentions ?? Mentions.All, builder.Mentions?.Any() ?? false, builder.MentionOnReply);
+            pld.Mentions = new DiscordMentions(builder.Mentions ?? Mentions.All, builder.Mentions?.Any() ?? false, builder.MentionOnReply);
 
             if (builder.Files.Count == 0)
             {
@@ -1860,6 +1860,17 @@ namespace DSharpPlus.Net
 
             var url = Utilities.GetApiUriFor(path);
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route);
+        }
+
+        internal async Task<DiscordThreadChannelMember> GetThreadMemberAsync(ulong channel_id, ulong user_id)
+        {
+            var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.THREAD_MEMBERS}/:user_id";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id, user_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var response = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
+
+            return JsonConvert.DeserializeObject<DiscordThreadChannelMember>(response.Response);
         }
 
         internal Task AddThreadMemberAsync(ulong channel_id, ulong user_id)
