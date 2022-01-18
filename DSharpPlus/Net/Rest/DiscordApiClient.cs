@@ -323,7 +323,7 @@ namespace DSharpPlus.Net
 
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.GUILDS}/:guild_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id = guildId }, out var path);
@@ -375,27 +375,29 @@ namespace DSharpPlus.Net
             {
                 ["delete_message_days"] = delete_message_days.ToString(CultureInfo.InvariantCulture)
             };
-            if (reason != null)
-                urlparams["reason"] = reason;
+
+            var headers = Utilities.GetBaseHeaders();
+            if (!string.IsNullOrWhiteSpace(reason))
+                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.BANS}/:user_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PUT, route, new { guild_id, user_id }, out var path);
 
             var url = Utilities.GetApiUriFor(path, BuildQueryString(urlparams));
-            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PUT, route);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PUT, route, headers);
         }
 
         internal Task RemoveGuildBanAsync(ulong guild_id, ulong user_id, string reason)
         {
-            var urlparams = new Dictionary<string, string>();
-            if (reason != null)
-                urlparams["reason"] = reason;
+            var headers = Utilities.GetBaseHeaders();
+            if (!string.IsNullOrWhiteSpace(reason))
+                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.BANS}/:user_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { guild_id, user_id }, out var path);
 
-            var url = Utilities.GetApiUriFor(path, BuildQueryString(urlparams));
-            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route);
+            var url = Utilities.GetApiUriFor(path);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route, headers);
         }
 
         internal Task LeaveGuildAsync(ulong guild_id)
@@ -451,7 +453,7 @@ namespace DSharpPlus.Net
         {
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.MEMBERS}/:user_id{Endpoints.ROLES}/:role_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PUT, route, new { guild_id, user_id, role_id }, out var path);
@@ -464,7 +466,7 @@ namespace DSharpPlus.Net
         {
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.MEMBERS}/:user_id{Endpoints.ROLES}/:role_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { guild_id, user_id, role_id }, out var path);
@@ -477,7 +479,7 @@ namespace DSharpPlus.Net
         {
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.CHANNELS}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id }, out var path);
@@ -490,7 +492,7 @@ namespace DSharpPlus.Net
         {
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.ROLES}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id }, out var path);
@@ -594,7 +596,7 @@ namespace DSharpPlus.Net
 
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.WIDGET}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id }, out var path);
@@ -730,7 +732,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordGuildWelcomeScreen> ModifyGuildWelcomeScreenAsync(ulong guild_id, Optional<bool> enabled, Optional<IEnumerable<DiscordGuildWelcomeScreenChannel>> welcomeChannels, Optional<string> description)
+        internal async Task<DiscordGuildWelcomeScreen> ModifyGuildWelcomeScreenAsync(ulong guild_id, Optional<bool> enabled, Optional<IEnumerable<DiscordGuildWelcomeScreenChannel>> welcomeChannels, Optional<string> description, string reason)
         {
             var pld = new RestGuildWelcomeScreenModifyPayload
             {
@@ -739,11 +741,15 @@ namespace DSharpPlus.Net
                 Description = description
             };
 
+            var headers = Utilities.GetBaseHeaders();
+            if (!string.IsNullOrWhiteSpace(reason))
+                headers[REASON_HEADER_NAME] = reason;
+
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.WELCOME_SCREEN}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, headers, DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
 
             var ret = JsonConvert.DeserializeObject<DiscordGuildWelcomeScreen>(res.Response);
             return ret;
@@ -965,7 +971,7 @@ namespace DSharpPlus.Net
 
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.CHANNELS}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { guild_id }, out var path);
@@ -1012,7 +1018,7 @@ namespace DSharpPlus.Net
 
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.CHANNELS}/:channel_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { channel_id }, out var path);
@@ -1053,7 +1059,7 @@ namespace DSharpPlus.Net
             var headers = Utilities.GetBaseHeaders();
 
             if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+                headers[REASON_HEADER_NAME] = reason;
 
             var url = Utilities.GetApiUriFor(path);
 
@@ -1151,7 +1157,7 @@ namespace DSharpPlus.Net
             var headers = Utilities.GetBaseHeaders();
 
             if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+                headers[REASON_HEADER_NAME] = reason;
 
             var url = Utilities.GetApiUriFor(path);
             var pld = new RestScheduledGuildEventModifyPayload
@@ -1206,7 +1212,7 @@ namespace DSharpPlus.Net
         {
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.CHANNELS}/:channel_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { channel_id }, out var path);
@@ -1438,7 +1444,7 @@ namespace DSharpPlus.Net
         {
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}/:message_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { channel_id, message_id }, out var path);
@@ -1456,7 +1462,7 @@ namespace DSharpPlus.Net
 
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}{Endpoints.BULK_DELETE}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id }, out var path);
@@ -1493,7 +1499,7 @@ namespace DSharpPlus.Net
 
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.INVITES}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id }, out var path);
@@ -1511,7 +1517,7 @@ namespace DSharpPlus.Net
         {
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.PERMISSIONS}/:overwrite_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { channel_id, overwrite_id }, out var path);
@@ -1531,7 +1537,7 @@ namespace DSharpPlus.Net
 
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.PERMISSIONS}/:overwrite_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PUT, route, new { channel_id, overwrite_id }, out var path);
@@ -1759,7 +1765,7 @@ namespace DSharpPlus.Net
         {
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+                headers[REASON_HEADER_NAME] = reason;
 
             var payload = new RestThreadCreatePayload
             {
@@ -1783,7 +1789,7 @@ namespace DSharpPlus.Net
         {
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+                headers[REASON_HEADER_NAME] = reason;
 
             var payload = new RestThreadCreatePayload
             {
@@ -2315,14 +2321,15 @@ namespace DSharpPlus.Net
                     sb.Append($"&include_roles={roleArray[i]}");
             }
 
-            if (reason != null)
-                urlparams["reason"] = reason;
+            var headers = Utilities.GetBaseHeaders();
+            if (string.IsNullOrWhiteSpace(reason))
+                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.PRUNE}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { guild_id }, out var path);
 
             var url = Utilities.GetApiUriFor(path, $"{BuildQueryString(urlparams)}{sb}");
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route).ConfigureAwait(false);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, headers).ConfigureAwait(false);
 
             var pruned = JsonConvert.DeserializeObject<RestGuildPruneResultPayload>(res.Response);
 
@@ -2412,13 +2419,17 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal Task DeleteGuildIntegrationAsync(ulong guild_id, DiscordIntegration integration)
+        internal Task DeleteGuildIntegrationAsync(ulong guild_id, DiscordIntegration integration, string reason)
         {
+            var headers = Utilities.GetBaseHeaders();
+            if (string.IsNullOrWhiteSpace(reason))
+                headers[REASON_HEADER_NAME] = reason;
+
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.INTEGRATIONS}/:integration_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { guild_id, integration_id = integration.Id }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route, payload: DiscordJson.SerializeObject(integration));
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route, headers, DiscordJson.SerializeObject(integration));
         }
 
         internal Task SyncGuildIntegrationAsync(ulong guild_id, ulong integration_id)
