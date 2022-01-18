@@ -600,72 +600,72 @@ namespace DSharpPlus.Entities
         GuildUpdate = 1,
 
         /// <summary>
-        /// Indicates that a new channel was created.
+        /// Indicates that the channel was created.
         /// </summary>
         ChannelCreate = 10,
 
         /// <summary>
-        /// Indicates that a channel was updated.
+        /// Indicates that the channel was updated.
         /// </summary>
         ChannelUpdate = 11,
 
         /// <summary>
-        /// Indicates that a channel was deleted.
+        /// Indicates that the channel was deleted.
         /// </summary>
         ChannelDelete = 12,
 
         /// <summary>
-        /// Indicates that a channel permission overwrite was created.
+        /// Indicates that the channel permission overwrite was created.
         /// </summary>
-        ChannelOverwriteCreate = 13,
+        OverwriteCreate = 13,
 
         /// <summary>
-        /// Indicates that a channel permission overwrite was updated.
+        /// Indicates that the channel permission overwrite was updated.
         /// </summary>
-        ChannelOverwriteUpdate = 14,
+        OverwriteUpdate = 14,
 
         /// <summary>
-        /// Indicates that a channel permission overwrite was deleted.
+        /// Indicates that the channel permission overwrite was deleted.
         /// </summary>
-        ChannelOverwriteDelete = 15,
+        OverwriteDelete = 15,
 
         /// <summary>
-        /// Indicates that a guild member was kicked.
+        /// Indicates that the user was kicked.
         /// </summary>
-        MemberKick = 20,
+        Kick = 20,
 
         /// <summary>
-        /// Indicates that guild members were pruned.
+        /// Indicates that users were pruned.
         /// </summary>
-        MemberPrune = 21,
+        Prune = 21,
 
         /// <summary>
-        /// Indicates that a guild member was banned.
+        /// Indicates that the user was banned.
         /// </summary>
-        MemberBanAdd = 22,
+        Ban = 22,
 
         /// <summary>
-        /// Indicates that a user was unbanned.
+        /// Indicates that the user was unbanned.
         /// </summary>
-        MemberBanRemove = 23,
+        Unban = 23,
 
         /// <summary>
-        /// Indicates that a guild member was updated.
+        /// Indicates that the member was updated.
         /// </summary>
         MemberUpdate = 24,
 
         /// <summary>
-        /// Indicates that a guild member's roles were updated.
+        /// Indicates that the member's roles were updated.
         /// </summary>
         MemberRoleUpdate = 25,
 
         /// <summary>
-        /// Indicates that a guild member has moved to another voice channel.
+        /// Indicates that the member has moved to another voice channel.
         /// </summary>
         MemberMove = 26,
 
         /// <summary>
-        /// Indicates that a guild member has disconnected from a voice channel.
+        /// Indicates that the member has disconnected from a voice channel.
         /// </summary>
         MemberDisconnect = 27,
 
@@ -675,72 +675,72 @@ namespace DSharpPlus.Entities
         BotAdd = 28,
 
         /// <summary>
-        /// Indicates that a guild role was created.
+        /// Indicates that the role was created.
         /// </summary>
         RoleCreate = 30,
 
         /// <summary>
-        /// Indicates that a guild role was updated.
+        /// Indicates that the role was updated.
         /// </summary>
         RoleUpdate = 31,
 
         /// <summary>
-        /// Indicates that a guild role was deleted.
+        /// Indicates that the role was deleted.
         /// </summary>
         RoleDelete = 32,
 
         /// <summary>
-        /// Indicates that an invite was created.
+        /// Indicates that the invite was created.
         /// </summary>
         InviteCreate = 40,
 
         /// <summary>
-        /// Indicates that an invite was updated.
+        /// Indicates that the invite was updated.
         /// </summary>
         InviteUpdate = 41,
 
         /// <summary>
-        /// Indicates that an invite was deleted.
+        /// Indicates that the invite was deleted.
         /// </summary>
         InviteDelete = 42,
 
         /// <summary>
-        /// Indicates that a webhook was created.
+        /// Indicates that the webhook was created.
         /// </summary>
         WebhookCreate = 50,
 
         /// <summary>
-        /// Indicates that a webook was updated.
+        /// Indicates that the webook was updated.
         /// </summary>
         WebhookUpdate = 51,
 
         /// <summary>
-        /// Indicates that a webhook was deleted.
+        /// Indicates that the webhook was deleted.
         /// </summary>
         WebhookDelete = 52,
 
         /// <summary>
-        /// Indicates that a emoji was created.
+        /// Indicates that the emoji was created.
         /// </summary>
         EmojiCreate = 60,
 
         /// <summary>
-        /// Indicates that a emoji was updated.
+        /// Indicates that the emoji was updated.
         /// </summary>
         EmojiUpdate = 61,
 
         /// <summary>
-        /// Indicates that a emoji was deleted.
+        /// Indicates that the emoji was deleted.
         /// </summary>
         EmojiDelete = 62,
 
         /// <summary>
-        /// Indicates that a message was deleted.
+        /// Indicates that the message was deleted.
         /// </summary>
         MessageDelete = 72,
 
         /// <summary>
-        /// Indicates that many messages were bulk-deleted.
+        /// Indicates that messages were bulk-deleted.
         /// </summary>
         MessageBulkDelete = 73,
 
@@ -768,65 +768,19 @@ namespace DSharpPlus.Entities
         /// Indicates that an integration was deleted.
         /// </summary>
         IntegrationDelete = 82,
-
         /// <summary>
-        /// Indicates that a new stage instance was created.
-        /// </summary>
-        StageInstanceCreate = 83,
-
-        /// <summary>
-        /// Indicates that a stage instance was updated.
-        /// </summary>
-        StageInstanceUpdate = 84,
-
-        /// <summary>
-        /// Indicates that a stage instance was deleted.
-        /// </summary>
-        StageInstanceDelete = 85,
-
-        /// <summary>
-        /// Indicates that a sticker was created.
+        /// Indicates that an sticker was created.
         /// </summary>
         StickerCreate = 90,
 
         /// <summary>
-        /// Indicates that a sticker was updated.
+        /// Indicates that an sticker was updated.
         /// </summary>
         StickerUpdate = 91,
 
         /// <summary>
-        /// Indicates that a sticker was deleted.
+        /// Indicates that an sticker was deleted.
         /// </summary>
         StickerDelete = 92,
-
-        /// <summary>
-        /// Indicates that a new scheduled event was created.
-        /// </summary>
-        GuildScheduledEventCreate = 100,
-
-        /// <summary>
-        /// Indicates that a scheduled event was updated.
-        /// </summary>
-        GuildScheduledEventUpdate = 101,
-
-        /// <summary>
-        /// Indicates that a scheduled event was deleted.
-        /// </summary>
-        GuildScheduledEventDelete = 102,
-
-        /// <summary>
-        /// Indicates that a new thread was created.
-        /// </summary>
-        ThreadCreate = 110,
-
-        /// <summary>
-        /// Indicates that a thread was updated.
-        /// </summary>
-        ThreadUpdate = 111,
-
-        /// <summary>
-        /// Indicates that a thread was deleted.
-        /// </summary>
-        ThreadDelete = 112,
     }
 }
