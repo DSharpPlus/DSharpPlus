@@ -683,6 +683,14 @@ namespace DSharpPlus
         }
         private AsyncEvent<DiscordClient, ApplicationCommandEventArgs> _applicationCommandDeleted;
 
+        public event AsyncEventHandler<DiscordClient, ApplicationCommandPermissionsUpdatedEventArgs> ApplicationCommandPermissionsUpdated
+        {
+            add => this._applicationCommandPermissionsUpdated.Register(value);
+            remove => this._applicationCommandPermissionsUpdated.Unregister(value);
+        }
+
+        private AsyncEvent<DiscordClient, ApplicationCommandPermissionsUpdatedEventArgs> _applicationCommandPermissionsUpdated;
+
         #endregion
 
         #region Integration
