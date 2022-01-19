@@ -475,6 +475,9 @@ namespace DSharpPlus
                 case "gift_code_update": //Not supposed to be dispatched to bots
                     break;
 
+                case "embedded_activity_update": //Not supposed to be dispatched to bots
+                    break;
+
                 case "typing_start":
                     cid = (ulong)dat["channel_id"];
                     rawMbr = dat["member"];
