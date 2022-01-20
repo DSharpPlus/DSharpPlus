@@ -515,8 +515,9 @@ namespace DSharpPlus.Entities
         /// <param name="start">When this event starts. Must be in the future, and before the end date.</param>
         /// <param name="end">When this event ends. If supplied, must be in the future and after the end date. This is requred for <see cref="ScheduledGuildEventType.External"/>.</param>
         /// <param name="location">Where this event takes place, up to 100 characters. Only applicable if the type is <see cref="ScheduledGuildEventType.External"/></param>
+        /// <param name="reason">Reason for audit log.</param>
         /// <returns>The created event.</returns>
-        public Task<DiscordScheduledGuildEvent> CreateEventAsync(string name, string description, ulong? channelId, ScheduledGuildEventType type, ScheduledGuildEventPrivacyLevel privacyLevel, DateTimeOffset start, DateTimeOffset? end, string location = null)
+        public Task<DiscordScheduledGuildEvent> CreateEventAsync(string name, string description, ulong? channelId, ScheduledGuildEventType type, ScheduledGuildEventPrivacyLevel privacyLevel, DateTimeOffset start, DateTimeOffset? end, string location = null, string reason = null)
         {
             if (start <= DateTimeOffset.Now)
                 throw new ArgumentOutOfRangeException("The start time for an event must be in the future.");
@@ -542,7 +543,7 @@ namespace DSharpPlus.Entities
                     Location = location
                 };
 
-            return this.Discord.ApiClient.CreateScheduledGuildEventAsync(this.Id, name, description, channelId, start, end, type, privacyLevel, metadata);
+            return this.Discord.ApiClient.CreateScheduledGuildEventAsync(this.Id, name, description, channelId, start, end, type, privacyLevel, metadata, reason);
         }
 
         /// <summary>
@@ -638,7 +639,7 @@ namespace DSharpPlus.Entities
                 model.Channel.IfPresent(c => c?.Id),
                 model.StartTime, model.EndTime,
                 model.Type, model.PrivacyLevel,
-                model.Metadata, model.Status);
+                model.Metadata, model.Status, reason);
         }
 
         /// <summary>
@@ -1060,13 +1061,14 @@ namespace DSharpPlus.Entities
         /// Removes an integration from this guild.
         /// </summary>
         /// <param name="integration">Integration to remove.</param>
+        /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the guild does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task DeleteIntegrationAsync(DiscordIntegration integration)
-            => this.Discord.ApiClient.DeleteGuildIntegrationAsync(this.Id, integration);
+        public Task DeleteIntegrationAsync(DiscordIntegration integration, string reason = null)
+            => this.Discord.ApiClient.DeleteGuildIntegrationAsync(this.Id, integration, reason);
 
         /// <summary>
         /// Forces re-synchronization of an integration for this guild.
@@ -2593,14 +2595,15 @@ namespace DSharpPlus.Entities
         /// Modifies this guild's welcome screen.
         /// </summary>
         /// <param name="action">Action to perform.</param>
+        /// <param name="reason">Reason for audit log.</param>
         /// <returns>The modified welcome screen.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client doesn't have the <see cref="Permissions.ManageGuild"/> permission, or community is not enabled on this guild.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordGuildWelcomeScreen> ModifyWelcomeScreenAsync(Action<WelcomeScreenEditModel> action)
+        public async Task<DiscordGuildWelcomeScreen> ModifyWelcomeScreenAsync(Action<WelcomeScreenEditModel> action, string reason = null)
         {
             var mdl = new WelcomeScreenEditModel();
             action(mdl);
-            return await this.Discord.ApiClient.ModifyGuildWelcomeScreenAsync(this.Id, mdl.Enabled, mdl.WelcomeChannels, mdl.Description).ConfigureAwait(false);
+            return await this.Discord.ApiClient.ModifyGuildWelcomeScreenAsync(this.Id, mdl.Enabled, mdl.WelcomeChannels, mdl.Description, reason).ConfigureAwait(false);
         }
 
         /// <summary>
