@@ -1548,11 +1548,11 @@ namespace DSharpPlus.Entities
 
                                 case "permission_overwrites":
                                     var olds = xc.OldValues?.OfType<JObject>()
-                                        ?.Select(xjo => xjo.ToObject<DiscordOverwrite>())
+                                        ?.Select(xjo => xjo.ToDiscordObject<DiscordOverwrite>())
                                         ?.Select(xo => { xo.Discord = this.Discord; return xo; });
 
                                     var news = xc.NewValues?.OfType<JObject>()
-                                        ?.Select(xjo => xjo.ToObject<DiscordOverwrite>())
+                                        ?.Select(xjo => xjo.ToDiscordObject<DiscordOverwrite>())
                                         ?.Select(xo => { xo.Discord = this.Discord; return xo; });
 
                                     entrychn.OverwriteChange = new PropertyChange<IReadOnlyList<DiscordOverwrite>>

@@ -35,6 +35,7 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Net;
+using DSharpPlus.Net.Serialization;
 using Emzi0767.Utilities;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -289,7 +290,7 @@ namespace DSharpPlus
             timer.Start();
 
             var jo = JObject.Parse(await resp.Content.ReadAsStringAsync().ConfigureAwait(false));
-            var info = jo.ToObject<GatewayInfo>();
+            var info = jo.ToDiscordObject<GatewayInfo>();
 
             //There is a delay from parsing here.
             timer.Stop();

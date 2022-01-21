@@ -35,6 +35,7 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Net;
+using DSharpPlus.Net.Serialization;
 using DSharpPlus.Net.Udp;
 using DSharpPlus.Net.WebSocket;
 using DSharpPlus.VoiceNext.Codec;
@@ -897,7 +898,7 @@ namespace DSharpPlus.VoiceNext
             {
                 case 2: // READY
                     this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceDispatch, "Received READY (OP2)");
-                    var vrp = opp.ToObject<VoiceReadyPayload>();
+                    var vrp = opp.ToDiscordObject<VoiceReadyPayload>();
                     this.SSRC = vrp.SSRC;
                     this.UdpEndpoint = new ConnectionEndpoint(vrp.Address, vrp.Port);
                     // this is not the valid interval
@@ -909,7 +910,7 @@ namespace DSharpPlus.VoiceNext
 
                 case 4: // SESSION_DESCRIPTION
                     this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceDispatch, "Received SESSION_DESCRIPTION (OP4)");
-                    var vsd = opp.ToObject<VoiceSessionDescriptionPayload>();
+                    var vsd = opp.ToDiscordObject<VoiceSessionDescriptionPayload>();
                     this.Key = vsd.SecretKey;
                     this.Sodium = new Sodium(this.Key.AsMemory());
                     await this.Stage2(vsd).ConfigureAwait(false);
@@ -919,7 +920,7 @@ namespace DSharpPlus.VoiceNext
                     // Don't spam OP5
                     // No longer spam, Discord supposedly doesn't send many of these
                     this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceDispatch, "Received SPEAKING (OP5)");
-                    var spd = opp.ToObject<VoiceSpeakingPayload>();
+                    var spd = opp.ToDiscordObject<VoiceSpeakingPayload>();
                     var foundUserInCache = this.Discord.TryGetCachedUserInternal(spd.UserId.Value, out var resolvedUser);
                     var spk = new UserSpeakingEventArgs
                     {
@@ -958,7 +959,7 @@ namespace DSharpPlus.VoiceNext
                 case 8: // HELLO
                     // this sends a heartbeat interval that we need to use for heartbeating
                     this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceDispatch, "Received HELLO (OP8)");
-                    this.HeartbeatInterval = opp["heartbeat_interval"].ToObject<int>();
+                    this.HeartbeatInterval = opp["heartbeat_interval"].ToDiscordObject<int>();
                     break;
 
                 case 9: // RESUMED
@@ -968,7 +969,7 @@ namespace DSharpPlus.VoiceNext
 
                 case 12: // CLIENT_CONNECTED
                     this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceDispatch, "Received CLIENT_CONNECTED (OP12)");
-                    var ujpd = opp.ToObject<VoiceUserJoinPayload>();
+                    var ujpd = opp.ToDiscordObject<VoiceUserJoinPayload>();
                     var usrj = await this.Discord.GetUserAsync(ujpd.UserId).ConfigureAwait(false);
                     {
                         var opus = this.Opus.CreateDecoder();
@@ -986,7 +987,7 @@ namespace DSharpPlus.VoiceNext
 
                 case 13: // CLIENT_DISCONNECTED
                     this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceDispatch, "Received CLIENT_DISCONNECTED (OP13)");
-                    var ulpd = opp.ToObject<VoiceUserLeavePayload>();
+                    var ulpd = opp.ToDiscordObject<VoiceUserLeavePayload>();
                     var txssrc = this.TransmittingSSRCs.FirstOrDefault(x => x.Value.Id == ulpd.UserId);
                     if (this.TransmittingSSRCs.ContainsKey(txssrc.Key))
                     {

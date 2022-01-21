@@ -72,7 +72,7 @@ namespace DSharpPlus.Net
 
         private DiscordMessage PrepareMessage(JToken msg_raw)
         {
-            var author = msg_raw["author"].ToObject<TransportUser>();
+            var author = msg_raw["author"].ToDiscordObject<TransportUser>();
             var ret = msg_raw.ToDiscordObject<DiscordMessage>();
             ret.Discord = this.Discord;
 
@@ -81,7 +81,7 @@ namespace DSharpPlus.Net
             var referencedMsg = msg_raw["referenced_message"];
             if (ret.MessageType == MessageType.Reply && !string.IsNullOrWhiteSpace(referencedMsg?.ToString()))
             {
-                author = referencedMsg["author"].ToObject<TransportUser>();
+                author = referencedMsg["author"].ToDiscordObject<TransportUser>();
                 ret.ReferencedMessage.Discord = this.Discord;
                 this.PopulateMessage(author, ret.ReferencedMessage);
             }
@@ -184,7 +184,7 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path, BuildQueryString(querydict));
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
             var json = JArray.Parse(res.Response);
-            var tms = json.ToObject<IReadOnlyList<TransportMember>>();
+            var tms = json.ToDiscordObject<IReadOnlyList<TransportMember>>();
 
             var mbrs = new List<DiscordMember>();
             foreach (var xtm in tms)
@@ -207,7 +207,7 @@ namespace DSharpPlus.Net
             var res = await this.DoRequestAsync(this.Discord, bucket, uri, RestRequestMethod.GET, route).ConfigureAwait(false);
             var json = JObject.Parse(res.Response);
 
-            var ban = json.ToObject<DiscordBan>();
+            var ban = json.ToDiscordObject<DiscordBan>();
 
             if (!this.Discord.TryGetCachedUserInternal(ban.RawUser.Id, out var usr))
             {
@@ -1158,10 +1158,10 @@ namespace DSharpPlus.Net
                 .Select(j => (DiscordUser)
                         j
                         .SelectToken("member")?
-                        .ToObject<DiscordMember>() ??
+                        .ToDiscordObject<DiscordMember>() ??
                         j
                         .SelectToken("user")
-                        .ToObject<DiscordUser>())
+                        .ToDiscordObject<DiscordUser>())
                 .ToArray();
         }
 
@@ -2977,10 +2977,10 @@ namespace DSharpPlus.Net
             var emojis = new List<DiscordGuildEmoji>();
             foreach (var rawEmoji in emojisRaw)
             {
-                var xge = rawEmoji.ToObject<DiscordGuildEmoji>();
+                var xge = rawEmoji.ToDiscordObject<DiscordGuildEmoji>();
                 xge.Guild = gld;
 
-                var xtu = rawEmoji["user"]?.ToObject<TransportUser>();
+                var xtu = rawEmoji["user"]?.ToDiscordObject<TransportUser>();
                 if (xtu != null)
                 {
                     if (!users.ContainsKey(xtu.Id))
@@ -3009,10 +3009,10 @@ namespace DSharpPlus.Net
             this.Discord.Guilds.TryGetValue(guild_id, out var gld);
 
             var emoji_raw = JObject.Parse(res.Response);
-            var emoji = emoji_raw.ToObject<DiscordGuildEmoji>();
+            var emoji = emoji_raw.ToDiscordObject<DiscordGuildEmoji>();
             emoji.Guild = gld;
 
-            var xtu = emoji_raw["user"]?.ToObject<TransportUser>();
+            var xtu = emoji_raw["user"]?.ToDiscordObject<TransportUser>();
             if (xtu != null)
                 emoji.User = gld != null && gld.Members.TryGetValue(xtu.Id, out var member) ? member : new DiscordUser(xtu);
 
@@ -3041,10 +3041,10 @@ namespace DSharpPlus.Net
             this.Discord.Guilds.TryGetValue(guild_id, out var gld);
 
             var emoji_raw = JObject.Parse(res.Response);
-            var emoji = emoji_raw.ToObject<DiscordGuildEmoji>();
+            var emoji = emoji_raw.ToDiscordObject<DiscordGuildEmoji>();
             emoji.Guild = gld;
 
-            var xtu = emoji_raw["user"]?.ToObject<TransportUser>();
+            var xtu = emoji_raw["user"]?.ToDiscordObject<TransportUser>();
             emoji.User = xtu != null
                 ? gld != null && gld.Members.TryGetValue(xtu.Id, out var member) ? member : new DiscordUser(xtu)
                 : this.Discord.CurrentUser;
@@ -3073,10 +3073,10 @@ namespace DSharpPlus.Net
             this.Discord.Guilds.TryGetValue(guild_id, out var gld);
 
             var emoji_raw = JObject.Parse(res.Response);
-            var emoji = emoji_raw.ToObject<DiscordGuildEmoji>();
+            var emoji = emoji_raw.ToDiscordObject<DiscordGuildEmoji>();
             emoji.Guild = gld;
 
-            var xtu = emoji_raw["user"]?.ToObject<TransportUser>();
+            var xtu = emoji_raw["user"]?.ToDiscordObject<TransportUser>();
             if (xtu != null)
                 emoji.User = gld != null && gld.Members.TryGetValue(xtu.Id, out var member) ? member : new DiscordUser(xtu);
 
@@ -3539,7 +3539,7 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route, headers).ConfigureAwait(false);
 
-            var info = JObject.Parse(res.Response).ToObject<GatewayInfo>();
+            var info = JObject.Parse(res.Response).ToDiscordObject<GatewayInfo>();
             info.SessionBucket.ResetAfter = DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(info.SessionBucket.ResetAfterInternal);
             return info;
         }

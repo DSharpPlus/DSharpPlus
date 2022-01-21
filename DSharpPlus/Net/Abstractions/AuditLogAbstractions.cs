@@ -23,6 +23,7 @@
 
 using System.Collections.Generic;
 using DSharpPlus.Entities;
+using DSharpPlus.Net.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -72,7 +73,7 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonIgnore]
         public IEnumerable<JObject> OldValues
-            => (this.OldValue as JArray)?.ToObject<IEnumerable<JObject>>();
+            => (this.OldValue as JArray)?.ToDiscordObject<IEnumerable<JObject>>();
 
         [JsonIgnore]
         public ulong OldValueUlong
@@ -88,7 +89,7 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonIgnore]
         public IEnumerable<JObject> NewValues
-            => (this.NewValue as JArray)?.ToObject<IEnumerable<JObject>>();
+            => (this.NewValue as JArray)?.ToDiscordObject<IEnumerable<JObject>>();
 
         [JsonIgnore]
         public ulong NewValueUlong
