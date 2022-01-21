@@ -157,13 +157,8 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets when the last pinned message was pinned.
         /// </summary>
-        [JsonIgnore]
-        public DateTimeOffset? LastPinTimestamp
-            => !string.IsNullOrWhiteSpace(this.LastPinTimestampRaw) && DateTimeOffset.TryParse(this.LastPinTimestampRaw, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dto) ?
-                dto : null;
-
         [JsonProperty("last_pin_timestamp", NullValueHandling = NullValueHandling.Ignore)]
-        internal string LastPinTimestampRaw { get; set; }
+        public DateTimeOffset? LastPinTimestamp { get; internal set; }
 
         /// <summary>
         /// Gets this channel's mention string.

@@ -43,7 +43,7 @@ using Microsoft.Extensions.Logging;
 namespace DSharpPlus.CommandsNext
 {
     /// <summary>
-    /// This is the class which handles command registration, management, and execution. 
+    /// This is the class which handles command registration, management, and execution.
     /// </summary>
     public class CommandsNextExtension : BaseExtension, IDisposable
     {
@@ -796,7 +796,7 @@ namespace DSharpPlus.CommandsNext
                 IsTTS = false,
                 _attachments = new List<DiscordAttachment>(),
                 _embeds = new List<DiscordEmbed>(),
-                TimestampRaw = now.ToString("yyyy-MM-ddTHH:mm:sszzz"),
+                TimestampRaw = now,
                 _reactions = new List<DiscordReaction>()
             };
 
@@ -984,7 +984,7 @@ namespace DSharpPlus.CommandsNext
 
         #region Helpers
         /// <summary>
-        /// Gets the configuration-specific string comparer. This returns <see cref="StringComparer.Ordinal"/> or <see cref="StringComparer.OrdinalIgnoreCase"/>, 
+        /// Gets the configuration-specific string comparer. This returns <see cref="StringComparer.Ordinal"/> or <see cref="StringComparer.OrdinalIgnoreCase"/>,
         /// depending on whether <see cref="CommandsNextConfiguration.CaseSensitive"/> is set to <see langword="true"/> or <see langword="false"/>.
         /// </summary>
         /// <returns>A string comparer.</returns>

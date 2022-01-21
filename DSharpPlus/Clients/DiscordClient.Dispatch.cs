@@ -1543,7 +1543,7 @@ namespace DSharpPlus
                 oldmsg = new DiscordMessage(message);
 
                 guild = message.Channel?.Guild;
-                message.EditedTimestampRaw = event_message.EditedTimestampRaw;
+                message.EditedTimestamp = event_message.EditedTimestamp;
                 if (event_message.Content != null)
                     message.Content = event_message.Content;
                 message._embeds.Clear();
