@@ -122,7 +122,7 @@ namespace DSharpPlus.Net.Models
         /// <summary>
         /// The new banner of the guild
         /// </summary>
-        public Optional<string> Banner { get; set; }
+        public Optional<Stream> Banner { get; set; }
 
         /// <summary>
         /// The new system channel flags for the guild

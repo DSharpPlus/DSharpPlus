@@ -748,10 +748,12 @@ namespace DSharpPlus.Entities
         {
             var mdl = new GuildEditModel();
             action(mdl);
+
             if (mdl.AfkChannel.HasValue && mdl.AfkChannel.Value.Type != ChannelType.Voice)
                 throw new ArgumentException("AFK channel needs to be a voice channel.");
 
             var iconb64 = Optional.FromNoValue<string>();
+
             if (mdl.Icon.HasValue && mdl.Icon.Value != null)
                 using (var imgtool = new ImageTool(mdl.Icon.Value))
                     iconb64 = imgtool.GetBase64();
@@ -759,16 +761,28 @@ namespace DSharpPlus.Entities
                 iconb64 = null;
 
             var splashb64 = Optional.FromNoValue<string>();
+
             if (mdl.Splash.HasValue && mdl.Splash.Value != null)
                 using (var imgtool = new ImageTool(mdl.Splash.Value))
                     splashb64 = imgtool.GetBase64();
             else if (mdl.Splash.HasValue)
                 splashb64 = null;
 
+            var bannerb64 = Optional.FromNoValue<string>();
+
+            if (mdl.Splash.HasValue)
+            {
+                if (mdl.Splash.Value == null)
+                    bannerb64 = null;
+                else
+                    using (var imgtool = new ImageTool(mdl.Splash.Value))
+                        bannerb64 = imgtool.GetBase64();
+            }
+
             return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, mdl.Name, mdl.Region.IfPresent(e => e.Id),
                 mdl.VerificationLevel, mdl.DefaultMessageNotifications, mdl.MfaLevel, mdl.ExplicitContentFilter,
                 mdl.AfkChannel.IfPresent(e => e?.Id), mdl.AfkTimeout, iconb64, mdl.Owner.IfPresent(e => e.Id), splashb64,
-                mdl.SystemChannel.IfPresent(e => e?.Id), mdl.Banner,
+                mdl.SystemChannel.IfPresent(e => e?.Id), bannerb64,
                 mdl.Description, mdl.DiscoverySplash, mdl.Features, mdl.PreferredLocale,
                 mdl.PublicUpdatesChannel.IfPresent(e => e?.Id), mdl.RulesChannel.IfPresent(e => e?.Id),
                 mdl.SystemChannelFlags, mdl.AuditLogReason).ConfigureAwait(false);
