@@ -639,7 +639,7 @@ namespace DSharpPlus.Entities
                 model.Channel.IfPresent(c => c?.Id),
                 model.StartTime, model.EndTime,
                 model.Type, model.PrivacyLevel,
-                model.Metadata, model.Status, reason);
+                model.Metadata, model.Status, model.CoverImage, reason);
         }
 
         /// <summary>

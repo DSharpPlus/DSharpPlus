@@ -208,6 +208,9 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("status", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<ScheduledGuildEventStatus> Status { get; set; }
+
+        [JsonProperty("image", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<string> CoverImage { get; set; }
     }
 
     internal sealed class RestGuildChannelReorderPayload

@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 using System;
+using System.IO;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
 
@@ -73,6 +74,11 @@ namespace DSharpPlus.Net.Models
         /// The new status of the event.
         /// </summary>
         public Optional<ScheduledGuildEventStatus> Status { get; set; }
+
+        /// <summary>
+        /// The cover-image of the event.
+        /// </summary>
+        public Optional<Stream> CoverImage { get; set; }
 
         internal ScheduledGuildEventEditModel() { }
 

@@ -1189,7 +1189,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordScheduledGuildEvent> ModifyScheduledGuildEventAsync(ulong guild_id, ulong guild_scheduled_event_id, Optional<string> name, Optional<string> description, Optional<ulong?> channel_id, Optional<DateTimeOffset> start_time, Optional<DateTimeOffset> end_time, Optional<ScheduledGuildEventType> type, Optional<ScheduledGuildEventPrivacyLevel> privacy_level, Optional<DiscordScheduledGuildEventMetadata> metadata, Optional<ScheduledGuildEventStatus> status, string reason = null)
+        internal async Task<DiscordScheduledGuildEvent> ModifyScheduledGuildEventAsync(ulong guild_id, ulong guild_scheduled_event_id, Optional<string> name, Optional<string> description, Optional<ulong?> channel_id, Optional<DateTimeOffset> start_time, Optional<DateTimeOffset> end_time, Optional<ScheduledGuildEventType> type, Optional<ScheduledGuildEventPrivacyLevel> privacy_level, Optional<DiscordScheduledGuildEventMetadata> metadata, Optional<ScheduledGuildEventStatus> status, Optional<Stream> coverImage, string reason = null)
         {
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.EVENTS}/:guild_scheduled_event_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id, guild_scheduled_event_id }, out var path);
@@ -1198,6 +1198,14 @@ namespace DSharpPlus.Net
 
             if (!string.IsNullOrWhiteSpace(reason))
                 headers[REASON_HEADER_NAME] = reason;
+
+            Optional<string> coverb64 = default;
+
+            if (coverImage.IsDefined(out var cstr))
+            {
+                using var imgTool = new ImageTool(cstr);
+                coverb64 = imgTool.GetBase64();
+            }
 
             var url = Utilities.GetApiUriFor(path);
             var pld = new RestScheduledGuildEventModifyPayload
@@ -1210,7 +1218,8 @@ namespace DSharpPlus.Net
                 Type = type,
                 PrivacyLevel = privacy_level,
                 Metadata = metadata,
-                Status = status
+                Status = status,
+                CoverImage = coverb64
             };
 
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, headers, DiscordJson.SerializeObject(pld)).ConfigureAwait(false);

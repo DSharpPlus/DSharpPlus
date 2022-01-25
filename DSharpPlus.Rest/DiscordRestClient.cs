@@ -116,7 +116,7 @@ namespace DSharpPlus
         /// <param name="eventId">The id of the event to modify.</param>
         /// <param name="mdl">The action to apply to the event.</param>
         /// <returns>The modified event.</returns>
-        public Task<DiscordScheduledGuildEvent> ModifyScheduledGuildEventAsync(ulong guildId, ulong eventId, Action<ScheduledGuildEventEditModel> mdl)
+        public Task<DiscordScheduledGuildEvent> ModifyScheduledGuildEventAsync(ulong guildId, ulong eventId, Action<ScheduledGuildEventEditModel> mdl, string? reason = null)
         {
             var model = new ScheduledGuildEventEditModel();
             mdl(model);
@@ -147,7 +147,7 @@ namespace DSharpPlus
                 model.Channel.IfPresent(c => c?.Id),
                 model.StartTime, model.EndTime,
                 model.Type, model.PrivacyLevel,
-                model.Metadata, model.Status);
+                model.Metadata, model.Status, model.CoverImage, reason);
         }
 
         /// <summary>
