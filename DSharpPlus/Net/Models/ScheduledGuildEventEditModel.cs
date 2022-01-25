@@ -46,6 +46,7 @@ namespace DSharpPlus.Net.Models
         /// <summary>
         /// The new privacy of the event.
         /// </summary>
+        [Obsolete("This field is deprecated, and was used for stage discovery, which has also been deprecated.")]
         public Optional<ScheduledGuildEventPrivacyLevel> PrivacyLevel { get; set; }
 
         /// <summary>
