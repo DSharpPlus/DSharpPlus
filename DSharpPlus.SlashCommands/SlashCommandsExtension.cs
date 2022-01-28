@@ -967,9 +967,11 @@ namespace DSharpPlus.SlashCommands
                     }
                     else if (parameter.ParameterType == typeof(DiscordAttachment))
                     {
-                        // == true is used here because of an error with the compilation upstream. Who knows.
-                        if (e.Interaction.Data.Resolved.Attachments?.TryGetValue((ulong)option.Value, out var attachment) == true)
+                        if (e.Interaction.Data.Resolved.Attachments?.ContainsKey((ulong)option.Value) ?? false)
+                        {
+                            var attachment = e.Interaction.Data.Resolved.Attachments[(ulong)option.Value];
                             args.Add(attachment);
+                        }
                         else
                             this.Client.Logger.LogError("Missing attachment in resolved data. This is an issue with Discord.");
                     }
