@@ -379,7 +379,7 @@ namespace DSharpPlus
 
                 case "thread_create":
                     thread = dat.ToDiscordObject<DiscordThreadChannel>();
-                    await this.OnThreadCreateEventAsync(thread).ConfigureAwait(false);
+                    await this.OnThreadCreateEventAsync(thread, thread.IsNew).ConfigureAwait(false);
                     break;
 
                 case "thread_update":
@@ -2041,7 +2041,7 @@ namespace DSharpPlus
 
         #region Thread
 
-        internal async Task OnThreadCreateEventAsync(DiscordThreadChannel thread)
+        internal async Task OnThreadCreateEventAsync(DiscordThreadChannel thread, bool isNew)
         {
             thread.Discord = this;
             this.InternalGetCachedGuild(thread.GuildId)._threads.AddOrUpdate(thread.Id, thread, (oldThread, newThread) => newThread);
