@@ -126,13 +126,13 @@ namespace DSharpPlus
                 case "guild_scheduled_event_user_add":
                     gid = (ulong)dat["guild_id"];
                     var uid = (ulong)dat["user_id"];
-                    var eid = (ulong)dat["event_id"];
+                    var eid = (ulong)dat["guild_scheduled_event_id"];
                     await this.OnScheduledGuildEventUserAddEventAsync(gid, eid, uid).ConfigureAwait(false);
                     break;
                 case "guild_scheduled_event_user_remove":
                     gid = (ulong)dat["guild_id"];
                     uid = (ulong)dat["user_id"];
-                    eid = (ulong)dat["event_id"];
+                    eid = (ulong)dat["guild_scheduled_event_id"];
                     await this.OnScheduledGuildEventUserRemoveEventAsync(gid, eid, uid).ConfigureAwait(false);
                     break;
                 #endregion
