@@ -40,7 +40,7 @@ namespace DSharpPlus.CommandsNext.Exceptions
         /// </summary>
         /// <param name="name">Name of the command that was taken.</param>
         internal DuplicateCommandException(string name)
-            : base("A command with specified name already exists.")
+            : base($"A command or alias with the name '{name}' has already been registered.")
         {
             this.CommandName = name;
         }
