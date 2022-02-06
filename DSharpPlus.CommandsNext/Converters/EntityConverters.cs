@@ -62,8 +62,6 @@ namespace DSharpPlus.CommandsNext.Converters
             }
 
             var cs = ctx.Config.CaseSensitive;
-            if (!cs)
-                value = value.ToLowerInvariant();
 
             var di = value.IndexOf('#');
             var un = di != -1 ? value.Substring(0, di) : value;
@@ -117,8 +115,6 @@ namespace DSharpPlus.CommandsNext.Converters
                 return Optional.FromValue(searchResult.First());
 
             var cs = ctx.Config.CaseSensitive;
-            if (!cs)
-                value = value.ToLowerInvariant();
 
             var di = value.IndexOf('#');
             var un = di != -1 ? value.Substring(0, di) : value;
