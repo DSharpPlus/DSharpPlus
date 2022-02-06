@@ -43,7 +43,7 @@ using Microsoft.Extensions.Logging;
 namespace DSharpPlus.CommandsNext
 {
     /// <summary>
-    /// This is the class which handles command registration, management, and execution. 
+    /// This is the class which handles command registration, management, and execution.
     /// </summary>
     public class CommandsNextExtension : BaseExtension, IDisposable
     {
@@ -271,8 +271,7 @@ namespace DSharpPlus.CommandsNext
                 if (!ignoreCase)
                     return null;
 
-                next = next.ToLowerInvariant();
-                var cmdKvp = this.RegisteredCommands.FirstOrDefault(x => x.Key.ToLowerInvariant() == next);
+                var cmdKvp = this.RegisteredCommands.FirstOrDefault(x => x.Key.Equals(next, StringComparison.InvariantCultureIgnoreCase));
                 if (cmdKvp.Value == null)
                     return null;
 
@@ -293,15 +292,8 @@ namespace DSharpPlus.CommandsNext
                 if (next == null)
                     break;
 
-                if (ignoreCase)
-                {
-                    next = next.ToLowerInvariant();
-                    cmd = cm2.Children.FirstOrDefault(x => x.Name.ToLowerInvariant() == next || x.Aliases?.Any(xx => xx.ToLowerInvariant() == next) == true);
-                }
-                else
-                {
-                    cmd = cm2.Children.FirstOrDefault(x => x.Name == next || x.Aliases?.Contains(next) == true);
-                }
+                var comparison = ignoreCase ? StringComparison.InvariantCultureIgnoreCase : StringComparison.InvariantCulture;
+                cmd = cm2.Children.FirstOrDefault(x => x.Name.Equals(next, comparison) || x.Aliases?.Any(xx => xx.Equals(next, comparison)) == true);
 
                 if (cmd == null)
                 {
@@ -692,9 +684,12 @@ namespace DSharpPlus.CommandsNext
                             break;
                         }
 
-                        cmd = ctx.Config.CaseSensitive
-                            ? searchIn.FirstOrDefault(xc => xc.Name == c || (xc.Aliases != null && xc.Aliases.Contains(c)))
-                            : searchIn.FirstOrDefault(xc => xc.Name.ToLowerInvariant() == c.ToLowerInvariant() || (xc.Aliases != null && xc.Aliases.Select(xs => xs.ToLowerInvariant()).Contains(c.ToLowerInvariant())));
+                        var (comparison, comparer) = ctx.Config.CaseSensitive switch
+                        {
+                            true  => (StringComparison.InvariantCulture, StringComparer.InvariantCulture),
+                            false => (StringComparison.InvariantCultureIgnoreCase, StringComparer.InvariantCultureIgnoreCase)
+                        };
+                        cmd = searchIn.FirstOrDefault(xc => xc.Name.Equals(c, comparison) || (xc.Aliases != null && xc.Aliases.Contains(c, comparer)));
 
                         if (cmd == null)
                             break;
@@ -984,7 +979,7 @@ namespace DSharpPlus.CommandsNext
 
         #region Helpers
         /// <summary>
-        /// Gets the configuration-specific string comparer. This returns <see cref="StringComparer.Ordinal"/> or <see cref="StringComparer.OrdinalIgnoreCase"/>, 
+        /// Gets the configuration-specific string comparer. This returns <see cref="StringComparer.Ordinal"/> or <see cref="StringComparer.OrdinalIgnoreCase"/>,
         /// depending on whether <see cref="CommandsNextConfiguration.CaseSensitive"/> is set to <see langword="true"/> or <see langword="false"/>.
         /// </summary>
         /// <returns>A string comparer.</returns>
