@@ -127,7 +127,7 @@ namespace DSharpPlus.CommandsNext.Converters
             var comparison = cs ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase;
             var us = ctx.Guild.Members.Values.Where(xm =>
                 (xm.Username.Equals(un, comparison) &&
-                 ((dv != null && xm.Discriminator == dv) || dv == null)) || string.Equals(xm.Nickname, value, comparison));
+                 ((dv != null && xm.Discriminator == dv) || dv == null)) || value.Equals(xm.Nickname, comparison));
 
             var mbr = us.FirstOrDefault();
             return mbr != null ? Optional.FromValue(mbr) : Optional.FromNoValue<DiscordMember>();
