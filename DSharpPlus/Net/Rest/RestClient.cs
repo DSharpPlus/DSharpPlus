@@ -482,7 +482,7 @@ namespace DSharpPlus.Net
             }
 
             // check if global b1nzy
-            if (hs.TryGetValue("X-RateLimit-Global", out var isglobal) && isglobal.ToLowerInvariant() == "true")
+            if (hs.TryGetValue("X-RateLimit-Global", out var isglobal) && isglobal.Equals("true", StringComparison.InvariantCultureIgnoreCase))
             {
                 // global
                 global = true;
@@ -502,7 +502,7 @@ namespace DSharpPlus.Net
 
             var hs = response.Headers;
 
-            if (hs.TryGetValue("X-RateLimit-Global", out var isglobal) && isglobal.ToLowerInvariant() == "true")
+            if (hs.TryGetValue("X-RateLimit-Global", out var isglobal) && isglobal.Equals("true", StringComparison.InvariantCultureIgnoreCase))
             {
                 if (response.ResponseCode != 429)
                     this.FailInitialRateLimitTest(request, ratelimitTcs);

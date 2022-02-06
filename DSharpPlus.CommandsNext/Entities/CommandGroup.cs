@@ -58,9 +58,13 @@ namespace DSharpPlus.CommandsNext
 
             if (cn != null)
             {
-                var cmd = ctx.Config.CaseSensitive
-                    ? this.Children.FirstOrDefault(xc => xc.Name == cn || (xc.Aliases != null && xc.Aliases.Contains(cn)))
-                    : this.Children.FirstOrDefault(xc => xc.Name.ToLowerInvariant() == cn.ToLowerInvariant() || (xc.Aliases != null && xc.Aliases.Select(xs => xs.ToLowerInvariant()).Contains(cn.ToLowerInvariant())));
+                var (comparison, comparer) = ctx.Config.CaseSensitive switch
+                {
+                    true  => (StringComparison.InvariantCulture, StringComparer.InvariantCulture),
+                    false => (StringComparison.InvariantCultureIgnoreCase, StringComparer.InvariantCultureIgnoreCase)
+                };
+                var cmd = this.Children.FirstOrDefault(xc =>
+                    xc.Name.Equals(cn, comparison) || (xc.Aliases != null && xc.Aliases.Contains(cn, comparer)));
                 if (cmd != null)
                 {
                     // pass the execution on
