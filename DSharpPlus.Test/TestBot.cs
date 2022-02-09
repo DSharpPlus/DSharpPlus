@@ -94,7 +94,7 @@ namespace DSharpPlus.Test
             this.Discord.ChannelDeleted += this.Discord_ChannelDeleted;
 
             this.Discord.InteractionCreated += this.Discord_InteractionCreated;
-            this.Discord.ComponentInteractionCreated+= this.Discord_ModalCheck;
+            this.Discord.ComponentInteractionCreated += this.Discord_ModalCheck;
             this.Discord.ModalSubmitted += this.Discord_ModalSubmitted;
             //this.Discord.ComponentInteractionCreated += this.RoleMenu;
             //this.Discord.ComponentInteractionCreated += this.DiscordComponentInteractionCreated;
