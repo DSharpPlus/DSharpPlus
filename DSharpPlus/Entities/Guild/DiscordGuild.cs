@@ -655,8 +655,15 @@ namespace DSharpPlus.Entities
         /// Gets the currently active or scheduled events in this guild.
         /// </summary>
         /// <returns>The active and scheduled events on the server, if any.</returns>
-        public Task<IReadOnlyList<DiscordScheduledGuildEvent>> GetEventsAsync()
-            => this.Discord.ApiClient.GetScheduledGuildEventsAsync(this.Id);
+        public async Task<IReadOnlyList<DiscordScheduledGuildEvent>> GetEventsAsync()
+        {
+            var events = await this.Discord.ApiClient.GetScheduledGuildEventsAsync(this.Id);
+
+            foreach (var @event in events)
+                this._scheduledEvents[@event.Id] = @event;
+
+            return events;
+        }
 
         /// <summary>
         /// Gets a list of users who are interested in this event.
