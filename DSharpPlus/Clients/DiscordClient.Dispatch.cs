@@ -760,7 +760,10 @@ namespace DSharpPlus
                     Type = ChannelType.Private,
                     Recipients = Array.Empty<DiscordUser>()
                 };
-                this._privateChannels.AddOrUpdate(channelId, (DiscordDmChannel)channel, (oldChannel, channel) => channel);
+
+                var chn = (DiscordDmChannel)channel;
+
+                this._privateChannels[channelId] = chn;
             }
 
             var ea = new ChannelPinsUpdateEventArgs
@@ -786,7 +789,7 @@ namespace DSharpPlus
                 this.UpdateUserCache(evt.Creator);
             }
 
-            evt.Guild._scheduledEvents.AddOrUpdate(evt.Id, evt, (old, newEvt) => newEvt);
+            evt.Guild._scheduledEvents[evt.Id] = evt;
 
             await this._scheduledGuildEventCreated.InvokeAsync(this, new ScheduledGuildEventCreateEventArgs { Event = evt }).ConfigureAwait(false);
         }
@@ -798,7 +801,7 @@ namespace DSharpPlus
             if (guild == null) // ??? //
                 return;
 
-            guild._scheduledEvents.TryRemove(evt.Id, out var _);
+            guild._scheduledEvents.TryRemove(evt.Id, out _);
 
             evt.Discord = this;
 
@@ -824,7 +827,7 @@ namespace DSharpPlus
             var guild = this.InternalGetCachedGuild(evt.GuildId);
             guild._scheduledEvents.TryGetValue(evt.GuildId, out var oldEvt);
 
-            evt.Guild._scheduledEvents.AddOrUpdate(evt.Id, evt, (old, newEvt) => newEvt);
+            evt.Guild._scheduledEvents[evt.Id] = evt;
 
             if (evt.Status is ScheduledGuildEventStatus.Completed)
                 await this._scheduledGuildEventCompleted.InvokeAsync(this, new ScheduledGuildEventCompletedEventArgs() { Event = evt }).ConfigureAwait(false);
@@ -1582,7 +1585,7 @@ namespace DSharpPlus
                     Recipients = Array.Empty<DiscordUser>()
 
                 };
-                this._privateChannels.AddOrUpdate(channelId, (DiscordDmChannel)channel, (oldChannel, channel) => channel);
+                this._privateChannels[channelId] = (DiscordDmChannel)channel;
             }
 
             if (channel == null
@@ -1668,7 +1671,7 @@ namespace DSharpPlus
                     Type = ChannelType.Private,
                     Recipients = new DiscordUser[] { usr }
                 };
-                this._privateChannels.AddOrUpdate(channelId, (DiscordDmChannel)channel, (oldChannel, channel) => channel);
+                this._privateChannels[channelId] = (DiscordDmChannel)channel;
             }
 
 
@@ -1730,7 +1733,7 @@ namespace DSharpPlus
                     Type = ChannelType.Private,
                     Recipients = new DiscordUser[] { usr }
                 };
-                this._privateChannels.AddOrUpdate(channelId, (DiscordDmChannel)channel, (oldChannel, channel) => channel);
+                this._privateChannels[channelId] = (DiscordDmChannel)channel;
             }
 
             if (channel?.Guild != null)
@@ -1821,7 +1824,7 @@ namespace DSharpPlus
                     Type = ChannelType.Private,
                     Recipients = Array.Empty<DiscordUser>()
                 };
-                this._privateChannels.AddOrUpdate(channelId, (DiscordDmChannel)channel, (oldChannel, channel) => channel);
+                this._privateChannels[channelId] = (DiscordDmChannel)channel;
             }
 
             if (channel == null
@@ -2044,7 +2047,7 @@ namespace DSharpPlus
         internal async Task OnThreadCreateEventAsync(DiscordThreadChannel thread)
         {
             thread.Discord = this;
-            this.InternalGetCachedGuild(thread.GuildId)._threads.AddOrUpdate(thread.Id, thread, (oldThread, newThread) => newThread);
+            this.InternalGetCachedGuild(thread.GuildId)._threads[thread.Id] = thread;
 
             await this._threadCreated.InvokeAsync(this, new ThreadCreateEventArgs { Thread = thread, Guild = thread.Guild, Parent = thread.Parent }).ConfigureAwait(false);
         }
@@ -2154,7 +2157,7 @@ namespace DSharpPlus
             var thread = this.InternalGetCachedThread(member.ThreadId);
             member._guild_id = thread.Guild.Id;
             thread.CurrentMember = member;
-            thread.Guild._threads.AddOrUpdate(member.ThreadId, thread, (oldThread, newThread) => newThread);
+            thread.Guild._threads[thread.Id] = thread;
 
             await this._threadMemberUpdated.InvokeAsync(this, new ThreadMemberUpdateEventArgs { ThreadMember = member, Thread = thread }).ConfigureAwait(false);
         }
