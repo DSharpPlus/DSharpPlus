@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -240,6 +240,17 @@ namespace DSharpPlus.Entities
         public ulong? ApplicationId { get; internal set; }
 
         /// <summary>
+        /// Sceduled events for this guild.
+        /// </summary>
+        public IReadOnlyDictionary<ulong, DiscordScheduledGuildEvent> ScheduledEvents
+            => new ReadOnlyConcurrentDictionary<ulong, DiscordScheduledGuildEvent>(this._scheduledEvents);
+
+        [JsonProperty("guild_scheduled_events")]
+        [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
+        internal ConcurrentDictionary<ulong, DiscordScheduledGuildEvent> _scheduledEvents = new();
+
+
+        /// <summary>
         /// Gets a collection of this guild's roles.
         /// </summary>
         [JsonIgnore]
@@ -450,6 +461,12 @@ namespace DSharpPlus.Entities
         public int? PremiumSubscriptionCount { get; internal set; }
 
         /// <summary>
+        /// Whether the guild has the boost progress bar enabled.
+        /// </summary>
+        [JsonProperty("premium_progress_bar_enabled", NullValueHandling = NullValueHandling.Ignore)]
+        public bool PremiumProgressBarEnabled { get; internal set; }
+
+        /// <summary>
         /// Gets whether this guild is designated as NSFW.
         /// </summary>
         [JsonProperty("nsfw", NullValueHandling = NullValueHandling.Ignore)]
@@ -486,6 +503,201 @@ namespace DSharpPlus.Entities
         }
 
         #region Guild Methods
+
+        /// <summary>
+        /// Creates a new scheduled event in this guild.
+        /// </summary>
+        /// <param name="name">The name of the event to create, up to 100 characters.</param>
+        /// <param name="description">The description of the event, up to 1000 characters.</param>
+        /// <param name="channelId">If a <see cref="ScheduledGuildEventType.StageInstance"/> or <see cref="ScheduledGuildEventType.VoiceChannel"/>, the id of the channel the event will be hosted in</param>
+        /// <param name="type">The type of the event. <see paramref="channelId"/> must be supplied if not an external event.</param>
+        /// <param name="privacyLevel">The privacy level of thi</param>
+        /// <param name="start">When this event starts. Must be in the future, and before the end date.</param>
+        /// <param name="end">When this event ends. If supplied, must be in the future and after the end date. This is requred for <see cref="ScheduledGuildEventType.External"/>.</param>
+        /// <param name="location">Where this event takes place, up to 100 characters. Only applicable if the type is <see cref="ScheduledGuildEventType.External"/></param>
+        /// <param name="reason">Reason for audit log.</param>
+        /// <returns>The created event.</returns>
+        public Task<DiscordScheduledGuildEvent> CreateEventAsync(string name, string description, ulong? channelId, ScheduledGuildEventType type, ScheduledGuildEventPrivacyLevel privacyLevel, DateTimeOffset start, DateTimeOffset? end, string location = null, string reason = null)
+        {
+            if (start <= DateTimeOffset.Now)
+                throw new ArgumentOutOfRangeException("The start time for an event must be in the future.");
+
+            if (end != null && end <= start)
+                throw new ArgumentOutOfRangeException("The end time for an event must be after the start time.");
+
+            DiscordScheduledGuildEventMetadata metadata = null;
+            switch (type)
+            {
+                case ScheduledGuildEventType.StageInstance or ScheduledGuildEventType.VoiceChannel when channelId == null:
+                    throw new ArgumentException($"{nameof(channelId)} must not be null when type is {type}", nameof(channelId));
+                case ScheduledGuildEventType.External when channelId != null:
+                    throw new ArgumentException($"{nameof(channelId)} must be null when using external event type", nameof(channelId));
+                case ScheduledGuildEventType.External when location == null:
+                    throw new ArgumentException($"{nameof(location)} must not be null when using external event type", nameof(location));
+                case ScheduledGuildEventType.External when end == null:
+                    throw new ArgumentException($"{nameof(end)} must not be null when using external event type", nameof(end));
+            }
+            if (!string.IsNullOrEmpty(location))
+                metadata = new DiscordScheduledGuildEventMetadata()
+                {
+                    Location = location
+                };
+
+            return this.Discord.ApiClient.CreateScheduledGuildEventAsync(this.Id, name, description, channelId, start, end, type, privacyLevel, metadata, reason);
+        }
+
+        /// <summary>
+        /// Starts a scheduled event in this guild.
+        /// </summary>
+        /// <param name="guildEvent">The event to cancel.</param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        public Task StartEventAsync(DiscordScheduledGuildEvent guildEvent)
+        {
+            if (guildEvent.Status is not ScheduledGuildEventStatus.Scheduled)
+                throw new InvalidOperationException("The event must be scheduled for it to be started.");
+
+            return this.ModifyEventAsync(guildEvent, m => m.Status = ScheduledGuildEventStatus.Active);
+        }
+
+        /// <summary>
+        /// Cancels an event. The event must be scheduled for it to be cancelled.
+        /// </summary>
+        /// <param name="guildEvent">The event to delete.</param>
+        public Task CancelEventAsync(DiscordScheduledGuildEvent guildEvent)
+        {
+            if (guildEvent.Status is not ScheduledGuildEventStatus.Scheduled)
+                throw new InvalidOperationException("The event must be scheduled for it to be cancelled.");
+
+            return this.ModifyEventAsync(guildEvent, m => m.Status = ScheduledGuildEventStatus.Cancelled);
+        }
+
+        /// <summary>
+        /// Modifies an existing scheduled event in this guild.
+        /// </summary>
+        /// <param name="guildEvent">The event to modify.</param>
+        /// <param name="mdl">The action to perform on this event</param>
+        /// <param name="reason">The reason this event is being modified</param>
+        /// <returns>The modified object</returns>
+        /// <exception cref="ArgumentException"></exception>
+        public Task ModifyEventAsync(DiscordScheduledGuildEvent guildEvent, Action<ScheduledGuildEventEditModel> mdl, string reason = null)
+        {
+            var model = new ScheduledGuildEventEditModel();
+            mdl(model);
+
+            if (model.Type.HasValue && model.Type.Value is not ScheduledGuildEventType.External)
+            {
+                if (!model.Channel.HasValue)
+                    throw new ArgumentException("Channel must be supplied if the event is a stage instance or voice channel event.");
+
+                if (model.Type.Value is ScheduledGuildEventType.StageInstance && model.Channel.Value.Type is not ChannelType.Stage)
+                    throw new ArgumentException("Channel must be a stage channel if the event is a stage instance event.");
+
+                if (model.Type.Value is ScheduledGuildEventType.VoiceChannel && model.Channel.Value.Type is not ChannelType.Voice)
+                    throw new ArgumentException("Channel must be a voice channel if the event is a voice channel event.");
+
+                if (model.EndTime.HasValue && model.EndTime.Value < guildEvent.StartTime)
+                    throw new ArgumentException("End time must be after the start time.");
+            }
+
+            if (model.Type.HasValue && model.Type.Value is ScheduledGuildEventType.External)
+            {
+                if (!model.EndTime.HasValue)
+                    throw new ArgumentException("End must be supplied if the event is an external event.");
+
+                if (!model.Metadata.HasValue || string.IsNullOrEmpty(model.Metadata.Value.Location))
+                    throw new ArgumentException("Location must be supplied if the event is an external event.");
+
+                if (model.Channel.HasValue && model.Channel.Value != null)
+                    throw new ArgumentException("Channel must not be supplied if the event is an external event.");
+            }
+
+            if (guildEvent.Status is ScheduledGuildEventStatus.Completed)
+                throw new ArgumentException("The event must not be completed for it to be modified.");
+
+            if (guildEvent.Status is ScheduledGuildEventStatus.Cancelled)
+                throw new ArgumentException("The event must not be cancelled for it to be modified.");
+
+            if (model.Status.HasValue)
+            {
+                switch (model.Status.Value)
+                {
+                    case ScheduledGuildEventStatus.Scheduled:
+                        throw new ArgumentException("Status must not be set to scheduled.");
+                    case ScheduledGuildEventStatus.Active when guildEvent.Status is not ScheduledGuildEventStatus.Scheduled:
+                        throw new ArgumentException("Event status must be scheduled to progress to active.");
+                    case ScheduledGuildEventStatus.Completed when guildEvent.Status is not ScheduledGuildEventStatus.Active:
+                        throw new ArgumentException("Event status must be active to progress to completed.");
+                    case ScheduledGuildEventStatus.Cancelled when guildEvent.Status is not ScheduledGuildEventStatus.Scheduled:
+                        throw new ArgumentException("Event status must be scheduled to progress to cancelled.");
+                }
+            }
+
+            return this.Discord.ApiClient.ModifyScheduledGuildEventAsync(
+                this.Id, guildEvent.Id,
+                model.Name, model.Description,
+                model.Channel.IfPresent(c => c?.Id),
+                model.StartTime, model.EndTime,
+                model.Type, model.PrivacyLevel,
+                model.Metadata, model.Status, reason);
+        }
+
+        /// <summary>
+        /// Deletes an exising scheduled event in this guild.
+        /// </summary>
+        /// <param name="guildEvent"></param>
+        /// <param name="reason"></param>
+        /// <returns></returns>
+        public Task DeleteEventAsync(DiscordScheduledGuildEvent guildEvent, string reason = null)
+            => this.Discord.ApiClient.DeleteScheduledGuildEventAsync(this.Id, guildEvent.Id);
+
+        /// <summary>
+        /// Gets the currently active or scheduled events in this guild.
+        /// </summary>
+        /// <returns>The active and scheduled events on the server, if any.</returns>
+        public Task<IReadOnlyList<DiscordScheduledGuildEvent>> GetEventsAsync()
+            => this.Discord.ApiClient.GetScheduledGuildEventsAsync(this.Id);
+
+        /// <summary>
+        /// Gets a list of users who are interested in this event.
+        /// </summary>
+        /// <param name="guildEvent">The event to query users from</param>
+        /// <param name="limit">How many users to fetch.</param>
+        /// <param name="after">Fetch users after this id. Mutually exclusive with before</param>
+        /// <param name="before">Fetch users before this id. Mutually exclusive with after</param>
+        public async Task<IReadOnlyList<DiscordUser>> GetEventUsersAsync(DiscordScheduledGuildEvent guildEvent, int limit = 100, ulong? after = null, ulong? before = null)
+        {
+            var remaining = limit;
+            ulong? last = null;
+            var isAfter = after != null;
+
+            var users = new List<DiscordUser>();
+
+            int lastCount;
+            do
+            {
+                var fetchSize = remaining > 100 ? 100 : remaining;
+                var fetch = await this.Discord.ApiClient.GetScheduledGuildEventUsersAsync(this.Id, guildEvent.Id, true, fetchSize, !isAfter ? last ?? before : null, isAfter ? last ?? after : null);
+
+                lastCount = fetch.Count;
+                remaining -= lastCount;
+
+                if (!isAfter)
+                {
+                    users.AddRange(fetch);
+                    last = fetch.LastOrDefault()?.Id;
+                }
+                else
+                {
+                    users.InsertRange(0, fetch);
+                    last = fetch.FirstOrDefault()?.Id;
+                }
+            }
+            while (remaining > 0 && lastCount > 0);
+
+
+            return users.AsReadOnly();
+        }
 
         /// <summary>
         /// Searches the current guild for members who's display name start with the specified name.
@@ -536,10 +748,12 @@ namespace DSharpPlus.Entities
         {
             var mdl = new GuildEditModel();
             action(mdl);
+
             if (mdl.AfkChannel.HasValue && mdl.AfkChannel.Value.Type != ChannelType.Voice)
                 throw new ArgumentException("AFK channel needs to be a voice channel.");
 
             var iconb64 = Optional.FromNoValue<string>();
+
             if (mdl.Icon.HasValue && mdl.Icon.Value != null)
                 using (var imgtool = new ImageTool(mdl.Icon.Value))
                     iconb64 = imgtool.GetBase64();
@@ -547,16 +761,28 @@ namespace DSharpPlus.Entities
                 iconb64 = null;
 
             var splashb64 = Optional.FromNoValue<string>();
+
             if (mdl.Splash.HasValue && mdl.Splash.Value != null)
                 using (var imgtool = new ImageTool(mdl.Splash.Value))
                     splashb64 = imgtool.GetBase64();
             else if (mdl.Splash.HasValue)
                 splashb64 = null;
 
+            var bannerb64 = Optional.FromNoValue<string>();
+
+            if (mdl.Splash.HasValue)
+            {
+                if (mdl.Splash.Value == null)
+                    bannerb64 = null;
+                else
+                    using (var imgtool = new ImageTool(mdl.Splash.Value))
+                        bannerb64 = imgtool.GetBase64();
+            }
+
             return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, mdl.Name, mdl.Region.IfPresent(e => e.Id),
                 mdl.VerificationLevel, mdl.DefaultMessageNotifications, mdl.MfaLevel, mdl.ExplicitContentFilter,
                 mdl.AfkChannel.IfPresent(e => e?.Id), mdl.AfkTimeout, iconb64, mdl.Owner.IfPresent(e => e.Id), splashb64,
-                mdl.SystemChannel.IfPresent(e => e?.Id), mdl.Banner,
+                mdl.SystemChannel.IfPresent(e => e?.Id), bannerb64,
                 mdl.Description, mdl.DiscoverySplash, mdl.Features, mdl.PreferredLocale,
                 mdl.PublicUpdatesChannel.IfPresent(e => e?.Id), mdl.RulesChannel.IfPresent(e => e?.Id),
                 mdl.SystemChannelFlags, mdl.AuditLogReason).ConfigureAwait(false);
@@ -849,13 +1075,14 @@ namespace DSharpPlus.Entities
         /// Removes an integration from this guild.
         /// </summary>
         /// <param name="integration">Integration to remove.</param>
+        /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the guild does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task DeleteIntegrationAsync(DiscordIntegration integration)
-            => this.Discord.ApiClient.DeleteGuildIntegrationAsync(this.Id, integration);
+        public Task DeleteIntegrationAsync(DiscordIntegration integration, string reason = null)
+            => this.Discord.ApiClient.DeleteGuildIntegrationAsync(this.Id, integration, reason);
 
         /// <summary>
         /// Forces re-synchronization of an integration for this guild.
@@ -1808,80 +2035,80 @@ namespace DSharpPlus.Entities
                         var entrysti = entry as DiscordAuditLogStickerEntry;
                         foreach (var xc in xac.Changes)
                         {
-                                switch (xc.Key.ToLowerInvariant())
-                                {
-                                    case "name":
-                                        entrysti.NameChange = new PropertyChange<string>
-                                        {
-                                            Before = xc.OldValueString,
-                                            After = xc.NewValueString
-                                        };
-                                        break;
-                                    case "description":
-                                        entrysti.DescriptionChange = new PropertyChange<string>
-                                        {
-                                            Before = xc.OldValueString,
-                                            After = xc.NewValueString
-                                        };
-                                        break;
-                                    case "tags":
-                                        entrysti.TagsChange = new PropertyChange<string>
-                                        {
-                                            Before = xc.OldValueString,
-                                            After = xc.NewValueString
-                                        };
-                                        break;
-                                    case "guild_id":
-                                        entrysti.GuildIdChange = new PropertyChange<ulong?>
-                                        {
-                                            Before = ulong.TryParse(xc.OldValueString, out var ogid) ? ogid : null,
-                                            After = ulong.TryParse(xc.NewValueString, out var ngid) ? ngid : null
-                                        };
-                                        break;
-                                    case "available":
-                                        entrysti.AvailabilityChange = new PropertyChange<bool?>
-                                        {
-                                            Before = (bool?)xc.OldValue,
-                                            After = (bool?)xc.NewValue,
-                                        };
-                                        break;
-                                    case "asset":
-                                        entrysti.AssetChange = new PropertyChange<string>
-                                        {
-                                            Before = xc.OldValueString,
-                                            After = xc.NewValueString
-                                        };
-                                        break;
-                                    case "id":
-                                        entrysti.IdChange = new PropertyChange<ulong?>
-                                        {
-                                            Before = ulong.TryParse(xc.OldValueString, out var oid) ? oid : null,
-                                            After = ulong.TryParse(xc.NewValueString, out var nid) ? nid : null
-                                        };
-                                        break;
-                                    case "type":
-                                        p1 = long.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t5);
-                                        p2 = long.TryParse(xc.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t6);
-                                        entrysti.TypeChange = new PropertyChange<StickerType?>
-                                        {
-                                            Before = p1 ? (StickerType?)t5 : null,
-                                            After = p2 ? (StickerType?)t6 : null
-                                        };
-                                        break;
-                                    case "format_type":
-                                        p1 = long.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t5);
-                                        p2 = long.TryParse(xc.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t6);
-                                        entrysti.FormatChange = new PropertyChange<StickerFormat?>
-                                        {
-                                            Before = p1 ? (StickerFormat?)t5 : null,
-                                            After = p2 ? (StickerFormat?)t6 : null
-                                        };
-                                        break;
+                            switch (xc.Key.ToLowerInvariant())
+                            {
+                                case "name":
+                                    entrysti.NameChange = new PropertyChange<string>
+                                    {
+                                        Before = xc.OldValueString,
+                                        After = xc.NewValueString
+                                    };
+                                    break;
+                                case "description":
+                                    entrysti.DescriptionChange = new PropertyChange<string>
+                                    {
+                                        Before = xc.OldValueString,
+                                        After = xc.NewValueString
+                                    };
+                                    break;
+                                case "tags":
+                                    entrysti.TagsChange = new PropertyChange<string>
+                                    {
+                                        Before = xc.OldValueString,
+                                        After = xc.NewValueString
+                                    };
+                                    break;
+                                case "guild_id":
+                                    entrysti.GuildIdChange = new PropertyChange<ulong?>
+                                    {
+                                        Before = ulong.TryParse(xc.OldValueString, out var ogid) ? ogid : null,
+                                        After = ulong.TryParse(xc.NewValueString, out var ngid) ? ngid : null
+                                    };
+                                    break;
+                                case "available":
+                                    entrysti.AvailabilityChange = new PropertyChange<bool?>
+                                    {
+                                        Before = (bool?)xc.OldValue,
+                                        After = (bool?)xc.NewValue,
+                                    };
+                                    break;
+                                case "asset":
+                                    entrysti.AssetChange = new PropertyChange<string>
+                                    {
+                                        Before = xc.OldValueString,
+                                        After = xc.NewValueString
+                                    };
+                                    break;
+                                case "id":
+                                    entrysti.IdChange = new PropertyChange<ulong?>
+                                    {
+                                        Before = ulong.TryParse(xc.OldValueString, out var oid) ? oid : null,
+                                        After = ulong.TryParse(xc.NewValueString, out var nid) ? nid : null
+                                    };
+                                    break;
+                                case "type":
+                                    p1 = long.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t5);
+                                    p2 = long.TryParse(xc.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t6);
+                                    entrysti.TypeChange = new PropertyChange<StickerType?>
+                                    {
+                                        Before = p1 ? (StickerType?)t5 : null,
+                                        After = p2 ? (StickerType?)t6 : null
+                                    };
+                                    break;
+                                case "format_type":
+                                    p1 = long.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t5);
+                                    p2 = long.TryParse(xc.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t6);
+                                    entrysti.FormatChange = new PropertyChange<StickerFormat?>
+                                    {
+                                        Before = p1 ? (StickerFormat?)t5 : null,
+                                        After = p2 ? (StickerFormat?)t6 : null
+                                    };
+                                    break;
 
-                                    default:
-                                        this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in sticker update: {Key} - this should be reported to library developers", xc.Key);
-                                        break;
-                                }
+                                default:
+                                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in sticker update: {Key} - this should be reported to library developers", xc.Key);
+                                    break;
+                            }
                         }
                         break;
 
@@ -2275,7 +2502,7 @@ namespace DSharpPlus.Entities
         {
             string contentType = null, extension = null;
 
-            if(format == StickerFormat.PNG || format == StickerFormat.APNG)
+            if (format == StickerFormat.PNG || format == StickerFormat.APNG)
             {
                 contentType = "image/png";
                 extension = "png";
@@ -2382,14 +2609,15 @@ namespace DSharpPlus.Entities
         /// Modifies this guild's welcome screen.
         /// </summary>
         /// <param name="action">Action to perform.</param>
+        /// <param name="reason">Reason for audit log.</param>
         /// <returns>The modified welcome screen.</returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client doesn't have the <see cref="Permissions.ManageGuild"/> permission, or community is not enabled on this guild.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordGuildWelcomeScreen> ModifyWelcomeScreenAsync(Action<WelcomeScreenEditModel> action)
+        public async Task<DiscordGuildWelcomeScreen> ModifyWelcomeScreenAsync(Action<WelcomeScreenEditModel> action, string reason = null)
         {
             var mdl = new WelcomeScreenEditModel();
             action(mdl);
-            return await this.Discord.ApiClient.ModifyGuildWelcomeScreenAsync(this.Id, mdl.Enabled, mdl.WelcomeChannels, mdl.Description).ConfigureAwait(false);
+            return await this.Discord.ApiClient.ModifyGuildWelcomeScreenAsync(this.Id, mdl.Enabled, mdl.WelcomeChannels, mdl.Description, reason).ConfigureAwait(false);
         }
 
         /// <summary>

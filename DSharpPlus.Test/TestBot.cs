@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -164,6 +164,7 @@ namespace DSharpPlus.Test
 
             this.SlashCommandService = this.Discord.UseSlashCommands();
             this.SlashCommandService.SlashCommandErrored += this.SlashCommandService_CommandErrored;
+            this.SlashCommandService.SlashCommandInvoked += this.SlashCommandService_CommandReceived;
             this.SlashCommandService.SlashCommandExecuted += this.SlashCommandService_CommandExecuted;
 
             if (this.Config.SlashCommandGuild != 0)
@@ -291,9 +292,24 @@ namespace DSharpPlus.Test
             return Task.CompletedTask;
         }
 
-        private Task SlashCommandService_CommandErrored(SlashCommandsExtension sc, SlashCommandErrorEventArgs e)
+        private async Task SlashCommandService_CommandErrored(SlashCommandsExtension sc, SlashCommandErrorEventArgs e)
         {
             e.Context.Client.Logger.LogError(TestBotEventId, e.Exception, "Exception occurred during {User}'s invocation of '{Command}'", e.Context.User.Username, e.Context.CommandName);
+
+            var emoji = DiscordEmoji.FromName(e.Context.Client, ":no_entry:");
+
+            // let's wrap the response into an embed
+            var embed = new DiscordEmbedBuilder {
+                Title = "Error",
+                Description = $"{emoji} Error!",
+                Color = new DiscordColor(0xFF0000) // red
+            };
+            await e.Context.CreateResponseAsync(embed);
+        }
+
+        private Task SlashCommandService_CommandReceived(SlashCommandsExtension sc, SlashCommandInvokedEventArgs e)
+        {
+            e.Context.Client.Logger.LogInformation(TestBotEventId, "User {User} tries to execute '{Command}' in {Channel}", e.Context.User.Username, e.Context.CommandName, e.Context.Channel.Name);
             return Task.CompletedTask;
         }
 

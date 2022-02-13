@@ -3,7 +3,7 @@
 namespace DSharpPlus.SlashCommands.EventArgs
 {
     /// <summary>
-    /// Represents arguments for a <see cref="SlashCommandsExtension.ContextMenuErrored"/>
+    /// Represents arguments for a <see cref="SlashCommandsExtension.ContextMenuExecuted"/>
     /// </summary>
     public sealed class ContextMenuExecutedEventArgs : AsyncEventArgs
     {

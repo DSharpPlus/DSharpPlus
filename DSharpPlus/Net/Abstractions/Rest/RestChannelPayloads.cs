@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -97,6 +97,54 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("video_quality_mode", NullValueHandling = NullValueHandling.Ignore)]
         public VideoQualityMode? QualityMode { get; set; }
+    }
+
+    internal sealed class RestThreadChannelModifyPayload
+    {
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        public string Name { get; set; }
+
+        [JsonProperty("type")]
+        public Optional<ChannelType> Type { get; set; }
+
+        [JsonProperty("position", NullValueHandling = NullValueHandling.Ignore)]
+        public int? Position { get; set; }
+
+        [JsonProperty("topic")]
+        public Optional<string> Topic { get; set; }
+
+        [JsonProperty("nsfw", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? Nsfw { get; set; }
+
+        [JsonProperty("parent_id")]
+        public Optional<ulong?> Parent { get; set; }
+
+        [JsonProperty("bitrate", NullValueHandling = NullValueHandling.Ignore)]
+        public int? Bitrate { get; set; }
+
+        [JsonProperty("user_limit", NullValueHandling = NullValueHandling.Ignore)]
+        public int? UserLimit { get; set; }
+
+        [JsonProperty("permission_overwrites", NullValueHandling = NullValueHandling.Ignore)]
+        public IEnumerable<DiscordRestOverwrite> PermissionOverwrites { get; set; }
+
+        [JsonProperty("rate_limit_per_user")]
+        public Optional<int?> PerUserRateLimit { get; set; }
+
+        [JsonProperty("rtc_region")]
+        public Optional<string> RtcRegion { get; set; }
+
+        [JsonProperty("video_quality_mode", NullValueHandling = NullValueHandling.Ignore)]
+        public VideoQualityMode? QualityMode { get; set; }
+
+        [JsonProperty("archived", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? IsArchived { get; set; }
+
+        [JsonProperty("auto_archive_duration", NullValueHandling = NullValueHandling.Ignore)]
+        public AutoArchiveDuration? ArchiveDuration { get; set; }
+
+        [JsonProperty("locked", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? Locked { get; set; }
     }
 
     internal class RestChannelMessageEditPayload

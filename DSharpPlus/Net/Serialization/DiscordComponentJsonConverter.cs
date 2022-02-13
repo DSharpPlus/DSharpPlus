@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -46,6 +46,7 @@ namespace DSharpPlus.Net.Serialization
             var cmp = type switch
             {
                 ComponentType.ActionRow => new DiscordActionRowComponent(),
+                ComponentType.Button when (int)job["style"] is 5 => new DiscordLinkButtonComponent(),
                 ComponentType.Button => new DiscordButtonComponent(),
                 ComponentType.Select => new DiscordSelectComponent(),
                 _ => new DiscordComponent() { Type = type.Value }

@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -343,6 +343,21 @@ namespace DSharpPlus.Entities
 
             return this.Discord.ApiClient.CreateMessageAsync(this.Id, builder);
         }
+
+        /// <summary>
+        /// Creates an event bound to this channel.
+        /// </summary>
+        /// <param name="name">The name of the event, up to 100 characters.</param>
+        /// <param name="description">The description of this event, up to 1000 characters.</param>
+        /// <param name="privacyLevel">The privacy level. Currently only <see cref="ScheduledGuildEventPrivacyLevel.GuildOnly"/> is supported</param>
+        /// <param name="start">When this event starts.</param>
+        /// <param name="end">When this event ends. External events require an end time.</param>
+        /// <param name="location">Where this event will take place, up to 100 characters. Only applicable to external events.</param>
+        /// <returns>The created event.</returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        public Task<DiscordScheduledGuildEvent> CreateGuildEventAsync(string name, string description, ScheduledGuildEventPrivacyLevel privacyLevel, DateTimeOffset start, DateTimeOffset? end)
+            => this.Type is not (ChannelType.Voice or ChannelType.Stage) ? throw new InvalidOperationException("Events can only be created on voice an stage chnanels") :
+                this.Guild.CreateEventAsync(name, description, this.Id, this.Type is ChannelType.Stage ? ScheduledGuildEventType.StageInstance : ScheduledGuildEventType.VoiceChannel, privacyLevel, start, end);
 
         // Please send memes to Naamloos#2887 at discord <3 thank you
 
@@ -829,7 +844,7 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("Cannot place a member in a non-voice channel!"); // be a little more angry, let em learn!!1
 
             await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, member.Id, default, default, default,
-                default, this.Id, null).ConfigureAwait(false);
+                default, this.Id, default, null).ConfigureAwait(false);
         }
 
         /// <summary>
