@@ -1072,7 +1072,7 @@ namespace DSharpPlus.Net
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.EVENTS}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
 
-            var query = new Dictionary<string, string>() { { "with_counts", with_user_counts.ToString() } };
+            var query = new Dictionary<string, string>() { { "with_user_count", with_user_counts.ToString() } };
 
             var url = Utilities.GetApiUriFor(path, BuildQueryString(query));
 
