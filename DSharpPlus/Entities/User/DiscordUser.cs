@@ -109,20 +109,20 @@ namespace DSharpPlus.Entities
         /// The user flags on a user's account.
         /// </summary>
         [JsonPropertyName("flags")]
-        public UserFlags? UserFlags { get; private set; }
+        public DiscordUserFlags? UserFlags { get; private set; }
 
 
         /// <summary>
         /// The type of Nitro subscription on a user's account.
         /// </summary>
         [JsonPropertyName("premium_type")]
-        public PremiumType? PremiumType { get; private set; }
+        public DiscordPremiumType? PremiumType { get; private set; }
 
         /// <summary>
         /// The public flags on a user's account.
         /// </summary>
         [JsonPropertyName("public_flags")]
-        public UserFlags? PublicUserFlags { get; private set; }
+        public DiscordUserFlags? PublicUserFlags { get; private set; }
         #endregion
 
         #region Generated Properties

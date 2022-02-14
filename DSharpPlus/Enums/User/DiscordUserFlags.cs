@@ -27,7 +27,7 @@ namespace DSharpPlus.Enums
 {
 
     [Flags]
-    public enum UserFlags
+    public enum DiscordUserFlags
     {
         /// <summary>
         /// The user has no flags.
