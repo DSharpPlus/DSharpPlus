@@ -4,7 +4,6 @@
         <RootNamespace>DSharpPlus</RootNamespace>
         <TargetFramework>net6.0</TargetFramework>
         <OutputType>Library</OutputType>
-        <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
     <PropertyGroup>
