@@ -4,6 +4,7 @@ using System.Globalization;
 namespace DSharpPlus.Entities
 {
     // TODO: Write a validation test.
+    // TODO: Serialize the class into just the Value property.
     /// <summary>
     /// Implements https://discord.com/developers/docs/reference#snowflakes.
     /// </summary>
@@ -61,14 +62,10 @@ namespace DSharpPlus.Entities
         /// <param name="increment">A 12 bit integer which represents the number of previously generated snowflakes. If null, generates a random number between 1 and 4,095.</param>
         public DiscordSnowflake(DateTimeOffset? timestamp, byte? workerId, byte? processId, ushort? increment)
         {
-            if (timestamp is null)
-                timestamp = DateTimeOffset.Now;
-            if (workerId is null)
-                workerId = (byte)Random.Shared.Next(1, 32);
-            if (processId is null)
-                processId = (byte)Random.Shared.Next(1, 32);
-            if (increment is null)
-                increment = (ushort)Random.Shared.Next(1, 4095);
+            timestamp ??= DateTimeOffset.Now;
+            workerId ??= (byte)Random.Shared.Next(1, 32);
+            processId ??= (byte)Random.Shared.Next(1, 32);
+            increment ??= (ushort)Random.Shared.Next(1, 4095);
 
             this.Timestamp = timestamp.Value;
             this.InternalWorkerId = workerId.Value;
@@ -81,11 +78,11 @@ namespace DSharpPlus.Entities
                 | increment.Value;
         }
 
-        public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
-        public override bool Equals(object? obj) => obj is DiscordSnowflake snowflake && Value == snowflake.Value && Timestamp.Equals(snowflake.Timestamp) && InternalWorkerId == snowflake.InternalWorkerId && InternalProcessId == snowflake.InternalProcessId && InternalIncrement == snowflake.InternalIncrement;
-        public override int GetHashCode() => HashCode.Combine(Value, Timestamp, InternalWorkerId, InternalProcessId, InternalIncrement);
-        public bool Equals(DiscordSnowflake? other) => Equals((object?)other);
-        public int CompareTo(DiscordSnowflake? other) => other is null ? 1 : Value.CompareTo(other?.Value);
+        public override string ToString() => this.Value.ToString(CultureInfo.InvariantCulture);
+        public override bool Equals(object? obj) => obj is DiscordSnowflake snowflake && this.Value == snowflake.Value;
+        public override int GetHashCode() => HashCode.Combine(this.Value, Timestamp, InternalWorkerId, InternalProcessId, InternalIncrement);
+        public bool Equals(DiscordSnowflake? other) => other is not null && this.Value == other.Value;
+        public int CompareTo(DiscordSnowflake? other) => other is null ? 1 : this.Value.CompareTo(other?.Value);
 
         public static bool operator ==(DiscordSnowflake left, DiscordSnowflake right) => left is null ? right is null : left.Equals(right);
         public static bool operator !=(DiscordSnowflake left, DiscordSnowflake right) => !(left == right);
