@@ -1,3 +1,4 @@
+using System;
 using System.Globalization;
 
 namespace DSharpPlus.Entities
@@ -6,7 +7,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Implements https://discord.com/developers/docs/reference#snowflakes.
     /// </summary>
-    public class DiscordSnowflake : IEquatable<DiscordSnowflake>, IComparable<DiscordSnowflake>
+    public sealed class DiscordSnowflake : IEquatable<DiscordSnowflake>, IComparable<DiscordSnowflake>
     {
         /// <summary>
         /// The first second of 2015. The date Discord officially recognizes as it's epoch.
