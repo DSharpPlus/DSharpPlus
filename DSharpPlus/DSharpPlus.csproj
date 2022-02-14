@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <AssemblyName>DSharpPlus</AssemblyName>
+        <RootNamespace>DSharpPlus</RootNamespace>
+        <TargetFramework>net6.0</TargetFramework>
+        <OutputType>Library</OutputType>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+    <PropertyGroup>
+        <PackageId>DSharpPlus</PackageId>
+        <Authors>Naamloos, afroraydude, DrCreo, Death, TiaqoY0, Axiom, Emzi0767, IDoEverything, Velvet, DSharpPlus contributors</Authors>
+        <Description>A C# API for Discord based off DiscordSharp, but rewritten to fit the API standards.</Description>
+        <PackageTags>discord, discord-api, bots, discord-bots, chat, dsharp, dsharpplus, csharp, dotnet, vb-net, fsharp, webhooks</PackageTags>
+    </PropertyGroup>
+</Project>
