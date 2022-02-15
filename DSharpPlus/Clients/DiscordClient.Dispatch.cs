@@ -1902,6 +1902,11 @@ namespace DSharpPlus
                     else
                         presence.Activity = new DiscordActivity(presence.RawActivity);
                 }
+                else
+                {
+                    presence.RawActivity = null;
+                    presence.Activity = null;
+                }
             }
 
             if (this.UserCache.TryGetValue(uid, out var usr))
