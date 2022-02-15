@@ -27,7 +27,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// A text-input field. Like selects, this can only be used once per action row.
     /// </summary>
-    public sealed class DiscordModalInputComponent : DiscordComponent
+    public sealed class TextInputComponent : DiscordComponent
     {
         /// <summary>
         /// Optional placeholder text for this input.
@@ -71,7 +71,7 @@ namespace DSharpPlus.Entities
         [JsonProperty("style")]
         public TextInputStyle Style { get; set; }
 
-        public DiscordModalInputComponent()
+        public TextInputComponent()
         {
             this.Type = ComponentType.FormInput;
         }
@@ -87,7 +87,7 @@ namespace DSharpPlus.Entities
         /// <param name="style">The style of this field. A single-ling short, or multi-line paragraph.</param>
         /// <param name="min_length">The minimum input length.</param>
         /// <param name="max_length">The maximum input length. Must be greater than the minimum, if set.</param>
-        public DiscordModalInputComponent(string label, string customId, string placeholder = null, string value = null, bool required = true, TextInputStyle style = TextInputStyle.Short, int min_length = 0, int? max_length = null)
+        public TextInputComponent(string label, string customId, string placeholder = null, string value = null, bool required = true, TextInputStyle style = TextInputStyle.Short, int min_length = 0, int? max_length = null)
         {
             this.CustomId = customId;
             this.Type = ComponentType.FormInput;

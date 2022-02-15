@@ -48,7 +48,7 @@ namespace DSharpPlus.Net.Serialization
                 ComponentType.ActionRow => new DiscordActionRowComponent(),
                 ComponentType.Button => new DiscordButtonComponent(),
                 ComponentType.Select => new DiscordSelectComponent(),
-                ComponentType.FormInput => new DiscordModalInputComponent(),
+                ComponentType.FormInput => new TextInputComponent(),
                 _ => new DiscordComponent() { Type = type.Value }
             };
 

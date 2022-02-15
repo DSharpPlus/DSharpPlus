@@ -25,7 +25,7 @@ using DSharpPlus.Entities;
 namespace DSharpPlus
 {
     /// <summary>
-    /// The style for a <see cref="DiscordModalInputComponent"/>
+    /// The style for a <see cref="TextInputComponent"/>
     /// </summary>
     public enum TextInputStyle
     {
