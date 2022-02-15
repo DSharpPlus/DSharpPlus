@@ -400,15 +400,9 @@ namespace DSharpPlus
                 return usr;
 
             usr = await this.ApiClient.GetUserAsync(userId).ConfigureAwait(false);
-            usr = this.UserCache.AddOrUpdate(userId, usr, (id, old) =>
-            {
-                old.Username = usr.Username;
-                old.Discriminator = usr.Discriminator;
-                old.AvatarHash = usr.AvatarHash;
-                old.BannerHash = usr.BannerHash;
-                old._bannerColor = usr._bannerColor;
-                return old;
-            });
+
+            // See BaseDiscordClient.UpdateUser for why this is done like this.
+            this.UserCache.AddOrUpdate(userId, usr, (_, _) => usr);
 
             return usr;
         }
