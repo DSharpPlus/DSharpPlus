@@ -523,7 +523,7 @@ namespace DSharpPlus.Entities
 
             // Checks to see if the image size is not a power of two.
             if (!(imageSize is not 0 && (imageSize & (imageSize - 1)) is 0))
-                throw new ArgumentOutOfRangeException("Image size is not a power of two: " + nameof(imageSize));
+                throw new ArgumentOutOfRangeException(nameof(imageSize), imageSize, "Image size is not a power of two.");
 
             // Get the string variants of the method parameters to use in the urls.
             var stringImageFormat = imageFormat switch
