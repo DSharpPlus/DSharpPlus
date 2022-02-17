@@ -519,7 +519,7 @@ namespace DSharpPlus.Entities
 
             // Makes sure the image size is in between Discord's allowed range.
             if (imageSize < 16 || imageSize > 4096)
-                throw new ArgumentOutOfRangeException("Image Size is not in between 16 and 4096: " + nameof(imageSize));
+                throw new ArgumentOutOfRangeException(nameof(imageSize), imageSize, "Image Size is not in between 16 and 4096.");
 
             // Checks to see if the image size is not a power of two.
             if (!(imageSize is not 0 && (imageSize & (imageSize - 1)) is 0))
