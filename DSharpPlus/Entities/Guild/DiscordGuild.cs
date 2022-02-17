@@ -513,6 +513,9 @@ namespace DSharpPlus.Entities
         /// <returns>The URL of the guild's icon.</returns>
         public string GetIconUrl(ImageFormat imageFormat, ushort imageSize = 1024)
         {
+            
+            if (string.IsNullOrWhiteSpace(this.IconHash))
+                return null;
 
             if (imageFormat == ImageFormat.Unknown)
                 throw new ArgumentException("You must specify valid image format.", nameof(imageFormat));
