@@ -64,7 +64,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public string IconUrl
-            => !string.IsNullOrWhiteSpace(this.IconHash) ? $"https://cdn.discordapp.com/icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.IconHash}.{(this.IconHash.StartsWith("a_") ? "gif" : "png")}?size=1024" : null;
+            => this.GetIconUrl(ImageFormat.Auto, 1024);
 
         /// <summary>
         /// Gets the guild splash's hash.
