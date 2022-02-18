@@ -505,7 +505,7 @@ namespace DSharpPlus.SlashCommands
                 return ApplicationCommandOptionType.String;
             if (type == typeof(DiscordAttachment))
                 return ApplicationCommandOptionType.Attachment;
-            throw new ArgumentException("Cannot convert type! Argument types must be string, long, bool, double, TimeSpan?, DiscordChannel, DiscordUser, DiscordRole, DiscordEmoji, SnowflakeObject or an Enum.");
+            throw new ArgumentException("Cannot convert type! Argument types must be string, long, bool, double, TimeSpan?, DiscordChannel, DiscordUser, DiscordRole, DiscordEmoji, DiscordAttachment, SnowflakeObject, or an Enum.");
         }
 
         //Gets choices from choice attributes
