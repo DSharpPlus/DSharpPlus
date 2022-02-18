@@ -96,6 +96,7 @@ namespace DSharpPlus.Entities
             this.MinimumLength = min_length;
             this.MaximumLength = max_length;
             this.Style = style;
+            this.Value = value;
         }
     }
 }
