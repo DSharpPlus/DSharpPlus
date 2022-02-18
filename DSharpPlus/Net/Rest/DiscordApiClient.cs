@@ -2790,7 +2790,8 @@ namespace DSharpPlus.Net
                 Username = builder.Username.HasValue ? builder.Username.Value : null,
                 AvatarUrl = builder.AvatarUrl.HasValue ? builder.AvatarUrl.Value : null,
                 IsTTS = builder.IsTTS,
-                Embeds = builder.Embeds
+                Embeds = builder.Embeds,
+                Components = builder.Components,
             };
 
             if (builder.Mentions != null)
