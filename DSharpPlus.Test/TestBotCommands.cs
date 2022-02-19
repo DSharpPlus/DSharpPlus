@@ -27,7 +27,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -95,7 +94,7 @@ namespace DSharpPlus.Test
                 .WithContent("Mentioning <@&879398655130472508> and <@743323785549316197>")
                 .WithReply(ctx.Message.Id, true)
                 .WithAllowedMention(new RoleMention(879398655130472508));
-                //.WithAllowedMention(new UserMention(743323785549316197));//.WithAllowedMention(new RoleMention(879398655130472508));
+            //.WithAllowedMention(new UserMention(743323785549316197));//.WithAllowedMention(new RoleMention(879398655130472508));
 
             var msg = await builder.SendAsync(ctx.Channel);
             await msg.ModifyAsync("Mentioning <@&879398655130472508> and <@743323785549316197>, but edited!");
@@ -502,7 +501,7 @@ namespace DSharpPlus.Test
             await ctx.RespondAsync($"{cNull.Mention}, {cAuto.Mention}, and {cFull.Mention} created. Delete channels? (Y)");
             var result = await ctx.Message.GetNextMessageAsync(m => m.Content.Equals("Y", StringComparison.OrdinalIgnoreCase), TimeSpan.FromMinutes(1));
 
-            if(!result.TimedOut)
+            if (!result.TimedOut)
             {
                 await cNull.DeleteAsync();
                 await cAuto.DeleteAsync();

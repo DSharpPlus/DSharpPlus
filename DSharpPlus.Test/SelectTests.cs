@@ -21,9 +21,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -98,7 +95,7 @@ namespace DSharpPlus.Test
             builder.AddComponents(select);
 
             var msg = await builder.SendAsync(ctx.Channel);
-            wait:
+        wait:
             var res = await input.WaitForSelectAsync(msg, "yert", TimeSpan.FromSeconds(30));
 
             if (res.TimedOut)

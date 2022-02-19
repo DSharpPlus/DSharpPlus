@@ -25,7 +25,6 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.VoiceNext;
-using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.Test
 {
