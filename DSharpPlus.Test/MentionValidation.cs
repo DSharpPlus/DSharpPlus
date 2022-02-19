@@ -33,7 +33,6 @@ namespace DSharpPlus.Test
         [Command]
         public async Task MentionTest(CommandContext ctx, DiscordRole role)
         {
-            var progress = "";
             var progressBuilder = new StringBuilder();
             var progressMessage = await ctx.RespondAsync("Waiting for results");
 

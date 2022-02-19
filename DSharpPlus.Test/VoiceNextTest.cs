@@ -42,11 +42,12 @@ namespace DSharpPlus.Test
         }
 
         [Command]
-        public async Task Leave(CommandContext ctx)
+        public Task Leave(CommandContext ctx)
         {
             var vnext = ctx.Client.GetVoiceNext();
 
             vnext.GetConnection(ctx.Guild)?.Disconnect(); // Calls .Dispose(); //
+            return Task.CompletedTask;
         }
     }
 }

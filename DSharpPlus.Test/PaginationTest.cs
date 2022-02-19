@@ -46,13 +46,14 @@ namespace DSharpPlus.Test
             ctx.Client.ComponentInteractionCreated += this.Handle;
         }
 
-        private async Task Handle(DiscordClient sender, ComponentInteractionCreateEventArgs e)
+        private Task Handle(DiscordClient sender, ComponentInteractionCreateEventArgs e)
         {
             if (e.Id != "a")
-                return;
+                return Task.CompletedTask;
             var pages = sender.GetInteractivity().GeneratePagesInContent(_lorem);
             _ = sender.GetInteractivity().SendPaginatedResponseAsync(e.Interaction, true, e.User, pages);
             sender.ComponentInteractionCreated -= this.Handle;
+            return Task.CompletedTask;
         }
     }
 }

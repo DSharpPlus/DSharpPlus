@@ -207,9 +207,6 @@ namespace DSharpPlus.Test
 
         public async Task RunAsync()
         {
-            await this.Discord.ConnectAsync();
-            return;
-
             var act = new DiscordActivity("the screams of your ancestors", ActivityType.ListeningTo);
             await this.Discord.ConnectAsync(act, UserStatus.DoNotDisturb).ConfigureAwait(false);
         }
@@ -299,7 +296,8 @@ namespace DSharpPlus.Test
             var emoji = DiscordEmoji.FromName(e.Context.Client, ":no_entry:");
 
             // let's wrap the response into an embed
-            var embed = new DiscordEmbedBuilder {
+            var embed = new DiscordEmbedBuilder
+            {
                 Title = "Error",
                 Description = $"{emoji} Error!",
                 Color = new DiscordColor(0xFF0000) // red

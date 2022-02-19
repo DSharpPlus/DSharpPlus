@@ -52,7 +52,9 @@ namespace DSharpPlus.Test
                 return;
             }
 
-            new WebClient().DownloadFile(ctx.Message.Attachments.First().Url, "./icon.png");
+            var fileStream = File.Open("./icon.png", FileMode.OpenOrCreate);
+            await (await new HttpClient().GetStreamAsync(ctx.Message.Attachments[0].Url)).CopyToAsync(fileStream);
+            fileStream.Close();
 
             var stream = File.OpenRead("./icon.png");
             var role = await ctx.Guild.CreateRoleAsync(name, Permissions.None, color, icon: stream, emoji: DiscordEmoji.FromUnicode("👀"));
@@ -71,7 +73,9 @@ namespace DSharpPlus.Test
                 return;
             }
 
-            new WebClient().DownloadFile(ctx.Message.Attachments.First().Url, "./icon.png");
+            var fileStream = File.Open("./icon.png", FileMode.OpenOrCreate);
+            await (await new HttpClient().GetStreamAsync(ctx.Message.Attachments[0].Url)).CopyToAsync(fileStream);
+            fileStream.Close();
 
             var stream = File.OpenRead("./icon.png");
             await role.ModifyAsync(icon: stream);
