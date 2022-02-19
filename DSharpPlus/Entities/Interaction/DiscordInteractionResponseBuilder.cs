@@ -243,7 +243,7 @@ namespace DSharpPlus.Entities
         /// Sets the interaction response to be ephemeral.
         /// </summary>
         /// <param name="ephemeral">Ephemeral.</param>
-        public DiscordInteractionResponseBuilder AsEphemeral(bool ephemeral)
+        public DiscordInteractionResponseBuilder AsEphemeral(bool ephemeral = true)
         {
             this.IsEphemeral = ephemeral;
             return this;
