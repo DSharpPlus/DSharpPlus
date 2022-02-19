@@ -2508,6 +2508,12 @@ namespace DSharpPlus
 
                 await this._componentInteractionCreated.InvokeAsync(this, cea).ConfigureAwait(false);
             }
+            else if (interaction.Type is InteractionType.ModalSubmit)
+            {
+                var mea = new ModalSubmitEventArgs(interaction);
+
+                await this._modalSubmitted.InvokeAsync(this, mea).ConfigureAwait(false);
+            }
             else
             {
                 if (interaction.Data.Target.HasValue) // Context-Menu. //

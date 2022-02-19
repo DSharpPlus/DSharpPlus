@@ -49,6 +49,7 @@ namespace DSharpPlus.Net.Serialization
                 ComponentType.Button when (int)job["style"] is 5 => new DiscordLinkButtonComponent(),
                 ComponentType.Button => new DiscordButtonComponent(),
                 ComponentType.Select => new DiscordSelectComponent(),
+                ComponentType.FormInput => new TextInputComponent(),
                 _ => new DiscordComponent() { Type = type.Value }
             };
 

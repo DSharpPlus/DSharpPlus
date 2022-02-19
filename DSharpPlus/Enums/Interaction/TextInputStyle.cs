@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2022 DSharpPlus Contributors
+// Copyright (c) 2016-2021 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,28 +20,22 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+using DSharpPlus.Entities;
+
 namespace DSharpPlus
 {
     /// <summary>
-    /// Represents a type of component.
+    /// The style for a <see cref="TextInputComponent"/>
     /// </summary>
-    public enum ComponentType
+    public enum TextInputStyle
     {
         /// <summary>
-        /// A row of components.
+        /// A short, single-line input
         /// </summary>
-        ActionRow = 1,
+        Short = 1,
         /// <summary>
-        /// A button.
+        /// A longer, multi-line input
         /// </summary>
-        Button = 2,
-        /// <summary>
-        /// A select menu.
-        /// </summary>
-        Select = 3,
-        /// <summary>
-        /// An input field.
-        /// </summary>
-        FormInput = 4,
+        Paragraph = 2
     }
 }

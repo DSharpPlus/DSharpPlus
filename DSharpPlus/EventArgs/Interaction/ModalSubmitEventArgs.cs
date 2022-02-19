@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2022 DSharpPlus Contributors
+// Copyright (c) 2016-2021 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,28 +20,36 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace DSharpPlus
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using DSharpPlus.Entities;
+using Newtonsoft.Json;
+
+namespace DSharpPlus.EventArgs
 {
     /// <summary>
-    /// Represents a type of component.
+    /// Fired when a modal is submitted. Note that this event is fired only if the modal is submitted by the user, and not if the modal is closed.
     /// </summary>
-    public enum ComponentType
+    public class ModalSubmitEventArgs : InteractionCreateEventArgs
     {
         /// <summary>
-        /// A row of components.
+        /// A dictionary of submitted fields, keyed on the custom id of the input component.
         /// </summary>
-        ActionRow = 1,
-        /// <summary>
-        /// A button.
-        /// </summary>
-        Button = 2,
-        /// <summary>
-        /// A select menu.
-        /// </summary>
-        Select = 3,
-        /// <summary>
-        /// An input field.
-        /// </summary>
-        FormInput = 4,
+        [JsonIgnore]
+        public IReadOnlyDictionary<string, string> Values { get; }
+
+        internal ModalSubmitEventArgs(DiscordInteraction interaction)
+        {
+            this.Interaction = interaction;
+
+            var dict = new Dictionary<string, string>();
+
+            foreach (var component in interaction.Data._components)
+                if (component.Components.First() is TextInputComponent input)
+                    dict.Add(input.CustomId, input.Value);
+
+            this.Values = dict;
+        }
     }
 }

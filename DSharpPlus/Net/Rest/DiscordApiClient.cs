@@ -3341,6 +3341,8 @@ namespace DSharpPlus.Net
                 Data = builder != null ? new DiscordInteractionApplicationCommandCallbackData
                 {
                     Content = builder.Content,
+                    Title = builder.Title,
+                    CustomId = builder.CustomId,
                     Embeds = builder.Embeds,
                     IsTTS = builder.IsTTS,
                     Mentions = new DiscordMentions(builder.Mentions ?? Mentions.All, builder.Mentions?.Any() ?? false),
