@@ -92,6 +92,7 @@ namespace DSharpPlus.Entities
             this.CustomId = customId;
             this.Type = ComponentType.FormInput;
             this.Label = label;
+            this.Required = required;
             this.Placeholder = placeholder;
             this.MinimumLength = min_length;
             this.MaximumLength = max_length;
