@@ -32,6 +32,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
+using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Models;
 using DSharpPlus.Net.Serialization;
@@ -63,7 +64,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public string IconUrl
-            => !string.IsNullOrWhiteSpace(this.IconHash) ? $"https://cdn.discordapp.com/icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.IconHash}.jpg" : null;
+            => this.GetIconUrl(ImageFormat.Auto, 1024);
 
         /// <summary>
         /// Gets the guild splash's hash.
@@ -503,7 +504,46 @@ namespace DSharpPlus.Entities
         }
 
         #region Guild Methods
+        
+        /// <summary>
+        /// Gets guild's icon URL, in requested format and size.
+        /// </summary>
+        /// <param name="imageFormat">The image format of the icon to get.</param>
+        /// <param name="imageSize">The maximum size of the icon. Must be a power of two, minimum 16, maximum 4096.</param>
+        /// <returns>The URL of the guild's icon.</returns>
+        public string GetIconUrl(ImageFormat imageFormat, ushort imageSize = 1024)
+        {
+            
+            if (string.IsNullOrWhiteSpace(this.IconHash))
+                return null;
 
+            if (imageFormat == ImageFormat.Unknown)
+                throw new ArgumentException("You must specify valid image format.", nameof(imageFormat));
+
+            // Makes sure the image size is in between Discord's allowed range.
+            if (imageSize < 16 || imageSize > 4096)
+                throw new ArgumentOutOfRangeException(nameof(imageSize), imageSize, "Image Size is not in between 16 and 4096.");
+
+            // Checks to see if the image size is not a power of two.
+            if (!(imageSize is not 0 && (imageSize & (imageSize - 1)) is 0))
+                throw new ArgumentOutOfRangeException(nameof(imageSize), imageSize, "Image size is not a power of two.");
+
+            // Get the string variants of the method parameters to use in the urls.
+            var stringImageFormat = imageFormat switch
+            {
+                ImageFormat.Gif => "gif",
+                ImageFormat.Jpeg => "jpg",
+                ImageFormat.Png => "png",
+                ImageFormat.WebP => "webp",
+                ImageFormat.Auto => !string.IsNullOrWhiteSpace(this.IconHash) ? (this.IconHash.StartsWith("a_") ? "gif" : "png") : "png",
+                _ => throw new ArgumentOutOfRangeException(nameof(imageFormat)),
+            };
+            var stringImageSize = imageSize.ToString(CultureInfo.InvariantCulture);
+
+            return $"https://cdn.discordapp.com{Endpoints.ICONS}/{this.Id}/{this.IconHash}.{stringImageFormat}?size={stringImageSize}";
+
+        }
+        
         /// <summary>
         /// Creates a new scheduled event in this guild.
         /// </summary>
