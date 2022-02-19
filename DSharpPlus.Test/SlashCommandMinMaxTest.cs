@@ -30,9 +30,7 @@ namespace DSharpPlus.Test
     public class SlashCommandMinMaxTest : ApplicationCommandModule
     {
         [SlashCommand("minmax", "testing min and max")]
-        public async Task MinMax(InteractionContext ctx, [Option("value", "value with limits")] [Minimum(5), Maximum(7)] long thing)
-        {
-            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(thing.ToString()));
-        }
+        public static async Task MinMaxAsync(InteractionContext ctx, [Option("value", "value with limits")][Minimum(5), Maximum(7)] long thing)
+            => await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(thing.ToString()));
     }
 }

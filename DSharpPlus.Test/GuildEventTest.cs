@@ -32,7 +32,7 @@ namespace DSharpPlus.Test
     public class GuildEventTest : BaseCommandModule
     {
         [Command("create_event")]
-        public async Task CreateEvent(CommandContext ctx, string name, string location = null, [RemainingText] string description = null)
+        public static async Task CreateEventAsync(CommandContext ctx, string name, string location = null, [RemainingText] string description = null)
         {
             try
             {

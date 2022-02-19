@@ -30,7 +30,7 @@ namespace DSharpPlus.Test
     public class MultiEmbedTest : BaseCommandModule
     {
         [Command("me")]
-        public Task MultiEmbed(CommandContext ctx)
+        public static Task MultiEmbed(CommandContext ctx)
             => ctx.RespondAsync(m => m
                 .WithEmbed(new DiscordEmbedBuilder().WithTitle("Test 1"))
                 .WithEmbed(new DiscordEmbedBuilder().WithTitle("Test 2")));

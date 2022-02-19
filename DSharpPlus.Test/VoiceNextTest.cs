@@ -30,18 +30,22 @@ namespace DSharpPlus.Test
 {
     public class VoiceNextTest : BaseCommandModule
     {
-        static VoiceNextTest() => TaskScheduler.UnobservedTaskException += OhNo;
-        private static void OhNo(object sender, UnobservedTaskExceptionEventArgs e) { Console.Error.WriteLine("SOMETHING WENT TERRIBLY WRONG WHEN DISCONNECTING"); }
+        static VoiceNextTest()
+        {
+            TaskScheduler.UnobservedTaskException += OhNo;
+        }
+
+        private static void OhNo(object sender, UnobservedTaskExceptionEventArgs e) => Console.Error.WriteLine("SOMETHING WENT TERRIBLY WRONG WHEN DISCONNECTING");
 
         [Command]
-        public async Task Join(CommandContext ctx)
+        public static async Task JoinAsync(CommandContext ctx)
         {
             var vnext = ctx.Client.GetVoiceNext();
             await vnext.ConnectAsync(ctx.Member.VoiceState.Channel);
         }
 
         [Command]
-        public Task Leave(CommandContext ctx)
+        public static Task Leave(CommandContext ctx)
         {
             var vnext = ctx.Client.GetVoiceNext();
 

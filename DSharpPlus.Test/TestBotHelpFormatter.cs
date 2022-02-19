@@ -66,7 +66,7 @@ namespace DSharpPlus.Test
                     sb.Append('\n');
                 }
 
-                this.Content.Append("Arguments:\n").Append(sb.ToString());
+                this.Content.Append("Arguments:\n").Append(sb);
             }
 
             return this;
@@ -86,8 +86,8 @@ namespace DSharpPlus.Test
                 foreach (var xc in subcommands)
                     sb.Append(xc.Name.PadRight(ml, ' '))
                         .Append("  ")
-                        .Append(string.IsNullOrWhiteSpace(xc.Description) ? "" : xc.Description).Append("\n");
-                this.Content.Append(sb.ToString());
+                        .Append(string.IsNullOrWhiteSpace(xc.Description) ? "" : xc.Description).Append('\n');
+                this.Content.Append(sb);
             }
 
             return this;

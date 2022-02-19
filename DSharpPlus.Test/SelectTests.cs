@@ -31,15 +31,13 @@ namespace DSharpPlus.Test
 {
     public class SelectTests : BaseCommandModule
     {
-        [Command]
-        public async Task SendSelect(CommandContext ctx)
-        {
-            await ctx.RespondAsync("This is missing an implementation!");
-        }
+        [Command("send_select")]
+        public static async Task SendSelectAsync(CommandContext ctx)
+            => await ctx.RespondAsync("This is missing an implementation!");
 
-        [Command]
+        [Command("Select_Interactive_Test_1")]
         [Description("A test for select menus. This waits for one input.")]
-        public async Task Select_Interactive_Test_1(CommandContext ctx)
+        public static async Task Select_Interactive_Test_1_Async(CommandContext ctx)
         {
             var input = ctx.Client.GetInteractivity();
             var builder = new DiscordMessageBuilder();
@@ -70,9 +68,9 @@ namespace DSharpPlus.Test
                 await ctx.RespondAsync($"You selected {string.Join(", ", res.Result.Values)}");
         }
 
-        [Command]
+        [Command("Select_Interactive_Test_2")]
         [Description("A test for select menus. This waits for two inputs.")]
-        public async Task Select_Interactive_Test_2(CommandContext ctx)
+        public static async Task Select_Interactive_Test_2_Async(CommandContext ctx)
         {
             var input = ctx.Client.GetInteractivity();
             var builder = new DiscordMessageBuilder();
@@ -102,6 +100,7 @@ namespace DSharpPlus.Test
                 await ctx.RespondAsync("Sorry but it timed out!");
             else if (res.Result.Values.Length != 2)
                 goto wait; // I'm lazy. A while(true) or while (res?.Result.Values.Length != 2 ?? false) would be better. This duplicates messages.
+                           // Velvet, why would you do this? You're scaring the children! - Lunar
             else
                 await ctx.RespondAsync($"You selected {string.Join(", ", res.Result.Values)}");
         }

@@ -36,7 +36,7 @@ namespace DSharpPlus.Test
         private static readonly HttpClient _client = new HttpClient();
 
         [Command]
-        public async Task CreateStickerAsync(CommandContext ctx)
+        public static async Task CreateStickerAsync(CommandContext ctx)
         {
             var mref = ctx.Message.ReferencedMessage;
 
@@ -66,15 +66,15 @@ namespace DSharpPlus.Test
         }
 
         [Command("send_sticker")]
-        public async Task SendStickerAsync(CommandContext ctx)
+        public static async Task SendStickerAsync(CommandContext ctx)
         {
-            if (ctx.Message.Stickers.Count() is 0)
+            if (ctx.Message.Stickers.Count is 0)
             {
                 await ctx.RespondAsync("Send a sticker!");
                 return;
             }
 
-            var str = ctx.Message.Stickers.First();
+            var str = ctx.Message.Stickers[0];
 
             if (!ctx.Guild.Stickers.TryGetValue(str.Id, out _))
             {
@@ -82,8 +82,10 @@ namespace DSharpPlus.Test
                 return;
             }
 
-            var builder = new DiscordMessageBuilder();
-            builder.Sticker = str;
+            var builder = new DiscordMessageBuilder
+            {
+                Sticker = str
+            };
 
             await ctx.RespondAsync(builder);
         }

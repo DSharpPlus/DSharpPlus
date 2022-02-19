@@ -38,7 +38,7 @@ namespace DSharpPlus.Test
     public sealed class TestBotDynamicCommands : BaseCommandModule
     {
         [Command("add"), Aliases("register"), Description("Dynamically registers a command from given source code."), Hidden, RequireOwner]
-        public async Task AddCommandAsync(CommandContext ctx, string code)
+        public static async Task AddCommandAsync(CommandContext ctx, string code)
         {
             var msg = ctx.Message;
 
@@ -97,7 +97,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("addsimple"), Description("Adds a simple echo command."), Hidden, RequireOwner]
-        public async Task AddSimple(CommandContext ctx, string name, params string[] aliases)
+        public async Task AddSimpleAsync(CommandContext ctx, string name, params string[] aliases)
         {
             await Task.Yield();
             var command = new CommandBuilder(null)

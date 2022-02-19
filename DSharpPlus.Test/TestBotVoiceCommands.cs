@@ -53,7 +53,7 @@ namespace DSharpPlus.Test
 
             // e.Client.DebugLogger.LogMessage(LogLevel.Debug, "VNEXT RX", $"{e.User?.Username ?? "Unknown user"} sent voice data. {e.AudioFormat.ChannelCount}", DateTime.Now);
             var buff = e.PcmData.ToArray();
-            await fs.WriteAsync(buff, 0, buff.Length).ConfigureAwait(false);
+            await fs.WriteAsync(buff).ConfigureAwait(false);
             // await fs.FlushAsync().ConfigureAwait(false);
         }
         private Task OnUserSpeaking(VoiceNextConnection vnc, UserSpeakingEventArgs e)
@@ -81,7 +81,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("volume"), RequireOwner]
-        public async Task VolumeAsync(CommandContext ctx, double vol = 1.0)
+        public static async Task VolumeAsync(CommandContext ctx, double vol = 1.0)
         {
             if (vol < 0 || vol > 2.5)
                 throw new ArgumentOutOfRangeException(nameof(vol), "Volume needs to be between 0 and 250% inclusive.");
@@ -107,7 +107,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("join")]
-        public async Task VoiceJoin(CommandContext ctx)
+        public async Task VoiceJoinAsync(CommandContext ctx)
         {
             var chn = ctx.Member?.VoiceState?.Channel;
             if (chn == null)
@@ -131,7 +131,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("leave")]
-        public async Task VoiceLeave(CommandContext ctx)
+        public async Task VoiceLeaveAsync(CommandContext ctx)
         {
             var voice = ctx.Client.GetVoiceNext();
             if (voice == null)
@@ -166,7 +166,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("play")]
-        public async Task VoicePlay(CommandContext ctx, params string[] filename)
+        public static async Task VoicePlayAsync(CommandContext ctx, params string[] filename)
         {
             var voice = ctx.Client.GetVoiceNext();
             if (voice == null)
@@ -225,7 +225,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("playloop")]
-        public async Task VoicePlayLoop(CommandContext ctx, params string[] filename)
+        public async Task VoicePlayLoopAsync(CommandContext ctx, params string[] filename)
         {
             var voice = ctx.Client.GetVoiceNext();
             if (voice == null)
@@ -288,7 +288,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("playstop")]
-        public async Task VoicePlayLoopStop(CommandContext ctx)
+        public async Task VoicePlayLoopStopAsync(CommandContext ctx)
         {
             var voice = ctx.Client.GetVoiceNext();
             if (voice == null)
@@ -318,7 +318,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("playforce"), Description("Forces audio playback, regardless of whether audio is playing or not.")]
-        public async Task VoicePlayForce(CommandContext ctx, params string[] filename)
+        public static async Task VoicePlayForceAsync(CommandContext ctx, params string[] filename)
         {
             var voice = ctx.Client.GetVoiceNext();
             if (voice == null)

@@ -34,14 +34,14 @@ namespace DSharpPlus.Test
         public sealed class BrokenPermissionCommands : BaseCommandModule
         {
             [Command("command")]
-            public async Task CommandAsync(CommandContext ctx)
+            public static async Task CommandAsync(CommandContext ctx)
                 => await ctx.RespondAsync("it didn't work");
         }
 
         public sealed class NestedPermissionCommands : BaseCommandModule
         {
             [Command("nested")]
-            public async Task NestedAsync(CommandContext ctx)
+            public static async Task NestedAsync(CommandContext ctx)
                 => await ctx.RespondAsync("it also bork");
         }
     }

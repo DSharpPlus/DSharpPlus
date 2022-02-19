@@ -28,8 +28,8 @@ namespace DSharpPlus.Test
 {
     public class AvatarCommands : BaseCommandModule
     {
-        [Command]
-        public async Task Avatar(CommandContext ctx)
+        [Command("avatar")]
+        public static async Task AvatarAsync(CommandContext ctx)
         {
             if (ctx.Member.GuildAvatarHash != ctx.User.AvatarHash)
                 await ctx.RespondAsync($"You have a custom guild-specific avatar set! Guild: {ctx.Member.GuildAvatarUrl}\n User: {ctx.Member.AvatarUrl}");

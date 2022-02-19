@@ -32,8 +32,8 @@ namespace DSharpPlus.Test
 {
     public class Role_IconTest : BaseCommandModule
     {
-        [Command]
-        public async Task Fetch(CommandContext ctx, DiscordRole role)
+        [Command("fetch")]
+        public static async Task FetchAsync(CommandContext ctx, DiscordRole role)
         {
             await ctx.RespondAsync(
                 $"Role: {role.Mention}\n" +
@@ -42,8 +42,8 @@ namespace DSharpPlus.Test
                 $"Role icon: {role.IconUrl ?? "Not applicable"}");
         }
 
-        [Command]
-        public async Task Create(CommandContext ctx, string name, DiscordColor color = default)
+        [Command("create")]
+        public static async Task CreateAsync(CommandContext ctx, string name, DiscordColor color = default)
         {
             if (!ctx.Message.Attachments.Any())
             {
@@ -63,8 +63,8 @@ namespace DSharpPlus.Test
             await ctx.Member.GrantRoleAsync(role);
         }
 
-        [Command]
-        public async Task Edit(CommandContext ctx, DiscordRole role)
+        [Command("edit")]
+        public static async Task EditAsync(CommandContext ctx, DiscordRole role)
         {
             if (!ctx.Message.Attachments.Any())
             {
@@ -83,8 +83,8 @@ namespace DSharpPlus.Test
 
         }
 
-        [Command]
-        public async Task Edit(CommandContext ctx, DiscordRole role, DiscordEmoji emoji)
+        [Command("edit")]
+        public static async Task EditAsync(CommandContext ctx, DiscordRole role, DiscordEmoji emoji)
         {
             await role.ModifyAsync(emoji: emoji);
 
