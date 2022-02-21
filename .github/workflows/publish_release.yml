@@ -1,0 +1,19 @@
+name: "Publish Release"
+on:
+  release:
+    types: ["published"]
+
+jobs:
+  publish_release:
+    runs-on: "ubuntu-latest"
+    if: "!contains(toJSON(github.event.commits.*.message), '[ci-skip]'"
+    steps:
+      - uses: "actions/checkout@v2"
+      - name: "Setup .NET"
+        uses: "actions/setup-dotnet@v1"
+        with:
+          dotnet-version: "6.0.x"
+      - name: "Build Nuget Packages"
+        run: "mkdir build && dotnet pack -C Release -o build"
+      - name: "Publish Nuget Packages"
+        run: "dotnet nuget push 'build/*.nupkg' -k ${{ secrets.NUGET_ORG_API_KEY }} -s https://api.nuget.org/v3/index.json"
