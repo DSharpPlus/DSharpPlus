@@ -124,9 +124,10 @@ namespace DSharpPlus.SlashCommands.Converters
         public ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.Attachment;
         public Task<DiscordAttachment> Convert(DiscordInteractionDataOption value, InteractionContext context)
         {
-            if (context.Interaction.Data.Resolved.Attachments?.ContainsKey((ulong)value.Value) ?? false)
+            var ulongValue = (ulong)value.Value;
+            if (context.Interaction.Data.Resolved.Attachments?.ContainsKey(ulongValue) ?? false)
             {
-                var attachment = context.Interaction.Data.Resolved.Attachments[(ulong)value.Value];
+                var attachment = context.Interaction.Data.Resolved.Attachments[ulongValue];
                 return Task.FromResult(attachment);
             }
 
