@@ -515,9 +515,13 @@ namespace DSharpPlus.SlashCommands
             if (type.IsEnum || Nullable.GetUnderlyingType(type)?.IsEnum == true)
                 return ApplicationCommandOptionType.String;
             if (!ArgumentConverters.Any(converter => converter.Key == type))
-                throw new ArgumentException(
-                    @$"Could not convert type of argument. Provided {type.Name}, valid argument types are: {string.Join(", ", ArgumentConverters.Select(c => c.Key.IsGenericType &&
-                        c.Key.GetGenericTypeDefinition() == typeof(Nullable<>) ? c.Key.GetGenericArguments()[0].Name + "?" : c.Key.Name))}.");
+            {
+                var validTypeNames = ArgumentConverters.Select(c =>
+                    c.Key.IsGenericType && c.Key.GetGenericTypeDefinition() == typeof(Nullable<>)
+                    ? c.Key.GetGenericArguments()[0].Name + "?" //nullable type
+                    : c.Key.Name);
+                throw new ArgumentException($"Could not convert type of argument. Provided {type.Name}, valid argument types are: {string.Join(", ", validTypeNames)}.");
+            }
 
             var converter = ArgumentConverters.First(converter => converter.Key == type).Value;
             if (converter is not ISlashArgumentConverter<T> cv)
@@ -876,9 +880,11 @@ namespace DSharpPlus.SlashCommands
                     }
 
                     //Convert parameter using registered converter.
-                    var converted = await (typeof(SlashCommandsExtension).GetTypeInfo().DeclaredMethods
-                        .First(m => m.Name == nameof(this.ConvertArgument)).MakeGenericMethod(parameter.ParameterType).Invoke(this, new object[] {option, context}) as Task<object>).ConfigureAwait(false);
-                    args.Add(converted);
+                    var converterMethod = typeof(SlashCommandsExtension).GetTypeInfo().DeclaredMethods
+                        .First(m => m.Name == nameof(this.ConvertArgument));
+                    var genericMethod = converterMethod.MakeGenericMethod(parameter.ParameterType)
+                        .Invoke(this, new object[] {option, context}) as Task<object>;
+                    args.Add(await genericMethod);
                 }
             }
 
