@@ -33,32 +33,32 @@ namespace DSharpPlus.SlashCommands.Converters
     {
         public ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.String;
 
+        private static Regex TimeSpanRegex { get; set; }
+
+        static TimespanConverter()
+        {
+#if NETSTANDARD1_3
+            TimeSpanRegex = new Regex(@"^(?<days>\d+d\s*)?(?<hours>\d{1,2}h\s*)?(?<minutes>\d{1,2}m\s*)?(?<seconds>\d{1,2}s\s*)?$", RegexOptions.ECMAScript);
+#else
+            TimeSpanRegex = new Regex(@"^(?<days>\d+d\s*)?(?<hours>\d{1,2}h\s*)?(?<minutes>\d{1,2}m\s*)?(?<seconds>\d{1,2}s\s*)?$", RegexOptions.ECMAScript | RegexOptions.Compiled);
+#endif
+        }
+
         public Task<TimeSpan?> Convert(DiscordInteractionDataOption value, InteractionContext context)
         {
-            var timeSpanRegex =
-                new Regex(@"^(?<days>\d+d\s*)?(?<hours>\d{1,2}h\s*)?(?<minutes>\d{1,2}m\s*)?(?<seconds>\d{1,2}s\s*)?$",
-                    RegexOptions.ECMAScript);
             if (value.Value.ToString() == "0")
-            {
                 return Task.FromResult((TimeSpan?)TimeSpan.Zero);
-            }
 
             if (int.TryParse(value.Value.ToString(), NumberStyles.Number, CultureInfo.InvariantCulture, out _))
-            {
                 return Task.FromResult((TimeSpan?)null);
-            }
 
             if (TimeSpan.TryParse(value.Value.ToString().ToLowerInvariant(), CultureInfo.InvariantCulture, out var result))
-            {
                 return Task.FromResult((TimeSpan?)result);
-            }
 
-            var gps = new string[] {"days", "hours", "minutes", "seconds"};
-            var mtc = timeSpanRegex.Match(value.Value.ToString());
+            var gps = new string[] { "days", "hours", "minutes", "seconds" };
+            var mtc = TimeSpanRegex.Match(value.Value.ToString().ToLowerInvariant());
             if (!mtc.Success)
-            {
                 return Task.FromResult((TimeSpan?)null);
-            }
 
             var d = 0;
             var h = 0;
@@ -69,11 +69,9 @@ namespace DSharpPlus.SlashCommands.Converters
                 var gpc = mtc.Groups[gp].Value;
                 if (string.IsNullOrWhiteSpace(gpc))
                     continue;
-                gpc = gpc.Trim();
 
                 var gpt = gpc[gpc.Length - 1];
-                int.TryParse(gpc.Substring(0, gpc.Length - 1), NumberStyles.Integer, CultureInfo.InvariantCulture,
-                    out var val);
+                int.TryParse(gpc.Substring(0, gpc.Length - 1), NumberStyles.Integer, CultureInfo.InvariantCulture, out var val);
                 switch (gpt)
                 {
                     case 'd':
@@ -93,7 +91,6 @@ namespace DSharpPlus.SlashCommands.Converters
                         break;
                 }
             }
-
             result = new TimeSpan(d, h, m, s);
             return Task.FromResult((TimeSpan?)result);
         }
