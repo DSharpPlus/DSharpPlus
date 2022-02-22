@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
+using DSharpPlus.SlashCommands.Converters;
 using DSharpPlus.SlashCommands.EventArgs;
 
 using Emzi0767.Utilities;
@@ -42,6 +43,9 @@ namespace DSharpPlus.SlashCommands
         //Set to true if anything fails when registering
         private static bool _errored { get; set; } = false;
 
+        //Argument converter dictionary
+        internal static Dictionary<Type, ISlashArgumentConverter> ArgumentConverters { get; set; } = new();
+
         /// <summary>
         /// Gets a list of registered commands. The key is the guild id (null if global).
         /// </summary>
@@ -72,6 +76,25 @@ namespace DSharpPlus.SlashCommands
             this._contextMenuInvoked = new AsyncEvent<SlashCommandsExtension, ContextMenuInvokedEventArgs>("CONTEXTMENU_RECEIVED", TimeSpan.Zero, this.Client.EventErrorHandler);
             this._autocompleteErrored = new AsyncEvent<SlashCommandsExtension, AutocompleteErrorEventArgs>("AUTOCOMPLETE_ERRORED", TimeSpan.Zero, this.Client.EventErrorHandler);
             this._autocompleteExecuted = new AsyncEvent<SlashCommandsExtension, AutocompleteExecutedEventArgs>("AUTOCOMPLETE_EXECUTED", TimeSpan.Zero, this.Client.EventErrorHandler);
+
+            ArgumentConverters = new Dictionary<Type, ISlashArgumentConverter>
+            {
+                [typeof(string)] = new StringConverter(),
+                [typeof(long)] = new LongConverter(),
+                [typeof(long?)] = new NullableLongConverter(),
+                [typeof(bool)] = new BoolConverter(),
+                [typeof(bool?)] = new NullableBoolConverter(),
+                [typeof(double)] = new DoubleConverter(),
+                [typeof(double?)] = new NullableDoubleConverter(),
+                [typeof(DiscordUser)] = new UserConverter(),
+                [typeof(DiscordChannel)] = new ChannelConverter(),
+                [typeof(DiscordRole)] = new RoleConverter(),
+                [typeof(SnowflakeObject)] = new MentionableConverter(),
+                [typeof(DiscordAttachment)] = new AttachmentConverter(),
+
+                [typeof(TimeSpan?)] = new TimespanConverter(),
+                [typeof(DiscordEmoji)] = new EmojiConverter()
+            };
 
             this.Client.Ready += this.Update;
             this.Client.InteractionCreated += this.InteractionHandler;
@@ -116,6 +139,13 @@ namespace DSharpPlus.SlashCommands
 
             foreach (Type xt in types)
                 this.RegisterCommands(xt, guildId);
+        }
+
+        public void RegisterConverter<T>(ISlashArgumentConverter<T> converter)
+        {
+            ArgumentConverters[typeof(T)] = converter;
+            if (converter == null)
+                throw new ArgumentNullException(nameof(converter), "Converter cannot be null.");
         }
 
         //To be run on ready
@@ -479,33 +509,28 @@ namespace DSharpPlus.SlashCommands
         }
 
         //Small method to get the parameter's type from its type
-        private ApplicationCommandOptionType GetParameterType(Type type)
+        private ApplicationCommandOptionType GetParameterType<T>()
         {
-            if (type == typeof(string))
-                return ApplicationCommandOptionType.String;
-            if (type == typeof(long) || type == typeof(long?))
-                return ApplicationCommandOptionType.Integer;
-            if (type == typeof(bool) || type == typeof(bool?))
-                return ApplicationCommandOptionType.Boolean;
-            if (type == typeof(double) || type == typeof(double?))
-                return ApplicationCommandOptionType.Number;
-            if (type == typeof(DiscordChannel))
-                return ApplicationCommandOptionType.Channel;
-            if (type == typeof(DiscordUser))
-                return ApplicationCommandOptionType.User;
-            if (type == typeof(DiscordRole))
-                return ApplicationCommandOptionType.Role;
-            if (type == typeof(DiscordEmoji))
-                return ApplicationCommandOptionType.String;
-            if (type == typeof(TimeSpan?))
-                return ApplicationCommandOptionType.String;
-            if (type == typeof(SnowflakeObject))
-                return ApplicationCommandOptionType.Mentionable;
+            var type = typeof(T);
             if (type.IsEnum || Nullable.GetUnderlyingType(type)?.IsEnum == true)
                 return ApplicationCommandOptionType.String;
-            if (type == typeof(DiscordAttachment))
-                return ApplicationCommandOptionType.Attachment;
-            throw new ArgumentException("Cannot convert type! Argument types must be string, long, bool, double, TimeSpan?, DiscordChannel, DiscordUser, DiscordRole, DiscordEmoji, DiscordAttachment, SnowflakeObject, or an Enum.");
+            if (!ArgumentConverters.Any(converter => converter.Key == type))
+                throw new ArgumentException(
+                    @$"Could not convert type of argument. Provided {type.Name}, valid argument types are: {string.Join(", ", ArgumentConverters.Select(c => c.Key.IsGenericType &&
+                        c.Key.GetGenericTypeDefinition() == typeof(Nullable<>) ? c.Key.GetGenericArguments()[0].Name + "?" : c.Key.Name))}.");
+
+            var converter = ArgumentConverters.First(converter => converter.Key == type).Value;
+            if (converter is not ISlashArgumentConverter<T> cv)
+                throw new ArgumentException("Invalid converter registered for this type.");
+            return cv.OptionType;
+        }
+
+        private ApplicationCommandOptionType GetParameterType(Type type)
+        {
+            var converterMethod = typeof(SlashCommandsExtension).GetTypeInfo().DeclaredMethods.First(xm =>
+                xm.Name == nameof(GetParameterType) && xm.ContainsGenericParameters);
+            var genericMethod = converterMethod.MakeGenericMethod(type);
+            return (ApplicationCommandOptionType)genericMethod?.Invoke(this, new object[] {});
         }
 
         //Gets choices from choice attributes
@@ -837,152 +862,35 @@ namespace DSharpPlus.SlashCommands
                     var option = options.Single(x =>
                         x.Name.Equals(parameter.GetCustomAttribute<OptionAttribute>().Name, StringComparison.InvariantCultureIgnoreCase));
 
-                    //Checks the type and casts/references resolved and adds the value to the list
-                    //This can probably reference the slash command's type property that didn't exist when I wrote this and it could use a cleaner switch instead, but if it works it works
-                    if (parameter.ParameterType == typeof(string))
-                        args.Add(option.Value.ToString());
-                    else if (parameter.ParameterType.IsEnum)
+                    //handle enums
+                    if (parameter.ParameterType.IsEnum)
+                    {
                         args.Add(Enum.Parse(parameter.ParameterType, (string)option.Value));
-                    else if (Nullable.GetUnderlyingType(parameter.ParameterType)?.IsEnum == true)
+                        continue;
+                    }
+
+                    if (Nullable.GetUnderlyingType(parameter.ParameterType)?.IsEnum == true)
+                    {
                         args.Add(Enum.Parse(Nullable.GetUnderlyingType(parameter.ParameterType), (string)option.Value));
-                    else if (parameter.ParameterType == typeof(long) || parameter.ParameterType == typeof(long?))
-                        args.Add((long?)option.Value);
-                    else if (parameter.ParameterType == typeof(bool) || parameter.ParameterType == typeof(bool?))
-                        args.Add((bool?)option.Value);
-                    else if (parameter.ParameterType == typeof(double) || parameter.ParameterType == typeof(double?))
-                        args.Add((double?)option.Value);
-                    else if (parameter.ParameterType == typeof(TimeSpan?))
-                    {
-                        var timeSpanRegex = new Regex(@"^(?<days>\d+d\s*)?(?<hours>\d{1,2}h\s*)?(?<minutes>\d{1,2}m\s*)?(?<seconds>\d{1,2}s\s*)?$", RegexOptions.ECMAScript);
-                        var value = option.Value.ToString();
-                        if (value == "0")
-                        {
-                            args.Add(TimeSpan.Zero);
-                            continue;
-                        }
-                        if (int.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out _))
-                        {
-                            args.Add(null);
-                            continue;
-                        }
-                        value = value.ToLowerInvariant();
-
-                        if (TimeSpan.TryParse(value, CultureInfo.InvariantCulture, out var result))
-                        {
-                            args.Add(result);
-                            continue;
-                        }
-                        var gps = new string[] { "days", "hours", "minutes", "seconds" };
-                        var mtc = timeSpanRegex.Match(value);
-                        if (!mtc.Success)
-                        {
-                            args.Add(null);
-                            continue;
-                        }
-
-                        var d = 0;
-                        var h = 0;
-                        var m = 0;
-                        var s = 0;
-                        foreach (var gp in gps)
-                        {
-                            var gpc = mtc.Groups[gp].Value;
-                            if (string.IsNullOrWhiteSpace(gpc))
-                                continue;
-                            gpc = gpc.Trim();
-
-                            var gpt = gpc[gpc.Length - 1];
-                            int.TryParse(gpc.Substring(0, gpc.Length - 1), NumberStyles.Integer, CultureInfo.InvariantCulture, out var val);
-                            switch (gpt)
-                            {
-                                case 'd':
-                                    d = val;
-                                    break;
-
-                                case 'h':
-                                    h = val;
-                                    break;
-
-                                case 'm':
-                                    m = val;
-                                    break;
-
-                                case 's':
-                                    s = val;
-                                    break;
-                            }
-                        }
-                        result = new TimeSpan(d, h, m, s);
-                        args.Add(result);
-                    }
-                    else if (parameter.ParameterType == typeof(DiscordUser))
-                    {
-                        //Checks through resolved
-                        if (e.Interaction.Data.Resolved.Members != null &&
-                            e.Interaction.Data.Resolved.Members.TryGetValue((ulong)option.Value, out var member))
-                            args.Add(member);
-                        else if (e.Interaction.Data.Resolved.Users != null &&
-                                 e.Interaction.Data.Resolved.Users.TryGetValue((ulong)option.Value, out var user))
-                            args.Add(user);
-                        else
-                            args.Add(await this.Client.GetUserAsync((ulong)option.Value));
-                    }
-                    else if (parameter.ParameterType == typeof(DiscordChannel))
-                    {
-                        //Checks through resolved
-                        if (e.Interaction.Data.Resolved.Channels != null &&
-                            e.Interaction.Data.Resolved.Channels.TryGetValue((ulong)option.Value, out var channel))
-                            args.Add(channel);
-                        else
-                            args.Add(e.Interaction.Guild.GetChannel((ulong)option.Value));
-                    }
-                    else if (parameter.ParameterType == typeof(DiscordRole))
-                    {
-                        //Checks through resolved
-                        if (e.Interaction.Data.Resolved.Roles != null &&
-                            e.Interaction.Data.Resolved.Roles.TryGetValue((ulong)option.Value, out var role))
-                            args.Add(role);
-                        else
-                            args.Add(e.Interaction.Guild.GetRole((ulong)option.Value));
-                    }
-                    else if (parameter.ParameterType == typeof(SnowflakeObject))
-                    {
-                        //Checks through resolved
-                        if (e.Interaction.Data.Resolved.Roles != null && e.Interaction.Data.Resolved.Roles.TryGetValue((ulong)option.Value, out var role))
-                            args.Add(role);
-                        else if (e.Interaction.Data.Resolved.Members != null && e.Interaction.Data.Resolved.Members.TryGetValue((ulong)option.Value, out var member))
-                            args.Add(member);
-                        else if (e.Interaction.Data.Resolved.Users != null && e.Interaction.Data.Resolved.Users.TryGetValue((ulong)option.Value, out var user))
-                            args.Add(user);
-                        else
-                            throw new ArgumentException("Error resolving mentionable option.");
-                    }
-                    else if (parameter.ParameterType == typeof(DiscordEmoji))
-                    {
-                        var value = option.Value.ToString();
-
-                        if (DiscordEmoji.TryFromUnicode(this.Client, value, out var emoji) || DiscordEmoji.TryFromName(this.Client, value, out emoji))
-                            args.Add(emoji);
-                        else
-                            throw new ArgumentException("Error parsing emoji parameter.");
-                    }
-                    else if (parameter.ParameterType == typeof(DiscordAttachment))
-                    {
-                        if (e.Interaction.Data.Resolved.Attachments?.ContainsKey((ulong)option.Value) ?? false)
-                        {
-                            var attachment = e.Interaction.Data.Resolved.Attachments[(ulong)option.Value];
-                            args.Add(attachment);
-                        }
-                        else
-                            this.Client.Logger.LogError("Missing attachment in resolved data. This is an issue with Discord.");
+                        continue;
                     }
 
-                    else
-                        throw new ArgumentException("Error resolving interaction.");
+                    //Convert parameter using registered converter.
+                    var converted = await (typeof(SlashCommandsExtension).GetTypeInfo().DeclaredMethods
+                        .First(m => m.Name == nameof(this.ConvertArgument)).MakeGenericMethod(parameter.ParameterType).Invoke(this, new object[] {option, context}) as Task<object>).ConfigureAwait(false);
+                    args.Add(converted);
                 }
             }
 
             return args;
+        }
+
+        private async Task<object> ConvertArgument<T>(DiscordInteractionDataOption option, InteractionContext context)
+        {
+            var converter = ArgumentConverters.First(c => c.Key == typeof(T)).Value;
+            if (converter is not ISlashArgumentConverter<T> cv)
+                throw new ArgumentException("Invalid converter type provided.");
+            return await cv.Convert(option, context);
         }
 
         //Runs pre-execution checks
