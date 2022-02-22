@@ -40,21 +40,21 @@ namespace DSharpPlus.Test
         public static ConcurrentDictionary<ulong, string> PrefixSettings { get; } = new ConcurrentDictionary<ulong, string>();
 
         [Command("crosspost")]
-        public static async Task CrosspostAsync(CommandContext ctx, DiscordChannel chn, DiscordMessage msg)
+        public async Task CrosspostAsync(CommandContext ctx, DiscordChannel chn, DiscordMessage msg)
         {
             var message = await chn.CrosspostMessageAsync(msg).ConfigureAwait(false);
             await ctx.RespondAsync($":ok_hand: Message published: {message.Id}").ConfigureAwait(false);
         }
 
         [Command("follow")]
-        public static async Task FollowAsync(CommandContext ctx, DiscordChannel channelToFollow, DiscordChannel targetChannel)
+        public async Task FollowAsync(CommandContext ctx, DiscordChannel channelToFollow, DiscordChannel targetChannel)
         {
             await channelToFollow.FollowAsync(targetChannel).ConfigureAwait(false);
             await ctx.RespondAsync($":ok_hand: Following channel {channelToFollow.Mention} into {targetChannel.Mention} (Guild: {targetChannel.Guild.Id})").ConfigureAwait(false);
         }
 
         [Command("setprefix"), Aliases("channelprefix"), Description("Sets custom command prefix for current channel. The bot will still respond to the default one."), RequireOwner]
-        public static async Task SetPrefixAsync(CommandContext ctx, [Description("The prefix to use for current channel.")] string prefix = null)
+        public async Task SetPrefixAsync(CommandContext ctx, [Description("The prefix to use for current channel.")] string prefix = null)
         {
             if (string.IsNullOrWhiteSpace(prefix))
                 if (PrefixSettings.TryRemove(ctx.Channel.Id, out _))
@@ -69,7 +69,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("sudo"), Description("Run a command as another user."), Hidden, RequireOwner]
-        public static async Task SudoAsync(CommandContext ctx, DiscordUser user, [RemainingText] string content)
+        public async Task SudoAsync(CommandContext ctx, DiscordUser user, [RemainingText] string content)
         {
             var cmd = ctx.CommandsNext.FindCommand(content, out var args);
             var fctx = ctx.CommandsNext.CreateFakeContext(user, ctx.Channel, content, ctx.Prefix, cmd, args);
@@ -88,7 +88,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("editmention")]
-        public static async Task EditMentionsAsync(CommandContext ctx)
+        public async Task EditMentionsAsync(CommandContext ctx)
         {
             var builder = new DiscordMessageBuilder()
                 .WithContent("Mentioning <@&879398655130472508> and <@743323785549316197>")
@@ -101,7 +101,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("mention"), Description("Attempts to mention a user")]
-        public static async Task MentionablesAsync(CommandContext ctx, DiscordUser user)
+        public async Task MentionablesAsync(CommandContext ctx, DiscordUser user)
         {
             var content = $"Hey, {user.Mention}! Listen!";
             await ctx.Channel.SendMessageAsync("✔ should ping, ❌ should not ping.").ConfigureAwait(false);
@@ -153,7 +153,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("editMention"), Description("Attempts to mention a user via edit message")]
-        public static async Task EditMentionablesAsync(CommandContext ctx, DiscordUser user)
+        public async Task EditMentionablesAsync(CommandContext ctx, DiscordUser user)
         {
             var origcontent = $"Hey, silly! Listen!";
             var newContent = $"Hey, {user.Mention}! Listen!";
@@ -217,7 +217,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("SendSomeFile")]
-        public static async Task SendSomeFileAsync(CommandContext ctx)
+        public async Task SendSomeFileAsync(CommandContext ctx)
         {
             using (var fs = new FileStream("ADumbFile.txt", FileMode.Open, FileAccess.Read))
             {
@@ -282,7 +282,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("CreateSomeFile")]
-        public static async Task CreateSomeFileAsync(CommandContext ctx, string fileName, [RemainingText] string fileBody)
+        public async Task CreateSomeFileAsync(CommandContext ctx, string fileName, [RemainingText] string fileBody)
         {
             using (var fs = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite))
             using (var sw = new StreamWriter(fs))
@@ -316,7 +316,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("SendWebhookFiles")]
-        public static async Task SendWebhookFilesAsync(CommandContext ctx)
+        public async Task SendWebhookFilesAsync(CommandContext ctx)
         {
             var webhook = await ctx.Channel.CreateWebhookAsync("webhook-test");
 
@@ -385,7 +385,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("chainreply")]
-        public static async Task ChainReplyAsync(CommandContext ctx)
+        public async Task ChainReplyAsync(CommandContext ctx)
         {
             var builder = new DiscordMessageBuilder();
 
@@ -420,7 +420,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("mentionusers")]
-        public static async Task MentionAllMentionedUsersAsync(CommandContext ctx, [RemainingText][Description("Just a string so that DSharpPlus will parse no matter what I say")] string mentionedUsers)
+        public async Task MentionAllMentionedUsersAsync(CommandContext ctx, [RemainingText][Description("Just a string so that DSharpPlus will parse no matter what I say")] string mentionedUsers)
         {
             var content = "You didn't have any users to mention";
             if (ctx.Message.MentionedUsers.Any())
@@ -430,7 +430,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("mentionroles")]
-        public static async Task MentionAllMentionedRolesAsync(CommandContext ctx, [RemainingText][Description("Just a string so that DSharpPlus will parse no matter what I say")] string mentionedRoles)
+        public async Task MentionAllMentionedRolesAsync(CommandContext ctx, [RemainingText][Description("Just a string so that DSharpPlus will parse no matter what I say")] string mentionedRoles)
         {
             var content = "You didn't have any roles to mention";
             if (ctx.Message.MentionedRoles.Any())
@@ -440,7 +440,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("mentionchannels")]
-        public static async Task MentionChannelsAsync(CommandContext ctx, [RemainingText][Description("Just a string so that DSharpPlus will parse no matter what I say")] string mentionedChannels)
+        public async Task MentionChannelsAsync(CommandContext ctx, [RemainingText][Description("Just a string so that DSharpPlus will parse no matter what I say")] string mentionedChannels)
         {
             var content = "You didn't have any channels to mention";
             if (ctx.Message.MentionedChannels.Any())
@@ -450,7 +450,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("getmessagementions")]
-        public static async Task GetMessageMentionsAsync(CommandContext ctx, ulong msgId)
+        public async Task GetMessageMentionsAsync(CommandContext ctx, ulong msgId)
         {
             var msg = await ctx.Channel.GetMessageAsync(msgId);
             var contentBuilder = new StringBuilder("You didn't mention any user, channel, or role.");
@@ -466,7 +466,7 @@ namespace DSharpPlus.Test
             await ctx.RespondAsync(contentBuilder.ToString());
         }
         [Command("getattachmenttype")]
-        public static async Task GetAttachmentsTypesAsync(CommandContext ctx, ulong? messageId = null)
+        public async Task GetAttachmentsTypesAsync(CommandContext ctx, ulong? messageId = null)
         {
             if (messageId is null)
                 messageId = ctx.Message.Id;
@@ -486,7 +486,7 @@ namespace DSharpPlus.Test
             await ctx.RespondAsync(contentBuilder.ToString());
         }
         [Command("createvoices")]
-        public static async Task CreateVoiceChannelsAsync(CommandContext ctx, DiscordChannel channel)
+        public async Task CreateVoiceChannelsAsync(CommandContext ctx, DiscordChannel channel)
         {
             if (channel.Type != ChannelType.Voice)
             {
@@ -510,7 +510,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("createchannel")]
-        public static async Task CreateGuildChannelsAsync(CommandContext ctx, [RemainingText] string name)
+        public async Task CreateGuildChannelsAsync(CommandContext ctx, [RemainingText] string name)
         {
             if (string.IsNullOrEmpty(name))
             {
@@ -533,7 +533,7 @@ namespace DSharpPlus.Test
         [Aliases("purgechat")]
         [Description("Purges chat")]
         [RequirePermissions(Permissions.ManageChannels)]
-        public static async Task PurgeChatAsync(CommandContext ctx)
+        public async Task PurgeChatAsync(CommandContext ctx)
         {
             var channel = ctx.Channel;
             var z = ctx.Channel.Position;
@@ -546,18 +546,18 @@ namespace DSharpPlus.Test
             await x.SendMessageAsync(embed: embed2);
         }
         [Command("ping"), Aliases("p")]
-        public static async Task PingAsync(CommandContext ctx)
+        public async Task PingAsync(CommandContext ctx)
         {
             await ctx.TriggerTypingAsync();
             await ctx.RespondAsync($"Pong: {ctx.Client.Ping}ms");
         }
 
         [Command("parsedate")]
-        public static async Task ParseDateTimeAsync(CommandContext ctx, DateTimeOffset dto)
+        public async Task ParseDateTimeAsync(CommandContext ctx, DateTimeOffset dto)
             => await ctx.RespondAsync(dto.ToString("yyyy-MM-ddTHH:mm:ss.ffffffzzz"));
 
         [Command("longlongman")]
-        public static async Task LongLongManAsync(CommandContext ctx)
+        public async Task LongLongManAsync(CommandContext ctx)
         {
             await ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":mshourglass:"));
             await Task.Delay(2_000);

@@ -81,7 +81,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("volume"), RequireOwner]
-        public static async Task VolumeAsync(CommandContext ctx, double vol = 1.0)
+        public async Task VolumeAsync(CommandContext ctx, double vol = 1.0)
         {
             if (vol < 0 || vol > 2.5)
                 throw new ArgumentOutOfRangeException(nameof(vol), "Volume needs to be between 0 and 250% inclusive.");
@@ -166,7 +166,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("play")]
-        public static async Task VoicePlayAsync(CommandContext ctx, params string[] filename)
+        public async Task VoicePlayAsync(CommandContext ctx, params string[] filename)
         {
             var voice = ctx.Client.GetVoiceNext();
             if (voice == null)
@@ -318,7 +318,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("playforce"), Description("Forces audio playback, regardless of whether audio is playing or not.")]
-        public static async Task VoicePlayForceAsync(CommandContext ctx, params string[] filename)
+        public async Task VoicePlayForceAsync(CommandContext ctx, params string[] filename)
         {
             var voice = ctx.Client.GetVoiceNext();
             if (voice == null)

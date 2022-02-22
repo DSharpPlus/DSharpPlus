@@ -31,7 +31,7 @@ namespace DSharpPlus.Test
     public class MentionValidation : BaseCommandModule
     {
         [Command("mention_test")]
-        public static async Task MentionTestAsync(CommandContext ctx, DiscordRole role)
+        public async Task MentionTestAsync(CommandContext ctx, DiscordRole role)
         {
             var progressBuilder = new StringBuilder();
             var progressMessage = await ctx.RespondAsync("Waiting for results");

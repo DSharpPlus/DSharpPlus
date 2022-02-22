@@ -31,7 +31,7 @@ namespace DSharpPlus.Test
     public class Reply : BaseCommandModule
     {
         [Command, Priority(0)]
-        public static async Task ReplyAsync(CommandContext ctx, [RemainingText] string response = "")
+        public async Task ReplyAsync(CommandContext ctx, [RemainingText] string response = "")
         {
             var builder = new DiscordMessageBuilder();
 
@@ -51,7 +51,7 @@ namespace DSharpPlus.Test
         }
 
         [Command, Priority(2)]
-        public static async Task ReplyAsync(CommandContext ctx, DiscordUser user, [RemainingText] string response = "")
+        public async Task ReplyAsync(CommandContext ctx, DiscordUser user, [RemainingText] string response = "")
         {
             if (ctx.Message.Reference?.Message is null)
                 await ctx.RespondAsync("You need to reply to a message for this :(");
@@ -65,7 +65,7 @@ namespace DSharpPlus.Test
         }
 
         [Command, Priority(1)]
-        public static async Task ReplyAsync(CommandContext ctx, bool mention, [RemainingText] string response = "")
+        public async Task ReplyAsync(CommandContext ctx, bool mention, [RemainingText] string response = "")
         {
             var builder = new DiscordMessageBuilder();
 

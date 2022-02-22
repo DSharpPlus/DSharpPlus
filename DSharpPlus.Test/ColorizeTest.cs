@@ -30,7 +30,7 @@ namespace DSharpPlus.Test
     public class ColorizeTest : BaseCommandModule
     {
         [Command]
-        public static Task Colorize(CommandContext ctx, [RemainingText] string text)
+        public Task Colorize(CommandContext ctx, [RemainingText] string text)
             => ctx.RespondAsync(Formatter.BlockCode(Formatter.Colorize(text, AnsiColor.Bold, AnsiColor.Blue, AnsiColor.WhiteBackground), "ansi"));
     }
 }

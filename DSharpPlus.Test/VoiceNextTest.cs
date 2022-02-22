@@ -38,7 +38,7 @@ namespace DSharpPlus.Test
         private static void OhNo(object sender, UnobservedTaskExceptionEventArgs e) => Console.Error.WriteLine("SOMETHING WENT TERRIBLY WRONG WHEN DISCONNECTING");
 
         [Command]
-        public static async Task JoinAsync(CommandContext ctx)
+        public async Task JoinAsync(CommandContext ctx)
         {
             var vnext = ctx.Client.GetVoiceNext();
             await vnext.ConnectAsync(ctx.Member.VoiceState.Channel);

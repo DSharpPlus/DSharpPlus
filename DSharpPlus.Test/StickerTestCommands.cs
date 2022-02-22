@@ -21,7 +21,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
@@ -36,7 +35,7 @@ namespace DSharpPlus.Test
         private static readonly HttpClient _client = new HttpClient();
 
         [Command]
-        public static async Task CreateStickerAsync(CommandContext ctx)
+        public async Task CreateStickerAsync(CommandContext ctx)
         {
             var mref = ctx.Message.ReferencedMessage;
 

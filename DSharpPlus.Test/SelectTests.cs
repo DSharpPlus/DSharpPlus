@@ -32,12 +32,12 @@ namespace DSharpPlus.Test
     public class SelectTests : BaseCommandModule
     {
         [Command("send_select")]
-        public static async Task SendSelectAsync(CommandContext ctx)
+        public async Task SendSelectAsync(CommandContext ctx)
             => await ctx.RespondAsync("This is missing an implementation!");
 
         [Command("Select_Interactive_Test_1")]
         [Description("A test for select menus. This waits for one input.")]
-        public static async Task Select_Interactive_Test_1_Async(CommandContext ctx)
+        public async Task Select_Interactive_Test_1_Async(CommandContext ctx)
         {
             var input = ctx.Client.GetInteractivity();
             var builder = new DiscordMessageBuilder();
@@ -70,7 +70,7 @@ namespace DSharpPlus.Test
 
         [Command("Select_Interactive_Test_2")]
         [Description("A test for select menus. This waits for two inputs.")]
-        public static async Task Select_Interactive_Test_2_Async(CommandContext ctx)
+        public async Task Select_Interactive_Test_2_Async(CommandContext ctx)
         {
             var input = ctx.Client.GetInteractivity();
             var builder = new DiscordMessageBuilder();

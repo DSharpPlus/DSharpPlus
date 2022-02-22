@@ -32,7 +32,7 @@ namespace DSharpPlus.Test
     {
         [Command("wait")]
         [Description("Interactivity test.")]
-        public static async Task WaitForCompsAsync(CommandContext ctx)
+        public async Task WaitForCompsAsync(CommandContext ctx)
         {
             await ctx.RespondAsync(":warning: This is a test method, and will test interactivity methods. Please be ready to click. :warning:");
 

@@ -13,7 +13,7 @@ namespace DSharpPlus.Test
     {
 
         [Command("role_menu")]
-        public static async Task RoleMenuAsync(CommandContext ctx, string message, string emojis, [RemainingText] params DiscordRole[] roles)
+        public async Task RoleMenuAsync(CommandContext ctx, string message, string emojis, [RemainingText] params DiscordRole[] roles)
         {
             var converter = (IArgumentConverter<DiscordEmoji>)new DiscordEmojiConverter();
             var split = emojis.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
