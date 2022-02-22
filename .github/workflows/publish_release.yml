@@ -6,14 +6,28 @@ on:
 jobs:
   publish_release:
     runs-on: "ubuntu-latest"
-    if: "!contains(toJSON(github.event.commits.*.message), '[ci-skip]'"
+    if: "!contains(toJSON(github.event.commits.*.message), '[ci-skip]')"
     steps:
-      - uses: "actions/checkout@v2"
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
+
       - name: "Setup .NET"
         uses: "actions/setup-dotnet@v1"
         with:
           dotnet-version: "6.0.x"
+
       - name: "Build Nuget Packages"
-        run: "mkdir build && dotnet pack -C Release -o build"
+        run: "mkdir build && dotnet pack -p:SymbolPackageFormat=snupkg --include-symbols -c Release -o build"
+
       - name: "Publish Nuget Packages"
-        run: "dotnet nuget push 'build/*.nupkg' -k ${{ secrets.NUGET_ORG_API_KEY }} -s https://api.nuget.org/v3/index.json"
+        run: "dotnet nuget push \"build/*\" -k ${{ secrets.NUGET_ORG_API_KEY }} -s https://api.nuget.org/v3/index.json"
+
+      - name: "Upload Nuget Packages To Github Release"
+        uses: "ncipollo/release-action@v1"
+        with:
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          artifacts: "build/*"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          omitBodyDuringUpdate: true # We don't want to update the body of the release.
+          omitNameDuringUpdate: true # We don't want to update the name of the release.

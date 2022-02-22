@@ -5,13 +5,16 @@ on:
 jobs:
   build_pr:
     runs-on: "ubuntu-latest"
-    if: "!contains(toJSON(github.event.commits.*.message), '[ci-skip]'"
+    if: "!contains(toJSON(github.event.commits.*.message), '[ci-skip]')"
     steps:
-      - uses: "actions/checkout@v2"
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
+
       - name: "Setup .NET"
         uses: "actions/setup-dotnet@v1"
         with:
           dotnet-version: "6.0.x"
+
       - name: "Build PR"
         run: "dotnet build --nologo"
       # TODO: Complete DSharpPlus.Test package. Utilizing Github secrets, we can run the bot and have it execute tests on the PR to ensure there aren't any breaking changes.

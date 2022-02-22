@@ -7,14 +7,18 @@ on:
 jobs:
   publish_nightly:
     runs-on: "ubuntu-latest"
-    if: "!contains(toJSON(github.event.commits.*.message), '[ci-skip]'"
+    if: "!contains(toJSON(github.event.commits.*.message), '[ci-skip]')"
     steps:
-      - uses: "actions/checkout@v2"
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
+
       - name: "Setup .NET"
         uses: "actions/setup-dotnet@v1"
         with:
           dotnet-version: "6.0.x"
+
       - name: "Build Nightly Nuget Packages"
-        run: "mkdir build && dotnet pack --include-symbols --include-source -o build -p:BuildNumber=$(( 1079 + ${{ github.run_number }} ))" # We add 1079 since it's the last build number AppVeyor used.
+        run: "mkdir build && dotnet pack -p:SymbolPackageFormat=snupkg --include-symbols --include-source -o build -p:VersionSuffix='nightly' -p:BuildNumber=$(( 1079 + ${{ github.run_number }} ))" # We add 1079 since it's the last build number AppVeyor used.
+
       - name: "Publish Nightly Nuget Packages"
-        run: "dotnet nuget push 'build/*.nupkg' -k ${{ secrets.NUGET_ORG_API_KEY }} -s https://api.nuget.org/v3/index.json" # If the package version does not comply with SemVer, it will be set as a pre-release version automatically.
+        run: "dotnet nuget push \"build/*\" -k ${{ secrets.NUGET_ORG_API_KEY }} -s https://api.nuget.org/v3/index.json" # If the package version does not comply with SemVer, it will be set as a pre-release version automatically.
