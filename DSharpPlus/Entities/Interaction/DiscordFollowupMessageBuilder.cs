@@ -273,7 +273,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="ephemeral">Ephemeral.</param>
         /// <returns>The builder to chain calls with.</returns>
-        public DiscordFollowupMessageBuilder AsEphemeral(bool ephemeral)
+        public DiscordFollowupMessageBuilder AsEphemeral(bool ephemeral = true)
         {
             this.IsEphemeral = ephemeral;
             return this;
