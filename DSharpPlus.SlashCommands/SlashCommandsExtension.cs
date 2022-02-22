@@ -80,12 +80,9 @@ namespace DSharpPlus.SlashCommands
             ArgumentConverters = new Dictionary<Type, ISlashArgumentConverter>
             {
                 [typeof(string)] = new StringConverter(),
-                [typeof(long)] = new LongConverter(),
-                [typeof(long?)] = new NullableLongConverter(),
-                [typeof(bool)] = new BoolConverter(),
-                [typeof(bool?)] = new NullableBoolConverter(),
-                [typeof(double)] = new DoubleConverter(),
-                [typeof(double?)] = new NullableDoubleConverter(),
+                [typeof(long?)] = new LongConverter(),
+                [typeof(bool?)] = new BoolConverter(),
+                [typeof(double?)] = new DoubleConverter(),
                 [typeof(DiscordUser)] = new UserConverter(),
                 [typeof(DiscordChannel)] = new ChannelConverter(),
                 [typeof(DiscordRole)] = new RoleConverter(),
@@ -533,6 +530,13 @@ namespace DSharpPlus.SlashCommands
         {
             var converterMethod = typeof(SlashCommandsExtension).GetTypeInfo().DeclaredMethods.First(xm =>
                 xm.Name == nameof(GetParameterType) && xm.ContainsGenericParameters);
+            var nullableType = ArgumentConverters.FirstOrDefault(c =>
+                c.Key.IsGenericType && c.Key.GetGenericTypeDefinition() == typeof(Nullable<>)
+                                    && c.Key.GetGenericArguments()[0] == type).Key;
+            if (nullableType != null) //nullable type exists for this type
+            {
+                type = nullableType;
+            }
             var genericMethod = converterMethod.MakeGenericMethod(type);
             return (ApplicationCommandOptionType)genericMethod?.Invoke(this, new object[] {});
         }
@@ -882,9 +886,23 @@ namespace DSharpPlus.SlashCommands
                     //Convert parameter using registered converter.
                     var converterMethod = typeof(SlashCommandsExtension).GetTypeInfo().DeclaredMethods
                         .First(m => m.Name == nameof(this.ConvertArgument));
-                    var genericMethod = converterMethod.MakeGenericMethod(parameter.ParameterType)
-                        .Invoke(this, new object[] {option, context}) as Task<object>;
-                    args.Add(await genericMethod);
+                    var nullableType = ArgumentConverters.FirstOrDefault(c =>
+                        c.Key.IsGenericType && c.Key.GetGenericTypeDefinition() == typeof(Nullable<>)
+                                            && c.Key.GetGenericArguments()[0] == parameter.ParameterType).Key;
+                    if (nullableType != null)
+                    {
+                        var genericMethod = converterMethod.MakeGenericMethod(nullableType)
+                            .Invoke(this, new object[] {option, context}) as Task<object>;
+
+                        args.Add(await genericMethod);
+                    }
+                    else
+                    {
+                        var genericMethod = converterMethod.MakeGenericMethod(parameter.ParameterType)
+                            .Invoke(this, new object[] {option, context}) as Task<object>;
+
+                        args.Add(await genericMethod);
+                    }
                 }
             }
 

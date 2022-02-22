@@ -35,15 +35,7 @@ namespace DSharpPlus.SlashCommands.Converters
             => Task.FromResult(value.Value.ToString());
     }
 
-    public class LongConverter : ISlashArgumentConverter<long>
-    {
-        public ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.Integer;
-
-        public Task<long> Convert(DiscordInteractionDataOption value, InteractionContext context)
-            => Task.FromResult((long)value.Value);
-    }
-
-    public class NullableLongConverter : ISlashArgumentConverter<long?>
+    public class LongConverter : ISlashArgumentConverter<long?>
     {
         public ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.Integer;
 
@@ -51,29 +43,14 @@ namespace DSharpPlus.SlashCommands.Converters
             => Task.FromResult((long?)value.Value);
     }
 
-    public class BoolConverter : ISlashArgumentConverter<bool>
-    {
-        public ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.Boolean;
-        public Task<bool> Convert(DiscordInteractionDataOption value, InteractionContext context)
-            => Task.FromResult((bool)value.Value);
-    }
-
-    public class NullableBoolConverter : ISlashArgumentConverter<bool?>
+    public class BoolConverter : ISlashArgumentConverter<bool?>
     {
         public ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.Boolean;
         public Task<bool?> Convert(DiscordInteractionDataOption value, InteractionContext context)
             => Task.FromResult((bool?)value.Value);
     }
 
-    public class DoubleConverter : ISlashArgumentConverter<double>
-    {
-        public ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.Number;
-
-        public Task<double> Convert(DiscordInteractionDataOption value, InteractionContext context)
-            => Task.FromResult((double)value.Value);
-    }
-
-    public class NullableDoubleConverter : ISlashArgumentConverter<double?>
+    public class DoubleConverter : ISlashArgumentConverter<double?>
     {
         public ApplicationCommandOptionType OptionType { get; } = ApplicationCommandOptionType.Number;
 
