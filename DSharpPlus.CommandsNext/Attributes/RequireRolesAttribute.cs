@@ -95,8 +95,7 @@ namespace DSharpPlus.CommandsNext.Attributes
             if (ctx.Guild == null || ctx.Member == null)
                 return Task.FromResult(false);
 
-            if (((this.CheckMode & RoleCheckMode.MatchNames) != 0 && (this.CheckMode & RoleCheckMode.MatchIds) == 0)
-                || this.RoleIds.Count == 0)
+            if ((this.CheckMode.HasValue(RoleCheckMode.MatchNames) && !this.CheckMode.HasValue(RoleCheckMode.MatchIds)) || this.RoleIds.Count == 0)
             {
                 var roleNames = ctx.Member.Roles.Select(xr => xr.Name);
                 var roleNameCount = roleNames.Count();
@@ -111,8 +110,7 @@ namespace DSharpPlus.CommandsNext.Attributes
                     _ => Task.FromResult(intersectCount > 0),
                 };
             }
-            else if (((this.CheckMode & RoleCheckMode.MatchIds) != 0 && (this.CheckMode & RoleCheckMode.MatchNames) == 0)
-                || this.RoleNames.Count == 0)
+            else if ((!this.CheckMode.HasValue(RoleCheckMode.MatchNames) && this.CheckMode.HasValue(RoleCheckMode.MatchIds)) || this.RoleNames.Count == 0)
             {
                 var roleIds = ctx.Member.RoleIds;
                 var roleIdCount = roleIds.Count();
