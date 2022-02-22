@@ -11,10 +11,11 @@ An unofficial .NET wrapper for the Discord API, based off [DiscordSharp](https:/
 # Installing
 You can install the library from following sources:
 
-1. The latest nightly release is available on [Nuget](https://www.nuget.org/packages/DSharpPlus/) as a pre-release. These are cutting-edge versions automatically built from the latest commit in the `master` branch in this repository, and as such always contains the latest changes. If you want to use the latest feature on Discord, you should use the nightlies.
+1. All Nightly versions are available on [Nuget](https://www.nuget.org/packages/DSharpPlus/) as a pre-release. These are cutting-edge versions automatically built from the latest commit in the `master` branch in this repository, and as such always contains the latest changes. If you want to use the latest features on Discord, you should use the nightlies.
 
    Despite the nature of pre-release software, all changes to the library are held under a level of scrutiny; for this library, unstable does not mean bad quality, rather it means that the API can be subject to change without prior notice (to ease rapid iteration) and that consumers of the library should always remain on the latest version available (to immediately get the latest fixes and improvements). You will usually want to use this version.
-2. The latest stable release is always available on [NuGet](https://nuget.org/packages/DSharpPlus). Stable versions are released less often, but is guaranteed to not receive any breaking API changes without a major version bump.
+
+2. The latest stable release is always available on [NuGet](https://nuget.org/packages/DSharpPlus). Stable versions are released less often, but are guaranteed to not receive any breaking API changes without a major version bump.
 
    Critical bugfixes in the nightly releases will usually be backported to the latest major stable release, but only after they have passed our soak tests. Additionally, some smaller fixes may be infrastructurally impossible or very difficult to backport without "breaking everything", and as such they will remain only in the nightly release until the next major release. You should evaluate whether or not this version suits your specific needs.
 3. The library can be directly referenced from your csproj file. Cloning the repository and referencing the library is as easy as:
