@@ -44,8 +44,14 @@ namespace DSharpPlus.Test
             InteractionContext ctx,
 
             [Option("some_option", "This is the default description of the option, written in English.")]
+
+            [NameLocalization(Localization.German, "einige_optionen")]
             [DescriptionLocalization(Localization.German, "Dies ist die Standardbeschreibung des Argumentes, in Deutsch.")]
+
+            [NameLocalization(Localization.French, "une_option")]
             [DescriptionLocalization(Localization.French, "Ceci est la description par défaut de l'argument, écrite en français.")]
+
+            [NameLocalization(Localization.Spanish, "alguna_opción")]
             [DescriptionLocalization(Localization.Spanish, "Esta es la descripción por defecto del argumento, escrita en español.")]
             string argument = null
         )
