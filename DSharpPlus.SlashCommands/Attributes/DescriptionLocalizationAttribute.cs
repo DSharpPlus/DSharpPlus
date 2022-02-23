@@ -39,7 +39,7 @@ namespace DSharpPlus.SlashCommands
         public DescriptionLocalizationAttribute(Localization locale, string description)
         {
             this.Description = description;
-            this.Locale = LocaleHelper.Localizations[locale];
+            this.Locale = LocaleHelper.LocaleToStrings[locale];
         }
     }
 }

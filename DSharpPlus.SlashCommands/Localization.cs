@@ -63,14 +63,20 @@ namespace DSharpPlus.SlashCommands
         Vietnamese
     }
 
-    internal static class LocaleHelper
+    /// <summary>
+    /// A helper class that provides a list of supported localizations.
+    /// </summary>
+    public static class LocaleHelper
     {
-        public static readonly Dictionary<Localization, string> Localizations = new()
+        /// <summary>
+        /// A dictionary of supported localizations.
+        /// </summary>
+        public static readonly Dictionary<Localization, string> LocaleToStrings = new()
         {
-            [Localization.AmericanEnglish] = "en-US",
-            [Localization.BritishEnglish] = "en-GB",
-            [Localization.Bulgarian] = "bg",
-            [Localization.Chinese] = "zh-CN",
+            [Localization.AmericanEnglish]  = "en-US",
+            [Localization.BritishEnglish]   = "en-GB",
+            [Localization.Bulgarian]        = "bg",
+            [Localization.Chinese]          = "zh-CN",
             [Localization.Taiwanese] = "zh-TW",
             [Localization.Croatian] = "hr",
             [Localization.Czech] = "cs",
@@ -96,6 +102,39 @@ namespace DSharpPlus.SlashCommands
             [Localization.Turkish] = "tr",
             [Localization.Ukrainian] = "uk",
             [Localization.Vietnamese] = "vi"
+        };
+
+        public static readonly Dictionary<string, Localization> StringsToLocale = new()
+        {
+            ["en-US"]   = Localization.AmericanEnglish,
+            ["en-GB"]   = Localization.BritishEnglish,
+            ["bg"]      = Localization.Bulgarian,
+            ["zh-CN"]   = Localization.Chinese,
+            ["zh-TW"]   = Localization.Taiwanese,
+            ["hr"]      = Localization.Croatian,
+            ["cs"]      = Localization.Czech,
+            ["da"]      = Localization.Danish,
+            ["nl"]      = Localization.Dutch,
+            ["fi"]      = Localization.Finnish,
+            ["fr"]      = Localization.French,
+            ["de"]      = Localization.German,
+            ["el"]      = Localization.Greek,
+            ["hi"]      = Localization.Hindi,
+            ["hu"]      = Localization.Hungarian,
+            ["it"]      = Localization.Italian,
+            ["ja"]      = Localization.Japanese,
+            ["ko"]      = Localization.Korean,
+            ["lt"]      = Localization.Lithuanian,
+            ["no"]      = Localization.Norwegian,
+            ["pl"]      = Localization.Polish,
+            ["pt-BR"]   = Localization.Portuguese,
+            ["ro"]      = Localization.Romanian,
+            ["es-ES"]   = Localization.Spanish,
+            ["sv-SE"]   = Localization.Swedish,
+            ["th"]      = Localization.Thai,
+            ["tr"]      = Localization.Turkish,
+            ["uk"]      = Localization.Ukrainian,
+            ["vi"]      = Localization.Vietnamese
         };
     }
 }
