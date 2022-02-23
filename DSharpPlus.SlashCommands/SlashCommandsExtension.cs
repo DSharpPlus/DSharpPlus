@@ -294,7 +294,10 @@ namespace DSharpPlus.SlashCommands
 
                                 commandMethods.Add(new() { Method = method, Name = commandattribute.Name });
 
-                                var payload = new DiscordApplicationCommand(commandattribute.Name, commandattribute.Description, options, commandattribute.DefaultPermission);
+                                var nameLocalizations = this.GetNameLocalizations(method);
+                                var descriptionLocalizations = this.GetDescriptionLocalizations(method);
+
+                                var payload = new DiscordApplicationCommand(commandattribute.Name, commandattribute.Description, options, commandattribute.DefaultPermission, name_localizations: nameLocalizations, description_localizations: descriptionLocalizations);
                                 updateList.Add(payload);
                             }
 
@@ -421,13 +424,14 @@ namespace DSharpPlus.SlashCommands
                 var minimum = parameter.GetCustomAttribute<MinimumAttribute>()?.Value ?? null;
                 var maximum = parameter.GetCustomAttribute<MaximumAttribute>()?.Value ?? null;
 
-                var localizations = this.GetNameLocalizations(parameter);
+                var nameLocalizations = this.GetNameLocalizations(parameter);
+                var descriptionLocalizations = this.GetDescriptionLocalizations(parameter);
 
                 var autocompleteAttribute = parameter.GetCustomAttribute<AutocompleteAttribute>();
                 if (autocompleteAttribute != null && autocompleteAttribute.Provider.GetMethod(nameof(IAutocompleteProvider.Provider)) == null)
                     throw new ArgumentException("Autocomplete providers must inherit from IAutocompleteProvider.");
 
-                options.Add(new DiscordApplicationCommandOption(optionattribute.Name, optionattribute.Description, parametertype, !parameter.IsOptional, choices, null, channelTypes, (autocompleteAttribute != null || optionattribute.Autocomplete), minimum, maximum, localizations));
+                options.Add(new DiscordApplicationCommandOption(optionattribute.Name, optionattribute.Description, parametertype, !parameter.IsOptional, choices, null, channelTypes, (autocompleteAttribute != null || optionattribute.Autocomplete), minimum, maximum, nameLocalizations, descriptionLocalizations));
             }
 
             return options;
