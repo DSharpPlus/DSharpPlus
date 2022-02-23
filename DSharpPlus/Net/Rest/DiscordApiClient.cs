@@ -3135,7 +3135,9 @@ namespace DSharpPlus.Net
                     Name = command.Name,
                     Description = command.Description,
                     Options = command.Options,
-                    DefaultPermission = command.DefaultPermission
+                    DefaultPermission = command.DefaultPermission,
+                    NameLocalizations = command.NameLocalizations,
+                    DescriptionLocalizations = command.DescriptionLocalizations
                 });
             }
 
@@ -3159,7 +3161,9 @@ namespace DSharpPlus.Net
                 Name = command.Name,
                 Description = command.Description,
                 Options = command.Options,
-                DefaultPermission = command.DefaultPermission
+                DefaultPermission = command.DefaultPermission,
+                NameLocalizations = command.NameLocalizations,
+                DescriptionLocalizations = command.DescriptionLocalizations
             };
 
             var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.COMMANDS}";
@@ -3188,14 +3192,16 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordApplicationCommand> EditGlobalApplicationCommandAsync(ulong application_id, ulong command_id, Optional<string> name, Optional<string> description, Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options, Optional<bool?> defaultPermission)
+        internal async Task<DiscordApplicationCommand> EditGlobalApplicationCommandAsync(ulong application_id, ulong command_id, Optional<string> name, Optional<string> description, Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options, Optional<bool?> defaultPermission, IReadOnlyDictionary<string, string> name_localizations = null, IReadOnlyDictionary<string, string> description_localizations = null)
         {
             var pld = new RestApplicationCommandEditPayload
             {
                 Name = name,
                 Description = description,
                 Options = options,
-                DefaultPermission = defaultPermission
+                DefaultPermission = defaultPermission,
+                NameLocalizations = name_localizations,
+                DescriptionLocalizations = description_localizations
             };
 
             var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.COMMANDS}/:command_id";
@@ -3244,7 +3250,9 @@ namespace DSharpPlus.Net
                     Name = command.Name,
                     Description = command.Description,
                     Options = command.Options,
-                    DefaultPermission = command.DefaultPermission
+                    DefaultPermission = command.DefaultPermission,
+                    NameLocalizations = command.NameLocalizations,
+                    DescriptionLocalizations = command.DescriptionLocalizations
                 });
             }
 
@@ -3268,7 +3276,9 @@ namespace DSharpPlus.Net
                 Name = command.Name,
                 Description = command.Description,
                 Options = command.Options,
-                DefaultPermission = command.DefaultPermission
+                DefaultPermission = command.DefaultPermission,
+                NameLocalizations = command.NameLocalizations,
+                DescriptionLocalizations = command.DescriptionLocalizations
             };
 
             var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.GUILDS}/:guild_id{Endpoints.COMMANDS}";
@@ -3297,14 +3307,16 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordApplicationCommand> EditGuildApplicationCommandAsync(ulong application_id, ulong guild_id, ulong command_id, Optional<string> name, Optional<string> description, Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options, Optional<bool?> defaultPermission)
+        internal async Task<DiscordApplicationCommand> EditGuildApplicationCommandAsync(ulong application_id, ulong guild_id, ulong command_id, Optional<string> name, Optional<string> description, Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options, Optional<bool?> defaultPermission, IReadOnlyDictionary<string, string> name_localizations = null, IReadOnlyDictionary<string, string> description_localizations = null)
         {
             var pld = new RestApplicationCommandEditPayload
             {
                 Name = name,
                 Description = description,
                 Options = options,
-                DefaultPermission = defaultPermission
+                DefaultPermission = defaultPermission,
+                NameLocalizations = name_localizations,
+                DescriptionLocalizations = description_localizations
             };
 
             var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.GUILDS}/:guild_id{Endpoints.COMMANDS}/:command_id";

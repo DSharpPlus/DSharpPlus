@@ -43,6 +43,12 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("default_permission", NullValueHandling = NullValueHandling.Ignore)]
         public bool? DefaultPermission { get; set; }
+
+        [JsonProperty("name_localizations")]
+        public IReadOnlyDictionary<string, string> NameLocalizations { get; set; }
+
+        [JsonProperty("description_localizations")]
+        public IReadOnlyDictionary<string, string> DescriptionLocalizations{ get; set; }
     }
 
     internal class RestApplicationCommandEditPayload
@@ -58,6 +64,12 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("default_permission", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<bool?> DefaultPermission { get; set; }
+
+        [JsonProperty("name_localizations")]
+        public IReadOnlyDictionary<string, string> NameLocalizations { get; set; }
+
+        [JsonProperty("description_localizations")]
+        public IReadOnlyDictionary<string, string> DescriptionLocalizations{ get; set; }
     }
 
     internal class RestInteractionResponsePayload
