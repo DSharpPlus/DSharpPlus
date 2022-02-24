@@ -26,7 +26,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
 
 namespace DSharpPlus.CommandsNext.Attributes
 {
@@ -57,11 +56,8 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <param name="checkMode">Role checking mode.</param>
         /// <param name="roleNames">Names of the role to be verified by this check.</param>
         public RequireRolesAttribute(RoleCheckMode checkMode, params string[] roleNames)
-        {
-            this.CheckMode = checkMode;
-            this.RoleNames = new ReadOnlyCollection<string>(roleNames);
-            this.RoleIds = new List<ulong>().AsReadOnly();
-        }
+            : this(checkMode, roleNames, Array.Empty<ulong>())
+        { }
 
         /// <summary>
         /// Defines that usage of this command is restricted to members with the specified role.
@@ -70,11 +66,8 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <param name="checkMode">Role checking mode.</param>
         /// <param name="roleIds">IDs of the roles to be verified by this check.</param>
         public RequireRolesAttribute(RoleCheckMode checkMode, params ulong[] roleIds)
-        {
-            this.CheckMode = checkMode;
-            this.RoleIds = new ReadOnlyCollection<ulong>(roleIds);
-            this.RoleNames = new List<string>().AsReadOnly();
-        }
+            : this(checkMode, Array.Empty<string>(), roleIds)
+        { }
 
         /// <summary>
         /// Defines that usage of this command is restricted to members with the specified role.
@@ -97,55 +90,37 @@ namespace DSharpPlus.CommandsNext.Attributes
 
             if ((this.CheckMode.HasFlag(RoleCheckMode.MatchNames) && !this.CheckMode.HasFlag(RoleCheckMode.MatchIds)) || this.RoleIds.Count == 0)
             {
-                var roleNames = ctx.Member.Roles.Select(xr => xr.Name);
-                var roleNameCount = roleNames.Count();
-                var intersectNames = roleNames.Intersect(this.RoleNames, ctx.CommandsNext.GetStringComparer());
-                var intersectCount = intersectNames.Count();
-
-                return this.CheckMode switch
-                {
-                    RoleCheckMode.All => Task.FromResult(this.RoleNames.Count == intersectCount),
-                    RoleCheckMode.SpecifiedOnly => Task.FromResult(roleNameCount == intersectCount),
-                    RoleCheckMode.None => Task.FromResult(intersectCount == 0),
-                    _ => Task.FromResult(intersectCount > 0),
-                };
+                return Task.FromResult(this.MatchRoles(
+                    this.RoleNames, ctx.Member.Roles.Select(xm => xm.Name), ctx.CommandsNext.GetStringComparer()));
             }
             else if ((!this.CheckMode.HasFlag(RoleCheckMode.MatchNames) && this.CheckMode.HasFlag(RoleCheckMode.MatchIds)) || this.RoleNames.Count == 0)
             {
-                var roleIds = ctx.Member.RoleIds;
-                var roleIdCount = roleIds.Count();
-                var intersectIds = roleIds.Intersect(this.RoleIds);
-                var intersectIdCount = intersectIds.Count();
-
-                return this.CheckMode switch
-                {
-                    RoleCheckMode.All => Task.FromResult(this.RoleNames.Count == intersectIdCount),
-                    RoleCheckMode.SpecifiedOnly => Task.FromResult(roleIdCount == intersectIdCount),
-                    RoleCheckMode.None => Task.FromResult(intersectIdCount == 0),
-                    _ => Task.FromResult(intersectIdCount > 0),
-                };
+                return Task.FromResult(this.MatchRoles(this.RoleIds, ctx.Member.RoleIds));
             }
-            else
+            else // match both names and IDs
             {
-                var roleIds = ctx.Member.RoleIds
-                    .Concat(ctx.Member.Roles.Select(xm => xm.Id));
+                bool nameMatch = this.MatchRoles(this.RoleNames, ctx.Member.Roles.Select(xm => xm.Name), ctx.CommandsNext.GetStringComparer()),
+                    idMatch = this.MatchRoles(this.RoleIds, ctx.Member.RoleIds);
 
-                var roleNames = ctx.Member.Roles.Select(xm => xm.Name)
-                    .Concat(ctx.Member.Roles.Select(xm => xm.Name));
-
-                var intersectIds = roleIds.Intersect(this.RoleIds);
-                var intersectNames = roleNames.Intersect(this.RoleNames);
-
-                return this.CheckMode switch
+                return Task.FromResult(this.CheckMode switch
                 {
-                    RoleCheckMode.All => Task.FromResult(this.RoleNames.Count == intersectNames.Count()
-                        && this.RoleIds.Count == intersectIds.Count()),
-                    RoleCheckMode.SpecifiedOnly => Task.FromResult(roleIds.Count() == intersectIds.Count()
-                        && roleNames.Count() == intersectNames.Count()),
-                    RoleCheckMode.None => Task.FromResult(!intersectIds.Any() && !intersectNames.Any()),
-                    _ => Task.FromResult(intersectIds.Any() || intersectNames.Any())
-                };
+                    RoleCheckMode.Any => nameMatch || idMatch,
+                    _ => nameMatch && idMatch
+                });
             }
+        }
+
+        private bool MatchRoles<T>(IReadOnlyList<T> present, IEnumerable<T> passed, IEqualityComparer<T> comparer = null)
+        {
+            var intersect = passed.Intersect(present, comparer);
+
+            return this.CheckMode switch
+            {
+                RoleCheckMode.All => present.Count() == intersect.Count(),
+                RoleCheckMode.SpecifiedOnly => passed.Count() == intersect.Count(),
+                RoleCheckMode.None => !intersect.Any(),
+                _ => intersect.Count() > 0
+            };
         }
     }
 
