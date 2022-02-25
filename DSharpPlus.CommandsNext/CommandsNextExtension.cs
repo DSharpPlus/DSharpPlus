@@ -791,7 +791,7 @@ namespace DSharpPlus.CommandsNext
                 IsTTS = false,
                 _attachments = new List<DiscordAttachment>(),
                 _embeds = new List<DiscordEmbed>(),
-                TimestampRaw = now.ToString("yyyy-MM-ddTHH:mm:sszzz"),
+                TimestampRaw = now,
                 _reactions = new List<DiscordReaction>()
             };
 

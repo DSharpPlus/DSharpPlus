@@ -20,28 +20,40 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+
 namespace DSharpPlus
 {
     /// <summary>
-    /// Represents a type of component.
+    /// A list of ansi colors supported by Discord.
     /// </summary>
-    public enum ComponentType
+    /// <remarks>
+    /// Background support in the client is dodgy at best.
+    /// These colors are mapped as per the ansi standard, but may not appear correctly in the client.
+    /// </remarks>
+    public enum AnsiColor
     {
-        /// <summary>
-        /// A row of components.
-        /// </summary>
-        ActionRow = 1,
-        /// <summary>
-        /// A button.
-        /// </summary>
-        Button = 2,
-        /// <summary>
-        /// A select menu.
-        /// </summary>
-        Select = 3,
-        /// <summary>
-        /// An input field.
-        /// </summary>
-        FormInput = 4,
+        Reset = 0,
+        Bold = 1,
+        Underline = 4,
+
+        Black = 30,
+        Red = 31,
+        Green = 32,
+        Yellow = 33,
+        Blue = 34,
+        Magenta = 35,
+        Cyan = 36,
+        White = 37,
+        LightGray = 38,
+
+        BlackBackground = 40,
+        RedBackground = 41,
+        GreenBackground = 42,
+        YellowBackground = 43,
+        BlueBackground = 44,
+        MagentaBackground = 45,
+        CyanBackground = 46,
+        WhiteBackground = 47,
+
     }
 }

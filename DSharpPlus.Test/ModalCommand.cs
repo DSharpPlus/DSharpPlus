@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2022 DSharpPlus Contributors
+// Copyright (c) 2016-2021 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,28 +20,16 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace DSharpPlus
+using System.Threading.Tasks;
+using DSharpPlus.CommandsNext;
+using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.Entities;
+
+namespace DSharpPlus.Test
 {
-    /// <summary>
-    /// Represents a type of component.
-    /// </summary>
-    public enum ComponentType
+    public class ModalCommand : BaseCommandModule
     {
-        /// <summary>
-        /// A row of components.
-        /// </summary>
-        ActionRow = 1,
-        /// <summary>
-        /// A button.
-        /// </summary>
-        Button = 2,
-        /// <summary>
-        /// A select menu.
-        /// </summary>
-        Select = 3,
-        /// <summary>
-        /// An input field.
-        /// </summary>
-        FormInput = 4,
+        [Command]
+        public async Task Modal(CommandContext ctx) => await ctx.RespondAsync(m => m.WithContent("\u200b").AddComponents(new DiscordButtonComponent(ButtonStyle.Primary, "modal", "Press for modal")));
     }
 }

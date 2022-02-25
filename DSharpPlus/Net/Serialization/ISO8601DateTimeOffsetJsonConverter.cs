@@ -20,28 +20,26 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace DSharpPlus
+using System;
+using System.Globalization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+namespace DSharpPlus.Net.Serialization
 {
     /// <summary>
-    /// Represents a type of component.
+    /// Json converter for handling DateTimeOffset values.
     /// </summary>
-    public enum ComponentType
+    internal sealed class ISO8601DateTimeOffsetJsonConverter : JsonConverter
     {
-        /// <summary>
-        /// A row of components.
-        /// </summary>
-        ActionRow = 1,
-        /// <summary>
-        /// A button.
-        /// </summary>
-        Button = 2,
-        /// <summary>
-        /// A select menu.
-        /// </summary>
-        Select = 3,
-        /// <summary>
-        /// An input field.
-        /// </summary>
-        FormInput = 4,
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+            => writer.WriteValue(((DateTimeOffset)value).ToString("O", CultureInfo.InvariantCulture));
+        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+        {
+            var jr = JToken.Load(reader);
+
+            return jr.ToObject<DateTimeOffset>();
+        }
+        public override bool CanConvert(Type objectType) => objectType == typeof(DateTimeOffset);
     }
 }

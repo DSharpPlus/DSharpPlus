@@ -31,6 +31,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus.Lavalink.Entities;
 using DSharpPlus.Net;
+using DSharpPlus.Net.Serialization;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -242,7 +243,7 @@ namespace DSharpPlus.Lavalink
                 var tracks = new List<LavalinkTrack>(jarr.Count);
                 foreach (var jt in jarr)
                 {
-                    var track = jt["info"].ToObject<LavalinkTrack>();
+                    var track = jt["info"].ToDiscordObject<LavalinkTrack>();
                     track.TrackString = jt["track"].ToString();
 
                     tracks.Add(track);
@@ -260,11 +261,11 @@ namespace DSharpPlus.Lavalink
                 // Lavalink 3.x
 
                 jarr = jo["tracks"] as JArray;
-                var loadInfo = jo.ToObject<LavalinkLoadResult>();
+                var loadInfo = jo.ToDiscordObject<LavalinkLoadResult>();
                 var tracks = new List<LavalinkTrack>(jarr.Count);
                 foreach (var jt in jarr)
                 {
-                    var track = jt["info"].ToObject<LavalinkTrack>();
+                    var track = jt["info"].ToDiscordObject<LavalinkTrack>();
                     track.TrackString = jt["track"].ToString();
 
                     tracks.Add(track);

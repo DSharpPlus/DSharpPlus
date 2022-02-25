@@ -115,6 +115,14 @@ namespace DSharpPlus.Interactivity
         }
 
         /// <summary>
+        /// Waits for a user to submit a modal.
+        /// </summary>
+        /// <param name="modal_id">The id of the modal to wait for.</param>
+        /// <param name="timeoutOverride">Override the timeout period in <see cref="InteractivityConfiguration"/>.</param>
+        public Task<InteractivityResult<ModalSubmitEventArgs>> WaitForModalAsync(string modal_id, TimeSpan? timeoutOverride = null)
+            => this.WaitForEventArgsAsync<ModalSubmitEventArgs>(m => m.Interaction.Data.CustomId == modal_id, timeoutOverride);
+
+        /// <summary>
         /// Waits for any button in the specified collection to be pressed.
         /// </summary>
         /// <param name="message">The message to wait on.</param>

@@ -35,6 +35,7 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Net;
+using DSharpPlus.Net.Serialization;
 using Emzi0767.Utilities;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -289,7 +290,7 @@ namespace DSharpPlus
             timer.Start();
 
             var jo = JObject.Parse(await resp.Content.ReadAsStringAsync().ConfigureAwait(false));
-            var info = jo.ToObject<GatewayInfo>();
+            var info = jo.ToDiscordObject<GatewayInfo>();
 
             //There is a delay from parsing here.
             timer.Stop();
@@ -472,6 +473,7 @@ namespace DSharpPlus
             this._messageBulkDeleted = new AsyncEvent<DiscordClient, MessageBulkDeleteEventArgs>("MESSAGE_BULK_DELETED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._interactionCreated = new AsyncEvent<DiscordClient, InteractionCreateEventArgs>("INTERACTION_CREATED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._componentInteractionCreated = new AsyncEvent<DiscordClient, ComponentInteractionCreateEventArgs>("COMPONENT_INTERACTED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
+            this._modalSubmitted = new AsyncEvent<DiscordClient, ModalSubmitEventArgs>("MODAL_SUBMITTED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._contextMenuInteractionCreated = new AsyncEvent<DiscordClient, ContextMenuInteractionCreateEventArgs>("CONTEXT_MENU_INTERACTED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._typingStarted = new AsyncEvent<DiscordClient, TypingStartEventArgs>("TYPING_STARTED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._userSettingsUpdated = new AsyncEvent<DiscordClient, UserSettingsUpdateEventArgs>("USER_SETTINGS_UPDATED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
@@ -546,6 +548,7 @@ namespace DSharpPlus
             client.MessagesBulkDeleted += this.Client_MessageBulkDelete;
             client.InteractionCreated += this.Client_InteractionCreate;
             client.ComponentInteractionCreated += this.Client_ComponentInteractionCreate;
+            client.ModalSubmitted += this.Client_ModalSubmitted;
             client.ContextMenuInteractionCreated += this.Client_ContextMenuInteractionCreate;
             client.TypingStarted += this.Client_TypingStart;
             client.UserSettingsUpdated += this.Client_UserSettingsUpdate;
@@ -617,6 +620,7 @@ namespace DSharpPlus
             client.MessagesBulkDeleted -= this.Client_MessageBulkDelete;
             client.InteractionCreated -= this.Client_InteractionCreate;
             client.ComponentInteractionCreated -= this.Client_ComponentInteractionCreate;
+            client.ModalSubmitted -= this.Client_ModalSubmitted;
             client.ContextMenuInteractionCreated -= this.Client_ContextMenuInteractionCreate;
             client.TypingStarted -= this.Client_TypingStart;
             client.UserSettingsUpdated -= this.Client_UserSettingsUpdate;

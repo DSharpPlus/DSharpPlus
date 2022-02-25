@@ -30,6 +30,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
+using DSharpPlus.Net.Serialization;
 using DSharpPlus.Net.WebSocket;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -242,7 +243,7 @@ namespace DSharpPlus
                     break;
 
                 case GatewayOpCode.Hello:
-                    await this.OnHelloAsync((payload.Data as JObject).ToObject<GatewayHello>()).ConfigureAwait(false);
+                    await this.OnHelloAsync((payload.Data as JObject).ToDiscordObject<GatewayHello>()).ConfigureAwait(false);
                     break;
 
                 case GatewayOpCode.HeartbeatAck:
