@@ -504,7 +504,7 @@ namespace DSharpPlus.Entities
         }
 
         #region Guild Methods
-        
+
         /// <summary>
         /// Gets guild's icon URL, in requested format and size.
         /// </summary>
@@ -513,7 +513,7 @@ namespace DSharpPlus.Entities
         /// <returns>The URL of the guild's icon.</returns>
         public string GetIconUrl(ImageFormat imageFormat, ushort imageSize = 1024)
         {
-            
+
             if (string.IsNullOrWhiteSpace(this.IconHash))
                 return null;
 
@@ -543,7 +543,7 @@ namespace DSharpPlus.Entities
             return $"https://cdn.discordapp.com{Endpoints.ICONS}/{this.Id}/{this.IconHash}.{stringImageFormat}?size={stringImageSize}";
 
         }
-        
+
         /// <summary>
         /// Creates a new scheduled event in this guild.
         /// </summary>
@@ -620,7 +620,7 @@ namespace DSharpPlus.Entities
         /// <param name="reason">The reason this event is being modified</param>
         /// <returns>The modified object</returns>
         /// <exception cref="ArgumentException"></exception>
-        public Task ModifyEventAsync(DiscordScheduledGuildEvent guildEvent, Action<ScheduledGuildEventEditModel> mdl, string reason = null)
+        public async Task ModifyEventAsync(DiscordScheduledGuildEvent guildEvent, Action<ScheduledGuildEventEditModel> mdl, string reason = null)
         {
             var model = new ScheduledGuildEventEditModel();
             mdl(model);
@@ -673,13 +673,16 @@ namespace DSharpPlus.Entities
                 }
             }
 
-            return this.Discord.ApiClient.ModifyScheduledGuildEventAsync(
+            var modifiedEvent = await this.Discord.ApiClient.ModifyScheduledGuildEventAsync(
                 this.Id, guildEvent.Id,
                 model.Name, model.Description,
                 model.Channel.IfPresent(c => c?.Id),
                 model.StartTime, model.EndTime,
                 model.Type, model.PrivacyLevel,
-                model.Metadata, model.Status, reason);
+                model.Metadata, model.Status, reason).ConfigureAwait(false);
+
+            this._scheduledEvents[modifiedEvent.Id] = modifiedEvent;
+            return;
         }
 
         /// <summary>
@@ -689,7 +692,10 @@ namespace DSharpPlus.Entities
         /// <param name="reason"></param>
         /// <returns></returns>
         public Task DeleteEventAsync(DiscordScheduledGuildEvent guildEvent, string reason = null)
-            => this.Discord.ApiClient.DeleteScheduledGuildEventAsync(this.Id, guildEvent.Id);
+        {
+            this._scheduledEvents.TryRemove(guildEvent.Id, out _);
+            return this.Discord.ApiClient.DeleteScheduledGuildEventAsync(this.Id, guildEvent.Id);
+        }
 
         /// <summary>
         /// Gets the currently active or scheduled events in this guild.
