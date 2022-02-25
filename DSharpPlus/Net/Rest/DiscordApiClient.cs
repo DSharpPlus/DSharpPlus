@@ -1078,7 +1078,7 @@ namespace DSharpPlus.Net
 
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route, new Dictionary<string, string>(), string.Empty).ConfigureAwait(false);
 
-            var ret = JsonConvert.DeserializeObject<IEnumerable<DiscordScheduledGuildEvent>>(res.Response).ToList();
+            var ret = DiscordJson.ToDiscordObject<IEnumerable<DiscordScheduledGuildEvent>>(res.Response).ToList();
 
             foreach (var xe in ret)
             {
