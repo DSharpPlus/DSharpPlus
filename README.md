@@ -18,6 +18,7 @@ You can install the library from following sources:
 2. The latest stable release is always available on [NuGet](https://nuget.org/packages/DSharpPlus). Stable versions are released less often, but are guaranteed to not receive any breaking API changes without a major version bump.
 
    Critical bugfixes in the nightly releases will usually be backported to the latest major stable release, but only after they have passed our soak tests. Additionally, some smaller fixes may be infrastructurally impossible or very difficult to backport without "breaking everything", and as such they will remain only in the nightly release until the next major release. You should evaluate whether or not this version suits your specific needs.
+
 3. The library can be directly referenced from your csproj file. Cloning the repository and referencing the library is as easy as:
     ```
     git clone https://github.com/DSharpPlus/DSharpPlus.git DSharpPlus-Repo
