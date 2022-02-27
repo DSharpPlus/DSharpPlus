@@ -23,28 +23,28 @@
 
 using System;
 using DSharpPlus.Net;
-using Newtonsoft.Json.Linq;
 
 namespace DSharpPlus.Exceptions
 {
-    /// <summary>
-    /// Represents an exception thrown when a requested resource is not found.
-    /// </summary>
-    public class NotFoundException : DiscordException
+    public abstract class DiscordException : Exception
     {
-        internal NotFoundException(BaseRestRequest request, RestResponse response) : base("Not found: " + response.ResponseCode)
-        {
-            this.WebRequest = request;
-            this.WebResponse = response;
+        /// <summary>
+        /// Gets the request that caused the exception.
+        /// </summary>
+        public virtual BaseRestRequest WebRequest { get; internal set; }
 
-            try
-            {
-                var j = JObject.Parse(response.Response);
+        /// <summary>
+        /// Gets the response to the request.
+        /// </summary>
+        public virtual RestResponse WebResponse { get; internal set; }
 
-                if (j["message"] != null)
-                    this.JsonMessage = j["message"].ToString();
-            }
-            catch (Exception) { }
-        }
+        /// <summary>
+        /// Gets the JSON message received.
+        /// </summary>
+        public virtual string JsonMessage { get; internal set; }
+
+        public DiscordException() : base() { }
+        public DiscordException(string message) : base(message) { }
+        public DiscordException(string message, Exception innerException) : base(message, innerException) { }
     }
 }
