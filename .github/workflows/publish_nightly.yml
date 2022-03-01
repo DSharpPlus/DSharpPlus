@@ -18,7 +18,7 @@ jobs:
           dotnet-version: "6.0.x"
 
       - name: "Build Nightly Nuget Packages"
-        run: "mkdir build && dotnet pack -p:SymbolPackageFormat=snupkg --include-symbols --include-source -o build -p:VersionSuffix='nightly' -p:BuildNumber=$(( 1081 + ${{ github.run_number }} ))" # We add 1079 since it's the last build number AppVeyor used.
+        run: "mkdir build && dotnet pack -p:SymbolPackageFormat=snupkg --include-symbols --include-source -o build -p:VersionSuffix='nightly' -p:BuildNumber=0$(( 1083 + ${{ github.run_number }} ))" # We add 01083 since it's the last build number AppVeyor used.
 
       - name: "Publish Nightly Nuget Packages"
         run: "dotnet nuget push \"build/*\" -k ${{ secrets.NUGET_ORG_API_KEY }} -s https://api.nuget.org/v3/index.json" # If the package version does not comply with SemVer, it will be set as a pre-release version automatically.
