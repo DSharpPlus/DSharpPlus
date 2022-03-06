@@ -113,6 +113,6 @@ namespace DSharpPlus.Core.Entities
         public static bool operator >(DiscordSnowflake left, DiscordSnowflake right) => left is not null && left.CompareTo(right) > 0;
         public static bool operator >=(DiscordSnowflake left, DiscordSnowflake right) => left is null ? right is null : left.CompareTo(right) >= 0;
         public static implicit operator ulong(DiscordSnowflake snowflake) => snowflake.Value;
-        public static explicit operator DiscordSnowflake(ulong value) => new(value);
+        public static implicit operator DiscordSnowflake(ulong value) => new(value);
     }
 }
