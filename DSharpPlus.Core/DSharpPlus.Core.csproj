@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <AssemblyName>DSharpPlus</AssemblyName>
-        <RootNamespace>DSharpPlus</RootNamespace>
+        <AssemblyName>DSharpPlus.Core</AssemblyName>
+        <RootNamespace>DSharpPlus.Core</RootNamespace>
         <TargetFramework>net6.0</TargetFramework>
         <OutputType>Library</OutputType>
         <Nullable>enable</Nullable>

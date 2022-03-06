@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace DSharpPlus.Enums
+namespace DSharpPlus.Core.Enums
 {
     /// <summary>
     /// Premium types denote the level of premium a user has. Also known as the Nitro level.

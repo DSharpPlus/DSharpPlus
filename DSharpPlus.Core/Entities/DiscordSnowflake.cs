@@ -24,14 +24,14 @@
 using System;
 using System.Globalization;
 
-namespace DSharpPlus.Entities
+namespace DSharpPlus.Core.Entities
 {
     // TODO: Write a validation test.
     // TODO: Serialize the class into just the Value property.
     /// <summary>
-    /// Implements https://discord.com/developers/docs/reference#snowflakes.
+    /// Implements a <see href="https://discord.com/developers/docs/reference#snowflakes">Discord Snowflake</see>.
     /// </summary>
-    public sealed class DiscordSnowflake : IEquatable<DiscordSnowflake>, IComparable<DiscordSnowflake>
+    public sealed record DiscordSnowflake
     {
         /// <summary>
         /// The first second of 2015. The date Discord officially recognizes as it's epoch.
@@ -102,18 +102,13 @@ namespace DSharpPlus.Entities
         }
 
         public override string ToString() => this.Value.ToString(CultureInfo.InvariantCulture);
-        public override bool Equals(object? obj) => obj is DiscordSnowflake snowflake && this.Value == snowflake.Value;
         public override int GetHashCode() => HashCode.Combine(this.Value, Timestamp, InternalWorkerId, InternalProcessId, InternalIncrement);
-        public bool Equals(DiscordSnowflake? other) => other is not null && this.Value == other.Value;
-        public int CompareTo(DiscordSnowflake? other) => other is null ? 1 : this.Value.CompareTo(other?.Value);
 
-        public static bool operator ==(DiscordSnowflake left, DiscordSnowflake right) => left is null ? right is null : left.Equals(right);
-        public static bool operator !=(DiscordSnowflake left, DiscordSnowflake right) => !(left == right);
         public static bool operator <(DiscordSnowflake left, DiscordSnowflake right) => left is null ? right is not null : left.CompareTo(right) < 0;
         public static bool operator <=(DiscordSnowflake left, DiscordSnowflake right) => left is null || left.CompareTo(right) <= 0;
         public static bool operator >(DiscordSnowflake left, DiscordSnowflake right) => left is not null && left.CompareTo(right) > 0;
         public static bool operator >=(DiscordSnowflake left, DiscordSnowflake right) => left is null ? right is null : left.CompareTo(right) >= 0;
         public static implicit operator ulong(DiscordSnowflake snowflake) => snowflake.Value;
-        public static explicit operator DiscordSnowflake(ulong value) => new(value);
+        public static implicit operator DiscordSnowflake(ulong value) => new(value);
     }
 }

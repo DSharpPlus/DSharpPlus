@@ -23,32 +23,33 @@
 
 using System;
 using System.Drawing;
-using System.Globalization;
 using System.Text.Json.Serialization;
-using DSharpPlus.Enums;
+using DSharpPlus.Core.Enums;
 
-namespace DSharpPlus.Entities
+namespace DSharpPlus.Core.Entities
 {
-    public sealed class DiscordUser : IEquatable<DiscordUser>
+    /// <summary>
+    /// Implements a <see href="https://discord.com/developers/docs/resources/user#user-object-user-structure">Discord User</see>.
+    /// </summary>
+    public sealed record DiscordUser
     {
-        #region Official Discord Properties
         /// <summary>
         /// The user's id, used to identify the user across all of Discord.
         /// </summary>
         [JsonPropertyName("id")]
-        public DiscordSnowflake Id { get; init; }
+        public DiscordSnowflake Id { get; init; } = null!;
 
         /// <summary>
         /// The user's username, not unique across the platform.
         /// </summary>
         [JsonPropertyName("username")]
-        public string Username { get; init; }
+        public string Username { get; init; } = null!;
 
         /// <summary>
         /// The user's 4-digit discord-tag.
         /// </summary>
         [JsonPropertyName("discriminator")]
-        public string Discriminator { get; init; }
+        public string Discriminator { get; init; } = null!;
 
         /// <summary>
         /// The user's avatar hash.
@@ -123,53 +124,8 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonPropertyName("public_flags")]
         public DiscordUserFlags? PublicUserFlags { get; private set; }
-        #endregion
 
-        #region Generated Properties
-        /// <summary>
-        /// The <see cref="Discriminator"/> property as an <see cref="int"/>.
-        /// </summary>
-        [JsonIgnore]
-        public int DiscriminatorInt => int.Parse(this.Discriminator, NumberStyles.Integer, CultureInfo.InvariantCulture);
-
-        /// <summary>
-        /// The user's banner URL. Null if the user has no banner.
-        /// </summary>
-        [JsonIgnore]
-        public string? BannerUrl => string.IsNullOrEmpty(this.BannerHash) ? null : $"https://cdn.discordapp.com/banners/{this.Id}/{this.BannerHash}.{(this.BannerHash.StartsWith("a") ? "gif" : "png")}?size=4096";
-
-        /// <summary>
-        /// The user's avatar URL. If the user doesn't have an avatar set, defaults to the default Discord avatar generated from their discriminator.
-        /// </summary>
-        [JsonIgnore]
-        public string AvatarUrl => !string.IsNullOrWhiteSpace(this.AvatarHash) ? (this.AvatarHash.StartsWith("a_") ? $"https://cdn.discordapp.com/avatars/{this.Id.Value.ToString(CultureInfo.InvariantCulture)}/{this.AvatarHash}.gif?size=4096" : $"https://cdn.discordapp.com/avatars/{this.Id}/{this.AvatarHash}.png?size=4096") : this.DefaultAvatarUrl;
-
-        /// <summary>
-        /// The user's default avatar URL, generated from their discriminator.
-        /// </summary>
-        [JsonIgnore]
-        public string DefaultAvatarUrl => $"https://cdn.discordapp.com/embed/avatars/{(this.DiscriminatorInt % 5).ToString(CultureInfo.InvariantCulture)}.png?size=4096";
-
-        /// <summary>
-        /// Mention's the user.
-        /// </summary>
-        [JsonIgnore]
-        public string? Mention => $"<@{this.Id}>";
-
-        // TODO: Activate this property when DiscordClient has been implemented.
-        //[JsonIgnore]
-        //public bool IsCurrentUser => this.Id == Client.CurrentUser.Id;
-        #endregion
-
-        #region Constructors
-#pragma warning disable CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
-        // Json conversion will ensure that the properties are valid.
         internal DiscordUser() { }
-#pragma warning restore CS8618 // Non-nullable field is uninitialized. Consider declaring as nullable.
-        #endregion
-
-        public override bool Equals(object? obj) => obj is DiscordUser user && this.Id == user.Id;
-        public bool Equals(DiscordUser? other) => other is not null && this.Id == other.Id;
 
         public override int GetHashCode()
         {
@@ -191,5 +147,7 @@ namespace DSharpPlus.Entities
             hash.Add(PublicUserFlags);
             return hash.ToHashCode();
         }
+
+        public static implicit operator ulong(DiscordUser user) => user.Id;
     }
 }

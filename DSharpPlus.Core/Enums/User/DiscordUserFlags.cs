@@ -23,7 +23,7 @@
 
 using System;
 
-namespace DSharpPlus.Enums
+namespace DSharpPlus.Core.Enums
 {
 
     [Flags]

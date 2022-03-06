@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus", "DSharpPlus\DSharpPlus.csproj", "{ADE9AC1E-C20E-4C22-867E-F9AAEEF47667}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Core", "DSharpPlus.Core\DSharpPlus.Core.csproj", "{F1C54B08-EE46-43E1-B7A6-CB8B77084898}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -14,9 +14,9 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{ADE9AC1E-C20E-4C22-867E-F9AAEEF47667}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{ADE9AC1E-C20E-4C22-867E-F9AAEEF47667}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{ADE9AC1E-C20E-4C22-867E-F9AAEEF47667}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{ADE9AC1E-C20E-4C22-867E-F9AAEEF47667}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1C54B08-EE46-43E1-B7A6-CB8B77084898}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1C54B08-EE46-43E1-B7A6-CB8B77084898}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1C54B08-EE46-43E1-B7A6-CB8B77084898}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1C54B08-EE46-43E1-B7A6-CB8B77084898}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
