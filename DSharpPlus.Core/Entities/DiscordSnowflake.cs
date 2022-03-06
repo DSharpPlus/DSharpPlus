@@ -23,15 +23,18 @@
 
 using System;
 using System.Globalization;
+using System.Text.Json.Serialization;
+using DSharpPlus.Core.JsonConverters;
 
 namespace DSharpPlus.Core.Entities
 {
     // TODO: Write a validation test.
     // TODO: Serialize the class into just the Value property.
     /// <summary>
-    /// Implements a <see href="https://discord.com/developers/docs/reference#snowflakes">Discord Snowflake</see>.
-    /// /// </summary>
-    public sealed record DiscordSnowflake
+    /// Implements https://discord.com/developers/docs/reference#snowflakes.
+    /// </summary>
+    [JsonConverter(typeof(DiscordSnowflakeConverter))]
+    public sealed record DiscordSnowflake : IComparable<DiscordSnowflake>
     {
         /// <summary>
         /// The first second of 2015. The date Discord officially recognizes as it's epoch.
@@ -110,6 +113,6 @@ namespace DSharpPlus.Core.Entities
         public static bool operator >(DiscordSnowflake left, DiscordSnowflake right) => left is not null && left.CompareTo(right) > 0;
         public static bool operator >=(DiscordSnowflake left, DiscordSnowflake right) => left is null ? right is null : left.CompareTo(right) >= 0;
         public static implicit operator ulong(DiscordSnowflake snowflake) => snowflake.Value;
-        public static implicit operator DiscordSnowflake(ulong value) => new(value);
+        public static explicit operator DiscordSnowflake(ulong value) => new(value);
     }
 }
