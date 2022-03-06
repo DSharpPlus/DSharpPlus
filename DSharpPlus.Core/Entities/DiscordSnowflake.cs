@@ -30,7 +30,7 @@ namespace DSharpPlus.Core.Entities
     // TODO: Serialize the class into just the Value property.
     /// <summary>
     /// Implements a <see href="https://discord.com/developers/docs/reference#snowflakes">Discord Snowflake</see>.
-    /// </summary>
+    /// /// </summary>
     public sealed record DiscordSnowflake
     {
         /// <summary>
@@ -103,6 +103,7 @@ namespace DSharpPlus.Core.Entities
 
         public override string ToString() => this.Value.ToString(CultureInfo.InvariantCulture);
         public override int GetHashCode() => HashCode.Combine(this.Value, Timestamp, InternalWorkerId, InternalProcessId, InternalIncrement);
+        public int CompareTo(DiscordSnowflake? other) => other is null ? 1 : this.Value.CompareTo(other.Value);
 
         public static bool operator <(DiscordSnowflake left, DiscordSnowflake right) => left is null ? right is not null : left.CompareTo(right) < 0;
         public static bool operator <=(DiscordSnowflake left, DiscordSnowflake right) => left is null || left.CompareTo(right) <= 0;
