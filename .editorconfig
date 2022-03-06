@@ -177,6 +177,8 @@ dotnet_naming_style.async_suffix.required_suffix = Async
 dotnet_naming_style.async_suffix.word_separator = none
 dotnet_naming_style.async_suffix.capitalization = pascal_case
 
+dotnet_diagnostic.IDE0130.severity = none
+
 ### C# Files
 [*.cs]
 
