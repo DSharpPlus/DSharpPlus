@@ -27,6 +27,9 @@ using DSharpPlus.Core.Enums;
 
 namespace DSharpPlus.Core.Entities
 {
+    /// <summary>
+    /// Represents a member of a guild. Implements a <see href="https://discord.com/developers/docs/resources/guild#guild-member-object">Discord Guild Member</see>.
+    /// </summary>
     public sealed record DiscordGuildMember
     {
         /// <summary>
@@ -109,5 +112,24 @@ namespace DSharpPlus.Core.Entities
         /// </remarks>
         [JsonPropertyName("communication_disabled_until")]
         public DateTimeOffset? CommunicationDisabledUntil { get; private set; }
+
+        internal DiscordGuildMember() { }
+
+        public override int GetHashCode()
+        {
+            var hash = new HashCode();
+            hash.Add(User);
+            hash.Add(Nickname);
+            hash.Add(GuildAvatarHash);
+            hash.Add(RoleIds);
+            hash.Add(JoinedAt);
+            hash.Add(PremiumSince);
+            hash.Add(IsSelfDeafened);
+            hash.Add(IsSelfMuted);
+            hash.Add(IsPending);
+            hash.Add(InteractionPermissions);
+            hash.Add(CommunicationDisabledUntil);
+            return hash.ToHashCode();
+        }
     }
 }
