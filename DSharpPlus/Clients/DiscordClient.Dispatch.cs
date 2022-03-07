@@ -1657,7 +1657,11 @@ namespace DSharpPlus
 
             emoji.Discord = this;
 
-            var usr = this.UpdateUser(new DiscordUser { Id = userId, Discord = this }, guildId, guild, mbr);
+            DiscordUser usr = null!;
+            if (!this.TryGetCachedUserInternal(userId, out usr))
+            {
+                usr = this.UpdateUser(new DiscordUser { Id = userId, Discord = this }, guildId, guild, mbr);
+            }
 
             if (channel == null)
             {
