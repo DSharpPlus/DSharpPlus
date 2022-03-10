@@ -948,7 +948,7 @@ namespace DSharpPlus.Net
         #endregion
 
         #region Channel
-        internal async Task<DiscordChannel> CreateGuildChannelAsync(ulong guild_id, string name, ChannelType type, ulong? parent, Optional<string> topic, int? bitrate, int? user_limit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, Optional<int?> perUserRateLimit, VideoQualityMode? qualityMode, string reason)
+        internal async Task<DiscordChannel> CreateGuildChannelAsync(ulong guild_id, string name, ChannelType type, ulong? parent, Optional<string> topic, int? bitrate, int? user_limit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, Optional<int?> perUserRateLimit, VideoQualityMode? qualityMode, int? position, string reason)
         {
             var restoverwrites = new List<DiscordRestOverwrite>();
             if (overwrites != null)
@@ -966,7 +966,8 @@ namespace DSharpPlus.Net
                 PermissionOverwrites = restoverwrites,
                 Nsfw = nsfw,
                 PerUserRateLimit = perUserRateLimit,
-                QualityMode = qualityMode
+                QualityMode = qualityMode,
+                Position = position
             };
 
             var headers = Utilities.GetBaseHeaders();

@@ -58,6 +58,9 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("video_quality_mode", NullValueHandling = NullValueHandling.Ignore)]
         public VideoQualityMode? QualityMode { get; set; }
+
+        [JsonProperty("position", NullValueHandling = NullValueHandling.Ignore)]
+        public int? Position { get; set; }
     }
 
     internal sealed class RestChannelModifyPayload
@@ -280,7 +283,7 @@ namespace DSharpPlus.Net.Abstractions
         public ulong ChannelId { get; set; }
 
         [JsonProperty("topic")]
-        public string Topic { get ; set; }
+        public string Topic { get; set; }
 
         [JsonProperty("privacy_level", NullValueHandling = NullValueHandling.Ignore)]
         public PrivacyLevel? PrivacyLevel { get; set; }
