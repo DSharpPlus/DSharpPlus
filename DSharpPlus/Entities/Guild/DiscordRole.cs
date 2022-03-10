@@ -169,7 +169,7 @@ namespace DSharpPlus.Entities
             var mdl = new RoleEditModel();
             action(mdl);
 
-            return this.ModifyAsync(mdl.Name, mdl.Permissions, mdl.Color, mdl.Hoist, mdl.Mentionable, mdl.AuditLogReason);
+            return this.ModifyAsync(mdl.Name, mdl.Permissions, mdl.Color, mdl.Hoist, mdl.Mentionable, mdl.AuditLogReason, mdl.Icon, mdl.Emoji);
         }
 
         /// <summary>
