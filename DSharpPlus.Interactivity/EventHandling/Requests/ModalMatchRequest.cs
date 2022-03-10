@@ -55,7 +55,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             this.ModalId = modal_id;
             this.Predicate = predicate;
             this.Cancellation = cancellation;
-            this.Cancellation.Register(() => this.Tcs.TrySetResult(null)); // "TrySetCancelled would probably be better but I digress" - Velvet //
+            this.Cancellation.Register(() => this.Tcs.TrySetResult(null)); // "TrySetCancelled would probably be better but I digress" - Velvet // "TrySetCancelled throws an exception when you await the task, actually" - Velvet, 2022
         }
 
         /// <summary>

@@ -138,8 +138,7 @@ namespace DSharpPlus.Interactivity
                 throw new ArgumentException("Custom ID must be between 1 and 100 characters.");
 
             var matchRequest = new ModalMatchRequest(modal_id,
-                    c => c.Interaction.Type == InteractionType.ModalSubmit &&
-                    c.Interaction.Data.CustomId == modal_id, cancellation: token);
+                    c => c.Interaction.Data.CustomId == modal_id, cancellation: token);
             var result = await this.ModalEventWaiter.WaitForMatchAsync(matchRequest).ConfigureAwait(false);
 
             return new(result is null, result);
@@ -168,8 +167,7 @@ namespace DSharpPlus.Interactivity
                 throw new ArgumentException("Custom ID must be between 1 and 100 characters.");
 
             var matchRequest = new ModalMatchRequest(modal_id,
-                    c => c.Interaction.Type == InteractionType.ModalSubmit &&
-                    c.Interaction.Data.CustomId == modal_id &&
+                    c => c.Interaction.Data.CustomId == modal_id &&
                     c.Interaction.User.Id == user.Id, cancellation: token);
             var result = await this.ModalEventWaiter.WaitForMatchAsync(matchRequest).ConfigureAwait(false);
 
