@@ -184,7 +184,9 @@ namespace DSharpPlus.Test
 
         private async Task Discord_ModalSubmitted(DiscordClient sender, ModalSubmitEventArgs e)
         {
-            await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder().WithContent("Thank you!"));
+            bool testWaitForModal = true;
+            if(!testWaitForModal)
+                await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder().WithContent("Thank you!"));
 
             this.Discord.Logger.LogInformation("Got callback from user {User}, {Modal}", e.Interaction.User, e.Values);
         }
