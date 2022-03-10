@@ -35,7 +35,7 @@ namespace DSharpPlus.Interactivity.EventHandling
     /// </summary>
     internal class ModalEventWaiter : IDisposable
     {
-        private DiscordClient Client { get;}
+        private DiscordClient Client { get; }
 
         /// <summary>
         /// Collection of <see cref = "ModalMatchRequest"/> representing requests to wait for modals.
@@ -61,7 +61,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             {
                 return await request.Tcs.Task.ConfigureAwait(false); // awaits request until completeion or cancellation
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 this.Client.Logger.LogError(InteractivityEvents.InteractivityWaitError, e, "An exception was thrown while waiting for a modal.");
                 return null;
@@ -75,13 +75,14 @@ namespace DSharpPlus.Interactivity.EventHandling
         /// <summary>
         /// Is called whenever <see cref="ModalSubmitEventArgs"/> is fired. Checks to see submitted modal matches any of the current requests.
         /// </summary>
+        /// <param name="_"></param>
         /// <param name="args">The <see cref="ModalSubmitEventArgs"/> to match.</param>
         /// <returns>A task that represents matching the requests.</returns>
         private Task Handle(DiscordClient _, ModalSubmitEventArgs args)
         {
-            foreach(var req in this.MatchRequests.ToArray()) // ToArray to get a copy of the collection that won't be modified during iteration
+            foreach (var req in this.MatchRequests.ToArray()) // ToArray to get a copy of the collection that won't be modified during iteration
             {
-                if(req.ModalId == args.Interaction.Data.CustomId && req.IsMatch(args)) // will catch all matches
+                if (req.ModalId == args.Interaction.Data.CustomId && req.IsMatch(args)) // will catch all matches
                     req.Tcs.TrySetResult(args);
             }
             return Task.CompletedTask;
