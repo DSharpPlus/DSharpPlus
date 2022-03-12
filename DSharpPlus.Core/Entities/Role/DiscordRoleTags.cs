@@ -23,14 +23,12 @@
 
 using System;
 using System.Text.Json.Serialization;
-using DSharpPlus.Core.JsonConverters;
 
 namespace DSharpPlus.Core.Entities
 {
     /// <summary>
     /// A <see cref="DiscordRole"/>'s metadata.
     /// </summary>
-    /// <value></value>
     public sealed record DiscordRoleTags
     {
         /// <summary>
@@ -48,8 +46,14 @@ namespace DSharpPlus.Core.Entities
         /// <summary>
         /// Whether this is the guild's premium subscriber role.
         /// </summary>
-        [JsonPropertyName("premium_subscriber"), JsonConverter(typeof(NullBoolConverter))]
-        public bool? IsNitroRole { get; init; } = false;
+        [JsonIgnore]
+        public bool IsNitroRole => PremiumSubscriber == null;
+
+        /// <summary>
+        /// Null when this is the guild's premium subscriber role, false when it isn't.
+        /// </summary>
+        [JsonPropertyName("premium_subscriber")]
+        internal bool? PremiumSubscriber { get; init; } = false;
 
         internal DiscordRoleTags() { }
 
