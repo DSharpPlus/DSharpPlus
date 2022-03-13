@@ -23,8 +23,8 @@
 
 using System;
 using System.Globalization;
-using System.Text.Json.Serialization;
 using DSharpPlus.Core.JsonConverters;
+using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Entities
 {

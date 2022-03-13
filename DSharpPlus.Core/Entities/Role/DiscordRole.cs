@@ -61,13 +61,13 @@ namespace DSharpPlus.Core.Entities
         /// The role icon hash.
         /// </summary>
         [JsonPropertyName("icon")]
-        public string? Icon { get; private set; }
+        public Optional<string?> Icon { get; private set; }
 
         /// <summary>
         /// The role unicode emoji.
         /// </summary>
         [JsonPropertyName("unicode_emoji")]
-        public string? UnicodeEmoji { get; private set; }
+        public Optional<string?> UnicodeEmoji { get; private set; }
 
         /// <summary>
         /// The position of this role.
@@ -97,7 +97,7 @@ namespace DSharpPlus.Core.Entities
         /// The tags this role has.
         /// </summary>
         [JsonPropertyName("tags")]
-        public DiscordRoleTags? Tags { get; init; }
+        public Optional<DiscordRoleTags> Tags { get; init; }
 
         internal DiscordRole() { }
 

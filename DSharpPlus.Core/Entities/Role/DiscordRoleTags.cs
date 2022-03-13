@@ -35,25 +35,25 @@ namespace DSharpPlus.Core.Entities
         /// The id of the bot this role belongs to.
         /// </summary>
         [JsonPropertyName("bot_id")]
-        public DiscordSnowflake? BotId { get; init; }
+        public Optional<DiscordSnowflake> BotId { get; init; }
 
         /// <summary>
         /// The id of the integration this role belongs to.
         /// </summary>
         [JsonPropertyName("integration_id")]
-        public DiscordSnowflake? IntegrationId { get; init; }
+        public Optional<DiscordSnowflake> IntegrationId { get; init; }
 
         /// <summary>
         /// Whether this is the guild's premium subscriber role.
         /// </summary>
         [JsonIgnore]
-        public bool IsNitroRole => PremiumSubscriber == null;
+        public bool IsNitroRole => PremiumSubscriber.HasValue;
 
         /// <summary>
         /// Null when this is the guild's premium subscriber role, false when it isn't.
         /// </summary>
         [JsonPropertyName("premium_subscriber")]
-        internal bool? PremiumSubscriber { get; init; } = false;
+        internal Optional<bool> PremiumSubscriber { get; init; } = false;
 
         internal DiscordRoleTags() { }
 
