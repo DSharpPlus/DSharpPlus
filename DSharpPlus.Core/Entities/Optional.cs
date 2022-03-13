@@ -27,6 +27,12 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Entities
 {
+    /// <summary>
+    /// Often used in Discord API responses, this class is used to represent an optional field.
+    /// </summary>
+    /// <remarks>
+    /// While a Json field can be null, Discord enforces that a field can be missing entirely. This means that a field can be missing and/or null at any time. This struct is used to represent that.
+    /// </remarks>
     [JsonConverter(typeof(OptionalConverter))]
     public struct Optional<T>
     {
