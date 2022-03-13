@@ -22,9 +22,12 @@
 // SOFTWARE.
 
 using System;
+using DSharpPlus.Core.JsonConverters;
+using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Entities
 {
+    [JsonConverter(typeof(OptionalConverter))]
     public sealed record Optional<T>
     {
         /// <summary>
