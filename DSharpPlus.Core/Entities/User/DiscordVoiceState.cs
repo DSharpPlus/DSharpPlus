@@ -32,13 +32,13 @@ namespace DSharpPlus.Core.Entities
         /// The guild id this voice state is for.
         /// </summary>
         [JsonPropertyName("guild_id")]
-        public DiscordSnowflake? GuildId { get; init; }
+        public Optional<DiscordSnowflake> GuildId { get; init; }
 
         /// <summary>
         /// The channel id this user is connected to.
         /// </summary>
         [JsonPropertyName("channel_id")]
-        public DiscordSnowflake? ChannelId { get; init; }
+        public Optional<DiscordSnowflake> ChannelId { get; init; }
 
         /// <summary>
         /// The user id this voice state is for.
@@ -50,7 +50,7 @@ namespace DSharpPlus.Core.Entities
         /// The guild member this voice state is for.
         /// </summary>
         [JsonPropertyName("member")]
-        public DiscordGuildMember? Member { get; init; }
+        public Optional<DiscordGuildMember> Member { get; init; }
 
         /// <summary>
         /// The session id for this voice state.
@@ -86,7 +86,7 @@ namespace DSharpPlus.Core.Entities
         /// Whether this user is streaming using "Go Live".
         /// </summary>
         [JsonPropertyName("self_stream")]
-        public bool? SelfStream { get; private set; }
+        public Optional<bool> SelfStream { get; private set; }
 
         /// <summary>
         /// Whether this user's camera is enabled.
@@ -104,6 +104,6 @@ namespace DSharpPlus.Core.Entities
         /// The time at which the user requested to speak.
         /// </summary>
         [JsonPropertyName("request_to_speak_timestamp")]
-        public DateTimeOffset RequestedToSpeakAt { get; private set; }
+        public Optional<DateTimeOffset> RequestedToSpeakAt { get; private set; }
     }
 }

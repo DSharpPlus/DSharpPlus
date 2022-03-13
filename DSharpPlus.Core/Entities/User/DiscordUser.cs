@@ -61,69 +61,69 @@ namespace DSharpPlus.Core.Entities
         /// Whether the user belongs to an OAuth2 application.
         /// </summary>
         [JsonPropertyName("bot")]
-        public bool? IsBot { get; init; }
+        public Optional<bool> IsBot { get; init; }
 
         /// <summary>
         /// Whether the user is an Official Discord System user (part of the urgent message system).
         /// </summary>
         [JsonPropertyName("system")]
-        public bool? IsSystem { get; init; }
+        public Optional<bool> IsSystem { get; init; }
 
         /// <summary>
         /// Whether the user has two factor enabled on their account.
         /// </summary>
         [JsonPropertyName("mfa_enabled")]
-        public bool? MFAEnabled { get; private set; }
+        public Optional<bool> MFAEnabled { get; private set; }
 
         /// <summary>
         /// The user's banner hash.
         /// </summary>
         [JsonPropertyName("banner")]
-        public string? BannerHash { get; private set; }
+        public Optional<string> BannerHash { get; private set; }
 
         /// <summary>
         /// The user's banner color.
         /// </summary>
         [JsonPropertyName("accent_color")]
-        public Color? AccentColor { get; private set; }
+        public Optional<Color?> AccentColor { get; private set; }
 
         // TODO: Can probably be serialized to a class or dictionary. See https://discord.com/developers/docs/reference#locales
         /// <summary>
         /// The user's chosen language option.
         /// </summary>
         [JsonPropertyName("locale")]
-        public string? Locale { get; private set; }
+        public Optional<string> Locale { get; private set; }
 
         /// <summary>
         /// Whether the email on this account has been verified. Requires the email oauth2 scope.
         /// </summary>
         [JsonPropertyName("verified")]
-        public bool? Verified { get; private set; }
+        public Optional<bool> Verified { get; private set; }
 
         /// <summary>
         /// The user's email. Requires the email oauth2 scope.
         /// </summary>
         [JsonPropertyName("email")]
-        public string? Email { get; private set; }
+        public Optional<string?> Email { get; private set; }
 
         /// <summary>
         /// The user flags on a user's account.
         /// </summary>
         [JsonPropertyName("flags")]
-        public DiscordUserFlags? UserFlags { get; private set; }
+        public Optional<DiscordUserFlags> UserFlags { get; private set; }
 
 
         /// <summary>
         /// The type of Nitro subscription on a user's account.
         /// </summary>
         [JsonPropertyName("premium_type")]
-        public DiscordPremiumType? PremiumType { get; private set; }
+        public Optional<DiscordPremiumType> PremiumType { get; private set; }
 
         /// <summary>
         /// The public flags on a user's account.
         /// </summary>
         [JsonPropertyName("public_flags")]
-        public DiscordUserFlags? PublicUserFlags { get; private set; }
+        public Optional<DiscordUserFlags> PublicUserFlags { get; private set; }
 
         internal DiscordUser() { }
 

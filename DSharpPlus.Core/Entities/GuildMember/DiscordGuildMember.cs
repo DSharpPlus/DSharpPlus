@@ -39,19 +39,19 @@ namespace DSharpPlus.Core.Entities
         /// The <c>user</c> object won't be included in the member object attached to <c>MESSAGE_CREATE</c> and <c>MESSAGE_UPDATE</c> gateway events.
         /// </remarks>
         [JsonPropertyName("user")]
-        public DiscordUser? User { get; init; }
+        public Optional<DiscordUser> User { get; init; }
 
         /// <summary>
         /// This user's guild nickname.
         /// </summary>
         [JsonPropertyName("nick")]
-        public string? Nickname { get; private set; }
+        public Optional<string> Nickname { get; private set; }
 
         /// <summary>
         /// The member's guild avatar hash.
         /// </summary>
         [JsonPropertyName("avatar")]
-        public string? GuildAvatarHash { get; private set; }
+        public Optional<string> GuildAvatarHash { get; private set; }
 
         /// <summary>
         /// Array of <see href="https://discord.com/developers/docs/topics/permissions#role-object">role</see> object ids.
@@ -66,7 +66,7 @@ namespace DSharpPlus.Core.Entities
         /// Resets when the member leaves and rejoins the guild.
         /// </remarks>
         [JsonPropertyName("joined_at")]
-        public DateTimeOffset? JoinedAt { get; private set; }
+        public DateTimeOffset JoinedAt { get; private set; }
 
         /// <summary>
         /// When the user started <see href="https://support.discord.com/hc/en-us/articles/360028038352-Server-Boosting-">boosting</see> the guild.
@@ -75,25 +75,25 @@ namespace DSharpPlus.Core.Entities
         /// Can also be seen as "Nitro boosting since".
         /// </remarks>
         [JsonPropertyName("premium_since")]
-        public DateTimeOffset? PremiumSince { get; private set; }
+        public Optional<DateTimeOffset?> PremiumSince { get; private set; }
 
         /// <summary>
         /// Whether the user is deafened in voice channels.
         /// </summary>
         [JsonPropertyName("deaf")]
-        public bool? IsSelfDeafened { get; private set; }
+        public bool IsSelfDeafened { get; private set; }
 
         /// <summary>
         /// Whether the user is muted in voice channels.
         /// </summary>
         [JsonPropertyName("mute")]
-        public bool? IsSelfMuted { get; private set; }
+        public bool IsSelfMuted { get; private set; }
 
         /// <summary>
         /// Whether the user has not yet passed the guild's <see href="https://discord.com/developers/docs/resources/guild#membership-screening-object">Membership Screening</see> requirements.
         /// </summary>
         [JsonPropertyName("pending")]
-        public bool? IsPending { get; private set; }
+        public Optional<bool> IsPending { get; private set; }
 
         /// <summary>
         /// Total permissions of the member in the channel, including overwrites, returned when in the interaction object.
@@ -102,7 +102,7 @@ namespace DSharpPlus.Core.Entities
         /// This is only available on an interaction, such as a Slash Command.
         /// </remarks>
         [JsonPropertyName("permissions")]
-        public DiscordPermissions? InteractionPermissions { get; private set; }
+        public Optional<DiscordPermissions> InteractionPermissions { get; private set; }
 
         /// <summary>
         /// When the user's <see href="https://support.discord.com/hc/en-us/articles/4413305239191-Time-Out-FAQ">timeout</see> will expire and the user will be able to communicate in the guild again, null or a time in the past if the user is not timed out.
@@ -111,7 +111,7 @@ namespace DSharpPlus.Core.Entities
         /// Could also be seen as "muted until".
         /// </remarks>
         [JsonPropertyName("communication_disabled_until")]
-        public DateTimeOffset? CommunicationDisabledUntil { get; private set; }
+        public Optional<DateTimeOffset?> CommunicationDisabledUntil { get; private set; }
 
         internal DiscordGuildMember() { }
 
