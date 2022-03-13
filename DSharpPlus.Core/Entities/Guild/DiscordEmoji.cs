@@ -47,37 +47,37 @@ namespace DSharpPlus.Core.Entities
         /// The roles allowed to use this emoji.
         /// </summary>
         [JsonPropertyName("roles")]
-        public DiscordSnowflake[] RoleIds { get; private set; } = Array.Empty<DiscordSnowflake>();
+        public Optional<DiscordSnowflake[]> RoleIds { get; private set; }
 
         /// <summary>
         /// The user that created this emoji.
         /// </summary>
         [JsonPropertyName("user")]
-        public DiscordUser User { get; private set; } = null!;
+        public Optional<DiscordUser> User { get; private set; } = null!;
 
         /// <summary>
         /// Whether this emoji must be wrapped in colons.
         /// </summary>
         [JsonPropertyName("require_colons")]
-        public bool? RequiresColons { get; private set; }
+        public Optional<bool> RequiresColons { get; private set; }
 
         /// <summary>
         /// Whether this emoji is managed.
         /// </summary>
         [JsonPropertyName("managed")]
-        public bool? IsManaged { get; private set; }
+        public Optional<bool> IsManaged { get; private set; }
 
         /// <summary>
         /// Whether this emoji is animated.
         /// </summary>
         [JsonPropertyName("animated")]
-        public bool? IsAnimated { get; private set; }
+        public Optional<bool> IsAnimated { get; private set; }
 
         /// <summary>
         /// Whether this emoji can be used. May be false due to loss of Server Boosts.
         /// </summary>
         [JsonPropertyName("available")]
-        public bool? IsAvailable { get; private set; }
+        public Optional<bool> IsAvailable { get; private set; }
 
         internal DiscordEmoji() { }
 
