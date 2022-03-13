@@ -28,7 +28,7 @@ using Newtonsoft.Json;
 namespace DSharpPlus.Core.Entities
 {
     [JsonConverter(typeof(OptionalConverter))]
-    public sealed record Optional<T>
+    public struct Optional<T>
     {
         /// <summary>
         /// If the <see cref="Optional{T}"/> has a value. The value may be null.
@@ -91,9 +91,21 @@ namespace DSharpPlus.Core.Entities
         /// <summary>
         /// Checks whether the value of this <see cref="Optional{T}"/> is equal to specified object.
         /// </summary>
-        /// <param name="e">Object to compare to.</param>
+        /// <param name="other">Object to compare to.</param>
         /// <returns>Whether the object is equal to the value of this <see cref="Optional{T}"/>.</returns>
-        public bool Equals(T e) => HasValue && Value!.Equals(e);
+        public bool Equals(T other) => HasValue && Value!.Equals(other);
+
+        /// <summary>
+        /// Checks whether the value of this <see cref="Optional{T}"/> is equal to specified object.
+        /// </summary>
+        /// <param name="other">Object to compare to.</param>
+        /// <returns>Whether the object is equal to the value of this <see cref="Optional{T}"/>.</returns>
+        public override bool Equals(object? other) => other switch
+        {
+            T otherType => Equals(otherType),
+            Optional<T> otherObject => Equals(otherObject),
+            _ => false
+        };
 
         public static implicit operator Optional<T>(T value) => new(value);
         public static explicit operator T(Optional<T> optional) => optional.Value;
