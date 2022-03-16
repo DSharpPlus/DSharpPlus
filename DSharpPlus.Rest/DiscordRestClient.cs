@@ -75,7 +75,7 @@ namespace DSharpPlus
         /// <param name="description">The description of the event, up to 1000 characters.</param>
         /// <param name="channelId">The channel the event will take place in, if applicable.</param>
         /// <param name="type">The type of event. If <see cref="ScheduledGuildEventType.External"/>, a end time must be specified.</param>
-        /// <param name="privacyLevel">The privacy level of the event. Currently only <see cref="GuildOnly"/></param>
+        /// <param name="privacyLevel">The privacy level of the event.</param>
         /// <param name="start">When the event starts. Must be in the future and before the end date, if specified.</param>
         /// <param name="end">When the event ends. Required for <see cref="ScheduledGuildEventType.External"/></param>
         /// <param name="location">Where this location takes place.</param>
@@ -121,7 +121,7 @@ namespace DSharpPlus
             var model = new ScheduledGuildEventEditModel();
             mdl(model);
 
-            if (model.Type.HasValue && model.Type.Value is (ScheduledGuildEventType.StageInstance or ScheduledGuildEventType.VoiceChannel))
+            if (model.Type.HasValue && model.Type.Value is ScheduledGuildEventType.StageInstance or ScheduledGuildEventType.VoiceChannel)
                 if (!model.Channel.HasValue)
                     throw new ArgumentException("Channel must be supplied if the event is a stage instance or voice channel event.");
 
@@ -566,13 +566,14 @@ namespace DSharpPlus
         /// <param name="nsfw">Whether this channel should be marked as NSFW</param>
         /// <param name="perUserRateLimit">Slow mode timeout for users.</param>
         /// <param name="qualityMode">Voice channel video quality mode.</param>
+        /// <param name="position">Sorting position of the channel.</param>
         /// <param name="reason">Reason this channel was created</param>
         /// <returns></returns>
-        public Task<DiscordChannel> CreateGuildChannelAsync(ulong id, string name, ChannelType type, ulong? parent, Optional<string> topic, int? bitrate, int? userLimit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, Optional<int?> perUserRateLimit, VideoQualityMode? qualityMode, string reason)
+        public Task<DiscordChannel> CreateGuildChannelAsync(ulong id, string name, ChannelType type, ulong? parent, Optional<string> topic, int? bitrate, int? userLimit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, Optional<int?> perUserRateLimit, VideoQualityMode? qualityMode, int? position, string reason)
         {
             return type != ChannelType.Category && type != ChannelType.Text && type != ChannelType.Voice && type != ChannelType.News && type != ChannelType.Store && type != ChannelType.Stage
                 ? throw new ArgumentException("Channel type must be text, voice, stage, or category.", nameof(type))
-                : this.ApiClient.CreateGuildChannelAsync(id, name, type, parent, topic, bitrate, userLimit, overwrites, nsfw, perUserRateLimit, qualityMode, reason);
+                : this.ApiClient.CreateGuildChannelAsync(id, name, type, parent, topic, bitrate, userLimit, overwrites, nsfw, perUserRateLimit, qualityMode, position, reason);
         }
 
         /// <summary>
