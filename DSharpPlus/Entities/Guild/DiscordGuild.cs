@@ -824,12 +824,12 @@ namespace DSharpPlus.Entities
 
             var bannerb64 = Optional.FromNoValue<string>();
 
-            if (mdl.Splash.HasValue)
+            if (mdl.Banner.HasValue)
             {
-                if (mdl.Splash.Value == null)
+                if (mdl.Banner.Value == null)
                     bannerb64 = null;
                 else
-                    using (var imgtool = new ImageTool(mdl.Splash.Value))
+                    using (var imgtool = new ImageTool(mdl.Banner.Value))
                         bannerb64 = imgtool.GetBase64();
             }
 
