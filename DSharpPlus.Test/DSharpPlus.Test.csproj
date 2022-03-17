@@ -18,14 +18,20 @@
     <DebugType>Portable</DebugType>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(VersionSuffix)' != ''">
-    <Version>$(VersionPrefix)-preview-$(VersionSuffix)</Version>
-    <AssemblyVersion>$(VersionPrefix).$(VersionSuffix)</AssemblyVersion>
-    <FileVersion>$(VersionPrefix).$(VersionSuffix)</FileVersion>
+  <PropertyGroup Condition="'$(VersionSuffix)' != '' And '$(BuildNumber)' != ''">
+    <Version>$(VersionPrefix)-$(VersionSuffix)-$(BuildNumber)</Version>
+    <AssemblyVersion>$(VersionPrefix).$(BuildNumber)</AssemblyVersion>
+    <FileVersion>$(VersionPrefix).$(BuildNumber)</FileVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(VersionSuffix)' != '' And '$(BuildNumber)' == ''">
+    <Version>$(VersionPrefix)-$(VersionSuffix)</Version>
+    <AssemblyVersion>$(VersionPrefix).0</AssemblyVersion>
+    <FileVersion>$(VersionPrefix).0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(VersionSuffix)' == ''">
-    <Version>$(VersionPrefix)-preview</Version>
+    <Version>$(VersionPrefix)</Version>
     <AssemblyVersion>$(VersionPrefix).0</AssemblyVersion>
     <FileVersion>$(VersionPrefix).0</FileVersion>
   </PropertyGroup>
@@ -65,6 +71,7 @@
     <None Update="opus.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
+   </ItemGroup>
 
 </Project>
+
