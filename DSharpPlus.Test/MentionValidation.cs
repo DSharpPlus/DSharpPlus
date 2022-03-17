@@ -30,10 +30,9 @@ namespace DSharpPlus.Test
 {
     public class MentionValidation : BaseCommandModule
     {
-        [Command]
-        public async Task MentionTest(CommandContext ctx, DiscordRole role)
+        [Command("mention_test")]
+        public async Task MentionTestAsync(CommandContext ctx, DiscordRole role)
         {
-            var progress = "";
             var progressBuilder = new StringBuilder();
             var progressMessage = await ctx.RespondAsync("Waiting for results");
 
@@ -81,12 +80,12 @@ namespace DSharpPlus.Test
             else
                 progressBuilder.AppendLine($"No mentions explicit **FAILED** (User: Expected 0, got {m4.MentionedUsers.Count} | Role: Expected 0 got {m4.MentionedRoles.Count})");
 
-            if ((me1UserBefore is 0 && me1UserAfter is 0) && (me1RoleBefore is 0 && me1RoleAfter is 0))
+            if (me1UserBefore is 0 && me1UserAfter is 0 && me1RoleBefore is 0 && me1RoleAfter is 0)
                 progressBuilder.AppendLine("Reply edit (without mention) **PASSED**");
             else
                 progressBuilder.AppendLine("Reply edit (without mention) **FAILED**");
 
-            if ((me2UserBefore is 1 && me2UserAfter is 1) && (me2RoleBefore is 0 && me2RoleAfter is 0))
+            if (me2UserBefore is 1 && me2UserAfter is 1 && me2RoleBefore is 0 && me2RoleAfter is 0)
                 progressBuilder.AppendLine("Reply edit (with mention) **PASSED**");
             else
                 progressBuilder.AppendLine("Reply edit (with mention) **FAILED**");

@@ -31,14 +31,11 @@ using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Exceptions;
-using DSharpPlus.CommandsNext.Executors;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.EventHandling;
-using DSharpPlus.Interactivity.Extensions;
-using DSharpPlus.Lavalink;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.EventArgs;
 using DSharpPlus.VoiceNext;
@@ -53,10 +50,7 @@ namespace DSharpPlus.Test
 
         private TestBotConfig Config { get; }
         public DiscordClient Discord { get; }
-        private VoiceNextExtension VoiceService { get; }
         private CommandsNextExtension CommandsNextService { get; }
-        private InteractivityExtension InteractivityService { get; }
-        private LavalinkExtension LavalinkService { get; }
         private SlashCommandsExtension SlashCommandService { get; }
 
         public TestBot(TestBotConfig cfg, int shardid)
@@ -119,7 +113,6 @@ namespace DSharpPlus.Test
                 AudioFormat = AudioFormat.Default,
                 EnableIncoming = true
             };
-            this.VoiceService = this.Discord.UseVoiceNext(vcfg);
 
             // build a dependency collection for commandsnext
             var depco = new ServiceCollection();
@@ -160,9 +153,6 @@ namespace DSharpPlus.Test
                     SkipRight = new DiscordButtonComponent(ButtonStyle.Primary, "skipr", null, false, new DiscordComponentEmoji(862259654403031050))
                 }
             };
-
-            this.InteractivityService = this.Discord.UseInteractivity(icfg);
-            this.LavalinkService = this.Discord.UseLavalink();
 
             this.SlashCommandService = this.Discord.UseSlashCommands();
             this.SlashCommandService.SlashCommandErrored += this.SlashCommandService_CommandErrored;
@@ -209,7 +199,7 @@ namespace DSharpPlus.Test
             if (e.Interaction.Type != InteractionType.AutoComplete)
                 return;
 
-            this.Discord.Logger.LogInformation($"AutoComplete: Focused: {e.Interaction.Data.Options.First().Focused}, Data: {e.Interaction.Data.Options.First().Value}");
+            this.Discord.Logger.LogInformation("AutoComplete: Focused: {Focused}, Data: {Data}", e.Interaction.Data.Options.First().Focused, e.Interaction.Data.Options.First().Value);
 
             var option = e.Interaction.Data.Options.First();
 
@@ -226,15 +216,12 @@ namespace DSharpPlus.Test
 
         private Task Discord_StickersUpdated(DiscordClient sender, GuildStickersUpdateEventArgs e)
         {
-            this.Discord.Logger.LogInformation($"{e.Guild.Id}'s stickers updated: {e.StickersBefore.Count()} -> {e.StickersAfter.Count()}");
+            this.Discord.Logger.LogInformation("{GuildId}'s stickers updated: {StickerBeforeCount} -> {StickerAfterCount}", e.Guild.Id, e.StickersBefore.Count, e.StickersAfter.Count);
             return Task.CompletedTask;
         }
 
         public async Task RunAsync()
         {
-            await this.Discord.ConnectAsync();
-            return;
-
             var act = new DiscordActivity("the screams of your ancestors", ActivityType.ListeningTo);
             await this.Discord.ConnectAsync(act, UserStatus.DoNotDisturb).ConfigureAwait(false);
         }
@@ -324,7 +311,8 @@ namespace DSharpPlus.Test
             var emoji = DiscordEmoji.FromName(e.Context.Client, ":no_entry:");
 
             // let's wrap the response into an embed
-            var embed = new DiscordEmbedBuilder {
+            var embed = new DiscordEmbedBuilder
+            {
                 Title = "Error",
                 Description = $"{emoji} Error!",
                 Color = new DiscordColor(0xFF0000) // red
@@ -403,25 +391,25 @@ namespace DSharpPlus.Test
 
         private Task Discord_ThreadCreated(DiscordClient client, ThreadCreateEventArgs e)
         {
-            client.Logger.LogDebug(eventId: TestBotEventId, $"Thread created in {e.Guild.Name}. Thread Name: {e.Thread.Name}");
+            client.Logger.LogDebug(eventId: TestBotEventId, "Thread created in {GuildName}. Thread Name: {ThreadName}", e.Guild.Name, e.Thread.Name);
             return Task.CompletedTask;
         }
 
         private Task Discord_ThreadUpdated(DiscordClient client, ThreadUpdateEventArgs e)
         {
-            client.Logger.LogDebug(eventId: TestBotEventId, $"Thread updated in {e.Guild.Name}. New Thread Name: {e.ThreadAfter.Name}");
+            client.Logger.LogDebug(eventId: TestBotEventId, "Thread updated in {GuildName}. New Thread Name: {ThreadName}", e.Guild.Name, e.ThreadAfter.Name);
             return Task.CompletedTask;
         }
 
         private Task Discord_ThreadDeleted(DiscordClient client, ThreadDeleteEventArgs e)
         {
-            client.Logger.LogDebug(eventId: TestBotEventId, $"Thread deleted in {e.Guild.Name}. Thread Name: {e.Thread.Name ?? "Unknown"}");
+            client.Logger.LogDebug(eventId: TestBotEventId, "Thread deleted in {GuildName}. Thread Name: {ThreadName}", e.Guild.Name, e.Thread.Name ?? "Unknown");
             return Task.CompletedTask;
         }
 
         private Task Discord_ThreadListSynced(DiscordClient client, ThreadListSyncEventArgs e)
         {
-            client.Logger.LogDebug(eventId: TestBotEventId, $"Threads synced in {e.Guild.Name}.");
+            client.Logger.LogDebug(eventId: TestBotEventId, "Threads synced in {GuildName}.", e.Guild.Name);
             return Task.CompletedTask;
         }
 
@@ -434,7 +422,7 @@ namespace DSharpPlus.Test
 
         private Task Discord_ThreadMembersUpdated(DiscordClient client, ThreadMembersUpdateEventArgs e)
         {
-            client.Logger.LogDebug(eventId: TestBotEventId, $"Thread members updated in {e.Guild.Name}.");
+            client.Logger.LogDebug(eventId: TestBotEventId, "Thread members updated in {GuildName}.", e.Guild.Name);
             return Task.CompletedTask;
         }
     }

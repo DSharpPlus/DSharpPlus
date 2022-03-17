@@ -289,18 +289,18 @@ namespace DSharpPlus.Test
             await ctx.RespondAsync(sb.ToString()).ConfigureAwait(false);
         }
 
-        private static readonly string[] Units = new[] { "", "ki", "Mi", "Gi" };
+        private static readonly string[] _units = new[] { "", "ki", "Mi", "Gi" };
         private static string SizeToString(long l)
         {
             double d = l;
             var u = 0;
-            while (d >= 900 && u < Units.Length - 2)
+            while (d >= 900 && u < _units.Length - 2)
             {
                 u++;
                 d /= 1024;
             }
 
-            return $"{d:#,##0.00} {Units[u]}B";
+            return $"{d:#,##0.00} {_units[u]}B";
         }
     }
 }
