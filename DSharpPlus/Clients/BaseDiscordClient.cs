@@ -249,16 +249,13 @@ namespace DSharpPlus
             return false;
         }
 
+        // This previously set properties on the old user and re-injected into the cache.
+        // That's terrible. Instead, insert the new reference and let the old one get GC'd.
+        // End-users are more likely to be holding a reference to the new object via an event or w/e
+        // anyways.
+        // Furthermore, setting properties requires keeping track of where we update cache and updating repeat code.
         internal DiscordUser UpdateUserCache(DiscordUser newUser)
-        {
-            return this.UserCache.AddOrUpdate(newUser.Id, newUser, (id, old) =>
-            {
-                old.Username = newUser.Username;
-                old.Discriminator = newUser.Discriminator;
-                old.AvatarHash = newUser.AvatarHash;
-                return old;
-            });
-        }
+            => this.UserCache.AddOrUpdate(newUser.Id, newUser, (_, _) => newUser);
 
         /// <summary>
         /// Disposes this client.
