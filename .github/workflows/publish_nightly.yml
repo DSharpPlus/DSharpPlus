@@ -6,8 +6,8 @@ on:
 
 jobs:
   publish_nightly:
-    runs-on: "ubuntu-latest"
-    if: "!contains(toJSON(github.event.commits.*.message), '[ci-skip]')"
+    runs-on: "self-hosted"
+    if: "!contains(format('{0} {1}', github.event.head_commit.message, github.event.pull_request.title), '[ci-skip]')"
     steps:
       - name: "Checkout"
         uses: "actions/checkout@v2"
