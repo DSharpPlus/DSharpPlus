@@ -61,6 +61,17 @@ namespace DSharpPlus.Entities
         [JsonProperty("locked", NullValueHandling = NullValueHandling.Ignore)]
         public bool? IsLocked { get; internal set; }
 
+
+        /// <summary>
+        /// Gets the time this thread was created. Only populated for threads created after 2022-01-09 (YYYY-MM-DD).
+        /// </summary>
+        public DateTimeOffset? CreationTimestamp
+            => !string.IsNullOrWhiteSpace(this.CreateTimestampRaw) && DateTimeOffset.TryParse(this.CreateTimestampRaw, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dto) ?
+                dto : null;
+
+        [JsonProperty("create_timestamp", NullValueHandling = NullValueHandling.Ignore)]
+        internal string CreateTimestampRaw { get; set; }
+
         internal DiscordThreadChannelMetadata() { }
     }
 }

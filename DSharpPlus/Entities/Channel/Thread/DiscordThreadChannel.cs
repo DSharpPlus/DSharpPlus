@@ -65,6 +65,12 @@ namespace DSharpPlus.Entities
         [JsonProperty("thread_metadata", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordThreadChannelMetadata ThreadMetadata { get; internal set; }
 
+        /// <summary>
+        /// Gets whether this thread has been newly created. This property is not populated when fetched by REST.
+        /// </summary>
+        [JsonProperty("newly_created", NullValueHandling = NullValueHandling.Ignore)]
+        public bool IsNew { get; internal set; }
+
         #region Methods
 
         /// <summary>
