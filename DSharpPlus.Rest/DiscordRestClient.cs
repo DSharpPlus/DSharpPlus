@@ -75,13 +75,13 @@ namespace DSharpPlus
         /// <param name="description">The description of the event, up to 1000 characters.</param>
         /// <param name="channelId">The channel the event will take place in, if applicable.</param>
         /// <param name="type">The type of event. If <see cref="ScheduledGuildEventType.External"/>, a end time must be specified.</param>
-        /// <param name="privacyLevel">The privacy level of the event. Currently only <see cref="GuildOnly"/></param>
+        /// <param name="privacyLevel">The privacy level of the event.</param>
         /// <param name="start">When the event starts. Must be in the future and before the end date, if specified.</param>
         /// <param name="end">When the event ends. Required for <see cref="ScheduledGuildEventType.External"/></param>
         /// <param name="location">Where this location takes place.</param>
         /// <returns>The created event.</returns>
         public Task<DiscordScheduledGuildEvent> CreateScheduledGuildEventAsync(ulong guildId, string name, string description, ulong? channelId, ScheduledGuildEventType type, ScheduledGuildEventPrivacyLevel privacyLevel, DateTimeOffset start, DateTimeOffset? end, string location = null)
-            => this.ApiClient.CreateScheduledGuildEventAsync(guildId, name, description, channelId,  start, end, type, privacyLevel, new DiscordScheduledGuildEventMetadata(location));
+            => this.ApiClient.CreateScheduledGuildEventAsync(guildId, name, description, channelId, start, end, type, privacyLevel, new DiscordScheduledGuildEventMetadata(location));
 
         /// <summary>
         /// Delete a scheduled guild event.
@@ -121,7 +121,7 @@ namespace DSharpPlus
             var model = new ScheduledGuildEventEditModel();
             mdl(model);
 
-            if (model.Type.HasValue && model.Type.Value is (ScheduledGuildEventType.StageInstance or ScheduledGuildEventType.VoiceChannel))
+            if (model.Type.HasValue && model.Type.Value is ScheduledGuildEventType.StageInstance or ScheduledGuildEventType.VoiceChannel)
                 if (!model.Channel.HasValue)
                     throw new ArgumentException("Channel must be supplied if the event is a stage instance or voice channel event.");
 
@@ -305,9 +305,17 @@ namespace DSharpPlus
             else if (mdl.Splash.HasValue)
                 splashb64 = null;
 
+            var bannerb64 = Optional.FromNoValue<string>();
+
+            if (mdl.Banner.HasValue && mdl.Banner.Value != null)
+                using (var imgtool = new ImageTool(mdl.Banner.Value))
+                    bannerb64 = imgtool.GetBase64();
+            else if (mdl.Banner.HasValue)
+                bannerb64 = null;
+
             return await this.ApiClient.ModifyGuildAsync(guild_id, mdl.Name, mdl.Region.IfPresent(x => x.Id), mdl.VerificationLevel, mdl.DefaultMessageNotifications,
                 mdl.MfaLevel, mdl.ExplicitContentFilter, mdl.AfkChannel.IfPresent(x => x?.Id), mdl.AfkTimeout, iconb64, mdl.Owner.IfPresent(x => x.Id),
-                splashb64, mdl.SystemChannel.IfPresent(x => x?.Id), mdl.Banner, mdl.Description, mdl.DiscoverySplash, mdl.Features, mdl.PreferredLocale,
+                splashb64, mdl.SystemChannel.IfPresent(x => x?.Id), bannerb64, mdl.Description, mdl.DiscoverySplash, mdl.Features, mdl.PreferredLocale,
                 mdl.PublicUpdatesChannel.IfPresent(e => e?.Id), mdl.RulesChannel.IfPresent(e => e?.Id), mdl.SystemChannelFlags, mdl.AuditLogReason).ConfigureAwait(false);
         }
 
@@ -558,13 +566,14 @@ namespace DSharpPlus
         /// <param name="nsfw">Whether this channel should be marked as NSFW</param>
         /// <param name="perUserRateLimit">Slow mode timeout for users.</param>
         /// <param name="qualityMode">Voice channel video quality mode.</param>
+        /// <param name="position">Sorting position of the channel.</param>
         /// <param name="reason">Reason this channel was created</param>
         /// <returns></returns>
-        public Task<DiscordChannel> CreateGuildChannelAsync(ulong id, string name, ChannelType type, ulong? parent, Optional<string> topic, int? bitrate, int? userLimit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, Optional<int?> perUserRateLimit, VideoQualityMode? qualityMode, string reason)
+        public Task<DiscordChannel> CreateGuildChannelAsync(ulong id, string name, ChannelType type, ulong? parent, Optional<string> topic, int? bitrate, int? userLimit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, Optional<int?> perUserRateLimit, VideoQualityMode? qualityMode, int? position, string reason)
         {
             return type != ChannelType.Category && type != ChannelType.Text && type != ChannelType.Voice && type != ChannelType.News && type != ChannelType.Store && type != ChannelType.Stage
                 ? throw new ArgumentException("Channel type must be text, voice, stage, or category.", nameof(type))
-                : this.ApiClient.CreateGuildChannelAsync(id, name, type, parent, topic, bitrate, userLimit, overwrites, nsfw, perUserRateLimit, qualityMode, reason);
+                : this.ApiClient.CreateGuildChannelAsync(id, name, type, parent, topic, bitrate, userLimit, overwrites, nsfw, perUserRateLimit, qualityMode, position, reason);
         }
 
         /// <summary>
@@ -727,7 +736,7 @@ namespace DSharpPlus
         /// <param name="embed">New message embed</param>
         /// <returns></returns>
         public Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<DiscordEmbed> embed)
-            => this.ApiClient.EditMessageAsync(channel_id, message_id, default, embed.HasValue ? new[] {embed.Value} : Array.Empty<DiscordEmbed>(), default, default, Array.Empty<DiscordMessageFile>(), null, default);
+            => this.ApiClient.EditMessageAsync(channel_id, message_id, default, embed.HasValue ? new[] { embed.Value } : Array.Empty<DiscordEmbed>(), default, default, Array.Empty<DiscordMessageFile>(), null, default);
 
         /// <summary>
         /// Edits a message
@@ -1199,7 +1208,7 @@ namespace DSharpPlus
         /// <param name="emoji">The emoji to add to this role. Must be unicode.</param>
         /// <returns></returns>
         public Task<DiscordRole> CreateGuildRoleAsync(ulong guild_id, string name, Permissions? permissions, int? color, bool? hoist, bool? mentionable, string reason, Stream icon = null, DiscordEmoji emoji = null)
-            => this.ApiClient.CreateGuildRoleAsync(guild_id, name, permissions, color, hoist, mentionable, reason, icon , emoji?.ToString());
+            => this.ApiClient.CreateGuildRoleAsync(guild_id, name, permissions, color, hoist, mentionable, reason, icon, emoji?.ToString());
         #endregion
 
         #region Prune
@@ -1262,9 +1271,10 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="guild_id">Guild id</param>
         /// <param name="integration">Integration to remove</param>
+        /// <param name="reason">Reason why this integration was removed</param>
         /// <returns></returns>
-        public Task DeleteGuildIntegrationAsync(ulong guild_id, DiscordIntegration integration)
-            => this.ApiClient.DeleteGuildIntegrationAsync(guild_id, integration);
+        public Task DeleteGuildIntegrationAsync(ulong guild_id, DiscordIntegration integration, string reason = null)
+            => this.ApiClient.DeleteGuildIntegrationAsync(guild_id, integration, reason);
 
         /// <summary>
         /// Syncs guild integration
@@ -1350,12 +1360,13 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="guildId">The guild ID to modify.</param>
         /// <param name="action">Action to perform.</param>
+        /// <param name="reason">The audit log reason for this action.</param>
         /// <returns>The modified welcome screen.</returns>
-        public async Task<DiscordGuildWelcomeScreen> ModifyGuildWelcomeScreenAsync(ulong guildId, Action<WelcomeScreenEditModel> action)
+        public async Task<DiscordGuildWelcomeScreen> ModifyGuildWelcomeScreenAsync(ulong guildId, Action<WelcomeScreenEditModel> action, string reason = null)
         {
             var mdl = new WelcomeScreenEditModel();
             action(mdl);
-            return await this.ApiClient.ModifyGuildWelcomeScreenAsync(guildId, mdl.Enabled, mdl.WelcomeChannels, mdl.Description).ConfigureAwait(false);
+            return await this.ApiClient.ModifyGuildWelcomeScreenAsync(guildId, mdl.Enabled, mdl.WelcomeChannels, mdl.Description, reason).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -1928,7 +1939,7 @@ namespace DSharpPlus
         {
             string contentType = null, extension = null;
 
-            if(format == StickerFormat.PNG || format == StickerFormat.APNG)
+            if (format == StickerFormat.PNG || format == StickerFormat.APNG)
             {
                 contentType = "image/png";
                 extension = "png";
@@ -1970,102 +1981,102 @@ namespace DSharpPlus
 
         #region Threads
 
-         /// <summary>
-         /// Creates a thread from a message.
-         /// </summary>
-         /// <param name="channelId">The id of the channel.</param>
-         /// <param name="messageId">The id of the message </param>
-         /// <param name="name">The name of the thread.</param>
-         /// <param name="archiveAfter">The auto archive duration.</param>
-         /// <param name="reason">Reason for audit logs.</param>
-         public Task<DiscordThreadChannel> CreateThreadFromMessageAsync(ulong channelId, ulong messageId, string name, AutoArchiveDuration archiveAfter, string reason = null)
-            => this.ApiClient.CreateThreadFromMessageAsync(channelId, messageId, name, archiveAfter, reason);
+        /// <summary>
+        /// Creates a thread from a message.
+        /// </summary>
+        /// <param name="channelId">The id of the channel.</param>
+        /// <param name="messageId">The id of the message </param>
+        /// <param name="name">The name of the thread.</param>
+        /// <param name="archiveAfter">The auto archive duration.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        public Task<DiscordThreadChannel> CreateThreadFromMessageAsync(ulong channelId, ulong messageId, string name, AutoArchiveDuration archiveAfter, string reason = null)
+           => this.ApiClient.CreateThreadFromMessageAsync(channelId, messageId, name, archiveAfter, reason);
 
-         /// <summary>
-         /// Creates a thread.
-         /// </summary>
-         /// <param name="channelId">The id of the channel.</param>
-         /// <param name="name">The name of the thread.</param>
-         /// <param name="archiveAfter">The auto archive duration.</param>
-         /// <param name="threadType">The type of the thread.</param>
-         /// <param name="reason">Reason for audit logs.</param>
-         /// <returns></returns>
-         public Task<DiscordThreadChannel> CreateThreadAsync(ulong channelId, string name, AutoArchiveDuration archiveAfter, ChannelType threadType, string reason = null)
-            => this.ApiClient.CreateThreadAsync(channelId, name, archiveAfter, threadType, reason);
+        /// <summary>
+        /// Creates a thread.
+        /// </summary>
+        /// <param name="channelId">The id of the channel.</param>
+        /// <param name="name">The name of the thread.</param>
+        /// <param name="archiveAfter">The auto archive duration.</param>
+        /// <param name="threadType">The type of the thread.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns></returns>
+        public Task<DiscordThreadChannel> CreateThreadAsync(ulong channelId, string name, AutoArchiveDuration archiveAfter, ChannelType threadType, string reason = null)
+           => this.ApiClient.CreateThreadAsync(channelId, name, archiveAfter, threadType, reason);
 
-         /// <summary>
-         /// Joins a thread.
-         /// </summary>
-         /// <param name="threadId">The id of the thread.</param>
-         public Task JoinThreadAsync(ulong threadId)
-             => this.ApiClient.JoinThreadAsync(threadId);
+        /// <summary>
+        /// Joins a thread.
+        /// </summary>
+        /// <param name="threadId">The id of the thread.</param>
+        public Task JoinThreadAsync(ulong threadId)
+            => this.ApiClient.JoinThreadAsync(threadId);
 
-         /// <summary>
-         /// Leaves a thread.
-         /// </summary>
-         /// <param name="threadId">The id of the thread.</param>
-         public Task LeaveThreadAsync(ulong threadId)
-             => this.ApiClient.LeaveThreadAsync(threadId);
+        /// <summary>
+        /// Leaves a thread.
+        /// </summary>
+        /// <param name="threadId">The id of the thread.</param>
+        public Task LeaveThreadAsync(ulong threadId)
+            => this.ApiClient.LeaveThreadAsync(threadId);
 
-         /// <summary>
-         /// Adds a member to a thread.
-         /// </summary>
-         /// <param name="threadId">The id of the thread.</param>
-         /// <param name="userId">The id of the member.</param>
-         public Task AddThreadMemberAsync(ulong threadId, ulong userId)
-             => this.ApiClient.AddThreadMemberAsync(threadId, userId);
+        /// <summary>
+        /// Adds a member to a thread.
+        /// </summary>
+        /// <param name="threadId">The id of the thread.</param>
+        /// <param name="userId">The id of the member.</param>
+        public Task AddThreadMemberAsync(ulong threadId, ulong userId)
+            => this.ApiClient.AddThreadMemberAsync(threadId, userId);
 
-         /// <summary>
-         /// Removes a member from a thread.
-         /// </summary>
-         /// <param name="threadId">The id of the thread.</param>
-         /// <param name="userId">The id of the member.</param>
-         public Task RemoveThreadMemberAsync(ulong threadId, ulong userId)
-             => this.ApiClient.RemoveThreadMemberAsync(threadId, userId);
+        /// <summary>
+        /// Removes a member from a thread.
+        /// </summary>
+        /// <param name="threadId">The id of the thread.</param>
+        /// <param name="userId">The id of the member.</param>
+        public Task RemoveThreadMemberAsync(ulong threadId, ulong userId)
+            => this.ApiClient.RemoveThreadMemberAsync(threadId, userId);
 
-         /// <summary>
-         /// Lists the members of a thread.
-         /// </summary>
-         /// <param name="threadId">The id of the thread.</param>
-         public Task<IReadOnlyList<DiscordThreadChannelMember>> ListThreadMembersAsync(ulong threadId)
-             => this.ApiClient.ListThreadMembersAsync(threadId);
+        /// <summary>
+        /// Lists the members of a thread.
+        /// </summary>
+        /// <param name="threadId">The id of the thread.</param>
+        public Task<IReadOnlyList<DiscordThreadChannelMember>> ListThreadMembersAsync(ulong threadId)
+            => this.ApiClient.ListThreadMembersAsync(threadId);
 
-         /// <summary>
-         /// Lists the active threads of a guild.
-         /// </summary>
-         /// <param name="guildId">The id of the guild.</param>
-         public Task<ThreadQueryResult> ListActiveThreadAsync(ulong guildId)
-             => this.ApiClient.ListActiveThreadsAsync(guildId);
+        /// <summary>
+        /// Lists the active threads of a guild.
+        /// </summary>
+        /// <param name="guildId">The id of the guild.</param>
+        public Task<ThreadQueryResult> ListActiveThreadAsync(ulong guildId)
+            => this.ApiClient.ListActiveThreadsAsync(guildId);
 
-         /// <summary>
-         /// Gets the threads that are public and archived for a channel.
-         /// </summary>
-         /// <param name="guildId">The id of the guild.</param>
-         /// <param name="channelId">The id of the channel.</param>
-         /// <param name="before">Date to filter by.</param>
-         /// <param name="limit">Limit.</param>
-         public Task<ThreadQueryResult> ListPublicArchivedThreadsAsync(ulong guildId, ulong channelId, DateTimeOffset? before = null, int limit = 0)
-            => this.ApiClient.ListPublicArchivedThreadsAsync(guildId, channelId, (ulong?) before?.ToUnixTimeSeconds(), limit);
+        /// <summary>
+        /// Gets the threads that are public and archived for a channel.
+        /// </summary>
+        /// <param name="guildId">The id of the guild.</param>
+        /// <param name="channelId">The id of the channel.</param>
+        /// <param name="before">Date to filter by.</param>
+        /// <param name="limit">Limit.</param>
+        public Task<ThreadQueryResult> ListPublicArchivedThreadsAsync(ulong guildId, ulong channelId, DateTimeOffset? before = null, int limit = 0)
+           => this.ApiClient.ListPublicArchivedThreadsAsync(guildId, channelId, (ulong?)before?.ToUnixTimeSeconds(), limit);
 
-         /// <summary>
-         /// Gets the threads that are public and archived for a channel.
-         /// </summary>
-         /// <param name="guildId">The id of the guild.</param>
-         /// <param name="channelId">The id of the channel.</param>
-         /// <param name="before">Date to filter by.</param>
-         /// <param name="limit">Limit.</param>
-         public Task<ThreadQueryResult> ListPrivateArchivedThreadAsync(ulong guildId, ulong channelId, DateTimeOffset? before = null, int limit = 0)
-            => this.ApiClient.ListPrivateArchivedThreadsAsync(guildId, channelId, (ulong?) before?.ToUnixTimeSeconds(), limit);
+        /// <summary>
+        /// Gets the threads that are public and archived for a channel.
+        /// </summary>
+        /// <param name="guildId">The id of the guild.</param>
+        /// <param name="channelId">The id of the channel.</param>
+        /// <param name="before">Date to filter by.</param>
+        /// <param name="limit">Limit.</param>
+        public Task<ThreadQueryResult> ListPrivateArchivedThreadAsync(ulong guildId, ulong channelId, DateTimeOffset? before = null, int limit = 0)
+           => this.ApiClient.ListPrivateArchivedThreadsAsync(guildId, channelId, (ulong?)before?.ToUnixTimeSeconds(), limit);
 
-         /// <summary>
-         /// Gets the private archived threads the user has joined for a channel.
-         /// </summary>
-         /// <param name="guildId">The id of the guild.</param>
-         /// <param name="channelId">The id of the channel.</param>
-         /// <param name="before">Date to filter by.</param>
-         /// <param name="limit">Limit.</param>
-         public Task<ThreadQueryResult> ListJoinedPrivateArchivedThreadsAsync(ulong guildId, ulong channelId, DateTimeOffset? before = null, int limit = 0)
-            => this.ApiClient.ListJoinedPrivateArchivedThreadsAsync(guildId, channelId, (ulong?) before?.ToUnixTimeSeconds(), limit);
+        /// <summary>
+        /// Gets the private archived threads the user has joined for a channel.
+        /// </summary>
+        /// <param name="guildId">The id of the guild.</param>
+        /// <param name="channelId">The id of the channel.</param>
+        /// <param name="before">Date to filter by.</param>
+        /// <param name="limit">Limit.</param>
+        public Task<ThreadQueryResult> ListJoinedPrivateArchivedThreadsAsync(ulong guildId, ulong channelId, DateTimeOffset? before = null, int limit = 0)
+           => this.ApiClient.ListJoinedPrivateArchivedThreadsAsync(guildId, channelId, (ulong?)before?.ToUnixTimeSeconds(), limit);
 
         #endregion
 

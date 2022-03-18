@@ -35,7 +35,9 @@ namespace DSharpPlus.Net.Serialization
     {
         private static readonly JsonSerializer _serializer = JsonSerializer.CreateDefault(new JsonSerializerSettings
         {
-            ContractResolver = new OptionalJsonContractResolver()
+            ContractResolver = new OptionalJsonContractResolver(),
+            DateParseHandling = DateParseHandling.None,
+            Converters = new[] { new ISO8601DateTimeOffsetJsonConverter() }
         });
 
         /// <summary>Serializes the specified object to a JSON string.</summary>

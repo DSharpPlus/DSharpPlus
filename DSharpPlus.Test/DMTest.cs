@@ -29,8 +29,8 @@ namespace DSharpPlus.Test
 {
     public class DMTest : BaseCommandModule
     {
-        [Command]
-        public async Task DM(CommandContext ctx)
+        [Command("dm")]
+        public async Task DMAsync(CommandContext ctx)
         {
             await ctx.Member.CreateDmChannelAsync();
             await ctx.Message.CreateReactionAsync(DiscordEmoji.FromUnicode("👌🏽"));

@@ -21,7 +21,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
@@ -66,15 +65,15 @@ namespace DSharpPlus.Test
         }
 
         [Command("send_sticker")]
-        public async Task SendStickerAsync(CommandContext ctx)
+        public static async Task SendStickerAsync(CommandContext ctx)
         {
-            if (ctx.Message.Stickers.Count() is 0)
+            if (ctx.Message.Stickers.Count is 0)
             {
                 await ctx.RespondAsync("Send a sticker!");
                 return;
             }
 
-            var str = ctx.Message.Stickers.First();
+            var str = ctx.Message.Stickers[0];
 
             if (!ctx.Guild.Stickers.TryGetValue(str.Id, out _))
             {
@@ -82,8 +81,10 @@ namespace DSharpPlus.Test
                 return;
             }
 
-            var builder = new DiscordMessageBuilder();
-            builder.Sticker = str;
+            var builder = new DiscordMessageBuilder
+            {
+                Sticker = str
+            };
 
             await ctx.RespondAsync(builder);
         }

@@ -55,6 +55,8 @@ namespace DSharpPlus.Interactivity
 
         private ComponentEventWaiter ComponentEventWaiter;
 
+        private ModalEventWaiter ModalEventWaiter;
+
         private ReactionCollector ReactionCollector;
 
         private Poller Poller;
@@ -81,6 +83,7 @@ namespace DSharpPlus.Interactivity
             this.Paginator = new Paginator(this.Client);
             this._compPaginator = new(this.Client, this.Config);
             this.ComponentEventWaiter = new(this.Client, this.Config);
+            this.ModalEventWaiter = new(this.Client);
 
         }
 
@@ -112,6 +115,63 @@ namespace DSharpPlus.Interactivity
                 await m.DeleteAllReactionsAsync().ConfigureAwait(false);
 
             return new ReadOnlyCollection<PollEmoji>(res.ToList());
+        }
+
+        /// <summary>
+        /// Waits for a modal with the specified id to be submitted.
+        /// </summary>
+        /// <param name="modal_id">The id of the modal to wait for. Should be unique to avoid issues.</param>
+        /// <param name="timeoutOverride">Override the timeout period in <see cref="InteractivityConfiguration"/>.</param>
+        /// <returns>A <see cref="InteractivityResult{ModalSubmitEventArgs}"/> with a modal if the interactivity did not time out.</returns>
+        public Task<InteractivityResult<ModalSubmitEventArgs>> WaitForModalAsync(string modal_id, TimeSpan? timeoutOverride = null)
+            => this.WaitForModalAsync(modal_id, this.GetCancellationToken(timeoutOverride));
+
+        /// <summary>
+        /// Waits for a modal with the specified id to be submitted.
+        /// </summary>
+        /// <param name="modal_id">The id of the modal to wait for. Should be unique to avoid issues.</param>
+        /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
+        /// <returns>A <see cref="InteractivityResult{ModalSubmitEventArgs}"/> with a modal if the interactivity did not time out.</returns>
+        public async Task<InteractivityResult<ModalSubmitEventArgs>> WaitForModalAsync(string modal_id, CancellationToken token)
+        {
+            if (string.IsNullOrEmpty(modal_id) || modal_id.Length > 100)
+                throw new ArgumentException("Custom ID must be between 1 and 100 characters.");
+
+            var matchRequest = new ModalMatchRequest(modal_id,
+                    c => c.Interaction.Data.CustomId == modal_id, cancellation: token);
+            var result = await this.ModalEventWaiter.WaitForMatchAsync(matchRequest).ConfigureAwait(false);
+
+            return new(result is null, result);
+        }
+
+        /// <summary>
+        /// Waits for a modal with the specificed custom id to be submitted by the given user.
+        /// </summary>
+        /// <param name="modal_id">The id of the modal to wait for. Should be unique to avoid issues.</param>
+        /// <param name="user">The user to wait for the modal from.</param>
+        /// <param name="timeoutOverride">Override the timeout period in <see cref="InteractivityConfiguration"/>.</param>
+        /// <returns>A <see cref="InteractivityResult{ModalSubmitEventArgs}"/> with a modal if the interactivity did not time out.</returns>
+        public Task<InteractivityResult<ModalSubmitEventArgs>> WaitForModalAsync(string modal_id, DiscordUser user, TimeSpan? timeoutOverride = null)
+            => this.WaitForModalAsync(modal_id, user, this.GetCancellationToken(timeoutOverride));
+
+        /// <summary>
+        /// Waits for a modal with the specificed custom id to be submitted by the given user.
+        /// </summary>
+        /// <param name="modal_id">The id of the modal to wait for. Should be unique to avoid issues.</param>
+        /// <param name="user">The user to wait for the modal from.</param>
+        /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
+        /// <returns>A <see cref="InteractivityResult{ModalSubmitEventArgs}"/> with a modal if the interactivity did not time out.</returns>
+        public async Task<InteractivityResult<ModalSubmitEventArgs>> WaitForModalAsync(string modal_id, DiscordUser user, CancellationToken token)
+        {
+            if (string.IsNullOrEmpty(modal_id) || modal_id.Length > 100)
+                throw new ArgumentException("Custom ID must be between 1 and 100 characters.");
+
+            var matchRequest = new ModalMatchRequest(modal_id,
+                    c => c.Interaction.Data.CustomId == modal_id &&
+                    c.Interaction.User.Id == user.Id, cancellation: token);
+            var result = await this.ModalEventWaiter.WaitForMatchAsync(matchRequest).ConfigureAwait(false);
+
+            return new(result is null, result);
         }
 
         /// <summary>
@@ -596,7 +656,7 @@ namespace DSharpPlus.Interactivity
         {
             var timeout = timeoutoverride ?? this.Config.Timeout;
 
-            using var waiter = new EventWaiter<T>(this.Client);
+            var waiter = new EventWaiter<T>(this.Client);
             var res = await waiter.WaitForMatch(new MatchRequest<T>(predicate, timeout)).ConfigureAwait(false);
             return new InteractivityResult<T>(res == null, res);
         }

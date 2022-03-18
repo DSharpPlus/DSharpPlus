@@ -93,8 +93,10 @@ namespace DSharpPlus.Entities
         internal DiscordPresence(DiscordPresence other)
         {
             this.Discord = other.Discord;
-            this.Activity = new DiscordActivity(other.Activity);
-            this.RawActivity = new TransportActivity(this.Activity);
+            if (other.Activity != null)
+                this.Activity = new DiscordActivity(other.Activity);
+            if (other.Activity != null)
+                this.RawActivity = new TransportActivity(this.Activity);
             this._internalActivities = (DiscordActivity[])other._internalActivities?.Clone();
             this.RawActivities = (TransportActivity[])other.RawActivities?.Clone();
             this.Status = other.Status;

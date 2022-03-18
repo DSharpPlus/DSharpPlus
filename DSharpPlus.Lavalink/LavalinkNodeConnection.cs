@@ -34,6 +34,7 @@ using DSharpPlus.Exceptions;
 using DSharpPlus.Lavalink.Entities;
 using DSharpPlus.Lavalink.EventArgs;
 using DSharpPlus.Net;
+using DSharpPlus.Net.Serialization;
 using DSharpPlus.Net.WebSocket;
 using Emzi0767.Utilities;
 using Microsoft.Extensions.Logging;
@@ -360,19 +361,19 @@ namespace DSharpPlus.Lavalink
             {
                 case "playerUpdate":
                     var gid = (ulong)jsonData["guildId"];
-                    var state = jsonData["state"].ToObject<LavalinkState>();
+                    var state = jsonData["state"].ToDiscordObject<LavalinkState>();
                     if (this._connectedGuilds.TryGetValue(gid, out var lvl))
                         await lvl.InternalUpdatePlayerStateAsync(state).ConfigureAwait(false);
                     break;
 
                 case "stats":
-                    var statsRaw = jsonData.ToObject<LavalinkStats>();
+                    var statsRaw = jsonData.ToDiscordObject<LavalinkStats>();
                     this.Statistics.Update(statsRaw);
                     await this._statsReceived.InvokeAsync(this, new StatisticsReceivedEventArgs(this.Statistics)).ConfigureAwait(false);
                     break;
 
                 case "event":
-                    var evtype = jsonData["type"].ToObject<EventType>();
+                    var evtype = jsonData["type"].ToDiscordObject<EventType>();
                     var guildId = (ulong)jsonData["guildId"];
                     switch (evtype)
                     {
@@ -419,7 +420,7 @@ namespace DSharpPlus.Lavalink
                             if (this._connectedGuilds.TryGetValue(guildId, out var lvl_ewsce))
                             {
                                 lvl_ewsce.VoiceWsDisconnectTcs.SetResult(true);
-                                await lvl_ewsce.InternalWebSocketClosedAsync(new WebSocketCloseEventArgs(jsonData["code"].ToObject<int>(), jsonData["reason"].ToString(), jsonData["byRemote"].ToObject<bool>())).ConfigureAwait(false);
+                                await lvl_ewsce.InternalWebSocketClosedAsync(new WebSocketCloseEventArgs(jsonData["code"].ToDiscordObject<int>(), jsonData["reason"].ToString(), jsonData["byRemote"].ToDiscordObject<bool>())).ConfigureAwait(false);
                             }
                             break;
                     }

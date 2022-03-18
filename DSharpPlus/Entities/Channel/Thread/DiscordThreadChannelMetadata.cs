@@ -52,13 +52,8 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the time timestamp for when the thread's archive status was last changed.
         /// </summary>
-        [JsonIgnore]
-        public DateTimeOffset? ArchiveTimestamp
-            => !string.IsNullOrWhiteSpace(this.ArchiveTimestampRaw) && DateTimeOffset.TryParse(this.ArchiveTimestampRaw, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dto) ?
-                dto : null;
-
         [JsonProperty("archive_timestamp", NullValueHandling = NullValueHandling.Ignore)]
-        internal string ArchiveTimestampRaw { get; set; }
+        public DateTimeOffset? ArchiveTimestamp { get; internal set; }
 
         /// <summary>
         /// Gets whether this thread is locked or not.

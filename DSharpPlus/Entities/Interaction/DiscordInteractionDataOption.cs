@@ -68,6 +68,7 @@ namespace DSharpPlus.Entities
             ApplicationCommandOptionType.Role => ulong.Parse(this.InternalValue),
             ApplicationCommandOptionType.Mentionable => ulong.Parse(this.InternalValue),
             ApplicationCommandOptionType.Number => double.Parse(this.InternalValue, CultureInfo.InvariantCulture),
+            ApplicationCommandOptionType.Attachment => ulong.Parse(this.InternalValue, CultureInfo.InvariantCulture),
             _ => this.InternalValue,
         };
 

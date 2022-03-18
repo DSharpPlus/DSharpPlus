@@ -503,7 +503,9 @@ namespace DSharpPlus.SlashCommands
                 return ApplicationCommandOptionType.Mentionable;
             if (type.IsEnum || Nullable.GetUnderlyingType(type)?.IsEnum == true)
                 return ApplicationCommandOptionType.String;
-            throw new ArgumentException("Cannot convert type! Argument types must be string, long, bool, double, TimeSpan?, DiscordChannel, DiscordUser, DiscordRole, DiscordEmoji, SnowflakeObject or an Enum.");
+            if (type == typeof(DiscordAttachment))
+                return ApplicationCommandOptionType.Attachment;
+            throw new ArgumentException("Cannot convert type! Argument types must be string, long, bool, double, TimeSpan?, DiscordChannel, DiscordUser, DiscordRole, DiscordEmoji, DiscordAttachment, SnowflakeObject, or an Enum.");
         }
 
         //Gets choices from choice attributes
@@ -827,12 +829,13 @@ namespace DSharpPlus.SlashCommands
                 var parameter = parameters.ElementAt(i);
 
                 //Accounts for optional arguments without values given
-                if (parameter.IsOptional && (options == null ||
-                                             (!options?.Any(x => x.Name == parameter.GetCustomAttribute<OptionAttribute>().Name.ToLower()) ?? true)))
+                if (parameter.IsOptional && (!options?.Any(x =>
+                        x.Name.Equals(parameter.GetCustomAttribute<OptionAttribute>().Name, StringComparison.InvariantCultureIgnoreCase)) ?? true))
                     args.Add(parameter.DefaultValue);
                 else
                 {
-                    var option = options.Single(x => x.Name == parameter.GetCustomAttribute<OptionAttribute>().Name.ToLower());
+                    var option = options.Single(x =>
+                        x.Name.Equals(parameter.GetCustomAttribute<OptionAttribute>().Name, StringComparison.InvariantCultureIgnoreCase));
 
                     //Checks the type and casts/references resolved and adds the value to the list
                     //This can probably reference the slash command's type property that didn't exist when I wrote this and it could use a cleaner switch instead, but if it works it works
@@ -963,6 +966,17 @@ namespace DSharpPlus.SlashCommands
                         else
                             throw new ArgumentException("Error parsing emoji parameter.");
                     }
+                    else if (parameter.ParameterType == typeof(DiscordAttachment))
+                    {
+                        if (e.Interaction.Data.Resolved.Attachments?.ContainsKey((ulong)option.Value) ?? false)
+                        {
+                            var attachment = e.Interaction.Data.Resolved.Attachments[(ulong)option.Value];
+                            args.Add(attachment);
+                        }
+                        else
+                            this.Client.Logger.LogError("Missing attachment in resolved data. This is an issue with Discord.");
+                    }
+
                     else
                         throw new ArgumentException("Error resolving interaction.");
                 }

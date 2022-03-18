@@ -79,7 +79,7 @@ namespace DSharpPlus.Entities
             this.Author = other.Author;
             this.ChannelId = other.ChannelId;
             this.Content = other.Content;
-            this.EditedTimestampRaw = other.EditedTimestampRaw;
+            this.EditedTimestamp = other.EditedTimestamp;
             this.Id = other.Id;
             this.IsTTS = other.IsTTS;
             this.MessageType = other.MessageType;
@@ -130,30 +130,23 @@ namespace DSharpPlus.Entities
         /// Gets the message's creation timestamp.
         /// </summary>
         [JsonIgnore]
-        public DateTimeOffset Timestamp
-            => !string.IsNullOrWhiteSpace(this.TimestampRaw) && DateTimeOffset.TryParse(this.TimestampRaw, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dto) ?
-                dto : this.CreationTimestamp;
+        public DateTimeOffset Timestamp => this.TimestampRaw ?? this.CreationTimestamp;
 
         [JsonProperty("timestamp", NullValueHandling = NullValueHandling.Ignore)]
-        internal string TimestampRaw { get; set; }
+        internal DateTimeOffset? TimestampRaw { get; set; }
 
         /// <summary>
         /// Gets the message's edit timestamp. Will be null if the message was not edited.
         /// </summary>
-        [JsonIgnore]
-        public DateTimeOffset? EditedTimestamp
-            => !string.IsNullOrWhiteSpace(this.EditedTimestampRaw) && DateTimeOffset.TryParse(this.EditedTimestampRaw, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dto) ?
-                (DateTimeOffset?)dto : null;
-
         [JsonProperty("edited_timestamp", NullValueHandling = NullValueHandling.Ignore)]
-        internal string EditedTimestampRaw { get; set; }
+        public DateTimeOffset? EditedTimestamp { get; internal set; }
+
 
         /// <summary>
         /// Gets whether this message was edited.
         /// </summary>
         [JsonIgnore]
-        public bool IsEdited
-            => !string.IsNullOrWhiteSpace(this.EditedTimestampRaw);
+        public bool IsEdited => this.EditedTimestamp != null;
 
         /// <summary>
         /// Gets whether the message is a text-to-speech message.

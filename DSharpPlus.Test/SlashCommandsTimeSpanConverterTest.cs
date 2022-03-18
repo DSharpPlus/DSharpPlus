@@ -22,9 +22,6 @@
 // SOFTWARE.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.SlashCommands;
 
@@ -33,13 +30,10 @@ namespace DSharpPlus.Test
     public class SlashCommandsTimeSpanConverterTest : ApplicationCommandModule
     {
         [SlashCommand("timespanTest", "Command to test timespan parsing")]
-        public async Task TimeSpanTest(InteractionContext ctx, [Option("timespan", "Time span")] TimeSpan? timespan)
+        public async Task TimeSpanTestAsync(InteractionContext ctx, [Option("timespan", "Time span")] TimeSpan? timespan)
         {
             await ctx.DeferAsync();
             await ctx.EditResponseAsync(new Entities.DiscordWebhookBuilder().WithContent(timespan == null ? "Invalid time span" : timespan.ToString()));
-
         }
-
-
     }
 }

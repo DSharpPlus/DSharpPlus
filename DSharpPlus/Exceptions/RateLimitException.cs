@@ -30,23 +30,8 @@ namespace DSharpPlus.Exceptions
     /// <summary>
     /// Represents an exception thrown when too many requests are sent.
     /// </summary>
-    public class RateLimitException : Exception
+    public class RateLimitException : DiscordException
     {
-        /// <summary>
-        /// Gets the request that caused the exception.
-        /// </summary>
-        public BaseRestRequest WebRequest { get; internal set; }
-
-        /// <summary>
-        /// Gets the response to the request.
-        /// </summary>
-        public RestResponse WebResponse { get; internal set; }
-
-        /// <summary>
-        /// Gets the JSON received.
-        /// </summary>
-        public string JsonMessage { get; internal set; }
-
         internal RateLimitException(BaseRestRequest request, RestResponse response) : base("Rate limited: " + response.ResponseCode)
         {
             this.WebRequest = request;
