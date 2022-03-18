@@ -4,7 +4,7 @@ on:
 
 jobs:
   build_pr:
-    runs-on: "ubuntu-latest"
+    runs-on: "self-hosted"
     if: "!contains(toJSON(github.event.commits.*.message), '[ci-skip]')"
     steps:
       - name: "Checkout"

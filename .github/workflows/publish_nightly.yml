@@ -6,7 +6,7 @@ on:
 
 jobs:
   publish_nightly:
-    runs-on: "ubuntu-latest"
+    runs-on: "self-hosted"
     if: "!contains(toJSON(github.event.commits.*.message), '[ci-skip]')"
     steps:
       - name: "Checkout"
