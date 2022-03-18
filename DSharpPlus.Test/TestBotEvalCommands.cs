@@ -35,7 +35,7 @@ namespace DSharpPlus.Test
     public class TestBotEvalCommands : BaseCommandModule
     {
         [Command("eval"), Aliases("evalcs", "cseval", "roslyn"), Description("Evaluates C# code."), Hidden, RequireOwner]
-        public async Task EvalCS(CommandContext ctx, [RemainingText] string code)
+        public async Task EvalCSAsync(CommandContext ctx, [RemainingText] string code)
         {
             var msg = ctx.Message;
 

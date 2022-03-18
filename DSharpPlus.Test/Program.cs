@@ -37,10 +37,10 @@ namespace DSharpPlus.Test
         private static CancellationToken CancelToken => CancelTokenSource.Token;
         private static List<TestBot> Shards { get; } = new List<TestBot>();
 
-        public static void Main(string[] args)
-            => MainAsync(args).ConfigureAwait(false).GetAwaiter().GetResult();
+        public static void Main()
+            => MainAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
-        public static async Task MainAsync(string[] args)
+        public static async Task MainAsync()
         {
             Console.CancelKeyPress += Console_CancelKeyPress;
             var cfg = new TestBotConfig();

@@ -824,6 +824,17 @@ namespace DSharpPlus
         private AsyncEvent<DiscordClient, ComponentInteractionCreateEventArgs> _componentInteractionCreated;
 
         /// <summary>
+        /// Fired when a modal is submitted. If a modal is closed, this event is not fired.
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, ModalSubmitEventArgs> ModalSubmitted
+        {
+            add => this._modalSubmitted.Register(value);
+            remove => this._modalSubmitted.Unregister(value);
+        }
+
+        private AsyncEvent<DiscordClient, ModalSubmitEventArgs> _modalSubmitted;
+
+        /// <summary>
         /// Fired when a user uses a context menu.
         /// </summary>
         public event AsyncEventHandler<DiscordClient, ContextMenuInteractionCreateEventArgs> ContextMenuInteractionCreated

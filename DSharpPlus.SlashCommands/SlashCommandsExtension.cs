@@ -503,7 +503,9 @@ namespace DSharpPlus.SlashCommands
                 return ApplicationCommandOptionType.Mentionable;
             if (type.IsEnum || Nullable.GetUnderlyingType(type)?.IsEnum == true)
                 return ApplicationCommandOptionType.String;
-            throw new ArgumentException("Cannot convert type! Argument types must be string, long, bool, double, TimeSpan?, DiscordChannel, DiscordUser, DiscordRole, DiscordEmoji, SnowflakeObject or an Enum.");
+            if (type == typeof(DiscordAttachment))
+                return ApplicationCommandOptionType.Attachment;
+            throw new ArgumentException("Cannot convert type! Argument types must be string, long, bool, double, TimeSpan?, DiscordChannel, DiscordUser, DiscordRole, DiscordEmoji, DiscordAttachment, SnowflakeObject, or an Enum.");
         }
 
         //Gets choices from choice attributes
@@ -964,6 +966,17 @@ namespace DSharpPlus.SlashCommands
                         else
                             throw new ArgumentException("Error parsing emoji parameter.");
                     }
+                    else if (parameter.ParameterType == typeof(DiscordAttachment))
+                    {
+                        if (e.Interaction.Data.Resolved.Attachments?.ContainsKey((ulong)option.Value) ?? false)
+                        {
+                            var attachment = e.Interaction.Data.Resolved.Attachments[(ulong)option.Value];
+                            args.Add(attachment);
+                        }
+                        else
+                            this.Client.Logger.LogError("Missing attachment in resolved data. This is an issue with Discord.");
+                    }
+
                     else
                         throw new ArgumentException("Error resolving interaction.");
                 }
