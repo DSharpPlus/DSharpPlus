@@ -29,6 +29,9 @@ charset = utf-8
 # Organize usings
 dotnet_sort_system_directives_first = true:error
 
+# Yell at people when they don't include the file header template
+dotnet_diagnostic.IDE0073.severity = error
+
 # this. preferences
 dotnet_style_qualification_for_field = false:error
 dotnet_style_qualification_for_property = false:error
