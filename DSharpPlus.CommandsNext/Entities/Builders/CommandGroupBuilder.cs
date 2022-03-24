@@ -50,7 +50,7 @@ namespace DSharpPlus.CommandsNext.Builders
         /// Creates a new command group builder.
         /// </summary>
         /// <param name="module">Module on which this group is to be defined.</param>
-        public CommandGroupBuilder(ICommandModule module)
+        public CommandGroupBuilder(ICommandModule? module)
             : base(module)
         {
             this.ChildrenList = new List<CommandBuilder>();
@@ -68,7 +68,7 @@ namespace DSharpPlus.CommandsNext.Builders
             return this;
         }
 
-        internal override Command Build(CommandGroup parent)
+        internal override Command Build(CommandGroup? parent)
         {
             var cmd = new CommandGroup
             {

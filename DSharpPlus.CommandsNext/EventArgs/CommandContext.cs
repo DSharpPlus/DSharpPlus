@@ -39,12 +39,12 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets the client which received the message.
         /// </summary>
-        public DiscordClient Client { get; internal set; }
+        public DiscordClient Client { get; internal set; } = null!;
 
         /// <summary>
         /// Gets the message that triggered the execution.
         /// </summary>
-        public DiscordMessage Message { get; internal set; }
+        public DiscordMessage Message { get; internal set; } = null!;
 
         /// <summary>
         /// Gets the channel in which the execution was triggered,
@@ -67,53 +67,53 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets the member who triggered the execution. This property is null for commands sent over direct messages.
         /// </summary>
-        public DiscordMember Member
+        public DiscordMember? Member
             => this._lazyMember.Value;
 
-        private readonly Lazy<DiscordMember> _lazyMember;
+        private readonly Lazy<DiscordMember?> _lazyMember;
 
         /// <summary>
         /// Gets the CommandsNext service instance that handled this command.
         /// </summary>
-        public CommandsNextExtension CommandsNext { get; internal set; }
+        public CommandsNextExtension CommandsNext { get; internal set; } = null!;
 
         /// <summary>
         /// Gets the service provider for this CNext instance.
         /// </summary>
-        public IServiceProvider Services { get; internal set; }
+        public IServiceProvider Services { get; internal set; } = null!;
 
         /// <summary>
         /// Gets the command that is being executed.
         /// </summary>
-        public Command Command { get; internal set; }
+        public Command? Command { get; internal set; }
 
         /// <summary>
         /// Gets the overload of the command that is being executed.
         /// </summary>
-        public CommandOverload Overload { get; internal set; }
+        public CommandOverload Overload { get; internal set; } = null!;
 
         /// <summary>
         /// Gets the list of raw arguments passed to the command.
         /// </summary>
-        public IReadOnlyList<string> RawArguments { get; internal set; }
+        public IReadOnlyList<string> RawArguments { get; internal set; } = Array.Empty<string>();
 
         /// <summary>
         /// Gets the raw string from which the arguments were extracted.
         /// </summary>
-        public string RawArgumentString { get; internal set; }
+        public string RawArgumentString { get; internal set; } = string.Empty;
 
         /// <summary>
         /// Gets the prefix used to invoke the command.
         /// </summary>
-        public string Prefix { get; internal set; }
+        public string Prefix { get; internal set; } = string.Empty;
 
-        internal CommandsNextConfiguration Config { get; set; }
+        internal CommandsNextConfiguration Config { get; set; } = null!;
 
         internal ServiceContext ServiceScopeContext { get; set; }
 
         internal CommandContext()
         {
-            this._lazyMember = new Lazy<DiscordMember>(() => this.Guild != null && this.Guild.Members.TryGetValue(this.User.Id, out var member) ? member : this.Guild?.GetMemberAsync(this.User.Id).ConfigureAwait(false).GetAwaiter().GetResult());
+            this._lazyMember = new Lazy<DiscordMember?>(() => this.Guild is not null && this.Guild.Members.TryGetValue(this.User.Id, out var member) ? member : this.Guild?.GetMemberAsync(this.User.Id).ConfigureAwait(false).GetAwaiter().GetResult());
         }
 
         /// <summary>

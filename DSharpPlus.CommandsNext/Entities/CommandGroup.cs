@@ -37,12 +37,12 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets all the commands that belong to this module.
         /// </summary>
-        public IReadOnlyList<Command> Children { get; internal set; }
+        public IReadOnlyList<Command> Children { get; internal set; } = Array.Empty<Command>();
 
         /// <summary>
         /// Gets whether this command is executable without subcommands.
         /// </summary>
-        public bool IsExecutableWithoutSubcommands => this.Overloads?.Any() == true;
+        public bool IsExecutableWithoutSubcommands => this.Overloads.Count > 0;
 
         internal CommandGroup() : base() { }
 
@@ -64,8 +64,8 @@ namespace DSharpPlus.CommandsNext
                     false => (StringComparison.InvariantCultureIgnoreCase, StringComparer.InvariantCultureIgnoreCase)
                 };
                 var cmd = this.Children.FirstOrDefault(xc =>
-                    xc.Name.Equals(cn, comparison) || (xc.Aliases != null && xc.Aliases.Contains(cn, comparer)));
-                if (cmd != null)
+                    xc.Name.Equals(cn, comparison) || xc.Aliases.Contains(cn, comparer));
+                if (cmd is not null)
                 {
                     // pass the execution on
                     var xctx = new CommandContext

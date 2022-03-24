@@ -34,7 +34,7 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets this command overload's arguments.
         /// </summary>
-        public IReadOnlyList<CommandArgument> Arguments { get; internal set; }
+        public IReadOnlyList<CommandArgument> Arguments { get; internal set; } = Array.Empty<CommandArgument>();
 
         /// <summary>
         /// Gets this command overload's priority.
@@ -44,9 +44,9 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets this command overload's delegate.
         /// </summary>
-        internal Delegate Callable { get; set; }
+        internal Delegate Callable { get; set; } = null!;
 
-        internal object InvocationTarget { get; set; }
+        internal object? InvocationTarget { get; set; }
 
         internal CommandOverload() { }
     }

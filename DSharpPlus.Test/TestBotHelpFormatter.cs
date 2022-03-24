@@ -44,10 +44,10 @@ namespace DSharpPlus.Test
         {
             this.Content.Append(command.Description ?? "No description provided.").Append("\n\n");
 
-            if (command.Aliases?.Any() == true)
+            if (command.Aliases.Count > 0)
                 this.Content.Append("Aliases: ").Append(string.Join(", ", command.Aliases)).Append("\n\n");
 
-            if (command.Overloads?.Any() == true)
+            if (command.Overloads.Count > 0)
             {
                 var sb = new StringBuilder();
 
