@@ -110,9 +110,9 @@ namespace DSharpPlus.CommandsNext.Attributes
             }
         }
 
-        private bool MatchRoles<T>(IReadOnlyList<T> present, IEnumerable<T> passed, IEqualityComparer<T> comparer = null)
+        private bool MatchRoles<T>(IReadOnlyList<T> present, IEnumerable<T> passed, IEqualityComparer<T>? comparer = null)
         {
-            var intersect = passed.Intersect(present, comparer);
+            var intersect = passed.Intersect(present, comparer ?? EqualityComparer<T>.Default);
 
             return this.CheckMode switch
             {

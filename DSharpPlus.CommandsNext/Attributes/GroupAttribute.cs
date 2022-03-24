@@ -35,7 +35,7 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <summary>
         /// Gets the name of this group.
         /// </summary>
-        public string Name { get; }
+        public string? Name { get; }
 
         /// <summary>
         /// Marks this class as a command group, using the class' name as group name.

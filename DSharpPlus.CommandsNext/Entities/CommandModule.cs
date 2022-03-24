@@ -68,7 +68,7 @@ namespace DSharpPlus.CommandsNext.Entities
         /// <param name="services">Services to instantiate the module with.</param>
         /// <returns>Created module.</returns>
         public BaseCommandModule GetInstance(IServiceProvider services)
-            => this.ModuleType.CreateInstance(services) as BaseCommandModule;
+            => (BaseCommandModule)this.ModuleType.CreateInstance(services);
     }
 
     /// <summary>
@@ -94,7 +94,7 @@ namespace DSharpPlus.CommandsNext.Entities
         internal SingletonCommandModule(Type t, IServiceProvider services)
         {
             this.ModuleType = t;
-            this.Instance = t.CreateInstance(services) as BaseCommandModule;
+            this.Instance = (BaseCommandModule)t.CreateInstance(services);
         }
 
         /// <summary>

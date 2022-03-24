@@ -89,7 +89,7 @@ namespace DSharpPlus.CommandsNext.Attributes
         public TimeSpan GetRemainingCooldown(CommandContext ctx)
         {
             var bucket = this.GetBucket(ctx);
-            if (bucket == null)
+            if (bucket is null)
                 return TimeSpan.Zero;
 
             return bucket.RemainingUses > 0 ? TimeSpan.Zero : bucket.ResetsAt - DateTimeOffset.UtcNow;
@@ -281,7 +281,7 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// </summary>
         /// <param name="obj">Object to compare to.</param>
         /// <returns>Whether the object is equal to this <see cref="CommandCooldownBucket"/>.</returns>
-        public override bool Equals(object obj) => this.Equals(obj as CommandCooldownBucket);
+        public override bool Equals(object obj) => obj is CommandCooldownBucket cooldownBucket && this.Equals(cooldownBucket);
 
         /// <summary>
         /// Checks whether this <see cref="CommandCooldownBucket"/> is equal to another <see cref="CommandCooldownBucket"/>.

@@ -46,7 +46,7 @@ namespace DSharpPlus.CommandsNext.Builders
         /// <summary>
         /// Gets the collection of arguments this overload takes.
         /// </summary>
-        public IReadOnlyList<CommandArgument> Arguments { get; }
+        public IReadOnlyList<CommandArgument> Arguments { get; } = Array.Empty<CommandArgument>();
 
         /// <summary>
         /// Gets this overload's priority when picking a suitable one for execution.
@@ -58,7 +58,7 @@ namespace DSharpPlus.CommandsNext.Builders
         /// </summary>
         public Delegate Callable { get; set; }
 
-        private object InvocationTarget { get; }
+        private object? InvocationTarget { get; }
 
         /// <summary>
         /// Creates a new command overload builder from specified method.
@@ -76,7 +76,7 @@ namespace DSharpPlus.CommandsNext.Builders
             : this(method.GetMethodInfo(), method.Target)
         { }
 
-        private CommandOverloadBuilder(MethodInfo method, object target)
+        private CommandOverloadBuilder(MethodInfo method, object? target)
         {
             if (!method.IsCommandCandidate(out var prms))
                 throw new ArgumentException("Specified method is not suitable for a command.", nameof(method));

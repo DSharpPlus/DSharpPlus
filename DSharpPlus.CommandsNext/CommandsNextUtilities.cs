@@ -85,7 +85,7 @@ namespace DSharpPlus.CommandsNext
         }
 
         //internal static string ExtractNextArgument(string str, out string remainder)
-        internal static string ExtractNextArgument(this string str, ref int startPos)
+        internal static string? ExtractNextArgument(this string str, ref int startPos)
         {
             if (string.IsNullOrWhiteSpace(str))
                 return null;
@@ -195,7 +195,7 @@ namespace DSharpPlus.CommandsNext
             var command = ctx.Command;
             var overload = ctx.Overload;
 
-            var args = new object[overload.Arguments.Count + 2];
+            var args = new object?[overload.Arguments.Count + 2];
             args[1] = ctx;
             var rawArgumentList = new List<string>(overload.Arguments.Count);
 
@@ -226,7 +226,7 @@ namespace DSharpPlus.CommandsNext
                             break;
 
                         argValue = argString.Substring(foundAt).Trim();
-                        argValue = argValue == "" ? null : argValue;
+                        argValue = argValue == "" ? string.Empty : argValue;
                         foundAt = argString.Length;
 
                         rawArgumentList.Add(argValue);
@@ -236,16 +236,16 @@ namespace DSharpPlus.CommandsNext
                 else
                 {
                     argValue = ExtractNextArgument(argString, ref foundAt);
-                    rawArgumentList.Add(argValue);
+                    rawArgumentList.Add(argValue ?? string.Empty);
                 }
 
                 if (argValue == null && !arg.IsOptional && !arg.IsCatchAll)
                     return new ArgumentBindingResult(new ArgumentException("Not enough arguments supplied to the command."));
                 else if (argValue == null)
-                    rawArgumentList.Add(null);
+                    rawArgumentList.Add(string.Empty);
             }
 
-            if (!ignoreSurplus && foundAt < argString.Length)
+            if (!ignoreSurplus && foundAt < (argString ?? string.Empty).Length)
                 return new ArgumentBindingResult(new ArgumentException("Too many arguments were supplied to this command."));
 
             for (var i = 0; i < overload.Arguments.Count; i++)
@@ -321,7 +321,8 @@ namespace DSharpPlus.CommandsNext
 
         internal static bool IsCommandCandidate(this MethodInfo method, out ParameterInfo[] parameters)
         {
-            parameters = null;
+            parameters = Array.Empty<ParameterInfo>();
+
             // check if exists
             if (method == null)
                 return false;

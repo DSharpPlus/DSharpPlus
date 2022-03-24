@@ -39,7 +39,7 @@ namespace DSharpPlus.CommandsNext.Builders
         /// <summary>
         /// Gets the name set for this command.
         /// </summary>
-        public string Name { get; private set; }
+        public string Name { get; private set; } = null!;
 
         /// <summary>
         /// Gets the aliases set for this command.
@@ -50,7 +50,7 @@ namespace DSharpPlus.CommandsNext.Builders
         /// <summary>
         /// Gets the description set for this command.
         /// </summary>
-        public string Description { get; private set; }
+        public string? Description { get; private set; }
 
         /// <summary>
         /// Gets whether this command will be hidden or not.
@@ -73,7 +73,7 @@ namespace DSharpPlus.CommandsNext.Builders
         /// <summary>
         /// Gets the module on which this command is to be defined.
         /// </summary>
-        public ICommandModule Module { get; }
+        public ICommandModule? Module { get; }
 
         /// <summary>
         /// Gets custom attributes defined on this command.
@@ -92,7 +92,7 @@ namespace DSharpPlus.CommandsNext.Builders
         /// Creates a new command builder.
         /// </summary>
         /// <param name="module">Module on which this command is to be defined.</param>
-        public CommandBuilder(ICommandModule module)
+        public CommandBuilder(ICommandModule? module)
         {
             this.AliasList = new List<string>();
             this.Aliases = new ReadOnlyCollection<string>(this.AliasList);
@@ -261,11 +261,14 @@ namespace DSharpPlus.CommandsNext.Builders
             return this;
         }
 
-        internal virtual Command Build(CommandGroup parent)
+        internal virtual Command Build(CommandGroup? parent)
         {
             var cmd = new Command
             {
-                Name = this.Name,
+                Name = string.IsNullOrWhiteSpace(this.Name)
+                    ? throw new InvalidOperationException($"Cannot build a command with an invalid name. Use the method {nameof(this.WithName)} to set a valid name.")
+                    : this.Name,
+
                 Description = this.Description,
                 Aliases = this.Aliases,
                 ExecutionChecks = this.ExecutionChecks,

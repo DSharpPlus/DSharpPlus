@@ -35,7 +35,7 @@ namespace DSharpPlus.CommandsNext.Converters
     public class DefaultHelpFormatter : BaseHelpFormatter
     {
         public DiscordEmbedBuilder EmbedBuilder { get; }
-        private Command Command { get; set; }
+        private Command? Command { get; set; }
 
         /// <summary>
         /// Creates a new default help formatter.
@@ -63,10 +63,10 @@ namespace DSharpPlus.CommandsNext.Converters
             if (command is CommandGroup cgroup && cgroup.IsExecutableWithoutSubcommands)
                 this.EmbedBuilder.WithDescription($"{this.EmbedBuilder.Description}\n\nThis group can be executed as a standalone command.");
 
-            if (command.Aliases?.Any() == true)
+            if (command.Aliases.Count > 0)
                 this.EmbedBuilder.AddField("Aliases", string.Join(", ", command.Aliases.Select(Formatter.InlineCode)), false);
 
-            if (command.Overloads?.Any() == true)
+            if (command.Overloads.Count > 0)
             {
                 var sb = new StringBuilder();
 
@@ -98,7 +98,7 @@ namespace DSharpPlus.CommandsNext.Converters
         /// <returns>This help formatter.</returns>
         public override BaseHelpFormatter WithSubcommands(IEnumerable<Command> subcommands)
         {
-            this.EmbedBuilder.AddField(this.Command != null ? "Subcommands" : "Commands", string.Join(", ", subcommands.Select(x => Formatter.InlineCode(x.Name))), false);
+            this.EmbedBuilder.AddField(this.Command is not null ? "Subcommands" : "Commands", string.Join(", ", subcommands.Select(x => Formatter.InlineCode(x.Name))), false);
 
             return this;
         }
@@ -109,7 +109,7 @@ namespace DSharpPlus.CommandsNext.Converters
         /// <returns>Data for the help message.</returns>
         public override CommandHelpMessage Build()
         {
-            if (this.Command == null)
+            if (this.Command is null)
                 this.EmbedBuilder.WithDescription("Listing all top-level commands and groups. Specify a command to see more information.");
 
             return new CommandHelpMessage(embed: this.EmbedBuilder.Build());

@@ -54,13 +54,13 @@ namespace DSharpPlus.CommandsNext
         /// <para>Sets the string prefixes used for commands.</para>
         /// <para>Defaults to no value (disabled).</para>
         /// </summary>
-        public IEnumerable<string> StringPrefixes { internal get; set; }
+        public IEnumerable<string> StringPrefixes { internal get; set; } = Enumerable.Empty<string>();
 
         /// <summary>
         /// <para>Sets the custom prefix resolver used for commands.</para>
         /// <para>Defaults to none (disabled).</para>
         /// </summary>
-        public PrefixResolverDelegate PrefixResolver { internal get; set; } = null;
+        public PrefixResolverDelegate? PrefixResolver { internal get; set; } = null;
 
         /// <summary>
         /// <para>Sets whether to allow mentioning the bot to be used as command prefix.</para>
@@ -98,7 +98,7 @@ namespace DSharpPlus.CommandsNext
         /// <para>Only applicable if default help is enabled.</para>
         /// <para>Defaults to null.</para>
         /// </summary>
-        public IEnumerable<CheckBaseAttribute> DefaultHelpChecks { internal get; set; } = null;
+        public IEnumerable<CheckBaseAttribute> DefaultHelpChecks { internal get; set; } = Enumerable.Empty<CheckBaseAttribute>();
 
         /// <summary>
         /// <para>Sets whether commands sent via direct messages should be processed.</para>
@@ -158,7 +158,7 @@ namespace DSharpPlus.CommandsNext
             this.IgnoreExtraArguments = other.IgnoreExtraArguments;
             this.UseDefaultCommandHandler = other.UseDefaultCommandHandler;
             this.Services = other.Services;
-            this.StringPrefixes = other.StringPrefixes?.ToArray();
+            this.StringPrefixes = other.StringPrefixes.ToArray();
             this.DmHelp = other.DmHelp;
             this.DefaultParserCulture = other.DefaultParserCulture;
             this.CommandExecutor = other.CommandExecutor;

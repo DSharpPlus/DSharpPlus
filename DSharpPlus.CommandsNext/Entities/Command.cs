@@ -38,28 +38,28 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets this command's name.
         /// </summary>
-        public string Name { get; internal set; }
+        public string Name { get; internal set; } = string.Empty;
 
         /// <summary>
         /// Gets this command's qualified name (i.e. one that includes all module names).
         /// </summary>
         public string QualifiedName
-            => this.Parent != null ? string.Concat(this.Parent.QualifiedName, " ", this.Name) : this.Name;
+            => this.Parent is not null ? string.Concat(this.Parent.QualifiedName, " ", this.Name) : this.Name;
 
         /// <summary>
         /// Gets this command's aliases.
         /// </summary>
-        public IReadOnlyList<string> Aliases { get; internal set; }
+        public IReadOnlyList<string> Aliases { get; internal set; } = Array.Empty<string>();
 
         /// <summary>
         /// Gets this command's parent module, if any.
         /// </summary>
-        public CommandGroup Parent { get; internal set; }
+        public CommandGroup? Parent { get; internal set; }
 
         /// <summary>
         /// Gets this command's description.
         /// </summary>
-        public string Description { get; internal set; }
+        public string? Description { get; internal set; }
 
         /// <summary>
         /// Gets whether this command is hidden.
@@ -69,22 +69,22 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets a collection of pre-execution checks for this command.
         /// </summary>
-        public IReadOnlyList<CheckBaseAttribute> ExecutionChecks { get; internal set; }
+        public IReadOnlyList<CheckBaseAttribute> ExecutionChecks { get; internal set; } = Array.Empty<CheckBaseAttribute>();
 
         /// <summary>
         /// Gets a collection of this command's overloads.
         /// </summary>
-        public IReadOnlyList<CommandOverload> Overloads { get; internal set; }
+        public IReadOnlyList<CommandOverload> Overloads { get; internal set; } = Array.Empty<CommandOverload>();
 
         /// <summary>
         /// Gets the module in which this command is defined.
         /// </summary>
-        public ICommandModule Module { get; internal set; }
+        public ICommandModule? Module { get; internal set; }
 
         /// <summary>
         /// Gets the custom attributes defined on this command.
         /// </summary>
-        public IReadOnlyList<Attribute> CustomAttributes { get; internal set; }
+        public IReadOnlyList<Attribute> CustomAttributes { get; internal set; } = Array.Empty<Attribute>();
 
         internal Command() { }
 
@@ -153,7 +153,7 @@ namespace DSharpPlus.CommandsNext
         public async Task<IEnumerable<CheckBaseAttribute>> RunChecksAsync(CommandContext ctx, bool help)
         {
             var fchecks = new List<CheckBaseAttribute>();
-            if (this.ExecutionChecks != null && this.ExecutionChecks.Any())
+            if (this.ExecutionChecks.Any())
                 foreach (var ec in this.ExecutionChecks)
                     if (!await ec.ExecuteCheckAsync(ctx, help).ConfigureAwait(false))
                         fchecks.Add(ec);

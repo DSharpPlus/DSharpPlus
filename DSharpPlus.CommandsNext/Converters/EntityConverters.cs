@@ -181,19 +181,19 @@ namespace DSharpPlus.CommandsNext.Converters
 #endif
         }
 
-        async Task<Optional<DiscordThreadChannel>> IArgumentConverter<DiscordThreadChannel>.ConvertAsync(string value, CommandContext ctx)
+        Task<Optional<DiscordThreadChannel>> IArgumentConverter<DiscordThreadChannel>.ConvertAsync(string value, CommandContext ctx)
         {
             if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var threadId))
             {
                 var result = ctx.Client.InternalGetCachedThread(threadId);
-                return result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordThreadChannel>();
+                return Task.FromResult(result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordThreadChannel>());
             }
 
             var m = ThreadRegex.Match(value);
             if (m.Success && ulong.TryParse(m.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out threadId))
             {
                 var result = ctx.Client.InternalGetCachedThread(threadId);
-                return result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordThreadChannel>();
+                return Task.FromResult(result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordThreadChannel>());
             }
 
             var cs = ctx.Config.CaseSensitive;
@@ -201,7 +201,7 @@ namespace DSharpPlus.CommandsNext.Converters
             var thread = ctx.Guild?.Threads.Values.FirstOrDefault(xt =>
                 xt.Name.Equals(value, cs ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase));
 
-            return thread != null ? Optional.FromValue(thread) : Optional.FromNoValue<DiscordThreadChannel>();
+            return Task.FromResult(thread != null ? Optional.FromValue(thread) : Optional.FromNoValue<DiscordThreadChannel>());
         }
     }
 

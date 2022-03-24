@@ -35,7 +35,7 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <summary>
         /// Gets the name of this command.
         /// </summary>
-        public string Name { get; }
+        public string? Name { get; }
 
         /// <summary>
         /// Marks this method as a command, using the method's name as command name.
