@@ -29,13 +29,9 @@ namespace DSharpPlus.Core.JsonConverters
 {
     internal class DiscordSnowflakeConverter : JsonConverter<DiscordSnowflake>
     {
-        public override DiscordSnowflake? ReadJson(JsonReader reader, Type objectType, DiscordSnowflake? existingValue, bool hasExistingValue, JsonSerializer serializer)
-        {
-            if (reader.TokenType == JsonToken.Null)
-                return null;
-
-            return ulong.TryParse(reader.Value!.ToString(), out var snowflake) ? new DiscordSnowflake(snowflake) : null;
-        }
+        public override DiscordSnowflake? ReadJson(JsonReader reader, Type objectType, DiscordSnowflake? existingValue, bool hasExistingValue, JsonSerializer serializer) => reader.TokenType == JsonToken.Null
+            ? null
+            : ulong.TryParse(reader.Value!.ToString(), out var snowflake) ? new DiscordSnowflake(snowflake) : null;
 
         public override void WriteJson(JsonWriter writer, DiscordSnowflake? value, JsonSerializer serializer) => writer.WriteValue(value?.ToString());
     }

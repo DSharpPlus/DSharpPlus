@@ -39,7 +39,7 @@ namespace DSharpPlus.Core.Entities
         /// <summary>
         /// The first second of 2015. The date Discord officially recognizes as it's epoch.
         /// </summary>
-        public static readonly DateTimeOffset DiscordEpoch = new (2015, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        public static readonly DateTimeOffset DiscordEpoch = new(2015, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
         /// <summary>
         /// A numerical representation of the snowflake.
@@ -72,11 +72,11 @@ namespace DSharpPlus.Core.Entities
         /// <param name="value">The numerical representation to translate from.</param>
         public DiscordSnowflake(ulong value)
         {
-            this.Value = value;
-            this.Timestamp = DiscordEpoch.AddMilliseconds(value >> 22);
-            this.InternalWorkerId = (byte)((value & 0x3E0000) >> 17);
-            this.InternalProcessId = (byte)((value & 0x1F000) >> 12);
-            this.InternalIncrement = (ushort)(value & 0xFFF);
+            Value = value;
+            Timestamp = DiscordEpoch.AddMilliseconds(value >> 22);
+            InternalWorkerId = (byte)((value & 0x3E0000) >> 17);
+            InternalProcessId = (byte)((value & 0x1F000) >> 12);
+            InternalIncrement = (ushort)(value & 0xFFF);
         }
 
         /// <summary>
@@ -93,20 +93,20 @@ namespace DSharpPlus.Core.Entities
             processId ??= (byte)Random.Shared.Next(1, 32);
             increment ??= (ushort)Random.Shared.Next(1, 4095);
 
-            this.Timestamp = timestamp.Value;
-            this.InternalWorkerId = workerId.Value;
-            this.InternalProcessId = processId.Value;
-            this.InternalIncrement = increment.Value;
+            Timestamp = timestamp.Value;
+            InternalWorkerId = workerId.Value;
+            InternalProcessId = processId.Value;
+            InternalIncrement = increment.Value;
 
-            this.Value = (((uint)timestamp.Value.Subtract(DiscordEpoch).TotalMilliseconds) << 22)
+            Value = (((uint)timestamp.Value.Subtract(DiscordEpoch).TotalMilliseconds) << 22)
                 | ((ulong)workerId.Value << 17)
                 | ((ulong)processId.Value << 12)
                 | increment.Value;
         }
 
-        public override string ToString() => this.Value.ToString(CultureInfo.InvariantCulture);
-        public override int GetHashCode() => HashCode.Combine(this.Value, Timestamp, InternalWorkerId, InternalProcessId, InternalIncrement);
-        public int CompareTo(DiscordSnowflake? other) => other is null ? 1 : this.Value.CompareTo(other.Value);
+        public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
+        public override int GetHashCode() => HashCode.Combine(Value, Timestamp, InternalWorkerId, InternalProcessId, InternalIncrement);
+        public int CompareTo(DiscordSnowflake? other) => other is null ? 1 : Value.CompareTo(other.Value);
 
         public static bool operator <(DiscordSnowflake left, DiscordSnowflake right) => left is null ? right is not null : left.CompareTo(right) < 0;
         public static bool operator <=(DiscordSnowflake left, DiscordSnowflake right) => left is null || left.CompareTo(right) <= 0;
