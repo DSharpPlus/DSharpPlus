@@ -28,7 +28,9 @@ As of the time of writing, there are no examples or bots written in v5. Come bac
 
 # Support
 You can ask for support over at our Discord:
+
 ![DSharpPlus Discord Guild Invite](https://discord.com/api/guilds/379378609942560770/embed.png?style=banner2)
 
 Alternatively you can join the Discord API guild (Not Discord Developers) and ask in the #dotnet_dsharpplus channel:
+
 ![Discord API Guild Invite](https://discord.com/api/guilds/81384788765712384/embed.png?style=banner2)

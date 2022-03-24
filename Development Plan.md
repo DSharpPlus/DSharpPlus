@@ -48,8 +48,8 @@ Everyone wants to rewrite the current extensions. We've received several verbal 
 
 | Extension Name | Purpose |
 | --- | --- |
-| CommandsNext | Text-Based commands, such as `!ping` |
-| SlashCommands | Contains everything related to interactions. Slash commands, user and message (not text!) commands, buttons and modals. |
+| TextCommands | Text-Based commands, such as `!ping` |
+| InteractionCommands | Contains everything related to interactions. Slash commands, user and message (not text!) commands, buttons and modals. |
 | Interactivity | Contains asynchronous methods that usually involves waiting (I.E, next message on channel, interactable help menus that use buttons and waiting for modal input) |
 | VoiceNext | An extension that allows interfacing with voice channels, capable of both receiving and sending packets. |
 | MixedCommands | A mix of both text and slash commands, additionally accounting for whatever new forms of user input that Discord brings to the table. |
