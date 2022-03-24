@@ -5,7 +5,7 @@ An unofficial wrapper for the Discord API, written in C#.
 # Warnings
 Version 5.0 isn't done yet! It's not even in a working state. You're welcome to contribute, however it's recommended to use v4 for now.
 
-If you wish to contribute to v5, please follow our [Contributing Guidelines](./CONTRIBUTING.md) and look at our [Development Plan](./Development\ Plan.md). If you want to help, but unsure how, you're welcome to join the [Discord](https://discord.gg/dsharpplus) and ask "How can I help with v5" in #lib-discussion.
+If you wish to contribute to v5, please follow our [Contributing Guidelines](./CONTRIBUTING.md) and look at our [Development Plan](./Development%20Plan.md). If you want to help, but unsure how, you're welcome to join the [Discord](https://discord.gg/dsharpplus) and ask "How can I help with v5" in #lib-discussion.
 
 # Installing
 1. You can get both the stable and pre-release versions from [Nuget](https://nuget.org/packages/DSharpPlus). Pre-releases reflect the latest git commit. While each commit is thoroughly tested, there are no promises for there not to be breaking changes. It's recommended to test your nightly upgrades before using them in production.
