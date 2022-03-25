@@ -202,8 +202,11 @@ namespace DSharpPlus.SlashCommands
 
                                 var options = await this.ParseParameters(parameters, guildId);
 
+                                var nameLocalizations = this.GetNameLocalizations(submethod);
+                                var descriptionLocalizations = this.GetDescriptionLocalizations(submethod);
+
                                 //Creates the subcommand and adds it to the main command
-                                var subpayload = new DiscordApplicationCommandOption(commandAttribute.Name, commandAttribute.Description, ApplicationCommandOptionType.SubCommand, null, null, options);
+                                var subpayload = new DiscordApplicationCommandOption(commandAttribute.Name, commandAttribute.Description, ApplicationCommandOptionType.SubCommand, null, null, options, name_localizations: nameLocalizations, description_localizations: descriptionLocalizations);
                                 payload = new DiscordApplicationCommand(payload.Name, payload.Description, payload.Options?.Append(subpayload) ?? new[] { subpayload }, payload.DefaultPermission);
 
                                 //Adds it to the method lists
@@ -234,8 +237,13 @@ namespace DSharpPlus.SlashCommands
                                     parameters = parameters.Skip(1).ToArray();
                                     suboptions = suboptions.Concat(await this.ParseParameters(parameters, guildId)).ToList();
 
-                                    var subsubpayload = new DiscordApplicationCommandOption(commatt.Name, commatt.Description, ApplicationCommandOptionType.SubCommand, null, null, suboptions);
+                                    var nameLocalizations = this.GetNameLocalizations(subsubmethod);
+                                    var descriptionLocalizations = this.GetDescriptionLocalizations(subsubmethod);
+
+                                    var subsubpayload = new DiscordApplicationCommandOption(commatt.Name, commatt.Description, ApplicationCommandOptionType.SubCommand, null, null, suboptions, name_localizations: nameLocalizations, description_localizations: descriptionLocalizations);
                                     options.Add(subsubpayload);
+
+
                                     commandmethods.Add(new(commatt.Name, subsubmethod));
                                     currentMethods.Add(new(commatt.Name, subsubmethod));
                                 }
@@ -286,7 +294,10 @@ namespace DSharpPlus.SlashCommands
 
                                 commandMethods.Add(new() { Method = method, Name = commandattribute.Name });
 
-                                var payload = new DiscordApplicationCommand(commandattribute.Name, commandattribute.Description, options, commandattribute.DefaultPermission);
+                                var nameLocalizations = this.GetNameLocalizations(method);
+                                var descriptionLocalizations = this.GetDescriptionLocalizations(method);
+
+                                var payload = new DiscordApplicationCommand(commandattribute.Name, commandattribute.Description, options, commandattribute.DefaultPermission, name_localizations: nameLocalizations, description_localizations: descriptionLocalizations);
                                 updateList.Add(payload);
                             }
 
@@ -413,15 +424,31 @@ namespace DSharpPlus.SlashCommands
                 var minimum = parameter.GetCustomAttribute<MinimumAttribute>()?.Value ?? null;
                 var maximum = parameter.GetCustomAttribute<MaximumAttribute>()?.Value ?? null;
 
+                var nameLocalizations = this.GetNameLocalizations(parameter);
+                var descriptionLocalizations = this.GetDescriptionLocalizations(parameter);
+
                 var autocompleteAttribute = parameter.GetCustomAttribute<AutocompleteAttribute>();
                 if (autocompleteAttribute != null && autocompleteAttribute.Provider.GetMethod(nameof(IAutocompleteProvider.Provider)) == null)
                     throw new ArgumentException("Autocomplete providers must inherit from IAutocompleteProvider.");
 
-                options.Add(new DiscordApplicationCommandOption(optionattribute.Name, optionattribute.Description, parametertype, !parameter.IsOptional, choices, null, channelTypes, (autocompleteAttribute != null || optionattribute.Autocomplete), minimum, maximum));
+                options.Add(new DiscordApplicationCommandOption(optionattribute.Name, optionattribute.Description, parametertype, !parameter.IsOptional, choices, null, channelTypes, (autocompleteAttribute != null || optionattribute.Autocomplete), minimum, maximum, nameLocalizations, descriptionLocalizations));
             }
 
             return options;
         }
+
+        private IReadOnlyDictionary<string, string> GetNameLocalizations(ICustomAttributeProvider method)
+        {
+            var nameAttributes = (NameLocalizationAttribute[])method.GetCustomAttributes(typeof(NameLocalizationAttribute), false);
+            return nameAttributes.ToDictionary(nameAttribute => nameAttribute.Locale, nameAttribute => nameAttribute.Name);
+        }
+
+        private IReadOnlyDictionary<string, string> GetDescriptionLocalizations(ICustomAttributeProvider method)
+        {
+            var descriptionAttributes = (DescriptionLocalizationAttribute[])method.GetCustomAttributes(typeof(DescriptionLocalizationAttribute), false);
+            return descriptionAttributes.ToDictionary(descriptionAttribute => descriptionAttribute.Locale, descriptionAttribute => descriptionAttribute.Description);
+        }
+
 
         //Gets the choices from a choice provider
         private async Task<List<DiscordApplicationCommandOptionChoice>> GetChoiceAttributesFromProvider(
