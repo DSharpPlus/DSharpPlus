@@ -33,7 +33,6 @@ namespace DSharpPlus.SlashCommands
     {
         AmericanEnglish,
         BritishEnglish,
-        PeurtoRicoEnglish,
         Bulgarian,
         Chinese,
         Taiwanese,
