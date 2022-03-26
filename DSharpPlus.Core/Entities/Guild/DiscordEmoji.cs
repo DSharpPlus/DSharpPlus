@@ -35,13 +35,13 @@ namespace DSharpPlus.Core.Entities
         /// The emoji's Id.
         /// </summary>
         [JsonPropertyName("id")]
-        public DiscordSnowflake Id { get; init; } = null!;
+        public DiscordSnowflake? Id { get; init; } = null!;
 
         /// <summary>
         /// The emoji's name.
         /// </summary>
         [JsonPropertyName("name")]
-        public string Name { get; private set; } = null!;
+        public string? Name { get; private set; } = null!;
 
         /// <summary>
         /// The roles allowed to use this emoji.
