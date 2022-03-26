@@ -79,15 +79,14 @@ namespace DSharpPlus.Core.Entities
         /// The user's banner hash.
         /// </summary>
         [JsonPropertyName("banner")]
-        public Optional<string> BannerHash { get; private set; }
+        public Optional<string?> BannerHash { get; private set; }
 
         /// <summary>
         /// The user's banner color.
         /// </summary>
         [JsonPropertyName("accent_color")]
-        public Optional<Color?> AccentColor { get; private set; }
+        public Optional<int?> AccentColor { get; private set; }
 
-        // TODO: Can probably be serialized to a class or dictionary. See https://discord.com/developers/docs/reference#locales
         /// <summary>
         /// The user's chosen language option.
         /// </summary>
@@ -129,7 +128,7 @@ namespace DSharpPlus.Core.Entities
 
         public override int GetHashCode()
         {
-            HashCode hash = new HashCode();
+            HashCode hash = new();
             hash.Add(Id);
             hash.Add(Username);
             hash.Add(Discriminator);

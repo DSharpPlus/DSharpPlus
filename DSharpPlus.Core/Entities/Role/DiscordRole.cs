@@ -49,7 +49,7 @@ namespace DSharpPlus.Core.Entities
         /// The color of the role.
         /// </summary>
         [JsonPropertyName("color")]
-        public Color Color { get; private set; }
+        public int Color { get; private set; }
 
         /// <summary>
         /// If this role is pinned in the user listing.
@@ -103,7 +103,7 @@ namespace DSharpPlus.Core.Entities
 
         public override int GetHashCode()
         {
-            HashCode hash = new HashCode();
+            HashCode hash = new();
             hash.Add(Id);
             hash.Add(Name);
             hash.Add(Color);
