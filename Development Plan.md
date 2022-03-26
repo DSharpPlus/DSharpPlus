@@ -52,7 +52,7 @@ Everyone wants to rewrite the current extensions. We've received several verbal 
 | InteractionCommands | Contains everything related to interactions. Slash commands, user and message (not text!) commands, buttons and modals. |
 | Interactivity | Contains asynchronous methods that usually involves waiting (I.E, next message on channel, interactable help menus that use buttons and waiting for modal input) |
 | VoiceNext | An extension that allows interfacing with voice channels, capable of both receiving and sending packets. |
-| MixedCommands | A mix of both text and slash commands, additionally accounting for whatever new forms of user input that Discord brings to the table. |
+| HybridCommands | A mix of both text and slash commands, additionally accounting for whatever new forms of user input that Discord brings to the table. |
 
 There are no other extensions currently planned, however, the extensions API will be focused on a bit more. It is still undecided on whether the extensions API will reflect `DSharpPlus.Core`, `DSharpPlus.Abstraction`, or both.
 # That's it!
