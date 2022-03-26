@@ -117,7 +117,7 @@ namespace DSharpPlus.Core.Entities
 
         public override int GetHashCode()
         {
-            var hash = new HashCode();
+            HashCode hash = new HashCode();
             hash.Add(User);
             hash.Add(Nickname);
             hash.Add(GuildAvatarHash);

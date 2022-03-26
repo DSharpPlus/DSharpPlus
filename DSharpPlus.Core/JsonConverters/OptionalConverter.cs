@@ -34,8 +34,8 @@ namespace DSharpPlus.Core.JsonConverters
         public override bool CanConvert(Type objectType) => typeof(Optional<>).IsAssignableFrom(objectType);
         public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
-            var genericType = objectType.GenericTypeArguments[0];
-            var constructor = objectType.GetTypeInfo().DeclaredConstructors.FirstOrDefault(e => e.GetParameters()[0].ParameterType == genericType);
+            Type? genericType = objectType.GenericTypeArguments[0];
+            ConstructorInfo? constructor = objectType.GetTypeInfo().DeclaredConstructors.FirstOrDefault(e => e.GetParameters()[0].ParameterType == genericType);
             return constructor!.Invoke(new[] { serializer.Deserialize(reader, genericType) });
         }
 
@@ -46,7 +46,7 @@ namespace DSharpPlus.Core.JsonConverters
                 writer.WriteNull();
             }
 
-            var optional = (Optional<object>)value!;
+            Optional<object> optional = (Optional<object>)value!;
             if (!optional.HasValue)
             {
                 writer.WriteNull();
