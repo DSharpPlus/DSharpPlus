@@ -103,7 +103,7 @@ namespace DSharpPlus.Core.Entities
 
         public override int GetHashCode()
         {
-            var hash = new HashCode();
+            HashCode hash = new HashCode();
             hash.Add(Id);
             hash.Add(Name);
             hash.Add(Color);
