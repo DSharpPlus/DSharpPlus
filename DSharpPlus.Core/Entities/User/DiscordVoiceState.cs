@@ -38,7 +38,7 @@ namespace DSharpPlus.Core.Entities
         /// The channel id this user is connected to.
         /// </summary>
         [JsonPropertyName("channel_id")]
-        public Optional<DiscordSnowflake> ChannelId { get; init; }
+        public DiscordSnowflake? ChannelId { get; init; }
 
         /// <summary>
         /// The user id this voice state is for.
@@ -104,6 +104,6 @@ namespace DSharpPlus.Core.Entities
         /// The time at which the user requested to speak.
         /// </summary>
         [JsonPropertyName("request_to_speak_timestamp")]
-        public Optional<DateTimeOffset> RequestedToSpeakAt { get; private set; }
+        public DateTimeOffset? RequestedToSpeakAt { get; private set; }
     }
 }

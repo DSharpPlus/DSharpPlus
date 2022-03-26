@@ -45,13 +45,13 @@ namespace DSharpPlus.Core.Entities
         /// This user's guild nickname.
         /// </summary>
         [JsonPropertyName("nick")]
-        public Optional<string> Nickname { get; private set; }
+        public Optional<string?> Nickname { get; private set; }
 
         /// <summary>
         /// The member's guild avatar hash.
         /// </summary>
         [JsonPropertyName("avatar")]
-        public Optional<string> GuildAvatarHash { get; private set; }
+        public Optional<string?> GuildAvatarHash { get; private set; }
 
         /// <summary>
         /// Array of <see href="https://discord.com/developers/docs/topics/permissions#role-object">role</see> object ids.
@@ -80,14 +80,20 @@ namespace DSharpPlus.Core.Entities
         /// <summary>
         /// Whether the user is deafened in voice channels.
         /// </summary>
+        /// <remarks>
+        /// This could be a self deafen, or a server deafen.
+        /// </remarks>
         [JsonPropertyName("deaf")]
-        public bool IsSelfDeafened { get; private set; }
+        public bool IsDeafened { get; private set; }
 
         /// <summary>
         /// Whether the user is muted in voice channels.
         /// </summary>
+        /// <remarks>
+        /// This could be a self mute, or a server mute.
+        /// </remarks>
         [JsonPropertyName("mute")]
-        public bool IsSelfMuted { get; private set; }
+        public bool IsMuted { get; private set; }
 
         /// <summary>
         /// Whether the user has not yet passed the guild's <see href="https://discord.com/developers/docs/resources/guild#membership-screening-object">Membership Screening</see> requirements.
@@ -117,15 +123,15 @@ namespace DSharpPlus.Core.Entities
 
         public override int GetHashCode()
         {
-            HashCode hash = new HashCode();
+            HashCode hash = new();
             hash.Add(User);
             hash.Add(Nickname);
             hash.Add(GuildAvatarHash);
             hash.Add(RoleIds);
             hash.Add(JoinedAt);
             hash.Add(PremiumSince);
-            hash.Add(IsSelfDeafened);
-            hash.Add(IsSelfMuted);
+            hash.Add(IsDeafened);
+            hash.Add(IsMuted);
             hash.Add(IsPending);
             hash.Add(InteractionPermissions);
             hash.Add(CommunicationDisabledUntil);
