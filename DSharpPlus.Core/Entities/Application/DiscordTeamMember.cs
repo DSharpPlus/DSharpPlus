@@ -26,7 +26,7 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Entities
 {
-    public sealed class DiscordTeamMember
+    public sealed record DiscordTeamMember
     {
         /// <summary>
         /// The user's <see cref="DiscordMembershipState">membership state</see> on the team.
