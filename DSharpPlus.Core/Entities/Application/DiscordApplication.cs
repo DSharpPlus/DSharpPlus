@@ -27,7 +27,7 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Entities
 {
-    public sealed class DiscordApplication
+    public sealed record DiscordApplication
     {
         /// <summary>
         /// The id of the app.

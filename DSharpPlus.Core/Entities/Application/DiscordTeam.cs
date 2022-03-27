@@ -25,7 +25,7 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Entities
 {
-    public sealed class DiscordTeam
+    public sealed record DiscordTeam
     {
         /// <summary>
         /// A hash of the image of the team's icon.
