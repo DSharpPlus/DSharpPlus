@@ -189,7 +189,7 @@ namespace DSharpPlus.CommandsNext
 
             return s.Remove(li - ll + 1, ll);
         }
-
+        
         internal static async Task<ArgumentBindingResult> BindArgumentsAsync(CommandContext ctx, bool ignoreSurplus)
         {
             var command = ctx.Command;
@@ -197,14 +197,14 @@ namespace DSharpPlus.CommandsNext
 
             var args = new object?[overload.Arguments.Count + 2];
             args[1] = ctx;
-            var rawArgumentList = new List<string>(overload.Arguments.Count);
-
+            var rawArgumentList = new List<string?>(overload.Arguments.Count);
             var argString = ctx.RawArgumentString;
             var foundAt = 0;
-            var argValue = "";
+
             for (var i = 0; i < overload.Arguments.Count; i++)
             {
                 var arg = overload.Arguments[i];
+                var argValue = string.Empty;
                 if (arg.IsCatchAll)
                 {
                     if (arg.IsArray)
@@ -226,7 +226,7 @@ namespace DSharpPlus.CommandsNext
                             break;
 
                         argValue = argString.Substring(foundAt).Trim();
-                        argValue = argValue == "" ? string.Empty : argValue;
+                        argValue = argValue == "" ? null : argValue;
                         foundAt = argString.Length;
 
                         rawArgumentList.Add(argValue);
@@ -236,16 +236,16 @@ namespace DSharpPlus.CommandsNext
                 else
                 {
                     argValue = ExtractNextArgument(argString, ref foundAt);
-                    rawArgumentList.Add(argValue ?? string.Empty);
+                    rawArgumentList.Add(argValue);
                 }
 
                 if (argValue == null && !arg.IsOptional && !arg.IsCatchAll)
                     return new ArgumentBindingResult(new ArgumentException("Not enough arguments supplied to the command."));
                 else if (argValue == null)
-                    rawArgumentList.Add(string.Empty);
+                    rawArgumentList.Add(null);
             }
 
-            if (!ignoreSurplus && foundAt < (argString ?? string.Empty).Length)
+            if (!ignoreSurplus && foundAt < (argString?.Length ?? 0))
                 return new ArgumentBindingResult(new ArgumentException("Too many arguments were supplied to this command."));
 
             for (var i = 0; i < overload.Arguments.Count; i++)
@@ -284,7 +284,7 @@ namespace DSharpPlus.CommandsNext
                 }
             }
 
-            return new ArgumentBindingResult(args, rawArgumentList);
+            return new ArgumentBindingResult(args, rawArgumentList.Where(x => x is not null).OfType<string>().ToArray());
         }
 
         internal static bool IsModuleCandidateType(this Type type)
