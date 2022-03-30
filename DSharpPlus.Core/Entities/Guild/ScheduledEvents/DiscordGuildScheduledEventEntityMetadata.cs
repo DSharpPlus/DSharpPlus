@@ -28,6 +28,6 @@ namespace DSharpPlus.Core.Entities
         /// <remarks>
         /// Requires <see cref="DiscordGuildScheduledEvent.EntityType"/> to be <see cref="Enums.DiscordGuildScheduledEventEntityType.External"/>.
         /// </remarks>
-        public string? Location { get; private set; }
+        public string? Location { get; internal set; }
     }
 }

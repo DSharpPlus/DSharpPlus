@@ -48,7 +48,7 @@ namespace DSharpPlus.Core.Entities
         /// The channel id in which the scheduled event will be hosted, or null if <see cref="EntityType"/> is <see cref="DiscordGuildScheduledEventEntityType.External"/>.
         /// </summary>
         [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordSnowflake? ChannelId { get; private set; }
+        public DiscordSnowflake? ChannelId { get; internal set; }
 
         /// <summary>
         /// The id of the user that created the scheduled event.
@@ -63,55 +63,55 @@ namespace DSharpPlus.Core.Entities
         /// The name of the scheduled event (1-100 characters).
         /// </summary>
         [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
-        public string Name { get; private set; } = null!;
+        public string Name { get; internal set; } = null!;
 
         /// <summary>
         /// The description of the scheduled event (1-1000 characters).
         /// </summary>
         [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<string?> Description { get; private set; }
+        public Optional<string?> Description { get; internal set; }
 
         /// <summary>
         /// The time the scheduled event will start.
         /// </summary>
         [JsonProperty("scheduled_start_time", NullValueHandling = NullValueHandling.Ignore)]
-        public DateTimeOffset ScheduledStartTime { get; private set; }
+        public DateTimeOffset ScheduledStartTime { get; internal set; }
 
         /// <summary>
         /// The time the scheduled event will end, required if <see cref="EntityType"/> is <see cref="DiscordGuildScheduledEventEntityType.External"/>.
         /// </summary>
         [JsonProperty("scheduled_start_time", NullValueHandling = NullValueHandling.Ignore)]
-        public DateTimeOffset? ScheduledEndTime { get; private set; }
+        public DateTimeOffset? ScheduledEndTime { get; internal set; }
 
         /// <summary>
         /// The privacy level of the scheduled event.
         /// </summary>
         [JsonProperty("scheduled_end_time", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordGuildScheduledEventPrivacyLevel PrivacyLevel { get; private set; }
+        public DiscordGuildScheduledEventPrivacyLevel PrivacyLevel { get; internal set; }
 
         /// <summary>
         /// The status of the scheduled event.
         /// </summary>
         [JsonProperty("privacy_level", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordGuildScheduledEventStatus Status { get; private set; }
+        public DiscordGuildScheduledEventStatus Status { get; internal set; }
 
         /// <summary>
         /// The type of the scheduled event
         /// </summary>
         [JsonProperty("entity_type", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordGuildScheduledEventEntityType EntityType { get; private set; }
+        public DiscordGuildScheduledEventEntityType EntityType { get; internal set; }
 
         /// <summary>
         /// The id of an entity associated with a guild scheduled event.
         /// </summary>
         [JsonProperty("entity_id", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordSnowflake? EntityId { get; private set; }
+        public DiscordSnowflake? EntityId { get; internal set; }
 
         /// <summary>
         /// Additional metadata for the guild scheduled event.
         /// </summary>
         [JsonProperty("entity_metadata", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordGuildScheduledEventEntityMetadata? EntityMetadata { get; private set; }
+        public DiscordGuildScheduledEventEntityMetadata? EntityMetadata { get; internal set; }
 
         /// <summary>
         /// The user that created the scheduled event
@@ -120,19 +120,19 @@ namespace DSharpPlus.Core.Entities
         /// Not included if the event was created before October 25th, 2021.
         /// </remarks>
         [JsonProperty("creator", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordUser> Creator { get; private set; }
+        public Optional<DiscordUser> Creator { get; internal set; }
 
         /// <summary>
         /// The number of users subscribed to the scheduled event
         /// </summary>
         [JsonProperty("user_count", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<int> UserCount { get; private set; }
+        public Optional<int> UserCount { get; internal set; }
 
         /// <summary>
         /// The cover image hash of the scheduled event
         /// </summary>
         [JsonProperty("image", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<string?> Image { get; private set; }
+        public Optional<string?> Image { get; internal set; }
 
         public static implicit operator ulong(DiscordGuildScheduledEvent guildScheduledEvent) => guildScheduledEvent.Id;
         public static implicit operator DiscordSnowflake(DiscordGuildScheduledEvent guildScheduledEvent) => guildScheduledEvent.Id;

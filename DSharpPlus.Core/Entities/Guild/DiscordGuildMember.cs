@@ -46,19 +46,19 @@ namespace DSharpPlus.Core.Entities
         /// This user's guild nickname.
         /// </summary>
         [JsonPropertyName("nick")]
-        public Optional<string?> Nick { get; private set; }
+        public Optional<string?> Nick { get; internal set; }
 
         /// <summary>
         /// The member's guild avatar hash.
         /// </summary>
         [JsonPropertyName("avatar")]
-        public Optional<string?> Avatar { get; private set; }
+        public Optional<string?> Avatar { get; internal set; }
 
         /// <summary>
         /// Array of <see href="https://discord.com/developers/docs/topics/permissions#role-object">role</see> object ids.
         /// </summary>
         [JsonPropertyName("roles")]
-        public DiscordSnowflake[] Roles { get; private set; } = Array.Empty<DiscordSnowflake>();
+        public DiscordSnowflake[] Roles { get; internal set; } = Array.Empty<DiscordSnowflake>();
 
         /// <summary>
         /// When the user joined the guild.
@@ -67,7 +67,7 @@ namespace DSharpPlus.Core.Entities
         /// Resets when the member leaves and rejoins the guild.
         /// </remarks>
         [JsonPropertyName("joined_at")]
-        public DateTimeOffset JoinedAt { get; private set; }
+        public DateTimeOffset JoinedAt { get; internal set; }
 
         /// <summary>
         /// When the user started <see href="https://support.discord.com/hc/en-us/articles/360028038352-Server-Boosting-">boosting</see> the guild.
@@ -76,7 +76,7 @@ namespace DSharpPlus.Core.Entities
         /// Can also be seen as "Nitro boosting since".
         /// </remarks>
         [JsonPropertyName("premium_since")]
-        public Optional<DateTimeOffset?> PremiumSince { get; private set; }
+        public Optional<DateTimeOffset?> PremiumSince { get; internal set; }
 
         /// <summary>
         /// Whether the user is deafened in voice channels.
@@ -85,7 +85,7 @@ namespace DSharpPlus.Core.Entities
         /// This could be a self deafen, or a server deafen.
         /// </remarks>
         [JsonPropertyName("deaf")]
-        public bool Deaf { get; private set; }
+        public bool Deaf { get; internal set; }
 
         /// <summary>
         /// Whether the user is muted in voice channels.
@@ -94,13 +94,13 @@ namespace DSharpPlus.Core.Entities
         /// This could be a self mute, or a server mute.
         /// </remarks>
         [JsonPropertyName("mute")]
-        public bool Mute { get; private set; }
+        public bool Mute { get; internal set; }
 
         /// <summary>
         /// Whether the user has not yet passed the guild's <see href="https://discord.com/developers/docs/resources/guild#membership-screening-object">Membership Screening</see> requirements.
         /// </summary>
         [JsonPropertyName("pending")]
-        public Optional<bool> Pending { get; private set; }
+        public Optional<bool> Pending { get; internal set; }
 
         /// <summary>
         /// Total permissions of the member in the channel, including overwrites, returned when in the interaction object.
@@ -109,7 +109,7 @@ namespace DSharpPlus.Core.Entities
         /// This is only available on an interaction, such as a Slash Command.
         /// </remarks>
         [JsonPropertyName("permissions")]
-        public Optional<DiscordPermissions> Permissions { get; private set; }
+        public Optional<DiscordPermissions> Permissions { get; internal set; }
 
         /// <summary>
         /// When the user's <see href="https://support.discord.com/hc/en-us/articles/4413305239191-Time-Out-FAQ">timeout</see> will expire and the user will be able to communicate in the guild again, null or a time in the past if the user is not timed out.
@@ -118,7 +118,7 @@ namespace DSharpPlus.Core.Entities
         /// Could also be seen as "muted until".
         /// </remarks>
         [JsonPropertyName("communication_disabled_until")]
-        public Optional<DateTimeOffset?> CommunicationDisabledUntil { get; private set; }
+        public Optional<DateTimeOffset?> CommunicationDisabledUntil { get; internal set; }
 
         /// <exception cref="NullReferenceException">If <see cref="User"/> is null.</exception>
         public static implicit operator ulong(DiscordGuildMember guildMember) => guildMember.User.HasValue ? guildMember.User.Value.Id : throw new EmptyOptionalException(nameof(User) + " does not hold a value.");
