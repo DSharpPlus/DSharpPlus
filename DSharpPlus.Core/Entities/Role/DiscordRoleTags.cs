@@ -46,17 +46,14 @@ namespace DSharpPlus.Core.Entities
         /// <summary>
         /// Whether this is the guild's premium subscriber role.
         /// </summary>
-        [JsonIgnore]
-        public bool IsNitroRole => PremiumSubscriber.HasValue;
-
-        /// <summary>
-        /// Null when this is the guild's premium subscriber role, false when it isn't.
-        /// </summary>
+        /// <remarks>
+        /// Null when it is the guild's premium subscriber role, otherwise <see cref="Optional{T}.Empty"/>. You should use <see cref="Optional{T}.HasValue"/> to check if this is the guild's premium subscriber role.
+        /// </remarks>
         [JsonPropertyName("premium_subscriber")]
-        internal Optional<bool> PremiumSubscriber { get; init; } = false;
+        internal Optional<bool> PremiumSubscriber { get; init; }
 
         internal DiscordRoleTags() { }
 
-        public override int GetHashCode() => HashCode.Combine(BotId, IntegrationId, IsNitroRole);
+        public override int GetHashCode() => HashCode.Combine(BotId, IntegrationId, PremiumSubscriber);
     }
 }

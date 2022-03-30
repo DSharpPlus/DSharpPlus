@@ -62,25 +62,25 @@ namespace DSharpPlus.Core.Entities
         /// Whether this user is locally muted.
         /// </summary>
         [JsonPropertyName("self_mute")]
-        public bool IsSelfMuted { get; private set; }
+        public bool SelfMute { get; private set; }
 
         /// <summary>
         /// Whether this user is locally deafened.
         /// </summary>
         [JsonPropertyName("self_deaf")]
-        public bool IsSelfDeafened { get; private set; }
+        public bool SelfDeaf { get; private set; }
 
         /// <summary>
         /// Whether this user is muted by the server.
         /// </summary>
         [JsonPropertyName("mute")]
-        public bool IsServerMuted { get; private set; }
+        public bool Mute { get; private set; }
 
         /// <summary>
         /// Whether this user is deafened by the server
         /// </summary>
         [JsonPropertyName("deaf")]
-        public bool IsServerDeafened { get; private set; }
+        public bool Deaf { get; private set; }
 
         /// <summary>
         /// Whether this user is streaming using "Go Live".
@@ -98,12 +98,12 @@ namespace DSharpPlus.Core.Entities
         /// Whether this user is muted by the current user.
         /// </summary>
         [JsonPropertyName("suppress")]
-        public bool IsSuppressed { get; private set; }
+        public bool Supress { get; private set; }
 
         /// <summary>
         /// The time at which the user requested to speak.
         /// </summary>
         [JsonPropertyName("request_to_speak_timestamp")]
-        public DateTimeOffset? RequestedToSpeakAt { get; private set; }
+        public DateTimeOffset? RequestToSpeakTimestamp { get; private set; }
     }
 }

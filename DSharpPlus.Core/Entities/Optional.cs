@@ -36,6 +36,8 @@ namespace DSharpPlus.Core.Entities
     [JsonConverter(typeof(OptionalConverter))]
     public struct Optional<T>
     {
+        public static Optional<T> Empty { get; }
+
         /// <summary>
         /// If the <see cref="Optional{T}"/> has a value. The value may be null.
         /// </summary>

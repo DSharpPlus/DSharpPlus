@@ -45,19 +45,19 @@ namespace DSharpPlus.Core.Entities
         /// This user's guild nickname.
         /// </summary>
         [JsonPropertyName("nick")]
-        public Optional<string?> Nickname { get; private set; }
+        public Optional<string?> Nick { get; private set; }
 
         /// <summary>
         /// The member's guild avatar hash.
         /// </summary>
         [JsonPropertyName("avatar")]
-        public Optional<string?> GuildAvatarHash { get; private set; }
+        public Optional<string?> Avatar { get; private set; }
 
         /// <summary>
         /// Array of <see href="https://discord.com/developers/docs/topics/permissions#role-object">role</see> object ids.
         /// </summary>
         [JsonPropertyName("roles")]
-        public DiscordSnowflake[] RoleIds { get; private set; } = Array.Empty<DiscordSnowflake>();
+        public DiscordSnowflake[] Roles { get; private set; } = Array.Empty<DiscordSnowflake>();
 
         /// <summary>
         /// When the user joined the guild.
@@ -84,7 +84,7 @@ namespace DSharpPlus.Core.Entities
         /// This could be a self deafen, or a server deafen.
         /// </remarks>
         [JsonPropertyName("deaf")]
-        public bool IsDeafened { get; private set; }
+        public bool Deaf { get; private set; }
 
         /// <summary>
         /// Whether the user is muted in voice channels.
@@ -93,13 +93,13 @@ namespace DSharpPlus.Core.Entities
         /// This could be a self mute, or a server mute.
         /// </remarks>
         [JsonPropertyName("mute")]
-        public bool IsMuted { get; private set; }
+        public bool Mute { get; private set; }
 
         /// <summary>
         /// Whether the user has not yet passed the guild's <see href="https://discord.com/developers/docs/resources/guild#membership-screening-object">Membership Screening</see> requirements.
         /// </summary>
         [JsonPropertyName("pending")]
-        public Optional<bool> IsPending { get; private set; }
+        public Optional<bool> Pending { get; private set; }
 
         /// <summary>
         /// Total permissions of the member in the channel, including overwrites, returned when in the interaction object.
@@ -108,7 +108,7 @@ namespace DSharpPlus.Core.Entities
         /// This is only available on an interaction, such as a Slash Command.
         /// </remarks>
         [JsonPropertyName("permissions")]
-        public Optional<DiscordPermissions> InteractionPermissions { get; private set; }
+        public Optional<DiscordPermissions> Permissions { get; private set; }
 
         /// <summary>
         /// When the user's <see href="https://support.discord.com/hc/en-us/articles/4413305239191-Time-Out-FAQ">timeout</see> will expire and the user will be able to communicate in the guild again, null or a time in the past if the user is not timed out.
@@ -125,15 +125,15 @@ namespace DSharpPlus.Core.Entities
         {
             HashCode hash = new();
             hash.Add(User);
-            hash.Add(Nickname);
-            hash.Add(GuildAvatarHash);
-            hash.Add(RoleIds);
+            hash.Add(Nick);
+            hash.Add(Avatar);
+            hash.Add(Roles);
             hash.Add(JoinedAt);
             hash.Add(PremiumSince);
-            hash.Add(IsDeafened);
-            hash.Add(IsMuted);
-            hash.Add(IsPending);
-            hash.Add(InteractionPermissions);
+            hash.Add(Deaf);
+            hash.Add(Mute);
+            hash.Add(Pending);
+            hash.Add(Permissions);
             hash.Add(CommunicationDisabledUntil);
             return hash.ToHashCode();
         }

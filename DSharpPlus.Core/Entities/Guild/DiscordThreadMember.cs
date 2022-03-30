@@ -30,7 +30,7 @@ namespace DSharpPlus.Core.Entities
     /// A thread member is used to indicate whether a user has joined a thread or not.
     /// </summary>
     /// <remarks>
-    /// The <see cref="ThreadId"/> and <see cref="UserId"/> fields are omitted on the member sent within each thread in the <c>GUILD_CREATE</c> event
+    /// The <see cref="Id"/> and <see cref="UserId"/> fields are omitted on the member sent within each thread in the <c>GUILD_CREATE</c> event
     /// </remarks>
     public sealed record DiscordThreadMember
     {
@@ -38,7 +38,7 @@ namespace DSharpPlus.Core.Entities
         /// The id of the thread.
         /// </summary>
         [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordSnowflake> ThreadId { get; init; }
+        public Optional<DiscordSnowflake> Id { get; init; }
 
         /// <summary>
         /// The id of the user.
@@ -50,7 +50,7 @@ namespace DSharpPlus.Core.Entities
         /// The time the current user last joined the thread.
         /// </summary>
         [JsonProperty("join_timestamp", NullValueHandling = NullValueHandling.Ignore)]
-        public DateTimeOffset JoinedTimestamp { get; init; }
+        public DateTimeOffset JoinTimestamp { get; init; }
 
         /// <summary>
         /// Any user-thread settings, currently only used for notifications.
