@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using DSharpPlus.Core.Exceptions;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Entities
@@ -57,5 +58,11 @@ namespace DSharpPlus.Core.Entities
         /// </summary>
         [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
         public int Flags { get; init; }
+
+        /// <exception cref="NullReferenceException">If <see cref="UserId"/> is null.</exception>
+        public static implicit operator ulong(DiscordThreadMember threadMember) => threadMember.UserId.HasValue ? threadMember.UserId.Value : throw new EmptyOptionalException(nameof(UserId) + " does not hold a value.");
+
+        /// <exception cref="NullReferenceException">If <see cref="UserId"/> is null.</exception>
+        public static implicit operator DiscordSnowflake(DiscordThreadMember threadMember) => threadMember.UserId.HasValue ? threadMember.UserId.Value : throw new EmptyOptionalException(nameof(UserId) + " does not hold a value.");
     }
 }

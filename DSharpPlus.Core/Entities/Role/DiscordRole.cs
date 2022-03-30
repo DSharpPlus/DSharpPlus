@@ -21,7 +21,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
 using System.Text.Json.Serialization;
 using DSharpPlus.Core.Enums;
 
@@ -98,23 +97,7 @@ namespace DSharpPlus.Core.Entities
         [JsonPropertyName("tags")]
         public Optional<DiscordRoleTags> Tags { get; init; }
 
-        internal DiscordRole() { }
-
-        public override int GetHashCode()
-        {
-            HashCode hash = new();
-            hash.Add(Id);
-            hash.Add(Name);
-            hash.Add(Color);
-            hash.Add(Hoist);
-            hash.Add(Icon);
-            hash.Add(UnicodeEmoji);
-            hash.Add(Position);
-            hash.Add(Permissions);
-            hash.Add(Managed);
-            hash.Add(Mentionable);
-            hash.Add(Tags);
-            return hash.ToHashCode();
-        }
+        public static implicit operator ulong(DiscordRole role) => role.Id;
+        public static implicit operator DiscordSnowflake(DiscordRole role) => role.Id;
     }
 }
