@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using DSharpPlus.Core.Exceptions;
 using DSharpPlus.Core.JsonConverters;
 using Newtonsoft.Json;
 
@@ -46,8 +47,8 @@ namespace DSharpPlus.Core.Entities
         /// <summary>
         /// The value to be returned if the <see cref="Optional{T}"/> has a value.
         /// </summary>
-        /// <exception cref="InvalidOperationException">If this <see cref="Optional{T}"/> has no value.</exception>
-        public T Value => HasValue ? _value : throw new InvalidOperationException("No value present.");
+        /// <exception cref="EmptyOptionalException">If this <see cref="Optional{T}"/> has no value.</exception>
+        public T Value => HasValue ? _value : throw new EmptyOptionalException("No value present.");
 
         /// <summary>
         /// The internal value. If no value is provided, this will be initialized to the default value of <typeparamref name="T"/>.

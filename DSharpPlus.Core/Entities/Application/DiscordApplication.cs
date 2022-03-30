@@ -137,5 +137,8 @@ namespace DSharpPlus.Core.Entities
         /// </summary>
         [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<DiscordApplicationFlags> Flags { get; internal set; }
+
+        public static implicit operator ulong(DiscordApplication application) => application.Id;
+        public static implicit operator DiscordSnowflake(DiscordApplication application) => application.Id;
     }
 }

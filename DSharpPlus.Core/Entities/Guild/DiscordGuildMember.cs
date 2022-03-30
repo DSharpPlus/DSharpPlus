@@ -24,6 +24,7 @@
 using System;
 using System.Text.Json.Serialization;
 using DSharpPlus.Core.Enums;
+using DSharpPlus.Core.Exceptions;
 
 namespace DSharpPlus.Core.Entities
 {
@@ -119,23 +120,10 @@ namespace DSharpPlus.Core.Entities
         [JsonPropertyName("communication_disabled_until")]
         public Optional<DateTimeOffset?> CommunicationDisabledUntil { get; private set; }
 
-        internal DiscordGuildMember() { }
+        /// <exception cref="NullReferenceException">If <see cref="User"/> is null.</exception>
+        public static implicit operator ulong(DiscordGuildMember guildMember) => guildMember.User.HasValue ? guildMember.User.Value.Id : throw new EmptyOptionalException(nameof(User) + " does not hold a value.");
 
-        public override int GetHashCode()
-        {
-            HashCode hash = new();
-            hash.Add(User);
-            hash.Add(Nick);
-            hash.Add(Avatar);
-            hash.Add(Roles);
-            hash.Add(JoinedAt);
-            hash.Add(PremiumSince);
-            hash.Add(Deaf);
-            hash.Add(Mute);
-            hash.Add(Pending);
-            hash.Add(Permissions);
-            hash.Add(CommunicationDisabledUntil);
-            return hash.ToHashCode();
-        }
+        /// <exception cref="NullReferenceException">If <see cref="User"/> is null.</exception>
+        public static implicit operator DiscordSnowflake(DiscordGuildMember guildMember) => guildMember.User.HasValue ? guildMember.User.Value.Id : throw new EmptyOptionalException(nameof(User) + " does not hold a value.");
     }
 }

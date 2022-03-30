@@ -29,6 +29,8 @@ charset = utf-8
 
 # Organize usings
 dotnet_sort_system_directives_first = true:error
+# Using directive is unnecessary.
+dotnet_diagnostic.IDE0005.severity = error
 
 # Yell at people when they don't include the file header template
 dotnet_diagnostic.IDE0073.severity = error

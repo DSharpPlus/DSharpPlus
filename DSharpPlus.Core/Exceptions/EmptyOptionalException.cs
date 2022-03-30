@@ -21,34 +21,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System.Text.Json.Serialization;
+using System;
+using System.Runtime.Serialization;
 
-namespace DSharpPlus.Core.Entities
+namespace DSharpPlus.Core.Exceptions
 {
-    /// <summary>
-    /// A <see cref="DiscordRole"/>'s metadata.
-    /// </summary>
-    public sealed record DiscordRoleTags
+    [Serializable]
+    public class EmptyOptionalException : Exception
     {
-        /// <summary>
-        /// The id of the bot this role belongs to.
-        /// </summary>
-        [JsonPropertyName("bot_id")]
-        public Optional<DiscordSnowflake> BotId { get; init; }
-
-        /// <summary>
-        /// The id of the integration this role belongs to.
-        /// </summary>
-        [JsonPropertyName("integration_id")]
-        public Optional<DiscordSnowflake> IntegrationId { get; init; }
-
-        /// <summary>
-        /// Whether this is the guild's premium subscriber role.
-        /// </summary>
-        /// <remarks>
-        /// Null when it is the guild's premium subscriber role, otherwise <see cref="Optional{T}.Empty"/>. You should use <see cref="Optional{T}.HasValue"/> to check if this is the guild's premium subscriber role.
-        /// </remarks>
-        [JsonPropertyName("premium_subscriber")]
-        internal Optional<bool> PremiumSubscriber { get; init; }
+        public EmptyOptionalException() { }
+        public EmptyOptionalException(string message) : base(message) { }
+        public EmptyOptionalException(string message, Exception inner) : base(message, inner) { }
+        protected EmptyOptionalException(SerializationInfo info, StreamingContext context) : base(info, context) { }
     }
 }

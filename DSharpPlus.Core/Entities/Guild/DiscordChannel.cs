@@ -187,5 +187,8 @@ namespace DSharpPlus.Core.Entities
         /// </summary>
         [JsonProperty("permissions", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<DiscordPermissions> Permissions { get; internal set; }
+
+        public static implicit operator ulong(DiscordChannel channel) => channel.Id;
+        public static implicit operator DiscordSnowflake(DiscordChannel channel) => channel.Id;
     }
 }
