@@ -41,43 +41,43 @@ namespace DSharpPlus.Core.Entities
         /// Name of the role.
         /// </summary>
         [JsonPropertyName("name")]
-        public string Name { get; private set; } = null!;
+        public string Name { get; internal set; } = null!;
 
         /// <summary>
         /// The color of the role.
         /// </summary>
         [JsonPropertyName("color")]
-        public int Color { get; private set; }
+        public int Color { get; internal set; }
 
         /// <summary>
         /// If this role is pinned in the user listing.
         /// </summary>
         [JsonPropertyName("hoist")]
-        public bool Hoist { get; private set; }
+        public bool Hoist { get; internal set; }
 
         /// <summary>
         /// The role icon hash.
         /// </summary>
         [JsonPropertyName("icon")]
-        public Optional<string?> Icon { get; private set; }
+        public Optional<string?> Icon { get; internal set; }
 
         /// <summary>
         /// The role unicode emoji.
         /// </summary>
         [JsonPropertyName("unicode_emoji")]
-        public Optional<string?> UnicodeEmoji { get; private set; }
+        public Optional<string?> UnicodeEmoji { get; internal set; }
 
         /// <summary>
         /// The position of this role.
         /// </summary>
         [JsonPropertyName("position")]
-        public int Position { get; private set; }
+        public int Position { get; internal set; }
 
         /// <summary>
         /// The Discord permissions of this role.
         /// </summary>
         [JsonPropertyName("permissions")]
-        public DiscordPermissions Permissions { get; private set; }
+        public DiscordPermissions Permissions { get; internal set; }
 
         /// <summary>
         /// Whether this role is managed by an integration.
@@ -89,7 +89,7 @@ namespace DSharpPlus.Core.Entities
         /// Whether this role is mentionable.
         /// </summary>
         [JsonPropertyName("mentionable")]
-        public bool Mentionable { get; private set; }
+        public bool Mentionable { get; internal set; }
 
         /// <summary>
         /// The tags this role has.

@@ -53,7 +53,7 @@ namespace DSharpPlus.Core.Entities
         /// The user's avatar hash.
         /// </summary>
         [JsonPropertyName("avatar")]
-        public string? Avatar { get; private set; }
+        public string? Avatar { get; internal set; }
 
         /// <summary>
         /// Whether the user belongs to an OAuth2 application.
@@ -71,56 +71,56 @@ namespace DSharpPlus.Core.Entities
         /// Whether the user has two factor enabled on their account.
         /// </summary>
         [JsonPropertyName("mfa_enabled")]
-        public Optional<bool> MFAEnabled { get; private set; }
+        public Optional<bool> MFAEnabled { get; internal set; }
 
         /// <summary>
         /// The user's banner hash.
         /// </summary>
         [JsonPropertyName("banner")]
-        public Optional<string?> Banner { get; private set; }
+        public Optional<string?> Banner { get; internal set; }
 
         /// <summary>
         /// The user's banner color.
         /// </summary>
         [JsonPropertyName("accent_color")]
-        public Optional<int?> AccentColor { get; private set; }
+        public Optional<int?> AccentColor { get; internal set; }
 
         /// <summary>
         /// The user's chosen language option.
         /// </summary>
         [JsonPropertyName("locale")]
-        public Optional<string> Locale { get; private set; }
+        public Optional<string> Locale { get; internal set; }
 
         /// <summary>
         /// Whether the email on this account has been verified. Requires the email oauth2 scope.
         /// </summary>
         [JsonPropertyName("verified")]
-        public Optional<bool> Verified { get; private set; }
+        public Optional<bool> Verified { get; internal set; }
 
         /// <summary>
         /// The user's email. Requires the email oauth2 scope.
         /// </summary>
         [JsonPropertyName("email")]
-        public Optional<string?> Email { get; private set; }
+        public Optional<string?> Email { get; internal set; }
 
         /// <summary>
         /// The user flags on a user's account.
         /// </summary>
         [JsonPropertyName("flags")]
-        public Optional<DiscordUserFlags> Flags { get; private set; }
+        public Optional<DiscordUserFlags> Flags { get; internal set; }
 
 
         /// <summary>
         /// The type of Nitro subscription on a user's account.
         /// </summary>
         [JsonPropertyName("premium_type")]
-        public Optional<DiscordPremiumType> PremiumType { get; private set; }
+        public Optional<DiscordPremiumType> PremiumType { get; internal set; }
 
         /// <summary>
         /// The public flags on a user's account.
         /// </summary>
         [JsonPropertyName("public_flags")]
-        public Optional<DiscordUserFlags> PublicFlags { get; private set; }
+        public Optional<DiscordUserFlags> PublicFlags { get; internal set; }
 
         public static implicit operator ulong(DiscordUser user) => user.Id;
         public static implicit operator DiscordSnowflake(DiscordUser user) => user.Id;
