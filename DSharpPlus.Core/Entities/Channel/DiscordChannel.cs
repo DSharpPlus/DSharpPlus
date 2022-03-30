@@ -168,7 +168,7 @@ namespace DSharpPlus.Core.Entities
         /// Thread-specific fields not needed by other channels.
         /// </summary>
         [JsonProperty("thread_metadata", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordThreadMetadata> ThreadMetadata { get; internal set; }
+        public Optional<DiscordChannelThreadMetadata> ThreadMetadata { get; internal set; }
 
         /// <summary>
         /// Thread member object for the current user, if they have joined the thread, only included on certain API endpoints.
