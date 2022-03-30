@@ -30,7 +30,7 @@ namespace DSharpPlus.Core.Entities
     /// <summary>
     /// The thread metadata object contains a number of thread-specific channel fields that are not needed by other channel types.
     /// </summary>
-    public sealed record DiscordThreadMetadata
+    public sealed record DiscordChannelThreadMetadata
     {
         /// <summary>
         /// Whether the thread is archived.
