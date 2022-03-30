@@ -41,7 +41,7 @@ namespace DSharpPlus.Test
         {
             var input = ctx.Client.GetInteractivity();
             var builder = new DiscordMessageBuilder();
-            builder.WithContent("This is a test! Select is valid for 30 seconds.");
+            builder.WithContent("This is a test! StringSelect is valid for 30 seconds.");
 
             var opts = new[]
             {
@@ -74,7 +74,7 @@ namespace DSharpPlus.Test
         {
             var input = ctx.Client.GetInteractivity();
             var builder = new DiscordMessageBuilder();
-            builder.WithContent("This is a test! Select is valid for 30 seconds.");
+            builder.WithContent("This is a test! StringSelect is valid for 30 seconds.");
 
             var opts = new[]
             {

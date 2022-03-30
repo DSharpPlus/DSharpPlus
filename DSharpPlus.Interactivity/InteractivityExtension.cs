@@ -403,13 +403,13 @@ namespace DSharpPlus.Interactivity
             if (!message.Components.Any())
                 throw new ArgumentException("Provided message does not contain any components.");
 
-            if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is ComponentType.Select))
+            if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is ComponentType.StringSelect))
                 throw new ArgumentException("Provided message does not contain any select components.");
 
 
             var result = await this
                 .ComponentEventWaiter
-                .WaitForMatchAsync(new(message, c => c.Interaction.Data.ComponentType is ComponentType.Select && predicate(c), token))
+                .WaitForMatchAsync(new(message, c => c.Interaction.Data.ComponentType is ComponentType.StringSelect && predicate(c), token))
                 .ConfigureAwait(false);
 
             return new(result is null, result);
@@ -442,7 +442,7 @@ namespace DSharpPlus.Interactivity
             if (!message.Components.Any())
                 throw new ArgumentException("Provided message does not contain any components.");
 
-            if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is ComponentType.Select))
+            if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is ComponentType.StringSelect))
                 throw new ArgumentException("Provided message does not contain any select components.");
 
             if (message.Components.SelectMany(c => c.Components).OfType<DiscordSelectComponent>().All(c => c.CustomId != id))
@@ -450,7 +450,7 @@ namespace DSharpPlus.Interactivity
 
             var result = await this
                 .ComponentEventWaiter
-                .WaitForMatchAsync(new(message, (c) => c.Interaction.Data.ComponentType is ComponentType.Select && c.Id == id, token))
+                .WaitForMatchAsync(new(message, (c) => c.Interaction.Data.ComponentType is ComponentType.StringSelect && c.Id == id, token))
                 .ConfigureAwait(false);
 
             return new(result is null, result);
@@ -483,7 +483,7 @@ namespace DSharpPlus.Interactivity
             if (!message.Components.Any())
                 throw new ArgumentException("Provided message does not contain any components.");
 
-            if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is ComponentType.Select))
+            if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is ComponentType.StringSelect))
                 throw new ArgumentException("Provided message does not contain any select components.");
 
             if (message.Components.SelectMany(c => c.Components).OfType<DiscordSelectComponent>().All(c => c.CustomId != id))

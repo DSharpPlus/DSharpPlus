@@ -31,7 +31,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// A select menu with multiple options to choose from.
     /// </summary>
-    public sealed class DiscordSelectComponent : DiscordComponent
+    public sealed class DiscordSelectComponent : BaseDiscordSelectComponent
     {
         /// <summary>
         /// The options to pick from on this component.
@@ -40,31 +40,7 @@ namespace DSharpPlus.Entities
         public IReadOnlyList<DiscordSelectComponentOption> Options { get; internal set; } = Array.Empty<DiscordSelectComponentOption>();
 
         /// <summary>
-        /// The text to show when no option is selected.
-        /// </summary>
-        [JsonProperty("placeholder", NullValueHandling = NullValueHandling.Ignore)]
-        public string Placeholder { get; internal set; }
-
-        /// <summary>
-        /// Whether this dropdown can be interacted with.
-        /// </summary>
-        [JsonProperty("disabled", NullValueHandling = NullValueHandling.Ignore)]
-        public bool Disabled { get; internal set; }
-
-        /// <summary>
-        /// The minimum amount of options that can be selected. Must be less than or equal to <see cref="MaximumSelectedValues"/>. Defaults to one.
-        /// </summary>
-        [JsonProperty("min_values", NullValueHandling = NullValueHandling.Ignore)]
-        public int? MinimumSelectedValues { get; internal set; }
-
-        /// <summary>
-        /// The maximum amount of options that can be selected. Must be greater than or equal to zero or <see cref="MinimumSelectedValues"/>. Defaults to one.
-        /// </summary>
-        [JsonProperty("max_values", NullValueHandling = NullValueHandling.Ignore)]
-        public int? MaximumSelectedValues { get; internal set; }
-
-        /// <summary>
-        /// Enables this component if it was disabled before.
+        /// Enables this component.
         /// </summary>
         /// <returns>The current component.</returns>
         public DiscordSelectComponent Enable()
@@ -85,7 +61,7 @@ namespace DSharpPlus.Entities
 
         internal DiscordSelectComponent()
         {
-            this.Type = ComponentType.Select;
+            this.Type = ComponentType.StringSelect;
         }
 
         public DiscordSelectComponent(string customId, string placeholder, IEnumerable<DiscordSelectComponentOption> options, bool disabled = false, int minOptions = 1, int maxOptions = 1) : this()

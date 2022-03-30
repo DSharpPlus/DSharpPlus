@@ -539,7 +539,7 @@ namespace DSharpPlus
                 channel.Discord = this;
 
                 //xdc._recipients =
-                //    .Select(xtu => this.InternalGetCachedUser(xtu.Id) ?? new DiscordUser(xtu) { Discord = this })
+                //    .StringSelect(xtu => this.InternalGetCachedUser(xtu.Id) ?? new DiscordUser(xtu) { Discord = this })
                 //    .ToList();
 
                 var recips_raw = rawChannel["recipients"].ToDiscordObject<IEnumerable<TransportUser>>();

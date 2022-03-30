@@ -429,12 +429,12 @@ namespace DSharpPlus.Entities
             if (!string.IsNullOrWhiteSpace(this.Content))
             {
                 //uncomment if this breaks
-                //mentionedUsers.UnionWith(Utilities.GetUserMentions(this).Select(this.Discord.GetCachedOrEmptyUserInternal));
+                //mentionedUsers.UnionWith(Utilities.GetUserMentions(this).StringSelect(this.Discord.GetCachedOrEmptyUserInternal));
 
                 if (guild != null)
                 {
                     //uncomment if this breaks
-                    //this._mentionedRoles = this._mentionedRoles.Union(Utilities.GetRoleMentions(this).Select(xid => guild.GetRole(xid))).ToList();
+                    //this._mentionedRoles = this._mentionedRoles.Union(Utilities.GetRoleMentions(this).StringSelect(xid => guild.GetRole(xid))).ToList();
                     this._mentionedRoles = this._mentionedRoles.Union(this._mentionedRoleIds.Select(xid => guild.GetRole(xid))).ToList();
                     this._mentionedChannels = this._mentionedChannels.Union(Utilities.GetChannelMentions(this).Select(xid => guild.GetChannel(xid))).ToList();
                 }
