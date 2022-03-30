@@ -45,7 +45,7 @@ namespace DSharpPlus.Core.Entities
         /// The icon hash of the app.
         /// </summary>
         [JsonProperty("icon", NullValueHandling = NullValueHandling.Ignore)]
-        public string? IconHash { get; internal set; }
+        public string? Icon { get; internal set; }
 
         /// <summary>
         /// The description of the app.
@@ -63,13 +63,13 @@ namespace DSharpPlus.Core.Entities
         /// When false only app owner can join the app's bot to guilds.
         /// </summary>
         [JsonProperty("bot_public", NullValueHandling = NullValueHandling.Ignore)]
-        public bool IsPublicBot { get; internal set; }
+        public bool BotPublic { get; internal set; }
 
         /// <summary>
         /// When true the app's bot will only join upon completion of the full oauth2 code grant flow.
         /// </summary>
         [JsonProperty("bot_require_code_grant", NullValueHandling = NullValueHandling.Ignore)]
-        public bool BotRequiresFullCodeGrant { get; internal set; }
+        public bool BotRequireCodeGrant { get; internal set; }
 
         /// <summary>
         /// The url of the app's terms of service.
@@ -130,7 +130,7 @@ namespace DSharpPlus.Core.Entities
         /// The application's default rich presence invite cover image hash.
         /// </summary>
         [JsonProperty("cover_image", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<string> CoverImageHash { get; internal set; }
+        public Optional<string> CoverImage { get; internal set; }
 
         /// <summary>
         /// The application's public <see cref="DiscordApplicationFlags">flags</see>.

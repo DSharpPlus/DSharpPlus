@@ -31,7 +31,7 @@ namespace DSharpPlus.Core.Entities
         /// A hash of the image of the team's icon.
         /// </summary>
         [JsonProperty("icon", NullValueHandling = NullValueHandling.Ignore)]
-        public string? IconHash { get; internal set; }
+        public string? Icon { get; internal set; }
 
         /// <summary>
         /// The unique id of the team.
