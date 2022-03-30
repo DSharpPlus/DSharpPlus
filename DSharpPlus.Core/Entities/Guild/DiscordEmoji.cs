@@ -41,43 +41,43 @@ namespace DSharpPlus.Core.Entities
         /// The emoji's name.
         /// </summary>
         [JsonPropertyName("name")]
-        public string? Name { get; private set; } = null!;
+        public string? Name { get; internal set; } = null!;
 
         /// <summary>
         /// The roles allowed to use this emoji.
         /// </summary>
         [JsonPropertyName("roles")]
-        public Optional<DiscordSnowflake[]> Roles { get; private set; }
+        public Optional<DiscordSnowflake[]> Roles { get; internal set; }
 
         /// <summary>
         /// The user that created this emoji.
         /// </summary>
         [JsonPropertyName("user")]
-        public Optional<DiscordUser> User { get; private set; } = null!;
+        public Optional<DiscordUser> User { get; internal set; } = null!;
 
         /// <summary>
         /// Whether this emoji must be wrapped in colons.
         /// </summary>
         [JsonPropertyName("require_colons")]
-        public Optional<bool> RequiresColons { get; private set; }
+        public Optional<bool> RequiresColons { get; internal set; }
 
         /// <summary>
         /// Whether this emoji is managed.
         /// </summary>
         [JsonPropertyName("managed")]
-        public Optional<bool> Managed { get; private set; }
+        public Optional<bool> Managed { get; internal set; }
 
         /// <summary>
         /// Whether this emoji is animated.
         /// </summary>
         [JsonPropertyName("animated")]
-        public Optional<bool> Animated { get; private set; }
+        public Optional<bool> Animated { get; internal set; }
 
         /// <summary>
         /// Whether this emoji can be used. May be false due to loss of Server Boosts.
         /// </summary>
         [JsonPropertyName("available")]
-        public Optional<bool> Available { get; private set; }
+        public Optional<bool> Available { get; internal set; }
 
         /// <exception cref="NullReferenceException">If the emoji does not have an id.</exception>
         public static implicit operator ulong(DiscordEmoji emoji) => emoji.Id!;
