@@ -22,7 +22,6 @@
 // SOFTWARE.
 
 using System;
-using System.Drawing;
 using System.Text.Json.Serialization;
 using DSharpPlus.Core.Enums;
 
@@ -55,19 +54,19 @@ namespace DSharpPlus.Core.Entities
         /// The user's avatar hash.
         /// </summary>
         [JsonPropertyName("avatar")]
-        public string? AvatarHash { get; private set; }
+        public string? Avatar { get; private set; }
 
         /// <summary>
         /// Whether the user belongs to an OAuth2 application.
         /// </summary>
         [JsonPropertyName("bot")]
-        public Optional<bool> IsBot { get; init; }
+        public Optional<bool> Bot { get; init; }
 
         /// <summary>
         /// Whether the user is an Official Discord System user (part of the urgent message system).
         /// </summary>
         [JsonPropertyName("system")]
-        public Optional<bool> IsSystem { get; init; }
+        public Optional<bool> System { get; init; }
 
         /// <summary>
         /// Whether the user has two factor enabled on their account.
@@ -79,7 +78,7 @@ namespace DSharpPlus.Core.Entities
         /// The user's banner hash.
         /// </summary>
         [JsonPropertyName("banner")]
-        public Optional<string?> BannerHash { get; private set; }
+        public Optional<string?> Banner { get; private set; }
 
         /// <summary>
         /// The user's banner color.
@@ -109,7 +108,7 @@ namespace DSharpPlus.Core.Entities
         /// The user flags on a user's account.
         /// </summary>
         [JsonPropertyName("flags")]
-        public Optional<DiscordUserFlags> UserFlags { get; private set; }
+        public Optional<DiscordUserFlags> Flags { get; private set; }
 
 
         /// <summary>
@@ -122,7 +121,7 @@ namespace DSharpPlus.Core.Entities
         /// The public flags on a user's account.
         /// </summary>
         [JsonPropertyName("public_flags")]
-        public Optional<DiscordUserFlags> PublicUserFlags { get; private set; }
+        public Optional<DiscordUserFlags> PublicFlags { get; private set; }
 
         internal DiscordUser() { }
 
@@ -132,18 +131,18 @@ namespace DSharpPlus.Core.Entities
             hash.Add(Id);
             hash.Add(Username);
             hash.Add(Discriminator);
-            hash.Add(AvatarHash);
-            hash.Add(IsBot);
-            hash.Add(IsSystem);
+            hash.Add(Avatar);
+            hash.Add(Bot);
+            hash.Add(System);
             hash.Add(MFAEnabled);
-            hash.Add(BannerHash);
+            hash.Add(Banner);
             hash.Add(AccentColor);
             hash.Add(Locale);
             hash.Add(Verified);
             hash.Add(Email);
-            hash.Add(UserFlags);
+            hash.Add(Flags);
             hash.Add(PremiumType);
-            hash.Add(PublicUserFlags);
+            hash.Add(PublicFlags);
             return hash.ToHashCode();
         }
 

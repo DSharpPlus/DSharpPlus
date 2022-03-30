@@ -22,7 +22,6 @@
 // SOFTWARE.
 
 using System;
-using System.Drawing;
 using System.Text.Json.Serialization;
 using DSharpPlus.Core.Enums;
 
@@ -55,7 +54,7 @@ namespace DSharpPlus.Core.Entities
         /// If this role is pinned in the user listing.
         /// </summary>
         [JsonPropertyName("hoist")]
-        public bool IsHoisted { get; private set; }
+        public bool Hoist { get; private set; }
 
         /// <summary>
         /// The role icon hash.
@@ -85,13 +84,13 @@ namespace DSharpPlus.Core.Entities
         /// Whether this role is managed by an integration.
         /// </summary>
         [JsonPropertyName("managed")]
-        public bool IsManaged { get; init; }
+        public bool Managed { get; init; }
 
         /// <summary>
         /// Whether this role is mentionable.
         /// </summary>
         [JsonPropertyName("mentionable")]
-        public bool IsMentionable { get; private set; }
+        public bool Mentionable { get; private set; }
 
         /// <summary>
         /// The tags this role has.
@@ -107,13 +106,13 @@ namespace DSharpPlus.Core.Entities
             hash.Add(Id);
             hash.Add(Name);
             hash.Add(Color);
-            hash.Add(IsHoisted);
+            hash.Add(Hoist);
             hash.Add(Icon);
             hash.Add(UnicodeEmoji);
             hash.Add(Position);
             hash.Add(Permissions);
-            hash.Add(IsManaged);
-            hash.Add(IsMentionable);
+            hash.Add(Managed);
+            hash.Add(Mentionable);
             hash.Add(Tags);
             return hash.ToHashCode();
         }

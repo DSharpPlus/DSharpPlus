@@ -114,7 +114,7 @@ namespace DSharpPlus.Core.Entities
         /// Icon hash of the group DM.
         /// </summary>
         [JsonProperty("icon", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<string?> IconHash { get; internal set; }
+        public Optional<string?> Icon { get; internal set; }
 
         /// <summary>
         /// Id of the creator of the group DM or thread.
