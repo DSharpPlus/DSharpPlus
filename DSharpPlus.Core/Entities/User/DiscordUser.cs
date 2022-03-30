@@ -21,7 +21,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
 using System.Text.Json.Serialization;
 using DSharpPlus.Core.Enums;
 
@@ -123,29 +122,7 @@ namespace DSharpPlus.Core.Entities
         [JsonPropertyName("public_flags")]
         public Optional<DiscordUserFlags> PublicFlags { get; private set; }
 
-        internal DiscordUser() { }
-
-        public override int GetHashCode()
-        {
-            HashCode hash = new();
-            hash.Add(Id);
-            hash.Add(Username);
-            hash.Add(Discriminator);
-            hash.Add(Avatar);
-            hash.Add(Bot);
-            hash.Add(System);
-            hash.Add(MFAEnabled);
-            hash.Add(Banner);
-            hash.Add(AccentColor);
-            hash.Add(Locale);
-            hash.Add(Verified);
-            hash.Add(Email);
-            hash.Add(Flags);
-            hash.Add(PremiumType);
-            hash.Add(PublicFlags);
-            return hash.ToHashCode();
-        }
-
         public static implicit operator ulong(DiscordUser user) => user.Id;
+        public static implicit operator DiscordSnowflake(DiscordUser user) => user.Id;
     }
 }

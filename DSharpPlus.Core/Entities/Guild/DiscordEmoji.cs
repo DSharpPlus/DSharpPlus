@@ -79,8 +79,10 @@ namespace DSharpPlus.Core.Entities
         [JsonPropertyName("available")]
         public Optional<bool> Available { get; private set; }
 
-        internal DiscordEmoji() { }
+        /// <exception cref="NullReferenceException">If the emoji does not have an id.</exception>
+        public static implicit operator ulong(DiscordEmoji emoji) => emoji.Id!;
 
-        public override int GetHashCode() => HashCode.Combine(Id, Name, Roles, User, RequiresColons, Managed, Animated, Available);
+        /// <exception cref="NullReferenceException">If the emoji does not have an id.</exception>
+        public static implicit operator DiscordSnowflake(DiscordEmoji emoji) => emoji.Id!;
     }
 }

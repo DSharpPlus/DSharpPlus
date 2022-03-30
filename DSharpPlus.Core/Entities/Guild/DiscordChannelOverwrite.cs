@@ -57,5 +57,8 @@ namespace DSharpPlus.Core.Entities
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("deny", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordPermissions Deny { get; internal set; }
+
+        public static implicit operator ulong(DiscordChannelOverwrite channelOverwrite) => channelOverwrite.Id;
+        public static implicit operator DiscordSnowflake(DiscordChannelOverwrite channelOverwrite) => channelOverwrite.Id;
     }
 }

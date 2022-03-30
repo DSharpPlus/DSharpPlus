@@ -51,5 +51,8 @@ namespace DSharpPlus.Core.Entities
         /// </summary>
         [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordUser User { get; init; } = null!;
+
+        public static implicit operator ulong(DiscordTeamMember teamMember) => teamMember.User.Id;
+        public static implicit operator DiscordSnowflake(DiscordTeamMember teamMember) => teamMember.User.Id;
     }
 }
