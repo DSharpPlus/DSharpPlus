@@ -871,12 +871,12 @@ namespace DSharpPlus.CommandsNext
         /// <param name="ctx">Context in which to convert to.</param>
         /// <param name="type">Type to convert to.</param>
         /// <returns>Converted object.</returns>
-        public async Task<object> ConvertArgument(string value, CommandContext ctx, Type type)
+        public async Task<object> ConvertArgument(string? value, CommandContext ctx, Type type)
         {
             var m = this.ConvertGeneric.MakeGenericMethod(type);
             try
             {
-                return await ((Task<object>)m.Invoke(this, new object[] { value, ctx })).ConfigureAwait(false);
+                return await ((Task<object>)m.Invoke(this, new object?[] { value, ctx })).ConfigureAwait(false);
             }
             catch (Exception ex) when (ex is TargetInvocationException or InvalidCastException)
             {

@@ -396,3 +396,6 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# Credentials for the DSharpPlus.Test bot
+DSharpPlus.Test/config.json
