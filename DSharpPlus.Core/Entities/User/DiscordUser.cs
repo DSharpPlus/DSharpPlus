@@ -109,7 +109,6 @@ namespace DSharpPlus.Core.Entities
         [JsonPropertyName("flags")]
         public Optional<DiscordUserFlags> Flags { get; internal set; }
 
-
         /// <summary>
         /// The type of Nitro subscription on a user's account.
         /// </summary>
