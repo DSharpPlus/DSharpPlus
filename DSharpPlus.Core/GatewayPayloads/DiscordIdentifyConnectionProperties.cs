@@ -21,16 +21,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Entities
+namespace DSharpPlus.Core.GatewayPayloads
 {
-    public sealed record DiscordGuildScheduledEventEntityMetadata
+    // TODO: Use a static class that utilizes environment variables or csproj values to determine the current library version.
+    public sealed record DiscordIdentifyConnectionProperties
     {
-        /// <remarks>
-        /// Requires <see cref="DiscordGuildScheduledEvent.EntityType"/> to be <see cref="Enums.DiscordGuildScheduledEventEntityType.External"/>.
-        /// </remarks>
-        [JsonProperty("location", NullValueHandling = NullValueHandling.Ignore)]
-        public string? Location { get; internal set; }
+        /// <summary>
+        /// The operating system that the software is running on.
+        /// </summary>
+        [JsonProperty("os", NullValueHandling = NullValueHandling.Ignore)]
+        public string OS { get; init; } = Environment.OSVersion.Platform.ToString();
+
+        /// <summary>
+        /// The currently running name of the Discord library.
+        /// </summary>
+        [JsonProperty("browser", NullValueHandling = NullValueHandling.Ignore)]
+        public string Browser { get; init; } = "DSharpPlus.Core 5.0.0";
+
+        /// <summary>
+        /// The currently running name of the Discord library.
+        /// </summary>
+        [JsonProperty("device", NullValueHandling = NullValueHandling.Ignore)]
+        public string Device { get; init; } = "DSharpPlus.Core 5.0.0";
     }
 }

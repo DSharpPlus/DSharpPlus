@@ -21,49 +21,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using DSharpPlus.Core.Entities;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Entities
+namespace DSharpPlus.Core.GatewayPayloads
 {
-    public sealed record DiscordAuditLog
+    /// <summary>
+    /// Sent when the current user gains access to a channel.
+    /// </summary>
+    public sealed record DiscordThreadListSyncPayload
     {
         /// <summary>
-        /// A list of <see cref="DiscordAuditLogEntry"/>.
+        /// The id of the guild.
         /// </summary>
-        [JsonProperty("audit_log_entries", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordAuditLogEntry[] AuditLogEntries { get; init; } = null!;
+        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordSnowflake GuildId { get; init; } = null!;
 
         /// <summary>
-        /// A list of <see cref="DiscordGuildScheduledEvent"/> found in the audit log.
+        /// The parent channel ids whose threads are being synced. If omitted, then threads were synced for the entire guild. This array may contain channel_ids that have no active threads as well, so you know to clear that data.
         /// </summary>
-        [JsonProperty("guild_scheduled_events", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordGuildScheduledEvent[] GuildScheduledEvents { get; init; } = null!;
+        [JsonProperty("channel_ids", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<DiscordSnowflake[]> ChannelIds { get; init; }
 
         /// <summary>
-        /// A list of partial integration objects.
+        /// All active threads in the given channels that the current user can access.
         /// </summary>
-        [JsonProperty("integrations", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordIntegration[] Integrations { get; init; } = null!;
-
-        /// <summary>
-        /// A list of threads found in the audit log.
-        /// </summary>
-        /// <remarks>
-        /// * Threads referenced in THREAD_CREATE and THREAD_UPDATE events are included in the threads map, since archived threads might not be kept in memory by clients.
-        /// </remarks>
         [JsonProperty("threads", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordChannel[] Threads { get; init; } = null!;
 
         /// <summary>
-        /// A list of <see cref="DiscordUser"/> found in the audit log.
+        /// All thread member objects from the synced threads for the current user, indicating which threads the current user has been added to.
         /// </summary>
-        [JsonProperty("users", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordUser[] Users { get; init; } = null!;
-
-        /// <summary>
-        /// A list of webhooks found in the audit log.
-        /// </summary>
-        [JsonProperty("webhooks", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordWebhook[] Webhooks { get; init; } = null!;
+        [JsonProperty("members", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordThreadMember[] Members { get; init; } = null!;
     }
 }

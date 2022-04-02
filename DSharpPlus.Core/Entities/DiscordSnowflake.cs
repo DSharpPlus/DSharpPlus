@@ -29,7 +29,6 @@ using Newtonsoft.Json;
 namespace DSharpPlus.Core.Entities
 {
     // TODO: Write a validation test.
-    // TODO: Serialize the class into just the Value property.
     /// <summary>
     /// Implements https://discord.com/developers/docs/reference#snowflakes.
     /// </summary>

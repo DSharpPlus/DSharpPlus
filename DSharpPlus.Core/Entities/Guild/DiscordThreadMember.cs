@@ -59,6 +59,15 @@ namespace DSharpPlus.Core.Entities
         [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
         public int Flags { get; init; }
 
+        /// <summary>
+        /// The id of the guild.
+        /// </summary>
+        /// <remarks>
+        /// Only sent on the ThreadMemberUpdate gateway payload.
+        /// </remarks>
+        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<DiscordSnowflake> GuildId { get; init; }
+
         /// <exception cref="NullReferenceException">If <see cref="UserId"/> is null.</exception>
         public static implicit operator ulong(DiscordThreadMember threadMember) => threadMember.UserId.HasValue ? threadMember.UserId.Value : throw new EmptyOptionalException(nameof(UserId) + " does not hold a value.");
 

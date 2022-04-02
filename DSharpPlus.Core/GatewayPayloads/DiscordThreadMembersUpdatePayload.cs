@@ -21,58 +21,47 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
-using DSharpPlus.Core.Enums;
+using DSharpPlus.Core.Entities;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Entities
+namespace DSharpPlus.Core.GatewayPayloads
 {
     /// <summary>
-    /// A Stage Instance holds information about a live stage.
+    /// Sent when anyone is added to or removed from a thread. If the current user does not have the <see cref="Enums.DiscordGatewayIntents.GuildMembers"/>, then this event will only be sent if the current user was added to or removed from the thread.
     /// </summary>
-    public sealed record DiscordStageInstance
+    /// <remarks>
+    /// In this gateway event, the thread member objects will also include the <see cref="DiscordGuildMember"/> and nullable <see cref="DiscordPresenceUpdatePayload"/> for each added thread member.
+    /// </remarks>
+    public sealed record DiscordThreadMembersUpdatePayload
     {
         /// <summary>
-        /// The id of this Stage instance.
+        /// The id of the thread.
         /// </summary>
         [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordSnowflake Id { get; init; } = null!;
 
         /// <summary>
-        /// The guild id of the associated Stage channel.
+        /// The id of the guild.
         /// </summary>
         [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordSnowflake GuildId { get; init; } = null!;
 
         /// <summary>
-        /// The id of the associated Stage channel.
+        /// The approximate number of members in the thread, capped at 50.
         /// </summary>
-        [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordSnowflake ChannelId { get; init; } = null!;
+        [JsonProperty("member_count", NullValueHandling = NullValueHandling.Ignore)]
+        public int MemberCount { get; init; }
 
         /// <summary>
-        /// The topic of the Stage instance (1-120 characters).
+        /// The users who were added to the thread.
         /// </summary>
-        [JsonProperty("topic", NullValueHandling = NullValueHandling.Ignore)]
-        public string Topic { get; internal set; } = null!;
+        [JsonProperty("added_members", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordThreadMember[] AddedMembers { get; init; } = null!;
 
         /// <summary>
-        /// The privacy level of the Stage instance.
+        /// The id of the users who were removed from the thread.
         /// </summary>
-        [JsonProperty("privacy", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordStageInstancePrivacyLevel PrivacyLevel { get; init; }
-
-        /// <summary>
-        /// Whether or not Stage Discovery is disabled (deprecated).
-        /// </summary>
-        [JsonProperty("discovery_disabled", NullValueHandling = NullValueHandling.Ignore)]
-        [Obsolete("Whether or not Stage Discovery is disabled (deprecated)")]
-        public bool DiscoverableDisabled { get; set; }
-
-        /// <summary>
-        /// The id of the scheduled event for this Stage instance.
-        /// </summary>
-        [JsonProperty("guild_scheduled_event_id", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordSnowflake? GuildScheduledEventId { get; init; }
+        [JsonProperty("removed_member_ids", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordSnowflake[] RemovedMemberIds { get; init; } = null!;
     }
 }

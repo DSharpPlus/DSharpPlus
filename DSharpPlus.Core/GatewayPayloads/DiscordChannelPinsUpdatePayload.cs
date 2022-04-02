@@ -22,14 +22,32 @@
 // SOFTWARE.
 
 using System;
+using DSharpPlus.Core.Entities;
+using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.GatewayPayloads
 {
-    // TODO: Use a static class that utilizes environment variables or csproj values to determine the current library version.
-    public sealed record IdentifyConnectionProperties
+    /// <summary>
+    /// Sent when a message is pinned or unpinned in a text channel. This is not sent when a pinned message is deleted.
+    /// </summary>
+    public sealed record DiscordChannelPinsUpdatePayload
     {
-        public string OS { get; init; } = Environment.OSVersion.Platform.ToString();
-        public string Browser { get; init; } = "DSharpPlus.Core 5.0.0";
-        public string Device { get; init; } = "DSharpPlus.Core 5.0.0";
+        /// <summary>
+        /// The id of the guild.
+        /// </summary>
+        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<DiscordSnowflake> GuildId { get; init; }
+
+        /// <summary>
+        /// The id of the channel.
+        /// </summary>
+        [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordSnowflake ChannelId { get; init; } = null!;
+
+        /// <summary>
+        /// The time at which the most recent pinned message was pinned.
+        /// </summary>
+        [JsonProperty("last_pin_timestamp", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<DateTimeOffset?> LastPinTimestamp { get; init; }
     }
 }

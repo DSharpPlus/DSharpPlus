@@ -21,28 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using DSharpPlus.Core.Entities;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Entities
+namespace DSharpPlus.Core.GatewayPayloads
 {
-    public sealed record GatewayPayload
+    /// <summary>
+    /// Sent when a user is (un)banned from a guild.
+    /// </summary>
+    public sealed record DiscordGuildBanPayload
     {
-        [JsonProperty("op", NullValueHandling = NullValueHandling.Ignore)]
-        public int OpCode { get; init; }
+        /// <summary>
+        /// The id of the guild.
+        /// </summary>
+        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordSnowflake GuildId { get; init; } = null!;
 
-        [JsonProperty("d", NullValueHandling = NullValueHandling.Ignore)]
-        public object? Data { get; internal set; }
-
-        /// <remarks>
-        /// Null when OpCode is not 0
-        /// </remarks>
-        [JsonProperty("s", NullValueHandling = NullValueHandling.Ignore)]
-        public int? SequenceNumber { get; init; }
-
-        /// <remarks>
-        /// Null when OpCode is not 0
-        /// </remarks>
-        [JsonProperty("t", NullValueHandling = NullValueHandling.Ignore)]
-        public string? EventName { get; init; }
+        /// <summary>
+        /// The (un)banned user.
+        /// </summary>
+        [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordUser User { get; init; } = null!;
     }
 }
