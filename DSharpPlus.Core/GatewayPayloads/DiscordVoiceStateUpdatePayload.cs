@@ -21,58 +21,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
-using DSharpPlus.Core.Enums;
+using DSharpPlus.Core.Entities;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Entities
+namespace DSharpPlus.Core.GatewayPayloads
 {
-    /// <summary>
-    /// A Stage Instance holds information about a live stage.
-    /// </summary>
-    public sealed record DiscordStageInstance
+    public sealed record DiscordVoiceStateUpdatePayload
     {
         /// <summary>
-        /// The id of this Stage instance.
-        /// </summary>
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordSnowflake Id { get; init; } = null!;
-
-        /// <summary>
-        /// The guild id of the associated Stage channel.
+        /// The id of the guild.
         /// </summary>
         [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordSnowflake GuildId { get; init; } = null!;
 
         /// <summary>
-        /// The id of the associated Stage channel.
+        /// The id of the voice channel the client wants to join (null if disconnecting).
         /// </summary>
         [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordSnowflake ChannelId { get; init; } = null!;
+        public DiscordSnowflake? ChannelId { get; init; }
 
         /// <summary>
-        /// The topic of the Stage instance (1-120 characters).
+        /// Is the client muted.
         /// </summary>
-        [JsonProperty("topic", NullValueHandling = NullValueHandling.Ignore)]
-        public string Topic { get; internal set; } = null!;
+        [JsonProperty("self_mute", NullValueHandling = NullValueHandling.Ignore)]
+        public bool SelfMute { get; init; }
 
         /// <summary>
-        /// The privacy level of the Stage instance.
+        /// Is the client deafened.
         /// </summary>
-        [JsonProperty("privacy", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordStageInstancePrivacyLevel PrivacyLevel { get; init; }
-
-        /// <summary>
-        /// Whether or not Stage Discovery is disabled (deprecated).
-        /// </summary>
-        [JsonProperty("discovery_disabled", NullValueHandling = NullValueHandling.Ignore)]
-        [Obsolete("Whether or not Stage Discovery is disabled (deprecated)")]
-        public bool DiscoverableDisabled { get; set; }
-
-        /// <summary>
-        /// The id of the scheduled event for this Stage instance.
-        /// </summary>
-        [JsonProperty("guild_scheduled_event_id", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordSnowflake? GuildScheduledEventId { get; init; }
+        [JsonProperty("self_deaf", NullValueHandling = NullValueHandling.Ignore)]
+        public bool SelfDeaf { get; init; }
     }
 }

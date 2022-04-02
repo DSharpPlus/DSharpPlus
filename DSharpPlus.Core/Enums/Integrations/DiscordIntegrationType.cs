@@ -21,20 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System.Collections.Generic;
-using DSharpPlus.Core.Entities;
-using DSharpPlus.Core.Enums;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
-namespace DSharpPlus.Core.GatewayPayloads
+namespace DSharpPlus.Core.Enums
 {
-    public sealed record IdentifyPayload
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum DiscordIntegrationType
     {
-        public string Token { get; init; } = null!;
-        public IdentifyConnectionProperties Properties { get; init; } = null!;
-        public Optional<bool> Compress { get; init; } = true;
-        public Optional<int> LargeThreshold { get; init; } = 50;
-        public Optional<Dictionary<int, int>> Shard { get; init; }
-        public Optional<PresenceUpdatePayload> Presence { get; init; }
-        public GatewayIntents Intents { get; init; }
+        Twitch,
+        Youtube,
+        Discord
     }
 }

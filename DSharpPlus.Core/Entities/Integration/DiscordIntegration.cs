@@ -45,7 +45,7 @@ namespace DSharpPlus.Core.Entities
         /// The integration type (twitch, youtube, or discord).
         /// </summary>
         [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-        public string Type { get; init; } = null!;
+        public DiscordIntegrationType Type { get; init; }
 
         /// <summary>
         /// Is this integration enabled.

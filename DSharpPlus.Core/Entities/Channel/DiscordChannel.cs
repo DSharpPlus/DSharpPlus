@@ -188,6 +188,12 @@ namespace DSharpPlus.Core.Entities
         [JsonProperty("permissions", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<DiscordPermissions> Permissions { get; internal set; }
 
+        /// <summary>
+        /// When the thread is newly created. Only sent in gateway payloads.
+        /// </summary>
+        [JsonProperty("newly_created", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<bool> NewlyCreated { get; init; }
+
         public static implicit operator ulong(DiscordChannel channel) => channel.Id;
         public static implicit operator DiscordSnowflake(DiscordChannel channel) => channel.Id;
     }
