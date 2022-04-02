@@ -25,12 +25,24 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Entities
 {
-    public sealed record DiscordGuildScheduledEventEntityMetadata
+    public sealed record DiscordGatewayPayload
     {
+        [JsonProperty("op", NullValueHandling = NullValueHandling.Ignore)]
+        public int OpCode { get; init; }
+
+        [JsonProperty("d", NullValueHandling = NullValueHandling.Ignore)]
+        public object? Data { get; internal set; }
+
         /// <remarks>
-        /// Requires <see cref="DiscordGuildScheduledEvent.EntityType"/> to be <see cref="Enums.DiscordGuildScheduledEventEntityType.External"/>.
+        /// Null when OpCode is not 0
         /// </remarks>
-        [JsonProperty("location", NullValueHandling = NullValueHandling.Ignore)]
-        public string? Location { get; internal set; }
+        [JsonProperty("s", NullValueHandling = NullValueHandling.Ignore)]
+        public int? SequenceNumber { get; init; }
+
+        /// <remarks>
+        /// Null when OpCode is not 0
+        /// </remarks>
+        [JsonProperty("t", NullValueHandling = NullValueHandling.Ignore)]
+        public string? EventName { get; init; }
     }
 }

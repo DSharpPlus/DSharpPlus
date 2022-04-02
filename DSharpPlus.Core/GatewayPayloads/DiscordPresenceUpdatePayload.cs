@@ -23,14 +23,38 @@
 
 using System;
 using DSharpPlus.Core.Entities;
+using DSharpPlus.Core.Enums;
+using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.GatewayPayloads
 {
-    public sealed record PresenceUpdatePayload
+    /// <summary>
+    /// Sent by the client to indicate a presence or status update.
+    /// </summary>
+    public sealed record DiscordPresenceUpdatePayload
     {
+        /// <summary>
+        /// The time of when the client went idle, or null if the client is not idle.
+        /// </summary>
+        [JsonProperty("since", NullValueHandling = NullValueHandling.Ignore)]
         public DateTimeOffset? Since { get; internal set; }
+
+        /// <summary>
+        /// The user's activities.
+        /// </summary>
+        [JsonProperty("activities", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordActivity[] Activities { get; internal set; } = null!;
-        public string Status { get; internal set; } = null!;
+
+        /// <summary>
+        /// The user's new status.
+        /// </summary>
+        [JsonProperty("status", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordStatusType Status { get; internal set; }
+
+        /// <summary>
+        /// Whether or not the client is afk.
+        /// </summary>
+        [JsonProperty("afk", NullValueHandling = NullValueHandling.Ignore)]
         public bool AFK { get; internal set; }
     }
 }

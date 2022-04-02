@@ -21,16 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using DSharpPlus.Core.Entities;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Entities
+namespace DSharpPlus.Core.GatewayPayloads
 {
-    public sealed record DiscordGuildScheduledEventEntityMetadata
+    /// <summary>
+    /// Sent when a guild's emojis have been updated.
+    /// </summary>
+    public sealed record DiscordGuildEmojisUpdatePayload
     {
-        /// <remarks>
-        /// Requires <see cref="DiscordGuildScheduledEvent.EntityType"/> to be <see cref="Enums.DiscordGuildScheduledEventEntityType.External"/>.
-        /// </remarks>
-        [JsonProperty("location", NullValueHandling = NullValueHandling.Ignore)]
-        public string? Location { get; internal set; }
+        /// <summary>
+        /// The id of the guild.
+        /// </summary>
+        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordSnowflake GuildId { get; init; } = null!;
+
+        /// <summary>
+        /// An array of emojis.
+        /// </summary>
+        [JsonProperty("emojis", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordEmoji[] Emojis { get; init; } = null!;
     }
 }
