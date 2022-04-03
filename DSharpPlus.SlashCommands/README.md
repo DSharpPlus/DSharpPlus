@@ -239,8 +239,7 @@ public class RequireUserIdAttribute : SlashCheckBaseAttribute
     {
         if (ctx.User.Id == UserId)
             return true;
-        else
-            return false;
+        return false;
     }
 }
 
