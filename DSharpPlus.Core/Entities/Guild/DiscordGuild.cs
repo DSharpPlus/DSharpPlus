@@ -236,7 +236,7 @@ namespace DSharpPlus.Core.Entities
         /// The presences of the members in the guild, will only include non-offline members if the size is greater than large threshold.
         /// </summary>
         [JsonProperty("presences", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordPresenceUpdatePayload[]> Presences { get; internal set; }
+        public Optional<DiscordUpdatePresencePayload[]> Presences { get; internal set; }
 
         /// <summary>
         /// The maximum number of presences for the guild (null is always returned, apart from the largest of guilds).

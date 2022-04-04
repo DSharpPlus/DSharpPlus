@@ -21,19 +21,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using DSharpPlus.Core.Entities;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.GatewayPayloads
 {
     /// <summary>
-    /// Sent on connection to the websocket. Defines the heartbeat interval that the client should heartbeat to.
+    /// Sent when an invite is deleted.
     /// </summary>
-    public sealed record DiscordHelloPayload
+    public sealed record DiscordInviteDeletePayload
     {
         /// <summary>
-        /// The interval (in milliseconds) the client should heartbeat with.
+        /// The channel of the invite.
         /// </summary>
-        [JsonProperty("heartbeat_interval", NullValueHandling = NullValueHandling.Ignore)]
-        public int HeartbeatInterval { get; init; }
+        [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordSnowflake ChannelId { get; init; } = null!;
+
+        /// <summary>
+        /// The guild of the invite.
+        /// </summary>
+        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<DiscordSnowflake> GuildId { get; init; }
+
+        /// <summary>
+        /// The unique invite code.
+        /// </summary>
+        [JsonProperty("code", NullValueHandling = NullValueHandling.Ignore)]
+        public string Code { get; init; } = null!;
     }
 }

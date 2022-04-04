@@ -21,19 +21,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using DSharpPlus.Core.Entities;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.GatewayPayloads
 {
-    /// <summary>
-    /// Sent on connection to the websocket. Defines the heartbeat interval that the client should heartbeat to.
-    /// </summary>
-    public sealed record DiscordHelloPayload
+    public sealed record DiscordGuildIntegrationsUpdatePayload
     {
         /// <summary>
-        /// The interval (in milliseconds) the client should heartbeat with.
+        /// The id of the guild whose integrations were updated.
         /// </summary>
-        [JsonProperty("heartbeat_interval", NullValueHandling = NullValueHandling.Ignore)]
-        public int HeartbeatInterval { get; init; }
+        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordSnowflake GuildId { get; init; } = null!;
     }
 }

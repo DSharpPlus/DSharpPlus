@@ -23,7 +23,7 @@
 
 namespace DSharpPlus.Core.Enums
 {
-    public enum GatewayIntents
+    public enum DiscordGatewayIntents
     {
         /// <summary>
         /// Contains the following events:<br/>

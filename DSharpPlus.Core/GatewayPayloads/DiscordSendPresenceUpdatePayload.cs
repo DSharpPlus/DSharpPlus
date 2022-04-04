@@ -21,19 +21,40 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
+using DSharpPlus.Core.Entities;
+using DSharpPlus.Core.Enums;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.GatewayPayloads
 {
     /// <summary>
-    /// Sent on connection to the websocket. Defines the heartbeat interval that the client should heartbeat to.
+    /// Sent by the client to indicate a presence or status update.
     /// </summary>
-    public sealed record DiscordHelloPayload
+    public sealed record DiscordSendPresenceUpdatePayload
     {
         /// <summary>
-        /// The interval (in milliseconds) the client should heartbeat with.
+        /// The time of when the client went idle, or null if the client is not idle.
         /// </summary>
-        [JsonProperty("heartbeat_interval", NullValueHandling = NullValueHandling.Ignore)]
-        public int HeartbeatInterval { get; init; }
+        [JsonProperty("since", NullValueHandling = NullValueHandling.Ignore)]
+        public DateTimeOffset? Since { get; internal set; }
+
+        /// <summary>
+        /// The user's activities.
+        /// </summary>
+        [JsonProperty("activities", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordActivity[] Activities { get; internal set; } = null!;
+
+        /// <summary>
+        /// The user's new status.
+        /// </summary>
+        [JsonProperty("status", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordStatusType Status { get; internal set; }
+
+        /// <summary>
+        /// Whether or not the client is afk.
+        /// </summary>
+        [JsonProperty("afk", NullValueHandling = NullValueHandling.Ignore)]
+        public bool AFK { get; internal set; }
     }
 }

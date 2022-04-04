@@ -21,40 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
 using DSharpPlus.Core.Entities;
-using DSharpPlus.Core.Enums;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.GatewayPayloads
 {
     /// <summary>
-    /// Sent by the client to indicate a presence or status update.
+    /// Sent when a guild role is deleted.
     /// </summary>
-    public sealed record DiscordPresenceUpdatePayload
+    public sealed record DiscordGuildRoleDeletePayload
     {
         /// <summary>
-        /// The time of when the client went idle, or null if the client is not idle.
+        /// The id of the guild.
         /// </summary>
-        [JsonProperty("since", NullValueHandling = NullValueHandling.Ignore)]
-        public DateTimeOffset? Since { get; internal set; }
+        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordSnowflake GuildId { get; init; } = null!;
 
         /// <summary>
-        /// The user's activities.
+        /// The role deleted.
         /// </summary>
-        [JsonProperty("activities", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordActivity[] Activities { get; internal set; } = null!;
-
-        /// <summary>
-        /// The user's new status.
-        /// </summary>
-        [JsonProperty("status", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordStatusType Status { get; internal set; }
-
-        /// <summary>
-        /// Whether or not the client is afk.
-        /// </summary>
-        [JsonProperty("afk", NullValueHandling = NullValueHandling.Ignore)]
-        public bool AFK { get; internal set; }
+        [JsonProperty("role_id", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordSnowflake RoleId { get; init; } = null!;
     }
 }

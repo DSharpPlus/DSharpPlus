@@ -67,7 +67,7 @@ namespace DSharpPlus.Core.GatewayPayloads
         /// The presence structure for initial presence information.
         /// </summary>
         [JsonProperty("presence", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordPresenceUpdatePayload> Presence { get; init; }
+        public Optional<DiscordUpdatePresencePayload> Presence { get; init; }
 
         /// <summary>
         /// The <see cref="DiscordGatewayIntents"/> you wish to receive.

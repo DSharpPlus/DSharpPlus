@@ -21,19 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using DSharpPlus.Core.Entities;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.GatewayPayloads
 {
     /// <summary>
-    /// Sent on connection to the websocket. Defines the heartbeat interval that the client should heartbeat to.
+    /// Sent when a guild role is created.
     /// </summary>
-    public sealed record DiscordHelloPayload
+    public sealed record DiscordGuildRoleCreatePayload
     {
         /// <summary>
-        /// The interval (in milliseconds) the client should heartbeat with.
+        /// The id of the guild.
         /// </summary>
-        [JsonProperty("heartbeat_interval", NullValueHandling = NullValueHandling.Ignore)]
-        public int HeartbeatInterval { get; init; }
+        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordSnowflake GuildId { get; init; } = null!;
+
+        /// <summary>
+        /// The role created.
+        /// </summary>
+        [JsonProperty("role", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordRole Role { get; init; } = null!;
     }
 }

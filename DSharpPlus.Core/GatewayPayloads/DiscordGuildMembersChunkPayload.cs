@@ -27,19 +27,10 @@ using Newtonsoft.Json;
 namespace DSharpPlus.Core.GatewayPayloads
 {
     /// <summary>
-    /// Sent when anyone is added to or removed from a thread. If the current user does not have the <see cref="Enums.DiscordGatewayIntents.GuildMembers"/>, then this event will only be sent if the current user was added to or removed from the thread.
+    /// Sent in response to Guild Request Members. You can use the chunk_index and chunk_count to calculate how many chunks are left for your request.
     /// </summary>
-    /// <remarks>
-    /// In this gateway event, the thread member objects will also include the <see cref="DiscordGuildMember"/> and nullable <see cref="DiscordUpdatePresencePayload"/> for each added thread member.
-    /// </remarks>
-    public sealed record DiscordThreadMembersUpdatePayload
+    public sealed record DiscordGuildMembersChunkPayload
     {
-        /// <summary>
-        /// The id of the thread.
-        /// </summary>
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordSnowflake Id { get; init; } = null!;
-
         /// <summary>
         /// The id of the guild.
         /// </summary>
@@ -47,21 +38,39 @@ namespace DSharpPlus.Core.GatewayPayloads
         public DiscordSnowflake GuildId { get; init; } = null!;
 
         /// <summary>
-        /// The approximate number of members in the thread, capped at 50.
+        /// A set of guild members.
         /// </summary>
-        [JsonProperty("member_count", NullValueHandling = NullValueHandling.Ignore)]
-        public int MemberCount { get; init; }
+        [JsonProperty("members", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordGuildMember[] Members { get; init; } = null!;
 
         /// <summary>
-        /// The users who were added to the thread.
+        /// The chunk index in the expected chunks for this response (0 <= chunk_index < chunk_count).
         /// </summary>
-        [JsonProperty("added_members", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordThreadMember[]> AddedMembers { get; init; } = null!;
+        [JsonProperty("chunk_index", NullValueHandling = NullValueHandling.Ignore)]
+        public int ChunkIndex { get; init; }
 
         /// <summary>
-        /// The id of the users who were removed from the thread.
+        /// The total number of expected chunks for this response.
         /// </summary>
-        [JsonProperty("removed_member_ids", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordSnowflake[]> RemovedMemberIds { get; init; } = null!;
+        [JsonProperty("chunk_count", NullValueHandling = NullValueHandling.Ignore)]
+        public int ChunkCount { get; init; }
+
+        /// <summary>
+        /// If passing an invalid id to REQUEST_GUILD_MEMBERS, it will be returned here.
+        /// </summary>
+        [JsonProperty("not_found", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<DiscordSnowflake[]> NotFound { get; init; }
+
+        /// <summary>
+        /// If passing true to REQUEST_GUILD_MEMBERS, presences of the returned members will be here.
+        /// </summary>
+        [JsonProperty("presences", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<DiscordUpdatePresencePayload> Presences { get; init; }
+
+        /// <summary>
+        /// The nonce used in the Guild Members Request.
+        /// </summary>
+        [JsonProperty("nonce", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<string> Nonce { get; init; }
     }
 }
