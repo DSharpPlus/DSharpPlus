@@ -21,7 +21,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
 using DSharpPlus.Core.Entities;
 using DSharpPlus.Core.Enums;
 using Newtonsoft.Json;
@@ -34,10 +33,10 @@ namespace DSharpPlus.Core.Gateway.Commands
     public sealed record DiscordPresenceUpdateCommand
     {
         /// <summary>
-        /// The time of when the client went idle, or null if the client is not idle.
+        /// The unix time (in milliseconds) of when the client went idle, or null if the client is not idle.
         /// </summary>
         [JsonProperty("since", NullValueHandling = NullValueHandling.Ignore)]
-        public DateTimeOffset? Since { get; internal set; }
+        public int? Since { get; internal set; }
 
         /// <summary>
         /// The user's activities.
