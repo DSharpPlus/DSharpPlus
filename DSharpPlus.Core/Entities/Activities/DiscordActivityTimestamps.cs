@@ -21,7 +21,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Entities
@@ -29,15 +28,15 @@ namespace DSharpPlus.Core.Entities
     public sealed record DiscordActivityTimestamps
     {
         /// <summary>
-        /// When the activity started.
+        /// The unix time (in milliseconds) of when the activity started.
         /// </summary>
         [JsonProperty("start", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DateTimeOffset> Start { get; init; }
+        public Optional<int> Start { get; init; }
 
         /// <summary>
-        /// When the activity ends.
+        /// The unix time (in milliseconds) of when the activity ends.
         /// </summary>
         [JsonProperty("end", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DateTimeOffset> End { get; init; }
+        public Optional<int> End { get; init; }
     }
 }
