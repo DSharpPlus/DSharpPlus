@@ -21,7 +21,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
 using DSharpPlus.Core.Enums;
 using Newtonsoft.Json;
 
@@ -48,10 +47,10 @@ namespace DSharpPlus.Core.Entities
         public Optional<string?> Url { get; init; }
 
         /// <summary>
-        /// A timestamp of when the activity was added to the user's session.
+        /// A unix timestamp (in milliseconds) of when the activity was added to the user's session.
         /// </summary>
         [JsonProperty("created_at", NullValueHandling = NullValueHandling.Ignore)]
-        public DateTimeOffset CreatedAt { get; init; }
+        public int CreatedAt { get; init; }
 
         /// <summary>
         /// Timestamps for start and/or end of the game.
