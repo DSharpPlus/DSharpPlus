@@ -27,44 +27,38 @@ using Newtonsoft.Json;
 namespace DSharpPlus.Core.GatewayPayloads
 {
     /// <summary>
-    /// The ready event is dispatched when a client has completed the initial handshake with the gateway (for new sessions). The ready event can be the largest and most complex event the gateway will send, as it contains all the state required for a client to begin interacting with the rest of the platform.
+    /// Sent when a user starts typing in a channel.
     /// </summary>
-    public sealed record DiscordReadyPayload
+    public sealed record DiscordTypingStartPayload
     {
         /// <summary>
-        /// The gateway version.
+        /// The id of the channel.
         /// </summary>
-        [JsonProperty("v", NullValueHandling = NullValueHandling.Ignore)]
-        public int Version { get; init; }
+        [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordSnowflake ChannelId { get; init; } = null!;
 
         /// <summary>
-        /// Information about the user including email.
+        /// The id of the guild.
         /// </summary>
-        [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordUser User { get; init; } = null!;
+        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<DiscordSnowflake> GuildId { get; init; }
 
         /// <summary>
-        /// The guilds the user is in.
+        /// The id of the user.
         /// </summary>
-        [JsonProperty("guilds", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordGuild[] Guilds { get; init; } = null!;
+        [JsonProperty("user_id", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordSnowflake UserId { get; init; } = null!;
 
         /// <summary>
-        /// Used for resuming connections.
+        /// The unix time (in seconds) of when the user started typing.
         /// </summary>
-        [JsonProperty("session_id", NullValueHandling = NullValueHandling.Ignore)]
-        public string SessionId { get; init; } = null!;
+        [JsonProperty("timestamp", NullValueHandling = NullValueHandling.Ignore)]
+        public int Timestamp { get; init; }
 
         /// <summary>
-        /// The shard information associated with this session, if sent when identifying.
+        /// The member who started typing if this happened in a guild.
         /// </summary>
-        [JsonProperty("shard", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<int[]> Shard { get; init; } = null!;
-
-        /// <summary>
-        /// Contains <see cref="DiscordApplication.Id"> and <see cref="DiscordApplication.Flags"/>
-        /// </summary>
-        [JsonProperty("application", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordApplication Application { get; init; } = null!;
+        [JsonProperty("member", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordGuildMember Member { get; init; } = null!;
     }
 }

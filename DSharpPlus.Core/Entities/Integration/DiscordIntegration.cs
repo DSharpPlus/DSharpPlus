@@ -145,5 +145,10 @@ namespace DSharpPlus.Core.Entities
         /// </summary>
         [JsonProperty("application", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<DiscordIntegrationApplication> Application { get; init; }
+
+        /// <summary>
+        /// Sent on gateway integration events such as INTEGRATION_CREATE or INTEGRATION_UPDATE.
+        /// </summary>
+        public Optional<DiscordSnowflake> GuildId { get; init; }
     }
 }

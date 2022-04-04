@@ -21,19 +21,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using DSharpPlus.Core.Entities;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.GatewayPayloads
 {
-    /// <summary>
-    /// Sent on connection to the websocket. Defines the heartbeat interval that the client should heartbeat to.
-    /// </summary>
-    public sealed record DiscordHelloPayload
+    public sealed record DiscordVoiceServerUpdatePayload
     {
         /// <summary>
-        /// The interval (in milliseconds) the client should heartbeat with.
+        /// The voice connection token.
         /// </summary>
-        [JsonProperty("heartbeat_interval", NullValueHandling = NullValueHandling.Ignore)]
-        public int HeartbeatInterval { get; init; }
+        [JsonProperty("token", NullValueHandling = NullValueHandling.Ignore)]
+        public string Token { get; init; } = null!;
+
+        /// <summary>
+        /// The guild this voice server update is for.
+        /// </summary>
+        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordSnowflake GuildId { get; init; } = null!;
+
+        /// <summary>
+        /// The voice server host.
+        /// </summary>
+        /// <remarks>
+        /// A null endpoint means that the voice server allocated has gone away and is trying to be reallocated. You should attempt to disconnect from the currently connected voice server, and not attempt to reconnect until a new voice server is allocated.
+        /// </remarks>
+        [JsonProperty("endpoint", NullValueHandling = NullValueHandling.Ignore)]
+        public string? Endpoint { get; init; }
     }
 }

@@ -22,49 +22,44 @@
 // SOFTWARE.
 
 using DSharpPlus.Core.Entities;
+using DSharpPlus.Core.Enums;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.GatewayPayloads
 {
     /// <summary>
-    /// The ready event is dispatched when a client has completed the initial handshake with the gateway (for new sessions). The ready event can be the largest and most complex event the gateway will send, as it contains all the state required for a client to begin interacting with the rest of the platform.
+    /// A user's presence is their current state on a guild. This event is sent when a user's presence or info, such as name or avatar, is updated.
     /// </summary>
-    public sealed record DiscordReadyPayload
+    public sealed record DiscordUpdatePresencePayload
     {
         /// <summary>
-        /// The gateway version.
-        /// </summary>
-        [JsonProperty("v", NullValueHandling = NullValueHandling.Ignore)]
-        public int Version { get; init; }
-
-        /// <summary>
-        /// Information about the user including email.
+        /// The user presence is being updated for.
         /// </summary>
         [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordUser User { get; init; } = null!;
 
         /// <summary>
-        /// The guilds the user is in.
+        /// The id of the guild.
         /// </summary>
-        [JsonProperty("guilds", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordGuild[] Guilds { get; init; } = null!;
+        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordSnowflake GuildId { get; init; } = null!;
 
         /// <summary>
-        /// Used for resuming connections.
+        /// Either "idle", "dnd", "online", or "offline".
         /// </summary>
-        [JsonProperty("session_id", NullValueHandling = NullValueHandling.Ignore)]
-        public string SessionId { get; init; } = null!;
+        [JsonProperty("status", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordStatusType Status { get; init; }
 
         /// <summary>
-        /// The shard information associated with this session, if sent when identifying.
+        /// The user's current activities.
         /// </summary>
-        [JsonProperty("shard", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<int[]> Shard { get; init; } = null!;
+        [JsonProperty("activities", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordActivity[] Activities { get; init; } = null!;
 
         /// <summary>
-        /// Contains <see cref="DiscordApplication.Id"> and <see cref="DiscordApplication.Flags"/>
+        /// The user's platform-dependent status.
         /// </summary>
-        [JsonProperty("application", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordApplication Application { get; init; } = null!;
+        [JsonProperty("client_status", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordClientStatus ClientStatus { get; init; } = null!;
     }
 }

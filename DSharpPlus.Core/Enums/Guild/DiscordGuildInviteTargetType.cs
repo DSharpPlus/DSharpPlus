@@ -21,26 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using DSharpPlus.Core.Entities;
-using Newtonsoft.Json;
-
-namespace DSharpPlus.Core.GatewayPayloads
+namespace DSharpPlus.Core.Enums
 {
-    /// <summary>
-    /// Sent when a user is (un)banned from a guild.
-    /// </summary>
-    public sealed record DiscordGuildBanPayload
+    public enum DiscordGuildInviteTargetType
     {
-        /// <summary>
-        /// The id of the guild.
-        /// </summary>
-        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordSnowflake GuildId { get; init; } = null!;
-
-        /// <summary>
-        /// The (un)banned user.
-        /// </summary>
-        [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordUser User { get; init; } = null!;
+        Stream = 1,
+        EmbeddedApplication = 2
     }
 }
