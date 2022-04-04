@@ -353,10 +353,10 @@ namespace DSharpPlus.Entities
                 reference.Guild = client._guilds.TryGetValue(guildId.Value, out var g)
                     ? g
                     : new DiscordGuild
-                {
-                    Id = guildId.Value,
-                    Discord = client
-                };
+                    {
+                        Id = guildId.Value,
+                        Discord = client
+                    };
 
             var channel = client.InternalGetCachedChannel(channelId.Value);
 
@@ -397,7 +397,7 @@ namespace DSharpPlus.Entities
             var mentions = new List<IMention>();
 
             if (this.ReferencedMessage != null && this._mentionedUsers.Contains(this.ReferencedMessage.Author))
-               mentions.Add(new RepliedUserMention()); // Return null to allow all mentions
+                mentions.Add(new RepliedUserMention()); // Return null to allow all mentions
 
             if (this._mentionedUsers?.Any() ?? false)
                 mentions.AddRange(this._mentionedUsers.Select(m => (IMention)new UserMention(m)));
@@ -420,10 +420,35 @@ namespace DSharpPlus.Entities
             {
                 foreach (var usr in this._mentionedUsers)
                 {
-                    usr.Discord = this.Discord;
-                    this.Discord.UpdateUserCache(usr);
+                    var member = usr as DiscordMember;
+                    if (member != null)
+                    {
+                        this.Discord.UpdateUserCache(new DiscordUser()
+                        {
+                            Id = member.Id,
+                            Username = member.Username,
+                            Discriminator = member.Discriminator,
+                            AvatarHash = member.AvatarHash,
+                            _bannerColor = member._bannerColor,
+                            BannerHash = member.BannerHash,
+                            IsBot = member.IsBot,
+                            MfaEnabled = member.MfaEnabled,
+                            Verified = member.Verified,
+                            Email = member.Email,
+                            PremiumType = member.PremiumType,
+                            Locale = member.Locale,
+                            Flags = member.Flags,
+                            OAuthFlags = member.OAuthFlags,
+                            Discord = this.Discord
+                        });
+                    }
+                    else
+                    {
+                        usr.Discord = this.Discord;
+                        this.Discord.UpdateUserCache(usr);
+                    }
 
-                    mentionedUsers.Add(guild._members.TryGetValue(usr.Id, out var member) ? member : usr);
+                    mentionedUsers.Add(member ?? (guild._members.TryGetValue(usr.Id, out var cachedMember) ? cachedMember : usr));
                 }
             }
             if (!string.IsNullOrWhiteSpace(this.Content))
@@ -464,7 +489,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> ModifyAsync(Optional<DiscordEmbed> embed = default)
-            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, default, embed.HasValue ? new[] {embed.Value} : Array.Empty<DiscordEmbed>(), this.GetMentions(), default, Array.Empty<DiscordMessageFile>(), null, default);
+            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, default, embed.HasValue ? new[] { embed.Value } : Array.Empty<DiscordEmbed>(), this.GetMentions(), default, Array.Empty<DiscordMessageFile>(), null, default);
 
         /// <summary>
         /// Edits the message.
@@ -477,7 +502,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> ModifyAsync(Optional<string> content, Optional<DiscordEmbed> embed = default)
-            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embed.HasValue ? new[] {embed.Value} : Array.Empty<DiscordEmbed>(), this.GetMentions(), default, Array.Empty<DiscordMessageFile>(), null, default);
+            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embed.HasValue ? new[] { embed.Value } : Array.Empty<DiscordEmbed>(), this.GetMentions(), default, Array.Empty<DiscordMessageFile>(), null, default);
 
         /// <summary>
         /// Edits the message.
