@@ -23,7 +23,7 @@
 
 using System;
 using DSharpPlus.Core.Enums;
-using DSharpPlus.Core.GatewayPayloads;
+using DSharpPlus.Core.Gateway.Payloads;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Entities
