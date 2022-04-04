@@ -29,7 +29,7 @@ namespace DSharpPlus.Core.Gateway.Commands
     /// <summary>
     /// Used to request all members for a guild or a list of guilds.
     /// </summary>
-    public sealed record DiscordGuildRequestMembersCommands
+    public sealed record DiscordGuildRequestMembersCommand
     {
         /// <summary>
         /// The id of the guild to get members for.
