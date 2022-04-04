@@ -21,19 +21,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using DSharpPlus.Core.Entities;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.GatewayPayloads
 {
     /// <summary>
-    /// Sent on connection to the websocket. Defines the heartbeat interval that the client should heartbeat to.
+    /// Sent when a bot removes all instances of a given emoji from the reactions of a message.
     /// </summary>
-    public sealed record DiscordHelloPayload
+    public sealed record DiscordMessageReactionRemoveEmojiPayload
     {
         /// <summary>
-        /// The interval (in milliseconds) the client should heartbeat with.
+        /// The id of the channel.
         /// </summary>
-        [JsonProperty("heartbeat_interval", NullValueHandling = NullValueHandling.Ignore)]
-        public int HeartbeatInterval { get; init; }
+        [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordSnowflake ChannelId { get; init; } = null!;
+
+        /// <summary>
+        /// The id of the message.
+        /// </summary>
+        [JsonProperty("message_id", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordSnowflake MessageId { get; init; } = null!;
+
+        /// <summary>
+        /// The id of the guild.
+        /// </summary>
+        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<DiscordSnowflake> GuildId { get; init; }
+
+        /// <summary>
+        /// The emoji that was removed.
+        /// </summary>
+        [JsonProperty("emoji", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordEmoji Emoji { get; init; } = null!;
     }
 }
