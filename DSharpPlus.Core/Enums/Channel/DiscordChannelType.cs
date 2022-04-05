@@ -28,6 +28,7 @@ namespace DSharpPlus.Core.Enums
     /// <remarks>
     /// Type 10 (<see cref="GuildNewsThread"/>), 11 (<see cref="GuildPublicThread"/>) and 12 (<see cref="GuildPrivateThread"/>) are only available in API v9.
     /// </remarks>
+    [Flags] // Required for DiscordApplicationCommandOption.ChannelTypes
     public enum DiscordChannelType
     {
         /// <summary>
@@ -84,6 +85,11 @@ namespace DSharpPlus.Core.Enums
         /// <summary>
         /// A voice channel for <see href="https://support.discord.com/hc/en-us/articles/1500005513722">hosting events with an audience</see>.
         /// </summary>
-        GuildStageVoice = 13
+        GuildStageVoice = 13,
+
+        /// <summary>
+        /// The channel in a hub containing the listed servers.
+        /// </summary>
+        GuildDirectory = 14
     }
 }
