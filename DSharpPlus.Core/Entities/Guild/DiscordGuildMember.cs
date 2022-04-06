@@ -24,7 +24,6 @@
 using System;
 using System.Text.Json.Serialization;
 using DSharpPlus.Core.Enums;
-using DSharpPlus.Core.Exceptions;
 
 namespace DSharpPlus.Core.Entities
 {
@@ -127,11 +126,5 @@ namespace DSharpPlus.Core.Entities
         /// Only sent in the GUILD_MEMBER_ADD and GUILD_MEMBER_UPDATE payloads.
         /// </remarks>
         public Optional<DiscordSnowflake> GuildId { get; init; }
-
-        /// <exception cref="NullReferenceException">If <see cref="User"/> is null.</exception>
-        public static implicit operator ulong(DiscordGuildMember guildMember) => guildMember.User.HasValue ? guildMember.User.Value.Id : throw new EmptyOptionalException(nameof(User) + " does not hold a value.");
-
-        /// <exception cref="NullReferenceException">If <see cref="User"/> is null.</exception>
-        public static implicit operator DiscordSnowflake(DiscordGuildMember guildMember) => guildMember.User.HasValue ? guildMember.User.Value.Id : throw new EmptyOptionalException(nameof(User) + " does not hold a value.");
     }
 }

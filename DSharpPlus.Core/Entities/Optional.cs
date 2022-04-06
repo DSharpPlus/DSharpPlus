@@ -22,38 +22,41 @@
 // SOFTWARE.
 
 using System;
-using DSharpPlus.Core.Exceptions;
+using System.Collections.Generic;
 using DSharpPlus.Core.JsonConverters;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Entities
 {
     /// <summary>
-    /// Often used in Discord API responses, this class is used to represent an optional field.
+    /// Often used in Discord API responses and requests, this class is used to represent an optional field.
     /// </summary>
     /// <remarks>
     /// While a Json field can be null, Discord enforces that a field can be missing entirely. This means that a field can be missing and/or null at any time. This struct is used to represent that.
     /// </remarks>
     [JsonConverter(typeof(OptionalConverter))]
-    public struct Optional<T>
+    public struct Optional<T> : IEquatable<Optional<T>>
     {
+        /// <summary>
+        /// An <see cref="Optional{T}"/> without a value.
+        /// </summary>
         public static Optional<T> Empty { get; }
 
         /// <summary>
         /// If the <see cref="Optional{T}"/> has a value. The value may be null.
         /// </summary>
-        public bool HasValue { get; init; }
+        public bool HasValue { get; }
 
         /// <summary>
         /// The value to be returned if the <see cref="Optional{T}"/> has a value.
         /// </summary>
-        /// <exception cref="EmptyOptionalException">If this <see cref="Optional{T}"/> has no value.</exception>
-        public T Value => HasValue ? _value : throw new EmptyOptionalException("No value present.");
+        /// <exception cref="InvalidOperationException">If this <see cref="Optional{T}"/> has no value.</exception>
+        public T Value => HasValue ? _value! : throw new InvalidOperationException("Optional<T> has no value.");
 
         /// <summary>
         /// The internal value. If no value is provided, this will be initialized to the default value of <typeparamref name="T"/>.
         /// </summary>
-        private readonly T _value = default!;
+        private readonly T? _value = default;
 
         /// <summary>
         /// Creates an empty instance of <see cref="Optional{T}"/>.
@@ -82,27 +85,29 @@ namespace DSharpPlus.Core.Entities
         /// <typeparam name="TOutput">The type that the lambda function is expected to return.</typeparam>
         /// <returns>An <see cref="Optional{TOutput}"/>. Optional.HasValue will be false if the field wasn't present.</returns>
         /// <remarks>This checks if the <see cref="Optional{T}"/> has a value, not if the value is null.</remarks>
-        public Optional<TOutput> IfPresent<TOutput>(Func<T, TOutput> ifPresentFunction) => HasValue ? new Optional<TOutput>(ifPresentFunction(_value)) : new Optional<TOutput>();
+        public Optional<TOutput> IfPresent<TOutput>(Func<T, TOutput> ifPresentFunction) => HasValue ? new Optional<TOutput>(ifPresentFunction(_value!)) : Optional<TOutput>.Empty;
 
         /// <summary>
         /// Gets the hash code for this <see cref="Optional{T}"/>.
         /// </summary>
         /// <returns>The hash code for this <see cref="Optional{T}"/>.</returns>
-        public override int GetHashCode() => HasValue ? Value!.GetHashCode() : 0;
+        public override int GetHashCode() => HasValue ? (_value?.GetHashCode() ?? 0) : 0;
 
         /// <summary>
         /// Checks whether this <see cref="Optional{T}"/> is equal to another <see cref="Optional{T}"/>.
         /// </summary>
         /// <param name="other"><see cref="Optional{T}"/> to compare to.</param>
         /// <returns>Whether the <see cref="Optional{T}"/> is equal to this <see cref="Optional{T}"/>.</returns>
-        public bool Equals(Optional<T>? other) => other != null && HasValue == other.HasValue && Value!.Equals(other.Value);
+        public bool Equals(Optional<T> other) => HasValue
+            ? (other.HasValue && EqualityComparer<T>.Default.Equals(_value, other._value))
+            : !other.HasValue;
 
         /// <summary>
         /// Checks whether the value of this <see cref="Optional{T}"/> is equal to specified object.
         /// </summary>
         /// <param name="other">Object to compare to.</param>
         /// <returns>Whether the object is equal to the value of this <see cref="Optional{T}"/>.</returns>
-        public bool Equals(T other) => HasValue && Value!.Equals(other);
+        public bool Equals(T other) => HasValue && EqualityComparer<T>.Default.Equals(_value, other);
 
         /// <summary>
         /// Checks whether the value of this <see cref="Optional{T}"/> is equal to specified object.
