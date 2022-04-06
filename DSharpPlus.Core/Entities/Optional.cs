@@ -51,7 +51,7 @@ namespace DSharpPlus.Core.Entities
         /// The value to be returned if the <see cref="Optional{T}"/> has a value.
         /// </summary>
         /// <exception cref="InvalidOperationException">If this <see cref="Optional{T}"/> has no value.</exception>
-        public T Value => HasValue ? _value! : throw new InvalidOperationException("Optional<T> has no value.");
+        public T? Value => HasValue ? _value : throw new InvalidOperationException("Optional<T> has no value.");
 
         /// <summary>
         /// The internal value. If no value is provided, this will be initialized to the default value of <typeparamref name="T"/>.
@@ -66,7 +66,7 @@ namespace DSharpPlus.Core.Entities
         /// <summary>
         /// Creates an instance of <see cref="Optional{T}"/> with the specified value.
         /// </summary>
-        public Optional(T value)
+        public Optional(T? value)
         {
             _value = value;
             HasValue = true;
@@ -107,7 +107,7 @@ namespace DSharpPlus.Core.Entities
         /// </summary>
         /// <param name="other">Object to compare to.</param>
         /// <returns>Whether the object is equal to the value of this <see cref="Optional{T}"/>.</returns>
-        public bool Equals(T other) => HasValue && EqualityComparer<T>.Default.Equals(_value, other);
+        public bool Equals(T? other) => HasValue && EqualityComparer<T>.Default.Equals(_value, other);
 
         /// <summary>
         /// Checks whether the value of this <see cref="Optional{T}"/> is equal to specified object.
@@ -121,9 +121,9 @@ namespace DSharpPlus.Core.Entities
             _ => false
         };
 
-        public static implicit operator Optional<T>(T value) => new(value);
-        public static explicit operator T(Optional<T> optional) => optional.Value;
-        public static bool operator ==(Optional<T> opt, T t) => opt.Equals(t);
-        public static bool operator !=(Optional<T> opt, T t) => !opt.Equals(t);
+        public static implicit operator Optional<T>(T? value) => new(value);
+        public static explicit operator T?(Optional<T> optional) => optional.Value;
+        public static bool operator ==(Optional<T> opt, T? t) => opt.Equals(t);
+        public static bool operator !=(Optional<T> opt, T? t) => !opt.Equals(t);
     }
 }
