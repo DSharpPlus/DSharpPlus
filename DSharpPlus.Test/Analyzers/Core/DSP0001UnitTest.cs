@@ -53,6 +53,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using DSharpPlus.Core.Entities;
+using System.Text.Json.Serialization;
 
 namespace System.Text.Json.Serialization
 {

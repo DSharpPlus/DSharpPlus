@@ -80,14 +80,16 @@ namespace DSharpPlus.Analyzers.Core
                                         SyntaxFactory.NameEquals(
                                             SyntaxFactory.IdentifierName("Condition"))))))))))));
 
-        private static SyntaxTree AddUsings(CompilationUnitSyntax root) =>
-            root.AddUsings(new[] {
-                    SyntaxFactory.UsingDirective(
-                        SyntaxFactory.QualifiedName(
-                            SyntaxFactory.QualifiedName(
-                                SyntaxFactory.QualifiedName(SyntaxFactory.IdentifierName("System"),
-                                    SyntaxFactory.IdentifierName("Text")),
-                                SyntaxFactory.IdentifierName("Json")),
-                            SyntaxFactory.IdentifierName("Serialization")))}).SyntaxTree;
+        private static SyntaxTree AddUsings(CompilationUnitSyntax root)
+        {
+            UsingDirectiveSyntax jsonSerializer = SyntaxFactory.UsingDirective(
+                SyntaxFactory.QualifiedName(
+                    SyntaxFactory.QualifiedName(
+                        SyntaxFactory.QualifiedName(SyntaxFactory.IdentifierName("System"), SyntaxFactory.IdentifierName("Text")),
+                    SyntaxFactory.IdentifierName("Json")),
+                SyntaxFactory.IdentifierName("Serialization"))).NormalizeWhitespace();
+
+            return root.Usings.Any(x => jsonSerializer.FullSpan.OverlapsWith(x.FullSpan)) ? root.SyntaxTree : root.AddUsings(jsonSerializer).SyntaxTree;
+        }
     }
 }
