@@ -83,7 +83,7 @@ namespace DSharpPlus.CommandsNext.Converters
             int ms = m.Groups["minutes"].Success ? int.Parse(m.Groups["minutes"].Value) : 0;
             int ss = m.Groups["seconds"].Success ? int.Parse(m.Groups["seconds"].Value) : 0;
 
-            result = TimeSpan.FromSeconds(ds * 24 * 60 * 60 + hs * 60 * 60 + ms * 60 + ss);
+            result = TimeSpan.FromSeconds((ds * 24 * 60 * 60) + (hs * 60 * 60) + (ms * 60) + ss);
             if (result.TotalSeconds < 1)
                 return Task.FromResult(Optional.FromNoValue<TimeSpan>());
 
