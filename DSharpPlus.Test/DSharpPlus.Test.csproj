@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <AssemblyName>DSharpPlus.Test</AssemblyName>
+        <RootNamespace>DSharpPlus.Test</RootNamespace>
+        <TargetFramework>net6.0</TargetFramework>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+    <PropertyGroup>
+        <PackageId>DSharpPlus.Test</PackageId>
+        <Authors>Naamloos, afroraydude, DrCreo, Death, TiaqoY0, Axiom, Emzi0767, IDoEverything, Velvet, DSharpPlus contributors</Authors>
+        <Description>A C# API for Discord based off DiscordSharp, but rewritten to fit the API standards.</Description>
+        <PackageTags>discord, discord-api, bots, discord-bots, chat, dsharp, dsharpplus, csharp, dotnet, vb-net, fsharp, webhooks</PackageTags>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="../DSharpPlus.Analyzers/DSharpPlus.Analyzers.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
+        <PackageReference Include="MSTest.TestAdapter" Version="1.3.2" />
+        <PackageReference Include="MSTest.TestFramework" Version="1.3.2" />
+        <PackageReference Include="Microsoft.CodeAnalysis" Version="3.3.1" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing.MSTest" Version="1.1.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing.MSTest" Version="1.1.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeRefactoring.Testing.MSTest" Version="1.1.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.Analyzer.Testing.MSTest" Version="1.1.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.CodeFix.Testing.MSTest" Version="1.1.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.VisualBasic.CodeRefactoring.Testing.MSTest" Version="1.1.0" />
+    </ItemGroup>
+</Project>
