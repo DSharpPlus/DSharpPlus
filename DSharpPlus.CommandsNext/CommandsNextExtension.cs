@@ -489,8 +489,19 @@ namespace DSharpPlus.CommandsNext
                         foreach (var chk in inheritedChecks)
                             groupBuilder.WithExecutionCheck(chk);
 
-                        foreach (var mi in ti.DeclaredMethods.Where(x => x.IsCommandCandidate(out _) && x.GetCustomAttribute<GroupCommandAttribute>() != null))
-                            groupBuilder.WithOverload(new CommandOverloadBuilder(mi));
+                        if (ti.DeclaredMethods.Any(x => x.IsCommandCandidate(out _) && x.GetCustomAttribute<GroupCommandAttribute>() != null))
+                        {
+                            var groupCommandOverloads =
+                                ti.DeclaredMethods.Where(x => x.IsCommandCandidate(out _) && x.GetCustomAttribute<GroupCommandAttribute>() != null);
+
+                            // overloads don't work for group commands, so throw on startup instead of at runtime.
+                            if(groupCommandOverloads.Count() > 1)
+                            {
+                                throw new InvalidOverloadException("GroupCommands cannot be overloaded", groupCommandOverloads.First());
+                            }
+
+                            groupBuilder.WithOverload(new CommandOverloadBuilder(groupCommandOverloads.First()));
+                        }
                         break;
 
                     case AliasesAttribute a:
