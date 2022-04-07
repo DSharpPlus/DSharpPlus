@@ -21,8 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.Text.Json.Serialization;
 using DSharpPlus.Core.Enums;
-using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Entities
 {
@@ -34,13 +34,13 @@ namespace DSharpPlus.Core.Entities
         /// <summary>
         /// The name of the parameter.
         /// </summary>
-        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("name")]
         public string Name { get; init; } = null!;
 
         /// <summary>
         /// The value of <see cref="DiscordApplicationCommandOptionType"/>.
         /// </summary>
-        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("type")]
         public DiscordApplicationCommandOptionType Type { get; init; }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace DSharpPlus.Core.Entities
         /// <remarks>
         /// A string, integer, or double. Mutually exclusive with <see cref="Options"/>.
         /// </remarks>
-        [JsonProperty("value", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("value")]
         public Optional<object> Value { get; init; }
 
         /// <summary>
@@ -58,13 +58,13 @@ namespace DSharpPlus.Core.Entities
         /// <remarks>
         /// Mutually exclusive with <see cref="Value"/>.
         /// </remarks>
-        [JsonProperty("options", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("options")]
         public Optional<DiscordApplicationInteractionDataOption[]> Options { get; init; }
 
         /// <summary>
         /// True if this option is the currently focused option for autocomplete.
         /// </summary>
-        [JsonProperty("focused", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("focused")]
         public Optional<bool> Focused { get; init; }
     }
 }

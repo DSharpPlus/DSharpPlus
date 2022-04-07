@@ -21,8 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.Text.Json.Serialization;
 using DSharpPlus.Core.Entities;
-using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Gateway.Payloads
 {
@@ -34,13 +34,13 @@ namespace DSharpPlus.Core.Gateway.Payloads
         /// <summary>
         /// The id of the guild.
         /// </summary>
-        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("guild_id")]
         public DiscordSnowflake GuildId { get; init; } = null!;
 
         /// <summary>
         /// An array of stickers.
         /// </summary>
-        [JsonProperty("stickers", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("stickers")]
         public DiscordSticker[] Stickers { get; init; } = null!;
     }
 }

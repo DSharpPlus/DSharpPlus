@@ -21,8 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.Text.Json.Serialization;
 using DSharpPlus.Core.Enums;
-using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Entities
 {
@@ -34,73 +34,73 @@ namespace DSharpPlus.Core.Entities
         /// <summary>
         /// The id of the webhook.
         /// </summary>
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("id")]
         public DiscordSnowflake Id { get; init; } = null!;
 
         /// <summary>
         /// The <see cref="DiscordWebhookType"/> of the webhook.
         /// </summary>
-        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("type")]
         public DiscordWebhookType Type { get; init; }
 
         /// <summary>
         /// The guild id this webhook is for, if any.
         /// </summary>
-        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("guild_id")]
         public Optional<DiscordSnowflake?> GuildId { get; init; }
 
         /// <summary>
         /// The channel id this webhook is for, if any.
         /// </summary>
-        [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("channel_id")]
         public DiscordSnowflake? ChannelId { get; init; }
 
         /// <summary>
         /// The user this webhook was created by (not returned when getting a webhook with its token).
         /// </summary>
-        [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("user")]
         public Optional<DiscordUser> User { get; init; }
 
         /// <summary>
         /// The default name of the webhook.
         /// </summary>
-        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("name")]
         public string? Name { get; internal set; }
 
         /// <summary>
         /// The default user avatar hash of the webhook.
         /// </summary>
-        [JsonProperty("avatar", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("avatar")]
         public string? Avatar { get; internal set; }
 
         /// <summary>
         /// The secure token of the webhook (returned for Incoming Webhooks).
         /// </summary>
-        [JsonProperty("token", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("token")]
         public Optional<string> Token { get; internal set; }
 
         /// <summary>
         /// The bot/OAuth2 application that created this webhook.
         /// </summary>
-        [JsonProperty("application_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("application_id")]
         public DiscordSnowflake? ApplicationId { get; init; }
 
         /// <summary>
         /// The guild of the channel that this webhook is following (returned for Channel Follower Webhooks).
         /// </summary>
-        [JsonProperty("source_guild", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("source_guild")]
         public Optional<DiscordGuild> SourceGuild { get; init; }
 
         /// <summary>
         /// The channel that this webhook is following (returned for Channel Follower Webhooks).
         /// </summary>
-        [JsonProperty("source_channel", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("source_channel")]
         public Optional<DiscordChannel> SourceChannel { get; init; }
 
         /// <summary>
         /// The url used for executing the webhook (returned by the webhooks OAuth2 flow).
         /// </summary>
-        [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("url")]
         public Optional<string> Url { get; init; }
     }
 }

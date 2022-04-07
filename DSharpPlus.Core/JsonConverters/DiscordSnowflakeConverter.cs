@@ -22,17 +22,15 @@
 // SOFTWARE.
 
 using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using DSharpPlus.Core.Entities;
-using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.JsonConverters
 {
     internal class DiscordSnowflakeConverter : JsonConverter<DiscordSnowflake>
     {
-        public override DiscordSnowflake? ReadJson(JsonReader reader, Type objectType, DiscordSnowflake? existingValue, bool hasExistingValue, JsonSerializer serializer) => reader.TokenType == JsonToken.Null
-            ? null
-            : ulong.TryParse(reader.Value!.ToString(), out ulong snowflake) ? new DiscordSnowflake(snowflake) : null;
-
-        public override void WriteJson(JsonWriter writer, DiscordSnowflake? value, JsonSerializer serializer) => writer.WriteValue(value?.ToString());
+        public override DiscordSnowflake? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => reader.TryGetUInt64(out ulong snowflake) ? snowflake : null;
+        public override void Write(Utf8JsonWriter writer, DiscordSnowflake value, JsonSerializerOptions options) => writer.WriteNumberValue(value.Value);
     }
 }

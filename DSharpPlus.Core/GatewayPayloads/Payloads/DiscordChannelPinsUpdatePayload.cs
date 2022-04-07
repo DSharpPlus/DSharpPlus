@@ -22,8 +22,8 @@
 // SOFTWARE.
 
 using System;
+using System.Text.Json.Serialization;
 using DSharpPlus.Core.Entities;
-using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Gateway.Payloads
 {
@@ -35,19 +35,19 @@ namespace DSharpPlus.Core.Gateway.Payloads
         /// <summary>
         /// The id of the guild.
         /// </summary>
-        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("guild_id")]
         public Optional<DiscordSnowflake> GuildId { get; init; }
 
         /// <summary>
         /// The id of the channel.
         /// </summary>
-        [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("channel_id")]
         public DiscordSnowflake ChannelId { get; init; } = null!;
 
         /// <summary>
         /// The time at which the most recent pinned message was pinned.
         /// </summary>
-        [JsonProperty("last_pin_timestamp", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("last_pin_timestamp")]
         public Optional<DateTimeOffset?> LastPinTimestamp { get; init; }
     }
 }

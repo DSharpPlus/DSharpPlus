@@ -21,8 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.Text.Json.Serialization;
 using DSharpPlus.Core.Entities;
-using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Gateway.Payloads
 {
@@ -34,37 +34,37 @@ namespace DSharpPlus.Core.Gateway.Payloads
         /// <summary>
         /// The gateway version.
         /// </summary>
-        [JsonProperty("v", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("v")]
         public int Version { get; init; }
 
         /// <summary>
         /// Information about the user including email.
         /// </summary>
-        [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("user")]
         public DiscordUser User { get; init; } = null!;
 
         /// <summary>
         /// The guilds the user is in.
         /// </summary>
-        [JsonProperty("guilds", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("guilds")]
         public DiscordGuild[] Guilds { get; init; } = null!;
 
         /// <summary>
         /// Used for resuming connections.
         /// </summary>
-        [JsonProperty("session_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("session_id")]
         public string SessionId { get; init; } = null!;
 
         /// <summary>
         /// The shard information associated with this session, if sent when identifying.
         /// </summary>
-        [JsonProperty("shard", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("shard")]
         public Optional<int[]> Shard { get; init; } = null!;
 
         /// <summary>
         /// Contains <see cref="DiscordApplication.Id"> and <see cref="DiscordApplication.Flags"/>
         /// </summary>
-        [JsonProperty("application", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("application")]
         public DiscordApplication Application { get; init; } = null!;
     }
 }

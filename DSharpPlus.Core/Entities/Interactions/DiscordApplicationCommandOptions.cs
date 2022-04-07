@@ -22,8 +22,8 @@
 // SOFTWARE.
 
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using DSharpPlus.Core.Enums;
-using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Entities
 {
@@ -32,67 +32,67 @@ namespace DSharpPlus.Core.Entities
         /// <summary>
         /// The type of option.
         /// </summary>
-        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("type")]
         public DiscordApplicationCommandOptionType Type { get; init; }
 
         /// <summary>
         /// A 1-32 character name that matches against the following Regex: <c>^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$</c> with the unicode flag set. If there is a lowercase variant of any letters used, you must use those. Characters with no lowercase variants and/or uncased letters are still allowed. <see cref="DiscordApplicationCommandType.User"/> and <see cref="DiscordApplicationCommandType.Message"/> commands may be mixed case and can include spaces.
         /// </summary>
-        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("name")]
         public string Name { get; init; } = null!;
 
         /// <summary>
         /// Localization dictionary for the <c>name</c> field. Values follow the same restrictions as <c>name</c>.
         /// </summary>
-        [JsonProperty("name_localizations", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("name_localizations")]
         public Optional<IReadOnlyDictionary<string, string>> NameLocalizations { get; init; }
 
         /// <summary>
         /// 1-100 character description for <see cref="DiscordApplicationCommandType.ChatInput"/> commands, empty string for <see cref="DiscordApplicationCommandType.User"/> and <see cref="DiscordApplicationCommandType.Message"/> commands.
         /// </summary>
-        [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("description")]
         public string Description { get; init; } = null!;
 
         /// <summary>
         /// Localization dictionary for the <c>description</c> field. Values follow the same restrictions as <c>description</c>.
         /// </summary>
-        [JsonProperty("description_localizations", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("description_localizations")]
         public Optional<IReadOnlyDictionary<string, string>> DescriptionLocalizations { get; init; }
 
         /// <summary>
         /// If the parameter is required or optional. Defaults to false.
         /// </summary>
-        [JsonProperty("required", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("required")]
         public Optional<bool> Required { get; init; }
 
         /// <summary>
         /// The choices for <see cref="DiscordApplicationCommandOptionType.String"/>, <see cref="DiscordApplicationCommandOptionType.Integer"/>, and <see cref="DiscordApplicationCommandOptionType.Number"/> types for the user to pick from, max 25.
         /// </summary>
-        [JsonProperty("choices", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("choices")]
         public Optional<DiscordApplicationCommandOptionChoice> Choices { get; init; }
 
         /// <summary>
         /// If the option is a subcommand or subcommand group type, these nested options will be the parameters.
         /// </summary>
-        [JsonProperty("options", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("options")]
         public Optional<DiscordApplicationCommandOption> Options { get; init; }
 
         /// <summary>
         /// If the option is a channel type, the channels shown will be restricted to these types.
         /// </summary>
-        [JsonProperty("channel_types", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("channel_types")]
         public Optional<DiscordChannelType> ChannelTypes { get; init; }
 
         /// <summary>
         /// If the option is an <see cref="DiscordApplicationCommandOptionType.Integer"/>, or <see cref="DiscordApplicationCommandOptionType.Number"/> type, the minimum value permitted.
         /// </summary>
-        [JsonProperty("min_value", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("min_value")]
         public Optional<object> MinValue { get; init; }
 
         /// <summary>
         /// If the option is an <see cref="DiscordApplicationCommandOptionType.Integer"/>, or <see cref="DiscordApplicationCommandOptionType.Number"/> type, the maximum value permitted.
         /// </summary>
-        [JsonProperty("max_value", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("max_value")]
         public Optional<object> MaxValue { get; init; }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace DSharpPlus.Core.Entities
         /// <remarks>
         /// Autocomplete may not be set to true if <see cref="Choices"/> are present.
         /// </remarks>
-        [JsonProperty("autocomplete", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("autocomplete")]
         public Optional<bool> AutoComplete { get; init; }
     }
 }

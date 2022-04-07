@@ -21,9 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.Text.Json.Serialization;
 using DSharpPlus.Core.Enums;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace DSharpPlus.Core.Entities
 {
@@ -35,27 +34,27 @@ namespace DSharpPlus.Core.Entities
         /// <summary>
         /// Role or user id.
         /// </summary>
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("id")]
         public DiscordSnowflake Id { get; init; } = null!;
 
         /// <summary>
         /// Either 0 (role) or 1 (member).
         /// </summary>
-        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("type")]
         public int Type { get; init; }
 
         /// <summary>
         /// Permission bit set.
         /// </summary>
-        [JsonConverter(typeof(StringEnumConverter))]
-        [JsonProperty("allow", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        [JsonPropertyName("allow")]
         public DiscordPermissions Allow { get; internal set; }
 
         /// <summary>
         /// Permission bit set.
         /// </summary>
-        [JsonConverter(typeof(StringEnumConverter))]
-        [JsonProperty("deny", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        [JsonPropertyName("deny")]
         public DiscordPermissions Deny { get; internal set; }
 
         public static implicit operator ulong(DiscordChannelOverwrite channelOverwrite) => channelOverwrite.Id;

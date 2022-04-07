@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.Entities
 {
@@ -30,7 +30,7 @@ namespace DSharpPlus.Core.Entities
         /// <remarks>
         /// Requires <see cref="DiscordGuildScheduledEvent.EntityType"/> to be <see cref="Enums.DiscordGuildScheduledEventEntityType.External"/>.
         /// </remarks>
-        [JsonProperty("location", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("location")]
         public string? Location { get; internal set; }
     }
 }

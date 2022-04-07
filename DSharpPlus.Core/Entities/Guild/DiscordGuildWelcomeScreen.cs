@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.Entities
 {
@@ -30,13 +30,13 @@ namespace DSharpPlus.Core.Entities
         /// <summary>
         /// The server description shown in the welcome screen.
         /// </summary>
-        [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("description")]
         public string? Description { get; internal set; }
 
         /// <summary>
         /// The channels shown in the welcome screen, up to 5.
         /// </summary>
-        [JsonProperty("welcome_channels", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("welcome_channels")]
         public DiscordGuildWelcomeScreenChannel[] WelcomeChannels { get; internal set; } = null!;
     }
 }

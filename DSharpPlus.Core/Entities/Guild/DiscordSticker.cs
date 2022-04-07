@@ -22,8 +22,8 @@
 // SOFTWARE.
 
 using System;
+using System.Text.Json.Serialization;
 using DSharpPlus.Core.Enums;
-using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Entities
 {
@@ -35,74 +35,74 @@ namespace DSharpPlus.Core.Entities
         /// <summary>
         /// The id of the sticker.
         /// </summary>
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("id")]
         public DiscordSnowflake Id { get; init; } = null!;
 
         /// <summary>
         /// For standard stickers, id of the pack the sticker is from.
         /// </summary>
-        [JsonProperty("pack_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("pack_id")]
         public Optional<DiscordSnowflake> PackId { get; init; }
 
         /// <summary>
         /// The name of the sticker.
         /// </summary>
-        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("name")]
         public string Name { get; internal set; } = null!;
 
         /// <summary>
         /// The description of the sticker.
         /// </summary>
-        [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("description")]
         public string? Description { get; internal set; }
 
         /// <summary>
         /// Autocomplete/suggestion tags for the sticker (max 200 characters).
         /// </summary>
-        [JsonProperty("tags", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("tags")]
         public string Tags { get; internal set; } = null!;
 
         /// <summary>
         /// Deprecated previously the sticker asset hash, now an empty string
         /// </summary>
-        [JsonProperty("asset", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("asset")]
         [Obsolete("Deprecated previously the sticker asset hash, now an empty string")]
         public Optional<string> Asset { get; set; } = null!;
 
         /// <summary>
         /// The type of sticker.
         /// </summary>
-        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("type")]
         public DiscordStickerType Type { get; init; }
 
         /// <summary>
         /// The type of sticker format.
         /// </summary>
-        [JsonProperty("format_type", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("format_type")]
         public DiscordStickerFormatType FormatType { get; init; }
 
         /// <summary>
         /// Whether this guild sticker can be used, may be false due to loss of Server Boosts.
         /// </summary>
-        [JsonProperty("available", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("available")]
         public Optional<bool> Available { get; init; }
 
         /// <summary>
         /// The id of the guild that owns this sticker.
         /// </summary>
-        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("guild_id")]
         public Optional<DiscordSnowflake?> GuildId { get; init; }
 
         /// <summary>
         /// The user that uploaded the guild sticker.
         /// </summary>
-        [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("user")]
         public Optional<DiscordUser> User { get; init; }
 
         /// <summary>
         /// The standard sticker's sort order within its pack.
         /// </summary>
-        [JsonProperty("sort_value", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("sort_value")]
         public Optional<int> SortValue { get; init; }
     }
 }

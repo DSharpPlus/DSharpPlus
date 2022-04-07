@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.Entities
 {
@@ -33,19 +33,19 @@ namespace DSharpPlus.Core.Entities
         /// <summary>
         /// New value of the key.
         /// </summary>
-        [JsonProperty("new_value", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("new_value")]
         public object? NewValue { get; init; }
 
         /// <summary>
         /// Old value of the key.
         /// </summary>
-        [JsonProperty("old_value", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("old_value")]
         public object? OldValue { get; init; }
 
         /// <summary>
         /// Name of audit log change key.
         /// </summary>
-        [JsonProperty("key", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("key")]
         public string? Key { get; init; }
     }
 }

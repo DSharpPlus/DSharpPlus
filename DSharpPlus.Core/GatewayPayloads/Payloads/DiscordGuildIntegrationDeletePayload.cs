@@ -21,8 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.Text.Json.Serialization;
 using DSharpPlus.Core.Entities;
-using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Gateway.Payloads
 {
@@ -34,19 +34,19 @@ namespace DSharpPlus.Core.Gateway.Payloads
         /// <summary>
         /// The integration id.
         /// </summary>
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("id")]
         public DiscordSnowflake Id { get; init; } = null!;
 
         /// <summary>
         /// The id of the guild.
         /// </summary>
-        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("guild_id")]
         public DiscordSnowflake GuildId { get; init; } = null!;
 
         /// <summary>
         /// The id of the bot/OAuth2 application for this discord integration.
         /// </summary>
-        [JsonProperty("application_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("application_id")]
         public Optional<DiscordSnowflake> ApplicationId { get; init; }
     }
 }

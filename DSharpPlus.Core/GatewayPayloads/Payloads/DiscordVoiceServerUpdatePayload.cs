@@ -21,8 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.Text.Json.Serialization;
 using DSharpPlus.Core.Entities;
-using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Gateway.Payloads
 {
@@ -31,13 +31,13 @@ namespace DSharpPlus.Core.Gateway.Payloads
         /// <summary>
         /// The voice connection token.
         /// </summary>
-        [JsonProperty("token", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("token")]
         public string Token { get; init; } = null!;
 
         /// <summary>
         /// The guild this voice server update is for.
         /// </summary>
-        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("guild_id")]
         public DiscordSnowflake GuildId { get; init; } = null!;
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
         /// <remarks>
         /// A null endpoint means that the voice server allocated has gone away and is trying to be reallocated. You should attempt to disconnect from the currently connected voice server, and not attempt to reconnect until a new voice server is allocated.
         /// </remarks>
-        [JsonProperty("endpoint", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("endpoint")]
         public string? Endpoint { get; init; }
     }
 }

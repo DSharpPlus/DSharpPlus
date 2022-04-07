@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.Entities
 {
@@ -30,19 +30,19 @@ namespace DSharpPlus.Core.Entities
         /// <summary>
         /// A list of <see cref="DiscordAuditLogEntry"/>.
         /// </summary>
-        [JsonProperty("audit_log_entries", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("audit_log_entries")]
         public DiscordAuditLogEntry[] AuditLogEntries { get; init; } = null!;
 
         /// <summary>
         /// A list of <see cref="DiscordGuildScheduledEvent"/> found in the audit log.
         /// </summary>
-        [JsonProperty("guild_scheduled_events", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("guild_scheduled_events")]
         public DiscordGuildScheduledEvent[] GuildScheduledEvents { get; init; } = null!;
 
         /// <summary>
         /// A list of partial integration objects.
         /// </summary>
-        [JsonProperty("integrations", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("integrations")]
         public DiscordIntegration[] Integrations { get; init; } = null!;
 
         /// <summary>
@@ -51,19 +51,19 @@ namespace DSharpPlus.Core.Entities
         /// <remarks>
         /// * Threads referenced in THREAD_CREATE and THREAD_UPDATE events are included in the threads map, since archived threads might not be kept in memory by clients.
         /// </remarks>
-        [JsonProperty("threads", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("threads")]
         public DiscordChannel[] Threads { get; init; } = null!;
 
         /// <summary>
         /// A list of <see cref="DiscordUser"/> found in the audit log.
         /// </summary>
-        [JsonProperty("users", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("users")]
         public DiscordUser[] Users { get; init; } = null!;
 
         /// <summary>
         /// A list of webhooks found in the audit log.
         /// </summary>
-        [JsonProperty("webhooks", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("webhooks")]
         public DiscordWebhook[] Webhooks { get; init; } = null!;
     }
 }

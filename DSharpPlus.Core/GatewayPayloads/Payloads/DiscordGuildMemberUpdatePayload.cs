@@ -22,8 +22,8 @@
 // SOFTWARE.
 
 using System;
+using System.Text.Json.Serialization;
 using DSharpPlus.Core.Entities;
-using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Gateway.Payloads
 {
@@ -35,67 +35,67 @@ namespace DSharpPlus.Core.Gateway.Payloads
         /// <summary>
         /// The id of the guild.
         /// </summary>
-        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("guild_id")]
         public DiscordSnowflake GuildId { get; init; } = null!;
 
         /// <summary>
         /// User's role ids.
         /// </summary>
-        [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("roles")]
         public DiscordSnowflake[] Roles { get; init; } = null!;
 
         /// <summary>
         /// The user.
         /// </summary>
-        [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("user")]
         public DiscordUser User { get; init; } = null!;
 
         /// <summary>
         /// The nickname of the user in the guild.
         /// </summary>
-        [JsonProperty("nick", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("nick")]
         public Optional<string?> Nick { get; init; }
 
         /// <summary>
         /// The member's guild avatar hash.
         /// </summary>
-        [JsonProperty("avatar", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("avatar")]
         public string? Avatar { get; init; }
 
         /// <summary>
         /// When the user joined the guild.
         /// </summary>
-        [JsonProperty("joined_at", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("joined_at")]
         public DateTimeOffset? JoinedAt { get; init; }
 
         /// <summary>
         /// When the user started boosting the guild.
         /// </summary>
-        [JsonProperty("premium_since", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("premium_since")]
         public Optional<DateTimeOffset?> PremiumSince { get; init; }
 
         /// <summary>
         /// Whether the user is deafened in voice channels.
         /// </summary>
-        [JsonProperty("deaf", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("deaf")]
         public Optional<bool> Deaf { get; init; }
 
         /// <summary>
         /// Whether the user is muted in voice channels.
         /// </summary>
-        [JsonProperty("mute", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("mute")]
         public Optional<bool> Mute { get; init; }
 
         /// <summary>
         /// Whether the user has not yet passed the guild's Membership Screening requirements.
         /// </summary>
-        [JsonProperty("pending", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("pending")]
         public Optional<bool> Pending { get; init; }
 
         /// <summary>
         /// When the user's timeout will expire and the user will be able to communicate in the guild again, null or a time in the past if the user is not timed out.
         /// </summary>
-        [JsonProperty("communication_disabled_until", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("communication_disabled_until")]
         public Optional<DateTimeOffset?> CommunicationDisabledUntil { get; init; }
     }
 }

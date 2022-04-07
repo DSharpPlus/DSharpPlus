@@ -21,9 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.Text.Json.Serialization;
 using DSharpPlus.Core.Entities;
 using DSharpPlus.Core.Enums;
-using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Gateway.Commands
 {
@@ -35,25 +35,25 @@ namespace DSharpPlus.Core.Gateway.Commands
         /// <summary>
         /// The unix time (in milliseconds) of when the client went idle, or null if the client is not idle.
         /// </summary>
-        [JsonProperty("since", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("since")]
         public int? Since { get; internal set; }
 
         /// <summary>
         /// The user's activities.
         /// </summary>
-        [JsonProperty("activities", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("activities")]
         public DiscordActivity[] Activities { get; internal set; } = null!;
 
         /// <summary>
         /// The user's new status.
         /// </summary>
-        [JsonProperty("status", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("status")]
         public DiscordStatusType Status { get; internal set; }
 
         /// <summary>
         /// Whether or not the client is afk.
         /// </summary>
-        [JsonProperty("afk", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("afk")]
         public bool AFK { get; internal set; }
     }
 }

@@ -21,8 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.Text.Json.Serialization;
 using DSharpPlus.Core.Enums;
-using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Entities
 {
@@ -31,25 +31,25 @@ namespace DSharpPlus.Core.Entities
         /// <summary>
         /// The user's <see cref="DiscordMembershipState">membership state</see> on the team.
         /// </summary>
-        [JsonProperty("membership_state", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("membership_state")]
         public DiscordMembershipState MembershipState { get; internal set; }
 
         /// <summary>
         /// Will always be <c>["*"]</c>.
         /// </summary>
-        [JsonProperty("permissions", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("permissions")]
         public string[] Permissions { get; init; } = null!;
 
         /// <summary>
         /// The id of the parent team of which they are a member.
         /// </summary>
-        [JsonProperty("team_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("team_id")]
         public DiscordSnowflake TeamId { get; init; } = null!;
 
         /// <summary>
         /// The avatar, discriminator, id, and username of the user.
         /// </summary>
-        [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("user")]
         public DiscordUser User { get; init; } = null!;
 
         public static implicit operator ulong(DiscordTeamMember teamMember) => teamMember.User.Id;

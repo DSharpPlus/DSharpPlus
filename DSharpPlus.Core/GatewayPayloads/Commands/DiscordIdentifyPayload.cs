@@ -22,9 +22,9 @@
 // SOFTWARE.
 
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using DSharpPlus.Core.Entities;
 using DSharpPlus.Core.Enums;
-using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Gateway.Commands
 {
@@ -36,43 +36,43 @@ namespace DSharpPlus.Core.Gateway.Commands
         /// <summary>
         /// The authentication token.
         /// </summary>
-        [JsonProperty("token", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("token")]
         public string Token { get; init; } = null!;
 
         /// <summary>
         /// The connection properties.
         /// </summary>
-        [JsonProperty("properties", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("properties")]
         public DiscordIdentifyConnectionProperties Properties { get; init; } = null!;
 
         /// <summary>
         /// Whether this connection supports compression of packets.
         /// </summary>
-        [JsonProperty("compress", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("compress")]
         public Optional<bool> Compress { get; init; } = true;
 
         /// <summary>
         /// A value between 50 and 250, total number of members where the gateway will stop sending offline members in the guild member list.
         /// </summary>
-        [JsonProperty("large_threshold", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("large_threshold")]
         public Optional<int> LargeThreshold { get; init; } = 50;
 
         /// <summary>
         /// Used for Guild Sharding.
         /// </summary>
-        [JsonProperty("shard", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("shard")]
         public Optional<Dictionary<int, int>> Shard { get; init; }
 
         /// <summary>
         /// The presence structure for initial presence information.
         /// </summary>
-        [JsonProperty("presence", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("presence")]
         public Optional<DiscordPresenceUpdateCommand> Presence { get; init; }
 
         /// <summary>
         /// The <see cref="DiscordGatewayIntents"/> you wish to receive.
         /// </summary>
-        [JsonProperty("intents", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("intents")]
         public DiscordGatewayIntents Intents { get; init; }
     }
 }

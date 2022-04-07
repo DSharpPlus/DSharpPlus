@@ -21,28 +21,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.Entities
 {
     public sealed record DiscordGatewayPayload
     {
-        [JsonProperty("op", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("op")]
         public int OpCode { get; init; }
 
-        [JsonProperty("d", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("d")]
         public object? Data { get; internal set; }
 
         /// <remarks>
         /// Null when OpCode is not 0
         /// </remarks>
-        [JsonProperty("s", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("s")]
         public int? SequenceNumber { get; init; }
 
         /// <remarks>
         /// Null when OpCode is not 0
         /// </remarks>
-        [JsonProperty("t", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("t")]
         public string? EventName { get; init; }
     }
 }

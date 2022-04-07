@@ -21,27 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.Enums
 {
-    [JsonConverter(typeof(StringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum DiscordStatusType
     {
-        [JsonProperty("online")]
+        [JsonPropertyName("online")]
         Online,
 
-        [JsonProperty("dnd")]
+        [JsonPropertyName("dnd")]
         DoNotDisturb,
 
-        [JsonProperty("idle")]
+        [JsonPropertyName("idle")]
         AFK,
 
-        [JsonProperty("invisible")]
+        [JsonPropertyName("invisible")]
         Invisible,
 
-        [JsonProperty("offline")]
+        [JsonPropertyName("offline")]
         Offline
     }
 }

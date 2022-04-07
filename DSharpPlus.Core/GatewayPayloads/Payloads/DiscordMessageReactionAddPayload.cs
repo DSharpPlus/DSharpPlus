@@ -21,8 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.Text.Json.Serialization;
 using DSharpPlus.Core.Entities;
-using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Gateway.Payloads
 {
@@ -34,37 +34,37 @@ namespace DSharpPlus.Core.Gateway.Payloads
         /// <summary>
         /// The id of the user.
         /// </summary>
-        [JsonProperty("user_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("user_id")]
         public DiscordSnowflake UserId { get; init; } = null!;
 
         /// <summary>
         /// The id of the channel.
         /// </summary>
-        [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("channel_id")]
         public DiscordSnowflake ChannelId { get; init; } = null!;
 
         /// <summary>
         /// The id of the message.
         /// </summary>
-        [JsonProperty("message_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("message_id")]
         public DiscordSnowflake MessageId { get; init; } = null!;
 
         /// <summary>
         /// The id of the guild.
         /// </summary>
-        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("guild_id")]
         public Optional<DiscordSnowflake> GuildId { get; init; }
 
         /// <summary>
         /// The member who reacted if this happened in a guild.
         /// </summary>
-        [JsonProperty("member", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("member")]
         public Optional<DiscordGuildMember> Member { get; init; }
 
         /// <summary>
         /// The emoji used to react.
         /// </summary>
-        [JsonProperty("emoji", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("emoji")]
         public DiscordEmoji Emoji { get; init; } = null!;
     }
 }

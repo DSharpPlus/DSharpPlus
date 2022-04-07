@@ -21,8 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.Text.Json.Serialization;
 using DSharpPlus.Core.Entities;
-using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Gateway.Commands
 {
@@ -31,25 +31,25 @@ namespace DSharpPlus.Core.Gateway.Commands
         /// <summary>
         /// The id of the guild.
         /// </summary>
-        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("guild_id")]
         public DiscordSnowflake GuildId { get; init; } = null!;
 
         /// <summary>
         /// The id of the voice channel the client wants to join (null if disconnecting).
         /// </summary>
-        [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("channel_id")]
         public DiscordSnowflake? ChannelId { get; init; }
 
         /// <summary>
         /// Is the client muted.
         /// </summary>
-        [JsonProperty("self_mute", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("self_mute")]
         public bool SelfMute { get; init; }
 
         /// <summary>
         /// Is the client deafened.
         /// </summary>
-        [JsonProperty("self_deaf", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("self_deaf")]
         public bool SelfDeaf { get; init; }
     }
 }

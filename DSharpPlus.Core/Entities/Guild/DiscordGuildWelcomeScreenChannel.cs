@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.Entities
 {
@@ -30,25 +30,25 @@ namespace DSharpPlus.Core.Entities
         /// <summary>
         /// The channel's id.
         /// </summary>
-        [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("channel_id")]
         public DiscordSnowflake ChannelId { get; internal set; } = null!;
 
         /// <summary>
         /// The description shown for the channel.
         /// </summary>
-        [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("description")]
         public string Description { get; internal set; } = null!;
 
         /// <summary>
         /// The emoji id, if the emoji is custom.
         /// </summary>
-        [JsonProperty("emoji_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("emoji_id")]
         public DiscordSnowflake? EmojiId { get; internal set; }
 
         /// <summary>
         /// The emoji name if custom, the unicode character if standard, or null if no emoji is set.
         /// </summary>
-        [JsonProperty("emoji_name", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("emoji_name")]
         public string EmojiName { get; internal set; } = null!;
     }
 }

@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.Entities
 {
@@ -30,13 +30,13 @@ namespace DSharpPlus.Core.Entities
         /// <summary>
         /// The unix time (in milliseconds) of when the activity started.
         /// </summary>
-        [JsonProperty("start", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("start")]
         public Optional<int> Start { get; init; }
 
         /// <summary>
         /// The unix time (in milliseconds) of when the activity ends.
         /// </summary>
-        [JsonProperty("end", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("end")]
         public Optional<int> End { get; init; }
     }
 }

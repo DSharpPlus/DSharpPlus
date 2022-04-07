@@ -21,8 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.Text.Json.Serialization;
 using DSharpPlus.Core.Entities;
-using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Gateway.Payloads
 {
@@ -34,19 +34,19 @@ namespace DSharpPlus.Core.Gateway.Payloads
         /// <summary>
         /// The id of the guild scheduled event.
         /// </summary>
-        [JsonProperty("guild_scheduled_event_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("guild_scheduled_event_id")]
         public DiscordSnowflake GuildScheduledEventId { get; init; } = null!;
 
         /// <summary>
         /// The id of the user.
         /// </summary>
-        [JsonProperty("user_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("user_id")]
         public DiscordSnowflake UserId { get; init; } = null!;
 
         /// <summary>
         /// The id of the guild.
         /// </summary>
-        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("guild_id")]
         public DiscordSnowflake GuildId { get; init; } = null!;
     }
 }

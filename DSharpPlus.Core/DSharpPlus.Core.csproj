@@ -13,6 +13,6 @@
         <PackageTags>discord, discord-api, bots, discord-bots, chat, dsharp, dsharpplus, csharp, dotnet, vb-net, fsharp, webhooks</PackageTags>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+        <AnalyzerProjectReference Include="../DSharpPlus.Analyzers/DSharpPlus.Analyzers.csproj"/>
     </ItemGroup>
 </Project>

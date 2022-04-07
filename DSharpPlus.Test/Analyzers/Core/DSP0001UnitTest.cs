@@ -87,7 +87,7 @@ namespace ConsoleApplication1
 
         [TestMethod]
         // Verifies that the analyzer sees a missing JsonIgnoreAttribute
-        public async Task VerifyWarningAsync() => await VerifyCS.VerifyAnalyzerAsync(string.Join('\n', TestSource.Split('\n').RemoveAt(36)), VerifyCS.Diagnostic(OptionalAddJsonIgnoreAnalyzer.Id).WithLocation(0).WithArguments("Prop"));
+        public async Task VerifyWarningAsync() => await VerifyCS.VerifyAnalyzerAsync(TestSourceWithoutJsonIgnoreAttribute, VerifyCS.Diagnostic(OptionalAddJsonIgnoreAnalyzer.Id).WithLocation(0).WithArguments("Prop"));
 
         [TestMethod]
         // Verifies that the `JsonIgnoreAttribute` gets added.

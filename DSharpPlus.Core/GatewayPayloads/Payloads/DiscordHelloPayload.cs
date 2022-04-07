@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.Gateway.Payloads
 {
@@ -33,7 +33,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
         /// <summary>
         /// The interval (in milliseconds) the client should heartbeat with.
         /// </summary>
-        [JsonProperty("heartbeat_interval", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("heartbeat_interval")]
         public int HeartbeatInterval { get; init; }
     }
 }

@@ -21,9 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.Text.Json.Serialization;
 using DSharpPlus.Core.Entities;
 using DSharpPlus.Core.Enums;
-using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Gateway.Payloads
 {
@@ -35,31 +35,31 @@ namespace DSharpPlus.Core.Gateway.Payloads
         /// <summary>
         /// The user presence is being updated for.
         /// </summary>
-        [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("user")]
         public DiscordUser User { get; init; } = null!;
 
         /// <summary>
         /// The id of the guild.
         /// </summary>
-        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("guild_id")]
         public DiscordSnowflake GuildId { get; init; } = null!;
 
         /// <summary>
         /// Either "idle", "dnd", "online", or "offline".
         /// </summary>
-        [JsonProperty("status", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("status")]
         public DiscordStatusType Status { get; init; }
 
         /// <summary>
         /// The user's current activities.
         /// </summary>
-        [JsonProperty("activities", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("activities")]
         public DiscordActivity[] Activities { get; init; } = null!;
 
         /// <summary>
         /// The user's platform-dependent status.
         /// </summary>
-        [JsonProperty("client_status", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("client_status")]
         public DiscordClientStatus ClientStatus { get; init; } = null!;
     }
 }
