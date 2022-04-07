@@ -87,9 +87,9 @@ namespace DSharpPlus.Analyzers.Core
                     SyntaxFactory.QualifiedName(
                         SyntaxFactory.QualifiedName(SyntaxFactory.IdentifierName("System"), SyntaxFactory.IdentifierName("Text")),
                     SyntaxFactory.IdentifierName("Json")),
-                SyntaxFactory.IdentifierName("Serialization"))).NormalizeWhitespace();
+                SyntaxFactory.IdentifierName("Serialization")));
 
-            return root.Usings.Any(x => jsonSerializer.FullSpan.OverlapsWith(x.FullSpan)) ? root.SyntaxTree : root.AddUsings(jsonSerializer).SyntaxTree;
+            return root.Usings.Any(x => x.Name.ToString() == jsonSerializer.Name.ToString()) ? root.SyntaxTree : root.AddUsings(jsonSerializer).SyntaxTree;
         }
     }
 }

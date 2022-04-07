@@ -32,26 +32,12 @@ namespace DSharpPlus.Test.Analyzers.Core
     [TestClass]
     public class DSP0001UnitTest
     {
-        //No diagnostics expected to show up
-        [TestMethod]
-        public async Task VerifyNoCodeAsync()
-        {
-            string? test = @"";
-
-            await VerifyCS.VerifyAnalyzerAsync(test);
-        }
-
-        //Diagnostic and CodeFix both triggered and checked for
-        [TestMethod]
-        public async Task VerifyWarningAndCodeFixAsync()
-        {
-            string? test = @"
-using System;
+        private const string TestSource = @"using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Diagnostics;
 using DSharpPlus.Core.Entities;
 using System.Text.Json.Serialization;
 
@@ -61,50 +47,6 @@ namespace System.Text.Json.Serialization
     public sealed class JsonIgnoreAttribute : JsonAttribute
     {
         public JsonIgnoreCondition Condition { get; set; } = JsonIgnoreCondition.Always;
-
-        public JsonIgnoreAttribute() { }
-    }
-
-    public enum JsonIgnoreCondition
-    {
-        Never = 0,
-        Always = 1,
-        WhenWritingDefault = 2,
-        WhenWritingNull = 3
-    }
-}
-
-namespace DSharpPlus.Core.Entities
-{
-    public struct Optional<T> { }
-}
-
-namespace ConsoleApplication1
-{
-    class Test
-    {
-        public Optional<int> {|#0:Prop|} { get; set; }
-        public int {|#1:Number|} { get; set; }
-    }
-}";
-
-            string? fixtest = @"
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Diagnostics;
-using DSharpPlus.Core.Entities;
-using System.Text.Json.Serialization;
-
-namespace System.Text.Json.Serialization
-{
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
-    public sealed class JsonIgnoreAttribute : JsonAttribute
-    {
-        public JsonIgnoreCondition Condition { get; set; } = JsonIgnoreCondition.Always;
-
         public JsonIgnoreAttribute() { }
     }
 
@@ -127,13 +69,41 @@ namespace ConsoleApplication1
     class Test
     {
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public Optional<int> Prop { get; set; }
-        public int Number { get; set; }
+        public Optional<int> {|#0:Prop|} { get; set; }
+        public int {|#1:Number|} { get; set; }
     }
 }";
 
+        private static readonly string TestSourceWithoutJsonIgnoreAttribute = string.Join('\n', TestSource.Split('\n').RemoveAt(36)); // Removes line 37 from the code (JsonIgnoreAttribute), which should throw a warning.
+        private static readonly string TestSourceWithoutJsonIgnoreAttributeOrUsing = string.Join('\n', TestSource.Split('\n').RemoveAt(7).RemoveAt(35)); // Removes line 8 from the code (using Json namespace), which should be added back in the code fix.
+
+        [TestMethod]
+        // Verifies that the analyzer isn't always throwing a warning.
+        public async Task VerifyNoCodeAsync() => await VerifyCS.VerifyAnalyzerAsync(@"");
+
+        [TestMethod]
+        // Verifies that the analyzer sees the expected JsonIgnoreAttribute.
+        public async Task VerifyNoWarningAsync() => await VerifyCS.VerifyAnalyzerAsync(TestSource);
+
+        [TestMethod]
+        // Verifies that the analyzer sees a missing JsonIgnoreAttribute
+        public async Task VerifyWarningAsync() => await VerifyCS.VerifyAnalyzerAsync(string.Join('\n', TestSource.Split('\n').RemoveAt(36)), VerifyCS.Diagnostic(OptionalAddJsonIgnoreAnalyzer.Id).WithLocation(0).WithArguments("Prop"));
+
+        [TestMethod]
+        // Verifies that the `JsonIgnoreAttribute` gets added.
+        // Verifies that the `using System.Text.Json.Serialization;` doesn't get duplicated.
+        public async Task VerifyCodeFixAsync()
+        {
             DiagnosticResult expected = VerifyCS.Diagnostic(OptionalAddJsonIgnoreAnalyzer.Id).WithLocation(0).WithArguments("Prop");
-            await VerifyCS.VerifyCodeFixAsync(test, expected, fixtest);
+            await VerifyCS.VerifyCodeFixAsync(TestSourceWithoutJsonIgnoreAttribute, expected, TestSource);
+        }
+
+        [TestMethod]
+        // Verifies that the code fix adds the `using System.Text.Json.Serialization;` back in.
+        public async Task VerifyCodeFixWithoutUsingAsync()
+        {
+            DiagnosticResult expected = VerifyCS.Diagnostic(OptionalAddJsonIgnoreAnalyzer.Id).WithLocation(0).WithArguments("Prop");
+            await VerifyCS.VerifyCodeFixAsync(TestSourceWithoutJsonIgnoreAttributeOrUsing, expected, TestSource);
         }
     }
 }
