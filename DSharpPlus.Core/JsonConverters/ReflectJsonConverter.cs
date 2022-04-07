@@ -37,7 +37,7 @@ namespace DSharpPlus.Core.JsonConverters
     /// A custom <see cref="JsonConverter{T}"/> for any class. Currently respects <see cref="TypeJsonIgnoreAttribute"/>. 
     /// </summary>
     /// <typeparam name="T"> The type to be serialized. </typeparam>
-    public class ReflectJsonConverter<T> : JsonConverter<T> where T : class
+    public sealed class ReflectJsonConverter<T> : JsonConverter<T> where T : class
     {
         private static readonly JsonPropertyInfo[]? _properties = BuildInfo().ToArray();
         private static readonly Func<T>? _ctor = ReflectJsonHelper.CompileConstructor<T>();

@@ -47,7 +47,7 @@ namespace DSharpPlus.Core.JsonConverters
     /// <item>Does not implement <see cref="IEnumerable"/></item>
     /// </list>
     /// </remarks>
-    public class ReflectJsonConverterFactory : JsonConverterFactory
+    public sealed class ReflectJsonConverterFactory : JsonConverterFactory
     {
         /// <inheritdoc/>
         public override bool CanConvert(Type typeToConvert)

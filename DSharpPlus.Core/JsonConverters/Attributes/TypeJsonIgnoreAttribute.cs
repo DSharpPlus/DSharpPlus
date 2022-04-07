@@ -30,7 +30,7 @@ namespace DSharpPlus.Core.JsonConverters.Attributes
     /// Specifies the condition under which any property of this type should be ignored if using the <see cref="ReflectJsonConverter{T}"/>.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false)]
-    public class TypeJsonIgnoreAttribute : Attribute
+    public sealed class TypeJsonIgnoreAttribute : Attribute
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TypeJsonIgnoreAttribute"/> class.
