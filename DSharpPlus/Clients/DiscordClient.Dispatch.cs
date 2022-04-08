@@ -1657,6 +1657,10 @@ namespace DSharpPlus
             {
                 usr = this.UpdateUser(new DiscordUser { Id = userId, Discord = this }, guildId, guild, mbr);
             }
+            else
+            {
+                usr = this.UpdateUser(usr, guild?.Id, guild, mbr);
+            }
 
             if (channel == null)
             {
