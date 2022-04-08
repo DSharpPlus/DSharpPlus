@@ -15,6 +15,11 @@ jobs:
         with:
           dotnet-version: "6.0.x"
 
-      - name: "Build PR"
-        run: "dotnet build --nologo"
-      # TODO: Complete DSharpPlus.Test package. Utilizing Github secrets, we can run the bot and have it execute tests on the PR to ensure there aren't any breaking changes.
+      - name: "Build PR Nuget Packages"
+        run: "mkdir build && dotnet pack -p:SymbolPackageFormat=snupkg --include-symbols --include-source -o build -p:VersionSuffix='nightly' -p:BuildNumber=0$(( 1091 + ${{ github.run_number }} ))" # We add 1091 since it's the last build number AppVeyor used.
+
+      - name: "Upload Nuget Packages To Github Release"
+        uses: actions/upload-artifact@v3
+        with:
+          name: PR Nuget Packages
+          path: build/*
