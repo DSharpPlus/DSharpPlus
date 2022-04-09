@@ -39,18 +39,21 @@ namespace DSharpPlus.Core.Entities
         /// The <c>user</c> object won't be included in the member object attached to <c>MESSAGE_CREATE</c> and <c>MESSAGE_UPDATE</c> gateway events.
         /// </remarks>
         [JsonPropertyName("user")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordUser> User { get; init; }
 
         /// <summary>
         /// This user's guild nickname.
         /// </summary>
         [JsonPropertyName("nick")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string?> Nick { get; internal set; }
 
         /// <summary>
         /// The member's guild avatar hash.
         /// </summary>
         [JsonPropertyName("avatar")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string?> Avatar { get; internal set; }
 
         /// <summary>
@@ -75,6 +78,7 @@ namespace DSharpPlus.Core.Entities
         /// Can also be seen as "Nitro boosting since".
         /// </remarks>
         [JsonPropertyName("premium_since")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DateTimeOffset?> PremiumSince { get; internal set; }
 
         /// <summary>
@@ -99,6 +103,7 @@ namespace DSharpPlus.Core.Entities
         /// Whether the user has not yet passed the guild's <see href="https://discord.com/developers/docs/resources/guild#membership-screening-object">Membership Screening</see> requirements.
         /// </summary>
         [JsonPropertyName("pending")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<bool> Pending { get; internal set; }
 
         /// <summary>
@@ -108,6 +113,7 @@ namespace DSharpPlus.Core.Entities
         /// This is only available on an interaction, such as a Slash Command.
         /// </remarks>
         [JsonPropertyName("permissions")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordPermissions> Permissions { get; internal set; }
 
         /// <summary>
@@ -117,6 +123,7 @@ namespace DSharpPlus.Core.Entities
         /// Could also be seen as "muted until".
         /// </remarks>
         [JsonPropertyName("communication_disabled_until")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DateTimeOffset?> CommunicationDisabledUntil { get; internal set; }
 
         /// <summary>
@@ -125,6 +132,7 @@ namespace DSharpPlus.Core.Entities
         /// <remarks>
         /// Only sent in the GUILD_MEMBER_ADD and GUILD_MEMBER_UPDATE payloads.
         /// </remarks>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordSnowflake> GuildId { get; init; }
     }
 }

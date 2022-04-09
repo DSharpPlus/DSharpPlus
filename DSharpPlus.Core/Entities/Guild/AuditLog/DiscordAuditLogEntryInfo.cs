@@ -67,6 +67,7 @@ namespace DSharpPlus.Core.Entities
         /// The name of the role if <see cref="Type"/> is "0" (not present if <see cref="Type"/> is "1").
         /// </summary>
         [JsonPropertyName("role_name")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string> RoleName { get; init; } = null!;
 
         /// <summary>

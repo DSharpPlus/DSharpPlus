@@ -61,6 +61,7 @@ namespace DSharpPlus.Core.Entities
         /// The bot associated with this application.
         /// </summary>
         [JsonPropertyName("bot")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordUser> Bot { get; internal set; }
     }
 }

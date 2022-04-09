@@ -59,6 +59,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
         /// The shard information associated with this session, if sent when identifying.
         /// </summary>
         [JsonPropertyName("shard")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<int[]> Shard { get; init; } = null!;
 
         /// <summary>

@@ -31,12 +31,14 @@ namespace DSharpPlus.Core.Entities
         /// The unix time (in milliseconds) of when the activity started.
         /// </summary>
         [JsonPropertyName("start")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<int> Start { get; init; }
 
         /// <summary>
         /// The unix time (in milliseconds) of when the activity ends.
         /// </summary>
         [JsonPropertyName("end")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<int> End { get; init; }
     }
 }

@@ -31,18 +31,21 @@ namespace DSharpPlus.Core.Entities
         /// The secret for joining a party.
         /// </summary>
         [JsonPropertyName("join")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string> Join { get; init; }
 
         /// <summary>
         /// The secret for spectating a game.
         /// </summary>
         [JsonPropertyName("spectate")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string> Spectate { get; init; }
 
         /// <summary>
         /// The secret for a specific instanced match.
         /// </summary>
         [JsonPropertyName("match")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string> Match { get; init; }
     }
 }

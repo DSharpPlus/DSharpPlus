@@ -47,6 +47,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
         /// The id of the bot/OAuth2 application for this discord integration.
         /// </summary>
         [JsonPropertyName("application_id")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordSnowflake> ApplicationId { get; init; }
     }
 }

@@ -13,6 +13,6 @@
         <PackageTags>discord, discord-api, bots, discord-bots, chat, dsharp, dsharpplus, csharp, dotnet, vb-net, fsharp, webhooks</PackageTags>
     </PropertyGroup>
     <ItemGroup>
-        <AnalyzerProjectReference Include="../DSharpPlus.Analyzers/DSharpPlus.Analyzers.csproj"/>
+        <ProjectReference Include="../DSharpPlus.Analyzers/DSharpPlus.Analyzers.csproj" OutputItemType="Analyzer" />
     </ItemGroup>
 </Project>

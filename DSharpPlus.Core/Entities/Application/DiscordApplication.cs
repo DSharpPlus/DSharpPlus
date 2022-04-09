@@ -57,6 +57,7 @@ namespace DSharpPlus.Core.Entities
         /// An array of rpc origin urls, if rpc is enabled.
         /// </summary>
         [JsonPropertyName("rpc_origins")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string[]> RpcOrigins { get; internal set; }
 
         /// <summary>
@@ -75,18 +76,21 @@ namespace DSharpPlus.Core.Entities
         /// The url of the app's terms of service.
         /// </summary>
         [JsonPropertyName("terms_of_service_url")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string> TermsOfServiceUrl { get; internal set; }
 
         /// <summary>
         /// The url of the app's privacy policy.
         /// </summary>
         [JsonPropertyName("privacy_policy_url")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string> PrivacyPolicyUrl { get; internal set; }
 
         /// <summary>
         /// Partial user object containing info on the owner of the application.
         /// </summary>
         [JsonPropertyName("owner")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordUser> Owner { get; internal set; }
 
         /// <summary>
@@ -112,30 +116,35 @@ namespace DSharpPlus.Core.Entities
         /// If this application is a game sold on Discord, this field will be the guild to which it has been linked.
         /// </summary>
         [JsonPropertyName("guild_id")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordSnowflake> GuildId { get; init; }
 
         /// <summary>
         /// If this application is a game sold on Discord, this field will be the id of the "Game SKU" that is created, if exists.
         /// </summary>
         [JsonPropertyName("primary_sku_id")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordSnowflake> PrimarySKUId { get; init; }
 
         /// <summary>
         /// If this application is a game sold on Discord, this field will be the URL slug that links to the store page.
         /// </summary>
         [JsonPropertyName("slug")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string> Slug { get; internal set; }
 
         /// <summary>
         /// The application's default rich presence invite cover image hash.
         /// </summary>
         [JsonPropertyName("cover_image")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string> CoverImage { get; internal set; }
 
         /// <summary>
         /// The application's public <see cref="DiscordApplicationFlags">flags</see>.
         /// </summary>
         [JsonPropertyName("flags")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordApplicationFlags> Flags { get; internal set; }
 
         public static implicit operator ulong(DiscordApplication application) => application.Id;

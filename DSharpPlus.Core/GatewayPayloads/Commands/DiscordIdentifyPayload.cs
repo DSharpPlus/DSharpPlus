@@ -49,24 +49,28 @@ namespace DSharpPlus.Core.Gateway.Commands
         /// Whether this connection supports compression of packets.
         /// </summary>
         [JsonPropertyName("compress")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<bool> Compress { get; init; } = true;
 
         /// <summary>
         /// A value between 50 and 250, total number of members where the gateway will stop sending offline members in the guild member list.
         /// </summary>
         [JsonPropertyName("large_threshold")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<int> LargeThreshold { get; init; } = 50;
 
         /// <summary>
         /// Used for Guild Sharding.
         /// </summary>
         [JsonPropertyName("shard")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<Dictionary<int, int>> Shard { get; init; }
 
         /// <summary>
         /// The presence structure for initial presence information.
         /// </summary>
         [JsonPropertyName("presence")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordPresenceUpdateCommand> Presence { get; init; }
 
         /// <summary>

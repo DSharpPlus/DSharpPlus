@@ -59,12 +59,14 @@ namespace DSharpPlus.Core.Entities
         /// The role icon hash.
         /// </summary>
         [JsonPropertyName("icon")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string?> Icon { get; internal set; }
 
         /// <summary>
         /// The role unicode emoji.
         /// </summary>
         [JsonPropertyName("unicode_emoji")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string?> UnicodeEmoji { get; internal set; }
 
         /// <summary>
@@ -95,6 +97,7 @@ namespace DSharpPlus.Core.Entities
         /// The tags this role has.
         /// </summary>
         [JsonPropertyName("tags")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordRoleTags> Tags { get; init; }
 
         public static implicit operator ulong(DiscordRole role) => role.Id;

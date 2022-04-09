@@ -55,6 +55,7 @@ namespace DSharpPlus.Core.Entities
         /// The icon hash, returned when in the template object.
         /// </summary>
         [JsonPropertyName("icon_hash")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string?> IconHash { get; internal set; }
 
         /// <summary>
@@ -73,6 +74,7 @@ namespace DSharpPlus.Core.Entities
         /// True if the user is the owner of the guild.
         /// </summary>
         [JsonPropertyName("owner")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<bool> Owner { get; init; }
 
         /// <summary>
@@ -85,6 +87,7 @@ namespace DSharpPlus.Core.Entities
         /// The total permissions for the user in the guild (excludes overwrites).
         /// </summary>
         [JsonPropertyName("permissions")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordPermissions> Permissions { get; internal set; }
 
         /// <summary>
@@ -92,6 +95,7 @@ namespace DSharpPlus.Core.Entities
         /// </summary>
         [Obsolete($"This field is deprecated and is replaced by {nameof(DiscordChannel.RtcRegion)}")]
         [JsonPropertyName("region")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string?> Region { get; set; } = null!;
 
         /// <summary>
@@ -110,12 +114,14 @@ namespace DSharpPlus.Core.Entities
         /// True if the server widget is enabled.
         /// </summary>
         [JsonPropertyName("widget_enabled")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<bool> WidgetEnabled { get; internal set; }
 
         /// <summary>
         /// The channel id that the widget will generate an invite to, or null if set to no invite.
         /// </summary>
         [JsonPropertyName("widget_channel_id")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordSnowflake?> WidgetChannelId { get; internal set; }
 
         /// <summary>
@@ -188,66 +194,77 @@ namespace DSharpPlus.Core.Entities
         /// When this guild was joined at.
         /// </summary>
         [JsonPropertyName("joined_at")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DateTimeOffset> JoinedAt { get; init; }
 
         /// <summary>
         /// True if this is considered a large guild.
         /// </summary>
         [JsonPropertyName("large")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<bool> Large { get; init; }
 
         /// <summary>
         /// True if this guild is unavailable due to an outage.
         /// </summary>
         [JsonPropertyName("unavailable")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<bool> Unavailable { get; init; }
 
         /// <summary>
         /// The total number of members in this guild.
         /// </summary>
         [JsonPropertyName("member_count")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<int> MemberCount { get; init; }
 
         /// <summary>
         /// The states of members currently in voice channels; lacks the guild_id key.
         /// </summary>
         [JsonPropertyName("voice_states")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordVoiceState[]> VoiceStates { get; internal set; }
 
         /// <summary>
         /// The users in the guild.
         /// </summary>
         [JsonPropertyName("members")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordGuildMember[]> Members { get; internal set; }
 
         /// <summary>
         /// The channels in the guild.
         /// </summary>
         [JsonPropertyName("channels")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordChannel[]> Channels { get; internal set; }
 
         /// <summary>
         /// All active threads in the guild that current user has permission to view.
         /// </summary>
         [JsonPropertyName("threads")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordChannel[]> Threads { get; internal set; }
 
         /// <summary>
         /// The presences of the members in the guild, will only include non-offline members if the size is greater than large threshold.
         /// </summary>
         [JsonPropertyName("presences")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordUpdatePresencePayload[]> Presences { get; internal set; }
 
         /// <summary>
         /// The maximum number of presences for the guild (null is always returned, apart from the largest of guilds).
         /// </summary>
         [JsonPropertyName("max_presences")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<int?> MaxPresences { get; internal set; }
 
         /// <summary>
         /// The maximum number of members for the guild.
         /// </summary>
         [JsonPropertyName("max_members")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<int> MaxMembers { get; internal set; }
 
         /// <summary>
@@ -278,6 +295,7 @@ namespace DSharpPlus.Core.Entities
         /// The number of boosts this guild currently has.
         /// </summary>
         [JsonPropertyName("premium_subscription_count")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<int> PremiumSubscriptionCount { get; internal set; }
 
         /// <summary>
@@ -296,24 +314,28 @@ namespace DSharpPlus.Core.Entities
         /// The maximum amount of users in a video channel.
         /// </summary>
         [JsonPropertyName("max_video_channel_users")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<int> MaxVideoChannelUsers { get; internal set; }
 
         /// <summary>
         /// The approximate number of members in this guild, returned from the <c>GET /guilds/:id</c> endpoint when <c>with_counts</c> is true.
         /// </summary>
         [JsonPropertyName("approximate_member_count")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<int> ApproximateMemberCount { get; internal set; }
 
         /// <summary>
         /// The approximate number of non-offline members in this guild, returned from the <c>GET /guilds/:id</c> endpoint when <c>with_counts</c> is true.
         /// </summary>
         [JsonPropertyName("approximate_member_count")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<int> ApproximatePresenceCount { get; internal set; }
 
         /// <summary>
         /// The welcome screen of a Community guild, shown to new members, returned in an Invite's guild object.
         /// </summary>
         [JsonPropertyName("welcome_screen")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordGuildWelcomeScreen> WelcomeScreen { get; internal set; }
 
         /// <summary>
@@ -326,18 +348,21 @@ namespace DSharpPlus.Core.Entities
         /// Active stage instances in the guild.
         /// </summary>
         [JsonPropertyName("stage_instances")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordStageInstance[]> StageInstances { get; internal set; }
 
         /// <summary>
         /// Custom guild stickers.
         /// </summary>
         [JsonPropertyName("stickers")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordSticker[]> Stickers { get; internal set; }
 
         /// <summary>
         /// The scheduled events in the guild.
         /// </summary>
         [JsonPropertyName("guild_scheduled_events")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordGuildScheduledEvent[]> GuildScheduledEvents { get; internal set; }
 
         /// <summary>

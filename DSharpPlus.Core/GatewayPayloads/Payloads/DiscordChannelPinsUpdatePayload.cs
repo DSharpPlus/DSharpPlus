@@ -36,6 +36,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
         /// The id of the guild.
         /// </summary>
         [JsonPropertyName("guild_id")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordSnowflake> GuildId { get; init; }
 
         /// <summary>
@@ -48,6 +49,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
         /// The time at which the most recent pinned message was pinned.
         /// </summary>
         [JsonPropertyName("last_pin_timestamp")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DateTimeOffset?> LastPinTimestamp { get; init; }
     }
 }

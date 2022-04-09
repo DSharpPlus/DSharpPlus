@@ -32,6 +32,7 @@ namespace DSharpPlus.Core.Entities
         /// The guild id this voice state is for.
         /// </summary>
         [JsonPropertyName("guild_id")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordSnowflake> GuildId { get; init; }
 
         /// <summary>
@@ -50,6 +51,7 @@ namespace DSharpPlus.Core.Entities
         /// The guild member this voice state is for.
         /// </summary>
         [JsonPropertyName("member")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordGuildMember> Member { get; init; }
 
         /// <summary>
@@ -86,6 +88,7 @@ namespace DSharpPlus.Core.Entities
         /// Whether this user is streaming using "Go Live".
         /// </summary>
         [JsonPropertyName("self_stream")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<bool> SelfStream { get; internal set; }
 
         /// <summary>

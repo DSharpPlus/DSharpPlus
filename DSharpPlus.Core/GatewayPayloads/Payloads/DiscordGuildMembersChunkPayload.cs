@@ -59,18 +59,21 @@ namespace DSharpPlus.Core.Gateway.Payloads
         /// If passing an invalid id to REQUEST_GUILD_MEMBERS, it will be returned here.
         /// </summary>
         [JsonPropertyName("not_found")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordSnowflake[]> NotFound { get; init; }
 
         /// <summary>
         /// If passing true to REQUEST_GUILD_MEMBERS, presences of the returned members will be here.
         /// </summary>
         [JsonPropertyName("presences")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordUpdatePresencePayload> Presences { get; init; }
 
         /// <summary>
         /// The nonce used in the Guild Members Request.
         /// </summary>
         [JsonPropertyName("nonce")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string> Nonce { get; init; }
     }
 }

@@ -38,6 +38,7 @@ namespace DSharpPlus.Core.Entities
         /// The changes made to the <see cref="TargetId"/>
         /// </summary>
         [JsonPropertyName("changes")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordAuditLogChange[]> Changes { get; init; }
 
         /// <summary>
@@ -62,12 +63,14 @@ namespace DSharpPlus.Core.Entities
         /// Additional info for certain action types.
         /// </summary>
         [JsonPropertyName("options")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordAuditLogEntryInfo> Options { get; init; }
 
         /// <summary>
         /// The reason for the change (0-512 characters)
         /// </summary>
         [JsonPropertyName("reason")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string> Reason { get; init; }
 
         public static implicit operator ulong(DiscordAuditLogEntry auditLogEntry) => auditLogEntry.Id;

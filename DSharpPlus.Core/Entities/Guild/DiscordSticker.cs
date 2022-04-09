@@ -42,6 +42,7 @@ namespace DSharpPlus.Core.Entities
         /// For standard stickers, id of the pack the sticker is from.
         /// </summary>
         [JsonPropertyName("pack_id")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordSnowflake> PackId { get; init; }
 
         /// <summary>
@@ -67,6 +68,7 @@ namespace DSharpPlus.Core.Entities
         /// </summary>
         [JsonPropertyName("asset")]
         [Obsolete("Deprecated previously the sticker asset hash, now an empty string")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string> Asset { get; set; } = null!;
 
         /// <summary>
@@ -85,24 +87,28 @@ namespace DSharpPlus.Core.Entities
         /// Whether this guild sticker can be used, may be false due to loss of Server Boosts.
         /// </summary>
         [JsonPropertyName("available")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<bool> Available { get; init; }
 
         /// <summary>
         /// The id of the guild that owns this sticker.
         /// </summary>
         [JsonPropertyName("guild_id")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordSnowflake?> GuildId { get; init; }
 
         /// <summary>
         /// The user that uploaded the guild sticker.
         /// </summary>
         [JsonPropertyName("user")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordUser> User { get; init; }
 
         /// <summary>
         /// The standard sticker's sort order within its pack.
         /// </summary>
         [JsonPropertyName("sort_value")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<int> SortValue { get; init; }
     }
 }

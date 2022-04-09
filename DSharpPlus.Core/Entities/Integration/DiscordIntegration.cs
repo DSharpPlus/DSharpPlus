@@ -60,6 +60,7 @@ namespace DSharpPlus.Core.Entities
         /// Not provided for bot integrations.
         /// </remarks>
         [JsonPropertyName("syncing")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<bool> Syncing { get; internal set; }
 
         /// <summary>
@@ -69,6 +70,7 @@ namespace DSharpPlus.Core.Entities
         /// Not provided for bot integrations.
         /// </remarks>
         [JsonPropertyName("role_id")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string> RoleId { get; internal set; }
 
         /// <summary>
@@ -78,6 +80,7 @@ namespace DSharpPlus.Core.Entities
         /// Not provided for bot integrations.
         /// </remarks>
         [JsonPropertyName("enable_emoticons")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<bool> EnableEmoticons { get; internal set; }
 
         /// <summary>
@@ -87,6 +90,7 @@ namespace DSharpPlus.Core.Entities
         /// Not provided for bot integrations.
         /// </remarks>
         [JsonPropertyName("expire_behavior")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordIntegrationExpireBehavior> ExpireBehavior { get; internal set; }
 
         /// <summary>
@@ -96,6 +100,7 @@ namespace DSharpPlus.Core.Entities
         /// Not provided for bot integrations.
         /// </remarks>
         [JsonPropertyName("expire_grace_period")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<int> ExpireGracePeriod { get; internal set; }
 
         /// <summary>
@@ -105,6 +110,7 @@ namespace DSharpPlus.Core.Entities
         /// Not provided for bot integrations.
         /// </remarks>
         [JsonPropertyName("user")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordUser> User { get; init; }
 
         /// <summary>
@@ -120,6 +126,7 @@ namespace DSharpPlus.Core.Entities
         /// Not provided for bot integrations.
         /// </remarks>
         [JsonPropertyName("synced_at")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DateTimeOffset> SyncedAt { get; internal set; }
 
         /// <summary>
@@ -129,6 +136,7 @@ namespace DSharpPlus.Core.Entities
         /// Not provided for bot integrations.
         /// </remarks>
         [JsonPropertyName("subscriber_count")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<int> SubscriberCount { get; internal set; }
 
         /// <summary>
@@ -138,17 +146,20 @@ namespace DSharpPlus.Core.Entities
         /// Not provided for bot integrations.
         /// </remarks>
         [JsonPropertyName("revoked")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<bool> Revoked { get; internal set; }
 
         /// <summary>
         /// The bot/OAuth2 application for discord integrations.
         /// </summary>
         [JsonPropertyName("application")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordIntegrationApplication> Application { get; init; }
 
         /// <summary>
         /// Sent on gateway integration events such as INTEGRATION_CREATE or INTEGRATION_UPDATE.
         /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordSnowflake> GuildId { get; init; }
     }
 }

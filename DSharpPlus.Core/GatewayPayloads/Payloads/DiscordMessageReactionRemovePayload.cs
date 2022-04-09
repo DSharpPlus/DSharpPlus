@@ -53,6 +53,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
         /// The id of the guild.
         /// </summary>
         [JsonPropertyName("guild_id")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordSnowflake> GuildId { get; init; }
 
         /// <summary>

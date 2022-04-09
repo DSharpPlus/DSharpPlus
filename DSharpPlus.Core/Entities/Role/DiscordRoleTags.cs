@@ -34,12 +34,14 @@ namespace DSharpPlus.Core.Entities
         /// The id of the bot this role belongs to.
         /// </summary>
         [JsonPropertyName("bot_id")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordSnowflake> BotId { get; init; }
 
         /// <summary>
         /// The id of the integration this role belongs to.
         /// </summary>
         [JsonPropertyName("integration_id")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordSnowflake> IntegrationId { get; init; }
 
         /// <summary>
@@ -49,6 +51,7 @@ namespace DSharpPlus.Core.Entities
         /// Null when it is the guild's premium subscriber role, otherwise <see cref="Optional{T}.Empty"/>. You should use <see cref="Optional{T}.HasValue"/> to check if this is the guild's premium subscriber role.
         /// </remarks>
         [JsonPropertyName("premium_subscriber")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         internal Optional<bool> PremiumSubscriber { get; init; }
     }
 }

@@ -34,18 +34,21 @@ namespace DSharpPlus.Core.Entities
         /// The user's status set for an active desktop (Windows, Linux, Mac) application session.
         /// </summary>
         [JsonPropertyName("desktop")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string> Desktop { get; init; }
 
         /// <summary>
         /// The user's status set for an active mobile (iOS, Android) application session.
         /// </summary>
         [JsonPropertyName("mobile")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string> Mobile { get; init; }
 
         /// <summary>
         /// The user's status set for an active web (browser, bot account) application session.
         /// </summary>
         [JsonPropertyName("web")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string> Web { get; init; }
     }
 }

@@ -57,6 +57,7 @@ namespace DSharpPlus.Core.Entities
         /// Null if the event was created before October 25th, 2021.
         /// </remarks>
         [JsonPropertyName("creator_id")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordSnowflake?> CreatorId { get; init; }
 
         /// <summary>
@@ -69,6 +70,7 @@ namespace DSharpPlus.Core.Entities
         /// The description of the scheduled event (1-1000 characters).
         /// </summary>
         [JsonPropertyName("description")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string?> Description { get; internal set; }
 
         /// <summary>
@@ -120,18 +122,21 @@ namespace DSharpPlus.Core.Entities
         /// Not included if the event was created before October 25th, 2021.
         /// </remarks>
         [JsonPropertyName("creator")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordUser> Creator { get; internal set; }
 
         /// <summary>
         /// The number of users subscribed to the scheduled event
         /// </summary>
         [JsonPropertyName("user_count")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<int> UserCount { get; internal set; }
 
         /// <summary>
         /// The cover image hash of the scheduled event
         /// </summary>
         [JsonPropertyName("image")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string?> Image { get; internal set; }
 
         public static implicit operator ulong(DiscordGuildScheduledEvent guildScheduledEvent) => guildScheduledEvent.Id;

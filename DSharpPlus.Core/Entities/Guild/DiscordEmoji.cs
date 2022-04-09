@@ -47,36 +47,42 @@ namespace DSharpPlus.Core.Entities
         /// The roles allowed to use this emoji.
         /// </summary>
         [JsonPropertyName("roles")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordSnowflake[]> Roles { get; internal set; }
 
         /// <summary>
         /// The user that created this emoji.
         /// </summary>
         [JsonPropertyName("user")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordUser> User { get; internal set; } = null!;
 
         /// <summary>
         /// Whether this emoji must be wrapped in colons.
         /// </summary>
         [JsonPropertyName("require_colons")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<bool> RequiresColons { get; internal set; }
 
         /// <summary>
         /// Whether this emoji is managed.
         /// </summary>
         [JsonPropertyName("managed")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<bool> Managed { get; internal set; }
 
         /// <summary>
         /// Whether this emoji is animated.
         /// </summary>
         [JsonPropertyName("animated")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<bool> Animated { get; internal set; }
 
         /// <summary>
         /// Whether this emoji can be used. May be false due to loss of Server Boosts.
         /// </summary>
         [JsonPropertyName("available")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<bool> Available { get; internal set; }
 
         /// <exception cref="NullReferenceException">If the emoji does not have an id.</exception>

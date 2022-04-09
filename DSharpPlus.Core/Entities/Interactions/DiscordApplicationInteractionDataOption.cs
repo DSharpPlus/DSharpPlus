@@ -50,6 +50,7 @@ namespace DSharpPlus.Core.Entities
         /// A string, integer, or double. Mutually exclusive with <see cref="Options"/>.
         /// </remarks>
         [JsonPropertyName("value")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<object> Value { get; init; }
 
         /// <summary>
@@ -59,12 +60,14 @@ namespace DSharpPlus.Core.Entities
         /// Mutually exclusive with <see cref="Value"/>.
         /// </remarks>
         [JsonPropertyName("options")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordApplicationInteractionDataOption[]> Options { get; init; }
 
         /// <summary>
         /// True if this option is the currently focused option for autocomplete.
         /// </summary>
         [JsonPropertyName("focused")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<bool> Focused { get; init; }
     }
 }

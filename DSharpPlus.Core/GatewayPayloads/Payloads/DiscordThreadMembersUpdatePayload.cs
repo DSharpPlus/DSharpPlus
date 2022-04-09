@@ -56,12 +56,14 @@ namespace DSharpPlus.Core.Gateway.Payloads
         /// The users who were added to the thread.
         /// </summary>
         [JsonPropertyName("added_members")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordThreadMember[]> AddedMembers { get; init; } = null!;
 
         /// <summary>
         /// The id of the users who were removed from the thread.
         /// </summary>
         [JsonPropertyName("removed_member_ids")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordSnowflake[]> RemovedMemberIds { get; init; } = null!;
     }
 }

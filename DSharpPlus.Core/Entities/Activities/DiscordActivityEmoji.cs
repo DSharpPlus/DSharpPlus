@@ -37,12 +37,14 @@ namespace DSharpPlus.Core.Entities
         /// The id of the emoji.
         /// </summary>
         [JsonPropertyName("id")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordSnowflake> Id { get; init; }
 
         /// <summary>
         /// Whether this emoji is animated.
         /// </summary>
         [JsonPropertyName("animated")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<bool> Animated { get; init; }
     }
 }

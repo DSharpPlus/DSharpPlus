@@ -60,12 +60,14 @@ namespace DSharpPlus.Core.Entities
         /// Whether non-moderators can add other non-moderators to a thread; only available on private threads.
         /// </summary>
         [JsonPropertyName("invitable")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<bool> Invitable { get; internal set; }
 
         /// <summary>
         /// Timestamp when the thread was created; only populated for threads created after 2022-01-09
         /// </summary>
         [JsonPropertyName("create_timestamp")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DateTimeOffset> CreateTimestamp { get; internal set; }
     }
 }

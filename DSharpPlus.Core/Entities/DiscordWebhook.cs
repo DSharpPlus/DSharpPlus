@@ -47,6 +47,7 @@ namespace DSharpPlus.Core.Entities
         /// The guild id this webhook is for, if any.
         /// </summary>
         [JsonPropertyName("guild_id")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordSnowflake?> GuildId { get; init; }
 
         /// <summary>
@@ -59,6 +60,7 @@ namespace DSharpPlus.Core.Entities
         /// The user this webhook was created by (not returned when getting a webhook with its token).
         /// </summary>
         [JsonPropertyName("user")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordUser> User { get; init; }
 
         /// <summary>
@@ -77,6 +79,7 @@ namespace DSharpPlus.Core.Entities
         /// The secure token of the webhook (returned for Incoming Webhooks).
         /// </summary>
         [JsonPropertyName("token")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string> Token { get; internal set; }
 
         /// <summary>
@@ -89,18 +92,21 @@ namespace DSharpPlus.Core.Entities
         /// The guild of the channel that this webhook is following (returned for Channel Follower Webhooks).
         /// </summary>
         [JsonPropertyName("source_guild")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordGuild> SourceGuild { get; init; }
 
         /// <summary>
         /// The channel that this webhook is following (returned for Channel Follower Webhooks).
         /// </summary>
         [JsonPropertyName("source_channel")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordChannel> SourceChannel { get; init; }
 
         /// <summary>
         /// The url used for executing the webhook (returned by the webhooks OAuth2 flow).
         /// </summary>
         [JsonPropertyName("url")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string> Url { get; init; }
     }
 }

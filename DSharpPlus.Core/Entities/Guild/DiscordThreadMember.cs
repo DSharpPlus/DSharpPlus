@@ -38,12 +38,14 @@ namespace DSharpPlus.Core.Entities
         /// The id of the thread.
         /// </summary>
         [JsonPropertyName("id")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordSnowflake> Id { get; init; }
 
         /// <summary>
         /// The id of the user.
         /// </summary>
         [JsonPropertyName("user_id")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordSnowflake> UserId { get; init; }
 
         /// <summary>
@@ -65,6 +67,7 @@ namespace DSharpPlus.Core.Entities
         /// Only sent on the ThreadMemberUpdate gateway payload.
         /// </remarks>
         [JsonPropertyName("guild_id")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordSnowflake> GuildId { get; init; }
     }
 }

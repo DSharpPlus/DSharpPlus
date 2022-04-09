@@ -31,6 +31,7 @@ namespace DSharpPlus.Core.Entities
         /// The id of the party.
         /// </summary>
         [JsonPropertyName("id")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string> Id { get; init; }
 
         /// <summary>
@@ -40,6 +41,7 @@ namespace DSharpPlus.Core.Entities
         /// <c>Size[0]</c> is the current size, and <c>Size[1]</c> is the maximum size.
         /// </remarks>
         [JsonPropertyName("size")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<int[]> Size { get; init; }
     }
 }

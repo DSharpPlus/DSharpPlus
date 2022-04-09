@@ -44,6 +44,7 @@ namespace DSharpPlus.Core.Entities
         /// The stream url, is validated when type is <see cref="DiscordActivityType.Streaming"/>.
         /// </summary>
         [JsonPropertyName("url")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string?> Url { get; init; }
 
         /// <summary>
@@ -56,66 +57,77 @@ namespace DSharpPlus.Core.Entities
         /// Timestamps for start and/or end of the game.
         /// </summary>
         [JsonPropertyName("timestamps")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordActivityTimestamps> Timestamps { get; init; }
 
         /// <summary>
         /// The application id for the game.
         /// </summary>
         [JsonPropertyName("application_id")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordSnowflake> ApplicationId { get; init; }
 
         /// <summary>
         /// What the player is currently doing.
         /// </summary>
         [JsonPropertyName("details")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string?> Details { get; init; }
 
         /// <summary>
         /// The user's current party status.
         /// </summary>
         [JsonPropertyName("state")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string?> State { get; init; }
 
         /// <summary>
         /// The emoji used for a custom status.
         /// </summary>
         [JsonPropertyName("emoji")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordActivityEmoji?> Emoji { get; init; }
 
         /// <summary>
         /// The information for the current party of the player.
         /// </summary>
         [JsonPropertyName("party")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordActivityParty> Party { get; init; }
 
         /// <summary>
         /// Images for the presence and their hover texts.
         /// </summary>
         [JsonPropertyName("assets")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordActivityAssets> Assets { get; init; }
 
         /// <summary>
         /// Secrets for Rich Presence joining and spectating.
         /// </summary>
         [JsonPropertyName("secrets")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordActivitySecrets> Secrets { get; init; }
 
         /// <summary>
         /// Whether or not the activity is an instanced game session.
         /// </summary>
         [JsonPropertyName("instance")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<bool> Instance { get; init; }
 
         /// <summary>
         /// <see cref="DiscordActivityFlags"/> <c>OR</c>'d together, describes what the payload includes.
         /// </summary>
         [JsonPropertyName("flags")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordActivityFlags> Flags { get; init; }
 
         /// <summary>
         /// The custom buttons shown in the Rich Presence (max 2).
         /// </summary>
         [JsonPropertyName("buttons")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordActivityButton> Buttons { get; init; }
     }
 }

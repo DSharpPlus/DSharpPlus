@@ -54,6 +54,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
         /// The nickname of the user in the guild.
         /// </summary>
         [JsonPropertyName("nick")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string?> Nick { get; init; }
 
         /// <summary>
@@ -72,30 +73,35 @@ namespace DSharpPlus.Core.Gateway.Payloads
         /// When the user started boosting the guild.
         /// </summary>
         [JsonPropertyName("premium_since")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DateTimeOffset?> PremiumSince { get; init; }
 
         /// <summary>
         /// Whether the user is deafened in voice channels.
         /// </summary>
         [JsonPropertyName("deaf")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<bool> Deaf { get; init; }
 
         /// <summary>
         /// Whether the user is muted in voice channels.
         /// </summary>
         [JsonPropertyName("mute")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<bool> Mute { get; init; }
 
         /// <summary>
         /// Whether the user has not yet passed the guild's Membership Screening requirements.
         /// </summary>
         [JsonPropertyName("pending")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<bool> Pending { get; init; }
 
         /// <summary>
         /// When the user's timeout will expire and the user will be able to communicate in the guild again, null or a time in the past if the user is not timed out.
         /// </summary>
         [JsonPropertyName("communication_disabled_until")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DateTimeOffset?> CommunicationDisabledUntil { get; init; }
     }
 }

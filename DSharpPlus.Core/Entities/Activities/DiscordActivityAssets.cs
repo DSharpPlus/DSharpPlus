@@ -32,12 +32,14 @@ namespace DSharpPlus.Core.Entities
         /// To use an external image via media proxy, specify the URL as the field's value when sending. You will only receive the <c>mp:</c> prefix via the gateway.
         /// </summary>
         [JsonPropertyName("large_image")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string> LargeImage { get; init; }
 
         /// <summary>
         /// Text displayed when hovering over the large image of the activity.
         /// </summary>
         [JsonPropertyName("large_text")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string> LargeText { get; init; }
 
         /// <summary>
@@ -45,12 +47,14 @@ namespace DSharpPlus.Core.Entities
         /// To use an external image via media proxy, specify the URL as the field's value when sending. You will only receive the <c>mp:</c> prefix via the gateway.
         /// </summary>
         [JsonPropertyName("small_image")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string> SmallImage { get; init; }
 
         /// <summary>
         /// Text displayed when hovering over the small image of the activity.
         /// </summary>
         [JsonPropertyName("small_text")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string> SmallText { get; init; }
     }
 }

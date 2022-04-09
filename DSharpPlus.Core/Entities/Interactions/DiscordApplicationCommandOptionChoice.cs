@@ -41,6 +41,7 @@ namespace DSharpPlus.Core.Entities
         /// Localization dictionary for the <c>name</c> field. Values follow the same restrictions as <c>name</c>.
         /// </summary>
         [JsonPropertyName("name_localizations")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<IReadOnlyDictionary<string, string>> NameLocalizations { get; init; }
 
         /// <summary>

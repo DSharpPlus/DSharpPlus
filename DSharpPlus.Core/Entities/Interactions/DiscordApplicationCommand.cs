@@ -42,6 +42,7 @@ namespace DSharpPlus.Core.Entities
         /// The type of command, defaults <see cref="DiscordApplicationCommandType.ChatInput"/> if not set.
         /// </summary>
         [JsonPropertyName("type")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordApplicationCommandType> Type { get; init; }
 
         /// <summary>
@@ -54,6 +55,7 @@ namespace DSharpPlus.Core.Entities
         /// The guild id of the command, if not global.
         /// </summary>
         [JsonPropertyName("guild_id")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordSnowflake> GuildId { get; init; }
 
         /// <summary>
@@ -66,6 +68,7 @@ namespace DSharpPlus.Core.Entities
         /// Localization dictionary for the <c>name</c> field. Values follow the same restrictions as <c>name</c>.
         /// </summary>
         [JsonPropertyName("name_localizations")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<IReadOnlyDictionary<string, string>> NameLocalizations { get; init; }
 
         /// <summary>
@@ -78,6 +81,7 @@ namespace DSharpPlus.Core.Entities
         /// Localization dictionary for the <c>description</c> field. Values follow the same restrictions as <c>description</c>.
         /// </summary>
         [JsonPropertyName("description_localizations")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<IReadOnlyDictionary<string, string>> DescriptionLocalizations { get; init; }
 
         /// <summary>
@@ -87,12 +91,14 @@ namespace DSharpPlus.Core.Entities
         /// Required options must be listed before optional options.
         /// </remarks>
         [JsonPropertyName("options")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordApplicationCommandOption> Options { get; init; }
 
         /// <summary>
         /// Whether the command is enabled by default when the app is added to a guild (default <c>true</c>).
         /// </summary>
         [JsonPropertyName("default_permission")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<bool> DefaultPermission { get; init; }
 
         /// <summary>

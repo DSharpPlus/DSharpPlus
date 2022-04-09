@@ -55,12 +55,14 @@ namespace DSharpPlus.Core.Gateway.Payloads
         /// The guild of the invite.
         /// </summary>
         [JsonPropertyName("guild_id")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordSnowflake> GuildId { get; init; }
 
         /// <summary>
         /// The user that created the invite.
         /// </summary>
         [JsonPropertyName("inviter")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordUser> Inviter { get; init; }
 
         /// <summary>
@@ -79,18 +81,21 @@ namespace DSharpPlus.Core.Gateway.Payloads
         /// The type of target for this voice channel invite.
         /// </summary>
         [JsonPropertyName("target_type")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordGuildInviteTargetType> TargetType { get; init; }
 
         /// <summary>
         /// The user whose stream to display for this voice channel stream invite.
         /// </summary>
         [JsonPropertyName("target_user")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordUser> TargetUser { get; init; }
 
         /// <summary>
         /// The embedded application to open for this voice channel embedded application invite.
         /// </summary>
         [JsonPropertyName("target_application")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordApplication> TargetApplication { get; init; }
 
         /// <summary>

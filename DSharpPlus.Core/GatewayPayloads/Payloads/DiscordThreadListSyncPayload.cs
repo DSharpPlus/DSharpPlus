@@ -41,6 +41,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
         /// The parent channel ids whose threads are being synced. If omitted, then threads were synced for the entire guild. This array may contain channel_ids that have no active threads as well, so you know to clear that data.
         /// </summary>
         [JsonPropertyName("channel_ids")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordSnowflake[]> ChannelIds { get; init; }
 
         /// <summary>

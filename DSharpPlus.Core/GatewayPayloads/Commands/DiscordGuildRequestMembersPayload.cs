@@ -47,6 +47,7 @@ namespace DSharpPlus.Core.Gateway.Commands
         /// Required if <see cref="UserIds"/> is not set.
         /// </remarks>
         [JsonPropertyName("query")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string> Query { get; init; }
 
         /// <summary>
@@ -62,6 +63,7 @@ namespace DSharpPlus.Core.Gateway.Commands
         /// Used to specify if we want the presences of the matched members.
         /// </summary>
         [JsonPropertyName("presences")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<bool> Presences { get; init; }
 
         /// <summary>
@@ -71,6 +73,7 @@ namespace DSharpPlus.Core.Gateway.Commands
         /// Required if <see cref="Query"/> is not set.
         /// </remarks>
         [JsonPropertyName("user_ids")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<DiscordSnowflake[]> UserIds { get; init; }
 
         /// <summary>
@@ -80,6 +83,7 @@ namespace DSharpPlus.Core.Gateway.Commands
         /// Nonce can only be up to 32 bytes. If you send an invalid nonce it will be ignored and the reply member_chunk(s) will not have a nonce set.
         /// </remarks>
         [JsonPropertyName("nonce")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<string> Nonce { get; init; }
     }
 }
