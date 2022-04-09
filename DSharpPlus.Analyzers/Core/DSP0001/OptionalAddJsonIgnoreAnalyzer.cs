@@ -42,7 +42,7 @@ namespace DSharpPlus.Analyzers.Core
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(new DiagnosticDescriptor(Id, Title, MessageFormat, Category, DiagnosticSeverity.Warning, true, Description));
 
         // Avoids having to call typeof(T) every time we do a type comparison. I believe this is faster, despite the slight overhead.
-        private static readonly Type OptionalType = typeof(DSharpPlus.Core.Entities.Optional<>);
+        private const string OptionalType = "DSharpPlus.Core.Entities.Optional`1";
         private static readonly Type JsonIgnoreAttributeType = typeof(JsonIgnoreAttribute);
         private static readonly Type JsonIgnoreConditionType = typeof(JsonIgnoreCondition);
 
@@ -74,6 +74,7 @@ namespace DSharpPlus.Analyzers.Core
         }
 
         private static bool IsSameType(ITypeSymbol type1, Type type2) => GetNamespace(type1) == type2.FullName;
-        private static string GetNamespace(INamespaceOrTypeSymbol? symbol, string? existingNamespace = null) => symbol == null ? string.Join('.', existingNamespace!.Split('.').Reverse().Where(x => !string.IsNullOrWhiteSpace(x))) : GetNamespace(symbol.ContainingNamespace, existingNamespace + '.' + symbol.MetadataName);
+        private static bool IsSameType(ITypeSymbol type1, string type2) => GetNamespace(type1) == type2;
+        private static string GetNamespace(INamespaceOrTypeSymbol symbol, string existingNamespace = null) => symbol == null ? string.Join('.', existingNamespace!.Split('.').Reverse().Where(x => !string.IsNullOrWhiteSpace(x))) : GetNamespace(symbol.ContainingNamespace, existingNamespace + '.' + symbol.MetadataName);
     }
 }

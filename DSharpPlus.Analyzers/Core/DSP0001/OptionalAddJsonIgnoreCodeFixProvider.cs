@@ -62,23 +62,43 @@ namespace DSharpPlus.Analyzers.Core
             return newDocument.WithSyntaxRoot(await AddUsings((await newDocument.GetSyntaxRootAsync(cancellationToken)).SyntaxTree.GetCompilationUnitRoot(cancellationToken)).GetRootAsync(cancellationToken));
         }
 
-        private static Document AddAttributes(Document document, SyntaxNode root, PropertyDeclarationSyntax propertyDeclarationSyntax) => document.WithSyntaxRoot(root.ReplaceNode(propertyDeclarationSyntax, propertyDeclarationSyntax.WithAttributeLists(
-            SyntaxFactory.SingletonList(
-                SyntaxFactory.AttributeList(
-                    SyntaxFactory.SingletonSeparatedList(
-                        SyntaxFactory.Attribute(
-                            SyntaxFactory.IdentifierName("JsonIgnore"))
-                        .WithArgumentList(
-                            SyntaxFactory.AttributeArgumentList(
-                                SyntaxFactory.SingletonSeparatedList(
-                                    SyntaxFactory.AttributeArgument(
-                                        SyntaxFactory.MemberAccessExpression(
-                                            SyntaxKind.SimpleMemberAccessExpression,
-                                            SyntaxFactory.IdentifierName("JsonIgnoreCondition"),
-                                            SyntaxFactory.IdentifierName("WhenWritingDefault")))
-                                    .WithNameEquals(
-                                        SyntaxFactory.NameEquals(
-                                            SyntaxFactory.IdentifierName("Condition"))))))))))));
+        private static Document AddAttributes(Document document, SyntaxNode root, PropertyDeclarationSyntax propertyDeclarationSyntax)
+        {
+            AttributeSyntax jsonIgnoreAttribute = SyntaxFactory
+                .Attribute(SyntaxFactory.IdentifierName("JsonIgnore"))
+                .WithArgumentList(SyntaxFactory.AttributeArgumentList(SyntaxFactory.SingletonSeparatedList(SyntaxFactory
+                    .AttributeArgument(SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.IdentifierName("JsonIgnoreCondition"), SyntaxFactory.IdentifierName("WhenWritingDefault")))
+                    .WithNameEquals(SyntaxFactory.NameEquals(SyntaxFactory.IdentifierName("Condition"))))));
+
+            // We are moving trivia
+            //AttributeListSyntax firstAttribute = propertyDeclarationSyntax.AttributeLists.FirstOrDefault();
+            //if (firstAttribute != null)
+            //{
+            //    // All this just to preserve trivia (XML docs)
+            //    jsonIgnoreAttribute = jsonIgnoreAttribute.WithTriviaFrom(firstAttribute);
+            //    return document.WithSyntaxRoot(root.ReplaceNode(propertyDeclarationSyntax, propertyDeclarationSyntax.WithAttributeLists(propertyDeclarationSyntax.AttributeLists.Replace(firstAttribute, firstAttribute.WithoutTrivia()).Insert(0, SyntaxFactory.AttributeList(SyntaxFactory.SingletonSeparatedList(jsonIgnoreAttribute))))));
+            //}
+            //else
+            //{
+            //}
+#pragma warning disable IDE0046 // Convert to conditional expression
+            if (propertyDeclarationSyntax.AttributeLists.Any())
+            {
+                return document.WithSyntaxRoot(root.ReplaceNode(propertyDeclarationSyntax, propertyDeclarationSyntax.WithAttributeLists(propertyDeclarationSyntax.AttributeLists.Add(SyntaxFactory.AttributeList(SyntaxFactory.SingletonSeparatedList(jsonIgnoreAttribute))))));
+            }
+            else if (propertyDeclarationSyntax.HasLeadingTrivia)
+            {
+                return document.WithSyntaxRoot(root.ReplaceNode(propertyDeclarationSyntax, propertyDeclarationSyntax
+                    .WithLeadingTrivia() // For reasons unknown to me, the ordering of when these methods are called is important. Don't touch it.
+                    .WithAttributeLists(SyntaxFactory.SingletonList(SyntaxFactory.AttributeList(SyntaxFactory.SingletonSeparatedList(jsonIgnoreAttribute)).WithLeadingTrivia(propertyDeclarationSyntax.GetLeadingTrivia())))
+                    ));
+            }
+            else
+            {
+                return document.WithSyntaxRoot(root.ReplaceNode(propertyDeclarationSyntax, propertyDeclarationSyntax.WithAttributeLists(SyntaxFactory.SingletonList(SyntaxFactory.AttributeList(SyntaxFactory.SingletonSeparatedList(jsonIgnoreAttribute))))));
+            }
+            //return document.WithSyntaxRoot(root.ReplaceNode(propertyDeclarationSyntax, propertyDeclarationSyntax.WithAttributeLists(propertyDeclarationSyntax.AttributeLists.Add(SyntaxFactory.AttributeList(SyntaxFactory.SingletonSeparatedList(jsonIgnoreAttribute))))));
+        }
 
         private static SyntaxTree AddUsings(CompilationUnitSyntax root)
         {

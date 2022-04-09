@@ -32,13 +32,14 @@ namespace DSharpPlus.Test.Analyzers.Core
     [TestClass]
     public class DSP0001UnitTest
     {
-        private const string TestSource = @"using System;
+        private const string TestSource = @"using DSharpPlus.Core.Entities;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DSharpPlus.Core.Entities;
 using System.Text.Json.Serialization;
 
 namespace System.Text.Json.Serialization
@@ -59,6 +60,19 @@ namespace System.Text.Json.Serialization
     }
 }
 
+namespace System.ComponentModel
+{
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Event | AttributeTargets.Class | AttributeTargets.Method)]
+    public class DisplayNameAttribute : Attribute
+    {
+        public virtual string DisplayName => DisplayNameValue;
+        protected string DisplayNameValue { get; set; }
+
+        public DisplayNameAttribute() : this(string.Empty) { }
+        public DisplayNameAttribute(string displayName) => DisplayNameValue = displayName;
+    }
+}
+
 namespace DSharpPlus.Core.Entities
 {
     public struct Optional<T> { }
@@ -68,14 +82,18 @@ namespace ConsoleApplication1
 {
     class Test
     {
+        /// <summary>
+        /// These should be preserved.
+        /// </summary>
+        [DisplayName(""prop"")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Optional<int> {|#0:Prop|} { get; set; }
         public int {|#1:Number|} { get; set; }
     }
 }";
 
-        private static readonly string TestSourceWithoutJsonIgnoreAttribute = string.Join('\n', TestSource.Split('\n').RemoveAt(36)); // Removes line 37 from the code (JsonIgnoreAttribute), which should throw a warning.
-        private static readonly string TestSourceWithoutJsonIgnoreAttributeOrUsing = string.Join('\n', TestSource.Split('\n').RemoveAt(7).RemoveAt(35)); // Removes line 8 from the code (using Json namespace), which should be added back in the code fix.
+        private static readonly string TestSourceWithoutJsonIgnoreAttribute = string.Join('\n', TestSource.Split('\n').RemoveAt(54)); // Removes line 55 from the code (JsonIgnoreAttribute), which should throw a warning.
+        private static readonly string TestSourceWithoutJsonIgnoreAttributeOrUsing = string.Join('\n', TestSourceWithoutJsonIgnoreAttribute.Split('\n').RemoveAt(8)); // Removes line 9 from the code (using Json namespace), which should be added back in the code fix.
 
         [TestMethod]
         // Verifies that the analyzer isn't always throwing a warning.
