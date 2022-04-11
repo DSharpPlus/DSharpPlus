@@ -32,6 +32,16 @@ namespace DSharpPlus.Core.Rest
     {
         // the actual request goes here
 
+
+        // this needs to be populated by the API client. it needs to have a MemoryCache for the entire API client
+        // storing ratelimits, specify whether the request should be subject to the global limit and
+        // store the endpoint this request is made to. Major route parameters (guild id, channel id, webhook id)
+        // should be sent here as number, minor route parameters (message id, for instance) as a global constant representing
+        // them, like ":message_id".
+        // cache needs to be passed with the key `cache`
+        // request/ratelimiting needs to be passed with the key `subject-to-global-limit`
+        // endpoint needs to be passed with the key `endpoint`
+        // of course, these are all changeable in PollyRatelimitingPolicy.cs
         public Context Context { get; }
 
         public HttpRequestMessage Build();
