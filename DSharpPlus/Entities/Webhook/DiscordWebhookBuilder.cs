@@ -302,7 +302,7 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Sets the id of the thread to execute the webhhok on.
+        /// Sets the id of the thread to execute the webhook on.
         /// </summary>
         /// <param name="threadId">The id of the thread</param>
         public DiscordWebhookBuilder WithThreadId(ulong? threadId)
