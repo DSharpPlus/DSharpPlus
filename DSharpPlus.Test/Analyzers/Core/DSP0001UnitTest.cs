@@ -91,9 +91,18 @@ namespace ConsoleApplication1
         public int {|#1:Number|} { get; set; }
     }
 }";
+        private static string TestSourceWithExistingJsonIgnoreAttribute
+        {
+            get
+            {
+                string[] splitSource = TestSource.Split('\n');
+                splitSource[splitSource.IndexOf("[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]", true, 0)] = "        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]";
+                return string.Join("\n", splitSource);
 
-        private static readonly string TestSourceWithoutJsonIgnoreAttribute = string.Join('\n', TestSource.Split('\n').RemoveAt(54)); // Removes line 55 from the code (JsonIgnoreAttribute), which should throw a warning.
-        private static readonly string TestSourceWithoutJsonIgnoreAttributeOrUsing = string.Join('\n', TestSourceWithoutJsonIgnoreAttribute.Split('\n').RemoveAt(8)); // Removes line 9 from the code (using Json namespace), which should be added back in the code fix.
+            }
+        } // Should be replaced with [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] by the code fix.
+        private static readonly string TestSourceWithoutJsonIgnoreAttribute = string.Join('\n', TestSource.Split('\n').RemoveAt(TestSource.Split('\n').IndexOf("[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]", true, 0))); // Removes the JsonIgnoreAttribute, which should throw a warning by the analyzer.
+        private static readonly string TestSourceWithoutJsonIgnoreAttributeOrUsing = string.Join('\n', TestSourceWithoutJsonIgnoreAttribute.Split('\n').RemoveAt(TestSourceWithoutJsonIgnoreAttribute.Split('\n').IndexOf("using System.Text.Json.Serialization;", true, 0))); // The code fix should re-add the using statement.
 
         [TestMethod]
         // Verifies that the analyzer isn't always throwing a warning.
@@ -122,6 +131,14 @@ namespace ConsoleApplication1
         {
             DiagnosticResult expected = VerifyCS.Diagnostic(OptionalAddJsonIgnoreAnalyzer.Id).WithLocation(0).WithArguments("Prop");
             await VerifyCS.VerifyCodeFixAsync(TestSourceWithoutJsonIgnoreAttributeOrUsing, expected, TestSource);
+        }
+
+        [TestMethod]
+        // Should replace [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] with [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public async Task VerifyCodeFixWithExistingJsonIgnoreAttributeAsync()
+        {
+            DiagnosticResult expected = VerifyCS.Diagnostic(OptionalAddJsonIgnoreAnalyzer.Id).WithLocation(0).WithArguments("Prop");
+            await VerifyCS.VerifyCodeFixAsync(TestSourceWithExistingJsonIgnoreAttribute, expected, TestSource);
         }
     }
 }

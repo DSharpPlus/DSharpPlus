@@ -36,7 +36,7 @@ namespace DSharpPlus.Analyzers.Core
         // TODO: Use localizable strings.
         public const string Id = "DSP0001";
         internal const string Title = $"Optional<T> requires {nameof(JsonIgnoreAttribute)} with {nameof(JsonIgnoreCondition.WhenWritingDefault)} applied.";
-        internal const string MessageFormat = $"Property {{0}} requires a {nameof(JsonIgnoreAttribute)}.";
+        internal const string MessageFormat = $"Property {{0}} requires a {nameof(JsonIgnoreAttribute)} with the Condition argument set to {nameof(JsonIgnoreCondition.WhenWritingDefault)}.";
         internal const string Description = $"Property {{0}} is of type {{1}} and does not have a {nameof(JsonIgnoreAttribute)}. The {nameof(JsonIgnoreAttribute)} is required for Optional<T> properties so that System.Text.Json (STJ) can correctly serialize or skip over the property depending on the value, as the Discord API requires.";
         internal const string Category = "DSharpPlus.Analyzers.Core";
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(new DiagnosticDescriptor(Id, Title, MessageFormat, Category, DiagnosticSeverity.Warning, true, Description));

@@ -54,5 +54,36 @@ namespace DSharpPlus.Test
 
             return result;
         }
+
+        public static T[] Insert<T>(this T[] array, int index, T element)
+        {
+            T[] result = new T[array.Length + 1];
+            if (index > 0)
+            {
+                Array.Copy(array, 0, result, 0, index);
+            }
+
+            result[index] = element;
+            if (index < array.Length)
+            {
+                Array.Copy(array, index, result, index + 1, array.Length - index);
+            }
+
+            return result;
+        }
+
+        public static int IndexOf(this string[] array, string searchValue, bool trimElements, int occurrence)
+        {
+            int occurrences = 0;
+            for (int i = 0; i < array.Length; ++i)
+            {
+                if (searchValue == (trimElements ? array[i].Trim() : array[i]) && occurrences++ == occurrence)
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
     }
 }
