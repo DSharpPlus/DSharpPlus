@@ -142,7 +142,7 @@ namespace DSharpPlus.Lavalink
         private readonly AsyncEvent<LavalinkGuildConnection, AsyncEventArgs> _guildConnectionCreated;
 
         /// <summary>
-        /// Triggered whenever a new guild connection is removed.
+        /// Triggered whenever a guild connection is removed.
         /// </summary>
         public event AsyncEventHandler<LavalinkGuildConnection, AsyncEventArgs> GuildConnectionRemoved
         {
