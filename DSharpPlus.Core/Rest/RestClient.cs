@@ -21,13 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.Net.Http;
+using System.Threading.Tasks;
+
+using Polly;
+
 namespace DSharpPlus.Core.Rest
 {
-    using System.Net.Http;
-    using System.Threading.Tasks;
-
-    using Polly;
-
     // another stub, just like DiscordClient.
     public class RestClient
     {
