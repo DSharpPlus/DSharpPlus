@@ -35,6 +35,11 @@ dotnet_diagnostic.IDE0005.severity = error
 # Yell at people when they don't include the file header template
 dotnet_diagnostic.IDE0073.severity = error
 
+# shut IDEs up about file scoped namespaces and java-style using directives 
+# while there is authoritative style rule found in here
+dotnet_diagnostic.IDE0065.severity = none
+dotnet_diagnostic.IDE0161.severity = none
+
 # this. preferences
 dotnet_style_qualification_for_field = false:error
 dotnet_style_qualification_for_property = false:error
