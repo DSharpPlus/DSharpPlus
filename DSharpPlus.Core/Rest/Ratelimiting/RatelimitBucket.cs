@@ -117,7 +117,7 @@ using System.Collections.Generic;
         {
             if(nextResetTime < ResetTime)
             {
-                throw new ArgumentOutOfRangeException("The next ratelimit bucket expiration cannot be in the past.");
+                throw new ArgumentOutOfRangeException(nameof(nextResetTime), "The next ratelimit bucket expiration cannot be in the past.");
             }
 
             lock (__lock)
