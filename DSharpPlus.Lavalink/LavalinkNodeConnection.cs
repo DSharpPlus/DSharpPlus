@@ -219,7 +219,7 @@ namespace DSharpPlus.Lavalink
             this._playbackFinished = new AsyncEvent<LavalinkGuildConnection, TrackFinishEventArgs>("LAVALINK_PLAYBACK_FINISHED", TimeSpan.Zero, this.Discord.EventErrorHandler);
             this._trackStuck = new AsyncEvent<LavalinkGuildConnection, TrackStuckEventArgs>("LAVALINK_TRACK_STUCK", TimeSpan.Zero, this.Discord.EventErrorHandler);
             this._trackException = new AsyncEvent<LavalinkGuildConnection, TrackExceptionEventArgs>("LAVALINK_TRACK_EXCEPTION", TimeSpan.Zero, this.Discord.EventErrorHandler);
-            this._guildConnectionCreated = new AsyncEvent<LavalinkGuildConnection, AsyncEventArgs>("LAVALINK_GUILD_CONNECTION_CREATED", TimeSpan.Zero, this.Discord.EventErrorHandler); ;
+            this._guildConnectionCreated = new AsyncEvent<LavalinkGuildConnection, AsyncEventArgs>("LAVALINK_GUILD_CONNECTION_CREATED", TimeSpan.Zero, this.Discord.EventErrorHandler);
             this._guildConnectionRemoved = new AsyncEvent<LavalinkGuildConnection, AsyncEventArgs>("LAVALINK_GUILD_CONNECTION_REMOVED", TimeSpan.Zero, this.Discord.EventErrorHandler);
 
             this.VoiceServerUpdates = new ConcurrentDictionary<ulong, TaskCompletionSource<VoiceServerUpdateEventArgs>>();
