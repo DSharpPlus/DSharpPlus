@@ -1785,11 +1785,9 @@ namespace DSharpPlus.Net
             return stage;
         }
 
-        internal async Task BecomeStageInstanceSpeakerAsync(ulong guildId, ulong id, ulong? user = null, DateTime? timestamp = null, bool? suppress = null, string reason = "")
+        internal async Task BecomeStageInstanceSpeakerAsync(ulong guildId, ulong id, ulong? userId = null, DateTime? timestamp = null, bool? suppress = null)
         {
             var headers = Utilities.GetBaseHeaders();
-            if (!string.IsNullOrWhiteSpace(reason))
-                headers[REASON_HEADER_NAME] = reason;
 
             var pld = new RestBecomeStageSpeakerInstancePayload
             {
@@ -1797,7 +1795,9 @@ namespace DSharpPlus.Net
                 ChannelId = id,
                 RequestToSpeakTimestamp = timestamp
             };
-            var route = $"guilds/{guildId}{Endpoints.STAGE_INSTANCES}/{user?.ToString()?? "@me"}";
+
+            var user = userId?.ToString() ?? "@me";
+            var route = $"guilds/{guildId}{Endpoints.STAGE_INSTANCES}/{user}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { id }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
@@ -3591,7 +3591,6 @@ namespace DSharpPlus.Net
             return info;
         }
         #endregion
-
 
     }
 }
