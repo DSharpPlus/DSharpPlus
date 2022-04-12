@@ -1785,12 +1785,11 @@ namespace DSharpPlus.Net
             return stage;
         }
 
-        internal async Task StageInstanceBecomeSpeakerAsync(ulong guildId, ulong id, DateTime? timestamp = null, bool suppress = false, ulong user = 0, string reason = "")
+        internal async Task BecomeStageInstanceSpeakerAsync(ulong guildId, ulong id, ulong? user = null, DateTime? timestamp = null, bool suppress = false, string reason = "")
         {
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
                 headers[REASON_HEADER_NAME] = reason;
-
 
             var pld = new RestBecomeStageSpeakerInstancePayload
             {
@@ -1798,10 +1797,11 @@ namespace DSharpPlus.Net
                 ChannelId = id,
                 RequestToSpeakTimestamp = timestamp
             };
-            var route = $"guilds/{guildId}{Endpoints.STAGE_INSTANCES}/{(user == 0 ? "@me" : user)}";
+            var route = $"guilds/{guildId}{Endpoints.STAGE_INSTANCES}/{user?.ToString()?? "@me"}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { id }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
+
             await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, headers, DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
         }
 

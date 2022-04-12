@@ -303,7 +303,7 @@ namespace DSharpPlus.Net.Abstractions
     {
         [JsonProperty("channel_id")]
         public ulong ChannelId { get; set; }
-        [JsonProperty("request_to_speak_timestamp")]
+        [JsonProperty("request_to_speak_timestamp", NullValueHandling = NullValueHandling.Ignore)]
         public DateTime? RequestToSpeakTimestamp { get; set; }
         [JsonProperty("suppress")]
         public bool Suppress { get; set; }

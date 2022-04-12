@@ -23,6 +23,7 @@
 
 using System;
 using System.Threading.Tasks;
+using DSharpPlus.Exceptions;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
@@ -79,17 +80,25 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Become speaker of current stage.
         /// </summary>
-        public Task BecomeSpeaker()
-            => this.Discord.ApiClient.StageInstanceBecomeSpeakerAsync(this.GuildId, this.Id);
-        /// <summary>
-        /// Send request to speak in current stage.
-        /// </summary>
-        public Task SendSpeakerRequest() => this.Discord.ApiClient.StageInstanceBecomeSpeakerAsync(this.GuildId, this.Id, DateTime.Now);
-        /// <summary>
-        /// Send invite to speak in current stage.
-        /// </summary>
-        /// <param name="member">Member to invite speak.</param>
         /// <returns></returns>
-        public Task InviteToSpeak(DiscordMember member) => this.Discord.ApiClient.StageInstanceBecomeSpeakerAsync(this.GuildId, this.Id, null, false, member.Id);
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.MoveMembers"/> permission</exception>
+        public Task BecomeSpeakerAsync(string reason = "")
+            => this.Discord.ApiClient.BecomeStageInstanceSpeakerAsync(this.GuildId, this.Id, null, reason: reason);
+
+        /// <summary>
+        /// Request to become a speaker in the stage instance.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.MoveMembers"/> permission</exception>
+        public Task SendSpeakerRequestAsync(string reason = "") => this.Discord.ApiClient.BecomeStageInstanceSpeakerAsync(this.GuildId, this.Id, null, DateTime.Now, reason: reason);
+
+        /// <summary>
+        /// Invite a member to become a speaker in the state instance.
+        /// </summary>
+        /// <param name="member">The member to invite to speak on stage.</param>
+        /// <param name="reason">Reason.</param>
+        /// <returns></returns>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.MoveMembers"/> permission</exception>
+        public Task InviteToSpeakAsync(DiscordMember member, string reason = "") => this.Discord.ApiClient.BecomeStageInstanceSpeakerAsync(this.GuildId, this.Id, member.Id, null, suppress: false, reason);
     }
 }
