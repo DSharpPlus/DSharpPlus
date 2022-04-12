@@ -36,7 +36,7 @@ dotnet_diagnostic.IDE0005.severity = error
 dotnet_diagnostic.IDE0073.severity = error
 
 # shut IDEs up about file scoped namespaces and java-style using directives 
-# while there is authoritative style rule found in here
+# while there is no authoritative style rule found in here
 dotnet_diagnostic.IDE0065.severity = none
 dotnet_diagnostic.IDE0161.severity = none
 

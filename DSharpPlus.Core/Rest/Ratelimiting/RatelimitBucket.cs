@@ -21,15 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Net.Http.Headers;
+using System.Threading;
+
 namespace DSharpPlus.Core.Rest.Ratelimiting
 {
-    using System;
-using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Linq;
-    using System.Net.Http.Headers;
-    using System.Threading;
-
     // keeps track of one single ratelimit for us
     internal record RatelimitBucket
     {
