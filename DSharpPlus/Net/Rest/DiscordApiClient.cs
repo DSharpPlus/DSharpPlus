@@ -1785,7 +1785,7 @@ namespace DSharpPlus.Net
             return stage;
         }
 
-        internal async Task BecomeStageInstanceSpeakerAsync(ulong guildId, ulong id, ulong? user = null, DateTime? timestamp = null, bool suppress = false, string reason = "")
+        internal async Task BecomeStageInstanceSpeakerAsync(ulong guildId, ulong id, ulong? user = null, DateTime? timestamp = null, bool? suppress = null, string reason = "")
         {
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
