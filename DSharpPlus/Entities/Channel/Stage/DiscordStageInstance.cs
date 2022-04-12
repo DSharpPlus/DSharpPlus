@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
@@ -73,5 +75,21 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("discoverable_disabled")]
         public bool DiscoverableDisabled { get; internal set; }
+
+        /// <summary>
+        /// Become speaker of current stage.
+        /// </summary>
+        public Task BecomeSpeaker()
+            => this.Discord.ApiClient.StageInstanceBecomeSpeakerAsync(this.GuildId, this.Id);
+        /// <summary>
+        /// Send request to speak in current stage.
+        /// </summary>
+        public Task SendSpeakerRequest() => this.Discord.ApiClient.StageInstanceBecomeSpeakerAsync(this.GuildId, this.Id, DateTime.Now);
+        /// <summary>
+        /// Send invite to speak in current stage.
+        /// </summary>
+        /// <param name="member">Member to invite speak.</param>
+        /// <returns></returns>
+        public Task InviteToSpeak(DiscordMember member) => this.Discord.ApiClient.StageInstanceBecomeSpeakerAsync(this.GuildId, this.Id, null, false, member.Id);
     }
 }

@@ -1785,6 +1785,26 @@ namespace DSharpPlus.Net
             return stage;
         }
 
+        internal async Task StageInstanceBecomeSpeakerAsync(ulong guildId, ulong id, DateTime? timestamp = null, bool suppress = false, ulong user = 0, string reason = "")
+        {
+            var headers = Utilities.GetBaseHeaders();
+            if (!string.IsNullOrWhiteSpace(reason))
+                headers[REASON_HEADER_NAME] = reason;
+
+
+            var pld = new RestBecomeStageSpeakerInstancePayload
+            {
+                Suppress = suppress,
+                ChannelId = id,
+                RequestToSpeakTimestamp = timestamp
+            };
+            var route = $"guilds/{guildId}{Endpoints.STAGE_INSTANCES}/{(user == 0 ? "@me" : user)}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, headers, DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
+        }
+
         internal async Task DeleteStageInstanceAsync(ulong channel_id, string reason)
         {
             var headers = Utilities.GetBaseHeaders();
@@ -3571,6 +3591,7 @@ namespace DSharpPlus.Net
             return info;
         }
         #endregion
+
 
     }
 }
