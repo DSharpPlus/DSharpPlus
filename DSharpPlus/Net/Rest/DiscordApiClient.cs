@@ -1797,7 +1797,7 @@ namespace DSharpPlus.Net
             };
 
             var user = userId?.ToString() ?? "@me";
-            var route = $"guilds/{guildId}{Endpoints.VOICE_STATES}/{user}";
+            var route = $"/guilds/{guildId}{Endpoints.VOICE_STATES}/{user}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { id }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
