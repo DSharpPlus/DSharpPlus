@@ -21,6 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
+using System.Threading.Tasks;
+using DSharpPlus.Exceptions;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
@@ -73,5 +76,29 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("discoverable_disabled")]
         public bool DiscoverableDisabled { get; internal set; }
+
+        /// <summary>
+        /// Become speaker of current stage.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.MoveMembers"/> permission</exception>
+        public Task BecomeSpeakerAsync()
+            => this.Discord.ApiClient.BecomeStageInstanceSpeakerAsync(this.GuildId, this.Id, null);
+
+        /// <summary>
+        /// Request to become a speaker in the stage instance.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.RequestToSpeak"/> permission</exception>
+        public Task SendSpeakerRequestAsync() => this.Discord.ApiClient.BecomeStageInstanceSpeakerAsync(this.GuildId, this.Id, null, DateTime.Now);
+
+        /// <summary>
+        /// Invite a member to become a speaker in the state instance.
+        /// </summary>
+        /// <param name="member">The member to invite to speak on stage.</param>
+        /// <param name="reason">Reason.</param>
+        /// <returns></returns>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.MoveMembers"/> permission</exception>
+        public Task InviteToSpeakAsync(DiscordMember member) => this.Discord.ApiClient.BecomeStageInstanceSpeakerAsync(this.GuildId, this.Id, member.Id, null, suppress: false);
     }
 }

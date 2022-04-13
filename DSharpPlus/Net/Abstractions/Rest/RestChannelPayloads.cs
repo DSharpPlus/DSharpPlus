@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
@@ -296,5 +297,15 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("privacy_level")]
         public Optional<PrivacyLevel> PrivacyLevel { get; set; }
+    }
+
+    internal sealed class RestBecomeStageSpeakerInstancePayload
+    {
+        [JsonProperty("channel_id")]
+        public ulong ChannelId { get; set; }
+        [JsonProperty("request_to_speak_timestamp", NullValueHandling = NullValueHandling.Ignore)]
+        public DateTime? RequestToSpeakTimestamp { get; set; }
+        [JsonProperty("suppress", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? Suppress { get; set; }
     }
 }

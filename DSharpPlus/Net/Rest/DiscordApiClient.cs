@@ -1785,6 +1785,26 @@ namespace DSharpPlus.Net
             return stage;
         }
 
+        internal async Task BecomeStageInstanceSpeakerAsync(ulong guildId, ulong id, ulong? userId = null, DateTime? timestamp = null, bool? suppress = null)
+        {
+            var headers = Utilities.GetBaseHeaders();
+
+            var pld = new RestBecomeStageSpeakerInstancePayload
+            {
+                Suppress = suppress,
+                ChannelId = id,
+                RequestToSpeakTimestamp = timestamp
+            };
+
+            var user = userId?.ToString() ?? "@me";
+            var route = $"guilds/{guildId}{Endpoints.VOICE_STATES}/{user}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+
+            await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, headers, DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
+        }
+
         internal async Task DeleteStageInstanceAsync(ulong channel_id, string reason)
         {
             var headers = Utilities.GetBaseHeaders();
