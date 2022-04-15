@@ -36,56 +36,56 @@ namespace DSharpPlus.Test
             var progressBuilder = new StringBuilder();
             var progressMessage = await ctx.RespondAsync("Waiting for results");
 
-            var m1 = await new DiscordMessageBuilder().WithContent($"{ctx.User.Mention}, {role.Mention} Default").SendAsync(ctx.Channel);
-            var m2 = await new DiscordMessageBuilder().WithContent($"{ctx.User.Mention}, {role.Mention} User").WithAllowedMention(new UserMention(ctx.User)).SendAsync(ctx.Channel);
-            var m3 = await new DiscordMessageBuilder().WithContent($"{ctx.User.Mention}, {role.Mention} Role").WithAllowedMention(new RoleMention(role)).SendAsync(ctx.Channel);
-            var m4 = await new DiscordMessageBuilder().WithContent($"{ctx.User.Mention}, {role.Mention} None").WithAllowedMentions(Mentions.None).SendAsync(ctx.Channel);
+            var defaultMentionMessage = await new DiscordMessageBuilder().WithContent($"{ctx.User.Mention}, {role.Mention} Default").SendAsync(ctx.Channel);
+            var userMentionMessage = await new DiscordMessageBuilder().WithContent($"{ctx.User.Mention}, {role.Mention} User").WithAllowedMention(new UserMention(ctx.User)).SendAsync(ctx.Channel);
+            var roleMentionMessage = await new DiscordMessageBuilder().WithContent($"{ctx.User.Mention}, {role.Mention} Role").WithAllowedMention(new RoleMention(role)).SendAsync(ctx.Channel);
+            var noMentionMessage = await new DiscordMessageBuilder().WithContent($"{ctx.User.Mention}, {role.Mention} None").WithAllowedMentions(Mentions.None).SendAsync(ctx.Channel);
 
-            var me1 = await new DiscordMessageBuilder().WithContent($"{ctx.User.Mention}, {role.Mention} Reply without mention").WithReply(ctx.Message.Id).SendAsync(ctx.Channel);
-            var me2 = await new DiscordMessageBuilder().WithContent($"{ctx.User.Mention}, {role.Mention} Reply with mention").WithReply(ctx.Message.Id, true).SendAsync(ctx.Channel);
+            var replyMessageWithoutMention = await new DiscordMessageBuilder().WithContent($"{ctx.User.Mention}, {role.Mention} Reply without mention").WithReply(ctx.Message.Id).SendAsync(ctx.Channel);
+            var replyMessageWithMention = await new DiscordMessageBuilder().WithContent($"{ctx.User.Mention}, {role.Mention} Reply with mention").WithReply(ctx.Message.Id, true).SendAsync(ctx.Channel);
 
-            var me1UserBefore = me1.MentionedUsers.Count;
-            var me1RoleBefore = me1.MentionedRoles.Count;
+            var replyUserMentionCountBefore = replyMessageWithoutMention.MentionedUsers.Count;
+            var replyRoleMentionCountBefore = replyMessageWithoutMention.MentionedRoles.Count;
 
-            var me2UserBefore = me2.MentionedUsers.Count;
-            var me2RoleBefore = me2.MentionedRoles.Count;
+            var replyWithMentionUserMentionCountBefore = replyMessageWithMention.MentionedUsers.Count;
+            var replyWithMentionRoleMentionCountBefore = replyMessageWithMention.MentionedRoles.Count;
 
-            var mee1 = await me1.ModifyAsync($"{role.Mention} Reply without mention");
-            var mee2 = await me2.ModifyAsync($"{role.Mention} Reply with mention");
+            var replyWithoutMentionUpdated = await replyMessageWithoutMention.ModifyAsync($"{role.Mention} Reply without mention");
+            var replyWithMentionUpdated = await replyMessageWithMention.ModifyAsync($"{role.Mention} Reply with mention");
 
 
-            var me1UserAfter = mee1.MentionedUsers.Count;
-            var me1RoleAfter = mee1.MentionedRoles.Count;
+            var replyWithoutMentionUserMentionCountAfter = replyWithoutMentionUpdated.MentionedUsers.Count;
+            var replyWithoutMentionRoleMentionCountAfter = replyWithoutMentionUpdated.MentionedRoles.Count;
 
-            var me2UserAfter = mee2.MentionedUsers.Count;
-            var me2RoleAfter = mee2.MentionedRoles.Count;
+            var replyWithMentionUserMentionCountAfter = replyWithMentionUpdated.MentionedUsers.Count;
+            var replyWithMentionRoleMentionCountAfter = replyWithMentionUpdated.MentionedRoles.Count;
 
-            if (m1.MentionedUsers.Count is 0 && m1.MentionedRoles.Count is 0)
+            if (defaultMentionMessage.MentionedUsers.Count is 0 && defaultMentionMessage.MentionedRoles.Count is 0)
                 progressBuilder.AppendLine("Default (No mentions) **PASSED**");
             else
-                progressBuilder.AppendLine($"Default (No mentions) **FAILED** (User: Expected 0, got {m1.MentionedUsers.Count} | Role: Expected 0 got {m1.MentionedRoles.Count})");
+                progressBuilder.AppendLine($"Default (No mentions) **FAILED** (User: Expected 0, got {defaultMentionMessage.MentionedUsers.Count} | Role: Expected 0 got {defaultMentionMessage.MentionedRoles.Count})");
 
-            if (m2.MentionedUsers.Count is 1 && m2.MentionedRoles.Count is 0)
+            if (userMentionMessage.MentionedUsers.Count is 1 && userMentionMessage.MentionedRoles.Count is 0)
                 progressBuilder.AppendLine("User mention without role **PASSED**");
             else
-                progressBuilder.AppendLine($"User mention without role **FAILED** (User: Expected 1, got {m2.MentionedUsers.Count} | Role: Expected 0 got {m2.MentionedRoles.Count})");
+                progressBuilder.AppendLine($"User mention without role **FAILED** (User: Expected 1, got {userMentionMessage.MentionedUsers.Count} | Role: Expected 0 got {userMentionMessage.MentionedRoles.Count})");
 
-            if (m3.MentionedUsers.Count is 0 && m3.MentionedRoles.Count is 1)
+            if (roleMentionMessage.MentionedUsers.Count is 0 && roleMentionMessage.MentionedRoles.Count is 1)
                 progressBuilder.AppendLine("Role mention without user **PASSED**");
             else
-                progressBuilder.AppendLine($"Role mention without user **FAILED** (User: Expected 0, got {m3.MentionedUsers.Count} | Role: Expected 1 got {m3.MentionedRoles.Count})");
+                progressBuilder.AppendLine($"Role mention without user **FAILED** (User: Expected 0, got {roleMentionMessage.MentionedUsers.Count} | Role: Expected 1 got {roleMentionMessage.MentionedRoles.Count})");
 
-            if (m4.MentionedUsers.Count is 0 && m4.MentionedRoles.Count is 0)
+            if (noMentionMessage.MentionedUsers.Count is 0 && noMentionMessage.MentionedRoles.Count is 0)
                 progressBuilder.AppendLine("No mentions explicit **PASSED**");
             else
-                progressBuilder.AppendLine($"No mentions explicit **FAILED** (User: Expected 0, got {m4.MentionedUsers.Count} | Role: Expected 0 got {m4.MentionedRoles.Count})");
+                progressBuilder.AppendLine($"No mentions explicit **FAILED** (User: Expected 0, got {noMentionMessage.MentionedUsers.Count} | Role: Expected 0 got {noMentionMessage.MentionedRoles.Count})");
 
-            if (me1UserBefore is 0 && me1UserAfter is 0 && me1RoleBefore is 0 && me1RoleAfter is 0)
+            if (replyUserMentionCountBefore is 0 && replyWithoutMentionUserMentionCountAfter is 0 && replyRoleMentionCountBefore is 0 && replyWithoutMentionRoleMentionCountAfter is 0)
                 progressBuilder.AppendLine("Reply edit (without mention) **PASSED**");
             else
                 progressBuilder.AppendLine("Reply edit (without mention) **FAILED**");
 
-            if (me2UserBefore is 1 && me2UserAfter is 1 && me2RoleBefore is 0 && me2RoleAfter is 0)
+            if (replyWithMentionUserMentionCountBefore is 1 && replyWithMentionUserMentionCountAfter is 1 && replyWithMentionRoleMentionCountBefore is 0 && replyWithMentionRoleMentionCountAfter is 0)
                 progressBuilder.AppendLine("Reply edit (with mention) **PASSED**");
             else
                 progressBuilder.AppendLine("Reply edit (with mention) **FAILED**");
