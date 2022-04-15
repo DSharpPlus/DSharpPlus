@@ -1343,8 +1343,7 @@ namespace DSharpPlus.Net
             if (builder.ReplyId != null)
                 pld.MessageReference = new InternalDiscordMessageReference { MessageId = builder.ReplyId, FailIfNotExists = builder.FailOnInvalidReply };
 
-            //if (builder.Mentions != null || builder.ReplyId != null)
-            pld.Mentions = new DiscordMentions(builder.Mentions ?? Mentions.All, builder.Mentions?.Any() ?? false, builder.MentionOnReply);
+            pld.Mentions = new DiscordMentions(builder.Mentions ?? Mentions.None, builder.Mentions?.Any() ?? false, builder.MentionOnReply);
 
             if (builder.Files.Count == 0)
             {

@@ -396,7 +396,7 @@ namespace DSharpPlus.Entities
         {
             var mentions = new List<IMention>();
 
-            if (this.ReferencedMessage != null && this._mentionedUsers.Contains(this.ReferencedMessage.Author))
+            if (this.ReferencedMessage != null && this._mentionedUsers.Any(r => r.Id == this.ReferencedMessage.Author.Id))
                 mentions.Add(new RepliedUserMention()); // Return null to allow all mentions
 
             if (this._mentionedUsers?.Any() ?? false)

@@ -50,15 +50,15 @@ namespace DSharpPlus.Test
             var me2UserBefore = me2.MentionedUsers.Count;
             var me2RoleBefore = me2.MentionedRoles.Count;
 
-            await me1.ModifyAsync($"{role.Mention} Reply without mention");
-            await me2.ModifyAsync($"{role.Mention} Reply with mention");
+            var mee1 = await me1.ModifyAsync($"{role.Mention} Reply without mention");
+            var mee2 = await me2.ModifyAsync($"{role.Mention} Reply with mention");
 
 
-            var me1UserAfter = me1.MentionedUsers.Count;
-            var me1RoleAfter = me1.MentionedRoles.Count;
+            var me1UserAfter = mee1.MentionedUsers.Count;
+            var me1RoleAfter = mee1.MentionedRoles.Count;
 
-            var me2UserAfter = me2.MentionedUsers.Count;
-            var me2RoleAfter = me2.MentionedRoles.Count;
+            var me2UserAfter = mee2.MentionedUsers.Count;
+            var me2RoleAfter = mee2.MentionedRoles.Count;
 
             if (m1.MentionedUsers.Count is 0 && m1.MentionedRoles.Count is 0)
                 progressBuilder.AppendLine("Default (No mentions) **PASSED**");
