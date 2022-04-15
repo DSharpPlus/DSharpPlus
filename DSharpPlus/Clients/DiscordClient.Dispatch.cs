@@ -1925,7 +1925,7 @@ namespace DSharpPlus
                 User = usr,
                 PresenceBefore = old,
                 PresenceAfter = presence,
-                UserBefore = old != null ? new DiscordUser(old.InternalUser) : usrafter,
+                UserBefore = old != null ? new DiscordUser(old.InternalUser) { Discord = this } : usrafter,
                 UserAfter = usrafter
             };
             await this._presenceUpdated.InvokeAsync(this, ea).ConfigureAwait(false);
