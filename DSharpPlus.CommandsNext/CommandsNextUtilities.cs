@@ -189,7 +189,7 @@ namespace DSharpPlus.CommandsNext
 
             return s.Remove(li - ll + 1, ll);
         }
-        
+
         internal static async Task<ArgumentBindingResult> BindArgumentsAsync(CommandContext ctx, bool ignoreSurplus)
         {
             var command = ctx.Command;
@@ -207,7 +207,7 @@ namespace DSharpPlus.CommandsNext
                 var argValue = string.Empty;
                 if (arg.IsCatchAll)
                 {
-                    if (arg.IsArray)
+                    if (arg._isArray)
                     {
                         while (true)
                         {
@@ -251,7 +251,7 @@ namespace DSharpPlus.CommandsNext
             for (var i = 0; i < overload.Arguments.Count; i++)
             {
                 var arg = overload.Arguments[i];
-                if (arg.IsCatchAll && arg.IsArray)
+                if (arg.IsCatchAll && arg._isArray)
                 {
                     var array = Array.CreateInstance(arg.Type, rawArgumentList.Count - i);
                     var start = i;
