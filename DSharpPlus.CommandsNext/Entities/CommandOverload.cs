@@ -44,9 +44,9 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets this command overload's delegate.
         /// </summary>
-        internal Delegate Callable { get; set; } = null!;
+        internal Delegate _callable { get; set; } = null!;
 
-        internal object? InvocationTarget { get; set; }
+        internal object? _invocationTarget { get; set; }
 
         internal CommandOverload() { }
     }

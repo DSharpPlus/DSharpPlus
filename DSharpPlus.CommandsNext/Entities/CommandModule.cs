@@ -67,8 +67,7 @@ namespace DSharpPlus.CommandsNext.Entities
         /// </summary>
         /// <param name="services">Services to instantiate the module with.</param>
         /// <returns>Created module.</returns>
-        public BaseCommandModule GetInstance(IServiceProvider services)
-            => (BaseCommandModule)this.ModuleType.CreateInstance(services);
+        public BaseCommandModule GetInstance(IServiceProvider services) => (BaseCommandModule)this.ModuleType.CreateInstance(services);
     }
 
     /// <summary>
@@ -102,7 +101,6 @@ namespace DSharpPlus.CommandsNext.Entities
         /// </summary>
         /// <param name="services">Services to instantiate the module with.</param>
         /// <returns>This module's instance.</returns>
-        public BaseCommandModule GetInstance(IServiceProvider services)
-            => this.Instance;
+        public BaseCommandModule GetInstance(IServiceProvider services) => this.Instance;
     }
 }

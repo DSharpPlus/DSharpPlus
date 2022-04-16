@@ -45,8 +45,7 @@ namespace DSharpPlus.CommandsNext.Builders
         /// <summary>
         /// Creates a new command module builder.
         /// </summary>
-        public CommandModuleBuilder()
-        { }
+        public CommandModuleBuilder() { }
 
         /// <summary>
         /// Sets the type this builder will construct a module out of.

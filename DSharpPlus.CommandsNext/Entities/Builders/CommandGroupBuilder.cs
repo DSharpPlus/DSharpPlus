@@ -37,24 +37,21 @@ namespace DSharpPlus.CommandsNext.Builders
         /// Gets the list of child commands registered for this group.
         /// </summary>
         public IReadOnlyList<CommandBuilder> Children { get; }
-        private List<CommandBuilder> ChildrenList { get; }
+        private List<CommandBuilder> _childrenList { get; }
 
         /// <summary>
         /// Creates a new module-less command group builder.
         /// </summary>
-        public CommandGroupBuilder()
-            : this(null)
-        { }
+        public CommandGroupBuilder() : this(null) { }
 
         /// <summary>
         /// Creates a new command group builder.
         /// </summary>
         /// <param name="module">Module on which this group is to be defined.</param>
-        public CommandGroupBuilder(ICommandModule? module)
-            : base(module)
+        public CommandGroupBuilder(ICommandModule? module) : base(module)
         {
-            this.ChildrenList = new List<CommandBuilder>();
-            this.Children = new ReadOnlyCollection<CommandBuilder>(this.ChildrenList);
+            this._childrenList = new List<CommandBuilder>();
+            this.Children = new ReadOnlyCollection<CommandBuilder>(this._childrenList);
         }
 
         /// <summary>
@@ -64,7 +61,7 @@ namespace DSharpPlus.CommandsNext.Builders
         /// <returns>This builder.</returns>
         public CommandGroupBuilder WithChild(CommandBuilder child)
         {
-            this.ChildrenList.Add(child);
+            this._childrenList.Add(child);
             return this;
         }
 

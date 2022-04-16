@@ -43,8 +43,7 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets this command's qualified name (i.e. one that includes all module names).
         /// </summary>
-        public string QualifiedName
-            => this.Parent is not null ? string.Concat(this.Parent.QualifiedName, " ", this.Name) : this.Name;
+        public string QualifiedName => this.Parent is not null ? string.Concat(this.Parent.QualifiedName, " ", this.Name) : this.Name;
 
         /// <summary>
         /// Gets this command's aliases.
@@ -109,12 +108,12 @@ namespace DSharpPlus.CommandsNext
 
                     ctx.RawArguments = args.Raw;
 
-                    var mdl = ovl.InvocationTarget ?? this.Module?.GetInstance(ctx.Services);
+                    var mdl = ovl._invocationTarget ?? this.Module?.GetInstance(ctx.Services);
                     if (mdl is BaseCommandModule bcmBefore)
                         await bcmBefore.BeforeExecutionAsync(ctx).ConfigureAwait(false);
 
                     args.Converted[0] = mdl;
-                    var ret = (Task)ovl.Callable.DynamicInvoke(args.Converted);
+                    var ret = (Task)ovl._callable.DynamicInvoke(args.Converted);
                     await ret.ConfigureAwait(false);
                     executed = true;
                     res = new CommandResult
@@ -167,19 +166,11 @@ namespace DSharpPlus.CommandsNext
         /// <param name="cmd1">Command to compare to.</param>
         /// <param name="cmd2">Command to compare.</param>
         /// <returns>Whether the two commands are equal.</returns>
-        public static bool operator ==(Command cmd1, Command cmd2)
+        public static bool operator ==(Command? cmd1, Command? cmd2)
         {
             var o1 = cmd1 as object;
             var o2 = cmd2 as object;
-
-            if (o1 == null && o2 != null)
-                return false;
-            else if (o1 != null && o2 == null)
-                return false;
-            else if (o1 == null && o2 == null)
-                return true;
-
-            return cmd1.QualifiedName == cmd2.QualifiedName;
+            return (o1 != null || o2 == null) && (o1 == null || o2 != null) && ((o1 == null && o2 == null) || cmd1!.QualifiedName == cmd2!.QualifiedName);
         }
 
         /// <summary>
@@ -188,28 +179,17 @@ namespace DSharpPlus.CommandsNext
         /// <param name="cmd1">Command to compare to.</param>
         /// <param name="cmd2">Command to compare.</param>
         /// <returns>Whether the two commands are not equal.</returns>
-        public static bool operator !=(Command cmd1, Command cmd2)
-            => !(cmd1 == cmd2);
+        public static bool operator !=(Command? cmd1, Command? cmd2) => !(cmd1 == cmd2);
 
         /// <summary>
         /// Checks whether this command equals another object.
         /// </summary>
         /// <param name="obj">Object to compare to.</param>
         /// <returns>Whether this command is equal to another object.</returns>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
-            var o1 = obj as object;
             var o2 = this as object;
-
-            if (o1 == null && o2 != null)
-                return false;
-            else if (o1 != null && o2 == null)
-                return false;
-            else if (o1 == null && o2 == null)
-                return true;
-
-            return obj is Command cmd
-&& cmd.QualifiedName == this.QualifiedName;
+            return (obj != null || o2 == null) && (obj == null || o2 != null) && ((obj == null && o2 == null) || (obj is Command cmd && cmd.QualifiedName == this.QualifiedName));
         }
 
         /// <summary>

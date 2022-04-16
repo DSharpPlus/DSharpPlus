@@ -41,7 +41,7 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets or sets whether this argument is an array argument.
         /// </summary>
-        internal bool IsArray { get; set; } = false;
+        internal bool _isArray { get; set; } = false;
 
         /// <summary>
         /// Gets whether this argument is optional.
