@@ -126,8 +126,7 @@ namespace DSharpPlus.Entities
 
         private string GetFileTypeExtension() => this.FormatType switch
         {
-            StickerFormat.PNG => ".png",
-            StickerFormat.APNG => ".apng",
+            StickerFormat.PNG or StickerFormat.APNG => ".png",
             StickerFormat.LOTTIE => ".json",
             _ => ".png"
         };
