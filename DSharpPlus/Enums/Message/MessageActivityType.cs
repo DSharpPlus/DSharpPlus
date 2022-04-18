@@ -46,6 +46,6 @@ namespace DSharpPlus
         /// <summary>
         /// Allows the user to request to join.
         /// </summary>
-        JoinRequest = 4
+        JoinRequest = 5
     }
 }
