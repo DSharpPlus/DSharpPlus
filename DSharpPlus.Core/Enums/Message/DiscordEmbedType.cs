@@ -21,35 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
+using System;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
-namespace DSharpPlus.Core.Entities
+namespace DSharpPlus.Core.Enums
 {
     /// <summary>
-    /// A <see cref="DiscordRole"/>'s metadata.
+    /// Embed types are "loosely defined" and, for the most part, are not used by our clients for rendering. Embed attributes power what is rendered.
     /// </summary>
-    public sealed record DiscordRoleTags
+    /// <remarks>
+    /// Embed types should be considered deprecated and might be removed in a future API version.
+    /// </remarks>
+    [JsonConverter(typeof(StringEnumConverter)), Obsolete("Embed types are \"loosely defined\" and, for the most part, are not used by our clients for rendering. Embed attributes power what is rendered. Embed types should be considered deprecated and might be removed in a future API version.")]
+    public enum DiscordEmbedType
     {
-        /// <summary>
-        /// The id of the bot this role belongs to.
-        /// </summary>
-        [JsonProperty("bot_id", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordSnowflake> BotId { get; init; }
-
-        /// <summary>
-        /// The id of the integration this role belongs to.
-        /// </summary>
-        [JsonProperty("integration_id", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordSnowflake> IntegrationId { get; init; }
-
-        /// <summary>
-        /// Whether this is the guild's premium subscriber role.
-        /// </summary>
-        /// <remarks>
-        /// Null when it is the guild's premium subscriber role, otherwise <see cref="Optional{T}.Empty"/>. You should use <see cref="Optional{T}.HasValue"/> to check if this is the guild's premium subscriber role.
-        /// </remarks>
-        [JsonProperty("premium_subscriber", NullValueHandling = NullValueHandling.Ignore)]
-        internal Optional<bool> PremiumSubscriber { get; init; }
+        Rich,
+        Image,
+        Video,
+        Gifv,
+        Article,
+        Link
     }
 }

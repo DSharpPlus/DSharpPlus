@@ -22,7 +22,7 @@
 // SOFTWARE.
 
 using System;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Entities
 {
@@ -34,49 +34,49 @@ namespace DSharpPlus.Core.Entities
         /// <summary>
         /// The emoji's Id.
         /// </summary>
-        [JsonPropertyName("id")]
+        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordSnowflake? Id { get; init; } = null!;
 
         /// <summary>
         /// The emoji's name.
         /// </summary>
-        [JsonPropertyName("name")]
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
         public string? Name { get; internal set; } = null!;
 
         /// <summary>
         /// The roles allowed to use this emoji.
         /// </summary>
-        [JsonPropertyName("roles")]
+        [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<DiscordSnowflake[]> Roles { get; internal set; }
 
         /// <summary>
         /// The user that created this emoji.
         /// </summary>
-        [JsonPropertyName("user")]
+        [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<DiscordUser> User { get; internal set; } = null!;
 
         /// <summary>
         /// Whether this emoji must be wrapped in colons.
         /// </summary>
-        [JsonPropertyName("require_colons")]
+        [JsonProperty("require_colons", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<bool> RequiresColons { get; internal set; }
 
         /// <summary>
         /// Whether this emoji is managed.
         /// </summary>
-        [JsonPropertyName("managed")]
+        [JsonProperty("managed", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<bool> Managed { get; internal set; }
 
         /// <summary>
         /// Whether this emoji is animated.
         /// </summary>
-        [JsonPropertyName("animated")]
+        [JsonProperty("animated", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<bool> Animated { get; internal set; }
 
         /// <summary>
         /// Whether this emoji can be used. May be false due to loss of Server Boosts.
         /// </summary>
-        [JsonPropertyName("available")]
+        [JsonProperty("available", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<bool> Available { get; internal set; }
 
         /// <exception cref="NullReferenceException">If the emoji does not have an id.</exception>

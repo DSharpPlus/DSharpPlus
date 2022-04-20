@@ -21,35 +21,40 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Entities
 {
-    /// <summary>
-    /// A <see cref="DiscordRole"/>'s metadata.
-    /// </summary>
-    public sealed record DiscordRoleTags
+    public sealed record DiscordSelectOptionValue
     {
         /// <summary>
-        /// The id of the bot this role belongs to.
+        /// The user-facing name of the option, max 100 characters.
         /// </summary>
-        [JsonProperty("bot_id", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordSnowflake> BotId { get; init; }
+        [JsonProperty("label", NullValueHandling = NullValueHandling.Ignore)]
+        public string Label { get; init; } = null!;
 
         /// <summary>
-        /// The id of the integration this role belongs to.
+        /// The dev-defined value of the option, max 100 characters.
         /// </summary>
-        [JsonProperty("integration_id", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordSnowflake> IntegrationId { get; init; }
+        [JsonProperty("value", NullValueHandling = NullValueHandling.Ignore)]
+        public string Value { get; init; } = null!;
 
         /// <summary>
-        /// Whether this is the guild's premium subscriber role.
+        /// An additional description of the option, max 100 characters.
         /// </summary>
-        /// <remarks>
-        /// Null when it is the guild's premium subscriber role, otherwise <see cref="Optional{T}.Empty"/>. You should use <see cref="Optional{T}.HasValue"/> to check if this is the guild's premium subscriber role.
-        /// </remarks>
-        [JsonProperty("premium_subscriber", NullValueHandling = NullValueHandling.Ignore)]
-        internal Optional<bool> PremiumSubscriber { get; init; }
+        [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<string> Description { get; init; }
+
+        /// <summary>
+        /// The id, name, and animated properties.
+        /// </summary>
+        [JsonProperty("emoji", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<DiscordEmoji> Emoji { get; init; }
+
+        /// <summary>
+        /// Whether the client should render this option as selected by default.
+        /// </summary>
+        [JsonProperty("default", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<bool> Default { get; init; }
     }
 }

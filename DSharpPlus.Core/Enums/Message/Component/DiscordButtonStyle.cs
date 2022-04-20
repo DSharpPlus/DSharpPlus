@@ -21,35 +21,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
-using Newtonsoft.Json;
-
-namespace DSharpPlus.Core.Entities
+namespace DSharpPlus.Core.Enums
 {
     /// <summary>
-    /// A <see cref="DiscordRole"/>'s metadata.
+    /// In order to use this, <see cref="DiscordButtonComponent.CustomId"/> must be set.
     /// </summary>
-    public sealed record DiscordRoleTags
+    public enum DiscordButtonStyle
     {
         /// <summary>
-        /// The id of the bot this role belongs to.
+        /// Blurple.
         /// </summary>
-        [JsonProperty("bot_id", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordSnowflake> BotId { get; init; }
+        Primary = 1,
 
         /// <summary>
-        /// The id of the integration this role belongs to.
+        /// Grey.
         /// </summary>
-        [JsonProperty("integration_id", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordSnowflake> IntegrationId { get; init; }
+        Secondary = 2,
 
         /// <summary>
-        /// Whether this is the guild's premium subscriber role.
+        /// Green.
         /// </summary>
-        /// <remarks>
-        /// Null when it is the guild's premium subscriber role, otherwise <see cref="Optional{T}.Empty"/>. You should use <see cref="Optional{T}.HasValue"/> to check if this is the guild's premium subscriber role.
-        /// </remarks>
-        [JsonProperty("premium_subscriber", NullValueHandling = NullValueHandling.Ignore)]
-        internal Optional<bool> PremiumSubscriber { get; init; }
+        Success = 3,
+
+        /// <summary>
+        /// Red.
+        /// </summary>
+        Danger = 4,
+
+        /// <summary>
+        /// Grey, navigates to a URL.
+        /// </summary>
+        Link = 5
     }
 }

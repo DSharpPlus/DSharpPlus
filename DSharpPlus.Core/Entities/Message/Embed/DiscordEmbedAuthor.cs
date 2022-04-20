@@ -21,35 +21,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Entities
 {
-    /// <summary>
-    /// A <see cref="DiscordRole"/>'s metadata.
-    /// </summary>
-    public sealed record DiscordRoleTags
+    public sealed record DiscordEmbedAuthor
     {
         /// <summary>
-        /// The id of the bot this role belongs to.
-        /// </summary>
-        [JsonProperty("bot_id", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordSnowflake> BotId { get; init; }
-
-        /// <summary>
-        /// The id of the integration this role belongs to.
-        /// </summary>
-        [JsonProperty("integration_id", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordSnowflake> IntegrationId { get; init; }
-
-        /// <summary>
-        /// Whether this is the guild's premium subscriber role.
+        /// The name of the author.
         /// </summary>
         /// <remarks>
-        /// Null when it is the guild's premium subscriber role, otherwise <see cref="Optional{T}.Empty"/>. You should use <see cref="Optional{T}.HasValue"/> to check if this is the guild's premium subscriber role.
+        /// Max 256 characters.
         /// </remarks>
-        [JsonProperty("premium_subscriber", NullValueHandling = NullValueHandling.Ignore)]
-        internal Optional<bool> PremiumSubscriber { get; init; }
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        public string Name { get; init; } = null!;
+
+        /// <summary>
+        /// The url of the author.
+        /// </summary>
+        [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<string> Url { get; init; }
+
+        /// <summary>
+        /// The url of the author's icon (only supports http(s) and attachments).
+        /// </summary>
+        [JsonProperty("icon_url", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<string> IconUrl { get; init; }
+
+        /// <summary>
+        /// A proxied url of the author's icon.
+        /// </summary>
+        [JsonProperty("proxy_icon_url", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<string> ProxyIconUrl { get; init; }
     }
 }
