@@ -32,7 +32,7 @@ namespace DSharpPlus.Core.Entities
         /// The user's <see cref="DiscordMembershipState">membership state</see> on the team.
         /// </summary>
         [JsonProperty("membership_state", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordMembershipState MembershipState { get; internal set; }
+        public DiscordMembershipState MembershipState { get; init; }
 
         /// <summary>
         /// Will always be <c>["*"]</c>.

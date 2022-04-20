@@ -37,30 +37,30 @@ namespace DSharpPlus.Core.Entities
         /// The name of the app.
         /// </summary>
         [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
-        public string Name { get; internal set; } = null!;
+        public string Name { get; init; } = null!;
 
         /// <summary>
         /// The icon hash of the app.
         /// </summary>
         [JsonProperty("icon", NullValueHandling = NullValueHandling.Ignore)]
-        public string? Icon { get; internal set; }
+        public string? Icon { get; init; }
 
         /// <summary>
         /// The description of the app.
         /// </summary>
         [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
-        public string Description { get; internal set; } = null!;
+        public string Description { get; init; } = null!;
 
         /// <summary>
         /// The summary of the app.
         /// </summary>
         [JsonProperty("summary", NullValueHandling = NullValueHandling.Ignore)]
-        public string Summary { get; internal set; } = null!;
+        public string Summary { get; init; } = null!;
 
         /// <summary>
         /// The bot associated with this application.
         /// </summary>
         [JsonProperty("bot", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordUser> Bot { get; internal set; }
+        public Optional<DiscordUser> Bot { get; init; }
     }
 }

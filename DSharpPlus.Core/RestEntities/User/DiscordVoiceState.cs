@@ -62,48 +62,48 @@ namespace DSharpPlus.Core.Entities
         /// Whether this user is locally muted.
         /// </summary>
         [JsonProperty("self_mute", NullValueHandling = NullValueHandling.Ignore)]
-        public bool SelfMute { get; internal set; }
+        public bool SelfMute { get; init; }
 
         /// <summary>
         /// Whether this user is locally deafened.
         /// </summary>
         [JsonProperty("self_deaf", NullValueHandling = NullValueHandling.Ignore)]
-        public bool SelfDeaf { get; internal set; }
+        public bool SelfDeaf { get; init; }
 
         /// <summary>
         /// Whether this user is muted by the server.
         /// </summary>
         [JsonProperty("mute", NullValueHandling = NullValueHandling.Ignore)]
-        public bool Mute { get; internal set; }
+        public bool Mute { get; init; }
 
         /// <summary>
         /// Whether this user is deafened by the server
         /// </summary>
         [JsonProperty("deaf", NullValueHandling = NullValueHandling.Ignore)]
-        public bool Deaf { get; internal set; }
+        public bool Deaf { get; init; }
 
         /// <summary>
         /// Whether this user is streaming using "Go Live".
         /// </summary>
         [JsonProperty("self_stream", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<bool> SelfStream { get; internal set; }
+        public Optional<bool> SelfStream { get; init; }
 
         /// <summary>
         /// Whether this user's camera is enabled.
         /// </summary>
         [JsonProperty("self_video", NullValueHandling = NullValueHandling.Ignore)]
-        public bool SelfVideo { get; internal set; }
+        public bool SelfVideo { get; init; }
 
         /// <summary>
         /// Whether this user is muted by the current user.
         /// </summary>
         [JsonProperty("suppress", NullValueHandling = NullValueHandling.Ignore)]
-        public bool Supress { get; internal set; }
+        public bool Supress { get; init; }
 
         /// <summary>
         /// The time at which the user requested to speak.
         /// </summary>
         [JsonProperty("request_to_speak_timestamp", NullValueHandling = NullValueHandling.Ignore)]
-        public DateTimeOffset? RequestToSpeakTimestamp { get; internal set; }
+        public DateTimeOffset? RequestToSpeakTimestamp { get; init; }
     }
 }

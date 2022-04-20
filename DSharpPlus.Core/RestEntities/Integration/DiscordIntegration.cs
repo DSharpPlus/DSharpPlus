@@ -39,7 +39,7 @@ namespace DSharpPlus.Core.Entities
         /// The integration name.
         /// </summary>
         [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
-        public string Name { get; internal set; } = null!;
+        public string Name { get; init; } = null!;
 
         /// <summary>
         /// The integration type (twitch, youtube, or discord).
@@ -51,7 +51,7 @@ namespace DSharpPlus.Core.Entities
         /// Is this integration enabled.
         /// </summary>
         [JsonProperty("enabled", NullValueHandling = NullValueHandling.Ignore)]
-        public bool Enabled { get; internal set; }
+        public bool Enabled { get; init; }
 
         /// <summary>
         /// Is this integration syncing.
@@ -60,7 +60,7 @@ namespace DSharpPlus.Core.Entities
         /// Not provided for bot integrations.
         /// </remarks>
         [JsonProperty("syncing", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<bool> Syncing { get; internal set; }
+        public Optional<bool> Syncing { get; init; }
 
         /// <summary>
         /// The id that this integration uses for "subscribers".
@@ -69,7 +69,7 @@ namespace DSharpPlus.Core.Entities
         /// Not provided for bot integrations.
         /// </remarks>
         [JsonProperty("role_id", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<string> RoleId { get; internal set; }
+        public Optional<string> RoleId { get; init; }
 
         /// <summary>
         /// Whether emoticons should be synced for this integration (twitch only currently).
@@ -78,7 +78,7 @@ namespace DSharpPlus.Core.Entities
         /// Not provided for bot integrations.
         /// </remarks>
         [JsonProperty("enable_emoticons", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<bool> EnableEmoticons { get; internal set; }
+        public Optional<bool> EnableEmoticons { get; init; }
 
         /// <summary>
         /// The behavior of expiring subscribers.
@@ -87,7 +87,7 @@ namespace DSharpPlus.Core.Entities
         /// Not provided for bot integrations.
         /// </remarks>
         [JsonProperty("expire_behavior", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordIntegrationExpireBehavior> ExpireBehavior { get; internal set; }
+        public Optional<DiscordIntegrationExpireBehavior> ExpireBehavior { get; init; }
 
         /// <summary>
         /// The grace period (in days) before expiring subscribers.
@@ -96,7 +96,7 @@ namespace DSharpPlus.Core.Entities
         /// Not provided for bot integrations.
         /// </remarks>
         [JsonProperty("expire_grace_period", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<int> ExpireGracePeriod { get; internal set; }
+        public Optional<int> ExpireGracePeriod { get; init; }
 
         /// <summary>
         /// The user for this integration.
@@ -120,7 +120,7 @@ namespace DSharpPlus.Core.Entities
         /// Not provided for bot integrations.
         /// </remarks>
         [JsonProperty("synced_at", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DateTimeOffset> SyncedAt { get; internal set; }
+        public Optional<DateTimeOffset> SyncedAt { get; init; }
 
         /// <summary>
         /// How many subscribers this integration has.
@@ -129,7 +129,7 @@ namespace DSharpPlus.Core.Entities
         /// Not provided for bot integrations.
         /// </remarks>
         [JsonProperty("subscriber_count", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<int> SubscriberCount { get; internal set; }
+        public Optional<int> SubscriberCount { get; init; }
 
         /// <summary>
         /// Has this integration been revoked.
@@ -138,7 +138,7 @@ namespace DSharpPlus.Core.Entities
         /// Not provided for bot integrations.
         /// </remarks>
         [JsonProperty("revoked", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<bool> Revoked { get; internal set; }
+        public Optional<bool> Revoked { get; init; }
 
         /// <summary>
         /// The bot/OAuth2 application for discord integrations.

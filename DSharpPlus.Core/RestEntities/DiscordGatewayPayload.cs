@@ -31,7 +31,7 @@ namespace DSharpPlus.Core.Entities
         public int OpCode { get; init; }
 
         [JsonProperty("d", NullValueHandling = NullValueHandling.Ignore)]
-        public object? Data { get; internal set; }
+        public object? Data { get; init; }
 
         /// <remarks>
         /// Null when OpCode is not 0

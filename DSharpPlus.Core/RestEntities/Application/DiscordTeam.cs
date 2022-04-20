@@ -31,7 +31,7 @@ namespace DSharpPlus.Core.Entities
         /// A hash of the image of the team's icon.
         /// </summary>
         [JsonProperty("icon", NullValueHandling = NullValueHandling.Ignore)]
-        public string? Icon { get; internal set; }
+        public string? Icon { get; init; }
 
         /// <summary>
         /// The unique id of the team.
@@ -43,19 +43,19 @@ namespace DSharpPlus.Core.Entities
         /// The members of the team.
         /// </summary>
         [JsonProperty("members", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordTeamMember[] Members { get; internal set; } = null!;
+        public DiscordTeamMember[] Members { get; init; } = null!;
 
         /// <summary>
         /// The name of the team.
         /// </summary>
         [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
-        public string Name { get; internal set; } = null!;
+        public string Name { get; init; } = null!;
 
         /// <summary>
         /// The user id of the current team owner.
         /// </summary>
         [JsonProperty("owner_user_id", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordSnowflake OwnerUserId { get; internal set; } = null!;
+        public DiscordSnowflake OwnerUserId { get; init; } = null!;
 
         public static implicit operator ulong(DiscordTeam team) => team.Id;
         public static implicit operator DiscordSnowflake(DiscordTeam team) => team.Id;

@@ -48,19 +48,19 @@ namespace DSharpPlus.Core.Entities
         /// The name of the sticker.
         /// </summary>
         [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
-        public string Name { get; internal set; } = null!;
+        public string Name { get; init; } = null!;
 
         /// <summary>
         /// The description of the sticker.
         /// </summary>
         [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
-        public string? Description { get; internal set; }
+        public string? Description { get; init; }
 
         /// <summary>
         /// Autocomplete/suggestion tags for the sticker (max 200 characters).
         /// </summary>
         [JsonProperty("tags", NullValueHandling = NullValueHandling.Ignore)]
-        public string Tags { get; internal set; } = null!;
+        public string Tags { get; init; } = null!;
 
         /// <summary>
         /// Deprecated previously the sticker asset hash, now an empty string

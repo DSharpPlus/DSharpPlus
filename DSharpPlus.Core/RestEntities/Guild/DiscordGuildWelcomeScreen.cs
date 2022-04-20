@@ -31,12 +31,12 @@ namespace DSharpPlus.Core.Entities
         /// The server description shown in the welcome screen.
         /// </summary>
         [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
-        public string? Description { get; internal set; }
+        public string? Description { get; init; }
 
         /// <summary>
         /// The channels shown in the welcome screen, up to 5.
         /// </summary>
         [JsonProperty("welcome_channels", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordGuildWelcomeScreenChannel[] WelcomeChannels { get; internal set; } = null!;
+        public DiscordGuildWelcomeScreenChannel[] WelcomeChannels { get; init; } = null!;
     }
 }
