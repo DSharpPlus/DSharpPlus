@@ -31,24 +31,24 @@ namespace DSharpPlus.Core.Entities
         /// The channel's id.
         /// </summary>
         [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordSnowflake ChannelId { get; internal set; } = null!;
+        public DiscordSnowflake ChannelId { get; init; } = null!;
 
         /// <summary>
         /// The description shown for the channel.
         /// </summary>
         [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
-        public string Description { get; internal set; } = null!;
+        public string Description { get; init; } = null!;
 
         /// <summary>
         /// The emoji id, if the emoji is custom.
         /// </summary>
         [JsonProperty("emoji_id", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordSnowflake? EmojiId { get; internal set; }
+        public DiscordSnowflake? EmojiId { get; init; }
 
         /// <summary>
         /// The emoji name if custom, the unicode character if standard, or null if no emoji is set.
         /// </summary>
         [JsonProperty("emoji_name", NullValueHandling = NullValueHandling.Ignore)]
-        public string EmojiName { get; internal set; } = null!;
+        public string EmojiName { get; init; } = null!;
     }
 }

@@ -41,43 +41,43 @@ namespace DSharpPlus.Core.Entities
         /// Name of the role.
         /// </summary>
         [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
-        public string Name { get; internal set; } = null!;
+        public string Name { get; init; } = null!;
 
         /// <summary>
         /// The color of the role.
         /// </summary>
         [JsonProperty("color", NullValueHandling = NullValueHandling.Ignore)]
-        public int Color { get; internal set; }
+        public int Color { get; init; }
 
         /// <summary>
         /// If this role is pinned in the user listing.
         /// </summary>
         [JsonProperty("hoist", NullValueHandling = NullValueHandling.Ignore)]
-        public bool Hoist { get; internal set; }
+        public bool Hoist { get; init; }
 
         /// <summary>
         /// The role icon hash.
         /// </summary>
         [JsonProperty("icon", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<string?> Icon { get; internal set; }
+        public Optional<string?> Icon { get; init; }
 
         /// <summary>
         /// The role unicode emoji.
         /// </summary>
         [JsonProperty("unicode_emoji", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<string?> UnicodeEmoji { get; internal set; }
+        public Optional<string?> UnicodeEmoji { get; init; }
 
         /// <summary>
         /// The position of this role.
         /// </summary>
         [JsonProperty("position", NullValueHandling = NullValueHandling.Ignore)]
-        public int Position { get; internal set; }
+        public int Position { get; init; }
 
         /// <summary>
         /// The Discord permissions of this role.
         /// </summary>
         [JsonProperty("permissions", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordPermissions Permissions { get; internal set; }
+        public DiscordPermissions Permissions { get; init; }
 
         /// <summary>
         /// Whether this role is managed by an integration.
@@ -89,7 +89,7 @@ namespace DSharpPlus.Core.Entities
         /// Whether this role is mentionable.
         /// </summary>
         [JsonProperty("mentionable", NullValueHandling = NullValueHandling.Ignore)]
-        public bool Mentionable { get; internal set; }
+        public bool Mentionable { get; init; }
 
         /// <summary>
         /// The tags this role has.

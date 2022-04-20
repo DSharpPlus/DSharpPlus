@@ -65,19 +65,19 @@ namespace DSharpPlus.Core.Entities
         /// The default name of the webhook.
         /// </summary>
         [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
-        public string? Name { get; internal set; }
+        public string? Name { get; init; }
 
         /// <summary>
         /// The default user avatar hash of the webhook.
         /// </summary>
         [JsonProperty("avatar", NullValueHandling = NullValueHandling.Ignore)]
-        public string? Avatar { get; internal set; }
+        public string? Avatar { get; init; }
 
         /// <summary>
         /// The secure token of the webhook (returned for Incoming Webhooks).
         /// </summary>
         [JsonProperty("token", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<string> Token { get; internal set; }
+        public Optional<string> Token { get; init; }
 
         /// <summary>
         /// The bot/OAuth2 application that created this webhook.
