@@ -26,30 +26,30 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Entities
 {
-    /// <summary>
-    /// A <see cref="DiscordRole"/>'s metadata.
-    /// </summary>
-    public sealed record DiscordRoleTags
+    public sealed record DiscordEmbedImage
     {
         /// <summary>
-        /// The id of the bot this role belongs to.
+        /// The source url of the image (only supports http(s) and attachments).
         /// </summary>
-        [JsonProperty("bot_id", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordSnowflake> BotId { get; init; }
+        [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
+        public string Url { get; init; } = null!;
 
         /// <summary>
-        /// The id of the integration this role belongs to.
+        /// A proxied url of the image.
         /// </summary>
-        [JsonProperty("integration_id", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordSnowflake> IntegrationId { get; init; }
+        [JsonProperty("proxy_url", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<string> ProxyUrl { get; init; }
 
         /// <summary>
-        /// Whether this is the guild's premium subscriber role.
+        /// The height of image.
         /// </summary>
-        /// <remarks>
-        /// Null when it is the guild's premium subscriber role, otherwise <see cref="Optional{T}.Empty"/>. You should use <see cref="Optional{T}.HasValue"/> to check if this is the guild's premium subscriber role.
-        /// </remarks>
-        [JsonProperty("premium_subscriber", NullValueHandling = NullValueHandling.Ignore)]
-        internal Optional<bool> PremiumSubscriber { get; init; }
+        [JsonProperty("height", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<int> Height { get; init; }
+
+        /// <summary>
+        /// The width of image.
+        /// </summary>
+        [JsonProperty("width", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<int> Width { get; init; }
     }
 }

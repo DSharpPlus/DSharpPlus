@@ -21,35 +21,47 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
+using DSharpPlus.Core.Enums;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Entities
 {
     /// <summary>
-    /// A <see cref="DiscordRole"/>'s metadata.
+    /// This is sent on the message object when the message is a response to an Interaction without an existing message.
     /// </summary>
-    public sealed record DiscordRoleTags
+    /// <remarks>
+    /// This means responses to Message Components do not include this property, instead including a message reference object as components always exist on preexisting messages.
+    /// </remarks>
+    public sealed record DiscordMessageInteraction
     {
         /// <summary>
-        /// The id of the bot this role belongs to.
+        /// The id of the interaction.
         /// </summary>
-        [JsonProperty("bot_id", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordSnowflake> BotId { get; init; }
+        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordSnowflake Id { get; init; } = null!;
 
         /// <summary>
-        /// The id of the integration this role belongs to.
+        /// The type of interaction.
         /// </summary>
-        [JsonProperty("integration_id", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordSnowflake> IntegrationId { get; init; }
+        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordInteractionType Type { get; init; }
 
         /// <summary>
-        /// Whether this is the guild's premium subscriber role.
+        /// The name of the application command.
         /// </summary>
-        /// <remarks>
-        /// Null when it is the guild's premium subscriber role, otherwise <see cref="Optional{T}.Empty"/>. You should use <see cref="Optional{T}.HasValue"/> to check if this is the guild's premium subscriber role.
-        /// </remarks>
-        [JsonProperty("premium_subscriber", NullValueHandling = NullValueHandling.Ignore)]
-        internal Optional<bool> PremiumSubscriber { get; init; }
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        public string Name { get; init; } = null!;
+
+        /// <summary>
+        /// The user who invoked the interaction.
+        /// </summary>
+        [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordUser User { get; init; } = null!;
+
+        /// <summary>
+        /// The member who invoked the interaction in the guild.
+        /// </summary>
+        [JsonProperty("member", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<DiscordGuildMember> Member { get; init; }
     }
 }

@@ -21,35 +21,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
-using Newtonsoft.Json;
-
-namespace DSharpPlus.Core.Entities
+namespace DSharpPlus.Core.Enums
 {
-    /// <summary>
-    /// A <see cref="DiscordRole"/>'s metadata.
-    /// </summary>
-    public sealed record DiscordRoleTags
+    public enum DiscordComponentType
     {
         /// <summary>
-        /// The id of the bot this role belongs to.
+        /// A container for other components.
         /// </summary>
-        [JsonProperty("bot_id", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordSnowflake> BotId { get; init; }
+        ActionRow = 1,
 
         /// <summary>
-        /// The id of the integration this role belongs to.
+        /// A button object.
         /// </summary>
-        [JsonProperty("integration_id", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordSnowflake> IntegrationId { get; init; }
+        Button = 2,
 
         /// <summary>
-        /// Whether this is the guild's premium subscriber role.
+        /// A select menu for picking from choices.
         /// </summary>
-        /// <remarks>
-        /// Null when it is the guild's premium subscriber role, otherwise <see cref="Optional{T}.Empty"/>. You should use <see cref="Optional{T}.HasValue"/> to check if this is the guild's premium subscriber role.
-        /// </remarks>
-        [JsonProperty("premium_subscriber", NullValueHandling = NullValueHandling.Ignore)]
-        internal Optional<bool> PremiumSubscriber { get; init; }
+        SelectMenu = 3,
+
+        /// <summary>
+        /// A text input object.
+        /// </summary>
+        TextInput = 4
     }
 }

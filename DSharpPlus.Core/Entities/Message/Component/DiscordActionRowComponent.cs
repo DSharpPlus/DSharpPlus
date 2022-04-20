@@ -21,35 +21,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+using DSharpPlus.Core.Enums;
 
 namespace DSharpPlus.Core.Entities
 {
     /// <summary>
-    /// A <see cref="DiscordRole"/>'s metadata.
+    /// An Action Row is a non-interactive container component for other types of components. It has a type: 1 and a sub-array of components of other types. You can have up to 5 Action Rows per message. An Action Row cannot contain another Action Row
     /// </summary>
-    public sealed record DiscordRoleTags
+    public class DiscordActionRowComponent : IDiscordMessageComponent
     {
-        /// <summary>
-        /// The id of the bot this role belongs to.
-        /// </summary>
-        [JsonProperty("bot_id", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordSnowflake> BotId { get; init; }
+        /// <inheritdoc/>
+        [JsonPropertyName("type")]
+        public DiscordComponentType Type { get; init; }
 
-        /// <summary>
-        /// The id of the integration this role belongs to.
-        /// </summary>
-        [JsonProperty("integration_id", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordSnowflake> IntegrationId { get; init; }
-
-        /// <summary>
-        /// Whether this is the guild's premium subscriber role.
-        /// </summary>
         /// <remarks>
-        /// Null when it is the guild's premium subscriber role, otherwise <see cref="Optional{T}.Empty"/>. You should use <see cref="Optional{T}.HasValue"/> to check if this is the guild's premium subscriber role.
+        /// Cannot contain another action row.
         /// </remarks>
-        [JsonProperty("premium_subscriber", NullValueHandling = NullValueHandling.Ignore)]
-        internal Optional<bool> PremiumSubscriber { get; init; }
+        [JsonPropertyName("components")]
+        public IDiscordMessageComponent[] Components { get; init; } = null!;
     }
 }
