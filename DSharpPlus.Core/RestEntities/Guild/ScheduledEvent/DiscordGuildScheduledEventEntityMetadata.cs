@@ -31,6 +31,6 @@ namespace DSharpPlus.Core.Entities
         /// Requires <see cref="DiscordGuildScheduledEvent.EntityType"/> to be <see cref="Enums.DiscordGuildScheduledEventEntityType.External"/>.
         /// </remarks>
         [JsonProperty("location", NullValueHandling = NullValueHandling.Ignore)]
-        public string? Location { get; internal set; }
+        public string? Location { get; init; }
     }
 }

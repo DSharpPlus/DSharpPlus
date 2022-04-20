@@ -36,24 +36,24 @@ namespace DSharpPlus.Core.Gateway.Commands
         /// The unix time (in milliseconds) of when the client went idle, or null if the client is not idle.
         /// </summary>
         [JsonProperty("since", NullValueHandling = NullValueHandling.Ignore)]
-        public int? Since { get; internal set; }
+        public int? Since { get; init; }
 
         /// <summary>
         /// The user's activities.
         /// </summary>
         [JsonProperty("activities", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordActivity[] Activities { get; internal set; } = null!;
+        public DiscordActivity[] Activities { get; init; } = null!;
 
         /// <summary>
         /// The user's new status.
         /// </summary>
         [JsonProperty("status", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordStatusType Status { get; internal set; }
+        public DiscordStatusType Status { get; init; }
 
         /// <summary>
         /// Whether or not the client is afk.
         /// </summary>
         [JsonProperty("afk", NullValueHandling = NullValueHandling.Ignore)]
-        public bool AFK { get; internal set; }
+        public bool AFK { get; init; }
     }
 }

@@ -49,14 +49,14 @@ namespace DSharpPlus.Core.Entities
         /// </summary>
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("allow", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordPermissions Allow { get; internal set; }
+        public DiscordPermissions Allow { get; init; }
 
         /// <summary>
         /// Permission bit set.
         /// </summary>
         [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("deny", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordPermissions Deny { get; internal set; }
+        public DiscordPermissions Deny { get; init; }
 
         public static implicit operator ulong(DiscordChannelOverwrite channelOverwrite) => channelOverwrite.Id;
         public static implicit operator DiscordSnowflake(DiscordChannelOverwrite channelOverwrite) => channelOverwrite.Id;

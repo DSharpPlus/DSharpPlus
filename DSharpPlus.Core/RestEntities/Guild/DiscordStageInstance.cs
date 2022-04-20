@@ -54,7 +54,7 @@ namespace DSharpPlus.Core.Entities
         /// The topic of the Stage instance (1-120 characters).
         /// </summary>
         [JsonProperty("topic", NullValueHandling = NullValueHandling.Ignore)]
-        public string Topic { get; internal set; } = null!;
+        public string Topic { get; init; } = null!;
 
         /// <summary>
         /// The privacy level of the Stage instance.
