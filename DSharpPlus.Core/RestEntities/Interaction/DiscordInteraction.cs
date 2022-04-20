@@ -21,11 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Enums;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Entities
 {
+    [DiscordGatewayEventName("INTERACTION_CREATE")]
     public sealed record DiscordInteraction
     {
         /// <summary>

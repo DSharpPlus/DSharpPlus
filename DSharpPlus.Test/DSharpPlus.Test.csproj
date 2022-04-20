@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <AssemblyName>DSharpPlus.Test</AssemblyName>
+        <RootNamespace>DSharpPlus.Test</RootNamespace>
+        <TargetFramework>net6.0</TargetFramework>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+    <PropertyGroup>
+        <PackageId>DSharpPlus.Test</PackageId>
+        <Authors>Naamloos, afroraydude, DrCreo, Death, TiaqoY0, Axiom, Emzi0767, IDoEverything, Velvet, DSharpPlus contributors</Authors>
+        <Description>A C# API for Discord based off DiscordSharp, but rewritten to fit the API standards.</Description>
+        <PackageTags>discord, discord-api, bots, discord-bots, chat, dsharp, dsharpplus, csharp, dotnet, vb-net, fsharp, webhooks</PackageTags>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="../DSharpPlus.Core/DSharpPlus.Core.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
+        <PackageReference Include="MSTest.TestAdapter" Version="2.2.9" />
+        <PackageReference Include="MSTest.TestFramework" Version="2.2.9" />
+    </ItemGroup>
+</Project>

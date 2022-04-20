@@ -1,0 +1,3 @@
+[submodule "discord-payloads"]
+	path = discord-payloads
+	url = https://github.com/discord-payloads/discord-payloads

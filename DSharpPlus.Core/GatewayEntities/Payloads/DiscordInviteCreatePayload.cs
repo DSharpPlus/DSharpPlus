@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Entities;
 using DSharpPlus.Core.Enums;
 using Newtonsoft.Json;
@@ -31,6 +32,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
     /// <summary>
     /// Sent when a new invite to a channel is created.
     /// </summary>
+    [DiscordGatewayEventName("INVITE_CREATE")]
     public sealed record DiscordInviteCreatePayload
     {
         /// <summary>

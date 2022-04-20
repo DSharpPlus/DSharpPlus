@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Entities;
 using Newtonsoft.Json;
 
@@ -29,6 +30,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
     /// <summary>
     /// The ready event is dispatched when a client has completed the initial handshake with the gateway (for new sessions). The ready event can be the largest and most complex event the gateway will send, as it contains all the state required for a client to begin interacting with the rest of the platform.
     /// </summary>
+    [DiscordGatewayEventName("READY")]
     public sealed record DiscordReadyPayload
     {
         /// <summary>

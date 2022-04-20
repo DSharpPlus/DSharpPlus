@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Entities;
 using Newtonsoft.Json;
 
@@ -29,6 +30,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
     /// <summary>
     /// Sent when a guild's emojis have been updated.
     /// </summary>
+    [DiscordGatewayEventName("GUILD_STICKERS_UPDATE")]
     public sealed record DiscordGuildStickersUpdatePayload
     {
         /// <summary>

@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Entities;
 using Newtonsoft.Json;
 
@@ -29,6 +30,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
     /// <summary>
     /// Sent when a user adds a reaction to a message.
     /// </summary>
+    [DiscordGatewayEventName("MESSAGE_REACTION_ADD")]
     public sealed record DiscordMessageReactionAddPayload
     {
         /// <summary>

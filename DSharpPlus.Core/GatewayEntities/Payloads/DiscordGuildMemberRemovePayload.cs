@@ -25,20 +25,14 @@ using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Entities;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Gateway.Payloads
+namespace DSharpPlus.Core.Gateway
 {
     /// <summary>
-    /// Sent when an integration is deleted.
+    /// Sent when a user is removed from a guild (leave/kick/ban).
     /// </summary>
-    [DiscordGatewayEventName("INTEGRATION_DELETE")]
-    public sealed record DiscordGuildIntegrationDeletePayload
+    [DiscordGatewayEventName("GUILD_MEMBER_REMOVE")]
+    public sealed record DiscordGuildMemberRemovePayload
     {
-        /// <summary>
-        /// The integration id.
-        /// </summary>
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordSnowflake Id { get; init; } = null!;
-
         /// <summary>
         /// The id of the guild.
         /// </summary>
@@ -46,9 +40,9 @@ namespace DSharpPlus.Core.Gateway.Payloads
         public DiscordSnowflake GuildId { get; init; } = null!;
 
         /// <summary>
-        /// The id of the bot/OAuth2 application for this discord integration.
+        /// The user who was removed.
         /// </summary>
-        [JsonProperty("application_id", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordSnowflake> ApplicationId { get; init; }
+        [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordUser User { get; init; } = null!;
     }
 }

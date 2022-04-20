@@ -21,34 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using DSharpPlus.Core.Attributes;
-using DSharpPlus.Core.Entities;
-using Newtonsoft.Json;
+using System;
 
-namespace DSharpPlus.Core.Gateway.Payloads
+namespace DSharpPlus.Core.Attributes
 {
-    /// <summary>
-    /// Sent when an integration is deleted.
-    /// </summary>
-    [DiscordGatewayEventName("INTEGRATION_DELETE")]
-    public sealed record DiscordGuildIntegrationDeletePayload
+    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+    public sealed class DiscordGatewayEventNameAttribute : Attribute
     {
-        /// <summary>
-        /// The integration id.
-        /// </summary>
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordSnowflake Id { get; init; } = null!;
+        public string[] Names { get; }
 
-        /// <summary>
-        /// The id of the guild.
-        /// </summary>
-        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordSnowflake GuildId { get; init; } = null!;
-
-        /// <summary>
-        /// The id of the bot/OAuth2 application for this discord integration.
-        /// </summary>
-        [JsonProperty("application_id", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordSnowflake> ApplicationId { get; init; }
+        public DiscordGatewayEventNameAttribute(params string[] names) => Names = names;
     }
 }

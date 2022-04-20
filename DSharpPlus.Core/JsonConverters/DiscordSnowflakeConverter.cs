@@ -27,7 +27,7 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.JsonConverters
 {
-    internal class DiscordSnowflakeConverter : JsonConverter<DiscordSnowflake>
+    public class DiscordSnowflakeConverter : JsonConverter<DiscordSnowflake>
     {
         public override DiscordSnowflake? ReadJson(JsonReader reader, Type objectType, DiscordSnowflake? existingValue, bool hasExistingValue, JsonSerializer serializer) => reader.TokenType == JsonToken.Null
             ? null

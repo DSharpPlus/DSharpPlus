@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Entities;
 using Newtonsoft.Json;
 
@@ -29,6 +30,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
     /// <summary>
     /// Sent when a bot removes all instances of a given emoji from the reactions of a message.
     /// </summary>
+    [DiscordGatewayEventName("MESSAGE_REACTION_REMOVE_EMOJI")]
     public sealed record DiscordMessageReactionRemoveEmojiPayload
     {
         /// <summary>

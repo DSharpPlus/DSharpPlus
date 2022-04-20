@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Enums;
 using Newtonsoft.Json;
 
@@ -30,6 +31,7 @@ namespace DSharpPlus.Core.Entities
     /// <summary>
     /// A representation of a scheduled event in a guild.
     /// </summary>
+    [DiscordGatewayEventName("GUILD_SCHEDULED_EVENT_CREATE", "GUILD_SCHEDULED_EVENT_UPDATE", "GUILD_SCHEDULED_EVENT_DELETE")]
     public sealed record DiscordGuildScheduledEvent
     {
         /// <summary>
@@ -80,19 +82,19 @@ namespace DSharpPlus.Core.Entities
         /// <summary>
         /// The time the scheduled event will end, required if <see cref="EntityType"/> is <see cref="DiscordGuildScheduledEventEntityType.External"/>.
         /// </summary>
-        [JsonProperty("scheduled_start_time", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("scheduled_end_time", NullValueHandling = NullValueHandling.Ignore)]
         public DateTimeOffset? ScheduledEndTime { get; init; }
 
         /// <summary>
         /// The privacy level of the scheduled event.
         /// </summary>
-        [JsonProperty("scheduled_end_time", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("privacy_level", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordGuildScheduledEventPrivacyLevel PrivacyLevel { get; init; }
 
         /// <summary>
         /// The status of the scheduled event.
         /// </summary>
-        [JsonProperty("privacy_level", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("status", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordGuildScheduledEventStatus Status { get; init; }
 
         /// <summary>

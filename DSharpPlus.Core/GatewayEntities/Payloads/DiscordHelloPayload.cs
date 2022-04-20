@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using DSharpPlus.Core.Attributes;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Gateway.Payloads
@@ -28,6 +29,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
     /// <summary>
     /// Sent on connection to the websocket. Defines the heartbeat interval that the client should heartbeat to.
     /// </summary>
+    [DiscordGatewayEventName("HELLO")]
     public sealed record DiscordHelloPayload
     {
         /// <summary>
