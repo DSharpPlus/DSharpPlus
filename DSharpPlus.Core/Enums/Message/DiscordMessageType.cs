@@ -21,35 +21,44 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
-using Newtonsoft.Json;
-
-namespace DSharpPlus.Core.Entities
+namespace DSharpPlus.Core.Enums
 {
-    /// <summary>
-    /// A <see cref="DiscordRole"/>'s metadata.
-    /// </summary>
-    public sealed record DiscordRoleTags
+    public enum DiscordMessageType
     {
-        /// <summary>
-        /// The id of the bot this role belongs to.
-        /// </summary>
-        [JsonProperty("bot_id", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordSnowflake> BotId { get; init; }
+        Default = 0,
+        RecipientAdd = 1,
+        RecipientRemove = 2,
+        Call = 3,
+        ChannelNameChange = 4,
+        ChannelIconChange = 5,
+        ChannelPinnedMessage = 6,
+        GuildMemberJoin = 7,
+        UserPremiumGuildSubscription = 8,
+        UserPremiumGuildSubscriptionTier1 = 9,
+        UserPremiumGuildSubscriptionTier2 = 10,
+        UserPremiumGuildSubscriptionTier3 = 11,
+        ChannelFollowAdd = 12,
+        GuildDiscoveryDisqualified = 14,
+        GuildDiscoveryRequalified = 15,
+        GuildDiscoveryGracePeriodInitialWarning = 16,
+        GuildDiscoveryGracePeriodFinalWarning = 17,
+        ThreadCreated = 18,
 
-        /// <summary>
-        /// The id of the integration this role belongs to.
-        /// </summary>
-        [JsonProperty("integration_id", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordSnowflake> IntegrationId { get; init; }
-
-        /// <summary>
-        /// Whether this is the guild's premium subscriber role.
-        /// </summary>
         /// <remarks>
-        /// Null when it is the guild's premium subscriber role, otherwise <see cref="Optional{T}.Empty"/>. You should use <see cref="Optional{T}.HasValue"/> to check if this is the guild's premium subscriber role.
+        /// Only in API v8. In v6, they are <see cref="Default"/>
         /// </remarks>
-        [JsonProperty("premium_subscriber", NullValueHandling = NullValueHandling.Ignore)]
-        internal Optional<bool> PremiumSubscriber { get; init; }
+        Reply = 19,
+
+        /// <remarks>
+        /// Only in API v8. In v6, they are <see cref="Default"/>
+        /// </remarks>
+        ChatInputCommand = 20,
+
+        /// <remarks>
+        /// Only in API v9.
+        /// </remarks>
+        ThreadStarterMessage = 21,
+        GuildInviteReminder = 22,
+        ContextMenuCommand = 23
     }
 }

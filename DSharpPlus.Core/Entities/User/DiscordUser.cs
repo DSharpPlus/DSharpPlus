@@ -21,8 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System.Text.Json.Serialization;
 using DSharpPlus.Core.Enums;
+using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Entities
 {
@@ -34,91 +34,91 @@ namespace DSharpPlus.Core.Entities
         /// <summary>
         /// The user's id, used to identify the user across all of Discord.
         /// </summary>
-        [JsonPropertyName("id")]
+        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordSnowflake Id { get; init; } = null!;
 
         /// <summary>
         /// The user's username, not unique across the platform.
         /// </summary>
-        [JsonPropertyName("username")]
+        [JsonProperty("username", NullValueHandling = NullValueHandling.Ignore)]
         public string Username { get; init; } = null!;
 
         /// <summary>
         /// The user's 4-digit discord-tag.
         /// </summary>
-        [JsonPropertyName("discriminator")]
+        [JsonProperty("discriminator", NullValueHandling = NullValueHandling.Ignore)]
         public string Discriminator { get; init; } = null!;
 
         /// <summary>
         /// The user's avatar hash.
         /// </summary>
-        [JsonPropertyName("avatar")]
+        [JsonProperty("avatar", NullValueHandling = NullValueHandling.Ignore)]
         public string? Avatar { get; internal set; }
 
         /// <summary>
         /// Whether the user belongs to an OAuth2 application.
         /// </summary>
-        [JsonPropertyName("bot")]
+        [JsonProperty("bot", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<bool> Bot { get; init; }
 
         /// <summary>
         /// Whether the user is an Official Discord System user (part of the urgent message system).
         /// </summary>
-        [JsonPropertyName("system")]
+        [JsonProperty("system", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<bool> System { get; init; }
 
         /// <summary>
         /// Whether the user has two factor enabled on their account.
         /// </summary>
-        [JsonPropertyName("mfa_enabled")]
+        [JsonProperty("mfa_enabled", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<bool> MFAEnabled { get; internal set; }
 
         /// <summary>
         /// The user's banner hash.
         /// </summary>
-        [JsonPropertyName("banner")]
+        [JsonProperty("banner", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<string?> Banner { get; internal set; }
 
         /// <summary>
         /// The user's banner color.
         /// </summary>
-        [JsonPropertyName("accent_color")]
+        [JsonProperty("accent_color", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<int?> AccentColor { get; internal set; }
 
         /// <summary>
         /// The user's chosen language option.
         /// </summary>
-        [JsonPropertyName("locale")]
+        [JsonProperty("locale", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<string> Locale { get; internal set; }
 
         /// <summary>
         /// Whether the email on this account has been verified. Requires the email oauth2 scope.
         /// </summary>
-        [JsonPropertyName("verified")]
+        [JsonProperty("verified", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<bool> Verified { get; internal set; }
 
         /// <summary>
         /// The user's email. Requires the email oauth2 scope.
         /// </summary>
-        [JsonPropertyName("email")]
+        [JsonProperty("email", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<string?> Email { get; internal set; }
 
         /// <summary>
         /// The user flags on a user's account.
         /// </summary>
-        [JsonPropertyName("flags")]
+        [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<DiscordUserFlags> Flags { get; internal set; }
 
         /// <summary>
         /// The type of Nitro subscription on a user's account.
         /// </summary>
-        [JsonPropertyName("premium_type")]
+        [JsonProperty("premium_type", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<DiscordPremiumType> PremiumType { get; internal set; }
 
         /// <summary>
         /// The public flags on a user's account.
         /// </summary>
-        [JsonPropertyName("public_flags")]
+        [JsonProperty("public_flags", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<DiscordUserFlags> PublicFlags { get; internal set; }
 
         public static implicit operator ulong(DiscordUser user) => user.Id;

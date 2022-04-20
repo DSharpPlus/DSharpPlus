@@ -21,35 +21,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Entities
 {
-    /// <summary>
-    /// A <see cref="DiscordRole"/>'s metadata.
-    /// </summary>
-    public sealed record DiscordRoleTags
+    public sealed record DiscordReaction
     {
         /// <summary>
-        /// The id of the bot this role belongs to.
+        /// Times this emoji has been used to react.
         /// </summary>
-        [JsonProperty("bot_id", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordSnowflake> BotId { get; init; }
+        [JsonProperty("count", NullValueHandling = NullValueHandling.Ignore)]
+        public int Count { get; init; }
 
         /// <summary>
-        /// The id of the integration this role belongs to.
+        /// Whether the current user reacted using this emoji.
         /// </summary>
-        [JsonProperty("integration_id", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordSnowflake> IntegrationId { get; init; }
+        [JsonProperty("me", NullValueHandling = NullValueHandling.Ignore)]
+        public bool Me { get; init; }
 
         /// <summary>
-        /// Whether this is the guild's premium subscriber role.
+        /// The emoji information.
         /// </summary>
-        /// <remarks>
-        /// Null when it is the guild's premium subscriber role, otherwise <see cref="Optional{T}.Empty"/>. You should use <see cref="Optional{T}.HasValue"/> to check if this is the guild's premium subscriber role.
-        /// </remarks>
-        [JsonProperty("premium_subscriber", NullValueHandling = NullValueHandling.Ignore)]
-        internal Optional<bool> PremiumSubscriber { get; init; }
+        [JsonProperty("emoji", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordEmoji Emoji { get; init; } = null!;
     }
 }
