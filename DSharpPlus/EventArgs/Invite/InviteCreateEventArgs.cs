@@ -26,7 +26,7 @@ using DSharpPlus.Entities;
 namespace DSharpPlus.EventArgs
 {
     /// <summary>
-    /// Represents arguments for <see cref="DiscordClient.InviteCreated"/>
+    /// Represents arguments for <see cref="DiscordClient.InviteCreated"/>.
     /// </summary>
     public sealed class InviteCreateEventArgs : DiscordEventArgs
     {
