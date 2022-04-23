@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Entities;
 using Newtonsoft.Json;
 
@@ -29,6 +30,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
     /// <summary>
     /// Sent when the current user gains access to a channel.
     /// </summary>
+    [DiscordGatewayPayload("THREAD_LIST_SYNC")]
     public sealed record DiscordThreadListSyncPayload
     {
         /// <summary>

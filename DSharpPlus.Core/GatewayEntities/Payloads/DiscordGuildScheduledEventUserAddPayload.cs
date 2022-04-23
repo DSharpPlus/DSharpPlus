@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Entities;
 using Newtonsoft.Json;
 
@@ -29,6 +30,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
     /// <summary>
     /// Sent when a user has subscribed to a guild scheduled event.
     /// </summary>
+    [DiscordGatewayPayload("GUILD_SCHEDULED_EVENT_USER_ADD")]
     public sealed record DiscordGuildScheduledEventUserAddPayload
     {
         /// <summary>

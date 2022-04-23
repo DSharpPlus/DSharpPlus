@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Enums;
 using DSharpPlus.Core.Gateway.Payloads;
 using Newtonsoft.Json;
@@ -31,6 +32,7 @@ namespace DSharpPlus.Core.Entities
     /// <summary>
     /// Guilds in Discord represent an isolated collection of users and channels, and are often referred to as "servers" in the UI.
     /// </summary>
+    [DiscordGatewayPayload("GUILD_CREATE", "GUILD_UPDATE", "GUILD_DELETE")]
     public sealed record DiscordGuild
     {
         /// <summary>
@@ -307,7 +309,7 @@ namespace DSharpPlus.Core.Entities
         /// <summary>
         /// The approximate number of non-offline members in this guild, returned from the <c>GET /guilds/:id</c> endpoint when <c>with_counts</c> is true.
         /// </summary>
-        [JsonProperty("approximate_member_count", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("approximate_presence_count", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<int> ApproximatePresenceCount { get; init; }
 
         /// <summary>

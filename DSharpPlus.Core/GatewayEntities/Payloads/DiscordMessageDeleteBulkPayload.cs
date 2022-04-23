@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Entities;
 using Newtonsoft.Json;
 
@@ -29,6 +30,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
     /// <summary>
     /// Sent when multiple messages are deleted at once.
     /// </summary>
+    [DiscordGatewayPayload("MESSAGE_DELETE_BULK")]
     public sealed record DiscordMessageDeleteBulkPayload
     {
         /// <summary>
