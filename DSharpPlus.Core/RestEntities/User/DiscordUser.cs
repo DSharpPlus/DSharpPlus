@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Enums;
 using Newtonsoft.Json;
 
@@ -29,6 +30,7 @@ namespace DSharpPlus.Core.Entities
     /// <summary>
     /// Implements a <see href="https://discord.com/developers/docs/resources/user#user-object-user-structure">Discord User</see>.
     /// </summary>
+    [DiscordGatewayPayload("USER_UPDATE")]
     public sealed record DiscordUser
     {
         /// <summary>
