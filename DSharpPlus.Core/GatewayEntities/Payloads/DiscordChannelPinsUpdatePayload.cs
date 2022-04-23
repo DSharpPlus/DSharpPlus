@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Entities;
 using Newtonsoft.Json;
 
@@ -30,6 +31,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
     /// <summary>
     /// Sent when a message is pinned or unpinned in a text channel. This is not sent when a pinned message is deleted.
     /// </summary>
+    [DiscordGatewayPayload("CHANNEL_PINS_UPDATE")]
     public sealed record DiscordChannelPinsUpdatePayload
     {
         /// <summary>

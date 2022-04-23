@@ -25,13 +25,13 @@ using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Entities;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Gateway.Payloads
+namespace DSharpPlus.Core.Gateway
 {
     /// <summary>
-    /// Sent when a guild role is deleted.
+    /// Sent when a user is removed from a guild (leave/kick/ban).
     /// </summary>
-    [DiscordGatewayPayload("GUILD_ROLE_DELETE")]
-    public sealed record DiscordGuildRoleDeletePayload
+    [DiscordGatewayPayload("GUILD_MEMBER_REMOVE")]
+    public sealed record DiscordGuildMemberRemovePayload
     {
         /// <summary>
         /// The id of the guild.
@@ -40,9 +40,9 @@ namespace DSharpPlus.Core.Gateway.Payloads
         public DiscordSnowflake GuildId { get; init; } = null!;
 
         /// <summary>
-        /// The role deleted.
+        /// The user who was removed.
         /// </summary>
-        [JsonProperty("role_id", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordSnowflake RoleId { get; init; } = null!;
+        [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordUser User { get; init; } = null!;
     }
 }

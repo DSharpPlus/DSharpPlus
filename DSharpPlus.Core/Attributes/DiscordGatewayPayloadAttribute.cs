@@ -21,28 +21,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using DSharpPlus.Core.Attributes;
-using DSharpPlus.Core.Entities;
-using Newtonsoft.Json;
+using System;
+using System.Diagnostics;
 
-namespace DSharpPlus.Core.Gateway.Payloads
+namespace DSharpPlus.Core.Attributes
 {
     /// <summary>
-    /// Sent when a guild role is deleted.
+    /// Associates a payload with one or more gateway events.
     /// </summary>
-    [DiscordGatewayPayload("GUILD_ROLE_DELETE")]
-    public sealed record DiscordGuildRoleDeletePayload
+    [DebuggerDisplay("Gateway Payloads: {GetDebuggerDisplay()}")]
+    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
+    public sealed class DiscordGatewayPayloadAttribute : Attribute
     {
         /// <summary>
-        /// The id of the guild.
+        /// The payloads that this record is associated with. Names should be in SCREAMING_SNAKE_CASE. See https://discord.com/developers/docs/topics/gateway#commands-and-events for possible values.
         /// </summary>
-        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordSnowflake GuildId { get; init; } = null!;
+        public string[] Names { get; }
 
         /// <summary>
-        /// The role deleted.
+        /// The payloads that this record is associated with. Names should be in SCREAMING_SNAKE_CASE. See https://discord.com/developers/docs/topics/gateway#commands-and-events for possible values.
         /// </summary>
-        [JsonProperty("role_id", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordSnowflake RoleId { get; init; } = null!;
+        /// <param name="names">The gateway event names to associate the record with.</param>
+        public DiscordGatewayPayloadAttribute(params string[] names) => Names = names;
+
+        /// <summary>
+        /// Returns the names of the gateway payloads associated with this record. Not truly required, but nice to have when debugging.
+        /// </summary>
+        /// <returns>A `, ` delimited string of associated gateway event names.</returns>
+        private string GetDebuggerDisplay() => string.Join(", ", Names);
     }
 }

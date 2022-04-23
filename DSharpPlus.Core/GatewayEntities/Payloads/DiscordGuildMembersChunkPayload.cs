@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Entities;
 using Newtonsoft.Json;
 
@@ -29,6 +30,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
     /// <summary>
     /// Sent in response to Guild Request Members. You can use the chunk_index and chunk_count to calculate how many chunks are left for your request.
     /// </summary>
+    [DiscordGatewayPayload("GUILD_MEMBERS_CHUNK")]
     public sealed record DiscordGuildMembersChunkPayload
     {
         /// <summary>

@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Enums;
 using Newtonsoft.Json;
 
@@ -30,6 +31,7 @@ namespace DSharpPlus.Core.Entities
     /// <summary>
     /// Represents a guild or DM channel within Discord.
     /// </summary>
+    [DiscordGatewayPayload("CHANNEL_CREATE", "CHANNEL_UPDATE", "CHANNEL_DELETE", "THREAD_CREATE", "THREAD_UPDATE", "THREAD_DELETE")]
     public sealed record DiscordChannel
     {
         /// <summary>
