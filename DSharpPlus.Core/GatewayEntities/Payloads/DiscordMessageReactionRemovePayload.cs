@@ -30,7 +30,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
     /// <summary>
     /// Sent when a user removes a reaction from a message.
     /// </summary>
-    [DiscordGatewayEventName("MESSAGE_REACTION_REMOVE")]
+    [DiscordGatewayPayload("MESSAGE_REACTION_REMOVE")]
     public sealed record DiscordMessageReactionRemovePayload
     {
         /// <summary>

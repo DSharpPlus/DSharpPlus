@@ -30,7 +30,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
     /// <summary>
     /// Sent when a user is banned from a guild.
     /// </summary>
-    [DiscordGatewayEventName("GUILD_BAN_ADD")]
+    [DiscordGatewayPayload("GUILD_BAN_ADD")]
     public sealed record DiscordGuildBanAddPayload
     {
         /// <summary>

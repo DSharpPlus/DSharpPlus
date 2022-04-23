@@ -30,7 +30,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
     /// <summary>
     /// Sent when multiple messages are deleted at once.
     /// </summary>
-    [DiscordGatewayEventName("MESSAGE_DELETE_BULK")]
+    [DiscordGatewayPayload("MESSAGE_DELETE_BULK")]
     public sealed record DiscordMessageDeleteBulkPayload
     {
         /// <summary>

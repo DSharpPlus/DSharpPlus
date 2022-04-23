@@ -31,7 +31,7 @@ namespace DSharpPlus.Core.Entities
     /// <summary>
     /// Represents a member of a guild. Implements a <see href="https://discord.com/developers/docs/resources/guild#guild-member-object">Discord Guild Member</see>.
     /// </summary>
-    [DiscordGatewayEventName("GUILD_MEMBER_ADD")]
+    [DiscordGatewayPayload("GUILD_MEMBER_ADD")]
     public sealed record DiscordGuildMember
     {
         /// <summary>

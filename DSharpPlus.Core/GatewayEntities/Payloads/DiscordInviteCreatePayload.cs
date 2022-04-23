@@ -32,7 +32,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
     /// <summary>
     /// Sent when a new invite to a channel is created.
     /// </summary>
-    [DiscordGatewayEventName("INVITE_CREATE")]
+    [DiscordGatewayPayload("INVITE_CREATE")]
     public sealed record DiscordInviteCreatePayload
     {
         /// <summary>

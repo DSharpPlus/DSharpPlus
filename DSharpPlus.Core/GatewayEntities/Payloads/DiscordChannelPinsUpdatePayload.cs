@@ -31,7 +31,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
     /// <summary>
     /// Sent when a message is pinned or unpinned in a text channel. This is not sent when a pinned message is deleted.
     /// </summary>
-    [DiscordGatewayEventName("CHANNEL_PINS_UPDATE")]
+    [DiscordGatewayPayload("CHANNEL_PINS_UPDATE")]
     public sealed record DiscordChannelPinsUpdatePayload
     {
         /// <summary>

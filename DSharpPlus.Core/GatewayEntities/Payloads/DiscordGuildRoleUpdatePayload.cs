@@ -30,7 +30,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
     /// <summary>
     /// Sent when a guild role is updated.
     /// </summary>
-    [DiscordGatewayEventName("GUILD_ROLE_UPDATE")]
+    [DiscordGatewayPayload("GUILD_ROLE_UPDATE")]
     public sealed record DiscordGuildRoleUpdatePayload
     {
         /// <summary>

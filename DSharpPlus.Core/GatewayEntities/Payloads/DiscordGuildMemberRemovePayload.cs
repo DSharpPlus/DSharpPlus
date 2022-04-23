@@ -30,7 +30,7 @@ namespace DSharpPlus.Core.Gateway
     /// <summary>
     /// Sent when a user is removed from a guild (leave/kick/ban).
     /// </summary>
-    [DiscordGatewayEventName("GUILD_MEMBER_REMOVE")]
+    [DiscordGatewayPayload("GUILD_MEMBER_REMOVE")]
     public sealed record DiscordGuildMemberRemovePayload
     {
         /// <summary>

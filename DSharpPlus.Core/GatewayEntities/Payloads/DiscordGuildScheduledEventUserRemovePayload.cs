@@ -30,7 +30,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
     /// <summary>
     /// Sent when a user has unsubscribed from a guild scheduled event.
     /// </summary>
-    [DiscordGatewayEventName("GUILD_SCHEDULED_EVENT_USER_REMOVE")]
+    [DiscordGatewayPayload("GUILD_SCHEDULED_EVENT_USER_REMOVE")]
     public sealed record DiscordGuildScheduledEventUserRemovePayload
     {
         /// <summary>

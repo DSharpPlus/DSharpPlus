@@ -30,7 +30,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
     /// <summary>
     /// Sent when a message is deleted.
     /// </summary>
-    [DiscordGatewayEventName("MESSAGE_DELETE")]
+    [DiscordGatewayPayload("MESSAGE_DELETE")]
     public sealed record DiscordMessageDeletePayload
     {
         /// <summary>

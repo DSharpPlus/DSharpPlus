@@ -31,7 +31,7 @@ namespace DSharpPlus.Core.Entities
     /// <summary>
     /// A representation of a scheduled event in a guild.
     /// </summary>
-    [DiscordGatewayEventName("GUILD_SCHEDULED_EVENT_CREATE", "GUILD_SCHEDULED_EVENT_UPDATE", "GUILD_SCHEDULED_EVENT_DELETE")]
+    [DiscordGatewayPayload("GUILD_SCHEDULED_EVENT_CREATE", "GUILD_SCHEDULED_EVENT_UPDATE", "GUILD_SCHEDULED_EVENT_DELETE")]
     public sealed record DiscordGuildScheduledEvent
     {
         /// <summary>

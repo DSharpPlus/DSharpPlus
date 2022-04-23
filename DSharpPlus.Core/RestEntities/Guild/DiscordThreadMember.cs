@@ -33,7 +33,7 @@ namespace DSharpPlus.Core.Entities
     /// <remarks>
     /// The <see cref="Id"/> and <see cref="UserId"/> fields are omitted on the member sent within each thread in the <c>GUILD_CREATE</c> event
     /// </remarks>
-    [DiscordGatewayEventName("THREAD_MEMBER_UPDATE")]
+    [DiscordGatewayPayload("THREAD_MEMBER_UPDATE")]
     public sealed record DiscordThreadMember
     {
         /// <summary>

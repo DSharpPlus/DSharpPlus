@@ -31,7 +31,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
     /// <summary>
     /// A user's presence is their current state on a guild. This event is sent when a user's presence or info, such as name or avatar, is updated.
     /// </summary>
-    [DiscordGatewayEventName("PRESENCE_UPDATE")]
+    [DiscordGatewayPayload("PRESENCE_UPDATE")]
     public sealed record DiscordUpdatePresencePayload
     {
         /// <summary>

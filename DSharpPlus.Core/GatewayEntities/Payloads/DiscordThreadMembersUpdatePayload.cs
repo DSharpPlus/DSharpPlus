@@ -33,7 +33,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
     /// <remarks>
     /// In this gateway event, the thread member objects will also include the <see cref="DiscordGuildMember"/> and nullable <see cref="DiscordUpdatePresencePayload"/> for each added thread member.
     /// </remarks>
-    [DiscordGatewayEventName("THREAD_MEMBERS_UPDATE")]
+    [DiscordGatewayPayload("THREAD_MEMBERS_UPDATE")]
     public sealed record DiscordThreadMembersUpdatePayload
     {
         /// <summary>

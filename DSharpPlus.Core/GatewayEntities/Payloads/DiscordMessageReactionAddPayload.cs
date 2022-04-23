@@ -30,7 +30,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
     /// <summary>
     /// Sent when a user adds a reaction to a message.
     /// </summary>
-    [DiscordGatewayEventName("MESSAGE_REACTION_ADD")]
+    [DiscordGatewayPayload("MESSAGE_REACTION_ADD")]
     public sealed record DiscordMessageReactionAddPayload
     {
         /// <summary>

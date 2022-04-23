@@ -30,7 +30,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
     /// <summary>
     /// Sent when a bot removes all instances of a given emoji from the reactions of a message.
     /// </summary>
-    [DiscordGatewayEventName("MESSAGE_REACTION_REMOVE_EMOJI")]
+    [DiscordGatewayPayload("MESSAGE_REACTION_REMOVE_EMOJI")]
     public sealed record DiscordMessageReactionRemoveEmojiPayload
     {
         /// <summary>

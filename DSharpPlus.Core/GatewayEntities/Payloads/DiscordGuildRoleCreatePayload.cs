@@ -30,7 +30,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
     /// <summary>
     /// Sent when a guild role is created.
     /// </summary>
-    [DiscordGatewayEventName("GUILD_ROLE_CREATE")]
+    [DiscordGatewayPayload("GUILD_ROLE_CREATE")]
     public sealed record DiscordGuildRoleCreatePayload
     {
         /// <summary>

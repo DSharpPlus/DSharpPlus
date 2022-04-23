@@ -27,7 +27,7 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Gateway.Payloads
 {
-    [DiscordGatewayEventName("WEBHOOKS_UPDATE")]
+    [DiscordGatewayPayload("WEBHOOKS_UPDATE")]
     public sealed record DiscordWebhookUpdate
     {
         /// <summary>

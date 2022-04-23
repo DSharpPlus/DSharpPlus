@@ -28,7 +28,7 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Entities
 {
-    [DiscordGatewayEventName("MESSAGE_CREATE", "MESSAGE_UPDATE")]
+    [DiscordGatewayPayload("MESSAGE_CREATE", "MESSAGE_UPDATE")]
     public sealed record DiscordMessage
     {
         /// <summary>

@@ -30,7 +30,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
     /// <summary>
     /// Sent when a guild's emojis have been updated.
     /// </summary>
-    [DiscordGatewayEventName("GUILD_STICKERS_UPDATE")]
+    [DiscordGatewayPayload("GUILD_STICKERS_UPDATE")]
     public sealed record DiscordGuildStickersUpdatePayload
     {
         /// <summary>

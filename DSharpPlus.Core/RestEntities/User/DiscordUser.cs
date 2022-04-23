@@ -30,7 +30,7 @@ namespace DSharpPlus.Core.Entities
     /// <summary>
     /// Implements a <see href="https://discord.com/developers/docs/resources/user#user-object-user-structure">Discord User</see>.
     /// </summary>
-    [DiscordGatewayEventName("USER_UPDATE")]
+    [DiscordGatewayPayload("USER_UPDATE")]
     public sealed record DiscordUser
     {
         /// <summary>

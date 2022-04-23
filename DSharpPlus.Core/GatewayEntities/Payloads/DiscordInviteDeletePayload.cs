@@ -30,7 +30,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
     /// <summary>
     /// Sent when an invite is deleted.
     /// </summary>
-    [DiscordGatewayEventName("INVITE_DELETE")]
+    [DiscordGatewayPayload("INVITE_DELETE")]
     public sealed record DiscordInviteDeletePayload
     {
         /// <summary>

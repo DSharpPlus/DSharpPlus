@@ -30,7 +30,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
     /// <summary>
     /// Sent when a user starts typing in a channel.
     /// </summary>
-    [DiscordGatewayEventName("TYPING_START")]
+    [DiscordGatewayPayload("TYPING_START")]
     public sealed record DiscordTypingStartPayload
     {
         /// <summary>

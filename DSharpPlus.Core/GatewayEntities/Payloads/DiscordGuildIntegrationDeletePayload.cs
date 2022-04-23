@@ -30,7 +30,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
     /// <summary>
     /// Sent when an integration is deleted.
     /// </summary>
-    [DiscordGatewayEventName("INTEGRATION_DELETE")]
+    [DiscordGatewayPayload("INTEGRATION_DELETE")]
     public sealed record DiscordGuildIntegrationDeletePayload
     {
         /// <summary>

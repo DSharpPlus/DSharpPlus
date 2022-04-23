@@ -30,7 +30,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
     /// <summary>
     /// Sent when the current user gains access to a channel.
     /// </summary>
-    [DiscordGatewayEventName("THREAD_LIST_SYNC")]
+    [DiscordGatewayPayload("THREAD_LIST_SYNC")]
     public sealed record DiscordThreadListSyncPayload
     {
         /// <summary>

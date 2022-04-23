@@ -32,7 +32,7 @@ namespace DSharpPlus.Core.Entities
     /// <summary>
     /// Guilds in Discord represent an isolated collection of users and channels, and are often referred to as "servers" in the UI.
     /// </summary>
-    [DiscordGatewayEventName("GUILD_CREATE", "GUILD_UPDATE", "GUILD_DELETE")]
+    [DiscordGatewayPayload("GUILD_CREATE", "GUILD_UPDATE", "GUILD_DELETE")]
     public sealed record DiscordGuild
     {
         /// <summary>

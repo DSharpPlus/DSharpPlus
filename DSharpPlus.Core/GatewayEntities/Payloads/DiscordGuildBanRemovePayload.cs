@@ -30,7 +30,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
     /// <summary>
     /// Sent when a user is unbanned from a guild.
     /// </summary>
-    [DiscordGatewayEventName("GUILD_BAN_REMOVE")]
+    [DiscordGatewayPayload("GUILD_BAN_REMOVE")]
     public sealed record DiscordGuildBanRemovePayload
     {
         /// <summary>

@@ -31,7 +31,7 @@ namespace DSharpPlus.Core.Entities
     /// <summary>
     /// A Stage Instance holds information about a live stage.
     /// </summary>
-    [DiscordGatewayEventName("STAGE_INSTANCE_CREATE", "STAGE_INSTANCE_UPDATE", "STAGE_INSTANCE_DELETE")]
+    [DiscordGatewayPayload("STAGE_INSTANCE_CREATE", "STAGE_INSTANCE_UPDATE", "STAGE_INSTANCE_DELETE")]
     public sealed record DiscordStageInstance
     {
         /// <summary>

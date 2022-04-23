@@ -31,7 +31,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
     /// <summary>
     /// Sent when a guild member is updated. This will also fire when the user object of a guild member changes.
     /// </summary>
-    [DiscordGatewayEventName("GUILD_MEMBER_UPDATE")]
+    [DiscordGatewayPayload("GUILD_MEMBER_UPDATE")]
     public sealed record DiscordGuildMemberUpdatePayload
     {
         /// <summary>

@@ -27,7 +27,7 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Gateway.Payloads
 {
-    [DiscordGatewayEventName("VOICE_SERVER_UPDATE")]
+    [DiscordGatewayPayload("VOICE_SERVER_UPDATE")]
     public sealed record DiscordVoiceServerUpdatePayload
     {
         /// <summary>

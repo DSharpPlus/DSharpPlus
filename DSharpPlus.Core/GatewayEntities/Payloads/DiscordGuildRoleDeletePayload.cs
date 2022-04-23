@@ -30,7 +30,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
     /// <summary>
     /// Sent when a guild role is deleted.
     /// </summary>
-    [DiscordGatewayEventName("GUILD_ROLE_DELETE")]
+    [DiscordGatewayPayload("GUILD_ROLE_DELETE")]
     public sealed record DiscordGuildRoleDeletePayload
     {
         /// <summary>

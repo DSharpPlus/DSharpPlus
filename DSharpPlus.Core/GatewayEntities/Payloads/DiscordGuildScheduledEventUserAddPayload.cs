@@ -30,7 +30,7 @@ namespace DSharpPlus.Core.Gateway.Payloads
     /// <summary>
     /// Sent when a user has subscribed to a guild scheduled event.
     /// </summary>
-    [DiscordGatewayEventName("GUILD_SCHEDULED_EVENT_USER_ADD")]
+    [DiscordGatewayPayload("GUILD_SCHEDULED_EVENT_USER_ADD")]
     public sealed record DiscordGuildScheduledEventUserAddPayload
     {
         /// <summary>
