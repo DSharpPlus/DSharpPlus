@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace DSharpPlus.Core.Rest.Ratelimiting
@@ -38,9 +39,6 @@ namespace DSharpPlus.Core.Rest.Ratelimiting
         private const int DefaultLimit = 1;
         private const int DefaultRemaining = 0;
         private static readonly DateTimeOffset discordEpoch = new(2015, 0, 0, 0, 0, 0, new());
-
-        // lock
-        private readonly object __lock = new();
 
         // the limit for this bucket. this should never change without the hash also changing and us therefore creating a new bucket.
         public int Limit { get; } = DefaultLimit;
@@ -113,6 +111,7 @@ namespace DSharpPlus.Core.Rest.Ratelimiting
 
         #endregion
 
+        [MethodImpl(MethodImplOptions.Synchronized)]
         public void ResetBucket(DateTimeOffset nextResetTime)
         {
             if(nextResetTime < ResetTime)
@@ -120,16 +119,13 @@ namespace DSharpPlus.Core.Rest.Ratelimiting
                 throw new ArgumentOutOfRangeException(nameof(nextResetTime), "The next ratelimit bucket expiration cannot be in the past.");
             }
 
-            lock (__lock)
-            {
-                Remaining = Limit;
-                ResetTime = nextResetTime;
-            }
+            Remaining = Limit;
+            ResetTime = nextResetTime;
         }
 
         public bool AllowNextRequest()
         {
-            if(Remaining <= 0)
+            if (Remaining <= 0)
             {
                 // if the bucket should have reset by now, allow it anyway
                 return ResetTime < DateTimeOffset.UtcNow;
