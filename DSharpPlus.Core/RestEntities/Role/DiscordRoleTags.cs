@@ -21,18 +21,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
-using DSharpPlus.Core.Entities;
+
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.JsonConverters
+namespace DSharpPlus.Core.Entities
 {
-    public class DiscordSnowflakeConverter : JsonConverter<DiscordSnowflake>
+    /// <summary>
+    /// A <see cref="DiscordRole"/>'s metadata.
+    /// </summary>
+    public sealed record DiscordRoleTags
     {
-        public override DiscordSnowflake? ReadJson(JsonReader reader, Type objectType, DiscordSnowflake? existingValue, bool hasExistingValue, JsonSerializer serializer) => reader.TokenType == JsonToken.Null
-            ? null
-            : ulong.TryParse(reader.Value!.ToString(), out ulong snowflake) ? new DiscordSnowflake(snowflake) : null;
+        /// <summary>
+        /// The id of the bot this role belongs to.
+        /// </summary>
+        [JsonProperty("bot_id", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<DiscordSnowflake> BotId { get; init; }
 
-        public override void WriteJson(JsonWriter writer, DiscordSnowflake? value, JsonSerializer serializer) => writer.WriteValue(value?.ToString());
+        /// <summary>
+        /// The id of the integration this role belongs to.
+        /// </summary>
+        [JsonProperty("integration_id", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<DiscordSnowflake> IntegrationId { get; init; }
+
+        /// <summary>
+        /// Whether this is the guild's premium subscriber role.
+        /// </summary>
+        /// <remarks>
+        /// Null when it is the guild's premium subscriber role, otherwise <see cref="Optional{T}.Empty"/>. You should use <see cref="Optional{T}.HasValue"/> to check if this is the guild's premium subscriber role.
+        /// </remarks>
+        [JsonProperty("premium_subscriber", NullValueHandling = NullValueHandling.Ignore)]
+        internal Optional<bool> PremiumSubscriber { get; init; }
     }
 }

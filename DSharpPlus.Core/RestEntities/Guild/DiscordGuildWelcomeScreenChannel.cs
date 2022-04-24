@@ -21,18 +21,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
-using DSharpPlus.Core.Entities;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.JsonConverters
+namespace DSharpPlus.Core.Entities
 {
-    public class DiscordSnowflakeConverter : JsonConverter<DiscordSnowflake>
+    public sealed record DiscordGuildWelcomeScreenChannel
     {
-        public override DiscordSnowflake? ReadJson(JsonReader reader, Type objectType, DiscordSnowflake? existingValue, bool hasExistingValue, JsonSerializer serializer) => reader.TokenType == JsonToken.Null
-            ? null
-            : ulong.TryParse(reader.Value!.ToString(), out ulong snowflake) ? new DiscordSnowflake(snowflake) : null;
+        /// <summary>
+        /// The channel's id.
+        /// </summary>
+        [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordSnowflake ChannelId { get; init; } = null!;
 
-        public override void WriteJson(JsonWriter writer, DiscordSnowflake? value, JsonSerializer serializer) => writer.WriteValue(value?.ToString());
+        /// <summary>
+        /// The description shown for the channel.
+        /// </summary>
+        [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
+        public string Description { get; init; } = null!;
+
+        /// <summary>
+        /// The emoji id, if the emoji is custom.
+        /// </summary>
+        [JsonProperty("emoji_id", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordSnowflake? EmojiId { get; init; }
+
+        /// <summary>
+        /// The emoji name if custom, the unicode character if standard, or null if no emoji is set.
+        /// </summary>
+        [JsonProperty("emoji_name", NullValueHandling = NullValueHandling.Ignore)]
+        public string EmojiName { get; init; } = null!;
     }
 }

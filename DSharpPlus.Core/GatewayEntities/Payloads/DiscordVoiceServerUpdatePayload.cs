@@ -21,18 +21,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
+using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Entities;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.JsonConverters
+namespace DSharpPlus.Core.Gateway.Payloads
 {
-    public class DiscordSnowflakeConverter : JsonConverter<DiscordSnowflake>
+    [DiscordGatewayPayload("VOICE_SERVER_UPDATE")]
+    public sealed record DiscordVoiceServerUpdatePayload
     {
-        public override DiscordSnowflake? ReadJson(JsonReader reader, Type objectType, DiscordSnowflake? existingValue, bool hasExistingValue, JsonSerializer serializer) => reader.TokenType == JsonToken.Null
-            ? null
-            : ulong.TryParse(reader.Value!.ToString(), out ulong snowflake) ? new DiscordSnowflake(snowflake) : null;
+        /// <summary>
+        /// The voice connection token.
+        /// </summary>
+        [JsonProperty("token", NullValueHandling = NullValueHandling.Ignore)]
+        public string Token { get; init; } = null!;
 
-        public override void WriteJson(JsonWriter writer, DiscordSnowflake? value, JsonSerializer serializer) => writer.WriteValue(value?.ToString());
+        /// <summary>
+        /// The guild this voice server update is for.
+        /// </summary>
+        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordSnowflake GuildId { get; init; } = null!;
+
+        /// <summary>
+        /// The voice server host.
+        /// </summary>
+        /// <remarks>
+        /// A null endpoint means that the voice server allocated has gone away and is trying to be reallocated. You should attempt to disconnect from the currently connected voice server, and not attempt to reconnect until a new voice server is allocated.
+        /// </remarks>
+        [JsonProperty("endpoint", NullValueHandling = NullValueHandling.Ignore)]
+        public string? Endpoint { get; init; }
     }
 }

@@ -21,18 +21,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
-using DSharpPlus.Core.Entities;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+using DSharpPlus.Core.Enums;
 
-namespace DSharpPlus.Core.JsonConverters
+namespace DSharpPlus.Core.Entities
 {
-    public class DiscordSnowflakeConverter : JsonConverter<DiscordSnowflake>
+    /// <summary>
+    /// An Action Row is a non-interactive container component for other types of components. It has a type: 1 and a sub-array of components of other types. You can have up to 5 Action Rows per message. An Action Row cannot contain another Action Row
+    /// </summary>
+    public sealed record DiscordActionRowComponent : IDiscordMessageComponent
     {
-        public override DiscordSnowflake? ReadJson(JsonReader reader, Type objectType, DiscordSnowflake? existingValue, bool hasExistingValue, JsonSerializer serializer) => reader.TokenType == JsonToken.Null
-            ? null
-            : ulong.TryParse(reader.Value!.ToString(), out ulong snowflake) ? new DiscordSnowflake(snowflake) : null;
+        /// <inheritdoc/>
+        [JsonPropertyName("type")]
+        public DiscordComponentType Type { get; init; }
 
-        public override void WriteJson(JsonWriter writer, DiscordSnowflake? value, JsonSerializer serializer) => writer.WriteValue(value?.ToString());
+        /// <remarks>
+        /// Cannot contain another action row.
+        /// </remarks>
+        [JsonPropertyName("components")]
+        public IDiscordMessageComponent[] Components { get; init; } = null!;
     }
 }

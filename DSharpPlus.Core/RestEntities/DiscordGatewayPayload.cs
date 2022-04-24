@@ -21,18 +21,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
-using DSharpPlus.Core.Entities;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.JsonConverters
+namespace DSharpPlus.Core.Entities
 {
-    public class DiscordSnowflakeConverter : JsonConverter<DiscordSnowflake>
+    public sealed record DiscordGatewayPayload
     {
-        public override DiscordSnowflake? ReadJson(JsonReader reader, Type objectType, DiscordSnowflake? existingValue, bool hasExistingValue, JsonSerializer serializer) => reader.TokenType == JsonToken.Null
-            ? null
-            : ulong.TryParse(reader.Value!.ToString(), out ulong snowflake) ? new DiscordSnowflake(snowflake) : null;
+        [JsonProperty("op", NullValueHandling = NullValueHandling.Ignore)]
+        public int OpCode { get; init; }
 
-        public override void WriteJson(JsonWriter writer, DiscordSnowflake? value, JsonSerializer serializer) => writer.WriteValue(value?.ToString());
+        [JsonProperty("d", NullValueHandling = NullValueHandling.Ignore)]
+        public object? Data { get; init; }
+
+        /// <remarks>
+        /// Null when OpCode is not 0
+        /// </remarks>
+        [JsonProperty("s", NullValueHandling = NullValueHandling.Ignore)]
+        public int? SequenceNumber { get; init; }
+
+        /// <remarks>
+        /// Null when OpCode is not 0
+        /// </remarks>
+        [JsonProperty("t", NullValueHandling = NullValueHandling.Ignore)]
+        public string? EventName { get; init; }
     }
 }

@@ -21,18 +21,44 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
-using DSharpPlus.Core.Entities;
-using Newtonsoft.Json;
-
-namespace DSharpPlus.Core.JsonConverters
+namespace DSharpPlus.Core.Enums
 {
-    public class DiscordSnowflakeConverter : JsonConverter<DiscordSnowflake>
+    public enum DiscordMessageType
     {
-        public override DiscordSnowflake? ReadJson(JsonReader reader, Type objectType, DiscordSnowflake? existingValue, bool hasExistingValue, JsonSerializer serializer) => reader.TokenType == JsonToken.Null
-            ? null
-            : ulong.TryParse(reader.Value!.ToString(), out ulong snowflake) ? new DiscordSnowflake(snowflake) : null;
+        Default = 0,
+        RecipientAdd = 1,
+        RecipientRemove = 2,
+        Call = 3,
+        ChannelNameChange = 4,
+        ChannelIconChange = 5,
+        ChannelPinnedMessage = 6,
+        GuildMemberJoin = 7,
+        UserPremiumGuildSubscription = 8,
+        UserPremiumGuildSubscriptionTier1 = 9,
+        UserPremiumGuildSubscriptionTier2 = 10,
+        UserPremiumGuildSubscriptionTier3 = 11,
+        ChannelFollowAdd = 12,
+        GuildDiscoveryDisqualified = 14,
+        GuildDiscoveryRequalified = 15,
+        GuildDiscoveryGracePeriodInitialWarning = 16,
+        GuildDiscoveryGracePeriodFinalWarning = 17,
+        ThreadCreated = 18,
 
-        public override void WriteJson(JsonWriter writer, DiscordSnowflake? value, JsonSerializer serializer) => writer.WriteValue(value?.ToString());
+        /// <remarks>
+        /// Only in API v8. In v6, they are <see cref="Default"/>
+        /// </remarks>
+        Reply = 19,
+
+        /// <remarks>
+        /// Only in API v8. In v6, they are <see cref="Default"/>
+        /// </remarks>
+        ChatInputCommand = 20,
+
+        /// <remarks>
+        /// Only in API v9.
+        /// </remarks>
+        ThreadStarterMessage = 21,
+        GuildInviteReminder = 22,
+        ContextMenuCommand = 23
     }
 }

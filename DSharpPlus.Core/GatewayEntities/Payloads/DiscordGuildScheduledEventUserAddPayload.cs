@@ -21,18 +21,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
+using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Entities;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.JsonConverters
+namespace DSharpPlus.Core.Gateway.Payloads
 {
-    public class DiscordSnowflakeConverter : JsonConverter<DiscordSnowflake>
+    /// <summary>
+    /// Sent when a user has subscribed to a guild scheduled event.
+    /// </summary>
+    [DiscordGatewayPayload("GUILD_SCHEDULED_EVENT_USER_ADD")]
+    public sealed record DiscordGuildScheduledEventUserAddPayload
     {
-        public override DiscordSnowflake? ReadJson(JsonReader reader, Type objectType, DiscordSnowflake? existingValue, bool hasExistingValue, JsonSerializer serializer) => reader.TokenType == JsonToken.Null
-            ? null
-            : ulong.TryParse(reader.Value!.ToString(), out ulong snowflake) ? new DiscordSnowflake(snowflake) : null;
+        /// <summary>
+        /// The id of the guild scheduled event.
+        /// </summary>
+        [JsonProperty("guild_scheduled_event_id", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordSnowflake GuildScheduledEventId { get; init; } = null!;
 
-        public override void WriteJson(JsonWriter writer, DiscordSnowflake? value, JsonSerializer serializer) => writer.WriteValue(value?.ToString());
+        /// <summary>
+        /// The id of the user.
+        /// </summary>
+        [JsonProperty("user_id", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordSnowflake UserId { get; init; } = null!;
+
+        /// <summary>
+        /// The id of the guild.
+        /// </summary>
+        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordSnowflake GuildId { get; init; } = null!;
     }
 }

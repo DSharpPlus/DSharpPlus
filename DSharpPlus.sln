@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Core", "DSharpPlus.Core\DSharpPlus.Core.csproj", "{F1C54B08-EE46-43E1-B7A6-CB8B77084898}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Test", "DSharpPlus.Test\DSharpPlus.Test.csproj", "{103F6DDB-CCF0-45A8-A8A7-039FF098CE0A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{F1C54B08-EE46-43E1-B7A6-CB8B77084898}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F1C54B08-EE46-43E1-B7A6-CB8B77084898}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F1C54B08-EE46-43E1-B7A6-CB8B77084898}.Release|Any CPU.Build.0 = Release|Any CPU
+		{103F6DDB-CCF0-45A8-A8A7-039FF098CE0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{103F6DDB-CCF0-45A8-A8A7-039FF098CE0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{103F6DDB-CCF0-45A8-A8A7-039FF098CE0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{103F6DDB-CCF0-45A8-A8A7-039FF098CE0A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

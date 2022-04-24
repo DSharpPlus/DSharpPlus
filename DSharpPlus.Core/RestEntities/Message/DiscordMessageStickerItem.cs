@@ -21,18 +21,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
-using DSharpPlus.Core.Entities;
+using DSharpPlus.Core.Enums;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.JsonConverters
+namespace DSharpPlus.Core.Entities
 {
-    public class DiscordSnowflakeConverter : JsonConverter<DiscordSnowflake>
+    /// <summary>
+    /// The smallest amount of data required to render a sticker. A partial sticker object.
+    /// </summary>
+    public sealed record DiscordMessageStickerItem
     {
-        public override DiscordSnowflake? ReadJson(JsonReader reader, Type objectType, DiscordSnowflake? existingValue, bool hasExistingValue, JsonSerializer serializer) => reader.TokenType == JsonToken.Null
-            ? null
-            : ulong.TryParse(reader.Value!.ToString(), out ulong snowflake) ? new DiscordSnowflake(snowflake) : null;
+        /// <summary>
+        /// The id of the sticker.
+        /// </summary>
+        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordSnowflake Id { get; init; } = null!;
 
-        public override void WriteJson(JsonWriter writer, DiscordSnowflake? value, JsonSerializer serializer) => writer.WriteValue(value?.ToString());
+        /// <summary>
+        /// The name of the sticker.
+        /// </summary>
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        public string Name { get; init; } = null!;
+
+        /// <summary>
+        /// The type of sticker format.
+        /// </summary>
+        [JsonProperty("format_type", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordStickerFormatType FormatType { get; init; }
     }
 }

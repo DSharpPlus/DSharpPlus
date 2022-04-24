@@ -21,18 +21,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
-using DSharpPlus.Core.Entities;
+
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.JsonConverters
+namespace DSharpPlus.Core.Entities
 {
-    public class DiscordSnowflakeConverter : JsonConverter<DiscordSnowflake>
+    public sealed record DiscordEmbedImage
     {
-        public override DiscordSnowflake? ReadJson(JsonReader reader, Type objectType, DiscordSnowflake? existingValue, bool hasExistingValue, JsonSerializer serializer) => reader.TokenType == JsonToken.Null
-            ? null
-            : ulong.TryParse(reader.Value!.ToString(), out ulong snowflake) ? new DiscordSnowflake(snowflake) : null;
+        /// <summary>
+        /// The source url of the image (only supports http(s) and attachments).
+        /// </summary>
+        [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
+        public string Url { get; init; } = null!;
 
-        public override void WriteJson(JsonWriter writer, DiscordSnowflake? value, JsonSerializer serializer) => writer.WriteValue(value?.ToString());
+        /// <summary>
+        /// A proxied url of the image.
+        /// </summary>
+        [JsonProperty("proxy_url", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<string> ProxyUrl { get; init; }
+
+        /// <summary>
+        /// The height of image.
+        /// </summary>
+        [JsonProperty("height", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<int> Height { get; init; }
+
+        /// <summary>
+        /// The width of image.
+        /// </summary>
+        [JsonProperty("width", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<int> Width { get; init; }
     }
 }

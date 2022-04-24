@@ -21,18 +21,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
-using DSharpPlus.Core.Entities;
+using DSharpPlus.Core.Attributes;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.JsonConverters
+namespace DSharpPlus.Core.Gateway.Payloads
 {
-    public class DiscordSnowflakeConverter : JsonConverter<DiscordSnowflake>
+    /// <summary>
+    /// Sent on connection to the websocket. Defines the heartbeat interval that the client should heartbeat to.
+    /// </summary>
+    [DiscordGatewayPayload("HELLO")]
+    public sealed record DiscordHelloPayload
     {
-        public override DiscordSnowflake? ReadJson(JsonReader reader, Type objectType, DiscordSnowflake? existingValue, bool hasExistingValue, JsonSerializer serializer) => reader.TokenType == JsonToken.Null
-            ? null
-            : ulong.TryParse(reader.Value!.ToString(), out ulong snowflake) ? new DiscordSnowflake(snowflake) : null;
-
-        public override void WriteJson(JsonWriter writer, DiscordSnowflake? value, JsonSerializer serializer) => writer.WriteValue(value?.ToString());
+        /// <summary>
+        /// The interval (in milliseconds) the client should heartbeat with.
+        /// </summary>
+        [JsonProperty("heartbeat_interval", NullValueHandling = NullValueHandling.Ignore)]
+        public int HeartbeatInterval { get; init; }
     }
 }

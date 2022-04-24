@@ -21,18 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
-using DSharpPlus.Core.Entities;
-using Newtonsoft.Json;
-
-namespace DSharpPlus.Core.JsonConverters
+namespace DSharpPlus.Core.Enums
 {
-    public class DiscordSnowflakeConverter : JsonConverter<DiscordSnowflake>
+    public enum DiscordTextInputStyle
     {
-        public override DiscordSnowflake? ReadJson(JsonReader reader, Type objectType, DiscordSnowflake? existingValue, bool hasExistingValue, JsonSerializer serializer) => reader.TokenType == JsonToken.Null
-            ? null
-            : ulong.TryParse(reader.Value!.ToString(), out ulong snowflake) ? new DiscordSnowflake(snowflake) : null;
+        /// <summary>
+        /// A single-line input.
+        /// </summary>
+        Short = 1,
 
-        public override void WriteJson(JsonWriter writer, DiscordSnowflake? value, JsonSerializer serializer) => writer.WriteValue(value?.ToString());
+        /// <summary>
+        /// A multi-line input.
+        /// </summary>
+        Paragraph = 2
     }
 }

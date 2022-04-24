@@ -22,17 +22,25 @@
 // SOFTWARE.
 
 using System;
-using DSharpPlus.Core.Entities;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
-namespace DSharpPlus.Core.JsonConverters
+namespace DSharpPlus.Core.Enums
 {
-    public class DiscordSnowflakeConverter : JsonConverter<DiscordSnowflake>
+    /// <summary>
+    /// Embed types are "loosely defined" and, for the most part, are not used by our clients for rendering. Embed attributes power what is rendered.
+    /// </summary>
+    /// <remarks>
+    /// Embed types should be considered deprecated and might be removed in a future API version.
+    /// </remarks>
+    [JsonConverter(typeof(StringEnumConverter)), Obsolete("Embed types are \"loosely defined\" and, for the most part, are not used by our clients for rendering. Embed attributes power what is rendered. Embed types should be considered deprecated and might be removed in a future API version.")]
+    public enum DiscordEmbedType
     {
-        public override DiscordSnowflake? ReadJson(JsonReader reader, Type objectType, DiscordSnowflake? existingValue, bool hasExistingValue, JsonSerializer serializer) => reader.TokenType == JsonToken.Null
-            ? null
-            : ulong.TryParse(reader.Value!.ToString(), out ulong snowflake) ? new DiscordSnowflake(snowflake) : null;
-
-        public override void WriteJson(JsonWriter writer, DiscordSnowflake? value, JsonSerializer serializer) => writer.WriteValue(value?.ToString());
+        Rich,
+        Image,
+        Video,
+        Gifv,
+        Article,
+        Link
     }
 }

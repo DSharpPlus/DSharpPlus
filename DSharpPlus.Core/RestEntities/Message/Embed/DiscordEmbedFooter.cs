@@ -21,18 +21,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
-using DSharpPlus.Core.Entities;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.JsonConverters
+namespace DSharpPlus.Core.Entities
 {
-    public class DiscordSnowflakeConverter : JsonConverter<DiscordSnowflake>
+    public sealed record DiscordEmbedFooter
     {
-        public override DiscordSnowflake? ReadJson(JsonReader reader, Type objectType, DiscordSnowflake? existingValue, bool hasExistingValue, JsonSerializer serializer) => reader.TokenType == JsonToken.Null
-            ? null
-            : ulong.TryParse(reader.Value!.ToString(), out ulong snowflake) ? new DiscordSnowflake(snowflake) : null;
+        /// <summary>
+        /// The footer text.
+        /// </summary>
+        /// <remarks>
+        /// Max 2048 characters.
+        /// </remarks>
+        [JsonProperty("text", NullValueHandling = NullValueHandling.Ignore)]
+        public string Text { get; init; } = null!;
 
-        public override void WriteJson(JsonWriter writer, DiscordSnowflake? value, JsonSerializer serializer) => writer.WriteValue(value?.ToString());
+        /// <summary>
+        /// The url of footer icon (only supports http(s) and attachments).
+        /// </summary>
+        [JsonProperty("icon_url", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<string> IconUrl { get; init; }
+
+        /// <summary>
+        /// A proxied url of footer icon.
+        /// </summary>
+        [JsonProperty("proxy_icon_url", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<string> ProxyIconUrl { get; init; }
     }
 }

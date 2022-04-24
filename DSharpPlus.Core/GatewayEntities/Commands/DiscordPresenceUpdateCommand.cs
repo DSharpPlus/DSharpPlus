@@ -21,18 +21,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
 using DSharpPlus.Core.Entities;
+using DSharpPlus.Core.Enums;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.JsonConverters
+namespace DSharpPlus.Core.Gateway.Commands
 {
-    public class DiscordSnowflakeConverter : JsonConverter<DiscordSnowflake>
+    /// <summary>
+    /// Sent by the client to indicate a presence or status update.
+    /// </summary>
+    public sealed record DiscordPresenceUpdateCommand
     {
-        public override DiscordSnowflake? ReadJson(JsonReader reader, Type objectType, DiscordSnowflake? existingValue, bool hasExistingValue, JsonSerializer serializer) => reader.TokenType == JsonToken.Null
-            ? null
-            : ulong.TryParse(reader.Value!.ToString(), out ulong snowflake) ? new DiscordSnowflake(snowflake) : null;
+        /// <summary>
+        /// The unix time (in milliseconds) of when the client went idle, or null if the client is not idle.
+        /// </summary>
+        [JsonProperty("since", NullValueHandling = NullValueHandling.Ignore)]
+        public int? Since { get; init; }
 
-        public override void WriteJson(JsonWriter writer, DiscordSnowflake? value, JsonSerializer serializer) => writer.WriteValue(value?.ToString());
+        /// <summary>
+        /// The user's activities.
+        /// </summary>
+        [JsonProperty("activities", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordActivity[] Activities { get; init; } = null!;
+
+        /// <summary>
+        /// The user's new status.
+        /// </summary>
+        [JsonProperty("status", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordStatusType Status { get; init; }
+
+        /// <summary>
+        /// Whether or not the client is afk.
+        /// </summary>
+        [JsonProperty("afk", NullValueHandling = NullValueHandling.Ignore)]
+        public bool AFK { get; init; }
     }
 }
