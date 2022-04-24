@@ -489,8 +489,14 @@ namespace DSharpPlus.CommandsNext
                         foreach (var chk in inheritedChecks)
                             groupBuilder.WithExecutionCheck(chk);
 
-                        foreach (var mi in ti.DeclaredMethods.Where(x => x.IsCommandCandidate(out _) && x.GetCustomAttribute<GroupCommandAttribute>() != null))
-                            groupBuilder.WithOverload(new CommandOverloadBuilder(mi));
+                        var groupCandidates = ti.DeclaredMethods.Where(x => x.IsCommandCandidate(out _) && x.GetCustomAttribute<GroupCommandAttribute>() != null).ToArray();
+
+                        _ = groupCandidates.Length switch
+                        {
+                            0 => null,
+                            1 => groupBuilder.WithOverload(new CommandOverloadBuilder(groupCandidates[0])),
+                            _ => throw new InvalidOverloadException($"Commands marked with [{nameof(GroupCommandAttribute)}] cannot be overloaded", groupCandidates[0])
+                        };
                         break;
 
                     case AliasesAttribute a:
