@@ -1,29 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-
-  <Import Project="../DSharpPlus.targets" />
-
-  <PropertyGroup>
-    <AssemblyName>DSharpPlus.VoiceNext</AssemblyName>
-    <RootNamespace>DSharpPlus.VoiceNext</RootNamespace>
-    <OutputType>Library</OutputType>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <PackageId>DSharpPlus.VoiceNext</PackageId>
-    <Description>Voice implementation for DSharpPlus.</Description>
-    <PackageTags>discord, discord-api, bots, discord-bots, chat, dsharp, dsharpplus, csharp, dotnet, vb-net, fsharp, audio, voice, radio, music</PackageTags>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="DSharpPlus.VoiceNext.Natives" Version="1.0.0" />
-    <PackageReference Include="System.Threading.Channels" Version="5.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj" />
-  </ItemGroup>
-
+    <Import Project="../DSharpPlus.targets" />
+    <PropertyGroup>
+        <AssemblyName>DSharpPlus.VoiceNext</AssemblyName>
+        <RootNamespace>DSharpPlus.VoiceNext</RootNamespace>
+        <OutputType>Library</OutputType>
+        <TargetFrameworks>netstandard2.0</TargetFrameworks>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+    <PropertyGroup>
+        <PackageId>DSharpPlus.VoiceNext</PackageId>
+        <Description>Voice implementation for DSharpPlus.</Description>
+        <PackageTags>discord, discord-api, bots, discord-bots, chat, dsharp, dsharpplus, csharp, dotnet, vb-net, fsharp, audio, voice, radio, music</PackageTags>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="System.Threading.Channels" Version="5.0.0" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj" />
+    </ItemGroup>
 </Project>
