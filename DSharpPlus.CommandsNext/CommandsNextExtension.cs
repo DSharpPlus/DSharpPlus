@@ -497,7 +497,7 @@ namespace DSharpPlus.CommandsNext
                             // overloads don't work for group commands, so throw on startup instead of at runtime.
                             if(groupCommandOverloads.Count() > 1)
                             {
-                                throw new InvalidOverloadException("GroupCommands cannot be overloaded", groupCommandOverloads.First());
+                                throw new InvalidOverloadException($"Commands marked with [{nameof(GroupCommandAttribute)}] cannot be overloaded", groupCommandOverloads.First());
                             }
 
                             groupBuilder.WithOverload(new CommandOverloadBuilder(groupCommandOverloads.First()));
