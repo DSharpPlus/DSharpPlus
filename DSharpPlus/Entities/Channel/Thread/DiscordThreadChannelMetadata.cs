@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -52,19 +52,25 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the time timestamp for when the thread's archive status was last changed.
         /// </summary>
-        [JsonIgnore]
-        public DateTimeOffset? ArchiveTimestamp
-            => !string.IsNullOrWhiteSpace(this.ArchiveTimestampRaw) && DateTimeOffset.TryParse(this.ArchiveTimestampRaw, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dto) ?
-                dto : null;
-
         [JsonProperty("archive_timestamp", NullValueHandling = NullValueHandling.Ignore)]
-        internal string ArchiveTimestampRaw { get; set; }
+        public DateTimeOffset? ArchiveTimestamp { get; internal set; }
 
         /// <summary>
         /// Gets whether this thread is locked or not.
         /// </summary>
         [JsonProperty("locked", NullValueHandling = NullValueHandling.Ignore)]
         public bool? IsLocked { get; internal set; }
+
+
+        /// <summary>
+        /// Gets the time this thread was created. Only populated for threads created after 2022-01-09 (YYYY-MM-DD).
+        /// </summary>
+        public DateTimeOffset? CreationTimestamp
+            => !string.IsNullOrWhiteSpace(this.CreateTimestampRaw) && DateTimeOffset.TryParse(this.CreateTimestampRaw, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dto) ?
+                dto : null;
+
+        [JsonProperty("create_timestamp", NullValueHandling = NullValueHandling.Ignore)]
+        internal string CreateTimestampRaw { get; set; }
 
         internal DiscordThreadChannelMetadata() { }
     }

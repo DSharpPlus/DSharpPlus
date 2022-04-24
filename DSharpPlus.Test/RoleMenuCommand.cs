@@ -12,8 +12,8 @@ namespace DSharpPlus.Test
     public class RoleMenuCommand : BaseCommandModule
     {
 
-        [Command]
-        public async Task RoleMenu(CommandContext ctx, string message, string emojis, [RemainingText] params DiscordRole[] roles)
+        [Command("role_menu")]
+        public async Task RoleMenuAsync(CommandContext ctx, string message, string emojis, [RemainingText] params DiscordRole[] roles)
         {
             var converter = (IArgumentConverter<DiscordEmoji>)new DiscordEmojiConverter();
             var split = emojis.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
@@ -23,7 +23,7 @@ namespace DSharpPlus.Test
                 throw new ArgumentOutOfRangeException(nameof(emojis), "You don't have enough emojis!");
 
             if (roles.Length > 25)
-                throw new ArgumentOutOfRangeException(nameof(roles),"You can only have up to 25 roles per role menu!");
+                throw new ArgumentOutOfRangeException(nameof(roles), "You can only have up to 25 roles per role menu!");
 
             for (var i = 0; i < roles.Length; i++)
             {
@@ -47,16 +47,16 @@ namespace DSharpPlus.Test
 
             foreach (var chunklist in chnk)
             {
-                foreach (var pair in chunklist)
+                foreach (var (first, second) in chunklist)
                 {
-                    if (pair.First.Position >= ctx.Guild.CurrentMember.Hierarchy)
-                         throw new InvalidOperationException("Cannot assign role higher or equal to my own role!");
+                    if (first.Position >= ctx.Guild.CurrentMember.Hierarchy)
+                        throw new InvalidOperationException("Cannot assign role higher or equal to my own role!");
 
-                    if (pair.First.Position > ctx.Member.Hierarchy)
+                    if (first.Position > ctx.Member.Hierarchy)
                         throw new InvalidOperationException("Cannot assign role higher than your own!");
 
-                    var e = new DiscordComponentEmoji(pair.Second.Id);
-                    var b = new DiscordButtonComponent(ButtonStyle.Success, $"{pair.First.Mention}", "", emoji: e);
+                    var e = new DiscordComponentEmoji(second.Id);
+                    var b = new DiscordButtonComponent(ButtonStyle.Success, $"{first.Mention}", "", emoji: e);
                     buttons.Add(b);
                 }
                 builder.AddComponents(buttons.ToArray());

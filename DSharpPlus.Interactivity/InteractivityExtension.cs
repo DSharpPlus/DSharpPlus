@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -42,7 +42,7 @@ namespace DSharpPlus.Interactivity
     public class InteractivityExtension : BaseExtension
     {
 
-        #pragma warning disable IDE1006 // Naming Styles
+#pragma warning disable IDE1006 // Naming Styles
         internal InteractivityConfiguration Config { get; }
 
         private EventWaiter<MessageCreateEventArgs> MessageCreatedWaiter;
@@ -55,6 +55,8 @@ namespace DSharpPlus.Interactivity
 
         private ComponentEventWaiter ComponentEventWaiter;
 
+        private ModalEventWaiter ModalEventWaiter;
+
         private ReactionCollector ReactionCollector;
 
         private Poller Poller;
@@ -62,7 +64,7 @@ namespace DSharpPlus.Interactivity
         private Paginator Paginator;
         private  ComponentPaginator _compPaginator;
 
-        #pragma warning restore IDE1006 // Naming Styles
+#pragma warning restore IDE1006 // Naming Styles
 
         internal InteractivityExtension(InteractivityConfiguration cfg)
         {
@@ -81,6 +83,7 @@ namespace DSharpPlus.Interactivity
             this.Paginator = new Paginator(this.Client);
             this._compPaginator = new(this.Client, this.Config);
             this.ComponentEventWaiter = new(this.Client, this.Config);
+            this.ModalEventWaiter = new(this.Client);
 
         }
 
@@ -112,6 +115,63 @@ namespace DSharpPlus.Interactivity
                 await m.DeleteAllReactionsAsync().ConfigureAwait(false);
 
             return new ReadOnlyCollection<PollEmoji>(res.ToList());
+        }
+
+        /// <summary>
+        /// Waits for a modal with the specified id to be submitted.
+        /// </summary>
+        /// <param name="modal_id">The id of the modal to wait for. Should be unique to avoid issues.</param>
+        /// <param name="timeoutOverride">Override the timeout period in <see cref="InteractivityConfiguration"/>.</param>
+        /// <returns>A <see cref="InteractivityResult{ModalSubmitEventArgs}"/> with a modal if the interactivity did not time out.</returns>
+        public Task<InteractivityResult<ModalSubmitEventArgs>> WaitForModalAsync(string modal_id, TimeSpan? timeoutOverride = null)
+            => this.WaitForModalAsync(modal_id, this.GetCancellationToken(timeoutOverride));
+
+        /// <summary>
+        /// Waits for a modal with the specified id to be submitted.
+        /// </summary>
+        /// <param name="modal_id">The id of the modal to wait for. Should be unique to avoid issues.</param>
+        /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
+        /// <returns>A <see cref="InteractivityResult{ModalSubmitEventArgs}"/> with a modal if the interactivity did not time out.</returns>
+        public async Task<InteractivityResult<ModalSubmitEventArgs>> WaitForModalAsync(string modal_id, CancellationToken token)
+        {
+            if (string.IsNullOrEmpty(modal_id) || modal_id.Length > 100)
+                throw new ArgumentException("Custom ID must be between 1 and 100 characters.");
+
+            var matchRequest = new ModalMatchRequest(modal_id,
+                    c => c.Interaction.Data.CustomId == modal_id, cancellation: token);
+            var result = await this.ModalEventWaiter.WaitForMatchAsync(matchRequest).ConfigureAwait(false);
+
+            return new(result is null, result);
+        }
+
+        /// <summary>
+        /// Waits for a modal with the specificed custom id to be submitted by the given user.
+        /// </summary>
+        /// <param name="modal_id">The id of the modal to wait for. Should be unique to avoid issues.</param>
+        /// <param name="user">The user to wait for the modal from.</param>
+        /// <param name="timeoutOverride">Override the timeout period in <see cref="InteractivityConfiguration"/>.</param>
+        /// <returns>A <see cref="InteractivityResult{ModalSubmitEventArgs}"/> with a modal if the interactivity did not time out.</returns>
+        public Task<InteractivityResult<ModalSubmitEventArgs>> WaitForModalAsync(string modal_id, DiscordUser user, TimeSpan? timeoutOverride = null)
+            => this.WaitForModalAsync(modal_id, user, this.GetCancellationToken(timeoutOverride));
+
+        /// <summary>
+        /// Waits for a modal with the specificed custom id to be submitted by the given user.
+        /// </summary>
+        /// <param name="modal_id">The id of the modal to wait for. Should be unique to avoid issues.</param>
+        /// <param name="user">The user to wait for the modal from.</param>
+        /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
+        /// <returns>A <see cref="InteractivityResult{ModalSubmitEventArgs}"/> with a modal if the interactivity did not time out.</returns>
+        public async Task<InteractivityResult<ModalSubmitEventArgs>> WaitForModalAsync(string modal_id, DiscordUser user, CancellationToken token)
+        {
+            if (string.IsNullOrEmpty(modal_id) || modal_id.Length > 100)
+                throw new ArgumentException("Custom ID must be between 1 and 100 characters.");
+
+            var matchRequest = new ModalMatchRequest(modal_id,
+                    c => c.Interaction.Data.CustomId == modal_id &&
+                    c.Interaction.User.Id == user.Id, cancellation: token);
+            var result = await this.ModalEventWaiter.WaitForMatchAsync(matchRequest).ConfigureAwait(false);
+
+            return new(result is null, result);
         }
 
         /// <summary>
@@ -596,7 +656,7 @@ namespace DSharpPlus.Interactivity
         {
             var timeout = timeoutoverride ?? this.Config.Timeout;
 
-            using var waiter = new EventWaiter<T>(this.Client);
+            var waiter = new EventWaiter<T>(this.Client);
             var res = await waiter.WaitForMatch(new MatchRequest<T>(predicate, timeout)).ConfigureAwait(false);
             return new InteractivityResult<T>(res == null, res);
         }
@@ -728,7 +788,8 @@ namespace DSharpPlus.Interactivity
         /// <param name="behaviour">Pagination behaviour.</param>
         /// <param name="deletion">Deletion behaviour</param>
         /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
-        public async Task SendPaginatedResponseAsync(DiscordInteraction interaction, bool ephemeral, DiscordUser user, IEnumerable<Page> pages, PaginationButtons buttons = null, PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default, CancellationToken token = default)
+        /// <param name="asEditResponse">If the response as edit of previous response.</param>
+        public async Task SendPaginatedResponseAsync(DiscordInteraction interaction, bool ephemeral, DiscordUser user, IEnumerable<Page> pages, PaginationButtons buttons = null, PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default, CancellationToken token = default, bool asEditResponse = false)
         {
             var bhv = behaviour ?? this.Config.PaginationBehaviour;
             var del = deletion ?? this.Config.ButtonBehavior;
@@ -753,14 +814,27 @@ namespace DSharpPlus.Interactivity
                     bts.SkipRight.Disable();
             }
 
-            var builder = new DiscordInteractionResponseBuilder()
-                .WithContent(pages.First().Content)
-                .AddEmbed(pages.First().Embed)
-                .AsEphemeral(ephemeral)
-                .AddComponents(bts.ButtonArray);
+            DiscordMessage message;
+            if (asEditResponse)
+            {
+                var builder = new DiscordWebhookBuilder()
+                    .WithContent(pages.First().Content)
+                    .AddEmbed(pages.First().Embed)
+                    .AddComponents(bts.ButtonArray);
 
-            await interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
-            var message = await interaction.GetOriginalResponseAsync();
+                message = await interaction.EditOriginalResponseAsync(builder);
+            }
+            else
+            {
+                var builder = new DiscordInteractionResponseBuilder()
+                    .WithContent(pages.First().Content)
+                    .AddEmbed(pages.First().Embed)
+                    .AsEphemeral(ephemeral)
+                    .AddComponents(bts.ButtonArray);
+
+                await interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+                message = await interaction.GetOriginalResponseAsync();
+            }
 
             var req = new InteractionPaginationRequest(interaction, message, user, bhv, del, bts, pages, token);
 

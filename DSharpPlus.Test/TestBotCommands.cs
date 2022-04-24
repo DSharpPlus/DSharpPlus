@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -27,7 +27,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -81,7 +80,7 @@ namespace DSharpPlus.Test
         public class Binding : BaseCommandModule
         {
             [Command("message"), Aliases("msg"), Description("Attempts to bind a message.")]
-            public Task MessageAsync(CommandContext ctx, DiscordMessage msg)
+            public static Task MessageAsync(CommandContext ctx, DiscordMessage msg)
                 => ctx.RespondAsync(embed: new DiscordEmbedBuilder()
                     .WithTimestamp(msg.CreationTimestamp)
                     .WithAuthor($"{msg.Author.Username}#{msg.Author.Discriminator}", msg.Author.AvatarUrl)
@@ -95,7 +94,7 @@ namespace DSharpPlus.Test
                 .WithContent("Mentioning <@&879398655130472508> and <@743323785549316197>")
                 .WithReply(ctx.Message.Id, true)
                 .WithAllowedMention(new RoleMention(879398655130472508));
-                //.WithAllowedMention(new UserMention(743323785549316197));//.WithAllowedMention(new RoleMention(879398655130472508));
+            //.WithAllowedMention(new UserMention(743323785549316197));//.WithAllowedMention(new RoleMention(879398655130472508));
 
             var msg = await builder.SendAsync(ctx.Channel);
             await msg.ModifyAsync("Mentioning <@&879398655130472508> and <@743323785549316197>, but edited!");
@@ -136,7 +135,7 @@ namespace DSharpPlus.Test
 
             await new DiscordMessageBuilder()
                .WithContent("❌ Empty Mention Array: " + content)
-               .WithAllowedMentions(new IMention[0])
+               .WithAllowedMentions(Array.Empty<IMention>())
                .SendAsync(ctx.Channel)
                .ConfigureAwait(false);                                                                                                                       //Should ping no one
 
@@ -198,7 +197,7 @@ namespace DSharpPlus.Test
             var test6Msg = await ctx.Channel.SendMessageAsync("❌ Empty Mention Array: " + origcontent).ConfigureAwait(false);
             await new DiscordMessageBuilder()
                .WithContent("❌ Empty Mention Array: " + newContent)
-               .WithAllowedMentions(new IMention[0])
+               .WithAllowedMentions(Array.Empty<IMention>())
                .ModifyAsync(test6Msg)
                .ConfigureAwait(false);                                                                                                                               //Should ping no one
 
@@ -502,7 +501,7 @@ namespace DSharpPlus.Test
             await ctx.RespondAsync($"{cNull.Mention}, {cAuto.Mention}, and {cFull.Mention} created. Delete channels? (Y)");
             var result = await ctx.Message.GetNextMessageAsync(m => m.Content.Equals("Y", StringComparison.OrdinalIgnoreCase), TimeSpan.FromMinutes(1));
 
-            if(!result.TimedOut)
+            if (!result.TimedOut)
             {
                 await cNull.DeleteAsync();
                 await cAuto.DeleteAsync();
@@ -536,7 +535,7 @@ namespace DSharpPlus.Test
         [RequirePermissions(Permissions.ManageChannels)]
         public async Task PurgeChatAsync(CommandContext ctx)
         {
-            DiscordChannel channel = ctx.Channel;
+            var channel = ctx.Channel;
             var z = ctx.Channel.Position;
             var x = await channel.CloneAsync();
             await channel.DeleteAsync();

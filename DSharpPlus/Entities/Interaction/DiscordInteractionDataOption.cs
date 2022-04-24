@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -68,6 +68,7 @@ namespace DSharpPlus.Entities
             ApplicationCommandOptionType.Role => ulong.Parse(this.InternalValue),
             ApplicationCommandOptionType.Mentionable => ulong.Parse(this.InternalValue),
             ApplicationCommandOptionType.Number => double.Parse(this.InternalValue, CultureInfo.InvariantCulture),
+            ApplicationCommandOptionType.Attachment => ulong.Parse(this.InternalValue, CultureInfo.InvariantCulture),
             _ => this.InternalValue,
         };
 

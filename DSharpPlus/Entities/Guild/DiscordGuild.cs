@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma warning disable CS0618
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -32,6 +31,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
+using DSharpPlus.Net;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Models;
 using DSharpPlus.Net.Serialization;
@@ -63,7 +63,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public string IconUrl
-            => !string.IsNullOrWhiteSpace(this.IconHash) ? $"https://cdn.discordapp.com/icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.IconHash}.jpg" : null;
+            => this.GetIconUrl(ImageFormat.Auto, 1024);
 
         /// <summary>
         /// Gets the guild splash's hash.
@@ -240,6 +240,17 @@ namespace DSharpPlus.Entities
         public ulong? ApplicationId { get; internal set; }
 
         /// <summary>
+        /// Sceduled events for this guild.
+        /// </summary>
+        public IReadOnlyDictionary<ulong, DiscordScheduledGuildEvent> ScheduledEvents
+            => new ReadOnlyConcurrentDictionary<ulong, DiscordScheduledGuildEvent>(this._scheduledEvents);
+
+        [JsonProperty("guild_scheduled_events")]
+        [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
+        internal ConcurrentDictionary<ulong, DiscordScheduledGuildEvent> _scheduledEvents = new();
+
+
+        /// <summary>
         /// Gets a collection of this guild's roles.
         /// </summary>
         [JsonIgnore]
@@ -321,18 +332,18 @@ namespace DSharpPlus.Entities
 
 #pragma warning disable CS1734
         /// <summary>
-        /// Gets the approximate number of members in this guild, when using <see cref="DiscordClient.GetGuildAsync(ulong, bool?)"/> and having <paramref name = "withCounts"></paramref> set to true.
+        /// Gets the approximate number of members in this guild, when using <see cref="DiscordClient.GetGuildAsync(ulong, bool?)"/> and having <paramref name="withCounts"></paramref> set to true.
         /// </summary>
         [JsonProperty("approximate_member_count", NullValueHandling = NullValueHandling.Ignore)]
         public int? ApproximateMemberCount { get; internal set; }
 
         /// <summary>
-        /// Gets the approximate number of presences in this guild, when using <see cref="DiscordClient.GetGuildAsync(ulong, bool?)"/> and having <paramref name = "withCounts"></paramref> set to true.
+        /// Gets the approximate number of presences in this guild, when using <see cref="DiscordClient.GetGuildAsync(ulong, bool?)"/> and having <paramref name="withCounts"></paramref> set to true.
         /// </summary>
         [JsonProperty("approximate_presence_count", NullValueHandling = NullValueHandling.Ignore)]
         public int? ApproximatePresenceCount { get; internal set; }
-
 #pragma warning restore CS1734
+
         /// <summary>
         /// Gets the maximum amount of users allowed per video channel.
         /// </summary>
@@ -450,6 +461,12 @@ namespace DSharpPlus.Entities
         public int? PremiumSubscriptionCount { get; internal set; }
 
         /// <summary>
+        /// Whether the guild has the boost progress bar enabled.
+        /// </summary>
+        [JsonProperty("premium_progress_bar_enabled", NullValueHandling = NullValueHandling.Ignore)]
+        public bool PremiumProgressBarEnabled { get; internal set; }
+
+        /// <summary>
         /// Gets whether this guild is designated as NSFW.
         /// </summary>
         [JsonProperty("nsfw", NullValueHandling = NullValueHandling.Ignore)]
@@ -488,6 +505,254 @@ namespace DSharpPlus.Entities
         #region Guild Methods
 
         /// <summary>
+        /// Gets guild's icon URL, in requested format and size.
+        /// </summary>
+        /// <param name="imageFormat">The image format of the icon to get.</param>
+        /// <param name="imageSize">The maximum size of the icon. Must be a power of two, minimum 16, maximum 4096.</param>
+        /// <returns>The URL of the guild's icon.</returns>
+        public string GetIconUrl(ImageFormat imageFormat, ushort imageSize = 1024)
+        {
+
+            if (string.IsNullOrWhiteSpace(this.IconHash))
+                return null;
+
+            if (imageFormat == ImageFormat.Unknown)
+                throw new ArgumentException("You must specify valid image format.", nameof(imageFormat));
+
+            // Makes sure the image size is in between Discord's allowed range.
+            if (imageSize < 16 || imageSize > 4096)
+                throw new ArgumentOutOfRangeException(nameof(imageSize), imageSize, "Image Size is not in between 16 and 4096.");
+
+            // Checks to see if the image size is not a power of two.
+            if (!(imageSize is not 0 && (imageSize & (imageSize - 1)) is 0))
+                throw new ArgumentOutOfRangeException(nameof(imageSize), imageSize, "Image size is not a power of two.");
+
+            // Get the string variants of the method parameters to use in the urls.
+            var stringImageFormat = imageFormat switch
+            {
+                ImageFormat.Gif => "gif",
+                ImageFormat.Jpeg => "jpg",
+                ImageFormat.Png => "png",
+                ImageFormat.WebP => "webp",
+                ImageFormat.Auto => !string.IsNullOrWhiteSpace(this.IconHash) ? (this.IconHash.StartsWith("a_") ? "gif" : "png") : "png",
+                _ => throw new ArgumentOutOfRangeException(nameof(imageFormat)),
+            };
+            var stringImageSize = imageSize.ToString(CultureInfo.InvariantCulture);
+
+            return $"https://cdn.discordapp.com{Endpoints.ICONS}/{this.Id}/{this.IconHash}.{stringImageFormat}?size={stringImageSize}";
+
+        }
+
+        /// <summary>
+        /// Creates a new scheduled event in this guild.
+        /// </summary>
+        /// <param name="name">The name of the event to create, up to 100 characters.</param>
+        /// <param name="description">The description of the event, up to 1000 characters.</param>
+        /// <param name="channelId">If a <see cref="ScheduledGuildEventType.StageInstance"/> or <see cref="ScheduledGuildEventType.VoiceChannel"/>, the id of the channel the event will be hosted in</param>
+        /// <param name="type">The type of the event. <see paramref="channelId"/> must be supplied if not an external event.</param>
+        /// <param name="privacyLevel">The privacy level of thi</param>
+        /// <param name="start">When this event starts. Must be in the future, and before the end date.</param>
+        /// <param name="end">When this event ends. If supplied, must be in the future and after the end date. This is requred for <see cref="ScheduledGuildEventType.External"/>.</param>
+        /// <param name="location">Where this event takes place, up to 100 characters. Only applicable if the type is <see cref="ScheduledGuildEventType.External"/></param>
+        /// <param name="reason">Reason for audit log.</param>
+        /// <returns>The created event.</returns>
+        public Task<DiscordScheduledGuildEvent> CreateEventAsync(string name, string description, ulong? channelId, ScheduledGuildEventType type, ScheduledGuildEventPrivacyLevel privacyLevel, DateTimeOffset start, DateTimeOffset? end, string location = null, string reason = null)
+        {
+            if (start <= DateTimeOffset.Now)
+                throw new ArgumentOutOfRangeException("The start time for an event must be in the future.");
+
+            if (end != null && end <= start)
+                throw new ArgumentOutOfRangeException("The end time for an event must be after the start time.");
+
+            DiscordScheduledGuildEventMetadata metadata = null;
+            switch (type)
+            {
+                case ScheduledGuildEventType.StageInstance or ScheduledGuildEventType.VoiceChannel when channelId == null:
+                    throw new ArgumentException($"{nameof(channelId)} must not be null when type is {type}", nameof(channelId));
+                case ScheduledGuildEventType.External when channelId != null:
+                    throw new ArgumentException($"{nameof(channelId)} must be null when using external event type", nameof(channelId));
+                case ScheduledGuildEventType.External when location == null:
+                    throw new ArgumentException($"{nameof(location)} must not be null when using external event type", nameof(location));
+                case ScheduledGuildEventType.External when end == null:
+                    throw new ArgumentException($"{nameof(end)} must not be null when using external event type", nameof(end));
+            }
+            if (!string.IsNullOrEmpty(location))
+                metadata = new DiscordScheduledGuildEventMetadata()
+                {
+                    Location = location
+                };
+
+            return this.Discord.ApiClient.CreateScheduledGuildEventAsync(this.Id, name, description, channelId, start, end, type, privacyLevel, metadata, reason);
+        }
+
+        /// <summary>
+        /// Starts a scheduled event in this guild.
+        /// </summary>
+        /// <param name="guildEvent">The event to cancel.</param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        public Task StartEventAsync(DiscordScheduledGuildEvent guildEvent)
+        {
+            if (guildEvent.Status is not ScheduledGuildEventStatus.Scheduled)
+                throw new InvalidOperationException("The event must be scheduled for it to be started.");
+
+            return this.ModifyEventAsync(guildEvent, m => m.Status = ScheduledGuildEventStatus.Active);
+        }
+
+        /// <summary>
+        /// Cancels an event. The event must be scheduled for it to be cancelled.
+        /// </summary>
+        /// <param name="guildEvent">The event to delete.</param>
+        public Task CancelEventAsync(DiscordScheduledGuildEvent guildEvent)
+        {
+            if (guildEvent.Status is not ScheduledGuildEventStatus.Scheduled)
+                throw new InvalidOperationException("The event must be scheduled for it to be cancelled.");
+
+            return this.ModifyEventAsync(guildEvent, m => m.Status = ScheduledGuildEventStatus.Cancelled);
+        }
+
+        /// <summary>
+        /// Modifies an existing scheduled event in this guild.
+        /// </summary>
+        /// <param name="guildEvent">The event to modify.</param>
+        /// <param name="mdl">The action to perform on this event</param>
+        /// <param name="reason">The reason this event is being modified</param>
+        /// <returns>The modified object</returns>
+        /// <exception cref="ArgumentException"></exception>
+        public async Task ModifyEventAsync(DiscordScheduledGuildEvent guildEvent, Action<ScheduledGuildEventEditModel> mdl, string reason = null)
+        {
+            var model = new ScheduledGuildEventEditModel();
+            mdl(model);
+
+            if (model.Type.HasValue && model.Type.Value is not ScheduledGuildEventType.External)
+            {
+                if (!model.Channel.HasValue)
+                    throw new ArgumentException("Channel must be supplied if the event is a stage instance or voice channel event.");
+
+                if (model.Type.Value is ScheduledGuildEventType.StageInstance && model.Channel.Value.Type is not ChannelType.Stage)
+                    throw new ArgumentException("Channel must be a stage channel if the event is a stage instance event.");
+
+                if (model.Type.Value is ScheduledGuildEventType.VoiceChannel && model.Channel.Value.Type is not ChannelType.Voice)
+                    throw new ArgumentException("Channel must be a voice channel if the event is a voice channel event.");
+
+                if (model.EndTime.HasValue && model.EndTime.Value < guildEvent.StartTime)
+                    throw new ArgumentException("End time must be after the start time.");
+            }
+
+            if (model.Type.HasValue && model.Type.Value is ScheduledGuildEventType.External)
+            {
+                if (!model.EndTime.HasValue)
+                    throw new ArgumentException("End must be supplied if the event is an external event.");
+
+                if (!model.Metadata.HasValue || string.IsNullOrEmpty(model.Metadata.Value.Location))
+                    throw new ArgumentException("Location must be supplied if the event is an external event.");
+
+                if (model.Channel.HasValue && model.Channel.Value != null)
+                    throw new ArgumentException("Channel must not be supplied if the event is an external event.");
+            }
+
+            if (guildEvent.Status is ScheduledGuildEventStatus.Completed)
+                throw new ArgumentException("The event must not be completed for it to be modified.");
+
+            if (guildEvent.Status is ScheduledGuildEventStatus.Cancelled)
+                throw new ArgumentException("The event must not be cancelled for it to be modified.");
+
+            if (model.Status.HasValue)
+            {
+                switch (model.Status.Value)
+                {
+                    case ScheduledGuildEventStatus.Scheduled:
+                        throw new ArgumentException("Status must not be set to scheduled.");
+                    case ScheduledGuildEventStatus.Active when guildEvent.Status is not ScheduledGuildEventStatus.Scheduled:
+                        throw new ArgumentException("Event status must be scheduled to progress to active.");
+                    case ScheduledGuildEventStatus.Completed when guildEvent.Status is not ScheduledGuildEventStatus.Active:
+                        throw new ArgumentException("Event status must be active to progress to completed.");
+                    case ScheduledGuildEventStatus.Cancelled when guildEvent.Status is not ScheduledGuildEventStatus.Scheduled:
+                        throw new ArgumentException("Event status must be scheduled to progress to cancelled.");
+                }
+            }
+
+            var modifiedEvent = await this.Discord.ApiClient.ModifyScheduledGuildEventAsync(
+                this.Id, guildEvent.Id,
+                model.Name, model.Description,
+                model.Channel.IfPresent(c => c?.Id),
+                model.StartTime, model.EndTime,
+                model.Type, model.PrivacyLevel,
+                model.Metadata, model.Status, reason).ConfigureAwait(false);
+
+            this._scheduledEvents[modifiedEvent.Id] = modifiedEvent;
+            return;
+        }
+
+        /// <summary>
+        /// Deletes an exising scheduled event in this guild.
+        /// </summary>
+        /// <param name="guildEvent"></param>
+        /// <param name="reason"></param>
+        /// <returns></returns>
+        public Task DeleteEventAsync(DiscordScheduledGuildEvent guildEvent, string reason = null)
+        {
+            this._scheduledEvents.TryRemove(guildEvent.Id, out _);
+            return this.Discord.ApiClient.DeleteScheduledGuildEventAsync(this.Id, guildEvent.Id);
+        }
+
+        /// <summary>
+        /// Gets the currently active or scheduled events in this guild.
+        /// </summary>
+        /// <param name="withUserCounts">Whether to include number of users subscribed to each event</param>
+        /// <returns>The active and scheduled events on the server, if any.</returns>
+        public async Task<IReadOnlyList<DiscordScheduledGuildEvent>> GetEventsAsync(bool withUserCounts = false)
+        {
+            var events = await this.Discord.ApiClient.GetScheduledGuildEventsAsync(this.Id, withUserCounts);
+
+            foreach (var @event in events)
+                this._scheduledEvents[@event.Id] = @event;
+
+            return events;
+        }
+
+        /// <summary>
+        /// Gets a list of users who are interested in this event.
+        /// </summary>
+        /// <param name="guildEvent">The event to query users from</param>
+        /// <param name="limit">How many users to fetch.</param>
+        /// <param name="after">Fetch users after this id. Mutually exclusive with before</param>
+        /// <param name="before">Fetch users before this id. Mutually exclusive with after</param>
+        public async Task<IReadOnlyList<DiscordUser>> GetEventUsersAsync(DiscordScheduledGuildEvent guildEvent, int limit = 100, ulong? after = null, ulong? before = null)
+        {
+            var remaining = limit;
+            ulong? last = null;
+            var isAfter = after != null;
+
+            var users = new List<DiscordUser>();
+
+            int lastCount;
+            do
+            {
+                var fetchSize = remaining > 100 ? 100 : remaining;
+                var fetch = await this.Discord.ApiClient.GetScheduledGuildEventUsersAsync(this.Id, guildEvent.Id, true, fetchSize, !isAfter ? last ?? before : null, isAfter ? last ?? after : null);
+
+                lastCount = fetch.Count;
+                remaining -= lastCount;
+
+                if (!isAfter)
+                {
+                    users.AddRange(fetch);
+                    last = fetch.LastOrDefault()?.Id;
+                }
+                else
+                {
+                    users.InsertRange(0, fetch);
+                    last = fetch.FirstOrDefault()?.Id;
+                }
+            }
+            while (remaining > 0 && lastCount > 0);
+
+
+            return users.AsReadOnly();
+        }
+
+        /// <summary>
         /// Searches the current guild for members who's display name start with the specified name.
         /// </summary>
         /// <param name="name">The name to search for.</param>
@@ -506,10 +771,10 @@ namespace DSharpPlus.Entities
         /// <param name="muted">whether this user has to be muted</param>
         /// <param name="deaf">whether this user has to be deafened</param>
         /// <returns></returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.CreateInstantInvite" /> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the <paramref name="user"/> or <paramref name="access_token"/> is not found.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.CreateInstantInvite" /> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the <paramref name="user"/> or <paramref name="access_token"/> is not found.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task AddMemberAsync(DiscordUser user, string access_token, string nickname = null, IEnumerable<DiscordRole> roles = null,
             bool muted = false, bool deaf = false)
             => this.Discord.ApiClient.AddGuildMemberAsync(this.Id, user.Id, access_token, nickname, roles, muted, deaf);
@@ -518,8 +783,8 @@ namespace DSharpPlus.Entities
         /// Deletes this guild. Requires the caller to be the owner of the guild.
         /// </summary>
         /// <returns></returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client is not the owner of the guild.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client is not the owner of the guild.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task DeleteAsync()
             => this.Discord.ApiClient.DeleteGuildAsync(this.Id);
 
@@ -528,18 +793,20 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="action">Action to perform on this guild..</param>
         /// <returns>The modified guild object.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the guild does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task<DiscordGuild> ModifyAsync(Action<GuildEditModel> action)
         {
             var mdl = new GuildEditModel();
             action(mdl);
+
             if (mdl.AfkChannel.HasValue && mdl.AfkChannel.Value.Type != ChannelType.Voice)
                 throw new ArgumentException("AFK channel needs to be a voice channel.");
 
             var iconb64 = Optional.FromNoValue<string>();
+
             if (mdl.Icon.HasValue && mdl.Icon.Value != null)
                 using (var imgtool = new ImageTool(mdl.Icon.Value))
                     iconb64 = imgtool.GetBase64();
@@ -547,16 +814,28 @@ namespace DSharpPlus.Entities
                 iconb64 = null;
 
             var splashb64 = Optional.FromNoValue<string>();
+
             if (mdl.Splash.HasValue && mdl.Splash.Value != null)
                 using (var imgtool = new ImageTool(mdl.Splash.Value))
                     splashb64 = imgtool.GetBase64();
             else if (mdl.Splash.HasValue)
                 splashb64 = null;
 
+            var bannerb64 = Optional.FromNoValue<string>();
+
+            if (mdl.Banner.HasValue)
+            {
+                if (mdl.Banner.Value == null)
+                    bannerb64 = null;
+                else
+                    using (var imgtool = new ImageTool(mdl.Banner.Value))
+                        bannerb64 = imgtool.GetBase64();
+            }
+
             return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, mdl.Name, mdl.Region.IfPresent(e => e.Id),
                 mdl.VerificationLevel, mdl.DefaultMessageNotifications, mdl.MfaLevel, mdl.ExplicitContentFilter,
                 mdl.AfkChannel.IfPresent(e => e?.Id), mdl.AfkTimeout, iconb64, mdl.Owner.IfPresent(e => e.Id), splashb64,
-                mdl.SystemChannel.IfPresent(e => e?.Id), mdl.Banner,
+                mdl.SystemChannel.IfPresent(e => e?.Id), bannerb64,
                 mdl.Description, mdl.DiscoverySplash, mdl.Features, mdl.PreferredLocale,
                 mdl.PublicUpdatesChannel.IfPresent(e => e?.Id), mdl.RulesChannel.IfPresent(e => e?.Id),
                 mdl.SystemChannelFlags, mdl.AuditLogReason).ConfigureAwait(false);
@@ -569,10 +848,10 @@ namespace DSharpPlus.Entities
         /// <param name="delete_message_days">How many days to remove messages from.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.BanMembers"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.BanMembers"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the member does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task BanMemberAsync(DiscordMember member, int delete_message_days = 0, string reason = null)
             => this.Discord.ApiClient.CreateGuildBanAsync(this.Id, member.Id, delete_message_days, reason);
 
@@ -583,10 +862,10 @@ namespace DSharpPlus.Entities
         /// <param name="delete_message_days">How many days to remove messages from.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.BanMembers"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the member does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.BanMembers"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the member does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task BanMemberAsync(ulong user_id, int delete_message_days = 0, string reason = null)
             => this.Discord.ApiClient.CreateGuildBanAsync(this.Id, user_id, delete_message_days, reason);
 
@@ -596,10 +875,10 @@ namespace DSharpPlus.Entities
         /// <param name="user">User to unban.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.BanMembers"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the user does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.BanMembers"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the user does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task UnbanMemberAsync(DiscordUser user, string reason = null)
             => this.Discord.ApiClient.RemoveGuildBanAsync(this.Id, user.Id, reason);
 
@@ -609,10 +888,10 @@ namespace DSharpPlus.Entities
         /// <param name="user_id">ID of the user to unban.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.BanMembers"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the user does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.BanMembers"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the user does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task UnbanMemberAsync(ulong user_id, string reason = null)
             => this.Discord.ApiClient.RemoveGuildBanAsync(this.Id, user_id, reason);
 
@@ -620,7 +899,7 @@ namespace DSharpPlus.Entities
         /// Leaves this guild.
         /// </summary>
         /// <returns></returns>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task LeaveAsync()
             => this.Discord.ApiClient.LeaveGuildAsync(this.Id);
 
@@ -628,8 +907,8 @@ namespace DSharpPlus.Entities
         /// Gets the bans for this guild.
         /// </summary>
         /// <returns>Collection of bans in this guild.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.BanMembers"/> permission.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.BanMembers"/> permission.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<IReadOnlyList<DiscordBan>> GetBansAsync()
             => this.Discord.ApiClient.GetGuildBansAsync(this.Id);
 
@@ -659,29 +938,31 @@ namespace DSharpPlus.Entities
         /// <param name="topic">Topic of the channel.</param>
         /// <param name="overwrites">Permission overwrites for this channel.</param>
         /// <param name="nsfw">Whether the channel is to be flagged as not safe for work.</param>
+        /// <param name="position">Sorting position of the channel.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <param name="perUserRateLimit">Slow mode timeout for users.</param>
         /// <returns>The newly-created channel.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the guild does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordChannel> CreateTextChannelAsync(string name, DiscordChannel parent = null, Optional<string> topic = default, IEnumerable<DiscordOverwriteBuilder> overwrites = null, bool? nsfw = null, Optional<int?> perUserRateLimit = default, string reason = null)
-            => this.CreateChannelAsync(name, ChannelType.Text, parent, topic, null, null, overwrites, nsfw, perUserRateLimit, null, reason);
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordChannel> CreateTextChannelAsync(string name, DiscordChannel parent = null, Optional<string> topic = default, IEnumerable<DiscordOverwriteBuilder> overwrites = null, bool? nsfw = null, Optional<int?> perUserRateLimit = default, int? position = null, string reason = null)
+            => this.CreateChannelAsync(name, ChannelType.Text, parent, topic, null, null, overwrites, nsfw, perUserRateLimit, null, position, reason);
 
         /// <summary>
         /// Creates a new channel category in this guild.
         /// </summary>
         /// <param name="name">Name of the new category.</param>
         /// <param name="overwrites">Permission overwrites for this category.</param>
+        /// <param name="position">Sorting position of the channel.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The newly-created channel category.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the guild does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordChannel> CreateChannelCategoryAsync(string name, IEnumerable<DiscordOverwriteBuilder> overwrites = null, string reason = null)
-            => this.CreateChannelAsync(name, ChannelType.Category, null, Optional.FromNoValue<string>(), null, null, overwrites, null, Optional.FromNoValue<int?>(), null, reason);
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordChannel> CreateChannelCategoryAsync(string name, IEnumerable<DiscordOverwriteBuilder> overwrites = null, int? position = null, string reason = null)
+            => this.CreateChannelAsync(name, ChannelType.Category, null, Optional.FromNoValue<string>(), null, null, overwrites, null, Optional.FromNoValue<int?>(), null, position, reason);
 
         /// <summary>
         /// Creates a new voice channel in this guild.
@@ -692,14 +973,15 @@ namespace DSharpPlus.Entities
         /// <param name="user_limit">Maximum number of users in the channel.</param>
         /// <param name="overwrites">Permission overwrites for this channel.</param>
         /// <param name="qualityMode">Video quality mode of the channel.</param>
+        /// <param name="position">Sorting position of the channel.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The newly-created channel.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the guild does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordChannel> CreateVoiceChannelAsync(string name, DiscordChannel parent = null, int? bitrate = null, int? user_limit = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, VideoQualityMode? qualityMode = null, string reason = null)
-            => this.CreateChannelAsync(name, ChannelType.Voice, parent, Optional.FromNoValue<string>(), bitrate, user_limit, overwrites, null, Optional.FromNoValue<int?>(), qualityMode, reason);
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordChannel> CreateVoiceChannelAsync(string name, DiscordChannel parent = null, int? bitrate = null, int? user_limit = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, VideoQualityMode? qualityMode = null, int? position = null, string reason = null)
+            => this.CreateChannelAsync(name, ChannelType.Voice, parent, Optional.FromNoValue<string>(), bitrate, user_limit, overwrites, null, Optional.FromNoValue<int?>(), qualityMode, position, reason);
 
         /// <summary>
         /// Creates a new channel in this guild.
@@ -714,13 +996,14 @@ namespace DSharpPlus.Entities
         /// <param name="nsfw">Whether the channel is to be flagged as not safe for work. Applies to text only.</param>
         /// <param name="perUserRateLimit">Slow mode timeout for users.</param>
         /// <param name="qualityMode">Video quality mode of the channel. Applies to voice only.</param>
+        /// <param name="position">Sorting position of the channel.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The newly-created channel.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the guild does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordChannel> CreateChannelAsync(string name, ChannelType type, DiscordChannel parent = null, Optional<string> topic = default, int? bitrate = null, int? userLimit = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, bool? nsfw = null, Optional<int?> perUserRateLimit = default, VideoQualityMode? qualityMode = null, string reason = null)
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task<DiscordChannel> CreateChannelAsync(string name, ChannelType type, DiscordChannel parent = null, Optional<string> topic = default, int? bitrate = null, int? userLimit = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, bool? nsfw = null, Optional<int?> perUserRateLimit = default, VideoQualityMode? qualityMode = null, int? position = null, string reason = null)
         {
             // technically you can create news/store channels but not always
             if (type != ChannelType.Text && type != ChannelType.Voice && type != ChannelType.Category && type != ChannelType.News && type != ChannelType.Store && type != ChannelType.Stage)
@@ -728,7 +1011,7 @@ namespace DSharpPlus.Entities
 
             return type == ChannelType.Category && parent != null
                 ? throw new ArgumentException("Cannot specify parent of a channel category.", nameof(parent))
-                : this.Discord.ApiClient.CreateGuildChannelAsync(this.Id, name, type, parent?.Id, topic, bitrate, userLimit, overwrites, nsfw, perUserRateLimit, qualityMode, reason);
+                : this.Discord.ApiClient.CreateGuildChannelAsync(this.Id, name, type, parent?.Id, topic, bitrate, userLimit, overwrites, nsfw, perUserRateLimit, qualityMode, position, reason);
         }
 
         // this is to commemorate the Great DAPI Channel Massacre of 2017-11-19.
@@ -749,10 +1032,10 @@ namespace DSharpPlus.Entities
         /// <param name="days">Minimum number of inactivity days required for users to be pruned. Defaults to 7.</param>
         /// <param name="includedRoles">The roles to be included in the prune.</param>
         /// <returns>Number of users that will be pruned.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.KickMembers"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the guild does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.KickMembers"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<int> GetPruneCountAsync(int days = 7, IEnumerable<DiscordRole> includedRoles = null)
         {
             if (includedRoles != null)
@@ -782,10 +1065,10 @@ namespace DSharpPlus.Entities
         /// <param name="includedRoles">The roles to be included in the prune.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>Number of users pruned.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the guild does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<int?> PruneAsync(int days = 7, bool computePruneCount = true, IEnumerable<DiscordRole> includedRoles = null, string reason = null)
         {
             if (includedRoles != null)
@@ -811,10 +1094,10 @@ namespace DSharpPlus.Entities
         /// Gets integrations attached to this guild.
         /// </summary>
         /// <returns>Collection of integrations attached to this guild.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the guild does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<IReadOnlyList<DiscordIntegration>> GetIntegrationsAsync()
             => this.Discord.ApiClient.GetGuildIntegrationsAsync(this.Id);
 
@@ -823,10 +1106,10 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="integration">Integration to attach.</param>
         /// <returns>The integration after being attached to the guild.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the guild does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordIntegration> AttachUserIntegrationAsync(DiscordIntegration integration)
             => this.Discord.ApiClient.CreateGuildIntegrationAsync(this.Id, integration.Type, integration.Id);
 
@@ -838,10 +1121,10 @@ namespace DSharpPlus.Entities
         /// <param name="expire_grace_period">Length of grace period which allows for renewing the integration.</param>
         /// <param name="enable_emoticons">Whether emotes should be synced from this integration.</param>
         /// <returns>The modified integration.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the guild does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordIntegration> ModifyIntegrationAsync(DiscordIntegration integration, int expire_behaviour, int expire_grace_period, bool enable_emoticons)
             => this.Discord.ApiClient.ModifyGuildIntegrationAsync(this.Id, integration.Id, expire_behaviour, expire_grace_period, enable_emoticons);
 
@@ -849,23 +1132,24 @@ namespace DSharpPlus.Entities
         /// Removes an integration from this guild.
         /// </summary>
         /// <param name="integration">Integration to remove.</param>
+        /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the guild does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task DeleteIntegrationAsync(DiscordIntegration integration)
-            => this.Discord.ApiClient.DeleteGuildIntegrationAsync(this.Id, integration);
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public Task DeleteIntegrationAsync(DiscordIntegration integration, string reason = null)
+            => this.Discord.ApiClient.DeleteGuildIntegrationAsync(this.Id, integration, reason);
 
         /// <summary>
         /// Forces re-synchronization of an integration for this guild.
         /// </summary>
         /// <param name="integration">Integration to synchronize.</param>
         /// <returns></returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the guild does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task SyncIntegrationAsync(DiscordIntegration integration)
             => this.Discord.ApiClient.SyncGuildIntegrationAsync(this.Id, integration.Id);
 
@@ -873,7 +1157,7 @@ namespace DSharpPlus.Entities
         /// Gets the voice regions for this guild.
         /// </summary>
         /// <returns>Voice regions available for this guild.</returns>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task<IReadOnlyList<DiscordVoiceRegion>> ListVoiceRegionsAsync()
         {
             var vrs = await this.Discord.ApiClient.GetGuildVoiceRegionsAsync(this.Id).ConfigureAwait(false);
@@ -887,7 +1171,7 @@ namespace DSharpPlus.Entities
         /// Gets the active and private threads for this guild.
         /// </summary>
         /// <returns>A list of all the active and private threads the user can access in the server.</returns>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task<ThreadQueryResult> ListActiveThreadsAsync()
         {
             var threads = await this.Discord.ApiClient.ListActiveThreadsAsync(this.Id);
@@ -909,7 +1193,7 @@ namespace DSharpPlus.Entities
         /// Gets all the invites created for all the channels in this guild.
         /// </summary>
         /// <returns>A collection of invites.</returns>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task<IReadOnlyList<DiscordInvite>> GetInvitesAsync()
         {
             var res = await this.Discord.ApiClient.GetGuildInvitesAsync(this.Id).ConfigureAwait(false);
@@ -929,8 +1213,8 @@ namespace DSharpPlus.Entities
         /// Gets the vanity invite for this guild.
         /// </summary>
         /// <returns>A partial vanity invite.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordInvite> GetVanityInviteAsync()
             => this.Discord.ApiClient.GetGuildVanityUrlAsync(this.Id);
 
@@ -939,8 +1223,8 @@ namespace DSharpPlus.Entities
         /// Gets all the webhooks created for all the channels in this guild.
         /// </summary>
         /// <returns>A collection of webhooks this guild has.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageWebhooks"/> permission.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageWebhooks"/> permission.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<IReadOnlyList<DiscordWebhook>> GetWebhooksAsync()
             => this.Discord.ApiClient.GetGuildWebhooksAsync(this.Id);
 
@@ -967,7 +1251,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="userId">ID of the member to get.</param>
         /// <returns>The requested member.</returns>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task<DiscordMember> GetMemberAsync(ulong userId)
         {
             if (this._members != null && this._members.TryGetValue(userId, out var mbr))
@@ -992,7 +1276,7 @@ namespace DSharpPlus.Entities
         /// Retrieves a full list of members from Discord. This method will bypass cache.
         /// </summary>
         /// <returns>A collection of all members in this guild.</returns>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task<IReadOnlyCollection<DiscordMember>> GetAllMembersAsync()
         {
             var recmbr = new HashSet<DiscordMember>();
@@ -1064,7 +1348,7 @@ namespace DSharpPlus.Entities
         /// Gets all the channels this guild has.
         /// </summary>
         /// <returns>A collection of this guild's channels.</returns>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<IReadOnlyList<DiscordChannel>> GetChannelsAsync()
             => this.Discord.ApiClient.GetGuildChannelsAsync(this.Id);
 
@@ -1080,8 +1364,8 @@ namespace DSharpPlus.Entities
         /// <param name="icon">The icon to add to this role</param>
         /// <param name="emoji">The emoji to add to this role. Must be unicode.</param>
         /// <returns>The newly-created role.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordRole> CreateRoleAsync(string name = null, Permissions? permissions = null, DiscordColor? color = null, bool? hoist = null, bool? mentionable = null, string reason = null, Stream icon = null, DiscordEmoji emoji = null)
             => this.Discord.ApiClient.CreateGuildRoleAsync(this.Id, name, permissions, color?.Value, hoist, mentionable, reason, icon, emoji?.ToString());
         /// <summary>
@@ -1089,7 +1373,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="id">ID of the role to get.</param>
         /// <returns>Requested role.</returns>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public DiscordRole GetRole(ulong id)
             => this._roles.TryGetValue(id, out var role) ? role : null;
 
@@ -1098,7 +1382,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="id">ID of the channel to get.</param>
         /// <returns>Requested channel.</returns>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public DiscordChannel GetChannel(ulong id)
             => (this._channels != null && this._channels.TryGetValue(id, out var channel)) ? channel : null;
 
@@ -1109,8 +1393,8 @@ namespace DSharpPlus.Entities
         /// <param name="by_member">Filter by member responsible.</param>
         /// <param name="action_type">Filter by action type.</param>
         /// <returns>A collection of requested audit log entries.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ViewAuditLog"/> permission.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ViewAuditLog"/> permission.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task<IReadOnlyList<DiscordAuditLogEntry>> GetAuditLogsAsync(int? limit = null, DiscordMember by_member = null, AuditLogActionType? action_type = null)
         {
             var alrs = new List<AuditLog>();
@@ -1337,11 +1621,11 @@ namespace DSharpPlus.Entities
 
                                 case "permission_overwrites":
                                     var olds = xc.OldValues?.OfType<JObject>()
-                                        ?.Select(xjo => xjo.ToObject<DiscordOverwrite>())
+                                        ?.Select(xjo => xjo.ToDiscordObject<DiscordOverwrite>())
                                         ?.Select(xo => { xo.Discord = this.Discord; return xo; });
 
                                     var news = xc.NewValues?.OfType<JObject>()
-                                        ?.Select(xjo => xjo.ToObject<DiscordOverwrite>())
+                                        ?.Select(xjo => xjo.ToDiscordObject<DiscordOverwrite>())
                                         ?.Select(xo => { xo.Discord = this.Discord; return xo; });
 
                                     entrychn.OverwriteChange = new PropertyChange<IReadOnlyList<DiscordOverwrite>>
@@ -1808,80 +2092,80 @@ namespace DSharpPlus.Entities
                         var entrysti = entry as DiscordAuditLogStickerEntry;
                         foreach (var xc in xac.Changes)
                         {
-                                switch (xc.Key.ToLowerInvariant())
-                                {
-                                    case "name":
-                                        entrysti.NameChange = new PropertyChange<string>
-                                        {
-                                            Before = xc.OldValueString,
-                                            After = xc.NewValueString
-                                        };
-                                        break;
-                                    case "description":
-                                        entrysti.DescriptionChange = new PropertyChange<string>
-                                        {
-                                            Before = xc.OldValueString,
-                                            After = xc.NewValueString
-                                        };
-                                        break;
-                                    case "tags":
-                                        entrysti.TagsChange = new PropertyChange<string>
-                                        {
-                                            Before = xc.OldValueString,
-                                            After = xc.NewValueString
-                                        };
-                                        break;
-                                    case "guild_id":
-                                        entrysti.GuildIdChange = new PropertyChange<ulong?>
-                                        {
-                                            Before = ulong.TryParse(xc.OldValueString, out var ogid) ? ogid : null,
-                                            After = ulong.TryParse(xc.NewValueString, out var ngid) ? ngid : null
-                                        };
-                                        break;
-                                    case "available":
-                                        entrysti.AvailabilityChange = new PropertyChange<bool?>
-                                        {
-                                            Before = (bool?)xc.OldValue,
-                                            After = (bool?)xc.NewValue,
-                                        };
-                                        break;
-                                    case "asset":
-                                        entrysti.AssetChange = new PropertyChange<string>
-                                        {
-                                            Before = xc.OldValueString,
-                                            After = xc.NewValueString
-                                        };
-                                        break;
-                                    case "id":
-                                        entrysti.IdChange = new PropertyChange<ulong?>
-                                        {
-                                            Before = ulong.TryParse(xc.OldValueString, out var oid) ? oid : null,
-                                            After = ulong.TryParse(xc.NewValueString, out var nid) ? nid : null
-                                        };
-                                        break;
-                                    case "type":
-                                        p1 = long.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t5);
-                                        p2 = long.TryParse(xc.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t6);
-                                        entrysti.TypeChange = new PropertyChange<StickerType?>
-                                        {
-                                            Before = p1 ? (StickerType?)t5 : null,
-                                            After = p2 ? (StickerType?)t6 : null
-                                        };
-                                        break;
-                                    case "format_type":
-                                        p1 = long.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t5);
-                                        p2 = long.TryParse(xc.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t6);
-                                        entrysti.FormatChange = new PropertyChange<StickerFormat?>
-                                        {
-                                            Before = p1 ? (StickerFormat?)t5 : null,
-                                            After = p2 ? (StickerFormat?)t6 : null
-                                        };
-                                        break;
+                            switch (xc.Key.ToLowerInvariant())
+                            {
+                                case "name":
+                                    entrysti.NameChange = new PropertyChange<string>
+                                    {
+                                        Before = xc.OldValueString,
+                                        After = xc.NewValueString
+                                    };
+                                    break;
+                                case "description":
+                                    entrysti.DescriptionChange = new PropertyChange<string>
+                                    {
+                                        Before = xc.OldValueString,
+                                        After = xc.NewValueString
+                                    };
+                                    break;
+                                case "tags":
+                                    entrysti.TagsChange = new PropertyChange<string>
+                                    {
+                                        Before = xc.OldValueString,
+                                        After = xc.NewValueString
+                                    };
+                                    break;
+                                case "guild_id":
+                                    entrysti.GuildIdChange = new PropertyChange<ulong?>
+                                    {
+                                        Before = ulong.TryParse(xc.OldValueString, out var ogid) ? ogid : null,
+                                        After = ulong.TryParse(xc.NewValueString, out var ngid) ? ngid : null
+                                    };
+                                    break;
+                                case "available":
+                                    entrysti.AvailabilityChange = new PropertyChange<bool?>
+                                    {
+                                        Before = (bool?)xc.OldValue,
+                                        After = (bool?)xc.NewValue,
+                                    };
+                                    break;
+                                case "asset":
+                                    entrysti.AssetChange = new PropertyChange<string>
+                                    {
+                                        Before = xc.OldValueString,
+                                        After = xc.NewValueString
+                                    };
+                                    break;
+                                case "id":
+                                    entrysti.IdChange = new PropertyChange<ulong?>
+                                    {
+                                        Before = ulong.TryParse(xc.OldValueString, out var oid) ? oid : null,
+                                        After = ulong.TryParse(xc.NewValueString, out var nid) ? nid : null
+                                    };
+                                    break;
+                                case "type":
+                                    p1 = long.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t5);
+                                    p2 = long.TryParse(xc.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t6);
+                                    entrysti.TypeChange = new PropertyChange<StickerType?>
+                                    {
+                                        Before = p1 ? (StickerType?)t5 : null,
+                                        After = p2 ? (StickerType?)t6 : null
+                                    };
+                                    break;
+                                case "format_type":
+                                    p1 = long.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t5);
+                                    p2 = long.TryParse(xc.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t6);
+                                    entrysti.FormatChange = new PropertyChange<StickerFormat?>
+                                    {
+                                        Before = p1 ? (StickerFormat?)t5 : null,
+                                        After = p2 ? (StickerFormat?)t6 : null
+                                    };
+                                    break;
 
-                                    default:
-                                        this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in sticker update: {Key} - this should be reported to library developers", xc.Key);
-                                        break;
-                                }
+                                default:
+                                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in sticker update: {Key} - this should be reported to library developers", xc.Key);
+                                    break;
+                            }
                         }
                         break;
 
@@ -2044,7 +2328,7 @@ namespace DSharpPlus.Entities
         /// Gets all of this guild's custom emojis.
         /// </summary>
         /// <returns>All of this guild's custom emojis.</returns>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<IReadOnlyList<DiscordGuildEmoji>> GetEmojisAsync()
             => this.Discord.ApiClient.GetGuildEmojisAsync(this.Id);
 
@@ -2053,7 +2337,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="id">ID of the emoji to get.</param>
         /// <returns>The requested custom emoji.</returns>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordGuildEmoji> GetEmojiAsync(ulong id)
             => this.Discord.ApiClient.GetGuildEmojiAsync(this.Id, id);
 
@@ -2065,8 +2349,8 @@ namespace DSharpPlus.Entities
         /// <param name="roles">Roles for which the emoji will be available. This works only if your application is whitelisted as integration.</param>
         /// <param name="reason">Reason for audit log.</param>
         /// <returns>The newly-created emoji.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageEmojis"/> permission.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageEmojis"/> permission.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordGuildEmoji> CreateEmojiAsync(string name, Stream image, IEnumerable<DiscordRole> roles = null, string reason = null)
         {
             if (string.IsNullOrWhiteSpace(name))
@@ -2094,8 +2378,8 @@ namespace DSharpPlus.Entities
         /// <param name="roles">Roles for which the emoji will be available. This works only if your application is whitelisted as integration.</param>
         /// <param name="reason">Reason for audit log.</param>
         /// <returns>The modified emoji.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageEmojis"/> permission.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageEmojis"/> permission.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordGuildEmoji> ModifyEmojiAsync(DiscordGuildEmoji emoji, string name, IEnumerable<DiscordRole> roles = null, string reason = null)
         {
             if (emoji == null)
@@ -2119,8 +2403,8 @@ namespace DSharpPlus.Entities
         /// <param name="emoji">Emoji to delete.</param>
         /// <param name="reason">Reason for audit log.</param>
         /// <returns></returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageEmojis"/> permission.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageEmojis"/> permission.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task DeleteEmojiAsync(DiscordGuildEmoji emoji, string reason = null)
         {
             if (emoji == null)
@@ -2136,7 +2420,7 @@ namespace DSharpPlus.Entities
         /// <para>Default channel is the first channel current member can see.</para>
         /// </summary>
         /// <returns>This member's default guild.</returns>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public DiscordChannel GetDefaultChannel()
         {
             return this._channels?.Values.Where(xc => xc.Type == ChannelType.Text)
@@ -2172,8 +2456,8 @@ namespace DSharpPlus.Entities
         /// Gets all of this guild's templates.
         /// </summary>
         /// <returns>All of the guild's templates.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Throws when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Throws when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<IReadOnlyList<DiscordGuildTemplate>> GetTemplatesAsync()
             => this.Discord.ApiClient.GetGuildTemplatesAsync(this.Id);
 
@@ -2183,9 +2467,9 @@ namespace DSharpPlus.Entities
         /// <param name="name">Name of the template.</param>
         /// <param name="description">Description of the template.</param>
         /// <returns>The template created.</returns>
-        /// <exception cref="Exceptions.BadRequestException">Throws when a template already exists for the guild or a null parameter is provided for the name.</exception>
-        /// <exception cref="Exceptions.UnauthorizedException">Throws when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="BadRequestException">Throws when a template already exists for the guild or a null parameter is provided for the name.</exception>
+        /// <exception cref="UnauthorizedException">Throws when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordGuildTemplate> CreateTemplateAsync(string name, string description = null)
             => this.Discord.ApiClient.CreateGuildTemplateAsync(this.Id, name, description);
 
@@ -2194,9 +2478,9 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="code">The code of the template to sync.</param>
         /// <returns>The template synced.</returns>
-        /// <exception cref="Exceptions.NotFoundException">Throws when the template for the code cannot be found</exception>
-        /// <exception cref="Exceptions.UnauthorizedException">Throws when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="NotFoundException">Throws when the template for the code cannot be found</exception>
+        /// <exception cref="UnauthorizedException">Throws when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordGuildTemplate> SyncTemplateAsync(string code)
             => this.Discord.ApiClient.SyncGuildTemplateAsync(this.Id, code);
 
@@ -2207,9 +2491,9 @@ namespace DSharpPlus.Entities
         /// <param name="name">Name of the template.</param>
         /// <param name="description">Description of the template.</param>
         /// <returns>The template modified.</returns>
-        /// <exception cref="Exceptions.NotFoundException">Throws when the template for the code cannot be found</exception>
-        /// <exception cref="Exceptions.UnauthorizedException">Throws when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="NotFoundException">Throws when the template for the code cannot be found</exception>
+        /// <exception cref="UnauthorizedException">Throws when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordGuildTemplate> ModifyTemplateAsync(string code, string name = null, string description = null)
             => this.Discord.ApiClient.ModifyGuildTemplateAsync(this.Id, code, name, description);
 
@@ -2218,9 +2502,9 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="code">The code of the template to delete.</param>
         /// <returns>The deleted template.</returns>
-        /// <exception cref="Exceptions.NotFoundException">Throws when the template for the code cannot be found</exception>
-        /// <exception cref="Exceptions.UnauthorizedException">Throws when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="NotFoundException">Throws when the template for the code cannot be found</exception>
+        /// <exception cref="UnauthorizedException">Throws when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordGuildTemplate> DeleteTemplateAsync(string code)
             => this.Discord.ApiClient.DeleteGuildTemplateAsync(this.Id, code);
 
@@ -2228,7 +2512,7 @@ namespace DSharpPlus.Entities
         /// Gets this guild's membership screening form.
         /// </summary>
         /// <returns>This guild's membership screening form.</returns>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordGuildMembershipScreening> GetMembershipScreeningFormAsync()
             => this.Discord.ApiClient.GetGuildMembershipScreeningFormAsync(this.Id);
 
@@ -2237,8 +2521,8 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="action">Action to perform</param>
         /// <returns>The modified screening form.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client doesn't have the <see cref="Permissions.ManageGuild"/> permission, or community is not enabled on this guild.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client doesn't have the <see cref="Permissions.ManageGuild"/> permission, or community is not enabled on this guild.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordGuildMembershipScreening> ModifyMembershipScreeningFormAsync(Action<MembershipScreeningEditModel> action)
         {
             var mdl = new MembershipScreeningEditModel();
@@ -2275,7 +2559,7 @@ namespace DSharpPlus.Entities
         {
             string contentType = null, extension = null;
 
-            if(format == StickerFormat.PNG || format == StickerFormat.APNG)
+            if (format == StickerFormat.PNG || format == StickerFormat.APNG)
             {
                 contentType = "image/png";
                 extension = "png";
@@ -2374,7 +2658,7 @@ namespace DSharpPlus.Entities
         /// Gets this guild's welcome screen.
         /// </summary>
         /// <returns>This guild's welcome screen object.</returns>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordGuildWelcomeScreen> GetWelcomeScreenAsync() =>
             this.Discord.ApiClient.GetGuildWelcomeScreenAsync(this.Id);
 
@@ -2382,14 +2666,15 @@ namespace DSharpPlus.Entities
         /// Modifies this guild's welcome screen.
         /// </summary>
         /// <param name="action">Action to perform.</param>
+        /// <param name="reason">Reason for audit log.</param>
         /// <returns>The modified welcome screen.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client doesn't have the <see cref="Permissions.ManageGuild"/> permission, or community is not enabled on this guild.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordGuildWelcomeScreen> ModifyWelcomeScreenAsync(Action<WelcomeScreenEditModel> action)
+        /// <exception cref="UnauthorizedException">Thrown when the client doesn't have the <see cref="Permissions.ManageGuild"/> permission, or community is not enabled on this guild.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task<DiscordGuildWelcomeScreen> ModifyWelcomeScreenAsync(Action<WelcomeScreenEditModel> action, string reason = null)
         {
             var mdl = new WelcomeScreenEditModel();
             action(mdl);
-            return await this.Discord.ApiClient.ModifyGuildWelcomeScreenAsync(this.Id, mdl.Enabled, mdl.WelcomeChannels, mdl.Description).ConfigureAwait(false);
+            return await this.Discord.ApiClient.ModifyGuildWelcomeScreenAsync(this.Id, mdl.Enabled, mdl.WelcomeChannels, mdl.Description, reason).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -2448,7 +2733,7 @@ namespace DSharpPlus.Entities
             if (e is null)
                 return false;
 
-            return ReferenceEquals(this, e) ? true : this.Id == e.Id;
+            return ReferenceEquals(this, e) || this.Id == e.Id;
         }
 
         /// <summary>
@@ -2471,7 +2756,7 @@ namespace DSharpPlus.Entities
             if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
                 return false;
 
-            return o1 == null && o2 == null ? true : e1.Id == e2.Id;
+            return (o1 == null && o2 == null) || e1.Id == e2.Id;
         }
 
         /// <summary>

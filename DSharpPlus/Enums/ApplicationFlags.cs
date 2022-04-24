@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -57,6 +57,16 @@ namespace DSharpPlus
         /// <summary>
         /// Indicates that the application is a voice channel application.
         /// </summary>
-        Embedded = 1 << 17
+        Embedded = 1 << 17,
+        
+        /// <summary>
+        /// The application can track message content.
+        /// </summary>
+        GatewayMessageContent = 1 << 18,
+
+        /// <summary>
+        /// The application can track message content (limited).
+        /// </summary>
+        GatewayMessageContentLimited = 1 << 19
     }
 }

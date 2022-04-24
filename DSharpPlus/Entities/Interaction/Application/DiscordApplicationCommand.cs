@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -76,6 +76,12 @@ namespace DSharpPlus.Entities
         [JsonProperty("version")]
         public ulong Version { get; internal set; }
 
+        [JsonProperty("name_localizations")]
+        public IReadOnlyDictionary<string, string> NameLocalizations { get; internal set; }
+
+        [JsonProperty("description_localizations")]
+        public IReadOnlyDictionary<string, string> DescriptionLocalizations { get; internal set; }
+
         /// <summary>
         /// Creates a new instance of a <see cref="DiscordApplicationCommand"/>.
         /// </summary>
@@ -84,7 +90,7 @@ namespace DSharpPlus.Entities
         /// <param name="options">Optional parameters for this command.</param>
         /// <param name="defaultPermission">Whether the command is enabled by default when the application is added to a guild.</param>
         /// <param name="type">The type of the application command</param>
-        public DiscordApplicationCommand(string name, string description, IEnumerable<DiscordApplicationCommandOption> options = null, bool? defaultPermission = null, ApplicationCommandType type = ApplicationCommandType.SlashCommand)
+        public DiscordApplicationCommand(string name, string description, IEnumerable<DiscordApplicationCommandOption> options = null, bool? defaultPermission = null, ApplicationCommandType type = ApplicationCommandType.SlashCommand, IReadOnlyDictionary<string, string> name_localizations = null, IReadOnlyDictionary<string, string> description_localizations = null)
         {
             if (type is ApplicationCommandType.SlashCommand)
             {
@@ -111,6 +117,8 @@ namespace DSharpPlus.Entities
             this.Description = description;
             this.Options = optionsList;
             this.DefaultPermission = defaultPermission;
+            this.NameLocalizations = name_localizations;
+            this.DescriptionLocalizations = description_localizations;
         }
 
         /// <summary>

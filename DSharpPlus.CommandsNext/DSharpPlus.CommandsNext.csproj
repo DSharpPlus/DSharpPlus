@@ -8,6 +8,8 @@
     <RootNamespace>DSharpPlus.CommandsNext</RootNamespace>
     <OutputType>Library</OutputType>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <Nullable>enable</Nullable>
+    <WarningsAsErrors>Nullable</WarningsAsErrors>
   </PropertyGroup>
 
   <PropertyGroup>

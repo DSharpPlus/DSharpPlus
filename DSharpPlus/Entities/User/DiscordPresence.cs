@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -93,8 +93,10 @@ namespace DSharpPlus.Entities
         internal DiscordPresence(DiscordPresence other)
         {
             this.Discord = other.Discord;
-            this.Activity = other.Activity;
-            this.RawActivity = other.RawActivity;
+            if (other.Activity != null)
+                this.Activity = new DiscordActivity(other.Activity);
+            if (other.Activity != null)
+                this.RawActivity = new TransportActivity(this.Activity);
             this._internalActivities = (DiscordActivity[])other._internalActivities?.Clone();
             this.RawActivities = (TransportActivity[])other.RawActivities?.Clone();
             this.Status = other.Status;

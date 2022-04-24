@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
 using DSharpPlus.Net;
 using Newtonsoft.Json.Linq;
 
@@ -30,27 +29,13 @@ namespace DSharpPlus.Exceptions
     /// <summary>
     /// Represents an exception thrown when a malformed request is sent.
     /// </summary>
-    public class BadRequestException : Exception
+    public class BadRequestException : DiscordException
     {
-        /// <summary>
-        /// Gets the request that caused the exception.
-        /// </summary>
-        public BaseRestRequest WebRequest { get; internal set; }
-
-        /// <summary>
-        /// Gets the response to the request.
-        /// </summary>
-        public RestResponse WebResponse { get; internal set; }
 
         /// <summary>
         /// Gets the error code for this exception.
         /// </summary>
         public int Code { get; internal set; }
-
-        /// <summary>
-        /// Gets the JSON message received.
-        /// </summary>
-        public string JsonMessage { get; internal set; }
 
         /// <summary>
         /// Gets the form error responses in JSON format.

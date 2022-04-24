@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -173,6 +173,12 @@ namespace DSharpPlus
             this._inviteDeleted = new AsyncEvent<DiscordClient, InviteDeleteEventArgs>("INVITE_DELETED", EventExecutionLimit, this.EventErrorHandler);
             this._messageCreated = new AsyncEvent<DiscordClient, MessageCreateEventArgs>("MESSAGE_CREATED", EventExecutionLimit, this.EventErrorHandler);
             this._presenceUpdated = new AsyncEvent<DiscordClient, PresenceUpdateEventArgs>("PRESENCE_UPDATED", EventExecutionLimit, this.EventErrorHandler);
+            this._scheduledGuildEventCreated = new AsyncEvent<DiscordClient, ScheduledGuildEventCreateEventArgs>("SCHEDULED_GUILD_EVENT_CREATED", EventExecutionLimit, this.EventErrorHandler);
+            this._scheduledGuildEventDeleted = new AsyncEvent<DiscordClient, ScheduledGuildEventDeleteEventArgs>("SCHEDULED_GUILD_EVENT_DELETED", EventExecutionLimit, this.EventErrorHandler);
+            this._scheduledGuildEventUpdated = new AsyncEvent<DiscordClient, ScheduledGuildEventUpdateEventArgs>("SCHEDULED_GUILD_EVENT_UPDATED", EventExecutionLimit, this.EventErrorHandler);
+            this._scheduledGuildEventCompleted = new AsyncEvent<DiscordClient, ScheduledGuildEventCompletedEventArgs>("SCHEDULED_GUILD_EVENT_COMPLETED", EventExecutionLimit, this.EventErrorHandler);
+            this._scheduledGuildEventUserAdded = new AsyncEvent<DiscordClient, ScheduledGuildEventUserAddEventArgs>("SCHEDULED_GUILD_EVENT_USER_ADDED", EventExecutionLimit, this.EventErrorHandler);
+            this._scheduledGuildEventUserRemoved = new AsyncEvent<DiscordClient, ScheduledGuildEventUserRemoveEventArgs>("SCHEDULED_GUILD_EVENT_USER_REMOVED", EventExecutionLimit, this.EventErrorHandler);
             this._guildBanAdded = new AsyncEvent<DiscordClient, GuildBanAddEventArgs>("GUILD_BAN_ADD", EventExecutionLimit, this.EventErrorHandler);
             this._guildBanRemoved = new AsyncEvent<DiscordClient, GuildBanRemoveEventArgs>("GUILD_BAN_REMOVED", EventExecutionLimit, this.EventErrorHandler);
             this._guildEmojisUpdated = new AsyncEvent<DiscordClient, GuildEmojisUpdateEventArgs>("GUILD_EMOJI_UPDATED", EventExecutionLimit, this.EventErrorHandler);
@@ -190,6 +196,7 @@ namespace DSharpPlus
             this._messagesBulkDeleted = new AsyncEvent<DiscordClient, MessageBulkDeleteEventArgs>("MESSAGE_BULK_DELETED", EventExecutionLimit, this.EventErrorHandler);
             this._interactionCreated = new AsyncEvent<DiscordClient, InteractionCreateEventArgs>("INTERACTION_CREATED", EventExecutionLimit, this.EventErrorHandler);
             this._componentInteractionCreated = new AsyncEvent<DiscordClient, ComponentInteractionCreateEventArgs>("COMPONENT_INTERACTED", EventExecutionLimit, this.EventErrorHandler);
+            this._modalSubmitted = new AsyncEvent<DiscordClient, ModalSubmitEventArgs>("MODAL_SUBMITTED", EventExecutionLimit, this.EventErrorHandler);
             this._contextMenuInteractionCreated = new AsyncEvent<DiscordClient, ContextMenuInteractionCreateEventArgs>("CONTEXT_MENU_INTERACTED", EventExecutionLimit, this.EventErrorHandler);
             this._typingStarted = new AsyncEvent<DiscordClient, TypingStartEventArgs>("TYPING_STARTED", EventExecutionLimit, this.EventErrorHandler);
             this._userSettingsUpdated = new AsyncEvent<DiscordClient, UserSettingsUpdateEventArgs>("USER_SETTINGS_UPDATED", EventExecutionLimit, this.EventErrorHandler);
@@ -394,15 +401,9 @@ namespace DSharpPlus
                 return usr;
 
             usr = await this.ApiClient.GetUserAsync(userId).ConfigureAwait(false);
-            usr = this.UserCache.AddOrUpdate(userId, usr, (id, old) =>
-            {
-                old.Username = usr.Username;
-                old.Discriminator = usr.Discriminator;
-                old.AvatarHash = usr.AvatarHash;
-                old.BannerHash = usr.BannerHash;
-                old._bannerColor = usr._bannerColor;
-                return old;
-            });
+
+            // See BaseDiscordClient.UpdateUser for why this is done like this.
+            this.UserCache.AddOrUpdate(userId, usr, (_, _) => usr);
 
             return usr;
         }
@@ -828,7 +829,8 @@ namespace DSharpPlus
                 {
                     Id = message.ChannelId,
                     Discord = this,
-                    Type = ChannelType.Private
+                    Type = ChannelType.Private,
+                    Recipients = new DiscordUser[] { message.Author }
                 }
                 : new DiscordChannel
                 {
@@ -848,7 +850,7 @@ namespace DSharpPlus
                 {
                     usr = new DiscordUser(mbr.User) { Discord = this };
 
-                    this.UpdateUserCache( usr);
+                    this.UpdateUserCache(usr);
 
                     usr = new DiscordMember(mbr) { Discord = this, _guild_id = guildId.Value };
                 }
@@ -982,6 +984,7 @@ namespace DSharpPlus
             guild.PreferredLocale = newGuild.PreferredLocale;
             guild.RulesChannelId = newGuild.RulesChannelId;
             guild.PublicUpdatesChannelId = newGuild.PublicUpdatesChannelId;
+            guild.PremiumProgressBarEnabled = newGuild.PremiumProgressBarEnabled;
 
             // fields not sent for update:
             // - guild.Channels
