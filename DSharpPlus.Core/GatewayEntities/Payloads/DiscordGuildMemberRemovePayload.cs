@@ -25,7 +25,7 @@ using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Entities;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Gateway
+namespace DSharpPlus.Core.Gateway.Payloads
 {
     /// <summary>
     /// Sent when a user is removed from a guild (leave/kick/ban).
