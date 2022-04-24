@@ -23,12 +23,16 @@
 
 using System;
 using DSharpPlus.Core.Attributes;
+using DSharpPlus.Core.Entities;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Entities
+namespace DSharpPlus.Core.VoiceGatewayEntities
 {
+    /// <summary>
+    /// To inform the gateway of our intent to establish voice connectivity, we first send an <see cref="Enums.DiscordGatewayOpCode.VoiceStateUpdate"/> payload.
+    /// </summary>
     [DiscordGatewayPayload("VOICE_STATE_UPDATE")]
-    public sealed record DiscordVoiceState
+    public sealed record DiscordVoiceStateUpdate
     {
         /// <summary>
         /// The guild id this voice state is for.
