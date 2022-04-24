@@ -25,6 +25,7 @@ using System;
 using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Enums;
 using DSharpPlus.Core.Gateway.Payloads;
+using DSharpPlus.Core.VoiceGatewayEntities;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.Entities
@@ -214,7 +215,7 @@ namespace DSharpPlus.Core.Entities
         /// The states of members currently in voice channels; lacks the guild_id key.
         /// </summary>
         [JsonProperty("voice_states", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordVoiceState[]> VoiceStates { get; init; }
+        public Optional<DiscordVoiceStateUpdate[]> VoiceStates { get; init; }
 
         /// <summary>
         /// The users in the guild.
