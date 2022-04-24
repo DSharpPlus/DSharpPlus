@@ -69,10 +69,13 @@ namespace DSharpPlus.Core.Rest.Ratelimiting
             Hash = hash ?? UnlimitedRatelimitIdentifier;
         }
 
-        public static bool TryExtractRatelimitBucket(HttpResponseHeaders headers,
-            
+        public static bool TryExtractRatelimitBucket
+        (
+            HttpResponseHeaders headers,
+    
             [NotNullWhen(true)]
-            out RatelimitBucket? bucket)
+            out RateLimitBucket? bucket
+        )
         {
             bucket = null;
 
@@ -81,24 +84,30 @@ namespace DSharpPlus.Core.Rest.Ratelimiting
                 // these three headers are critical for us. if they don't exist, assume no valid ratelimit is passed
                 // and abort the operation, indicating that no ratelimit was extracted successfully.
 
-                if (!headers.TryGetValues("X-RateLimit-Limit", out IEnumerable<string>? limitRaw)
-                || !headers.TryGetValues("X-RateLimit-Remaining", out IEnumerable<string>? remainingRaw)
-                || !headers.TryGetValues("X-RateLimit-Reset", out IEnumerable<string>? ratelimitResetRaw))
+               if
+               (
+                !headers.TryGetValues("X-RateLimit-Limit", out IEnumerable<string>? limitRaw)          ||
+                !headers.TryGetValues("X-RateLimit-Reset", out IEnumerable<string>? resetRaw) ||
+                !headers.TryGetValues("X-RateLimit-Remaining", out IEnumerable<string>? remainingRaw)
+               )
                 {
                     return false;
                 }
 
                 // again, these headers are critical. if they don't hold valid values, abort as well.
 
-                if (!int.TryParse(limitRaw.SingleOrDefault(), out int limit)
-                    || !int.TryParse(remainingRaw.SingleOrDefault(), out int remaining)
-                    || !double.TryParse(ratelimitResetRaw.SingleOrDefault(), out double ratelimitReset))
+                if
+                (
+                 !int.TryParse(limitRaw.SingleOrDefault(), out int limit)       ||
+                 !double.TryParse(resetRaw.SingleOrDefault(), out double reset) ||
+                 !int.TryParse(remainingRaw.SingleOrDefault(), out int remaining)
+                )
                 {
                     return false;
                 }
 
                 string? hash = headers.GetValues("X-RateLimit-Name").SingleOrDefault();
-                DateTimeOffset resetTime = DateTimeOffset.UnixEpoch + TimeSpan.FromSeconds(ratelimitReset);
+                DateTimeOffset resetTime = DateTimeOffset.UnixEpoch + TimeSpan.FromSeconds(reset);
 
                 bucket = new(limit, remaining, resetTime, hash);
                 return true;
