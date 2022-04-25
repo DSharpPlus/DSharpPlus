@@ -107,13 +107,6 @@ namespace DSharpPlus.Test
             this.Discord.ThreadMemberUpdated += this.Discord_ThreadMemberUpdated;
             this.Discord.ThreadMembersUpdated += this.Discord_ThreadMembersUpdated;
 
-            // voice config and the voice service itself
-            var vcfg = new VoiceNextConfiguration
-            {
-                AudioFormat = AudioFormat.Default,
-                EnableIncoming = true
-            };
-
             // build a dependency collection for commandsnext
             var depco = new ServiceCollection();
 
@@ -175,7 +168,7 @@ namespace DSharpPlus.Test
         private async Task Discord_ModalSubmitted(DiscordClient sender, ModalSubmitEventArgs e)
         {
             bool testWaitForModal = true;
-            if(!testWaitForModal)
+            if (!testWaitForModal)
                 await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder().WithContent("Thank you!"));
 
             this.Discord.Logger.LogInformation("Got callback from user {User}, {Modal}", e.Interaction.User, e.Values);
@@ -189,7 +182,7 @@ namespace DSharpPlus.Test
                     .WithCustomId("owo")
                     .AddComponents(new TextInputComponent("Short, optional", "short_opt", "Placeholder!"))
                     .AddComponents(new TextInputComponent("Long, optional", "long_opt", "Placeholder 2!", style: TextInputStyle.Paragraph))
-                    .AddComponents(new TextInputComponent("Short, required", "short_req", "Placeholder 3!", style:  TextInputStyle.Short, min_length: 10, max_length: 20))
+                    .AddComponents(new TextInputComponent("Short, required", "short_req", "Placeholder 3!", style: TextInputStyle.Short, min_length: 10, max_length: 20))
                     .AddComponents(new TextInputComponent("Long, required", "long_req", "Placeholder 4!", "Lorem Ipsum", true, TextInputStyle.Paragraph, 100, 300))
                 );
         }
