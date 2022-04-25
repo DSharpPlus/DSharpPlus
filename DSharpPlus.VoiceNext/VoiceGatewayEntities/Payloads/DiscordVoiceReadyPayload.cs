@@ -24,7 +24,7 @@
 using System;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.VoiceGatewayEntities.Payloads
+namespace DSharpPlus.VoiceNext.VoiceGatewayEntities.Payloads
 {
     /// <summary>
     /// The voice server should respond with an <see cref="VoiceNext.Enums.DiscordVoiceOpCode.Ready"/> payload, which informs us of the SSRC, UDP IP/port, and supported encryption modes the voice server expects.

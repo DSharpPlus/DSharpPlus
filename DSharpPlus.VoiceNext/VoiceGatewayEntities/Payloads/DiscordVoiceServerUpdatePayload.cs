@@ -23,7 +23,7 @@
 
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.VoiceGatewayEntities.Payloads
+namespace DSharpPlus.VoiceNext.VoiceGatewayEntities.Payloads
 {
     /// <summary>
     /// Sent when a guild's voice server is updated. This is sent when initially connecting to voice, and when the current voice instance fails over to a new server.

@@ -21,19 +21,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using Newtonsoft.Json;
+using System;
+using System.Threading.Tasks;
+using DSharpPlus.Entities;
+using DSharpPlus.VoiceNext.VoiceGatewayEntities;
+using DSharpPlus.VoiceNext.VoiceGatewayEntities.Payloads;
 
-namespace DSharpPlus.VoiceNext.VoiceGatewayEntities.Payloads
+namespace DSharpPlus.VoiceNext
 {
-    /// <summary>
-    /// In order to maintain your WebSocket connection, you need to continuously send heartbeats at the interval determined in <see cref="VoiceNext.Enums.DiscordVoiceOpCode.Hello"/>.
-    /// </summary>
-    public sealed record DiscordVoiceHelloPayload
+    public sealed class VoiceNextConnection
     {
-        /// <summary>
-        /// Time to wait between sending heartbeats in milliseconds.
-        /// </summary>
-        [JsonProperty("heartbeat_interval", NullValueHandling = NullValueHandling.Ignore)]
-        public int HeartbeatInterval { get; internal set; }
+        public DiscordClient Client { get; }
+        public DiscordGuild Guild { get; }
+        public DiscordChannel Channel { get; }
+        public VoiceNextConfiguration Configuration { get; }
+
+        internal VoiceNextConnection(DiscordClient client, DiscordChannel voiceChannel, VoiceNextConfiguration configuration, DiscordVoiceStateUpdate voiceStateUpdate, DiscordVoiceServerUpdatePayload voiceServerUpdatePayload)
+        {
+            this.Client = client;
+            this.Guild = voiceChannel.Guild;
+            this.Channel = voiceChannel;
+            this.Configuration = configuration;
+        }
+
+        public Task ConnectAsync() => throw new NotImplementedException();
     }
 }

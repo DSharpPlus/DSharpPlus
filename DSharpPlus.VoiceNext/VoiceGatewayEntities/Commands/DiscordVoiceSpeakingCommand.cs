@@ -23,7 +23,7 @@
 
 using DSharpPlus.VoiceNext.Enums;
 
-namespace DSharpPlus.Core.VoiceGatewayEntities.Commands
+namespace DSharpPlus.VoiceNext.VoiceGatewayEntities.Commands
 {
     /// <summary>
     /// To notify clients that you are speaking or have stopped speaking, send an Opcode 5 Speaking payload:

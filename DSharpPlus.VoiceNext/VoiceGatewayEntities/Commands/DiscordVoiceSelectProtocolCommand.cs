@@ -23,7 +23,7 @@
 
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.VoiceGatewayEntities.Commands
+namespace DSharpPlus.VoiceNext.VoiceGatewayEntities.Commands
 {
     /// <summary>
     /// Once we've fully discovered our external IP and UDP port, we can then tell the voice WebSocket what it is, and start receiving/sending data. We do this using <see cref="VoiceNext.Enums.DiscordVoiceOpCode.SelectProtocol"/>.

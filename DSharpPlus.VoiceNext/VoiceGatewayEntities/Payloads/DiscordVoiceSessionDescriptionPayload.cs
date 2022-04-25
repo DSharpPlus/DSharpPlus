@@ -23,7 +23,7 @@
 
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.VoiceGatewayEntities.Payloads
+namespace DSharpPlus.VoiceNext.VoiceGatewayEntities.Payloads
 {
     /// <summary>
     /// Finally, the voice server will respond with a <see cref="VoiceNext.Enums.DiscordVoiceOpCode.SessionDescription"/> that includes the <c>mode</c> and <c>secret_key</c>, a 32 byte array used for encrypting and sending voice data:

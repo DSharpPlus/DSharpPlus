@@ -25,7 +25,7 @@ using System;
 using DSharpPlus.Entities;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.VoiceGatewayEntities
+namespace DSharpPlus.VoiceNext.VoiceGatewayEntities
 {
     /// <summary>
     /// To inform the gateway of our intent to establish voice connectivity, we first send an Voice State Update payload.
