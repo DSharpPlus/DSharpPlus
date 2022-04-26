@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using DSharpPlus.VoiceNext.Enums;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.VoiceGatewayEntities.Commands
@@ -45,11 +46,10 @@ namespace DSharpPlus.Core.VoiceGatewayEntities.Commands
         [JsonProperty("port", NullValueHandling = NullValueHandling.Ignore)]
         public ushort Port { get; init; }
 
-        // TODO: I think the modes can be extracted to an enum using `[JsonConverter(typeof(StringEnumConverter))]`? If that won't work, we could probably make a static class full of constants.
         /// <summary>
         /// See https://discord.com/developers/docs/topics/voice-connections#establishing-a-voice-udp-connection-encryption-modes for available options.
         /// </summary>
         [JsonProperty("mode", NullValueHandling = NullValueHandling.Ignore)]
-        public string Mode { get; init; } = null!;
+        public DiscordVoiceProtocol Mode { get; init; }
     }
 }
