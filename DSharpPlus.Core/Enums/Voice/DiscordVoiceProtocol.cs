@@ -21,31 +21,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
-using DSharpPlus.VoiceNext.Enums;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
-namespace DSharpPlus.Core.VoiceGatewayEntities.Payloads
+namespace DSharpPlus.VoiceNext.Enums
 {
-    /// <summary>
-    /// The voice server should respond with an <see cref="Enums.DiscordVoiceOpCode.Ready"/> payload, which informs us of the SSRC, UDP IP/port, and supported encryption modes the voice server expects.
-    /// </summary>
-    public sealed record DiscordVoiceReadyPayload
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum DiscordVoiceProtocol
     {
-        [JsonProperty("ssrc", NullValueHandling = NullValueHandling.Ignore)]
-        public uint SSRC { get; init; }
+        /// <summary>
+        /// The nonce bytes are the RTP header
+        /// </summary>
+        /// <remarks>
+        /// Nonce implementation: Copy the RTP header
+        /// </remarks>
+        [JsonProperty("xsalsa20_poly1305")]
+        Normal,
 
-        [JsonProperty("address", NullValueHandling = NullValueHandling.Ignore)]
-        public string Address { get; init; } = null!;
+        /// <summary>
+        /// The nonce bytes are 24 bytes appended to the payload of the RTP packet
+        /// </summary>
+        /// <remarks>
+        /// Nonce implementation: Generate 24 random bytes
+        /// </remarks>
+        [JsonProperty("xsalsa20_poly1305_suffix")]
+        Suffix,
 
-        [JsonProperty("port", NullValueHandling = NullValueHandling.Ignore)]
-        public ushort Port { get; init; }
-
-        [JsonProperty("modes", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordVoiceProtocol[] Modes { get; init; } = null!;
-
-        [Obsolete("HeartbeatInterval here is an erroneous field and should be ignored. The correct heartbeat_interval value comes from the Hello payload.")]
-        [JsonProperty("heartbeat_interval", NullValueHandling = NullValueHandling.Ignore)]
-        public int HeartbeatInterval { get; init; }
+        /// <summary>
+        /// The nonce bytes are 4 bytes appended to the payload of the RTP packet
+        /// </summary>
+        /// <remarks>
+        /// Nonce implementation: Incremental 4 bytes (32bit) int value
+        /// </remarks>
+        [JsonProperty("xsalsa20_poly1305_lite")]
+        Lite
     }
 }
