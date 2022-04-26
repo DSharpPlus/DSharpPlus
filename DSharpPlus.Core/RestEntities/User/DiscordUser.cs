@@ -123,6 +123,12 @@ namespace DSharpPlus.Core.Entities
         [JsonProperty("public_flags", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<DiscordUserFlags> PublicFlags { get; init; }
 
+        /// <summary>
+        /// Only set on the <c>MESSAGE_CREATE</c> and <c>MESSAGE_UPDATE</c> gateway payloads.
+        /// </summary>
+        [JsonProperty("member", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<DiscordGuildMember> Member { get; init; }
+
         public static implicit operator ulong(DiscordUser user) => user.Id;
         public static implicit operator DiscordSnowflake(DiscordUser user) => user.Id;
     }
