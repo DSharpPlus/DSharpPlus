@@ -323,9 +323,12 @@ namespace DSharpPlus
         /// Gets guild bans.
         /// </summary>
         /// <param name="guild_id">The Id of the guild to get the bans from.</param>
+        /// <param name="limit">The number of users to return (up to maximum 1000, default 1000).</param>
+        /// <param name="before">Consider only users before the given user id.</param>
+        /// <param name="after">Consider only users after the given user id.</param>
         /// <returns>A collection of the guild's bans.</returns>
-        public Task<IReadOnlyList<DiscordBan>> GetGuildBansAsync(ulong guild_id)
-            => this.ApiClient.GetGuildBansAsync(guild_id);
+        public Task<IReadOnlyList<DiscordBan>> GetGuildBansAsync(ulong guild_id, int? limit = null, ulong? before = null, ulong? after = null)
+            => this.ApiClient.GetGuildBansAsync(guild_id, limit, before, after);
 
         /// <summary>
         /// Gets the ban of the specified user. Requires Ban Members permission.
