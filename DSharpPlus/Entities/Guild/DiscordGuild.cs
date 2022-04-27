@@ -906,11 +906,14 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the bans for this guild.
         /// </summary>
+        /// <param name="limit">The number of users to return (up to maximum 1000, default 1000).</param>
+        /// <param name="before">Consider only users before the given user id.</param>
+        /// <param name="after">Consider only users after the given user id.</param>
         /// <returns>Collection of bans in this guild.</returns>
         /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.BanMembers"/> permission.</exception>
         /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<IReadOnlyList<DiscordBan>> GetBansAsync()
-            => this.Discord.ApiClient.GetGuildBansAsync(this.Id);
+        public Task<IReadOnlyList<DiscordBan>> GetBansAsync(int? limit = null, ulong? before = null, ulong? after = null)
+            => this.Discord.ApiClient.GetGuildBansAsync(this.Id, limit, before, after);
 
         /// <summary>
         /// Gets a ban for a specific user.

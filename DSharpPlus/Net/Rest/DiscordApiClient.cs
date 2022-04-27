@@ -342,12 +342,20 @@ namespace DSharpPlus.Net
             return guild;
         }
 
-        internal async Task<IReadOnlyList<DiscordBan>> GetGuildBansAsync(ulong guild_id)
+        internal async Task<IReadOnlyList<DiscordBan>> GetGuildBansAsync(ulong guild_id, int? limit, ulong? before, ulong? after)
         {
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.BANS}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
 
-            var url = Utilities.GetApiUriFor(path);
+            var queryParams = new Dictionary<string, string>();
+            if (limit != null)
+                queryParams["limit"] = limit.ToString();
+            if (before != null)
+                queryParams["before"] = before.ToString();
+            if (after != null)
+                queryParams["after"] = after.ToString();
+
+            var url = Utilities.GetApiUriFor(path, BuildQueryString(queryParams));
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
 
             var bans_raw = JsonConvert.DeserializeObject<IEnumerable<DiscordBan>>(res.Response).Select(xb =>
