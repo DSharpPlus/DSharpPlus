@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +22,6 @@
 // SOFTWARE.
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
@@ -33,8 +32,8 @@ namespace DSharpPlus.Test
 {
     public class Role_IconTest : BaseCommandModule
     {
-        [Command]
-        public async Task Fetch(CommandContext ctx, DiscordRole role)
+        [Command("fetch")]
+        public async Task FetchAsync(CommandContext ctx, DiscordRole role)
         {
             await ctx.RespondAsync(
                 $"Role: {role.Mention}\n" +
@@ -43,8 +42,8 @@ namespace DSharpPlus.Test
                 $"Role icon: {role.IconUrl ?? "Not applicable"}");
         }
 
-        [Command]
-        public async Task Create(CommandContext ctx, string name, DiscordColor color = default)
+        [Command("create")]
+        public async Task CreateAsync(CommandContext ctx, string name, DiscordColor color = default)
         {
             if (!ctx.Message.Attachments.Any())
             {
@@ -52,7 +51,9 @@ namespace DSharpPlus.Test
                 return;
             }
 
-            new WebClient().DownloadFile(ctx.Message.Attachments.First().Url, "./icon.png");
+            var fileStream = File.Open("./icon.png", FileMode.OpenOrCreate);
+            await (await new HttpClient().GetStreamAsync(ctx.Message.Attachments[0].Url)).CopyToAsync(fileStream);
+            fileStream.Close();
 
             var stream = File.OpenRead("./icon.png");
             var role = await ctx.Guild.CreateRoleAsync(name, Permissions.None, color, icon: stream, emoji: DiscordEmoji.FromUnicode("👀"));
@@ -62,8 +63,8 @@ namespace DSharpPlus.Test
             await ctx.Member.GrantRoleAsync(role);
         }
 
-        [Command]
-        public async Task Edit(CommandContext ctx, DiscordRole role)
+        [Command("edit")]
+        public async Task EditAsync(CommandContext ctx, DiscordRole role)
         {
             if (!ctx.Message.Attachments.Any())
             {
@@ -71,7 +72,9 @@ namespace DSharpPlus.Test
                 return;
             }
 
-            new WebClient().DownloadFile(ctx.Message.Attachments.First().Url, "./icon.png");
+            var fileStream = File.Open("./icon.png", FileMode.OpenOrCreate);
+            await (await new HttpClient().GetStreamAsync(ctx.Message.Attachments[0].Url)).CopyToAsync(fileStream);
+            fileStream.Close();
 
             var stream = File.OpenRead("./icon.png");
             await role.ModifyAsync(icon: stream);
@@ -80,8 +83,8 @@ namespace DSharpPlus.Test
 
         }
 
-        [Command]
-        public async Task Edit(CommandContext ctx, DiscordRole role, DiscordEmoji emoji)
+        [Command("edit")]
+        public async Task EditAsync(CommandContext ctx, DiscordRole role, DiscordEmoji emoji)
         {
             await role.ModifyAsync(emoji: emoji);
 

@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using Emzi0767.Utilities;
 using Microsoft.Extensions.Logging;
@@ -265,6 +266,52 @@ namespace DSharpPlus
             remove => this._guildIntegrationsUpdated.Unregister(value);
         }
         private AsyncEvent<DiscordClient, GuildIntegrationsUpdateEventArgs> _guildIntegrationsUpdated;
+
+        #endregion
+
+        #region Scheduled Guild Events
+
+        public event AsyncEventHandler<DiscordClient, ScheduledGuildEventCreateEventArgs> ScheduledGuildEventCreated
+        {
+            add => this._scheduledGuildEventCreated.Register(value);
+            remove => this._scheduledGuildEventCreated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ScheduledGuildEventCreateEventArgs> _scheduledGuildEventCreated;
+
+        public event AsyncEventHandler<DiscordClient, ScheduledGuildEventUpdateEventArgs> ScheduledGuildEventUpdated
+        {
+            add => this._scheduledGuildEventUpdated.Register(value);
+            remove => this._scheduledGuildEventUpdated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ScheduledGuildEventUpdateEventArgs> _scheduledGuildEventUpdated;
+
+        public event AsyncEventHandler<DiscordClient, ScheduledGuildEventDeleteEventArgs> ScheduledGuildEventDeleted
+        {
+            add => this._scheduledGuildEventDeleted.Register(value);
+            remove => this._scheduledGuildEventDeleted.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ScheduledGuildEventDeleteEventArgs> _scheduledGuildEventDeleted;
+
+        public event AsyncEventHandler<DiscordClient, ScheduledGuildEventCompletedEventArgs> ScheduledGuildEventCompleted
+        {
+            add => this._scheduledGuildEventCompleted.Register(value);
+            remove => this._scheduledGuildEventCompleted.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ScheduledGuildEventCompletedEventArgs> _scheduledGuildEventCompleted;
+
+        public event AsyncEventHandler<DiscordClient, ScheduledGuildEventUserAddEventArgs> ScheduledGuildEventUserAdded
+        {
+            add => this._scheduledGuildEventUserAdded.Register(value);
+            remove => this._scheduledGuildEventUserAdded.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ScheduledGuildEventUserAddEventArgs> _scheduledGuildEventUserAdded;
+
+        public event AsyncEventHandler<DiscordClient, ScheduledGuildEventUserRemoveEventArgs> ScheduledGuildEventUserRemoved
+        {
+            add => this._scheduledGuildEventUserRemoved.Register(value);
+            remove => this._scheduledGuildEventUserRemoved.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ScheduledGuildEventUserRemoveEventArgs> _scheduledGuildEventUserRemoved;
 
         #endregion
 
@@ -784,6 +831,17 @@ namespace DSharpPlus
         }
 
         private AsyncEvent<DiscordClient, ComponentInteractionCreateEventArgs> _componentInteractionCreated;
+
+        /// <summary>
+        /// Fired when a modal is submitted. If a modal is closed, this event is not fired.
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, ModalSubmitEventArgs> ModalSubmitted
+        {
+            add => this._modalSubmitted.Register(value);
+            remove => this._modalSubmitted.Unregister(value);
+        }
+
+        private AsyncEvent<DiscordClient, ModalSubmitEventArgs> _modalSubmitted;
 
         /// <summary>
         /// Fired when a user uses a context menu.

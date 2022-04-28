@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -67,8 +67,7 @@ namespace DSharpPlus.CommandsNext.Entities
         /// </summary>
         /// <param name="services">Services to instantiate the module with.</param>
         /// <returns>Created module.</returns>
-        public BaseCommandModule GetInstance(IServiceProvider services)
-            => this.ModuleType.CreateInstance(services) as BaseCommandModule;
+        public BaseCommandModule GetInstance(IServiceProvider services) => (BaseCommandModule)this.ModuleType.CreateInstance(services);
     }
 
     /// <summary>
@@ -94,7 +93,7 @@ namespace DSharpPlus.CommandsNext.Entities
         internal SingletonCommandModule(Type t, IServiceProvider services)
         {
             this.ModuleType = t;
-            this.Instance = t.CreateInstance(services) as BaseCommandModule;
+            this.Instance = (BaseCommandModule)t.CreateInstance(services);
         }
 
         /// <summary>
@@ -102,7 +101,6 @@ namespace DSharpPlus.CommandsNext.Entities
         /// </summary>
         /// <param name="services">Services to instantiate the module with.</param>
         /// <returns>This module's instance.</returns>
-        public BaseCommandModule GetInstance(IServiceProvider services)
-            => this.Instance;
+        public BaseCommandModule GetInstance(IServiceProvider services) => this.Instance;
     }
 }

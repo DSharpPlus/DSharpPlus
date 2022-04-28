@@ -1,0 +1,25 @@
+name: "Test PR"
+on:
+  pull_request:
+
+jobs:
+  build_pr:
+    runs-on: "self-hosted"
+    if: "!contains(format('{0} {1}', github.event.head_commit.message, github.event.pull_request.title), '[ci-skip]')"
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
+
+      - name: "Setup .NET"
+        uses: "actions/setup-dotnet@v1"
+        with:
+          dotnet-version: "6.0.x"
+
+      - name: "Build PR Nuget Packages"
+        run: "mkdir build && dotnet pack -p:SymbolPackageFormat=snupkg --include-symbols --include-source -o build -p:VersionSuffix='nightly' -p:BuildNumber=0$(( 1091 + ${{ github.run_number }} ))" # We add 1091 since it's the last build number AppVeyor used.
+
+      - name: "Upload Nuget Packages To Github Release"
+        uses: actions/upload-artifact@v3
+        with:
+          name: PR Nuget Packages
+          path: build/*

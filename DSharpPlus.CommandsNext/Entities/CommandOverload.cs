@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +34,7 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets this command overload's arguments.
         /// </summary>
-        public IReadOnlyList<CommandArgument> Arguments { get; internal set; }
+        public IReadOnlyList<CommandArgument> Arguments { get; internal set; } = Array.Empty<CommandArgument>();
 
         /// <summary>
         /// Gets this command overload's priority.
@@ -44,9 +44,9 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets this command overload's delegate.
         /// </summary>
-        internal Delegate Callable { get; set; }
+        internal Delegate _callable { get; set; } = null!;
 
-        internal object InvocationTarget { get; set; }
+        internal object? _invocationTarget { get; set; }
 
         internal CommandOverload() { }
     }

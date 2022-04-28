@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -762,6 +762,16 @@ namespace DSharpPlus
         private AsyncEvent<DiscordClient, ComponentInteractionCreateEventArgs> _componentInteractionCreated;
 
         /// <summary>
+        /// Fired when a modal is submitted. If a modal is closed, this event will not be fired.
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, ModalSubmitEventArgs> ModalSubmitted
+        {
+            add => this._modalSubmitted.Register(value);
+            remove => this._modalSubmitted.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, ModalSubmitEventArgs> _modalSubmitted;
+
+        /// <summary>
         /// Fired when a user uses a context menu.
         /// </summary>
         public event AsyncEventHandler<DiscordClient, ContextMenuInteractionCreateEventArgs> ContextMenuInteractionCreated
@@ -979,6 +989,9 @@ namespace DSharpPlus
 
         private Task Client_ComponentInteractionCreate(DiscordClient client, ComponentInteractionCreateEventArgs e)
             => this._componentInteractionCreated.InvokeAsync(client, e);
+
+        private Task Client_ModalSubmitted(DiscordClient client, ModalSubmitEventArgs e)
+            => this._modalSubmitted.InvokeAsync(client, e);
 
         private Task Client_ContextMenuInteractionCreate(DiscordClient client, ContextMenuInteractionCreateEventArgs e)
             => this._contextMenuInteractionCreated.InvokeAsync(client, e);

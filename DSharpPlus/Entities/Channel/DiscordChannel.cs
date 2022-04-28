@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -157,13 +156,8 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets when the last pinned message was pinned.
         /// </summary>
-        [JsonIgnore]
-        public DateTimeOffset? LastPinTimestamp
-            => !string.IsNullOrWhiteSpace(this.LastPinTimestampRaw) && DateTimeOffset.TryParse(this.LastPinTimestampRaw, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dto) ?
-                dto : null;
-
         [JsonProperty("last_pin_timestamp", NullValueHandling = NullValueHandling.Ignore)]
-        internal string LastPinTimestampRaw { get; set; }
+        public DateTimeOffset? LastPinTimestamp { get; internal set; }
 
         /// <summary>
         /// Gets this channel's mention string.
@@ -252,10 +246,10 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="content">Content of the message to send.</param>
         /// <returns>The sent message.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission if TTS is true and <see cref="Permissions.SendTtsMessages"/> if TTS is true.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission if TTS is true and <see cref="Permissions.SendTtsMessages"/> if TTS is true.</exception>
+        /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> SendMessageAsync(string content)
         {
             return this.Type != ChannelType.Text &&
@@ -274,10 +268,10 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="embed">Embed to attach to the message.</param>
         /// <returns>The sent message.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission if TTS is true and <see cref="Permissions.SendTtsMessages"/> if TTS is true.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission if TTS is true and <see cref="Permissions.SendTtsMessages"/> if TTS is true.</exception>
+        /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> SendMessageAsync(DiscordEmbed embed)
         {
             return this.Type != ChannelType.Text &&
@@ -297,10 +291,10 @@ namespace DSharpPlus.Entities
         /// <param name="embed">Embed to attach to the message.</param>
         /// <param name="content">Content of the message to send.</param>
         /// <returns>The sent message.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission if TTS is true and <see cref="Permissions.SendTtsMessages"/> if TTS is true.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission if TTS is true and <see cref="Permissions.SendTtsMessages"/> if TTS is true.</exception>
+        /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> SendMessageAsync(string content, DiscordEmbed embed)
         {
             return this.Type != ChannelType.Text &&
@@ -319,10 +313,10 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="builder">The builder with all the items to send.</param>
         /// <returns>The sent message.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission TTS is true and <see cref="Permissions.SendTtsMessages"/> if TTS is true.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission TTS is true and <see cref="Permissions.SendTtsMessages"/> if TTS is true.</exception>
+        /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> SendMessageAsync(DiscordMessageBuilder builder)
             => this.Discord.ApiClient.CreateMessageAsync(this.Id, builder);
 
@@ -331,10 +325,10 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="action">The builder with all the items to send.</param>
         /// <returns>The sent message.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission TTS is true and <see cref="Permissions.SendTtsMessages"/> if TTS is true.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/> permission TTS is true and <see cref="Permissions.SendTtsMessages"/> if TTS is true.</exception>
+        /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> SendMessageAsync(Action<DiscordMessageBuilder> action)
         {
             var builder = new DiscordMessageBuilder();
@@ -344,6 +338,20 @@ namespace DSharpPlus.Entities
             return this.Discord.ApiClient.CreateMessageAsync(this.Id, builder);
         }
 
+        /// <summary>
+        /// Creates an event bound to this channel.
+        /// </summary>
+        /// <param name="name">The name of the event, up to 100 characters.</param>
+        /// <param name="description">The description of this event, up to 1000 characters.</param>
+        /// <param name="privacyLevel">The privacy level. Currently only <see cref="ScheduledGuildEventPrivacyLevel.GuildOnly"/> is supported</param>
+        /// <param name="start">When this event starts.</param>
+        /// <param name="end">When this event ends. External events require an end time.</param>
+        /// <returns>The created event.</returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        public Task<DiscordScheduledGuildEvent> CreateGuildEventAsync(string name, string description, ScheduledGuildEventPrivacyLevel privacyLevel, DateTimeOffset start, DateTimeOffset? end)
+            => this.Type is not (ChannelType.Voice or ChannelType.Stage) ? throw new InvalidOperationException("Events can only be created on voice an stage chnanels") :
+                this.Guild.CreateEventAsync(name, description, this.Id, this.Type is ChannelType.Stage ? ScheduledGuildEventType.StageInstance : ScheduledGuildEventType.VoiceChannel, privacyLevel, start, end);
+
         // Please send memes to Naamloos#2887 at discord <3 thank you
 
         /// <summary>
@@ -351,10 +359,10 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task DeleteAsync(string reason = null)
             => this.Discord.ApiClient.DeleteChannelAsync(this.Id, reason);
 
@@ -363,10 +371,10 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>Newly-created channel.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task<DiscordChannel> CloneAsync(string reason = null)
         {
             if (this.Guild == null)
@@ -376,8 +384,8 @@ namespace DSharpPlus.Entities
             foreach (var ovr in this._permissionOverwrites)
                 ovrs.Add(await new DiscordOverwriteBuilder(member: null).FromAsync(ovr).ConfigureAwait(false));
 
-            int? bitrate = this.Bitrate;
-            int? userLimit = this.UserLimit;
+            var bitrate = this.Bitrate;
+            var userLimit = this.UserLimit;
             Optional<int?> perUserRateLimit = this.PerUserRateLimit;
 
             if (this.Type != ChannelType.Voice)
@@ -390,7 +398,7 @@ namespace DSharpPlus.Entities
                 perUserRateLimit = Optional.FromNoValue<int?>();
             }
 
-            return await this.Guild.CreateChannelAsync(this.Name, this.Type, this.Parent, this.Topic, bitrate, userLimit, ovrs, this.IsNSFW, perUserRateLimit, this.QualityMode, reason).ConfigureAwait(false);
+            return await this.Guild.CreateChannelAsync(this.Name, this.Type, this.Parent, this.Topic, bitrate, userLimit, ovrs, this.IsNSFW, perUserRateLimit, this.QualityMode, this.Position, reason).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -398,10 +406,10 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="id">The id of the message</param>
         /// <returns></returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ReadMessageHistory"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ReadMessageHistory"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task<DiscordMessage> GetMessageAsync(ulong id)
         {
             return this.Discord.Configuration.MessageCacheSize > 0
@@ -417,10 +425,10 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="action">Action to perform on this channel</param>
         /// <returns></returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task ModifyAsync(Action<ChannelEditModel> action)
         {
             var mdl = new ChannelEditModel();
@@ -438,10 +446,10 @@ namespace DSharpPlus.Entities
         /// <param name="lockPermissions">Whether to sync channel permissions with the parent, if moving to a new category.</param>
         /// <param name="parentId">The new parent id if the channel is to be moved to a new category.</param>
         /// <returns></returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task ModifyPositionAsync(int position, string reason = null, bool? lockPermissions = null, ulong? parentId = null)
         {
             if (this.Guild == null)
@@ -469,10 +477,10 @@ namespace DSharpPlus.Entities
         /// <param name="limit">The amount of messages to fetch.</param>
         /// <param name="before">Message to fetch before from.</param>
         /// </summary>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.AccessChannels"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.AccessChannels"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<IReadOnlyList<DiscordMessage>> GetMessagesBeforeAsync(ulong before, int limit = 100)
             => this.GetMessagesInternalAsync(limit, before, null, null);
 
@@ -481,10 +489,10 @@ namespace DSharpPlus.Entities
         /// <param name="limit">The amount of messages to fetch.</param>
         /// <param name="after">Message to fetch after from.</param>
         /// </summary>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.AccessChannels"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.AccessChannels"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<IReadOnlyList<DiscordMessage>> GetMessagesAfterAsync(ulong after, int limit = 100)
             => this.GetMessagesInternalAsync(limit, null, after, null);
 
@@ -493,10 +501,10 @@ namespace DSharpPlus.Entities
         /// <param name="limit">The amount of messages to fetch.</param>
         /// <param name="around">Message to fetch around from.</param>
         /// </summary>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.AccessChannels"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.AccessChannels"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<IReadOnlyList<DiscordMessage>> GetMessagesAroundAsync(ulong around, int limit = 100)
             => this.GetMessagesInternalAsync(limit, null, null, around);
 
@@ -504,10 +512,10 @@ namespace DSharpPlus.Entities
         /// Returns a list of messages from the last message in the channel.
         /// <param name="limit">The amount of messages to fetch.</param>
         /// </summary>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.AccessChannels"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.AccessChannels"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<IReadOnlyList<DiscordMessage>> GetMessagesAsync(int limit = 100) =>
             this.GetMessagesInternalAsync(limit, null, null, null);
 
@@ -566,60 +574,60 @@ namespace DSharpPlus.Entities
         /// Gets the threads that are public and archived for this channel.
         /// </summary>
         /// <returns>A <seealso cref="ThreadQueryResult"/> containing the threads for this query and if an other call will yield more threads.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ReadMessageHistory"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ReadMessageHistory"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<ThreadQueryResult> ListPublicArchivedThreadsAsync(DateTimeOffset? before = null, int limit = 0)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.News)
                 throw new InvalidOperationException();
 
-            return this.Discord.ApiClient.ListPublicArchivedThreadsAsync(this.GuildId.Value, this.Id, (ulong?) before?.ToUnixTimeSeconds(), limit);
+            return this.Discord.ApiClient.ListPublicArchivedThreadsAsync(this.GuildId.Value, this.Id, (ulong?)before?.ToUnixTimeSeconds(), limit);
         }
 
         /// <summary>
         /// Gets the threads that are private and archived for this channel.
         /// </summary>
         /// <returns>A <seealso cref="ThreadQueryResult"/> containing the threads for this query and if an other call will yield more threads.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ReadMessageHistory"/> and the <see cref="Permissions.ManageThreads"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ReadMessageHistory"/> and the <see cref="Permissions.ManageThreads"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<ThreadQueryResult> ListPrivateArchivedThreadsAsync(DateTimeOffset? before = null, int limit = 0)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.News)
                 throw new InvalidOperationException();
 
-            return this.Discord.ApiClient.ListPrivateArchivedThreadsAsync(this.GuildId.Value, this.Id, (ulong?) before?.ToUnixTimeSeconds(), limit);
+            return this.Discord.ApiClient.ListPrivateArchivedThreadsAsync(this.GuildId.Value, this.Id, (ulong?)before?.ToUnixTimeSeconds(), limit);
         }
 
         /// <summary>
         /// Gets the private and archived threads that the current member has joined in this channel.
         /// </summary>
         /// <returns>A <seealso cref="ThreadQueryResult"/> containing the threads for this query and if an other call will yield more threads.</returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ReadMessageHistory"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ReadMessageHistory"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<ThreadQueryResult> ListJoinedPrivateArchivedThreadsAsync(DateTimeOffset? before = null, int limit = 0)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.News)
                 throw new InvalidOperationException();
 
-            return this.Discord.ApiClient.ListJoinedPrivateArchivedThreadsAsync(this.GuildId.Value, this.Id, (ulong?) before?.ToUnixTimeSeconds(), limit);
+            return this.Discord.ApiClient.ListJoinedPrivateArchivedThreadsAsync(this.GuildId.Value, this.Id, (ulong?)before?.ToUnixTimeSeconds(), limit);
         }
 
         /// <summary>
-        /// Deletes multiple messages if they are less than 14 days old.  If they are older, none of the messages will be deleted and you will receive a <see cref="Exceptions.BadRequestException"/> error.
+        /// Deletes multiple messages if they are less than 14 days old.  If they are older, none of the messages will be deleted and you will receive a <see cref="BadRequestException"/> error.
         /// </summary>
         /// <param name="messages">A collection of messages to delete.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageMessages"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageMessages"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task DeleteMessagesAsync(IEnumerable<DiscordMessage> messages, string reason = null)
         {
             // don't enumerate more than once
@@ -643,10 +651,10 @@ namespace DSharpPlus.Entities
         /// <param name="message">The message to be deleted.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageMessages"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageMessages"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task DeleteMessageAsync(DiscordMessage message, string reason = null)
             => this.Discord.ApiClient.DeleteMessageAsync(this.Id, message.Id, reason);
 
@@ -654,10 +662,10 @@ namespace DSharpPlus.Entities
         /// Returns a list of invite objects
         /// </summary>
         /// <returns></returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.CreateInstantInvite"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.CreateInstantInvite"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<IReadOnlyList<DiscordInvite>> GetInvitesAsync()
         {
             return this.Guild == null
@@ -677,10 +685,10 @@ namespace DSharpPlus.Entities
         /// <param name="targetUserId">The id of the target user.</param>
         /// <param name="targetApplicationId">The id of the target application.</param>
         /// <returns></returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.CreateInstantInvite"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.CreateInstantInvite"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordInvite> CreateInviteAsync(int max_age = 86400, int max_uses = 0, bool temporary = false, bool unique = false, string reason = null, InviteTargetType? targetType = null, ulong? targetUserId = null, ulong? targetApplicationId = null)
             => this.Discord.ApiClient.CreateChannelInviteAsync(this.Id, max_age, max_uses, temporary, unique, reason, targetType, targetUserId, targetApplicationId);
 
@@ -692,10 +700,10 @@ namespace DSharpPlus.Entities
         /// <param name="deny">The permissions to deny.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task AddOverwriteAsync(DiscordMember member, Permissions allow = Permissions.None, Permissions deny = Permissions.None, string reason = null)
             => this.Discord.ApiClient.EditChannelPermissionsAsync(this.Id, member.Id, allow, deny, "member", reason);
 
@@ -707,10 +715,10 @@ namespace DSharpPlus.Entities
         /// <param name="deny">The permissions to deny.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task AddOverwriteAsync(DiscordRole role, Permissions allow = Permissions.None, Permissions deny = Permissions.None, string reason = null)
             => this.Discord.ApiClient.EditChannelPermissionsAsync(this.Id, role.Id, allow, deny, "role", reason);
 
@@ -720,10 +728,10 @@ namespace DSharpPlus.Entities
         /// <param name="member">The member to have the permission deleted.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task DeleteOverwriteAsync(DiscordMember member, string reason = null)
             => this.Discord.ApiClient.DeleteChannelPermissionAsync(this.Id, member.Id, reason);
 
@@ -733,10 +741,10 @@ namespace DSharpPlus.Entities
         /// <param name="role">The role to have the permission deleted.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task DeleteOverwriteAsync(DiscordRole role, string reason = null)
             => this.Discord.ApiClient.DeleteChannelPermissionAsync(this.Id, role.Id, reason);
 
@@ -744,9 +752,9 @@ namespace DSharpPlus.Entities
         /// Post a typing indicator
         /// </summary>
         /// <returns></returns>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task TriggerTypingAsync()
         {
             return this.Type != ChannelType.Text &&
@@ -764,10 +772,10 @@ namespace DSharpPlus.Entities
         /// Returns all pinned messages
         /// </summary>
         /// <returns></returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.AccessChannels"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.AccessChannels"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<IReadOnlyList<DiscordMessage>> GetPinnedMessagesAsync()
         {
             return this.Type != ChannelType.Text &&
@@ -788,10 +796,10 @@ namespace DSharpPlus.Entities
         /// <param name="avatar">The image for the default webhook avatar.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageWebhooks"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageWebhooks"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task<DiscordWebhook> CreateWebhookAsync(string name, Optional<Stream> avatar = default, string reason = null)
         {
             var av64 = Optional.FromNoValue<string>();
@@ -808,9 +816,9 @@ namespace DSharpPlus.Entities
         /// Returns a list of webhooks
         /// </summary>
         /// <returns></returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageWebhooks"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageWebhooks"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<IReadOnlyList<DiscordWebhook>> GetWebhooksAsync()
             => this.Discord.ApiClient.GetChannelWebhooksAsync(this.Id);
 
@@ -819,17 +827,17 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="member">The member to be moved.</param>
         /// <returns></returns>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.MoveMembers"/> permission.</exception>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exists or if the Member does not exists.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.MoveMembers"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the channel does not exists or if the Member does not exists.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task PlaceMemberAsync(DiscordMember member)
         {
             if (this.Type != ChannelType.Voice && this.Type != ChannelType.Stage)
                 throw new ArgumentException("Cannot place a member in a non-voice channel!"); // be a little more angry, let em learn!!1
 
             await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, member.Id, default, default, default,
-                default, this.Id, null).ConfigureAwait(false);
+                default, this.Id, default, null).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -1025,9 +1033,9 @@ namespace DSharpPlus.Entities
         /// <param name="archiveAfter">The auto archive duration of the thread. 3 day and 7 day archive durations require a level 1 and 2 server boost respectively.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The created thread.</returns>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel or message does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="NotFoundException">Thrown when the channel or message does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordThreadChannel> CreateThreadAsync(DiscordMessage message, string name, AutoArchiveDuration archiveAfter, string reason = null)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.News)
@@ -1048,20 +1056,20 @@ namespace DSharpPlus.Entities
         /// <param name="threadType">The type of thread to create, either a public, news or, private thread. Private threads requires a level 2 server boost and can only be created within channels of type <see cref="ChannelType.Text"/>.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The created thread.</returns>
-        /// <exception cref="Exceptions.NotFoundException">Thrown when the channel or message does not exist.</exception>
-        /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="NotFoundException">Thrown when the channel or message does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordThreadChannel> CreateThreadAsync(string name, AutoArchiveDuration archiveAfter, ChannelType threadType, string reason = null)
         {
             if (this.Type != ChannelType.Text && this.Type != ChannelType.News)
                 throw new InvalidOperationException("Threads can only be created within text or news channels.");
-            else if(this.Type != ChannelType.News && threadType == ChannelType.NewsThread)
+            else if (this.Type != ChannelType.News && threadType == ChannelType.NewsThread)
                 throw new InvalidOperationException("News threads can only be created within a news channels.");
-            else if(threadType != ChannelType.PublicThread && threadType != ChannelType.PrivateThread && threadType != ChannelType.NewsThread)
+            else if (threadType != ChannelType.PublicThread && threadType != ChannelType.PrivateThread && threadType != ChannelType.NewsThread)
                 throw new ArgumentException("Given channel type for creating a thread is not a valid type of thread.");
             else if ((archiveAfter == AutoArchiveDuration.ThreeDays && !this.Guild.Features.Contains("THREE_DAY_THREAD_ARCHIVE")) || (archiveAfter == AutoArchiveDuration.Week && !this.Guild.Features.Contains("SEVEN_DAY_THREAD_ARCHIVE")))
                 throw new ArgumentException("This archive duration requires the guild to be boosted or have these archive durations enabled.");
-            else if(threadType == ChannelType.PrivateThread && !this.Guild.Features.Contains("PRIVATE_THREADS"))
+            else if (threadType == ChannelType.PrivateThread && !this.Guild.Features.Contains("PRIVATE_THREADS"))
                 throw new ArgumentException("This guild cannot create private threads.");
 
             return this.Discord.ApiClient.CreateThreadAsync(this.Id, name, archiveAfter, threadType, reason);
@@ -1088,7 +1096,7 @@ namespace DSharpPlus.Entities
             if (e is null)
                 return false;
 
-            return ReferenceEquals(this, e) ? true : this.Id == e.Id;
+            return ReferenceEquals(this, e) || this.Id == e.Id;
         }
 
         /// <summary>
@@ -1111,7 +1119,7 @@ namespace DSharpPlus.Entities
             if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
                 return false;
 
-            return o1 == null && o2 == null ? true : e1.Id == e2.Id;
+            return (o1 == null && o2 == null) || e1.Id == e2.Id;
         }
 
         /// <summary>

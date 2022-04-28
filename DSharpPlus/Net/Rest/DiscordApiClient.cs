@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -72,7 +72,7 @@ namespace DSharpPlus.Net
 
         private DiscordMessage PrepareMessage(JToken msg_raw)
         {
-            var author = msg_raw["author"].ToObject<TransportUser>();
+            var author = msg_raw["author"].ToDiscordObject<TransportUser>();
             var ret = msg_raw.ToDiscordObject<DiscordMessage>();
             ret.Discord = this.Discord;
 
@@ -81,7 +81,7 @@ namespace DSharpPlus.Net
             var referencedMsg = msg_raw["referenced_message"];
             if (ret.MessageType == MessageType.Reply && !string.IsNullOrWhiteSpace(referencedMsg?.ToString()))
             {
-                author = referencedMsg["author"].ToObject<TransportUser>();
+                author = referencedMsg["author"].ToDiscordObject<TransportUser>();
                 ret.ReferencedMessage.Discord = this.Discord;
                 this.PopulateMessage(author, ret.ReferencedMessage);
             }
@@ -184,7 +184,7 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path, BuildQueryString(querydict));
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
             var json = JArray.Parse(res.Response);
-            var tms = json.ToObject<IReadOnlyList<TransportMember>>();
+            var tms = json.ToDiscordObject<IReadOnlyList<TransportMember>>();
 
             var mbrs = new List<DiscordMember>();
             foreach (var xtm in tms)
@@ -207,7 +207,7 @@ namespace DSharpPlus.Net
             var res = await this.DoRequestAsync(this.Discord, bucket, uri, RestRequestMethod.GET, route).ConfigureAwait(false);
             var json = JObject.Parse(res.Response);
 
-            var ban = json.ToObject<DiscordBan>();
+            var ban = json.ToDiscordObject<DiscordBan>();
 
             if (!this.Discord.TryGetCachedUserInternal(ban.RawUser.Id, out var usr))
             {
@@ -323,7 +323,7 @@ namespace DSharpPlus.Net
 
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.GUILDS}/:guild_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id = guildId }, out var path);
@@ -342,12 +342,20 @@ namespace DSharpPlus.Net
             return guild;
         }
 
-        internal async Task<IReadOnlyList<DiscordBan>> GetGuildBansAsync(ulong guild_id)
+        internal async Task<IReadOnlyList<DiscordBan>> GetGuildBansAsync(ulong guild_id, int? limit, ulong? before, ulong? after)
         {
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.BANS}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
 
-            var url = Utilities.GetApiUriFor(path);
+            var queryParams = new Dictionary<string, string>();
+            if (limit != null)
+                queryParams["limit"] = limit.ToString();
+            if (before != null)
+                queryParams["before"] = before.ToString();
+            if (after != null)
+                queryParams["after"] = after.ToString();
+
+            var url = Utilities.GetApiUriFor(path, BuildQueryString(queryParams));
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
 
             var bans_raw = JsonConvert.DeserializeObject<IEnumerable<DiscordBan>>(res.Response).Select(xb =>
@@ -375,27 +383,29 @@ namespace DSharpPlus.Net
             {
                 ["delete_message_days"] = delete_message_days.ToString(CultureInfo.InvariantCulture)
             };
-            if (reason != null)
-                urlparams["reason"] = reason;
+
+            var headers = Utilities.GetBaseHeaders();
+            if (!string.IsNullOrWhiteSpace(reason))
+                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.BANS}/:user_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PUT, route, new { guild_id, user_id }, out var path);
 
             var url = Utilities.GetApiUriFor(path, BuildQueryString(urlparams));
-            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PUT, route);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PUT, route, headers);
         }
 
         internal Task RemoveGuildBanAsync(ulong guild_id, ulong user_id, string reason)
         {
-            var urlparams = new Dictionary<string, string>();
-            if (reason != null)
-                urlparams["reason"] = reason;
+            var headers = Utilities.GetBaseHeaders();
+            if (!string.IsNullOrWhiteSpace(reason))
+                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.BANS}/:user_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { guild_id, user_id }, out var path);
 
-            var url = Utilities.GetApiUriFor(path, BuildQueryString(urlparams));
-            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route);
+            var url = Utilities.GetApiUriFor(path);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route, headers);
         }
 
         internal Task LeaveGuildAsync(ulong guild_id)
@@ -451,7 +461,7 @@ namespace DSharpPlus.Net
         {
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.MEMBERS}/:user_id{Endpoints.ROLES}/:role_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PUT, route, new { guild_id, user_id, role_id }, out var path);
@@ -464,7 +474,7 @@ namespace DSharpPlus.Net
         {
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.MEMBERS}/:user_id{Endpoints.ROLES}/:role_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { guild_id, user_id, role_id }, out var path);
@@ -477,7 +487,7 @@ namespace DSharpPlus.Net
         {
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.CHANNELS}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id }, out var path);
@@ -490,7 +500,7 @@ namespace DSharpPlus.Net
         {
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.ROLES}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id }, out var path);
@@ -594,7 +604,7 @@ namespace DSharpPlus.Net
 
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.WIDGET}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id }, out var path);
@@ -730,7 +740,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordGuildWelcomeScreen> ModifyGuildWelcomeScreenAsync(ulong guild_id, Optional<bool> enabled, Optional<IEnumerable<DiscordGuildWelcomeScreenChannel>> welcomeChannels, Optional<string> description)
+        internal async Task<DiscordGuildWelcomeScreen> ModifyGuildWelcomeScreenAsync(ulong guild_id, Optional<bool> enabled, Optional<IEnumerable<DiscordGuildWelcomeScreenChannel>> welcomeChannels, Optional<string> description, string reason)
         {
             var pld = new RestGuildWelcomeScreenModifyPayload
             {
@@ -739,11 +749,15 @@ namespace DSharpPlus.Net
                 Description = description
             };
 
+            var headers = Utilities.GetBaseHeaders();
+            if (!string.IsNullOrWhiteSpace(reason))
+                headers[REASON_HEADER_NAME] = reason;
+
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.WELCOME_SCREEN}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, headers, DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
 
             var ret = JsonConvert.DeserializeObject<DiscordGuildWelcomeScreen>(res.Response);
             return ret;
@@ -942,7 +956,7 @@ namespace DSharpPlus.Net
         #endregion
 
         #region Channel
-        internal async Task<DiscordChannel> CreateGuildChannelAsync(ulong guild_id, string name, ChannelType type, ulong? parent, Optional<string> topic, int? bitrate, int? user_limit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, Optional<int?> perUserRateLimit, VideoQualityMode? qualityMode, string reason)
+        internal async Task<DiscordChannel> CreateGuildChannelAsync(ulong guild_id, string name, ChannelType type, ulong? parent, Optional<string> topic, int? bitrate, int? user_limit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, Optional<int?> perUserRateLimit, VideoQualityMode? qualityMode, int? position, string reason)
         {
             var restoverwrites = new List<DiscordRestOverwrite>();
             if (overwrites != null)
@@ -960,12 +974,13 @@ namespace DSharpPlus.Net
                 PermissionOverwrites = restoverwrites,
                 Nsfw = nsfw,
                 PerUserRateLimit = perUserRateLimit,
-                QualityMode = qualityMode
+                QualityMode = qualityMode,
+                Position = position
             };
 
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.CHANNELS}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { guild_id }, out var path);
@@ -1012,6 +1027,46 @@ namespace DSharpPlus.Net
 
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
+                headers[REASON_HEADER_NAME] = reason;
+
+            var route = $"{Endpoints.CHANNELS}/:channel_id";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { channel_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, headers, DiscordJson.SerializeObject(pld));
+        }
+
+        internal Task ModifyThreadChannelAsync(ulong channel_id, string name, int? position, Optional<string> topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? user_limit, Optional<int?> perUserRateLimit, Optional<string> rtcRegion, VideoQualityMode? qualityMode, Optional<ChannelType> type, IEnumerable<DiscordOverwriteBuilder> permissionOverwrites, bool? isArchived, AutoArchiveDuration? autoArchiveDuration, bool? locked, string reason)
+        {
+            List<DiscordRestOverwrite> restoverwrites = null;
+            if (permissionOverwrites != null)
+            {
+                restoverwrites = new List<DiscordRestOverwrite>();
+                foreach (var ow in permissionOverwrites)
+                    restoverwrites.Add(ow.Build());
+            }
+
+            var pld = new RestThreadChannelModifyPayload
+            {
+                Name = name,
+                Position = position,
+                Topic = topic,
+                Nsfw = nsfw,
+                Parent = parent,
+                Bitrate = bitrate,
+                UserLimit = user_limit,
+                PerUserRateLimit = perUserRateLimit,
+                RtcRegion = rtcRegion,
+                QualityMode = qualityMode,
+                Type = type,
+                PermissionOverwrites = restoverwrites,
+                IsArchived = isArchived,
+                ArchiveDuration = autoArchiveDuration,
+                Locked = locked
+            };
+
+            var headers = Utilities.GetBaseHeaders();
+            if (!string.IsNullOrWhiteSpace(reason))
                 headers.Add(REASON_HEADER_NAME, reason);
 
             var route = $"{Endpoints.CHANNELS}/:channel_id";
@@ -1019,6 +1074,164 @@ namespace DSharpPlus.Net
 
             var url = Utilities.GetApiUriFor(path);
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, headers, DiscordJson.SerializeObject(pld));
+        }
+
+        internal async Task<IReadOnlyList<DiscordScheduledGuildEvent>> GetScheduledGuildEventsAsync(ulong guild_id, bool with_user_counts = false)
+        {
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.EVENTS}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
+
+            var query = new Dictionary<string, string>() { { "with_user_count", with_user_counts.ToString() } };
+
+            var url = Utilities.GetApiUriFor(path, BuildQueryString(query));
+
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route, new Dictionary<string, string>(), string.Empty).ConfigureAwait(false);
+
+            var ret = JsonConvert.DeserializeObject<DiscordScheduledGuildEvent[]>(res.Response)!.ToList();
+
+            foreach (var xe in ret)
+            {
+                xe.Discord = this.Discord;
+
+                if (xe.Creator != null)
+                    xe.Creator.Discord = this.Discord;
+            }
+
+            return ret.AsReadOnly();
+        }
+
+        internal async Task<DiscordScheduledGuildEvent> CreateScheduledGuildEventAsync(ulong guild_id, string name, string description, ulong? channel_id, DateTimeOffset start_time, DateTimeOffset? end_time, ScheduledGuildEventType type, ScheduledGuildEventPrivacyLevel privacy_level, DiscordScheduledGuildEventMetadata metadata, string reason = null)
+        {
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.EVENTS}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { guild_id }, out var path);
+
+            var headers = Utilities.GetBaseHeaders();
+
+            if (!string.IsNullOrWhiteSpace(reason))
+                headers[REASON_HEADER_NAME] = reason;
+
+            var url = Utilities.GetApiUriFor(path);
+
+            var pld = new RestScheduledGuildEventCreatePayload
+            {
+                Name = name,
+                Description = description,
+                ChannelId = channel_id,
+                StartTime = start_time,
+                EndTime = end_time,
+                Type = type,
+                PrivacyLevel = privacy_level,
+                Metadata = metadata
+            };
+
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, headers, DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
+
+            var ret = JsonConvert.DeserializeObject<DiscordScheduledGuildEvent>(res.Response);
+
+            ret.Discord = this.Discord;
+
+            if (ret.Creator != null)
+                ret.Creator.Discord = this.Discord;
+
+            return ret;
+        }
+
+        internal async Task DeleteScheduledGuildEventAsync(ulong guild_id, ulong guild_scheduled_event_id)
+        {
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.EVENTS}/:guild_scheduled_event_id";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { guild_id, guild_scheduled_event_id }, out var path);
+
+            var headers = Utilities.GetBaseHeaders();
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route, headers, null).ConfigureAwait(false);
+        }
+
+        internal async Task<IReadOnlyList<DiscordUser>> GetScheduledGuildEventUsersAsync(ulong guild_id, ulong guild_scheduled_event_id, bool with_members = false, int limit = 1, ulong? before = null, ulong? after = null)
+        {
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.EVENTS}/:guild_scheduled_event_id{Endpoints.USERS}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id, guild_scheduled_event_id }, out var path);
+
+            var query = new Dictionary<string, string>() { { "with_members", with_members.ToString() } };
+
+            if (limit > 0)
+                query.Add("limit", limit.ToString(CultureInfo.InvariantCulture));
+
+            if (before != null)
+                query.Add("before", before.Value.ToString(CultureInfo.InvariantCulture));
+
+            if (after != null)
+                query.Add("after", after.Value.ToString(CultureInfo.InvariantCulture));
+
+            var url = Utilities.GetApiUriFor(path, BuildQueryString(query));
+
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route, new Dictionary<string, string>(), string.Empty).ConfigureAwait(false);
+
+            var jto = JToken.Parse(res.Response);
+
+            return (jto as JArray ?? jto["users"] as JArray)
+                .Select(j => (DiscordUser)
+                        j
+                        .SelectToken("member")?
+                        .ToDiscordObject<DiscordMember>() ??
+                        j
+                        .SelectToken("user")
+                        .ToDiscordObject<DiscordUser>())
+                .ToArray();
+        }
+
+        internal async Task<DiscordScheduledGuildEvent> GetScheduledGuildEventAsync(ulong guild_id, ulong guild_scheduled_event_id)
+        {
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.EVENTS}/:guild_scheduled_event_id";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.GET, route, new { guild_id, guild_scheduled_event_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route, Utilities.GetBaseHeaders(), string.Empty).ConfigureAwait(false);
+
+            var ret = JsonConvert.DeserializeObject<DiscordScheduledGuildEvent>(res.Response);
+
+            ret.Discord = this.Discord;
+
+            if (ret.Creator != null)
+                ret.Creator.Discord = this.Discord;
+
+            return ret;
+        }
+
+        internal async Task<DiscordScheduledGuildEvent> ModifyScheduledGuildEventAsync(ulong guild_id, ulong guild_scheduled_event_id, Optional<string> name, Optional<string> description, Optional<ulong?> channel_id, Optional<DateTimeOffset> start_time, Optional<DateTimeOffset> end_time, Optional<ScheduledGuildEventType> type, Optional<ScheduledGuildEventPrivacyLevel> privacy_level, Optional<DiscordScheduledGuildEventMetadata> metadata, Optional<ScheduledGuildEventStatus> status, string reason = null)
+        {
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.EVENTS}/:guild_scheduled_event_id";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id, guild_scheduled_event_id }, out var path);
+
+            var headers = Utilities.GetBaseHeaders();
+
+            if (!string.IsNullOrWhiteSpace(reason))
+                headers[REASON_HEADER_NAME] = reason;
+
+            var url = Utilities.GetApiUriFor(path);
+            var pld = new RestScheduledGuildEventModifyPayload
+            {
+                Name = name,
+                Description = description,
+                ChannelId = channel_id,
+                StartTime = start_time,
+                EndTime = end_time,
+                Type = type,
+                PrivacyLevel = privacy_level,
+                Metadata = metadata,
+                Status = status
+            };
+
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, headers, DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
+
+            var ret = JsonConvert.DeserializeObject<DiscordScheduledGuildEvent>(res.Response);
+
+            ret.Discord = this.Discord;
+
+            if (ret.Creator != null)
+                ret.Creator.Discord = this.Discord;
+
+            return ret;
         }
 
         internal async Task<DiscordChannel> GetChannelAsync(ulong channel_id)
@@ -1031,7 +1244,7 @@ namespace DSharpPlus.Net
 
             var ret = JsonConvert.DeserializeObject<DiscordChannel>(res.Response);
 
-            if(ret.IsThread)
+            if (ret.IsThread)
                 ret = JsonConvert.DeserializeObject<DiscordThreadChannel>(res.Response);
 
             ret.Discord = this.Discord;
@@ -1048,7 +1261,7 @@ namespace DSharpPlus.Net
         {
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.CHANNELS}/:channel_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { channel_id }, out var path);
@@ -1138,8 +1351,7 @@ namespace DSharpPlus.Net
             if (builder.ReplyId != null)
                 pld.MessageReference = new InternalDiscordMessageReference { MessageId = builder.ReplyId, FailIfNotExists = builder.FailOnInvalidReply };
 
-            //if (builder.Mentions != null || builder.ReplyId != null)
-                pld.Mentions = new DiscordMentions(builder.Mentions ?? Mentions.All, builder.Mentions?.Any() ?? false, builder.MentionOnReply);
+            pld.Mentions = new DiscordMentions(builder.Mentions ?? Mentions.None, builder.Mentions?.Any() ?? false, builder.MentionOnReply);
 
             if (builder.Files.Count == 0)
             {
@@ -1235,7 +1447,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content, Optional<IEnumerable<DiscordEmbed>> embeds, IEnumerable<IMention> mentions, IReadOnlyList<DiscordActionRowComponent> components, IReadOnlyCollection<DiscordMessageFile> files, MessageFlags? flags, IEnumerable<DiscordAttachment> attachments)
+        internal async Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content, Optional<IEnumerable<DiscordEmbed>> embeds, Optional<IEnumerable<IMention>> mentions, IReadOnlyList<DiscordActionRowComponent> components, IReadOnlyCollection<DiscordMessageFile> files, MessageFlags? flags, IEnumerable<DiscordAttachment> attachments)
         {
             if (embeds.HasValue && embeds.Value != null)
                 foreach (var embed in embeds.Value)
@@ -1253,7 +1465,7 @@ namespace DSharpPlus.Net
                 Attachments = attachments
             };
 
-            pld.Mentions = new DiscordMentions(mentions ?? Mentions.None, false, mentions?.OfType<RepliedUserMention>().Any() ?? false);
+            pld.Mentions = mentions.HasValue ? new DiscordMentions(mentions.Value ?? Mentions.None, false, mentions.Value?.OfType<RepliedUserMention>().Any() ?? false) : null;
 
             var values = new Dictionary<string, string>
             {
@@ -1280,7 +1492,7 @@ namespace DSharpPlus.Net
         {
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}/:message_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { channel_id, message_id }, out var path);
@@ -1298,7 +1510,7 @@ namespace DSharpPlus.Net
 
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.MESSAGES}{Endpoints.BULK_DELETE}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id }, out var path);
@@ -1335,7 +1547,7 @@ namespace DSharpPlus.Net
 
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.INVITES}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id }, out var path);
@@ -1353,7 +1565,7 @@ namespace DSharpPlus.Net
         {
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.PERMISSIONS}/:overwrite_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { channel_id, overwrite_id }, out var path);
@@ -1373,7 +1585,7 @@ namespace DSharpPlus.Net
 
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.PERMISSIONS}/:overwrite_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.PUT, route, new { channel_id, overwrite_id }, out var path);
@@ -1580,6 +1792,26 @@ namespace DSharpPlus.Net
             return stage;
         }
 
+        internal async Task BecomeStageInstanceSpeakerAsync(ulong guildId, ulong id, ulong? userId = null, DateTime? timestamp = null, bool? suppress = null)
+        {
+            var headers = Utilities.GetBaseHeaders();
+
+            var pld = new RestBecomeStageSpeakerInstancePayload
+            {
+                Suppress = suppress,
+                ChannelId = id,
+                RequestToSpeakTimestamp = timestamp
+            };
+
+            var user = userId?.ToString() ?? "@me";
+            var route = $"/guilds/{guildId}{Endpoints.VOICE_STATES}/{user}";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+
+            await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, headers, DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
+        }
+
         internal async Task DeleteStageInstanceAsync(ulong channel_id, string reason)
         {
             var headers = Utilities.GetBaseHeaders();
@@ -1601,7 +1833,7 @@ namespace DSharpPlus.Net
         {
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+                headers[REASON_HEADER_NAME] = reason;
 
             var payload = new RestThreadCreatePayload
             {
@@ -1625,7 +1857,7 @@ namespace DSharpPlus.Net
         {
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
-                headers.Add(REASON_HEADER_NAME, reason);
+                headers[REASON_HEADER_NAME] = reason;
 
             var payload = new RestThreadCreatePayload
             {
@@ -1662,6 +1894,17 @@ namespace DSharpPlus.Net
 
             var url = Utilities.GetApiUriFor(path);
             return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route);
+        }
+
+        internal async Task<DiscordThreadChannelMember> GetThreadMemberAsync(ulong channel_id, ulong user_id)
+        {
+            var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.THREAD_MEMBERS}/:user_id";
+            var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { channel_id, user_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var response = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route).ConfigureAwait(false);
+
+            return JsonConvert.DeserializeObject<DiscordThreadChannelMember>(response.Response);
         }
 
         internal Task AddThreadMemberAsync(ulong channel_id, ulong user_id)
@@ -1915,7 +2158,7 @@ namespace DSharpPlus.Net
 
         internal Task ModifyGuildMemberAsync(ulong guild_id, ulong user_id, Optional<string> nick,
             Optional<IEnumerable<ulong>> role_ids, Optional<bool> mute, Optional<bool> deaf,
-            Optional<ulong?> voice_channel_id, string reason)
+            Optional<ulong?> voice_channel_id, Optional<DateTimeOffset?> communication_disabled_until, string reason)
         {
             var headers = Utilities.GetBaseHeaders();
             if (!string.IsNullOrWhiteSpace(reason))
@@ -1927,7 +2170,8 @@ namespace DSharpPlus.Net
                 RoleIds = role_ids,
                 Deafen = deaf,
                 Mute = mute,
-                VoiceChannelId = voice_channel_id
+                VoiceChannelId = voice_channel_id,
+                CommunicationDisabledUntil = communication_disabled_until
             };
 
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.MEMBERS}/:user_id";
@@ -2145,14 +2389,15 @@ namespace DSharpPlus.Net
                     sb.Append($"&include_roles={roleArray[i]}");
             }
 
-            if (reason != null)
-                urlparams["reason"] = reason;
+            var headers = Utilities.GetBaseHeaders();
+            if (string.IsNullOrWhiteSpace(reason))
+                headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.PRUNE}";
             var bucket = this.Rest.GetBucket(RestRequestMethod.POST, route, new { guild_id }, out var path);
 
             var url = Utilities.GetApiUriFor(path, $"{BuildQueryString(urlparams)}{sb}");
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route).ConfigureAwait(false);
+            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.POST, route, headers).ConfigureAwait(false);
 
             var pruned = JsonConvert.DeserializeObject<RestGuildPruneResultPayload>(res.Response);
 
@@ -2242,13 +2487,17 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal Task DeleteGuildIntegrationAsync(ulong guild_id, DiscordIntegration integration)
+        internal Task DeleteGuildIntegrationAsync(ulong guild_id, DiscordIntegration integration, string reason)
         {
+            var headers = Utilities.GetBaseHeaders();
+            if (string.IsNullOrWhiteSpace(reason))
+                headers[REASON_HEADER_NAME] = reason;
+
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.INTEGRATIONS}/:integration_id";
             var bucket = this.Rest.GetBucket(RestRequestMethod.DELETE, route, new { guild_id, integration_id = integration.Id }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route, payload: DiscordJson.SerializeObject(integration));
+            return this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route, headers, DiscordJson.SerializeObject(integration));
         }
 
         internal Task SyncGuildIntegrationAsync(ulong guild_id, ulong integration_id)
@@ -2569,7 +2818,8 @@ namespace DSharpPlus.Net
                 Username = builder.Username.HasValue ? builder.Username.Value : null,
                 AvatarUrl = builder.AvatarUrl.HasValue ? builder.AvatarUrl.Value : null,
                 IsTTS = builder.IsTTS,
-                Embeds = builder.Embeds
+                Embeds = builder.Embeds,
+                Components = builder.Components,
             };
 
             if (builder.Mentions != null)
@@ -2767,10 +3017,10 @@ namespace DSharpPlus.Net
             var emojis = new List<DiscordGuildEmoji>();
             foreach (var rawEmoji in emojisRaw)
             {
-                var xge = rawEmoji.ToObject<DiscordGuildEmoji>();
+                var xge = rawEmoji.ToDiscordObject<DiscordGuildEmoji>();
                 xge.Guild = gld;
 
-                var xtu = rawEmoji["user"]?.ToObject<TransportUser>();
+                var xtu = rawEmoji["user"]?.ToDiscordObject<TransportUser>();
                 if (xtu != null)
                 {
                     if (!users.ContainsKey(xtu.Id))
@@ -2799,10 +3049,10 @@ namespace DSharpPlus.Net
             this.Discord.Guilds.TryGetValue(guild_id, out var gld);
 
             var emoji_raw = JObject.Parse(res.Response);
-            var emoji = emoji_raw.ToObject<DiscordGuildEmoji>();
+            var emoji = emoji_raw.ToDiscordObject<DiscordGuildEmoji>();
             emoji.Guild = gld;
 
-            var xtu = emoji_raw["user"]?.ToObject<TransportUser>();
+            var xtu = emoji_raw["user"]?.ToDiscordObject<TransportUser>();
             if (xtu != null)
                 emoji.User = gld != null && gld.Members.TryGetValue(xtu.Id, out var member) ? member : new DiscordUser(xtu);
 
@@ -2831,10 +3081,10 @@ namespace DSharpPlus.Net
             this.Discord.Guilds.TryGetValue(guild_id, out var gld);
 
             var emoji_raw = JObject.Parse(res.Response);
-            var emoji = emoji_raw.ToObject<DiscordGuildEmoji>();
+            var emoji = emoji_raw.ToDiscordObject<DiscordGuildEmoji>();
             emoji.Guild = gld;
 
-            var xtu = emoji_raw["user"]?.ToObject<TransportUser>();
+            var xtu = emoji_raw["user"]?.ToDiscordObject<TransportUser>();
             emoji.User = xtu != null
                 ? gld != null && gld.Members.TryGetValue(xtu.Id, out var member) ? member : new DiscordUser(xtu)
                 : this.Discord.CurrentUser;
@@ -2863,10 +3113,10 @@ namespace DSharpPlus.Net
             this.Discord.Guilds.TryGetValue(guild_id, out var gld);
 
             var emoji_raw = JObject.Parse(res.Response);
-            var emoji = emoji_raw.ToObject<DiscordGuildEmoji>();
+            var emoji = emoji_raw.ToDiscordObject<DiscordGuildEmoji>();
             emoji.Guild = gld;
 
-            var xtu = emoji_raw["user"]?.ToObject<TransportUser>();
+            var xtu = emoji_raw["user"]?.ToDiscordObject<TransportUser>();
             if (xtu != null)
                 emoji.User = gld != null && gld.Members.TryGetValue(xtu.Id, out var member) ? member : new DiscordUser(xtu);
 
@@ -2914,6 +3164,9 @@ namespace DSharpPlus.Net
                     Description = command.Description,
                     Options = command.Options,
                     DefaultPermission = command.DefaultPermission,
+                    NameLocalizations = command.NameLocalizations,
+                    DescriptionLocalizations = command.DescriptionLocalizations
+                    DefaultPermission = command.DefaultPermission,
                     AllowDMUsage = command.AllowDMUsage,
                     DefaultMemberPermissions = command.DefaultMemberPermissions
                 });
@@ -2939,6 +3192,9 @@ namespace DSharpPlus.Net
                 Name = command.Name,
                 Description = command.Description,
                 Options = command.Options,
+                DefaultPermission = command.DefaultPermission,
+                NameLocalizations = command.NameLocalizations,
+                DescriptionLocalizations = command.DescriptionLocalizations
                 DefaultPermission = command.DefaultPermission,
                 AllowDMUsage = command.AllowDMUsage,
                 DefaultMemberPermissions = command.DefaultMemberPermissions
@@ -2970,13 +3226,16 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordApplicationCommand> EditGlobalApplicationCommandAsync(ulong application_id, ulong command_id, Optional<string> name, Optional<string> description, Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options, Optional<bool?> defaultPermission, Optional<bool> allowDMUsage, Optional<Permissions?> defaultMemberPermissions)
+        internal async Task<DiscordApplicationCommand> EditGlobalApplicationCommandAsync(ulong application_id, ulong command_id, Optional<string> name, Optional<string> description, Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options, Optional<bool?> defaultPermission, IReadOnlyDictionary<string, string> name_localizations = null, IReadOnlyDictionary<string, string> description_localizations = null, Optional<bool> allowDMUsage, Optional<Permissions?> defaultMemberPermissions)
         {
             var pld = new RestApplicationCommandEditPayload
             {
                 Name = name,
                 Description = description,
                 Options = options,
+                DefaultPermission = defaultPermission,
+                NameLocalizations = name_localizations,
+                DescriptionLocalizations = description_localizations
                 DefaultPermission = defaultPermission,
                 AllowDMUsage = allowDMUsage,
                 DefaultMemberPermissions = defaultMemberPermissions
@@ -3029,6 +3288,9 @@ namespace DSharpPlus.Net
                     Description = command.Description,
                     Options = command.Options,
                     DefaultPermission = command.DefaultPermission,
+                    NameLocalizations = command.NameLocalizations,
+                    DescriptionLocalizations = command.DescriptionLocalizations
+                    DefaultPermission = command.DefaultPermission,
                     AllowDMUsage = command.AllowDMUsage,
                     DefaultMemberPermissions = command.DefaultMemberPermissions
                 });
@@ -3054,6 +3316,9 @@ namespace DSharpPlus.Net
                 Name = command.Name,
                 Description = command.Description,
                 Options = command.Options,
+                DefaultPermission = command.DefaultPermission,
+                NameLocalizations = command.NameLocalizations,
+                DescriptionLocalizations = command.DescriptionLocalizations
                 DefaultPermission = command.DefaultPermission,
                 AllowDMUsage = command.AllowDMUsage,
                 DefaultMemberPermissions = command.DefaultMemberPermissions
@@ -3085,13 +3350,16 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordApplicationCommand> EditGuildApplicationCommandAsync(ulong application_id, ulong guild_id, ulong command_id, Optional<string> name, Optional<string> description, Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options, Optional<bool?> defaultPermission, Optional<bool> allowDMUsage, Optional<Permissions?> defaultMemberPermissions)
+        internal async Task<DiscordApplicationCommand> EditGuildApplicationCommandAsync(ulong application_id, ulong guild_id, ulong command_id, Optional<string> name, Optional<string> description, Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options, Optional<bool?> defaultPermission, IReadOnlyDictionary<string, string> name_localizations = null, IReadOnlyDictionary<string, string> description_localizations = null, Optional<bool> allowDMUsage = default, Optional<Permissions?> defaultMemberPermissions = default)
         {
             var pld = new RestApplicationCommandEditPayload
             {
                 Name = name,
                 Description = description,
                 Options = options,
+                DefaultPermission = defaultPermission,
+                NameLocalizations = name_localizations,
+                DescriptionLocalizations = description_localizations
                 DefaultPermission = defaultPermission,
                 AllowDMUsage = allowDMUsage,
                 DefaultMemberPermissions = defaultMemberPermissions
@@ -3131,6 +3399,8 @@ namespace DSharpPlus.Net
                 Data = builder != null ? new DiscordInteractionApplicationCommandCallbackData
                 {
                     Content = builder.Content,
+                    Title = builder.Title,
+                    CustomId = builder.CustomId,
                     Embeds = builder.Embeds,
                     IsTTS = builder.IsTTS,
                     Mentions = new DiscordMentions(builder.Mentions ?? Mentions.All, builder.Mentions?.Any() ?? false),
@@ -3341,7 +3611,7 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.GET, route, headers).ConfigureAwait(false);
 
-            var info = JObject.Parse(res.Response).ToObject<GatewayInfo>();
+            var info = JObject.Parse(res.Response).ToDiscordObject<GatewayInfo>();
             info.SessionBucket.ResetAfter = DateTimeOffset.UtcNow + TimeSpan.FromMilliseconds(info.SessionBucket.ResetAfterInternal);
             return info;
         }

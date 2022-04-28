@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,7 @@
 
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Text.RegularExpressions;
 using DSharpPlus.Entities;
 
@@ -35,6 +36,21 @@ namespace DSharpPlus
     {
         private static Regex MdSanitizeRegex { get; } = new Regex(@"([`\*_~<>\[\]\(\)""@\!\&#:\|])", RegexOptions.ECMAScript);
         private static Regex MdStripRegex { get; } = new Regex(@"([`\*_~\[\]\(\)""\|]|<@\!?\d+>|<#\d+>|<@\&\d+>|<:[a-zA-Z0-9_\-]:\d+>)", RegexOptions.ECMAScript);
+
+        private const string AnsiEscapeStarter = "\u001b[";
+
+        /// <summary>
+        /// Colorizes text based using ANSI escape codes. Escape codes are only properly rendered in code blocks. Resets are inserted automatically.
+        /// </summary>
+        /// <param name="text">The text to colorize.</param>
+        /// <param name="styles"></param>
+        /// <returns></returns>
+        public static string Colorize(string text, params AnsiColor[] styles)
+        {
+            var joined = styles.Select(s => ((int)s).ToString()).Aggregate((a, b) => $"{a};{b}");
+
+            return $"{AnsiEscapeStarter}{joined}m{text}{AnsiEscapeStarter}{(int)AnsiColor.Reset}m";
+        }
 
         /// <summary>
         /// Creates a block of code.

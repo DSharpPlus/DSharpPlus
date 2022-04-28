@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -30,23 +30,8 @@ namespace DSharpPlus.Exceptions
     /// <summary>
     /// Represents an exception thrown when a requested resource is not found.
     /// </summary>
-    public class NotFoundException : Exception
+    public class NotFoundException : DiscordException
     {
-        /// <summary>
-        /// Gets the request that caused the exception.
-        /// </summary>
-        public BaseRestRequest WebRequest { get; internal set; }
-
-        /// <summary>
-        /// Gets the response to the request.
-        /// </summary>
-        public RestResponse WebResponse { get; internal set; }
-
-        /// <summary>
-        /// Gets the JSON received.
-        /// </summary>
-        public string JsonMessage { get; internal set; }
-
         internal NotFoundException(BaseRestRequest request, RestResponse response) : base("Not found: " + response.ResponseCode)
         {
             this.WebRequest = request;
