@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2022 DSharpPlus Contributors
+// Copyright (c) 2016-2021 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,67 +20,26 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-
 namespace DSharpPlus
 {
     /// <summary>
-    /// Represents the type of parameter when invoking an interaction.
+    /// Defines the type of entity that was updated.
     /// </summary>
-    public enum ApplicationCommandOptionType
+    public enum ApplicationUpdateType
     {
         /// <summary>
-        /// Whether this parameter is another subcommand.
+        ///  A role was updated.
         /// </summary>
-        SubCommand = 1,
+        Role = 1,
 
         /// <summary>
-        /// Whether this parameter is apart of a subcommand group.
+        /// A user was updated.
         /// </summary>
-        SubCommandGroup,
+        User = 2,
 
         /// <summary>
-        /// Whether this parameter is a string.
+        /// A channel was updated.
         /// </summary>
-        String,
-
-        /// <summary>
-        /// Whether this parameter is an integer.
-        /// </summary>
-        Integer,
-
-        /// <summary>
-        /// Whether this parameter is a boolean.
-        /// </summary>
-        Boolean,
-
-        /// <summary>
-        /// Whether this parameter is a Discord user.
-        /// </summary>
-        User,
-
-        /// <summary>
-        /// Whether this parameter is a Discord channel.
-        /// </summary>
-        Channel,
-
-        /// <summary>
-        /// Whether this parameter is a Discord role.
-        /// </summary>
-        Role,
-
-        /// <summary>
-        /// Whether this parameter is a mentionable (role or user).
-        /// </summary>
-        Mentionable,
-
-        /// <summary>
-        /// Whether this parameter is a double.
-        /// </summary>
-        Number,
-
-        /// <summary>
-        /// Whether this parameter is a Discord attachment.
-        /// </summary>
-        Attachment
+        Channel = 3
     }
 }

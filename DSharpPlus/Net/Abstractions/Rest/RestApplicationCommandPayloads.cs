@@ -49,6 +49,13 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("description_localizations")]
         public IReadOnlyDictionary<string, string> DescriptionLocalizations{ get; set; }
+
+        [JsonProperty("dm_permissions", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? AllowDMUsage { get; set; }
+
+        [JsonProperty("default_member_permissions", NullValueHandling = NullValueHandling.Ignore)]
+        public Permissions? DefaultMemberPermissions { get; set; }
+
     }
 
     internal class RestApplicationCommandEditPayload
@@ -70,6 +77,12 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("description_localizations")]
         public IReadOnlyDictionary<string, string> DescriptionLocalizations{ get; set; }
+
+        [JsonProperty("dm_permissions", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<bool> AllowDMUsage { get; set; }
+
+        [JsonProperty("default_member_permissions", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<Permissions?> DefaultMemberPermissions { get; set; }
     }
 
     internal class RestInteractionResponsePayload

@@ -3165,7 +3165,9 @@ namespace DSharpPlus.Net
                     Options = command.Options,
                     DefaultPermission = command.DefaultPermission,
                     NameLocalizations = command.NameLocalizations,
-                    DescriptionLocalizations = command.DescriptionLocalizations
+                    DescriptionLocalizations = command.DescriptionLocalizations,
+                    AllowDMUsage = command.AllowDMUsage,
+                    DefaultMemberPermissions = command.DefaultMemberPermissions
                 });
             }
 
@@ -3191,7 +3193,9 @@ namespace DSharpPlus.Net
                 Options = command.Options,
                 DefaultPermission = command.DefaultPermission,
                 NameLocalizations = command.NameLocalizations,
-                DescriptionLocalizations = command.DescriptionLocalizations
+                DescriptionLocalizations = command.DescriptionLocalizations,
+                AllowDMUsage = command.AllowDMUsage,
+                DefaultMemberPermissions = command.DefaultMemberPermissions
             };
 
             var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.COMMANDS}";
@@ -3220,7 +3224,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordApplicationCommand> EditGlobalApplicationCommandAsync(ulong application_id, ulong command_id, Optional<string> name, Optional<string> description, Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options, Optional<bool?> defaultPermission, IReadOnlyDictionary<string, string> name_localizations = null, IReadOnlyDictionary<string, string> description_localizations = null)
+        internal async Task<DiscordApplicationCommand> EditGlobalApplicationCommandAsync(ulong application_id, ulong command_id, Optional<string> name, Optional<string> description, Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options, Optional<bool?> defaultPermission, IReadOnlyDictionary<string, string> name_localizations = null, IReadOnlyDictionary<string, string> description_localizations = null, Optional<bool> allowDMUsage = default, Optional<Permissions?> defaultMemberPermissions = default)
         {
             var pld = new RestApplicationCommandEditPayload
             {
@@ -3229,7 +3233,9 @@ namespace DSharpPlus.Net
                 Options = options,
                 DefaultPermission = defaultPermission,
                 NameLocalizations = name_localizations,
-                DescriptionLocalizations = description_localizations
+                DescriptionLocalizations = description_localizations,
+                AllowDMUsage = allowDMUsage,
+                DefaultMemberPermissions = defaultMemberPermissions
             };
 
             var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.COMMANDS}/:command_id";
@@ -3280,7 +3286,9 @@ namespace DSharpPlus.Net
                     Options = command.Options,
                     DefaultPermission = command.DefaultPermission,
                     NameLocalizations = command.NameLocalizations,
-                    DescriptionLocalizations = command.DescriptionLocalizations
+                    DescriptionLocalizations = command.DescriptionLocalizations,
+                    AllowDMUsage = command.AllowDMUsage,
+                    DefaultMemberPermissions = command.DefaultMemberPermissions
                 });
             }
 
@@ -3306,7 +3314,9 @@ namespace DSharpPlus.Net
                 Options = command.Options,
                 DefaultPermission = command.DefaultPermission,
                 NameLocalizations = command.NameLocalizations,
-                DescriptionLocalizations = command.DescriptionLocalizations
+                DescriptionLocalizations = command.DescriptionLocalizations,
+                AllowDMUsage = command.AllowDMUsage,
+                DefaultMemberPermissions = command.DefaultMemberPermissions
             };
 
             var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.GUILDS}/:guild_id{Endpoints.COMMANDS}";
@@ -3335,7 +3345,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordApplicationCommand> EditGuildApplicationCommandAsync(ulong application_id, ulong guild_id, ulong command_id, Optional<string> name, Optional<string> description, Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options, Optional<bool?> defaultPermission, IReadOnlyDictionary<string, string> name_localizations = null, IReadOnlyDictionary<string, string> description_localizations = null)
+        internal async Task<DiscordApplicationCommand> EditGuildApplicationCommandAsync(ulong application_id, ulong guild_id, ulong command_id, Optional<string> name, Optional<string> description, Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options, Optional<bool?> defaultPermission, IReadOnlyDictionary<string, string> name_localizations = null, IReadOnlyDictionary<string, string> description_localizations = null, Optional<bool> allowDMUsage = default, Optional<Permissions?> defaultMemberPermissions = default)
         {
             var pld = new RestApplicationCommandEditPayload
             {
@@ -3344,7 +3354,9 @@ namespace DSharpPlus.Net
                 Options = options,
                 DefaultPermission = defaultPermission,
                 NameLocalizations = name_localizations,
-                DescriptionLocalizations = description_localizations
+                DescriptionLocalizations = description_localizations,
+                AllowDMUsage = allowDMUsage,
+                DefaultMemberPermissions = defaultMemberPermissions
             };
 
             var route = $"{Endpoints.APPLICATIONS}/:application_id{Endpoints.GUILDS}/:guild_id{Endpoints.COMMANDS}/:command_id";

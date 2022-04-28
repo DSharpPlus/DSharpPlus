@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2022 DSharpPlus Contributors
+// Copyright (c) 2016-2021 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,67 +20,56 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+using System.Collections.Generic;
+using Newtonsoft.Json;
 
-namespace DSharpPlus
+namespace DSharpPlus.EventArgs
 {
-    /// <summary>
-    /// Represents the type of parameter when invoking an interaction.
-    /// </summary>
-    public enum ApplicationCommandOptionType
+    public class ApplicationCommandPermissionsUpdatedEventArgs : DiscordEventArgs
     {
         /// <summary>
-        /// Whether this parameter is another subcommand.
+        /// The Id of the guild the command was updated for.
         /// </summary>
-        SubCommand = 1,
+        [JsonProperty("guild_id")]
+        public ulong GuildId { get; internal set; }
 
         /// <summary>
-        /// Whether this parameter is apart of a subcommand group.
+        /// The Id of the command that was updated.
         /// </summary>
-        SubCommandGroup,
+        [JsonProperty("id")]
+        public ulong CommandId { get; internal set; }
 
         /// <summary>
-        /// Whether this parameter is a string.
+        /// The Id of the application the command was updated for.
         /// </summary>
-        String,
+        [JsonProperty("application_id")]
+        public ulong ApplicationId { get; internal set; }
 
         /// <summary>
-        /// Whether this parameter is an integer.
+        /// The new permissions for the command.
         /// </summary>
-        Integer,
+        [JsonProperty("permissions")]
+        public IReadOnlyList<ApplicationCommandPermissionUpdate> NewPermissions { get; internal set; }
+    }
+
+    public class ApplicationCommandPermissionUpdate
+    {
+        /// <summary>
+        /// The Id of the entity this permission is for.
+        /// </summary>
+        [JsonProperty("id")]
+        public ulong Id { get; internal set; }
 
         /// <summary>
-        /// Whether this parameter is a boolean.
+        /// Whether the role/user/channel [or anyone in the channel/with the role] is allowed to use the command.
         /// </summary>
-        Boolean,
+        [JsonProperty("permission")]
+        public bool Allow { get; internal set; }
 
         /// <summary>
-        /// Whether this parameter is a Discord user.
+        ///
         /// </summary>
-        User,
-
-        /// <summary>
-        /// Whether this parameter is a Discord channel.
-        /// </summary>
-        Channel,
-
-        /// <summary>
-        /// Whether this parameter is a Discord role.
-        /// </summary>
-        Role,
-
-        /// <summary>
-        /// Whether this parameter is a mentionable (role or user).
-        /// </summary>
-        Mentionable,
-
-        /// <summary>
-        /// Whether this parameter is a double.
-        /// </summary>
-        Number,
-
-        /// <summary>
-        /// Whether this parameter is a Discord attachment.
-        /// </summary>
-        Attachment
+        [JsonProperty("type")]
+        public ApplicationCommandPermissionType Type { get; internal set; }
     }
 }

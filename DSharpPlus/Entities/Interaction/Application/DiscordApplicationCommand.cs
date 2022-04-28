@@ -71,6 +71,19 @@ namespace DSharpPlus.Entities
         public bool? DefaultPermission { get; internal set; }
 
         /// <summary>
+        /// Whether this command can be invoked in DMs.
+        /// </summary>
+        [JsonProperty("dm_permissions")]
+        public bool? AllowDMUsage { get; internal set; }
+
+        /// <summary>
+        /// What permissions this command requires to be invoked.
+        /// </summary>
+        [JsonProperty("default_member_permissions")]
+        public Permissions? DefaultMemberPermissions { get; internal set; }
+
+
+        /// <summary>
         /// Gets the autoincrementing version number for this command.
         /// </summary>
         [JsonProperty("version")]
@@ -90,7 +103,7 @@ namespace DSharpPlus.Entities
         /// <param name="options">Optional parameters for this command.</param>
         /// <param name="defaultPermission">Whether the command is enabled by default when the application is added to a guild.</param>
         /// <param name="type">The type of the application command</param>
-        public DiscordApplicationCommand(string name, string description, IEnumerable<DiscordApplicationCommandOption> options = null, bool? defaultPermission = null, ApplicationCommandType type = ApplicationCommandType.SlashCommand, IReadOnlyDictionary<string, string> name_localizations = null, IReadOnlyDictionary<string, string> description_localizations = null)
+        public DiscordApplicationCommand(string name, string description, IEnumerable<DiscordApplicationCommandOption> options = null, bool? defaultPermission = null, ApplicationCommandType type = ApplicationCommandType.SlashCommand, IReadOnlyDictionary<string, string> name_localizations = null, IReadOnlyDictionary<string, string> description_localizations = null, bool? allowDMUsage = null, Permissions? defaultMemberPermissions = null)
         {
             if (type is ApplicationCommandType.SlashCommand)
             {
@@ -119,6 +132,8 @@ namespace DSharpPlus.Entities
             this.DefaultPermission = defaultPermission;
             this.NameLocalizations = name_localizations;
             this.DescriptionLocalizations = description_localizations;
+            this.AllowDMUsage = allowDMUsage;
+            this.DefaultMemberPermissions = defaultMemberPermissions;
         }
 
         /// <summary>
