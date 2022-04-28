@@ -3165,8 +3165,7 @@ namespace DSharpPlus.Net
                     Options = command.Options,
                     DefaultPermission = command.DefaultPermission,
                     NameLocalizations = command.NameLocalizations,
-                    DescriptionLocalizations = command.DescriptionLocalizations
-                    DefaultPermission = command.DefaultPermission,
+                    DescriptionLocalizations = command.DescriptionLocalizations,
                     AllowDMUsage = command.AllowDMUsage,
                     DefaultMemberPermissions = command.DefaultMemberPermissions
                 });
@@ -3194,8 +3193,7 @@ namespace DSharpPlus.Net
                 Options = command.Options,
                 DefaultPermission = command.DefaultPermission,
                 NameLocalizations = command.NameLocalizations,
-                DescriptionLocalizations = command.DescriptionLocalizations
-                DefaultPermission = command.DefaultPermission,
+                DescriptionLocalizations = command.DescriptionLocalizations,
                 AllowDMUsage = command.AllowDMUsage,
                 DefaultMemberPermissions = command.DefaultMemberPermissions
             };
@@ -3226,7 +3224,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordApplicationCommand> EditGlobalApplicationCommandAsync(ulong application_id, ulong command_id, Optional<string> name, Optional<string> description, Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options, Optional<bool?> defaultPermission, IReadOnlyDictionary<string, string> name_localizations = null, IReadOnlyDictionary<string, string> description_localizations = null, Optional<bool> allowDMUsage, Optional<Permissions?> defaultMemberPermissions)
+        internal async Task<DiscordApplicationCommand> EditGlobalApplicationCommandAsync(ulong application_id, ulong command_id, Optional<string> name, Optional<string> description, Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options, Optional<bool?> defaultPermission, IReadOnlyDictionary<string, string> name_localizations = null, IReadOnlyDictionary<string, string> description_localizations = null, Optional<bool> allowDMUsage = default, Optional<Permissions?> defaultMemberPermissions = default)
         {
             var pld = new RestApplicationCommandEditPayload
             {
@@ -3235,8 +3233,7 @@ namespace DSharpPlus.Net
                 Options = options,
                 DefaultPermission = defaultPermission,
                 NameLocalizations = name_localizations,
-                DescriptionLocalizations = description_localizations
-                DefaultPermission = defaultPermission,
+                DescriptionLocalizations = description_localizations,
                 AllowDMUsage = allowDMUsage,
                 DefaultMemberPermissions = defaultMemberPermissions
             };
@@ -3289,8 +3286,7 @@ namespace DSharpPlus.Net
                     Options = command.Options,
                     DefaultPermission = command.DefaultPermission,
                     NameLocalizations = command.NameLocalizations,
-                    DescriptionLocalizations = command.DescriptionLocalizations
-                    DefaultPermission = command.DefaultPermission,
+                    DescriptionLocalizations = command.DescriptionLocalizations,
                     AllowDMUsage = command.AllowDMUsage,
                     DefaultMemberPermissions = command.DefaultMemberPermissions
                 });
@@ -3318,8 +3314,7 @@ namespace DSharpPlus.Net
                 Options = command.Options,
                 DefaultPermission = command.DefaultPermission,
                 NameLocalizations = command.NameLocalizations,
-                DescriptionLocalizations = command.DescriptionLocalizations
-                DefaultPermission = command.DefaultPermission,
+                DescriptionLocalizations = command.DescriptionLocalizations,
                 AllowDMUsage = command.AllowDMUsage,
                 DefaultMemberPermissions = command.DefaultMemberPermissions
             };
@@ -3359,8 +3354,7 @@ namespace DSharpPlus.Net
                 Options = options,
                 DefaultPermission = defaultPermission,
                 NameLocalizations = name_localizations,
-                DescriptionLocalizations = description_localizations
-                DefaultPermission = defaultPermission,
+                DescriptionLocalizations = description_localizations,
                 AllowDMUsage = allowDMUsage,
                 DefaultMemberPermissions = defaultMemberPermissions
             };

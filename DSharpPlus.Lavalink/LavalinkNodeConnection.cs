@@ -352,7 +352,7 @@ namespace DSharpPlus.Lavalink
             con.TrackStuck += (s, e) => this._trackStuck.InvokeAsync(s, e);
             con.TrackException += (s, e) => this._trackException.InvokeAsync(s, e);
             this._connectedGuilds[channel.Guild.Id] = con;
-            await _guildConnectionCreated.InvokeAsync(con, new GuildConnectionCreatedEventArgs());
+            await this._guildConnectionCreated.InvokeAsync(con, new GuildConnectionCreatedEventArgs());
 
             return con;
         }
@@ -478,7 +478,7 @@ namespace DSharpPlus.Lavalink
                 {
                     await kvp.Value.SendVoiceUpdateAsync().ConfigureAwait(false);
                     _ = this._connectedGuilds.TryRemove(kvp.Key, out var con);
-                    await _guildConnectionRemoved.InvokeAsync(con, new GuildConnectionRemovedEventArgs());
+                    await this._guildConnectionRemoved.InvokeAsync(con, new GuildConnectionRemovedEventArgs());
                 }
                 this.NodeDisconnected?.Invoke(this);
                 await this._disconnected.InvokeAsync(this, new NodeDisconnectedEventArgs(this, false)).ConfigureAwait(false);
@@ -500,7 +500,7 @@ namespace DSharpPlus.Lavalink
         private async void Con_ChannelDisconnected(LavalinkGuildConnection con)
         {
             this._connectedGuilds.TryRemove(con.GuildId, out con);
-            await _guildConnectionRemoved.InvokeAsync(con, new GuildConnectionRemovedEventArgs());
+            await this._guildConnectionRemoved.InvokeAsync(con, new GuildConnectionRemovedEventArgs());
         }
 
         private Task Discord_VoiceStateUpdated(DiscordClient client, VoiceStateUpdateEventArgs e)
@@ -527,7 +527,7 @@ namespace DSharpPlus.Lavalink
 
                         await lvlgc.DisconnectInternalAsync(false, true).ConfigureAwait(false);
                         _ = this._connectedGuilds.TryRemove(gld.Id, out var con);
-                        await _guildConnectionRemoved.InvokeAsync(con, new GuildConnectionRemovedEventArgs());
+                        await this._guildConnectionRemoved.InvokeAsync(con, new GuildConnectionRemovedEventArgs());
                     });
                 }
 
