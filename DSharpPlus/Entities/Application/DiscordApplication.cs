@@ -148,11 +148,11 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Retrieves this application's assets.
         /// </summary>
-        /// <param name="useCacheIfPossible">True to return cached assets if possible, false to always retrieve fresh assets from Discord.</param>
+        /// <param name="updateCache">Whether to always make a REST request and update the cached assets.</param>
         /// <returns>This application's assets.</returns>
-        public async Task<IReadOnlyList<DiscordApplicationAsset>> GetAssetsAsync(bool useCacheIfPossible = true)
+        public async Task<IReadOnlyList<DiscordApplicationAsset>> GetAssetsAsync(bool updateCache = false)
         {
-            if (!useCacheIfPossible || this.Assets == null)
+            if (updateCache || this.Assets == null)
                 this.Assets = await this.Discord.ApiClient.GetApplicationAssetsAsync(this).ConfigureAwait(false);
 
             return this.Assets;
