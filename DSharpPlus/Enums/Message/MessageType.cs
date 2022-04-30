@@ -131,6 +131,11 @@ namespace DSharpPlus
         /// <summary>
         /// Message indicating a context menu was executed.
         /// </summary>
-        ContextMenuCommand = 23
+        ContextMenuCommand = 23,
+
+        /// <summary>
+        /// Message indicating an AutoMod alert.
+        /// </summary>
+        AutoModAlert = 24,
     }
 }
