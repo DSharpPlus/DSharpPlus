@@ -459,7 +459,7 @@ namespace DSharpPlus.VoiceNext
             if (!this.Rtp.IsRtpHeader(data))
                 return false;
 
-            this.Rtp.DecodeHeader(data, out var sequence, out var timestamp, out var ssrc, out var hasExtension);
+            this.Rtp.DecodeHeader(data, out var shortSequence, out var timestamp, out var ssrc, out var hasExtension);
 
             if (!this.TransmittingSSRCs.TryGetValue(ssrc, out var vtx))
             {
@@ -473,12 +473,17 @@ namespace DSharpPlus.VoiceNext
             }
 
             voiceSender = vtx;
-            if (sequence <= vtx.LastSequence) // out-of-order packet; discard
-                return false;
-            var gap = vtx.LastSequence != 0 ? sequence - 1 - vtx.LastSequence : 0;
+            ulong sequence = vtx.GetTrueSequenceAfterWrapping(shortSequence);
+            ushort gap = 0;
+            if (vtx.LastTrueSequence is ulong lastTrueSequence)
+            {
+                if (sequence <= lastTrueSequence) // out-of-order packet; discard
+                    return false;
 
-            if (gap >= 5)
-                this.Discord.Logger.LogWarning(VoiceNextEvents.VoiceReceiveFailure, "5 or more voice packets were dropped when receiving");
+                gap = (ushort)(sequence - 1 - lastTrueSequence);
+                if (gap >= 5)
+                    this.Discord.Logger.LogWarning(VoiceNextEvents.VoiceReceiveFailure, "5 or more voice packets were dropped when receiving");
+            }
 
             Span<byte> nonce = stackalloc byte[Sodium.NonceSize];
             this.Sodium.GetNonce(data, nonce, this.SelectedEncryptionMode);
@@ -554,7 +559,7 @@ namespace DSharpPlus.VoiceNext
             }
             finally
             {
-                vtx.LastSequence = sequence;
+                vtx.LastTrueSequence = sequence;
             }
 
             return true;
