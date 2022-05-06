@@ -1042,8 +1042,6 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("Threads can only be created within text or news channels.");
             else if (message.ChannelId != this.Id)
                 throw new ArgumentException("You must use a message from this channel to create a thread.");
-            else if ((archiveAfter == AutoArchiveDuration.ThreeDays && !this.Guild.Features.Contains("THREE_DAY_THREAD_ARCHIVE")) || (archiveAfter == AutoArchiveDuration.Week && !this.Guild.Features.Contains("SEVEN_DAY_THREAD_ARCHIVE")))
-                throw new ArgumentException("This archive duration requires the guild to be boosted or have these archive durations enabled."); //are guild features always cached?
 
             return this.Discord.ApiClient.CreateThreadFromMessageAsync(this.Id, message.Id, name, archiveAfter, reason);
         }
@@ -1067,8 +1065,6 @@ namespace DSharpPlus.Entities
                 throw new InvalidOperationException("News threads can only be created within a news channels.");
             else if (threadType != ChannelType.PublicThread && threadType != ChannelType.PrivateThread && threadType != ChannelType.NewsThread)
                 throw new ArgumentException("Given channel type for creating a thread is not a valid type of thread.");
-            else if ((archiveAfter == AutoArchiveDuration.ThreeDays && !this.Guild.Features.Contains("THREE_DAY_THREAD_ARCHIVE")) || (archiveAfter == AutoArchiveDuration.Week && !this.Guild.Features.Contains("SEVEN_DAY_THREAD_ARCHIVE")))
-                throw new ArgumentException("This archive duration requires the guild to be boosted or have these archive durations enabled.");
             else if (threadType == ChannelType.PrivateThread && !this.Guild.Features.Contains("PRIVATE_THREADS"))
                 throw new ArgumentException("This guild cannot create private threads.");
 
