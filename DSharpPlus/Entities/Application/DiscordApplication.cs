@@ -148,10 +148,11 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Retrieves this application's assets.
         /// </summary>
+        /// <param name="updateCache">Whether to always make a REST request and update the cached assets.</param>
         /// <returns>This application's assets.</returns>
-        public async Task<IReadOnlyList<DiscordApplicationAsset>> GetAssetsAsync()
+        public async Task<IReadOnlyList<DiscordApplicationAsset>> GetAssetsAsync(bool updateCache = false)
         {
-            if (this.Assets == null)
+            if (updateCache || this.Assets == null)
                 this.Assets = await this.Discord.ApiClient.GetApplicationAssetsAsync(this).ConfigureAwait(false);
 
             return this.Assets;
@@ -186,7 +187,7 @@ namespace DSharpPlus.Entities
 
             foreach(var v in scopes)
                 scopeBuilder.Append(" ").Append(this.TranslateOAuthScope(v));
-            
+
 
             var queryBuilder = new QueryUriBuilder("https://discord.com/oauth2/authorize")
                 .AddParameter("client_id", this.Id.ToString(CultureInfo.InvariantCulture))

@@ -1253,11 +1253,12 @@ namespace DSharpPlus.Entities
         /// Gets a member of this guild by their user ID.
         /// </summary>
         /// <param name="userId">ID of the member to get.</param>
+        /// <param name="updateCache">Whether to always make a REST request and update the member cache.</param>
         /// <returns>The requested member.</returns>
         /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordMember> GetMemberAsync(ulong userId)
+        public async Task<DiscordMember> GetMemberAsync(ulong userId, bool updateCache = false)
         {
-            if (this._members != null && this._members.TryGetValue(userId, out var mbr))
+            if (!updateCache && this._members != null && this._members.TryGetValue(userId, out var mbr))
                 return mbr;
 
             mbr = await this.Discord.ApiClient.GetGuildMemberAsync(this.Id, userId).ConfigureAwait(false);

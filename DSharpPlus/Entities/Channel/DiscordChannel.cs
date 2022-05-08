@@ -405,14 +405,17 @@ namespace DSharpPlus.Entities
         /// Returns a specific message
         /// </summary>
         /// <param name="id">The id of the message</param>
+        /// <param name="skipCache">Whether to always make a REST request.</param>
         /// <returns></returns>
         /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ReadMessageHistory"/> permission.</exception>
         /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public async Task<DiscordMessage> GetMessageAsync(ulong id)
+        /// <remarks>Cached message objects will not be returned if <see cref="DiscordConfiguration.MessageCacheSize"/> is set to zero, if the client does not have the <see cref="DiscordIntents.GuildMessages"/> or <see cref="DiscordIntents.DirectMessages"/> intents, or if the discord client is a <see cref="DiscordShardedClient"/>.</remarks>
+        public async Task<DiscordMessage> GetMessageAsync(ulong id, bool skipCache = false)
         {
-            return this.Discord.Configuration.MessageCacheSize > 0
+            return !skipCache
+                && this.Discord.Configuration.MessageCacheSize > 0
                 && this.Discord is DiscordClient dc
                 && dc.MessageCache != null
                 && dc.MessageCache.TryGet(xm => xm.Id == id && xm.ChannelId == this.Id, out var msg)
