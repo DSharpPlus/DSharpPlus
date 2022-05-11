@@ -285,6 +285,11 @@ namespace DSharpPlus.Entities
         /// </summary>
         public PropertyChange<bool?> DeafenChange { get; internal set; }
 
+        /// <summary>
+        /// Gets the change in a user's timeout status
+        /// </summary>
+        public PropertyChange<System.DateTime?> TimeoutChange { get; internal set; }
+
         internal DiscordAuditLogMemberUpdateEntry() { }
     }
 
@@ -399,6 +404,11 @@ namespace DSharpPlus.Entities
         /// Gets the description of webhook's avatar change.
         /// </summary>
         public PropertyChange<string> AvatarHashChange { get; internal set; }
+
+        /// <summary>
+        /// Gets the change in application ID.
+        /// </summary>
+        public PropertyChange<ulong?> ApplicationIdChange { get; internal set; }
 
         internal DiscordAuditLogWebhookEntry() { }
     }
@@ -559,6 +569,103 @@ namespace DSharpPlus.Entities
         /// </summary>
         public PropertyChange<int?> ExpireBehavior { get; internal set; }
     }
+
+    public sealed class DiscordAuditLogGuildScheduledEventEntry : DiscordAuditLogEntry
+    {
+        /// <summary>
+        /// Gets a change in the event's name
+        /// </summary>
+        public PropertyChange<string?> Name { get; internal set; }
+
+        /// <summary>
+        /// Gets the target event. Note that this will only have the ID specified if it is not cached.
+        /// </summary>
+        public DiscordScheduledGuildEvent Target { get; internal set; }
+
+        /// <summary>
+        /// Gets the channel the event was changed to.
+        /// </summary>
+        public PropertyChange<DiscordChannel?> Channel { get; internal set; }
+
+        /// <summary>
+        /// Gets the description change of the event.
+        /// </summary>
+        public PropertyChange<string?> Description { get; internal set; }
+
+        /// <summary>
+        /// Gets the change of type for the event.
+        /// </summary>
+        public PropertyChange<ScheduledGuildEventType?> Type { get; internal set; }
+
+        /// <summary>
+        /// Gets the change in image hash.
+        /// </summary>
+        public PropertyChange<string?> ImageHash { get; internal set; }
+
+        /// <summary>
+        /// Gets the change in event location, if it's an external event.
+        /// </summary>
+        public PropertyChange<string?> Location { get; internal set; }
+
+        /// <summary>
+        /// Gets change in privacy level.
+        /// </summary>
+        public PropertyChange<ScheduledGuildEventPrivacyLevel?> PrivacyLevel { get; internal set; }
+
+        /// <summary>
+        /// Gets the change in status.
+        /// </summary>
+        public PropertyChange<ScheduledGuildEventStatus?> Status { get; internal set; }
+
+        public DiscordAuditLogGuildScheduledEventEntry() { }
+    }
+
+    public sealed class DiscordAuditLogThreadEventEntry : DiscordAuditLogEntry
+    {
+        /// <summary>
+        /// Gets the target thread.
+        /// </summary>
+        public DiscordThreadChannel Target { get; internal set; }
+
+        /// <summary>
+        /// Gets a change in the thread's name.
+        /// </summary>
+        public PropertyChange<string?> Name { get; internal set; }
+
+        /// <summary>
+        /// Gets a change in channel type.
+        /// </summary>
+        public PropertyChange<ChannelType?> Type { get; internal set; }
+
+        /// <summary>
+        /// Gets a change in the thread's archived status.
+        /// </summary>
+        public PropertyChange<bool?> Archived { get; internal set; }
+
+        /// <summary>
+        /// Gets a change in the thread's auto archive duration.
+        /// </summary>
+        public PropertyChange<int?> AutoArchiveDuration { get; internal set; }
+
+        /// <summary>
+        /// Gets a change in the threads invitibility
+        /// </summary>
+        public PropertyChange<bool?> Invitable { get; internal set; }
+
+        /// <summary>
+        /// Gets a change in the thread's locked status
+        /// </summary>
+        public PropertyChange<bool?> Locked { get; internal set; }
+
+        /// <summary>
+        /// Gets a change in the thread's slowmode setting
+        /// </summary>
+        public PropertyChange<int?> PerUserRateLimit { get; internal set; }
+
+        internal DiscordAuditLogThreadEventEntry() { }
+
+    }
+
 
     /// <summary>
     /// Indicates audit log action category.
@@ -782,5 +889,35 @@ namespace DSharpPlus.Entities
         /// Indicates that an sticker was deleted.
         /// </summary>
         StickerDelete = 92,
+
+        /// <summary>
+        /// Indicates that a guild event was created.
+        /// </summary>
+        GuildScheduledEventCreate = 100,
+
+        /// <summary>
+        /// Indicates that a guild event was updated.
+        /// </summary>
+        GuildScheduledEventUpdate = 101,
+
+        /// <summary>
+        /// Indicates that a guild event was deleted.
+        /// </summary>
+        GuildScheduledEventDelete = 102,
+
+        /// <summary>
+        /// Indicates that a thread was created.
+        /// </summary>
+        ThreadCreate = 110,
+
+        /// <summary>
+        /// Indicates that a thread was updated.
+        /// </summary>
+        ThreadUpdate = 111,
+
+        /// <summary>
+        /// Indicates that a thread was deleted.
+        /// </summary>
+        ThreadDelete = 112
     }
 }

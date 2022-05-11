@@ -83,6 +83,15 @@ namespace DSharpPlus.Net.Abstractions
         public string OldValueString
             => (string)this.OldValue;
 
+        [JsonIgnore]
+        public bool OldValueBool
+            => (bool)this.OldValue;
+
+        [JsonIgnore]
+        public long OldValueLong
+            => (long)this.OldValue;
+
+
         // this can be a string or an array
         [JsonProperty("new_value")]
         public object NewValue { get; set; }
@@ -98,6 +107,14 @@ namespace DSharpPlus.Net.Abstractions
         [JsonIgnore]
         public string NewValueString
             => (string)this.NewValue;
+
+        [JsonIgnore]
+        public bool NewValueBool
+            => (bool)this.NewValue;
+
+        [JsonIgnore]
+        public long NewValueLong
+            => (long)this.NewValue;
 
         [JsonProperty("key")]
         public string Key { get; set; }
@@ -161,5 +178,14 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("audit_log_entries")]
         public IEnumerable<AuditLogAction> Entries { get; set; }
+
+        [JsonProperty("guild_scheduled_events")]
+        public IEnumerable<DiscordScheduledGuildEvent> Events { get; set; }
+
+        [JsonProperty("integrations")]
+        public IEnumerable<DiscordIntegration> Integrations { get; set; }
+
+        [JsonProperty("threads")]
+        public IEnumerable<DiscordThreadChannel> Threads { get; set; }
     }
 }
