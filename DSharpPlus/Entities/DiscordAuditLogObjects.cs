@@ -289,7 +289,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the change in a user's timeout status
         /// </summary>
-        public PropertyChange<System.DateTime?> TimeoutChange { get; internal set; }
+        public PropertyChange<DateTime?> TimeoutChange { get; internal set; }
 
         internal DiscordAuditLogMemberUpdateEntry() { }
     }
