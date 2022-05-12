@@ -1448,7 +1448,7 @@ namespace DSharpPlus.Entities
                 .GroupBy(xa => xa.Id)
                 .Select(xu => xu.First());
 
-            var Thr = alrs.SelectMany(xr => xr.Threads)
+            var thr = alrs.SelectMany(xr => xr.Threads)
                 .GroupBy(xa => xa.Id)
                 .Select(xu => xu.First());
 
@@ -1465,17 +1465,15 @@ namespace DSharpPlus.Entities
             Dictionary<ulong, DiscordScheduledGuildEvent> events = null;
             if (eve.Any())
             {
-                var evh = await this.GetEventsAsync().ConfigureAwait(false);
-                var evb = evh.ToDictionary(xr => xr.Id, xr => xr);
-
+                var evb = this._scheduledEvents;
                 var evf = eve.Select(xa => evb.TryGetValue(xa.Id, out var Event) ? Event : new DiscordScheduledGuildEvent { Discord = this.Discord, Name = xa.Name, Id = xa.Id, ChannelId = xa.ChannelId, GuildId = xa.GuildId, Creator = xa.Creator, Description = xa.Description, EndTime = xa.EndTime, Metadata = xa.Metadata, PrivacyLevel = xa.PrivacyLevel, StartTime = xa.StartTime, Status = xa.Status, Type = xa.Type, UserCount = xa.UserCount});
                 events = evf.ToDictionary(xb => xb.Id, xb => xb);
             }
 
             Dictionary<ulong, DiscordThreadChannel> threads = null;
-            if (Thr.Any())
+            if (thr.Any())
             {
-                var thb = Thr.Select(xr => xr ?? new DiscordThreadChannel{ Discord = this.Discord, Id = xr.Id, Name = xr.Name, GuildId = xr.GuildId});
+                var thb = thr.Select(xr => xr ?? new DiscordThreadChannel{ Discord = this.Discord, Id = xr.Id, Name = xr.Name, GuildId = xr.GuildId});
                 threads = thb.ToDictionary(xa => xa.Id, xa => xa);
             }
 
