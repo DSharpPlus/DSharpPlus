@@ -150,7 +150,7 @@ namespace DSharpPlus.CommandsNext
 
             var t = typeof(CommandsNextExtension);
             var ms = t.GetTypeInfo().DeclaredMethods;
-            var m = ms.FirstOrDefault(xm => xm.Name == "ConvertArgument" && xm.ContainsGenericParameters && !xm.IsStatic && xm.IsPublic);
+            var m = ms.FirstOrDefault(xm => xm.Name == nameof(ConvertArgument) && xm.ContainsGenericParameters && !xm.IsStatic && xm.IsPublic);
             this.ConvertGeneric = m;
         }
 
