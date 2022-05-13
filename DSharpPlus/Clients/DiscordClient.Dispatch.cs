@@ -1252,8 +1252,10 @@ namespace DSharpPlus
             var pending_old = mbr.IsPending;
             var roles_old = new ReadOnlyCollection<DiscordRole>(new List<DiscordRole>(mbr.Roles));
             var avatar_old = mbr.GuildAvatarHash;
+            var username_old = mbr.Username;
             var commm_old = mbr.CommunicationDisabledUntil;
 
+            mbr.Username = member.User.Username;
             mbr._avatarHash = member.AvatarHash;
             mbr.Nickname = nick;
             mbr.IsPending = pending;
@@ -1269,12 +1271,14 @@ namespace DSharpPlus
                 NicknameAfter = mbr.Nickname,
                 RolesAfter = new ReadOnlyCollection<DiscordRole>(new List<DiscordRole>(mbr.Roles)),
                 AvatarHashAfter = mbr.AvatarHash,
+                UsernameAfter = mbr.Username,
                 PendingAfter = mbr.IsPending,
                 CommunicationDisabledUntilAfter = mbr.CommunicationDisabledUntil,
 
                 NicknameBefore = nick_old,
                 RolesBefore = roles_old,
                 AvatarHashBefore = avatar_old,
+                UsernameBefore = username_old,
                 PendingBefore = pending_old,
                 CommunicationDisabledUntilBefore = commm_old
             };
