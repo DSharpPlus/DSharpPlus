@@ -1444,8 +1444,13 @@ namespace DSharpPlus.Entities
                 .GroupBy(xh => xh.Id)
                 .Select(xgh => xgh.First());
 
-            var ams = amr.Select(xau => (this._members != null && this._members.TryGetValue(xau.Id, out var member)) ? member : new DiscordMember { Discord = this.Discord, Id = xau.Id, _guild_id = this.Id });
-            var amd = ams.ToDictionary(xm => xm.Id, xm => xm);
+            var eve = alrs.SelectMany(xr => xr.Events)
+                .GroupBy(xa => xa.Id)
+                .Select(xu => xu.First());
+
+            var thr = alrs.SelectMany(xr => xr.Threads)
+                .GroupBy(xa => xa.Id)
+                .Select(xu => xu.First());
 
             Dictionary<ulong, DiscordWebhook> ahd = null;
             if (ahr.Any())
@@ -1456,6 +1461,24 @@ namespace DSharpPlus.Entities
                 var amh = ahr.Select(xah => whs.TryGetValue(xah.Id, out var webhook) ? webhook : new DiscordWebhook { Discord = this.Discord, Name = xah.Name, Id = xah.Id, AvatarHash = xah.AvatarHash, ChannelId = xah.ChannelId, GuildId = xah.GuildId, Token = xah.Token });
                 ahd = amh.ToDictionary(xh => xh.Id, xh => xh);
             }
+
+            Dictionary<ulong, DiscordScheduledGuildEvent> events = null;
+            if (eve.Any())
+            {
+                var evb = this._scheduledEvents;
+                var evf = eve.Select(xa => evb.TryGetValue(xa.Id, out var Event) ? Event : new DiscordScheduledGuildEvent { Discord = this.Discord, Name = xa.Name, Id = xa.Id, ChannelId = xa.ChannelId, GuildId = xa.GuildId, Creator = xa.Creator, Description = xa.Description, EndTime = xa.EndTime, Metadata = xa.Metadata, PrivacyLevel = xa.PrivacyLevel, StartTime = xa.StartTime, Status = xa.Status, Type = xa.Type, UserCount = xa.UserCount});
+                events = evf.ToDictionary(xb => xb.Id, xb => xb);
+            }
+
+            Dictionary<ulong, DiscordThreadChannel> threads = null;
+            if (thr.Any())
+            {
+                var thb = thr.Select(xr => xr ?? new DiscordThreadChannel{ Discord = this.Discord, Id = xr.Id, Name = xr.Name, GuildId = xr.GuildId});
+                threads = thb.ToDictionary(xa => xa.Id, xa => xa);
+            }
+
+            var ams = amr.Select(xau => (this._members != null && this._members.TryGetValue(xau.Id, out var member)) ? member : new DiscordMember { Discord = this.Discord, Id = xau.Id, _guild_id = this.Id });
+            var amd = ams.ToDictionary(xm => xm.Id, xm => xm);
 
             var acs = alrs.SelectMany(xa => xa.Entries).OrderByDescending(xa => xa.Id);
             var entries = new List<DiscordAuditLogEntry>();
@@ -1799,6 +1822,14 @@ namespace DSharpPlus.Entities
                                     };
                                     break;
 
+                                case "communication_disabled_until":
+                                    entrymbu.TimeoutChange = new PropertyChange<DateTime?>
+                                    {
+                                        Before = xc.OldValue != null ? (DateTime)xc.OldValue : null,
+                                        After = xc.NewValue != null ? (DateTime)xc.NewValue : null
+                                    };
+                                    break;
+
                                 case "$add":
                                     entrymbu.AddedRoles = new ReadOnlyCollection<DiscordRole>(xc.NewValues.Select(xo => (ulong)xo["id"]).Select(this.GetRole).ToList());
                                     break;
@@ -2050,6 +2081,15 @@ namespace DSharpPlus.Entities
                                     };
                                     break;
 
+                                case "application_id": //Why the fuck does discord send this as a string if it's supposed to be a snowflake
+                                    entrywhk.ApplicationIdChange = new PropertyChange<ulong?>
+                                    {
+                                        Before = xc.OldValue != null ? Convert.ToUInt64(xc.OldValueString) : null,
+                                        After = xc.NewValue != null ? Convert.ToUInt64(xc.NewValueString) : null
+                                    };
+                                    break;
+
+
                                 default:
                                     this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in webhook update: {Key} - this should be reported to library developers", xc.Key);
                                     break;
@@ -2297,6 +2337,167 @@ namespace DSharpPlus.Entities
 
                                 default:
                                     this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in integration update: {Key} - this should be reported to library developers", xc.Key);
+                                    break;
+                            }
+                        }
+                        break;
+
+                    case AuditLogActionType.GuildScheduledEventCreate:
+                    case AuditLogActionType.GuildScheduledEventDelete:
+                    case AuditLogActionType.GuildScheduledEventUpdate:
+                        entry = new DiscordAuditLogGuildScheduledEventEntry()
+                        {
+                            Target = events.TryGetValue(xac.TargetId.Value, out var ta) ? ta : new DiscordScheduledGuildEvent() { Id = xac.TargetId.Value, Discord = this.Discord },
+                        };
+
+                        var evententry = entry as DiscordAuditLogGuildScheduledEventEntry;
+                        foreach (var xc in xac.Changes)
+                        {
+                            switch (xc.Key.ToLowerInvariant())
+                            {
+                                case "name":
+                                    evententry.Name = new PropertyChange<string?>
+                                    {
+                                        Before = xc.OldValue != null ? xc.OldValueString : null,
+                                        After = xc.NewValue != null ? xc.NewValueString : null
+                                    };
+                                    break;
+                                case "channel_id":
+                                    ulong.TryParse(xc.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t1);
+                                    ulong.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t2);
+                                    evententry.Channel = new PropertyChange<DiscordChannel?>
+                                    {
+                                        Before = this.GetChannel(t2) ?? new DiscordChannel { Id = t2, Discord = this.Discord, GuildId = this.Id },
+                                        After = this.GetChannel(t1) ?? new DiscordChannel { Id = t1, Discord = this.Discord, GuildId = this.Id }
+                                    };
+                                    break;
+
+                                case "description":
+                                    evententry.Description = new PropertyChange<string?>
+                                    {
+                                        Before = xc.OldValue != null ? xc.OldValueString : null,
+                                        After = xc.NewValue != null ? xc.NewValueString : null
+                                    };
+                                    break;
+
+                                case "entity_type":
+                                    evententry.Type = new PropertyChange<ScheduledGuildEventType?>
+                                    {
+                                        Before = xc.OldValue != null ? (ScheduledGuildEventType)(long)xc.OldValue : null,
+                                        After = xc.NewValue != null ? (ScheduledGuildEventType)(long)xc.NewValue : null
+                                    };
+                                    break;
+
+                                case "image_hash":
+                                    evententry.ImageHash = new PropertyChange<string?>
+                                    {
+                                        Before = (string?)xc.OldValue,
+                                        After = (string?)xc.NewValue
+                                    };
+                                    break;
+
+                                case "location":
+                                    evententry.Location = new PropertyChange<string?>
+                                    {
+                                        Before = (string?)xc.OldValue,
+                                        After = (string?)xc.NewValue
+                                    };
+                                    break;
+
+                                case "privacy_level":
+                                    evententry.PrivacyLevel = new PropertyChange<ScheduledGuildEventPrivacyLevel?>
+                                    {
+                                        Before = xc.OldValue != null ? (ScheduledGuildEventPrivacyLevel)(long)xc.OldValue : null,
+                                        After = xc.NewValue != null ? (ScheduledGuildEventPrivacyLevel)(long)xc.NewValue : null
+                                    };
+                                    break;
+
+                                case "status":
+                                    evententry.Status = new PropertyChange<ScheduledGuildEventStatus?>
+                                    {
+                                        Before = xc.OldValue != null ? (ScheduledGuildEventStatus)(long)xc.OldValue : null,
+                                        After = xc.NewValue != null ? (ScheduledGuildEventStatus)(long)xc.NewValue : null
+                                    };
+                                    break;
+
+                                default:
+                                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in scheduled event update: {Key} - this should be reported to library developers", xc.Key);
+                                    break;
+                            }
+                        }
+                        break;
+
+                    case AuditLogActionType.ThreadCreate:
+                    case AuditLogActionType.ThreadDelete:
+                    case AuditLogActionType.ThreadUpdate:
+                        entry = new DiscordAuditLogThreadEventEntry()
+                        {
+                            Target = this.Threads.TryGetValue(xac.TargetId.Value, out var channel) ? channel : new DiscordThreadChannel() { Id = xac.TargetId.Value, Discord = this.Discord },
+                        };
+
+                        var threadentry = entry as DiscordAuditLogThreadEventEntry;
+                        foreach(var xc in xac.Changes)
+                        {
+                            switch(xc.Key.ToLowerInvariant())
+                            {
+                                case "name":
+                                    threadentry.Name = new PropertyChange<string?>
+                                    {
+                                        Before = xc.OldValue != null ? xc.OldValueString : null,
+                                        After = xc.NewValue != null ? xc.NewValueString : null
+                                    };
+                                    break;
+
+                                case "type":
+                                    threadentry.Type = new PropertyChange<ChannelType?>
+                                    {
+                                        Before = xc.OldValue != null ? (ChannelType)xc.OldValueLong : null,
+                                        After = xc.NewValue != null ? (ChannelType)xc.NewValueLong : null
+                                    };
+                                    break;
+
+                                case "archived":
+                                    threadentry.Archived = new PropertyChange<bool?>
+                                    {
+                                        Before = xc.OldValue != null ? xc.OldValueBool : null,
+                                        After = xc.NewValue != null ? xc.NewValueBool : null
+                                    };
+                                    break;
+
+                                case "auto_archive_duration":
+                                    threadentry.AutoArchiveDuration = new PropertyChange<int?>
+                                    {
+                                        Before = xc.OldValue != null ? (int)xc.OldValueLong : null,
+                                        After = xc.NewValue != null ? (int)xc.NewValueLong : null
+                                    };
+                                    break;
+
+                                case "invitable":
+                                    threadentry.Invitable = new PropertyChange<bool?>
+                                    {
+                                        Before = xc.OldValue != null ? xc.OldValueBool : null,
+                                        After = xc.NewValue != null ? xc.NewValueBool : null
+                                    };
+                                    break;
+
+                                case "locked":
+                                    threadentry.Locked = new PropertyChange<bool?>
+                                    {
+                                        Before = xc.OldValue != null ? xc.OldValueBool : null,
+                                        After = xc.NewValue != null ? xc.NewValueBool : null
+                                    };
+                                    break;
+
+                                case "rate_limit_per_user":
+                                    threadentry.PerUserRateLimit = new PropertyChange<int?>
+                                    {
+                                        Before = xc.OldValue != null ? (int)xc.OldValueLong : null,
+                                        After = xc.NewValue != null ? (int)xc.NewValueLong : null
+                                    };
+                                    break;
+
+                                default:
+                                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in thread update: {Key} - this should be reported to library developers", xc.Key);
                                     break;
                             }
                         }
