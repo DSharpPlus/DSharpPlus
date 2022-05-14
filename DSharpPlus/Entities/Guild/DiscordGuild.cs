@@ -2081,11 +2081,11 @@ namespace DSharpPlus.Entities
                                     };
                                     break;
 
-                                case "application_id": //No idea what this is or does and can't test it so /shrug I guess this probably works
+                                case "application_id": //Why the fuck does discord send this as a string if it's supposed to be a snowflake
                                     entrywhk.ApplicationIdChange = new PropertyChange<ulong?>
                                     {
-                                        Before = xc.OldValue != null ? xc.OldValueUlong : null,
-                                        After = xc.NewValue != null ? xc.NewValueUlong : null
+                                        Before = xc.OldValue != null ? Convert.ToUInt64(xc.OldValueString) : null,
+                                        After = xc.NewValue != null ? Convert.ToUInt64(xc.NewValueString) : null
                                     };
                                     break;
 
