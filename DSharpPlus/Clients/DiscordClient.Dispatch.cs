@@ -2003,7 +2003,7 @@ namespace DSharpPlus
         {
             var thread = this.InternalGetCachedThread(thread_id);
 
-            if (thread == null) // edge case
+            if (thread == null) // Should a member of an archived thread leave, THREAD_MEMBERS_UPDATE is fired by Discord. Archived threads are not guaranteed to be in cache. PR ##1120 
                 return;
 
             thread.Discord = this;
