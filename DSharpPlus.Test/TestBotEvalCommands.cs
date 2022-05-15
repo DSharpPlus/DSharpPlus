@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -35,18 +35,26 @@ namespace DSharpPlus.Test
     public class TestBotEvalCommands : BaseCommandModule
     {
         [Command("eval"), Aliases("evalcs", "cseval", "roslyn"), Description("Evaluates C# code."), Hidden, RequireOwner]
-        public async Task EvalCS(CommandContext ctx, [RemainingText] string code)
+        public async Task EvalCSAsync(CommandContext ctx, [RemainingText] string code)
         {
             var msg = ctx.Message;
 
-            var cs1 = code.IndexOf("```") + 3;
-            cs1 = code.IndexOf('\n', cs1) + 1;
-            var cs2 = code.LastIndexOf("```");
+            var cs = string.Empty;
+            if (code.Trim().StartsWith("```"))
+            {
+                var cs1 = code.IndexOf("```") + 3;
+                cs1 = code.IndexOf('\n', cs1) + 1;
+                var cs2 = code.LastIndexOf("```");
 
-            if (cs1 == -1 || cs2 == -1)
-                throw new ArgumentException("You need to wrap the code into a code block.");
+                if (cs1 == -1 || cs2 == -1)
+                    throw new ArgumentException("You need to wrap the code into a code block.");
 
-            var cs = code.Substring(cs1, cs2 - cs1);
+                cs = code.Substring(cs1, cs2 - cs1);
+            }
+            else
+            {
+                cs = code;
+            }
 
             msg = await ctx.RespondAsync(embed: new DiscordEmbedBuilder()
                 .WithColor(new DiscordColor("#FF007F"))

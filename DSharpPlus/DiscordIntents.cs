@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -130,7 +130,7 @@ namespace DSharpPlus
 
         /// <summary>
         /// Whether to include guild reaction events.
-        /// <para>These include <see cref="DiscordClient.MessageReactionAdded"/>, <see cref="DiscordClient.MessageReactionRemoved"/>, <see cref="DiscordClient.MessageReactionsCleared"/>,</para> 
+        /// <para>These include <see cref="DiscordClient.MessageReactionAdded"/>, <see cref="DiscordClient.MessageReactionRemoved"/>, <see cref="DiscordClient.MessageReactionsCleared"/>,</para>
         /// <para>and <see cref="DiscordClient.MessageReactionRemovedEmoji"/>.</para>
         /// </summary>
         GuildMessageReactions = 1 << 10,
@@ -165,11 +165,17 @@ namespace DSharpPlus
         DirectMessageTyping = 1 << 14,
 
         /// <summary>
+        /// Whether to include scheduled event messages.
+        /// //TODO: reference events
+        /// </summary>
+        ScheduledGuildEvents = 1 << 16,
+
+        /// <summary>
         /// Includes all unprivileged intents.
         /// <para>These are all intents excluding <see cref="DiscordIntents.GuildMembers"/> and <see cref="DiscordIntents.GuildPresences"/>.</para>
         /// </summary>
         AllUnprivileged = Guilds | GuildBans | GuildEmojis | GuildIntegrations | GuildWebhooks | GuildInvites | GuildVoiceStates | GuildMessages |
-            GuildMessageReactions | GuildMessageTyping | DirectMessages | DirectMessageReactions | DirectMessageTyping,
+            GuildMessageReactions | GuildMessageTyping | DirectMessages | DirectMessageReactions | DirectMessageTyping | ScheduledGuildEvents,
 
         /// <summary>
         /// Includes all intents.

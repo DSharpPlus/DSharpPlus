@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -153,6 +153,63 @@ namespace DSharpPlus.Net.Abstractions
         public bool? Deaf { get; set; }
     }
 
+    internal sealed class RestScheduledGuildEventCreatePayload
+    {
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        public string Name { get; set; }
+
+        [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
+        public string Description { get; set; }
+
+        [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
+        public ulong? ChannelId { get; set; }
+
+        [JsonProperty("privacy_level", NullValueHandling = NullValueHandling.Ignore)]
+        public ScheduledGuildEventPrivacyLevel PrivacyLevel { get; set; }
+
+        [JsonProperty("entity_type", NullValueHandling = NullValueHandling.Ignore)]
+        public ScheduledGuildEventType Type { get; set; }
+
+        [JsonProperty("scheduled_start_time", NullValueHandling = NullValueHandling.Ignore)]
+        public DateTimeOffset StartTime { get; set; }
+
+        [JsonProperty("scheduled_end_time", NullValueHandling = NullValueHandling.Ignore)]// Null = no end date
+        public DateTimeOffset? EndTime { get; set; }
+
+        [JsonProperty("entity_metadata", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordScheduledGuildEventMetadata Metadata { get; set; }
+    }
+
+    internal sealed class RestScheduledGuildEventModifyPayload
+    {
+        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<string> Name { get; set; }
+
+        [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<string> Description { get; set; }
+
+        [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<ulong?> ChannelId { get; set; }
+
+        [JsonProperty("privacy_level", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<ScheduledGuildEventPrivacyLevel> PrivacyLevel { get; set; }
+
+        [JsonProperty("entity_type", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<ScheduledGuildEventType> Type { get; set; }
+
+        [JsonProperty("scheduled_start_time", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<DateTimeOffset> StartTime { get; set; }
+
+        [JsonProperty("scheduled_end_time", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<DateTimeOffset> EndTime { get; set; }
+
+        [JsonProperty("entity_metadata", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<DiscordScheduledGuildEventMetadata> Metadata { get; set; }
+
+        [JsonProperty("status", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<ScheduledGuildEventStatus> Status { get; set; }
+    }
+
     internal sealed class RestGuildChannelReorderPayload
     {
         [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
@@ -193,6 +250,9 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("channel_id")]
         public Optional<ulong?> VoiceChannelId { get; set; }
+
+        [JsonProperty("communication_disabled_until", NullValueHandling = NullValueHandling.Include)]
+        public Optional<DateTimeOffset?> CommunicationDisabledUntil { get; set; }
     }
 
     internal sealed class RestGuildRolePayload
@@ -211,6 +271,12 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("mentionable", NullValueHandling = NullValueHandling.Ignore)]
         public bool? Mentionable { get; set; }
+
+        [JsonProperty("unicode_emoji", NullValueHandling = NullValueHandling.Ignore)]
+        public string Emoji { get; set; }
+
+        [JsonProperty("icon", NullValueHandling = NullValueHandling.Ignore)]
+        public string Icon { get; set; }
     }
 
     internal sealed class RestGuildPruneResultPayload

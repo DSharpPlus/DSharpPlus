@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -31,14 +31,13 @@ using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Exceptions;
-using DSharpPlus.CommandsNext.Executors;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.EventHandling;
-using DSharpPlus.Interactivity.Extensions;
-using DSharpPlus.Lavalink;
+using DSharpPlus.SlashCommands;
+using DSharpPlus.SlashCommands.EventArgs;
 using DSharpPlus.VoiceNext;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -51,10 +50,8 @@ namespace DSharpPlus.Test
 
         private TestBotConfig Config { get; }
         public DiscordClient Discord { get; }
-        private VoiceNextExtension VoiceService { get; }
         private CommandsNextExtension CommandsNextService { get; }
-        private InteractivityExtension InteractivityService { get; }
-        private LavalinkExtension LavalinkService { get; }
+        private SlashCommandsExtension SlashCommandService { get; }
 
         public TestBot(TestBotConfig cfg, int shardid)
         {
@@ -66,7 +63,7 @@ namespace DSharpPlus.Test
             {
                 AutoReconnect = true,
                 LargeThreshold = 250,
-                MinimumLogLevel = LogLevel.Debug,
+                MinimumLogLevel = LogLevel.Trace,
                 Token = this.Config.Token,
                 TokenType = TokenType.Bot,
                 ShardId = shardid,
@@ -91,6 +88,8 @@ namespace DSharpPlus.Test
             this.Discord.ChannelDeleted += this.Discord_ChannelDeleted;
 
             this.Discord.InteractionCreated += this.Discord_InteractionCreated;
+            this.Discord.ComponentInteractionCreated += this.Discord_ModalCheck;
+            this.Discord.ModalSubmitted += this.Discord_ModalSubmitted;
             //this.Discord.ComponentInteractionCreated += this.RoleMenu;
             //this.Discord.ComponentInteractionCreated += this.DiscordComponentInteractionCreated;
             //this.Discord.InteractionCreated += this.SendButton;
@@ -114,7 +113,6 @@ namespace DSharpPlus.Test
                 AudioFormat = AudioFormat.Default,
                 EnableIncoming = true
             };
-            this.VoiceService = this.Discord.UseVoiceNext(vcfg);
 
             // build a dependency collection for commandsnext
             var depco = new ServiceCollection();
@@ -156,8 +154,13 @@ namespace DSharpPlus.Test
                 }
             };
 
-            this.InteractivityService = this.Discord.UseInteractivity(icfg);
-            this.LavalinkService = this.Discord.UseLavalink();
+            this.SlashCommandService = this.Discord.UseSlashCommands();
+            this.SlashCommandService.SlashCommandErrored += this.SlashCommandService_CommandErrored;
+            this.SlashCommandService.SlashCommandInvoked += this.SlashCommandService_CommandReceived;
+            this.SlashCommandService.SlashCommandExecuted += this.SlashCommandService_CommandExecuted;
+
+            if (this.Config.SlashCommandGuild != 0)
+                this.SlashCommandService.RegisterCommands(typeof(TestBot).GetTypeInfo().Assembly, this.Config.SlashCommandGuild);
 
             //this.Discord.MessageCreated += async e =>
             //{
@@ -168,12 +171,35 @@ namespace DSharpPlus.Test
             //};
         }
 
+
+        private async Task Discord_ModalSubmitted(DiscordClient sender, ModalSubmitEventArgs e)
+        {
+            bool testWaitForModal = true;
+            if(!testWaitForModal)
+                await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder().WithContent("Thank you!"));
+
+            this.Discord.Logger.LogInformation("Got callback from user {User}, {Modal}", e.Interaction.User, e.Values);
+        }
+
+        private async Task Discord_ModalCheck(DiscordClient sender, ComponentInteractionCreateEventArgs e)
+        {
+            if (e.Id == "modal")
+                await e.Interaction.CreateResponseAsync(InteractionResponseType.Modal, new DiscordInteractionResponseBuilder()
+                    .WithTitle("Test!")
+                    .WithCustomId("owo")
+                    .AddComponents(new TextInputComponent("Short, optional", "short_opt", "Placeholder!"))
+                    .AddComponents(new TextInputComponent("Long, optional", "long_opt", "Placeholder 2!", style: TextInputStyle.Paragraph))
+                    .AddComponents(new TextInputComponent("Short, required", "short_req", "Placeholder 3!", style:  TextInputStyle.Short, min_length: 10, max_length: 20))
+                    .AddComponents(new TextInputComponent("Long, required", "long_req", "Placeholder 4!", "Lorem Ipsum", true, TextInputStyle.Paragraph, 100, 300))
+                );
+        }
+
         private async Task Discord_InteractionCreated(DiscordClient sender, InteractionCreateEventArgs e)
         {
             if (e.Interaction.Type != InteractionType.AutoComplete)
                 return;
 
-            this.Discord.Logger.LogInformation($"AutoComplete: Focused: {e.Interaction.Data.Options.First().Focused}, Data: {e.Interaction.Data.Options.First().Value}");
+            this.Discord.Logger.LogInformation("AutoComplete: Focused: {Focused}, Data: {Data}", e.Interaction.Data.Options.First().Focused, e.Interaction.Data.Options.First().Value);
 
             var option = e.Interaction.Data.Options.First();
 
@@ -190,7 +216,7 @@ namespace DSharpPlus.Test
 
         private Task Discord_StickersUpdated(DiscordClient sender, GuildStickersUpdateEventArgs e)
         {
-            this.Discord.Logger.LogInformation($"{e.Guild.Id}'s stickers updated: {e.StickersBefore.Count()} -> {e.StickersAfter.Count()}");
+            this.Discord.Logger.LogInformation("{GuildId}'s stickers updated: {StickerBeforeCount} -> {StickerAfterCount}", e.Guild.Id, e.StickersBefore.Count, e.StickersAfter.Count);
             return Task.CompletedTask;
         }
 
@@ -278,6 +304,34 @@ namespace DSharpPlus.Test
             return Task.CompletedTask;
         }
 
+        private async Task SlashCommandService_CommandErrored(SlashCommandsExtension sc, SlashCommandErrorEventArgs e)
+        {
+            e.Context.Client.Logger.LogError(TestBotEventId, e.Exception, "Exception occurred during {User}'s invocation of '{Command}'", e.Context.User.Username, e.Context.CommandName);
+
+            var emoji = DiscordEmoji.FromName(e.Context.Client, ":no_entry:");
+
+            // let's wrap the response into an embed
+            var embed = new DiscordEmbedBuilder
+            {
+                Title = "Error",
+                Description = $"{emoji} Error!",
+                Color = new DiscordColor(0xFF0000) // red
+            };
+            await e.Context.CreateResponseAsync(embed);
+        }
+
+        private Task SlashCommandService_CommandReceived(SlashCommandsExtension sc, SlashCommandInvokedEventArgs e)
+        {
+            e.Context.Client.Logger.LogInformation(TestBotEventId, "User {User} tries to execute '{Command}' in {Channel}", e.Context.User.Username, e.Context.CommandName, e.Context.Channel.Name);
+            return Task.CompletedTask;
+        }
+
+        private Task SlashCommandService_CommandExecuted(SlashCommandsExtension sc, SlashCommandExecutedEventArgs e)
+        {
+            e.Context.Client.Logger.LogInformation(TestBotEventId, "User {User} executed '{Command}' in {Channel}", e.Context.User.Username, e.Context.CommandName, e.Context.Channel.Name);
+            return Task.CompletedTask;
+        }
+
         private Task Discord_GuildUpdated(DiscordClient client, GuildUpdateEventArgs e)
         {
             var str = new StringBuilder();
@@ -337,25 +391,25 @@ namespace DSharpPlus.Test
 
         private Task Discord_ThreadCreated(DiscordClient client, ThreadCreateEventArgs e)
         {
-            client.Logger.LogDebug(eventId: TestBotEventId, $"Thread created in {e.Guild.Name}. Thread Name: {e.Thread.Name}");
+            client.Logger.LogDebug(eventId: TestBotEventId, "Thread created in {GuildName}. Thread Name: {ThreadName}", e.Guild.Name, e.Thread.Name);
             return Task.CompletedTask;
         }
 
         private Task Discord_ThreadUpdated(DiscordClient client, ThreadUpdateEventArgs e)
         {
-            client.Logger.LogDebug(eventId: TestBotEventId, $"Thread updated in {e.Guild.Name}. New Thread Name: {e.ThreadAfter.Name}");
+            client.Logger.LogDebug(eventId: TestBotEventId, "Thread updated in {GuildName}. New Thread Name: {ThreadName}", e.Guild.Name, e.ThreadAfter.Name);
             return Task.CompletedTask;
         }
 
         private Task Discord_ThreadDeleted(DiscordClient client, ThreadDeleteEventArgs e)
         {
-            client.Logger.LogDebug(eventId: TestBotEventId, $"Thread deleted in {e.Guild.Name}. Thread Name: {e.Thread.Name ?? "Unknown"}");
+            client.Logger.LogDebug(eventId: TestBotEventId, "Thread deleted in {GuildName}. Thread Name: {ThreadName}", e.Guild.Name, e.Thread.Name ?? "Unknown");
             return Task.CompletedTask;
         }
 
         private Task Discord_ThreadListSynced(DiscordClient client, ThreadListSyncEventArgs e)
         {
-            client.Logger.LogDebug(eventId: TestBotEventId, $"Threads synced in {e.Guild.Name}.");
+            client.Logger.LogDebug(eventId: TestBotEventId, "Threads synced in {GuildName}.", e.Guild.Name);
             return Task.CompletedTask;
         }
 
@@ -368,7 +422,7 @@ namespace DSharpPlus.Test
 
         private Task Discord_ThreadMembersUpdated(DiscordClient client, ThreadMembersUpdateEventArgs e)
         {
-            client.Logger.LogDebug(eventId: TestBotEventId, $"Thread members updated in {e.Guild.Name}.");
+            client.Logger.LogDebug(eventId: TestBotEventId, "Thread members updated in {GuildName}.", e.Guild.Name);
             return Task.CompletedTask;
         }
     }

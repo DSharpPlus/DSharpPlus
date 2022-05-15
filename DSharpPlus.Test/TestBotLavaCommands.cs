@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -289,18 +289,18 @@ namespace DSharpPlus.Test
             await ctx.RespondAsync(sb.ToString()).ConfigureAwait(false);
         }
 
-        private static readonly string[] Units = new[] { "", "ki", "Mi", "Gi" };
+        private static readonly string[] _units = new[] { "", "ki", "Mi", "Gi" };
         private static string SizeToString(long l)
         {
             double d = l;
             var u = 0;
-            while (d >= 900 && u < Units.Length - 2)
+            while (d >= 900 && u < _units.Length - 2)
             {
                 u++;
                 d /= 1024;
             }
 
-            return $"{d:#,##0.00} {Units[u]}B";
+            return $"{d:#,##0.00} {_units[u]}B";
         }
     }
 }

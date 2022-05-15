@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -79,7 +79,7 @@ namespace DSharpPlus.Entities
             this.Author = other.Author;
             this.ChannelId = other.ChannelId;
             this.Content = other.Content;
-            this.EditedTimestampRaw = other.EditedTimestampRaw;
+            this.EditedTimestamp = other.EditedTimestamp;
             this.Id = other.Id;
             this.IsTTS = other.IsTTS;
             this.MessageType = other.MessageType;
@@ -130,30 +130,23 @@ namespace DSharpPlus.Entities
         /// Gets the message's creation timestamp.
         /// </summary>
         [JsonIgnore]
-        public DateTimeOffset Timestamp
-            => !string.IsNullOrWhiteSpace(this.TimestampRaw) && DateTimeOffset.TryParse(this.TimestampRaw, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dto) ?
-                dto : this.CreationTimestamp;
+        public DateTimeOffset Timestamp => this.TimestampRaw ?? this.CreationTimestamp;
 
         [JsonProperty("timestamp", NullValueHandling = NullValueHandling.Ignore)]
-        internal string TimestampRaw { get; set; }
+        internal DateTimeOffset? TimestampRaw { get; set; }
 
         /// <summary>
         /// Gets the message's edit timestamp. Will be null if the message was not edited.
         /// </summary>
-        [JsonIgnore]
-        public DateTimeOffset? EditedTimestamp
-            => !string.IsNullOrWhiteSpace(this.EditedTimestampRaw) && DateTimeOffset.TryParse(this.EditedTimestampRaw, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dto) ?
-                (DateTimeOffset?)dto : null;
-
         [JsonProperty("edited_timestamp", NullValueHandling = NullValueHandling.Ignore)]
-        internal string EditedTimestampRaw { get; set; }
+        public DateTimeOffset? EditedTimestamp { get; internal set; }
+
 
         /// <summary>
         /// Gets whether this message was edited.
         /// </summary>
         [JsonIgnore]
-        public bool IsEdited
-            => !string.IsNullOrWhiteSpace(this.EditedTimestampRaw);
+        public bool IsEdited => this.EditedTimestamp != null;
 
         /// <summary>
         /// Gets whether the message is a text-to-speech message.
@@ -360,10 +353,10 @@ namespace DSharpPlus.Entities
                 reference.Guild = client._guilds.TryGetValue(guildId.Value, out var g)
                     ? g
                     : new DiscordGuild
-                {
-                    Id = guildId.Value,
-                    Discord = client
-                };
+                    {
+                        Id = guildId.Value,
+                        Discord = client
+                    };
 
             var channel = client.InternalGetCachedChannel(channelId.Value);
 
@@ -403,13 +396,13 @@ namespace DSharpPlus.Entities
         {
             var mentions = new List<IMention>();
 
-            if (this.ReferencedMessage != null && this._mentionedUsers.Contains(this.ReferencedMessage.Author))
-               mentions.Add(new RepliedUserMention()); // Return null to allow all mentions
+            if (this.ReferencedMessage != null && this._mentionedUsers.Any(r => r.Id == this.ReferencedMessage.Author.Id))
+                mentions.Add(new RepliedUserMention()); // Return null to allow all mentions
 
-            if (this._mentionedUsers.Any())
+            if (this._mentionedUsers?.Any() ?? false)
                 mentions.AddRange(this._mentionedUsers.Select(m => (IMention)new UserMention(m)));
 
-            if (this._mentionedRoleIds.Any())
+            if (this._mentionedRoleIds?.Any() ?? false)
                 mentions.AddRange(this._mentionedRoleIds.Select(r => (IMention)new RoleMention(r)));
 
             return mentions.ToArray();
@@ -427,10 +420,35 @@ namespace DSharpPlus.Entities
             {
                 foreach (var usr in this._mentionedUsers)
                 {
-                    usr.Discord = this.Discord;
-                    this.Discord.UpdateUserCache(usr);
+                    var member = usr as DiscordMember;
+                    if (member != null)
+                    {
+                        this.Discord.UpdateUserCache(new DiscordUser()
+                        {
+                            Id = member.Id,
+                            Username = member.Username,
+                            Discriminator = member.Discriminator,
+                            AvatarHash = member.AvatarHash,
+                            _bannerColor = member._bannerColor,
+                            BannerHash = member.BannerHash,
+                            IsBot = member.IsBot,
+                            MfaEnabled = member.MfaEnabled,
+                            Verified = member.Verified,
+                            Email = member.Email,
+                            PremiumType = member.PremiumType,
+                            Locale = member.Locale,
+                            Flags = member.Flags,
+                            OAuthFlags = member.OAuthFlags,
+                            Discord = this.Discord
+                        });
+                    }
+                    else
+                    {
+                        usr.Discord = this.Discord;
+                        this.Discord.UpdateUserCache(usr);
+                    }
 
-                    mentionedUsers.Add(guild._members.TryGetValue(usr.Id, out var member) ? member : usr);
+                    mentionedUsers.Add(member ?? (guild._members.TryGetValue(usr.Id, out var cachedMember) ? cachedMember : usr));
                 }
             }
             if (!string.IsNullOrWhiteSpace(this.Content))
@@ -471,7 +489,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> ModifyAsync(Optional<DiscordEmbed> embed = default)
-            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, default, embed.HasValue ? new[] {embed.Value} : Array.Empty<DiscordEmbed>(), this.GetMentions(), default, Array.Empty<DiscordMessageFile>(), null, default);
+            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, default, embed.HasValue ? new[] { embed.Value } : Array.Empty<DiscordEmbed>(), this.GetMentions(), default, Array.Empty<DiscordMessageFile>(), null, default);
 
         /// <summary>
         /// Edits the message.
@@ -484,7 +502,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> ModifyAsync(Optional<string> content, Optional<DiscordEmbed> embed = default)
-            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embed.HasValue ? new[] {embed.Value} : Array.Empty<DiscordEmbed>(), this.GetMentions(), default, Array.Empty<DiscordMessageFile>(), null, default);
+            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embed.HasValue ? new[] { embed.Value } : Array.Empty<DiscordEmbed>(), this.GetMentions(), default, Array.Empty<DiscordMessageFile>(), null, default);
 
         /// <summary>
         /// Edits the message.
@@ -546,7 +564,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task ModifyEmbedSuppressionAsync(bool hideEmbeds)
-            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, default, default, this.GetMentions(), default, Array.Empty<DiscordMessageFile>(), hideEmbeds ? MessageFlags.SuppressedEmbeds : null, default);
+            => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, default, default, default, default, Array.Empty<DiscordMessageFile>(), hideEmbeds ? MessageFlags.SuppressedEmbeds : null, default);
 
         /// <summary>
         /// Deletes the message.

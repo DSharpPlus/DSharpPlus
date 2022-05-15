@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -44,10 +44,10 @@ namespace DSharpPlus.Test
         {
             this.Content.Append(command.Description ?? "No description provided.").Append("\n\n");
 
-            if (command.Aliases?.Any() == true)
+            if (command.Aliases.Count > 0)
                 this.Content.Append("Aliases: ").Append(string.Join(", ", command.Aliases)).Append("\n\n");
 
-            if (command.Overloads?.Any() == true)
+            if (command.Overloads.Count > 0)
             {
                 var sb = new StringBuilder();
 
@@ -66,7 +66,7 @@ namespace DSharpPlus.Test
                     sb.Append('\n');
                 }
 
-                this.Content.Append("Arguments:\n").Append(sb.ToString());
+                this.Content.Append("Arguments:\n").Append(sb);
             }
 
             return this;
@@ -86,8 +86,8 @@ namespace DSharpPlus.Test
                 foreach (var xc in subcommands)
                     sb.Append(xc.Name.PadRight(ml, ' '))
                         .Append("  ")
-                        .Append(string.IsNullOrWhiteSpace(xc.Description) ? "" : xc.Description).Append("\n");
-                this.Content.Append(sb.ToString());
+                        .Append(string.IsNullOrWhiteSpace(xc.Description) ? "" : xc.Description).Append('\n');
+                this.Content.Append(sb);
             }
 
             return this;

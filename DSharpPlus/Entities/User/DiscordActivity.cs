@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -182,8 +182,10 @@ namespace DSharpPlus.Entities
             this.Name = other.Name;
             this.ActivityType = other.ActivityType;
             this.StreamUrl = other.StreamUrl;
-            this.RichPresence = new DiscordRichPresence(other.RichPresence);
-            this.CustomStatus = new DiscordCustomStatus(other.CustomStatus);
+            if(other.RichPresence != null)
+                this.RichPresence = new DiscordRichPresence(other.RichPresence);
+            if(other.CustomStatus != null)
+                this.CustomStatus = new DiscordCustomStatus(other.CustomStatus);
         }
 
         internal void UpdateWith(TransportActivity rawActivity)

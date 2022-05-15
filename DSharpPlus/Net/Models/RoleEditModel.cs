@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.IO;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.Net.Models
@@ -47,6 +48,16 @@ namespace DSharpPlus.Net.Models
         /// Whether new role should be mentionable
         /// </summary>
 		public bool? Mentionable { internal get; set; }
+
+        /// <summary>
+        /// The emoji to set for role role icon; must be unicode.
+        /// </summary>
+        public DiscordEmoji Emoji { internal get; set; }
+
+        /// <summary>
+        /// The stream to use for uploading a new role icon.
+        /// </summary>
+        public Stream Icon { internal get; set; }
 
         internal RoleEditModel()
         {

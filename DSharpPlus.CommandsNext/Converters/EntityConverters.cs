@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -62,16 +62,15 @@ namespace DSharpPlus.CommandsNext.Converters
             }
 
             var cs = ctx.Config.CaseSensitive;
-            if (!cs)
-                value = value.ToLowerInvariant();
 
             var di = value.IndexOf('#');
             var un = di != -1 ? value.Substring(0, di) : value;
             var dv = di != -1 ? value.Substring(di + 1) : null;
 
             var us = ctx.Client.Guilds.Values
-                .SelectMany(xkvp => xkvp.Members.Values)
-                .Where(xm => (cs ? xm.Username : xm.Username.ToLowerInvariant()) == un && ((dv != null && xm.Discriminator == dv) || dv == null));
+                .SelectMany(xkvp => xkvp.Members.Values).Where(xm =>
+                    xm.Username.Equals(un, cs ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase) &&
+                    ((dv != null && xm.Discriminator == dv) || dv == null));
 
             var usr = us.FirstOrDefault();
             return usr != null ? Optional.FromValue<DiscordUser>(usr) : Optional.FromNoValue<DiscordUser>();
@@ -116,16 +115,15 @@ namespace DSharpPlus.CommandsNext.Converters
                 return Optional.FromValue(searchResult.First());
 
             var cs = ctx.Config.CaseSensitive;
-            if (!cs)
-                value = value.ToLowerInvariant();
 
             var di = value.IndexOf('#');
             var un = di != -1 ? value.Substring(0, di) : value;
             var dv = di != -1 ? value.Substring(di + 1) : null;
 
-            var us = ctx.Guild.Members.Values
-                .Where(xm => ((cs ? xm.Username : xm.Username.ToLowerInvariant()) == un && ((dv != null && xm.Discriminator == dv) || dv == null))
-                          || (cs ? xm.Nickname : xm.Nickname?.ToLowerInvariant()) == value);
+            var comparison = cs ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase;
+            var us = ctx.Guild.Members.Values.Where(xm =>
+                (xm.Username.Equals(un, comparison) &&
+                 ((dv != null && xm.Discriminator == dv) || dv == null)) || value.Equals(xm.Nickname, comparison));
 
             var mbr = us.FirstOrDefault();
             return mbr != null ? Optional.FromValue(mbr) : Optional.FromNoValue<DiscordMember>();
@@ -161,11 +159,10 @@ namespace DSharpPlus.CommandsNext.Converters
             }
 
             var cs = ctx.Config.CaseSensitive;
-            if (!cs)
-                value = value.ToLowerInvariant();
 
-            var chn = ctx.Guild?.Channels.Values.FirstOrDefault(xc => (cs ? xc.Name : xc.Name.ToLowerInvariant()) == value) ??
-            ctx.Guild?.Threads.Values.FirstOrDefault(xThread => (cs ? xThread.Name : xThread.Name.ToLowerInvariant()) == value);
+            var comparison = cs ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase;
+            var chn = ctx.Guild?.Channels.Values.FirstOrDefault(xc => xc.Name.Equals(value, comparison)) ??
+                      ctx.Guild?.Threads.Values.FirstOrDefault(xThread => xThread.Name.Equals(value, comparison));
 
             return chn != null ? Optional.FromValue(chn) : Optional.FromNoValue<DiscordChannel>();
         }
@@ -184,28 +181,27 @@ namespace DSharpPlus.CommandsNext.Converters
 #endif
         }
 
-        async Task<Optional<DiscordThreadChannel>> IArgumentConverter<DiscordThreadChannel>.ConvertAsync(string value, CommandContext ctx)
+        Task<Optional<DiscordThreadChannel>> IArgumentConverter<DiscordThreadChannel>.ConvertAsync(string value, CommandContext ctx)
         {
             if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var threadId))
             {
                 var result = ctx.Client.InternalGetCachedThread(threadId);
-                return result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordThreadChannel>();
+                return Task.FromResult(result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordThreadChannel>());
             }
 
             var m = ThreadRegex.Match(value);
             if (m.Success && ulong.TryParse(m.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out threadId))
             {
                 var result = ctx.Client.InternalGetCachedThread(threadId);
-                return result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordThreadChannel>();
+                return Task.FromResult(result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordThreadChannel>());
             }
 
             var cs = ctx.Config.CaseSensitive;
-            if (!cs)
-                value = value.ToLowerInvariant();
 
-            var thread = ctx.Guild?.Threads.Values.FirstOrDefault(xt => (cs ? xt.Name : xt.Name.ToLowerInvariant()) == value);
+            var thread = ctx.Guild?.Threads.Values.FirstOrDefault(xt =>
+                xt.Name.Equals(value, cs ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase));
 
-            return thread != null ? Optional.FromValue(thread) : Optional.FromNoValue<DiscordThreadChannel>();
+            return Task.FromResult(thread != null ? Optional.FromValue(thread) : Optional.FromNoValue<DiscordThreadChannel>());
         }
     }
 
@@ -243,10 +239,9 @@ namespace DSharpPlus.CommandsNext.Converters
             }
 
             var cs = ctx.Config.CaseSensitive;
-            if (!cs)
-                value = value.ToLowerInvariant();
 
-            var rol = ctx.Guild.Roles.Values.FirstOrDefault(xr => (cs ? xr.Name : xr.Name.ToLowerInvariant()) == value);
+            var rol = ctx.Guild.Roles.Values.FirstOrDefault(xr =>
+                xr.Name.Equals(value, cs ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase));
             return Task.FromResult(rol != null ? Optional.FromValue(rol) : Optional.FromNoValue<DiscordRole>());
         }
     }
@@ -263,10 +258,9 @@ namespace DSharpPlus.CommandsNext.Converters
             }
 
             var cs = ctx.Config.CaseSensitive;
-            if (!cs)
-                value = value?.ToLowerInvariant();
 
-            var gld = ctx.Client.Guilds.Values.FirstOrDefault(xg => (cs ? xg.Name : xg.Name.ToLowerInvariant()) == value);
+            var gld = ctx.Client.Guilds.Values.FirstOrDefault(xg =>
+                xg.Name.Equals(value, cs ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase));
             return Task.FromResult(gld != null ? Optional.FromValue(gld) : Optional.FromNoValue<DiscordGuild>());
         }
     }

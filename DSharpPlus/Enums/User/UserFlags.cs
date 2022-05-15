@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -47,7 +47,7 @@ namespace DSharpPlus
         DiscordPartner = 1 << 1,
 
         /// <summary>
-        /// The user has the HypeSquad badge. 
+        /// The user has the HypeSquad badge.
         /// </summary>
         HypeSquadEvents = 1 << 2,
 
@@ -100,10 +100,15 @@ namespace DSharpPlus
         /// The user is a verified bot developer.
         /// </summary>
         VerifiedBotDeveloper = 1 << 17,
-        
+
         /// <summary>
         /// The user is a discord certified moderator.
         /// </summary>
-        DiscordCertifiedModerator = 1 << 18
+        DiscordCertifiedModerator = 1 << 18,
+
+        /// <summary>
+        /// The bot receives interactions via HTTP.
+        /// </summary>
+        HttpInteractionsBot = 1 << 19,
     }
 }

@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -43,6 +43,19 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("default_permission", NullValueHandling = NullValueHandling.Ignore)]
         public bool? DefaultPermission { get; set; }
+
+        [JsonProperty("name_localizations")]
+        public IReadOnlyDictionary<string, string> NameLocalizations { get; set; }
+
+        [JsonProperty("description_localizations")]
+        public IReadOnlyDictionary<string, string> DescriptionLocalizations{ get; set; }
+
+        [JsonProperty("dm_permissions", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? AllowDMUsage { get; set; }
+
+        [JsonProperty("default_member_permissions", NullValueHandling = NullValueHandling.Ignore)]
+        public Permissions? DefaultMemberPermissions { get; set; }
+
     }
 
     internal class RestApplicationCommandEditPayload
@@ -58,6 +71,18 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("default_permission", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<bool?> DefaultPermission { get; set; }
+
+        [JsonProperty("name_localizations")]
+        public IReadOnlyDictionary<string, string> NameLocalizations { get; set; }
+
+        [JsonProperty("description_localizations")]
+        public IReadOnlyDictionary<string, string> DescriptionLocalizations{ get; set; }
+
+        [JsonProperty("dm_permissions", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<bool> AllowDMUsage { get; set; }
+
+        [JsonProperty("default_member_permissions", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<Permissions?> DefaultMemberPermissions { get; set; }
     }
 
     internal class RestInteractionResponsePayload

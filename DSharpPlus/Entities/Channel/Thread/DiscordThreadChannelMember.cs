@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -42,7 +42,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
         public ulong ThreadId { get; set; }
-        
+
         /// <summary>
         /// Gets ID of the user.
         /// </summary>
@@ -52,13 +52,8 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets timestamp when the user joined the thread.
         /// </summary>
-        [JsonIgnore]
-        public DateTimeOffset? JoinTimeStamp
-            => !string.IsNullOrWhiteSpace(this.JoinTimeStampRaw) && DateTimeOffset.TryParse(this.JoinTimeStampRaw, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dto) ?
-                dto : null;
-
         [JsonProperty("join_timestamp", NullValueHandling = NullValueHandling.Ignore)]
-        internal string JoinTimeStampRaw { get; set; }
+        public DateTimeOffset? JoinTimeStamp { get; internal set; }
 
         [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
         internal int UserFlags { get; set; }

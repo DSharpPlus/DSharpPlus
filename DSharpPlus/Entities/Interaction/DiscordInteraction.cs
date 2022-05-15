@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -68,7 +68,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public DiscordChannel Channel
-            => (this.Discord as DiscordClient).InternalGetCachedChannel(this.ChannelId) ?? (this.Guild == null ? new DiscordDmChannel { Id = this.ChannelId, Type = ChannelType.Private, Discord = this.Discord } : null);
+            => (this.Discord as DiscordClient).InternalGetCachedChannel(this.ChannelId) ?? (DiscordChannel)(this.Discord as DiscordClient).InternalGetCachedThread(this.ChannelId) ?? (this.Guild == null ? new DiscordDmChannel { Id = this.ChannelId, Type = ChannelType.Private, Discord = this.Discord, Recipients = new DiscordUser[] { this.User }} : null);
 
         /// <summary>
         /// Gets the user that invoked this interaction.
@@ -101,6 +101,18 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("message")]
         internal DiscordMessage Message { get; set; }
+
+        /// <summary>
+        /// Gets the locale of the user that invoked this interaction.
+        /// </summary>
+        [JsonProperty("locale")]
+        public string? Locale { get; internal set; }
+
+        /// <summary>
+        /// Gets the guild's preferred locale, if invoked in a guild.
+        /// </summary>
+        [JsonProperty("guild_locale")]
+        public string? GuildLocale { get; internal set; }
 
         /// <summary>
         /// Creates a response to this interaction.

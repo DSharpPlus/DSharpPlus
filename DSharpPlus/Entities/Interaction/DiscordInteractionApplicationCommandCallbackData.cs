@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -31,6 +31,12 @@ namespace DSharpPlus.Entities
         [JsonProperty("tts", NullValueHandling = NullValueHandling.Ignore)]
         public bool? IsTTS { get; internal set; }
 
+        [JsonProperty("custom_id", NullValueHandling = NullValueHandling.Ignore)]
+        public string CustomId { get; internal set; }
+
+        [JsonProperty("title", NullValueHandling = NullValueHandling.Ignore)]
+        public string Title { get; internal set; }
+
         [JsonProperty("content", NullValueHandling = NullValueHandling.Ignore)]
         public string Content { get; internal set; }
 
@@ -38,7 +44,7 @@ namespace DSharpPlus.Entities
         public IEnumerable<DiscordEmbed> Embeds { get; internal set; }
 
         [JsonProperty("allowed_mentions", NullValueHandling = NullValueHandling.Ignore)]
-        public IEnumerable<IMention> Mentions { get; internal set; }
+        public DiscordMentions Mentions { get; internal set; }
 
         [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
         public MessageFlags? Flags { get; internal set; }

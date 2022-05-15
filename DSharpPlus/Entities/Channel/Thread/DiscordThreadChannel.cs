@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,20 +23,15 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.Exceptions;
-using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Models;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
 {
     /// <summary>
-    /// Represents a discord thread in a channel.
+    /// Represents a Discord thread in a channel.
     /// </summary>
     public class DiscordThreadChannel : DiscordChannel
     {
@@ -70,19 +65,25 @@ namespace DSharpPlus.Entities
         [JsonProperty("thread_metadata", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordThreadChannelMetadata ThreadMetadata { get; internal set; }
 
+        /// <summary>
+        /// Gets whether this thread has been newly created. This property is not populated when fetched by REST.
+        /// </summary>
+        [JsonProperty("newly_created", NullValueHandling = NullValueHandling.Ignore)]
+        public bool IsNew { get; internal set; }
+
         #region Methods
 
         /// <summary>
         /// Makes the current user join the thread.
         /// </summary>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task JoinThreadAsync()
             => await this.Discord.ApiClient.JoinThreadAsync(this.Id);
 
         /// <summary>
         /// Makes the current user leave the thread.
         /// </summary>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task LeaveThreadAsync()
             => await this.Discord.ApiClient.LeaveThreadAsync(this.Id);
 
@@ -91,7 +92,7 @@ namespace DSharpPlus.Entities
         /// Requires the <see cref="DiscordIntents.GuildMembers"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
         /// </summary>
         /// <returns>A collection of all threads members in this thread.</returns>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task<IReadOnlyList<DiscordThreadChannelMember>> ListJoinedMembersAsync()
             => await this.Discord.ApiClient.ListThreadMembersAsync(this.Id);
 
@@ -99,8 +100,8 @@ namespace DSharpPlus.Entities
         /// Adds the given DiscordMember to this thread. Requires an unarchived thread and send message permissions.
         /// </summary>
         /// <param name="member">The member to add to the thread.</param>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/>.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/>.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task AddThreadMemberAsync(DiscordMember member)
         {
             if (this.ThreadMetadata.IsArchived)
@@ -112,8 +113,8 @@ namespace DSharpPlus.Entities
         /// Removes the given DiscordMember from this thread. Requires an unarchived thread and send message permissions.
         /// </summary>
         /// <param name="member">The member to remove from the thread.</param>
-        /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageThreads"/> permission, or is not the creator of the thread if it is private.</exception>
-        /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageThreads"/> permission, or is not the creator of the thread if it is private.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task RemoveThreadMemberAsync(DiscordMember member)
         {
             if (this.ThreadMetadata.IsArchived)
@@ -121,8 +122,45 @@ namespace DSharpPlus.Entities
             await this.Discord.ApiClient.RemoveThreadMemberAsync(this.Id, member.Id);
         }
 
+        /// <summary>
+        /// Modifies the current thread.
+        /// </summary>
+        /// <param name="action">Action to perform on this thread</param>
+        /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
+        /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
+        /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
+        /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
+        public async Task ModifyAsync(Action<ThreadChannelEditModel> action)
+        {
+            var mdl = new ThreadChannelEditModel();
+            action(mdl);
+            await this.Discord.ApiClient.ModifyThreadChannelAsync(this.Id, mdl.Name, mdl.Position, mdl.Topic, mdl.Nsfw,
+                mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.PerUserRateLimit, mdl.RtcRegion.IfPresent(r => r?.Id),
+                mdl.QualityMode, mdl.Type, mdl.PermissionOverwrites, mdl.IsArchived, mdl.AutoArchiveDuration, mdl.Locked, mdl.AuditLogReason).ConfigureAwait(false);
+
+            // We set these *after* the rest request so that Discord can validate the properties. This is useful if the requirements ever change.
+            if (!string.IsNullOrWhiteSpace(mdl.Name))
+                this.Name = mdl.Name;
+            if (mdl.PerUserRateLimit.HasValue)
+                this.PerUserRateLimit = mdl.PerUserRateLimit.Value;
+            if (mdl.IsArchived.HasValue)
+                this.ThreadMetadata.IsArchived = mdl.IsArchived.Value;
+            if (mdl.AutoArchiveDuration.HasValue)
+                this.ThreadMetadata.AutoArchiveDuration = mdl.AutoArchiveDuration.Value;
+            if (mdl.Locked.HasValue)
+                this.ThreadMetadata.IsLocked = mdl.Locked.Value;
+        }
+
+        /// <summary>
+        /// Returns a thread member object for the specified user if they are a member of the thread, returns a 404 response otherwise.
+        /// </summary>
+        /// <param name="member">The guild member to retrieve.</param>
+        /// <exception cref="NotFoundException">Thrown when a GuildMember has not joined the channel thread.</exception>
+        public async Task<DiscordThreadChannelMember> GetThreadMemberAsync(DiscordMember member)
+            => await this.Discord.ApiClient.GetThreadMemberAsync(this.Id, member.Id);
+
         #endregion
 
-        internal DiscordThreadChannel() {}
+        internal DiscordThreadChannel() { }
     }
 }

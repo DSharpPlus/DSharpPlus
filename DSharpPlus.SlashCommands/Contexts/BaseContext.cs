@@ -76,13 +76,41 @@ namespace DSharpPlus.SlashCommands
 
         /// <summary>
         /// Creates a response to this interaction.
-        /// <para>You must create a response within 3 seconds of this interaction being executed; if the command has the potential to take more than 3 seconds, create a <see cref="InteractionResponseType.DeferredChannelMessageWithSource"/> at the start, and edit the response later.</para>
+        /// <para>You must create a response within 3 seconds of this interaction being executed; if the command has the potential to take more than 3 seconds, use <see cref="DeferAsync"/> at the start, and edit the response later.</para>
         /// </summary>
         /// <param name="type">The type of the response.</param>
         /// <param name="builder">The data to be sent, if any.</param>
-        /// <returns></returns>
         public Task CreateResponseAsync(InteractionResponseType type, DiscordInteractionResponseBuilder builder = null)
             => this.Interaction.CreateResponseAsync(type, builder);
+
+        /// <inheritdoc cref="CreateResponseAsync(DSharpPlus.InteractionResponseType,DSharpPlus.Entities.DiscordInteractionResponseBuilder)"/>
+        public Task CreateResponseAsync(DiscordInteractionResponseBuilder builder)
+            => this.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
+
+        /// <summary>
+        /// Creates a response to this interaction.
+        /// <para>You must create a response within 3 seconds of this interaction being executed; if the command has the potential to take more than 3 seconds, use <see cref="DeferAsync"/> at the start, and edit the response later.</para>
+        /// </summary>
+        /// <param name="content">Content to send in the response.</param>
+        /// <param name="embed">Embed to send in the response.</param>
+        /// <param name="ephemeral">Whether the response should be ephemeral.</param>
+        public Task CreateResponseAsync(string content, DiscordEmbed embed, bool ephemeral = false)
+            => this.CreateResponseAsync(new DiscordInteractionResponseBuilder().WithContent(content).AddEmbed(embed).AsEphemeral(ephemeral));
+
+        /// <inheritdoc cref="CreateResponseAsync(string, DiscordEmbed, bool)"/>
+        public Task CreateResponseAsync(string content, bool ephemeral = false)
+            => this.CreateResponseAsync(new DiscordInteractionResponseBuilder().WithContent(content).AsEphemeral(ephemeral));
+
+        /// <inheritdoc cref="CreateResponseAsync(string, DiscordEmbed, bool)"/>
+        public Task CreateResponseAsync(DiscordEmbed embed, bool ephemeral = false)
+            => this.CreateResponseAsync(new DiscordInteractionResponseBuilder().AddEmbed(embed).AsEphemeral(ephemeral));
+
+        /// <summary>
+        /// Creates a deferred response to this interaction.
+        /// </summary>
+        /// <param name="ephemeral">Whether the response should be ephemeral.</param>
+        public Task DeferAsync(bool ephemeral = false)
+            => this.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource, new DiscordInteractionResponseBuilder().AsEphemeral(ephemeral));
 
         /// <summary>
         /// Edits the interaction response.

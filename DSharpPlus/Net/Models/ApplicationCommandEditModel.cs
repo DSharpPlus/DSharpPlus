@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -42,6 +42,7 @@ namespace DSharpPlus.Net.Models
                 this._name = value;
             }
         }
+
         private Optional<string> _name;
 
         /// <summary>
@@ -57,6 +58,7 @@ namespace DSharpPlus.Net.Models
                 this._description = value;
             }
         }
+
         private Optional<string> _description;
 
         /// <summary>
@@ -68,5 +70,15 @@ namespace DSharpPlus.Net.Models
         /// Sets whether the command is enabled by default when the application is added to a guild.
         /// </summary>
         public Optional<bool?> DefaultPermission { internal get; set; }
+
+        /// <summary>
+        /// Sets whether the command can be invoked in DMs.
+        /// </summary>
+        public Optional<bool> AllowDMUsage { internal get; set; }
+
+        /// <summary>
+        /// Sets the requisite permissions for the command.
+        /// </summary>
+        public Optional<Permissions?> DefaultMemberPermissions { internal get; set; }
     }
 }

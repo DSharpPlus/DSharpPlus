@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -56,9 +56,9 @@ namespace DSharpPlus.CommandsNext.Converters
         static TimeSpanConverter()
         {
 #if NETSTANDARD1_3
-            TimeSpanRegex = new Regex(@"^(?<days>\d+d\s*)?(?<hours>\d{1,2}h\s*)?(?<minutes>\d{1,2}m\s*)?(?<seconds>\d{1,2}s\s*)?$", RegexOptions.ECMAScript);
+            TimeSpanRegex = new Regex(@"^((?<days>\d+)d\s*)?((?<hours>\d+)h\s*)?((?<minutes>\d+)m\s*)?((?<seconds>\d+)s\s*)?$", RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant | RegexOptions.RightToLeft);
 #else
-            TimeSpanRegex = new Regex(@"^(?<days>\d+d\s*)?(?<hours>\d{1,2}h\s*)?(?<minutes>\d{1,2}m\s*)?(?<seconds>\d{1,2}s\s*)?$", RegexOptions.ECMAScript | RegexOptions.Compiled);
+            TimeSpanRegex = new Regex(@"^((?<days>\d+)d\s*)?((?<hours>\d+)h\s*)?((?<minutes>\d+)m\s*)?((?<seconds>\d+)s\s*)?$", RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant | RegexOptions.RightToLeft | RegexOptions.Compiled);
 #endif
         }
 
@@ -76,43 +76,17 @@ namespace DSharpPlus.CommandsNext.Converters
             if (TimeSpan.TryParse(value, ctx.CommandsNext.DefaultParserCulture, out var result))
                 return Task.FromResult(Optional.FromValue(result));
 
-            var gps = new string[] { "days", "hours", "minutes", "seconds" };
-            var mtc = TimeSpanRegex.Match(value);
-            if (!mtc.Success)
+            var m = TimeSpanRegex.Match(value);
+
+            int ds = m.Groups["days"].Success ? int.Parse(m.Groups["days"].Value) : 0;
+            int hs = m.Groups["hours"].Success ? int.Parse(m.Groups["hours"].Value) : 0;
+            int ms = m.Groups["minutes"].Success ? int.Parse(m.Groups["minutes"].Value) : 0;
+            int ss = m.Groups["seconds"].Success ? int.Parse(m.Groups["seconds"].Value) : 0;
+
+            result = TimeSpan.FromSeconds((ds * 24 * 60 * 60) + (hs * 60 * 60) + (ms * 60) + ss);
+            if (result.TotalSeconds < 1)
                 return Task.FromResult(Optional.FromNoValue<TimeSpan>());
 
-            var d = 0;
-            var h = 0;
-            var m = 0;
-            var s = 0;
-            foreach (var gp in gps)
-            {
-                var gpc = mtc.Groups[gp].Value;
-                if (string.IsNullOrWhiteSpace(gpc))
-                    continue;
-
-                var gpt = gpc[gpc.Length - 1];
-                int.TryParse(gpc.Substring(0, gpc.Length - 1), NumberStyles.Integer, ctx.CommandsNext.DefaultParserCulture, out var val);
-                switch (gpt)
-                {
-                    case 'd':
-                        d = val;
-                        break;
-
-                    case 'h':
-                        h = val;
-                        break;
-
-                    case 'm':
-                        m = val;
-                        break;
-
-                    case 's':
-                        s = val;
-                        break;
-                }
-            }
-            result = new TimeSpan(d, h, m, s);
             return Task.FromResult(Optional.FromValue(result));
         }
     }

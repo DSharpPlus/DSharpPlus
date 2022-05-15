@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using System.IO;
 using System.Net;
 using DSharpPlus.Net.Udp;
 using DSharpPlus.Net.WebSocket;
@@ -102,8 +103,8 @@ namespace DSharpPlus
 
         /// <summary>
         /// <para>Sets the level of compression for WebSocket traffic.</para>
-        /// <para>Disabling this option will increase the amount of traffic sent via WebSocket. Setting <see cref="GatewayCompressionLevel.Payload"/> will enable compression for READY and GUILD_CREATE payloads. Setting <see cref="GatewayCompressionLevel.Stream"/> will enable compression for the entire WebSocket stream, drastically reducing amount of traffic.</para>
-        /// <para>Defaults to <see cref="GatewayCompressionLevel.Stream"/>.</para>
+        /// <para>Disabling this option will increase the amount of traffic sent via WebSocket. Setting <see cref="GatewayCompressionLevel.Payload"/> will enable compression for READY and GUILD_CREATE payloads. Setting <see cref="Stream"/> will enable compression for the entire WebSocket stream, drastically reducing amount of traffic.</para>
+        /// <para>Defaults to <see cref="Stream"/>.</para>
         /// </summary>
         public GatewayCompressionLevel GatewayCompressionLevel { internal get; set; } = GatewayCompressionLevel.Stream;
 

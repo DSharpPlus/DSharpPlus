@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -45,7 +45,8 @@ namespace DSharpPlus.Interactivity.Extensions
         /// <param name="behaviour">Pagination behaviour.</param>
         /// <param name="deletion">Deletion behaviour</param>
         /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
-        public static Task SendPaginatedResponseAsync(this DiscordInteraction interaction, bool ephemeral, DiscordUser user, IEnumerable<Page> pages, PaginationButtons buttons = null, PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default, CancellationToken token = default)
-            => MessageExtensions.GetInteractivity(interaction.Message).SendPaginatedResponseAsync(interaction, ephemeral, user, pages, buttons, behaviour, deletion, token);
+        /// <param name="asEditResponse">If the response as edit of previous response.</param>
+        public static Task SendPaginatedResponseAsync(this DiscordInteraction interaction, bool ephemeral, DiscordUser user, IEnumerable<Page> pages, PaginationButtons buttons = null, PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default, CancellationToken token = default, bool asEditResponse = false)
+            => ChannelExtensions.GetInteractivity(interaction.Channel).SendPaginatedResponseAsync(interaction, ephemeral, user, pages, buttons, behaviour, deletion, token, asEditResponse);
     }
 }

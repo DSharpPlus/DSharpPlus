@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.Net.Abstractions;
@@ -56,6 +57,25 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("hoist", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsHoisted { get; internal set; }
+
+        /// <summary>
+        /// The url for this role's icon, if set.
+        /// </summary>
+        public string IconUrl => this.IconHash != null ? $"https://cdn.discordapp.com/role-icons/{this.Id}/{this.IconHash}.png" : null;
+
+        /// <summary>
+        /// The hash of this role's icon, if any.
+        /// </summary>
+        [JsonProperty("icon")]
+        public string IconHash { get; internal set; }
+
+        /// <summary>
+        /// The emoji associated with this role's icon, if set.
+        /// </summary>
+        public DiscordEmoji Emoji => this._emoji != null ? DiscordEmoji.FromUnicode(this._emoji) : null;
+
+        [JsonProperty("unicode_emoji")]
+        internal string _emoji;
 
         /// <summary>
         /// Gets the position of this role in the role hierarchy.
@@ -130,13 +150,15 @@ namespace DSharpPlus.Entities
         /// <param name="hoist">New role hoist</param>
         /// <param name="mentionable">Whether this role is mentionable</param>
         /// <param name="reason">Reason why we made this change</param>
+        /// <param name="icon">The icon to add to this role</param>
+        /// <param name="emoji">The emoji to add to this role. Must be unicode.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the role does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task ModifyAsync(string name = null, Permissions? permissions = null, DiscordColor? color = null, bool? hoist = null, bool? mentionable = null, string reason = null)
-            => this.Discord.ApiClient.ModifyGuildRoleAsync(this._guild_id, this.Id, name, permissions, color?.Value, hoist, mentionable, reason);
+        public Task ModifyAsync(string name = null, Permissions? permissions = null, DiscordColor? color = null, bool? hoist = null, bool? mentionable = null, string reason = null, Stream icon = null, DiscordEmoji emoji = null)
+            => this.Discord.ApiClient.ModifyGuildRoleAsync(this._guild_id, this.Id, name, permissions, color?.Value, hoist, mentionable, reason, icon, emoji?.ToString());
 
         /// <exception cref = "Exceptions.UnauthorizedException" > Thrown when the client does not have the<see cref="Permissions.ManageRoles"/> permission.</exception>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the role does not exist.</exception>
@@ -147,7 +169,7 @@ namespace DSharpPlus.Entities
             var mdl = new RoleEditModel();
             action(mdl);
 
-            return this.ModifyAsync(mdl.Name, mdl.Permissions, mdl.Color, mdl.Hoist, mdl.Mentionable, mdl.AuditLogReason);
+            return this.ModifyAsync(mdl.Name, mdl.Permissions, mdl.Color, mdl.Hoist, mdl.Mentionable, mdl.AuditLogReason, mdl.Icon, mdl.Emoji);
         }
 
         /// <summary>

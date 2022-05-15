@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -62,6 +62,26 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("max_values", NullValueHandling = NullValueHandling.Ignore)]
         public int? MaximumSelectedValues { get; internal set; }
+
+        /// <summary>
+        /// Enables this component if it was disabled before.
+        /// </summary>
+        /// <returns>The current component.</returns>
+        public DiscordSelectComponent Enable()
+        {
+            this.Disabled = false;
+            return this;
+        }
+
+        /// <summary>
+        /// Disables this component.
+        /// </summary>
+        /// <returns>The current component.</returns>
+        public DiscordSelectComponent Disable()
+        {
+            this.Disabled = true;
+            return this;
+        }
 
         internal DiscordSelectComponent()
         {

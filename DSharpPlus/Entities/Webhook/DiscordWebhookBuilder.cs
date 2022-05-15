@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -302,7 +302,7 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Sets the id of the thread to execute the webhhok on.
+        /// Sets the id of the thread to execute the webhook on.
         /// </summary>
         /// <param name="threadId">The id of the thread</param>
         public DiscordWebhookBuilder WithThreadId(ulong? threadId)

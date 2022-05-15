@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2021 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -97,7 +97,7 @@ namespace DSharpPlus.Test
         }
 
         [Command("addsimple"), Description("Adds a simple echo command."), Hidden, RequireOwner]
-        public async Task AddSimple(CommandContext ctx, string name, params string[] aliases)
+        public async Task AddSimpleAsync(CommandContext ctx, string name, params string[] aliases)
         {
             await Task.Yield();
             var command = new CommandBuilder(null)
