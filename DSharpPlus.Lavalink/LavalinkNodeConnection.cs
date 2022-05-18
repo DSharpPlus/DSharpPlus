@@ -250,6 +250,7 @@ namespace DSharpPlus.Lavalink
             this.WebSocket.AddDefaultHeader("Authorization", this.Configuration.Password);
             this.WebSocket.AddDefaultHeader("Num-Shards", this.Discord.ShardCount.ToString(CultureInfo.InvariantCulture));
             this.WebSocket.AddDefaultHeader("User-Id", this.Discord.CurrentUser.Id.ToString(CultureInfo.InvariantCulture));
+            this.WebSocket.AddDefaultHeader("Client-Name", "DSharpPlus.Lavalink");
             if (this.Configuration.ResumeKey != null)
                 this.WebSocket.AddDefaultHeader("Resume-Key", this.Configuration.ResumeKey);
 
