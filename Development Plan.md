@@ -6,6 +6,8 @@ This project will contain raw entities that correctly reflect the current Discor
 
 DSharpPlus.Core will have no cache, no "convenience" properties such as `DiscordUser.DefaultAvatarUrl` or any other extra features. **This packages acts as if there was a breaking change in the API and assumes that the user using the package knows what they're doing. There are no verification checks, no convienience properties, no caching, no anything except "core" functionality.**
 
+Note: Every async method in Core should be implemented using `ValueTask`s, wherever possible. If a method cannot be implemented using `ValueTask`, `Task` may be used, and a comment or `<remarks>` xmldocs tag should be left explaining why `ValueTask` was out of the question, in order to prevent future changes reverting the original choice without knowing why that choice was taken in the first place.
+
 ## Raw Entities
 Try to copy the documentation in `<summary>` XML tag, with any exceptions or notes in the `<remarks>` XML tag. If you feel further clarification is required, you're welcome to add your own notes in a `<para>` XML tag.
 
