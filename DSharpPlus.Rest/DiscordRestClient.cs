@@ -674,7 +674,7 @@ namespace DSharpPlus
         /// Sends a message
         /// </summary>
         /// <param name="channel_id">Channel id</param>
-        /// <param name="builder">The Discord Mesage builder.</param>
+        /// <param name="builder">The Discord Message builder.</param>
         /// <returns></returns>
         public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, DiscordMessageBuilder builder)
             => this.ApiClient.CreateMessageAsync(channel_id, builder);
@@ -683,7 +683,7 @@ namespace DSharpPlus
         /// Sends a message
         /// </summary>
         /// <param name="channel_id">Channel id</param>
-        /// <param name="action">The Discord Mesage builder.</param>
+        /// <param name="action">The Discord Message builder.</param>
         /// <returns></returns>
         public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, Action<DiscordMessageBuilder> action)
         {
