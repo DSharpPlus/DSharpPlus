@@ -252,7 +252,7 @@ namespace DSharpPlus
         /// <param name="afk_timeout">New guild AFK timeout in seconds</param>
         /// <param name="iconb64">New guild icon (base64)</param>
         /// <param name="owner_id">New guild owner id</param>
-        /// <param name="splashb64">New guild spalsh (base64)</param>
+        /// <param name="splashb64">New guild splash (base64)</param>
         /// <param name="systemChannelId">New guild system channel id</param>
         /// <param name="banner">New guild banner</param>
         /// <param name="description">New guild description</param>
