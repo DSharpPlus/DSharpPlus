@@ -86,16 +86,16 @@ namespace DSharpPlus
         /// <summary>
         /// Delete a scheduled guild event.
         /// </summary>
-        /// <param name="guildId">The id the guild the event resides on.</param>
-        /// <param name="eventId">The id of the event to delete.</param>
+        /// <param name="guildId">The ID the guild the event resides on.</param>
+        /// <param name="eventId">The ID of the event to delete.</param>
         public Task DeleteScheduledGuildEventAsync(ulong guildId, ulong eventId)
             => this.ApiClient.DeleteScheduledGuildEventAsync(guildId, eventId);
 
         /// <summary>
         /// Gets a specific scheduled guild event.
         /// </summary>
-        /// <param name="guildId">The id of the guild the event resides on.</param>
-        /// <param name="eventId">The id of the event to get</param>
+        /// <param name="guildId">The ID of the guild the event resides on.</param>
+        /// <param name="eventId">The ID of the event to get</param>
         /// <returns>The requested event.</returns>
         public Task<DiscordScheduledGuildEvent> GetScheduledGuildEventAsync(ulong guildId, ulong eventId)
             => this.ApiClient.GetScheduledGuildEventAsync(guildId, eventId);
@@ -103,7 +103,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets all available scheduled guild events.
         /// </summary>
-        /// <param name="guildId">The id of the guild to query.</param>
+        /// <param name="guildId">The ID of the guild to query.</param>
         /// <returns>All active and scheduled events.</returns>
         public Task<IReadOnlyList<DiscordScheduledGuildEvent>> GetScheduledGuildEventsAsync(ulong guildId)
             => this.ApiClient.GetScheduledGuildEventsAsync(guildId);
@@ -112,8 +112,8 @@ namespace DSharpPlus
         /// <summary>
         /// Modify a scheduled guild event.
         /// </summary>
-        /// <param name="guildId">The id of the guild the event resides on.</param>
-        /// <param name="eventId">The id of the event to modify.</param>
+        /// <param name="guildId">The ID of the guild the event resides on.</param>
+        /// <param name="eventId">The ID of the event to modify.</param>
         /// <param name="mdl">The action to apply to the event.</param>
         /// <returns>The modified event.</returns>
         public Task<DiscordScheduledGuildEvent> ModifyScheduledGuildEventAsync(ulong guildId, ulong eventId, Action<ScheduledGuildEventEditModel> mdl)
@@ -153,11 +153,11 @@ namespace DSharpPlus
         /// <summary>
         /// Gets the users interested in the guild event.
         /// </summary>
-        /// <param name="guildId">The id of the guild the event resides on.</param>
-        /// <param name="eventId">The id of the event.</param>
+        /// <param name="guildId">The ID of the guild the event resides on.</param>
+        /// <param name="eventId">The ID of the event.</param>
         /// <param name="limit">How many users to query.</param>
-        /// <param name="after">Fetch users after this id.</param>
-        /// <param name="before">Fetch users before this id.</param>
+        /// <param name="after">Fetch users after this ID.</param>
+        /// <param name="before">Fetch users before this ID.</param>
         /// <returns>The users interested in the event.</returns>
         public async Task<IReadOnlyList<DiscordUser>> GetScheduledGuildEventUsersAsync(ulong guildId, ulong eventId, int limit = 100, ulong? after = null, ulong? before = null)
         {
@@ -200,7 +200,7 @@ namespace DSharpPlus
         /// <summary>
         /// Searches the given guild for members who's display name start with the specified name.
         /// </summary>
-        /// <param name="guild_id">The Id of the guild to search.</param>
+        /// <param name="guild_id">The ID of the guild to search.</param>
         /// <param name="name">The name to search for.</param>
         /// <param name="limit">The maximum amount of members to return. Max 1000. Defaults to 1.</param>
         /// <returns>The members found, if any.</returns>
@@ -233,7 +233,7 @@ namespace DSharpPlus
         /// <summary>
         /// Deletes a guild
         /// </summary>
-        /// <param name="id">guild id</param>
+        /// <param name="id">Guild ID</param>
         /// <returns></returns>
         public Task DeleteGuildAsync(ulong id)
             => this.ApiClient.DeleteGuildAsync(id);
@@ -279,7 +279,7 @@ namespace DSharpPlus
         /// <summary>
         /// Modifies a guild
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
+        /// <param name="guild_id">Guild ID</param>
         /// <param name="action">Guild modifications</param>
         /// <returns></returns>
         public async Task<DiscordGuild> ModifyGuildAsync(ulong guild_id, Action<GuildEditModel> action)
@@ -322,7 +322,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets guild bans.
         /// </summary>
-        /// <param name="guild_id">The Id of the guild to get the bans from.</param>
+        /// <param name="guild_id">The ID of the guild to get the bans from.</param>
         /// <param name="limit">The number of users to return (up to maximum 1000, default 1000).</param>
         /// <param name="before">Consider only users before the given user id.</param>
         /// <param name="after">Consider only users after the given user id.</param>
@@ -333,8 +333,8 @@ namespace DSharpPlus
         /// <summary>
         /// Gets the ban of the specified user. Requires Ban Members permission.
         /// </summary>
-        /// <param name="guild_id">The Id of the guild to get the ban from.</param>
-        /// <param name="user_id">The Id of the user to get the ban for.</param>
+        /// <param name="guild_id">The ID of the guild to get the ban from.</param>
+        /// <param name="user_id">The ID of the user to get the ban for.</param>
         /// <returns>A guild ban object.</returns>
         public Task<DiscordBan> GetGuildBanAsync(ulong guild_id, ulong user_id)
             => this.ApiClient.GetGuildBanAsync(guild_id, user_id);
@@ -342,8 +342,8 @@ namespace DSharpPlus
         /// <summary>
         /// Creates guild ban
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
-        /// <param name="user_id">User id</param>
+        /// <param name="guild_id">Guild ID</param>
+        /// <param name="user_id">User ID</param>
         /// <param name="delete_message_days">Days to delete messages</param>
         /// <param name="reason">Reason why this member was banned</param>
         /// <returns></returns>
@@ -353,7 +353,7 @@ namespace DSharpPlus
         /// <summary>
         /// Removes a guild ban
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
+        /// <param name="guild_id">Guild ID</param>
         /// <param name="user_id">User to unban</param>
         /// <param name="reason">Reason why this member was unbanned</param>
         /// <returns></returns>
@@ -363,7 +363,7 @@ namespace DSharpPlus
         /// <summary>
         /// Leaves a guild
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
+        /// <param name="guild_id">Guild ID</param>
         /// <returns></returns>
         public Task LeaveGuildAsync(ulong guild_id)
             => this.ApiClient.LeaveGuildAsync(guild_id);
@@ -371,8 +371,8 @@ namespace DSharpPlus
         /// <summary>
         /// Adds a member to a guild
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
-        /// <param name="user_id">User id</param>
+        /// <param name="guild_id">Guild ID</param>
+        /// <param name="user_id">User ID</param>
         /// <param name="access_token">Access token</param>
         /// <param name="nick">User nickname</param>
         /// <param name="roles">User roles</param>
@@ -385,7 +385,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets all guild members
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
+        /// <param name="guild_id">Guild ID</param>
         /// <param name="limit">Member download limit</param>
         /// <param name="after">Gets members after this ID</param>
         /// <returns></returns>
@@ -421,9 +421,9 @@ namespace DSharpPlus
         /// <summary>
         /// Add role to guild member
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
-        /// <param name="user_id">User id</param>
-        /// <param name="role_id">Role id</param>
+        /// <param name="guild_id">Guild ID</param>
+        /// <param name="user_id">User ID</param>
+        /// <param name="role_id">Role ID</param>
         /// <param name="reason">Reason this role gets added</param>
         /// <returns></returns>
         public Task AddGuildMemberRoleAsync(ulong guild_id, ulong user_id, ulong role_id, string reason)
@@ -432,9 +432,9 @@ namespace DSharpPlus
         /// <summary>
         /// Remove role from member
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
-        /// <param name="user_id">User id</param>
-        /// <param name="role_id">Role id</param>
+        /// <param name="guild_id">Guild ID</param>
+        /// <param name="user_id">User ID</param>
+        /// <param name="role_id">Role ID</param>
         /// <param name="reason">Reason this role gets removed</param>
         /// <returns></returns>
         public Task RemoveGuildMemberRoleAsync(ulong guild_id, ulong user_id, ulong role_id, string reason)
@@ -443,8 +443,8 @@ namespace DSharpPlus
         /// <summary>
         /// Updates a role's position
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
-        /// <param name="role_id">Role id</param>
+        /// <param name="guild_id">Guild ID</param>
+        /// <param name="role_id">Role ID</param>
         /// <param name="position">Role position</param>
         /// <param name="reason">Reason this position was modified</param>
         /// <returns></returns>
@@ -460,8 +460,8 @@ namespace DSharpPlus
         /// <summary>
         /// Updates a channel's position
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
-        /// <param name="channel_id">Channel id</param>
+        /// <param name="guild_id">Guild ID</param>
+        /// <param name="channel_id">Channel ID</param>
         /// <param name="position">Channel position</param>
         /// <param name="reason">Reason this position was modified</param>
         /// <param name="lockPermissions">Whether to sync channel permissions with the parent, if moving to a new category.</param>
@@ -479,7 +479,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets a guild's widget
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
+        /// <param name="guild_id">Guild ID</param>
         /// <returns></returns>
         public Task<DiscordWidget> GetGuildWidgetAsync(ulong guild_id)
             => this.ApiClient.GetGuildWidgetAsync(guild_id);
@@ -487,7 +487,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets a guild's widget settings
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
+        /// <param name="guild_id">Guild ID</param>
         /// <returns></returns>
         public Task<DiscordWidgetSettings> GetGuildWidgetSettingsAsync(ulong guild_id)
             => this.ApiClient.GetGuildWidgetSettingsAsync(guild_id);
@@ -495,9 +495,9 @@ namespace DSharpPlus
         /// <summary>
         /// Modifies a guild's widget settings
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
+        /// <param name="guild_id">Guild ID</param>
         /// <param name="enabled">If the widget is enabled or not</param>
-        /// <param name="channel_id">Widget channel id</param>
+        /// <param name="channel_id">Widget channel ID</param>
         /// <param name="reason">Reason the widget settings were modified</param>
         /// <returns></returns>
         public Task<DiscordWidgetSettings> ModifyGuildWidgetSettingsAsync(ulong guild_id, bool? enabled = null, ulong? channel_id = null, string reason = null)
@@ -506,7 +506,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets a guild's membership screening form.
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
+        /// <param name="guild_id">Guild ID</param>
         /// <returns>The guild's membership screening form.</returns>
         public Task<DiscordGuildMembershipScreening> GetGuildMembershipScreeningFormAsync(ulong guild_id)
             => this.ApiClient.GetGuildMembershipScreeningFormAsync(guild_id);
@@ -514,7 +514,7 @@ namespace DSharpPlus
         /// <summary>
         /// Modifies a guild's membership screening form.
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
+        /// <param name="guild_id">Guild ID</param>
         /// <param name="action">Action to perform</param>
         /// <returns>The modified screening form.</returns>
         public async Task<DiscordGuildMembershipScreening> ModifyGuildMembershipScreeningFormAsync(ulong guild_id, Action<MembershipScreeningEditModel> action)
@@ -527,7 +527,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets a guild's vanity url
         /// </summary>
-        /// <param name="guildId">The id of the guild.</param>
+        /// <param name="guildId">The ID of the guild.</param>
         /// <returns>The guild's vanity url.</returns>
         public Task<DiscordInvite> GetGuildVanityUrlAsync(ulong guildId)
             => this.ApiClient.GetGuildVanityUrlAsync(guildId);
@@ -535,8 +535,8 @@ namespace DSharpPlus
         /// <summary>
         /// Updates the current user's suppress state in a stage channel.
         /// </summary>
-        /// <param name="guildId">The id of the guild.</param>
-        /// <param name="channelId">The id of the channel.</param>
+        /// <param name="guildId">The ID of the guild.</param>
+        /// <param name="channelId">The ID of the channel.</param>
         /// <param name="suppress">Toggles the suppress state.</param>
         /// <param name="requestToSpeakTimestamp">Sets the time the user requested to speak.</param>
         public Task UpdateCurrentUserVoiceStateAsync(ulong guildId, ulong channelId, bool? suppress, DateTimeOffset? requestToSpeakTimestamp = null)
@@ -545,9 +545,9 @@ namespace DSharpPlus
         /// <summary>
         /// Updates a member's suppress state in a stage channel.
         /// </summary>
-        /// <param name="guildId">The id of the guild.</param>
-        /// <param name="userId">The id of the member.</param>
-        /// <param name="channelId">The id of the stage channel.</param>
+        /// <param name="guildId">The ID of the guild.</param>
+        /// <param name="userId">The ID of the member.</param>
+        /// <param name="channelId">The ID of the stage channel.</param>
         /// <param name="suppress">Toggles the member's suppress state.</param>
         /// <returns></returns>
         public Task UpdateUserVoiceStateAsync(ulong guildId, ulong userId, ulong channelId, bool? suppress)
@@ -558,10 +558,10 @@ namespace DSharpPlus
         /// <summary>
         /// Creates a guild channel
         /// </summary>
-        /// <param name="id">Channel id</param>
+        /// <param name="id">Channel ID</param>
         /// <param name="name">Channel name</param>
         /// <param name="type">Channel type</param>
-        /// <param name="parent">Channel parent id</param>
+        /// <param name="parent">Channel parent ID</param>
         /// <param name="topic">Channel topic</param>
         /// <param name="bitrate">Voice channel bitrate</param>
         /// <param name="userLimit">Voice channel user limit</param>
@@ -582,7 +582,7 @@ namespace DSharpPlus
         /// <summary>
         /// Modifies a channel
         /// </summary>
-        /// <param name="id">Channel id</param>
+        /// <param name="id">Channel ID</param>
         /// <param name="name">New channel name</param>
         /// <param name="position">New channel position</param>
         /// <param name="topic">New channel topic</param>
@@ -603,7 +603,7 @@ namespace DSharpPlus
         /// <summary>
         /// Modifies a channel
         /// </summary>
-        /// <param name="channelId">Channel id</param>
+        /// <param name="channelId">Channel ID</param>
         /// <param name="action">Channel modifications</param>
         /// <returns></returns>
         public Task ModifyChannelAsync(ulong channelId, Action<ChannelEditModel> action)
@@ -619,7 +619,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets a channel object
         /// </summary>
-        /// <param name="id">Channel id</param>
+        /// <param name="id">Channel ID</param>
         /// <returns></returns>
         public Task<DiscordChannel> GetChannelAsync(ulong id)
             => this.ApiClient.GetChannelAsync(id);
@@ -627,7 +627,7 @@ namespace DSharpPlus
         /// <summary>
         /// Deletes a channel
         /// </summary>
-        /// <param name="id">Channel id</param>
+        /// <param name="id">Channel ID</param>
         /// <param name="reason">Reason why this channel was deleted</param>
         /// <returns></returns>
         public Task DeleteChannelAsync(ulong id, string reason)
@@ -636,8 +636,8 @@ namespace DSharpPlus
         /// <summary>
         /// Gets message in a channel
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
-        /// <param name="message_id">Message id</param>
+        /// <param name="channel_id">Channel ID</param>
+        /// <param name="message_id">Message ID</param>
         /// <returns></returns>
         public Task<DiscordMessage> GetMessageAsync(ulong channel_id, ulong message_id)
             => this.ApiClient.GetMessageAsync(channel_id, message_id);
@@ -645,7 +645,7 @@ namespace DSharpPlus
         /// <summary>
         /// Sends a message
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
+        /// <param name="channel_id">Channel ID</param>
         /// <param name="content">Message (text) content</param>
         /// <returns></returns>
         public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content)
@@ -654,7 +654,7 @@ namespace DSharpPlus
         /// <summary>
         /// Sends a message
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
+        /// <param name="channel_id">Channel ID</param>
         /// <param name="embed">Embed to attach</param>
         /// <returns></returns>
         public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, DiscordEmbed embed)
@@ -663,7 +663,7 @@ namespace DSharpPlus
         /// <summary>
         /// Sends a message
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
+        /// <param name="channel_id">Channel ID</param>
         /// <param name="content">Message (text) content</param>
         /// <param name="embed">Embed to attach</param>
         /// <returns></returns>
@@ -673,7 +673,7 @@ namespace DSharpPlus
         /// <summary>
         /// Sends a message
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
+        /// <param name="channel_id">Channel ID</param>
         /// <param name="builder">The Discord Message builder.</param>
         /// <returns></returns>
         public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, DiscordMessageBuilder builder)
@@ -695,7 +695,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets channels from a guild
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
+        /// <param name="guild_id">Guild ID</param>
         /// <returns></returns>
         public Task<IReadOnlyList<DiscordChannel>> GetGuildChannelsAsync(ulong guild_id)
             => this.ApiClient.GetGuildChannelsAsync(guild_id);
@@ -703,11 +703,11 @@ namespace DSharpPlus
         /// <summary>
         /// Gets messages from a channel
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
+        /// <param name="channel_id">Channel ID</param>
         /// <param name="limit">Limit of messages to get</param>
-        /// <param name="before">Gets messages before this id</param>
-        /// <param name="after">Gets messages after this id</param>
-        /// <param name="around">Gets messages around this id</param>
+        /// <param name="before">Gets messages before this ID</param>
+        /// <param name="after">Gets messages after this ID</param>
+        /// <param name="around">Gets messages around this ID</param>
         /// <returns></returns>
         public Task<IReadOnlyList<DiscordMessage>> GetChannelMessagesAsync(ulong channel_id, int limit, ulong? before, ulong? after, ulong? around)
             => this.ApiClient.GetChannelMessagesAsync(channel_id, limit, before, after, around);
@@ -715,8 +715,8 @@ namespace DSharpPlus
         /// <summary>
         /// Gets a message from a channel
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
-        /// <param name="message_id">Message id</param>
+        /// <param name="channel_id">Channel ID</param>
+        /// <param name="message_id">Message ID</param>
         /// <returns></returns>
         public Task<DiscordMessage> GetChannelMessageAsync(ulong channel_id, ulong message_id)
             => this.ApiClient.GetChannelMessageAsync(channel_id, message_id);
@@ -724,8 +724,8 @@ namespace DSharpPlus
         /// <summary>
         /// Edits a message
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
-        /// <param name="message_id">Message id</param>
+        /// <param name="channel_id">Channel ID</param>
+        /// <param name="message_id">Message ID</param>
         /// <param name="content">New message content</param>
         /// <returns></returns>
         public Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<string> content)
@@ -734,8 +734,8 @@ namespace DSharpPlus
         /// <summary>
         /// Edits a message
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
-        /// <param name="message_id">Message id</param>
+        /// <param name="channel_id">Channel ID</param>
+        /// <param name="message_id">Message ID</param>
         /// <param name="embed">New message embed</param>
         /// <returns></returns>
         public Task<DiscordMessage> EditMessageAsync(ulong channel_id, ulong message_id, Optional<DiscordEmbed> embed)
@@ -744,8 +744,8 @@ namespace DSharpPlus
         /// <summary>
         /// Edits a message
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
-        /// <param name="message_id">Message id</param>
+        /// <param name="channel_id">Channel ID</param>
+        /// <param name="message_id">Message ID</param>
         /// <param name="builder">The builder of the message to edit.</param>
         /// <param name="suppressEmbeds">Whether to suppress embeds on the message.</param>
         /// <param name="attachments">Attached files to keep.</param>
@@ -760,8 +760,8 @@ namespace DSharpPlus
         /// <summary>
         /// Modifes the visibility of embeds in a message.
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
-        /// <param name="message_id">Message id</param>
+        /// <param name="channel_id">Channel ID</param>
+        /// <param name="message_id">Message ID</param>
         /// <param name="hideEmbeds">Whether to hide all embeds.</param>
         public Task ModifyEmbedSuppressionAsync(ulong channel_id, ulong message_id, bool hideEmbeds)
             => this.ApiClient.EditMessageAsync(channel_id, message_id, default, default, default, default, Array.Empty<DiscordMessageFile>(), hideEmbeds ? MessageFlags.SuppressedEmbeds : null, default);
@@ -769,8 +769,8 @@ namespace DSharpPlus
         /// <summary>
         /// Deletes a message
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
-        /// <param name="message_id">Message id</param>
+        /// <param name="channel_id">Channel ID</param>
+        /// <param name="message_id">Message ID</param>
         /// <param name="reason">Why this message was deleted</param>
         /// <returns></returns>
         public Task DeleteMessageAsync(ulong channel_id, ulong message_id, string reason)
@@ -779,8 +779,8 @@ namespace DSharpPlus
         /// <summary>
         /// Deletes multiple messages
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
-        /// <param name="message_ids">Message ids</param>
+        /// <param name="channel_id">Channel ID</param>
+        /// <param name="message_ids">Message IDs</param>
         /// <param name="reason">Reason these messages were deleted</param>
         /// <returns></returns>
         public Task DeleteMessagesAsync(ulong channel_id, IEnumerable<ulong> message_ids, string reason)
@@ -789,7 +789,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets a channel's invites
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
+        /// <param name="channel_id">Channel ID</param>
         /// <returns></returns>
         public Task<IReadOnlyList<DiscordInvite>> GetChannelInvitesAsync(ulong channel_id)
             => this.ApiClient.GetChannelInvitesAsync(channel_id);
@@ -797,15 +797,15 @@ namespace DSharpPlus
         /// <summary>
         /// Creates a channel invite
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
+        /// <param name="channel_id">Channel ID</param>
         /// <param name="max_age">For how long the invite should exist</param>
         /// <param name="max_uses">How often the invite may be used</param>
         /// <param name="temporary">Whether this invite should be temporary</param>
         /// <param name="unique">Whether this invite should be unique (false might return an existing invite)</param>
         /// <param name="reason">Why you made an invite</param>
         /// <param name="targetType">The target type of the invite, for stream and embedded application invites.</param>
-        /// <param name="targetUserId">The id of the target user.</param>
-        /// <param name="targetApplicationId">The id of the target application.</param>
+        /// <param name="targetUserId">The ID of the target user.</param>
+        /// <param name="targetApplicationId">The ID of the target application.</param>
         /// <returns></returns>
         public Task<DiscordInvite> CreateChannelInviteAsync(ulong channel_id, int max_age, int max_uses, bool temporary, bool unique, string reason, InviteTargetType? targetType = null, ulong? targetUserId = null, ulong? targetApplicationId = null)
             => this.ApiClient.CreateChannelInviteAsync(channel_id, max_age, max_uses, temporary, unique, reason, targetType, targetUserId, targetApplicationId);
@@ -813,8 +813,8 @@ namespace DSharpPlus
         /// <summary>
         /// Deletes channel overwrite
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
-        /// <param name="overwrite_id">Overwrite id</param>
+        /// <param name="channel_id">Channel ID</param>
+        /// <param name="overwrite_id">Overwrite ID</param>
         /// <param name="reason">Reason it was deleted</param>
         /// <returns></returns>
         public Task DeleteChannelPermissionAsync(ulong channel_id, ulong overwrite_id, string reason)
@@ -823,8 +823,8 @@ namespace DSharpPlus
         /// <summary>
         /// Edits channel overwrite
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
-        /// <param name="overwrite_id">Overwrite id</param>
+        /// <param name="channel_id">Channel ID</param>
+        /// <param name="overwrite_id">OverwriteIDid</param>
         /// <param name="allow">Permissions to allow</param>
         /// <param name="deny">Permissions to deny</param>
         /// <param name="type">Overwrite type</param>
@@ -836,7 +836,7 @@ namespace DSharpPlus
         /// <summary>
         /// Send a typing indicator to a channel
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
+        /// <param name="channel_id">Channel ID</param>
         /// <returns></returns>
         public Task TriggerTypingAsync(ulong channel_id)
             => this.ApiClient.TriggerTypingAsync(channel_id);
@@ -844,7 +844,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets pinned messages
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
+        /// <param name="channel_id">Channel ID</param>
         /// <returns></returns>
         public Task<IReadOnlyList<DiscordMessage>> GetPinnedMessagesAsync(ulong channel_id)
             => this.ApiClient.GetPinnedMessagesAsync(channel_id);
@@ -852,8 +852,8 @@ namespace DSharpPlus
         /// <summary>
         /// Unpuns a message
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
-        /// <param name="message_id">Message id</param>
+        /// <param name="channel_id">Channel ID</param>
+        /// <param name="message_id">Message ID</param>
         /// <returns></returns>
         public Task UnpinMessageAsync(ulong channel_id, ulong message_id)
             => this.ApiClient.UnpinMessageAsync(channel_id, message_id);
@@ -861,8 +861,8 @@ namespace DSharpPlus
         /// <summary>
         /// Joins a group DM
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
-        /// <param name="nickname">Dm nickname</param>
+        /// <param name="channel_id">Channel ID</param>
+        /// <param name="nickname">DM nickname</param>
         /// <returns></returns>
         public Task JoinGroupDmAsync(ulong channel_id, string nickname)
             => this.ApiClient.AddGroupDmRecipientAsync(channel_id, this.CurrentUser.Id, this.Configuration.Token, nickname);
@@ -870,8 +870,8 @@ namespace DSharpPlus
         /// <summary>
         /// Adds a member to a group DM
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
-        /// <param name="user_id">User id</param>
+        /// <param name="channel_id">Channel ID</param>
+        /// <param name="user_id">User ID</param>
         /// <param name="access_token">User's access token</param>
         /// <param name="nickname">Nickname for user</param>
         /// <returns></returns>
@@ -881,7 +881,7 @@ namespace DSharpPlus
         /// <summary>
         /// Leaves a group DM
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
+        /// <param name="channel_id">Channel ID</param>
         /// <returns></returns>
         public Task LeaveGroupDmAsync(ulong channel_id)
             => this.ApiClient.RemoveGroupDmRecipientAsync(channel_id, this.CurrentUser.Id);
@@ -889,8 +889,8 @@ namespace DSharpPlus
         /// <summary>
         /// Removes a member from a group DM
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
-        /// <param name="user_id">User id</param>
+        /// <param name="channel_id">Channel ID</param>
+        /// <param name="user_id">User ID</param>
         /// <returns></returns>
         public Task GroupDmRemoveRecipientAsync(ulong channel_id, ulong user_id)
             => this.ApiClient.RemoveGroupDmRecipientAsync(channel_id, user_id);
@@ -920,7 +920,7 @@ namespace DSharpPlus
         /// <summary>
         /// Creates a DM
         /// </summary>
-        /// <param name="recipient_id">Recipient user id</param>
+        /// <param name="recipient_id">Recipient user ID</param>
         /// <returns></returns>
         public Task<DiscordDmChannel> CreateDmAsync(ulong recipient_id)
             => this.ApiClient.CreateDmAsync(recipient_id);
@@ -928,8 +928,8 @@ namespace DSharpPlus
         /// <summary>
         /// Follows a news channel
         /// </summary>
-        /// <param name="channel_id">Id of the channel to follow</param>
-        /// <param name="webhook_channel_id">Id of the channel to crosspost messages to</param>
+        /// <param name="channel_id">ID of the channel to follow</param>
+        /// <param name="webhook_channel_id">ID of the channel to crosspost messages to</param>
         /// <exception cref="UnauthorizedException">Thrown when the current user doesn't have <see cref="Permissions.ManageWebhooks"/> on the target channel</exception>
         public Task<DiscordFollowedChannel> FollowChannelAsync(ulong channel_id, ulong webhook_channel_id)
             => this.ApiClient.FollowChannelAsync(channel_id, webhook_channel_id);
@@ -937,8 +937,8 @@ namespace DSharpPlus
         /// <summary>
         /// Publishes a message in a news channel to following channels
         /// </summary>
-        /// <param name="channel_id">Id of the news channel the message to crosspost belongs to</param>
-        /// <param name="message_id">Id of the message to crosspost</param>
+        /// <param name="channel_id">ID of the news channel the message to crosspost belongs to</param>
+        /// <param name="message_id">ID of the message to crosspost</param>
         /// <exception cref="UnauthorizedException">
         ///     Thrown when the current user doesn't have <see cref="Permissions.ManageWebhooks"/> and/or <see cref="Permissions.SendMessages"/>
         /// </exception>
@@ -948,7 +948,7 @@ namespace DSharpPlus
         /// <summary>
         /// Creates a stage instance in a stage channel.
         /// </summary>
-        /// <param name="channelId">The id of the stage channel to create it in.</param>
+        /// <param name="channelId">The ID of the stage channel to create it in.</param>
         /// <param name="topic">The topic of the stage instance.</param>
         /// <param name="privacyLevel">The privacy level of the stage instance.</param>
         /// <param name="reason">The reason the stage instance was created.</param>
@@ -959,7 +959,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets a stage instance in a stage channel.
         /// </summary>
-        /// <param name="channelId">The id of the channel.</param>
+        /// <param name="channelId">The ID of the channel.</param>
         /// <returns>The stage instance in the channel.</returns>
         public Task<DiscordStageInstance> GetStageInstanceAsync(ulong channelId)
             => this.ApiClient.GetStageInstanceAsync(channelId);
@@ -967,7 +967,7 @@ namespace DSharpPlus
         /// <summary>
         /// Modifies a stage instance in a stage channel.
         /// </summary>
-        /// <param name="channelId">The id of the channel to modify the stage instance of.</param>
+        /// <param name="channelId">The ID of the channel to modify the stage instance of.</param>
         /// <param name="action">Action to perform.</param>
         /// <returns>The modified stage instance.</returns>
         public async Task<DiscordStageInstance> ModifyStageInstanceAsync(ulong channelId, Action<StageInstanceEditModel> action)
@@ -980,7 +980,7 @@ namespace DSharpPlus
         /// <summary>
         /// Deletes a stage instance in a stage channel.
         /// </summary>
-        /// <param name="channelId">The id of the channel to delete the stage instance of.</param>
+        /// <param name="channelId">The ID of the channel to delete the stage instance of.</param>
         /// <param name="reason">The reason the stage instance was deleted.</param>
         public Task DeleteStageInstanceAsync(ulong channelId, string reason = null)
             => this.ApiClient.DeleteStageInstanceAsync(channelId, reason);
@@ -988,8 +988,8 @@ namespace DSharpPlus
         /// <summary>
         /// Pins a message.
         /// </summary>
-        /// <param name="channelId">The id of the channel the message is in.</param>
-        /// <param name="messageId">The id of the message.</param>
+        /// <param name="channelId">The ID of the channel the message is in.</param>
+        /// <param name="messageId">The ID of the message.</param>
         public Task PinMessageAsync(ulong channelId, ulong messageId)
             => this.ApiClient.PinMessageAsync(channelId, messageId);
 
@@ -1006,7 +1006,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets user object
         /// </summary>
-        /// <param name="user">User id</param>
+        /// <param name="user">User ID</param>
         /// <returns></returns>
         public Task<DiscordUser> GetUserAsync(ulong user)
             => this.ApiClient.GetUserAsync(user);
@@ -1014,8 +1014,8 @@ namespace DSharpPlus
         /// <summary>
         /// Gets guild member
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
-        /// <param name="member_id">Member id</param>
+        /// <param name="guild_id">Guild ID</param>
+        /// <param name="member_id">Member ID</param>
         /// <returns></returns>
         public Task<DiscordMember> GetGuildMemberAsync(ulong guild_id, ulong member_id)
             => this.ApiClient.GetGuildMemberAsync(guild_id, member_id);
@@ -1023,8 +1023,8 @@ namespace DSharpPlus
         /// <summary>
         /// Removes guild member
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
-        /// <param name="user_id">User id</param>
+        /// <param name="guild_id">Guild ID</param>
+        /// <param name="user_id">User ID</param>
         /// <param name="reason">Why this user was removed</param>
         /// <returns></returns>
         public Task RemoveGuildMemberAsync(ulong guild_id, ulong user_id, string reason)
@@ -1068,8 +1068,8 @@ namespace DSharpPlus
         /// <summary>
         /// Modifies guild member.
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
-        /// <param name="user_id">User id</param>
+        /// <param name="guild_id">Guild ID</param>
+        /// <param name="user_id">User ID</param>
         /// <param name="nick">New nickname</param>
         /// <param name="role_ids">New roles</param>
         /// <param name="mute">Whether this user should be muted</param>
@@ -1086,8 +1086,8 @@ namespace DSharpPlus
         /// <summary>
         /// Modifies a member
         /// </summary>
-        /// <param name="member_id">Member id</param>
-        /// <param name="guild_id">Guild id</param>
+        /// <param name="member_id">Member ID</param>
+        /// <param name="guild_id">Guild ID</param>
         /// <param name="action">Modifications</param>
         /// <returns></returns>
         public async Task ModifyAsync(ulong member_id, ulong guild_id, Action<MemberEditModel> action)
@@ -1117,7 +1117,7 @@ namespace DSharpPlus
         /// <summary>
         /// Changes current user's nickname
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
+        /// <param name="guild_id">Guild ID</param>
         /// <param name="nick">Nickname</param>
         /// <param name="reason">Reason why you set it to this</param>
         /// <returns></returns>
@@ -1128,7 +1128,7 @@ namespace DSharpPlus
         /// <summary>
         /// Changes the current user in a guild.
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
+        /// <param name="guild_id">Guild ID</param>
         /// <param name="nickname">Nickname to set</param>
         /// <param name="reason">Audit log reason</param>
         /// <returns></returns>
@@ -1141,7 +1141,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets roles
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
+        /// <param name="guild_id">Guild ID</param>
         /// <returns></returns>
         public Task<IReadOnlyList<DiscordRole>> GetGuildRolesAsync(ulong guild_id)
             => this.ApiClient.GetGuildRolesAsync(guild_id);
@@ -1158,8 +1158,8 @@ namespace DSharpPlus
         /// <summary>
         /// Modifies a role
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
-        /// <param name="role_id">Role id</param>
+        /// <param name="guild_id">Guild ID</param>
+        /// <param name="role_id">Role ID</param>
         /// <param name="name">New role name</param>
         /// <param name="permissions">New role permissions</param>
         /// <param name="color">New role color</param>
@@ -1175,8 +1175,8 @@ namespace DSharpPlus
         /// <summary>
         /// Modifies a role
         /// </summary>
-        /// <param name="role_id">Role id</param>
-        /// <param name="guild_id">Guild id</param>
+        /// <param name="role_id">Role ID</param>
+        /// <param name="guild_id">Guild ID</param>
         /// <param name="action">Modifications</param>
         /// <returns></returns>
         public Task ModifyGuildRoleAsync(ulong role_id, ulong guild_id, Action<RoleEditModel> action)
@@ -1190,8 +1190,8 @@ namespace DSharpPlus
         /// <summary>
         /// Deletes a role
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
-        /// <param name="role_id">Role id</param>
+        /// <param name="guild_id">Guild ID</param>
+        /// <param name="role_id">Role ID</param>
         /// <param name="reason">Reason why this role was deleted</param>
         /// <returns></returns>
         public Task DeleteGuildRoleAsync(ulong guild_id, ulong role_id, string reason)
@@ -1200,7 +1200,7 @@ namespace DSharpPlus
         /// <summary>
         /// Creates a new role
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
+        /// <param name="guild_id">Guild ID</param>
         /// <param name="name">Role name</param>
         /// <param name="permissions">Role permissions</param>
         /// <param name="color">Role color</param>
@@ -1218,7 +1218,7 @@ namespace DSharpPlus
         /// <summary>
         /// Get a guild's prune count.
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
+        /// <param name="guild_id">Guild ID</param>
         /// <param name="days">Days to check for</param>
         /// <param name="include_roles">The roles to be included in the prune.</param>
         /// <returns></returns>
@@ -1228,7 +1228,7 @@ namespace DSharpPlus
         /// <summary>
         /// Begins a guild prune.
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
+        /// <param name="guild_id">Guild ID</param>
         /// <param name="days">Days to prune for</param>
         /// <param name="compute_prune_count">Whether to return the prune count after this method completes. This is discouraged for larger guilds.</param>
         /// <param name="include_roles">The roles to be included in the prune.</param>
@@ -1242,7 +1242,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets guild integrations
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
+        /// <param name="guild_id">Guild ID</param>
         /// <returns></returns>
         public Task<IReadOnlyList<DiscordIntegration>> GetGuildIntegrationsAsync(ulong guild_id)
             => this.ApiClient.GetGuildIntegrationsAsync(guild_id);
@@ -1250,7 +1250,7 @@ namespace DSharpPlus
         /// <summary>
         /// Creates guild integration
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
+        /// <param name="guild_id">Guild ID</param>
         /// <param name="type">Integration type</param>
         /// <param name="id">Integration id</param>
         /// <returns></returns>
@@ -1260,8 +1260,8 @@ namespace DSharpPlus
         /// <summary>
         /// Modifies a guild integration
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
-        /// <param name="integration_id">Integration id</param>
+        /// <param name="guild_id">Guild ID</param>
+        /// <param name="integration_id">Integration ID</param>
         /// <param name="expire_behaviour">Expiration behaviour</param>
         /// <param name="expire_grace_period">Expiration grace period</param>
         /// <param name="enable_emoticons">Whether to enable emojis for this integration</param>
@@ -1272,7 +1272,7 @@ namespace DSharpPlus
         /// <summary>
         /// Removes a guild integration
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
+        /// <param name="guild_id">Guild ID</param>
         /// <param name="integration">Integration to remove</param>
         /// <param name="reason">Reason why this integration was removed</param>
         /// <returns></returns>
@@ -1282,8 +1282,8 @@ namespace DSharpPlus
         /// <summary>
         /// Syncs guild integration
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
-        /// <param name="integration_id">Integration id</param>
+        /// <param name="guild_id">Guild ID</param>
+        /// <param name="integration_id">Integration ID</param>
         /// <returns></returns>
         public Task SyncGuildIntegrationAsync(ulong guild_id, ulong integration_id)
             => this.ApiClient.SyncGuildIntegrationAsync(guild_id, integration_id);
@@ -1291,7 +1291,7 @@ namespace DSharpPlus
         /// <summary>
         /// Get a guild's voice region
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
+        /// <param name="guild_id">Guild ID</param>
         /// <returns></returns>
         public Task<IReadOnlyList<DiscordVoiceRegion>> GetGuildVoiceRegionsAsync(ulong guild_id)
             => this.ApiClient.GetGuildVoiceRegionsAsync(guild_id);
@@ -1299,7 +1299,7 @@ namespace DSharpPlus
         /// <summary>
         /// Get a guild's invites
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
+        /// <param name="guild_id">Guild ID</param>
         /// <returns></returns>
         public Task<IReadOnlyList<DiscordInvite>> GetGuildInvitesAsync(ulong guild_id)
             => this.ApiClient.GetGuildInvitesAsync(guild_id);
@@ -1307,7 +1307,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets a guild's templates.
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
+        /// <param name="guild_id">Guild ID</param>
         /// <returns>All of the guild's templates.</returns>
         public Task<IReadOnlyList<DiscordGuildTemplate>> GetGuildTemplatesAsync(ulong guild_id)
             => this.ApiClient.GetGuildTemplatesAsync(guild_id);
@@ -1315,7 +1315,7 @@ namespace DSharpPlus
         /// <summary>
         /// Creates a guild template.
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
+        /// <param name="guild_id">Guild ID</param>
         /// <param name="name">Name of the template.</param>
         /// <param name="description">Description of the template.</param>
         /// <returns>The template created.</returns>
@@ -1325,7 +1325,7 @@ namespace DSharpPlus
         /// <summary>
         /// Syncs the template to the current guild's state.
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
+        /// <param name="guild_id">Guild ID</param>
         /// <param name="code">The code of the template to sync.</param>
         /// <returns>The template synced.</returns>
         public Task<DiscordGuildTemplate> SyncGuildTemplateAsync(ulong guild_id, string code)
@@ -1334,7 +1334,7 @@ namespace DSharpPlus
         /// <summary>
         /// Modifies the template's metadata.
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
+        /// <param name="guild_id">Guild ID</param>
         /// <param name="code">The template's code.</param>
         /// <param name="name">Name of the template.</param>
         /// <param name="description">Description of the template.</param>
@@ -1345,7 +1345,7 @@ namespace DSharpPlus
         /// <summary>
         /// Deletes the template.
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
+        /// <param name="guild_id">Guild ID</param>
         /// <param name="code">The code of the template to delete.</param>
         /// <returns>The deleted template.</returns>
         public Task<DiscordGuildTemplate> DeleteGuildTemplateAsync(ulong guild_id, string code)
@@ -1375,7 +1375,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets a guild preview.
         /// </summary>
-        /// <param name="guildId">The id of the guild.</param>
+        /// <param name="guildId">The ID of the guild.</param>
         public Task<DiscordGuildPreview> GetGuildPreviewAsync(ulong guildId)
             => this.ApiClient.GetGuildPreviewAsync(guildId);
 
@@ -1415,7 +1415,7 @@ namespace DSharpPlus
         /// <summary>
         /// Creates a new webhook
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
+        /// <param name="channel_id">Channel ID</param>
         /// <param name="name">Webhook name</param>
         /// <param name="base64_avatar">Webhook avatar (base64)</param>
         /// <param name="reason">Reason why this webhook was created</param>
@@ -1426,7 +1426,7 @@ namespace DSharpPlus
         /// <summary>
         /// Creates a new webhook
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
+        /// <param name="channel_id">Channel ID</param>
         /// <param name="name">Webhook name</param>
         /// <param name="avatar">Webhook avatar</param>
         /// <param name="reason">Reason why this webhook was created</param>
@@ -1444,7 +1444,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets all webhooks from a channel
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
+        /// <param name="channel_id">Channel ID</param>
         /// <returns></returns>
         public Task<IReadOnlyList<DiscordWebhook>> GetChannelWebhooksAsync(ulong channel_id)
             => this.ApiClient.GetChannelWebhooksAsync(channel_id);
@@ -1452,7 +1452,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets all webhooks from a guild
         /// </summary>
-        /// <param name="guild_id">Guild id</param>
+        /// <param name="guild_id">Guild ID</param>
         /// <returns></returns>
         public Task<IReadOnlyList<DiscordWebhook>> GetGuildWebhooksAsync(ulong guild_id)
             => this.ApiClient.GetGuildWebhooksAsync(guild_id);
@@ -1460,7 +1460,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets a webhook
         /// </summary>
-        /// <param name="webhook_id">Webhook id</param>
+        /// <param name="webhook_id">Webhook ID</param>
         /// <returns></returns>
         public Task<DiscordWebhook> GetWebhookAsync(ulong webhook_id)
             => this.ApiClient.GetWebhookAsync(webhook_id);
@@ -1468,7 +1468,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets a webhook with its token (when user is not in said guild)
         /// </summary>
-        /// <param name="webhook_id">Webhook id</param>
+        /// <param name="webhook_id">Webhook ID</param>
         /// <param name="webhook_token">Webhook token</param>
         /// <returns></returns>
         public Task<DiscordWebhook> GetWebhookWithTokenAsync(ulong webhook_id, string webhook_token)
@@ -1477,8 +1477,8 @@ namespace DSharpPlus
         /// <summary>
         /// Modifies a webhook
         /// </summary>
-        /// <param name="webhook_id">Webhook id</param>
-        /// <param name="channelId">The new channel id the webhook should be moved to.</param>
+        /// <param name="webhook_id">Webhook ID</param>
+        /// <param name="channelId">The new channel ID the webhook should be moved to.</param>
         /// <param name="name">New webhook name</param>
         /// <param name="base64_avatar">New webhook avatar (base64)</param>
         /// <param name="reason">Reason why this webhook was modified</param>
@@ -1489,8 +1489,8 @@ namespace DSharpPlus
         /// <summary>
         /// Modifies a webhook
         /// </summary>
-        /// <param name="webhook_id">Webhook id</param>
-        /// <param name="channelId">The new channel id the webhook should be moved to.</param>
+        /// <param name="webhook_id">Webhook ID</param>
+        /// <param name="channelId">The new channel ID the webhook should be moved to.</param>
         /// <param name="name">New webhook name</param>
         /// <param name="avatar">New webhook avatar</param>
         /// <param name="reason">Reason why this webhook was modified</param>
@@ -1508,7 +1508,7 @@ namespace DSharpPlus
         /// <summary>
         /// Modifies a webhook (when user is not in said guild)
         /// </summary>
-        /// <param name="webhook_id">Webhook id</param>
+        /// <param name="webhook_id">Webhook ID</param>
         /// <param name="name">New webhook name</param>
         /// <param name="base64_avatar">New webhook avatar (base64)</param>
         /// <param name="webhook_token">Webhook token</param>
@@ -1520,7 +1520,7 @@ namespace DSharpPlus
         /// <summary>
         /// Modifies a webhook (when user is not in said guild)
         /// </summary>
-        /// <param name="webhook_id">Webhook id</param>
+        /// <param name="webhook_id">Webhook ID</param>
         /// <param name="name">New webhook name</param>
         /// <param name="avatar">New webhook avatar</param>
         /// <param name="webhook_token">Webhook token</param>
@@ -1539,7 +1539,7 @@ namespace DSharpPlus
         /// <summary>
         /// Deletes a webhook
         /// </summary>
-        /// <param name="webhook_id">Webhook id</param>
+        /// <param name="webhook_id">Webhook ID</param>
         /// <param name="reason">Reason this webhook was deleted</param>
         /// <returns></returns>
         public Task DeleteWebhookAsync(ulong webhook_id, string reason)
@@ -1548,7 +1548,7 @@ namespace DSharpPlus
         /// <summary>
         /// Deletes a webhook (when user is not in said guild)
         /// </summary>
-        /// <param name="webhook_id">Webhook id</param>
+        /// <param name="webhook_id">Webhook ID</param>
         /// <param name="reason">Reason this webhook was removed</param>
         /// <param name="webhook_token">Webhook token</param>
         /// <returns></returns>
@@ -1558,7 +1558,7 @@ namespace DSharpPlus
         /// <summary>
         /// Sends a message to a webhook
         /// </summary>
-        /// <param name="webhook_id">Webhook id</param>
+        /// <param name="webhook_id">Webhook ID</param>
         /// <param name="webhook_token">Webhook token</param>
         /// <param name="builder">Webhook builder filled with data to send.</param>
         /// <returns></returns>
@@ -1568,9 +1568,9 @@ namespace DSharpPlus
         /// <summary>
         /// Edits a previously-sent webhook message.
         /// </summary>
-        /// <param name="webhook_id">Webhook id</param>
+        /// <param name="webhook_id">Webhook ID</param>
         /// <param name="webhook_token">Webhook token</param>
-        /// <param name="messageId">The id of the message to edit.</param>
+        /// <param name="messageId">The ID of the message to edit.</param>
         /// <param name="builder">The builder of the message to edit.</param>
         /// <param name="attachments">Attached files to keep.</param>
         /// <returns>The modified <see cref="DiscordMessage"/></returns>
@@ -1584,9 +1584,9 @@ namespace DSharpPlus
         /// <summary>
         /// Deletes a message that was created by a webhook.
         /// </summary>
-        /// <param name="webhook_id">Webhook id</param>
+        /// <param name="webhook_id">Webhook ID</param>
         /// <param name="webhook_token">Webhook token</param>
-        /// <param name="messageId">The id of the message to delete</param>
+        /// <param name="messageId">The ID of the message to delete</param>
         /// <returns></returns>
         public Task DeleteWebhookMessageAsync(ulong webhook_id, string webhook_token, ulong messageId)
             => this.ApiClient.DeleteWebhookMessageAsync(webhook_id, webhook_token, messageId);
@@ -1596,8 +1596,8 @@ namespace DSharpPlus
         /// <summary>
         /// Creates a new reaction
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
-        /// <param name="message_id">Message id</param>
+        /// <param name="channel_id">Channel ID</param>
+        /// <param name="message_id">Message ID</param>
         /// <param name="emoji">Emoji to react</param>
         /// <returns></returns>
         public Task CreateReactionAsync(ulong channel_id, ulong message_id, string emoji)
@@ -1606,8 +1606,8 @@ namespace DSharpPlus
         /// <summary>
         /// Deletes own reaction
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
-        /// <param name="message_id">Message id</param>
+        /// <param name="channel_id">Channel ID</param>
+        /// <param name="message_id">Message ID</param>
         /// <param name="emoji">Emoji to remove from reaction</param>
         /// <returns></returns>
         public Task DeleteOwnReactionAsync(ulong channel_id, ulong message_id, string emoji)
@@ -1616,8 +1616,8 @@ namespace DSharpPlus
         /// <summary>
         /// Deletes someone elses reaction
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
-        /// <param name="message_id">Message id</param>
+        /// <param name="channel_id">Channel ID</param>
+        /// <param name="message_id">Message ID</param>
         /// <param name="user_id">User id</param>
         /// <param name="emoji">Emoji to remove</param>
         /// <param name="reason">Reason why this reaction was removed</param>
@@ -1628,8 +1628,8 @@ namespace DSharpPlus
         /// <summary>
         /// Gets all users that reacted with a specific emoji to a message
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
-        /// <param name="message_id">Message id</param>
+        /// <param name="channel_id">Channel ID</param>
+        /// <param name="message_id">Message ID</param>
         /// <param name="emoji">Emoji to check for</param>
         /// <param name="after_id">Whether to search for reactions after this message id.</param>
         /// <param name="limit">The maximum amount of reactions to fetch.</param>
@@ -1640,8 +1640,8 @@ namespace DSharpPlus
         /// <summary>
         /// Gets all users that reacted with a specific emoji to a message
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
-        /// <param name="message_id">Message id</param>
+        /// <param name="channel_id">Channel ID</param>
+        /// <param name="message_id">Message ID</param>
         /// <param name="emoji">Emoji to check for</param>
         /// <param name="after_id">Whether to search for reactions after this message id.</param>
         /// <param name="limit">The maximum amount of reactions to fetch.</param>
@@ -1652,8 +1652,8 @@ namespace DSharpPlus
         /// <summary>
         /// Deletes all reactions from a message
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
-        /// <param name="message_id">Message id</param>
+        /// <param name="channel_id">Channel ID</param>
+        /// <param name="message_id">Message ID</param>
         /// <param name="reason">Reason why all reactions were removed</param>
         /// <returns></returns>
         public Task DeleteAllReactionsAsync(ulong channel_id, ulong message_id, string reason)
@@ -1662,8 +1662,8 @@ namespace DSharpPlus
         /// <summary>
         /// Deletes all reactions of a specific reaction for a message.
         /// </summary>
-        /// <param name="channelid">The id of the channel.</param>
-        /// <param name="messageId">The id of the message.</param>
+        /// <param name="channelid">The ID of the channel.</param>
+        /// <param name="messageId">The ID of the message.</param>
         /// <param name="emoji">The emoji to clear.</param>
         /// <returns></returns>
         public Task DeleteReactionsEmojiAsync(ulong channelid, ulong messageId, string emoji)
@@ -1696,17 +1696,17 @@ namespace DSharpPlus
             this.ApiClient.CreateGlobalApplicationCommandAsync(this.CurrentApplication.Id, command);
 
         /// <summary>
-        /// Gets a global application command by its id.
+        /// Gets a global application command by its ID.
         /// </summary>
-        /// <param name="commandId">The id of the command to get.</param>
-        /// <returns>The command with the id.</returns>
+        /// <param name="commandId">The ID of the command to get.</param>
+        /// <returns>The command with the ID.</returns>
         public Task<DiscordApplicationCommand> GetGlobalApplicationCommandAsync(ulong commandId) =>
             this.ApiClient.GetGlobalApplicationCommandAsync(this.CurrentApplication.Id, commandId);
 
         /// <summary>
         /// Edits a global application command.
         /// </summary>
-        /// <param name="commandId">The id of the command to edit.</param>
+        /// <param name="commandId">The ID of the command to edit.</param>
         /// <param name="action">Action to perform.</param>
         /// <returns>The edited command.</returns>
         public async Task<DiscordApplicationCommand> EditGlobalApplicationCommandAsync(ulong commandId, Action<ApplicationCommandEditModel> action)
@@ -1720,14 +1720,14 @@ namespace DSharpPlus
         /// <summary>
         /// Deletes a global application command.
         /// </summary>
-        /// <param name="commandId">The id of the command to delete.</param>
+        /// <param name="commandId">The ID of the command to delete.</param>
         public Task DeleteGlobalApplicationCommandAsync(ulong commandId) =>
             this.ApiClient.DeleteGlobalApplicationCommandAsync(this.CurrentApplication.Id, commandId);
 
         /// <summary>
         /// Gets all the application commands for a guild.
         /// </summary>
-        /// <param name="guildId">The id of the guild to get application commands for.</param>
+        /// <param name="guildId">The ID of the guild to get application commands for.</param>
         /// <returns>A list of application commands in the guild.</returns>
         public Task<IReadOnlyList<DiscordApplicationCommand>> GetGuildApplicationCommandsAsync(ulong guildId) =>
             this.ApiClient.GetGuildApplicationCommandsAsync(this.CurrentApplication.Id, guildId);
@@ -1735,7 +1735,7 @@ namespace DSharpPlus
         /// <summary>
         /// Overwrites the existing application commands in a guild. New commands are automatically created and missing commands are automatically deleted.
         /// </summary>
-        /// <param name="guildId">The id of the guild.</param>
+        /// <param name="guildId">The ID of the guild.</param>
         /// <param name="commands">The list of commands to overwrite with.</param>
         /// <returns>The list of guild commands.</returns>
         public Task<IReadOnlyList<DiscordApplicationCommand>> BulkOverwriteGuildApplicationCommandsAsync(ulong guildId, IEnumerable<DiscordApplicationCommand> commands) =>
@@ -1744,26 +1744,26 @@ namespace DSharpPlus
         /// <summary>
         /// Creates or overwrites a guild application command.
         /// </summary>
-        /// <param name="guildId">The id of the guild to create the application command in.</param>
+        /// <param name="guildId">The ID of the guild to create the application command in.</param>
         /// <param name="command">The command to create.</param>
         /// <returns>The created command.</returns>
         public Task<DiscordApplicationCommand> CreateGuildApplicationCommandAsync(ulong guildId, DiscordApplicationCommand command) =>
             this.ApiClient.CreateGuildApplicationCommandAsync(this.CurrentApplication.Id, guildId, command);
 
         /// <summary>
-        /// Gets a application command in a guild by its id.
+        /// Gets a application command in a guild by its ID.
         /// </summary>
-        /// <param name="guildId">The id of the guild the application command is in.</param>
-        /// <param name="commandId">The id of the command to get.</param>
-        /// <returns>The command with the id.</returns>
+        /// <param name="guildId">The ID of the guild the application command is in.</param>
+        /// <param name="commandId">The ID of the command to get.</param>
+        /// <returns>The command with the ID.</returns>
         public Task<DiscordApplicationCommand> GetGuildApplicationCommandAsync(ulong guildId, ulong commandId) =>
              this.ApiClient.GetGuildApplicationCommandAsync(this.CurrentApplication.Id, guildId, commandId);
 
         /// <summary>
         /// Edits a application command in a guild.
         /// </summary>
-        /// <param name="guildId">The id of the guild the application command is in.</param>
-        /// <param name="commandId">The id of the command to edit.</param>
+        /// <param name="guildId">The ID of the guild the application command is in.</param>
+        /// <param name="commandId">The ID of the command to edit.</param>
         /// <param name="action">Action to perform.</param>
         /// <returns>The edited command.</returns>
         public async Task<DiscordApplicationCommand> EditGuildApplicationCommandAsync(ulong guildId, ulong commandId, Action<ApplicationCommandEditModel> action)
@@ -1777,15 +1777,15 @@ namespace DSharpPlus
         /// <summary>
         /// Deletes a application command in a guild.
         /// </summary>
-        /// <param name="guildId">The id of the guild to delete the application command in.</param>
-        /// <param name="commandId">The id of the command.</param>
+        /// <param name="guildId">The ID of the guild to delete the application command in.</param>
+        /// <param name="commandId">The ID of the command.</param>
         public Task DeleteGuildApplicationCommandAsync(ulong guildId, ulong commandId) =>
             this.ApiClient.DeleteGuildApplicationCommandAsync(this.CurrentApplication.Id, guildId, commandId);
 
         /// <summary>
         /// Creates a response to an interaction.
         /// </summary>
-        /// <param name="interactionId">The id of the interaction.</param>
+        /// <param name="interactionId">The ID of the interaction.</param>
         /// <param name="interactionToken">The token of the interaction</param>
         /// <param name="type">The type of the response.</param>
         /// <param name="builder">The data, if any, to send.</param>
@@ -1837,7 +1837,7 @@ namespace DSharpPlus
         /// Edits a follow up message.
         /// </summary>
         /// <param name="interactionToken">The token of the interaction.</param>
-        /// <param name="messageId">The id of the follow up message.</param>
+        /// <param name="messageId">The ID of the follow up message.</param>
         /// <param name="builder">The webhook builder.</param>
         /// <param name="attachments">Attached files to keep.</param>
         /// <returns>The <see cref="DiscordMessage"/> edited.</returns>
@@ -1852,14 +1852,14 @@ namespace DSharpPlus
         /// Deletes a follow up message.
         /// </summary>
         /// <param name="interactionToken">The token of the interaction.</param>
-        /// <param name="messageId">The id of the follow up message.</param>
+        /// <param name="messageId">The ID of the follow up message.</param>
         public Task DeleteFollowupMessageAsync(string interactionToken, ulong messageId) =>
             this.ApiClient.DeleteFollowupMessageAsync(this.CurrentApplication.Id, interactionToken, messageId);
 
         /// <summary>
         /// Gets all application command permissions in a guild.
         /// </summary>
-        /// <param name="guildId">The guild id.</param>
+        /// <param name="guildId">The guild ID.</param>
         /// <returns>A list of permissions.</returns>
         public Task<IReadOnlyList<DiscordGuildApplicationCommandPermissions>> GetGuildApplicationCommandsPermissionsAsync(ulong guildId)
             => this.ApiClient.GetGuildApplicationCommandPermissionsAsync(this.CurrentApplication.Id, guildId);
@@ -1867,8 +1867,8 @@ namespace DSharpPlus
         /// <summary>
         /// Gets permissions for a application command in a guild.
         /// </summary>
-        /// <param name="guildId">The guild id.</param>
-        /// <param name="commandId">The id of the command to get them for.</param>
+        /// <param name="guildId">The guild ID.</param>
+        /// <param name="commandId">The ID of the command to get them for.</param>
         /// <returns>The permissions.</returns>
         public Task<DiscordGuildApplicationCommandPermissions> GetGuildApplicationCommandPermissionsAsync(ulong guildId, ulong commandId)
             => this.ApiClient.GetApplicationCommandPermissionsAsync(this.CurrentApplication.Id, guildId, commandId);
@@ -1876,8 +1876,8 @@ namespace DSharpPlus
         /// <summary>
         /// Edits permissions for a application command in a guild.
         /// </summary>
-        /// <param name="guildId">The guild id.</param>
-        /// <param name="commandId">The id of the command to edit permissions for.</param>
+        /// <param name="guildId">The guild ID.</param>
+        /// <param name="commandId">The ID of the command to edit permissions for.</param>
         /// <param name="permissions">The list of permissions to use.</param>
         /// <returns>The edited permissions.</returns>
         public Task<DiscordGuildApplicationCommandPermissions> EditApplicationCommandPermissionsAsync(ulong guildId, ulong commandId, IEnumerable<DiscordApplicationCommandPermission> permissions)
@@ -1886,7 +1886,7 @@ namespace DSharpPlus
         /// <summary>
         /// Batch edits permissions for a application command in a guild.
         /// </summary>
-        /// <param name="guildId">The guild id.</param>
+        /// <param name="guildId">The guild ID.</param>
         /// <param name="permissions">The list of permissions to use.</param>
         /// <returns>A list of edited permissions.</returns>
         public Task<IReadOnlyList<DiscordGuildApplicationCommandPermissions>> BatchEditApplicationCommandPermissionsAsync(ulong guildId, IEnumerable<DiscordGuildApplicationCommandPermissions> permissions)
@@ -1902,15 +1902,15 @@ namespace DSharpPlus
         /// <summary>
         /// Gets a sticker from a guild.
         /// </summary>
-        /// <param name="guildId">The id of the guild.</param>
-        /// <param name="stickerId">The id of the sticker.</param>
+        /// <param name="guildId">The ID of the guild.</param>
+        /// <param name="stickerId">The ID of the sticker.</param>
         public Task<DiscordMessageSticker> GetGuildStickerAsync(ulong guildId, ulong stickerId)
             => this.ApiClient.GetGuildStickerAsync(guildId, stickerId);
 
         /// <summary>
-        /// Gets a sticker by its id.
+        /// Gets a sticker by its ID.
         /// </summary>
-        /// <param name="stickerId">The id of the sticker.</param>
+        /// <param name="stickerId">The ID of the sticker.</param>
         public Task<DiscordMessageSticker> GetStickerAsync(ulong stickerId)
             => this.ApiClient.GetStickerAsync(stickerId);
 
@@ -1923,14 +1923,14 @@ namespace DSharpPlus
         /// <summary>
         /// Gets a list of stickers from a guild.
         /// </summary>
-        /// <param name="guildId">The id of the guild.</param>
+        /// <param name="guildId">The ID of the guild.</param>
         public Task<IReadOnlyList<DiscordMessageSticker>> GetGuildStickersAsync(ulong guildId)
             => this.ApiClient.GetGuildStickersAsync(guildId);
 
         /// <summary>
         /// Creates a sticker in a guild.
         /// </summary>
-        /// <param name="guildId">The id of the guild.</param>
+        /// <param name="guildId">The ID of the guild.</param>
         /// <param name="name">The name of the sticker.</param>
         /// <param name="description">The description of the sticker.</param>
         /// <param name="tags">The tags of the sticker.</param>
@@ -1959,8 +1959,8 @@ namespace DSharpPlus
         /// <summary>
         /// Modifies a sticker in a guild.
         /// </summary>
-        /// <param name="guildId">The id of the guild.</param>
-        /// <param name="stickerId">The id of the sticker.</param>
+        /// <param name="guildId">The ID of the guild.</param>
+        /// <param name="stickerId">The ID of the sticker.</param>
         /// <param name="action">Action to perform.</param>
         /// <param name="reason">Reason for audit log.</param>
         public Task<DiscordMessageSticker> ModifyGuildStickerAsync(ulong guildId, ulong stickerId, Action<StickerEditModel> action, string reason = null)
@@ -1973,8 +1973,8 @@ namespace DSharpPlus
         /// <summary>
         /// Deletes a sticker in a guild.
         /// </summary>
-        /// <param name="guildId">The id of the guild.</param>
-        /// <param name="stickerId">The id of the sticker.</param>
+        /// <param name="guildId">The ID of the guild.</param>
+        /// <param name="stickerId">The ID of the sticker.</param>
         /// <param name="reason">Reason for audit log.</param>
         /// <returns></returns>
         public Task DeleteGuildStickerAsync(ulong guildId, ulong stickerId, string reason = null)
@@ -1987,8 +1987,8 @@ namespace DSharpPlus
         /// <summary>
         /// Creates a thread from a message.
         /// </summary>
-        /// <param name="channelId">The id of the channel.</param>
-        /// <param name="messageId">The id of the message </param>
+        /// <param name="channelId">The ID of the channel.</param>
+        /// <param name="messageId">The ID of the message </param>
         /// <param name="name">The name of the thread.</param>
         /// <param name="archiveAfter">The auto archive duration.</param>
         /// <param name="reason">Reason for audit logs.</param>
@@ -1998,7 +1998,7 @@ namespace DSharpPlus
         /// <summary>
         /// Creates a thread.
         /// </summary>
-        /// <param name="channelId">The id of the channel.</param>
+        /// <param name="channelId">The ID of the channel.</param>
         /// <param name="name">The name of the thread.</param>
         /// <param name="archiveAfter">The auto archive duration.</param>
         /// <param name="threadType">The type of the thread.</param>
@@ -2010,52 +2010,52 @@ namespace DSharpPlus
         /// <summary>
         /// Joins a thread.
         /// </summary>
-        /// <param name="threadId">The id of the thread.</param>
+        /// <param name="threadId">The ID of the thread.</param>
         public Task JoinThreadAsync(ulong threadId)
             => this.ApiClient.JoinThreadAsync(threadId);
 
         /// <summary>
         /// Leaves a thread.
         /// </summary>
-        /// <param name="threadId">The id of the thread.</param>
+        /// <param name="threadId">The ID of the thread.</param>
         public Task LeaveThreadAsync(ulong threadId)
             => this.ApiClient.LeaveThreadAsync(threadId);
 
         /// <summary>
         /// Adds a member to a thread.
         /// </summary>
-        /// <param name="threadId">The id of the thread.</param>
-        /// <param name="userId">The id of the member.</param>
+        /// <param name="threadId">The ID of the thread.</param>
+        /// <param name="userId">The ID of the member.</param>
         public Task AddThreadMemberAsync(ulong threadId, ulong userId)
             => this.ApiClient.AddThreadMemberAsync(threadId, userId);
 
         /// <summary>
         /// Removes a member from a thread.
         /// </summary>
-        /// <param name="threadId">The id of the thread.</param>
-        /// <param name="userId">The id of the member.</param>
+        /// <param name="threadId">The ID of the thread.</param>
+        /// <param name="userId">The ID of the member.</param>
         public Task RemoveThreadMemberAsync(ulong threadId, ulong userId)
             => this.ApiClient.RemoveThreadMemberAsync(threadId, userId);
 
         /// <summary>
         /// Lists the members of a thread.
         /// </summary>
-        /// <param name="threadId">The id of the thread.</param>
+        /// <param name="threadId">The ID of the thread.</param>
         public Task<IReadOnlyList<DiscordThreadChannelMember>> ListThreadMembersAsync(ulong threadId)
             => this.ApiClient.ListThreadMembersAsync(threadId);
 
         /// <summary>
         /// Lists the active threads of a guild.
         /// </summary>
-        /// <param name="guildId">The id of the guild.</param>
+        /// <param name="guildId">The ID of the guild.</param>
         public Task<ThreadQueryResult> ListActiveThreadAsync(ulong guildId)
             => this.ApiClient.ListActiveThreadsAsync(guildId);
 
         /// <summary>
         /// Gets the threads that are public and archived for a channel.
         /// </summary>
-        /// <param name="guildId">The id of the guild.</param>
-        /// <param name="channelId">The id of the channel.</param>
+        /// <param name="guildId">The ID of the guild.</param>
+        /// <param name="channelId">The ID of the channel.</param>
         /// <param name="before">Date to filter by.</param>
         /// <param name="limit">Limit.</param>
         public Task<ThreadQueryResult> ListPublicArchivedThreadsAsync(ulong guildId, ulong channelId, DateTimeOffset? before = null, int limit = 0)
@@ -2064,8 +2064,8 @@ namespace DSharpPlus
         /// <summary>
         /// Gets the threads that are public and archived for a channel.
         /// </summary>
-        /// <param name="guildId">The id of the guild.</param>
-        /// <param name="channelId">The id of the channel.</param>
+        /// <param name="guildId">The ID of the guild.</param>
+        /// <param name="channelId">The ID of the channel.</param>
         /// <param name="before">Date to filter by.</param>
         /// <param name="limit">Limit.</param>
         public Task<ThreadQueryResult> ListPrivateArchivedThreadAsync(ulong guildId, ulong channelId, DateTimeOffset? before = null, int limit = 0)
@@ -2074,8 +2074,8 @@ namespace DSharpPlus
         /// <summary>
         /// Gets the private archived threads the user has joined for a channel.
         /// </summary>
-        /// <param name="guildId">The id of the guild.</param>
-        /// <param name="channelId">The id of the channel.</param>
+        /// <param name="guildId">The ID of the guild.</param>
+        /// <param name="channelId">The ID of the channel.</param>
         /// <param name="before">Date to filter by.</param>
         /// <param name="limit">Limit.</param>
         public Task<ThreadQueryResult> ListJoinedPrivateArchivedThreadsAsync(ulong guildId, ulong channelId, DateTimeOffset? before = null, int limit = 0)
@@ -2088,15 +2088,15 @@ namespace DSharpPlus
         /// <summary>
         /// Gets a guild's emojis.
         /// </summary>
-        /// <param name="guildId">The id of the guild.</param>
+        /// <param name="guildId">The ID of the guild.</param>
         public Task<IReadOnlyList<DiscordGuildEmoji>> GetGuildEmojisAsync(ulong guildId)
             => this.ApiClient.GetGuildEmojisAsync(guildId);
 
         /// <summary>
         /// Gets a guild emoji.
         /// </summary>
-        /// <param name="guildId">The id of the guild.</param>
-        /// <param name="emojiId">The id of the emoji.</param>
+        /// <param name="guildId">The ID of the guild.</param>
+        /// <param name="emojiId">The ID of the emoji.</param>
         public Task<DiscordGuildEmoji> GetGuildEmojiAsync(ulong guildId, ulong emojiId)
             => this.ApiClient.GetGuildEmojiAsync(guildId, emojiId);
 
@@ -2104,7 +2104,7 @@ namespace DSharpPlus
         /// Creates an emoji in a guild.
         /// </summary>
         /// <param name="name">Name of the emoji.</param>
-        /// <param name="guildId">The id of the guild.</param>
+        /// <param name="guildId">The ID of the guild.</param>
         /// <param name="image">Image to use as the emoji.</param>
         /// <param name="roles">Roles for which the emoji will be available.</param>
         /// <param name="reason">Reason for audit logs.</param>
@@ -2130,8 +2130,8 @@ namespace DSharpPlus
         /// <summary>
         /// Modifies a guild's emoji.
         /// </summary>
-        /// <param name="guildId">The id of the guild.</param>
-        /// <param name="emojiId">The id of the emoji.</param>
+        /// <param name="guildId">The ID of the guild.</param>
+        /// <param name="emojiId">The ID of the emoji.</param>
         /// <param name="name">New name of the emoji.</param>
         /// <param name="roles">Roles for which the emoji will be available.</param>
         /// <param name="reason">Reason for audit logs.</param>
@@ -2141,8 +2141,8 @@ namespace DSharpPlus
         /// <summary>
         /// Deletes a guild's emoji.
         /// </summary>
-        /// <param name="guildId">The id of the guild.</param>
-        /// <param name="emojiId">The id of the emoji.</param>
+        /// <param name="guildId">The ID of the guild.</param>
+        /// <param name="emojiId">The ID of the emoji.</param>
         /// <param name="reason">Reason for audit logs.</param>
         public Task DeleteGuildEmojiAsync(ulong guildId, ulong emojiId, string reason = null)
             => this.ApiClient.DeleteGuildEmojiAsync(guildId, emojiId, reason);
