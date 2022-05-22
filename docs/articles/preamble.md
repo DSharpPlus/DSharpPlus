@@ -20,7 +20,7 @@ there are only a few versions we will *explicitly* provide support for.
 
 Implementation      | Support | Notes
 :------------------:|:-------:|:------
-[.NET Core][4]      | ✔️      | LTS version 3.1 and current version 5.0 are supported.
+[.NET Core][4]      | ✔️      | LTS version 3.1, EoL 5.0 and current version 6.0 are supported.
 [.NET Framework][5] | ⚠️      | Versions 4.6.1 through 4.8 *should* work fine. However, we do not directly support .NET Framework. We recommend that you use the latest or LTS version of .NET Core.
 [Mono][6]           | ❌️       | Has numerous flaws which can break things without warning. If you need a cross platform runtime, use .NET Core.
 [Unity][7]          | ❌️       | Game engines with C# support will never be supported by DSharpPlus. You should consider using the official [Discord GameSDK][8] instead.
