@@ -248,19 +248,19 @@ namespace DSharpPlus
         /// <param name="default_message_notifications">New guild default message notification level</param>
         /// <param name="mfa_level">New guild MFA level</param>
         /// <param name="explicit_content_filter">New guild explicit content filter level</param>
-        /// <param name="afk_channel_id">New guild AFK channel id</param>
+        /// <param name="afk_channel_id">New guild AFK channel ID</param>
         /// <param name="afk_timeout">New guild AFK timeout in seconds</param>
         /// <param name="iconb64">New guild icon (base64)</param>
-        /// <param name="owner_id">New guild owner id</param>
+        /// <param name="owner_id">New guild owner ID</param>
         /// <param name="splashb64">New guild splash (base64)</param>
-        /// <param name="systemChannelId">New guild system channel id</param>
+        /// <param name="systemChannelId">New guild system channel ID</param>
         /// <param name="banner">New guild banner</param>
         /// <param name="description">New guild description</param>
         /// <param name="discorverySplash">New guild Discovery splash</param>
         /// <param name="features">List of new <see href="https://discord.com/developers/docs/resources/guild#guild-object-guild-features">guild features</see></param>
         /// <param name="preferredLocale">New preferred locale</param>
-        /// <param name="publicUpdatesChannelId">New updates channel id</param>
-        /// <param name="rulesChannelId">New rules channel id</param>
+        /// <param name="publicUpdatesChannelId">New updates channel ID</param>
+        /// <param name="rulesChannelId">New rules channel ID</param>
         /// <param name="systemChannelFlags">New system channel flags</param>
         /// <param name="reason">Modify reason</param>
         /// <returns></returns>
@@ -324,8 +324,8 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="guild_id">The ID of the guild to get the bans from.</param>
         /// <param name="limit">The number of users to return (up to maximum 1000, default 1000).</param>
-        /// <param name="before">Consider only users before the given user id.</param>
-        /// <param name="after">Consider only users after the given user id.</param>
+        /// <param name="before">Consider only users before the given user ID.</param>
+        /// <param name="after">Consider only users after the given user ID.</param>
         /// <returns>A collection of the guild's bans.</returns>
         public Task<IReadOnlyList<DiscordBan>> GetGuildBansAsync(ulong guild_id, int? limit = null, ulong? before = null, ulong? after = null)
             => this.ApiClient.GetGuildBansAsync(guild_id, limit, before, after);
@@ -682,7 +682,7 @@ namespace DSharpPlus
         /// <summary>
         /// Sends a message
         /// </summary>
-        /// <param name="channel_id">Channel id</param>
+        /// <param name="channel_id">Channel ID</param>
         /// <param name="action">The Discord Message builder.</param>
         /// <returns></returns>
         public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, Action<DiscordMessageBuilder> action)
@@ -824,7 +824,7 @@ namespace DSharpPlus
         /// Edits channel overwrite
         /// </summary>
         /// <param name="channel_id">Channel ID</param>
-        /// <param name="overwrite_id">OverwriteID</param>
+        /// <param name="overwrite_id">Overwrite ID</param>
         /// <param name="allow">Permissions to allow</param>
         /// <param name="deny">Permissions to deny</param>
         /// <param name="type">Overwrite type</param>
@@ -1059,8 +1059,8 @@ namespace DSharpPlus
         /// Gets current user's guilds
         /// </summary>
         /// <param name="limit">Limit of guilds to get</param>
-        /// <param name="before">Gets guild before id</param>
-        /// <param name="after">Gets guilds after id</param>
+        /// <param name="before">Gets guild before ID</param>
+        /// <param name="after">Gets guilds after ID</param>
         /// <returns></returns>
         public Task<IReadOnlyList<DiscordGuild>> GetCurrentUserGuildsAsync(int limit = 100, ulong? before = null, ulong? after = null)
             => this.ApiClient.GetCurrentUserGuildsAsync(limit, before, after);
@@ -1618,7 +1618,7 @@ namespace DSharpPlus
         /// </summary>
         /// <param name="channel_id">Channel ID</param>
         /// <param name="message_id">Message ID</param>
-        /// <param name="user_id">User id</param>
+        /// <param name="user_id">User ID</param>
         /// <param name="emoji">Emoji to remove</param>
         /// <param name="reason">Reason why this reaction was removed</param>
         /// <returns></returns>
