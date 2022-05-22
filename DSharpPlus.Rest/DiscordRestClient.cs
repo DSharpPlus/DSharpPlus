@@ -824,7 +824,7 @@ namespace DSharpPlus
         /// Edits channel overwrite
         /// </summary>
         /// <param name="channel_id">Channel ID</param>
-        /// <param name="overwrite_id">OverwriteIDid</param>
+        /// <param name="overwrite_id">OverwriteID</param>
         /// <param name="allow">Permissions to allow</param>
         /// <param name="deny">Permissions to deny</param>
         /// <param name="type">Overwrite type</param>
