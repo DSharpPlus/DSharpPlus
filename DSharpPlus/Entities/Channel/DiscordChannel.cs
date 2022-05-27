@@ -404,7 +404,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Returns a specific message
         /// </summary>
-        /// <param name="id">The id of the message</param>
+        /// <param name="id">The ID of the message</param>
         /// <param name="skipCache">Whether to always make a REST request.</param>
         /// <returns></returns>
         /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ReadMessageHistory"/> permission.</exception>
@@ -447,7 +447,7 @@ namespace DSharpPlus.Entities
         /// <param name="position">Position the channel should be moved to.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <param name="lockPermissions">Whether to sync channel permissions with the parent, if moving to a new category.</param>
-        /// <param name="parentId">The new parent id if the channel is to be moved to a new category.</param>
+        /// <param name="parentId">The new parent ID if the channel is to be moved to a new category.</param>
         /// <returns></returns>
         /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
         /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>
@@ -685,8 +685,8 @@ namespace DSharpPlus.Entities
         /// <param name="unique">If true, don't try to reuse a similar invite (useful for creating many unique one time use invites)</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <param name="targetType">The target type of the invite, for stream and embedded application invites.</param>
-        /// <param name="targetUserId">The id of the target user.</param>
-        /// <param name="targetApplicationId">The id of the target application.</param>
+        /// <param name="targetUserId">The ID of the target user.</param>
+        /// <param name="targetApplicationId">The ID of the target application.</param>
         /// <returns></returns>
         /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.CreateInstantInvite"/> permission.</exception>
         /// <exception cref="NotFoundException">Thrown when the channel does not exist.</exception>

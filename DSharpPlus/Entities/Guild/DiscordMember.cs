@@ -105,7 +105,7 @@ namespace DSharpPlus.Entities
         public DateTimeOffset? CommunicationDisabledUntil { get; internal set; }
 
         /// <summary>
-        /// List of role ids
+        /// List of role IDs
         /// </summary>
         [JsonIgnore]
         internal IReadOnlyList<ulong> RoleIds

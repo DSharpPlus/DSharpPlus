@@ -234,7 +234,7 @@ namespace DSharpPlus.Entities
             : null;
 
         /// <summary>
-        /// Gets the application id of this guild if it is bot created.
+        /// Gets the application ID of this guild if it is bot created.
         /// </summary>
         [JsonProperty("application_id")]
         public ulong? ApplicationId { get; internal set; }
@@ -918,7 +918,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets a ban for a specific user.
         /// </summary>
-        /// <param name="userId">The Id of the user to get the ban for.</param>
+        /// <param name="userId">The ID of the user to get the ban for.</param>
         /// <exception cref="NotFoundException">Thrown when the specified user is not banned.</exception>
         /// <returns>The requested ban object.</returns>
         public Task<DiscordBan> GetBanAsync(ulong userId)
