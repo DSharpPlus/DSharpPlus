@@ -40,13 +40,13 @@ namespace DSharpPlus.Core.Rest
     internal class PollyRatelimitPolicy : AsyncPolicy<HttpResponseMessage>
     {
         // keeps track of endpoint -> bucket hash mapping
-        private readonly ConcurrentDictionary<string, string> __endpoint_buckets;
+        private readonly ConcurrentDictionary<string, string> __endpoint_hash_mapping;
 
         // stores one second, a very common thing, so we don't want to allocate it every time
         private static readonly TimeSpan __one_second = TimeSpan.FromSeconds(1);
 
         public PollyRatelimitPolicy() 
-            => __endpoint_buckets = new();
+            => __endpoint_hash_mapping = new();
         
 
         protected override async Task<HttpResponseMessage> ImplementationAsync
@@ -126,7 +126,7 @@ namespace DSharpPlus.Core.Rest
 
             // if we don't already have this bucket cached, set the hash to our endpoint for now. 
             // this will later be used to identify a newly called bucket.
-            string hash = __endpoint_buckets.TryGetValue(endpoint, out string? nullableBucketHash)
+            string hash = __endpoint_hash_mapping.TryGetValue(endpoint, out string? nullableBucketHash)
                 ? nullableBucketHash
                 : endpoint;
 
@@ -177,7 +177,7 @@ namespace DSharpPlus.Core.Rest
             _ = cache.SetStringAsync(endpoint, serialized, cancellationToken);
 
             // store the new hash, if we have a new one
-            __endpoint_buckets[endpoint] = bucket!.Hash;
+            __endpoint_hash_mapping[endpoint] = bucket!.Hash;
 
             // remove potential stale data
             if (hash != bucket!.Hash)
