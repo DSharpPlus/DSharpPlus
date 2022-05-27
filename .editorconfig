@@ -35,10 +35,6 @@ dotnet_diagnostic.IDE0005.severity = error
 # Yell at people when they don't include the file header template
 dotnet_diagnostic.IDE0073.severity = error
 
-# temporary things
-dotnet_diagnostic.IDE0065.severity = silent
-dotnet_diagnostic.IDE0161.severity = silent
-
 # this. preferences
 dotnet_style_qualification_for_field = false:error
 dotnet_style_qualification_for_property = false:error
