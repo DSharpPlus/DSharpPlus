@@ -28,28 +28,19 @@ using System.Net.Http;
 using System.Threading.Tasks;
 
 using Polly;
-using Polly.Contrib.WaitAndRetry;
 using Polly.Retry;
 
 namespace DSharpPlus.Core.Rest
 {
     internal class PollyRetryPolicy
     {
-        private readonly TimeSpan __first_retry_delay;
         private readonly TimeSpan __one_second = TimeSpan.FromSeconds(1);
-        private readonly int __max_retries;
 
-        public PollyRetryPolicy(TimeSpan firstRetryDelay, int maxRetries, int ratelimitedRetries)
-        {
-            __first_retry_delay = firstRetryDelay;
-            __max_retries = maxRetries;
-
-            RetryPolicy = Policy.HandleResult<HttpResponseMessage>(response => response.IsSuccessStatusCode)
-                .WaitAndRetryAsync(Backoff.DecorrelatedJitterBackoffV2(__first_retry_delay, __max_retries));
-
-            RatelimitedRetryPolicy =
-                Policy.HandleResult<HttpResponseMessage>(response => response.StatusCode == HttpStatusCode.TooManyRequests)
-                    .WaitAndRetryAsync(retryCount: ratelimitedRetries,
+        public PollyRetryPolicy(int internalRequeues)
+            => RetryPolicy =
+                Policy.HandleResult<HttpResponseMessage>(response => response.StatusCode == HttpStatusCode.TooManyRequests
+                    && response.Headers.GetValues("X-DSharpPlus-Preemptive-Ratelimit").Any())
+                    .WaitAndRetryAsync(retryCount: internalRequeues,
                         sleepDurationProvider: (_, responseTask, _) =>
                         {
                             HttpResponseMessage message = responseTask.Result;
@@ -76,10 +67,7 @@ namespace DSharpPlus.Core.Rest
 #pragma warning restore IDE0046
                         },
                         onRetryAsync: (_, _, _, _) => Task.CompletedTask);
-        }
-
+                 
         public AsyncRetryPolicy<HttpResponseMessage> RetryPolicy { get; private set; }
-            
-        public AsyncRetryPolicy<HttpResponseMessage> RatelimitedRetryPolicy { get; private set; }
     }
 }

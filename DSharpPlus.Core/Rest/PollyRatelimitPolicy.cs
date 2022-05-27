@@ -78,6 +78,9 @@ namespace DSharpPlus.Core.Rest
                 subjectToGlobalLimit = globallyLimited;
             }
 
+            // already make our request, await it later
+            Task<byte[]?> awaitableBucket = cache.GetAsync(endpoint, cancellationToken);
+
             // apply global ratelimits
             if (subjectToGlobalLimit)
             {
@@ -129,7 +132,7 @@ namespace DSharpPlus.Core.Rest
 
             // get the cached bucket and see whether it lets us request.
             // importantly, we use the context-passed endpoints to identify buckets here.
-            byte[]? serializedBucket = await cache.GetAsync(endpoint, cancellationToken);
+            byte[]? serializedBucket = await awaitableBucket;
 
             // keep a dummy bucket here. we'll either create a new one or deserialize one.
             RatelimitBucket? bucket = null;
