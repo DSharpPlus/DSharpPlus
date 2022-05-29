@@ -42,6 +42,7 @@ namespace DSharpPlus.CommandsNext
     public static class CommandsNextUtilities
     {
         private static Regex UserRegex { get; } = new Regex(@"<@\!?(\d+?)> ", RegexOptions.ECMAScript);
+        private static IReadOnlyCollection<char> _quoteChars { get; } = new[] { '"', '\'', '«', '»', '‘', '“', '„', '‟' };
 
         /// <summary>
         /// Checks whether the message has a specified string prefix.
@@ -114,7 +115,7 @@ namespace DSharpPlus.CommandsNext
                     if (!inEscape && !inBacktick && !inTripleBacktick)
                     {
                         inEscape = true;
-                        if (str.IndexOf("\\`", i) == i || str.IndexOf("\\\"", i) == i || str.IndexOf("\\\\", i) == i || (str.Length >= i && char.IsWhiteSpace(str[i + 1])))
+                        if (str.IndexOf("\\`", i) == i || _quoteChars.Any(c => str.IndexOf($"\\{c}", i) == i) || str.IndexOf("\\\\", i) == i || (str.Length >= i && char.IsWhiteSpace(str[i + 1])))
                             removeIndices.Add(i - startPosition);
                         i++;
                     }
@@ -146,7 +147,7 @@ namespace DSharpPlus.CommandsNext
                         inBacktick = true;
                 }
 
-                if (str[i] == '"' && !inEscape && !inBacktick && !inTripleBacktick)
+                if (_quoteChars.Contains(str[i]) && !inEscape && !inBacktick && !inTripleBacktick)
                 {
                     removeIndices.Add(i - startPosition);
 
