@@ -21,14 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace DSharpPlus.Core.Rest;
-
 using System.Text.Json.Serialization;
 
-// use JSON source generation for ratelimit buckets. those need to be as fast as possible.
-// this is named Context to make calls look cleaner and more readable.
-
-[JsonSerializable(typeof(RatelimitBucket), TypeInfoPropertyName = "Context")]
-internal partial class BucketSerializationContext : JsonSerializerContext
+namespace DSharpPlus.Core.Rest
 {
+    // use JSON source generation for ratelimit buckets. those need to be as fast as possible.
+    // this is named Context to make calls look cleaner and more readable.
+
+    [JsonSerializable(typeof(RatelimitBucket), TypeInfoPropertyName = "Context")]
+    internal partial class BucketSerializationContext : JsonSerializerContext
+    {
+    }
 }

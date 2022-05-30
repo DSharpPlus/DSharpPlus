@@ -76,7 +76,7 @@ namespace DSharpPlus.Core.Rest
 
             requestMessage.SetPolicyExecutionContext(requestContext);
 
-            HttpResponseMessage? response = await __wrapped_policy?.ExecuteAsync(() => __http_client.SendAsync(requestMessage));
+            HttpResponseMessage? response = await __wrapped_policy!.ExecuteAsync(() => __http_client.SendAsync(requestMessage));
 
             // TODO: error handling
 

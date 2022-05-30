@@ -108,6 +108,10 @@ dotnet_diagnostic.IDE0130.severity = none
 ###############################
 [*.cs]
 
+# block-scoped namespaces and using directive placement
+csharp_style_namespace_declarations = block_scoped:error
+csharp_using_directive_placement = outside_namespace:error
+
 # var preferences
 csharp_style_var_for_built_in_types = false:error
 csharp_style_var_when_type_is_apparent = false:error
