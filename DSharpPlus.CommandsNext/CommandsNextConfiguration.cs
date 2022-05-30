@@ -121,9 +121,9 @@ namespace DSharpPlus.CommandsNext
 
         /// <summary>
         /// <para>Sets the quotation marks on parameters, used to interpret spaces as part of a single argument.</para>
-        /// <para>Defaults to a collection of <c>"</c>, <c>'</c>, <c>«</c>, <c>»</c>, <c>‘</c>, <c>“</c>, <c>„</c> and <c>‟</c>.</para>
+        /// <para>Defaults to a collection of <c>"</c>, <c>«</c>, <c>»</c>, <c>‘</c>, <c>“</c>, <c>„</c> and <c>‟</c>.</para>
         /// </summary>
-        public IEnumerable<char> QuotationMarks { internal get; set; } = new[] { '"', '\'', '«', '»', '‘', '“', '„', '‟' };
+        public IEnumerable<char> QuotationMarks { internal get; set; } = new[] { '"', '«', '»', '‘', '“', '„', '‟' };
 
         /// <summary>
         /// <para>Gets or sets whether to automatically enable handling commands.</para>
