@@ -79,7 +79,7 @@ namespace DSharpPlus.CommandsNext
         /// <para>Sets whether to enable default help command.</para>
         /// <para>Disabling this will allow you to make your own help command.</para>
         /// <para>
-        /// Modifying default help can be achieved via custom help formatters (see <see cref="BaseHelpFormatter"/> and <see cref="CommandsNextExtension.SetHelpFormatter{T}()"/> for more details). 
+        /// Modifying default help can be achieved via custom help formatters (see <see cref="BaseHelpFormatter"/> and <see cref="CommandsNextExtension.SetHelpFormatter{T}()"/> for more details).
         /// It is recommended to use help formatter instead of disabling help.
         /// </para>
         /// <para>Defaults to true.</para>
@@ -120,6 +120,12 @@ namespace DSharpPlus.CommandsNext
         public bool IgnoreExtraArguments { internal get; set; } = false;
 
         /// <summary>
+        /// <para>Sets the quotation marks on parameters, used to interpret spaces as part of a single argument.</para>
+        /// <para>Defaults to a collection of <c>"</c>, <c>'</c>, <c>«</c>, <c>»</c>, <c>‘</c>, <c>“</c>, <c>„</c> and <c>‟</c>.</para>
+        /// </summary>
+        public IEnumerable<char> QuotationMarks { internal get; set; } = new[] { '"', '\'', '«', '»', '‘', '“', '„', '‟' };
+
+        /// <summary>
         /// <para>Gets or sets whether to automatically enable handling commands.</para>
         /// <para>If this is set to false, you will need to manually handle each incoming message and pass it to CommandsNext.</para>
         /// <para>Defaults to true.</para>
@@ -156,6 +162,7 @@ namespace DSharpPlus.CommandsNext
             this.EnableDms = other.EnableDms;
             this.EnableMentionPrefix = other.EnableMentionPrefix;
             this.IgnoreExtraArguments = other.IgnoreExtraArguments;
+            this.QuotationMarks = other.QuotationMarks;
             this.UseDefaultCommandHandler = other.UseDefaultCommandHandler;
             this.Services = other.Services;
             this.StringPrefixes = other.StringPrefixes.ToArray();

@@ -237,7 +237,7 @@ namespace DSharpPlus.CommandsNext
             var cnt = e.Message.Content.Substring(mpos);
 
             var __ = 0;
-            var fname = cnt.ExtractNextArgument(ref __);
+            var fname = cnt.ExtractNextArgument(ref __, this.Config.QuotationMarks);
 
             var cmd = this.FindCommand(cnt, out var args);
             var ctx = this.CreateContext(e.Message, pfx, cmd, args);
@@ -263,7 +263,7 @@ namespace DSharpPlus.CommandsNext
 
             var ignoreCase = !this.Config.CaseSensitive;
             var pos = 0;
-            var next = commandString.ExtractNextArgument(ref pos);
+            var next = commandString.ExtractNextArgument(ref pos, this.Config.QuotationMarks);
             if (next is null)
                 return null;
 
@@ -289,7 +289,7 @@ namespace DSharpPlus.CommandsNext
             {
                 var cm2 = cmd as CommandGroup;
                 var oldPos = pos;
-                next = commandString.ExtractNextArgument(ref pos);
+                next = commandString.ExtractNextArgument(ref pos, this.Config.QuotationMarks);
                 if (next is null)
                     break;
 

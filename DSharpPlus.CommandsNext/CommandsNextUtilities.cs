@@ -42,7 +42,6 @@ namespace DSharpPlus.CommandsNext
     public static class CommandsNextUtilities
     {
         private static Regex UserRegex { get; } = new Regex(@"<@\!?(\d+?)> ", RegexOptions.ECMAScript);
-        private static IReadOnlyCollection<char> _quoteChars { get; } = new[] { '"', '\'', '«', '»', '‘', '“', '„', '‟' };
 
         /// <summary>
         /// Checks whether the message has a specified string prefix.
@@ -86,7 +85,7 @@ namespace DSharpPlus.CommandsNext
         }
 
         //internal static string ExtractNextArgument(string str, out string remainder)
-        internal static string? ExtractNextArgument(this string str, ref int startPos)
+        internal static string? ExtractNextArgument(this string str, ref int startPos, IEnumerable<char> _quoteChars)
         {
             if (string.IsNullOrWhiteSpace(str))
                 return null;
@@ -212,7 +211,7 @@ namespace DSharpPlus.CommandsNext
                     {
                         while (true)
                         {
-                            argValue = ExtractNextArgument(argString, ref foundAt);
+                            argValue = ExtractNextArgument(argString, ref foundAt, ctx.Config.QuotationMarks);
                             if (argValue == null)
                                 break;
 
@@ -236,7 +235,7 @@ namespace DSharpPlus.CommandsNext
                 }
                 else
                 {
-                    argValue = ExtractNextArgument(argString, ref foundAt);
+                    argValue = ExtractNextArgument(argString, ref foundAt, ctx.Config.QuotationMarks);
                     rawArgumentList.Add(argValue);
                 }
 
