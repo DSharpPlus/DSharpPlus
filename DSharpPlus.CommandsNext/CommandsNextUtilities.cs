@@ -85,7 +85,7 @@ namespace DSharpPlus.CommandsNext
         }
 
         //internal static string ExtractNextArgument(string str, out string remainder)
-        internal static string? ExtractNextArgument(this string str, ref int startPos, IEnumerable<char> _quoteChars)
+        internal static string? ExtractNextArgument(this string str, ref int startPos, IEnumerable<char> quoteChars)
         {
             if (string.IsNullOrWhiteSpace(str))
                 return null;
@@ -114,7 +114,7 @@ namespace DSharpPlus.CommandsNext
                     if (!inEscape && !inBacktick && !inTripleBacktick)
                     {
                         inEscape = true;
-                        if (str.IndexOf("\\`", i) == i || _quoteChars.Any(c => str.IndexOf($"\\{c}", i) == i) || str.IndexOf("\\\\", i) == i || (str.Length >= i && char.IsWhiteSpace(str[i + 1])))
+                        if (str.IndexOf("\\`", i) == i || quoteChars.Any(c => str.IndexOf($"\\{c}", i) == i) || str.IndexOf("\\\\", i) == i || (str.Length >= i && char.IsWhiteSpace(str[i + 1])))
                             removeIndices.Add(i - startPosition);
                         i++;
                     }
@@ -146,7 +146,7 @@ namespace DSharpPlus.CommandsNext
                         inBacktick = true;
                 }
 
-                if (_quoteChars.Contains(str[i]) && !inEscape && !inBacktick && !inTripleBacktick)
+                if (quoteChars.Contains(str[i]) && !inEscape && !inBacktick && !inTripleBacktick)
                 {
                     removeIndices.Add(i - startPosition);
 
