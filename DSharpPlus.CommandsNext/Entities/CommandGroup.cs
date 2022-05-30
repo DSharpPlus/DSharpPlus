@@ -54,7 +54,7 @@ namespace DSharpPlus.CommandsNext
         public override async Task<CommandResult> ExecuteAsync(CommandContext ctx)
         {
             var findpos = 0;
-            var cn = CommandsNextUtilities.ExtractNextArgument(ctx.RawArgumentString, ref findpos);
+            var cn = CommandsNextUtilities.ExtractNextArgument(ctx.RawArgumentString, ref findpos, ctx.Config.QuotationMarks);
 
             if (cn != null)
             {
