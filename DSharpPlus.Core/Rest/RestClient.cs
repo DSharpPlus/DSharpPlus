@@ -21,8 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+
+using DSharpPlus.Core.Exceptions;
 
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
@@ -76,11 +79,29 @@ namespace DSharpPlus.Core.Rest
 
             requestMessage.SetPolicyExecutionContext(requestContext);
 
-            HttpResponseMessage? response = await __wrapped_policy!.ExecuteAsync(() => __http_client.SendAsync(requestMessage));
+            HttpResponseMessage response = await __wrapped_policy!.ExecuteAsync(() => __http_client.SendAsync(requestMessage));
 
-            // TODO: error handling
+            return response.StatusCode switch
+            {
+                HttpStatusCode.BadRequest 
+                    or HttpStatusCode.MethodNotAllowed => throw new DiscordBadRequestException(requestMessage, response),
 
-            return response;
+                HttpStatusCode.Unauthorized 
+                    or HttpStatusCode.Forbidden => throw new DiscordUnauthorizedException(requestMessage, response),
+
+                HttpStatusCode.NotFound => throw new DiscordNotFoundException(requestMessage, response),
+
+                HttpStatusCode.RequestEntityTooLarge => throw new DiscordPayloadTooLargeException(requestMessage, response),
+
+                HttpStatusCode.TooManyRequests => throw new DiscordRatelimitHitException(requestMessage, response),
+
+                HttpStatusCode.InternalServerError 
+                    or HttpStatusCode.BadGateway 
+                    or HttpStatusCode.ServiceUnavailable 
+                    or HttpStatusCode.GatewayTimeout => throw new DiscordServerErrorException(requestMessage, response),
+
+                _ => response,
+            };
         }
     }
 }
