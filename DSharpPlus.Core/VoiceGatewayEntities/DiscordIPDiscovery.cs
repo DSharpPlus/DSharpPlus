@@ -21,11 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using Newtonsoft.Json;
-
 namespace DSharpPlus.Core.VoiceGatewayEntities
 {
-    [JsonConverter(typeof(DiscordIPDiscovery))]
     public sealed record DiscordIPDiscovery
     {
         public ushort Type { get; init; }

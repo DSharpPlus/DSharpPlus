@@ -21,7 +21,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using DSharpPlus.VoiceNext.Enums;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.VoiceGatewayEntities.Commands
@@ -50,6 +49,6 @@ namespace DSharpPlus.Core.VoiceGatewayEntities.Commands
         /// See https://discord.com/developers/docs/topics/voice-connections#establishing-a-voice-udp-connection-encryption-modes for available options.
         /// </summary>
         [JsonProperty("mode", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordVoiceProtocol Mode { get; init; }
+        public string Mode { get; init; } = null!;
     }
 }

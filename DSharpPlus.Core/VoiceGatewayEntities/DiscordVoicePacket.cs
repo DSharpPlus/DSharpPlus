@@ -21,12 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using DSharpPlus.Core.JsonConverters;
-using Newtonsoft.Json;
-
 namespace DSharpPlus.Core.VoiceGatewayEntities
 {
-    [JsonConverter(typeof(DiscordVoicePacketConverter))]
     public sealed record DiscordVoicePacket
     {
         public byte VersionAndFlags { get; init; } = 0x80;
