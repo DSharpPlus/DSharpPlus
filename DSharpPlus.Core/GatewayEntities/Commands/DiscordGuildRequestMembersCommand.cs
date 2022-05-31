@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.Collections.Generic;
 using DSharpPlus.Core.RestEntities;
 using Newtonsoft.Json;
 
@@ -71,7 +72,7 @@ namespace DSharpPlus.Core.GatewayEntities.Commands
         /// Required if <see cref="Query"/> is not set.
         /// </remarks>
         [JsonProperty("user_ids", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordSnowflake[]> UserIds { get; init; }
+        public Optional<IReadOnlyList<DiscordSnowflake>> UserIds { get; init; }
 
         /// <summary>
         /// Nonce to identify the Guild Members Chunk response.

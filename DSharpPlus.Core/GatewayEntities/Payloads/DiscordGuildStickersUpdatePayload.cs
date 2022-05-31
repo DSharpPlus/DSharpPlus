@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
+using System.Collections.Generic;
 using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.RestEntities;
 using Newtonsoft.Json;
@@ -43,6 +45,6 @@ namespace DSharpPlus.Core.GatewayEntities.Payloads
         /// An array of stickers.
         /// </summary>
         [JsonProperty("stickers", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordSticker[] Stickers { get; init; } = null!;
+        public IReadOnlyList<DiscordSticker> Stickers { get; init; } = Array.Empty<DiscordSticker>();
     }
 }

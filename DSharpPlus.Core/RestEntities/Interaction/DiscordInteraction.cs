@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.Collections.Generic;
 using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Enums;
 using Newtonsoft.Json;
@@ -58,7 +59,7 @@ namespace DSharpPlus.Core.RestEntities
         /// The params + values from the user.
         /// </summary>
         [JsonProperty("options", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordApplicationInteractionDataOption[]> Options { get; init; }
+        public Optional<IReadOnlyList<DiscordApplicationInteractionDataOption>> Options { get; init; }
 
         /// <summary>
         /// The id of the guild the command is registered to.
@@ -82,7 +83,7 @@ namespace DSharpPlus.Core.RestEntities
         /// The values the user selected.
         /// </summary>
         [JsonProperty("values", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordSelectOptionValue[]> Values { get; init; }
+        public Optional<IReadOnlyList<DiscordSelectOptionValue>> Values { get; init; }
 
         /// <summary>
         /// The id the of user or message targeted by a user or message command.
@@ -94,6 +95,6 @@ namespace DSharpPlus.Core.RestEntities
         /// The values submitted by the user.
         /// </summary>
         [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<IDiscordMessageComponent[]> Components { get; init; }
+        public Optional<IReadOnlyList<IDiscordMessageComponent>> Components { get; init; }
     }
 }

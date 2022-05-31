@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.RestEntities
@@ -47,7 +48,7 @@ namespace DSharpPlus.Core.RestEntities
         /// The roles allowed to use this emoji.
         /// </summary>
         [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordSnowflake[]> Roles { get; init; }
+        public Optional<IReadOnlyList<DiscordSnowflake>> Roles { get; init; }
 
         /// <summary>
         /// The user that created this emoji.

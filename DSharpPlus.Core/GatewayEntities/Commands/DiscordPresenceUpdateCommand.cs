@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
+using System.Collections.Generic;
 using DSharpPlus.Core.Enums;
 using DSharpPlus.Core.RestEntities;
 using Newtonsoft.Json;
@@ -42,7 +44,7 @@ namespace DSharpPlus.Core.GatewayEntities.Commands
         /// The user's activities.
         /// </summary>
         [JsonProperty("activities", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordActivity[] Activities { get; init; } = null!;
+        public IReadOnlyList<DiscordActivity> Activities { get; init; } = Array.Empty<DiscordActivity>();
 
         /// <summary>
         /// The user's new status.

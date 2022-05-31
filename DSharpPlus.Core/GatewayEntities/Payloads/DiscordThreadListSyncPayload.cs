@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
+using System.Collections.Generic;
 using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.RestEntities;
 using Newtonsoft.Json;
@@ -43,18 +45,18 @@ namespace DSharpPlus.Core.GatewayEntities.Payloads
         /// The parent channel ids whose threads are being synced. If omitted, then threads were synced for the entire guild. This array may contain channel_ids that have no active threads as well, so you know to clear that data.
         /// </summary>
         [JsonProperty("channel_ids", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordSnowflake[]> ChannelIds { get; init; }
+        public Optional<IReadOnlyList<DiscordSnowflake>> ChannelIds { get; init; }
 
         /// <summary>
         /// All active threads in the given channels that the current user can access.
         /// </summary>
         [JsonProperty("threads", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordChannel[] Threads { get; init; } = null!;
+        public IReadOnlyList<DiscordChannel> Threads { get; init; } = Array.Empty<DiscordChannel>();
 
         /// <summary>
         /// All thread member objects from the synced threads for the current user, indicating which threads the current user has been added to.
         /// </summary>
         [JsonProperty("members", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordThreadMember[] Members { get; init; } = null!;
+        public IReadOnlyList<DiscordThreadMember> Members { get; init; } = Array.Empty<DiscordThreadMember>();
     }
 }

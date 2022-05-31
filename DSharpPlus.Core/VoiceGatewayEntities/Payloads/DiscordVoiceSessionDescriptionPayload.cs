@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.VoiceGatewayEntities.Payloads
@@ -34,6 +36,6 @@ namespace DSharpPlus.Core.VoiceGatewayEntities.Payloads
         public string Mode { get; init; } = null!;
 
         [JsonProperty("secret_key", NullValueHandling = NullValueHandling.Ignore)]
-        public byte[] SecretKey { get; init; } = null!;
+        public IReadOnlyList<byte> SecretKey { get; init; } = Array.Empty<byte>();
     }
 }

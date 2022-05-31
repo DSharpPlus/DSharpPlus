@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using DSharpPlus.Core.Enums;
 using Newtonsoft.Json;
 
@@ -119,6 +120,6 @@ namespace DSharpPlus.Core.RestEntities
         /// Max 25 fields.
         /// </remarks>
         [JsonProperty("fields", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordEmbedField[]> Fields { get; init; }
+        public Optional<IReadOnlyList<DiscordEmbedField>> Fields { get; init; }
     }
 }

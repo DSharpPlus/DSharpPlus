@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
+using System.Collections.Generic;
 using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Enums;
 using DSharpPlus.Core.RestEntities;
@@ -56,7 +58,7 @@ namespace DSharpPlus.Core.GatewayEntities.Payloads
         /// The user's current activities.
         /// </summary>
         [JsonProperty("activities", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordActivity[] Activities { get; init; } = null!;
+        public IReadOnlyList<DiscordActivity> Activities { get; init; } = Array.Empty<DiscordActivity>();
 
         /// <summary>
         /// The user's platform-dependent status.

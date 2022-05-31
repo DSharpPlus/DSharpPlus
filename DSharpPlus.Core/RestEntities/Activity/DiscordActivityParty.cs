@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.RestEntities
@@ -40,6 +41,6 @@ namespace DSharpPlus.Core.RestEntities
         /// <c>Size[0]</c> is the current size, and <c>Size[1]</c> is the maximum size.
         /// </remarks>
         [JsonProperty("size", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<int[]> Size { get; init; }
+        public Optional<IReadOnlyList<int>> Size { get; init; }
     }
 }

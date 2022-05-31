@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Enums;
 using Newtonsoft.Json;
@@ -104,37 +105,37 @@ namespace DSharpPlus.Core.RestEntities
         /// The users specifically mentioned in the message with an additional partial member field.
         /// </summary>
         [JsonProperty("mentions", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordUser[] Mentions { get; init; } = Array.Empty<DiscordUser>();
+        public IReadOnlyList<DiscordUser> Mentions { get; init; } = Array.Empty<DiscordUser>();
 
         /// <summary>
         /// The roles specifically mentioned in this message.
         /// </summary>
         [JsonProperty("mention_roles", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordRole[] MentionRoles { get; init; } = Array.Empty<DiscordRole>();
+        public IReadOnlyList<DiscordRole> MentionRoles { get; init; } = Array.Empty<DiscordRole>();
 
         /// <summary>
         /// The channels specifically mentioned in this message.
         /// </summary>
         [JsonProperty("mention_channels", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordChannel[]> MentionChannels { get; init; }
+        public Optional<IReadOnlyList<DiscordChannel>> MentionChannels { get; init; }
 
         /// <summary>
         /// The attached files.
         /// </summary>
         [JsonProperty("attachments", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordAttachment[] Attachments { get; init; } = Array.Empty<DiscordAttachment>();
+        public IReadOnlyList<DiscordAttachment> Attachments { get; init; } = Array.Empty<DiscordAttachment>();
 
         /// <summary>
         /// The embedded content.
         /// </summary>
         [JsonProperty("embeds", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordEmbed[] Embeds { get; init; } = Array.Empty<DiscordEmbed>();
+        public IReadOnlyList<DiscordEmbed> Embeds { get; init; } = Array.Empty<DiscordEmbed>();
 
         /// <summary>
         /// The reactions to the message.
         /// </summary>
         [JsonProperty("reactions", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordReaction[]> Reactions { get; init; }
+        public Optional<IReadOnlyList<DiscordReaction>> Reactions { get; init; }
 
         /// <summary>
         /// Used for validating a message was sent.
@@ -215,19 +216,19 @@ namespace DSharpPlus.Core.RestEntities
         /// Sent if the message contains components like buttons, action rows, or other interactive components.
         /// </summary>
         [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<IDiscordMessageComponent[]> Components { get; init; }
+        public Optional<IReadOnlyList<IDiscordMessageComponent>> Components { get; init; }
 
         /// <summary>
         /// Sent if the message contains stickers.
         /// </summary>
         [JsonProperty("sticker_items", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordMessageStickerItem[]> StickerItems { get; init; }
+        public Optional<IReadOnlyList<DiscordMessageStickerItem>> StickerItems { get; init; }
 
         /// <summary>
         /// Deprecated. The stickers sent with the message
         /// </summary>
         [JsonProperty("stickers", NullValueHandling = NullValueHandling.Ignore)]
         [Obsolete("This property is deprecated and will be removed in a future version. Use StickerItems instead.")]
-        public Optional<DiscordSticker[]> Stickers { get; init; }
+        public Optional<IReadOnlyList<DiscordSticker>> Stickers { get; init; }
     }
 }

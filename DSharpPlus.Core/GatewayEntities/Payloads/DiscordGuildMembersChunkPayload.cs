@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
+using System.Collections.Generic;
 using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.RestEntities;
 using Newtonsoft.Json;
@@ -43,7 +45,7 @@ namespace DSharpPlus.Core.GatewayEntities.Payloads
         /// A set of guild members.
         /// </summary>
         [JsonProperty("members", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordGuildMember[] Members { get; init; } = null!;
+        public IReadOnlyList<DiscordGuildMember> Members { get; init; } = Array.Empty<DiscordGuildMember>();
 
         /// <summary>
         /// The chunk index in the expected chunks for this response (0 <= chunk_index < chunk_count).
@@ -61,7 +63,7 @@ namespace DSharpPlus.Core.GatewayEntities.Payloads
         /// If passing an invalid id to REQUEST_GUILD_MEMBERS, it will be returned here.
         /// </summary>
         [JsonProperty("not_found", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordSnowflake[]> NotFound { get; init; }
+        public Optional<IReadOnlyList<DiscordSnowflake>> NotFound { get; init; }
 
         /// <summary>
         /// If passing true to REQUEST_GUILD_MEMBERS, presences of the returned members will be here.

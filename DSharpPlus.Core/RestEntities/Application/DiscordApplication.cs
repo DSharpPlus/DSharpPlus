@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using DSharpPlus.Core.Enums;
 using Newtonsoft.Json;
 
@@ -57,7 +58,7 @@ namespace DSharpPlus.Core.RestEntities
         /// An array of rpc origin urls, if rpc is enabled.
         /// </summary>
         [JsonProperty("rpc_origins", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<string[]> RpcOrigins { get; init; }
+        public Optional<IReadOnlyList<string>> RpcOrigins { get; init; }
 
         /// <summary>
         /// When false only app owner can join the app's bot to guilds.

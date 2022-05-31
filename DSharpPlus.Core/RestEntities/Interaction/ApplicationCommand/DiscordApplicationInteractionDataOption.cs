@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.Collections.Generic;
 using DSharpPlus.Core.Enums;
 using Newtonsoft.Json;
 
@@ -59,7 +60,7 @@ namespace DSharpPlus.Core.RestEntities
         /// Mutually exclusive with <see cref="Value"/>.
         /// </remarks>
         [JsonProperty("options", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordApplicationInteractionDataOption[]> Options { get; init; }
+        public Optional<IReadOnlyList<DiscordApplicationInteractionDataOption>> Options { get; init; }
 
         /// <summary>
         /// True if this option is the currently focused option for autocomplete.

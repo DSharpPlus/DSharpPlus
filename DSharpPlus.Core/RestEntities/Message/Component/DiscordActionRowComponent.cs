@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
+using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using DSharpPlus.Core.Enums;
 
@@ -39,6 +41,6 @@ namespace DSharpPlus.Core.RestEntities
         /// Cannot contain another action row.
         /// </remarks>
         [JsonPropertyName("components")]
-        public IDiscordMessageComponent[] Components { get; init; } = null!;
+        public IReadOnlyList<IDiscordMessageComponent> Components { get; init; } = Array.Empty<IDiscordMessageComponent>();
     }
 }

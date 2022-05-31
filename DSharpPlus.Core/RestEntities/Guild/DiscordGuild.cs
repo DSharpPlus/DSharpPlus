@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Enums;
 using DSharpPlus.Core.GatewayEntities.Payloads;
@@ -143,19 +144,19 @@ namespace DSharpPlus.Core.RestEntities
         /// The roles in the guild.
         /// </summary>
         [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordRole[] Roles { get; init; } = null!;
+        public IReadOnlyList<DiscordRole> Roles { get; init; } = Array.Empty<DiscordRole>();
 
         /// <summary>
         /// The custom guild emojis.
         /// </summary>
         [JsonProperty("emojis", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordEmoji[] Emojis { get; init; } = null!;
+        public IReadOnlyList<DiscordEmoji> Emojis { get; init; } = Array.Empty<DiscordEmoji>();
 
         /// <summary>
         /// The enabled guild features.
         /// </summary>
         [JsonProperty("features", NullValueHandling = NullValueHandling.Ignore)]
-        public string[] Features { get; init; } = null!;
+        public IReadOnlyList<string> Features { get; init; } = Array.Empty<string>();
 
         /// <summary>
         /// The required MFA level for the guild.
@@ -215,31 +216,31 @@ namespace DSharpPlus.Core.RestEntities
         /// The states of members currently in voice channels; lacks the guild_id key.
         /// </summary>
         [JsonProperty("voice_states", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordVoiceStateUpdate[]> VoiceStates { get; init; }
+        public Optional<IReadOnlyList<DiscordVoiceStateUpdate>> VoiceStates { get; init; }
 
         /// <summary>
         /// The users in the guild.
         /// </summary>
         [JsonProperty("members", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordGuildMember[]> Members { get; init; }
+        public Optional<IReadOnlyList<DiscordGuildMember>> Members { get; init; }
 
         /// <summary>
         /// The channels in the guild.
         /// </summary>
         [JsonProperty("channels", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordChannel[]> Channels { get; init; }
+        public Optional<IReadOnlyList<DiscordChannel>> Channels { get; init; }
 
         /// <summary>
         /// All active threads in the guild that current user has permission to view.
         /// </summary>
         [JsonProperty("threads", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordChannel[]> Threads { get; init; }
+        public Optional<IReadOnlyList<DiscordChannel>> Threads { get; init; }
 
         /// <summary>
         /// The presences of the members in the guild, will only include non-offline members if the size is greater than large threshold.
         /// </summary>
         [JsonProperty("presences", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordUpdatePresencePayload[]> Presences { get; init; }
+        public Optional<IReadOnlyList<DiscordUpdatePresencePayload>> Presences { get; init; }
 
         /// <summary>
         /// The maximum number of presences for the guild (null is always returned, apart from the largest of guilds).
@@ -329,19 +330,19 @@ namespace DSharpPlus.Core.RestEntities
         /// Active stage instances in the guild.
         /// </summary>
         [JsonProperty("stage_instances", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordStageInstance[]> StageInstances { get; init; }
+        public Optional<IReadOnlyList<DiscordStageInstance>> StageInstances { get; init; }
 
         /// <summary>
         /// Custom guild stickers.
         /// </summary>
         [JsonProperty("stickers", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordSticker[]> Stickers { get; init; }
+        public Optional<IReadOnlyList<DiscordSticker>> Stickers { get; init; }
 
         /// <summary>
         /// The scheduled events in the guild.
         /// </summary>
         [JsonProperty("guild_scheduled_events", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordGuildScheduledEvent[]> GuildScheduledEvents { get; init; }
+        public Optional<IReadOnlyList<DiscordGuildScheduledEvent>> GuildScheduledEvents { get; init; }
 
         /// <summary>
         /// Whether the guild has the boost progress bar enabled.

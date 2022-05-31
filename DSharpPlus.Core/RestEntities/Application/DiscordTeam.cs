@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.RestEntities
@@ -43,7 +45,7 @@ namespace DSharpPlus.Core.RestEntities
         /// The members of the team.
         /// </summary>
         [JsonProperty("members", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordTeamMember[] Members { get; init; } = null!;
+        public IReadOnlyList<DiscordTeamMember> Members { get; init; } = Array.Empty<DiscordTeamMember>();
 
         /// <summary>
         /// The name of the team.

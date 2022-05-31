@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Enums;
 using Newtonsoft.Json;
@@ -62,7 +63,7 @@ namespace DSharpPlus.Core.RestEntities
         /// Explicit permission overwrites for members and roles.
         /// </summary>
         [JsonProperty("permission_overwrites", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordChannelOverwrite[]> PermissionOverwrites { get; init; }
+        public Optional<IReadOnlyList<DiscordChannelOverwrite>> PermissionOverwrites { get; init; }
 
         /// <summary>
         /// The name of the channel (1-100 characters).
@@ -110,7 +111,7 @@ namespace DSharpPlus.Core.RestEntities
         /// The recipients of the DM.
         /// </summary>
         [JsonProperty("recipients", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordUser[]> Recipients { get; init; }
+        public Optional<IReadOnlyList<DiscordUser>> Recipients { get; init; }
 
         /// <summary>
         /// Icon hash of the group DM.
