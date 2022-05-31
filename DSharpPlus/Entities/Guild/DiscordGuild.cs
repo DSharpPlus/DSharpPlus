@@ -1490,9 +1490,13 @@ namespace DSharpPlus.Entities
                     entry.Reason = action.Reason;
                     //entry.ActionCategory = UnhandledExceptionEventHandler;
                     entry.ActionType = action.ActionType;
-                    // todo: this might break some stuff, maybe create a new DiscordUser with ID and ApiClient set to
-                    // make sure there are NullReferenceExceptions?
-                    entry.UserResponsible = allUsers[action.UserId];
+                    entry.UserResponsible = allUsers.TryGetValue(action.UserId, out var user)
+                        ? user
+                        : new DiscordUser
+                        {
+                            Id = action.UserId,
+                            Discord = Discord,
+                        };
 
                     entries.Add(entry);
                 }
