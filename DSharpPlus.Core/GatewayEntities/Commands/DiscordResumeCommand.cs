@@ -23,7 +23,7 @@
 
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Gateway.Commands
+namespace DSharpPlus.Core.GatewayEntities.Commands
 {
     /// <summary>
     /// Used to replay missed events when a disconnected client resumes.

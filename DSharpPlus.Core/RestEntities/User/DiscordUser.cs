@@ -25,7 +25,7 @@ using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Enums;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Entities
+namespace DSharpPlus.Core.RestEntities
 {
     /// <summary>
     /// Implements a <see href="https://discord.com/developers/docs/resources/user#user-object-user-structure">Discord User</see>.

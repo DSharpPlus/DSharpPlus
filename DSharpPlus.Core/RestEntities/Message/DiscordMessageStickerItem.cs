@@ -24,7 +24,7 @@
 using DSharpPlus.Core.Enums;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Entities
+namespace DSharpPlus.Core.RestEntities
 {
     /// <summary>
     /// The smallest amount of data required to render a sticker. A partial sticker object.

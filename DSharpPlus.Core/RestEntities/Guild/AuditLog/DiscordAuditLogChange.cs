@@ -23,7 +23,7 @@
 
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Entities
+namespace DSharpPlus.Core.RestEntities
 {
     /// <remarks>
     /// If <see cref="NewValue"/> is not present in the change object, while <see cref="OldValue"/> is, that means the property that was changed has been reset, or set to null

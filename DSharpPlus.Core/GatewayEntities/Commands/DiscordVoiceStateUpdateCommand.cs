@@ -21,10 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using DSharpPlus.Core.Entities;
+using DSharpPlus.Core.RestEntities;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Gateway.Commands
+namespace DSharpPlus.Core.GatewayEntities.Commands
 {
     public sealed record DiscordVoiceStateUpdateCommand
     {

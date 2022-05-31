@@ -22,10 +22,10 @@
 // SOFTWARE.
 
 using DSharpPlus.Core.Attributes;
-using DSharpPlus.Core.Entities;
+using DSharpPlus.Core.RestEntities;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Gateway.Payloads
+namespace DSharpPlus.Core.GatewayEntities.Payloads
 {
     /// <summary>
     /// Sent in response to Guild Request Members. You can use the chunk_index and chunk_count to calculate how many chunks are left for your request.

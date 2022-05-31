@@ -25,7 +25,7 @@ using System.Collections.Generic;
 using DSharpPlus.Core.Enums;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Entities
+namespace DSharpPlus.Core.RestEntities
 {
     /// <summary>
     /// Application commands are commands that an application can register to Discord. They provide users a first-class way of interacting directly with your application that feels deeply integrated into Discord.

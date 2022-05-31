@@ -25,7 +25,7 @@ using System;
 using DSharpPlus.Core.Enums;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Entities
+namespace DSharpPlus.Core.RestEntities
 {
     /// <remarks>
     /// The combined sum of characters in all <see cref="Title"/>, <see cref="Description"/>, <see cref="DiscordEmbedField.Name"/>, <see cref="DiscordEmbedField.Value"/>, <see cref="DiscordEmbedFooter.Text"/>, and <see cref="DiscordEmbedAuthor.Name"/> fields across all embeds attached to a message must not exceed 6000 characters. Violating any of these constraints will result in a Bad Request response.

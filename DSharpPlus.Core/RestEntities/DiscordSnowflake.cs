@@ -26,7 +26,7 @@ using System.Globalization;
 using DSharpPlus.Core.JsonConverters;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Entities
+namespace DSharpPlus.Core.RestEntities
 {
     // TODO: Write a validation test.
     /// <summary>

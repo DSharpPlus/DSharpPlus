@@ -22,10 +22,10 @@
 // SOFTWARE.
 
 using DSharpPlus.Core.Attributes;
-using DSharpPlus.Core.Entities;
+using DSharpPlus.Core.RestEntities;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Gateway.Payloads
+namespace DSharpPlus.Core.GatewayEntities.Payloads
 {
     /// <summary>
     /// Sent when a user is removed from a guild (leave/kick/ban).

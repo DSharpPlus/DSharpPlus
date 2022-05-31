@@ -25,7 +25,7 @@ using DSharpPlus.Core.Enums;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace DSharpPlus.Core.Entities
+namespace DSharpPlus.Core.RestEntities
 {
     /// <remarks>
     /// See <see href="https://discord.com/developers/docs/topics/permissions#permissions">permissions</see> for more information about the allow and deny fields.

@@ -22,10 +22,10 @@
 // SOFTWARE.
 
 using DSharpPlus.Core.Attributes;
-using DSharpPlus.Core.Entities;
+using DSharpPlus.Core.RestEntities;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Gateway.Payloads
+namespace DSharpPlus.Core.GatewayEntities.Payloads
 {
     [DiscordGatewayPayload("VOICE_SERVER_UPDATE")]
     public sealed record DiscordVoiceServerUpdatePayload

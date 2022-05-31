@@ -25,7 +25,7 @@ using System;
 using DSharpPlus.Core.Enums;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Entities
+namespace DSharpPlus.Core.RestEntities
 {
     /// <summary>
     /// The thread metadata object contains a number of thread-specific channel fields that are not needed by other channel types.

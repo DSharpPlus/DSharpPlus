@@ -24,7 +24,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Entities
+namespace DSharpPlus.Core.RestEntities
 {
     public sealed record DiscordInteractionResolvedData
     {

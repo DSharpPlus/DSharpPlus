@@ -24,7 +24,7 @@
 using DSharpPlus.Core.Enums;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Entities
+namespace DSharpPlus.Core.RestEntities
 {
     /// <summary>
     /// This is sent on the message object when the message is a response to an Interaction without an existing message.

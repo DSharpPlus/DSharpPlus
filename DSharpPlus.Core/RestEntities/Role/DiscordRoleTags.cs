@@ -24,7 +24,7 @@
 
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Entities
+namespace DSharpPlus.Core.RestEntities
 {
     /// <summary>
     /// A <see cref="DiscordRole"/>'s metadata.

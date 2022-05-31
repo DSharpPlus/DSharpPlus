@@ -22,11 +22,11 @@
 // SOFTWARE.
 
 using DSharpPlus.Core.Attributes;
-using DSharpPlus.Core.Entities;
 using DSharpPlus.Core.Enums;
+using DSharpPlus.Core.RestEntities;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Gateway.Payloads
+namespace DSharpPlus.Core.GatewayEntities.Payloads
 {
     /// <summary>
     /// A user's presence is their current state on a guild. This event is sent when a user's presence or info, such as name or avatar, is updated.

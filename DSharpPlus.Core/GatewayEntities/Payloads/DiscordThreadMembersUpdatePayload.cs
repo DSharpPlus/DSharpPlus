@@ -22,10 +22,10 @@
 // SOFTWARE.
 
 using DSharpPlus.Core.Attributes;
-using DSharpPlus.Core.Entities;
+using DSharpPlus.Core.RestEntities;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Gateway.Payloads
+namespace DSharpPlus.Core.GatewayEntities.Payloads
 {
     /// <summary>
     /// Sent when anyone is added to or removed from a thread. If the current user does not have the <see cref="Enums.DiscordGatewayIntents.GuildMembers"/>, then this event will only be sent if the current user was added to or removed from the thread.

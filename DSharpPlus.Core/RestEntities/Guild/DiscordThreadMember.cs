@@ -25,7 +25,7 @@ using System;
 using DSharpPlus.Core.Attributes;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Entities
+namespace DSharpPlus.Core.RestEntities
 {
     /// <summary>
     /// A thread member is used to indicate whether a user has joined a thread or not.

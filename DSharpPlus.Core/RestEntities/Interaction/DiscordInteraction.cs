@@ -25,7 +25,7 @@ using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Enums;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Entities
+namespace DSharpPlus.Core.RestEntities
 {
     [DiscordGatewayPayload("INTERACTION_CREATE")]
     public sealed record DiscordInteraction

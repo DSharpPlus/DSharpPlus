@@ -23,10 +23,10 @@
 
 using System;
 using DSharpPlus.Core.Attributes;
-using DSharpPlus.Core.Entities;
+using DSharpPlus.Core.RestEntities;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Gateway.Payloads
+namespace DSharpPlus.Core.GatewayEntities.Payloads
 {
     /// <summary>
     /// Sent when a guild member is updated. This will also fire when the user object of a guild member changes.
