@@ -24,11 +24,11 @@
 using System;
 using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Enums;
-using DSharpPlus.Core.Gateway.Payloads;
+using DSharpPlus.Core.GatewayEntities.Payloads;
 using DSharpPlus.Core.VoiceGatewayEntities;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Entities
+namespace DSharpPlus.Core.RestEntities
 {
     /// <summary>
     /// Guilds in Discord represent an isolated collection of users and channels, and are often referred to as "servers" in the UI.

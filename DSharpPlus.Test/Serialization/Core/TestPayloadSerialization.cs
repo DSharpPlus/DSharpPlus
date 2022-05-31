@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using DSharpPlus.Core.Attributes;
-using DSharpPlus.Core.Gateway.Payloads;
+using DSharpPlus.Core.GatewayEntities.Payloads;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

@@ -24,7 +24,7 @@
 using System;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Gateway.Commands
+namespace DSharpPlus.Core.GatewayEntities.Commands
 {
     // TODO: Use a static class that utilizes environment variables or csproj values to determine the current library version.
     public sealed record DiscordIdentifyConnectionProperties

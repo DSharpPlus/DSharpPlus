@@ -26,7 +26,7 @@ using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Enums;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Entities
+namespace DSharpPlus.Core.RestEntities
 {
     [DiscordGatewayPayload("INTEGRATION_CREATE", "INTEGRATION_UPDATE")]
     public sealed record DiscordIntegration

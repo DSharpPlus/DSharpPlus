@@ -24,7 +24,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Entities
+namespace DSharpPlus.Core.RestEntities
 {
     /// <summary>
     /// The are the only valid values for a user to pick, used on <see cref="DiscordApplicationCommandOption.Choices"/>.

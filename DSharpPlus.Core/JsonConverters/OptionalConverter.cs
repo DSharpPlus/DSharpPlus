@@ -24,7 +24,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using DSharpPlus.Core.Entities;
+using DSharpPlus.Core.RestEntities;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.JsonConverters

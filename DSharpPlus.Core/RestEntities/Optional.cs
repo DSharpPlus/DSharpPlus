@@ -27,7 +27,7 @@ using DSharpPlus.Core.JsonConverters;
 using DSharpPlus.Core.JsonConverters.Attributes;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Entities
+namespace DSharpPlus.Core.RestEntities
 {
     /// <summary>
     /// Often used in Discord API responses and requests, this class is used to represent an optional field.

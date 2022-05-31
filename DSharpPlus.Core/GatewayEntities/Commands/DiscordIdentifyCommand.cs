@@ -22,11 +22,11 @@
 // SOFTWARE.
 
 using System.Collections.Generic;
-using DSharpPlus.Core.Entities;
 using DSharpPlus.Core.Enums;
+using DSharpPlus.Core.RestEntities;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Gateway.Commands
+namespace DSharpPlus.Core.GatewayEntities.Commands
 {
     /// <summary>
     /// Used to trigger the initial handshake with the gateway.

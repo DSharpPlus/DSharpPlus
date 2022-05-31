@@ -23,7 +23,7 @@
 
 using System;
 using DSharpPlus.Core.Attributes;
-using DSharpPlus.Core.Entities;
+using DSharpPlus.Core.RestEntities;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.VoiceGatewayEntities

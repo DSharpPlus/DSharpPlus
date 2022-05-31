@@ -24,7 +24,7 @@
 using System;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Entities
+namespace DSharpPlus.Core.RestEntities
 {
     /// <summary>
     /// Represents a code that when used, creates a guild based on a snapshot of an existing guild.

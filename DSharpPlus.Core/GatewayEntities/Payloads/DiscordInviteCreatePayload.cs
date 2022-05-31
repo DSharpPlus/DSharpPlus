@@ -23,11 +23,11 @@
 
 using System;
 using DSharpPlus.Core.Attributes;
-using DSharpPlus.Core.Entities;
 using DSharpPlus.Core.Enums;
+using DSharpPlus.Core.RestEntities;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Core.Gateway.Payloads
+namespace DSharpPlus.Core.GatewayEntities.Payloads
 {
     /// <summary>
     /// Sent when a new invite to a channel is created.
