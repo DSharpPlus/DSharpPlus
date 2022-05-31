@@ -16,7 +16,8 @@ namespace DSharpPlus.Test.Serialization.Core
         [TestMethod]
         public void TestPayloadSerializationAsync()
         {
-            Dictionary<string, Type?> payloadMap = new() {
+            Dictionary<string, Type?> payloadMap = new()
+            {
                 { "HEARTBEAT", typeof(int?) }, // Doesn't include fields, only returns an int? which is null on first heartbeat.
                 { "RECONNECT", null }, // Reconnect doesn't have a payload.
             };
