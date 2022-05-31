@@ -1488,7 +1488,6 @@ namespace DSharpPlus.Entities
                     entry.ActionType = action.ActionType;
                     entry.Id = action.Id;
                     entry.Reason = action.Reason;
-                    //entry.ActionCategory = UnhandledExceptionEventHandler;
                     entry.ActionType = action.ActionType;
                     entry.UserResponsible = allUsers.TryGetValue(action.UserId, out var user)
                         ? user
