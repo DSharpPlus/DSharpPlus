@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
+using System.Collections.Generic;
 using DSharpPlus.Core.Enums;
 using Newtonsoft.Json;
 
@@ -38,7 +40,7 @@ namespace DSharpPlus.Core.RestEntities
         /// Will always be <c>["*"]</c>.
         /// </summary>
         [JsonProperty("permissions", NullValueHandling = NullValueHandling.Ignore)]
-        public string[] Permissions { get; init; } = null!;
+        public IReadOnlyList<string> Permissions { get; init; } = Array.Empty<string>();
 
         /// <summary>
         /// The id of the parent team of which they are a member.

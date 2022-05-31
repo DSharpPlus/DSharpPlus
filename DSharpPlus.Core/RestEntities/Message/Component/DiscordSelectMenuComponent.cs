@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
+using System.Collections.Generic;
 using DSharpPlus.Core.Enums;
 using Newtonsoft.Json;
 
@@ -42,7 +44,7 @@ namespace DSharpPlus.Core.RestEntities
         /// The choices in the select, max 25.
         /// </summary>
         [JsonProperty("options", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordSelectMenuOptionComponent[] Options { get; init; } = null!;
+        public IReadOnlyList<DiscordSelectMenuOptionComponent> Options { get; init; } = Array.Empty<DiscordSelectMenuOptionComponent>();
 
         /// <summary>
         /// The custom placeholder text if nothing is selected, max 150 characters.

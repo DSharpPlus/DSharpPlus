@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
+using System.Collections.Generic;
 using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.RestEntities;
 using Newtonsoft.Json;
@@ -37,7 +39,7 @@ namespace DSharpPlus.Core.GatewayEntities.Payloads
         /// The id of the messages.
         /// </summary>
         [JsonProperty("ids", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordSnowflake[] Ids { get; init; } = null!;
+        public IReadOnlyList<DiscordSnowflake> Ids { get; init; } = Array.Empty<DiscordSnowflake>();
 
         /// <summary>
         /// The id of the channel.

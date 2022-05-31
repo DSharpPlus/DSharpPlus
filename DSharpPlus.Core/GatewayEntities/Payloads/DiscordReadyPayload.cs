@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
+using System.Collections.Generic;
 using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.RestEntities;
 using Newtonsoft.Json;
@@ -49,7 +51,7 @@ namespace DSharpPlus.Core.GatewayEntities.Payloads
         /// The guilds the user is in.
         /// </summary>
         [JsonProperty("guilds", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordGuild[] Guilds { get; init; } = null!;
+        public IReadOnlyList<DiscordGuild> Guilds { get; init; } = Array.Empty<DiscordGuild>();
 
         /// <summary>
         /// Used for resuming connections.
@@ -61,7 +63,7 @@ namespace DSharpPlus.Core.GatewayEntities.Payloads
         /// The shard information associated with this session, if sent when identifying.
         /// </summary>
         [JsonProperty("shard", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<int[]> Shard { get; init; } = null!;
+        public Optional<IReadOnlyList<int>> Shard { get; init; }
 
         /// <summary>
         /// Contains <see cref="DiscordApplication.Id"> and <see cref="DiscordApplication.Flags"/>

@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.Collections.Generic;
 using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.RestEntities;
 using Newtonsoft.Json;
@@ -58,12 +59,12 @@ namespace DSharpPlus.Core.GatewayEntities.Payloads
         /// The users who were added to the thread.
         /// </summary>
         [JsonProperty("added_members", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordThreadMember[]> AddedMembers { get; init; } = null!;
+        public Optional<IReadOnlyList<DiscordThreadMember>> AddedMembers { get; init; }
 
         /// <summary>
         /// The id of the users who were removed from the thread.
         /// </summary>
         [JsonProperty("removed_member_ids", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordSnowflake[]> RemovedMemberIds { get; init; } = null!;
+        public Optional<IReadOnlyList<DiscordSnowflake>> RemovedMemberIds { get; init; }
     }
 }

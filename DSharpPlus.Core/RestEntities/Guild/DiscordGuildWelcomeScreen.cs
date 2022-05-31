@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.RestEntities
@@ -37,6 +39,6 @@ namespace DSharpPlus.Core.RestEntities
         /// The channels shown in the welcome screen, up to 5.
         /// </summary>
         [JsonProperty("welcome_channels", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordGuildWelcomeScreenChannel[] WelcomeChannels { get; init; } = null!;
+        public IReadOnlyList<DiscordGuildWelcomeScreenChannel> WelcomeChannels { get; init; } = Array.Empty<DiscordGuildWelcomeScreenChannel>();
     }
 }

@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.RestEntities;
 using Newtonsoft.Json;
@@ -44,7 +45,7 @@ namespace DSharpPlus.Core.GatewayEntities.Payloads
         /// User's role ids.
         /// </summary>
         [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordSnowflake[] Roles { get; init; } = null!;
+        public IReadOnlyList<DiscordSnowflake> Roles { get; init; } = Array.Empty<DiscordSnowflake>();
 
         /// <summary>
         /// The user.

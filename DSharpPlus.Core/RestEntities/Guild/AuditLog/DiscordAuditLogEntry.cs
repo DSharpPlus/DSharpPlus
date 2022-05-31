@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.Collections.Generic;
 using DSharpPlus.Core.Enums;
 using Newtonsoft.Json;
 
@@ -38,7 +39,7 @@ namespace DSharpPlus.Core.RestEntities
         /// The changes made to the <see cref="TargetId"/>
         /// </summary>
         [JsonProperty("changes", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordAuditLogChange[]> Changes { get; init; }
+        public Optional<IReadOnlyList<DiscordAuditLogChange>> Changes { get; init; }
 
         /// <summary>
         /// The user who made the changes.

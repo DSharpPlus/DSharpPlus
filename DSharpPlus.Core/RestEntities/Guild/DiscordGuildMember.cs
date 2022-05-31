@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Enums;
 using Newtonsoft.Json;
@@ -59,7 +60,7 @@ namespace DSharpPlus.Core.RestEntities
         /// Array of <see href="https://discord.com/developers/docs/topics/permissions#role-object">role</see> object ids.
         /// </summary>
         [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordSnowflake[] Roles { get; init; } = Array.Empty<DiscordSnowflake>();
+        public IReadOnlyList<DiscordSnowflake> Roles { get; init; } = Array.Empty<DiscordSnowflake>();
 
         /// <summary>
         /// When the user joined the guild.

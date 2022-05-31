@@ -21,6 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
+using System.Collections.Generic;
+
 namespace DSharpPlus.Core.VoiceGatewayEntities
 {
     public sealed record DiscordVoicePacket
@@ -30,6 +33,6 @@ namespace DSharpPlus.Core.VoiceGatewayEntities
         public ushort Sequence { get; init; }
         public uint Timestamp { get; init; }
         public uint SSRC { get; init; }
-        public byte[] EncryptedAudio { get; init; } = null!;
+        public IReadOnlyList<byte> EncryptedAudio { get; init; } = Array.Empty<byte>();
     }
 }

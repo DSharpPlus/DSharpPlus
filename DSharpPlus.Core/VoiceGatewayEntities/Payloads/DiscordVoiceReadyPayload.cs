@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.VoiceGatewayEntities.Payloads
@@ -41,7 +42,7 @@ namespace DSharpPlus.Core.VoiceGatewayEntities.Payloads
         public ushort Port { get; init; }
 
         [JsonProperty("modes", NullValueHandling = NullValueHandling.Ignore)]
-        public string[] Modes { get; init; } = null!;
+        public IReadOnlyList<string> Modes { get; init; } = Array.Empty<string>();
 
         [Obsolete("HeartbeatInterval here is an erroneous field and should be ignored. The correct heartbeat_interval value comes from the Hello payload.")]
         [JsonProperty("heartbeat_interval", NullValueHandling = NullValueHandling.Ignore)]
