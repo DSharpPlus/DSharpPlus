@@ -1605,6 +1605,93 @@ namespace DSharpPlus.Entities
 
                         entry = entryGu;
                         break;
+
+                    case AuditLogActionType.ChannelCreate:
+                    case AuditLogActionType.ChannelUpdate:
+                    case AuditLogActionType.ChannelDelete:
+                        var entryC =
+                            new DiscordAuditLogChannelEntry
+                            {
+                                ActionCategory = action.ActionType switch
+                                {
+                                    AuditLogActionType.ChannelCreate => AuditLogActionCategory.Create,
+                                    AuditLogActionType.ChannelUpdate => AuditLogActionCategory.Update,
+                                    AuditLogActionType.ChannelDelete => AuditLogActionCategory.Delete,
+                                    var _ => AuditLogActionCategory.Other
+                                }
+                            };
+
+                        entryC.Target = action.TargetId != null
+                            ? _channels.TryGetValue(action.TargetId.Value, out var channel) ? channel :
+                            new DiscordChannel
+                            {
+                                Id = action.TargetId.Value,
+                                Discord = Discord,
+                                GuildId = Id
+                            }
+                            : null;
+
+                        foreach (var change in action.Changes)
+                        {
+                            switch (change.Key)
+                            {
+                                case "name":
+                                    entryC.NameChange = new PropertyChange<string>
+                                    {
+                                        Before = change.OldValueString,
+                                        After = change.NewValueString
+                                    };
+                                    break;
+
+                                case "topic":
+                                    entryC.TopicChange = new PropertyChange<string>
+                                    {
+                                        Before = change.OldValueString,
+                                        After = change.NewValueString
+                                    };
+                                    break;
+
+                                case "type":
+                                    entryC.TypeChange = new PropertyChange<ChannelType?>
+                                    {
+                                        Before = change.OldValue != null ? (ChannelType)change.OldValueLong : null,
+                                        After = change.NewValue != null ? (ChannelType)change.NewValueLong : null
+                                    };
+                                    break;
+
+                                case "nsfw":
+                                    entryC.NsfwChange = new PropertyChange<bool?>
+                                    {
+                                        Before = change.OldValue != null ? change.OldValueBool : null,
+                                        After = change.NewValue != null ? change.NewValueBool : null
+                                    };
+                                    break;
+
+                                case "rate_limit_per_user":
+                                    entryC.PerUserRateLimitChange = new PropertyChange<long?>
+                                    {
+                                        Before = change.OldValue != null ? change.OldValueLong : null,
+                                        After = change.NewValue != null ? change.NewValueLong : null
+                                    };
+                                    break;
+
+                                case "default_auto_archive_duration":
+                                    entryC.DefaultAutoArchiveDurationChange = new PropertyChange<long?>
+                                    {
+                                        Before = change.OldValue != null ? change.OldValueLong : null,
+                                        After = change.NewValue != null ? change.NewValueLong : null
+                                    };
+                                    break;
+
+                                default:
+                                    Discord.Logger.LogWarning(LoggerEvents.AuditLog, $"Unknown change type: {change.Key} in {action.ActionType.ToString()} - this should be reported to library developers");
+                                    break;
+                            }
+                        }
+
+                        entry = entryC;
+                        break;
+
                     case AuditLogActionType.MessageDelete:
                     case AuditLogActionType.MessageBulkDelete:
                         var entryMsg = new DiscordAuditLogMessageEntry { ActionCategory = AuditLogActionCategory.Delete };
