@@ -136,6 +136,16 @@ namespace DSharpPlus.Entities
         /// </summary>
         public PropertyChange<string> RegionChange { get; internal set; }
 
+        /// <summary>
+        /// Gets the description of the guild's inactive timeout change
+        /// </summary>
+        public PropertyChange<TimeSpan> AfkTimeoutChange { get; set; }
+
+        /// <summary>
+        /// Gets the description of the guild's boost progress bar change
+        /// </summary>
+        public PropertyChange<bool> PremiumProgressBarChange { get; set; }
+
         internal DiscordAuditLogGuildEntry() { }
     }
 

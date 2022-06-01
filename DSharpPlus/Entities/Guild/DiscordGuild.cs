@@ -1448,6 +1448,163 @@ namespace DSharpPlus.Entities
                 DiscordAuditLogEntry entry = null;
                 switch (action.ActionType)
                 {
+                    case AuditLogActionType.GuildUpdate:
+                        var entryGu =
+                            new DiscordAuditLogGuildEntry { ActionCategory = AuditLogActionCategory.Update };
+
+                        entryGu.Target = this;
+
+                        foreach (var change in action.Changes)
+                        {
+                            switch (change.Key)
+                            {
+                                case "name":
+                                    entryGu.NameChange = new PropertyChange<string>
+                                    {
+                                        Before = change.OldValueString,
+                                        After = change.NewValueString
+                                    };
+                                    break;
+
+                                case "owner_id":
+                                    entryGu.OwnerChange = new PropertyChange<DiscordMember>
+                                    {
+                                        Before = _members.TryGetValue(ulong.Parse(change.OldValueString), out var beforeMember)
+                                            ? beforeMember
+                                            : await GetMemberAsync(ulong.Parse(change.OldValueString)),
+                                        After = _members.TryGetValue(ulong.Parse(change.NewValueString), out var afterMember)
+                                            ? afterMember
+                                            : await GetMemberAsync(ulong.Parse(change.NewValueString)),
+                                    };
+                                    break;
+
+                                case "icon_hash":
+                                    entryGu.IconChange = new PropertyChange<string>
+                                    {
+                                        Before =
+                                            change.OldValueString != null
+                                                ? $"https://cdn.discordapp.com/icons/{Id}/{change.OldValueString}.webp"
+                                                : null,
+                                        After =
+                                            change.NewValueString != null
+                                                ? $"https://cdn.discordapp.com/icons/{Id}/{change.NewValueString}.webp"
+                                                : null
+                                    };
+                                    break;
+
+                                case "splash_hash":
+                                    entryGu.SplashChange = new PropertyChange<string>
+                                    {
+                                        Before =
+                                            change.OldValueString != null
+                                                ? $"https://cdn.discordapp.com/splashes/{Id}/{change.OldValueString}.webp"
+                                                : null,
+                                        After =
+                                            change.NewValueString != null
+                                                ? $"https://cdn.discordapp.com/splashes/{Id}/{change.NewValueString}.webp"
+                                                : null
+                                    };
+                                    break;
+
+                                case "verification_level":
+                                    entryGu.VerificationLevelChange = new PropertyChange<VerificationLevel>
+                                    {
+                                        Before = (VerificationLevel)change.OldValueLong,
+                                        After = (VerificationLevel)change.NewValueLong
+                                    };
+                                    break;
+
+                                case "system_channel_id":
+                                    entryGu.SystemChannelChange = new PropertyChange<DiscordChannel>
+                                    {
+                                        Before = change.OldValueString != null
+                                            ? _channels.TryGetValue(ulong.Parse(change.OldValueString),
+                                                out var beforeSystemChannel)
+                                                ? beforeSystemChannel
+                                                : new DiscordChannel
+                                                {
+                                                    Id = ulong.Parse(change.OldValueString),
+                                                    Discord = Discord,
+                                                    GuildId = Id
+                                                }
+                                            : null,
+                                        After = change.NewValueString != null
+                                            ? _channels.TryGetValue(ulong.Parse(change.NewValueString),
+                                                out var afterSystemChannel)
+                                                ? afterSystemChannel
+                                                : new DiscordChannel
+                                                {
+                                                    Id = ulong.Parse(change.NewValueString),
+                                                    Discord = Discord,
+                                                    GuildId = Id
+                                                }
+                                            : null
+                                    };
+                                    break;
+
+                                case "afk_channel_id":
+                                    entryGu.AfkChannelChange = new PropertyChange<DiscordChannel>
+                                    {
+                                        Before = change.OldValueString != null
+                                            ? _channels.TryGetValue(ulong.Parse(change.OldValueString),
+                                                out var beforeAfkChannel)
+                                                ? beforeAfkChannel
+                                                : new DiscordChannel
+                                                {
+                                                    Id = ulong.Parse(change.OldValueString),
+                                                    Discord = Discord,
+                                                    GuildId = Id
+                                                }
+                                            : null,
+                                        After = change.NewValueString != null
+                                            ? _channels.TryGetValue(ulong.Parse(change.NewValueString),
+                                                out var afterAfkChannel)
+                                                ? afterAfkChannel
+                                                : new DiscordChannel
+                                                {
+                                                    Id = ulong.Parse(change.NewValueString),
+                                                    Discord = Discord,
+                                                    GuildId = Id
+                                                }
+                                            : null
+                                    };
+                                    break;
+
+                                case "afk_timeout":
+                                    entryGu.AfkTimeoutChange = new PropertyChange<TimeSpan>
+                                    {
+                                        Before = TimeSpan.FromSeconds(change.OldValueLong),
+                                        After = TimeSpan.FromSeconds(change.NewValueLong)
+                                    };
+
+                                    break;
+
+                                case "premium_progress_bar_enabled":
+                                    entryGu.PremiumProgressBarChange = new PropertyChange<bool>
+                                    {
+                                        Before = change.OldValueBool,
+                                        After = change.NewValueBool
+                                    };
+
+                                    break;
+
+                                case "default_message_notifications":
+                                    entryGu.NotificationSettingsChange = new PropertyChange<DefaultMessageNotifications>
+                                    {
+                                        Before = (DefaultMessageNotifications)change.OldValueLong,
+                                        After = (DefaultMessageNotifications)change.NewValueLong
+                                    };
+
+                                    break;
+
+                                default:
+                                    Discord.Logger.LogWarning(LoggerEvents.AuditLog, $"Unknown change type: {change.Key} in {action.ActionType.ToString()} - this should be reported to library developers");
+                                    break;
+                            }
+                        }
+
+                        entry = entryGu;
+                        break;
                     case AuditLogActionType.MessageDelete:
                     case AuditLogActionType.MessageBulkDelete:
                         var entryMsg = new DiscordAuditLogMessageEntry { ActionCategory = AuditLogActionCategory.Delete };
