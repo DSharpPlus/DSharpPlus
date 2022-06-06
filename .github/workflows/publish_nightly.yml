@@ -10,15 +10,21 @@ jobs:
     if: "!contains(format('{0} {1}', github.event.head_commit.message, github.event.pull_request.title), '[ci-skip]')"
     steps:
       - name: "Checkout"
-        uses: "actions/checkout@v2"
+        uses: "actions/checkout@v3"
 
       - name: "Setup .NET"
-        uses: "actions/setup-dotnet@v1"
+        uses: "actions/setup-dotnet@v2"
         with:
           dotnet-version: "6.0.x"
 
       - name: "Build Nightly Nuget Packages"
-        run: "mkdir build && dotnet pack -p:SymbolPackageFormat=snupkg --include-symbols --include-source -o build -p:VersionSuffix='nightly' -p:BuildNumber=0$(( 1091 + ${{ github.run_number }} ))" # We add 1091 since it's the last build number AppVeyor used.
+        run: "mkdir build && dotnet pack -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --include-source -o build -p:VersionSuffix='nightly' -p:BuildNumber=0$(( 1091 + ${{ github.run_number }} ))" # We add 1091 since it's the last build number AppVeyor used.
 
       - name: "Publish Nightly Nuget Packages"
         run: "dotnet nuget push \"build/*\" -k ${{ secrets.NUGET_ORG_API_KEY }} -s https://api.nuget.org/v3/index.json" # If the package version does not comply with SemVer, it will be set as a pre-release version automatically.
+
+      - name: "Upload Nuget Packages To Github Actions"
+        uses: actions/upload-artifact@v3
+        with:
+          name: PR Nuget Packages
+          path: build/*
