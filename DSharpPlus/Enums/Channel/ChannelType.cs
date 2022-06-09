@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
+
 namespace DSharpPlus
 {
     /// <summary>
@@ -61,13 +63,14 @@ namespace DSharpPlus
         /// <summary>
         /// Indicates that this is a store channel.
         /// </summary>
+        [Obsolete("Store channels have been sunset.", true)]
         Store = 6,
 
         /// <summary>
         /// Indicates that this is a thread within a news channel.
         /// </summary>
         NewsThread = 10,
-        
+
         /// <summary>
         /// Indicates that this is a public thread within a channel.
         /// </summary>
