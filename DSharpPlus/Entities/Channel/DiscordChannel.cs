@@ -23,6 +23,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -188,9 +189,9 @@ namespace DSharpPlus.Entities
         {
             get
             {
-                return !(this.Type == ChannelType.Text || this.Type == ChannelType.News /* || this.Type == ChannelType.Voice /* Uncomment on the left if threads are in fact supported at the time */)
+                return this.Type is not (ChannelType.Text or ChannelType.News)
                     ? throw new ArgumentException("Only text channels can have threads.")
-                    : this.Guild._threads.Values.Where(e => e.ParentId == this.Id).ToList().AsReadOnly();
+                    : this.Guild._threads.Values.Where(e => e.ParentId == this.Id).ToImmutableArray();
             }
         }
 
@@ -747,13 +748,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task TriggerTypingAsync()
         {
-            return this.Type != ChannelType.Text &&
-                this.Type != ChannelType.PublicThread &&
-                this.Type != ChannelType.PrivateThread &&
-                this.Type != ChannelType.NewsThread &&
-                this.Type != ChannelType.Private &&
-                this.Type != ChannelType.Group &&
-                this.Type != ChannelType.News
+            return !Utilities.IsTextableChannel(this)
                 ? throw new ArgumentException("Cannot start typing in a non-text channel.")
                 : this.Discord.ApiClient.TriggerTypingAsync(this.Id);
         }
@@ -768,13 +763,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<IReadOnlyList<DiscordMessage>> GetPinnedMessagesAsync()
         {
-            return this.Type != ChannelType.Text &&
-                this.Type != ChannelType.PublicThread &&
-                this.Type != ChannelType.PrivateThread &&
-                this.Type != ChannelType.NewsThread &&
-                this.Type != ChannelType.Private &&
-                this.Type != ChannelType.Group &&
-                this.Type != ChannelType.News
+            return !Utilities.IsTextableChannel(this) || this.Type is ChannelType.Voice
                 ? throw new ArgumentException("A non-text channel does not have pinned messages.")
                 : this.Discord.ApiClient.GetPinnedMessagesAsync(this.Id);
         }
