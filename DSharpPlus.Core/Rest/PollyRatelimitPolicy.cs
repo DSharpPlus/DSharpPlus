@@ -7,6 +7,10 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Caching.Distributed;
+
+using Polly;
+
 namespace DSharpPlus.Core.Rest
 {
     // main ratelimit handler

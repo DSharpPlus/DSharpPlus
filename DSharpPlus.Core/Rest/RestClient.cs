@@ -2,6 +2,15 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
+using DSharpPlus.Core.Exceptions;
+
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
+
+using Polly;
+using Polly.Wrap;
+
 namespace DSharpPlus.Core.Rest
 {
     /// <summary>
