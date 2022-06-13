@@ -1,12 +1,14 @@
 using System;
 using System.ComponentModel;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace DSharpPlus.Core.Enums
 {
     /// <summary>
     /// Permissions in Discord are a way to limit and grant certain abilities to users. A set of base permissions can be configured at the guild level for different roles. When these roles are attached to users, they grant or revoke specific privileges within the guild. Along with the guild-level permissions, Discord also supports permission overwrites that can be assigned to individual guild roles or guild members on a per-channel basis.
     /// </summary>
-    [Flags]
+    [Flags, JsonConverter(typeof(StringEnumConverter))]
     public enum DiscordPermissions : long
     {
         /// <summary>

@@ -1,6 +1,5 @@
 using DSharpPlus.Core.Enums;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -24,14 +23,12 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// Permission bit set.
         /// </summary>
-        [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("allow", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordPermissions Allow { get; init; }
 
         /// <summary>
         /// Permission bit set.
         /// </summary>
-        [JsonConverter(typeof(StringEnumConverter))]
         [JsonProperty("deny", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordPermissions Deny { get; init; }
 
