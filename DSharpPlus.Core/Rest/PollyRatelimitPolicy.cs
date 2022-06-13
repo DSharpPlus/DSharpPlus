@@ -1,26 +1,3 @@
-// This file is part of the DSharpPlus project.
-//
-// Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2022 DSharpPlus Contributors
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
@@ -29,10 +6,6 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-
-using Microsoft.Extensions.Caching.Distributed;
-
-using Polly;
 
 namespace DSharpPlus.Core.Rest
 {
@@ -45,15 +18,15 @@ namespace DSharpPlus.Core.Rest
         // stores one second, a very common thing, so we don't want to allocate it every time
         private static readonly TimeSpan __one_second = TimeSpan.FromSeconds(1);
 
-        public PollyRatelimitPolicy() 
+        public PollyRatelimitPolicy()
             => __endpoint_hash_mapping = new();
-        
+
 
         protected override async Task<HttpResponseMessage> ImplementationAsync
         (
-            Func<Context, CancellationToken, Task<HttpResponseMessage>> action, 
-            Context context, 
-            CancellationToken cancellationToken, 
+            Func<Context, CancellationToken, Task<HttpResponseMessage>> action,
+            Context context,
+            CancellationToken cancellationToken,
             bool continueOnCapturedContext = true
         )
         {
@@ -72,7 +45,7 @@ namespace DSharpPlus.Core.Rest
             // some endpoints are exempt from the global limit. account for them.
             bool subjectToGlobalLimit = true;
 
-            if (context.TryGetValue("subject-to-global-limit", out object globalLimitObject) 
+            if (context.TryGetValue("subject-to-global-limit", out object globalLimitObject)
                 && globalLimitObject is bool globallyLimited)
             {
                 subjectToGlobalLimit = globallyLimited;
@@ -89,7 +62,7 @@ namespace DSharpPlus.Core.Rest
 
                 RatelimitBucket? globalBucket = JsonSerializer.Deserialize(serializedGlobalBucket, BucketSerializationContext.Default.Context);
 
-                if(globalBucket is null)
+                if (globalBucket is null)
                 {
                     throw new InvalidOperationException("No global ratelimit bucket could be found.");
                 }
@@ -137,7 +110,7 @@ namespace DSharpPlus.Core.Rest
             // keep a dummy bucket here. we'll either create a new one or deserialize one.
             RatelimitBucket? bucket = null;
 
-            if(serializedBucket is not null)
+            if (serializedBucket is not null)
             {
                 bucket = JsonSerializer.Deserialize(serializedBucket.AsSpan(), BucketSerializationContext.Default.Context);
 
@@ -163,7 +136,7 @@ namespace DSharpPlus.Core.Rest
 
             // ensure the bucket is set.
             // also, if we got a new hash, obtain a completely new bucket.
-            if(bucket is not null && hash == discordResponse.Headers.GetValues("X-RateLimit-Name").SingleOrDefault())
+            if (bucket is not null && hash == discordResponse.Headers.GetValues("X-RateLimit-Name").SingleOrDefault())
             {
                 _ = bucket.TryUpdateCurrentBucket(discordResponse.Headers);
             }

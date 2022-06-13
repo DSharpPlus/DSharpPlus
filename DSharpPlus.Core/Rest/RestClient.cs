@@ -1,38 +1,6 @@
-// This file is part of the DSharpPlus project.
-//
-// Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2022 DSharpPlus Contributors
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-
-using DSharpPlus.Core.Exceptions;
-
-using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Options;
-
-using Polly;
-using Polly.Wrap;
 
 namespace DSharpPlus.Core.Rest
 {
@@ -46,7 +14,7 @@ namespace DSharpPlus.Core.Rest
         private readonly AsyncPolicyWrap<HttpResponseMessage>? __wrapped_policy;
 
         public RestClient(IDistributedCache cache, HttpClient client, int internalRequeues)
-        { 
+        {
             __cache = cache;
             __http_client = client;
 
@@ -83,10 +51,10 @@ namespace DSharpPlus.Core.Rest
 
             return response.StatusCode switch
             {
-                HttpStatusCode.BadRequest 
+                HttpStatusCode.BadRequest
                     or HttpStatusCode.MethodNotAllowed => throw new DiscordBadRequestException(requestMessage, response),
 
-                HttpStatusCode.Unauthorized 
+                HttpStatusCode.Unauthorized
                     or HttpStatusCode.Forbidden => throw new DiscordUnauthorizedException(requestMessage, response),
 
                 HttpStatusCode.NotFound => throw new DiscordNotFoundException(requestMessage, response),
@@ -95,9 +63,9 @@ namespace DSharpPlus.Core.Rest
 
                 HttpStatusCode.TooManyRequests => throw new DiscordRatelimitHitException(requestMessage, response),
 
-                HttpStatusCode.InternalServerError 
-                    or HttpStatusCode.BadGateway 
-                    or HttpStatusCode.ServiceUnavailable 
+                HttpStatusCode.InternalServerError
+                    or HttpStatusCode.BadGateway
+                    or HttpStatusCode.ServiceUnavailable
                     or HttpStatusCode.GatewayTimeout => throw new DiscordServerErrorException(requestMessage, response),
 
                 _ => response,
