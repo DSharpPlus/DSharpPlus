@@ -5,6 +5,6 @@ namespace DSharpPlus.Core.Enums
         Join = 1,
         Spectate = 2,
         Listen = 3,
-        JoinRequest = 4
+        JoinRequest = 5
     }
 }

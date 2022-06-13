@@ -22,15 +22,6 @@ namespace DSharpPlus.Core.RestEntities
         public DiscordSnowflake ChannelId { get; init; } = null!;
 
         /// <summary>
-        /// The id of the guild the message was sent in.
-        /// </summary>
-        /// <remarks>
-        /// For MESSAGE_CREATE and MESSAGE_UPDATE events, the message object may not contain a guild_id or member field since the events are sent directly to the receiving user and the bot who sent the message, rather than being sent through the guild like non-ephemeral messages.
-        /// </remarks>
-        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordSnowflake> GuildId { get; init; }
-
-        /// <summary>
         /// The author of this message (not guaranteed to be a valid user, see below).
         /// </summary>
         /// <remarks>
@@ -38,15 +29,6 @@ namespace DSharpPlus.Core.RestEntities
         /// </remarks>
         [JsonProperty("author", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordUser Author { get; init; } = null!;
-
-        /// <summary>
-        ///The member properties for this message's author.
-        /// </summary>
-        /// <remarks>
-        /// The member object exists in MESSAGE_CREATE and MESSAGE_UPDATE events from text-based guild channels, provided that the message isn't ephemeral and the author of the message is not a webhook. This allows bots to obtain real-time member data without requiring bots to store member state in memory.
-        /// </remarks>
-        [JsonProperty("member", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordGuildMember> Member { get; init; }
 
         /// <summary>
         /// The contents of the message.
@@ -207,5 +189,23 @@ namespace DSharpPlus.Core.RestEntities
         [JsonProperty("stickers", NullValueHandling = NullValueHandling.Ignore)]
         [Obsolete("This property is deprecated and will be removed in a future version. Use StickerItems instead.")]
         public Optional<IReadOnlyList<DiscordSticker>> Stickers { get; init; }
+
+        /// <summary>
+        /// The id of the guild the message was sent in.
+        /// </summary>
+        /// <remarks>
+        /// For MESSAGE_CREATE and MESSAGE_UPDATE events, the message object may not contain a guild_id or member field since the events are sent directly to the receiving user and the bot who sent the message, rather than being sent through the guild like non-ephemeral messages.
+        /// </remarks>
+        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<DiscordSnowflake> GuildId { get; init; }
+
+        /// <summary>
+        ///The member properties for this message's author.
+        /// </summary>
+        /// <remarks>
+        /// The member object exists in MESSAGE_CREATE and MESSAGE_UPDATE events from text-based guild channels, provided that the message isn't ephemeral and the author of the message is not a webhook. This allows bots to obtain real-time member data without requiring bots to store member state in memory.
+        /// </remarks>
+        [JsonProperty("member", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<DiscordGuildMember> Member { get; init; }
     }
 }
