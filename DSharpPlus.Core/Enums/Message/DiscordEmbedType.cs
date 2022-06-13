@@ -10,7 +10,7 @@ namespace DSharpPlus.Core.Enums
     /// <remarks>
     /// Embed types should be considered deprecated and might be removed in a future API version.
     /// </remarks>
-    [JsonConverter(typeof(StringEnumConverter)), Obsolete("Embed types are \"loosely defined\" and, for the most part, are not used by our clients for rendering. Embed attributes power what is rendered. Embed types should be considered deprecated and might be removed in a future API version.")]
+    [JsonConverter(typeof(StringEnumConverter)), Obsolete("Embed types are \"loosely defined\" and, for the most part, are not used by our clients for rendering. Embed attributes power what is rendered. Embed types should be considered deprecated and might be removed in a future API version.", false)]
     public enum DiscordEmbedType
     {
         Rich,
