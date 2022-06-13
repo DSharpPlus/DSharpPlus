@@ -31,7 +31,7 @@ namespace DSharpPlus.Core.RestEntities
         public Optional<DiscordSnowflake> GuildId { get; init; }
 
         /// <summary>
-        /// Sorting position of the channel.
+        /// The sorting position of the channel.
         /// </summary>
         [JsonProperty("position", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<int> Position { get; init; }
@@ -46,7 +46,7 @@ namespace DSharpPlus.Core.RestEntities
         /// The name of the channel (1-100 characters).
         /// </summary>
         [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<string> Name { get; init; }
+        public Optional<string?> Name { get; init; }
 
         /// <summary>
         /// The channel topic (0-1024 characters).
@@ -61,7 +61,7 @@ namespace DSharpPlus.Core.RestEntities
         public Optional<bool> NSFW { get; init; }
 
         /// <summary>
-        /// The id of the last message sent in this channel (may not point to an existing or valid message).
+        /// The id of the last message sent in this channel (or thread for <see cref="DiscordChannelType.GuildForum"/> channels) (may not point to an existing or valid message or thread)
         /// </summary>
         [JsonProperty("last_message_id", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<DiscordSnowflake?> LastMessageId { get; init; }
@@ -79,7 +79,7 @@ namespace DSharpPlus.Core.RestEntities
         public Optional<int> UserLimit { get; init; }
 
         /// <summary>
-        /// Amount of seconds a user has to wait before sending another message (0-21600); bots, as well as users with the permission <see cref="DiscordPermissions.ManageMessages"/> or <see cref="DiscordPermissions.ManageChannels"/>, are unaffected
+        /// The amount of seconds a user has to wait before sending another message (0-21600); bots, as well as users with the permission <see cref="DiscordPermissions.ManageMessages"/> or <see cref="DiscordPermissions.ManageChannels"/>, are unaffected
         /// </summary>
         [JsonProperty("rate_limit_per_user", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<int> RateLimitPerUser { get; init; }
@@ -118,7 +118,7 @@ namespace DSharpPlus.Core.RestEntities
         /// When the last pinned message was pinned. This may be null in events such as GUILD_CREATE when a message is not pinned.
         /// </summary>
         [JsonProperty("last_pin_timestamp", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DateTimeOffset> LastPinTimestamp { get; init; }
+        public Optional<DateTimeOffset?> LastPinTimestamp { get; init; }
 
         /// <summary>
         /// Voice region id for the voice channel, automatic when set to null.
@@ -130,7 +130,7 @@ namespace DSharpPlus.Core.RestEntities
         /// The camera video quality mode of the voice channel, <see cref="DiscordChannelVideoQualityMode.Auto"/> when not present.
         /// </summary>
         [JsonProperty("video_quality_mode", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordChannelVideoQualityMode> VideoQualityMode { get; init; }
+        public Optional<DiscordChannelVideoQualityMode> VideoQualityMode { get; init; } = DiscordChannelVideoQualityMode.Auto;
 
         /// <summary>
         /// An approximate count of messages in a thread, stops counting at 50.
@@ -153,8 +153,8 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// Thread member object for the current user, if they have joined the thread, only included on certain API endpoints.
         /// </summary>
-        [JsonProperty("thread_member", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DiscordThreadMember> ThreadMember { get; init; }
+        [JsonProperty("member", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<DiscordThreadMember> Member { get; init; }
 
         /// <summary>
         /// Default duration that the clients (not the API) will use for newly created threads, in minutes, to automatically archive the thread after recent activity, can be set to: 60, 1440, 4320, 10080.
@@ -173,6 +173,12 @@ namespace DSharpPlus.Core.RestEntities
         /// </summary>
         [JsonProperty("newly_created", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<bool> NewlyCreated { get; init; }
+
+        /// <summary>
+        /// Channel flags combined as a bitfield.
+        /// </summary>
+        [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<DiscordChannelFlags> Flags { get; init; }
 
         public static implicit operator ulong(DiscordChannel channel) => channel.Id;
         public static implicit operator DiscordSnowflake(DiscordChannel channel) => channel.Id;
