@@ -899,27 +899,19 @@ namespace DSharpPlus
             guild.Discord = this;
             guild.IsUnavailable = false;
             var eventGuild = guild;
+
             if (exists)
                 guild = foundGuild;
 
-            if (guild._channels == null)
-                guild._channels = new ConcurrentDictionary<ulong, DiscordChannel>();
-            if (guild._threads == null)
-                guild._threads = new ConcurrentDictionary<ulong, DiscordThreadChannel>();
-            if (guild._roles == null)
-                guild._roles = new ConcurrentDictionary<ulong, DiscordRole>();
-            if (guild._emojis == null)
-                guild._emojis = new ConcurrentDictionary<ulong, DiscordEmoji>();
-            if (guild._stickers == null)
-                guild._stickers = new ConcurrentDictionary<ulong, DiscordMessageSticker>();
-            if (guild._voiceStates == null)
-                guild._voiceStates = new ConcurrentDictionary<ulong, DiscordVoiceState>();
-            if (guild._members == null)
-                guild._members = new ConcurrentDictionary<ulong, DiscordMember>();
-            if (guild._stageInstances == null)
-                guild._stageInstances = new ConcurrentDictionary<ulong, DiscordStageInstance>();
-            if (guild._scheduledEvents == null)
-                guild._scheduledEvents = new ConcurrentDictionary<ulong, DiscordScheduledGuildEvent>();
+            guild._channels ??= new ConcurrentDictionary<ulong, DiscordChannel>();
+            guild._threads ??= new ConcurrentDictionary<ulong, DiscordThreadChannel>();
+            guild._roles ??= new ConcurrentDictionary<ulong, DiscordRole>();
+            guild._emojis ??= new ConcurrentDictionary<ulong, DiscordEmoji>();
+            guild._stickers ??= new ConcurrentDictionary<ulong, DiscordMessageSticker>();
+            guild._voiceStates ??= new ConcurrentDictionary<ulong, DiscordVoiceState>();
+            guild._members ??= new ConcurrentDictionary<ulong, DiscordMember>();
+            guild._stageInstances ??= new ConcurrentDictionary<ulong, DiscordStageInstance>();
+            guild._scheduledEvents ??= new ConcurrentDictionary<ulong, DiscordScheduledGuildEvent>();
 
             this.UpdateCachedGuild(eventGuild, rawMembers);
 
@@ -934,7 +926,9 @@ namespace DSharpPlus
             guild.Description = eventGuild.Description;
             guild.IsNSFW = eventGuild.IsNSFW;
 
-            foreach (var kvp in eventGuild._voiceStates) guild._voiceStates[kvp.Key] = kvp.Value;
+
+            foreach (var kvp in eventGuild._voiceStates ??= new())
+                guild._voiceStates[kvp.Key] = kvp.Value;
 
             foreach (var xe in guild._scheduledEvents.Values)
             {
@@ -970,6 +964,7 @@ namespace DSharpPlus
                 xr.Discord = this;
                 xr._guild_id = guild.Id;
             }
+
             foreach (var instance in guild._stageInstances.Values)
                 instance.Discord = this;
 
@@ -1043,12 +1038,13 @@ namespace DSharpPlus
                     _voiceStates = new ConcurrentDictionary<ulong, DiscordVoiceState>()
                 };
 
-                foreach (var kvp in gld._channels) oldGuild._channels[kvp.Key] = kvp.Value;
-                foreach (var kvp in gld._threads) oldGuild._threads[kvp.Key] = kvp.Value;
-                foreach (var kvp in gld._emojis) oldGuild._emojis[kvp.Key] = kvp.Value;
-                foreach (var kvp in gld._roles) oldGuild._roles[kvp.Key] = kvp.Value;
-                foreach (var kvp in gld._voiceStates) oldGuild._voiceStates[kvp.Key] = kvp.Value;
-                foreach (var kvp in gld._members) oldGuild._members[kvp.Key] = kvp.Value;
+                foreach (var kvp in gld._channels ??= new()) oldGuild._channels[kvp.Key] = kvp.Value;
+                foreach (var kvp in gld._threads ??= new()) oldGuild._threads[kvp.Key] = kvp.Value;
+                foreach (var kvp in gld._emojis ??= new()) oldGuild._emojis[kvp.Key] = kvp.Value;
+                foreach (var kvp in gld._roles ??= new()) oldGuild._roles[kvp.Key] = kvp.Value;
+                                                      //new ConcurrentDictionary<ulong, DiscordVoiceState>()
+                foreach (var kvp in gld._voiceStates ??= new()) oldGuild._voiceStates[kvp.Key] = kvp.Value;
+                foreach (var kvp in gld._members ??= new()) oldGuild._members[kvp.Key] = kvp.Value;
             }
 
             guild.Discord = this;
@@ -2163,7 +2159,7 @@ namespace DSharpPlus
         {
             var thread = this.InternalGetCachedThread(thread_id);
 
-            if (thread == null) // Should a member of an archived thread leave, THREAD_MEMBERS_UPDATE is fired by Discord. Archived threads are not guaranteed to be in cache. PR ##1120 
+            if (thread == null) // Should a member of an archived thread leave, THREAD_MEMBERS_UPDATE is fired by Discord. Archived threads are not guaranteed to be in cache. PR ##1120
             {
                 thread = new DiscordThreadChannel
                 {
