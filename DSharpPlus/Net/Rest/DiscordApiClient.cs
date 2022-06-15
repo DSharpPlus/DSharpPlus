@@ -22,7 +22,6 @@
 // SOFTWARE.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -279,12 +278,6 @@ namespace DSharpPlus.Net
 
             var url = Utilities.GetApiUriFor(path);
             await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.DELETE, route).ConfigureAwait(false);
-
-            if (this.Discord is DiscordClient dc)
-            {
-                var gld = dc._guilds[guild_id];
-                await dc.OnGuildDeleteEventAsync(gld, null).ConfigureAwait(false);
-            }
         }
 
         internal async Task<DiscordGuild> ModifyGuildAsync(ulong guildId, Optional<string> name,
