@@ -29,6 +29,9 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// Is this integration enabled.
         /// </summary>
+        /// <remarks>
+        /// Not provided for Discord Bot integrations.
+        /// </remarks>
         [JsonProperty("enabled", NullValueHandling = NullValueHandling.Ignore)]
         public bool Enabled { get; init; }
 
@@ -36,7 +39,7 @@ namespace DSharpPlus.Core.RestEntities
         /// Is this integration syncing.
         /// </summary>
         /// <remarks>
-        /// Not provided for bot integrations.
+        /// Not provided for Discord Bot integrations.
         /// </remarks>
         [JsonProperty("syncing", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<bool> Syncing { get; init; }
@@ -45,7 +48,7 @@ namespace DSharpPlus.Core.RestEntities
         /// The id that this integration uses for "subscribers".
         /// </summary>
         /// <remarks>
-        /// Not provided for bot integrations.
+        /// Not provided for Discord Bot integrations.
         /// </remarks>
         [JsonProperty("role_id", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<string> RoleId { get; init; }
@@ -54,7 +57,7 @@ namespace DSharpPlus.Core.RestEntities
         /// Whether emoticons should be synced for this integration (twitch only currently).
         /// </summary>
         /// <remarks>
-        /// Not provided for bot integrations.
+        /// Not provided for Discord Bot integrations.
         /// </remarks>
         [JsonProperty("enable_emoticons", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<bool> EnableEmoticons { get; init; }
@@ -63,7 +66,7 @@ namespace DSharpPlus.Core.RestEntities
         /// The behavior of expiring subscribers.
         /// </summary>
         /// <remarks>
-        /// Not provided for bot integrations.
+        /// Not provided for Discord Bot integrations.
         /// </remarks>
         [JsonProperty("expire_behavior", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<DiscordIntegrationExpireBehavior> ExpireBehavior { get; init; }
@@ -72,7 +75,7 @@ namespace DSharpPlus.Core.RestEntities
         /// The grace period (in days) before expiring subscribers.
         /// </summary>
         /// <remarks>
-        /// Not provided for bot integrations.
+        /// Not provided for Discord Bot integrations.
         /// </remarks>
         [JsonProperty("expire_grace_period", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<int> ExpireGracePeriod { get; init; }
@@ -81,7 +84,7 @@ namespace DSharpPlus.Core.RestEntities
         /// The user for this integration.
         /// </summary>
         /// <remarks>
-        /// Not provided for bot integrations.
+        /// Not provided for Discord Bot integrations.
         /// </remarks>
         [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<DiscordUser> User { get; init; }
@@ -96,7 +99,7 @@ namespace DSharpPlus.Core.RestEntities
         /// When this integration was last synced.
         /// </summary>
         /// <remarks>
-        /// Not provided for bot integrations.
+        /// Not provided for Discord Bot integrations.
         /// </remarks>
         [JsonProperty("synced_at", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<DateTimeOffset> SyncedAt { get; init; }
@@ -105,7 +108,7 @@ namespace DSharpPlus.Core.RestEntities
         /// How many subscribers this integration has.
         /// </summary>
         /// <remarks>
-        /// Not provided for bot integrations.
+        /// Not provided for Discord Bot integrations.
         /// </remarks>
         [JsonProperty("subscriber_count", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<int> SubscriberCount { get; init; }
@@ -114,7 +117,7 @@ namespace DSharpPlus.Core.RestEntities
         /// Has this integration been revoked.
         /// </summary>
         /// <remarks>
-        /// Not provided for bot integrations.
+        /// Not provided for Discord Bot integrations.
         /// </remarks>
         [JsonProperty("revoked", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<bool> Revoked { get; init; }

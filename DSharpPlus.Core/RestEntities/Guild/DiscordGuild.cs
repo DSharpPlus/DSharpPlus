@@ -43,7 +43,7 @@ namespace DSharpPlus.Core.RestEntities
         public string? Splash { get; init; }
 
         /// <summary>
-        /// The discovery splash hash; only present for guilds with the "DISCOVERABLE" feature.
+        /// The discovery splash hash; only present for guilds with the <see cref="DiscordGuildFeature.Discoverable"/> feature.
         /// </summary>
         [JsonProperty("discovery_splash", NullValueHandling = NullValueHandling.Ignore)]
         public string? DiscoverySplash { get; init; }
