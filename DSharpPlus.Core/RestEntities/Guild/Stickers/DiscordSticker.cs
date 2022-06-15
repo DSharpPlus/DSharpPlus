@@ -36,6 +36,9 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// Autocomplete/suggestion tags for the sticker (max 200 characters).
         /// </summary>
+        /// <remarks>
+        /// A comma separated list of keywords is the format used in this field by standard stickers, but this is just a convention. Incidentally the client will always use a name generated from an emoji as the value of this field when creating or modifying a guild sticker.
+        /// </remarks>
         [JsonProperty("tags", NullValueHandling = NullValueHandling.Ignore)]
         public string Tags { get; init; } = null!;
 
