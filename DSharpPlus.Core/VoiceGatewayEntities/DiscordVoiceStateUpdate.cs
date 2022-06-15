@@ -42,16 +42,10 @@ namespace DSharpPlus.Core.VoiceGatewayEntities
         public string SessionId { get; init; } = null!;
 
         /// <summary>
-        /// Whether this user is locally muted.
+        /// Whether this user is deafened by the server
         /// </summary>
-        [JsonProperty("self_mute", NullValueHandling = NullValueHandling.Ignore)]
-        public bool SelfMute { get; init; }
-
-        /// <summary>
-        /// Whether this user is locally deafened.
-        /// </summary>
-        [JsonProperty("self_deaf", NullValueHandling = NullValueHandling.Ignore)]
-        public bool SelfDeaf { get; init; }
+        [JsonProperty("deaf", NullValueHandling = NullValueHandling.Ignore)]
+        public bool Deaf { get; init; }
 
         /// <summary>
         /// Whether this user is muted by the server.
@@ -60,10 +54,16 @@ namespace DSharpPlus.Core.VoiceGatewayEntities
         public bool Mute { get; init; }
 
         /// <summary>
-        /// Whether this user is deafened by the server
+        /// Whether this user is locally deafened.
         /// </summary>
-        [JsonProperty("deaf", NullValueHandling = NullValueHandling.Ignore)]
-        public bool Deaf { get; init; }
+        [JsonProperty("self_deaf", NullValueHandling = NullValueHandling.Ignore)]
+        public bool SelfDeaf { get; init; }
+
+        /// <summary>
+        /// Whether this user is locally muted.
+        /// </summary>
+        [JsonProperty("self_mute", NullValueHandling = NullValueHandling.Ignore)]
+        public bool SelfMute { get; init; }
 
         /// <summary>
         /// Whether this user is streaming using "Go Live".
