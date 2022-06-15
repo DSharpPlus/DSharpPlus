@@ -6,9 +6,6 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.RestEntities
 {
-    /// <summary>
-    /// Represents a member of a guild. Implements a <see href="https://discord.com/developers/docs/resources/guild#guild-member-object">Discord Guild Member</see>.
-    /// </summary>
     [DiscordGatewayPayload("GUILD_MEMBER_ADD")]
     public sealed record DiscordGuildMember
     {
@@ -61,7 +58,7 @@ namespace DSharpPlus.Core.RestEntities
         /// Whether the user is deafened in voice channels.
         /// </summary>
         /// <remarks>
-        /// This could be a self deafen, or a server deafen.
+        /// This could be a self or server deafen.
         /// </remarks>
         [JsonProperty("deaf", NullValueHandling = NullValueHandling.Ignore)]
         public bool Deaf { get; init; }
@@ -70,7 +67,7 @@ namespace DSharpPlus.Core.RestEntities
         /// Whether the user is muted in voice channels.
         /// </summary>
         /// <remarks>
-        /// This could be a self mute, or a server mute.
+        /// This could be a self or server mute.
         /// </remarks>
         [JsonProperty("mute", NullValueHandling = NullValueHandling.Ignore)]
         public bool Mute { get; init; }

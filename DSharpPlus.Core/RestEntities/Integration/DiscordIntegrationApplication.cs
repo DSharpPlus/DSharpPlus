@@ -29,12 +29,6 @@ namespace DSharpPlus.Core.RestEntities
         public string Description { get; init; } = null!;
 
         /// <summary>
-        /// The summary of the app.
-        /// </summary>
-        [JsonProperty("summary", NullValueHandling = NullValueHandling.Ignore)]
-        public string Summary { get; init; } = null!;
-
-        /// <summary>
         /// The bot associated with this application.
         /// </summary>
         [JsonProperty("bot", NullValueHandling = NullValueHandling.Ignore)]
