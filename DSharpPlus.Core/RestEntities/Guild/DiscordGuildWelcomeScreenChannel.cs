@@ -26,6 +26,6 @@ namespace DSharpPlus.Core.RestEntities
         /// The emoji name if custom, the unicode character if standard, or null if no emoji is set.
         /// </summary>
         [JsonProperty("emoji_name", NullValueHandling = NullValueHandling.Ignore)]
-        public string EmojiName { get; init; } = null!;
+        public string? EmojiName { get; init; } = null!;
     }
 }

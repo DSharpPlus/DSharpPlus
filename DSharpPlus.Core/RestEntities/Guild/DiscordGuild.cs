@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Enums;
-using DSharpPlus.Core.GatewayEntities.Payloads;
-using DSharpPlus.Core.VoiceGatewayEntities;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.RestEntities
@@ -132,6 +130,9 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// The enabled guild features.
         /// </summary>
+        /// <remarks>
+        /// See <see cref="DiscordGuildFeature"/> for more information.
+        /// </remarks>
         [JsonProperty("features", NullValueHandling = NullValueHandling.Ignore)]
         public IReadOnlyList<string> Features { get; init; } = Array.Empty<string>();
 
@@ -164,60 +165,6 @@ namespace DSharpPlus.Core.RestEntities
         /// </summary>
         [JsonProperty("rules_channel_id", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordSnowflake? RulesChannelId { get; init; }
-
-        /// <summary>
-        /// When this guild was joined at.
-        /// </summary>
-        [JsonProperty("joined_at", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<DateTimeOffset> JoinedAt { get; init; }
-
-        /// <summary>
-        /// True if this is considered a large guild.
-        /// </summary>
-        [JsonProperty("large", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<bool> Large { get; init; }
-
-        /// <summary>
-        /// True if this guild is unavailable due to an outage.
-        /// </summary>
-        [JsonProperty("unavailable", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<bool> Unavailable { get; init; }
-
-        /// <summary>
-        /// The total number of members in this guild.
-        /// </summary>
-        [JsonProperty("member_count", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<int> MemberCount { get; init; }
-
-        /// <summary>
-        /// The states of members currently in voice channels; lacks the guild_id key.
-        /// </summary>
-        [JsonProperty("voice_states", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<IReadOnlyList<DiscordVoiceStateUpdate>> VoiceStates { get; init; }
-
-        /// <summary>
-        /// The users in the guild.
-        /// </summary>
-        [JsonProperty("members", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<IReadOnlyList<DiscordGuildMember>> Members { get; init; }
-
-        /// <summary>
-        /// The channels in the guild.
-        /// </summary>
-        [JsonProperty("channels", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<IReadOnlyList<DiscordChannel>> Channels { get; init; }
-
-        /// <summary>
-        /// All active threads in the guild that current user has permission to view.
-        /// </summary>
-        [JsonProperty("threads", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<IReadOnlyList<DiscordChannel>> Threads { get; init; }
-
-        /// <summary>
-        /// The presences of the members in the guild, will only include non-offline members if the size is greater than large threshold.
-        /// </summary>
-        [JsonProperty("presences", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<IReadOnlyList<DiscordUpdatePresencePayload>> Presences { get; init; }
 
         /// <summary>
         /// The maximum number of presences for the guild (null is always returned, apart from the largest of guilds).
@@ -304,22 +251,10 @@ namespace DSharpPlus.Core.RestEntities
         public DiscordGuildNSFWLevel NSFWLevel { get; init; }
 
         /// <summary>
-        /// Active stage instances in the guild.
-        /// </summary>
-        [JsonProperty("stage_instances", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<IReadOnlyList<DiscordStageInstance>> StageInstances { get; init; }
-
-        /// <summary>
         /// Custom guild stickers.
         /// </summary>
         [JsonProperty("stickers", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<IReadOnlyList<DiscordSticker>> Stickers { get; init; }
-
-        /// <summary>
-        /// The scheduled events in the guild.
-        /// </summary>
-        [JsonProperty("guild_scheduled_events", NullValueHandling = NullValueHandling.Ignore)]
-        public Optional<IReadOnlyList<DiscordGuildScheduledEvent>> GuildScheduledEvents { get; init; }
 
         /// <summary>
         /// Whether the guild has the boost progress bar enabled.
