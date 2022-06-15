@@ -8,7 +8,7 @@ namespace DSharpPlus.Core.RestEntities
         /// The scheduled event id which the user subscribed to.
         /// </summary>
         [JsonProperty("guild_scheduled_event_id", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordSnowflake Id { get; init; } = null!;
+        public DiscordSnowflake GuildScheduledEventId { get; init; } = null!;
 
         /// <summary>
         /// The user which subscribed to an event.

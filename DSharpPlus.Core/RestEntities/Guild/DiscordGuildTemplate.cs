@@ -72,6 +72,6 @@ namespace DSharpPlus.Core.RestEntities
         /// Whether the template has unsynced changes.
         /// </summary>
         [JsonProperty("is_dirty", NullValueHandling = NullValueHandling.Ignore)]
-        public bool IsDirty { get; init; }
+        public bool? IsDirty { get; init; }
     }
 }
