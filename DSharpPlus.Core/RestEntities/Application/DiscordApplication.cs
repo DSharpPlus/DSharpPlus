@@ -116,6 +116,21 @@ namespace DSharpPlus.Core.RestEntities
         [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<DiscordApplicationFlags> Flags { get; init; }
 
+        /// <summary>
+        /// Up to 5 tags describing the content and functionality of the application.
+        /// </summary>
+        [JsonProperty("tags", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<IReadOnlyList<string>> Tags { get; init; }
+
+        /// <summary>
+        /// The application's default custom authorization link, if enabled.
+        /// </summary>
+        [JsonProperty("install_params", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<DiscordApplicationInstallParameters> InstallParams { get; init; }
+
+        [JsonProperty("custom_install_url", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<string> CustomInstallUrl { get; init; }
+
         public static implicit operator ulong(DiscordApplication application) => application.Id;
         public static implicit operator DiscordSnowflake(DiscordApplication application) => application.Id;
     }
