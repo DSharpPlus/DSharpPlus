@@ -7,7 +7,7 @@ namespace DSharpPlus.Core.RestEntities
     public sealed record DiscordAuditLog
     {
         /// <summary>
-        /// A list of <see cref="DiscordAuditLogEntry"/>.
+        /// A list of <see cref="DiscordAuditLogEntry"/>, sorted from most to least recent.
         /// </summary>
         [JsonProperty("audit_log_entries", NullValueHandling = NullValueHandling.Ignore)]
         public IReadOnlyList<DiscordAuditLogEntry> AuditLogEntries { get; init; } = Array.Empty<DiscordAuditLogEntry>();
@@ -19,7 +19,7 @@ namespace DSharpPlus.Core.RestEntities
         public IReadOnlyList<DiscordGuildScheduledEvent> GuildScheduledEvents { get; init; } = Array.Empty<DiscordGuildScheduledEvent>();
 
         /// <summary>
-        /// A list of partial integration objects.
+        /// A list of partial <see cref="DiscordIntegration"/> objects.
         /// </summary>
         [JsonProperty("integrations", NullValueHandling = NullValueHandling.Ignore)]
         public IReadOnlyList<DiscordIntegration> Integrations { get; init; } = Array.Empty<DiscordIntegration>();

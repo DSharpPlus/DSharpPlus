@@ -11,13 +11,13 @@ namespace DSharpPlus.Core.RestEntities
         /// New value of the key.
         /// </summary>
         [JsonProperty("new_value", NullValueHandling = NullValueHandling.Ignore)]
-        public object? NewValue { get; init; }
+        public Optional<object?> NewValue { get; init; }
 
         /// <summary>
         /// Old value of the key.
         /// </summary>
         [JsonProperty("old_value", NullValueHandling = NullValueHandling.Ignore)]
-        public object? OldValue { get; init; }
+        public Optional<object?> OldValue { get; init; }
 
         /// <summary>
         /// Name of audit log change key.

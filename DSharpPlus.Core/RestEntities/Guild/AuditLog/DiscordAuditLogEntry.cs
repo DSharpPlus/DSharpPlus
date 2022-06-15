@@ -9,6 +9,9 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// The id of the affected entity (webhook, user, role, etc.)
         /// </summary>
+        /// <remarks>
+        /// For <see cref="DiscordAuditLogEvent.ApplicationCommandPermissionUpdate"/> events, the <see cref="TargetId"/> is the command ID or the app ID since the changes array represents the entire permissions property on the guild permissions object.
+        /// </remarks>
         [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
         public string? TargetId { get; init; }
 

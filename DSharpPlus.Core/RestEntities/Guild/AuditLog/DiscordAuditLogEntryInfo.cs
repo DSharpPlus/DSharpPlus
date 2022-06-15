@@ -5,6 +5,12 @@ namespace DSharpPlus.Core.RestEntities
     public sealed record DiscordAuditLogEntryInfo
     {
         /// <summary>
+        /// The ID of the app whose permissions were targeted.
+        /// </summary>
+        [JsonProperty("application_id", NullValueHandling = NullValueHandling.Ignore)]
+        public DiscordSnowflake ApplicationId { get; init; } = null!;
+
+        /// <summary>
         /// The channel in which the entities were targeted.
         /// </summary>
         [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
