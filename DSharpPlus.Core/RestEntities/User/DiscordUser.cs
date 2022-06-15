@@ -71,13 +71,13 @@ namespace DSharpPlus.Core.RestEntities
         public Optional<string> Locale { get; init; }
 
         /// <summary>
-        /// Whether the email on this account has been verified. Requires the email oauth2 scope.
+        /// Whether the email on this account has been verified. Requires the <see cref="DiscordApplicationScopes.Email"/> scope.
         /// </summary>
         [JsonProperty("verified", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<bool> Verified { get; init; }
 
         /// <summary>
-        /// The user's email. Requires the email oauth2 scope.
+        /// The user's email. Requires the <see cref="DiscordApplicationScopes.Email"/> scope.
         /// </summary>
         [JsonProperty("email", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<string?> Email { get; init; }
