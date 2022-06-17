@@ -1524,7 +1524,7 @@ namespace DSharpPlus
             DiscordMessage oldmsg = null;
             if (this.Configuration.MessageCacheSize == 0
                 || this.MessageCache == null
-                || !this.MessageCache.TryGet(xm => xm.Id == event_message.Id && xm.ChannelId == event_message.ChannelId, out message))
+                || !this.MessageCache.TryGet(xm => xm.Id == event_message.Id && xm.ChannelId == event_message.ChannelId, out message)) // previous message was not in cache 
             {
                 message = event_message;
                 this.PopulateMessageReactionsAndCache(message, author, member);
@@ -1537,10 +1537,11 @@ namespace DSharpPlus
                     message.ReferencedMessage.PopulateMentions();
                 }
             }
-            else
+            else // previous message was fetched in cache 
             {
                 oldmsg = new DiscordMessage(message);
 
+                // cached message is updated with information from the event message 
                 guild = message.Channel?.Guild;
                 message.EditedTimestamp = event_message.EditedTimestamp;
                 if (event_message.Content != null)
@@ -1551,6 +1552,15 @@ namespace DSharpPlus
                 message._attachments.AddRange(event_message._attachments);
                 message.Pinned = event_message.Pinned;
                 message.IsTTS = event_message.IsTTS;
+
+                // Mentions
+                message._mentionedUsers.Clear();
+                message._mentionedUsers.AddRange(event_message._mentionedUsers ?? new());
+                message._mentionedRoles.Clear();
+                message._mentionedRoles.AddRange(event_message._mentionedRoles ?? new());
+                message._mentionedChannels.Clear();
+                message._mentionedChannels.AddRange(event_message._mentionedChannels ?? new());
+                message.MentionEveryone = event_message.MentionEveryone;
             }
 
             message.PopulateMentions();
