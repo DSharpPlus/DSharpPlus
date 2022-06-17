@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -7,13 +7,13 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// The reason for the ban.
         /// </summary>
-        [JsonProperty("reason", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("reason")]
         public string? Reason { get; init; }
 
         /// <summary>
         /// The banned user.
         /// </summary>
-        [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("user")]
         public DiscordUser User { get; init; } = null!;
     }
 }

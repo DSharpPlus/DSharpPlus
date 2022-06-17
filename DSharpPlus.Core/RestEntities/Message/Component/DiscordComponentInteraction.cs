@@ -1,34 +1,34 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
     public sealed record DiscordComponentInteraction
     {
-        [JsonProperty("version", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("version")]
         public int Version { get; init; }
 
-        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("type")]
         public int Type { get; init; }
 
-        [JsonProperty("message", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("message")]
         public DiscordMessage Message { get; init; } = null!;
 
-        [JsonProperty("member", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("member")]
         public DiscordGuildMember Member { get; init; } = null!;
 
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("id")]
         public DiscordSnowflake Id { get; init; } = null!;
 
-        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("guild_id")]
         public DiscordSnowflake GuildId { get; init; } = null!;
 
-        [JsonProperty("data", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("data")]
         public DiscordInteractionResolvedData Data { get; init; } = null!;
 
-        [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("channel_id")]
         public DiscordSnowflake ChannelId { get; init; } = null!;
 
-        [JsonProperty("application_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("application_id")]
         public DiscordSnowflake ApplicationId { get; init; } = null!;
     }
 }

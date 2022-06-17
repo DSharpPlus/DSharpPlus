@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using DSharpPlus.Core.RestEntities;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.GatewayEntities.Commands
 {
@@ -15,7 +15,7 @@ namespace DSharpPlus.Core.GatewayEntities.Commands
         /// <remarks>
         /// Always required.
         /// </remarks>
-        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("guild_id")]
         public DiscordSnowflake GuildId { get; init; } = null!;
 
         /// <summary>
@@ -24,7 +24,7 @@ namespace DSharpPlus.Core.GatewayEntities.Commands
         /// <remarks>
         /// Required if <see cref="UserIds"/> is not set.
         /// </remarks>
-        [JsonProperty("query", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("query")]
         public Optional<string> Query { get; init; }
 
         /// <summary>
@@ -33,13 +33,13 @@ namespace DSharpPlus.Core.GatewayEntities.Commands
         /// <remarks>
         /// Required when <see cref="Query"/> is set.
         /// </remarks>
-        [JsonProperty("limit", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("limit")]
         public int Limit { get; init; }
 
         /// <summary>
         /// Used to specify if we want the presences of the matched members.
         /// </summary>
-        [JsonProperty("presences", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("presences")]
         public Optional<bool> Presences { get; init; }
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace DSharpPlus.Core.GatewayEntities.Commands
         /// <remarks>
         /// Required if <see cref="Query"/> is not set.
         /// </remarks>
-        [JsonProperty("user_ids", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("user_ids")]
         public Optional<IReadOnlyList<DiscordSnowflake>> UserIds { get; init; }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace DSharpPlus.Core.GatewayEntities.Commands
         /// <remarks>
         /// Nonce can only be up to 32 bytes. If you send an invalid nonce it will be ignored and the reply member_chunk(s) will not have a nonce set.
         /// </remarks>
-        [JsonProperty("nonce", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("nonce")]
         public Optional<string> Nonce { get; init; }
     }
 }

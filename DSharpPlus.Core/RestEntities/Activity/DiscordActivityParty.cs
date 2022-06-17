@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -8,7 +8,7 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// The id of the party.
         /// </summary>
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("id")]
         public Optional<string> Id { get; init; }
 
         /// <summary>
@@ -17,7 +17,7 @@ namespace DSharpPlus.Core.RestEntities
         /// <remarks>
         /// <c>Size[0]</c> is the current size, and <c>Size[1]</c> is the maximum size.
         /// </remarks>
-        [JsonProperty("size", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("size")]
         public Optional<IReadOnlyList<int>> Size { get; init; }
     }
 }

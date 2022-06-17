@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using DSharpPlus.Core.Enums;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -16,13 +16,13 @@ namespace DSharpPlus.Core.RestEntities
         /// <remarks>
         /// Max 256 characters.
         /// </remarks>
-        [JsonProperty("title", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("title")]
         public Optional<string> Title { get; init; }
 
         /// <summary>
         /// The type of embed (always "rich" for webhook embeds).
         /// </summary>
-        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("type")]
 #pragma warning disable CS0618 // Type or member is obsolete
         public Optional<DiscordEmbedType> Type { get; init; } // I tried to use [SupressMessage] here, however it seemed to be ignored.
 #pragma warning restore CS0618 // Type or member is obsolete
@@ -33,61 +33,61 @@ namespace DSharpPlus.Core.RestEntities
         /// <remarks>
         /// Max 4096 characters.
         /// </remarks>
-        [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("description")]
         public Optional<string> Description { get; init; }
 
         /// <summary>
         /// The url of embed.
         /// </summary>
-        [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("url")]
         public Optional<string> Url { get; init; }
 
         /// <summary>
         /// The timestamp of the embed content.
         /// </summary>
-        [JsonProperty("timestamp", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("timestamp")]
         public Optional<DateTimeOffset> Timestamp { get; init; }
 
         /// <summary>
         /// The color code of the embed.
         /// </summary>
-        [JsonProperty("color", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("color")]
         public Optional<int> Color { get; init; }
 
         /// <summary>
         /// Footer information.
         /// </summary>
-        [JsonProperty("footer", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("footer")]
         public Optional<DiscordEmbedFooter> Footer { get; init; }
 
         /// <summary>
         /// Image information.
         /// </summary>
-        [JsonProperty("image", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("image")]
         public Optional<DiscordEmbedImage> Image { get; init; }
 
         /// <summary>
         /// Thumbnail information.
         /// </summary>
-        [JsonProperty("thumbnail", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("thumbnail")]
         public Optional<DiscordEmbedThumbnail> Thumbnail { get; init; }
 
         /// <summary>
         /// Video information.
         /// </summary>
-        [JsonProperty("video", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("video")]
         public Optional<DiscordEmbedVideo> Video { get; init; }
 
         /// <summary>
         /// Provider information.
         /// </summary>
-        [JsonProperty("provider", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("provider")]
         public Optional<DiscordEmbedProvider> Provider { get; init; }
 
         /// <summary>
         /// Author information.
         /// </summary>
-        [JsonProperty("author", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("author")]
         public Optional<DiscordEmbedAuthor> Author { get; init; }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace DSharpPlus.Core.RestEntities
         /// <remarks>
         /// Max 25 fields.
         /// </remarks>
-        [JsonProperty("fields", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("fields")]
         public Optional<IReadOnlyList<DiscordEmbedField>> Fields { get; init; }
     }
 }

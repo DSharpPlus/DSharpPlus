@@ -1,5 +1,5 @@
 using DSharpPlus.Core.Enums;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -11,25 +11,25 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// Role or user id.
         /// </summary>
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("id")]
         public DiscordSnowflake Id { get; init; } = null!;
 
         /// <summary>
         /// Either 0 (role) or 1 (member).
         /// </summary>
-        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("type")]
         public int Type { get; init; }
 
         /// <summary>
         /// Permission bit set.
         /// </summary>
-        [JsonProperty("allow", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("allow")]
         public DiscordPermissions Allow { get; init; }
 
         /// <summary>
         /// Permission bit set.
         /// </summary>
-        [JsonProperty("deny", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("deny")]
         public DiscordPermissions Deny { get; init; }
 
         public static implicit operator ulong(DiscordChannelOverwrite channelOverwrite) => channelOverwrite.Id;

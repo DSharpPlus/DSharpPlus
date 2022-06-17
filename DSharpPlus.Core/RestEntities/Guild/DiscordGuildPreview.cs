@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -9,37 +9,37 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// The guild id.
         /// </summary>
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("id")]
         public DiscordSnowflake Id { get; init; } = null!;
 
         /// <summary>
         /// The guild name (2-100 characters).
         /// </summary>
-        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("name")]
         public string Name { get; init; } = null!;
 
         /// <summary>
         /// The <see href="https://discord.com/developers/docs/reference#image-formatting">icon hash</see>.
         /// </summary>
-        [JsonProperty("icon", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("icon")]
         public string? Icon { get; init; }
 
         /// <summary>
         /// The <see href="https://discord.com/developers/docs/reference#image-formatting">splash hash</see>.
         /// </summary>
-        [JsonProperty("splash", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("splash")]
         public string? Splash { get; init; }
 
         /// <summary>
         /// The <see href="https://discord.com/developers/docs/reference#image-formatting">discovery splash hash</see>.
         /// </summary>
-        [JsonProperty("discovery_splash", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("discovery_splash")]
         public string? DiscoverySplash { get; init; }
 
         /// <summary>
         /// The guild's custom emojis.
         /// </summary>
-        [JsonProperty("emojis", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("emojis")]
         public IReadOnlyList<DiscordEmoji> Emojis { get; init; } = Array.Empty<DiscordEmoji>();
 
         /// <summary>
@@ -48,31 +48,31 @@ namespace DSharpPlus.Core.RestEntities
         /// <remarks>
         /// See <see cref="DiscordGuildFeature"/> for more information.
         /// </remarks>
-        [JsonProperty("features", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("features")]
         public string[] Features { get; init; } = Array.Empty<string>();
 
         /// <summary>
         /// The approximate number of members in this guild.
         /// </summary>
-        [JsonProperty("approximate_member_count", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("approximate_member_count")]
         public int ApproximateMemberCount { get; init; }
 
         /// <summary>
         /// The approximate number of online members in this guild.
         /// </summary>
-        [JsonProperty("approximate_presence_count", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("approximate_presence_count")]
         public int ApproximatePresenceCount { get; init; }
 
         /// <summary>
         /// The description for the guild.
         /// </summary>
-        [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("description")]
         public string? Description { get; init; }
 
         /// <summary>
         /// The guild's custom stickers.
         /// </summary>
-        [JsonProperty("stickers", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("stickers")]
         public IReadOnlyList<DiscordSticker> Stickers { get; init; } = Array.Empty<DiscordSticker>();
     }
 }

@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.GatewayEntities.Commands
 {
@@ -10,19 +10,19 @@ namespace DSharpPlus.Core.GatewayEntities.Commands
         /// <summary>
         /// The session token.
         /// </summary>
-        [JsonProperty("token", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("token")]
         public string Token { get; init; } = null!;
 
         /// <summary>
         /// The session id.
         /// </summary>
-        [JsonProperty("session_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("session_id")]
         public string SessionId { get; init; } = null!;
 
         /// <summary>
         /// The last sequence number received.
         /// </summary>
-        [JsonProperty("seq", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("seq")]
         public int Sequence { get; init; }
     }
 }

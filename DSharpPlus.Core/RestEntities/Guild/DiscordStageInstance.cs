@@ -1,7 +1,7 @@
 using System;
 using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Enums;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -14,44 +14,44 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// The id of this Stage instance.
         /// </summary>
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("id")]
         public DiscordSnowflake Id { get; init; } = null!;
 
         /// <summary>
         /// The guild id of the associated Stage channel.
         /// </summary>
-        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("guild_id")]
         public DiscordSnowflake GuildId { get; init; } = null!;
 
         /// <summary>
         /// The id of the associated Stage channel.
         /// </summary>
-        [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("channel_id")]
         public DiscordSnowflake ChannelId { get; init; } = null!;
 
         /// <summary>
         /// The topic of the Stage instance (1-120 characters).
         /// </summary>
-        [JsonProperty("topic", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("topic")]
         public string Topic { get; init; } = null!;
 
         /// <summary>
         /// The privacy level of the Stage instance.
         /// </summary>
-        [JsonProperty("privacy", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("privacy")]
         public DiscordStageInstancePrivacyLevel PrivacyLevel { get; init; }
 
         /// <summary>
         /// Whether or not Stage Discovery is disabled (deprecated).
         /// </summary>
-        [JsonProperty("discovery_disabled", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("discovery_disabled")]
         [Obsolete("Whether or not Stage Discovery is disabled (deprecated)")]
         public bool DiscoverableDisabled { get; set; }
 
         /// <summary>
         /// The id of the scheduled event for this Stage instance.
         /// </summary>
-        [JsonProperty("guild_scheduled_event_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("guild_scheduled_event_id")]
         public DiscordSnowflake? GuildScheduledEventId { get; init; }
     }
 }

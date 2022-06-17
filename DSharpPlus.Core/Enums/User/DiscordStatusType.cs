@@ -1,24 +1,24 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.Enums
 {
-    [JsonConverter(typeof(StringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum DiscordStatusType
     {
-        [JsonProperty("online")]
+        [EnumMember(Value = "online")]
         Online,
 
-        [JsonProperty("dnd")]
+        [EnumMember(Value = "dnd")]
         DoNotDisturb,
 
-        [JsonProperty("idle")]
+        [EnumMember(Value = "idle")]
         AFK,
 
-        [JsonProperty("invisible")]
+        [EnumMember(Value = "invisible")]
         Invisible,
 
-        [JsonProperty("offline")]
+        [EnumMember(Value = "offline")]
         Offline
     }
 }

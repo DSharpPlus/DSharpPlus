@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -7,13 +7,13 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// The id of the account.
         /// </summary>
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("id")]
         public string Id { get; init; } = null!;
 
         /// <summary>
         /// The name of the account.
         /// </summary>
-        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("name")]
         public string Name { get; init; } = null!;
     }
 }

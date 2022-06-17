@@ -1,6 +1,6 @@
 using System;
 using DSharpPlus.Core.Attributes;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -16,25 +16,25 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// The id of the thread.
         /// </summary>
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("id")]
         public Optional<DiscordSnowflake> Id { get; init; }
 
         /// <summary>
         /// The id of the user.
         /// </summary>
-        [JsonProperty("user_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("user_id")]
         public Optional<DiscordSnowflake> UserId { get; init; }
 
         /// <summary>
         /// The time the current user last joined the thread.
         /// </summary>
-        [JsonProperty("join_timestamp", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("join_timestamp")]
         public DateTimeOffset JoinTimestamp { get; init; }
 
         /// <summary>
         /// Any user-thread settings, currently only used for notifications.
         /// </summary>
-        [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("flags")]
         public int Flags { get; init; }
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace DSharpPlus.Core.RestEntities
         /// <remarks>
         /// Only sent on the ThreadMemberUpdate gateway payload.
         /// </remarks>
-        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("guild_id")]
         public Optional<DiscordSnowflake> GuildId { get; init; }
     }
 }

@@ -1,5 +1,5 @@
 using DSharpPlus.Core.Enums;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -14,31 +14,31 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// The id of the interaction.
         /// </summary>
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("id")]
         public DiscordSnowflake Id { get; init; } = null!;
 
         /// <summary>
         /// The type of interaction.
         /// </summary>
-        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("type")]
         public DiscordInteractionType Type { get; init; }
 
         /// <summary>
         /// The name of the application command.
         /// </summary>
-        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("name")]
         public string Name { get; init; } = null!;
 
         /// <summary>
         /// The user who invoked the interaction.
         /// </summary>
-        [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("user")]
         public DiscordUser User { get; init; } = null!;
 
         /// <summary>
         /// The member who invoked the interaction in the guild.
         /// </summary>
-        [JsonProperty("member", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("member")]
         public Optional<DiscordGuildMember> Member { get; init; }
     }
 }

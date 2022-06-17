@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -7,13 +7,13 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// The text shown on the button (1-32 characters).
         /// </summary>
-        [JsonProperty("label", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("label")]
         public string Label { get; init; } = null!;
 
         /// <summary>
         /// The url opened when clicking the button (1-512 characters).
         /// </summary>
-        [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("url")]
         public string Url { get; init; } = null!;
     }
 }

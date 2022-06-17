@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using DSharpPlus.Core.Enums;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -10,25 +10,25 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// The user's <see cref="DiscordMembershipState">membership state</see> on the team.
         /// </summary>
-        [JsonProperty("membership_state", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("membership_state")]
         public DiscordMembershipState MembershipState { get; init; }
 
         /// <summary>
         /// Will always be <c>["*"]</c>.
         /// </summary>
-        [JsonProperty("permissions", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("permissions")]
         public IReadOnlyList<string> Permissions { get; init; } = Array.Empty<string>();
 
         /// <summary>
         /// The id of the parent team of which they are a member.
         /// </summary>
-        [JsonProperty("team_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("team_id")]
         public DiscordSnowflake TeamId { get; init; } = null!;
 
         /// <summary>
         /// The avatar, discriminator, id, and username of the user.
         /// </summary>
-        [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("user")]
         public DiscordUser User { get; init; } = null!;
 
         public static implicit operator ulong(DiscordTeamMember teamMember) => teamMember.User.Id;

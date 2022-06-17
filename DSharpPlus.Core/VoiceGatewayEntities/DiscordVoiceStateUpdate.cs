@@ -1,7 +1,7 @@
 using System;
 using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.RestEntities;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.VoiceGatewayEntities
 {
@@ -14,79 +14,79 @@ namespace DSharpPlus.Core.VoiceGatewayEntities
         /// <summary>
         /// The guild id this voice state is for.
         /// </summary>
-        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("guild_id")]
         public Optional<DiscordSnowflake> GuildId { get; init; }
 
         /// <summary>
         /// The channel id this user is connected to.
         /// </summary>
-        [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("channel_id")]
         public DiscordSnowflake? ChannelId { get; init; }
 
         /// <summary>
         /// The user id this voice state is for.
         /// </summary>
-        [JsonProperty("user_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("user_id")]
         public DiscordSnowflake UserId { get; init; } = null!;
 
         /// <summary>
         /// The guild member this voice state is for.
         /// </summary>
-        [JsonProperty("member", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("member")]
         public Optional<DiscordGuildMember> Member { get; init; }
 
         /// <summary>
         /// The session id for this voice state.
         /// </summary>
-        [JsonProperty("session_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("session_id")]
         public string SessionId { get; init; } = null!;
 
         /// <summary>
         /// Whether this user is deafened by the server
         /// </summary>
-        [JsonProperty("deaf", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("deaf")]
         public bool Deaf { get; init; }
 
         /// <summary>
         /// Whether this user is muted by the server.
         /// </summary>
-        [JsonProperty("mute", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("mute")]
         public bool Mute { get; init; }
 
         /// <summary>
         /// Whether this user is locally deafened.
         /// </summary>
-        [JsonProperty("self_deaf", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("self_deaf")]
         public bool SelfDeaf { get; init; }
 
         /// <summary>
         /// Whether this user is locally muted.
         /// </summary>
-        [JsonProperty("self_mute", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("self_mute")]
         public bool SelfMute { get; init; }
 
         /// <summary>
         /// Whether this user is streaming using "Go Live".
         /// </summary>
-        [JsonProperty("self_stream", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("self_stream")]
         public Optional<bool> SelfStream { get; init; }
 
         /// <summary>
         /// Whether this user's camera is enabled.
         /// </summary>
-        [JsonProperty("self_video", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("self_video")]
         public bool SelfVideo { get; init; }
 
         /// <summary>
         /// Whether this user is muted by the current user.
         /// </summary>
-        [JsonProperty("suppress", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("suppress")]
         public bool Supress { get; init; }
 
         /// <summary>
         /// The time at which the user requested to speak.
         /// </summary>
-        [JsonProperty("request_to_speak_timestamp", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("request_to_speak_timestamp")]
         public DateTimeOffset? RequestToSpeakTimestamp { get; init; }
     }
 }

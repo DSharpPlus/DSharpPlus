@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -10,7 +10,7 @@ namespace DSharpPlus.Core.RestEntities
         /// <remarks>
         /// Max 256 characters.
         /// </remarks>
-        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("name")]
         public string Name { get; init; } = null!;
 
         /// <summary>
@@ -19,13 +19,13 @@ namespace DSharpPlus.Core.RestEntities
         /// <remarks>
         /// Max 1024 characters.
         /// </remarks>
-        [JsonProperty("value", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("value")]
         public string Value { get; init; } = null!;
 
         /// <summary>
         /// Whether or not this field should display inline.
         /// </summary>
-        [JsonProperty("inline", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("inline")]
         public Optional<bool> Inline { get; init; }
     }
 }

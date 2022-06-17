@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.RestEntities;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.GatewayEntities.Payloads
 {
@@ -15,13 +15,13 @@ namespace DSharpPlus.Core.GatewayEntities.Payloads
         /// <summary>
         /// The id of the guild.
         /// </summary>
-        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("guild_id")]
         public DiscordSnowflake GuildId { get; init; } = null!;
 
         /// <summary>
         /// An array of emojis.
         /// </summary>
-        [JsonProperty("emojis", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("emojis")]
         public IReadOnlyList<DiscordEmoji> Emojis { get; init; } = Array.Empty<DiscordEmoji>();
     }
 }

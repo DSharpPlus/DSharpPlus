@@ -2,7 +2,7 @@ using System;
 using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Enums;
 using DSharpPlus.Core.RestEntities;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.GatewayEntities.Payloads
 {
@@ -15,73 +15,73 @@ namespace DSharpPlus.Core.GatewayEntities.Payloads
         /// <summary>
         /// The channel the invite is for.
         /// </summary>
-        [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("channel_id")]
         public DiscordSnowflake ChannelId { get; init; } = null!;
 
         /// <summary>
         /// The unique invite code.
         /// </summary>
-        [JsonProperty("code", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("code")]
         public string Code { get; init; } = null!;
 
         /// <summary>
         /// The time at which the invite was created.
         /// </summary>
-        [JsonProperty("created_at", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("created_at")]
         public DateTimeOffset CreatedAt { get; init; }
 
         /// <summary>
         /// The guild of the invite.
         /// </summary>
-        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("guild_id")]
         public Optional<DiscordSnowflake> GuildId { get; init; }
 
         /// <summary>
         /// The user that created the invite.
         /// </summary>
-        [JsonProperty("inviter", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("inviter")]
         public Optional<DiscordUser> Inviter { get; init; }
 
         /// <summary>
         /// How long the invite is valid for (in seconds).
         /// </summary>
-        [JsonProperty("max_age", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("max_age")]
         public int MaxAge { get; init; }
 
         /// <summary>
         /// The maximum number of times the invite can be used.
         /// </summary>
-        [JsonProperty("max_uses", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("max_uses")]
         public int MaxUses { get; init; }
 
         /// <summary>
         /// The type of target for this voice channel invite.
         /// </summary>
-        [JsonProperty("target_type", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("target_type")]
         public Optional<DiscordGuildInviteTargetType> TargetType { get; init; }
 
         /// <summary>
         /// The user whose stream to display for this voice channel stream invite.
         /// </summary>
-        [JsonProperty("target_user", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("target_user")]
         public Optional<DiscordUser> TargetUser { get; init; }
 
         /// <summary>
         /// The embedded application to open for this voice channel embedded application invite.
         /// </summary>
-        [JsonProperty("target_application", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("target_application")]
         public Optional<DiscordApplication> TargetApplication { get; init; }
 
         /// <summary>
         /// Whether or not the invite is temporary (invited users will be kicked on disconnect unless they're assigned a role).
         /// </summary>
-        [JsonProperty("temporary", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("temporary")]
         public bool Temporary { get; init; }
 
         /// <summary>
         /// How many times the invite has been used (always will be 0).
         /// </summary>
-        [JsonProperty("uses", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("uses")]
         public int Uses { get; init; }
     }
 }

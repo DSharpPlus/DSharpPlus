@@ -1,5 +1,5 @@
 using DSharpPlus.Core.Enums;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -8,7 +8,7 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// The type of component.
         /// </summary>
-        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("type")]
         DiscordComponentType Type { get; init; }
     }
 }

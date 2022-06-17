@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -10,55 +10,55 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// The attachment id.
         /// </summary>
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("id")]
         public DiscordSnowflake Id { get; init; } = null!;
 
         /// <summary>
         /// The name of the file attached.
         /// </summary>
-        [JsonProperty("filename", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("filename")]
         public string Filename { get; init; } = null!;
 
         /// <summary>
         /// The description for the file.
         /// </summary>
-        [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("description")]
         public Optional<string> Description { get; init; }
 
         /// <summary>
         /// The attachment's <see href="https://en.wikipedia.org/wiki/Media_type">media type</see>.
         /// </summary>
-        [JsonProperty("content_type", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("content_type")]
         public Optional<string> ContentType { get; init; }
 
         /// <summary>
         /// The size of the file in bytes.
         /// </summary>
-        [JsonProperty("size", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("size")]
         public int Size { get; init; }
 
         /// <summary>
         /// The source url of file.
         /// </summary>
-        [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("url")]
         public string Url { get; init; } = null!;
 
         /// <summary>
         /// A proxied url of file.
         /// </summary>
-        [JsonProperty("proxy_url", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("proxy_url")]
         public string ProxyUrl { get; init; } = null!;
 
         /// <summary>
         /// The height of file (if image).
         /// </summary>
-        [JsonProperty("height", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("height")]
         public Optional<int?> Height { get; init; }
 
         /// <summary>
         /// The width of file (if image).
         /// </summary>
-        [JsonProperty("width", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("width")]
         public Optional<int?> Width { get; init; }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace DSharpPlus.Core.RestEntities
         /// <remarks>
         /// Ephemeral attachments will automatically be removed after a set period of time. Ephemeral attachments on messages are guaranteed to be available as long as the message itself exists.
         /// </remarks>
-        [JsonProperty("ephemeral", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("ephemeral")]
         public Optional<bool> Ephemeral { get; init; }
     }
 }

@@ -1,7 +1,7 @@
 using System;
 using System.Globalization;
 using DSharpPlus.Core.JsonConverters;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {

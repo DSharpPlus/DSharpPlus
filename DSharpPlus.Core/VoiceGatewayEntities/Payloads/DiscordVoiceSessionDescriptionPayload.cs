@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.VoiceGatewayEntities.Payloads
 {
@@ -9,10 +9,10 @@ namespace DSharpPlus.Core.VoiceGatewayEntities.Payloads
     /// </summary>
     public sealed record DiscordVoiceSessionDescriptionPayload
     {
-        [JsonProperty("mode", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("mode")]
         public string Mode { get; init; } = null!;
 
-        [JsonProperty("secret_key", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("secret_key")]
         public IReadOnlyList<byte> SecretKey { get; init; } = Array.Empty<byte>();
     }
 }

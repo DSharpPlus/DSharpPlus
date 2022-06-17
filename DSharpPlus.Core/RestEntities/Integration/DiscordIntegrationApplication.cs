@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -7,31 +7,31 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// The id of the app.
         /// </summary>
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("id")]
         public DiscordSnowflake Id { get; init; } = null!;
 
         /// <summary>
         /// The name of the app.
         /// </summary>
-        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("name")]
         public string Name { get; init; } = null!;
 
         /// <summary>
         /// The icon hash of the app.
         /// </summary>
-        [JsonProperty("icon", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("icon")]
         public string? Icon { get; init; }
 
         /// <summary>
         /// The description of the app.
         /// </summary>
-        [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("description")]
         public string Description { get; init; } = null!;
 
         /// <summary>
         /// The bot associated with this application.
         /// </summary>
-        [JsonProperty("bot", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("bot")]
         public Optional<DiscordUser> Bot { get; init; }
     }
 }

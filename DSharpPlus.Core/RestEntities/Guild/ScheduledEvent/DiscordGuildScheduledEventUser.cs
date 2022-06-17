@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -7,19 +7,19 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// The scheduled event id which the user subscribed to.
         /// </summary>
-        [JsonProperty("guild_scheduled_event_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("guild_scheduled_event_id")]
         public DiscordSnowflake GuildScheduledEventId { get; init; } = null!;
 
         /// <summary>
         /// The user which subscribed to an event.
         /// </summary>
-        [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("user")]
         public DiscordUser User { get; init; } = null!;
 
         /// <summary>
         /// The guild member data for this user for the guild which this event belongs to, if any.
         /// </summary>
-        [JsonProperty("member", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("member")]
         public Optional<DiscordGuildMember> Member { get; init; }
     }
 }

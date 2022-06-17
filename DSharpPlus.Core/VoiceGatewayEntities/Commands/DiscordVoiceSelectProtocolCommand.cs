@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.VoiceGatewayEntities.Commands
 {
@@ -7,25 +7,25 @@ namespace DSharpPlus.Core.VoiceGatewayEntities.Commands
     /// </summary>
     public sealed record DiscordVoiceSelectProtocolCommand
     {
-        [JsonProperty("protocol", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("protocol")]
         public string Protocol { get; init; } = null!;
 
-        [JsonProperty("data", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("data")]
         public DiscordVoiceSelectProtocolCommandData Data { get; init; } = null!;
     }
 
     public sealed record DiscordVoiceSelectProtocolCommandData
     {
-        [JsonProperty("address", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("address")]
         public string Address { get; init; } = null!;
 
-        [JsonProperty("port", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("port")]
         public ushort Port { get; init; }
 
         /// <summary>
         /// See https://discord.com/developers/docs/topics/voice-connections#establishing-a-voice-udp-connection-encryption-modes for available options.
         /// </summary>
-        [JsonProperty("mode", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("mode")]
         public string Mode { get; init; } = null!;
     }
 }
