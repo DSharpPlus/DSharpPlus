@@ -1,7 +1,7 @@
 using System;
 using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Enums;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -11,19 +11,19 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// The integration id.
         /// </summary>
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("id")]
         public DiscordSnowflake Id { get; init; } = null!;
 
         /// <summary>
         /// The integration name.
         /// </summary>
-        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("name")]
         public string Name { get; init; } = null!;
 
         /// <summary>
         /// The integration type (twitch, youtube, or discord).
         /// </summary>
-        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("type")]
         public DiscordIntegrationType Type { get; init; }
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace DSharpPlus.Core.RestEntities
         /// <remarks>
         /// Not provided for Discord Bot integrations.
         /// </remarks>
-        [JsonProperty("enabled", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("enabled")]
         public bool Enabled { get; init; }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace DSharpPlus.Core.RestEntities
         /// <remarks>
         /// Not provided for Discord Bot integrations.
         /// </remarks>
-        [JsonProperty("syncing", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("syncing")]
         public Optional<bool> Syncing { get; init; }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace DSharpPlus.Core.RestEntities
         /// <remarks>
         /// Not provided for Discord Bot integrations.
         /// </remarks>
-        [JsonProperty("role_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("role_id")]
         public Optional<string> RoleId { get; init; }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace DSharpPlus.Core.RestEntities
         /// <remarks>
         /// Not provided for Discord Bot integrations.
         /// </remarks>
-        [JsonProperty("enable_emoticons", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("enable_emoticons")]
         public Optional<bool> EnableEmoticons { get; init; }
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace DSharpPlus.Core.RestEntities
         /// <remarks>
         /// Not provided for Discord Bot integrations.
         /// </remarks>
-        [JsonProperty("expire_behavior", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("expire_behavior")]
         public Optional<DiscordIntegrationExpireBehavior> ExpireBehavior { get; init; }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace DSharpPlus.Core.RestEntities
         /// <remarks>
         /// Not provided for Discord Bot integrations.
         /// </remarks>
-        [JsonProperty("expire_grace_period", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("expire_grace_period")]
         public Optional<int> ExpireGracePeriod { get; init; }
 
         /// <summary>
@@ -86,13 +86,13 @@ namespace DSharpPlus.Core.RestEntities
         /// <remarks>
         /// Not provided for Discord Bot integrations.
         /// </remarks>
-        [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("user")]
         public Optional<DiscordUser> User { get; init; }
 
         /// <summary>
         /// The integration account information.
         /// </summary>
-        [JsonProperty("account", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("account")]
         public DiscordIntegrationAccount Account { get; init; } = null!;
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace DSharpPlus.Core.RestEntities
         /// <remarks>
         /// Not provided for Discord Bot integrations.
         /// </remarks>
-        [JsonProperty("synced_at", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("synced_at")]
         public Optional<DateTimeOffset> SyncedAt { get; init; }
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace DSharpPlus.Core.RestEntities
         /// <remarks>
         /// Not provided for Discord Bot integrations.
         /// </remarks>
-        [JsonProperty("subscriber_count", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("subscriber_count")]
         public Optional<int> SubscriberCount { get; init; }
 
         /// <summary>
@@ -119,13 +119,13 @@ namespace DSharpPlus.Core.RestEntities
         /// <remarks>
         /// Not provided for Discord Bot integrations.
         /// </remarks>
-        [JsonProperty("revoked", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("revoked")]
         public Optional<bool> Revoked { get; init; }
 
         /// <summary>
         /// The bot/OAuth2 application for discord integrations.
         /// </summary>
-        [JsonProperty("application", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("application")]
         public Optional<DiscordIntegrationApplication> Application { get; init; }
 
         /// <summary>

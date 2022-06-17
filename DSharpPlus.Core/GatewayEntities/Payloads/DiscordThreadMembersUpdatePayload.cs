@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.RestEntities;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.GatewayEntities.Payloads
 {
@@ -17,31 +17,31 @@ namespace DSharpPlus.Core.GatewayEntities.Payloads
         /// <summary>
         /// The id of the thread.
         /// </summary>
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("id")]
         public DiscordSnowflake Id { get; init; } = null!;
 
         /// <summary>
         /// The id of the guild.
         /// </summary>
-        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("guild_id")]
         public DiscordSnowflake GuildId { get; init; } = null!;
 
         /// <summary>
         /// The approximate number of members in the thread, capped at 50.
         /// </summary>
-        [JsonProperty("member_count", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("member_count")]
         public int MemberCount { get; init; }
 
         /// <summary>
         /// The users who were added to the thread.
         /// </summary>
-        [JsonProperty("added_members", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("added_members")]
         public Optional<IReadOnlyList<DiscordThreadMember>> AddedMembers { get; init; }
 
         /// <summary>
         /// The id of the users who were removed from the thread.
         /// </summary>
-        [JsonProperty("removed_member_ids", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("removed_member_ids")]
         public Optional<IReadOnlyList<DiscordSnowflake>> RemovedMemberIds { get; init; }
     }
 }

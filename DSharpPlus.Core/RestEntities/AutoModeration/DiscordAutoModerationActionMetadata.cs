@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -10,7 +10,7 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// The channel to which user content should be logged.
         /// </summary>
-        [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("channel_id")]
         public DiscordSnowflake ChannelId { get; init; } = null!;
 
         /// <summary>
@@ -19,7 +19,7 @@ namespace DSharpPlus.Core.RestEntities
         /// <remarks>
         /// Maximum of 2419200 seconds (4 weeks).
         /// </remarks>
-        [JsonProperty("duration_seconds", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("duration_seconds")]
         public int DurationSeconds { get; init; }
     }
 }

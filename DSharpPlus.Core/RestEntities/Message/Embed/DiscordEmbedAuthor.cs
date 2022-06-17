@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -10,25 +10,25 @@ namespace DSharpPlus.Core.RestEntities
         /// <remarks>
         /// Max 256 characters.
         /// </remarks>
-        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("name")]
         public string Name { get; init; } = null!;
 
         /// <summary>
         /// The url of the author.
         /// </summary>
-        [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("url")]
         public Optional<string> Url { get; init; }
 
         /// <summary>
         /// The url of the author's icon (only supports http(s) and attachments).
         /// </summary>
-        [JsonProperty("icon_url", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("icon_url")]
         public Optional<string> IconUrl { get; init; }
 
         /// <summary>
         /// A proxied url of the author's icon.
         /// </summary>
-        [JsonProperty("proxy_icon_url", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("proxy_icon_url")]
         public Optional<string> ProxyIconUrl { get; init; }
     }
 }

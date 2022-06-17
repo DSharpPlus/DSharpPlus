@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -7,25 +7,25 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// The source url of the image (only supports http(s) and attachments).
         /// </summary>
-        [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("url")]
         public string Url { get; init; } = null!;
 
         /// <summary>
         /// A proxied url of the image.
         /// </summary>
-        [JsonProperty("proxy_url", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("proxy_url")]
         public Optional<string> ProxyUrl { get; init; }
 
         /// <summary>
         /// The height of image.
         /// </summary>
-        [JsonProperty("height", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("height")]
         public Optional<int> Height { get; init; }
 
         /// <summary>
         /// The width of image.
         /// </summary>
-        [JsonProperty("width", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("width")]
         public Optional<int> Width { get; init; }
     }
 }

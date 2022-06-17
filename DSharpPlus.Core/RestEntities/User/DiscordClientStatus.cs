@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -10,19 +10,19 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// The user's status set for an active desktop (Windows, Linux, Mac) application session.
         /// </summary>
-        [JsonProperty("desktop", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("desktop")]
         public Optional<string> Desktop { get; init; }
 
         /// <summary>
         /// The user's status set for an active mobile (iOS, Android) application session.
         /// </summary>
-        [JsonProperty("mobile", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("mobile")]
         public Optional<string> Mobile { get; init; }
 
         /// <summary>
         /// The user's status set for an active web (browser, bot account) application session.
         /// </summary>
-        [JsonProperty("web", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("web")]
         public Optional<string> Web { get; init; }
     }
 }

@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using DSharpPlus.Core.JsonConverters;
 using DSharpPlus.Core.JsonConverters.Attributes;
-using Newtonsoft.Json;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -12,9 +12,8 @@ namespace DSharpPlus.Core.RestEntities
     /// <remarks>
     /// While a Json field can be null, Discord enforces that a field can be missing entirely. This means that a field can be missing and/or null at any time. This struct is used to represent that.
     /// </remarks>
-    [JsonConverter(typeof(OptionalConverter))]
-    [System.Text.Json.Serialization.JsonConverter(typeof(OptionalJsonConverterFactory))]
-    [TypeJsonIgnore(System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonConverter(typeof(OptionalJsonConverterFactory))]
+    [TypeJsonIgnore(JsonIgnoreCondition.WhenWritingDefault)]
     public struct Optional<T> : IEquatable<Optional<T>>
     {
         /// <summary>

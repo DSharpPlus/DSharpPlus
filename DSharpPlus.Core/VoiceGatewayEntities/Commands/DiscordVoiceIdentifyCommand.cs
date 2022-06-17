@@ -1,5 +1,5 @@
 using DSharpPlus.Core.RestEntities;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.VoiceGatewayEntities.Commands
 {
@@ -11,16 +11,16 @@ namespace DSharpPlus.Core.VoiceGatewayEntities.Commands
         /// <summary>
         /// Also known as the guild id.
         /// </summary>
-        [JsonProperty("server_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("server_id")]
         public DiscordSnowflake ServerId { get; init; } = null!;
 
-        [JsonProperty("user_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("user_id")]
         public DiscordSnowflake UserId { get; init; } = null!;
 
-        [JsonProperty("session_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("session_id")]
         public string SessionId { get; init; } = null!;
 
-        [JsonProperty("token", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("token")]
         public string Token { get; init; } = null!;
     }
 }

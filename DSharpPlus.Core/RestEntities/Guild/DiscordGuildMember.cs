@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Enums;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -15,25 +15,25 @@ namespace DSharpPlus.Core.RestEntities
         /// <remarks>
         /// The <c>user</c> object won't be included in the member object attached to <c>MESSAGE_CREATE</c> and <c>MESSAGE_UPDATE</c> gateway events.
         /// </remarks>
-        [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("user")]
         public Optional<DiscordUser> User { get; init; }
 
         /// <summary>
         /// This user's guild nickname.
         /// </summary>
-        [JsonProperty("nick", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("nick")]
         public Optional<string?> Nick { get; init; }
 
         /// <summary>
         /// The member's guild avatar hash.
         /// </summary>
-        [JsonProperty("avatar", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("avatar")]
         public Optional<string?> Avatar { get; init; }
 
         /// <summary>
         /// Array of <see href="https://discord.com/developers/docs/topics/permissions#role-object">role</see> object ids.
         /// </summary>
-        [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("roles")]
         public IReadOnlyList<DiscordSnowflake> Roles { get; init; } = Array.Empty<DiscordSnowflake>();
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace DSharpPlus.Core.RestEntities
         /// <remarks>
         /// Resets when the member leaves and rejoins the guild.
         /// </remarks>
-        [JsonProperty("joined_at", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("joined_at")]
         public DateTimeOffset JoinedAt { get; init; }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace DSharpPlus.Core.RestEntities
         /// <remarks>
         /// Can also be seen as "Nitro boosting since".
         /// </remarks>
-        [JsonProperty("premium_since", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("premium_since")]
         public Optional<DateTimeOffset?> PremiumSince { get; init; }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace DSharpPlus.Core.RestEntities
         /// <remarks>
         /// This could be a self or server deafen.
         /// </remarks>
-        [JsonProperty("deaf", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("deaf")]
         public bool Deaf { get; init; }
 
         /// <summary>
@@ -69,13 +69,13 @@ namespace DSharpPlus.Core.RestEntities
         /// <remarks>
         /// This could be a self or server mute.
         /// </remarks>
-        [JsonProperty("mute", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("mute")]
         public bool Mute { get; init; }
 
         /// <summary>
         /// Whether the user has not yet passed the guild's <see href="https://discord.com/developers/docs/resources/guild#membership-screening-object">Membership Screening</see> requirements.
         /// </summary>
-        [JsonProperty("pending", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("pending")]
         public Optional<bool> Pending { get; init; }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace DSharpPlus.Core.RestEntities
         /// <remarks>
         /// This is only available on an interaction, such as a Slash Command.
         /// </remarks>
-        [JsonProperty("permissions", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("permissions")]
         public Optional<DiscordPermissions> Permissions { get; init; }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace DSharpPlus.Core.RestEntities
         /// <remarks>
         /// Could also be seen as "muted until".
         /// </remarks>
-        [JsonProperty("communication_disabled_until", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("communication_disabled_until")]
         public Optional<DateTimeOffset?> CommunicationDisabledUntil { get; init; }
 
         /// <summary>

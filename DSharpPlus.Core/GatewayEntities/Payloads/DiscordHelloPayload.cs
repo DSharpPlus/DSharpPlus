@@ -1,5 +1,5 @@
 using DSharpPlus.Core.Attributes;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.GatewayEntities.Payloads
 {
@@ -12,7 +12,7 @@ namespace DSharpPlus.Core.GatewayEntities.Payloads
         /// <summary>
         /// The interval (in milliseconds) the client should heartbeat with.
         /// </summary>
-        [JsonProperty("heartbeat_interval", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("heartbeat_interval")]
         public int HeartbeatInterval { get; init; }
     }
 }

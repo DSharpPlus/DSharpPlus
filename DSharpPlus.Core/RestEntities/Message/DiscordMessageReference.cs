@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -10,7 +10,7 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// The id of the originating message.
         /// </summary>
-        [JsonProperty("message_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("message_id")]
         public Optional<DiscordSnowflake> MessageId { get; init; }
 
         /// <summary>
@@ -19,19 +19,19 @@ namespace DSharpPlus.Core.RestEntities
         /// <remarks>
         /// channel_id is optional when creating a reply, but will always be present when receiving an event/response that includes this data model.
         /// </remarks>
-        [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("channel_id")]
         public Optional<DiscordSnowflake> ChannelId { get; init; }
 
         /// <summary>
         /// The id of the originating message's guild.
         /// </summary>
-        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("guild_id")]
         public Optional<DiscordSnowflake> GuildId { get; init; }
 
         /// <summary>
         /// When sending, whether to error if the referenced message doesn't exist instead of sending as a normal (non-reply) message, default true.
         /// </summary>
-        [JsonProperty("fail_if_not_exists", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("fail_if_not_exists")]
         public Optional<bool> FailIfNotExists { get; init; }
     }
 }

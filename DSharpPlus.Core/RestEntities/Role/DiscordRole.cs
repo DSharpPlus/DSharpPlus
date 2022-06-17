@@ -1,5 +1,5 @@
 using DSharpPlus.Core.Enums;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -11,67 +11,67 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// Role Id.
         /// </summary>
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("id")]
         public DiscordSnowflake Id { get; init; } = null!;
 
         /// <summary>
         /// Name of the role.
         /// </summary>
-        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("name")]
         public string Name { get; init; } = null!;
 
         /// <summary>
         /// The color of the role.
         /// </summary>
-        [JsonProperty("color", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("color")]
         public int Color { get; init; }
 
         /// <summary>
         /// If this role is pinned in the user listing.
         /// </summary>
-        [JsonProperty("hoist", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("hoist")]
         public bool Hoist { get; init; }
 
         /// <summary>
         /// The role icon hash.
         /// </summary>
-        [JsonProperty("icon", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("icon")]
         public Optional<string?> Icon { get; init; }
 
         /// <summary>
         /// The role unicode emoji.
         /// </summary>
-        [JsonProperty("unicode_emoji", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("unicode_emoji")]
         public Optional<string?> UnicodeEmoji { get; init; }
 
         /// <summary>
         /// The position of this role.
         /// </summary>
-        [JsonProperty("position", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("position")]
         public int Position { get; init; }
 
         /// <summary>
         /// The Discord permissions of this role.
         /// </summary>
-        [JsonProperty("permissions", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("permissions")]
         public DiscordPermissions Permissions { get; init; }
 
         /// <summary>
         /// Whether this role is managed by an integration.
         /// </summary>
-        [JsonProperty("managed", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("managed")]
         public bool Managed { get; init; }
 
         /// <summary>
         /// Whether this role is mentionable.
         /// </summary>
-        [JsonProperty("mentionable", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("mentionable")]
         public bool Mentionable { get; init; }
 
         /// <summary>
         /// The tags this role has.
         /// </summary>
-        [JsonProperty("tags", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("tags")]
         public Optional<DiscordRoleTags> Tags { get; init; }
 
         public static implicit operator ulong(DiscordRole role) => role.Id;

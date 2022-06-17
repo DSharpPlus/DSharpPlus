@@ -1,5 +1,5 @@
 using DSharpPlus.Core.Enums;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -11,7 +11,7 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// The type of action.
         /// </summary>
-        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("type")]
         public DiscordAutoModerationActionType Type { get; init; }
 
         /// <summary>
@@ -20,7 +20,7 @@ namespace DSharpPlus.Core.RestEntities
         /// <remarks>
         /// Can be omitted based on type. See the Associated Action Types column in action metadata to understand which type values require metadata to be set.
         /// </remarks>
-        [JsonProperty("metadata", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("metadata")]
         public DiscordAutoModerationActionMetadata Metadata { get; init; } = null!;
     }
 }

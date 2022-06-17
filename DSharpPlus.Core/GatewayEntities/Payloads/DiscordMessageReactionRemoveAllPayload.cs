@@ -1,6 +1,6 @@
 using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.RestEntities;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.GatewayEntities.Payloads
 {
@@ -13,19 +13,19 @@ namespace DSharpPlus.Core.GatewayEntities.Payloads
         /// <summary>
         /// The id of the channel.
         /// </summary>
-        [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("channel_id")]
         public DiscordSnowflake ChannelId { get; init; } = null!;
 
         /// <summary>
         /// The id of the message.
         /// </summary>
-        [JsonProperty("message_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("message_id")]
         public DiscordSnowflake MessageId { get; init; } = null!;
 
         /// <summary>
         /// The id of the guild.
         /// </summary>
-        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("guild_id")]
         public Optional<DiscordSnowflake> GuildId { get; init; }
     }
 }

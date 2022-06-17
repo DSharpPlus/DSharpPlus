@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using DSharpPlus.Core.Enums;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -16,13 +16,13 @@ namespace DSharpPlus.Core.RestEntities
         /// <remarks>
         /// A keyword can be a phrase which contains multiple words. Wildcard symbols can be used to customize how each keyword will be matched. See <see href="https://discord.com/developers/docs/resources/auto-moderation#auto-moderation-rule-object-keyword-matching-strategies">keyword matching strategies</see>.
         /// </remarks>
-        [JsonProperty("keyword_filter", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("keyword_filter")]
         public IReadOnlyList<string> KeywordFilter { get; init; } = Array.Empty<string>();
 
         /// <summary>
         /// The internally pre-defined wordsets which will be searched for in content.
         /// </summary>
-        [JsonProperty("presets", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("presets")]
         public DiscordAutoModerationKeywordPresetType PresetType { get; init; }
     }
 }

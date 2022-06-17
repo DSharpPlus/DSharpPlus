@@ -11,12 +11,9 @@ namespace DSharpPlus.Core.JsonConverters
     public sealed class OptionalJsonConverterFactory : JsonConverterFactory
     {
         /// <inheritdoc/>
-        public override bool CanConvert(Type typeToConvert)
-            => typeToConvert.IsConstructedGenericType
-            && typeToConvert.GetGenericTypeDefinition() == typeof(Optional<>);
+        public override bool CanConvert(Type typeToConvert) => typeToConvert.IsConstructedGenericType && typeToConvert.GetGenericTypeDefinition() == typeof(Optional<>);
 
         /// <inheritdoc/>
-        public override JsonConverter? CreateConverter(Type typeToConvert, JsonSerializerOptions options)
-            => (JsonConverter)typeof(OptionalJsonConverter<>).MakeGenericType(typeToConvert.GetGenericArguments()).GetConstructor(Type.EmptyTypes)!.Invoke(null)!;
+        public override JsonConverter? CreateConverter(Type typeToConvert, JsonSerializerOptions options) => (JsonConverter)typeof(OptionalJsonConverter<>).MakeGenericType(typeToConvert.GetGenericArguments()).GetConstructor(Type.EmptyTypes)!.Invoke(null)!;
     }
 }

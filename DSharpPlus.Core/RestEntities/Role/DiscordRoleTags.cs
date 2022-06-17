@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -10,13 +10,13 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// The id of the bot this role belongs to.
         /// </summary>
-        [JsonProperty("bot_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("bot_id")]
         public Optional<DiscordSnowflake> BotId { get; init; }
 
         /// <summary>
         /// The id of the integration this role belongs to.
         /// </summary>
-        [JsonProperty("integration_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("integration_id")]
         public Optional<DiscordSnowflake> IntegrationId { get; init; }
 
         /// <summary>
@@ -25,7 +25,7 @@ namespace DSharpPlus.Core.RestEntities
         /// <remarks>
         /// Null when it is the guild's premium subscriber role, otherwise <see cref="Optional{T}.Empty"/>. You should use <see cref="Optional{T}.HasValue"/> to check if this is the guild's premium subscriber role.
         /// </remarks>
-        [JsonProperty("premium_subscriber", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("premium_subscriber")]
         internal Optional<bool> PremiumSubscriber { get; init; }
     }
 }

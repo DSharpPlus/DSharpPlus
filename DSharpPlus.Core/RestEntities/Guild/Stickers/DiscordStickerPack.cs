@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -9,43 +9,43 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// The id of the sticker pack.
         /// </summary>
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("id")]
         public DiscordSnowflake Id { get; init; } = null!;
 
         /// <summary>
         /// The stickers in the pack.
         /// </summary>
-        [JsonProperty("stickers", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("stickers")]
         public IReadOnlyList<DiscordSticker> Stickers { get; init; } = Array.Empty<DiscordSticker>();
 
         /// <summary>
         /// The name of the sticker pack.
         /// </summary>
-        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("name")]
         public string Name { get; init; } = null!;
 
         /// <summary>
         /// The id of the pack's SKU.
         /// </summary>
-        [JsonProperty("sku_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("sku_id")]
         public DiscordSnowflake SkuId { get; init; } = null!;
 
         /// <summary>
         /// The id of a sticker in the pack which is shown as the pack's icon.
         /// </summary>
-        [JsonProperty("cover_sticker_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("cover_sticker_id")]
         public Optional<DiscordSnowflake> CoverStickerId { get; init; }
 
         /// <summary>
         /// The description of the sticker pack.
         /// </summary>
-        [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("description")]
         public string Description { get; init; } = null!;
 
         /// <summary>
         /// The id of the sticker pack's <see href="https://discord.com/developers/docs/reference#image-formatting">banner image</see>.
         /// </summary>
-        [JsonProperty("banner_image_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("banner_image_id")]
         public Optional<DiscordSnowflake> BannerAssetId { get; init; }
     }
 }

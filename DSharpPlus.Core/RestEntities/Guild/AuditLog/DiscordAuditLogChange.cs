@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -10,19 +10,19 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// New value of the key.
         /// </summary>
-        [JsonProperty("new_value", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("new_value")]
         public Optional<object?> NewValue { get; init; }
 
         /// <summary>
         /// Old value of the key.
         /// </summary>
-        [JsonProperty("old_value", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("old_value")]
         public Optional<object?> OldValue { get; init; }
 
         /// <summary>
         /// Name of audit log change key.
         /// </summary>
-        [JsonProperty("key", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("key")]
         public string? Key { get; init; }
     }
 }

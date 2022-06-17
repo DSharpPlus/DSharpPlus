@@ -1,6 +1,6 @@
 using DSharpPlus.Core.Enums;
 using DSharpPlus.Core.RestEntities;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.GatewayEntities
 {
@@ -12,37 +12,37 @@ namespace DSharpPlus.Core.GatewayEntities
         /// <summary>
         /// The id of the guild in which action was executed.
         /// </summary>
-        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("guild_id")]
         public DiscordSnowflake GuildId { get; init; } = null!;
 
         /// <summary>
         /// The action which was executed.
         /// </summary>
-        [JsonProperty("action", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("action")]
         public DiscordAutoModerationAction Action { get; init; } = null!;
 
         /// <summary>
         /// The id of the rule which action belongs to.
         /// </summary>
-        [JsonProperty("rule_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("rule_id")]
         public DiscordSnowflake RuleId { get; init; } = null!;
 
         /// <summary>
         /// The trigger type of rule which was triggered.
         /// </summary>
-        [JsonProperty("rule_trigger_type", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("rule_trigger_type")]
         public DiscordAutoModerationTriggerType RuleTriggerType { get; init; }
 
         /// <summary>
         /// The id of the user which generated the content which triggered the rule.
         /// </summary>
-        [JsonProperty("user_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("user_id")]
         public DiscordSnowflake UserId { get; init; } = null!;
 
         /// <summary>
         /// The id of the channel in which user content was posted.
         /// </summary>
-        [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("channel_id")]
         public Optional<DiscordSnowflake> ChannelId { get; init; }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace DSharpPlus.Core.GatewayEntities
         /// <remarks>
         /// This will be empty if the message was blocked by automod or content was not part of any message.
         /// </remarks>
-        [JsonProperty("message_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("message_id")]
         public Optional<DiscordSnowflake> MessageId { get; init; }
 
         /// <summary>
@@ -60,25 +60,25 @@ namespace DSharpPlus.Core.GatewayEntities
         /// <remarks>
         /// This will be empty if this event does not correspond to an action with type <see cref="DiscordAutoModerationActionType.SendAlertMessage"/>.
         /// </remarks>
-        [JsonProperty("alert_system_message_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("alert_system_message_id")]
         public Optional<DiscordSnowflake> AlertSystemMessageId { get; init; }
 
         /// <summary>
         /// The user generated text content.
         /// </summary>
-        [JsonProperty("content", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("content")]
         public string Content { get; init; } = null!;
 
         /// <summary>
         /// The word or phrase configured in the rule that triggered the rule.
         /// </summary>
-        [JsonProperty("matched_keyword", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("matched_keyword")]
         public string? MatchedKeyword { get; init; }
 
         /// <summary>
         /// The substring in content that triggered the rule.
         /// </summary>
-        [JsonProperty("matched_content", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("matched_content")]
         public string? MatchedContent { get; init; }
     }
 }

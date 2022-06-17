@@ -1,6 +1,6 @@
 using System;
 using DSharpPlus.Core.Enums;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -12,74 +12,74 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// The invite code (unique ID).
         /// </summary>
-        [JsonProperty("code", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("code")]
         public string Code { get; init; } = null!;
 
         /// <summary>
         /// The guild this invite is for.
         /// </summary>
-        [JsonProperty("guild", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("guild")]
         public Optional<DiscordGuild> Guild { get; init; }
 
         /// <summary>
         /// The channel this invite is for.
         /// </summary>
-        [JsonProperty("channel", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("channel")]
         public DiscordChannel? Channel { get; init; }
 
         /// <summary>
         /// The user who created the invite.
         /// </summary>
-        [JsonProperty("inviter", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("inviter")]
         public Optional<DiscordUser> Inviter { get; init; }
 
         /// <summary>
         /// The type of target for this voice channel invite.
         /// </summary>
-        [JsonProperty("target_type", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("target_type")]
         public Optional<DiscordInviteTargetType> TargetType { get; init; }
 
         /// <summary>
         /// The user whose stream to display for this voice channel stream invite.
         /// </summary>
-        [JsonProperty("target_user", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("target_user")]
         public Optional<DiscordUser> TargetUser { get; init; }
 
         /// <summary>
         /// The embedded application to open for this voice channel embedded application invite.
         /// </summary>
-        [JsonProperty("target_application", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("target_application")]
         public Optional<DiscordApplication> TargetApplication { get; init; }
 
         /// <summary>
         /// The approximate count of online members, returned from the GET /invites/:code endpoint when with_counts is true.
         /// </summary>
-        [JsonProperty("approximate_presence_count", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("approximate_presence_count")]
         public Optional<int> ApproximatePresenceCount { get; init; }
 
         /// <summary>
         /// The approximate count of total members, returned from the GET /invites/:code endpoint when with_counts is true.
         /// </summary>
-        [JsonProperty("approximate_member_count", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("approximate_member_count")]
         public Optional<int> ApproximateMemberCount { get; init; }
 
         /// <summary>
         /// The expiration date of this invite, returned from the GET /invites/:code endpoint when with_expiration is true.
         /// </summary>
-        [JsonProperty("expires_at", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("expires_at")]
         public Optional<DateTimeOffset?> ExpiresAt { get; init; }
 
         /// <summary>
         /// The stage instance data if there is a public stage instance in the stage channel this invite is for (deprecated).
         /// </summary>
         [Obsolete("The stage instance data if there is a public stage instance in the stage channel this invite is for (deprecated).", false)]
-        [JsonProperty("stage_instance", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("stage_instance")]
         public Optional<DiscordStageInstance> StageInstance { get; init; }
 
         /// <summary>
         /// The guild scheduled event data, only included if <see cref="DiscordGuildScheduledEventUser.GuildScheduledEventId"/> contains a valid guild scheduled event id.
         /// </summary>
-        [JsonProperty("guild_scheduled_event", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("guild_scheduled_event")]
         public Optional<DiscordGuildScheduledEvent> GuildScheduledEvent { get; init; }
 
         #region Invite Metadata Object
@@ -88,31 +88,31 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// The number of times this invite has been used.
         /// </summary>
-        [JsonProperty("uses", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("uses")]
         public int Uses { get; init; }
 
         /// <summary>
         /// The max number of times this invite can be used.
         /// </summary>
-        [JsonProperty("max_uses", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("max_uses")]
         public int MaxUses { get; init; }
 
         /// <summary>
         /// The duration (in seconds) after which the invite expires.
         /// </summary>
-        [JsonProperty("max_age", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("max_age")]
         public int MaxAge { get; init; }
 
         /// <summary>
         /// Whether this invite only grants temporary membership.
         /// </summary>
-        [JsonProperty("temporary", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("temporary")]
         public bool Temporary { get; init; }
 
         /// <summary>
         /// When this invite was created.
         /// </summary>
-        [JsonProperty("created_at", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("created_at")]
         public DateTimeOffset CreatedAt { get; init; }
         #endregion
     }

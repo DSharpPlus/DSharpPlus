@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -7,31 +7,31 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// The user-facing name of the option, max 100 characters.
         /// </summary>
-        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("name")]
         public string Label { get; init; } = null!;
 
         /// <summary>
         /// The dev-defined value of the option, max 100 characters.
         /// </summary>
-        [JsonProperty("value", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("value")]
         public string Value { get; init; } = null!;
 
         /// <summary>
         /// An additional description of the option, max 100 characters.
         /// </summary>
-        [JsonProperty("description", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("description")]
         public Optional<string> Description { get; init; }
 
         /// <summary>
         /// The id, name, and animated properties.
         /// </summary>
-        [JsonProperty("emoji", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("emoji")]
         public Optional<DiscordEmoji> Emoji { get; init; }
 
         /// <summary>
         /// Whether to render this option as selected by default.
         /// </summary>
-        [JsonProperty("default", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("default")]
         public Optional<bool> Default { get; init; }
     }
 }

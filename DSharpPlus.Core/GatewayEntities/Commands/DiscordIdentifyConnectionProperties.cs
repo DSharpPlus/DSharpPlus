@@ -1,5 +1,5 @@
 using System;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.GatewayEntities.Commands
 {
@@ -9,19 +9,19 @@ namespace DSharpPlus.Core.GatewayEntities.Commands
         /// <summary>
         /// The operating system that the software is running on.
         /// </summary>
-        [JsonProperty("os", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("os")]
         public string OS { get; init; } = Environment.OSVersion.Platform.ToString();
 
         /// <summary>
         /// The currently running name of the Discord library.
         /// </summary>
-        [JsonProperty("browser", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("browser")]
         public string Browser { get; init; } = "DSharpPlus.Core 5.0.0";
 
         /// <summary>
         /// The currently running name of the Discord library.
         /// </summary>
-        [JsonProperty("device", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("device")]
         public string Device { get; init; } = "DSharpPlus.Core 5.0.0";
     }
 }
