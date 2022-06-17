@@ -1,13 +1,11 @@
-using DSharpPlus.Core.Attributes;
-using DSharpPlus.Core.RestEntities;
 using System.Text.Json.Serialization;
+using DSharpPlus.Core.RestEntities;
 
 namespace DSharpPlus.Core.VoiceGatewayEntities.Payloads
 {
     /// <summary>
     /// Sent when a guild's voice server is updated. This is sent when initially connecting to voice, and when the current voice instance fails over to a new server.
     /// </summary>
-    [DiscordGatewayPayload("VOICE_SERVER_UPDATE")]
     public sealed record DiscordVoiceServerUpdatePayload
     {
         /// <summary>
