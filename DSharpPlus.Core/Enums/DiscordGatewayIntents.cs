@@ -135,6 +135,11 @@ namespace DSharpPlus.Core.Enums
         /// </summary>
         DirectMessageTyping = 1 << 14,
 
+        /// <remarks>
+        /// This is a special case as it doesn't represent individual events, but rather affects the data sent for most events that could contain message content fields (<see cref="RestEntities.DiscordMessage.Content"/>, <see cref="RestEntities.DiscordMessage.Attachments"/>, <see cref="RestEntities.DiscordMessage.Embeds"/>, and <see cref="RestEntities.DiscordMessage.Components"/>).
+        /// </remarks>
+        MessageContent = 1 << 15,
+
         /// <summary>
         /// Contains the following events:<br/>
         ///   - GUILD_SCHEDULED_EVENT_CREATE<br/>

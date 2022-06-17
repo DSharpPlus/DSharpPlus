@@ -1,6 +1,6 @@
+using System.Text.Json.Serialization;
 using DSharpPlus.Core.Enums;
 using DSharpPlus.Core.RestEntities;
-using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.GatewayEntities
 {
@@ -64,7 +64,7 @@ namespace DSharpPlus.Core.GatewayEntities
         public Optional<DiscordSnowflake> AlertSystemMessageId { get; init; }
 
         /// <summary>
-        /// The user generated text content.
+        /// The user generated text content. Requires the <see cref="DiscordGatewayIntents.GuildMessages"/> intent.
         /// </summary>
         [JsonPropertyName("content")]
         public string Content { get; init; } = null!;
