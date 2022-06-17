@@ -106,5 +106,10 @@ namespace DSharpPlus.Core.RestEntities
         /// The guild has enabled the welcome screen.
         /// </summary>
         public const string WelcomeScreenEnabled = "WELCOME_SCREEN_ENABLED";
+
+        /// <summary>
+        /// The guild has set up auto moderation rules.
+        /// </summary>
+        public const string AutoModeration = "AUTO_MODERATION";
     }
 }

@@ -143,6 +143,26 @@ namespace DSharpPlus.Core.Enums
         ///   - GUILD_SCHEDULED_EVENT_USER_ADD<br/>
         ///   - GUILD_SCHEDULED_EVENT_USER_REMOVE<br/>
         /// </summary>
-        GuildScheduledEvents = 1 << 16
+        GuildScheduledEvents = 1 << 16,
+
+        /// <summary>
+        /// Contains the following events:<br/>
+        ///   - AUTO_MODERATION_RULE_CREATE<br/>
+        ///   - AUTO_MODERATION_RULE_UPDATE<br/>
+        ///   - AUTO_MODERATION_RULE_DELETE<br/>
+        /// </summary>
+        /// <remarks>
+        /// All auto moderation related events are currently only sent to bot users which have the <see cref="DiscordPermissions.ManageGuild"/> permission.
+        /// </remarks>
+        AutoModerationConfiguration = 1 << 20,
+
+        /// <summary>
+        /// Contains the following events:<br/>
+        ///   - AUTO_MODERATION_ACTION_EXECUTION<br/>
+        /// </summary>
+        /// <remarks>
+        /// All auto moderation related events are currently only sent to bot users which have the <see cref="DiscordPermissions.ManageGuild"/> permission.
+        /// </remarks>
+        AutoModerationExecution = 1 << 21
     }
 }
