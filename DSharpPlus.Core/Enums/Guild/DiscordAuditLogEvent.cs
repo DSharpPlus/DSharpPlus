@@ -351,6 +351,26 @@ namespace DSharpPlus.Core.Enums
         /// <remarks>
         /// Object Changed: <see cref="DiscordPermissions"/>
         /// </remarks>
-        ApplicationCommandPermissionUpdate = 121
+        ApplicationCommandPermissionUpdate = 121,
+
+        /// <summary>
+        /// An Auto Moderation rule was created.
+        /// </summary>
+        AutoModerationRuleCreate = 140,
+
+        /// <summary>
+        /// An Auto Moderation rule was updated.
+        /// </summary>
+        AutoModerationRuleUpdate = 141,
+
+        /// <summary>
+        /// An Auto Moderation rule was deleted.
+        /// </summary>
+        AutoModerationRuleDelete = 142,
+
+        /// <summary>
+        /// A message was blocked by AutoMod (according to a rule).
+        /// </summary>
+        AutoModerationRuleBlockMessage = 143
     }
 }

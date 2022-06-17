@@ -13,7 +13,13 @@ namespace DSharpPlus.Core.RestEntities
         public IReadOnlyList<DiscordAuditLogEntry> AuditLogEntries { get; init; } = Array.Empty<DiscordAuditLogEntry>();
 
         /// <summary>
-        /// A list of <see cref="DiscordGuildScheduledEvent"/> found in the audit log.
+        /// List of auto moderation rules referenced in the audit log.
+        /// </summary>
+        [JsonProperty("auto_moderation_rules", NullValueHandling = NullValueHandling.Ignore)]
+        public IReadOnlyList<DiscordAutoModerationRule> AutoModerationRules { get; init; } = Array.Empty<DiscordAutoModerationRule>();
+
+        /// <summary>
+        /// A list of <see cref="DiscordGuildScheduledEvent"/> referenced in the audit log.
         /// </summary>
         [JsonProperty("guild_scheduled_events", NullValueHandling = NullValueHandling.Ignore)]
         public IReadOnlyList<DiscordGuildScheduledEvent> GuildScheduledEvents { get; init; } = Array.Empty<DiscordGuildScheduledEvent>();
@@ -25,7 +31,7 @@ namespace DSharpPlus.Core.RestEntities
         public IReadOnlyList<DiscordIntegration> Integrations { get; init; } = Array.Empty<DiscordIntegration>();
 
         /// <summary>
-        /// A list of threads found in the audit log.
+        /// A list of threads referenced in the audit log.
         /// </summary>
         /// <remarks>
         /// * Threads referenced in THREAD_CREATE and THREAD_UPDATE events are included in the threads map, since archived threads might not be kept in memory by clients.
@@ -34,13 +40,13 @@ namespace DSharpPlus.Core.RestEntities
         public IReadOnlyList<DiscordChannel> Threads { get; init; } = Array.Empty<DiscordChannel>();
 
         /// <summary>
-        /// A list of <see cref="DiscordUser"/> found in the audit log.
+        /// A list of <see cref="DiscordUser"/> referenced in the audit log.
         /// </summary>
         [JsonProperty("users", NullValueHandling = NullValueHandling.Ignore)]
         public IReadOnlyList<DiscordUser> Users { get; init; } = Array.Empty<DiscordUser>();
 
         /// <summary>
-        /// A list of webhooks found in the audit log.
+        /// A list of webhooks referenced in the audit log.
         /// </summary>
         [JsonProperty("webhooks", NullValueHandling = NullValueHandling.Ignore)]
         public IReadOnlyList<DiscordWebhook> Webhooks { get; init; } = Array.Empty<DiscordWebhook>();
