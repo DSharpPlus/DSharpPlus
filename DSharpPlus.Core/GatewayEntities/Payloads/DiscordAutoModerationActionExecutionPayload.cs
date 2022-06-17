@@ -64,7 +64,7 @@ namespace DSharpPlus.Core.GatewayEntities
         public Optional<DiscordSnowflake> AlertSystemMessageId { get; init; }
 
         /// <summary>
-        /// The user generated text content. Requires the <see cref="DiscordGatewayIntents.GuildMessages"/> intent.
+        /// The user generated text content. Requires the <see cref="DiscordGatewayIntents."/> intent.
         /// </summary>
         [JsonPropertyName("content")]
         public string Content { get; init; } = null!;
