@@ -702,6 +702,7 @@ namespace DSharpPlus.SlashCommands
                     User = e.Interaction.User,
                     Token = e.Interaction.Token,
                     TargetUser = e.TargetUser,
+                    TargetMember = client.Guilds[e.Interaction.Guild.Id].Members.TryGetValue(e.TargetUser.Id, out var member) ? member : null,
                     TargetMessage = e.TargetMessage,
                     Type = e.Type
                 };
