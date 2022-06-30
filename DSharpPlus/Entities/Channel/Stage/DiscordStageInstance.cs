@@ -96,7 +96,6 @@ namespace DSharpPlus.Entities
         /// Invite a member to become a speaker in the state instance.
         /// </summary>
         /// <param name="member">The member to invite to speak on stage.</param>
-        /// <param name="reason">Reason.</param>
         /// <returns></returns>
         /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.MoveMembers"/> permission</exception>
         public Task InviteToSpeakAsync(DiscordMember member) => this.Discord.ApiClient.BecomeStageInstanceSpeakerAsync(this.GuildId, this.Id, member.Id, null, suppress: false);
