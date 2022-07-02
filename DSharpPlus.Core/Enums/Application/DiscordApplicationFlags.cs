@@ -3,12 +3,12 @@ namespace DSharpPlus.Core.Enums
     public enum DiscordApplicationFlags
     {
         /// <summary>
-        /// Intent required for bots in <b>100 or more servers</b> to receive <see cref="GatewayEntities.Payloads.DiscordUpdatePresencePayload"/> events.
+        /// Intent required for bots in <b>100 or more servers</b> to receive <see cref="Entities.Gateway.Payloads.DiscordUpdatePresencePayload"/> events.
         /// </summary>
         GatewayPresence = 1 << 12,
 
         /// <summary>
-        /// Intent required for bots in under 100 servers to receive <see cref="GatewayEntities.Payloads.DiscordUpdatePresencePayload"/> events, found in Bot Settings.
+        /// Intent required for bots in under 100 servers to receive <see cref="Entities.Gateway.Payloads.DiscordUpdatePresencePayload"/> events, found in Bot Settings.
         /// </summary>
         GatewayPresenceLimited = 1 << 13,
 
