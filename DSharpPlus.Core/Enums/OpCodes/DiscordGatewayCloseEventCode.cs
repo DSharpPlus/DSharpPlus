@@ -19,7 +19,7 @@ namespace DSharpPlus.Core.Enums
         UnknownOpCode = 4001,
 
         /// <summary>
-        /// You sent an invalid <see cref="RestEntities.DiscordGatewayPayload"/> to us. Don't do that!
+        /// You sent an invalid <see cref="Entities.DiscordGatewayPayload"/> to us. Don't do that!
         /// </summary>
         /// <remarks>
         /// Reconnect.
@@ -51,7 +51,7 @@ namespace DSharpPlus.Core.Enums
         AlreadyAuthenticated = 4005,
 
         /// <summary>
-        /// The sequence sent when <see cref="GatewayEntities.Commands.DiscordResumeCommand"/> (resuming) the session was invalid. Reconnect and start a new session.
+        /// The sequence sent when <see cref="Entities.Gateway.Commands.DiscordResumeCommand"/> (resuming) the session was invalid. Reconnect and start a new session.
         /// </summary>
         /// <remarks>
         /// Reconnect.

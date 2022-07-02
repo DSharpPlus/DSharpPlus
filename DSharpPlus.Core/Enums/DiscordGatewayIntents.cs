@@ -136,7 +136,7 @@ namespace DSharpPlus.Core.Enums
         DirectMessageTyping = 1 << 14,
 
         /// <remarks>
-        /// This is a special case as it doesn't represent individual events, but rather affects the data sent for most events that could contain message content fields (<see cref="RestEntities.DiscordMessage.Content"/>, <see cref="RestEntities.DiscordMessage.Attachments"/>, <see cref="RestEntities.DiscordMessage.Embeds"/>, and <see cref="RestEntities.DiscordMessage.Components"/>).
+        /// This is a special case as it doesn't represent individual events, but rather affects the data sent for most events that could contain message content fields (<see cref="Entities.DiscordMessage.Content"/>, <see cref="Entities.DiscordMessage.Attachments"/>, <see cref="Entities.DiscordMessage.Embeds"/>, and <see cref="Entities.DiscordMessage.Components"/>).
         /// </remarks>
         MessageContent = 1 << 15,
 

@@ -8,22 +8,22 @@ namespace DSharpPlus.Core.Enums
         UnknownOpCode = 4001,
 
         /// <summary>
-        /// You sent a invalid payload in your <see cref="GatewayEntities.Commands.DiscordIdentifyCommand">identifying</see> to the Gateway.
+        /// You sent a invalid payload in your <see cref="Entities.Gateway.Commands.DiscordIdentifyCommand">identifying</see> to the Gateway.
         /// </summary>
         FailedToDecodePayload = 4002,
 
         /// <summary>
-        /// You sent a payload before <see cref="GatewayEntities.Commands.DiscordIdentifyCommand">identifying</see> with the Gateway.
+        /// You sent a payload before <see cref="Entities.Gateway.Commands.DiscordIdentifyCommand">identifying</see> with the Gateway.
         /// </summary>
         NotAuthenticated = 4003,
 
         /// <summary>
-        /// The token you sent in your <see cref="GatewayEntities.Commands.DiscordIdentifyCommand">identify</see> payload is incorrect.
+        /// The token you sent in your <see cref="Entities.Gateway.Commands.DiscordIdentifyCommand">identify</see> payload is incorrect.
         /// </summary>
         AuthenticationFailed = 4004,
 
         /// <summary>
-        /// You sent more than one <see cref="GatewayEntities.Commands.DiscordIdentifyCommand">identify</see> payload. Stahp.
+        /// You sent more than one <see cref="Entities.Gateway.Commands.DiscordIdentifyCommand">identify</see> payload. Stahp.
         /// </summary>
         AlreadyAuthenticated = 4005,
 

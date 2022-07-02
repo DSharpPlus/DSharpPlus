@@ -6,7 +6,7 @@ namespace DSharpPlus.Core.Enums
         /// Server settings were updated
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordGuild"/>
+        /// Object Changed: <see cref="Entities.DiscordGuild"/>
         /// </remarks>
         GuildUpdate = 1,
 
@@ -14,7 +14,7 @@ namespace DSharpPlus.Core.Enums
         /// Channel was created
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordChannel"/>
+        /// Object Changed: <see cref="Entities.DiscordChannel"/>
         /// </remarks>
         ChannelCreate = 10,
 
@@ -22,7 +22,7 @@ namespace DSharpPlus.Core.Enums
         /// Channel settings were updated
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordChannel"/>
+        /// Object Changed: <see cref="Entities.DiscordChannel"/>
         /// </remarks>
         ChannelUpdate = 11,
 
@@ -30,7 +30,7 @@ namespace DSharpPlus.Core.Enums
         /// Channel was deleted
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordChannel"/>
+        /// Object Changed: <see cref="Entities.DiscordChannel"/>
         /// </remarks>
         ChannelDelete = 12,
 
@@ -38,7 +38,7 @@ namespace DSharpPlus.Core.Enums
         /// Permission overwrite was added to a channel
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordChannelOverwrite"/>
+        /// Object Changed: <see cref="Entities.DiscordChannelOverwrite"/>
         /// </remarks>
         ChannelOverwriteCreate = 13,
 
@@ -46,7 +46,7 @@ namespace DSharpPlus.Core.Enums
         /// Permission overwrite was updated for a channel
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordChannelOverwrite"/>
+        /// Object Changed: <see cref="Entities.DiscordChannelOverwrite"/>
         /// </remarks>
         ChannelOverwriteUpdate = 14,
 
@@ -54,7 +54,7 @@ namespace DSharpPlus.Core.Enums
         /// Permission overwrite was deleted from a channel
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordChannelOverwrite"/>
+        /// Object Changed: <see cref="Entities.DiscordChannelOverwrite"/>
         /// </remarks>
         ChannelOverwriteDelete = 15,
 
@@ -82,7 +82,7 @@ namespace DSharpPlus.Core.Enums
         /// Member was updated in server
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordMember"/>
+        /// Object Changed: <see cref="Entities.DiscordMember"/>
         /// </remarks>
         MemberUpdate = 24,
 
@@ -90,7 +90,7 @@ namespace DSharpPlus.Core.Enums
         /// Member was added or removed from a role
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordRole"/>
+        /// Object Changed: <see cref="Entities.DiscordRole"/>
         /// </remarks>
         MemberRoleUpdate = 25,
 
@@ -113,7 +113,7 @@ namespace DSharpPlus.Core.Enums
         /// Role was created
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordRole"/>
+        /// Object Changed: <see cref="Entities.DiscordRole"/>
         /// </remarks>
         RoleCreate = 30,
 
@@ -121,7 +121,7 @@ namespace DSharpPlus.Core.Enums
         /// Role was edited
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordRole"/>
+        /// Object Changed: <see cref="Entities.DiscordRole"/>
         /// </remarks>
         RoleUpdate = 31,
 
@@ -129,7 +129,7 @@ namespace DSharpPlus.Core.Enums
         /// Role was deleted
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordRole"/>
+        /// Object Changed: <see cref="Entities.DiscordRole"/>
         /// </remarks>
         RoleDelete = 32,
 
@@ -137,7 +137,7 @@ namespace DSharpPlus.Core.Enums
         /// Server invite was created
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordInvite"/>
+        /// Object Changed: <see cref="Entities.DiscordInvite"/>
         /// </remarks>
         InviteCreate = 40,
 
@@ -145,7 +145,7 @@ namespace DSharpPlus.Core.Enums
         /// Server invite was updated
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordInvite"/>
+        /// Object Changed: <see cref="Entities.DiscordInvite"/>
         /// </remarks>
         InviteUpdate = 41,
 
@@ -153,7 +153,7 @@ namespace DSharpPlus.Core.Enums
         /// Server invite was deleted
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordInvite"/>
+        /// Object Changed: <see cref="Entities.DiscordInvite"/>
         /// </remarks>
         InviteDelete = 42,
 
@@ -161,7 +161,7 @@ namespace DSharpPlus.Core.Enums
         /// Webhook was created
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordWebhook"/>
+        /// Object Changed: <see cref="Entities.DiscordWebhook"/>
         /// </remarks>
         WebhookCreate = 50,
 
@@ -169,7 +169,7 @@ namespace DSharpPlus.Core.Enums
         /// Webhook properties or channel were updated
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordWebhook"/>
+        /// Object Changed: <see cref="Entities.DiscordWebhook"/>
         /// </remarks>
         WebhookUpdate = 51,
 
@@ -177,7 +177,7 @@ namespace DSharpPlus.Core.Enums
         /// Webhook was deleted
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordWebhook"/>
+        /// Object Changed: <see cref="Entities.DiscordWebhook"/>
         /// </remarks>
         WebhookDelete = 52,
 
@@ -185,7 +185,7 @@ namespace DSharpPlus.Core.Enums
         /// Emoji was created
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordEmoji"/>
+        /// Object Changed: <see cref="Entities.DiscordEmoji"/>
         /// </remarks>
         EmojiCreate = 60,
 
@@ -193,7 +193,7 @@ namespace DSharpPlus.Core.Enums
         /// Emoji name was updated
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordEmoji"/>
+        /// Object Changed: <see cref="Entities.DiscordEmoji"/>
         /// </remarks>
         EmojiUpdate = 61,
 
@@ -201,7 +201,7 @@ namespace DSharpPlus.Core.Enums
         /// Emoji was deleted
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordEmoji"/>
+        /// Object Changed: <see cref="Entities.DiscordEmoji"/>
         /// </remarks>
         EmojiDelete = 62,
 
@@ -229,7 +229,7 @@ namespace DSharpPlus.Core.Enums
         /// App was added to server
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordIntegration"/>
+        /// Object Changed: <see cref="Entities.DiscordIntegration"/>
         /// </remarks>
         IntegrationCreate = 80,
 
@@ -237,7 +237,7 @@ namespace DSharpPlus.Core.Enums
         /// App was updated (as an example, its scopes were updated)
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordIntegration"/>
+        /// Object Changed: <see cref="Entities.DiscordIntegration"/>
         /// </remarks>
         IntegrationUpdate = 81,
 
@@ -245,7 +245,7 @@ namespace DSharpPlus.Core.Enums
         /// App was removed from server
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordIntegration"/>
+        /// Object Changed: <see cref="Entities.DiscordIntegration"/>
         /// </remarks>
         IntegrationDelete = 82,
 
@@ -253,7 +253,7 @@ namespace DSharpPlus.Core.Enums
         /// Stage instance was created (stage channel becomes live)
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordStageInstance"/>
+        /// Object Changed: <see cref="Entities.DiscordStageInstance"/>
         /// </remarks>
         StageInstanceCreate = 83,
 
@@ -261,7 +261,7 @@ namespace DSharpPlus.Core.Enums
         /// Stage instance details were updated
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordStageInstance"/>
+        /// Object Changed: <see cref="Entities.DiscordStageInstance"/>
         /// </remarks>
         StageInstanceUpdate = 84,
 
@@ -269,7 +269,7 @@ namespace DSharpPlus.Core.Enums
         /// Stage instance was deleted (stage channel no longer live)
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordStageInstance"/>
+        /// Object Changed: <see cref="Entities.DiscordStageInstance"/>
         /// </remarks>
         StageInstanceDelete = 85,
 
@@ -277,7 +277,7 @@ namespace DSharpPlus.Core.Enums
         /// Sticker was created
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordSticker"/>
+        /// Object Changed: <see cref="Entities.DiscordSticker"/>
         /// </remarks>
         StickerCreate = 90,
 
@@ -285,7 +285,7 @@ namespace DSharpPlus.Core.Enums
         /// Sticker details were updated
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordSticker"/>
+        /// Object Changed: <see cref="Entities.DiscordSticker"/>
         /// </remarks>
         StickerUpdate = 91,
 
@@ -293,7 +293,7 @@ namespace DSharpPlus.Core.Enums
         /// Sticker was deleted
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordSticker"/>
+        /// Object Changed: <see cref="Entities.DiscordSticker"/>
         /// </remarks>
         StickerDelete = 92,
 
@@ -301,7 +301,7 @@ namespace DSharpPlus.Core.Enums
         /// Event was created
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordGuildScheduledEvent"/>
+        /// Object Changed: <see cref="Entities.DiscordGuildScheduledEvent"/>
         /// </remarks>
         GuildScheduledEventCreate = 100,
 
@@ -309,7 +309,7 @@ namespace DSharpPlus.Core.Enums
         /// Event was updated
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordGuildScheduledEvent"/>
+        /// Object Changed: <see cref="Entities.DiscordGuildScheduledEvent"/>
         /// </remarks>
         GuildScheduledEventUpdate = 101,
 
@@ -317,7 +317,7 @@ namespace DSharpPlus.Core.Enums
         /// Event was cancelled
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordGuildScheduledEvent"/>
+        /// Object Changed: <see cref="Entities.DiscordGuildScheduledEvent"/>
         /// </remarks>
         GuildScheduledEventDelete = 102,
 
@@ -325,7 +325,7 @@ namespace DSharpPlus.Core.Enums
         /// Thread was created in a channel
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordThread"/>
+        /// Object Changed: <see cref="Entities.DiscordThread"/>
         /// </remarks>
         ThreadCreate = 110,
 
@@ -333,7 +333,7 @@ namespace DSharpPlus.Core.Enums
         /// Thread was updated
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordThread"/>
+        /// Object Changed: <see cref="Entities.DiscordThread"/>
         /// </remarks>
         ThreadUpdate = 111,
 
@@ -341,7 +341,7 @@ namespace DSharpPlus.Core.Enums
         /// Thread was deleted
         /// </summary>
         /// <remarks>
-        /// Object Changed: <see cref="RestEntities.DiscordThread"/>
+        /// Object Changed: <see cref="Entities.DiscordThread"/>
         /// </remarks>
         ThreadDelete = 112,
 
