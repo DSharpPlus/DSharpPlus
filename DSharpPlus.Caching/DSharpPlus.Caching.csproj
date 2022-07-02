@@ -1,8 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <AssemblyName>DSharpPlus.Caching</AssemblyName>
+    <RootNamespace>DSharpPlus.Caching</RootNamespace>
     <TargetFramework>net6.0</TargetFramework>
+    <OutputType>Library</OutputType>
     <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PackageId>DSharpPlus.Caching</PackageId>
+    <Authors>Lunar, ExaInsanity, DSharpPlus contributors</Authors>
+    <Description>A C# API for Discord based off DiscordSharp, but rewritten twice to fit the API standards.</Description>
+    <PackageTags>discord, discord-api, bots, discord-bots, chat, dsharp, dsharpplus, csharp, dotnet, vb-net, fsharp, webhooks</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
