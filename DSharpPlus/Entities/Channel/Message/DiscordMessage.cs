@@ -38,15 +38,6 @@ namespace DSharpPlus.Entities
     {
         internal DiscordMessage()
         {
-            this._attachmentsLazy = new Lazy<IReadOnlyList<DiscordAttachment>>(() => new ReadOnlyCollection<DiscordAttachment>(this._attachments));
-            this._embedsLazy = new Lazy<IReadOnlyList<DiscordEmbed>>(() => new ReadOnlyCollection<DiscordEmbed>(this._embeds));
-            this._mentionedChannelsLazy = new Lazy<IReadOnlyList<DiscordChannel>>(() => this._mentionedChannels != null
-                    ? new ReadOnlyCollection<DiscordChannel>(this._mentionedChannels)
-                    : Array.Empty<DiscordChannel>());
-            this._mentionedRolesLazy = new Lazy<IReadOnlyList<DiscordRole>>(() => this._mentionedRoles != null ? new ReadOnlyCollection<DiscordRole>(this._mentionedRoles) : Array.Empty<DiscordRole>());
-            this._mentionedUsersLazy = new Lazy<IReadOnlyList<DiscordUser>>(() => new ReadOnlyCollection<DiscordUser>(this._mentionedUsers));
-            this._reactionsLazy = new Lazy<IReadOnlyList<DiscordReaction>>(() => new ReadOnlyCollection<DiscordReaction>(this._reactions));
-            this._stickersLazy = new Lazy<IReadOnlyList<DiscordMessageSticker>>(() => new ReadOnlyCollection<DiscordMessageSticker>(this._stickers));
             this._jumpLink = new Lazy<Uri>(() =>
             {
                 var gid = this.Channel is DiscordDmChannel ? "@me" : this.Channel.GuildId.Value.ToString(CultureInfo.InvariantCulture);
@@ -107,7 +98,6 @@ namespace DSharpPlus.Entities
         [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
         public ulong ChannelId { get; internal set; }
 
-
         /// <summary>
         /// Gets the components this message was sent with.
         /// </summary>
@@ -141,7 +131,6 @@ namespace DSharpPlus.Entities
         [JsonProperty("edited_timestamp", NullValueHandling = NullValueHandling.Ignore)]
         public DateTimeOffset? EditedTimestamp { get; internal set; }
 
-
         /// <summary>
         /// Gets whether this message was edited.
         /// </summary>
@@ -165,13 +154,10 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public IReadOnlyList<DiscordUser> MentionedUsers
-            => this._mentionedUsersLazy.Value;
+            => this._mentionedUsers;
 
         [JsonProperty("mentions", NullValueHandling = NullValueHandling.Ignore)]
         internal List<DiscordUser> _mentionedUsers;
-
-        [JsonIgnore]
-        internal readonly Lazy<IReadOnlyList<DiscordUser>> _mentionedUsersLazy;
 
         // TODO this will probably throw an exception in DMs since it tries to wrap around a null List...
         // this is probably low priority but need to find out a clean way to solve it...
@@ -180,7 +166,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public IReadOnlyList<DiscordRole> MentionedRoles
-            => this._mentionedRolesLazy.Value;
+            => this._mentionedRoles;
 
         [JsonIgnore]
         internal List<DiscordRole> _mentionedRoles;
@@ -188,56 +174,45 @@ namespace DSharpPlus.Entities
         [JsonProperty("mention_roles")]
         internal List<ulong> _mentionedRoleIds;
 
-        [JsonIgnore]
-        private readonly Lazy<IReadOnlyList<DiscordRole>> _mentionedRolesLazy;
-
         /// <summary>
         /// Gets channels mentioned by this message.
         /// </summary>
         [JsonIgnore]
         public IReadOnlyList<DiscordChannel> MentionedChannels
-            => this._mentionedChannelsLazy.Value;
+            => this._mentionedChannels;
 
         [JsonIgnore]
         internal List<DiscordChannel> _mentionedChannels;
-        [JsonIgnore]
-        private readonly Lazy<IReadOnlyList<DiscordChannel>> _mentionedChannelsLazy;
 
         /// <summary>
         /// Gets files attached to this message.
         /// </summary>
         [JsonIgnore]
         public IReadOnlyList<DiscordAttachment> Attachments
-            => this._attachmentsLazy.Value;
+            => this._attachments;
 
         [JsonProperty("attachments", NullValueHandling = NullValueHandling.Ignore)]
         internal List<DiscordAttachment> _attachments = new();
-        [JsonIgnore]
-        private readonly Lazy<IReadOnlyList<DiscordAttachment>> _attachmentsLazy;
 
         /// <summary>
         /// Gets embeds attached to this message.
         /// </summary>
         [JsonIgnore]
         public IReadOnlyList<DiscordEmbed> Embeds
-            => this._embedsLazy.Value;
+            => this._embeds;
 
         [JsonProperty("embeds", NullValueHandling = NullValueHandling.Ignore)]
         internal List<DiscordEmbed> _embeds = new();
-        [JsonIgnore]
-        private readonly Lazy<IReadOnlyList<DiscordEmbed>> _embedsLazy;
 
         /// <summary>
         /// Gets reactions used on this message.
         /// </summary>
         [JsonIgnore]
         public IReadOnlyList<DiscordReaction> Reactions
-            => this._reactionsLazy.Value;
+            => this._reactions;
 
         [JsonProperty("reactions", NullValueHandling = NullValueHandling.Ignore)]
         internal List<DiscordReaction> _reactions = new();
-        [JsonIgnore]
-        private readonly Lazy<IReadOnlyList<DiscordReaction>> _reactionsLazy;
 
         /*
         /// <summary>
@@ -312,12 +287,10 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public IReadOnlyList<DiscordMessageSticker> Stickers
-            => this._stickersLazy.Value;
+            => this._stickers;
 
         [JsonProperty("sticker_items", NullValueHandling = NullValueHandling.Ignore)]
         internal List<DiscordMessageSticker> _stickers = new();
-        [JsonIgnore]
-        private readonly Lazy<IReadOnlyList<DiscordMessageSticker>> _stickersLazy;
 
         [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
         internal ulong? GuildId { get; set; }
@@ -516,7 +489,6 @@ namespace DSharpPlus.Entities
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public Task<DiscordMessage> ModifyAsync(Optional<string> content, Optional<IEnumerable<DiscordEmbed>> embeds = default)
             => this.Discord.ApiClient.EditMessageAsync(this.ChannelId, this.Id, content, embeds, this.GetMentions(), default, Array.Empty<DiscordMessageFile>(), null, default);
-
 
         /// <summary>
         /// Edits the message.
