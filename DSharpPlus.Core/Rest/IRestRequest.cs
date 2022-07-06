@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 
-using Polly;
-
 namespace DSharpPlus.Core.Rest
 {
     /// <summary>
