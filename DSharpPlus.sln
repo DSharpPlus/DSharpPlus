@@ -4,10 +4,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Core", "DSharpPlus.Core\DSharpPlus.Core.csproj", "{F1C54B08-EE46-43E1-B7A6-CB8B77084898}"
+	ProjectSection(ProjectDependencies) = postProject
+		{FB5290D4-CDD1-4D32-99D9-7DD83F97BECD} = {FB5290D4-CDD1-4D32-99D9-7DD83F97BECD}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Test", "DSharpPlus.Test\DSharpPlus.Test.csproj", "{103F6DDB-CCF0-45A8-A8A7-039FF098CE0A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Caching", "DSharpPlus.Caching\DSharpPlus.Caching.csproj", "{FB5290D4-CDD1-4D32-99D9-7DD83F97BECD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Caching", "DSharpPlus.Caching\DSharpPlus.Caching.csproj", "{FB5290D4-CDD1-4D32-99D9-7DD83F97BECD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

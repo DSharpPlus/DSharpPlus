@@ -1,11 +1,11 @@
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
+using DSharpPlus.Caching.Abstractions;
 using DSharpPlus.Core.Exceptions;
 
-using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 
 using Polly;
@@ -18,29 +18,19 @@ namespace DSharpPlus.Core.Rest
     /// </summary>
     public class RestClient
     {
-        private readonly IDistributedCache __cache;
+        private readonly ICacheService __cache;
         private readonly HttpClient __http_client;
         private readonly AsyncPolicyWrap<HttpResponseMessage>? __wrapped_policy;
 
-        public RestClient(IDistributedCache cache, HttpClient client, int internalRequeues)
+        private readonly string __token;
+
+        public RestClient(ICacheService cache, HttpClient client, IOptions<RestClientOptions> options)
         {
             __cache = cache;
             __http_client = client;
+            __token = options.Value.Token;
 
-            __wrapped_policy = Policy.WrapAsync(new PollyRatelimitPolicy(), new PollyRetryPolicy(internalRequeues).RetryPolicy);
-        }
-
-        public RestClient()
-        {
-            __cache = new MemoryDistributedCache((IOptions<MemoryDistributedCacheOptions>)new MemoryDistributedCacheOptions()
-            {
-                // cache options, to be discussed
-            });
-
-            __http_client = new();
-
-            // default value to be discussed
-            __wrapped_policy = Policy.WrapAsync(new PollyRatelimitPolicy(), new PollyRetryPolicy(1).RetryPolicy);
+            __wrapped_policy = Policy.WrapAsync(new PollyRatelimitPolicy(), new PollyRetryPolicy(options.Value.MaximumRetries).RetryPolicy);
         }
 
         public async Task<HttpResponseMessage> MakeRequestAsync(IRestRequest request)
@@ -53,6 +43,11 @@ namespace DSharpPlus.Core.Rest
             };
 
             HttpRequestMessage requestMessage = request.Build();
+
+            if (request.IsSubjectToGlobalLimit)
+            {
+                requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bot", __token);
+            }
 
             requestMessage.SetPolicyExecutionContext(requestContext);
 
