@@ -32,8 +32,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using DSharpPlus.Core.Attributes;
-using DSharpPlus.Core.GatewayEntities.Payloads;
-using DSharpPlus.Core.RestEntities;
+using DSharpPlus.Core.Entities.Gateway.Payloads;
+using DSharpPlus.Core.Entities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DSharpPlus.Test.Serialization.Core
