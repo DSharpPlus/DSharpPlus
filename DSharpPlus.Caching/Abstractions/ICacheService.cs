@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.Caching.Abstractions
@@ -28,7 +29,9 @@ namespace DSharpPlus.Caching.Abstractions
         /// <typeparam name="TItem">The type of this item.</typeparam>
         /// <param name="key">The key this item was cached with.</param>
         /// <returns>The item.</returns>
-        public ValueTask<bool> TryGetAsync<TItem>(object key, out TItem value);
+        public ValueTask<bool> TryGetAsync<TItem>(object key,
+            [NotNullWhen(true)]
+            out TItem value);
 
         /// <summary>
         /// Removes an item from the cache.

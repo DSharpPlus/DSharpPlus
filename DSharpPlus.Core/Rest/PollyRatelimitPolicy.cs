@@ -3,11 +3,10 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Microsoft.Extensions.Caching.Distributed;
+using DSharpPlus.Caching.Abstractions;
 
 using Polly;
 
@@ -21,6 +20,8 @@ namespace DSharpPlus.Core.Rest
 
         // stores one second, a very common thing, so we don't want to allocate it every time
         private static readonly TimeSpan __one_second = TimeSpan.FromSeconds(1);
+
+        private const string GlobalBucketName = "DSharpPlus:Ratelimiting:global";
 
         public PollyRatelimitPolicy()
             => __endpoint_hash_mapping = new();
@@ -41,7 +42,7 @@ namespace DSharpPlus.Core.Rest
             }
 
             //ascertain a valid cache.
-            if (!context.TryGetValue("cache", out object cacheObject) || cacheObject is not IDistributedCache cache)
+            if (!context.TryGetValue("cache", out object cacheObject) || cacheObject is not ICacheService cache)
             {
                 throw new InvalidOperationException("No valid cache provided.");
             }
@@ -56,16 +57,12 @@ namespace DSharpPlus.Core.Rest
             }
 
             // already make our request, await it later
-            Task<byte[]?> awaitableBucket = cache.GetAsync(endpoint, cancellationToken);
+            ValueTask<bool> awaitableBucket = cache.TryGetAsync(endpoint, out RatelimitBucket bucket);
 
             // apply global ratelimits
-            if (subjectToGlobalLimit)
+            // todo: handle a missing global bucket
+            if (subjectToGlobalLimit && await cache.TryGetAsync(GlobalBucketName, out RatelimitBucket globalBucket))
             {
-                // obtain the global bucket
-                byte[]? serializedGlobalBucket = await cache.GetAsync("global", cancellationToken);
-
-                RatelimitBucket? globalBucket = JsonSerializer.Deserialize(serializedGlobalBucket, BucketSerializationContext.Default.Context);
-
                 if (globalBucket is null)
                 {
                     throw new InvalidOperationException("No global ratelimit bucket could be found.");
@@ -95,10 +92,7 @@ namespace DSharpPlus.Core.Rest
                     return response;
                 }
 
-                // serialize and write the global bucket again.
-                string serializedGlobal = JsonSerializer.Serialize(globalBucket, BucketSerializationContext.Default.Context);
-
-                _ = cache.SetStringAsync("global", serializedGlobal, cancellationToken);
+                await cache.CacheAsync(GlobalBucketName, globalBucket);
             }
 
             // if we don't already have this bucket cached, set the hash to our endpoint for now. 
@@ -107,19 +101,10 @@ namespace DSharpPlus.Core.Rest
                 ? nullableBucketHash
                 : endpoint;
 
-            // get the cached bucket and see whether it lets us request.
-            // importantly, we use the context-passed endpoints to identify buckets here.
-            byte[]? serializedBucket = await awaitableBucket;
-
-            // keep a dummy bucket here. we'll either create a new one or deserialize one.
-            RatelimitBucket? bucket = null;
-
-            if (serializedBucket is not null)
+            if (await awaitableBucket)
             {
-                bucket = JsonSerializer.Deserialize(serializedBucket.AsSpan(), BucketSerializationContext.Default.Context);
-
                 // if our bucket is null for some reason, consider the request denied to avoid accidental 429s.
-                if (!bucket?.AllowNextRequest() ?? false)
+                if (bucket?.AllowNextRequest() ?? false)
                 {
                     HttpResponseMessage response = new(HttpStatusCode.TooManyRequests);
 
@@ -150,8 +135,7 @@ namespace DSharpPlus.Core.Rest
             }
 
             // cache the new bucket
-            string serialized = JsonSerializer.Serialize(bucket!, BucketSerializationContext.Default.Context);
-            _ = cache.SetStringAsync(endpoint, serialized, cancellationToken);
+            await cache.CacheAsync(endpoint, bucket);
 
             // store the new hash, if we have a new one
             __endpoint_hash_mapping[endpoint] = bucket!.Hash;
@@ -159,7 +143,7 @@ namespace DSharpPlus.Core.Rest
             // remove potential stale data
             if (hash != bucket!.Hash)
             {
-                _ = cache.RemoveAsync(hash, cancellationToken);
+                await cache.RemoveAsync(hash);
             }
 
             return discordResponse;
