@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.VoiceGatewayEntities.Payloads
 {
@@ -10,7 +10,7 @@ namespace DSharpPlus.Core.VoiceGatewayEntities.Payloads
         /// <summary>
         /// Time to wait between sending heartbeats in milliseconds.
         /// </summary>
-        [JsonProperty("heartbeat_interval", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("heartbeat_interval")]
         public int HeartbeatInterval { get; init; }
     }
 }

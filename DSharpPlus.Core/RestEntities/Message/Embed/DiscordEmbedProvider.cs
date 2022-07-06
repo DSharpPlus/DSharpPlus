@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -7,13 +7,13 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// The name of provider.
         /// </summary>
-        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("name")]
         public Optional<string> Name { get; init; }
 
         /// <summary>
         /// The url of provider.
         /// </summary>
-        [JsonProperty("url", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("url")]
         public Optional<string> Url { get; init; }
     }
 }

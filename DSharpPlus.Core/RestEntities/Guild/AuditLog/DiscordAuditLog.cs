@@ -1,48 +1,54 @@
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
     public sealed record DiscordAuditLog
     {
         /// <summary>
-        /// A list of <see cref="DiscordAuditLogEntry"/>.
+        /// A list of <see cref="DiscordAuditLogEntry"/>, sorted from most to least recent.
         /// </summary>
-        [JsonProperty("audit_log_entries", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("audit_log_entries")]
         public IReadOnlyList<DiscordAuditLogEntry> AuditLogEntries { get; init; } = Array.Empty<DiscordAuditLogEntry>();
 
         /// <summary>
-        /// A list of <see cref="DiscordGuildScheduledEvent"/> found in the audit log.
+        /// List of auto moderation rules referenced in the audit log.
         /// </summary>
-        [JsonProperty("guild_scheduled_events", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("auto_moderation_rules")]
+        public IReadOnlyList<DiscordAutoModerationRule> AutoModerationRules { get; init; } = Array.Empty<DiscordAutoModerationRule>();
+
+        /// <summary>
+        /// A list of <see cref="DiscordGuildScheduledEvent"/> referenced in the audit log.
+        /// </summary>
+        [JsonPropertyName("guild_scheduled_events")]
         public IReadOnlyList<DiscordGuildScheduledEvent> GuildScheduledEvents { get; init; } = Array.Empty<DiscordGuildScheduledEvent>();
 
         /// <summary>
-        /// A list of partial integration objects.
+        /// A list of partial <see cref="DiscordIntegration"/> objects.
         /// </summary>
-        [JsonProperty("integrations", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("integrations")]
         public IReadOnlyList<DiscordIntegration> Integrations { get; init; } = Array.Empty<DiscordIntegration>();
 
         /// <summary>
-        /// A list of threads found in the audit log.
+        /// A list of threads referenced in the audit log.
         /// </summary>
         /// <remarks>
         /// * Threads referenced in THREAD_CREATE and THREAD_UPDATE events are included in the threads map, since archived threads might not be kept in memory by clients.
         /// </remarks>
-        [JsonProperty("threads", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("threads")]
         public IReadOnlyList<DiscordChannel> Threads { get; init; } = Array.Empty<DiscordChannel>();
 
         /// <summary>
-        /// A list of <see cref="DiscordUser"/> found in the audit log.
+        /// A list of <see cref="DiscordUser"/> referenced in the audit log.
         /// </summary>
-        [JsonProperty("users", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("users")]
         public IReadOnlyList<DiscordUser> Users { get; init; } = Array.Empty<DiscordUser>();
 
         /// <summary>
-        /// A list of webhooks found in the audit log.
+        /// A list of webhooks referenced in the audit log.
         /// </summary>
-        [JsonProperty("webhooks", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("webhooks")]
         public IReadOnlyList<DiscordWebhook> Webhooks { get; init; } = Array.Empty<DiscordWebhook>();
     }
 }

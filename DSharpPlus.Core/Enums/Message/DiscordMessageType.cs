@@ -36,6 +36,7 @@ namespace DSharpPlus.Core.Enums
         /// </remarks>
         ThreadStarterMessage = 21,
         GuildInviteReminder = 22,
-        ContextMenuCommand = 23
+        ContextMenuCommand = 23,
+        AutoModerationAction = 24
     }
 }

@@ -1,14 +1,14 @@
 using DSharpPlus.Core.Enums;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
     public sealed record DiscordMessageActivity
     {
-        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("type")]
         public DiscordMessageActivityType Type { get; init; }
 
-        [JsonProperty("party_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("party_id")]
         public Optional<string> PartyId { get; init; }
     }
 }

@@ -1,13 +1,16 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
     public sealed record DiscordGuildScheduledEventEntityMetadata
     {
+        /// <summary>
+        /// Location of the event (1-100 characters).
+        /// </summary>
         /// <remarks>
         /// Requires <see cref="DiscordGuildScheduledEvent.EntityType"/> to be <see cref="Enums.DiscordGuildScheduledEventEntityType.External"/>.
         /// </remarks>
-        [JsonProperty("location", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("location")]
         public string? Location { get; init; }
     }
 }

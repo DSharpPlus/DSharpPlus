@@ -1,6 +1,6 @@
 using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.RestEntities;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.GatewayEntities.Payloads
 {
@@ -10,7 +10,7 @@ namespace DSharpPlus.Core.GatewayEntities.Payloads
         /// <summary>
         /// The id of the guild whose integrations were updated.
         /// </summary>
-        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("guild_id")]
         public DiscordSnowflake GuildId { get; init; } = null!;
     }
 }

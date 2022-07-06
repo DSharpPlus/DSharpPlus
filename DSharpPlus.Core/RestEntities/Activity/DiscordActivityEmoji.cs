@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -7,19 +7,19 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// The name of the emoji.
         /// </summary>
-        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("name")]
         public string Name { get; init; } = null!;
 
         /// <summary>
         /// The id of the emoji.
         /// </summary>
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("id")]
         public Optional<DiscordSnowflake> Id { get; init; }
 
         /// <summary>
         /// Whether this emoji is animated.
         /// </summary>
-        [JsonProperty("animated", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("animated")]
         public Optional<bool> Animated { get; init; }
     }
 }

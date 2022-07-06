@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Enums;
 using DSharpPlus.Core.RestEntities;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.GatewayEntities.Payloads
 {
@@ -16,31 +16,31 @@ namespace DSharpPlus.Core.GatewayEntities.Payloads
         /// <summary>
         /// The user presence is being updated for.
         /// </summary>
-        [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("user")]
         public DiscordUser User { get; init; } = null!;
 
         /// <summary>
         /// The id of the guild.
         /// </summary>
-        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("guild_id")]
         public DiscordSnowflake GuildId { get; init; } = null!;
 
         /// <summary>
         /// Either "idle", "dnd", "online", or "offline".
         /// </summary>
-        [JsonProperty("status", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("status")]
         public DiscordStatusType Status { get; init; }
 
         /// <summary>
         /// The user's current activities.
         /// </summary>
-        [JsonProperty("activities", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("activities")]
         public IReadOnlyList<DiscordActivity> Activities { get; init; } = Array.Empty<DiscordActivity>();
 
         /// <summary>
         /// The user's platform-dependent status.
         /// </summary>
-        [JsonProperty("client_status", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("client_status")]
         public DiscordClientStatus ClientStatus { get; init; } = null!;
     }
 }

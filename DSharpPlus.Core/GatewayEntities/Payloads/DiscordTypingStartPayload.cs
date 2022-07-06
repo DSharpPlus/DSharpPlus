@@ -1,6 +1,6 @@
 using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.RestEntities;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.GatewayEntities.Payloads
 {
@@ -13,31 +13,31 @@ namespace DSharpPlus.Core.GatewayEntities.Payloads
         /// <summary>
         /// The id of the channel.
         /// </summary>
-        [JsonProperty("channel_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("channel_id")]
         public DiscordSnowflake ChannelId { get; init; } = null!;
 
         /// <summary>
         /// The id of the guild.
         /// </summary>
-        [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("guild_id")]
         public Optional<DiscordSnowflake> GuildId { get; init; }
 
         /// <summary>
         /// The id of the user.
         /// </summary>
-        [JsonProperty("user_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("user_id")]
         public DiscordSnowflake UserId { get; init; } = null!;
 
         /// <summary>
         /// The unix time (in seconds) of when the user started typing.
         /// </summary>
-        [JsonProperty("timestamp", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("timestamp")]
         public int Timestamp { get; init; }
 
         /// <summary>
         /// The member who started typing if this happened in a guild.
         /// </summary>
-        [JsonProperty("member", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("member")]
         public DiscordGuildMember Member { get; init; } = null!;
     }
 }

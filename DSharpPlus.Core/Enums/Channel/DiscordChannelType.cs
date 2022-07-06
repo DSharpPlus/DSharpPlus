@@ -39,12 +39,6 @@ namespace DSharpPlus.Core.Enums
         GuildNews = 5,
 
         /// <summary>
-        /// A channel in which game developers can <see href="https://discord.com/developers/docs/game-and-server-management/special-channels">sell their game on Discord</see>.
-        /// </summary>
-        [Obsolete("Selling SKUs on Discord has been discontinued as of March 1, 2022. Read here for more info: https://support-dev.discord.com/hc/en-us/articles/4414590563479")]
-        GuildStore = 6,
-
-        /// <summary>
         /// A temporary sub-channel within a <see cref="GuildNews"/> channel.
         /// </summary>
         GuildNewsThread = 10,
@@ -65,8 +59,13 @@ namespace DSharpPlus.Core.Enums
         GuildStageVoice = 13,
 
         /// <summary>
-        /// The channel in a hub containing the listed servers.
+        /// The channel in a <see href="https://support.discord.com/hc/en-us/articles/4406046651927-Discord-Student-Hubs-FAQ">hub</see> containing the listed servers.
         /// </summary>
-        GuildDirectory = 14
+        GuildDirectory = 14,
+
+        /// <summary>
+        /// (Still in development) A channel that can only contain threads
+        /// </summary>
+        GuildForum = 15
     }
 }

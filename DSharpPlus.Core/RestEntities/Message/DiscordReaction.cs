@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -7,19 +7,19 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// Times this emoji has been used to react.
         /// </summary>
-        [JsonProperty("count", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("count")]
         public int Count { get; init; }
 
         /// <summary>
         /// Whether the current user reacted using this emoji.
         /// </summary>
-        [JsonProperty("me", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("me")]
         public bool Me { get; init; }
 
         /// <summary>
         /// The emoji information.
         /// </summary>
-        [JsonProperty("emoji", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("emoji")]
         public DiscordEmoji Emoji { get; init; } = null!;
     }
 }

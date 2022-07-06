@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using DSharpPlus.Core.Enums;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -9,43 +9,46 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// The id of the affected entity (webhook, user, role, etc.)
         /// </summary>
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        /// <remarks>
+        /// For <see cref="DiscordAuditLogEvent.ApplicationCommandPermissionUpdate"/> events, the <see cref="TargetId"/> is the command ID or the app ID since the changes array represents the entire permissions property on the guild permissions object.
+        /// </remarks>
+        [JsonPropertyName("id")]
         public string? TargetId { get; init; }
 
         /// <summary>
         /// The changes made to the <see cref="TargetId"/>
         /// </summary>
-        [JsonProperty("changes", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("changes")]
         public Optional<IReadOnlyList<DiscordAuditLogChange>> Changes { get; init; }
 
         /// <summary>
         /// The user who made the changes.
         /// </summary>
-        [JsonProperty("user_id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("user_id")]
         public DiscordSnowflake? UserId { get; init; }
 
         /// <summary>
         /// The id of the entry.
         /// </summary>
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("id")]
         public DiscordSnowflake Id { get; init; } = null!;
 
         /// <summary>
         /// The type of action that occurred.
         /// </summary>
-        [JsonProperty("action_type", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("action_type")]
         public DiscordAuditLogEvent ActionType { get; init; }
 
         /// <summary>
         /// Additional info for certain action types.
         /// </summary>
-        [JsonProperty("options", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("options")]
         public Optional<DiscordAuditLogEntryInfo> Options { get; init; }
 
         /// <summary>
         /// The reason for the change (0-512 characters)
         /// </summary>
-        [JsonProperty("reason", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("reason")]
         public Optional<string> Reason { get; init; }
 
         public static implicit operator ulong(DiscordAuditLogEntry auditLogEntry) => auditLogEntry.Id;

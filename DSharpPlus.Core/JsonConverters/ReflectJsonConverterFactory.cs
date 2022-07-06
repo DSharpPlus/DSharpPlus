@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Globalization;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -31,11 +32,10 @@ namespace DSharpPlus.Core.JsonConverters
             => !typeToConvert.IsInterface
             && !typeToConvert.IsValueType
             && !typeToConvert.IsDefined(typeof(JsonConverterAttribute))
-            && !typeToConvert.Namespace!.StartsWith("System")
+            && !typeToConvert.Namespace!.StartsWith("System", false, CultureInfo.InvariantCulture)
             && !typeof(IEnumerable).IsAssignableFrom(typeToConvert);
 
         /// <inheritdoc/>
-        public override JsonConverter? CreateConverter(Type typeToConvert, JsonSerializerOptions options)
-            => (JsonConverter)typeof(ReflectJsonConverter<>).MakeGenericType(typeToConvert).GetConstructor(Type.EmptyTypes)!.Invoke(null)!;
+        public override JsonConverter? CreateConverter(Type typeToConvert, JsonSerializerOptions options) => (JsonConverter)typeof(ReflectJsonConverter<>).MakeGenericType(typeToConvert).GetConstructor(Type.EmptyTypes)!.Invoke(null)!;
     }
 }

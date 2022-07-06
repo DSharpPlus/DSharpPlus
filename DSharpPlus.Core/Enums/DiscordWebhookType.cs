@@ -11,6 +11,7 @@ namespace DSharpPlus.Core.Enums
         /// Channel Follower Webhooks are internal webhooks used with Channel Following to post new messages into channels
         /// </summary>
         ChannelFollower = 2,
+
         /// <summary>
         /// Application webhooks are webhooks used with Interactions
         /// </summary>

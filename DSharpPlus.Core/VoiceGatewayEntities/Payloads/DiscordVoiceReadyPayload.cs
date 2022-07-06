@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.VoiceGatewayEntities.Payloads
 {
@@ -9,20 +9,20 @@ namespace DSharpPlus.Core.VoiceGatewayEntities.Payloads
     /// </summary>
     public sealed record DiscordVoiceReadyPayload
     {
-        [JsonProperty("ssrc", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("ssrc")]
         public uint SSRC { get; init; }
 
-        [JsonProperty("address", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("address")]
         public string Address { get; init; } = null!;
 
-        [JsonProperty("port", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("port")]
         public ushort Port { get; init; }
 
-        [JsonProperty("modes", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("modes")]
         public IReadOnlyList<string> Modes { get; init; } = Array.Empty<string>();
 
         [Obsolete("HeartbeatInterval here is an erroneous field and should be ignored. The correct heartbeat_interval value comes from the Hello payload.")]
-        [JsonProperty("heartbeat_interval", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("heartbeat_interval")]
         public int HeartbeatInterval { get; init; }
     }
 }

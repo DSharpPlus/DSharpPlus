@@ -1,5 +1,5 @@
 using DSharpPlus.Core.Enums;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.RestEntities
 {
@@ -11,19 +11,19 @@ namespace DSharpPlus.Core.RestEntities
         /// <summary>
         /// The id of the sticker.
         /// </summary>
-        [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("id")]
         public DiscordSnowflake Id { get; init; } = null!;
 
         /// <summary>
         /// The name of the sticker.
         /// </summary>
-        [JsonProperty("name", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("name")]
         public string Name { get; init; } = null!;
 
         /// <summary>
         /// The type of sticker format.
         /// </summary>
-        [JsonProperty("format_type", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonPropertyName("format_type")]
         public DiscordStickerFormatType FormatType { get; init; }
     }
 }

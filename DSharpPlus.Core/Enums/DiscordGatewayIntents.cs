@@ -135,6 +135,11 @@ namespace DSharpPlus.Core.Enums
         /// </summary>
         DirectMessageTyping = 1 << 14,
 
+        /// <remarks>
+        /// This is a special case as it doesn't represent individual events, but rather affects the data sent for most events that could contain message content fields (<see cref="RestEntities.DiscordMessage.Content"/>, <see cref="RestEntities.DiscordMessage.Attachments"/>, <see cref="RestEntities.DiscordMessage.Embeds"/>, and <see cref="RestEntities.DiscordMessage.Components"/>).
+        /// </remarks>
+        MessageContent = 1 << 15,
+
         /// <summary>
         /// Contains the following events:<br/>
         ///   - GUILD_SCHEDULED_EVENT_CREATE<br/>
@@ -143,6 +148,26 @@ namespace DSharpPlus.Core.Enums
         ///   - GUILD_SCHEDULED_EVENT_USER_ADD<br/>
         ///   - GUILD_SCHEDULED_EVENT_USER_REMOVE<br/>
         /// </summary>
-        GuildScheduledEvents = 1 << 16
+        GuildScheduledEvents = 1 << 16,
+
+        /// <summary>
+        /// Contains the following events:<br/>
+        ///   - AUTO_MODERATION_RULE_CREATE<br/>
+        ///   - AUTO_MODERATION_RULE_UPDATE<br/>
+        ///   - AUTO_MODERATION_RULE_DELETE<br/>
+        /// </summary>
+        /// <remarks>
+        /// All auto moderation related events are currently only sent to bot users which have the <see cref="DiscordPermissions.ManageGuild"/> permission.
+        /// </remarks>
+        AutoModerationConfiguration = 1 << 20,
+
+        /// <summary>
+        /// Contains the following events:<br/>
+        ///   - AUTO_MODERATION_ACTION_EXECUTION<br/>
+        /// </summary>
+        /// <remarks>
+        /// All auto moderation related events are currently only sent to bot users which have the <see cref="DiscordPermissions.ManageGuild"/> permission.
+        /// </remarks>
+        AutoModerationExecution = 1 << 21
     }
 }
