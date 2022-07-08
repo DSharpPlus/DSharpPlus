@@ -95,6 +95,18 @@ namespace DSharpPlus.Entities
         public object MaxValue { get; internal set; }
 
         /// <summary>
+        /// Gets the minimum allowed length for this slash command parameter.
+        /// </summary>
+        [JsonProperty("min_length", NullValueHandling = NullValueHandling.Ignore)]
+        public int? MinLength { get; internal set; }
+
+        /// <summary>
+        /// Gets the maximum allowed length for this slash command parameter.
+        /// </summary>
+        [JsonProperty("max_length", NullValueHandling = NullValueHandling.Ignore)]
+        public int? MaxLength { get; internal set; }
+
+        /// <summary>
         /// Localized names for this option.
         /// </summary>
         [JsonProperty("name_localizations", NullValueHandling = NullValueHandling.Include)]
@@ -120,7 +132,9 @@ namespace DSharpPlus.Entities
         /// <param name="minValue">The minimum value for this parameter. Only valid for types <see cref="ApplicationCommandOptionType.Integer"/> or <see cref="ApplicationCommandOptionType.Number"/>.</param>
         /// <param name="maxValue">The maximum value for this parameter. Only valid for types <see cref="ApplicationCommandOptionType.Integer"/> or <see cref="ApplicationCommandOptionType.Number"/>.</param>
         /// <param name="name_localizations">Name localizations for this parameter.</param>
-        public DiscordApplicationCommandOption(string name, string description, ApplicationCommandOptionType type, bool? required = null, IEnumerable<DiscordApplicationCommandOptionChoice> choices = null, IEnumerable<DiscordApplicationCommandOption> options = null, IEnumerable<ChannelType> channelTypes = null, bool? autocomplete = null, object minValue = null, object maxValue = null, IReadOnlyDictionary<string, string> name_localizations = null, IReadOnlyDictionary<string, string> description_localizations = null)
+        /// <param name="minLength">The minimum allowed length for this parameter. Only valid for type <see cref="ApplicationCommandOptionType.String"/>.</param>
+        /// <param name="maxLength">The maximum allowed length for this parameter. Only valid for type <see cref="ApplicationCommandOptionType.String"/>.</param>
+        public DiscordApplicationCommandOption(string name, string description, ApplicationCommandOptionType type, bool? required = null, IEnumerable<DiscordApplicationCommandOptionChoice> choices = null, IEnumerable<DiscordApplicationCommandOption> options = null, IEnumerable<ChannelType> channelTypes = null, bool? autocomplete = null, object minValue = null, object maxValue = null, IReadOnlyDictionary<string, string> name_localizations = null, IReadOnlyDictionary<string, string> description_localizations = null, int? minLength = null, int? maxLength = null)
         {
             if (!Utilities.IsValidSlashCommandName(name))
                 throw new ArgumentException("Invalid slash command option name specified. It must be below 32 characters and not contain any whitespace.", nameof(name));
@@ -145,6 +159,8 @@ namespace DSharpPlus.Entities
             this.ChannelTypes = channelTypeList;
             this.MinValue = minValue;
             this.MaxValue = maxValue;
+            this.MinLength = minLength;
+            this.MaxLength = maxLength;
             this.NameLocalizations = name_localizations;
             this.DescriptionLocalizations = description_localizations;
         }
