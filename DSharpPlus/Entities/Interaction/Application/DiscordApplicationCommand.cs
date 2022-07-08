@@ -73,7 +73,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Whether this command can be invoked in DMs.
         /// </summary>
-        [JsonProperty("dm_permissions")]
+        [JsonProperty("dm_permission")]
         public bool? AllowDMUsage { get; internal set; }
 
         /// <summary>

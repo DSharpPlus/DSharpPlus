@@ -12,13 +12,11 @@ namespace DSharpPlus.SlashCommands.Attributes
         /// <summary>
         /// Defines that this command is only usable within a guild.
         /// </summary>
-        public SlashRequireGuildAttribute()
-        { }
+        public SlashRequireGuildAttribute() { }
 
         /// <summary>
         /// Runs checks.
         /// </summary>
-        public override Task<bool> ExecuteChecksAsync(InteractionContext ctx)
-            => Task.FromResult(ctx.Guild != null);
+        public override Task<bool> ExecuteChecksAsync(InteractionContext ctx) => Task.FromResult(ctx.Guild != null);
     }
 }
