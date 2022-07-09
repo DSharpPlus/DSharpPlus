@@ -67,6 +67,9 @@ namespace DSharpPlus.EventArgs
         /// <summary>
         /// Gets the collection of mentioned roles.
         /// </summary>
+        /// <remarks>
+        /// Only shows the mentioned roles from <see cref="DiscordClient.MessageCreated" />. EDITS ARE NOT INCLUDED.
+        /// </remarks>
         public IReadOnlyList<DiscordRole> MentionedRoles { get; internal set; }
 
         /// <summary>

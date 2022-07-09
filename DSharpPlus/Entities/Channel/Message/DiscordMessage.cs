@@ -26,7 +26,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -155,11 +154,8 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public IReadOnlyList<DiscordUser> MentionedUsers
-            => this._mentionedUsers.AsReadOnly();
+            => this._mentionedUsers;
 
-        /// <remarks>
-        /// If copying from a different source (such as <see cref="EventArgs.MessageUpdateEventArgs" />) and pairing with <see cref="PopulateMentions" />, take extra care to ensure that this property is copied as well so that new user mentions can be cached.
-        /// </remarks>
         [JsonProperty("mentions", NullValueHandling = NullValueHandling.Ignore)]
         internal List<DiscordUser> _mentionedUsers;
 
@@ -170,7 +166,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public IReadOnlyList<DiscordRole> MentionedRoles
-            => this._mentionedRoles.AsReadOnly();
+            => this._mentionedRoles;
 
         [JsonIgnore]
         internal List<DiscordRole> _mentionedRoles;
@@ -183,7 +179,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public IReadOnlyList<DiscordChannel> MentionedChannels
-            => this._mentionedChannels.AsReadOnly();
+            => this._mentionedChannels;
 
         [JsonIgnore]
         internal List<DiscordChannel> _mentionedChannels;
@@ -193,7 +189,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public IReadOnlyList<DiscordAttachment> Attachments
-            => this._attachments.AsReadOnly();
+            => this._attachments;
 
         [JsonProperty("attachments", NullValueHandling = NullValueHandling.Ignore)]
         internal List<DiscordAttachment> _attachments = new();
@@ -203,7 +199,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public IReadOnlyList<DiscordEmbed> Embeds
-            => this._embeds.AsReadOnly();
+            => this._embeds;
 
         [JsonProperty("embeds", NullValueHandling = NullValueHandling.Ignore)]
         internal List<DiscordEmbed> _embeds = new();
@@ -213,7 +209,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public IReadOnlyList<DiscordReaction> Reactions
-            => this._reactions.AsReadOnly();
+            => this._reactions;
 
         [JsonProperty("reactions", NullValueHandling = NullValueHandling.Ignore)]
         internal List<DiscordReaction> _reactions = new();
@@ -291,7 +287,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public IReadOnlyList<DiscordMessageSticker> Stickers
-            => this._stickers.AsReadOnly();
+            => this._stickers;
 
         [JsonProperty("sticker_items", NullValueHandling = NullValueHandling.Ignore)]
         internal List<DiscordMessageSticker> _stickers = new();
@@ -387,129 +383,61 @@ namespace DSharpPlus.Entities
 
         internal void PopulateMentions()
         {
-            if (this.Content == null)
-            {
-                // Nothing to cache, I think
-                return;
-            }
-
             var guild = this.Channel?.Guild;
             this._mentionedUsers ??= new List<DiscordUser>();
             this._mentionedRoles ??= new List<DiscordRole>();
             this._mentionedChannels ??= new List<DiscordChannel>();
 
+            var mentionedUsers = new HashSet<DiscordUser>(new DiscordUserComparer());
             if (guild != null)
             {
-                foreach (var mentionedUser in this._mentionedUsers)
+                foreach (var usr in this._mentionedUsers)
                 {
-                    // Prevent StackOverflowException
-                    // https://github.com/DSharpPlus/DSharpPlus/pull/1257
-                    if (mentionedUser is DiscordMember mentionedMember)
+                    var member = usr as DiscordMember;
+                    if (member != null)
                     {
                         this.Discord.UpdateUserCache(new DiscordUser()
                         {
-                            Id = mentionedMember.Id,
-                            Username = mentionedMember.Username,
-                            Discriminator = mentionedMember.Discriminator,
-                            AvatarHash = mentionedMember.AvatarHash,
-                            _bannerColor = mentionedMember._bannerColor,
-                            BannerHash = mentionedMember.BannerHash,
-                            IsBot = mentionedMember.IsBot,
-                            MfaEnabled = mentionedMember.MfaEnabled,
-                            Verified = mentionedMember.Verified,
-                            Email = mentionedMember.Email,
-                            PremiumType = mentionedMember.PremiumType,
-                            Locale = mentionedMember.Locale,
-                            Flags = mentionedMember.Flags,
-                            OAuthFlags = mentionedMember.OAuthFlags,
+                            Id = member.Id,
+                            Username = member.Username,
+                            Discriminator = member.Discriminator,
+                            AvatarHash = member.AvatarHash,
+                            _bannerColor = member._bannerColor,
+                            BannerHash = member.BannerHash,
+                            IsBot = member.IsBot,
+                            MfaEnabled = member.MfaEnabled,
+                            Verified = member.Verified,
+                            Email = member.Email,
+                            PremiumType = member.PremiumType,
+                            Locale = member.Locale,
+                            Flags = member.Flags,
+                            OAuthFlags = member.OAuthFlags,
                             Discord = this.Discord
                         });
                     }
                     else
                     {
-                        mentionedUser.Discord = this.Discord;
-                        this.Discord.UpdateUserCache(mentionedUser);
+                        usr.Discord = this.Discord;
+                        this.Discord.UpdateUserCache(usr);
                     }
+
+                    mentionedUsers.Add(member ?? (guild._members.TryGetValue(usr.Id, out var cachedMember) ? cachedMember : usr));
                 }
             }
-
-            // This is meant to stop having to Regex the same string multiple times.
-            // Yes, I'm using it as an exercise. Shush.
-            StringBuilder snowflakeBuilder = new(20);
-            for (int stringIndex = 0, snowflakeIndex; stringIndex < this.Content.Length; stringIndex++)
+            if (!string.IsNullOrWhiteSpace(this.Content))
             {
-                // Parse channel mentions. DOESN'T include mentions to other DM channels or channels from different guilds that the bot MAY be in.
-                if (guild != null && this.Content[stringIndex] == '#' && this.Content[stringIndex - 1] == '<')
+                //uncomment if this breaks
+                //mentionedUsers.UnionWith(Utilities.GetUserMentions(this).Select(this.Discord.GetCachedOrEmptyUserInternal));
+
+                if (guild != null)
                 {
-                    // Reset the snowflake index from other mentions AND increment the string index before snowflakeIndex assignment to skip the '#' character.
-                    snowflakeIndex = ++stringIndex;
-
-                    // While the snowflake index is less than 20 (ulong.MaxValue.ToString().Length).
-                    // While the snowflake index is less than the length of the string.
-                    // While the snowflake index isn't on the end of a mention.
-                    while (snowflakeIndex < stringIndex + 20 && snowflakeIndex < this.Content.Length && this.Content[snowflakeIndex] != '>')
-                    {
-                        // Append the current character to a StringBuilder.
-                        snowflakeBuilder.Append(this.Content[snowflakeIndex]);
-
-                        // Advance to the next character.
-                        snowflakeIndex++;
-                    }
-
-                    // Try to parse the snowflake as a number
-                    if (ulong.TryParse(snowflakeBuilder.ToString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var channelId)
-                        // Try to fetch the channel from the current guild.
-                        && guild._channels.TryGetValue(channelId, out var channel)
-                        // Make sure we're not adding duplicates.
-                        && !this._mentionedChannels.Contains(channel))
-                    {
-                        // Add the mentioned channel.
-                        this._mentionedChannels.Add(channel);
-                    }
-
-                    // Clear the StringBuilder so other mentions can be parsed.
-                    snowflakeBuilder.Clear();
-                }
-                // If we're at the start of a user or role mention
-                else if (this.Content[stringIndex] == '@' && this.Content[stringIndex - 1] == '<')
-                {
-                    // If the next character isn't out of bounds and is a '&' (role)
-                    var isRole =  this.Content.Length > stringIndex + 1 && this.Content[stringIndex + 1] == '&';
-                    // If the next character isn't out of bounds and is a '!' (outdated nick mention, mostly unused)
-                    var isNickname = this.Content.Length > stringIndex + 1 && this.Content[stringIndex + 1] == '!';
-
-                    // If it's a role or nick mention, skip 2 characters (@& or &!), otherwise skip 1 (@)
-                    stringIndex += isRole || isNickname ? 2 : 1;
-                    snowflakeIndex = stringIndex;
-
-                    while (snowflakeIndex < stringIndex + 20 && snowflakeIndex < this.Content.Length && this.Content[snowflakeIndex] != '>')
-                    {
-                        snowflakeBuilder.Append(this.Content[snowflakeIndex]);
-                        snowflakeIndex++;
-                    }
-
-                    // Make sure we have ourselves a valid snowflake.
-                    if (ulong.TryParse(snowflakeBuilder.ToString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out var userOrRoleId))
-                    {
-                        if (isRole && guild._roles.TryGetValue(userOrRoleId, out var role) && !this._mentionedRoles.Contains(role))
-                        {
-                            this._mentionedRoles.Add(role);
-                        }
-                        // Try to add a member casted to a user to the mentioned users.
-                        else if (guild._members.TryGetValue(userOrRoleId, out var member) && !this._mentionedUsers.Contains(member))
-                        {
-                            this._mentionedUsers.Add(member);
-                        }
-                        // Try to get the user from the cache.
-                        else if (this.Discord.TryGetCachedUserInternal(userOrRoleId, out var user) && !this._mentionedUsers.Contains(user))
-                        {
-                            this._mentionedUsers.Add(user);
-                        }
-                    }
-
-                    snowflakeBuilder.Clear();
+                    //uncomment if this breaks
+                    //this._mentionedRoles = this._mentionedRoles.Union(Utilities.GetRoleMentions(this).Select(xid => guild.GetRole(xid))).ToList();
+                    this._mentionedRoles = this._mentionedRoles.Union(this._mentionedRoleIds.Select(xid => guild.GetRole(xid))).ToList();
+                    this._mentionedChannels = this._mentionedChannels.Union(Utilities.GetChannelMentions(this).Select(xid => guild.GetChannel(xid))).ToList();
                 }
             }
+            this._mentionedUsers = mentionedUsers.ToList();
         }
 
         /// <summary>
