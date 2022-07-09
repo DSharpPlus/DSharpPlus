@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Reflection;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace DSharpPlus.SlashCommands
 {
@@ -18,8 +17,7 @@ namespace DSharpPlus.SlashCommands
         /// <param name="client">Client to enable slash commands for.</param>
         /// <param name="config">Configuration to use.</param>
         /// <returns>Created <see cref="SlashCommandsExtension"/>.</returns>
-        public static SlashCommandsExtension UseSlashCommands(this DiscordClient client,
-            SlashCommandsConfiguration config = null)
+        public static SlashCommandsExtension UseSlashCommands(this DiscordClient client, SlashCommandsConfiguration config = null)
         {
             if (client.GetExtension<SlashCommandsExtension>() != null)
                 throw new InvalidOperationException("Slash commands are already enabled for that client.");
@@ -47,7 +45,7 @@ namespace DSharpPlus.SlashCommands
         {
             var modules = new Dictionary<int, SlashCommandsExtension>();
             await client.InitializeShardsAsync();
-            foreach(var shard in client.ShardClients.Values)
+            foreach (var shard in client.ShardClients.Values)
             {
                 var scomm = shard.GetSlashCommands();
                 if (scomm == null)
@@ -91,19 +89,18 @@ namespace DSharpPlus.SlashCommands
         {
             if (e is Enum)
             {
-                Type type = e.GetType();
-                Array values = Enum.GetValues(type);
+                var type = e.GetType();
+                var values = Enum.GetValues(type);
 
                 foreach (int val in values)
                 {
                     if (val == e.ToInt32(CultureInfo.InvariantCulture))
                     {
                         var memInfo = type.GetMember(type.GetEnumName(val));
-                        var nameAttribute = memInfo[0]
-                            .GetCustomAttributes(typeof(ChoiceNameAttribute), false)
-                            .FirstOrDefault() as ChoiceNameAttribute;
 
-                        return nameAttribute != null ? nameAttribute.Name : type.GetEnumName(val);
+                        return memInfo[0].GetCustomAttributes(typeof(ChoiceNameAttribute), false).FirstOrDefault() is ChoiceNameAttribute nameAttribute
+                            ? nameAttribute.Name
+                            : type.GetEnumName(val);
                     }
                 }
             }

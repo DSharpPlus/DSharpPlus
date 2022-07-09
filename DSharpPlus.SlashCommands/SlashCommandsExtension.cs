@@ -46,7 +46,7 @@ namespace DSharpPlus.SlashCommands
         /// Gets a list of registered commands. The key is the guild id (null if global).
         /// </summary>
         public IReadOnlyList<KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>> RegisteredCommands => _registeredCommands;
-        private static List<KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>> _registeredCommands = new();
+        private static readonly List<KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>> _registeredCommands = new();
 
         internal SlashCommandsExtension(SlashCommandsConfiguration configuration)
         {
@@ -114,7 +114,7 @@ namespace DSharpPlus.SlashCommands
                 typeof(ApplicationCommandModule).IsAssignableFrom(xt) &&
                 !xt.GetTypeInfo().IsNested);
 
-            foreach (Type xt in types)
+            foreach (var xt in types)
                 this.RegisterCommands(xt, guildId);
         }
 
@@ -606,7 +606,7 @@ namespace DSharpPlus.SlashCommands
 
                             var args = await this.ResolveInteractionCommandParameters(e, context, method, e.Interaction.Data.Options);
 
-                            await this.RunCommand(context, method, args);
+                            await this.RunCommandAsync(context, method, args);
                         }
                         else if (groups.Any())
                         {
@@ -615,7 +615,7 @@ namespace DSharpPlus.SlashCommands
 
                             var args = await this.ResolveInteractionCommandParameters(e, context, method, e.Interaction.Data.Options.First().Options);
 
-                            await this.RunCommand(context, method, args);
+                            await this.RunCommandAsync(context, method, args);
                         }
                         else if (subgroups.Any())
                         {
@@ -625,7 +625,7 @@ namespace DSharpPlus.SlashCommands
 
                             var args = await this.ResolveInteractionCommandParameters(e, context, method, e.Interaction.Data.Options.First().Options.First().Options);
 
-                            await this.RunCommand(context, method, args);
+                            await this.RunCommandAsync(context, method, args);
                         }
 
                         await this._slashExecuted.InvokeAsync(this, new SlashCommandExecutedEventArgs { Context = context });
@@ -709,6 +709,11 @@ namespace DSharpPlus.SlashCommands
                     Type = e.Type
                 };
 
+                if (e.Interaction.Guild != null && e.Interaction.Guild.Members.TryGetValue(e.TargetUser.Id, out var member))
+                {
+                    context.TargetMember = member;
+                }
+
                 try
                 {
                     if (_errored)
@@ -720,7 +725,7 @@ namespace DSharpPlus.SlashCommands
                     if (method == null)
                         throw new InvalidOperationException("A context menu was executed, but no command was registered for it.");
 
-                    await this.RunCommand(context, method.Method, new[] { context });
+                    await this.RunCommandAsync(context, method.Method, new[] { context });
 
                     await this._contextMenuExecuted.InvokeAsync(this, new ContextMenuExecutedEventArgs { Context = context });
                 }
@@ -733,32 +738,22 @@ namespace DSharpPlus.SlashCommands
             return Task.CompletedTask;
         }
 
-        internal async Task RunCommand(BaseContext context, MethodInfo method, IEnumerable<object> args)
+        internal async Task RunCommandAsync(BaseContext context, MethodInfo method, IEnumerable<object> args)
         {
-            object classInstance;
 
             //Accounts for lifespans
             var moduleLifespan = (method.DeclaringType.GetCustomAttribute<SlashModuleLifespanAttribute>() != null ? method.DeclaringType.GetCustomAttribute<SlashModuleLifespanAttribute>()?.Lifespan : SlashModuleLifespan.Transient) ?? SlashModuleLifespan.Transient;
-            switch (moduleLifespan)
+            var classInstance = moduleLifespan switch //Accounts for static methods and adds DI
             {
-                case SlashModuleLifespan.Scoped:
-                    //Accounts for static methods and adds DI
-                    classInstance = method.IsStatic ? ActivatorUtilities.CreateInstance(this._configuration?.Services.CreateScope().ServiceProvider, method.DeclaringType) : this.CreateInstance(method.DeclaringType, this._configuration?.Services.CreateScope().ServiceProvider);
-                    break;
-
-                case SlashModuleLifespan.Transient:
-                    //Accounts for static methods and adds DI
-                    classInstance = method.IsStatic ? ActivatorUtilities.CreateInstance(this._configuration?.Services, method.DeclaringType) : this.CreateInstance(method.DeclaringType, this._configuration?.Services);
-                    break;
-
-                //If singleton, gets it from the singleton list
-                case SlashModuleLifespan.Singleton:
-                    classInstance = _singletonModules.First(x => ReferenceEquals(x.GetType(), method.DeclaringType));
-                    break;
-
-                default:
-                    throw new Exception($"An unknown {nameof(SlashModuleLifespanAttribute)} scope was specified on command {context.CommandName}");
-            }
+                // Accounts for static methods and adds DI
+                SlashModuleLifespan.Scoped => method.IsStatic ? ActivatorUtilities.CreateInstance(this._configuration?.Services.CreateScope().ServiceProvider, method.DeclaringType) : this.CreateInstance(method.DeclaringType, this._configuration?.Services.CreateScope().ServiceProvider),
+                // Accounts for static methods and adds DI
+                SlashModuleLifespan.Transient => method.IsStatic ? ActivatorUtilities.CreateInstance(this._configuration?.Services, method.DeclaringType) : this.CreateInstance(method.DeclaringType, this._configuration?.Services),
+                // If singleton, gets it from the singleton list
+                SlashModuleLifespan.Singleton => _singletonModules.First(x => ReferenceEquals(x.GetType(), method.DeclaringType)),
+                // TODO: Use a more specific exception type
+                _ => throw new Exception($"An unknown {nameof(SlashModuleLifespanAttribute)} scope was specified on command {context.CommandName}"),
+            };
 
             ApplicationCommandModule module = null;
             if (classInstance is ApplicationCommandModule mod)
@@ -863,7 +858,7 @@ namespace DSharpPlus.SlashCommands
             var args = new List<object> { context };
             var parameters = method.GetParameters().Skip(1);
 
-            for (int i = 0; i < parameters.Count(); i++)
+            for (var i = 0; i < parameters.Count(); i++)
             {
                 var parameter = parameters.ElementAt(i);
 
@@ -1152,7 +1147,7 @@ namespace DSharpPlus.SlashCommands
         public event AsyncEventHandler<SlashCommandsExtension, SlashCommandErrorEventArgs> SlashCommandErrored
         {
             add => this._slashError.Register(value);
-            remove { this._slashError.Unregister(value); }
+            remove => this._slashError.Unregister(value);
         }
         private AsyncEvent<SlashCommandsExtension, SlashCommandErrorEventArgs> _slashError;
 

@@ -13,8 +13,7 @@ namespace DSharpPlus.SlashCommands.Attributes
         /// <summary>
         /// Defines that this slash command is restricted to the owner of the bot.
         /// </summary>
-        public SlashRequireOwnerAttribute()
-        { }
+        public SlashRequireOwnerAttribute() { }
 
         /// <summary>
         /// Runs checks.

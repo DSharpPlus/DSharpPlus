@@ -1,8 +1,8 @@
-﻿using DSharpPlus.Entities;
-using Microsoft.Extensions.DependencyInjection;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using DSharpPlus.Entities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.SlashCommands
 {
@@ -65,7 +65,7 @@ namespace DSharpPlus.SlashCommands
         /// <summary>
         /// Gets the type of this interaction.
         /// </summary>
-        public ApplicationCommandType Type { get; internal set;}
+        public ApplicationCommandType Type { get; internal set; }
 
         /// <summary>
         /// <para>Gets the service provider.</para>
