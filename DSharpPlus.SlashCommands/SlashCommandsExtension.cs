@@ -430,8 +430,8 @@ namespace DSharpPlus.SlashCommands
 
                 var channelTypes = parameter.GetCustomAttribute<ChannelTypesAttribute>()?.ChannelTypes ?? null;
 
-                var minimum = parameter.GetCustomAttribute<MinimumAttribute>()?.Value ?? null;
-                var maximum = parameter.GetCustomAttribute<MaximumAttribute>()?.Value ?? null;
+                var minimumValue = parameter.GetCustomAttribute<MinimumAttribute>()?.Value ?? null;
+                var maximumValue = parameter.GetCustomAttribute<MaximumAttribute>()?.Value ?? null;
 
                 var minimumLength = parameter.GetCustomAttribute<MinimumLengthAttribute>()?.Value ?? null;
                 var maximumLength = parameter.GetCustomAttribute<MaximumLengthAttribute>()?.Value ?? null;
@@ -443,7 +443,7 @@ namespace DSharpPlus.SlashCommands
                 if (autocompleteAttribute != null && autocompleteAttribute.Provider.GetMethod(nameof(IAutocompleteProvider.Provider)) == null)
                     throw new ArgumentException("Autocomplete providers must inherit from IAutocompleteProvider.");
 
-                options.Add(new DiscordApplicationCommandOption(optionattribute.Name, optionattribute.Description, parametertype, !parameter.IsOptional, choices, null, channelTypes, (autocompleteAttribute != null || optionattribute.Autocomplete), minimum, maximum, nameLocalizations, descriptionLocalizations, minimumLength, maximumLength));
+                options.Add(new DiscordApplicationCommandOption(optionattribute.Name, optionattribute.Description, parametertype, !parameter.IsOptional, choices, null, channelTypes, (autocompleteAttribute != null || optionattribute.Autocomplete), minimumValue, maximumValue, nameLocalizations, descriptionLocalizations, minimumLength, maximumLength));
             }
 
             return options;
