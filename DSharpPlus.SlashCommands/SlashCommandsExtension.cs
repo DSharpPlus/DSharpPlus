@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -709,7 +709,7 @@ namespace DSharpPlus.SlashCommands
                     Type = e.Type
                 };
 
-                if (e.Interaction.Guild != null && e.Interaction.Guild.Members.TryGetValue(e.TargetUser.Id, out var member))
+                if (e.Interaction.Guild != null && e.TargetUser != null && e.Interaction.Guild.Members.TryGetValue(e.TargetUser.Id, out var member))
                 {
                     context.TargetMember = member;
                 }
