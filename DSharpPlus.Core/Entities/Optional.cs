@@ -110,5 +110,7 @@ namespace DSharpPlus.Core.Entities
         public static explicit operator T(Optional<T> optional) => optional.Value;
         public static bool operator ==(Optional<T> opt, T t) => opt.Equals(t);
         public static bool operator !=(Optional<T> opt, T t) => !opt.Equals(t);
+        public static bool operator ==(Optional<T> lhs, Optional<T> rhs) => lhs.Equals(rhs);
+        public static bool operator !=(Optional<T> lhs, Optional<T> rhs) => !lhs.Equals(rhs);
     }
 }
