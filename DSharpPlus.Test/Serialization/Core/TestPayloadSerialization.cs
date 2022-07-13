@@ -43,10 +43,7 @@ namespace DSharpPlus.Test.Serialization.Core
     {
         private static readonly JsonSerializerOptions stjOptions = new()
         {
-            Converters =
-            {
-                new ReflectJsonConverterFactory()
-            }
+            TypeInfoResolver = DiscordJsonTypeInfoResolver.Default
         };
 
         private static readonly Regex NormalizeJsonWhitespace = new("(\"(?:[^\"\\\\]|\\\\.)*\")|\\s+", RegexOptions.Compiled);
