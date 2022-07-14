@@ -12,4 +12,7 @@
         <Description>A C# API for Discord based off DiscordSharp, but rewritten twice to fit the API standards.</Description>
         <PackageTags>discord, discord-api, bots, discord-bots, chat, dsharp, dsharpplus, csharp, dotnet, vb-net, fsharp, webhooks</PackageTags>
     </PropertyGroup>
+    <ItemGroup>
+      <PackageReference Include="System.Text.Json" Version="7.0.0-preview.6.22324.4" />
+    </ItemGroup>
 </Project>
