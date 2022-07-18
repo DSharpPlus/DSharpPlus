@@ -505,7 +505,8 @@ namespace DSharpPlus
 
                 default:
                     await this.OnUnknownEventAsync(payload).ConfigureAwait(false);
-                    this.Logger.LogWarning(LoggerEvents.WebSocketReceive, "Unknown event: {EventName}\npayload: {@Payload}", payload.EventName, payload.Data);
+                    if (this.Configuration.LogUnknownEvents)
+                        this.Logger.LogWarning(LoggerEvents.WebSocketReceive, "Unknown event: {EventName}\npayload: {@Payload}", payload.EventName, payload.Data);
                     break;
 
                     #endregion
@@ -1042,7 +1043,7 @@ namespace DSharpPlus
                 foreach (var kvp in gld._threads ??= new()) oldGuild._threads[kvp.Key] = kvp.Value;
                 foreach (var kvp in gld._emojis ??= new()) oldGuild._emojis[kvp.Key] = kvp.Value;
                 foreach (var kvp in gld._roles ??= new()) oldGuild._roles[kvp.Key] = kvp.Value;
-                                                      //new ConcurrentDictionary<ulong, DiscordVoiceState>()
+                //new ConcurrentDictionary<ulong, DiscordVoiceState>()
                 foreach (var kvp in gld._voiceStates ??= new()) oldGuild._voiceStates[kvp.Key] = kvp.Value;
                 foreach (var kvp in gld._members ??= new()) oldGuild._members[kvp.Key] = kvp.Value;
             }
@@ -1524,7 +1525,7 @@ namespace DSharpPlus
             DiscordMessage oldmsg = null;
             if (this.Configuration.MessageCacheSize == 0
                 || this.MessageCache == null
-                || !this.MessageCache.TryGet(xm => xm.Id == event_message.Id && xm.ChannelId == event_message.ChannelId, out message)) // previous message was not in cache 
+                || !this.MessageCache.TryGet(xm => xm.Id == event_message.Id && xm.ChannelId == event_message.ChannelId, out message)) // previous message was not in cache
             {
                 message = event_message;
                 this.PopulateMessageReactionsAndCache(message, author, member);
@@ -1537,11 +1538,11 @@ namespace DSharpPlus
                     message.ReferencedMessage.PopulateMentions();
                 }
             }
-            else // previous message was fetched in cache 
+            else // previous message was fetched in cache
             {
                 oldmsg = new DiscordMessage(message);
 
-                // cached message is updated with information from the event message 
+                // cached message is updated with information from the event message
                 guild = message.Channel?.Guild;
                 message.EditedTimestamp = event_message.EditedTimestamp;
                 if (event_message.Content != null)
