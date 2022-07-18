@@ -4,9 +4,9 @@
 An unofficial .NET wrapper for the Discord API, based off [DiscordSharp](https://github.com/suicvne/DiscordSharp), but rewritten to fit the API standards.
 
 [![Nightly Build Status](https://github.com/DSharpPlus/DSharpPlus/actions/workflows/publish_nightly.yml/badge.svg?branch=master)](https://github.com/DSharpPlus/DSharpPlus/actions/workflows/publish_nightly.yml)
-[![Discord Server](https://img.shields.io/discord/379378609942560770.svg?label=discord)](https://discord.gg/dsharpplus)
-[![NuGet](https://img.shields.io/nuget/v/DSharpPlus.svg)](https://nuget.org/packages/DSharpPlus)
-[![NuGet Latest Nightly/Prerelease](https://img.shields.io/nuget/vpre/DSharpPlus.svg)](https://nuget.org/packages/DSharpPlus)
+[![Discord Server](https://img.shields.io/discord/379378609942560770.svg?label=Discord&color=506de2)](https://discord.gg/dsharpplus)
+[![NuGet](https://img.shields.io/nuget/v/DSharpPlus.svg?label=NuGet)](https://nuget.org/packages/DSharpPlus)
+[![NuGet Latest Nightly/Prerelease](https://img.shields.io/nuget/vpre/DSharpPlus?color=505050&label=NuGet%20Latest%20Nightly%2FPrerelease)](https://nuget.org/packages/DSharpPlus)
 
 # Installing
 You can install the library from following sources:
