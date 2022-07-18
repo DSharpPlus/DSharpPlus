@@ -189,6 +189,11 @@ namespace DSharpPlus
         public ILoggerFactory LoggerFactory { internal get; set; } = null;
 
         /// <summary>
+        /// Whether to log unknown events or not. Defaults to true.
+        /// </summary>
+        public bool LogUnknownEvents { internal get; set; } = true;
+
+        /// <summary>
         /// Creates a new configuration with default values.
         /// </summary>
         public DiscordConfiguration()
