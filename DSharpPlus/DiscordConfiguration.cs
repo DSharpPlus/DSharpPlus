@@ -223,6 +223,7 @@ namespace DSharpPlus
             this.ReconnectIndefinitely = other.ReconnectIndefinitely;
             this.Intents = other.Intents;
             this.LoggerFactory = other.LoggerFactory;
+            this.LogUnknownEvents = other.LogUnknownEvents;
         }
     }
 }
