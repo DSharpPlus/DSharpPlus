@@ -61,13 +61,13 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// The url for this role's icon, if set.
         /// </summary>
-        public string IconUrl => this.IconHash != null ? $"https://cdn.discordapp.com/role-icons/{this.Id}/{this.IconHash}.png" : null;
+        public string? IconUrl => this.IconHash != null ? $"https://cdn.discordapp.com/role-icons/{this.Id}/{this.IconHash}.png" : null;
 
         /// <summary>
         /// The hash of this role's icon, if any.
         /// </summary>
         [JsonProperty("icon")]
-        public string IconHash { get; internal set; }
+        public string? IconHash { get; internal set; }
 
         /// <summary>
         /// The emoji associated with this role's icon, if set.
