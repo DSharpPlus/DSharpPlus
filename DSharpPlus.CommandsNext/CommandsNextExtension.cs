@@ -786,6 +786,7 @@ namespace DSharpPlus.CommandsNext
             {
                 Discord = this.Client,
                 Author = actor,
+                Channel = channel,
                 ChannelId = channel.Id,
                 Content = messageContents,
                 Id = timeSpan << 22,
