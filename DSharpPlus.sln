@@ -50,6 +50,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Lavalink", "DSha
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.SlashCommands", "DSharpPlus.SlashCommands\DSharpPlus.SlashCommands.csproj", "{B505958E-CCD1-4141-9555-2AF35C4F5F48}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToffyDiscord", "ToffyDiscord\ToffyDiscord.csproj", "{9084230E-9747-490F-97B6-FBE2ABE8103C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +89,10 @@ Global
 		{B505958E-CCD1-4141-9555-2AF35C4F5F48}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B505958E-CCD1-4141-9555-2AF35C4F5F48}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B505958E-CCD1-4141-9555-2AF35C4F5F48}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9084230E-9747-490F-97B6-FBE2ABE8103C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9084230E-9747-490F-97B6-FBE2ABE8103C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9084230E-9747-490F-97B6-FBE2ABE8103C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9084230E-9747-490F-97B6-FBE2ABE8103C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
