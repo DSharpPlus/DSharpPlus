@@ -496,7 +496,7 @@ namespace DSharpPlus.Entities
         [JsonIgnore]
         internal bool IsSynced { get; set; }
 
-        internal DiscordGuild()
+        public DiscordGuild()
         {
             this._current_member_lazy = new Lazy<DiscordMember>(() => (this._members != null && this._members.TryGetValue(this.Discord.CurrentUser.Id, out var member)) ? member : null);
             this._invites = new ConcurrentDictionary<string, DiscordInvite>();

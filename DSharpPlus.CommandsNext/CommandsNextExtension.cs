@@ -1022,5 +1022,6 @@ namespace DSharpPlus.CommandsNext
         private Task OnCommandErrored(CommandErrorEventArgs e)
             => this._error.InvokeAsync(this, e);
         #endregion
+
     }
 }
