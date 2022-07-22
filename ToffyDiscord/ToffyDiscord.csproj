@@ -7,6 +7,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="F:\Code\Git\Toffy_DSharpPlus\DSharpPlus\DSharpPlus.csproj"/>
+    <ProjectReference Include="..\DSharpPlus.CommandsNext\DSharpPlus.CommandsNext.csproj" />
+    <ProjectReference Include="F:\Code\Git\Toffy_DSharpPlus\DSharpPlus\DSharpPlus.csproj" />
   </ItemGroup>
 </Project>
