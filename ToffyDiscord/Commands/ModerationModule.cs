@@ -32,4 +32,26 @@ public class ModerationModule : BaseCommandModule
             await ctx.RespondAsync($"Пользователь {member.Username} не может быть заблокирован");
         }
     }
+
+
+    [Command("unban")]
+    [Description("Разбан пользователя")]
+    [RequirePermissions(Permissions.BanMembers)]
+    [Hidden]
+    public async Task Unban(CommandContext ctx, [Description("Разблокируемый пользователь")] DiscordUser member)
+    {
+        await ctx.TriggerTypingAsync();
+        // var guild = new DiscordGuild();
+        // guild = member.Guild;
+        try
+        {
+            await ctx.Guild.UnbanMemberAsync(member);
+            await ctx.RespondAsync(
+                $"Пользователь @{member.Username}#{member.Discriminator} был разблокирован администратором {ctx.User.Username}");
+        }
+        catch (Exception)
+        {
+            await ctx.RespondAsync($"Пользователь {member.Username} не может быть разблокирован");
+        }
+    }
 }

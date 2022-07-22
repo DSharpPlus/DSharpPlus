@@ -15,7 +15,7 @@ namespace ToffyDiscord
         {
             var discord = new DiscordClient(new DiscordConfiguration()
             {
-                Token = "MTAwMDA1MjA0MzY1NTk1NDU4Mg.GlmBjS.fxKaSKKyEpfurLN8TVry6WtFEn4XeHfr5Y6ATc",
+                Token = "MTAwMDA1MjA0MzY1NTk1NDU4Mg.GDViR5.gOQCVgcnwmp5cpVz4xvFasbcgCI9vdh5JSdpqE",
                 TokenType = TokenType.Bot
             });
 
@@ -24,12 +24,14 @@ namespace ToffyDiscord
                 UseDefaultCommandHandler = false
             });
 
+
             var lavalink = discord.UseLavalink();
 
 
 
             commands.RegisterCommands<IntroductionModule>();
             commands.RegisterCommands<MusicModule>();
+            commands.RegisterCommands<ModerationModule>();
             commands.SetHelpFormatter<DefaultHelpFormatter>();
 
             discord.MessageCreated += CommandHandler;
