@@ -999,7 +999,7 @@ namespace DSharpPlus
                 {
                     Discord = gld.Discord,
                     Name = gld.Name,
-                    AfkChannelId = gld.AfkChannelId,
+                    _afkChannelId = gld._afkChannelId,
                     AfkTimeout = gld.AfkTimeout,
                     DefaultMessageNotifications = gld.DefaultMessageNotifications,
                     ExplicitContentFilter = gld.ExplicitContentFilter,
@@ -1007,7 +1007,7 @@ namespace DSharpPlus
                     IconHash = gld.IconHash,
                     Id = gld.Id,
                     IsLarge = gld.IsLarge,
-                    IsSynced = gld.IsSynced,
+                    _isSynced = gld._isSynced,
                     IsUnavailable = gld.IsUnavailable,
                     JoinedAt = gld.JoinedAt,
                     MemberCount = gld.MemberCount,
@@ -1021,14 +1021,14 @@ namespace DSharpPlus
                     MfaLevel = gld.MfaLevel,
                     OwnerId = gld.OwnerId,
                     SplashHash = gld.SplashHash,
-                    SystemChannelId = gld.SystemChannelId,
+                    _systemChannelId = gld._systemChannelId,
                     SystemChannelFlags = gld.SystemChannelFlags,
                     WidgetEnabled = gld.WidgetEnabled,
-                    WidgetChannelId = gld.WidgetChannelId,
+                    _widgetChannelId = gld._widgetChannelId,
                     VerificationLevel = gld.VerificationLevel,
-                    RulesChannelId = gld.RulesChannelId,
-                    PublicUpdatesChannelId = gld.PublicUpdatesChannelId,
-                    VoiceRegionId = gld.VoiceRegionId,
+                    _rulesChannelId = gld._rulesChannelId,
+                    _publicUpdatesChannelId = gld._publicUpdatesChannelId,
+                    _voiceRegionId = gld._voiceRegionId,
                     PremiumProgressBarEnabled = gld.PremiumProgressBarEnabled,
                     IsNSFW = gld.IsNSFW,
                     _channels = new ConcurrentDictionary<ulong, DiscordChannel>(),
@@ -1122,7 +1122,7 @@ namespace DSharpPlus
             foreach (var xp in presences)
                 this._presences[xp.InternalUser.Id] = xp;
 
-            guild.IsSynced = true;
+            guild._isSynced = true;
             guild.IsLarge = isLarge;
 
             this.UpdateCachedGuild(guild, rawMembers);
@@ -2510,7 +2510,7 @@ namespace DSharpPlus
                         m.Value.Discord = this;
 
                         if (guildId.HasValue)
-                            m.Value.GuildId = guildId.Value;
+                            m.Value._guildId = guildId.Value;
                     }
                 }
             }

@@ -75,7 +75,7 @@ namespace DSharpPlus.Entities
             this.IsTTS = other.IsTTS;
             this.MessageType = other.MessageType;
             this.Pinned = other.Pinned;
-            this.TimestampRaw = other.TimestampRaw;
+            this._timestampRaw = other._timestampRaw;
             this.WebhookId = other.WebhookId;
             this.ApplicationId = other.ApplicationId;
         }
@@ -120,10 +120,10 @@ namespace DSharpPlus.Entities
         /// Gets the message's creation timestamp.
         /// </summary>
         [JsonIgnore]
-        public DateTimeOffset Timestamp => this.TimestampRaw ?? this.CreationTimestamp;
+        public DateTimeOffset Timestamp => this._timestampRaw ?? this.CreationTimestamp;
 
         [JsonProperty("timestamp", NullValueHandling = NullValueHandling.Ignore)]
-        internal DateTimeOffset? TimestampRaw { get; set; }
+        internal DateTimeOffset? _timestampRaw { get; set; }
 
         /// <summary>
         /// Gets the message's edit timestamp. Will be null if the message was not edited.
@@ -253,14 +253,14 @@ namespace DSharpPlus.Entities
         public DiscordMessageApplication Application { get; internal set; }
 
         [JsonProperty("message_reference", NullValueHandling = NullValueHandling.Ignore)]
-        internal InternalDiscordMessageReference? InternalReference { get; set; }
+        internal InternalDiscordMessageReference? _internalReference { get; set; }
 
         /// <summary>
         /// Gets the original message reference from the crossposted message.
         /// </summary>
         [JsonIgnore]
         public DiscordMessageReference Reference
-            => this.InternalReference.HasValue ? this?.InternalBuildMessageReference() : null;
+            => this._internalReference.HasValue ? this?.InternalBuildMessageReference() : null;
 
         /// <summary>
         /// Gets the bitwise flags for this message.
@@ -293,7 +293,7 @@ namespace DSharpPlus.Entities
         internal List<DiscordMessageSticker> _stickers = new();
 
         [JsonProperty("guild_id", NullValueHandling = NullValueHandling.Ignore)]
-        internal ulong? GuildId { get; set; }
+        internal ulong? _guildId { get; set; }
 
         /// <summary>
         /// Gets the message object for the referenced message
@@ -316,9 +316,9 @@ namespace DSharpPlus.Entities
         internal DiscordMessageReference InternalBuildMessageReference()
         {
             var client = this.Discord as DiscordClient;
-            var guildId = this.InternalReference.Value.GuildId;
-            var channelId = this.InternalReference.Value.ChannelId;
-            var messageId = this.InternalReference.Value.MessageId;
+            var guildId = this._internalReference.Value.GuildId;
+            var channelId = this._internalReference.Value.ChannelId;
+            var messageId = this._internalReference.Value.MessageId;
 
             var reference = new DiscordMessageReference();
 
@@ -780,7 +780,7 @@ namespace DSharpPlus.Entities
             if (e is null)
                 return false;
 
-            return ReferenceEquals(this, e) ? true : this.Id == e.Id && this.ChannelId == e.ChannelId;
+            return ReferenceEquals(this, e) || (this.Id == e.Id && this.ChannelId == e.ChannelId);
         }
 
         /// <summary>
@@ -811,7 +811,7 @@ namespace DSharpPlus.Entities
             if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
                 return false;
 
-            return o1 == null && o2 == null ? true : e1.Id == e2.Id && e1.ChannelId == e2.ChannelId;
+            return (o1 == null && o2 == null) || (e1.Id == e2.Id && e1.ChannelId == e2.ChannelId);
         }
 
         /// <summary>
