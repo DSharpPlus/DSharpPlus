@@ -5,7 +5,8 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <ProjectReference Include="../DSharpPlus-Repo/DSharpPlus/DSharpPlus.csproj"/>
   </PropertyGroup>
-
+  <ItemGroup>
+    <ProjectReference Include="F:\Code\Git\Toffy_DSharpPlus\DSharpPlus\DSharpPlus.csproj"/>
+  </ItemGroup>
 </Project>
