@@ -8,6 +8,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\DSharpPlus.CommandsNext\DSharpPlus.CommandsNext.csproj" />
-    <ProjectReference Include="F:\Code\Git\Toffy_DSharpPlus\DSharpPlus\DSharpPlus.csproj" />
+    <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj" />
   </ItemGroup>
 </Project>
