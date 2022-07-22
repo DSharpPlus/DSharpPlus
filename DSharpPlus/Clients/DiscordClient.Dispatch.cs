@@ -505,7 +505,8 @@ namespace DSharpPlus
 
                 default:
                     await this.OnUnknownEventAsync(payload).ConfigureAwait(false);
-                    this.Logger.LogWarning(LoggerEvents.WebSocketReceive, "Unknown event: {EventName}\npayload: {@Payload}", payload.EventName, payload.Data);
+                    if (this.Configuration.LogUnknownEvents)
+                        this.Logger.LogWarning(LoggerEvents.WebSocketReceive, "Unknown event: {EventName}\npayload: {@Payload}", payload.EventName, payload.Data);
                     break;
 
                     #endregion
@@ -1514,68 +1515,66 @@ namespace DSharpPlus
             await this._messageCreated.InvokeAsync(this, ea).ConfigureAwait(false);
         }
 
-        internal async Task OnMessageUpdateEventAsync(DiscordMessage updatedMessage, TransportUser author, TransportMember member, TransportUser referenceAuthor, TransportMember referenceMember)
+        internal async Task OnMessageUpdateEventAsync(DiscordMessage message, TransportUser author, TransportMember member, TransportUser referenceAuthor, TransportMember referenceMember)
         {
-            updatedMessage.Discord = this;
-            DiscordMessage outdatedMessage = null;
+            DiscordGuild guild;
 
-            // If the user has cache disabled or the message wasn't found in the cache.
-            if (this.Configuration.MessageCacheSize == 0 || this.MessageCache == null || !this.MessageCache.TryGet(cacheMessage => cacheMessage.Id == updatedMessage.Id && cacheMessage.ChannelId == updatedMessage.ChannelId, out var cachedMessage))
+            message.Discord = this;
+            var event_message = message;
+
+            DiscordMessage oldmsg = null;
+            if (this.Configuration.MessageCacheSize == 0
+                || this.MessageCache == null
+                || !this.MessageCache.TryGet(xm => xm.Id == event_message.Id && xm.ChannelId == event_message.ChannelId, out message)) // previous message was not in cache
             {
-                // MessageUpdate event doesn't share reactions. So we update the reactions on the message and put the message in the cache.
-                // Should be two separate methods imo but that's out of scope for this PR.
-                this.PopulateMessageReactionsAndCache(updatedMessage, author, member);
+                message = event_message;
+                this.PopulateMessageReactionsAndCache(message, author, member);
+                guild = message.Channel?.Guild;
 
-                if (updatedMessage.ReferencedMessage != null)
+                if (message.ReferencedMessage != null)
                 {
-                    // Do the same with the referenced message.
-                    updatedMessage.ReferencedMessage.Discord = this;
-                    this.PopulateMessageReactionsAndCache(updatedMessage.ReferencedMessage, referenceAuthor, referenceMember);
-
-                    // Make sure the referenced message has the correct mentions.
-                    updatedMessage.ReferencedMessage.PopulateMentions();
+                    message.ReferencedMessage.Discord = this;
+                    this.PopulateMessageReactionsAndCache(message.ReferencedMessage, referenceAuthor, referenceMember);
+                    message.ReferencedMessage.PopulateMentions();
                 }
             }
-            // The message was found in cache, now we need to update the cached message.
-            else
+            else // previous message was fetched in cache
             {
-                // Create a copy of the cached message for the Before event argument.
-                outdatedMessage = new DiscordMessage(cachedMessage);
+                oldmsg = new DiscordMessage(message);
 
-                // Update the properties
-                if (updatedMessage.Content != null)
-                {
-                    cachedMessage.Content = updatedMessage.Content;
-                }
+                // cached message is updated with information from the event message
+                guild = message.Channel?.Guild;
+                message.EditedTimestamp = event_message.EditedTimestamp;
+                if (event_message.Content != null)
+                    message.Content = event_message.Content;
+                message._embeds.Clear();
+                message._embeds.AddRange(event_message._embeds);
+                message._attachments.Clear();
+                message._attachments.AddRange(event_message._attachments);
+                message.Pinned = event_message.Pinned;
+                message.IsTTS = event_message.IsTTS;
 
-                cachedMessage.EditedTimestamp = updatedMessage.EditedTimestamp;
-                cachedMessage.MentionEveryone = updatedMessage.MentionEveryone;
-                cachedMessage._attachments = updatedMessage._attachments ?? new();
-                cachedMessage._embeds = updatedMessage._embeds ?? new();
-                cachedMessage.Pinned = updatedMessage.Pinned;
-                cachedMessage.Activity = updatedMessage.Activity;
-                cachedMessage.Flags = updatedMessage.Flags;
-                cachedMessage.Components = updatedMessage.Components;
-                cachedMessage._stickers = updatedMessage._stickers ?? new();
-                // Copy this over so that users in the new mentions are cached as well.
-                cachedMessage._mentionedUsers = updatedMessage._mentionedUsers ?? new();
-
-                updatedMessage = cachedMessage;
+                // Mentions
+                message._mentionedUsers.Clear();
+                message._mentionedUsers.AddRange(event_message._mentionedUsers ?? new());
+                message._mentionedRoles.Clear();
+                message._mentionedRoles.AddRange(event_message._mentionedRoles ?? new());
+                message._mentionedChannels.Clear();
+                message._mentionedChannels.AddRange(event_message._mentionedChannels ?? new());
+                message.MentionEveryone = event_message.MentionEveryone;
             }
 
-            // Content is getting updated regardless if the message was updated or not.
-            updatedMessage.PopulateMentions();
+            message.PopulateMentions();
 
-            var eventArgs = new MessageUpdateEventArgs()
+            var ea = new MessageUpdateEventArgs
             {
-                Message = updatedMessage,
-                MessageBefore = outdatedMessage,
-                MentionedChannels = (updatedMessage._mentionedChannels ?? new()).AsReadOnly(),
-                MentionedRoles = (updatedMessage._mentionedRoles ?? new()).AsReadOnly(),
-                MentionedUsers = (updatedMessage._mentionedUsers ?? new()).AsReadOnly()
+                Message = message,
+                MessageBefore = oldmsg,
+                MentionedUsers = new ReadOnlyCollection<DiscordUser>(message._mentionedUsers),
+                MentionedRoles = message._mentionedRoles != null ? new ReadOnlyCollection<DiscordRole>(message._mentionedRoles) : null,
+                MentionedChannels = message._mentionedChannels != null ? new ReadOnlyCollection<DiscordChannel>(message._mentionedChannels) : null
             };
-
-            await this._messageUpdated.InvokeAsync(this, eventArgs).ConfigureAwait(false);
+            await this._messageUpdated.InvokeAsync(this, ea).ConfigureAwait(false);
         }
 
         internal async Task OnMessageDeleteEventAsync(ulong messageId, ulong channelId, ulong? guildId)

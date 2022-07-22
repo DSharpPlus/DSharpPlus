@@ -179,7 +179,7 @@ namespace DSharpPlus
 
         internal static bool IsValidSlashCommandName(string name)
         {
-            var regex = new Regex(@"^[\w-]{1,32}$", RegexOptions.ECMAScript);
+            var regex = new Regex(@"^[\w-]{1,32}$");
             return regex.IsMatch(name);
         }
 
