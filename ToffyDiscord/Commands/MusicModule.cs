@@ -60,6 +60,7 @@ public class MusicModule : BaseCommandModule
         await ctx.RespondAsync($"Left {channel.Name}!");
     }
 
+
     [Command]
     public async Task Play(CommandContext ctx, [RemainingText] string search)
     {
@@ -81,7 +82,8 @@ public class MusicModule : BaseCommandModule
 
         var loadResult = await node.Rest.GetTracksAsync(search);
 
-        if (loadResult.LoadResultType is LavalinkLoadResultType.LoadFailed or LavalinkLoadResultType.NoMatches)
+        if (loadResult.LoadResultType == LavalinkLoadResultType.LoadFailed
+            || loadResult.LoadResultType == LavalinkLoadResultType.NoMatches)
         {
             await ctx.RespondAsync($"Track search failed for {search}.");
             return;

@@ -11,4 +11,7 @@
     <ProjectReference Include="..\DSharpPlus.Lavalink\DSharpPlus.Lavalink.csproj" />
     <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Lavalink" />
+  </ItemGroup>
 </Project>
