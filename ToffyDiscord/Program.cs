@@ -44,7 +44,7 @@ namespace ToffyDiscord
 
             discord.MessageCreated += async (s, e) =>
             {
-                var badWords = File.ReadAllLines("../../../BadWords.txt");
+                var badWords = await File.ReadAllLinesAsync("../../../BadWords.txt");
                 foreach (var badWord in badWords)
                 {
                     if (e.Message.Content.Contains(badWord))
@@ -65,7 +65,6 @@ namespace ToffyDiscord
 
             discord.MessageCreated += CommandHandleModule.Handle;
 
-            await Task.Delay(-1);
         }
     }
 }
