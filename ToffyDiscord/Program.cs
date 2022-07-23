@@ -1,12 +1,9 @@
 ﻿using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Converters;
-using DSharpPlus.EventArgs;
 using DSharpPlus.Lavalink;
 using DSharpPlus.Net;
-using Microsoft.Extensions.Logging;
 using ToffyDiscord.App;
-// using ToffyDiscord.App;
 using ToffyDiscord.Commands;
 
 namespace ToffyDiscord

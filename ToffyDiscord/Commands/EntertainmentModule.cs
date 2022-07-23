@@ -7,7 +7,7 @@ public class EntertainmentModule : BaseCommandModule
 {
     [Command("8ball")]
     [Description("Запитай в шарика відповідь на твоє питання")]
-    public async Task MagicBall(CommandContext ctx)
+    public async Task MagicBallAsync(CommandContext ctx)
     {
         await ctx.TriggerTypingAsync();
 
@@ -18,7 +18,7 @@ public class EntertainmentModule : BaseCommandModule
 
     [Command("random")]
     [Description("Покаже випадкове число в будь-якому діапазоні")]
-    public async Task Random(CommandContext ctx, [Description("Нижня границя діапозона")] int down=1, [Description("Верхня границя діапозона")] int up=100)
+    public async Task RandomAsync(CommandContext ctx, [Description("Нижня границя діапозона")] int down=1, [Description("Верхня границя діапозона")] int up=100)
     {
         await ctx.TriggerTypingAsync();
 

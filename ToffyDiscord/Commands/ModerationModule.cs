@@ -1,5 +1,3 @@
-using System;
-using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -14,7 +12,7 @@ public class ModerationModule : BaseCommandModule
     [Description("Бан юзера")]
     [RequirePermissions(Permissions.BanMembers)]
     [Hidden]
-    public async Task Ban(CommandContext ctx, DiscordMember member, int days = 1, string reason = "default")
+    public async Task BanAsync(CommandContext ctx, DiscordMember member, int days = 1, string reason = "default")
     {
         await ctx.TriggerTypingAsync();
         try
@@ -34,7 +32,7 @@ public class ModerationModule : BaseCommandModule
     [Description("Разбан юзера")]
     [RequirePermissions(Permissions.BanMembers)]
     [Hidden]
-    public async Task Unban(CommandContext ctx, DiscordUser member)
+    public async Task UnbanAsync(CommandContext ctx, DiscordUser member)
     {
         await ctx.TriggerTypingAsync();
         try
@@ -50,12 +48,12 @@ public class ModerationModule : BaseCommandModule
     }
 
     [Command("showbans")]
-    public async Task ShowBan(CommandContext ctx)
+    public async Task ShowBanAsync(CommandContext ctx)
     {
         await ctx.TriggerTypingAsync();
         var bans = await ctx.Guild.GetBansAsync();
-        string bansList = "";
-        int count = 1;
+        var bansList = "";
+        var count = 1;
         foreach (var ban in bans)
         {
             bansList += $"{count}. {ban.User.Username}#{ban.User.Discriminator}\n";
