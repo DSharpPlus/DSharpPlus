@@ -5,6 +5,7 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Lavalink;
 using DSharpPlus.Net;
 using Microsoft.Extensions.Logging;
+using ToffyDiscord.App;
 // using ToffyDiscord.App;
 using ToffyDiscord.Commands;
 
@@ -16,13 +17,13 @@ namespace ToffyDiscord
 
         static async Task MainAsync()
         {
-            // var token = Startup.BotToken;
-            // var hostname = Startup.Host;
-            // var port = Startup.Port;
+            var token = Startup.BotToken;
+             var hostname = Startup.Host;
+             var port = Startup.Port;
 
             var discord = new DiscordClient(new DiscordConfiguration()
             {
-                Token = "",
+                Token = token,
                 TokenType = TokenType.Bot
             });
             var commands = discord.UseCommandsNext(new CommandsNextConfiguration());
@@ -34,7 +35,7 @@ namespace ToffyDiscord
             commands.SetHelpFormatter<DefaultHelpFormatter>();
 
 
-            var endpoint = new ConnectionEndpoint {Hostname = "127.0.0.1", Port = 2333};
+            var endpoint = new ConnectionEndpoint {Hostname = hostname, Port = port};
 
             var lavalinkConfig = new LavalinkConfiguration
             {
