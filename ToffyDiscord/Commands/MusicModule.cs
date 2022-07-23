@@ -9,12 +9,12 @@ namespace ToffyDiscord.Commands;
 public class MusicModule : BaseCommandModule
 {
     [Command]
-    public async Task Join(CommandContext ctx, DiscordChannel channel)
+    private async Task ConnectAsync(CommandContext ctx, DiscordChannel channel)
     {
         var lava = ctx.Client.GetLavalink();
         if (!lava.ConnectedNodes.Any())
         {
-            await ctx.RespondAsync("The Lavalink connection is not established");
+            await ctx.RespondAsync("З’єднання з Lavalink не встановлено");
             return;
         }
 
@@ -22,29 +22,28 @@ public class MusicModule : BaseCommandModule
 
         if (channel.Type != ChannelType.Voice)
         {
-            await ctx.RespondAsync("Not a valid voice channel.");
+            await ctx.RespondAsync("Недійсний голосовий канал.");
             return;
         }
 
         await node.ConnectAsync(channel);
-        await ctx.RespondAsync($"Joined {channel.Name}!");
     }
 
     [Command]
-    public async Task Leave(CommandContext ctx, DiscordChannel channel)
+    public async Task DisconnectAsync(CommandContext ctx)
     {
         var lava = ctx.Client.GetLavalink();
         if (!lava.ConnectedNodes.Any())
         {
-            await ctx.RespondAsync("The Lavalink connection is not established");
+            await ctx.RespondAsync("З’єднання з Lavalink не встановлено");
             return;
         }
 
         var node = lava.ConnectedNodes.Values.First();
-
+        var channel = ctx.Member.VoiceState.Channel;
         if (channel.Type != ChannelType.Voice)
         {
-            await ctx.RespondAsync("Not a valid voice channel.");
+            await ctx.RespondAsync("Недійсний голосовий канал.");
             return;
         }
 
@@ -52,40 +51,40 @@ public class MusicModule : BaseCommandModule
 
         if (conn == null)
         {
-            await ctx.RespondAsync("Lavalink is not connected.");
+            await ctx.RespondAsync("З’єднання з Lavalink не встановлено");
             return;
         }
 
         await conn.DisconnectAsync();
-        await ctx.RespondAsync($"Left {channel.Name}!");
     }
 
 
     [Command]
-    public async Task Play(CommandContext ctx, [RemainingText] string search)
+    public async Task PlayAsync(CommandContext ctx, [RemainingText] string search)
     {
+        await this.ConnectAsync(ctx, ctx.Member.VoiceState.Channel);
+
+
         if (ctx.Member.VoiceState == null || ctx.Member.VoiceState.Channel == null)
         {
-            await ctx.RespondAsync("You are not in a voice channel.");
+            await ctx.RespondAsync("Ви не в голосовому каналі.");
             return;
         }
 
         var lava = ctx.Client.GetLavalink();
         var node = lava.ConnectedNodes.Values.First();
-        var conn = node.GetGuildConnection(ctx.Member.VoiceState.Guild);
-
-        if (conn == null)
+        if (!node.IsConnected)
         {
-            await ctx.RespondAsync("Lavalink is not connected.");
-            return;
+            await node.ConnectAsync(ctx.Member.VoiceState.Channel);
         }
+
+        var conn = node.GetGuildConnection(ctx.Member.VoiceState.Guild);
 
         var loadResult = await node.Rest.GetTracksAsync(search);
 
-        if (loadResult.LoadResultType == LavalinkLoadResultType.LoadFailed
-            || loadResult.LoadResultType == LavalinkLoadResultType.NoMatches)
+        if (loadResult.LoadResultType is LavalinkLoadResultType.LoadFailed or LavalinkLoadResultType.NoMatches)
         {
-            await ctx.RespondAsync($"Track search failed for {search}.");
+            await ctx.RespondAsync($"Не вдалося виконати пошук для {search}.");
             return;
         }
 
@@ -93,15 +92,15 @@ public class MusicModule : BaseCommandModule
 
         await conn.PlayAsync(track);
 
-        await ctx.RespondAsync($"Now playing {track.Title}!");
+        await ctx.RespondAsync($"Зараз грає {track.Title}!");
     }
 
     [Command]
-    public async Task Pause(CommandContext ctx)
+    public async Task PauseAsync(CommandContext ctx)
     {
         if (ctx.Member.VoiceState == null || ctx.Member.VoiceState.Channel == null)
         {
-            await ctx.RespondAsync("You are not in a voice channel.");
+            await ctx.RespondAsync("Ви не в голосовому каналі.");
             return;
         }
 
@@ -111,8 +110,16 @@ public class MusicModule : BaseCommandModule
 
         if (conn == null)
         {
-            await ctx.RespondAsync("Lavalink is not connected.");
+            await ctx.RespondAsync("З’єднання з Lavalink не встановлено");
             return;
         }
+
+        if (conn.CurrentState.CurrentTrack == null)
+        {
+            await ctx.RespondAsync("Немає програваного запису.");
+            return;
+        }
+
+        await conn.PauseAsync();
     }
 }
