@@ -875,7 +875,7 @@ namespace DSharpPlus.Interactivity
                 var builder = new DiscordWebhookBuilder()
                     .WithContent(pages.First().Content)
                     .AddEmbed(pages.First().Embed)
-                    .AddComponents(bts.ButtonArray);
+                    .AddComponents(buttonArray);
 
                 message = await interaction.EditOriginalResponseAsync(builder);
             }
@@ -885,7 +885,7 @@ namespace DSharpPlus.Interactivity
                     .WithContent(pages.First().Content)
                     .AddEmbed(pages.First().Embed)
                     .AsEphemeral(ephemeral)
-                    .AddComponents(bts.ButtonArray);
+                    .AddComponents(buttonArray);
 
                 await interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
                 message = await interaction.GetOriginalResponseAsync();
