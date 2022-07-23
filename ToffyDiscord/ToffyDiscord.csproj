@@ -14,4 +14,7 @@
   <ItemGroup>
     <Folder Include="Lavalink" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="App\Startup.cs" />
+  </ItemGroup>
 </Project>

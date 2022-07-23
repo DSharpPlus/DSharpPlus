@@ -3,22 +3,22 @@ using DSharpPlus.CommandsNext.Attributes;
 
 namespace ToffyDiscord.Commands;
 
-public class EntertainmentModule
+public class EntertainmentModule : BaseCommandModule
 {
     [Command("8ball")]
-    [Description("Ask the magic 8 ball a question")]
+    [Description("Запитай в шарика відповідь на твоє питання")]
     public async Task MagicBall(CommandContext ctx)
     {
         await ctx.TriggerTypingAsync();
 
         var random = new Random();
         int randNum = random.Next(1, 100);
-        await ctx.RespondAsync($"{ctx.Member.Mention} Магический шар считает, что вероятность равна {randNum}%.");
+        await ctx.RespondAsync($"{ctx.Member.Mention} Магічний шарик вважає, що ймовірність {randNum}%.");
     }
 
     [Command("random")]
-    [Description("Выводит случайное число из заданного диапозона")]
-    public async Task Random(CommandContext ctx, [Description("Нижняя граница диапозона")] int down=1, [Description("Верхняя граница диапозона")] int up=100)
+    [Description("Покаже випадкове число в будь-якому діапазоні")]
+    public async Task Random(CommandContext ctx, [Description("Нижня границя діапозона")] int down=1, [Description("Верхня границя діапозона")] int up=100)
     {
         await ctx.TriggerTypingAsync();
 
@@ -26,6 +26,6 @@ public class EntertainmentModule
         int randomNum;
         randomNum = random.Next(down, up);
 
-        await ctx.RespondAsync($"{ctx.Member.Mention} Твоё число - {randomNum}");
+        await ctx.RespondAsync($"{ctx.Member.Mention} Твоє число - {randomNum}");
     }
 }

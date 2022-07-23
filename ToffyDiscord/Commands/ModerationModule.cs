@@ -11,47 +11,56 @@ namespace ToffyDiscord.Commands;
 public class ModerationModule : BaseCommandModule
 {
     [Command("ban")]
-    [Description("Бан пользователя")]
+    [Description("Бан юзера")]
     [RequirePermissions(Permissions.BanMembers)]
     [Hidden]
-    public async Task Ban(CommandContext ctx, [Description("Блокируемый пользователь")] DiscordMember member,
-        [Description("За сколько дней удалить сообщения?")] int days = 1,
-        [RemainingText, Description("Причина")] string reason = "default")
+    public async Task Ban(CommandContext ctx, DiscordMember member, int days = 1, string reason = "default")
     {
         await ctx.TriggerTypingAsync();
-        var guild = new DiscordGuild();
-        guild = member.Guild;
         try
         {
             await ctx.Guild.BanMemberAsync(member, days, reason);
             await ctx.RespondAsync(
-                $"Пользователь @{member.Username}#{member.Discriminator} был исключён администратором {ctx.User.Username}");
+                $"Юзер @{member.Username}#{member.Discriminator} був вилучений адміністратором {ctx.User.Username}");
         }
         catch (Exception)
         {
-            await ctx.RespondAsync($"Пользователь {member.Username} не может быть заблокирован");
+            await ctx.RespondAsync($"Юзер {member.Username} не може бути заблокованим");
         }
     }
 
 
     [Command("unban")]
-    [Description("Разбан пользователя")]
+    [Description("Разбан юзера")]
     [RequirePermissions(Permissions.BanMembers)]
     [Hidden]
-    public async Task Unban(CommandContext ctx, [Description("Разблокируемый пользователь")] DiscordUser member)
+    public async Task Unban(CommandContext ctx, DiscordUser member)
     {
         await ctx.TriggerTypingAsync();
-        // var guild = new DiscordGuild();
-        // guild = member.Guild;
         try
         {
             await ctx.Guild.UnbanMemberAsync(member);
             await ctx.RespondAsync(
-                $"Пользователь @{member.Username}#{member.Discriminator} был разблокирован администратором {ctx.User.Username}");
+                $"Юзер @{member.Username}#{member.Discriminator} був разблокований адміністратором {ctx.User.Username}");
         }
         catch (Exception)
         {
-            await ctx.RespondAsync($"Пользователь {member.Username} не может быть разблокирован");
+            await ctx.RespondAsync($"Юзер {member.Username} не може бути разблокованим");
         }
+    }
+
+    [Command("showbans")]
+    public async Task ShowBan(CommandContext ctx)
+    {
+        await ctx.TriggerTypingAsync();
+        var bans = await ctx.Guild.GetBansAsync();
+        string bansList = "";
+        int count = 1;
+        foreach (var ban in bans)
+        {
+            bansList += $"{count}. {ban.User.Username}#{ban.User.Discriminator}\n";
+            count++;
+        }
+        await ctx.RespondAsync("Погані люди:\n"+bansList);
     }
 }

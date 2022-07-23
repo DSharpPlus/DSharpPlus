@@ -116,7 +116,7 @@ public class MusicModule : BaseCommandModule
 
         if (conn.CurrentState.CurrentTrack == null)
         {
-            await ctx.RespondAsync("Немає програваного запису.");
+            await ctx.RespondAsync("Немає запису.");
             return;
         }
 

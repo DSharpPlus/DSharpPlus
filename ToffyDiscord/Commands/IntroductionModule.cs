@@ -9,7 +9,7 @@ public class IntroductionModule : BaseCommandModule
     [Command("greet")]
     public async Task GreetCommandAsync(CommandContext ctx)
     {
-        await ctx.RespondAsync("Greetings! Thank you for executing me!");
+        await ctx.RespondAsync("Доброго вечора, ми з України!");
     }
 
 }
