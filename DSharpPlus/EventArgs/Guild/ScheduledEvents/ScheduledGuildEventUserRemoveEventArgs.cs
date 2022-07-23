@@ -32,17 +32,17 @@ namespace DSharpPlus.EventArgs
         /// <summary>
         /// The guild the event is scheduled for.
         /// </summary>
-        public DiscordGuild Guild => this.Event.Guild;
+        public new DiscordGuild Guild => this.Event.Guild;
 
         /// <summary>
         /// The event that was unsubscribed from.
         /// </summary>
-        public DiscordScheduledGuildEvent Event { get; internal set; }
+        public new DiscordScheduledGuildEvent Event { get; internal set; }
 
         /// <summary>
         /// The user that unsubscribed from the event.
         /// </summary>
-        public DiscordUser User { get; internal set; }
-        internal ScheduledGuildEventUserRemoveEventArgs() : base() {}
+        public new DiscordUser User { get; internal set; }
+        internal ScheduledGuildEventUserRemoveEventArgs() : base() { }
     }
 }
