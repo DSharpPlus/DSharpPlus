@@ -825,7 +825,7 @@ namespace DSharpPlus
 
             if (channel != null) return;
 
-            channel = !message.GuildId.HasValue
+            channel = !message._guildId.HasValue
                 ? new DiscordDmChannel
                 {
                     Id = message.ChannelId,
@@ -955,18 +955,18 @@ namespace DSharpPlus
                     _ = guild._stageInstances.GetOrAdd(newStageInstance.Id, _ => newStageInstance);
 
             guild.Name = newGuild.Name;
-            guild.AfkChannelId = newGuild.AfkChannelId;
+            guild._afkChannelId = newGuild._afkChannelId;
             guild.AfkTimeout = newGuild.AfkTimeout;
             guild.DefaultMessageNotifications = newGuild.DefaultMessageNotifications;
             guild.Features = newGuild.Features;
             guild.IconHash = newGuild.IconHash;
             guild.MfaLevel = newGuild.MfaLevel;
             guild.OwnerId = newGuild.OwnerId;
-            guild.VoiceRegionId = newGuild.VoiceRegionId;
+            guild._voiceRegionId = newGuild._voiceRegionId;
             guild.SplashHash = newGuild.SplashHash;
             guild.VerificationLevel = newGuild.VerificationLevel;
             guild.WidgetEnabled = newGuild.WidgetEnabled;
-            guild.WidgetChannelId = newGuild.WidgetChannelId;
+            guild._widgetChannelId = newGuild._widgetChannelId;
             guild.ExplicitContentFilter = newGuild.ExplicitContentFilter;
             guild.PremiumTier = newGuild.PremiumTier;
             guild.PremiumSubscriptionCount = newGuild.PremiumSubscriptionCount;
@@ -974,7 +974,7 @@ namespace DSharpPlus
             guild.Description = newGuild.Description;
             guild.VanityUrlCode = newGuild.VanityUrlCode;
             guild.Banner = newGuild.Banner;
-            guild.SystemChannelId = newGuild.SystemChannelId;
+            guild._systemChannelId = newGuild._systemChannelId;
             guild.SystemChannelFlags = newGuild.SystemChannelFlags;
             guild.DiscoverySplashHash = newGuild.DiscoverySplashHash;
             guild.MaxMembers = newGuild.MaxMembers;
@@ -983,8 +983,8 @@ namespace DSharpPlus
             guild.ApproximatePresenceCount = newGuild.ApproximatePresenceCount;
             guild.MaxVideoChannelUsers = newGuild.MaxVideoChannelUsers;
             guild.PreferredLocale = newGuild.PreferredLocale;
-            guild.RulesChannelId = newGuild.RulesChannelId;
-            guild.PublicUpdatesChannelId = newGuild.PublicUpdatesChannelId;
+            guild._rulesChannelId = newGuild._rulesChannelId;
+            guild._publicUpdatesChannelId = newGuild._publicUpdatesChannelId;
             guild.PremiumProgressBarEnabled = newGuild.PremiumProgressBarEnabled;
 
             // fields not sent for update:
@@ -998,7 +998,7 @@ namespace DSharpPlus
 
         private void PopulateMessageReactionsAndCache(DiscordMessage message, TransportUser author, TransportMember member)
         {
-            var guild = message.Channel?.Guild ?? this.InternalGetCachedGuild(message.GuildId);
+            var guild = message.Channel?.Guild ?? this.InternalGetCachedGuild(message._guildId);
 
             this.UpdateMessage(message, author, guild, member);
 
@@ -1035,7 +1035,7 @@ namespace DSharpPlus
             GC.SuppressFinalize(this);
 
             this.DisconnectAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-            this.ApiClient.Rest.Dispose();
+            this.ApiClient._rest.Dispose();
             this.CurrentUser = null;
 
             var extensions = this._extensions; // prevent _extensions being modified during dispose
