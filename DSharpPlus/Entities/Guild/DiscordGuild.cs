@@ -123,27 +123,27 @@ namespace DSharpPlus.Entities
         /// Gets the guild's voice region ID.
         /// </summary>
         [JsonProperty("region", NullValueHandling = NullValueHandling.Ignore)]
-        internal string VoiceRegionId { get; set; }
+        internal string _voiceRegionId { get; set; }
 
         /// <summary>
         /// Gets the guild's voice region.
         /// </summary>
         [JsonIgnore]
         public DiscordVoiceRegion VoiceRegion
-            => this.Discord.VoiceRegions[this.VoiceRegionId];
+            => this.Discord.VoiceRegions[this._voiceRegionId];
 
         /// <summary>
         /// Gets the guild's AFK voice channel ID.
         /// </summary>
         [JsonProperty("afk_channel_id", NullValueHandling = NullValueHandling.Ignore)]
-        internal ulong AfkChannelId { get; set; } = 0;
+        internal ulong _afkChannelId { get; set; } = 0;
 
         /// <summary>
         /// Gets the guild's AFK voice channel.
         /// </summary>
         [JsonIgnore]
         public DiscordChannel AfkChannel
-            => this.GetChannel(this.AfkChannelId);
+            => this.GetChannel(this._afkChannelId);
 
         /// <summary>
         /// Gets the guild's AFK timeout.
@@ -176,14 +176,14 @@ namespace DSharpPlus.Entities
         public NsfwLevel NsfwLevel { get; internal set; }
 
         [JsonProperty("system_channel_id", NullValueHandling = NullValueHandling.Include)]
-        internal ulong? SystemChannelId { get; set; }
+        internal ulong? _systemChannelId { get; set; }
 
         /// <summary>
         /// Gets the channel where system messages (such as boost and welcome messages) are sent.
         /// </summary>
         [JsonIgnore]
-        public DiscordChannel SystemChannel => this.SystemChannelId.HasValue
-            ? this.GetChannel(this.SystemChannelId.Value)
+        public DiscordChannel SystemChannel => this._systemChannelId.HasValue
+            ? this.GetChannel(this._systemChannelId.Value)
             : null;
 
         /// <summary>
@@ -199,38 +199,38 @@ namespace DSharpPlus.Entities
         public bool? WidgetEnabled { get; internal set; }
 
         [JsonProperty("widget_channel_id", NullValueHandling = NullValueHandling.Ignore)]
-        internal ulong? WidgetChannelId { get; set; }
+        internal ulong? _widgetChannelId { get; set; }
 
         /// <summary>
         /// Gets the widget channel for this guild.
         /// </summary>
         [JsonIgnore]
-        public DiscordChannel WidgetChannel => this.WidgetChannelId.HasValue
-            ? this.GetChannel(this.WidgetChannelId.Value)
+        public DiscordChannel WidgetChannel => this._widgetChannelId.HasValue
+            ? this.GetChannel(this._widgetChannelId.Value)
             : null;
 
         [JsonProperty("rules_channel_id")]
-        internal ulong? RulesChannelId { get; set; }
+        internal ulong? _rulesChannelId { get; set; }
 
         /// <summary>
         /// Gets the rules channel for this guild.
         /// <para>This is only available if the guild is considered "discoverable".</para>
         /// </summary>
         [JsonIgnore]
-        public DiscordChannel RulesChannel => this.RulesChannelId.HasValue
-            ? this.GetChannel(this.RulesChannelId.Value)
+        public DiscordChannel RulesChannel => this._rulesChannelId.HasValue
+            ? this.GetChannel(this._rulesChannelId.Value)
             : null;
 
         [JsonProperty("public_updates_channel_id")]
-        internal ulong? PublicUpdatesChannelId { get; set; }
+        internal ulong? _publicUpdatesChannelId { get; set; }
 
         /// <summary>
         /// Gets the public updates channel (where admins and moderators receive messages from Discord) for this guild.
         /// <para>This is only available if the guild is considered "discoverable".</para>
         /// </summary>
         [JsonIgnore]
-        public DiscordChannel PublicUpdatesChannel => this.PublicUpdatesChannelId.HasValue
-            ? this.GetChannel(this.PublicUpdatesChannelId.Value)
+        public DiscordChannel PublicUpdatesChannel => this._publicUpdatesChannelId.HasValue
+            ? this.GetChannel(this._publicUpdatesChannelId.Value)
             : null;
 
         /// <summary>
@@ -494,9 +494,9 @@ namespace DSharpPlus.Entities
         //    => this._channels.OrderBy(xc => xc.Parent?.Position).ThenBy(xc => xc.Type).ThenBy(xc => xc.Position);
 
         [JsonIgnore]
-        internal bool IsSynced { get; set; }
+        internal bool _isSynced { get; set; }
 
-        internal DiscordGuild()
+        public DiscordGuild()
         {
             this._current_member_lazy = new Lazy<DiscordMember>(() => (this._members != null && this._members.TryGetValue(this.Discord.CurrentUser.Id, out var member)) ? member : null);
             this._invites = new ConcurrentDictionary<string, DiscordInvite>();
@@ -2436,9 +2436,9 @@ namespace DSharpPlus.Entities
                         };
 
                         var threadentry = entry as DiscordAuditLogThreadEventEntry;
-                        foreach(var xc in xac.Changes)
+                        foreach (var xc in xac.Changes)
                         {
-                            switch(xc.Key.ToLowerInvariant())
+                            switch (xc.Key.ToLowerInvariant())
                             {
                                 case "name":
                                     threadentry.Name = new PropertyChange<string?>
@@ -2972,6 +2972,7 @@ namespace DSharpPlus.Entities
         /// <returns>Whether the two members are not equal.</returns>
         public static bool operator !=(DiscordGuild e1, DiscordGuild e2)
             => !(e1 == e2);
+
     }
 
     /// <summary>

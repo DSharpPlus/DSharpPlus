@@ -163,7 +163,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// If responding with a modal, sets the custom id for the modal.
         /// </summary>
-        /// <param name="title"></param>
+        /// <param name="id">The custom id of the modal.</param>
         /// <returns></returns>
         public DiscordInteractionResponseBuilder WithCustomId(string id)
         {

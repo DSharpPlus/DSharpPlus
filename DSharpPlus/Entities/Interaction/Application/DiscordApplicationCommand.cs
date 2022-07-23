@@ -103,6 +103,10 @@ namespace DSharpPlus.Entities
         /// <param name="options">Optional parameters for this command.</param>
         /// <param name="defaultPermission">Whether the command is enabled by default when the application is added to a guild.</param>
         /// <param name="type">The type of the application command</param>
+        /// <param name="name_localizations">Localization dictionary for <paramref name="name"/> field. Values follow the same restrictions as <paramref name="name"/>.</param>
+        /// <param name="description_localizations">Localization dictionary for <paramref name="description"/> field. Values follow the same restrictions as <paramref name="description"/>.</param>
+        /// <param name="allowDMUsage">Whether this command can be invoked in DMs.</param>
+        /// <param name="defaultMemberPermissions">What permissions this command requires to be invoked.</param>
         public DiscordApplicationCommand(string name, string description, IEnumerable<DiscordApplicationCommandOption> options = null, bool? defaultPermission = null, ApplicationCommandType type = ApplicationCommandType.SlashCommand, IReadOnlyDictionary<string, string> name_localizations = null, IReadOnlyDictionary<string, string> description_localizations = null, bool? allowDMUsage = null, Permissions? defaultMemberPermissions = null)
         {
             if (type is ApplicationCommandType.SlashCommand)
