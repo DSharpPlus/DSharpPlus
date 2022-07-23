@@ -15,7 +15,7 @@ namespace ToffyDiscord
         {
             var discord = new DiscordClient(new DiscordConfiguration()
             {
-                Token = "MTAwMDA1MjA0MzY1NTk1NDU4Mg.GDViR5.gOQCVgcnwmp5cpVz4xvFasbcgCI9vdh5JSdpqE",
+                Token = "my token",
                 TokenType = TokenType.Bot
             });
 

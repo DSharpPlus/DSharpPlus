@@ -2972,6 +2972,7 @@ namespace DSharpPlus.Entities
         /// <returns>Whether the two members are not equal.</returns>
         public static bool operator !=(DiscordGuild e1, DiscordGuild e2)
             => !(e1 == e2);
+
     }
 
     /// <summary>
