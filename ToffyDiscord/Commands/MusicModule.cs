@@ -14,7 +14,7 @@ public class MusicModule : BaseCommandModule
         var lava = ctx.Client.GetLavalink();
         if (!lava.ConnectedNodes.Any())
         {
-            await ctx.RespondAsync("З’єднання з Lavalink не встановлено");
+            await ctx.PromotionResponseAsync("З’єднання з Lavalink не встановлено");
             return;
         }
 
@@ -22,7 +22,7 @@ public class MusicModule : BaseCommandModule
 
         if (channel.Type != ChannelType.Voice)
         {
-            await ctx.RespondAsync("Недійсний голосовий канал.");
+            await ctx.PromotionResponseAsync("Недійсний голосовий канал.");
             return;
         }
 
@@ -35,7 +35,7 @@ public class MusicModule : BaseCommandModule
         var lava = ctx.Client.GetLavalink();
         if (!lava.ConnectedNodes.Any())
         {
-            await ctx.RespondAsync("З’єднання з Lavalink не встановлено");
+            await ctx.PromotionResponseAsync("З’єднання з Lavalink не встановлено");
             return;
         }
 
@@ -43,7 +43,7 @@ public class MusicModule : BaseCommandModule
         var channel = ctx.Member.VoiceState.Channel;
         if (channel.Type != ChannelType.Voice)
         {
-            await ctx.RespondAsync("Недійсний голосовий канал.");
+            await ctx.PromotionResponseAsync("Недійсний голосовий канал.");
             return;
         }
 
@@ -51,7 +51,7 @@ public class MusicModule : BaseCommandModule
 
         if (conn == null)
         {
-            await ctx.RespondAsync("З’єднання з Lavalink не встановлено");
+            await ctx.PromotionResponseAsync("З’єднання з Lavalink не встановлено");
             return;
         }
 
@@ -67,7 +67,7 @@ public class MusicModule : BaseCommandModule
 
         if (ctx.Member.VoiceState == null || ctx.Member.VoiceState.Channel == null)
         {
-            await ctx.RespondAsync("Ви не в голосовому каналі.");
+            await ctx.PromotionResponseAsync("Ви не в голосовому каналі.");
             return;
         }
 
@@ -84,7 +84,7 @@ public class MusicModule : BaseCommandModule
 
         if (loadResult.LoadResultType is LavalinkLoadResultType.LoadFailed or LavalinkLoadResultType.NoMatches)
         {
-            await ctx.RespondAsync($"Не вдалося виконати пошук для {search}.");
+            await ctx.PromotionResponseAsync($"Не вдалося виконати пошук для {search}.");
             return;
         }
 
@@ -92,7 +92,7 @@ public class MusicModule : BaseCommandModule
 
         await conn.PlayAsync(track);
 
-        await ctx.RespondAsync($"Зараз грає {track.Title}!");
+        await ctx.PromotionResponseAsync($"Зараз грає {track.Title}!");
     }
 
     [Command]
@@ -100,7 +100,7 @@ public class MusicModule : BaseCommandModule
     {
         if (ctx.Member.VoiceState == null || ctx.Member.VoiceState.Channel == null)
         {
-            await ctx.RespondAsync("Ви не в голосовому каналі.");
+            await ctx.PromotionResponseAsync("Ви не в голосовому каналі.");
             return;
         }
 
@@ -110,13 +110,13 @@ public class MusicModule : BaseCommandModule
 
         if (conn == null)
         {
-            await ctx.RespondAsync("З’єднання з Lavalink не встановлено");
+            await ctx.PromotionResponseAsync("З’єднання з Lavalink не встановлено");
             return;
         }
 
         if (conn.CurrentState.CurrentTrack == null)
         {
-            await ctx.RespondAsync("Немає запису.");
+            await ctx.PromotionResponseAsync("Немає запису.");
             return;
         }
 

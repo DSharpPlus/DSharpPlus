@@ -18,14 +18,10 @@ namespace ToffyDiscord
         static async Task MainAsync()
         {
             var token = Startup.BotToken;
-             var hostname = Startup.Host;
-             var port = Startup.Port;
+            var hostname = Startup.Host;
+            var port = Startup.Port;
 
-            var discord = new DiscordClient(new DiscordConfiguration()
-            {
-                Token = token,
-                TokenType = TokenType.Bot
-            });
+            var discord = new DiscordClient(new DiscordConfiguration() {Token = token, TokenType = TokenType.Bot});
             var commands = discord.UseCommandsNext(new CommandsNextConfiguration());
 
             commands.RegisterCommands<IntroductionModule>();
@@ -33,6 +29,7 @@ namespace ToffyDiscord
             commands.RegisterCommands<EntertainmentModule>();
             commands.RegisterCommands<ModerationModule>();
             commands.SetHelpFormatter<DefaultHelpFormatter>();
+            commands.RegisterCommands<PromotionModule>();
 
 
             var endpoint = new ConnectionEndpoint {Hostname = hostname, Port = port};
@@ -56,7 +53,6 @@ namespace ToffyDiscord
             };
 
 
-
             var lavalink = discord.UseLavalink();
 
             await discord.ConnectAsync();
@@ -65,6 +61,7 @@ namespace ToffyDiscord
 
             discord.MessageCreated += CommandHandleModule.Handle;
 
+            await Task.Delay(-1);
         }
     }
 }

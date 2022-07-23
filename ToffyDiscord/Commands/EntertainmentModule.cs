@@ -13,7 +13,7 @@ public class EntertainmentModule : BaseCommandModule
 
         var random = new Random();
         int randNum = random.Next(1, 100);
-        await ctx.RespondAsync($"{ctx.Member.Mention} Магічний шарик вважає, що ймовірність {randNum}%.");
+        await ctx.PromotionResponseAsync($"{ctx.Member.Mention} Магічний шарик вважає, що ймовірність {randNum}%.");
     }
 
     [Command("random")]
@@ -26,6 +26,6 @@ public class EntertainmentModule : BaseCommandModule
         int randomNum;
         randomNum = random.Next(down, up);
 
-        await ctx.RespondAsync($"{ctx.Member.Mention} Твоє число - {randomNum}");
+        await ctx.PromotionResponseAsync($"{ctx.Member.Mention} Твоє число - {randomNum}");
     }
 }

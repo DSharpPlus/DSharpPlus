@@ -20,12 +20,12 @@ public class ModerationModule : BaseCommandModule
         try
         {
             await ctx.Guild.BanMemberAsync(member, days, reason);
-            await ctx.RespondAsync(
+            await ctx.PromotionResponseAsync(
                 $"Юзер @{member.Username}#{member.Discriminator} був вилучений адміністратором {ctx.User.Username}");
         }
         catch (Exception)
         {
-            await ctx.RespondAsync($"Юзер {member.Username} не може бути заблокованим");
+            await ctx.PromotionResponseAsync($"Юзер {member.Username} не може бути заблокованим");
         }
     }
 
@@ -45,7 +45,7 @@ public class ModerationModule : BaseCommandModule
         }
         catch (Exception)
         {
-            await ctx.RespondAsync($"Юзер {member.Username} не може бути разблокованим");
+            await ctx.PromotionResponseAsync($"Юзер {member.Username} не може бути разблокованим");
         }
     }
 
@@ -61,6 +61,6 @@ public class ModerationModule : BaseCommandModule
             bansList += $"{count}. {ban.User.Username}#{ban.User.Discriminator}\n";
             count++;
         }
-        await ctx.RespondAsync("Погані люди:\n"+bansList);
+        await ctx.PromotionResponseAsync("Погані люди:\n"+bansList);
     }
 }
