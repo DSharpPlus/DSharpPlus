@@ -399,3 +399,5 @@ FodyWeavers.xsd
 
 # Credentials for the DSharpPlus.Test bot
 DSharpPlus.Test/config.json
+
+.ToffyDiscord/App/app.config
