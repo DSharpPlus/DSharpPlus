@@ -6,6 +6,7 @@ namespace DSharpPlus.SlashCommands
     /// <summary>
     /// Thrown when a pre-execution check for a slash command fails.
     /// </summary>
+    [Serializable]
     public sealed class ContextMenuExecutionChecksFailedException : Exception
     {
         /// <summary>

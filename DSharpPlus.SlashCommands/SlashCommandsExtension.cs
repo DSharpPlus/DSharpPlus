@@ -60,7 +60,7 @@ namespace DSharpPlus.SlashCommands
         protected internal override void Setup(DiscordClient client)
         {
             if (this.Client != null)
-                throw new InvalidOperationException("What did I tell you?");
+                throw new InvalidOperationException("The Slash Commands extension has already been setup.");
 
             this.Client = client;
 
@@ -110,9 +110,7 @@ namespace DSharpPlus.SlashCommands
         /// <param name="guildId">The guild id to register it on. If you want global commands, leave it null.</param>
         public void RegisterCommands(Assembly assembly, ulong? guildId = null)
         {
-            var types = assembly.ExportedTypes.Where(xt =>
-                typeof(ApplicationCommandModule).IsAssignableFrom(xt) &&
-                !xt.GetTypeInfo().IsNested);
+            var types = assembly.ExportedTypes.Where(xt => typeof(ApplicationCommandModule).IsAssignableFrom(xt) && !xt.GetTypeInfo().IsNested);
 
             foreach (var xt in types)
                 this.RegisterCommands(xt, guildId);
