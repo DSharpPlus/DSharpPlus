@@ -33,24 +33,12 @@ namespace DSharpPlus.SlashCommands.Attributes
         /// <summary>
         /// Runs checks.
         /// </summary>
-        public override async Task<bool> ExecuteChecksAsync(InteractionContext ctx)
+        public override Task<bool> ExecuteChecksAsync(InteractionContext ctx)
         {
-            if (ctx.Guild == null)
-                return this.IgnoreDms;
-
-            var bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id).ConfigureAwait(false);
-            if (bot == null)
-                return false;
-
-            if (bot.Id == ctx.Guild.OwnerId)
-                return true;
-
-            var pbot = ctx.Channel.PermissionsFor(bot);
-
-            if ((pbot & Permissions.Administrator) != 0)
-                return true;
-
-            return (pbot & this.Permissions) == this.Permissions;
+            return Task.FromResult(ctx.Guild == null
+              ? this.IgnoreDms
+              // The bot is the guild owner or the bot is cached in the guild (always true) and has the permission in the current channel.
+              : ctx.Guild.IsOwner || (ctx.Guild._members.TryGetValue(ctx.Client.CurrentUser.Id, out var currentMember) && ctx.Channel.PermissionsFor(currentMember).HasPermission(this.Permissions)));
         }
     }
 }

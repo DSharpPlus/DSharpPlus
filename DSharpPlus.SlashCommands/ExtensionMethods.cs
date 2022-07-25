@@ -47,11 +47,7 @@ namespace DSharpPlus.SlashCommands
             await client.InitializeShardsAsync();
             foreach (var shard in client.ShardClients.Values)
             {
-                var scomm = shard.GetSlashCommands();
-                if (scomm == null)
-                    scomm = shard.UseSlashCommands(config);
-
-                modules[shard.ShardId] = scomm;
+                modules[shard.ShardId] = shard.GetSlashCommands() ?? shard.UseSlashCommands(config);
             }
 
             return modules;

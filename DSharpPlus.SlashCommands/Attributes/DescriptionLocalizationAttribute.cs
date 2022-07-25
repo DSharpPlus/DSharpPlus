@@ -22,7 +22,6 @@
 // SOFTWARE.
 
 using System;
-using System.Globalization;
 
 namespace DSharpPlus.SlashCommands
 {
@@ -33,13 +32,12 @@ namespace DSharpPlus.SlashCommands
     public sealed class DescriptionLocalizationAttribute : Attribute
     {
         public string Locale { get; }
-
         public string Description { get; }
 
         public DescriptionLocalizationAttribute(Localization locale, string description)
         {
             this.Description = description;
-            this.Locale = LocaleHelper.LocaleToStrings[locale];
+            this.Locale = LocaleHelper.LocaleToStrings.TryGetValue(locale, out var localeStr) ? localeStr : throw new ArgumentException($"Invalid or unknown locale: {locale}.");
         }
     }
 }

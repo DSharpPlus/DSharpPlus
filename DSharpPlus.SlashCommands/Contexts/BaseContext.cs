@@ -39,8 +39,7 @@ namespace DSharpPlus.SlashCommands
         /// <summary>
         /// Gets the member which executed this interaction, or null if the command is in a DM.
         /// </summary>
-        public DiscordMember Member
-            => this.User is DiscordMember member ? member : null;
+        public DiscordMember Member => this.User as DiscordMember;
 
         /// <summary>
         /// Gets the slash command module this interaction was created in.
@@ -83,7 +82,7 @@ namespace DSharpPlus.SlashCommands
         public Task CreateResponseAsync(InteractionResponseType type, DiscordInteractionResponseBuilder builder = null)
             => this.Interaction.CreateResponseAsync(type, builder);
 
-        /// <inheritdoc cref="CreateResponseAsync(DSharpPlus.InteractionResponseType,DSharpPlus.Entities.DiscordInteractionResponseBuilder)"/>
+        /// <inheritdoc cref="CreateResponseAsync(InteractionResponseType, DiscordInteractionResponseBuilder)"/>
         public Task CreateResponseAsync(DiscordInteractionResponseBuilder builder)
             => this.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, builder);
 

@@ -19,7 +19,6 @@ namespace DSharpPlus.SlashCommands
         /// Called after the execution of a slash command in the module.
         /// </summary>
         /// <param name="ctx">The context.</param>
-        /// <returns></returns>
         public virtual Task AfterSlashExecutionAsync(InteractionContext ctx)
             => Task.CompletedTask;
 
@@ -35,7 +34,6 @@ namespace DSharpPlus.SlashCommands
         /// Called after the execution of a context menu in the module.
         /// </summary>
         /// <param name="ctx">The context.</param>
-        /// <returns></returns>
         public virtual Task AfterContextMenuExecutionAsync(ContextMenuContext ctx)
             => Task.CompletedTask;
 

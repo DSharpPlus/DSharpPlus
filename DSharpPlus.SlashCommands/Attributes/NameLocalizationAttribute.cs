@@ -22,7 +22,6 @@
 // SOFTWARE.
 
 using System;
-using System.Globalization;
 
 namespace DSharpPlus.SlashCommands
 {
@@ -33,7 +32,6 @@ namespace DSharpPlus.SlashCommands
     public sealed class NameLocalizationAttribute : Attribute
     {
         public string Locale { get; }
-
         public string Name { get; }
 
         public NameLocalizationAttribute(Localization locale, string name)

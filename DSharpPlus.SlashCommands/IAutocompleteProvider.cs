@@ -36,6 +36,6 @@ namespace DSharpPlus.SlashCommands
         /// Provides autocomplete choices.
         /// </summary>
         /// <param name="ctx">The autocomplete context.</param>
-        public Task<IEnumerable<DiscordAutoCompleteChoice>> Provider(AutocompleteContext ctx);
+        Task<IEnumerable<DiscordAutoCompleteChoice>> Provider(AutocompleteContext ctx);
     }
 }

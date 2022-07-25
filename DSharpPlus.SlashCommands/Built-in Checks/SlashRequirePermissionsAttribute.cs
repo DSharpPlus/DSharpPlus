@@ -33,31 +33,19 @@ namespace DSharpPlus.SlashCommands.Attributes
         /// <summary>
         /// Runs checks.
         /// </summary>
-        public override async Task<bool> ExecuteChecksAsync(InteractionContext ctx)
+        public override Task<bool> ExecuteChecksAsync(InteractionContext ctx)
         {
             if (ctx.Guild == null)
-                return this.IgnoreDms;
+                return Task.FromResult(this.IgnoreDms);
+            else if (ctx.Member == null)
+                return Task.FromResult(false);
 
-            var usr = ctx.Member;
-            if (usr == null)
-                return false;
-            var pusr = ctx.Channel.PermissionsFor(usr);
+            // The bot is the guild owner or the bot is cached in the guild (always true) and has the permission in the current channel.
+            var botHasPerms = ctx.Guild.IsOwner || (ctx.Guild._members.TryGetValue(ctx.Client.CurrentUser.Id, out var currentMember) && ctx.Channel.PermissionsFor(currentMember).HasPermission(this.Permissions));
+            // The member is the guild owner or the member has permission in the current channel.
+            var userHasPerms = ctx.Guild.OwnerId == ctx.Member.Id || ctx.Channel.PermissionsFor(ctx.Member).HasPermission(this.Permissions);
 
-            var bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id).ConfigureAwait(false);
-            if (bot == null)
-                return false;
-            var pbot = ctx.Channel.PermissionsFor(bot);
-
-            var usrok = ctx.Guild.OwnerId == usr.Id;
-            var botok = ctx.Guild.OwnerId == bot.Id;
-
-            if (!usrok)
-                usrok = (pusr & Permissions.Administrator) != 0 || (pusr & this.Permissions) == this.Permissions;
-
-            if (!botok)
-                botok = (pbot & Permissions.Administrator) != 0 || (pbot & this.Permissions) == this.Permissions;
-
-            return usrok && botok;
+            return Task.FromResult(userHasPerms && botHasPerms);
         }
     }
 }

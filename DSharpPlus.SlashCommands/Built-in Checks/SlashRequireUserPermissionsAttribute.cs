@@ -35,22 +35,10 @@ namespace DSharpPlus.SlashCommands.Attributes
         /// </summary>
         public override Task<bool> ExecuteChecksAsync(InteractionContext ctx)
         {
-            if (ctx.Guild == null)
-                return Task.FromResult(this.IgnoreDms);
-
-            var usr = ctx.Member;
-            if (usr == null)
-                return Task.FromResult(false);
-
-            if (usr.Id == ctx.Guild.OwnerId)
-                return Task.FromResult(true);
-
-            var pusr = ctx.Channel.PermissionsFor(usr);
-
-            if ((pusr & Permissions.Administrator) != 0)
-                return Task.FromResult(true);
-
-            return (pusr & this.Permissions) == this.Permissions ? Task.FromResult(true) : Task.FromResult(false);
+            return Task.FromResult(ctx.Guild == null
+                ? this.IgnoreDms
+                // The member is the guild owner or the member isn't null (should "always" be true) and has the permission in the current channel.
+                : ctx.Guild.OwnerId == ctx.Member.Id || (ctx.Member != null && ctx.Channel.PermissionsFor(ctx.Member).HasPermission(this.Permissions)));
         }
     }
 }
