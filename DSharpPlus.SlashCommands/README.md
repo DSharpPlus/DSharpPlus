@@ -29,7 +29,7 @@ Similar to CommandsNext, you can make a module for slash commands and make it in
 ```cs
 public class SlashCommands : ApplicationCommandModule
 {
-  //commands
+  // commands
 }
 ```
 You have to then register it with your `SlashCommandsExtension`.
@@ -38,10 +38,10 @@ Slash commands can be registered either globally or for a certain guild. However
 
 To register your command class,
 ```cs
-//To register them for a single server, recommended for testing
+// To register them for a single server, recommended for testing
 slash.RegisterCommands<SlashCommands>(guild_id);
 
-//To register them globally, once you're confident that they're ready to be used by everyone
+// To register them globally, once you're confident that they're ready to be used by everyone
 slash.RegisterCommands<SlashCommands>();
 ```
 *Make sure that you register them before your `ConnectAsync`*
@@ -58,13 +58,13 @@ public class SlashCommands : ApplicationCommandModule
 }
 ```
 
-To make a response, you must run `CreateResponseAsync` on your `InteractionContext`. `CreateResponseAsync` takes two arguments. The first is a [`InteractionResponseType`](https://dsharpplus.github.io/api/DSharpPlus.InteractionResponseType.html):
+To make a response, you must run `CreateResponseAsync` on your `InteractionContext`. `CreateResponseAsync` takes two arguments. The first is a [`InteractionResponseType`](https:// dsharpplus.github.io/api/DSharpPlus.InteractionResponseType.html):
 * `DeferredChannelMessageWithSource` - Acknowledges the interaction, doesn't require any content.
 * `ChannelMessageWithSource` - Sends a message to the channel, requires you to specify some data to send.
 
 An interaction expires in 3 seconds unless you make a response. If the code you execute before making a response has the potential to take more than 3 seconds, you should first create a `DeferredChannelMessageWithSource` response, and then edit it after your code executes.
 
-The second argument is a type of [`DiscordInteractionResponseBuilder`](https://dsharpplus.github.io/api/DSharpPlus.Entities.DiscordInteractionResponseBuilder.html). It functions similarly to the DiscordMessageBuilder, except you cannot send files, and you can have multiple embeds.
+The second argument is a type of [`DiscordInteractionResponseBuilder`](https:// dsharpplus.github.io/api/DSharpPlus.Entities.DiscordInteractionResponseBuilder.html). It functions similarly to the DiscordMessageBuilder, except you cannot send files, and you can have multiple embeds.
 
 If you want to send a file, you'll have to edit the response.
 
@@ -83,7 +83,7 @@ public async Task DelayTestCommand(InteractionContext ctx)
 {
     await ctx.CreateResponseAsync(InteractionResponseType.DeferredChannelMessageWithSource);
 
-    //Some time consuming task like a database call or a complex operation
+    // Some time consuming task like a database call or a complex operation
 
     await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Thanks for waiting!"));
 }
@@ -116,7 +116,7 @@ You can also predefine some choices for the option. Custom choices only work for
 
 Some examples:
 ```cs
-//Attribute choices
+// Attribute choices
 [SlashCommand("ban", "Bans a user")]
 public async Task Ban(InteractionContext ctx, [Option("user", "User to ban")] DiscordUser user,
     [Choice("None", 0)]
@@ -128,7 +128,7 @@ public async Task Ban(InteractionContext ctx, [Option("user", "User to ban")] Di
     await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent($"Banned {user.Username}"));
 }
 
-//Enum choices
+// Enum choices
 public enum MyEnum
 {
     [ChoiceName("Option 1")]
@@ -145,14 +145,14 @@ public async Task EnumCommand(InteractionContext ctx, [Option("enum", "enum opti
     await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(myEnum.GetName()));
 }
 
-//ChoiceProvider choices
+// ChoiceProvider choices
 public class TestChoiceProvider : IChoiceProvider
 {
     public async Task<IEnumerable<DiscordApplicationCommandOptionChoice>> Provider()
     {
         return new DiscordApplicationCommandOptionChoice[]
         {
-            //You would normally use a database call here
+            // You would normally use a database call here
             new DiscordApplicationCommandOptionChoice("testing", "testing"),
             new DiscordApplicationCommandOptionChoice("testing2", "test option 2")
         };
@@ -169,9 +169,9 @@ public async Task ChoiceProviderCommand(InteractionContext ctx,
 ```
 
 ### Groups
-You can have slash commands in groups. Their structure is explained [here](https://discord.com/developers/docs/interactions/application-commands#subcommands-and-subcommand-groups). You can simply mark your command class with the `[SlashCommandGroup]` attribute.
+You can have slash commands in groups. Their structure is explained [here](https:// discord.com/developers/docs/interactions/application-commands#subcommands-and-subcommand-groups). You can simply mark your command class with the `[SlashCommandGroup]` attribute.
 ```cs
-//for regular groups
+// for regular groups
 [SlashCommandGroup("group", "description")]
 public class GroupContainer : ApplicationCommandModule
 {
@@ -182,7 +182,7 @@ public class GroupContainer : ApplicationCommandModule
     public async Task Command2(InteractionContext ctx) {}
 }
 
-//For subgroups inside groups
+// For subgroups inside groups
 [SlashCommandGroup("group", "description")]
 public class SubGroupContainer : ApplicationCommandModule
 {
@@ -211,11 +211,11 @@ public class SubGroupContainer : ApplicationCommandModule
 ## Context Menus
 Context menus are commands that show up when you right click on a user or a message. Their implementation is fairly similar to slash commands.
 ```cs
-//For user commands
+// For user commands
 [ContextMenu(ApplicationCommandType.UserContextMenu, "User Menu")]
 public async Task UserMenu(ContextMenuContext ctx) { }
 
-//For message commands
+// For message commands
 [ContextMenu(ApplicationCommandType.MessageContextMenu, "Message Menu")]
 public async Task MessageMenu(ContextMenuContext ctx) { }
 ```
@@ -249,11 +249,11 @@ Then just apply it to your command
 ```cs
 [SlashCommand("admin", "runs sneaky admin things")]
 [RequireUserId(0000000000000)]
-public async Task Admin(InteractionContext ctx) { //secrets }
+public async Task Admin(InteractionContext ctx) { // secrets }
 ```
 To provide a custom error message when an execution check fails, hook the `SlashCommandErrored` event for slash commands, and `ContextMenuErrored` event for context menus on your `SlashCommandsExtension`
 ```cs
-SlashCommandsExtension slash = //assigned;
+SlashCommandsExtension slash = // assigned;
 slash.SlashCommandErrored += async (s, e) =>
 {
     if(e.Exception is SlashExecutionChecksFailedException slex)
