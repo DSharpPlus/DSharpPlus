@@ -21,14 +21,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System.Runtime.CompilerServices;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-[assembly: InternalsVisibleTo("DSharpPlus.CommandsNext")]
-[assembly: InternalsVisibleTo("DSharpPlus.SlashCommands")]
-[assembly: InternalsVisibleTo("DSharpPlus.Interactivity")]
-[assembly: InternalsVisibleTo("DSharpPlus.VoiceNext")]
-[assembly: InternalsVisibleTo("DSharpPlus.Lavalink")]
-[assembly: InternalsVisibleTo("DSharpPlus.Rest")]
-[assembly: InternalsVisibleTo("DSharpPlus.OAuth2")]
-
-[assembly: InternalsVisibleTo("DSharpPlus.MSTest")]
+namespace DSharpPlus.Test.OAuth2
+{
+    public class OAuth2TestConfig
+    {
+        public ulong ClientId { get; set; }
+        public string ClientSecret { get; set; } = "";
+    }
+}

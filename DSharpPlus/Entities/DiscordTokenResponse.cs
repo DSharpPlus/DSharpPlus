@@ -21,14 +21,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System.Runtime.CompilerServices;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using Newtonsoft.Json;
 
-[assembly: InternalsVisibleTo("DSharpPlus.CommandsNext")]
-[assembly: InternalsVisibleTo("DSharpPlus.SlashCommands")]
-[assembly: InternalsVisibleTo("DSharpPlus.Interactivity")]
-[assembly: InternalsVisibleTo("DSharpPlus.VoiceNext")]
-[assembly: InternalsVisibleTo("DSharpPlus.Lavalink")]
-[assembly: InternalsVisibleTo("DSharpPlus.Rest")]
-[assembly: InternalsVisibleTo("DSharpPlus.OAuth2")]
+namespace DSharpPlus.Entities
+{
+    public sealed class DiscordTokenResponse
+    {
+        [JsonProperty("access_token")]
+        public string AccessToken { get; set; }
 
-[assembly: InternalsVisibleTo("DSharpPlus.MSTest")]
+        [JsonProperty("token_type")]
+        public TokenType TokenType { get; set; }
+
+        [JsonProperty("expires_in")]
+        public long ExpiresIn { get; set; }
+
+        [JsonProperty("refresh_token")]
+        public string RefreshToken { get; set; }
+
+        [JsonProperty("scope")]
+        public string Scopes { get; set; }
+    }
+}

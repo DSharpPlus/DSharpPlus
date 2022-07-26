@@ -96,6 +96,12 @@ namespace DSharpPlus.Net
             this.UseResetAfter = useRelativeRatelimit;
         }
 
+        public void RefreshLocalToken()
+        {
+            this.HttpClient.DefaultRequestHeaders.Remove("Authorization");
+            this.HttpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(this.Discord));
+        }
+
         public RateLimitBucket GetBucket(RestRequestMethod method, string route, object route_params, out string url)
         {
             var rparams_props = route_params.GetType()
@@ -460,6 +466,19 @@ namespace DSharpPlus.Net
                 }
 
                 req.Content = content;
+            }
+
+            if(request is UrlEncodedWebRequest urequest)
+            {
+                this.Logger.LogTrace(LoggerEvents.RestTx, "<x-www-form-urlencoded>");
+
+                req.Content = new FormUrlEncodedContent(urequest.Values);
+                if(urequest.SimpleAuth.HasValue)
+                {
+                    var auth = urequest.SimpleAuth.Value;
+                    // This is for OAuth client credentials
+                    req.Headers.TryAddWithoutValidation("Authorization", $"Basic {auth.Item1}:{auth.Item2}");
+                }
             }
 
             return req;

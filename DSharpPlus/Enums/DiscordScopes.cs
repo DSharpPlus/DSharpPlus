@@ -21,14 +21,47 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System.Runtime.CompilerServices;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 
-[assembly: InternalsVisibleTo("DSharpPlus.CommandsNext")]
-[assembly: InternalsVisibleTo("DSharpPlus.SlashCommands")]
-[assembly: InternalsVisibleTo("DSharpPlus.Interactivity")]
-[assembly: InternalsVisibleTo("DSharpPlus.VoiceNext")]
-[assembly: InternalsVisibleTo("DSharpPlus.Lavalink")]
-[assembly: InternalsVisibleTo("DSharpPlus.Rest")]
-[assembly: InternalsVisibleTo("DSharpPlus.OAuth2")]
-
-[assembly: InternalsVisibleTo("DSharpPlus.MSTest")]
+namespace DSharpPlus
+{
+    /// <summary>
+    /// Discord OAuth2 Scopes. As represented by <see href="https://discord.com/developers/docs/topics/oauth2#shared-resources-oauth2-scopes"/>
+    /// </summary>
+    public enum DiscordScopes : ulong
+    {
+        // note: these should represent the scope, but in camelcase instead
+        // activities.read would become ActivitiesRead
+        ActivitiesRead,
+        ActivitiesWrite,
+        ApplicationsBuildsRead,
+        ApplicationsBuildsUpload,
+        ApplicationsCommands,
+        ApplicationsCommandsUpdate,
+        ApplicationsCommandsPermissionsUpdate,
+        ApplicationsEntitlements,
+        ApplicationsStoreUpdate,
+        Bot,
+        Connections,
+        Dm_channelsRead,
+        Email,
+        GdmJoin,
+        Guilds,
+        GuildsJoin,
+        GuildsMembersRead,
+        Identify,
+        MessagesRead,
+        RelationshipsRead,
+        Rpc,
+        RpcActivitiesWrite,
+        RpcNotificationsRead,
+        RpcVoiceRead,
+        RpcVoiceWrite,
+        Voice,
+        WebhookIncoming
+    }
+}

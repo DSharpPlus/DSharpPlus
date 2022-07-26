@@ -310,6 +310,14 @@ namespace DSharpPlus
             return false;
         }
 
+        private static readonly Regex _scopeRegex = new Regex(@"([A-Z])", RegexOptions.Compiled);
+        public static string GetScopeString(this DiscordScopes scopes)
+        {
+            var flags = Enum.GetValues(scopes.GetType()).Cast<DiscordScopes>().Where(x => scopes.HasFlag(x));
+            var names = flags.Select(x => _scopeRegex.Replace(Enum.GetName(typeof(DiscordScopes), x), ".$1").Substring(1));
+            return string.Join(" ", names).ToLowerInvariant();
+        }
+
         internal static void LogTaskFault(this Task task, ILogger logger, LogLevel level, EventId eventId, string message)
         {
             if (task == null)

@@ -43,8 +43,8 @@ namespace DSharpPlus
             internal get => this._token;
             set
             {
-                if (string.IsNullOrWhiteSpace(value))
-                    throw new ArgumentNullException(nameof(value), "Token cannot be null, empty, or all whitespace.");
+                //if (string.IsNullOrWhiteSpace(value))
+                //    throw new ArgumentNullException(nameof(value), "Token cannot be null, empty, or all whitespace.");
 
                 this._token = value.Trim();
             }

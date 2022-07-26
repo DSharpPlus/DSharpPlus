@@ -92,5 +92,8 @@ namespace DSharpPlus.Net
         public const string STICKERS = "/stickers";
         public const string STICKERPACKS = "/sticker-packs";
         public const string STAGE_INSTANCES = "/stage-instances";
+        public const string TOKEN = "/token";
+        public const string REVOKE = "/revoke";
+        public const string AUTHORIZE = "/authorize";
     }
 }

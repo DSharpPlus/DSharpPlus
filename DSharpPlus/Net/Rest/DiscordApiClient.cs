@@ -57,6 +57,8 @@ namespace DSharpPlus.Net
             this._rest = new RestClient(proxy, timeout, useRelativeRateLimit, logger);
         }
 
+        public void RefreshLocalToken() => this._rest.RefreshLocalToken();
+
         private static string BuildQueryString(IDictionary<string, string> values, bool post = false)
         {
             if (values == null || values.Count == 0)
@@ -162,6 +164,20 @@ namespace DSharpPlus.Net
                 _removeFileCount = removeFileCount
             };
 
+
+            if (this._discord != null)
+                this._rest.ExecuteRequestAsync(req).LogTaskFault(this._discord.Logger, LogLevel.Error, LoggerEvents.RestError, "Error while executing request");
+            else
+                _ = this._rest.ExecuteRequestAsync(req);
+
+            return req.WaitForCompletionAsync();
+        }
+
+        private Task<RestResponse> DoUrlEncodedAsync(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, string route,
+            IReadOnlyDictionary<string, string> headers = null, IReadOnlyDictionary<string, string> values = null,
+            double? ratelimitWaitOverride = null, (string, string)? simpleAuth = null)
+        {
+            var req = new UrlEncodedWebRequest(client, bucket, url, method, route, headers, values, ratelimitWaitOverride, simpleAuth: simpleAuth);
 
             if (this._discord != null)
                 this._rest.ExecuteRequestAsync(req).LogTaskFault(this._discord.Logger, LogLevel.Error, LoggerEvents.RestError, "Error while executing request");
@@ -3549,6 +3565,82 @@ namespace DSharpPlus.Net
             foreach (var perm in ret)
                 perm.Discord = this._discord;
             return ret.ToList();
+        }
+        #endregion
+
+        #region OAuth2
+        internal async Task<DiscordTokenResponse> AuthorizeOAuth2Async(ulong client_id, string client_secret, string redirect_uri, string code)
+        {
+            var values = new Dictionary<string, string>()
+            {
+                { "client_id", client_id.ToString(CultureInfo.InvariantCulture) },
+                { "client_secret", client_secret },
+                { "redirect_uri", redirect_uri },
+                { "code", code },
+                { "grant_type", "authorization_code" }
+            };
+
+            var route = $"{Endpoints.OAUTH2}{Endpoints.TOKEN}";
+            var bucket = this._rest.GetBucket(RestRequestMethod.POST, route, new { }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoUrlEncodedAsync(this._discord, bucket, url, RestRequestMethod.POST, route, values: values);
+
+            return JsonConvert.DeserializeObject<DiscordTokenResponse>(res.Response);
+        }
+
+        internal async Task<DiscordTokenResponse> RefreshTokenAsync(ulong client_id, string client_secret, string refresh_token)
+        {
+            var values = new Dictionary<string, string>()
+            {
+                { "client_id", client_id.ToString(CultureInfo.InvariantCulture) },
+                { "client_secret", client_secret },
+                { "refresh_token", refresh_token },
+                { "grant_type", "refresh_token" }
+            };
+
+            var route = $"{Endpoints.OAUTH2}{Endpoints.TOKEN}";
+            var bucket = this._rest.GetBucket(RestRequestMethod.POST, route, new { }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoUrlEncodedAsync(this._discord, bucket, url, RestRequestMethod.POST, route, values: values);
+
+            return JsonConvert.DeserializeObject<DiscordTokenResponse>(res.Response);
+        }
+
+        internal async Task<DiscordTokenResponse> GetClientCredentialsTokenAsync(ulong client_id, string client_secret, DiscordScopes scopes)
+        {
+            var values = new Dictionary<string, string>()
+            {
+                { "scope", scopes.GetScopeString() },
+                { "grant_type", "client_credentials" }
+            };
+
+            var route = $"{Endpoints.OAUTH2}{Endpoints.TOKEN}";
+            var bucket = this._rest.GetBucket(RestRequestMethod.POST, route, new { }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoUrlEncodedAsync(this._discord, bucket, url, RestRequestMethod.POST, route,
+                values: values, simpleAuth: (client_id.ToString(CultureInfo.InvariantCulture), client_secret));
+
+            return JsonConvert.DeserializeObject<DiscordTokenResponse>(res.Response);
+        }
+
+        internal async Task RevokeTokenAsync(string refresh_token)
+        {
+            // https://datatracker.ietf.org/doc/html/rfc7009#section-2.1
+
+            var values = new Dictionary<string, string>()
+            {
+                { "refresh_token", refresh_token },
+                { "token_type_hint", "refresh_token" }
+            };
+
+            var route = $"{Endpoints.OAUTH2}{Endpoints.TOKEN}{Endpoints.REVOKE}";
+            var bucket = this._rest.GetBucket(RestRequestMethod.POST, route, new { }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoUrlEncodedAsync(this._discord, bucket, url, RestRequestMethod.POST, route, values: values);
         }
         #endregion
 

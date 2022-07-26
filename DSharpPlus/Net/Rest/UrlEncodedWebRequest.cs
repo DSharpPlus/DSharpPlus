@@ -21,14 +21,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System.Runtime.CompilerServices;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
-[assembly: InternalsVisibleTo("DSharpPlus.CommandsNext")]
-[assembly: InternalsVisibleTo("DSharpPlus.SlashCommands")]
-[assembly: InternalsVisibleTo("DSharpPlus.Interactivity")]
-[assembly: InternalsVisibleTo("DSharpPlus.VoiceNext")]
-[assembly: InternalsVisibleTo("DSharpPlus.Lavalink")]
-[assembly: InternalsVisibleTo("DSharpPlus.Rest")]
-[assembly: InternalsVisibleTo("DSharpPlus.OAuth2")]
+namespace DSharpPlus.Net
+{
+    internal sealed class UrlEncodedWebRequest : BaseRestRequest
+    {
+        /// <summary>
+        /// Gets the dictionary of values attached to this request.
+        /// </summary>
+        public IReadOnlyDictionary<string, string> Values { get; }
 
-[assembly: InternalsVisibleTo("DSharpPlus.MSTest")]
+        public (string, string)? SimpleAuth { get; }
+
+        internal bool _removeFileCount;
+
+        internal UrlEncodedWebRequest(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, string route,
+            IReadOnlyDictionary<string, string> headers = null, IReadOnlyDictionary<string, string> values = null,
+            double? ratelimit_wait_override = null, bool removeFileCount = false, (string, string)? simpleAuth = null)
+            : base(client, bucket, url, method, route, headers, ratelimit_wait_override)
+        {
+            this.Values = values;
+            this._removeFileCount = removeFileCount;
+            this.SimpleAuth = simpleAuth;
+        }
+    }
+}
