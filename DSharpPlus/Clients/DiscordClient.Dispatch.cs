@@ -214,7 +214,7 @@ namespace DSharpPlus
 
                 case "guild_member_update":
                     gid = (ulong)dat["guild_id"];
-                    await this.OnGuildMemberUpdateEventAsync(dat.ToDiscordObject<TransportMember>(), this._guilds[gid], dat["roles"].ToDiscordObject<IEnumerable<ulong>>(), (string)dat["nick"], (bool?)dat["pending"], (DateTimeOffset?)dat["communication_disabled_until"]).ConfigureAwait(false);
+                    await this.OnGuildMemberUpdateEventAsync(dat.ToDiscordObject<TransportMember>(), this._guilds[gid]).ConfigureAwait(false);
                     break;
 
                 case "guild_members_chunk":
@@ -1237,7 +1237,7 @@ namespace DSharpPlus
             await this._guildMemberRemoved.InvokeAsync(this, ea).ConfigureAwait(false);
         }
 
-        internal async Task OnGuildMemberUpdateEventAsync(TransportMember member, DiscordGuild guild, IEnumerable<ulong> roles, string nick, bool? pending, DateTimeOffset? comunication_disabled_until)
+        internal async Task OnGuildMemberUpdateEventAsync(TransportMember member, DiscordGuild guild)
         {
             var userAfter = new DiscordUser(member.User) { Discord = this };
             userAfter = this.UpdateUserCache(userAfter);
