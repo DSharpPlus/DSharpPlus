@@ -1,5 +1,9 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -35,17 +39,34 @@ namespace DSharpPlus.SlashCommands
         // Singleton modules
         private static List<object> _singletonModules { get; set; } = new();
 
-        // List of modules to register
-        private List<KeyValuePair<ulong?, Type>> _updateList { get; set; } = new();
+        // List of modules to register. INTENTIONALLY not a dictionary because a dictionary cannot have null or duplicate keys.
+        private Dictionary<ulong?, List<Type>> _updateList { get; set; } = new();
         // Configuration for DI
         private readonly SlashCommandsConfiguration _configuration;
         // Set to true if anything fails when registering
         private static bool _errored { get; set; } = false;
 
+        private static readonly ReadOnlyDictionary<Type, ApplicationCommandOptionType> _validOptionTypes = new(new Dictionary<Type, ApplicationCommandOptionType>()
+        {
+            [typeof(bool)] = ApplicationCommandOptionType.Boolean,
+            [typeof(long)] = ApplicationCommandOptionType.Integer,
+            [typeof(double)] = ApplicationCommandOptionType.Number,
+            [typeof(string)] = ApplicationCommandOptionType.String,
+            [typeof(TimeSpan)] = ApplicationCommandOptionType.String,
+            [typeof(Enum)] = ApplicationCommandOptionType.String,
+            [typeof(DiscordChannel)] = ApplicationCommandOptionType.Channel,
+            [typeof(DiscordUser)] = ApplicationCommandOptionType.User,
+            [typeof(DiscordRole)] = ApplicationCommandOptionType.Role,
+            [typeof(DiscordEmoji)] = ApplicationCommandOptionType.String,
+            [typeof(DiscordAttachment)] = ApplicationCommandOptionType.Attachment,
+            [typeof(SnowflakeObject)] = ApplicationCommandOptionType.Mentionable
+        });
+
         /// <summary>
         /// Gets a list of registered commands. The key is the guild id (null if global).
         /// </summary>
         public IReadOnlyList<KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>> RegisteredCommands => _registeredCommands;
+        // INTENTIONALLY not a dictionary because a dictionary cannot have null keys.
         private static readonly List<KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>> _registeredCommands = new();
 
         internal SlashCommandsExtension(SlashCommandsConfiguration configuration)
@@ -73,9 +94,24 @@ namespace DSharpPlus.SlashCommands
             this._autocompleteErrored = new AsyncEvent<SlashCommandsExtension, AutocompleteErrorEventArgs>("AUTOCOMPLETE_ERRORED", TimeSpan.Zero, this.Client.EventErrorHandler);
             this._autocompleteExecuted = new AsyncEvent<SlashCommandsExtension, AutocompleteExecutedEventArgs>("AUTOCOMPLETE_EXECUTED", TimeSpan.Zero, this.Client.EventErrorHandler);
 
-            this.Client.Ready += this.Update;
+            this.Client.Ready += (_, _) => this.UpdateAsync();
             this.Client.InteractionCreated += this.InteractionHandler;
             this.Client.ContextMenuInteractionCreated += this.ContextMenuHandler;
+        }
+
+        // Actual method for registering, used for RegisterCommands and on Ready.
+        // Could very well be a void method, however that'd involve making breaking changes. Joy.
+        internal Task UpdateAsync()
+        {
+            // Only update for shard 0
+            if (this.Client.ShardId is 0)
+            {
+                foreach (var kvp in this._updateList)
+                {
+                    this.RegisterCommands(kvp.Value, kvp.Key);
+                }
+            }
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -85,8 +121,13 @@ namespace DSharpPlus.SlashCommands
         /// <param name="guildId">The guild id to register it on. If you want global commands, leave it null.</param>
         public void RegisterCommands<T>(ulong? guildId = null) where T : ApplicationCommandModule
         {
-            if (this.Client.ShardId is 0)
-                this._updateList.Add(new(guildId, typeof(T)));
+            if (this.Client.ShardId != 0)
+                return;
+            // If the guild id has not previously been registered, create the new list
+            else if (!this._updateList.TryGetValue(guildId, out var possibleCommands))
+                this._updateList[guildId] = new() { typeof(T) };
+            else
+                possibleCommands.Add(typeof(T));
         }
 
         /// <summary>
@@ -99,8 +140,13 @@ namespace DSharpPlus.SlashCommands
             if (!typeof(ApplicationCommandModule).IsAssignableFrom(type))
                 throw new ArgumentException("Command classes have to inherit from ApplicationCommandModule", nameof(type));
             // If sharding, only register for shard 0
-            if (this.Client.ShardId is 0)
-                this._updateList.Add(new(guildId, type));
+            else if (this.Client.ShardId != 0)
+                return;
+            // If the guild id has not previously been registered, create the new list
+            else if (!this._updateList.TryGetValue(guildId, out var possibleCommands))
+                this._updateList[guildId] = new() { type };
+            else
+                possibleCommands.Add(type);
         }
 
         /// <summary>
@@ -110,28 +156,8 @@ namespace DSharpPlus.SlashCommands
         /// <param name="guildId">The guild id to register it on. If you want global commands, leave it null.</param>
         public void RegisterCommands(Assembly assembly, ulong? guildId = null)
         {
-            var types = assembly.ExportedTypes.Where(xt => typeof(ApplicationCommandModule).IsAssignableFrom(xt) && !xt.GetTypeInfo().IsNested);
-
-            foreach (var xt in types)
+            foreach (var xt in assembly.ExportedTypes.Where(xt => typeof(ApplicationCommandModule).IsAssignableFrom(xt) && !xt.GetTypeInfo().IsNested))
                 this.RegisterCommands(xt, guildId);
-        }
-
-        // To be run on ready
-        internal Task Update(DiscordClient client, ReadyEventArgs e) => this.Update();
-
-        // Actual method for registering, used for RegisterCommands and on Ready
-        internal Task Update()
-        {
-            // Only update for shard 0
-            if (this.Client.ShardId is 0)
-            {
-                // Groups commands by guild id or global
-                foreach (var key in this._updateList.Select(x => x.Key).Distinct())
-                {
-                    this.RegisterCommands(this._updateList.Where(x => x.Key == key).Select(x => x.Value), key);
-                }
-            }
-            return Task.CompletedTask;
         }
 
         #region Registering
@@ -153,46 +179,40 @@ namespace DSharpPlus.SlashCommands
                 {
                     try
                     {
-                        var module = type.GetTypeInfo();
-                        var classes = new List<TypeInfo>();
+                        var classes = new List<Type>();
 
                         // Add module to classes list if it's a group
-                        if (module.GetCustomAttribute<SlashCommandGroupAttribute>() != null)
+                        if (type.GetCustomAttribute<SlashCommandGroupAttribute>() != null)
                         {
-                            classes.Add(module);
+                            classes.Add(type);
                         }
                         else
                         {
                             // Otherwise add the nested groups
-                            classes = module.DeclaredNestedTypes.Where(x => x.GetCustomAttribute<SlashCommandGroupAttribute>() != null).ToList();
+                            classes = type.GetNestedTypes().Where(x => x.GetCustomAttribute<SlashCommandGroupAttribute>() != null).ToList();
                         }
 
                         // Handles groups
-                        foreach (var subclassinfo in classes)
+                        foreach (var subclassInfo in classes)
                         {
                             // Gets the attribute and methods in the group
+                            var allowDMs = subclassInfo.GetCustomAttribute<GuildOnlyAttribute>() is null;
+                            var v2Permissions = subclassInfo.GetCustomAttribute<SlashCommandPermissionsAttribute>()?.Permissions;
 
-                            var allowDMs = subclassinfo.GetCustomAttribute<GuildOnlyAttribute>() is null;
-                            var v2Permissions = subclassinfo.GetCustomAttribute<SlashCommandPermissionsAttribute>()?.Permissions;
-
-                            var groupAttribute = subclassinfo.GetCustomAttribute<SlashCommandGroupAttribute>();
-                            var submethods = subclassinfo.DeclaredMethods.Where(x => x.GetCustomAttribute<SlashCommandAttribute>() != null);
-                            var subclasses = subclassinfo.DeclaredNestedTypes.Where(x => x.GetCustomAttribute<SlashCommandGroupAttribute>() != null);
-                            if (subclasses.Any() && submethods.Any())
-                            {
-                                throw new ArgumentException("Slash command groups cannot have both subcommands and subgroups!");
-                            }
+                            var groupAttribute = subclassInfo.GetCustomAttribute<SlashCommandGroupAttribute>();
+                            var subMethods = subclassInfo.GetRuntimeMethods().Where(x => x.GetCustomAttribute<SlashCommandAttribute>() != null);
+                            var subClasses = subclassInfo.GetNestedTypes().Where(x => x.GetCustomAttribute<SlashCommandGroupAttribute>() != null);
 
                             // Group context menus
-                            var contextMethods = subclassinfo.DeclaredMethods.Where(x => x.GetCustomAttribute<ContextMenuAttribute>() != null);
+                            var contextMethods = subclassInfo.GetRuntimeMethods().Where(x => x.GetCustomAttribute<ContextMenuAttribute>() != null);
                             AddContextMenus(contextMethods);
 
                             // Initializes the command
                             var payload = new DiscordApplicationCommand(groupAttribute.Name, groupAttribute.Description, defaultPermission: groupAttribute.DefaultPermission, allowDMUsage: allowDMs, defaultMemberPermissions: v2Permissions);
 
-                            var commandmethods = new List<KeyValuePair<string, MethodInfo>>();
+                            var commandMethods = new List<KeyValuePair<string, MethodInfo>>();
                             // Handles commands in the group
-                            foreach (var submethod in submethods)
+                            foreach (var submethod in subMethods)
                             {
                                 var commandAttribute = submethod.GetCustomAttribute<SlashCommandAttribute>();
 
@@ -208,56 +228,54 @@ namespace DSharpPlus.SlashCommands
                                 var descriptionLocalizations = this.GetDescriptionLocalizations(submethod);
 
                                 // Creates the subcommand and adds it to the main command
-                                var subpayload = new DiscordApplicationCommandOption(commandAttribute.Name, commandAttribute.Description, ApplicationCommandOptionType.SubCommand, null, null, options, name_localizations: nameLocalizations, description_localizations: descriptionLocalizations);
-                                payload = new DiscordApplicationCommand(payload.Name, payload.Description, payload.Options?.Append(subpayload) ?? new[] { subpayload }, payload.DefaultPermission, allowDMUsage: allowDMs, defaultMemberPermissions: v2Permissions);
+                                var subPayload = new DiscordApplicationCommandOption(commandAttribute.Name, commandAttribute.Description, ApplicationCommandOptionType.SubCommand, null, null, options, name_localizations: nameLocalizations, description_localizations: descriptionLocalizations);
+                                payload = new DiscordApplicationCommand(payload.Name, payload.Description, payload.Options?.Append(subPayload) ?? new[] { subPayload }, payload.DefaultPermission, allowDMUsage: allowDMs, defaultMemberPermissions: v2Permissions);
 
                                 // Adds it to the method lists
-                                commandmethods.Add(new(commandAttribute.Name, submethod));
-                                groupCommands.Add(new() { Name = groupAttribute.Name, Methods = commandmethods });
+                                commandMethods.Add(new(commandAttribute.Name, submethod));
+                                groupCommands.Add(new() { Name = groupAttribute.Name, Methods = commandMethods });
                             }
 
                             var command = new SubGroupCommand { Name = groupAttribute.Name };
                             // Handles subgroups
-                            foreach (var subclass in subclasses)
+                            foreach (var subclass in subClasses)
                             {
                                 var subGroupAttribute = subclass.GetCustomAttribute<SlashCommandGroupAttribute>();
                                 // I couldn't think of more creative naming
-                                var subsubmethods = subclass.DeclaredMethods.Where(x => x.GetCustomAttribute<SlashCommandAttribute>() != null);
+                                var moreSubMethods = subclass.GetRuntimeMethods().Where(x => x.GetCustomAttribute<SlashCommandAttribute>() != null);
 
                                 var options = new List<DiscordApplicationCommandOption>();
 
                                 var currentMethods = new List<KeyValuePair<string, MethodInfo>>();
 
                                 // Similar to the one for regular groups
-                                foreach (var subsubmethod in subsubmethods)
+                                foreach (var moreSubMethod in moreSubMethods)
                                 {
-                                    var suboptions = new List<DiscordApplicationCommandOption>();
-                                    var commatt = subsubmethod.GetCustomAttribute<SlashCommandAttribute>();
-                                    var parameters = subsubmethod.GetParameters();
+                                    var subOptions = new List<DiscordApplicationCommandOption>();
+                                    var customAttribute = moreSubMethod.GetCustomAttribute<SlashCommandAttribute>();
+                                    var parameters = moreSubMethod.GetParameters();
                                     if (parameters?.Length is null or 0 || !ReferenceEquals(parameters.First().ParameterType, typeof(InteractionContext)))
                                         throw new ArgumentException($"The first argument must be an InteractionContext!");
                                     parameters = parameters.Skip(1).ToArray();
-                                    suboptions = suboptions.Concat(await this.ParseParameters(parameters, guildId)).ToList();
+                                    subOptions = subOptions.Concat(await this.ParseParameters(parameters, guildId)).ToList();
 
-                                    var nameLocalizations = this.GetNameLocalizations(subsubmethod);
-                                    var descriptionLocalizations = this.GetDescriptionLocalizations(subsubmethod);
+                                    var nameLocalizations = this.GetNameLocalizations(moreSubMethod);
+                                    var descriptionLocalizations = this.GetDescriptionLocalizations(moreSubMethod);
+                                    var moreSubPayloads = new DiscordApplicationCommandOption(customAttribute.Name, customAttribute.Description, ApplicationCommandOptionType.SubCommand, null, null, subOptions, name_localizations: nameLocalizations, description_localizations: descriptionLocalizations);
 
-                                    var subsubpayload = new DiscordApplicationCommandOption(commatt.Name, commatt.Description, ApplicationCommandOptionType.SubCommand, null, null, suboptions, name_localizations: nameLocalizations, description_localizations: descriptionLocalizations);
-                                    options.Add(subsubpayload);
-
-
-                                    commandmethods.Add(new(commatt.Name, subsubmethod));
-                                    currentMethods.Add(new(commatt.Name, subsubmethod));
+                                    options.Add(moreSubPayloads);
+                                    commandMethods.Add(new(customAttribute.Name, moreSubMethod));
+                                    currentMethods.Add(new(customAttribute.Name, moreSubMethod));
                                 }
 
                                 // Subgroups Context Menus
-                                var subContextMethods = subclass.DeclaredMethods.Where(x => x.GetCustomAttribute<ContextMenuAttribute>() != null);
+                                var subContextMethods = subclass.GetRuntimeMethods().Where(x => x.GetCustomAttribute<ContextMenuAttribute>() != null);
                                 AddContextMenus(subContextMethods);
 
                                 // Adds the group to the command and method lists
-                                var subpayload = new DiscordApplicationCommandOption(subGroupAttribute.Name, subGroupAttribute.Description, ApplicationCommandOptionType.SubCommandGroup, null, null, options);
+                                var subPayload = new DiscordApplicationCommandOption(subGroupAttribute.Name, subGroupAttribute.Description, ApplicationCommandOptionType.SubCommandGroup, null, null, options);
                                 command.SubCommands.Add(new() { Name = subGroupAttribute.Name, Methods = currentMethods });
-                                payload = new DiscordApplicationCommand(payload.Name, payload.Description, payload.Options?.Append(subpayload) ?? new[] { subpayload }, payload.DefaultPermission, allowDMUsage: allowDMs, defaultMemberPermissions: v2Permissions);
+                                payload = new DiscordApplicationCommand(payload.Name, payload.Description, payload.Options?.Append(subPayload) ?? new[] { subPayload }, payload.DefaultPermission, allowDMUsage: allowDMs, defaultMemberPermissions: v2Permissions);
 
                                 // Accounts for lifespans for the sub group
                                 if (subclass.GetCustomAttribute<SlashModuleLifespanAttribute>() is not null and { Lifespan: SlashModuleLifespan.Singleton })
@@ -272,17 +290,17 @@ namespace DSharpPlus.SlashCommands
                             updateList.Add(payload);
 
                             // Accounts for lifespans
-                            if (subclassinfo.GetCustomAttribute<SlashModuleLifespanAttribute>() is not null and { Lifespan: SlashModuleLifespan.Singleton })
+                            if (subclassInfo.GetCustomAttribute<SlashModuleLifespanAttribute>() is not null and { Lifespan: SlashModuleLifespan.Singleton })
                             {
-                                _singletonModules.Add(this.CreateInstance(subclassinfo, this._configuration?.Services));
+                                _singletonModules.Add(this.CreateInstance(subclassInfo, this._configuration?.Services));
                             }
                         }
 
                         // Handles methods, only if the module isn't a group itself
-                        if (module.GetCustomAttribute<SlashCommandGroupAttribute>() is null)
+                        if (type.GetCustomAttribute<SlashCommandGroupAttribute>() is null)
                         {
                             // Slash commands (again, similar to the one for groups)
-                            var methods = module.DeclaredMethods.Where(x => x.GetCustomAttribute<SlashCommandAttribute>() != null);
+                            var methods = type.GetRuntimeMethods().Where(x => x.GetCustomAttribute<SlashCommandAttribute>() != null);
 
                             foreach (var method in methods)
                             {
@@ -307,13 +325,13 @@ namespace DSharpPlus.SlashCommands
                             }
 
                             // Context Menus
-                            var contextMethods = module.DeclaredMethods.Where(x => x.GetCustomAttribute<ContextMenuAttribute>() != null);
+                            var contextMethods = type.GetRuntimeMethods().Where(x => x.GetCustomAttribute<ContextMenuAttribute>() != null);
                             AddContextMenus(contextMethods);
 
                             // Accounts for lifespans
-                            if (module.GetCustomAttribute<SlashModuleLifespanAttribute>() is not null and { Lifespan: SlashModuleLifespan.Singleton })
+                            if (type.GetCustomAttribute<SlashModuleLifespanAttribute>() is not null and { Lifespan: SlashModuleLifespan.Singleton })
                             {
-                                _singletonModules.Add(this.CreateInstance(module, this._configuration?.Services));
+                                _singletonModules.Add(this.CreateInstance(type, this._configuration?.Services));
                             }
                         }
 
@@ -350,48 +368,51 @@ namespace DSharpPlus.SlashCommands
                     }
                 }
 
-                if (!_errored)
+                if (_errored)
                 {
-                    try
+                    // TODO: Fix this shit
+                    throw new InvalidOperationException("There was an error registering application commands.");
+                }
+
+                try
+                {
+                    IEnumerable<DiscordApplicationCommand> commands;
+                    // Creates a guild command if a guild id is specified, otherwise global
+                    commands = guildId is null
+                        ? await this.Client.BulkOverwriteGlobalApplicationCommandsAsync(updateList)
+                        : await this.Client.BulkOverwriteGuildApplicationCommandsAsync(guildId.Value, updateList);
+
+                    // Checks against the ids and adds them to the command method lists
+                    foreach (var command in commands)
                     {
-                        IEnumerable<DiscordApplicationCommand> commands;
-                        // Creates a guild command if a guild id is specified, otherwise global
-                        commands = guildId is null
-                            ? await this.Client.BulkOverwriteGlobalApplicationCommandsAsync(updateList)
-                            : await this.Client.BulkOverwriteGuildApplicationCommandsAsync(guildId.Value, updateList);
+                        if (commandMethods.Any(x => x.Name == command.Name))
+                            commandMethods.First(x => x.Name == command.Name).CommandId = command.Id;
 
-                        // Checks against the ids and adds them to the command method lists
-                        foreach (var command in commands)
-                        {
-                            if (commandMethods.Any(x => x.Name == command.Name))
-                                commandMethods.First(x => x.Name == command.Name).CommandId = command.Id;
+                        else if (groupCommands.Any(x => x.Name == command.Name))
+                            groupCommands.First(x => x.Name == command.Name).CommandId = command.Id;
 
-                            else if (groupCommands.Any(x => x.Name == command.Name))
-                                groupCommands.First(x => x.Name == command.Name).CommandId = command.Id;
+                        else if (subGroupCommands.Any(x => x.Name == command.Name))
+                            subGroupCommands.First(x => x.Name == command.Name).CommandId = command.Id;
 
-                            else if (subGroupCommands.Any(x => x.Name == command.Name))
-                                subGroupCommands.First(x => x.Name == command.Name).CommandId = command.Id;
-
-                            else if (contextMenuCommands.Any(x => x.Name == command.Name))
-                                contextMenuCommands.First(x => x.Name == command.Name).CommandId = command.Id;
-                        }
-                        // Adds to the global lists finally
-                        _commandMethods.AddRange(commandMethods);
-                        _groupCommands.AddRange(groupCommands);
-                        _subGroupCommands.AddRange(subGroupCommands);
-                        _contextMenuCommands.AddRange(contextMenuCommands);
-
-                        _registeredCommands.Add(new(guildId, commands.ToList()));
+                        else if (contextMenuCommands.Any(x => x.Name == command.Name))
+                            contextMenuCommands.First(x => x.Name == command.Name).CommandId = command.Id;
                     }
-                    catch (Exception ex)
-                    {
-                        if (ex is BadRequestException brex)
-                            this.Client.Logger.LogCritical(brex, $"There was an error registering application commands: {brex.JsonMessage}");
-                        else
-                            this.Client.Logger.LogCritical(ex, $"There was an error registering application commands");
+                    // Adds to the global lists finally
+                    _commandMethods.AddRange(commandMethods);
+                    _groupCommands.AddRange(groupCommands);
+                    _subGroupCommands.AddRange(subGroupCommands);
+                    _contextMenuCommands.AddRange(contextMenuCommands);
 
-                        _errored = true;
-                    }
+                    _registeredCommands.Add(new(guildId, commands.ToList()));
+                }
+                catch (Exception ex)
+                {
+                    if (ex is BadRequestException brex)
+                        this.Client.Logger.LogCritical(brex, $"There was an error registering application commands: {brex.JsonMessage}");
+                    else
+                        this.Client.Logger.LogCritical(ex, $"There was an error registering application commands");
+
+                    _errored = true;
                 }
             });
         }
@@ -403,45 +424,46 @@ namespace DSharpPlus.SlashCommands
             foreach (var parameter in parameters)
             {
                 // Gets the attribute
-                var optionattribute = parameter.GetCustomAttribute<OptionAttribute>();
-                if (optionattribute == null)
-                    throw new ArgumentException("Arguments must have the Option attribute!");
+                var optionAttribute = parameter.GetCustomAttribute<OptionAttribute>() ?? throw new ArgumentException($"Argument {parameter.Name} on method {this.GetFullname(parameter.Member)} requires an {this.GetFullname(typeof(OptionAttribute))}! None was found.");
 
-                // Sets the type
-                var type = parameter.ParameterType;
-                var parametertype = this.GetParameterType(type);
+                // Remove the type nullability for retrieving the option type from the dictionary.
+                var parameterType = Nullable.GetUnderlyingType(parameter.ParameterType) ?? parameter.ParameterType;
+                if (!_validOptionTypes.TryGetValue(parameterType, out var parameterOptionType))
+                {
+                    throw new ArgumentException($"Argument {parameter.Name} on method {this.GetFullname(parameter.Member)} has an invalid type! Acceptable types are: {string.Join(", ", _validOptionTypes.Keys.Select(type => type.Name))}");
+                }
 
-                // Handles choices
-                // From attributes
-                var choices = this.GetChoiceAttributesFromParameter(parameter.GetCustomAttributes<ChoiceAttribute>());
-                // From enums
-                if (parameter.ParameterType.IsEnum || Nullable.GetUnderlyingType(parameter.ParameterType)?.IsEnum == true)
+                List<DiscordApplicationCommandOptionChoice> choices;
+                IEnumerable<ChoiceProviderAttribute> choiceProviders = null;
+                if (parameterType.IsEnum)
                 {
                     choices = GetChoiceAttributesFromEnumParameter(parameter.ParameterType);
                 }
-                // From choice provider
-                var choiceProviders = parameter.GetCustomAttributes<ChoiceProviderAttribute>();
-                if (choiceProviders.Any())
+                else if ((choiceProviders = parameter.GetCustomAttributes<ChoiceProviderAttribute>()) != null)
                 {
+                    // Looked into https://stackoverflow.com/questions/22628087/calling-async-method-synchronously,
+                    // Then was met with https://discord.com/channels/143867839282020352/169726586931773440/1001926549576102058 (https://discord.gg/csharp)
                     choices = await this.GetChoiceAttributesFromProvider(choiceProviders, guildId);
                 }
+                else
+                {
+                    choices = this.GetChoiceAttributesFromParameter(parameter.GetCustomAttributes<ChoiceAttribute>());
+                }
 
-                var channelTypes = parameter.GetCustomAttribute<ChannelTypesAttribute>()?.ChannelTypes ?? null;
-
-                var minimumValue = parameter.GetCustomAttribute<MinimumAttribute>()?.Value ?? null;
-                var maximumValue = parameter.GetCustomAttribute<MaximumAttribute>()?.Value ?? null;
-
-                var minimumLength = parameter.GetCustomAttribute<MinimumLengthAttribute>()?.Value ?? null;
-                var maximumLength = parameter.GetCustomAttribute<MaximumLengthAttribute>()?.Value ?? null;
+                var channelTypes = parameter.GetCustomAttribute<ChannelTypesAttribute>()?.ChannelTypes;
+                var minimumValue = parameter.GetCustomAttribute<MinimumAttribute>()?.Value;
+                var maximumValue = parameter.GetCustomAttribute<MaximumAttribute>()?.Value;
+                var minimumLength = parameter.GetCustomAttribute<MinimumLengthAttribute>()?.Value;
+                var maximumLength = parameter.GetCustomAttribute<MaximumLengthAttribute>()?.Value;
 
                 var nameLocalizations = this.GetNameLocalizations(parameter);
                 var descriptionLocalizations = this.GetDescriptionLocalizations(parameter);
 
                 var autocompleteAttribute = parameter.GetCustomAttribute<AutocompleteAttribute>();
-                if (autocompleteAttribute != null && autocompleteAttribute.Provider.GetMethod(nameof(IAutocompleteProvider.Provider)) == null)
-                    throw new ArgumentException("Autocomplete providers must inherit from IAutocompleteProvider.");
+                if (autocompleteAttribute != null && autocompleteAttribute.Provider.IsSubclassOf(typeof(IAutocompleteProvider)))
+                    throw new ArgumentException($"Type {this.GetFullname(autocompleteAttribute.Provider)} on parameter {parameter.Name} in method {this.GetFullname(parameter.Member)} was used as an autocomplete provider, however it does not inherit from {nameof(IAutocompleteProvider)}!");
 
-                options.Add(new DiscordApplicationCommandOption(optionattribute.Name, optionattribute.Description, parametertype, !parameter.IsOptional, choices, null, channelTypes, autocompleteAttribute != null || optionattribute.Autocomplete, minimumValue, maximumValue, nameLocalizations, descriptionLocalizations, minimumLength, maximumLength));
+                options.Add(new DiscordApplicationCommandOption(optionAttribute.Name, optionAttribute.Description, parameterOptionType, !parameter.IsOptional, choices, null, channelTypes, autocompleteAttribute != null || optionAttribute.Autocomplete, minimumValue, maximumValue, nameLocalizations, descriptionLocalizations, minimumLength, maximumLength));
             }
 
             return options;
@@ -459,41 +481,35 @@ namespace DSharpPlus.SlashCommands
             return descriptionAttributes.ToDictionary(descriptionAttribute => descriptionAttribute.Locale, descriptionAttribute => descriptionAttribute.Description);
         }
 
-
         // Gets the choices from a choice provider
-        private async Task<List<DiscordApplicationCommandOptionChoice>> GetChoiceAttributesFromProvider(
-            IEnumerable<ChoiceProviderAttribute> customAttributes,
-            ulong? guildId
-        )
+        private async Task<List<DiscordApplicationCommandOptionChoice>> GetChoiceAttributesFromProvider(IEnumerable<ChoiceProviderAttribute> customAttributes, ulong? guildId)
         {
             var choices = new List<DiscordApplicationCommandOptionChoice>();
             foreach (var choiceProviderAttribute in customAttributes)
             {
-                var method = choiceProviderAttribute.ProviderType.GetMethod(nameof(IChoiceProvider.Provider));
-
-                if (method == null)
-                    throw new ArgumentException("ChoiceProviders must inherit from IChoiceProvider.");
-                else
+                var method = choiceProviderAttribute.ProviderType.GetMethod(nameof(IChoiceProvider.Provider)) ?? throw new ArgumentException($"{this.GetFullname(choiceProviderAttribute.ProviderType)} was used as a choice provider, but does not inherit from {nameof(IChoiceProvider)}.");
+                object instance = null;
+                try
                 {
-                    var instance = Activator.CreateInstance(choiceProviderAttribute.ProviderType);
+                    instance = Activator.CreateInstance(choiceProviderAttribute.ProviderType);
+                }
+                catch (Exception exception)
+                {
+                    throw new InvalidOperationException($"Failed to create instance of {choiceProviderAttribute.ProviderType}. Is a public parameterless constructor available?", exception);
+                }
 
-                    // Abstract class offers more properties that can be set
-                    if (choiceProviderAttribute.ProviderType.IsSubclassOf(typeof(ChoiceProvider)))
-                    {
-                        choiceProviderAttribute.ProviderType.GetProperty(nameof(ChoiceProvider.GuildId))
-                            ?.SetValue(instance, guildId);
+                // Abstract class offers more properties that can be set
+                if (choiceProviderAttribute.ProviderType.IsSubclassOf(typeof(ChoiceProvider)))
+                {
+                    choiceProviderAttribute.ProviderType.GetProperty(nameof(ChoiceProvider.GuildId))?.SetValue(instance, guildId);
+                    choiceProviderAttribute.ProviderType.GetProperty(nameof(ChoiceProvider.Services))?.SetValue(instance, this._configuration.Services);
+                }
 
-                        choiceProviderAttribute.ProviderType.GetProperty(nameof(ChoiceProvider.Services))
-                            ?.SetValue(instance, this._configuration.Services);
-                    }
-
-                    // Gets the choices from the method
-                    var result = await (Task<IEnumerable<DiscordApplicationCommandOptionChoice>>)method.Invoke(instance, null);
-
-                    if (result.Any())
-                    {
-                        choices.AddRange(result);
-                    }
+                // Gets the choices from the method
+                var result = await (Task<IEnumerable<DiscordApplicationCommandOptionChoice>>)method.Invoke(instance, null);
+                if (result.Any())
+                {
+                    choices.AddRange(result);
                 }
             }
 
@@ -504,10 +520,8 @@ namespace DSharpPlus.SlashCommands
         private static List<DiscordApplicationCommandOptionChoice> GetChoiceAttributesFromEnumParameter(Type enumParam)
         {
             var choices = new List<DiscordApplicationCommandOptionChoice>();
-            if (enumParam.IsGenericType && enumParam.GetGenericTypeDefinition() == typeof(Nullable<>))
-            {
-                enumParam = Nullable.GetUnderlyingType(enumParam);
-            }
+            enumParam = Nullable.GetUnderlyingType(enumParam) ?? enumParam;
+
             foreach (Enum enumValue in Enum.GetValues(enumParam))
             {
                 choices.Add(new DiscordApplicationCommandOptionChoice(enumValue.GetName(), enumValue.ToString()));
@@ -515,127 +529,49 @@ namespace DSharpPlus.SlashCommands
             return choices;
         }
 
-        // Small method to get the parameter's type from its type
-        private ApplicationCommandOptionType GetParameterType(Type type)
-        {
-            if (type == typeof(string))
-                return ApplicationCommandOptionType.String;
-            if (type == typeof(long) || type == typeof(long?))
-                return ApplicationCommandOptionType.Integer;
-            if (type == typeof(bool) || type == typeof(bool?))
-                return ApplicationCommandOptionType.Boolean;
-            if (type == typeof(double) || type == typeof(double?))
-                return ApplicationCommandOptionType.Number;
-            if (type == typeof(DiscordChannel))
-                return ApplicationCommandOptionType.Channel;
-            if (type == typeof(DiscordUser))
-                return ApplicationCommandOptionType.User;
-            if (type == typeof(DiscordRole))
-                return ApplicationCommandOptionType.Role;
-            if (type == typeof(DiscordEmoji))
-                return ApplicationCommandOptionType.String;
-            if (type == typeof(TimeSpan?))
-                return ApplicationCommandOptionType.String;
-            if (type == typeof(SnowflakeObject))
-                return ApplicationCommandOptionType.Mentionable;
-            if (type.IsEnum || Nullable.GetUnderlyingType(type)?.IsEnum == true)
-                return ApplicationCommandOptionType.String;
-            if (type == typeof(DiscordAttachment))
-                return ApplicationCommandOptionType.Attachment;
-            throw new ArgumentException("Cannot convert type! Argument types must be string, long, bool, double, TimeSpan?, DiscordChannel, DiscordUser, DiscordRole, DiscordEmoji, DiscordAttachment, SnowflakeObject, or an Enum.");
-        }
-
         // Gets choices from choice attributes
-        private List<DiscordApplicationCommandOptionChoice> GetChoiceAttributesFromParameter(IEnumerable<ChoiceAttribute> choiceattributes)
+        private List<DiscordApplicationCommandOptionChoice> GetChoiceAttributesFromParameter(IEnumerable<ChoiceAttribute> choiceAttributes)
         {
-            if (!choiceattributes.Any())
-            {
-                return null;
-            }
-
-            return choiceattributes.Select(att => new DiscordApplicationCommandOptionChoice(att.Name, att.Value)).ToList();
+            return !choiceAttributes.Any()
+                ? null
+                : choiceAttributes.Select(attribute => new DiscordApplicationCommandOptionChoice(attribute.Name, attribute.Value)).ToList();
         }
+
+        /// <summary>
+        /// Returns a member info's name and, if available, fullname prepended.
+        /// </summary>
+        /// <param name="memberInfo"></param>
+        /// <returns></returns>
+        private string GetFullname(MemberInfo memberInfo) => (memberInfo.DeclaringType == null ? null : memberInfo.DeclaringType.FullName + '.') + memberInfo.Name;
 
         #endregion
 
         #region Handling
 
-        private Task InteractionHandler(DiscordClient client, InteractionCreateEventArgs e)
+        private async Task InteractionHandler(DiscordClient client, InteractionCreateEventArgs e)
         {
-            _ = Task.Run(async () =>
+            if (e.Interaction.Type == InteractionType.ApplicationCommand)
             {
-                if (e.Interaction.Type == InteractionType.ApplicationCommand)
+                // Creates the context
+                var context = new InteractionContext
                 {
-                    // Creates the context
-                    var context = new InteractionContext
-                    {
-                        Interaction = e.Interaction,
-                        Channel = e.Interaction.Channel,
-                        Guild = e.Interaction.Guild,
-                        User = e.Interaction.User,
-                        Client = client,
-                        SlashCommandsExtension = this,
-                        CommandName = e.Interaction.Data.Name,
-                        InteractionId = e.Interaction.Id,
-                        Token = e.Interaction.Token,
-                        Services = this._configuration?.Services,
-                        ResolvedUserMentions = e.Interaction.Data.Resolved?.Users?.Values.ToList(),
-                        ResolvedRoleMentions = e.Interaction.Data.Resolved?.Roles?.Values.ToList(),
-                        ResolvedChannelMentions = e.Interaction.Data.Resolved?.Channels?.Values.ToList(),
-                        Type = ApplicationCommandType.SlashCommand
-                    };
+                    Interaction = e.Interaction,
+                    Channel = e.Interaction.Channel,
+                    Guild = e.Interaction.Guild,
+                    User = e.Interaction.User,
+                    Client = client,
+                    SlashCommandsExtension = this,
+                    CommandName = e.Interaction.Data.Name,
+                    InteractionId = e.Interaction.Id,
+                    Token = e.Interaction.Token,
+                    Services = this._configuration?.Services,
+                    ResolvedUserMentions = e.Interaction.Data.Resolved?.Users?.Values.ToList(),
+                    ResolvedRoleMentions = e.Interaction.Data.Resolved?.Roles?.Values.ToList(),
+                    ResolvedChannelMentions = e.Interaction.Data.Resolved?.Channels?.Values.ToList(),
+                    Type = ApplicationCommandType.SlashCommand
+                };
 
-                    try
-                    {
-                        if (_errored)
-                            throw new InvalidOperationException("Slash commands failed to register properly on startup.");
-
-                        // Gets the method for the command
-                        var methods = _commandMethods.Where(x => x.CommandId == e.Interaction.Data.Id);
-                        var groups = _groupCommands.Where(x => x.CommandId == e.Interaction.Data.Id);
-                        var subgroups = _subGroupCommands.Where(x => x.CommandId == e.Interaction.Data.Id);
-                        if (!methods.Any() && !groups.Any() && !subgroups.Any())
-                            throw new InvalidOperationException("A slash command was executed, but no command was registered for it.");
-
-                        // Just read the code you'll get it
-                        if (methods.Any())
-                        {
-                            var method = methods.First().Method;
-
-                            var args = await this.ResolveInteractionCommandParameters(e, context, method, e.Interaction.Data.Options);
-
-                            await this.RunCommandAsync(context, method, args);
-                        }
-                        else if (groups.Any())
-                        {
-                            var command = e.Interaction.Data.Options.First();
-                            var method = groups.First().Methods.First(x => x.Key == command.Name).Value;
-
-                            var args = await this.ResolveInteractionCommandParameters(e, context, method, e.Interaction.Data.Options.First().Options);
-
-                            await this.RunCommandAsync(context, method, args);
-                        }
-                        else if (subgroups.Any())
-                        {
-                            var command = e.Interaction.Data.Options.First();
-                            var group = subgroups.First().SubCommands.First(x => x.Name == command.Name);
-                            var method = group.Methods.First(x => x.Key == command.Options.First().Name).Value;
-
-                            var args = await this.ResolveInteractionCommandParameters(e, context, method, e.Interaction.Data.Options.First().Options.First().Options);
-
-                            await this.RunCommandAsync(context, method, args);
-                        }
-
-                        await this._slashExecuted.InvokeAsync(this, new SlashCommandExecutedEventArgs { Context = context });
-                    }
-                    catch (Exception ex)
-                    {
-                        await this._slashError.InvokeAsync(this, new SlashCommandErrorEventArgs { Context = context, Exception = ex });
-                    }
-                }
-
-                // Handles autcomplete interactions
-                if (e.Interaction.Type == InteractionType.AutoComplete)
+                try
                 {
                     if (_errored)
                         throw new InvalidOperationException("Slash commands failed to register properly on startup.");
@@ -645,100 +581,141 @@ namespace DSharpPlus.SlashCommands
                     var groups = _groupCommands.Where(x => x.CommandId == e.Interaction.Data.Id);
                     var subgroups = _subGroupCommands.Where(x => x.CommandId == e.Interaction.Data.Id);
                     if (!methods.Any() && !groups.Any() && !subgroups.Any())
-                        throw new InvalidOperationException("An autocomplete interaction was created, but no command was registered for it.");
+                        throw new InvalidOperationException("A slash command was executed, but no command was registered for it.");
 
+                    // Just read the code you'll get it
                     if (methods.Any())
                     {
                         var method = methods.First().Method;
 
-                        var options = e.Interaction.Data.Options;
-                        // Gets the focused option
-                        var focusedOption = options.First(o => o.Focused);
-                        var parameter = method.GetParameters().Skip(1).First(p => p.GetCustomAttribute<OptionAttribute>().Name == focusedOption.Name);
-                        await this.RunAutocomplete(e.Interaction, parameter, options, focusedOption);
-                    }
+                        var args = await this.ResolveInteractionCommandParameters(e, context, method, e.Interaction.Data.Options);
 
-                    if (groups.Any())
+                        await this.RunCommandAsync(context, method, args);
+                    }
+                    else if (groups.Any())
                     {
                         var command = e.Interaction.Data.Options.First();
                         var method = groups.First().Methods.First(x => x.Key == command.Name).Value;
 
-                        var options = command.Options;
-                        var focusedOption = options.First(o => o.Focused);
-                        var parameter = method.GetParameters().Skip(1).First(p => p.GetCustomAttribute<OptionAttribute>().Name == focusedOption.Name);
-                        await this.RunAutocomplete(e.Interaction, parameter, options, focusedOption);
-                    }
+                        var args = await this.ResolveInteractionCommandParameters(e, context, method, e.Interaction.Data.Options.First().Options);
 
-                    if (subgroups.Any())
+                        await this.RunCommandAsync(context, method, args);
+                    }
+                    else if (subgroups.Any())
                     {
                         var command = e.Interaction.Data.Options.First();
                         var group = subgroups.First().SubCommands.First(x => x.Name == command.Name);
                         var method = group.Methods.First(x => x.Key == command.Options.First().Name).Value;
 
-                        var options = command.Options.First().Options;
-                        var focusedOption = options.First(o => o.Focused);
-                        var parameter = method.GetParameters().Skip(1).First(p => p.GetCustomAttribute<OptionAttribute>().Name == focusedOption.Name);
-                        await this.RunAutocomplete(e.Interaction, parameter, options, focusedOption);
+                        var args = await this.ResolveInteractionCommandParameters(e, context, method, e.Interaction.Data.Options.First().Options.First().Options);
+
+                        await this.RunCommandAsync(context, method, args);
                     }
-                }
-            });
-            return Task.CompletedTask;
-        }
 
-        private Task ContextMenuHandler(DiscordClient client, ContextMenuInteractionCreateEventArgs e)
-        {
-            _ = Task.Run(async () =>
-            {
-                // Creates the context
-                var context = new ContextMenuContext
-                {
-                    Interaction = e.Interaction,
-                    Channel = e.Interaction.Channel,
-                    Client = client,
-                    Services = this._configuration?.Services,
-                    CommandName = e.Interaction.Data.Name,
-                    SlashCommandsExtension = this,
-                    Guild = e.Interaction.Guild,
-                    InteractionId = e.Interaction.Id,
-                    User = e.Interaction.User,
-                    Token = e.Interaction.Token,
-                    TargetUser = e.TargetUser,
-                    TargetMessage = e.TargetMessage,
-                    Type = e.Type
-                };
-
-                if (e.Interaction.Guild != null && e.TargetUser != null && e.Interaction.Guild.Members.TryGetValue(e.TargetUser.Id, out var member))
-                {
-                    context.TargetMember = member;
-                }
-
-                try
-                {
-                    if (_errored)
-                        throw new InvalidOperationException("Context menus failed to register properly on startup.");
-
-                    // Gets the method for the command
-                    var method = _contextMenuCommands.FirstOrDefault(x => x.CommandId == e.Interaction.Data.Id);
-
-                    if (method == null)
-                        throw new InvalidOperationException("A context menu was executed, but no command was registered for it.");
-
-                    await this.RunCommandAsync(context, method.Method, new[] { context });
-
-                    await this._contextMenuExecuted.InvokeAsync(this, new ContextMenuExecutedEventArgs { Context = context });
+                    await this._slashExecuted.InvokeAsync(this, new SlashCommandExecutedEventArgs { Context = context });
                 }
                 catch (Exception ex)
                 {
-                    await this._contextMenuErrored.InvokeAsync(this, new ContextMenuErrorEventArgs { Context = context, Exception = ex });
+                    await this._slashError.InvokeAsync(this, new SlashCommandErrorEventArgs { Context = context, Exception = ex });
                 }
-            });
+            }
 
-            return Task.CompletedTask;
+            // Handles autcomplete interactions
+            if (e.Interaction.Type == InteractionType.AutoComplete)
+            {
+                if (_errored)
+                    throw new InvalidOperationException("Slash commands failed to register properly on startup.");
+
+                // Gets the method for the command
+                var methods = _commandMethods.Where(x => x.CommandId == e.Interaction.Data.Id);
+                var groups = _groupCommands.Where(x => x.CommandId == e.Interaction.Data.Id);
+                var subgroups = _subGroupCommands.Where(x => x.CommandId == e.Interaction.Data.Id);
+                if (!methods.Any() && !groups.Any() && !subgroups.Any())
+                    throw new InvalidOperationException("An autocomplete interaction was created, but no command was registered for it.");
+
+                if (methods.Any())
+                {
+                    var method = methods.First().Method;
+
+                    var options = e.Interaction.Data.Options;
+                    // Gets the focused option
+                    var focusedOption = options.First(o => o.Focused);
+                    var parameter = method.GetParameters().Skip(1).First(p => p.GetCustomAttribute<OptionAttribute>().Name == focusedOption.Name);
+                    await this.RunAutocomplete(e.Interaction, parameter, options, focusedOption);
+                }
+
+                if (groups.Any())
+                {
+                    var command = e.Interaction.Data.Options.First();
+                    var method = groups.First().Methods.First(x => x.Key == command.Name).Value;
+
+                    var options = command.Options;
+                    var focusedOption = options.First(o => o.Focused);
+                    var parameter = method.GetParameters().Skip(1).First(p => p.GetCustomAttribute<OptionAttribute>().Name == focusedOption.Name);
+                    await this.RunAutocomplete(e.Interaction, parameter, options, focusedOption);
+                }
+
+                if (subgroups.Any())
+                {
+                    var command = e.Interaction.Data.Options.First();
+                    var group = subgroups.First().SubCommands.First(x => x.Name == command.Name);
+                    var method = group.Methods.First(x => x.Key == command.Options.First().Name).Value;
+
+                    var options = command.Options.First().Options;
+                    var focusedOption = options.First(o => o.Focused);
+                    var parameter = method.GetParameters().Skip(1).First(p => p.GetCustomAttribute<OptionAttribute>().Name == focusedOption.Name);
+                    await this.RunAutocomplete(e.Interaction, parameter, options, focusedOption);
+                }
+            }
+        }
+
+        private async Task ContextMenuHandler(DiscordClient client, ContextMenuInteractionCreateEventArgs e)
+        {
+            // Creates the context
+            var context = new ContextMenuContext
+            {
+                Interaction = e.Interaction,
+                Channel = e.Interaction.Channel,
+                Client = client,
+                Services = this._configuration?.Services,
+                CommandName = e.Interaction.Data.Name,
+                SlashCommandsExtension = this,
+                Guild = e.Interaction.Guild,
+                InteractionId = e.Interaction.Id,
+                User = e.Interaction.User,
+                Token = e.Interaction.Token,
+                TargetUser = e.TargetUser,
+                TargetMessage = e.TargetMessage,
+                Type = e.Type
+            };
+
+            if (e.Interaction.Guild != null && e.TargetUser != null && e.Interaction.Guild.Members.TryGetValue(e.TargetUser.Id, out var member))
+            {
+                context.TargetMember = member;
+            }
+
+            try
+            {
+                if (_errored)
+                    throw new InvalidOperationException("Context menus failed to register properly on startup.");
+
+                // Gets the method for the command
+                var method = _contextMenuCommands.FirstOrDefault(x => x.CommandId == e.Interaction.Data.Id);
+
+                if (method == null)
+                    throw new InvalidOperationException("A context menu was executed, but no command was registered for it.");
+
+                await this.RunCommandAsync(context, method.Method, new[] { context });
+                await this._contextMenuExecuted.InvokeAsync(this, new ContextMenuExecutedEventArgs { Context = context });
+            }
+            catch (Exception ex)
+            {
+                await this._contextMenuErrored.InvokeAsync(this, new ContextMenuErrorEventArgs { Context = context, Exception = ex });
+            }
         }
 
         internal async Task RunCommandAsync(BaseContext context, MethodInfo method, IEnumerable<object> args)
         {
-
             // Accounts for lifespans
             var moduleLifespan = (method.DeclaringType.GetCustomAttribute<SlashModuleLifespanAttribute>() != null ? method.DeclaringType.GetCustomAttribute<SlashModuleLifespanAttribute>()?.Lifespan : SlashModuleLifespan.Transient) ?? SlashModuleLifespan.Transient;
             var classInstance = moduleLifespan switch // Accounts for static methods and adds DI
@@ -776,78 +753,68 @@ namespace DSharpPlus.SlashCommands
                 }
             }
             // Context menus
-            if (context is ContextMenuContext CMContext)
+            if (context is ContextMenuContext contextMenuContext)
             {
-                await this._contextMenuInvoked.InvokeAsync(this, new ContextMenuInvokedEventArgs() { Context = CMContext }, AsyncEventExceptionMode.ThrowAll);
+                await this._contextMenuInvoked.InvokeAsync(this, new ContextMenuInvokedEventArgs() { Context = contextMenuContext }, AsyncEventExceptionMode.ThrowAll);
 
-                await this.RunPreexecutionChecksAsync(method, CMContext);
+                await this.RunPreexecutionChecksAsync(method, contextMenuContext);
 
                 // This null check actually shouldn't be necessary for context menus but I'll keep it in just in case
-                var shouldExecute = await (module?.BeforeContextMenuExecutionAsync(CMContext) ?? Task.FromResult(true));
+                var shouldExecute = await (module?.BeforeContextMenuExecutionAsync(contextMenuContext) ?? Task.FromResult(true));
 
                 if (shouldExecute)
                 {
                     await (Task)method.Invoke(classInstance, args.ToArray());
 
-                    await (module?.AfterContextMenuExecutionAsync(CMContext) ?? Task.CompletedTask);
+                    await (module?.AfterContextMenuExecutionAsync(contextMenuContext) ?? Task.CompletedTask);
                 }
             }
         }
 
-        // Property injection copied over from CommandsNext
-        internal object CreateInstance(Type t, IServiceProvider services)
+        /// <summary>
+        /// Creates a new instance of the specified type using dependency injection. Attempts to perform constructor injection first, falling back on property and field injection.
+        /// </summary>
+        /// <param name="type">The type to initialize.</param>
+        /// <param name="serviceProvider">The services provided to create the type.</param>
+        /// <returns>The initialized type.</returns>
+        internal object CreateInstance(Type type, IServiceProvider serviceProvider)
         {
-            var ti = t.GetTypeInfo();
-            var constructors = ti.DeclaredConstructors
-                .Where(xci => xci.IsPublic)
-                .ToArray();
+            var constructors = type.GetConstructors().Where(x => x.IsPublic && !x.IsStatic);
+            var properties = type.GetRuntimeProperties().Where(x => x.CanWrite && x.SetMethod.IsPublic && !x.SetMethod.IsStatic && !x.IsDefined(typeof(DontInjectAttribute)));
+            var fields = type.GetRuntimeFields().Where(x => x.IsPublic && !x.IsStatic && !x.IsInitOnly && !x.IsDefined(typeof(DontInjectAttribute)));
 
-            if (constructors.Length != 1)
-                throw new ArgumentException("Specified type does not contain a public constructor or contains more than one public constructor.");
-
-            var constructor = constructors[0];
-            var constructorArgs = constructor.GetParameters();
-            var args = new object[constructorArgs.Length];
-
-            if (constructorArgs.Length != 0 && services == null)
-                throw new InvalidOperationException("Dependency collection needs to be specified for parameterized constructors.");
-
-            // inject via constructor
-            if (constructorArgs.Length != 0)
-                for (var i = 0; i < args.Length; i++)
-                    args[i] = services.GetRequiredService(constructorArgs[i].ParameterType);
-
-            var moduleInstance = Activator.CreateInstance(t, args);
-
-            // inject into properties
-            var props = t.GetRuntimeProperties().Where(xp => xp.CanWrite && xp.SetMethod != null && !xp.SetMethod.IsStatic && xp.SetMethod.IsPublic);
-            foreach (var prop in props)
+            // Static constructor?
+            if (!constructors.Any() && !properties.Any() && !fields.Any())
             {
-                if (prop.GetCustomAttribute<DontInjectAttribute>() != null)
-                    continue;
-
-                var service = services.GetService(prop.PropertyType);
-                if (service == null)
-                    continue;
-
-                prop.SetValue(moduleInstance, service);
+                return Activator.CreateInstance(type);
             }
 
-            // inject into fields
-            var fields = t.GetRuntimeFields().Where(xf => !xf.IsInitOnly && !xf.IsStatic && xf.IsPublic);
-            foreach (var field in fields)
+            // Constructor injection.
+            var constructor = constructors.FirstOrDefault();
+            if (constructor != null)
             {
-                if (field.GetCustomAttribute<DontInjectAttribute>() != null)
-                    continue;
-
-                var service = services.GetService(field.FieldType);
-                if (service == null)
-                    continue;
-
-                field.SetValue(moduleInstance, service);
+                return ActivatorUtilities.GetServiceOrCreateInstance(serviceProvider, type);
             }
 
-            return moduleInstance;
+            // Property and field injection.
+            var typeInstance = Activator.CreateInstance(type);
+            if (properties.Any())
+            {
+                foreach (var property in properties)
+                {
+                    property.SetValue(typeInstance, serviceProvider.GetService(property.PropertyType));
+                }
+            }
+
+            if (fields.Any())
+            {
+                foreach (var field in fields)
+                {
+                    field.SetValue(typeInstance, serviceProvider.GetService(field.FieldType));
+                }
+            }
+
+            return typeInstance;
         }
 
         // Parses slash command parameters
@@ -859,15 +826,14 @@ namespace DSharpPlus.SlashCommands
             for (var i = 0; i < parameters.Count(); i++)
             {
                 var parameter = parameters.ElementAt(i);
+                var parameterOption = parameter.GetCustomAttribute<OptionAttribute>();
 
                 // Accounts for optional arguments without values given
-                if (parameter.IsOptional && (!options?.Any(x =>
-                        x.Name.Equals(parameter.GetCustomAttribute<OptionAttribute>().Name, StringComparison.InvariantCultureIgnoreCase)) ?? true))
+                if (parameter.IsOptional && (!options?.Any(x => x.Name.Equals(parameterOption.Name, StringComparison.InvariantCultureIgnoreCase)) ?? true))
                     args.Add(parameter.DefaultValue);
                 else
                 {
-                    var option = options.Single(x =>
-                        x.Name.Equals(parameter.GetCustomAttribute<OptionAttribute>().Name, StringComparison.InvariantCultureIgnoreCase));
+                    var option = options.Single(x => x.Name.Equals(parameterOption.Name, StringComparison.InvariantCultureIgnoreCase));
 
                     // Checks the type and casts/references resolved and adds the value to the list
                     // This can probably reference the slash command's type property that didn't exist when I wrote this and it could use a cleaner switch instead, but if it works it works
@@ -1022,7 +988,7 @@ namespace DSharpPlus.SlashCommands
         {
             if (context is InteractionContext ctx)
             {
-                // Gets all attributes from parent classes as well and stuff
+                //Gets all attributes from parent classes as well and stuff
                 var attributes = new List<SlashCheckBaseAttribute>();
                 attributes.AddRange(method.GetCustomAttributes<SlashCheckBaseAttribute>(true));
                 attributes.AddRange(method.DeclaringType.GetCustomAttributes<SlashCheckBaseAttribute>());
@@ -1038,16 +1004,16 @@ namespace DSharpPlus.SlashCommands
                 var dict = new Dictionary<SlashCheckBaseAttribute, bool>();
                 foreach (var att in attributes)
                 {
-                    // Runs the check and adds the result to a list
+                    //Runs the check and adds the result to a list
                     var result = await att.ExecuteChecksAsync(ctx);
                     dict.Add(att, result);
                 }
 
-                // Checks if any failed, and throws an exception
+                //Checks if any failed, and throws an exception
                 if (dict.Any(x => x.Value == false))
                     throw new SlashExecutionChecksFailedException { FailedChecks = dict.Where(x => x.Value == false).Select(x => x.Key).ToList() };
             }
-            if (context is ContextMenuContext CMctx)
+            else if (context is ContextMenuContext contextMenuContext)
             {
                 var attributes = new List<ContextMenuCheckBaseAttribute>();
                 attributes.AddRange(method.GetCustomAttributes<ContextMenuCheckBaseAttribute>(true));
@@ -1064,12 +1030,12 @@ namespace DSharpPlus.SlashCommands
                 var dict = new Dictionary<ContextMenuCheckBaseAttribute, bool>();
                 foreach (var att in attributes)
                 {
-                    // Runs the check and adds the result to a list
-                    var result = await att.ExecuteChecksAsync(CMctx);
+                    //Runs the check and adds the result to a list
+                    var result = await att.ExecuteChecksAsync(contextMenuContext);
                     dict.Add(att, result);
                 }
 
-                // Checks if any failed, and throws an exception
+                //Checks if any failed, and throws an exception
                 if (dict.Any(x => x.Value == false))
                     throw new ContextMenuExecutionChecksFailedException { FailedChecks = dict.Where(x => x.Value == false).Select(x => x.Key).ToList() };
             }
@@ -1096,29 +1062,24 @@ namespace DSharpPlus.SlashCommands
                 // Gets the provider
                 var provider = parameter.GetCustomAttribute<AutocompleteAttribute>()?.Provider;
                 if (provider == null) return;
+                var providerInstance = (IAutocompleteProvider)Activator.CreateInstance(provider);
+                var choices = await providerInstance.Provider(context);
 
-                var providerMethod = provider.GetMethod(nameof(IAutocompleteProvider.Provider));
-                var providerInstance = Activator.CreateInstance(provider);
-
-                var choices = await (Task<IEnumerable<DiscordAutoCompleteChoice>>) providerMethod.Invoke(providerInstance, new[] { context });
                 await interaction.CreateResponseAsync(InteractionResponseType.AutoCompleteResult, new DiscordInteractionResponseBuilder().AddAutoCompleteChoices(choices));
-
-                await this._autocompleteExecuted.InvokeAsync(this,
-                    new()
-                    {
-                        Context = context,
-                        ProviderType = provider
-                    });
+                await this._autocompleteExecuted.InvokeAsync(this, new()
+                {
+                    Context = context,
+                    ProviderType = provider
+                });
             }
             catch (Exception ex)
             {
-                await this._autocompleteErrored.InvokeAsync(this,
-                    new AutocompleteErrorEventArgs()
-                    {
-                        Exception = ex,
-                        Context = context,
-                        ProviderType = parameter.GetCustomAttribute<AutocompleteAttribute>()?.Provider
-                    });
+                await this._autocompleteErrored.InvokeAsync(this, new AutocompleteErrorEventArgs()
+                {
+                    Exception = ex,
+                    Context = context,
+                    ProviderType = parameter.GetCustomAttribute<AutocompleteAttribute>()?.Provider
+                });
             }
         }
 
@@ -1129,14 +1090,22 @@ namespace DSharpPlus.SlashCommands
         /// Should only be run on the slash command extension linked to shard 0 if sharding.</para>
         /// <para>Not recommended and should be avoided since it can make slash commands be unresponsive for a while.</para>
         /// </summary>
-        public async Task RefreshCommands()
+        [Obsolete("Please use RefreshCommandsAsync instead. This method will be removed by DSharpPlus release v4.4.0", true), EditorBrowsable(EditorBrowsableState.Advanced), SuppressMessage("Roslyn", "IDE1006", Justification = "Should be removed by release 4.4.0 or above.")]
+        public Task RefreshCommands() => this.RefreshCommandsAsync();
+
+        /// <summary>
+        /// <para>Refreshes your commands, used for refreshing choice providers or applying commands registered after the ready event on the discord client.
+        /// Should only be run on the slash command extension linked to shard 0 if sharding.</para>
+        /// <para>Not recommended and should be avoided since it can make slash commands be unresponsive for a while.</para>
+        /// </summary>
+        public async Task RefreshCommandsAsync()
         {
             _commandMethods.Clear();
             _groupCommands.Clear();
             _subGroupCommands.Clear();
             _registeredCommands.Clear();
 
-            await this.Update();
+            await this.UpdateAsync();
         }
 
         /// <summary>
