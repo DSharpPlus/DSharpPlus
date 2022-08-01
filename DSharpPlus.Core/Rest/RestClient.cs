@@ -20,7 +20,7 @@ namespace DSharpPlus.Core.Rest
     {
         private readonly ICacheService __cache;
         private readonly HttpClient __http_client;
-        private readonly AsyncPolicyWrap<HttpResponseMessage>? __wrapped_policy;
+        private readonly AsyncPolicyWrap<HttpResponseMessage> __wrapped_policy;
 
         private readonly string __token;
 
@@ -33,7 +33,10 @@ namespace DSharpPlus.Core.Rest
             __wrapped_policy = Policy.WrapAsync(new PollyRatelimitPolicy(), new PollyRetryPolicy(options.Value.MaximumRetries).RetryPolicy);
         }
 
-        public async Task<HttpResponseMessage> MakeRequestAsync(IRestRequest request)
+        public ValueTask<HttpResponseMessage> MakeRequestAsync(IRestRequest request)
+            => MakeRequestAsync(request, __wrapped_policy);
+
+        public async ValueTask<HttpResponseMessage> MakeRequestAsync(IRestRequest request, AsyncPolicyWrap<HttpResponseMessage> policy)
         {
             Context requestContext = new()
             {
@@ -51,7 +54,7 @@ namespace DSharpPlus.Core.Rest
 
             requestMessage.SetPolicyExecutionContext(requestContext);
 
-            HttpResponseMessage response = await __wrapped_policy!.ExecuteAsync(() => __http_client.SendAsync(requestMessage));
+            HttpResponseMessage response = await policy.ExecuteAsync(() => __http_client.SendAsync(requestMessage));
 
             return response.StatusCode switch
             {

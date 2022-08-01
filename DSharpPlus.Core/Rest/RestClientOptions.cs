@@ -17,6 +17,6 @@ namespace DSharpPlus.Core.Rest
         /// <summary>
         /// The amount of retries the rest client will attempt before dropping the request.
         /// </summary>
-        public int MaximumRetries { get; init; }
+        public int MaximumRetries { get; set; }
     }
 }

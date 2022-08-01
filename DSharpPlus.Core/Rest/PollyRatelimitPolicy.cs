@@ -143,7 +143,7 @@ namespace DSharpPlus.Core.Rest
             // remove potential stale data
             if (hash != bucket!.Hash)
             {
-                await cache.RemoveAsync(hash);
+                await cache.RemoveAsync(endpoint);
             }
 
             return discordResponse;
