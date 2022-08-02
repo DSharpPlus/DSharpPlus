@@ -2869,11 +2869,13 @@ namespace DSharpPlus.Net
         {
             builder.Validate(true);
 
+            var mentions = builder.Mentions != null ? new DiscordMentions(builder.Mentions, builder.Mentions?.Any() ?? false) : null;
+
             var pld = new RestWebhookMessageEditPayload
             {
                 Content = builder.Content,
                 Embeds = builder.Embeds,
-                Mentions = new DiscordMentions(builder.Mentions ?? Mentions.All, builder.Mentions?.Any() ?? false),
+                Mentions =  mentions,
                 Components = builder.Components,
                 Attachments = attachments
             };
