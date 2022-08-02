@@ -1245,7 +1245,11 @@ namespace DSharpPlus
             var memberAfter = new DiscordMember(member) { Discord = this, _guild_id = guild.Id };
 
             if (!guild.Members.TryGetValue(member.User.Id, out var memberBefore))
+            {
                 memberBefore = new DiscordMember(member) { Discord = this, _guild_id = guild.Id };
+            }
+
+            guild._members.AddOrUpdate(member.User.Id, memberAfter, (_, _) => memberAfter);
 
             var ea = new GuildMemberUpdateEventArgs
             {
