@@ -2873,7 +2873,7 @@ namespace DSharpPlus.Net
             {
                 Content = builder.Content,
                 Embeds = builder.Embeds,
-                Mentions = builder.Mentions,
+                Mentions = new DiscordMentions(builder.Mentions ?? Mentions.All, builder.Mentions?.Any() ?? false),
                 Components = builder.Components,
                 Attachments = attachments
             };
