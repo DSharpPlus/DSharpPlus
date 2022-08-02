@@ -64,7 +64,7 @@ To make a response, you must run `CreateResponseAsync` on your `InteractionConte
 
 An interaction expires in 3 seconds unless you make a response. If the code you execute before making a response has the potential to take more than 3 seconds, you should first create a `DeferredChannelMessageWithSource` response, and then edit it after your code executes.
 
-The second argument is a type of [`DiscordInteractionResponseBuilder`](https:// dsharpplus.github.io/api/DSharpPlus.Entities.DiscordInteractionResponseBuilder.html). It functions similarly to the DiscordMessageBuilder, except you cannot send files, and you can have multiple embeds.
+The second argument is a type of [`DiscordInteractionResponseBuilder`](https://dsharpplus.github.io/api/DSharpPlus.Entities.DiscordInteractionResponseBuilder.html). It functions similarly to the DiscordMessageBuilder, except you cannot send files, and you can have multiple embeds.
 
 If you want to send a file, you'll have to edit the response.
 
@@ -169,7 +169,7 @@ public async Task ChoiceProviderCommand(InteractionContext ctx,
 ```
 
 ### Groups
-You can have slash commands in groups. Their structure is explained [here](https:// discord.com/developers/docs/interactions/application-commands#subcommands-and-subcommand-groups). You can simply mark your command class with the `[SlashCommandGroup]` attribute.
+You can have slash commands in groups. Their structure is explained [here](https://discord.com/developers/docs/interactions/application-commands#subcommands-and-subcommand-groups). You can simply mark your command class with the `[SlashCommandGroup]` attribute.
 ```cs
 // for regular groups
 [SlashCommandGroup("group", "description")]
