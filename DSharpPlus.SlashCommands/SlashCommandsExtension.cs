@@ -1070,28 +1070,19 @@ namespace DSharpPlus.SlashCommands
         {
             if (context is InteractionContext ctx)
             {
-                //Gets all attributes from parent classes as well and stuff
+                // Gets all attributes from parent classes 
                 var attributes = new List<SlashCheckBaseAttribute>();
                 attributes.AddRange(method.GetCustomAttributes<SlashCheckBaseAttribute>(true));
-                attributes.AddRange(method.DeclaringType.GetCustomAttributes<SlashCheckBaseAttribute>());
-                if (method.DeclaringType.DeclaringType != null)
-                {
-                    attributes.AddRange(method.DeclaringType.DeclaringType.GetCustomAttributes<SlashCheckBaseAttribute>());
-                    if (method.DeclaringType.DeclaringType.DeclaringType != null)
-                    {
-                        attributes.AddRange(method.DeclaringType.DeclaringType.DeclaringType.GetCustomAttributes<SlashCheckBaseAttribute>());
-                    }
-                }
+                attributes.AddRange(this.GetCustomAttributesRecursively<SlashCheckBaseAttribute>(method.DeclaringType));
 
                 var dict = new Dictionary<SlashCheckBaseAttribute, bool>();
                 foreach (var att in attributes)
                 {
-                    //Runs the check and adds the result to a list
-                    var result = await att.ExecuteChecksAsync(ctx);
-                    dict.Add(att, result);
+                    // Runs the check and adds the result to a list
+                    dict.Add(att, await att.ExecuteChecksAsync(ctx));
                 }
 
-                //Checks if any failed, and throws an exception
+                // Checks if any failed, and throws an exception
                 if (dict.Any(x => x.Value == false))
                     throw new SlashExecutionChecksFailedException { FailedChecks = dict.Where(x => x.Value == false).Select(x => x.Key).ToList() };
             }
@@ -1099,28 +1090,30 @@ namespace DSharpPlus.SlashCommands
             {
                 var attributes = new List<ContextMenuCheckBaseAttribute>();
                 attributes.AddRange(method.GetCustomAttributes<ContextMenuCheckBaseAttribute>(true));
-                attributes.AddRange(method.DeclaringType.GetCustomAttributes<ContextMenuCheckBaseAttribute>());
-                if (method.DeclaringType.DeclaringType != null)
-                {
-                    attributes.AddRange(method.DeclaringType.DeclaringType.GetCustomAttributes<ContextMenuCheckBaseAttribute>());
-                    if (method.DeclaringType.DeclaringType.DeclaringType != null)
-                    {
-                        attributes.AddRange(method.DeclaringType.DeclaringType.DeclaringType.GetCustomAttributes<ContextMenuCheckBaseAttribute>());
-                    }
-                }
+                attributes.AddRange(this.GetCustomAttributesRecursively<ContextMenuCheckBaseAttribute>(method.DeclaringType));
 
                 var dict = new Dictionary<ContextMenuCheckBaseAttribute, bool>();
                 foreach (var att in attributes)
                 {
-                    //Runs the check and adds the result to a list
-                    var result = await att.ExecuteChecksAsync(contextMenuContext);
-                    dict.Add(att, result);
+                    // Runs the check and adds the result to a list
+                    dict.Add(att, await att.ExecuteChecksAsync(contextMenuContext));
                 }
 
-                //Checks if any failed, and throws an exception
+                // Checks if any failed, and throws an exception
                 if (dict.Any(x => x.Value == false))
                     throw new ContextMenuExecutionChecksFailedException { FailedChecks = dict.Where(x => x.Value == false).Select(x => x.Key).ToList() };
             }
+        }
+
+        private IEnumerable<TAttribute> GetCustomAttributesRecursively<TAttribute>(Type type)
+            where TAttribute : Attribute
+        {
+            if(type is null)
+            {
+                return Enumerable.Empty<TAttribute>();
+            }
+
+            return type.GetCustomAttributes<TAttribute>(true).Concat(this.GetCustomAttributesRecursively<TAttribute>(type));
         }
 
         // Actually handles autocomplete interactions
