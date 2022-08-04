@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using System.ComponentModel;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.SlashCommands
@@ -29,7 +30,7 @@ namespace DSharpPlus.SlashCommands
     /// <summary>
     /// The base class for a pre-execution check for a context menu.
     /// </summary>
-    public abstract class ContextMenuCheckBaseAttribute : Attribute
+    public abstract class ContextMenuCheckBaseAttribute : Attribute, IApplicationCommandExecutionCheck
     {
         /// <summary>
         /// Checks whether this command can be executed within the current context.
@@ -37,5 +38,9 @@ namespace DSharpPlus.SlashCommands
         /// <param name="ctx">The context.</param>
         /// <returns>Whether the checks passed.</returns>
         public abstract Task<bool> ExecuteChecksAsync(ContextMenuContext ctx);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Task<bool> ExecuteChecksAsync(BaseContext ctx)
+            => this.ExecuteChecksAsync(ctx as ContextMenuContext);
     }
 }
