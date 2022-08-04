@@ -30,6 +30,7 @@ namespace DSharpPlus.SlashCommands
     /// Thrown when a pre-execution check for a slash command fails.
     /// </summary>
     [Serializable]
+    [Obsolete("This will be removed in DSharpPlus 4.4.0. Please migrate to using ApplicationCommandChecksFailedException.")]
     public sealed class SlashExecutionChecksFailedException : Exception
     {
         /// <summary>

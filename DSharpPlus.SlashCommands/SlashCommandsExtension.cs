@@ -1068,59 +1068,72 @@ namespace DSharpPlus.SlashCommands
         // Runs pre-execution checks
         private async Task RunPreexecutionChecksAsync(MethodInfo method, BaseContext context)
         {
+            var attributes = new List<IApplicationCommandExecutionCheck>();
+
+            // get checks
             if (context is InteractionContext ctx)
             {
-                //Gets all attributes from parent classes as well and stuff
-                var attributes = new List<SlashCheckBaseAttribute>();
+                // Gets all attributes from parent classes 
                 attributes.AddRange(method.GetCustomAttributes<SlashCheckBaseAttribute>(true));
-                attributes.AddRange(method.DeclaringType.GetCustomAttributes<SlashCheckBaseAttribute>());
-                if (method.DeclaringType.DeclaringType != null)
-                {
-                    attributes.AddRange(method.DeclaringType.DeclaringType.GetCustomAttributes<SlashCheckBaseAttribute>());
-                    if (method.DeclaringType.DeclaringType.DeclaringType != null)
-                    {
-                        attributes.AddRange(method.DeclaringType.DeclaringType.DeclaringType.GetCustomAttributes<SlashCheckBaseAttribute>());
-                    }
-                }
-
-                var dict = new Dictionary<SlashCheckBaseAttribute, bool>();
-                foreach (var att in attributes)
-                {
-                    //Runs the check and adds the result to a list
-                    var result = await att.ExecuteChecksAsync(ctx);
-                    dict.Add(att, result);
-                }
-
-                //Checks if any failed, and throws an exception
-                if (dict.Any(x => x.Value == false))
-                    throw new SlashExecutionChecksFailedException { FailedChecks = dict.Where(x => x.Value == false).Select(x => x.Key).ToList() };
+                attributes.AddRange(this.GetCustomAttributesRecursively<SlashCheckBaseAttribute>(method.DeclaringType));
             }
             else if (context is ContextMenuContext contextMenuContext)
             {
-                var attributes = new List<ContextMenuCheckBaseAttribute>();
                 attributes.AddRange(method.GetCustomAttributes<ContextMenuCheckBaseAttribute>(true));
-                attributes.AddRange(method.DeclaringType.GetCustomAttributes<ContextMenuCheckBaseAttribute>());
-                if (method.DeclaringType.DeclaringType != null)
-                {
-                    attributes.AddRange(method.DeclaringType.DeclaringType.GetCustomAttributes<ContextMenuCheckBaseAttribute>());
-                    if (method.DeclaringType.DeclaringType.DeclaringType != null)
-                    {
-                        attributes.AddRange(method.DeclaringType.DeclaringType.DeclaringType.GetCustomAttributes<ContextMenuCheckBaseAttribute>());
-                    }
-                }
-
-                var dict = new Dictionary<ContextMenuCheckBaseAttribute, bool>();
-                foreach (var att in attributes)
-                {
-                    //Runs the check and adds the result to a list
-                    var result = await att.ExecuteChecksAsync(contextMenuContext);
-                    dict.Add(att, result);
-                }
-
-                //Checks if any failed, and throws an exception
-                if (dict.Any(x => x.Value == false))
-                    throw new ContextMenuExecutionChecksFailedException { FailedChecks = dict.Where(x => x.Value == false).Select(x => x.Key).ToList() };
+                attributes.AddRange(this.GetCustomAttributesRecursively<ContextMenuCheckBaseAttribute>(method.DeclaringType));
             }
+
+            // execute checks
+
+            var dict = new Dictionary<IApplicationCommandExecutionCheck, bool>();
+            foreach (var att in attributes)
+            {
+                // Runs the check and adds the result to a list
+                dict.Add(att, await att.ExecuteChecksAsync(context));
+            }
+
+            // Checks if any failed, and throws an exception
+            // note: this contains legay code, to be removed eventually
+#pragma warning disable CS0618 // obsolete exceptions
+            if (dict.Any(x => x.Value == false))
+            {
+                if(context is InteractionContext)
+                    throw new SlashExecutionChecksFailedException
+                    {
+                        FailedChecks = dict.Where(x => x.Value == false)
+                            .Select(x => x.Key as SlashCheckBaseAttribute)
+                            .Where(x => x != null)
+                            .ToList()
+                    };
+                else
+                    throw new ContextMenuExecutionChecksFailedException
+                    {
+                        FailedChecks = dict.Where(x => x.Value == false)
+                        .Select(x => x.Key as ContextMenuCheckBaseAttribute)
+                        .Where(x => x != null)
+                        .ToList()
+                    };
+#pragma warning restore CS0618
+
+                throw new ApplicationCommandExecutionChecksFailedException
+                {
+                    FailedChecks = dict.Where(x => x.Value == false)
+                        .Select(x => x.Key)
+                        .ToList(),
+                    Context = context
+                };
+            }
+        }
+
+        private IEnumerable<TAttribute> GetCustomAttributesRecursively<TAttribute>(Type type)
+            where TAttribute : Attribute
+        {
+            if(type is null)
+            {
+                return Enumerable.Empty<TAttribute>();
+            }
+
+            return type.GetCustomAttributes<TAttribute>(true).Concat(this.GetCustomAttributesRecursively<TAttribute>(type));
         }
 
         // Actually handles autocomplete interactions

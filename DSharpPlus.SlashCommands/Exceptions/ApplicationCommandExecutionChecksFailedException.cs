@@ -22,25 +22,20 @@
 // SOFTWARE.
 
 using System;
-using System.ComponentModel;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace DSharpPlus.SlashCommands
 {
     /// <summary>
-    /// The base class for a pre-execution check for a slash command.
+    /// Thrown when a pre-execution check for any application command fails.
     /// </summary>
-    public abstract class SlashCheckBaseAttribute : Attribute, IApplicationCommandExecutionCheck
+    public class ApplicationCommandExecutionChecksFailedException : Exception
     {
         /// <summary>
-        /// Checks whether this command can be executed within the current context.
+        /// The list of failed checks.
         /// </summary>
-        /// <param name="ctx">The context.</param>
-        /// <returns>Whether the checks passed.</returns>
-        public abstract Task<bool> ExecuteChecksAsync(InteractionContext ctx);
+        public IReadOnlyList<IApplicationCommandExecutionCheck> FailedChecks { get; internal set; }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public Task<bool> ExecuteChecksAsync(BaseContext ctx)
-            => this.ExecuteChecksAsync(ctx as InteractionContext);
+        public BaseContext Context { get; internal set; }
     }
 }
