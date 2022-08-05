@@ -511,15 +511,15 @@ namespace DSharpPlus.Net
                 headers[REASON_HEADER_NAME] = reason;
 
             var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.ROLES}";
-            var bucket = this.Rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id }, out var path);
+            var bucket = this._rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id }, out var path);
 
             var url = Utilities.GetApiUriFor(path);
-            var res = await this.DoRequestAsync(this.Discord, bucket, url, RestRequestMethod.PATCH, route, headers, DiscordJson.SerializeObject(newRolePositions)).ConfigureAwait(false);
+            var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.PATCH, route, headers, DiscordJson.SerializeObject(newRolePositions)).ConfigureAwait(false);
 
             var ret = JsonConvert.DeserializeObject<DiscordRole[]>(res.Response);
             foreach (var r in ret)
             {
-                r.Discord = this.Discord;
+                r.Discord = this._discord;
                 r._guild_id = guild_id;
             }
 
