@@ -589,6 +589,10 @@ namespace DSharpPlus.CommandsNext
                             commandBuilder.WithHiddenStatus(true);
                             break;
 
+                        case CategoryAttribute c:
+                            commandBuilder.WithCategory(c.Name);
+                            break;
+
                         default:
                             commandBuilder.WithCustomAttribute(xa);
                             break;
