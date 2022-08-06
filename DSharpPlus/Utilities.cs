@@ -184,7 +184,7 @@ namespace DSharpPlus
         }
 
         internal static bool HasMessageIntents(DiscordIntents intents)
-            => intents.HasIntent(DiscordIntents.GuildMessages) || intents.HasIntent(DiscordIntents.DirectMessages);
+            => (intents.HasIntent(DiscordIntents.GuildMessages) && intents.HasIntent(DiscordIntents.MessageContents)) || intents.HasIntent(DiscordIntents.DirectMessages);
 
         internal static bool HasReactionIntents(DiscordIntents intents)
             => intents.HasIntent(DiscordIntents.GuildMessageReactions) || intents.HasIntent(DiscordIntents.DirectMessageReactions);
