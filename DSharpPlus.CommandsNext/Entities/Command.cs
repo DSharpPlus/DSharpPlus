@@ -41,6 +41,11 @@ namespace DSharpPlus.CommandsNext
         public string Name { get; internal set; } = string.Empty;
 
         /// <summary>
+        /// Gets the category this command belongs to.
+        /// </summary>
+        public string? Category { get; internal set; } = null;
+
+        /// <summary>
         /// Gets this command's qualified name (i.e. one that includes all module names).
         /// </summary>
         public string QualifiedName => this.Parent is not null ? string.Concat(this.Parent.QualifiedName, " ", this.Name) : this.Name;
