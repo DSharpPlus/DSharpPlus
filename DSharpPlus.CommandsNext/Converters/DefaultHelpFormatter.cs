@@ -98,7 +98,21 @@ namespace DSharpPlus.CommandsNext.Converters
         /// <returns>This help formatter.</returns>
         public override BaseHelpFormatter WithSubcommands(IEnumerable<Command> subcommands)
         {
-            this.EmbedBuilder.AddField(this.Command is not null ? "Subcommands" : "Commands", string.Join(", ", subcommands.Select(x => Formatter.InlineCode(x.Name))), false);
+            var categories = subcommands.Where(xm => xm.Category != null).Select(xm => xm.Category).Distinct();
+
+            if (categories.Count() == 0)
+            {
+                this.EmbedBuilder.AddField(this.Command is not null ? "Subcommands" : "Commands", string.Join(", ", subcommands.Select(x => Formatter.InlineCode(x.Name))), false);
+
+                return this;
+            }
+
+            foreach(var category in categories)
+            {
+                this.EmbedBuilder.AddField(category, string.Join(", ", subcommands.Where(xm => xm.Category == category).Select(xm => Formatter.InlineCode(xm.Name))), false);
+            }
+
+            this.EmbedBuilder.AddField("Uncategorized commands", string.Join(", ", subcommands.Where(xm => xm.Category == null).Select(xm => Formatter.InlineCode(xm.Name))), false);
 
             return this;
         }
