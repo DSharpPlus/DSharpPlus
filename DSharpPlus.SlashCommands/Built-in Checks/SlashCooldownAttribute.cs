@@ -33,7 +33,7 @@ namespace DSharpPlus.SlashCommands.Attributes
     /// Defines a cooldown for this command. This allows you to define how many times can users execute a specific command
     /// </summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
-    public sealed class CooldownAttribute : SlashCheckBaseAttribute
+    public sealed class SlashCooldownAttribute : SlashCheckBaseAttribute
     {
         /// <summary>
         /// Gets the maximum number of uses before this command triggers a cooldown for its bucket.
@@ -48,12 +48,12 @@ namespace DSharpPlus.SlashCommands.Attributes
         /// <summary>
         /// Gets the type of the cooldown bucket. This determines how cooldowns are applied.
         /// </summary>
-        public CooldownBucketType BucketType { get; }
+        public SlashCooldownBucketType BucketType { get; }
 
         /// <summary>
         /// Gets the cooldown buckets for this command.
         /// </summary>
-        private ConcurrentDictionary<string, CommandCooldownBucket> _buckets { get; }
+        private static readonly ConcurrentDictionary<string, SlashCommandCooldownBucket> _buckets = new();
 
         /// <summary>
         /// Defines a cooldown for this command. This means that users will be able to use the command a specific number of times before they have to wait to use it again.
@@ -61,12 +61,11 @@ namespace DSharpPlus.SlashCommands.Attributes
         /// <param name="maxUses">Number of times the command can be used before triggering a cooldown.</param>
         /// <param name="resetAfter">Number of seconds after which the cooldown is reset.</param>
         /// <param name="bucketType">Type of cooldown bucket. This allows controlling whether the bucket will be cooled down per user, guild, channel, or globally.</param>
-        public CooldownAttribute(int maxUses, double resetAfter, CooldownBucketType bucketType)
+        public SlashCooldownAttribute(int maxUses, double resetAfter, SlashCooldownBucketType bucketType)
         {
             this.MaxUses = maxUses;
             this.Reset = TimeSpan.FromSeconds(resetAfter);
             this.BucketType = bucketType;
-            this._buckets = new ConcurrentDictionary<string, CommandCooldownBucket>();
         }
 
         /// <summary>
@@ -74,10 +73,10 @@ namespace DSharpPlus.SlashCommands.Attributes
         /// </summary>
         /// <param name="ctx">Command context to get cooldown bucket for.</param>
         /// <returns>Requested cooldown bucket, or null if one wasn't present.</returns>
-        public CommandCooldownBucket GetBucket(InteractionContext ctx)
+        public SlashCommandCooldownBucket GetBucket(InteractionContext ctx)
         {
             var bid = this.GetBucketId(ctx, out _, out _, out _);
-            this._buckets.TryGetValue(bid, out var bucket);
+            _buckets.TryGetValue(bid, out var bucket);
             return bucket;
         }
 
@@ -106,30 +105,30 @@ namespace DSharpPlus.SlashCommands.Attributes
         private string GetBucketId(InteractionContext ctx, out ulong userId, out ulong channelId, out ulong guildId)
         {
             userId = 0ul;
-            if ((this.BucketType & CooldownBucketType.User) != 0)
+            if ((this.BucketType & SlashCooldownBucketType.User) != 0)
                 userId = ctx.User.Id;
 
             channelId = 0ul;
-            if ((this.BucketType & CooldownBucketType.Channel) != 0)
+            if ((this.BucketType & SlashCooldownBucketType.Channel) != 0)
                 channelId = ctx.Channel.Id;
-            if ((this.BucketType & CooldownBucketType.Guild) != 0 && ctx.Guild == null)
+            if ((this.BucketType & SlashCooldownBucketType.Guild) != 0 && ctx.Guild == null)
                 channelId = ctx.Channel.Id;
 
             guildId = 0ul;
-            if (ctx.Guild != null && (this.BucketType & CooldownBucketType.Guild) != 0)
+            if (ctx.Guild != null && (this.BucketType & SlashCooldownBucketType.Guild) != 0)
                 guildId = ctx.Guild.Id;
 
-            var bid = CommandCooldownBucket.MakeId(userId, channelId, guildId);
+            var bid = SlashCommandCooldownBucket.MakeId(userId, channelId, guildId);
             return bid;
         }
 
         public override async Task<bool> ExecuteChecksAsync(InteractionContext ctx)
         {
             var bid = this.GetBucketId(ctx, out var usr, out var chn, out var gld);
-            if (!this._buckets.TryGetValue(bid, out var bucket))
+            if (!_buckets.TryGetValue(bid, out var bucket))
             {
-                bucket = new CommandCooldownBucket(this.MaxUses, this.Reset, usr, chn, gld);
-                this._buckets.AddOrUpdate(bid, bucket, (k, v) => bucket);
+                bucket = new SlashCommandCooldownBucket(this.MaxUses, this.Reset, usr, chn, gld);
+                _buckets.AddOrUpdate(bid, bucket, (k, v) => bucket);
             }
 
             return await bucket.DecrementUseAsync().ConfigureAwait(false);
@@ -139,7 +138,7 @@ namespace DSharpPlus.SlashCommands.Attributes
     /// <summary>
     /// Defines how are command cooldowns applied.
     /// </summary>
-    public enum CooldownBucketType : int
+    public enum SlashCooldownBucketType : int
     {
         /// <summary>
         /// Denotes that the command will have its cooldown applied per-user.
@@ -165,7 +164,7 @@ namespace DSharpPlus.SlashCommands.Attributes
     /// <summary>
     /// Represents a cooldown bucket for commands.
     /// </summary>
-    public sealed class CommandCooldownBucket : IEquatable<CommandCooldownBucket>
+    public sealed class SlashCommandCooldownBucket : IEquatable<SlashCommandCooldownBucket>
     {
         /// <summary>
         /// Gets the ID of the user with whom this cooldown is associated.
@@ -223,7 +222,7 @@ namespace DSharpPlus.SlashCommands.Attributes
         /// <param name="userId">ID of the user with which this cooldown is associated.</param>
         /// <param name="channelId">ID of the channel with which this cooldown is associated.</param>
         /// <param name="guildId">ID of the guild with which this cooldown is associated.</param>
-        internal CommandCooldownBucket(int maxUses, TimeSpan resetAfter, ulong userId = 0, ulong channelId = 0, ulong guildId = 0)
+        internal SlashCommandCooldownBucket(int maxUses, TimeSpan resetAfter, ulong userId = 0, ulong channelId = 0, ulong guildId = 0)
         {
             this._remaining_uses = maxUses;
             this.MaxUses = maxUses;
@@ -274,25 +273,25 @@ namespace DSharpPlus.SlashCommands.Attributes
         public override string ToString() => $"Command bucket {this.BucketId}";
 
         /// <summary>
-        /// Checks whether this <see cref="CommandCooldownBucket"/> is equal to another object.
+        /// Checks whether this <see cref="SlashCommandCooldownBucket"/> is equal to another object.
         /// </summary>
         /// <param name="obj">Object to compare to.</param>
-        /// <returns>Whether the object is equal to this <see cref="CommandCooldownBucket"/>.</returns>
-        public override bool Equals(object obj) => obj is CommandCooldownBucket cooldownBucket && this.Equals(cooldownBucket);
+        /// <returns>Whether the object is equal to this <see cref="SlashCommandCooldownBucket"/>.</returns>
+        public override bool Equals(object obj) => obj is SlashCommandCooldownBucket cooldownBucket && this.Equals(cooldownBucket);
 
         /// <summary>
-        /// Checks whether this <see cref="CommandCooldownBucket"/> is equal to another <see cref="CommandCooldownBucket"/>.
+        /// Checks whether this <see cref="SlashCommandCooldownBucket"/> is equal to another <see cref="SlashCommandCooldownBucket"/>.
         /// </summary>
-        /// <param name="other"><see cref="CommandCooldownBucket"/> to compare to.</param>
-        /// <returns>Whether the <see cref="CommandCooldownBucket"/> is equal to this <see cref="CommandCooldownBucket"/>.</returns>
-        public bool Equals(CommandCooldownBucket other) => other is not null
+        /// <param name="other"><see cref="SlashCommandCooldownBucket"/> to compare to.</param>
+        /// <returns>Whether the <see cref="SlashCommandCooldownBucket"/> is equal to this <see cref="SlashCommandCooldownBucket"/>.</returns>
+        public bool Equals(SlashCommandCooldownBucket other) => other is not null
             && (ReferenceEquals(this, other)
                 || (this.UserId == other.UserId && this.ChannelId == other.ChannelId && this.GuildId == other.GuildId));
 
         /// <summary>
-        /// Gets the hash code for this <see cref="CommandCooldownBucket"/>.
+        /// Gets the hash code for this <see cref="SlashCommandCooldownBucket"/>.
         /// </summary>
-        /// <returns>The hash code for this <see cref="CommandCooldownBucket"/>.</returns>
+        /// <returns>The hash code for this <see cref="SlashCommandCooldownBucket"/>.</returns>
         public override int GetHashCode()
         {
             var hash = 13;
@@ -305,12 +304,12 @@ namespace DSharpPlus.SlashCommands.Attributes
         }
 
         /// <summary>
-        /// Gets whether the two <see cref="CommandCooldownBucket"/> objects are equal.
+        /// Gets whether the two <see cref="SlashCommandCooldownBucket"/> objects are equal.
         /// </summary>
         /// <param name="bucket1">First bucket to compare.</param>
         /// <param name="bucket2">Second bucket to compare.</param>
         /// <returns>Whether the two buckets are equal.</returns>
-        public static bool operator ==(CommandCooldownBucket bucket1, CommandCooldownBucket bucket2)
+        public static bool operator ==(SlashCommandCooldownBucket bucket1, SlashCommandCooldownBucket bucket2)
         {
             var null1 = bucket1 is null;
             var null2 = bucket2 is null;
@@ -319,12 +318,12 @@ namespace DSharpPlus.SlashCommands.Attributes
         }
 
         /// <summary>
-        /// Gets whether the two <see cref="CommandCooldownBucket"/> objects are not equal.
+        /// Gets whether the two <see cref="SlashCommandCooldownBucket"/> objects are not equal.
         /// </summary>
         /// <param name="bucket1">First bucket to compare.</param>
         /// <param name="bucket2">Second bucket to compare.</param>
         /// <returns>Whether the two buckets are not equal.</returns>
-        public static bool operator !=(CommandCooldownBucket bucket1, CommandCooldownBucket bucket2) => !(bucket1 == bucket2);
+        public static bool operator !=(SlashCommandCooldownBucket bucket1, SlashCommandCooldownBucket bucket2) => !(bucket1 == bucket2);
 
         /// <summary>
         /// Creates a bucket ID from given bucket parameters.
