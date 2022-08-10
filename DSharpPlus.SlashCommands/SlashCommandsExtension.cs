@@ -1073,7 +1073,7 @@ namespace DSharpPlus.SlashCommands
             // get checks
             if (context is InteractionContext ctx)
             {
-                // Gets all attributes from parent classes 
+                // Gets all attributes from parent classes
                 attributes.AddRange(method.GetCustomAttributes<SlashCheckBaseAttribute>(true));
                 attributes.AddRange(this.GetCustomAttributesRecursively<SlashCheckBaseAttribute>(method.DeclaringType));
             }
@@ -1097,7 +1097,7 @@ namespace DSharpPlus.SlashCommands
 #pragma warning disable CS0618 // obsolete exceptions
             if (dict.Any(x => x.Value == false))
             {
-                if(context is InteractionContext)
+                if (context is InteractionContext)
                     throw new SlashExecutionChecksFailedException
                     {
                         FailedChecks = dict.Where(x => x.Value == false)
@@ -1128,7 +1128,7 @@ namespace DSharpPlus.SlashCommands
         private IEnumerable<TAttribute> GetCustomAttributesRecursively<TAttribute>(Type type)
             where TAttribute : Attribute
         {
-            if(type is null)
+            if (type is null)
             {
                 return Enumerable.Empty<TAttribute>();
             }
