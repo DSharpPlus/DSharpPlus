@@ -37,17 +37,19 @@ namespace DSharpPlus.EventArgs
         /// A dictionary of submitted fields, keyed on the custom id of the input component.
         /// </summary>
         [JsonIgnore]
-        public IReadOnlyDictionary<string, string> Values { get; }
+        public IReadOnlyDictionary<string, IReadOnlyList<string>> Values { get; }
 
         internal ModalSubmitEventArgs(DiscordInteraction interaction)
         {
             this.Interaction = interaction;
 
-            var dict = new Dictionary<string, string>();
+            var dict = new Dictionary<string, IReadOnlyList<string>>();
 
             foreach (var component in interaction.Data._components)
                 if (component.Components.First() is TextInputComponent input)
-                    dict.Add(input.CustomId, input.Value);
+                    dict.Add(input.CustomId, new[] {input.Value} );
+                else if (component.Components.First() is DiscordSelectComponent select)
+                    dict.Add(select.CustomId, select.Options.Select(o => o.Value).ToArray());
 
             this.Values = dict;
         }
