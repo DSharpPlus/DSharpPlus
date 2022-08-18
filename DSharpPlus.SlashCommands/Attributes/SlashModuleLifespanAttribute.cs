@@ -25,6 +25,7 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 
 #pragma warning disable CS0618 // Type or member is obsolete
+
 namespace DSharpPlus.SlashCommands
 {
     /// <summary>
@@ -45,7 +46,14 @@ namespace DSharpPlus.SlashCommands
         [Obsolete("Please use the " + nameof(ServiceLifetime) + " overload instead. The " + nameof(SlashModuleLifespan) + " overload will be removed by version 4.4.0.")]
         public SlashModuleLifespanAttribute(SlashModuleLifespan lifespan)
         {
-            this.Lifespan = (ServiceLifetime)lifespan;
+            // This is done because the enum member ordering of `SlashModuleLifespan` and `ServiceLifetime` is different, thus the member values are different.
+            this.Lifespan = lifespan switch
+            {
+                SlashModuleLifespan.Singleton => ServiceLifetime.Singleton,
+                SlashModuleLifespan.Scoped => ServiceLifetime.Scoped,
+                SlashModuleLifespan.Transient => ServiceLifetime.Transient,
+                _ => throw new ArgumentOutOfRangeException(nameof(lifespan), lifespan, null)
+            };
         }
 
         /// <summary>
@@ -65,11 +73,6 @@ namespace DSharpPlus.SlashCommands
     public enum SlashModuleLifespan
     {
         /// <summary>
-        /// Whether this module should be initiated at startup.
-        /// </summary>
-        Singleton,
-
-        /// <summary>
         /// Whether this module should be initiated every time a command is run, with dependencies injected from a scope.
         /// </summary>
         Scoped,
@@ -77,6 +80,11 @@ namespace DSharpPlus.SlashCommands
         /// <summary>
         /// Whether this module should be initiated every time a command is run.
         /// </summary>
-        Transient
+        Transient,
+
+        /// <summary>
+        /// Whether this module should be initiated at startup.
+        /// </summary>
+        Singleton
     }
 }
