@@ -22,7 +22,9 @@
 // SOFTWARE.
 
 using System;
+using Microsoft.Extensions.DependencyInjection;
 
+#pragma warning disable CS0618 // Type or member is obsolete
 namespace DSharpPlus.SlashCommands
 {
     /// <summary>
@@ -34,23 +36,39 @@ namespace DSharpPlus.SlashCommands
         /// <summary>
         /// Gets the lifespan.
         /// </summary>
-        public SlashModuleLifespan Lifespan { get; }
+        public ServiceLifetime Lifespan { get; }
 
         /// <summary>
         /// Defines this slash command module's lifespan.
         /// </summary>
         /// <param name="lifespan">The lifespan of the module. Module lifespans are transient by default.</param>
+        [Obsolete("Please use the " + nameof(ServiceLifetime) + " overload instead. The " + nameof(SlashModuleLifespan) + " overload will be removed by version 4.4.0.")]
         public SlashModuleLifespanAttribute(SlashModuleLifespan lifespan)
         {
-            this.Lifespan = lifespan;
+            this.Lifespan = (ServiceLifetime)lifespan;
+        }
+
+        /// <summary>
+        /// Defines this slash command module's lifespan.
+        /// </summary>
+        /// <param name="serviceLifetime">The lifespan of the module. Module lifespans are transient by default.</param>
+        public SlashModuleLifespanAttribute(ServiceLifetime serviceLifetime)
+        {
+            this.Lifespan = serviceLifetime;
         }
     }
 
     /// <summary>
     /// Represents a slash command module lifespan.
     /// </summary>
+    [Obsolete("Please use " + nameof(ServiceLifetime) + " instead. " + nameof(SlashModuleLifespan) + " will be removed by version 4.4.0.")]
     public enum SlashModuleLifespan
     {
+        /// <summary>
+        /// Whether this module should be initiated at startup.
+        /// </summary>
+        Singleton,
+
         /// <summary>
         /// Whether this module should be initiated every time a command is run, with dependencies injected from a scope.
         /// </summary>
@@ -59,11 +77,6 @@ namespace DSharpPlus.SlashCommands
         /// <summary>
         /// Whether this module should be initiated every time a command is run.
         /// </summary>
-        Transient,
-
-        /// <summary>
-        /// Whether this module should be initiated at startup.
-        /// </summary>
-        Singleton
+        Transient
     }
 }

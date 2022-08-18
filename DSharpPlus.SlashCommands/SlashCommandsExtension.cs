@@ -81,14 +81,6 @@ namespace DSharpPlus.SlashCommands
         private readonly SlashCommandsConfiguration _configuration;
 
         /// <summary>
-        /// If slash commands errored on startup.
-        /// </summary>
-        /// <remarks>
-        /// TODO: This should be removed. Instead, errors should be thrown on startup and the event listeners from <see cref="DiscordClient"/> should only be registered when the slash commands are successfully loaded.
-        /// </remarks>
-        private static bool _errored { get; set; } = false;
-
-        /// <summary>
         /// A dictionary linking C# types to Discord's command option types.
         /// </summary>
         /// <remarks>
@@ -336,7 +328,7 @@ namespace DSharpPlus.SlashCommands
                             payload = new DiscordApplicationCommand(payload.Name, payload.Description, payload.Options?.Append(subPayload) ?? new[] { subPayload }, payload.DefaultPermission, allowDMUsage: allowDMs, defaultMemberPermissions: v2Permissions);
 
                             // Accounts for lifespans for the sub group
-                            if (subclass.GetCustomAttribute<SlashModuleLifespanAttribute>() is not null and { Lifespan: SlashModuleLifespan.Singleton })
+                            if (subclass.GetCustomAttribute<SlashModuleLifespanAttribute>() is not null and { Lifespan: ServiceLifetime.Singleton })
                             {
                                 _singletonModules.Add(this.CreateInstance(subclass, this._configuration?.Services));
                             }
@@ -348,7 +340,7 @@ namespace DSharpPlus.SlashCommands
                         updateList.Add(payload);
 
                         // Accounts for lifespans
-                        if (subclassInfo.GetCustomAttribute<SlashModuleLifespanAttribute>() is not null and { Lifespan: SlashModuleLifespan.Singleton })
+                        if (subclassInfo.GetCustomAttribute<SlashModuleLifespanAttribute>() is not null and { Lifespan: ServiceLifetime.Singleton })
                         {
                             _singletonModules.Add(this.CreateInstance(subclassInfo, this._configuration?.Services));
                         }
@@ -387,7 +379,7 @@ namespace DSharpPlus.SlashCommands
                         AddContextMenus(contextMethods);
 
                         // Accounts for lifespans
-                        if (type.GetCustomAttribute<SlashModuleLifespanAttribute>() is not null and { Lifespan: SlashModuleLifespan.Singleton })
+                        if (type.GetCustomAttribute<SlashModuleLifespanAttribute>() is not null and { Lifespan: ServiceLifetime.Singleton })
                         {
                             _singletonModules.Add(this.CreateInstance(type, this._configuration?.Services));
                         }
@@ -737,19 +729,18 @@ namespace DSharpPlus.SlashCommands
                 Type = eventArgs.Type
             };
 
-            // TODO: Implement e.interaction.TargetMember
-            if (eventArgs.Interaction.Guild != null && eventArgs.TargetUser != null && eventArgs.Interaction.Guild.Members.TryGetValue(eventArgs.TargetUser.Id, out var member))
-                context.TargetMember = member;
-
             try
             {
                 // Gets the method for the command
-                var method = _contextMenuCommands.FirstOrDefault(x => x.CommandId == eventArgs.Interaction.Data.Id);
+                var contextMenuCommand = _contextMenuCommands.FirstOrDefault(x => x.CommandId == eventArgs.Interaction.Data.Id);
 
-                if (method == null)
-                    throw new InvalidOperationException("A context menu was executed, but no command was registered for it.");
+                if (contextMenuCommand == null)
+                {
+                    this.Client.Logger.LogError($"{eventArgs.Interaction.Data.Name} ({eventArgs.Interaction.Data.Id}) was executed as a context menu command, however no command was registered for it.");
+                    return;
+                }
 
-                await this.RunCommandAsync(context, method.Method, new[] { context });
+                await this.RunCommandAsync(context, contextMenuCommand.Method, new[] { context });
                 await this._contextMenuExecuted.InvokeAsync(this, new ContextMenuExecutedEventArgs { Context = context });
             }
             catch (Exception ex)
@@ -761,16 +752,18 @@ namespace DSharpPlus.SlashCommands
         internal async Task RunCommandAsync(BaseContext context, MethodInfo method, IEnumerable<object> args)
         {
             // Accounts for lifespans
-            var moduleLifespan = (method.DeclaringType.GetCustomAttribute<SlashModuleLifespanAttribute>() != null ? method.DeclaringType.GetCustomAttribute<SlashModuleLifespanAttribute>()?.Lifespan : SlashModuleLifespan.Transient) ?? SlashModuleLifespan.Transient;
+            var moduleLifespan = (method.DeclaringType.GetCustomAttribute<SlashModuleLifespanAttribute>() != null ? method.DeclaringType.GetCustomAttribute<SlashModuleLifespanAttribute>()?.Lifespan : ServiceLifetime.Transient) ?? ServiceLifetime.Transient;
             var classInstance = moduleLifespan switch // Accounts for static methods and adds DI
             {
                 // Accounts for static methods and adds DI
-                SlashModuleLifespan.Scoped => method.IsStatic ? ActivatorUtilities.CreateInstance(this._configuration?.Services.CreateScope().ServiceProvider, method.DeclaringType) : this.CreateInstance(method.DeclaringType, this._configuration?.Services.CreateScope().ServiceProvider),
+                ServiceLifetime.Transient => method.IsStatic
+                    ? ActivatorUtilities.CreateInstance(this._configuration?.Services, method.DeclaringType)
+                    : this.CreateInstance(method.DeclaringType, this._configuration?.Services),
                 // Accounts for static methods and adds DI
-                SlashModuleLifespan.Transient => method.IsStatic ? ActivatorUtilities.CreateInstance(this._configuration?.Services, method.DeclaringType) : this.CreateInstance(method.DeclaringType, this._configuration?.Services),
-                // If singleton, gets it from the singleton list
-                SlashModuleLifespan.Singleton => _singletonModules.First(x => ReferenceEquals(x.GetType(), method.DeclaringType)),
-                // A new lifespan type was introduced.
+                ServiceLifetime.Scoped => method.IsStatic
+                    ? ActivatorUtilities.CreateInstance(this._configuration?.Services.CreateScope().ServiceProvider, method.DeclaringType)
+                    : this.CreateInstance(method.DeclaringType, this._configuration?.Services.CreateScope().ServiceProvider),
+                ServiceLifetime.Singleton => ActivatorUtilities.GetServiceOrCreateInstance(this._configuration.Services, method.DeclaringType),
                 _ => throw new NotImplementedException($"An unknown {nameof(SlashModuleLifespanAttribute)} scope was specified on command {context.CommandName}")
             };
 
@@ -793,20 +786,20 @@ namespace DSharpPlus.SlashCommands
                     await (applicationCommand?.AfterSlashExecutionAsync(slashContext) ?? Task.CompletedTask);
                 }
             }
+
+            // A context can be both a context menu and a slash command context.
+
             // Context menus
             if (context is ContextMenuContext contextMenuContext)
             {
                 await this._contextMenuInvoked.InvokeAsync(this, new ContextMenuInvokedEventArgs() { Context = contextMenuContext }, AsyncEventExceptionMode.ThrowAll);
-
                 await this.RunPreexecutionChecksAsync(method, contextMenuContext);
 
                 // This null check actually shouldn't be necessary for context menus but I'll keep it in just in case
                 var shouldExecute = await (applicationCommand?.BeforeContextMenuExecutionAsync(contextMenuContext) ?? Task.FromResult(true));
-
                 if (shouldExecute)
                 {
                     await (Task)method.Invoke(classInstance, args.ToArray());
-
                     await (applicationCommand?.AfterContextMenuExecutionAsync(contextMenuContext) ?? Task.CompletedTask);
                 }
             }

@@ -20,7 +20,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-using System.Linq;
 using DSharpPlus.Entities;
 
 namespace DSharpPlus.EventArgs
@@ -46,6 +45,11 @@ namespace DSharpPlus.EventArgs
         /// The user this interaction targets, if applicable.
         /// </summary>
         public DiscordUser TargetUser { get; internal set; }
+
+        /// <summary>
+        /// The member this interaction targets, if applicable.
+        /// </summary>
+        public DiscordMember TargetMember => this.TargetUser as DiscordMember;
 
         /// <summary>
         /// The message this interaction targets, if applicable.
