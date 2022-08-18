@@ -68,11 +68,10 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public DiscordChannel Channel
-            => (this.Discord as DiscordClient).InternalGetCachedChannel(this.ChannelId) ?? (DiscordChannel)(this.Discord as DiscordClient).InternalGetCachedThread(this.ChannelId) ?? (this.Guild == null ? new DiscordDmChannel { Id = this.ChannelId, Type = ChannelType.Private, Discord = this.Discord, Recipients = new DiscordUser[] { this.User }} : null);
+            => (this.Discord as DiscordClient).InternalGetCachedChannel(this.ChannelId) ?? (DiscordChannel)(this.Discord as DiscordClient).InternalGetCachedThread(this.ChannelId) ?? (this.Guild == null ? new DiscordDmChannel { Id = this.ChannelId, Type = ChannelType.Private, Discord = this.Discord, Recipients = new DiscordUser[] { this.User } } : null);
 
         /// <summary>
         /// Gets the user that invoked this interaction.
-        /// <para>This can be cast to a <see cref="DiscordMember"/> if created in a guild.</para>
         /// </summary>
         [JsonIgnore]
         public DiscordUser User { get; internal set; }
@@ -100,19 +99,31 @@ namespace DSharpPlus.Entities
         /// The message this interaction was created with, if any.
         /// </summary>
         [JsonProperty("message")]
-        internal DiscordMessage Message { get; set; }
+        internal DiscordMessage _message { get; set; }
 
         /// <summary>
         /// Gets the locale of the user that invoked this interaction.
         /// </summary>
+        /// <remarks>
+        /// <see langword="null"/> if the <see cref="Type"/> is <see cref="InteractionType.Ping"/>.
+        /// </remarks>
         [JsonProperty("locale")]
-        public string? Locale { get; internal set; }
+        public string Locale { get; internal set; }
 
         /// <summary>
         /// Gets the guild's preferred locale, if invoked in a guild.
         /// </summary>
+        /// <remarks>
+        /// <see langword="null"/> if the associated <see cref="DiscordGuild.PreferredLocale"/> is also <see langword="null"/> (not set).
+        /// </remarks>
         [JsonProperty("guild_locale")]
-        public string? GuildLocale { get; internal set; }
+        public string GuildLocale { get; internal set; }
+
+        /// <summary>
+        /// <see langword="null"/> when the interaction is sent in a DM.
+        /// </summary>
+        [JsonProperty("member")]
+        public DiscordMember Member { get; internal set; }
 
         /// <summary>
         /// Creates a response to this interaction.

@@ -411,7 +411,6 @@ namespace DSharpPlus
                 #region Interaction/Integration/Application
 
                 case "interaction_create":
-
                     rawMbr = dat["member"];
 
                     if (rawMbr != null)
@@ -2448,7 +2447,8 @@ namespace DSharpPlus
 
             if (member != null)
             {
-                usr = new DiscordMember(member) { _guild_id = guildId.Value, Discord = this };
+                interaction.Member = new DiscordMember(member) { _guild_id = guildId.Value, Discord = this };
+                usr = interaction.Member;
                 this.UpdateUser(usr, guildId, interaction.Guild, member);
             }
             else
@@ -2518,11 +2518,11 @@ namespace DSharpPlus
             if (interaction.Type is InteractionType.Component)
             {
 
-                interaction.Message.Discord = this;
-                interaction.Message.ChannelId = interaction.ChannelId;
+                interaction._message.Discord = this;
+                interaction._message.ChannelId = interaction.ChannelId;
                 var cea = new ComponentInteractionCreateEventArgs
                 {
-                    Message = interaction.Message,
+                    Message = interaction._message,
                     Interaction = interaction
                 };
 

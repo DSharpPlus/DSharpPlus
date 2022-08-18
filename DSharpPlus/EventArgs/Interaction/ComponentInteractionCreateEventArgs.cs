@@ -42,6 +42,11 @@ namespace DSharpPlus.EventArgs
         public DiscordUser User => this.Interaction.User;
 
         /// <summary>
+        /// The member that invoked this interaction. <see langword="null"/> if this was on a DM.
+        /// </summary>
+        public DiscordMember Member => this.Interaction.Member;
+
+        /// <summary>
         /// The guild this interaction was invoked on, if any.
         /// </summary>
         public DiscordGuild Guild => this.Channel.Guild;

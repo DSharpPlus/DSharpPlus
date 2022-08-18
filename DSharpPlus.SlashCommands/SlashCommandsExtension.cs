@@ -33,7 +33,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using DSharpPlus.Exceptions;
 using DSharpPlus.SlashCommands.EventArgs;
 using Emzi0767.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -238,243 +237,212 @@ namespace DSharpPlus.SlashCommands
                 // Iterates over all the modules
                 foreach (var type in types)
                 {
-                    try
+                    var classes = new List<Type>();
+
+                    // Add module to classes list if it's a group
+                    if (type.GetCustomAttribute<SlashCommandGroupAttribute>() != null)
                     {
-                        var classes = new List<Type>();
+                        classes.Add(type);
+                    }
+                    else
+                    {
+                        // Otherwise add the nested groups
+                        classes = type.GetNestedTypes().Where(x => x.GetCustomAttribute<SlashCommandGroupAttribute>() != null).ToList();
+                    }
 
-                        // Add module to classes list if it's a group
-                        if (type.GetCustomAttribute<SlashCommandGroupAttribute>() != null)
+                    // Handles groups
+                    foreach (var subclassInfo in classes)
+                    {
+                        // Gets the attribute and methods in the group
+                        var allowDMs = subclassInfo.GetCustomAttribute<GuildOnlyAttribute>() is null;
+                        var v2Permissions = subclassInfo.GetCustomAttribute<SlashCommandPermissionsAttribute>()?.Permissions;
+
+                        var groupAttribute = subclassInfo.GetCustomAttribute<SlashCommandGroupAttribute>();
+                        var subMethods = subclassInfo.GetRuntimeMethods().Where(x => x.GetCustomAttribute<SlashCommandAttribute>() != null);
+                        var subClasses = subclassInfo.GetNestedTypes().Where(x => x.GetCustomAttribute<SlashCommandGroupAttribute>() != null);
+
+                        // Group context menus
+                        var contextMethods = subclassInfo.GetRuntimeMethods().Where(x => x.GetCustomAttribute<ContextMenuAttribute>() != null);
+                        AddContextMenus(contextMethods);
+
+                        // Initializes the command
+                        var payload = new DiscordApplicationCommand(groupAttribute.Name, groupAttribute.Description, defaultPermission: groupAttribute.DefaultPermission, allowDMUsage: allowDMs, defaultMemberPermissions: v2Permissions);
+
+                        var commandMethods = new List<KeyValuePair<string, MethodInfo>>();
+                        // Handles commands in the group
+                        foreach (var submethod in subMethods)
                         {
-                            classes.Add(type);
+                            var commandAttribute = submethod.GetCustomAttribute<SlashCommandAttribute>();
+
+                            // Gets the paramaters and accounts for InteractionContext
+                            var parameters = submethod.GetParameters();
+                            if (parameters?.Length is null or 0 || !ReferenceEquals(parameters.First().ParameterType, typeof(InteractionContext)))
+                                throw new ArgumentException($"The first argument must be an InteractionContext!");
+                            parameters = parameters.Skip(1).ToArray();
+
+                            var options = await this.ParseParameters(parameters, guildId);
+
+                            var nameLocalizations = this.GetNameLocalizations(submethod);
+                            var descriptionLocalizations = this.GetDescriptionLocalizations(submethod);
+
+                            // Creates the subcommand and adds it to the main command
+                            var subPayload = new DiscordApplicationCommandOption(commandAttribute.Name, commandAttribute.Description, ApplicationCommandOptionType.SubCommand, null, null, options, name_localizations: nameLocalizations, description_localizations: descriptionLocalizations);
+                            payload = new DiscordApplicationCommand(payload.Name, payload.Description, payload.Options?.Append(subPayload) ?? new[] { subPayload }, payload.DefaultPermission, allowDMUsage: allowDMs, defaultMemberPermissions: v2Permissions);
+
+                            // Adds it to the method lists
+                            commandMethods.Add(new(commandAttribute.Name, submethod));
+                            groupCommands.Add(new() { Name = groupAttribute.Name, Methods = commandMethods });
                         }
-                        else
+
+                        var command = new SubGroupCommand { Name = groupAttribute.Name };
+                        // Handles subgroups
+                        foreach (var subclass in subClasses)
                         {
-                            // Otherwise add the nested groups
-                            classes = type.GetNestedTypes().Where(x => x.GetCustomAttribute<SlashCommandGroupAttribute>() != null).ToList();
-                        }
+                            var subGroupAttribute = subclass.GetCustomAttribute<SlashCommandGroupAttribute>();
+                            // I couldn't think of more creative naming
+                            var moreSubMethods = subclass.GetRuntimeMethods().Where(x => x.GetCustomAttribute<SlashCommandAttribute>() != null);
 
-                        // Handles groups
-                        foreach (var subclassInfo in classes)
-                        {
-                            // Gets the attribute and methods in the group
-                            var allowDMs = subclassInfo.GetCustomAttribute<GuildOnlyAttribute>() is null;
-                            var v2Permissions = subclassInfo.GetCustomAttribute<SlashCommandPermissionsAttribute>()?.Permissions;
+                            var options = new List<DiscordApplicationCommandOption>();
 
-                            var groupAttribute = subclassInfo.GetCustomAttribute<SlashCommandGroupAttribute>();
-                            var subMethods = subclassInfo.GetRuntimeMethods().Where(x => x.GetCustomAttribute<SlashCommandAttribute>() != null);
-                            var subClasses = subclassInfo.GetNestedTypes().Where(x => x.GetCustomAttribute<SlashCommandGroupAttribute>() != null);
+                            var currentMethods = new List<KeyValuePair<string, MethodInfo>>();
 
-                            // Group context menus
-                            var contextMethods = subclassInfo.GetRuntimeMethods().Where(x => x.GetCustomAttribute<ContextMenuAttribute>() != null);
-                            AddContextMenus(contextMethods);
-
-                            // Initializes the command
-                            var payload = new DiscordApplicationCommand(groupAttribute.Name, groupAttribute.Description, defaultPermission: groupAttribute.DefaultPermission, allowDMUsage: allowDMs, defaultMemberPermissions: v2Permissions);
-
-                            var commandMethods = new List<KeyValuePair<string, MethodInfo>>();
-                            // Handles commands in the group
-                            foreach (var submethod in subMethods)
+                            // Similar to the one for regular groups
+                            foreach (var moreSubMethod in moreSubMethods)
                             {
-                                var commandAttribute = submethod.GetCustomAttribute<SlashCommandAttribute>();
-
-                                // Gets the paramaters and accounts for InteractionContext
-                                var parameters = submethod.GetParameters();
+                                var subOptions = new List<DiscordApplicationCommandOption>();
+                                var customAttribute = moreSubMethod.GetCustomAttribute<SlashCommandAttribute>();
+                                var parameters = moreSubMethod.GetParameters();
                                 if (parameters?.Length is null or 0 || !ReferenceEquals(parameters.First().ParameterType, typeof(InteractionContext)))
                                     throw new ArgumentException($"The first argument must be an InteractionContext!");
                                 parameters = parameters.Skip(1).ToArray();
+                                subOptions = subOptions.Concat(await this.ParseParameters(parameters, guildId)).ToList();
 
-                                var options = await this.ParseParameters(parameters, guildId);
+                                var nameLocalizations = this.GetNameLocalizations(moreSubMethod);
+                                var descriptionLocalizations = this.GetDescriptionLocalizations(moreSubMethod);
+                                var moreSubPayloads = new DiscordApplicationCommandOption(customAttribute.Name, customAttribute.Description, ApplicationCommandOptionType.SubCommand, null, null, subOptions, name_localizations: nameLocalizations, description_localizations: descriptionLocalizations);
 
-                                var nameLocalizations = this.GetNameLocalizations(submethod);
-                                var descriptionLocalizations = this.GetDescriptionLocalizations(submethod);
-
-                                // Creates the subcommand and adds it to the main command
-                                var subPayload = new DiscordApplicationCommandOption(commandAttribute.Name, commandAttribute.Description, ApplicationCommandOptionType.SubCommand, null, null, options, name_localizations: nameLocalizations, description_localizations: descriptionLocalizations);
-                                payload = new DiscordApplicationCommand(payload.Name, payload.Description, payload.Options?.Append(subPayload) ?? new[] { subPayload }, payload.DefaultPermission, allowDMUsage: allowDMs, defaultMemberPermissions: v2Permissions);
-
-                                // Adds it to the method lists
-                                commandMethods.Add(new(commandAttribute.Name, submethod));
-                                groupCommands.Add(new() { Name = groupAttribute.Name, Methods = commandMethods });
+                                options.Add(moreSubPayloads);
+                                commandMethods.Add(new(customAttribute.Name, moreSubMethod));
+                                currentMethods.Add(new(customAttribute.Name, moreSubMethod));
                             }
 
-                            var command = new SubGroupCommand { Name = groupAttribute.Name };
-                            // Handles subgroups
-                            foreach (var subclass in subClasses)
+                            // Subgroups Context Menus
+                            var subContextMethods = subclass.GetRuntimeMethods().Where(x => x.GetCustomAttribute<ContextMenuAttribute>() != null);
+                            AddContextMenus(subContextMethods);
+
+                            // Adds the group to the command and method lists
+                            var subPayload = new DiscordApplicationCommandOption(subGroupAttribute.Name, subGroupAttribute.Description, ApplicationCommandOptionType.SubCommandGroup, null, null, options);
+                            command.SubCommands.Add(new() { Name = subGroupAttribute.Name, Methods = currentMethods });
+                            payload = new DiscordApplicationCommand(payload.Name, payload.Description, payload.Options?.Append(subPayload) ?? new[] { subPayload }, payload.DefaultPermission, allowDMUsage: allowDMs, defaultMemberPermissions: v2Permissions);
+
+                            // Accounts for lifespans for the sub group
+                            if (subclass.GetCustomAttribute<SlashModuleLifespanAttribute>() is not null and { Lifespan: SlashModuleLifespan.Singleton })
                             {
-                                var subGroupAttribute = subclass.GetCustomAttribute<SlashCommandGroupAttribute>();
-                                // I couldn't think of more creative naming
-                                var moreSubMethods = subclass.GetRuntimeMethods().Where(x => x.GetCustomAttribute<SlashCommandAttribute>() != null);
-
-                                var options = new List<DiscordApplicationCommandOption>();
-
-                                var currentMethods = new List<KeyValuePair<string, MethodInfo>>();
-
-                                // Similar to the one for regular groups
-                                foreach (var moreSubMethod in moreSubMethods)
-                                {
-                                    var subOptions = new List<DiscordApplicationCommandOption>();
-                                    var customAttribute = moreSubMethod.GetCustomAttribute<SlashCommandAttribute>();
-                                    var parameters = moreSubMethod.GetParameters();
-                                    if (parameters?.Length is null or 0 || !ReferenceEquals(parameters.First().ParameterType, typeof(InteractionContext)))
-                                        throw new ArgumentException($"The first argument must be an InteractionContext!");
-                                    parameters = parameters.Skip(1).ToArray();
-                                    subOptions = subOptions.Concat(await this.ParseParameters(parameters, guildId)).ToList();
-
-                                    var nameLocalizations = this.GetNameLocalizations(moreSubMethod);
-                                    var descriptionLocalizations = this.GetDescriptionLocalizations(moreSubMethod);
-                                    var moreSubPayloads = new DiscordApplicationCommandOption(customAttribute.Name, customAttribute.Description, ApplicationCommandOptionType.SubCommand, null, null, subOptions, name_localizations: nameLocalizations, description_localizations: descriptionLocalizations);
-
-                                    options.Add(moreSubPayloads);
-                                    commandMethods.Add(new(customAttribute.Name, moreSubMethod));
-                                    currentMethods.Add(new(customAttribute.Name, moreSubMethod));
-                                }
-
-                                // Subgroups Context Menus
-                                var subContextMethods = subclass.GetRuntimeMethods().Where(x => x.GetCustomAttribute<ContextMenuAttribute>() != null);
-                                AddContextMenus(subContextMethods);
-
-                                // Adds the group to the command and method lists
-                                var subPayload = new DiscordApplicationCommandOption(subGroupAttribute.Name, subGroupAttribute.Description, ApplicationCommandOptionType.SubCommandGroup, null, null, options);
-                                command.SubCommands.Add(new() { Name = subGroupAttribute.Name, Methods = currentMethods });
-                                payload = new DiscordApplicationCommand(payload.Name, payload.Description, payload.Options?.Append(subPayload) ?? new[] { subPayload }, payload.DefaultPermission, allowDMUsage: allowDMs, defaultMemberPermissions: v2Permissions);
-
-                                // Accounts for lifespans for the sub group
-                                if (subclass.GetCustomAttribute<SlashModuleLifespanAttribute>() is not null and { Lifespan: SlashModuleLifespan.Singleton })
-                                {
-                                    _singletonModules.Add(this.CreateInstance(subclass, this._configuration?.Services));
-                                }
+                                _singletonModules.Add(this.CreateInstance(subclass, this._configuration?.Services));
                             }
+                        }
 
-                            if (command.SubCommands.Any())
-                                subGroupCommands.Add(command);
+                        if (command.SubCommands.Any())
+                            subGroupCommands.Add(command);
 
+                        updateList.Add(payload);
+
+                        // Accounts for lifespans
+                        if (subclassInfo.GetCustomAttribute<SlashModuleLifespanAttribute>() is not null and { Lifespan: SlashModuleLifespan.Singleton })
+                        {
+                            _singletonModules.Add(this.CreateInstance(subclassInfo, this._configuration?.Services));
+                        }
+                    }
+
+                    // Handles methods, only if the module isn't a group itself
+                    if (type.GetCustomAttribute<SlashCommandGroupAttribute>() is null)
+                    {
+                        // Slash commands (again, similar to the one for groups)
+                        var methods = type.GetRuntimeMethods().Where(x => x.GetCustomAttribute<SlashCommandAttribute>() != null);
+
+                        foreach (var method in methods)
+                        {
+                            var commandattribute = method.GetCustomAttribute<SlashCommandAttribute>();
+
+                            var parameters = method.GetParameters();
+                            if (parameters?.Length is null or 0 || !ReferenceEquals(parameters.FirstOrDefault()?.ParameterType, typeof(InteractionContext)))
+                                throw new ArgumentException($"The first argument must be an InteractionContext!");
+                            parameters = parameters.Skip(1).ToArray();
+                            var options = await this.ParseParameters(parameters, guildId);
+
+                            commandMethods.Add(new() { Method = method, Name = commandattribute.Name });
+
+                            var nameLocalizations = this.GetNameLocalizations(method);
+                            var descriptionLocalizations = this.GetDescriptionLocalizations(method);
+
+                            var allowDMs = (method.GetCustomAttribute<GuildOnlyAttribute>() ?? method.DeclaringType.GetCustomAttribute<GuildOnlyAttribute>()) is null;
+                            var v2Permissions = (method.GetCustomAttribute<SlashCommandPermissionsAttribute>() ?? method.DeclaringType.GetCustomAttribute<SlashCommandPermissionsAttribute>())?.Permissions;
+
+                            var payload = new DiscordApplicationCommand(commandattribute.Name, commandattribute.Description, options, commandattribute.DefaultPermission, name_localizations: nameLocalizations, description_localizations: descriptionLocalizations, allowDMUsage: allowDMs, defaultMemberPermissions: v2Permissions);
                             updateList.Add(payload);
-
-                            // Accounts for lifespans
-                            if (subclassInfo.GetCustomAttribute<SlashModuleLifespanAttribute>() is not null and { Lifespan: SlashModuleLifespan.Singleton })
-                            {
-                                _singletonModules.Add(this.CreateInstance(subclassInfo, this._configuration?.Services));
-                            }
                         }
 
-                        // Handles methods, only if the module isn't a group itself
-                        if (type.GetCustomAttribute<SlashCommandGroupAttribute>() is null)
+                        // Context Menus
+                        var contextMethods = type.GetRuntimeMethods().Where(x => x.GetCustomAttribute<ContextMenuAttribute>() != null);
+                        AddContextMenus(contextMethods);
+
+                        // Accounts for lifespans
+                        if (type.GetCustomAttribute<SlashModuleLifespanAttribute>() is not null and { Lifespan: SlashModuleLifespan.Singleton })
                         {
-                            // Slash commands (again, similar to the one for groups)
-                            var methods = type.GetRuntimeMethods().Where(x => x.GetCustomAttribute<SlashCommandAttribute>() != null);
-
-                            foreach (var method in methods)
-                            {
-                                var commandattribute = method.GetCustomAttribute<SlashCommandAttribute>();
-
-                                var parameters = method.GetParameters();
-                                if (parameters?.Length is null or 0 || !ReferenceEquals(parameters.FirstOrDefault()?.ParameterType, typeof(InteractionContext)))
-                                    throw new ArgumentException($"The first argument must be an InteractionContext!");
-                                parameters = parameters.Skip(1).ToArray();
-                                var options = await this.ParseParameters(parameters, guildId);
-
-                                commandMethods.Add(new() { Method = method, Name = commandattribute.Name });
-
-                                var nameLocalizations = this.GetNameLocalizations(method);
-                                var descriptionLocalizations = this.GetDescriptionLocalizations(method);
-
-                                var allowDMs = (method.GetCustomAttribute<GuildOnlyAttribute>() ?? method.DeclaringType.GetCustomAttribute<GuildOnlyAttribute>()) is null;
-                                var v2Permissions = (method.GetCustomAttribute<SlashCommandPermissionsAttribute>() ?? method.DeclaringType.GetCustomAttribute<SlashCommandPermissionsAttribute>())?.Permissions;
-
-                                var payload = new DiscordApplicationCommand(commandattribute.Name, commandattribute.Description, options, commandattribute.DefaultPermission, name_localizations: nameLocalizations, description_localizations: descriptionLocalizations, allowDMUsage: allowDMs, defaultMemberPermissions: v2Permissions);
-                                updateList.Add(payload);
-                            }
-
-                            // Context Menus
-                            var contextMethods = type.GetRuntimeMethods().Where(x => x.GetCustomAttribute<ContextMenuAttribute>() != null);
-                            AddContextMenus(contextMethods);
-
-                            // Accounts for lifespans
-                            if (type.GetCustomAttribute<SlashModuleLifespanAttribute>() is not null and { Lifespan: SlashModuleLifespan.Singleton })
-                            {
-                                _singletonModules.Add(this.CreateInstance(type, this._configuration?.Services));
-                            }
+                            _singletonModules.Add(this.CreateInstance(type, this._configuration?.Services));
                         }
+                    }
 
-                        void AddContextMenus(IEnumerable<MethodInfo> contextMethods)
+                    void AddContextMenus(IEnumerable<MethodInfo> contextMethods)
+                    {
+                        foreach (var contextMethod in contextMethods)
                         {
-                            foreach (var contextMethod in contextMethods)
-                            {
-                                var contextAttribute = contextMethod.GetCustomAttribute<ContextMenuAttribute>();
-                                var allowDMUsage = (contextMethod.GetCustomAttribute<GuildOnlyAttribute>() ?? contextMethod.DeclaringType.GetCustomAttribute<GuildOnlyAttribute>()) is null;
-                                var permissions = (contextMethod.GetCustomAttribute<SlashCommandPermissionsAttribute>() ?? contextMethod.DeclaringType.GetCustomAttribute<SlashCommandPermissionsAttribute>())?.Permissions;
-                                var command = new DiscordApplicationCommand(contextAttribute.Name, null, type: contextAttribute.Type, defaultPermission: contextAttribute.DefaultPermission, allowDMUsage: allowDMUsage, defaultMemberPermissions: permissions);
+                            var contextAttribute = contextMethod.GetCustomAttribute<ContextMenuAttribute>();
+                            var allowDMUsage = (contextMethod.GetCustomAttribute<GuildOnlyAttribute>() ?? contextMethod.DeclaringType.GetCustomAttribute<GuildOnlyAttribute>()) is null;
+                            var permissions = (contextMethod.GetCustomAttribute<SlashCommandPermissionsAttribute>() ?? contextMethod.DeclaringType.GetCustomAttribute<SlashCommandPermissionsAttribute>())?.Permissions;
+                            var command = new DiscordApplicationCommand(contextAttribute.Name, null, type: contextAttribute.Type, defaultPermission: contextAttribute.DefaultPermission, allowDMUsage: allowDMUsage, defaultMemberPermissions: permissions);
 
-                                var parameters = contextMethod.GetParameters();
-                                if (parameters?.Length is null or 0 || !ReferenceEquals(parameters.FirstOrDefault()?.ParameterType, typeof(ContextMenuContext)))
-                                    throw new ArgumentException($"The first argument must be a ContextMenuContext!");
-                                if (parameters.Length > 1)
-                                    throw new ArgumentException($"A context menu cannot have parameters!");
+                            var parameters = contextMethod.GetParameters();
+                            if (parameters?.Length is null or 0 || !ReferenceEquals(parameters.FirstOrDefault()?.ParameterType, typeof(ContextMenuContext)))
+                                throw new ArgumentException($"The first argument must be a ContextMenuContext!");
+                            if (parameters.Length > 1)
+                                throw new ArgumentException($"A context menu cannot have parameters!");
 
-                                contextMenuCommands.Add(new ContextMenuCommand { Method = contextMethod, Name = contextAttribute.Name });
+                            contextMenuCommands.Add(new ContextMenuCommand { Method = contextMethod, Name = contextAttribute.Name });
 
-                                updateList.Add(command);
-                            }
+                            updateList.Add(command);
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        // This isn't really much more descriptive but I added a separate case for it anyway
-                        if (ex is BadRequestException brex)
-                            this.Client.Logger.LogCritical(brex, $"There was an error registering application commands: {brex.JsonMessage}");
-                        else
-                            this.Client.Logger.LogCritical(ex, $"There was an error registering application commands");
-
-                        _errored = true;
-                    }
                 }
 
-                if (_errored)
+                IEnumerable<DiscordApplicationCommand> commands;
+                // Creates a guild command if a guild id is specified, otherwise global
+                commands = guildId is null
+                    ? await this.Client.BulkOverwriteGlobalApplicationCommandsAsync(updateList)
+                    : await this.Client.BulkOverwriteGuildApplicationCommandsAsync(guildId.Value, updateList);
+
+                // Checks against the ids and adds them to the command method lists
+                foreach (var command in commands)
                 {
-                    // TODO: Fix this shit
-                    throw new InvalidOperationException("There was an error registering application commands.");
+                    if (commandMethods.Any(x => x.Name == command.Name))
+                        commandMethods.First(x => x.Name == command.Name).CommandId = command.Id;
+
+                    else if (groupCommands.Any(x => x.Name == command.Name))
+                        groupCommands.First(x => x.Name == command.Name).CommandId = command.Id;
+
+                    else if (subGroupCommands.Any(x => x.Name == command.Name))
+                        subGroupCommands.First(x => x.Name == command.Name).CommandId = command.Id;
+
+                    else if (contextMenuCommands.Any(x => x.Name == command.Name))
+                        contextMenuCommands.First(x => x.Name == command.Name).CommandId = command.Id;
                 }
+                // Adds to the global lists finally
+                _commandMethods.AddRange(commandMethods);
+                _groupCommands.AddRange(groupCommands);
+                _subGroupCommands.AddRange(subGroupCommands);
+                _contextMenuCommands.AddRange(contextMenuCommands);
 
-                try
-                {
-                    IEnumerable<DiscordApplicationCommand> commands;
-                    // Creates a guild command if a guild id is specified, otherwise global
-                    commands = guildId is null
-                        ? await this.Client.BulkOverwriteGlobalApplicationCommandsAsync(updateList)
-                        : await this.Client.BulkOverwriteGuildApplicationCommandsAsync(guildId.Value, updateList);
-
-                    // Checks against the ids and adds them to the command method lists
-                    foreach (var command in commands)
-                    {
-                        if (commandMethods.Any(x => x.Name == command.Name))
-                            commandMethods.First(x => x.Name == command.Name).CommandId = command.Id;
-
-                        else if (groupCommands.Any(x => x.Name == command.Name))
-                            groupCommands.First(x => x.Name == command.Name).CommandId = command.Id;
-
-                        else if (subGroupCommands.Any(x => x.Name == command.Name))
-                            subGroupCommands.First(x => x.Name == command.Name).CommandId = command.Id;
-
-                        else if (contextMenuCommands.Any(x => x.Name == command.Name))
-                            contextMenuCommands.First(x => x.Name == command.Name).CommandId = command.Id;
-                    }
-                    // Adds to the global lists finally
-                    _commandMethods.AddRange(commandMethods);
-                    _groupCommands.AddRange(groupCommands);
-                    _subGroupCommands.AddRange(subGroupCommands);
-                    _contextMenuCommands.AddRange(contextMenuCommands);
-
-                    _registeredCommands.Add(new(guildId, commands.ToList()));
-                }
-                catch (Exception ex)
-                {
-                    if (ex is BadRequestException brex)
-                        this.Client.Logger.LogCritical(brex, $"There was an error registering application commands: {brex.JsonMessage}");
-                    else
-                        this.Client.Logger.LogCritical(ex, $"There was an error registering application commands");
-
-                    _errored = true;
-                }
+                _registeredCommands.Add(new(guildId, commands.ToList()));
             });
         }
 
@@ -640,6 +608,7 @@ namespace DSharpPlus.SlashCommands
                     Channel = eventArgs.Interaction.Channel,
                     Guild = eventArgs.Interaction.Guild,
                     User = eventArgs.Interaction.User,
+                    Member = eventArgs.Interaction.Member,
                     Client = client,
                     SlashCommandsExtension = this,
                     CommandName = eventArgs.Interaction.Data.Name,
@@ -654,10 +623,6 @@ namespace DSharpPlus.SlashCommands
 
                 try
                 {
-                    // TODO: Fix this shit
-                    if (_errored)
-                        throw new InvalidOperationException("Slash commands failed to register properly on startup.");
-
                     // Gets the method for the command
                     var methods = _commandMethods.Where(x => x.CommandId == eventArgs.Interaction.Data.Id);
                     var groups = _groupCommands.Where(x => x.CommandId == eventArgs.Interaction.Data.Id);
@@ -708,9 +673,6 @@ namespace DSharpPlus.SlashCommands
             // Handles autcomplete interactions
             if (eventArgs.Interaction.Type == InteractionType.AutoComplete)
             {
-                if (_errored)
-                    throw new InvalidOperationException("Slash commands failed to register properly on startup.");
-
                 // Gets the method for the command
                 var methods = _commandMethods.Where(x => x.CommandId == eventArgs.Interaction.Data.Id);
                 var groups = _groupCommands.Where(x => x.CommandId == eventArgs.Interaction.Data.Id);
@@ -768,6 +730,7 @@ namespace DSharpPlus.SlashCommands
                 Guild = eventArgs.Interaction.Guild,
                 InteractionId = eventArgs.Interaction.Id,
                 User = eventArgs.Interaction.User,
+                Member = eventArgs.Interaction.Member,
                 Token = eventArgs.Interaction.Token,
                 TargetUser = eventArgs.TargetUser,
                 TargetMessage = eventArgs.TargetMessage,
@@ -780,9 +743,6 @@ namespace DSharpPlus.SlashCommands
 
             try
             {
-                if (_errored)
-                    throw new InvalidOperationException("Context menus failed to register properly on startup.");
-
                 // Gets the method for the command
                 var method = _contextMenuCommands.FirstOrDefault(x => x.CommandId == eventArgs.Interaction.Data.Id);
 
@@ -1148,6 +1108,7 @@ namespace DSharpPlus.SlashCommands
                 Guild = interaction.Guild,
                 Channel = interaction.Channel,
                 User = interaction.User,
+                Member = interaction.Member,
                 Options = options.ToList(),
                 FocusedOption = focusedOption
             };

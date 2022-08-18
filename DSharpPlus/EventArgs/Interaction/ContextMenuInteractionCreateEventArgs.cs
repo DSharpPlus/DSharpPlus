@@ -38,6 +38,11 @@ namespace DSharpPlus.EventArgs
         public DiscordUser User => this.Interaction.User;
 
         /// <summary>
+        /// The member that invoked this interaction. <see langword="null"/> if this was on a DM.
+        /// </summary>
+        public DiscordMember Member => this.Interaction.Member;
+
+        /// <summary>
         /// The user this interaction targets, if applicable.
         /// </summary>
         public DiscordUser TargetUser { get; internal set; }
