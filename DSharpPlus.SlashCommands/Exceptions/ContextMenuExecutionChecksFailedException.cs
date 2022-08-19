@@ -30,12 +30,12 @@ namespace DSharpPlus.SlashCommands
     /// Thrown when a pre-execution check for a slash command fails.
     /// </summary>
     [Serializable]
-    [Obsolete("This will be removed in DSharpPlus 4.4.0. Please migrate to using ApplicationCommandChecksFailedException.")]
-    public sealed class ContextMenuExecutionChecksFailedException : Exception
+    [Obsolete("This will be removed in DSharpPlus 4.4.0. Please migrate to using ApplicationCommandExecutionChecksFailedException.")]
+    public sealed class ContextMenuExecutionChecksFailedException : ApplicationCommandExecutionChecksFailedException
     {
         /// <summary>
         /// The list of failed checks.
         /// </summary>
-        public IReadOnlyList<ContextMenuCheckBaseAttribute> FailedChecks;
+        public new IReadOnlyList<ContextMenuCheckBaseAttribute> FailedChecks;
     }
 }

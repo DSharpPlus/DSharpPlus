@@ -767,37 +767,30 @@ namespace DSharpPlus.SlashCommands
                 _ => throw new NotImplementedException($"An unknown {nameof(SlashModuleLifespanAttribute)} scope was specified on command {context.CommandName}")
             };
 
-            var applicationCommand = classInstance as ApplicationCommandModule;
+            if (classInstance is not ApplicationCommandModule applicationCommand)
+            {
+                this.Client.Logger.LogError($"{context.Interaction.Data.Name} ({context.Interaction.Data.Id}) was executed as a slash command, however the registered module {this.GetFullname(method.DeclaringType)} is not an {nameof(ApplicationCommandModule)}.");
+                return;
+            }
 
+            // If there are more command types added in the future, turn this into a switch case.
             // Slash commands
             if (context is InteractionContext slashContext)
             {
                 await this._slashInvoked.InvokeAsync(this, new SlashCommandInvokedEventArgs { Context = slashContext }, AsyncEventExceptionMode.ThrowAll);
                 await this.RunPreexecutionChecksAsync(method, slashContext);
-
-                // Runs BeforeExecution and accounts for groups that don't inherit from ApplicationCommandModule
-                var shouldExecute = await (applicationCommand?.BeforeSlashExecutionAsync(slashContext) ?? Task.FromResult(true));
-
-                if (shouldExecute)
+                if (await applicationCommand.BeforeSlashExecutionAsync(slashContext))
                 {
                     await (Task)method.Invoke(classInstance, args.ToArray());
-
-                    // Runs AfterExecution and accounts for groups that don't inherit from ApplicationCommandModule
-                    await (applicationCommand?.AfterSlashExecutionAsync(slashContext) ?? Task.CompletedTask);
+                    await applicationCommand.AfterSlashExecutionAsync(slashContext);
                 }
             }
-
-            // A context can be both a context menu and a slash command context.
-
-            // Context menus
-            if (context is ContextMenuContext contextMenuContext)
+            // Context menu commands
+            else if (context is ContextMenuContext contextMenuContext)
             {
                 await this._contextMenuInvoked.InvokeAsync(this, new ContextMenuInvokedEventArgs() { Context = contextMenuContext }, AsyncEventExceptionMode.ThrowAll);
                 await this.RunPreexecutionChecksAsync(method, contextMenuContext);
-
-                // This null check actually shouldn't be necessary for context menus but I'll keep it in just in case
-                var shouldExecute = await (applicationCommand?.BeforeContextMenuExecutionAsync(contextMenuContext) ?? Task.FromResult(true));
-                if (shouldExecute)
+                if (await applicationCommand.BeforeContextMenuExecutionAsync(contextMenuContext))
                 {
                     await (Task)method.Invoke(classInstance, args.ToArray());
                     await (applicationCommand?.AfterContextMenuExecutionAsync(contextMenuContext) ?? Task.CompletedTask);
@@ -817,7 +810,7 @@ namespace DSharpPlus.SlashCommands
             var properties = type.GetRuntimeProperties().Where(x => x.CanWrite && x.SetMethod.IsPublic && !x.SetMethod.IsStatic && !x.IsDefined(typeof(DontInjectAttribute)));
             var fields = type.GetRuntimeFields().Where(x => x.IsPublic && !x.IsStatic && !x.IsInitOnly && !x.IsDefined(typeof(DontInjectAttribute)));
 
-            // Static constructor?
+            // No DI I guess?
             if (!constructors.Any() && !properties.Any() && !fields.Any())
             {
                 return Activator.CreateInstance(type);
@@ -839,6 +832,7 @@ namespace DSharpPlus.SlashCommands
                     property.SetValue(typeInstance, serviceProvider.GetService(property.PropertyType));
                 }
             }
+            // Not an else if because a class can have both properties and fields. Fun fact: Did you know that `init` property accessors are actually just readonly fields?
             if (fields.Any())
             {
                 foreach (var field in fields)
@@ -1050,43 +1044,41 @@ namespace DSharpPlus.SlashCommands
 #pragma warning disable CS0618 // obsolete exceptions
             if (dict.Any(x => x.Value == false))
             {
-                if (context is InteractionContext)
-                    throw new SlashExecutionChecksFailedException
+                throw context switch
+                {
+                    InteractionContext interactionContext => new SlashExecutionChecksFailedException
                     {
+                        Context = interactionContext,
                         FailedChecks = dict.Where(x => x.Value == false)
                             .Select(x => x.Key as SlashCheckBaseAttribute)
                             .Where(x => x != null)
                             .ToList()
-                    };
-                else
-                    throw new ContextMenuExecutionChecksFailedException
+                    },
+                    ContextMenuContext contextMenuContext => new ContextMenuExecutionChecksFailedException
                     {
+                        Context = contextMenuContext,
                         FailedChecks = dict.Where(x => x.Value == false)
-                        .Select(x => x.Key as ContextMenuCheckBaseAttribute)
-                        .Where(x => x != null)
-                        .ToList()
-                    };
-#pragma warning restore CS0618
-
-                throw new ApplicationCommandExecutionChecksFailedException
-                {
-                    FailedChecks = dict.Where(x => x.Value == false)
-                        .Select(x => x.Key)
-                        .ToList(),
-                    Context = context
+                            .Select(x => x.Key as ContextMenuCheckBaseAttribute)
+                            .Where(x => x != null)
+                            .ToList()
+                    },
+                    _ => new ApplicationCommandExecutionChecksFailedException
+                    {
+                        Context = context,
+                        FailedChecks = dict.Where(x => x.Value == false)
+                            .Select(x => x.Key)
+                            .ToList(),
+                    }
                 };
             }
+#pragma warning restore CS0618 // obsolete exceptions
         }
 
-        private IEnumerable<TAttribute> GetCustomAttributesRecursively<TAttribute>(Type type)
-            where TAttribute : Attribute
+        private IEnumerable<TAttribute> GetCustomAttributesRecursively<TAttribute>(Type type) where TAttribute : Attribute
         {
-            if (type is null)
-            {
-                return Enumerable.Empty<TAttribute>();
-            }
-
-            return type.GetCustomAttributes<TAttribute>(true).Concat(this.GetCustomAttributesRecursively<TAttribute>(type));
+            return type is null
+                ? Enumerable.Empty<TAttribute>()
+                : type.GetCustomAttributes<TAttribute>(true).Concat(this.GetCustomAttributesRecursively<TAttribute>(type));
         }
 
         // Actually handles autocomplete interactions
@@ -1231,7 +1223,7 @@ namespace DSharpPlus.SlashCommands
     }
 
     // I'm not sure if creating separate classes is the cleanest thing here but I can't think of anything else so these stay
-
+    // NO ITS NOT CLEAN, THOU CRAWLER!
     internal class CommandMethod
     {
         public ulong CommandId { get; set; }
