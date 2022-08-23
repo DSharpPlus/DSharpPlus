@@ -59,5 +59,17 @@ namespace DSharpPlus.Caching.Abstractions
 
             return this;
         }
+
+        // helper methods to fetch expirations
+
+        internal TimeSpan GetAbsoluteExpiration(Type type)
+            => AbsoluteExpirations.ContainsKey(type)
+                ? AbsoluteExpirations[type]
+                : DefaultAbsoluteExpiration;
+
+        internal TimeSpan GetSlidingExpiration(Type type)
+            => SlidingExpirations.ContainsKey(type)
+                ? SlidingExpirations[type]
+                : DefaultSlidingExpiration;
     }
 }

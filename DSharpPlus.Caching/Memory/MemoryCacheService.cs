@@ -26,9 +26,9 @@ namespace DSharpPlus.Caching.Memory
         /// <inheritdoc/>
         public ValueTask CacheAsync<TItem>(object key, TItem value)
         {
-            TimeSpan absolute = GetAbsoluteExpiration(typeof(TItem));
+            TimeSpan absolute = _options.GetAbsoluteExpiration(typeof(TItem));
 
-            TimeSpan sliding = GetSlidingExpiration(typeof(TItem));
+            TimeSpan sliding = _options.GetSlidingExpiration(typeof(TItem));
 
             _cache.CreateEntry(key)
                 .SetValue(value)
@@ -51,9 +51,9 @@ namespace DSharpPlus.Caching.Memory
                 postEviction = memoryCacheEntry.PostEvictionCallback;
             }
 
-            absolute ??= GetAbsoluteExpiration(typeof(TItem));
+            absolute ??= _options.GetAbsoluteExpiration(typeof(TItem));
 
-            sliding ??= GetSlidingExpiration(typeof(TItem));
+            sliding ??= _options.GetSlidingExpiration(typeof(TItem));
 
             ICacheEntry cacheEntry = _cache.CreateEntry(entry.Key)
                 .SetValue(entry.Value)
@@ -88,17 +88,5 @@ namespace DSharpPlus.Caching.Memory
 
             return value;
         }
-
-        // helper methods to fetch expirations from _options
-
-        private TimeSpan GetAbsoluteExpiration(Type type)
-            => _options.AbsoluteExpirations.ContainsKey(type)
-                ? _options.AbsoluteExpirations[type]
-                : _options.DefaultAbsoluteExpiration;
-
-        private TimeSpan GetSlidingExpiration(Type type) 
-            => _options.SlidingExpirations.ContainsKey(type)
-                ? _options.SlidingExpirations[type]
-                : _options.DefaultSlidingExpiration;
     }
 }
