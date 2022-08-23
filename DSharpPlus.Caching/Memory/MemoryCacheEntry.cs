@@ -9,7 +9,7 @@ namespace DSharpPlus.Caching.Memory
     /// <summary>
     /// Represents an entry in a <see cref="MemoryCacheService"/>
     /// </summary>
-    public record MemoryCacheEntry : AbstractCacheEntry
+    public record MemoryCacheEntry : BaseCacheEntry
     {
         /// <summary>
         /// Overrides the absolute expiration for this entry.

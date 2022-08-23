@@ -20,7 +20,7 @@ namespace DSharpPlus.Caching.Abstractions
         /// </summary>
         /// <typeparam name="TItem">Type the item should be treated as.</typeparam>
         /// <param name="entry">Cache entry data for this item.</param>
-        public ValueTask CacheAsync<TItem>(AbstractCacheEntry entry);
+        public ValueTask CacheAsync<TItem>(BaseCacheEntry entry);
 
         /// <summary>
         /// Gets an item from the cache.
@@ -28,12 +28,12 @@ namespace DSharpPlus.Caching.Abstractions
         /// <typeparam name="TItem">The type of this item.</typeparam>
         /// <param name="key">The key this item was cached with.</param>
         /// <returns>The item.</returns>
-        public ValueTask<bool> TryGetAsync<TItem>(object key, out TItem value);
+        public ValueTask<TItem?> TryGetAsync<TItem>(object key);
 
         /// <summary>
         /// Removes an item from the cache.
         /// </summary>
         /// <param name="key">The key this item was cached with.</param>
-        public ValueTask RemoveAsync(object key);
+        public ValueTask<TItem?> RemoveAsync<TItem>(object key);
     }
 }

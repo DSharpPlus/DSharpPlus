@@ -26,13 +26,9 @@ namespace DSharpPlus.Caching.Memory
         /// <inheritdoc/>
         public ValueTask CacheAsync<TItem>(object key, TItem value)
         {
-            TimeSpan absolute = _options.AbsoluteExpirations.ContainsKey(typeof(TItem))
-                ? _options.AbsoluteExpirations[typeof(TItem)]
-                : _options.DefaultAbsoluteExpiration;
+            TimeSpan absolute = GetAbsoluteExpiration(typeof(TItem));
 
-            TimeSpan sliding = _options.SlidingExpirations.ContainsKey(typeof(TItem))
-                ? _options.SlidingExpirations[typeof(TItem)]
-                : _options.DefaultSlidingExpiration;
+            TimeSpan sliding = GetSlidingExpiration(typeof(TItem));
 
             _cache.CreateEntry(key)
                 .SetValue(value)
@@ -43,7 +39,7 @@ namespace DSharpPlus.Caching.Memory
         }
 
         /// <inheritdoc/>
-        public ValueTask CacheAsync<TItem>(AbstractCacheEntry entry)
+        public ValueTask CacheAsync<TItem>(BaseCacheEntry entry)
         {
             TimeSpan? absolute = null, sliding = null;
             PostEvictionDelegate? postEviction = null;
@@ -55,13 +51,9 @@ namespace DSharpPlus.Caching.Memory
                 postEviction = memoryCacheEntry.PostEvictionCallback;
             }
 
-            absolute ??= _options.AbsoluteExpirations.ContainsKey(typeof(TItem))
-                ? _options.AbsoluteExpirations[typeof(TItem)]
-                : _options.DefaultAbsoluteExpiration;
+            absolute ??= GetAbsoluteExpiration(typeof(TItem));
 
-            sliding ??= _options.SlidingExpirations.ContainsKey(typeof(TItem))
-                ? _options.SlidingExpirations[typeof(TItem)]
-                : _options.DefaultSlidingExpiration;
+            sliding ??= GetSlidingExpiration(typeof(TItem));
 
             ICacheEntry cacheEntry = _cache.CreateEntry(entry.Key)
                 .SetValue(entry.Value)
@@ -76,16 +68,37 @@ namespace DSharpPlus.Caching.Memory
             return ValueTask.CompletedTask;
         }
 
-        /// <inheritdoc/>
-        public ValueTask<bool> TryGetAsync<TItem>(object key, out TItem value) 
-            => ValueTask.FromResult(_cache.TryGetValue(key, out value));
+        /// <summary>
+        /// Creates a new ICacheEntry, applicable only to IMemoryCache, and returns it for more advanced operations.
+        /// </summary>
+        /// <param name="key">The cache key this entry will utilize.</param>
+        public ValueTask<ICacheEntry> CacheAsync(object key) 
+            => ValueTask.FromResult(_cache.CreateEntry(key));
 
         /// <inheritdoc/>
-        public ValueTask RemoveAsync(object key)
+        public ValueTask<TItem?> TryGetAsync<TItem>(object key)
+            => ValueTask.FromResult(_cache.TryGetValue(key, out TItem value) ? value : default);
+
+        /// <inheritdoc/>
+        public ValueTask<TItem?> RemoveAsync<TItem>(object key)
         {
+            ValueTask<TItem?> value = TryGetAsync<TItem>(key);
+
             _cache.Remove(key);
 
-            return ValueTask.CompletedTask;
+            return value;
         }
+
+        // helper methods to fetch expirations from _options
+
+        private TimeSpan GetAbsoluteExpiration(Type type)
+            => _options.AbsoluteExpirations.ContainsKey(type)
+                ? _options.AbsoluteExpirations[type]
+                : _options.DefaultAbsoluteExpiration;
+
+        private TimeSpan GetSlidingExpiration(Type type) 
+            => _options.SlidingExpirations.ContainsKey(type)
+                ? _options.SlidingExpirations[type]
+                : _options.DefaultSlidingExpiration;
     }
 }

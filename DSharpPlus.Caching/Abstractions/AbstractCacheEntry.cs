@@ -3,7 +3,7 @@ namespace DSharpPlus.Caching.Abstractions
     /// <summary>
     /// Represents an extendable class for more complex cache entries supported by <see cref="ICacheService"/>.
     /// </summary>
-    public abstract record AbstractCacheEntry
+    public record BaseCacheEntry
     {
         /// <summary>
         /// The key used to store this object into cache.
