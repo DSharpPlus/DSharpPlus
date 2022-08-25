@@ -8,7 +8,7 @@ namespace DSharpPlus.Caching.Abstractions
         /// <summary>
         /// The key used to store this object into cache.
         /// </summary>
-        public object Key { get; set; } = null!;
+        public string Key { get; set; } = null!;
 
         /// <summary>
         /// The value of this cache entry.

@@ -24,7 +24,7 @@ namespace DSharpPlus.Caching.Memory
 
         
         /// <inheritdoc/>
-        public ValueTask CacheAsync<TItem>(object key, TItem value)
+        public ValueTask CacheAsync<TItem>(string key, TItem value)
         {
             TimeSpan absolute = _options.GetAbsoluteExpiration(typeof(TItem));
 
@@ -72,15 +72,15 @@ namespace DSharpPlus.Caching.Memory
         /// Creates a new ICacheEntry, applicable only to IMemoryCache, and returns it for more advanced operations.
         /// </summary>
         /// <param name="key">The cache key this entry will utilize.</param>
-        public ValueTask<ICacheEntry> CacheAsync(object key) 
+        public ValueTask<ICacheEntry> CacheAsync(string key) 
             => ValueTask.FromResult(_cache.CreateEntry(key));
 
         /// <inheritdoc/>
-        public ValueTask<TItem?> TryGetAsync<TItem>(object key)
+        public ValueTask<TItem?> TryGetAsync<TItem>(string key)
             => ValueTask.FromResult(_cache.TryGetValue(key, out TItem value) ? value : default);
 
         /// <inheritdoc/>
-        public ValueTask<TItem?> RemoveAsync<TItem>(object key)
+        public ValueTask<TItem?> RemoveAsync<TItem>(string key)
         {
             ValueTask<TItem?> value = TryGetAsync<TItem>(key);
 
