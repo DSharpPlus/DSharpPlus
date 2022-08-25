@@ -33,6 +33,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using DSharpPlus.SlashCommands.Converters;
 using DSharpPlus.SlashCommands.EventArgs;
 using Emzi0767.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -101,6 +102,8 @@ namespace DSharpPlus.SlashCommands
             [typeof(DiscordAttachment)] = ApplicationCommandOptionType.Attachment,
             [typeof(SnowflakeObject)] = ApplicationCommandOptionType.Mentionable
         });
+
+        private readonly Dictionary<Type, ISlashArgumentConverter> _converters = new();
 
         /// <summary>
         /// A list of registered application commands. The keys represent guild ids or global commands if the key is null.
@@ -848,145 +851,70 @@ namespace DSharpPlus.SlashCommands
         private async Task<List<object>> ResolveInteractionCommandParameters(InteractionCreateEventArgs eventArgs, InteractionContext context, MethodInfo method, IEnumerable<DiscordInteractionDataOption> options)
         {
             var args = new List<object> { context };
-            var parameters = method.GetParameters().Skip(1);
 
-            for (var i = 0; i < parameters.Count(); i++)
+            foreach (var parameter in method.GetParameters().Skip(1))
             {
-                var parameter = parameters.ElementAt(i);
-                var parameterOption = parameter.GetCustomAttribute<OptionAttribute>();
+                var parameterOptionAttribute = parameter.GetCustomAttribute<OptionAttribute>();
+                var parameterOptionData = options.FirstOrDefault(option => option.Name.Equals(parameterOptionAttribute.Name, StringComparison.InvariantCultureIgnoreCase));
 
                 // Accounts for optional arguments without values given
-                if (parameter.IsOptional && (!options?.Any(x => x.Name.Equals(parameterOption.Name, StringComparison.InvariantCultureIgnoreCase)) ?? true))
+                if (parameter.IsOptional && parameterOptionData == null)
                     args.Add(parameter.DefaultValue);
                 else
                 {
-                    var option = options.Single(x => x.Name.Equals(parameterOption.Name, StringComparison.InvariantCultureIgnoreCase));
-
-                    // Checks the type and casts/references resolved and adds the value to the list
-                    // This can probably reference the slash command's type property that didn't exist when I wrote this and it could use a cleaner switch instead, but if it works it works
-                    // TODO: Custom converter support w/ _validOptionTypes
-                    // TODO: Move these converters to their own file.
-                    if (parameter.ParameterType == typeof(string))
-                        args.Add(option.Value.ToString());
-                    else if (parameter.ParameterType.IsEnum)
-                        args.Add(Enum.Parse(parameter.ParameterType, (string)option.Value));
-                    else if (Nullable.GetUnderlyingType(parameter.ParameterType)?.IsEnum == true)
-                        args.Add(Enum.Parse(Nullable.GetUnderlyingType(parameter.ParameterType), (string)option.Value));
-                    else if (parameter.ParameterType == typeof(long) || parameter.ParameterType == typeof(long?))
-                        args.Add((long?)option.Value);
-                    else if (parameter.ParameterType == typeof(bool) || parameter.ParameterType == typeof(bool?))
-                        args.Add((bool?)option.Value);
-                    else if (parameter.ParameterType == typeof(double) || parameter.ParameterType == typeof(double?))
-                        args.Add((double?)option.Value);
-                    else if (parameter.ParameterType == typeof(TimeSpan?))
+                    if (!_validOptionTypes.ContainsKey(parameter.ParameterType) || !_converters.TryGetValue(parameter.ParameterType, out var converter))
                     {
-                        var timeSpanRegex = new Regex(@"^(?<days>\d+d\s*)?(?<hours>\d{1,2}h\s*)?(?<minutes>\d{1,2}m\s*)?(?<seconds>\d{1,2}s\s*)?$", RegexOptions.ECMAScript);
-                        var value = option.Value.ToString();
-                        if (value == "0")
-                        {
-                            args.Add(TimeSpan.Zero);
-                            continue;
-                        }
-                        if (int.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out _))
-                        {
-                            args.Add(null);
-                            continue;
-                        }
-                        value = value.ToLowerInvariant();
-
-                        if (TimeSpan.TryParse(value, CultureInfo.InvariantCulture, out var result))
-                        {
-                            args.Add(result);
-                            continue;
-                        }
-                        var gps = new string[] { "days", "hours", "minutes", "seconds" };
-                        var mtc = timeSpanRegex.Match(value);
-                        if (!mtc.Success)
-                        {
-                            args.Add(null);
-                            continue;
-                        }
-
-                        var d = 0;
-                        var h = 0;
-                        var m = 0;
-                        var s = 0;
-                        foreach (var gp in gps)
-                        {
-                            var gpc = mtc.Groups[gp].Value;
-                            if (string.IsNullOrWhiteSpace(gpc))
-                                continue;
-                            gpc = gpc.Trim();
-
-                            var gpt = gpc[gpc.Length - 1];
-                            int.TryParse(gpc.Substring(0, gpc.Length - 1), NumberStyles.Integer, CultureInfo.InvariantCulture, out var val);
-                            switch (gpt)
-                            {
-                                case 'd':
-                                    d = val;
-                                    break;
-
-                                case 'h':
-                                    h = val;
-                                    break;
-
-                                case 'm':
-                                    m = val;
-                                    break;
-
-                                case 's':
-                                    s = val;
-                                    break;
-                            }
-                        }
-                        result = new TimeSpan(d, h, m, s);
-                        args.Add(result);
+                        throw new InvalidOperationException($"Parameter {parameter.Name} on method {method.Name} in class {this.GetFullname(method.DeclaringType)} does not have a converter for type {this.GetFullname(parameter.ParameterType)}");
                     }
-                    else if (parameter.ParameterType == typeof(DiscordUser))
+
+                    var methodInfo = typeof(ISlashArgumentConverter<>).MakeGenericType(parameter.ParameterType).GetMethod("ConvertAsync");
+                    object result = null; // An `out` parameter.
+                    var conversionTask = (Task<bool>)methodInfo.Invoke(converter, new object[] { context, parameterOptionData, parameter, result });
+                    await conversionTask;
+                    if (conversionTask.Exception != null)
                     {
-                        // Checks through resolved
-                        if (eventArgs.Interaction.Data.Resolved.Members != null &&
-                            eventArgs.Interaction.Data.Resolved.Members.TryGetValue((ulong)option.Value, out var member))
-                            args.Add(member);
-                        else if (eventArgs.Interaction.Data.Resolved.Users != null &&
-                                 eventArgs.Interaction.Data.Resolved.Users.TryGetValue((ulong)option.Value, out var user))
-                            args.Add(user);
-                        else
-                            args.Add(await this.Client.GetUserAsync((ulong)option.Value));
+                        throw new ArgumentException($"Failed to convert parameter {parameter.Name} on method {method.Name} in class {this.GetFullname(method.DeclaringType)}. See inner exception for details.", conversionTask.Exception);
                     }
-                    else if (parameter.ParameterType == typeof(DiscordChannel))
+                    else if (!conversionTask.Result)
+                    {
+                        throw new ArgumentException($"Argument converter {this.GetFullname(converter.GetType())} returned false, indicating that the conversion for the parameter {parameter.Name} on method {method.Name} in class {this.GetFullname(method.DeclaringType)} failed.");
+                    }
+
+                    args.Add(result);
+
+                    if (parameter.ParameterType == typeof(DiscordChannel))
                     {
                         // Checks through resolved
                         if (eventArgs.Interaction.Data.Resolved.Channels != null &&
-                            eventArgs.Interaction.Data.Resolved.Channels.TryGetValue((ulong)option.Value, out var channel))
+                            eventArgs.Interaction.Data.Resolved.Channels.TryGetValue((ulong)parameterOptionData.Value, out var channel))
                             args.Add(channel);
                         else
-                            args.Add(eventArgs.Interaction.Guild.GetChannel((ulong)option.Value));
+                            args.Add(eventArgs.Interaction.Guild.GetChannel((ulong)parameterOptionData.Value));
                     }
                     else if (parameter.ParameterType == typeof(DiscordRole))
                     {
                         // Checks through resolved
                         if (eventArgs.Interaction.Data.Resolved.Roles != null &&
-                            eventArgs.Interaction.Data.Resolved.Roles.TryGetValue((ulong)option.Value, out var role))
+                            eventArgs.Interaction.Data.Resolved.Roles.TryGetValue((ulong)parameterOptionData.Value, out var role))
                             args.Add(role);
                         else
-                            args.Add(eventArgs.Interaction.Guild.GetRole((ulong)option.Value));
+                            args.Add(eventArgs.Interaction.Guild.GetRole((ulong)parameterOptionData.Value));
                     }
                     else if (parameter.ParameterType == typeof(SnowflakeObject))
                     {
                         // Checks through resolved
-                        if (eventArgs.Interaction.Data.Resolved.Roles != null && eventArgs.Interaction.Data.Resolved.Roles.TryGetValue((ulong)option.Value, out var role))
+                        if (eventArgs.Interaction.Data.Resolved.Roles != null && eventArgs.Interaction.Data.Resolved.Roles.TryGetValue((ulong)parameterOptionData.Value, out var role))
                             args.Add(role);
-                        else if (eventArgs.Interaction.Data.Resolved.Members != null && eventArgs.Interaction.Data.Resolved.Members.TryGetValue((ulong)option.Value, out var member))
+                        else if (eventArgs.Interaction.Data.Resolved.Members != null && eventArgs.Interaction.Data.Resolved.Members.TryGetValue((ulong)parameterOptionData.Value, out var member))
                             args.Add(member);
-                        else if (eventArgs.Interaction.Data.Resolved.Users != null && eventArgs.Interaction.Data.Resolved.Users.TryGetValue((ulong)option.Value, out var user))
+                        else if (eventArgs.Interaction.Data.Resolved.Users != null && eventArgs.Interaction.Data.Resolved.Users.TryGetValue((ulong)parameterOptionData.Value, out var user))
                             args.Add(user);
                         else
                             throw new ArgumentException("Error resolving mentionable option.");
                     }
                     else if (parameter.ParameterType == typeof(DiscordEmoji))
                     {
-                        var value = option.Value.ToString();
+                        var value = parameterOptionData.Value.ToString();
 
                         if (DiscordEmoji.TryFromUnicode(this.Client, value, out var emoji) || DiscordEmoji.TryFromName(this.Client, value, out emoji))
                             args.Add(emoji);
@@ -995,9 +923,9 @@ namespace DSharpPlus.SlashCommands
                     }
                     else if (parameter.ParameterType == typeof(DiscordAttachment))
                     {
-                        if (eventArgs.Interaction.Data.Resolved.Attachments?.ContainsKey((ulong)option.Value) ?? false)
+                        if (eventArgs.Interaction.Data.Resolved.Attachments?.ContainsKey((ulong)parameterOptionData.Value) ?? false)
                         {
-                            var attachment = eventArgs.Interaction.Data.Resolved.Attachments[(ulong)option.Value];
+                            var attachment = eventArgs.Interaction.Data.Resolved.Attachments[(ulong)parameterOptionData.Value];
                             args.Add(attachment);
                         }
                         else
