@@ -58,7 +58,8 @@ namespace DSharpPlus.SlashCommands
         Thai,
         Turkish,
         Ukrainian,
-        Vietnamese
+        Vietnamese,
+        Russian
     }
 
     /// <summary>
@@ -99,7 +100,8 @@ namespace DSharpPlus.SlashCommands
             [Localization.Thai] = "th",
             [Localization.Turkish] = "tr",
             [Localization.Ukrainian] = "uk",
-            [Localization.Vietnamese] = "vi"
+            [Localization.Vietnamese] = "vi",
+            [Localization.Russian] = "ru"
         };
 
         public static readonly Dictionary<string, Localization> StringsToLocale = new()
@@ -132,7 +134,8 @@ namespace DSharpPlus.SlashCommands
             ["th"]      = Localization.Thai,
             ["tr"]      = Localization.Turkish,
             ["uk"]      = Localization.Ukrainian,
-            ["vi"]      = Localization.Vietnamese
+            ["vi"]      = Localization.Vietnamese,
+            ["ru"]      = Localization.Russian
         };
     }
 }
