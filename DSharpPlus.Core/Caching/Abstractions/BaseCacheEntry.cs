@@ -1,4 +1,4 @@
-namespace DSharpPlus.Caching.Abstractions
+namespace DSharpPlus.Core.Caching.Abstractions
 {
     /// <summary>
     /// Represents an extendable class for more complex cache entries supported by <see cref="ICacheService"/>.

@@ -1,10 +1,10 @@
 using System;
 
-using DSharpPlus.Caching.Abstractions;
+using DSharpPlus.Core.Caching.Abstractions;
 
 using Microsoft.Extensions.Caching.Memory;
 
-namespace DSharpPlus.Caching.Memory
+namespace DSharpPlus.Core.Caching.Memory
 {
     /// <summary>
     /// Represents an entry in a <see cref="MemoryCacheService"/>

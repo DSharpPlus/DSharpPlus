@@ -1,12 +1,12 @@
 using System;
 using System.Threading.Tasks;
 
-using DSharpPlus.Caching.Abstractions;
+using DSharpPlus.Core.Caching.Abstractions;
 
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 
-namespace DSharpPlus.Caching.Memory
+namespace DSharpPlus.Core.Caching.Memory
 {
     /// <summary>
     /// An implementation of <see cref="ICacheService"/> relying on a memory cache.

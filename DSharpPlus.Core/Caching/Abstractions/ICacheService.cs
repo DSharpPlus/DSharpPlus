@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace DSharpPlus.Caching.Abstractions
+namespace DSharpPlus.Core.Caching.Abstractions
 {
     /// <summary>
     /// Exposes API to access caches without needing to directly rely on IMemoryCache, IDistributedCache or the likes.

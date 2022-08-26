@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Core", "DSharpPl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Test", "DSharpPlus.Test\DSharpPlus.Test.csproj", "{103F6DDB-CCF0-45A8-A8A7-039FF098CE0A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Caching", "DSharpPlus.Caching\DSharpPlus.Caching.csproj", "{FB5290D4-CDD1-4D32-99D9-7DD83F97BECD}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,10 +21,6 @@ Global
 		{103F6DDB-CCF0-45A8-A8A7-039FF098CE0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{103F6DDB-CCF0-45A8-A8A7-039FF098CE0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{103F6DDB-CCF0-45A8-A8A7-039FF098CE0A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FB5290D4-CDD1-4D32-99D9-7DD83F97BECD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FB5290D4-CDD1-4D32-99D9-7DD83F97BECD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FB5290D4-CDD1-4D32-99D9-7DD83F97BECD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FB5290D4-CDD1-4D32-99D9-7DD83F97BECD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

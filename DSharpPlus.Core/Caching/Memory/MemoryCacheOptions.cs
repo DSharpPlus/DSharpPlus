@@ -1,8 +1,8 @@
-using DSharpPlus.Caching.Abstractions;
+using DSharpPlus.Core.Caching.Abstractions;
 
 using Microsoft.Extensions.Options;
 
-namespace DSharpPlus.Caching.Memory
+namespace DSharpPlus.Core.Caching.Memory
 {
     /// <summary>
     /// Represents options for <see cref="MemoryCacheService"/>.

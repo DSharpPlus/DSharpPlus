@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace DSharpPlus.Caching.Abstractions
+namespace DSharpPlus.Core.Caching.Abstractions
 {
     /// <summary>
     /// Represents a base option class for all cache options.
