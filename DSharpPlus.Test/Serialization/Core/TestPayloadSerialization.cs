@@ -32,21 +32,26 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using DSharpPlus.Core.Attributes;
-using DSharpPlus.Core.GatewayEntities.Payloads;
-using DSharpPlus.Core.RestEntities;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using DSharpPlus.Core.Entities;
+using DSharpPlus.Core.Entities.Gateway.Payloads;
+using DSharpPlus.Core.JsonConverters;
+using NUnit.Framework;
 
 namespace DSharpPlus.Test.Serialization.Core
 {
-    [TestClass]
     public class TestPayloadSerialization
     {
-        private static readonly Regex NormalizeJsonWhitespace = new("(\"(?:[^\"\\\\]|\\\\.)*\")|\\s+", RegexOptions.Compiled);
-
-        [TestMethod]
-        public void TestPayloadSerializationAsync()
+        private static readonly JsonSerializerOptions stjOptions = new()
         {
-            Dictionary<string, Type?> payloadMap = new()
+            TypeInfoResolver = DiscordJsonTypeInfoResolver.Default
+        };
+
+        private static readonly Regex NormalizeJsonWhitespace = new("(\"(?:[^\"\\\\]|\\\\.)*\")|\\s+", RegexOptions.Compiled);
+        private static readonly Dictionary<string, Type?> payloadMap;
+
+        static TestPayloadSerialization()
+        {
+            payloadMap = new()
             {
                 { "HEARTBEAT", typeof(int?) }, // Doesn't include fields, only returns an int? which is null on first heartbeat.
                 { "RECONNECT", null }, // Reconnect doesn't have a payload.
@@ -71,59 +76,47 @@ namespace DSharpPlus.Test.Serialization.Core
                     }
                 }
             }
+        }
 
-            Dictionary<string, string> serializedPayloads = new();
+        public static IEnumerable<TestCase> TestCases => Directory.GetFiles(Path.GetFullPath("../../../../discord-payloads", Environment.CurrentDirectory), "*.json", new EnumerationOptions() { RecurseSubdirectories = true }).Select(f => new TestCase(f));
 
-            // Using Path.GetFullPath should be fine as long as we use the `dotnet test` command instead of moving the executable and executing it.
-            string[] files = Directory.GetFiles(Path.GetFullPath("../../../../discord-payloads", Environment.CurrentDirectory), "*.json", new EnumerationOptions() { RecurseSubdirectories = true });
-            foreach (string file in files)
+        [TestCaseSource(nameof(TestCases))]
+        public void TestPayloadSerializationAsync(TestCase test)
+        {
+            string file = test.File;
+            using FileStream fileStream = File.OpenRead(file);
+            JsonElement jsonElement = (JsonElement)JsonSerializer.Deserialize<object>(fileStream, stjOptions)!;
+
+            // If the `t` (payload type) field is not present, it's invalid data. This should only happen when discord-payloads includes rest payloads, and tests should be modified to include them in a separate method.
+            if (!jsonElement.TryGetProperty("t", out JsonElement typeElement))
             {
-                using FileStream fileStream = File.OpenRead(file);
-                JsonElement jsonElement = (JsonElement)JsonSerializer.Deserialize<object>(fileStream)!;
-
-                // If the `t` (payload type) field is not present, it's invalid data. This should only happen when discord-payloads includes rest payloads, and tests should be modified to include them in a separate method.
-                if (!jsonElement.TryGetProperty("t", out JsonElement typeElement))
-                {
-                    throw new InvalidDataException($"Unable to find property 't' in file {file}");
-                }
-
-                // Attempt to see if the payload type is in the payload map. If it isn't, it's a new payload and we should include it within the next few commits.
-                string eventName = typeElement.GetString()!;
-                if (!payloadMap.TryGetValue(eventName, out Type? payloadType) || payloadType == null)
-                {
-                    Assert.Fail($"Payload type {eventName} is not in the payload map. Please add it to the payload map.");
-                    return;
-                }
-
-                try
-                {
-                    object serializedObject = JsonSerializer.Deserialize(jsonElement.GetProperty("d").GetRawText(), payloadType)!;
-                    VerifyObjectValues(serializedObject, jsonElement.GetProperty("d"));
-
-                    // If the above method doesn't throw, then the payload has serialized correctly.
-                    serializedPayloads.Add(file, payloadType.Name);
-                }
-                catch (Exception error)
-                {
-                    Console.WriteLine($"Error on {payloadType.FullName} ({file}): {error.Message}");
-                }
+                throw new InvalidDataException($"Unable to find property 't' in file {file}");
             }
 
-            Console.WriteLine($"Serialized {serializedPayloads.Keys.Count}/{files.Length} payloads!");
-            Assert.IsTrue(serializedPayloads.Keys.Count == files.Length);
+            // Attempt to see if the payload type is in the payload map. If it isn't, it's a new payload and we should include it within the next few commits.
+            string eventName = typeElement.GetString()!;
+            if (!payloadMap.TryGetValue(eventName, out Type? payloadType) || payloadType == null)
+            {
+                Assert.Fail($"Payload type {eventName} is not in the payload map. Please add it to the payload map.");
+                return;
+            }
+
+            object serializedObject = JsonSerializer.Deserialize(jsonElement.GetProperty("d").GetRawText(), payloadType, stjOptions)!;
+            VerifyObjectValues(serializedObject, jsonElement.GetProperty("d"));
+
+            Console.WriteLine($"Serialized payload! Event Name: {eventName}");
         }
 
         private static void VerifyObjectValues(object obj, JsonElement jsonElement, string? accessedProperty = null)
         {
-            JsonElement.ObjectEnumerator objEnumerator = jsonElement.EnumerateObject(); // Iterate through the json, not the class
-
             Type objType = obj.GetType();
             accessedProperty ??= objType.Name; // Start the accessed property with the type name, then add onto which properties down the road.
             PropertyInfo[] properties = objType.GetProperties(); // Match the properties to the json, removing them when they're successfully matched.
             List<PropertyInfo> trueProperties = properties.ToList(); // We need to keep a copy of the properties list, as we'll be removing items from it.
-            while (objEnumerator.MoveNext())
+
+            foreach (JsonProperty currentProperty in jsonElement.EnumerateObject())
             {
-                string normalizedJson = NormalizeJsonWhitespace.Replace(objEnumerator.Current.Value.GetRawText(), "$1"); // Normalize whitespace in the json.
+                string normalizedJson = NormalizeJsonWhitespace.Replace(currentProperty.Value.GetRawText(), "$1"); // Normalize whitespace in the json.
                 foreach (PropertyInfo property in properties)
                 {
                     JsonPropertyNameAttribute? jsonPropertyName = property.GetCustomAttribute<JsonPropertyNameAttribute>();
@@ -132,19 +125,20 @@ namespace DSharpPlus.Test.Serialization.Core
                         trueProperties.Remove(property);
                         continue;
                     }
-                    else if (jsonPropertyName.Name != objEnumerator.Current.Name)
+                    else if (jsonPropertyName.Name != currentProperty.Name)
                     {
                         continue;
                     }
 
+                    Assert.That(jsonPropertyName.Name, Is.EqualTo(currentProperty.Name));
+
                     object? propertyValue = property.GetValue(obj);
-                    JsonElement currentElement = jsonElement.GetProperty(objEnumerator.Current.Name);
+                    JsonElement currentElement = jsonElement.GetProperty(currentProperty.Name);
                     if (propertyValue != null)
                     {
                         if (currentElement.ValueKind == JsonValueKind.Object) // If the property is an object, recurse into it.
                         {
                             VerifyObjectValues(propertyValue, currentElement, $"{accessedProperty}.{property.Name}");
-                            continue;
                         }
                         else if (currentElement.ValueKind == JsonValueKind.Array) // If the property is an array, check to see if it holds any objects.
                         {
@@ -153,48 +147,33 @@ namespace DSharpPlus.Test.Serialization.Core
                             {
                                 VerifyObjectValues(propertyValue, arrayEnumerator.Current, $"{accessedProperty}.{property.Name}");
                             }
-                            continue;
                         }
-                    }
 
-                    // Optional verification
-                    if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(Optional<>))
-                    {
-                        if (propertyValue is Optional<object> optionalObject)
+                        // Optional verification
+                        if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(Optional<>))
                         {
-                            if (!optionalObject.HasValue)
+                            if (HasOptionalValue(propertyValue))
                             {
-                                if (currentElement.GetProperty(jsonPropertyName.Name).ValueKind != JsonValueKind.Undefined)
-                                {
-                                    throw new InvalidDataException($"{accessedProperty}.{property.Name} does not hold a value, but the json is does.\nProperty Value Read: {optionalObject}\nJson Value Read: {currentElement.GetProperty(jsonPropertyName.Name).GetString()}");
-                                }
+                                Assert.That(
+                                    currentElement.ValueKind != JsonValueKind.Undefined,
+                                    "{0}.{1} holds a value, but the json does not.\nProperty Value Read: {2}\nJson Value Read: {3}",
+                                    accessedProperty, property.Name, propertyValue, currentElement);
+                            }
+                            else
+                            {
+                                Assert.That(
+                                    currentElement.ValueKind == JsonValueKind.Undefined,
+                                    "{0}.{1} does not hold a value, but the json is does.\nProperty Value Read: {2}\nJson Value Read: {3}",
+                                    accessedProperty, property.Name, propertyValue, currentElement);
+
                                 // We don't want to write any empty optionals to the json.
+                                RemoveFromTrueProperties();
                                 continue;
-                            }
-                            else if (optionalObject.HasValue && currentElement.GetProperty(jsonPropertyName.Name).ValueKind == JsonValueKind.Undefined)
-                            {
-                                throw new InvalidDataException($"{accessedProperty}.{property.Name} holds a value, but the json does not.\nProperty Value Read: {optionalObject}\nJson Value Read: {currentElement.GetProperty(jsonPropertyName.Name).GetString()}");
-                            }
-                        }
-                        else if (propertyValue is Optional<ValueType> optionalValueType)
-                        {
-                            if (!optionalValueType.HasValue)
-                            {
-                                if (currentElement.GetProperty(jsonPropertyName.Name).ValueKind != JsonValueKind.Undefined)
-                                {
-                                    throw new InvalidDataException($"{accessedProperty}.{property.Name} does not hold a value, but the json is does.\nProperty Value Read: {optionalValueType}\nJson Value Read: {currentElement.GetProperty(jsonPropertyName.Name).GetString()}");
-                                }
-                                // We don't want to write any empty optionals to the json.
-                                continue;
-                            }
-                            else if (optionalValueType.HasValue && currentElement.GetProperty(jsonPropertyName.Name).ValueKind == JsonValueKind.Undefined)
-                            {
-                                throw new InvalidDataException($"{accessedProperty}.{property.Name} holds a value, but the json does not.\nProperty Value Read: {optionalValueType}\nJson Value Read: {currentElement.GetProperty(jsonPropertyName.Name).GetString()}");
                             }
                         }
                     }
 
-                    string jsonValue = JsonSerializer.Serialize(propertyValue, property.PropertyType);
+                    string jsonValue = JsonSerializer.Serialize(propertyValue, property.PropertyType, stjOptions);
                     if (jsonValue != normalizedJson)
                     {
                         switch (propertyValue)
@@ -216,19 +195,25 @@ namespace DSharpPlus.Test.Serialization.Core
                             case Optional<string> when $"{accessedProperty}.{property.Name}".Contains("Emoji.Name") && !propertyValue!.Equals(normalizedJson) && normalizedJson.StartsWith("\"\\u", true, CultureInfo.InvariantCulture):
                                 if (!RoundtripVerify(propertyValue))
                                 {
-                                    jsonValue = JsonSerializer.Serialize(obj);
-                                    normalizedJson = JsonSerializer.Serialize(JsonSerializer.Deserialize(jsonValue, obj.GetType())); // I'm relatively sure this is incorrect.
+                                    jsonValue = JsonSerializer.Serialize(obj, stjOptions);
+                                    normalizedJson = JsonSerializer.Serialize(JsonSerializer.Deserialize(jsonValue, obj.GetType(), stjOptions)); // I'm relatively sure this is incorrect.
                                     goto default;
                                 }
                                 break;
                             default:
-                                throw new InvalidDataException($"Property {accessedProperty}.{property.Name} does not have a matching value:\n\tProperty Value Written: {jsonValue}\n\tJson Value Read: {normalizedJson}");
+                                Assert.Fail($"Property {accessedProperty}.{property.Name} does not have a matching value:\n\tProperty Value Written: {jsonValue}\n\tJson Value Read: {normalizedJson}");
+                                break;
                         }
                     }
 
-                    if (!trueProperties.Remove(property))
+                    RemoveFromTrueProperties();
+
+                    void RemoveFromTrueProperties()
                     {
-                        throw new InvalidDataException($"Property {accessedProperty}.{property.Name} was not found in the list of properties. Does this mean they're duplicate properties?");
+                        Assert.That(
+                            trueProperties.Remove(property),
+                            "Property {0}.{1} was not found in the list of properties. Does this mean they're duplicate properties?",
+                            accessedProperty, property.Name);
                     }
                 }
             }
@@ -237,19 +222,22 @@ namespace DSharpPlus.Test.Serialization.Core
             {
                 foreach (PropertyInfo property in trueProperties)
                 {
-                    if ((property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(Optional<>))
+                    Assert.That((property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(Optional<>))
                         || (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
-                        || (property.DeclaringType != null && property.DeclaringType.IsGenericType && property.DeclaringType.GetGenericTypeDefinition() == typeof(Optional<>))
-                    )
-                    {
-                        continue;
-                    }
-
-                    throw new InvalidDataException($"Property {accessedProperty}.{property.Name} was not found in the json and is not optional. Do Discord docs need to be updated, or do we have incorrect code?");
+                        || (property.DeclaringType != null && property.DeclaringType.IsGenericType && property.DeclaringType.GetGenericTypeDefinition() == typeof(Optional<>)),
+                        "Property {0}.{1} was not found in the json and is not optional. Do Discord docs need to be updated, or do we have incorrect code?",
+                        accessedProperty, property.Name);
                 }
             }
         }
 
-        private static bool RoundtripVerify(object obj) => obj.Equals(JsonSerializer.Deserialize(JsonSerializer.Serialize(obj), obj.GetType()));
+        public static bool HasOptionalValue(object value) => (bool)value.GetType().GetProperty("HasValue")!.GetValue(value)!;
+
+        private static bool RoundtripVerify(object obj) => obj.Equals(JsonSerializer.Deserialize(JsonSerializer.Serialize(obj, stjOptions), obj.GetType(), stjOptions));
+
+        public sealed record TestCase(string File)
+        {
+            public override string ToString() => Path.GetFileName(File);
+        }
     }
 }

@@ -2,7 +2,7 @@ using System;
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using DSharpPlus.Core.RestEntities;
+using DSharpPlus.Core.Entities;
 
 namespace DSharpPlus.Core.JsonConverters
 {
