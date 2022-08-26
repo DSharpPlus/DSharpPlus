@@ -1,5 +1,3 @@
-using DSharpPlus.Core.Entities;
-
 namespace DSharpPlus.Core.Entities.VoiceGateway.Commands
 {
     /// <summary>

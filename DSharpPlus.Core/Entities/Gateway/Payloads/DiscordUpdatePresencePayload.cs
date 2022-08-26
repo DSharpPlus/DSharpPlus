@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using DSharpPlus.Core.Attributes;
 using DSharpPlus.Core.Enums;
-using DSharpPlus.Core.Entities;
 using System.Text.Json.Serialization;
 
 namespace DSharpPlus.Core.Entities.Gateway.Payloads

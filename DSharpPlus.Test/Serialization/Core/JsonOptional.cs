@@ -1,5 +1,5 @@
 using System.Text.Json;
-using DSharpPlus.Core.Entities;
+using DSharpPlus.Core;
 using DSharpPlus.Core.JsonConverters;
 using NUnit.Framework;
 

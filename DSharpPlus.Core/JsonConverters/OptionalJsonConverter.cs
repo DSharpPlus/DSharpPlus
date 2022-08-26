@@ -1,7 +1,6 @@
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using DSharpPlus.Core.Entities;
 
 namespace DSharpPlus.Core.JsonConverters
 {

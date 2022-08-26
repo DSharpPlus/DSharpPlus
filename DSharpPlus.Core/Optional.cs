@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 using DSharpPlus.Core.JsonConverters;
 using DSharpPlus.Core.JsonConverters.Attributes;
 
-namespace DSharpPlus.Core.Entities
+namespace DSharpPlus.Core
 {
     /// <summary>
     /// Often used in Discord API responses and requests, this class is used to represent an optional field.
@@ -70,7 +70,7 @@ namespace DSharpPlus.Core.Entities
         /// Gets the hash code for this <see cref="Optional{T}"/>.
         /// </summary>
         /// <returns>The hash code for this <see cref="Optional{T}"/>.</returns>
-        public override int GetHashCode() => HasValue ? (_value?.GetHashCode() ?? 0) : 0;
+        public override int GetHashCode() => HasValue ? _value?.GetHashCode() ?? 0 : 0;
 
         /// <summary>
         /// Checks whether this <see cref="Optional{T}"/> is equal to another <see cref="Optional{T}"/>.
@@ -78,7 +78,7 @@ namespace DSharpPlus.Core.Entities
         /// <param name="other"><see cref="Optional{T}"/> to compare to.</param>
         /// <returns>Whether the <see cref="Optional{T}"/> is equal to this <see cref="Optional{T}"/>.</returns>
         public bool Equals(Optional<T> other) => HasValue
-            ? (other.HasValue && EqualityComparer<T>.Default.Equals(_value, other._value))
+            ? other.HasValue && EqualityComparer<T>.Default.Equals(_value, other._value)
             : !other.HasValue;
 
         /// <summary>
@@ -104,7 +104,7 @@ namespace DSharpPlus.Core.Entities
         /// Returns a string that represents the current object.
         /// </summary>
         /// <returns>A string that represents the current object</returns>
-        public override string ToString() => HasValue ? (_value?.ToString() ?? string.Empty) : "<Empty>";
+        public override string ToString() => HasValue ? _value?.ToString() ?? string.Empty : "<Empty>";
 
         public static implicit operator Optional<T>(T value) => new(value);
         public static explicit operator T(Optional<T> optional) => optional.Value;

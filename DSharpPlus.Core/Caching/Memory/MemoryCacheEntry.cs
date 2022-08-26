@@ -14,12 +14,12 @@ namespace DSharpPlus.Core.Caching.Memory
         /// <summary>
         /// Overrides the absolute expiration for this entry.
         /// </summary>
-        public TimeSpan? AbsoluteExpiration { get; set; }
+        public Optional<TimeSpan?> AbsoluteExpiration { get; set; }
 
         /// <summary>
         /// Overrides the sliding expiration for this entry.
         /// </summary>
-        public TimeSpan? SlidingExpiration { get; set; }
+        public Optional<TimeSpan?> SlidingExpiration { get; set; }
 
         /// <summary>
         /// Sets a post-eviction callback for this entry.

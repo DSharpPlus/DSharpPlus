@@ -1,6 +1,5 @@
 using System.Text.Json.Serialization;
 using DSharpPlus.Core.Enums;
-using DSharpPlus.Core.Entities;
 
 namespace DSharpPlus.Core.Entities.Gateway
 {

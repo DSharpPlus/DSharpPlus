@@ -41,7 +41,7 @@ namespace DSharpPlus.Core.Caching.Memory
         /// <inheritdoc/>
         public ValueTask CacheAsync<TItem>(BaseCacheEntry entry)
         {
-            TimeSpan? absolute = null, sliding = null;
+            Optional<TimeSpan?> absolute = null, sliding = null;
             PostEvictionDelegate? postEviction = null;
 
             if(entry is MemoryCacheEntry memoryCacheEntry)
@@ -51,14 +51,18 @@ namespace DSharpPlus.Core.Caching.Memory
                 postEviction = memoryCacheEntry.PostEvictionCallback;
             }
 
-            absolute ??= _options.GetAbsoluteExpiration(typeof(TItem));
-
-            sliding ??= _options.GetSlidingExpiration(typeof(TItem));
-
             ICacheEntry cacheEntry = _cache.CreateEntry(entry.Key)
-                .SetValue(entry.Value)
-                .SetAbsoluteExpiration(absolute.Value)
-                .SetSlidingExpiration(sliding.Value);
+                .SetValue(entry.Value);
+
+            if (absolute.HasValue)
+            {
+                cacheEntry.SetAbsoluteExpiration(absolute.Value ?? _options.GetAbsoluteExpiration(typeof(TItem)));
+            }
+
+            if (sliding.HasValue)
+            {
+                cacheEntry.SetSlidingExpiration(sliding.Value ?? _options.GetSlidingExpiration(typeof(TItem)));
+            }
 
             if(postEviction is not null)
             {
