@@ -29,10 +29,7 @@ namespace DSharpPlus.SlashCommands.Converters
 {
     public sealed class StringSlashArgumentConverter : ISlashArgumentConverter<string>
     {
-        public Task<bool> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo parameterInfo, out string value)
-        {
-            value = interactionDataOption.Value.ToString();
-            return Task.FromResult(true);
-        }
+        public Task<Optional<string>> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo interactionMethodArgument)
+            => Task.FromResult(Optional.FromValue(interactionDataOption.Value.ToString()));
     }
 }

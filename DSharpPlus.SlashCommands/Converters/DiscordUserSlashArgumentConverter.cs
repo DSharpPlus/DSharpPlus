@@ -30,9 +30,10 @@ namespace DSharpPlus.SlashCommands.Converters
 {
     public sealed class DiscordUserSlashArgumentConverter : ISlashArgumentConverter<DiscordUser>
     {
-        public async Task<bool> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo parameterInfo, out DiscordUser result)
+        public async Task<Optional<DiscordUser>> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo interactionMethodArgument)
         {
             var userId = (ulong)interactionDataOption.Value;
+            DiscordUser result;
 
             // Checks through resolved
             if (interactionContext.Interaction.Data.Resolved.Members != null && interactionContext.Interaction.Data.Resolved.Members.TryGetValue(userId, out var member))
@@ -47,12 +48,11 @@ namespace DSharpPlus.SlashCommands.Converters
                 }
                 catch (DiscordException)
                 {
-                    result = null;
-                    return false;
+                    return Optional.FromNoValue<DiscordUser>();
                 }
             }
 
-            return true;
+            return Optional.FromValue(result);
         }
     }
 }

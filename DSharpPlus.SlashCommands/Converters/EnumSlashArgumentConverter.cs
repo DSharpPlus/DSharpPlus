@@ -31,6 +31,7 @@ namespace DSharpPlus.SlashCommands.Converters
     public sealed class EnumSlashArgumentConverter : ISlashArgumentConverter<Enum>
     {
         // You're welcome for ruining your day.
-        public Task<bool> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo parameterInfo, out Enum value) => Task.FromResult((value = (Enum)Enum.Parse(parameterInfo.ParameterType, interactionDataOption.Value.ToString())) != null);
+        public Task<Optional<Enum>> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo interactionMethodArgument)
+            => Task.FromResult(Optional.FromValue((Enum)Enum.Parse(interactionMethodArgument.ParameterType, interactionDataOption.Value.ToString())));
     }
 }

@@ -27,9 +27,24 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.SlashCommands.Converters
 {
-    public sealed class DoubleSlashArgumentConverter : ISlashArgumentConverter<double>
+    public sealed class DiscordMemberArgumentConverter : ISlashArgumentConverter<DiscordMember>
     {
-        public Task<Optional<double>> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo interactionMethodArgument)
-            => Task.FromResult(Optional.FromValue((double)interactionDataOption.Value));
+        public async Task<Optional<DiscordMember>> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo interactionMethodArgument)
+        {
+            // I don't know when this'll ever fail, but I've added other checks just in case.
+            if (interactionContext.Interaction.Data.Resolved.Members != null && interactionContext.Interaction.Data.Resolved.Members.TryGetValue((ulong)interactionDataOption.Value, out var member))
+            {
+                return Optional.FromValue(member);
+            }
+            else if (interactionContext.Guild._members.TryGetValue((ulong)interactionDataOption.Value, out member))
+            {
+                return Optional.FromValue(member);
+            }
+            else
+            {
+                // CNext makes the API request, attempting to replicate behavior.
+                return Optional.FromValue(await interactionContext.Guild.GetMemberAsync((ulong)interactionDataOption.Value).ConfigureAwait(false));
+            }
+        }
     }
 }

@@ -29,23 +29,7 @@ namespace DSharpPlus.SlashCommands.Converters
 {
     public sealed class LongSlashArgumentConverter : ISlashArgumentConverter<long>
     {
-        public Task<bool> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo parameterInfo, out long result)
-        {
-            result = 0;
-            var minimumAttribute = parameterInfo.GetCustomAttribute<MinimumAttribute>();
-            var maximumAttribute = parameterInfo.GetCustomAttribute<MaximumAttribute>();
-
-            if (minimumAttribute != null && minimumAttribute.Value is long minNumber && minNumber <= (long)interactionDataOption.Value)
-            {
-                return Task.FromResult(false);
-            }
-            else if (maximumAttribute != null && maximumAttribute.Value is long maxNumber && maxNumber >= (long)interactionDataOption.Value)
-            {
-                return Task.FromResult(false);
-            }
-
-            result = (long)interactionDataOption.Value;
-            return Task.FromResult(true);
-        }
+        public Task<Optional<long>> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo interactionMethodArgument)
+            => Task.FromResult(Optional.FromValue((long)interactionDataOption.Value));
     }
 }

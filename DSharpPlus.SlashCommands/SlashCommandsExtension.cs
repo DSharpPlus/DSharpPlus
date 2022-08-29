@@ -634,7 +634,7 @@ namespace DSharpPlus.SlashCommands
                     if (methods.Any())
                     {
                         var method = methods.First().Method;
-                        var args = await this.ResolveInteractionCommandParameters(eventArgs, context, method, eventArgs.Interaction.Data.Options);
+                        var args = await this.ResolveInteractionCommandParameters(context, method, eventArgs.Interaction.Data.Options);
 
                         await this.RunCommandAsync(context, method, args);
                     }
@@ -643,7 +643,7 @@ namespace DSharpPlus.SlashCommands
                         var command = eventArgs.Interaction.Data.Options.First();
                         var method = groups.First().Methods.First(x => x.Key == command.Name).Value;
 
-                        var args = await this.ResolveInteractionCommandParameters(eventArgs, context, method, eventArgs.Interaction.Data.Options.First().Options);
+                        var args = await this.ResolveInteractionCommandParameters(context, method, eventArgs.Interaction.Data.Options.First().Options);
 
                         await this.RunCommandAsync(context, method, args);
                     }
@@ -653,7 +653,7 @@ namespace DSharpPlus.SlashCommands
                         var group = subgroups.First().SubCommands.First(x => x.Name == command.Name);
                         var method = group.Methods.First(x => x.Key == command.Options.First().Name).Value;
 
-                        var args = await this.ResolveInteractionCommandParameters(eventArgs, context, method, eventArgs.Interaction.Data.Options.First().Options.First().Options);
+                        var args = await this.ResolveInteractionCommandParameters(context, method, eventArgs.Interaction.Data.Options.First().Options.First().Options);
                         await this.RunCommandAsync(context, method, args);
                     }
 
@@ -848,10 +848,11 @@ namespace DSharpPlus.SlashCommands
         }
 
         // Parses slash command parameters
-        private async Task<List<object>> ResolveInteractionCommandParameters(InteractionCreateEventArgs eventArgs, InteractionContext context, MethodInfo method, IEnumerable<DiscordInteractionDataOption> options)
+        private async Task<List<object>> ResolveInteractionCommandParameters(InteractionContext context, MethodInfo method, IEnumerable<DiscordInteractionDataOption> options)
         {
             var args = new List<object> { context };
 
+            // Skipping the first method argument, InteractionContext
             foreach (var parameter in method.GetParameters().Skip(1))
             {
                 var parameterOptionAttribute = parameter.GetCustomAttribute<OptionAttribute>();
@@ -868,72 +869,19 @@ namespace DSharpPlus.SlashCommands
                     }
 
                     var methodInfo = typeof(ISlashArgumentConverter<>).MakeGenericType(parameter.ParameterType).GetMethod("ConvertAsync");
-                    object result = null; // An `out` parameter.
-                    var conversionTask = (Task<bool>)methodInfo.Invoke(converter, new object[] { context, parameterOptionData, parameter, result });
+                    var conversionTask = (Task<IOptional>)methodInfo.Invoke(converter, new object[] { context, parameterOptionData, parameter });
                     await conversionTask;
                     if (conversionTask.Exception != null)
                     {
                         throw new ArgumentException($"Failed to convert parameter {parameter.Name} on method {method.Name} in class {this.GetFullname(method.DeclaringType)}. See inner exception for details.", conversionTask.Exception);
                     }
-                    else if (!conversionTask.Result)
+                    else if (!conversionTask.Result.HasValue)
                     {
                         throw new ArgumentException($"Argument converter {this.GetFullname(converter.GetType())} returned false, indicating that the conversion for the parameter {parameter.Name} on method {method.Name} in class {this.GetFullname(method.DeclaringType)} failed.");
                     }
 
-                    args.Add(result);
-
-                    if (parameter.ParameterType == typeof(DiscordChannel))
-                    {
-                        // Checks through resolved
-                        if (eventArgs.Interaction.Data.Resolved.Channels != null &&
-                            eventArgs.Interaction.Data.Resolved.Channels.TryGetValue((ulong)parameterOptionData.Value, out var channel))
-                            args.Add(channel);
-                        else
-                            args.Add(eventArgs.Interaction.Guild.GetChannel((ulong)parameterOptionData.Value));
-                    }
-                    else if (parameter.ParameterType == typeof(DiscordRole))
-                    {
-                        // Checks through resolved
-                        if (eventArgs.Interaction.Data.Resolved.Roles != null &&
-                            eventArgs.Interaction.Data.Resolved.Roles.TryGetValue((ulong)parameterOptionData.Value, out var role))
-                            args.Add(role);
-                        else
-                            args.Add(eventArgs.Interaction.Guild.GetRole((ulong)parameterOptionData.Value));
-                    }
-                    else if (parameter.ParameterType == typeof(SnowflakeObject))
-                    {
-                        // Checks through resolved
-                        if (eventArgs.Interaction.Data.Resolved.Roles != null && eventArgs.Interaction.Data.Resolved.Roles.TryGetValue((ulong)parameterOptionData.Value, out var role))
-                            args.Add(role);
-                        else if (eventArgs.Interaction.Data.Resolved.Members != null && eventArgs.Interaction.Data.Resolved.Members.TryGetValue((ulong)parameterOptionData.Value, out var member))
-                            args.Add(member);
-                        else if (eventArgs.Interaction.Data.Resolved.Users != null && eventArgs.Interaction.Data.Resolved.Users.TryGetValue((ulong)parameterOptionData.Value, out var user))
-                            args.Add(user);
-                        else
-                            throw new ArgumentException("Error resolving mentionable option.");
-                    }
-                    else if (parameter.ParameterType == typeof(DiscordEmoji))
-                    {
-                        var value = parameterOptionData.Value.ToString();
-
-                        if (DiscordEmoji.TryFromUnicode(this.Client, value, out var emoji) || DiscordEmoji.TryFromName(this.Client, value, out emoji))
-                            args.Add(emoji);
-                        else
-                            throw new ArgumentException("Error parsing emoji parameter.");
-                    }
-                    else if (parameter.ParameterType == typeof(DiscordAttachment))
-                    {
-                        if (eventArgs.Interaction.Data.Resolved.Attachments?.ContainsKey((ulong)parameterOptionData.Value) ?? false)
-                        {
-                            var attachment = eventArgs.Interaction.Data.Resolved.Attachments[(ulong)parameterOptionData.Value];
-                            args.Add(attachment);
-                        }
-                        else
-                            this.Client.Logger.LogError("Missing attachment in resolved data. This is an issue with Discord.");
-                    }
-
-                    else
-                        throw new ArgumentException("Error resolving interaction.");
+                    // TODO: Attribute checks
+                    args.Add(conversionTask.Result.RawValue);
                 }
             }
 

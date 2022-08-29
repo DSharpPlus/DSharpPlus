@@ -27,9 +27,11 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.SlashCommands.Converters
 {
-    public sealed class DoubleSlashArgumentConverter : ISlashArgumentConverter<double>
+    public sealed class DiscordAttachmentArgumentConverter : ISlashArgumentConverter<DiscordAttachment>
     {
-        public Task<Optional<double>> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo interactionMethodArgument)
-            => Task.FromResult(Optional.FromValue((double)interactionDataOption.Value));
+        public Task<Optional<DiscordAttachment>> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo interactionMethodArgument)
+            => Task.FromResult(interactionContext.Interaction.Data.Resolved.Attachments.TryGetValue((ulong)interactionDataOption.Value, out var attachment)
+                ? Optional.FromValue(attachment)
+                : Optional.FromNoValue<DiscordAttachment>());
     }
 }

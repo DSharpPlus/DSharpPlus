@@ -32,7 +32,7 @@ namespace DSharpPlus.SlashCommands.Converters
 
     public interface ISlashArgumentConverter<T> : ISlashArgumentConverter
     {
-        Task<bool> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo parameterInfo, out T? result);
+        Task<Optional<T>> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo interactionMethodArgument);
     }
 }
 #nullable disable

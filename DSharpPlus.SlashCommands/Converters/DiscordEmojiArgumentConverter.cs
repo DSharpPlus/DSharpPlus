@@ -27,9 +27,11 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.SlashCommands.Converters
 {
-    public sealed class DoubleSlashArgumentConverter : ISlashArgumentConverter<double>
+    public sealed class DiscordEmojiArgumentConverter : ISlashArgumentConverter<DiscordEmoji>
     {
-        public Task<Optional<double>> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo interactionMethodArgument)
-            => Task.FromResult(Optional.FromValue((double)interactionDataOption.Value));
+        public Task<Optional<DiscordEmoji>> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo interactionMethodArgument)
+            => Task.FromResult(DiscordEmoji.TryFromUnicode(interactionContext.Client, interactionDataOption.ToString(), out var emoji) || DiscordEmoji.TryFromName(interactionContext.Client, interactionDataOption.ToString(), out emoji)
+                ? Optional.FromValue(emoji)
+                : Optional.FromNoValue<DiscordEmoji>());
     }
 }

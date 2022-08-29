@@ -27,9 +27,11 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.SlashCommands.Converters
 {
-    public sealed class DoubleSlashArgumentConverter : ISlashArgumentConverter<double>
+    public sealed class DiscordRoleArgumentConverter : ISlashArgumentConverter<DiscordRole>
     {
-        public Task<Optional<double>> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo interactionMethodArgument)
-            => Task.FromResult(Optional.FromValue((double)interactionDataOption.Value));
+        public Task<Optional<DiscordRole>> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo interactionMethodArgument)
+            => interactionContext.Interaction.Data.Resolved.Roles != null && interactionContext.Interaction.Data.Resolved.Roles.TryGetValue((ulong)interactionDataOption.Value, out var channel)
+                ? Task.FromResult(Optional.FromValue(channel))
+                : Task.FromResult(Optional.FromValue(interactionContext.Guild.GetRole((ulong)interactionDataOption.Value)));
     }
 }

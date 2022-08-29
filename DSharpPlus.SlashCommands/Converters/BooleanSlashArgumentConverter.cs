@@ -29,10 +29,7 @@ namespace DSharpPlus.SlashCommands.Converters
 {
     public sealed class BooleanSlashArgumentConverter : ISlashArgumentConverter<bool>
     {
-        public Task<bool> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo parameterInfo, out bool result)
-        {
-            result = (bool)interactionDataOption.Value;
-            return Task.FromResult(true);
-        }
+        public Task<Optional<bool>> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo interactionMethodArgument)
+            => Task.FromResult(Optional.FromValue((bool)interactionDataOption.Value));
     }
 }

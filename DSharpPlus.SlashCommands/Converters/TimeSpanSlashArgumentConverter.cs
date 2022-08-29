@@ -44,20 +44,21 @@ namespace DSharpPlus.SlashCommands.Converters
 #endif
         }
 
-        public Task<bool> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo parameterInfo, out TimeSpan result)
+        public Task<Optional<TimeSpan>> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo interactionMethodArgument)
         {
             var value = interactionDataOption.Value.ToString().Trim();
 
             // If no time unit is specified, assume seconds (100 = 100 seconds)
             if (int.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out var number))
             {
-                result = TimeSpan.FromSeconds(number);
-                return Task.FromResult(true);
+                return Task.FromResult(Optional.FromValue(TimeSpan.FromSeconds(number)));
             }
 
             // Try to parse the timespan using the TryParse method (00:01:40 = 1 minutes and 40 seconds, 100 seconds)
-            if (TimeSpan.TryParse(value.ToLowerInvariant(), CultureInfo.InvariantCulture, out result))
-                return Task.FromResult(true);
+            if (TimeSpan.TryParse(value.ToLowerInvariant(), CultureInfo.InvariantCulture, out var result))
+            {
+                return Task.FromResult(Optional.FromValue(result));
+            }
 
             // Regex the shit outta it (1m40s = 1 minute and 40 seconds, 100s = 100 seconds)
             var matches = TimeSpanParseRegex.Match(value);
@@ -65,8 +66,7 @@ namespace DSharpPlus.SlashCommands.Converters
             {
                 // We couldn't infer the unit of measurement, TimeSpan couldn't parse the input and we couldn't regex it.
                 // Assume it's junk input and return false.
-                result = default;
-                return Task.FromResult(false);
+                return Task.FromResult(Optional.FromNoValue<TimeSpan>());
             }
 
             var days = 0;
@@ -106,12 +106,12 @@ namespace DSharpPlus.SlashCommands.Converters
                     default:
                         // Unknown unit of measurement, do not continue.
                         result = default;
-                        return Task.FromResult(false);
+                        return Task.FromResult(Optional.FromNoValue<TimeSpan>());
                 }
             }
 
             result = new TimeSpan(days, hours, minutes, seconds);
-            return Task.FromResult(true);
+            return Task.FromResult(Optional.FromValue(result));
         }
     }
 }
