@@ -33,7 +33,8 @@ namespace DSharpPlus.Core.Caching.Memory
             _cache.CreateEntry(key)
                 .SetValue(value)
                 .SetAbsoluteExpiration(absolute)
-                .SetSlidingExpiration(sliding);
+                .SetSlidingExpiration(sliding)
+                .Dispose();
 
             return ValueTask.CompletedTask;
         }
@@ -68,6 +69,8 @@ namespace DSharpPlus.Core.Caching.Memory
             {
                 cacheEntry.RegisterPostEvictionCallback(postEviction);
             }
+
+            cacheEntry.Dispose();
 
             return ValueTask.CompletedTask;
         }
