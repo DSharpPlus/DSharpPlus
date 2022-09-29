@@ -115,9 +115,9 @@ namespace DSharpPlus.Interactivity.EventHandling
             {
                 if (req._message.Id == eventargs.Message.Id)
                 {
-                    if (req._collected.Any(x => x.Emoji == eventargs.Emoji && x.Users.Any(y => y.Id == eventargs.User.Id)))
+                    if (req._collected.Any(x => x.Emoji == eventargs.Emoji && x.Users.Any(y => y.Id != eventargs.User.Id)))
                     {
-                        var reaction = req._collected.First(x => x.Emoji == eventargs.Emoji && x.Users.Any(y => y.Id == eventargs.User.Id));
+                        var reaction = req._collected.First(x => x.Emoji == eventargs.Emoji && x.Users.Any(y => y.Id != eventargs.User.Id));
                         req._collected.TryRemove(reaction);
                         reaction.Users.Add(eventargs.User);
                         req._collected.Add(reaction);
