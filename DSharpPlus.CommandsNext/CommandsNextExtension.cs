@@ -27,7 +27,9 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Builders;
 using DSharpPlus.CommandsNext.Converters;
@@ -462,6 +464,8 @@ namespace DSharpPlus.CommandsNext
             var moduleHidden = false;
             var moduleChecks = new List<CheckBaseAttribute>();
 
+            groupBuilder.WithCategory(this.ExtractCategoryAttribute(t));
+
             foreach (var xa in moduleAttributes)
             {
                 switch (xa)
@@ -568,6 +572,8 @@ namespace DSharpPlus.CommandsNext
                     foreach (var chk in moduleChecks)
                         commandBuilder.WithExecutionCheck(chk);
 
+                commandBuilder.WithCategory(this.ExtractCategoryAttribute(m));
+
                 foreach (var xa in attrs)
                 {
                     switch (xa)
@@ -587,10 +593,6 @@ namespace DSharpPlus.CommandsNext
 
                         case HiddenAttribute h:
                             commandBuilder.WithHiddenStatus(true);
-                            break;
-
-                        case CategoryAttribute c:
-                            commandBuilder.WithCategory(c.Name);
                             break;
 
                         default:
@@ -653,6 +655,40 @@ namespace DSharpPlus.CommandsNext
             var keys = this.RegisteredCommands.Where(x => cmds.Contains(x.Value)).Select(x => x.Key).ToList();
             foreach (var key in keys)
                 this.TopLevelCommands.Remove(key);
+        }
+
+        private string? ExtractCategoryAttribute(MethodInfo method)
+        {
+            CategoryAttribute attribute = method.GetCustomAttribute<CategoryAttribute>();
+
+            if(attribute is not null)
+            {
+                return attribute.Name;
+            }
+
+            // extract from types
+
+            return this.ExtractCategoryAttribute(method.DeclaringType);
+        }
+
+        private string? ExtractCategoryAttribute(Type type)
+        {
+            CategoryAttribute attribute;
+
+            do
+            {
+                attribute = type.GetCustomAttribute<CategoryAttribute>();
+
+                if (attribute is not null)
+                {
+                    return attribute.Name;
+                }
+
+                type = type.DeclaringType;
+
+            } while (type is not null);
+
+            return null;
         }
 
         private void AddToCommandDictionary(Command cmd)

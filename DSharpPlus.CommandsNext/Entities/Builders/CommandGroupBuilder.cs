@@ -77,7 +77,8 @@ namespace DSharpPlus.CommandsNext.Builders
                 Parent = parent,
                 Overloads = new ReadOnlyCollection<CommandOverload>(this.Overloads.Select(xo => xo.Build()).ToList()),
                 Module = this.Module,
-                CustomAttributes = this.CustomAttributes
+                CustomAttributes = this.CustomAttributes,
+                Category = this.Category
             };
 
             var cs = new List<Command>();
