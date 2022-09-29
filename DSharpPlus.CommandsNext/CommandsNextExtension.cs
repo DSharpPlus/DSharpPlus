@@ -686,7 +686,7 @@ namespace DSharpPlus.CommandsNext
 
                 type = type.DeclaringType;
 
-            } while (type != null);
+            } while (type is not null);
 
             return null;
         }
