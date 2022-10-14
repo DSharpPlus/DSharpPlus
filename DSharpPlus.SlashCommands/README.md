@@ -102,6 +102,7 @@ Arguments must have the `Option` attribute, and can be of type:
 * `DiscordUser` - This can be cast to `DiscordMember` if the command is run in a guild
 * `DiscordChannel`
 * `DiscordRole`
+* `DiscordAttachment`
 * `SnowflakeObject` - This can accept both a user and a role; you can cast it `DiscordUser`, `DiscordMember` or `DiscordRole` to get the actual object
 * `Enum` - This can used for choices through an enum; read further
 
