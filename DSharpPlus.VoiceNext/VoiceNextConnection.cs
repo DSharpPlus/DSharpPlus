@@ -837,7 +837,7 @@ namespace DSharpPlus.VoiceNext
                 decodedPort = BinaryPrimitives.ReadUInt16LittleEndian(packetSpan.Slice(68 /* 70 - 2 */));
             }
 
-            // StringSelect voice encryption mode
+            // Select voice encryption mode
             var selectedEncryptionMode = Sodium.SelectMode(voiceReady.Modes);
             this.SelectedEncryptionMode = selectedEncryptionMode.Value;
 
