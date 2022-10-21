@@ -59,6 +59,7 @@ namespace DSharpPlus.VoiceNext
         {
             this.AudioFormat = new AudioFormat(other.AudioFormat.SampleRate, other.AudioFormat.ChannelCount, other.AudioFormat.VoiceApplication);
             this.EnableIncoming = other.EnableIncoming;
+            this.PacketQueueSize = other.PacketQueueSize;
         }
     }
 }
