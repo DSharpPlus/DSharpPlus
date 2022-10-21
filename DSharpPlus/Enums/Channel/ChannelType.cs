@@ -87,6 +87,16 @@ namespace DSharpPlus
         Stage = 13,
 
         /// <summary>
+        /// Indicates that this is a directory channel.
+        /// </summary>
+        Directory = 14,
+
+        /// <summary>
+        /// Indicates that this is a forum channel.
+        /// </summary>
+        Forum = 15,
+
+        /// <summary>
         /// Indicates unknown channel type.
         /// </summary>
         Unknown = int.MaxValue
