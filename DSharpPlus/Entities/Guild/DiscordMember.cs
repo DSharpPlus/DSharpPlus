@@ -647,16 +647,16 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Constructs the url for a guild member's avatar, defaulting to the user's avatar if none is set.
+        /// Constructs the url for a guild member's banner, defaulting to the user's avatar if none is set.
         /// </summary>
-        /// <param name="imageFormat">The image format of the avatar to get.</param>
-        /// <param name="imageSize">The maximum size of the avatar. Must be a power of two, minimum 16, maximum 4096.</param>
+        /// <param name="imageFormat">The image format of the banner to get.</param>
+        /// <param name="imageSize">The maximum size of the banner. Must be a power of two, minimum 16, maximum 4096.</param>
         /// <returns>The URL of the user's avatar.</returns>
         public string GetGuildBannerUrl(ImageFormat imageFormat, ushort imageSize = 1024)
         {
             // Run this if statement before any others to prevent running the if statements twice.
             if (string.IsNullOrWhiteSpace(this.GuildBannerHash))
-                return this.GetAvatarUrl(imageFormat, imageSize);
+                return this.BannerUrl;
 
             if (imageFormat == ImageFormat.Unknown)
                 throw new ArgumentException("You must specify valid image format.", nameof(imageFormat));
