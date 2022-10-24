@@ -32,7 +32,7 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("avatar", NullValueHandling = NullValueHandling.Ignore)]
         public string AvatarHash { get; internal set; }
 
-        [JsonProperty("avatar", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonProperty("banner", NullValueHandling = NullValueHandling.Ignore)]
         public string BannerHash { get; internal set; }
 
         [JsonProperty("user", NullValueHandling = NullValueHandling.Ignore)]
