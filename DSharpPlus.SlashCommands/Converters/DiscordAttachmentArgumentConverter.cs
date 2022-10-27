@@ -27,7 +27,7 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.SlashCommands.Converters
 {
-    public sealed class DiscordAttachmentArgumentConverter : ISlashArgumentConverter<DiscordAttachment>
+    public sealed class DiscordAttachmentSlashArgumentConverter : ISlashArgumentConverter<DiscordAttachment>
     {
         public Task<Optional<DiscordAttachment>> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo interactionMethodArgument)
             => Task.FromResult(interactionContext.Interaction.Data.Resolved.Attachments.TryGetValue((ulong)interactionDataOption.Value, out var attachment)

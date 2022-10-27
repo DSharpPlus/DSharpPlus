@@ -27,7 +27,7 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.SlashCommands.Converters
 {
-    public sealed class DiscordRoleArgumentConverter : ISlashArgumentConverter<DiscordRole>
+    public sealed class DiscordRoleSlashArgumentConverter : ISlashArgumentConverter<DiscordRole>
     {
         public Task<Optional<DiscordRole>> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo interactionMethodArgument)
             => interactionContext.Interaction.Data.Resolved.Roles != null && interactionContext.Interaction.Data.Resolved.Roles.TryGetValue((ulong)interactionDataOption.Value, out var channel)

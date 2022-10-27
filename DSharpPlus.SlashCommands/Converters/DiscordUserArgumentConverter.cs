@@ -28,7 +28,7 @@ using DSharpPlus.Entities;
 namespace DSharpPlus.SlashCommands.Converters
 {
     // A direct copy of DiscordMemberArgumentConverter.cs
-    public sealed class DiscordUserArgumentConverter : ISlashArgumentConverter<DiscordUser>
+    public sealed class DiscordUserSlashArgumentConverter : ISlashArgumentConverter<DiscordUser>
     {
         public async Task<Optional<DiscordUser>> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo interactionMethodArgument)
         {

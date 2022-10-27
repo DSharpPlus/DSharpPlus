@@ -23,13 +23,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
@@ -87,7 +84,7 @@ namespace DSharpPlus.SlashCommands
         /// <remarks>
         /// TODO: Use this to add converter support later.
         /// </remarks>
-        private static readonly ReadOnlyDictionary<Type, ApplicationCommandOptionType> _validOptionTypes = new(new Dictionary<Type, ApplicationCommandOptionType>()
+        private readonly Dictionary<Type, ApplicationCommandOptionType> _validOptionTypes = new()
         {
             [typeof(bool)] = ApplicationCommandOptionType.Boolean,
             [typeof(long)] = ApplicationCommandOptionType.Integer,
@@ -99,11 +96,26 @@ namespace DSharpPlus.SlashCommands
             [typeof(DiscordUser)] = ApplicationCommandOptionType.User,
             [typeof(DiscordRole)] = ApplicationCommandOptionType.Role,
             [typeof(DiscordEmoji)] = ApplicationCommandOptionType.String,
+            [typeof(DiscordMessage)] = ApplicationCommandOptionType.String,
             [typeof(DiscordAttachment)] = ApplicationCommandOptionType.Attachment,
             [typeof(SnowflakeObject)] = ApplicationCommandOptionType.Mentionable
-        });
+        };
 
-        private readonly Dictionary<Type, ISlashArgumentConverter> _converters = new();
+        private readonly Dictionary<Type, ISlashArgumentConverter> _converters = new()
+        {
+            [typeof(bool)] = new BooleanSlashArgumentConverter(),
+            [typeof(long)] = new LongSlashArgumentConverter(),
+            [typeof(double)] = new DoubleSlashArgumentConverter(),
+            [typeof(string)] = new StringSlashArgumentConverter(),
+            [typeof(TimeSpan)] = new TimeSpanSlashArgumentConverter(),
+            [typeof(Enum)] = new EnumSlashArgumentConverter(),
+            [typeof(DiscordChannel)] = new DiscordChannelSlashArgumentConverter(),
+            [typeof(DiscordUser)] = new DiscordUserSlashArgumentConverter(),
+            [typeof(DiscordRole)] = new DiscordRoleSlashArgumentConverter(),
+            [typeof(DiscordEmoji)] = new DiscordEmojiSlashArgumentConverter(),
+            [typeof(DiscordMessage)] = new DiscordMessageSlashArgumentConverter(),
+            [typeof(DiscordAttachment)] = new DiscordAttachmentSlashArgumentConverter()
+        };
 
         /// <summary>
         /// A list of registered application commands. The keys represent guild ids or global commands if the key is null.
@@ -114,6 +126,11 @@ namespace DSharpPlus.SlashCommands
         /// INTENTIONALLY not a dictionary because a dictionary cannot have null or duplicate keys (where the key represents guild ids or global commands).
         /// </summary>
         private static readonly List<KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>> _registeredCommands = new();
+
+        /// <summary>
+        /// The method info of the <see cref="ConvertArgumentAsync{T}(ISlashArgumentConverter{T}, InteractionContext, DiscordInteractionDataOption, ParameterInfo)"/> method. Inteded to be used to parse parameters with generics through reflection.
+        /// </summary>
+        private static readonly MethodInfo _convertArgumentMethodInfo = typeof(SlashCommandsExtension).GetMethod(nameof(ConvertArgumentAsync), BindingFlags.NonPublic | BindingFlags.Static);
 
         internal SlashCommandsExtension(SlashCommandsConfiguration configuration)
         {
@@ -160,6 +177,34 @@ namespace DSharpPlus.SlashCommands
                 }
             }
             return Task.CompletedTask;
+        }
+
+        public void RegisterConverter<T>(ISlashArgumentConverter<T> converter, ApplicationCommandOptionType optionType) => this.RegisterConverter(typeof(T), converter, optionType);
+
+        public void RegisterConverter(Type entityType, ISlashArgumentConverter converter, ApplicationCommandOptionType optionType)
+        {
+            if (entityType is null)
+                throw new ArgumentNullException(nameof(entityType));
+            else if (converter is null)
+                throw new ArgumentNullException(nameof(converter));
+            else if (!entityType.IsEquivalentTo(converter.GetType().GenericTypeArguments[0]))
+                throw new ArgumentException($"The entity type ({entityType.FullName}) must be the same as the converter type ({converter.GetType().GenericTypeArguments[0].FullName}).", nameof(entityType));
+            this._validOptionTypes.Add(entityType, optionType);
+            this._converters.Add(entityType, converter);
+        }
+
+        public void UnregisterConverter<T>() => this.UnregisterConverter(typeof(T));
+
+        public void UnregisterConverter(Type type)
+        {
+            if (type is null)
+                throw new ArgumentNullException(nameof(type));
+            else if (!this._validOptionTypes.ContainsKey(type))
+                throw new ArgumentException("The specified type is not registered as a converter.", nameof(type));
+            else if (!this._converters.ContainsKey(type)) // If one does, so should the other.
+                throw new ArgumentException("The specified type is not registered as a converter. This is a bug with the library, please open an issue.", nameof(type));
+            this._converters.Remove(type);
+            this._validOptionTypes.Remove(type);
         }
 
         /// <summary>
@@ -412,7 +457,7 @@ namespace DSharpPlus.SlashCommands
 
                 IEnumerable<DiscordApplicationCommand> commands;
                 // Creates a guild command if a guild id is specified, otherwise global
-                commands = guildId is null
+                commands = guildId == 0
                     ? await this.Client.BulkOverwriteGlobalApplicationCommandsAsync(updateList)
                     : await this.Client.BulkOverwriteGuildApplicationCommandsAsync(guildId.Value, updateList);
 
@@ -457,6 +502,11 @@ namespace DSharpPlus.SlashCommands
 
                 // Remove the type nullability for retrieving the option type from the dictionary.
                 var parameterType = Nullable.GetUnderlyingType(parameter.ParameterType) ?? parameter.ParameterType;
+                if (parameterType.IsEnum)
+                {
+                    parameterType = typeof(Enum);
+                }
+
                 if (!_validOptionTypes.TryGetValue(parameterType, out var parameterOptionType))
                 {
                     // `string.Join` to prevent hardcoding the types. Could lead to extremely an long error message when custom converters are implemented.
@@ -868,8 +918,8 @@ namespace DSharpPlus.SlashCommands
                         throw new InvalidOperationException($"Parameter {parameter.Name} on method {method.Name} in class {this.GetFullname(method.DeclaringType)} does not have a converter for type {this.GetFullname(parameter.ParameterType)}");
                     }
 
-                    var methodInfo = typeof(ISlashArgumentConverter<>).MakeGenericType(parameter.ParameterType).GetMethod("ConvertAsync");
-                    var conversionTask = (Task<IOptional>)methodInfo.Invoke(converter, new object[] { context, parameterOptionData, parameter });
+                    var convertArgumentGenericMethod = _convertArgumentMethodInfo.MakeGenericMethod(parameter.ParameterType);
+                    var conversionTask = (Task<IOptional>)convertArgumentGenericMethod.Invoke(converter, new object[] { converter, context, parameterOptionData, parameter });
                     await conversionTask;
                     if (conversionTask.Exception != null)
                     {
@@ -886,6 +936,25 @@ namespace DSharpPlus.SlashCommands
             }
 
             return args;
+        }
+
+        /// <summary>
+        /// Executes <see cref="ISlashArgumentConverter{T}"/>s for the specified <see cref="DiscordInteractionDataOption"/>. Currently used by <see cref="_convertArgumentMethodInfo"/> to allow this method to be used through reflection.
+        /// </summary>
+        /// <param name="converter">An instance of the converter to execute.</param>
+        /// <param name="interactionContext">A context of the interaction.</param>
+        /// <param name="optionData">The data passed with the interaction.</param>
+        /// <param name="parameterInfo">The info for the parameter, intended for use in very specific and unusual situations.</param>
+        /// <typeparam name="T">The type to parse.</typeparam>
+        /// <returns>An Optional{T} cast to IOptional for use with reflection.</returns>
+        private static async Task<IOptional> ConvertArgumentAsync<T>(ISlashArgumentConverter<T> converter, InteractionContext interactionContext, DiscordInteractionDataOption optionData, ParameterInfo parameterInfo)
+        {
+            // We can't make this ConvertArgumentAsync() => converter.ConvertAsync() because of
+            // ConvertAsync returning a Task<Optional<T>>, and we need to return a Task<IOptional>.
+            // Unfortunately, we can't seem to cast genericA to genericB even if they inherit each other,
+            // so instead we have to await the task and then cast it to IOptional, which we are doing implicitly.
+            var optional = await converter.ConvertAsync(interactionContext, optionData, parameterInfo);
+            return optional;
         }
 
         // Runs pre-execution checks
@@ -954,7 +1023,7 @@ namespace DSharpPlus.SlashCommands
         {
             return type is null
                 ? Enumerable.Empty<TAttribute>()
-                : type.GetCustomAttributes<TAttribute>(true).Concat(this.GetCustomAttributesRecursively<TAttribute>(type));
+                : type.GetCustomAttributes<TAttribute>(true).Concat(type.GetNestedTypes().SelectMany(nestedType => this.GetCustomAttributesRecursively<TAttribute>(nestedType)));
         }
 
         // Actually handles autocomplete interactions

@@ -27,7 +27,7 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.SlashCommands.Converters
 {
-    public sealed class DiscordChannelArgumentConverter : ISlashArgumentConverter<DiscordChannel>
+    public sealed class DiscordChannelSlashArgumentConverter : ISlashArgumentConverter<DiscordChannel>
     {
         // Checks through resolved, otherwise pulling the channel from the guild cache.
         public Task<Optional<DiscordChannel>> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo interactionMethodArgument)

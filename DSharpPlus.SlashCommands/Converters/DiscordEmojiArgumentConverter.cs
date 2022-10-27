@@ -27,7 +27,7 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.SlashCommands.Converters
 {
-    public sealed class DiscordEmojiArgumentConverter : ISlashArgumentConverter<DiscordEmoji>
+    public sealed class DiscordEmojiSlashArgumentConverter : ISlashArgumentConverter<DiscordEmoji>
     {
         public Task<Optional<DiscordEmoji>> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo interactionMethodArgument)
             => Task.FromResult(DiscordEmoji.TryFromUnicode(interactionContext.Client, interactionDataOption.ToString(), out var emoji) || DiscordEmoji.TryFromName(interactionContext.Client, interactionDataOption.ToString(), out emoji)
