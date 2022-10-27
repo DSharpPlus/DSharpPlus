@@ -403,13 +403,13 @@ namespace DSharpPlus.Interactivity
             if (!message.Components.Any())
                 throw new ArgumentException("Provided message does not contain any components.");
 
-            if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is ComponentType.Select))
+            if (!message.Components.SelectMany(c => c.Components).Any(this.IsSelect))
                 throw new ArgumentException("Provided message does not contain any select components.");
 
 
             var result = await this
                 .ComponentEventWaiter
-                .WaitForMatchAsync(new(message, c => c.Interaction.Data.ComponentType is ComponentType.Select && predicate(c), token))
+                .WaitForMatchAsync(new(message, c => this.IsSelect(c.Interaction.Data.ComponentType) && predicate(c), token))
                 .ConfigureAwait(false);
 
             return new(result is null, result);
@@ -442,19 +442,31 @@ namespace DSharpPlus.Interactivity
             if (!message.Components.Any())
                 throw new ArgumentException("Provided message does not contain any components.");
 
-            if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is ComponentType.Select))
+            if (!message.Components.SelectMany(c => c.Components).Any(this.IsSelect))
                 throw new ArgumentException("Provided message does not contain any select components.");
 
-            if (message.Components.SelectMany(c => c.Components).OfType<DiscordSelectComponent>().All(c => c.CustomId != id))
+            if (message.Components.SelectMany(c => c.Components).Where(this.IsSelect).All(c => c.CustomId != id))
                 throw new ArgumentException($"Provided message does not contain select component with Id of '{id}'.");
 
             var result = await this
                 .ComponentEventWaiter
-                .WaitForMatchAsync(new(message, (c) => c.Interaction.Data.ComponentType is ComponentType.Select && c.Id == id, token))
+                .WaitForMatchAsync(new(message, (c) => this.IsSelect(c.Interaction.Data.ComponentType) && c.Id == id, token))
                 .ConfigureAwait(false);
 
             return new(result is null, result);
         }
+
+        private bool IsSelect(DiscordComponent component)
+            => this.IsSelect(component.Type);
+
+        private bool IsSelect(ComponentType type)
+            => type is
+                ComponentType.StringSelect or
+                ComponentType.UserSelect or
+                ComponentType.RoleSelect or
+                ComponentType.MentionableSelect or
+                ComponentType.ChannelSelect;
+
 
         /// <summary>
         /// Waits for a dropdown to be interacted with by a specific user.
@@ -483,10 +495,10 @@ namespace DSharpPlus.Interactivity
             if (!message.Components.Any())
                 throw new ArgumentException("Provided message does not contain any components.");
 
-            if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is ComponentType.Select))
+            if (!message.Components.SelectMany(c => c.Components).Any(this.IsSelect))
                 throw new ArgumentException("Provided message does not contain any select components.");
 
-            if (message.Components.SelectMany(c => c.Components).OfType<DiscordSelectComponent>().All(c => c.CustomId != id))
+            if (message.Components.SelectMany(c => c.Components).Where(this.IsSelect).All(c => c.CustomId != id))
                 throw new ArgumentException($"Provided message does not contain button with Id of '{id}'.");
 
             var result = await this

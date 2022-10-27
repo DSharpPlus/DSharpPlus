@@ -20,44 +20,37 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace DSharpPlus
+using Newtonsoft.Json;
+
+namespace DSharpPlus.Entities
 {
     /// <summary>
-    /// Represents a type of component.
+    /// Represents a base class for all select-menus.
     /// </summary>
-    public enum ComponentType
+    public abstract class BaseDiscordSelectComponent : DiscordComponent
     {
         /// <summary>
-        /// A row of components.
+        /// The text to show when no option is selected.
         /// </summary>
-        ActionRow = 1,
+        [JsonProperty("placeholder", NullValueHandling = NullValueHandling.Ignore)]
+        public string Placeholder { get; internal set; }
+
         /// <summary>
-        /// A button.
+        /// Whether this dropdown can be interacted with.
         /// </summary>
-        Button = 2,
+        [JsonProperty("disabled", NullValueHandling = NullValueHandling.Ignore)]
+        public bool Disabled { get; internal set; }
+
         /// <summary>
-        /// A select menu consisting of options.
+        /// The minimum amount of options that can be selected. Must be less than or equal to <see cref="MaximumSelectedValues"/>. Defaults to one.
         /// </summary>
-        StringSelect = 3,
+        [JsonProperty("min_values", NullValueHandling = NullValueHandling.Ignore)]
+        public int? MinimumSelectedValues { get; internal set; }
+
         /// <summary>
-        /// An input field.
+        /// The maximum amount of options that can be selected. Must be greater than or equal to zero or <see cref="MinimumSelectedValues"/>. Defaults to one.
         /// </summary>
-        FormInput = 4,
-        /// <summary>
-        /// A select menu that allows users to be selected.
-        /// </summary>
-        UserSelect = 5,
-        /// <summary>
-        /// A select menu that allows roles to be selected.
-        /// </summary>
-        RoleSelect = 6,
-        /// <summary>
-        /// A select menu that allows either roles or users to be selected.
-        /// </summary>
-        MentionableSelect = 7,
-        /// <summary>
-        /// A select menu that allows channels to be selected.
-        /// </summary>
-        ChannelSelect = 8,
+        [JsonProperty("max_values", NullValueHandling = NullValueHandling.Ignore)]
+        public int? MaximumSelectedValues { get; internal set; }
     }
 }
