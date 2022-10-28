@@ -754,7 +754,7 @@ namespace DSharpPlus.Interactivity
         /// <inheritdoc cref="SendPaginatedMessageAsync(DiscordChannel, DiscordUser, IEnumerable{Page}, PaginationButtons, TimeSpan?, PaginationBehaviour?, ButtonPaginationBehavior?)"/>
         /// <remarks>This is the "default" overload for SendPaginatedMessageAsync, and will use buttons. Feel free to specify default(PaginationEmojis) to use reactions and emojis specified in <see cref="InteractivityConfiguration"/>, instead. </remarks>
         public Task SendPaginatedMessageAsync(DiscordChannel channel, DiscordUser user, IEnumerable<Page> pages, TimeSpan? timeoutoverride, PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default)
-            => this.SendPaginatedMessageAsync(channel, user, pages, timeoutoverride, behaviour, deletion);
+            => this.SendPaginatedMessageAsync(channel, user, pages, default, timeoutoverride, behaviour, deletion);
 
         /// <summary>
         /// Sends a paginated message.
