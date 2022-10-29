@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
@@ -68,6 +69,7 @@ namespace DSharpPlus.Entities
         {
             this.CustomId = customId;
             this.Placeholder = placeholder;
+            this.ChannelTypes = channelTypes?.ToList();
             this.Disabled = disabled;
             this.MinimumSelectedValues = minOptions;
             this.MaximumSelectedValues = maxOptions;
