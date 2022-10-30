@@ -187,7 +187,7 @@ namespace DSharpPlus.SlashCommands
                 throw new ArgumentNullException(nameof(entityType));
             else if (converter is null)
                 throw new ArgumentNullException(nameof(converter));
-            else if (!entityType.IsEquivalentTo(converter.GetType().GenericTypeArguments[0]))
+            else if (!entityType.IsEquivalentTo(converter.GetType().GetInterface(typeof(ISlashArgumentConverter<>).Name).GenericTypeArguments[0]))
                 throw new ArgumentException($"The entity type ({entityType.FullName}) must be the same as the converter type ({converter.GetType().GenericTypeArguments[0].FullName}).", nameof(entityType));
             this._validOptionTypes.Add(entityType, optionType);
             this._converters.Add(entityType, converter);
