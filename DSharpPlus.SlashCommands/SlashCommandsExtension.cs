@@ -101,6 +101,7 @@ namespace DSharpPlus.SlashCommands
             [typeof(Enum)] = ApplicationCommandOptionType.String,
             [typeof(DiscordChannel)] = ApplicationCommandOptionType.Channel,
             [typeof(DiscordUser)] = ApplicationCommandOptionType.User,
+            [typeof(DiscordMember)] = ApplicationCommandOptionType.User,
             [typeof(DiscordRole)] = ApplicationCommandOptionType.Role,
             [typeof(DiscordEmoji)] = ApplicationCommandOptionType.String,
             [typeof(DiscordMessage)] = ApplicationCommandOptionType.String,
@@ -125,6 +126,7 @@ namespace DSharpPlus.SlashCommands
             [typeof(Enum)] = new EnumSlashArgumentConverter(),
             [typeof(DiscordChannel)] = new DiscordChannelSlashArgumentConverter(),
             [typeof(DiscordUser)] = new DiscordUserSlashArgumentConverter(),
+            [typeof(DiscordMember)] = new DiscordMemberSlashArgumentConverter(),
             [typeof(DiscordRole)] = new DiscordRoleSlashArgumentConverter(),
             [typeof(DiscordEmoji)] = new DiscordEmojiSlashArgumentConverter(),
             [typeof(DiscordMessage)] = new DiscordMessageSlashArgumentConverter(),
@@ -520,7 +522,7 @@ namespace DSharpPlus.SlashCommands
                 if (!_validOptionTypes.TryGetValue(parameterType.IsEnum ? typeof(Enum) : parameterType, out var parameterOptionType))
                 {
                     // `string.Join` to prevent hardcoding the types. Could lead to extremely an long error message when custom converters are implemented.
-                    throw new ArgumentException($"Argument {parameter.Name} on method {this.GetFullname(parameter.Member)} has an invalid type! Acceptable types are: {string.Join(", ", _validOptionTypes.Keys.Select(type => type.Name))}");
+                    throw new MissingArgumentConverterException(parameterType, $"Argument {parameter.Name} on method {this.GetFullname(parameter.Member)} has an invalid type! Acceptable types are: {string.Join(", ", _validOptionTypes.Keys.Select(type => type.Name))}");
                 }
 
                 IEnumerable<DiscordApplicationCommandOptionChoice> choices;
