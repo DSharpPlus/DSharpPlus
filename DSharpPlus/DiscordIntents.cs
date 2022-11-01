@@ -165,6 +165,14 @@ namespace DSharpPlus
         DirectMessageTyping = 1 << 14,
 
         /// <summary>
+        /// Whether to include message content. This is a privileged event.
+        ///
+        /// <para>Message content includes text, attachments, embeds, components, and reply content.</para>
+        /// <para>This intent is required for CommandsNext to function correctly.</para>
+        /// </summary>
+        MessageContents = 1 << 15,
+
+        /// <summary>
         /// Whether to include scheduled event messages.
         /// //TODO: reference events
         /// </summary>
@@ -181,6 +189,6 @@ namespace DSharpPlus
         /// Includes all intents.
         /// <para>The <see cref="DiscordIntents.GuildMembers"/> and <see cref="DiscordIntents.GuildPresences"/> intents are privileged, and must be enabled on the bot's developer page.</para>
         /// </summary>
-        All = AllUnprivileged | GuildMembers | GuildPresences
+        All = AllUnprivileged | GuildMembers | GuildPresences | MessageContents
     }
 }
