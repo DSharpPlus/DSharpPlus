@@ -87,7 +87,14 @@ namespace DSharpPlus.SlashCommands
         private readonly Dictionary<Type, ApplicationCommandOptionType> _validOptionTypes = new()
         {
             [typeof(bool)] = ApplicationCommandOptionType.Boolean,
+            [typeof(byte)] = ApplicationCommandOptionType.Integer,
+            [typeof(sbyte)] = ApplicationCommandOptionType.Integer,
+            [typeof(short)] = ApplicationCommandOptionType.Integer,
+            [typeof(ushort)] = ApplicationCommandOptionType.Integer,
+            [typeof(int)] = ApplicationCommandOptionType.Integer,
+            [typeof(uint)] = ApplicationCommandOptionType.Integer,
             [typeof(long)] = ApplicationCommandOptionType.Integer,
+            [typeof(ulong)] = ApplicationCommandOptionType.Integer,
             [typeof(double)] = ApplicationCommandOptionType.Number,
             [typeof(string)] = ApplicationCommandOptionType.String,
             [typeof(TimeSpan)] = ApplicationCommandOptionType.String,
@@ -104,7 +111,14 @@ namespace DSharpPlus.SlashCommands
         private readonly Dictionary<Type, ISlashArgumentConverter> _converters = new()
         {
             [typeof(bool)] = new BooleanSlashArgumentConverter(),
+            [typeof(byte)] = new ByteSlashArgumentConverter(),
+            [typeof(sbyte)] = new SignedByteSlashArgumentConverter(),
+            [typeof(short)] = new ShortSlashArgumentConverter(),
+            [typeof(ushort)] = new UnsignedShortSlashArgumentConverter(),
+            [typeof(int)] = new IntSlashArgumentConverter(),
+            [typeof(uint)] = new UnsignedIntSlashArgumentConverter(),
             [typeof(long)] = new LongSlashArgumentConverter(),
+            [typeof(ulong)] = new UnsignedLongSlashArgumentConverter(),
             [typeof(double)] = new DoubleSlashArgumentConverter(),
             [typeof(string)] = new StringSlashArgumentConverter(),
             [typeof(TimeSpan)] = new TimeSpanSlashArgumentConverter(),
@@ -187,7 +201,7 @@ namespace DSharpPlus.SlashCommands
                 throw new ArgumentNullException(nameof(entityType));
             else if (converter is null)
                 throw new ArgumentNullException(nameof(converter));
-            else if (!entityType.IsEquivalentTo(converter.GetType().GetInterface(typeof(ISlashArgumentConverter<>).Name).GenericTypeArguments[0]))
+            else if (!entityType.IsEquivalentTo(converter.GetType().GenericTypeArguments[0]))
                 throw new ArgumentException($"The entity type ({entityType.FullName}) must be the same as the converter type ({converter.GetType().GenericTypeArguments[0].FullName}).", nameof(entityType));
             this._validOptionTypes.Add(entityType, optionType);
             this._converters.Add(entityType, converter);
@@ -502,12 +516,8 @@ namespace DSharpPlus.SlashCommands
 
                 // Remove the type nullability for retrieving the option type from the dictionary.
                 var parameterType = Nullable.GetUnderlyingType(parameter.ParameterType) ?? parameter.ParameterType;
-                if (parameterType.IsEnum)
-                {
-                    parameterType = typeof(Enum);
-                }
 
-                if (!_validOptionTypes.TryGetValue(parameterType, out var parameterOptionType))
+                if (!_validOptionTypes.TryGetValue(parameterType.IsEnum ? typeof(Enum) : parameterType, out var parameterOptionType))
                 {
                     // `string.Join` to prevent hardcoding the types. Could lead to extremely an long error message when custom converters are implemented.
                     throw new ArgumentException($"Argument {parameter.Name} on method {this.GetFullname(parameter.Member)} has an invalid type! Acceptable types are: {string.Join(", ", _validOptionTypes.Keys.Select(type => type.Name))}");
