@@ -925,12 +925,13 @@ namespace DSharpPlus.SlashCommands
                     args.Add(parameter.DefaultValue);
                 else
                 {
-                    if (!_validOptionTypes.ContainsKey(parameter.ParameterType) || !_converters.TryGetValue(parameter.ParameterType, out var converter))
+                    var parameterType = Nullable.GetUnderlyingType(parameter.ParameterType) ?? parameter.ParameterType;
+                    if (!_validOptionTypes.ContainsKey(parameterType) || !_converters.TryGetValue(parameterType, out var converter))
                     {
-                        throw new InvalidOperationException($"Parameter {parameter.Name} on method {method.Name} in class {this.GetFullname(method.DeclaringType)} does not have a converter for type {this.GetFullname(parameter.ParameterType)}");
+                        throw new InvalidOperationException($"Parameter {parameter.Name} on method {method.Name} in class {this.GetFullname(method.DeclaringType)} does not have a converter for type {this.GetFullname(parameterType)}");
                     }
 
-                    var convertArgumentGenericMethod = _convertArgumentMethodInfo.MakeGenericMethod(parameter.ParameterType);
+                    var convertArgumentGenericMethod = _convertArgumentMethodInfo.MakeGenericMethod(parameterType);
                     var conversionTask = (Task<IOptional>)convertArgumentGenericMethod.Invoke(converter, new object[] { converter, context, parameterOptionData, parameter });
                     await conversionTask;
                     if (conversionTask.Exception != null)

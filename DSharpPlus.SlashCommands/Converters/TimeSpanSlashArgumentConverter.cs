@@ -47,70 +47,25 @@ namespace DSharpPlus.SlashCommands.Converters
         public Task<Optional<TimeSpan>> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo interactionMethodArgument)
         {
             var value = interactionDataOption.Value.ToString().Trim();
+            if (value == "0")
+                return Task.FromResult(Optional.FromValue(TimeSpan.Zero));
 
-            // If no time unit is specified, assume seconds (100 = 100 seconds)
-            if (int.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out var number))
-            {
-                return Task.FromResult(Optional.FromValue(TimeSpan.FromSeconds(number)));
-            }
-
-            // Try to parse the timespan using the TryParse method (00:01:40 = 1 minutes and 40 seconds, 100 seconds)
-            if (TimeSpan.TryParse(value.ToLowerInvariant(), CultureInfo.InvariantCulture, out var result))
-            {
-                return Task.FromResult(Optional.FromValue(result));
-            }
-
-            // Regex the shit outta it (1m40s = 1 minute and 40 seconds, 100s = 100 seconds)
-            var matches = TimeSpanParseRegex.Match(value);
-            if (!matches.Success)
-            {
-                // We couldn't infer the unit of measurement, TimeSpan couldn't parse the input and we couldn't regex it.
-                // Assume it's junk input and return false.
+            if (int.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out _))
                 return Task.FromResult(Optional.FromNoValue<TimeSpan>());
-            }
 
-            var days = 0;
-            var hours = 0;
-            var minutes = 0;
-            var seconds = 0;
-            foreach (var timeMeasurement in TimeUnitMeasurements)
-            {
-                var groupCapture = matches.Groups[timeMeasurement].Value?.Trim();
-                if (string.IsNullOrEmpty(groupCapture))
-                    continue;
+            if (TimeSpan.TryParse(value, CultureInfo.InvariantCulture, out var result))
+                return Task.FromResult(Optional.FromValue(result));
 
-                var currentTimeMeasurement = groupCapture[groupCapture.Length - 1];
-                if (!int.TryParse(groupCapture.Substring(0, groupCapture.Length - 1), NumberStyles.Integer, CultureInfo.InvariantCulture, out var currentValue))
-                    continue;
+            var m = TimeSpanParseRegex.Match(value);
+            var ds = m.Groups["days"].Success ? int.Parse(m.Groups["days"].Value) : 0;
+            var hs = m.Groups["hours"].Success ? int.Parse(m.Groups["hours"].Value) : 0;
+            var ms = m.Groups["minutes"].Success ? int.Parse(m.Groups["minutes"].Value) : 0;
+            var ss = m.Groups["seconds"].Success ? int.Parse(m.Groups["seconds"].Value) : 0;
 
-                switch (currentTimeMeasurement)
-                {
-                    case 'M': // Months
-                        days += currentValue * 30;
-                        break;
-                    case 'w': // Weeks
-                        days += currentValue * 7;
-                        break;
-                    case 'd':
-                        days = currentValue;
-                        break;
-                    case 'h':
-                        hours = currentValue;
-                        break;
-                    case 'm':
-                        minutes = currentValue;
-                        break;
-                    case 's':
-                        seconds = currentValue;
-                        break;
-                    default:
-                        // Unknown unit of measurement, do not continue.
-                        result = default;
-                        return Task.FromResult(Optional.FromNoValue<TimeSpan>());
-                }
-            }
+            result = TimeSpan.FromSeconds((ds * 24 * 60 * 60) + (hs * 60 * 60) + (ms * 60) + ss);
+            if (result.TotalSeconds < 1)
+                return Task.FromResult(Optional.FromNoValue<TimeSpan>());
 
-            result = new TimeSpan(days, hours, minutes, seconds);
             return Task.FromResult(Optional.FromValue(result));
         }
     }
