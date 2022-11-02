@@ -30,6 +30,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using DSharpPlus.SlashCommands.Attributes;
 using DSharpPlus.SlashCommands.Converters;
 using DSharpPlus.SlashCommands.EventArgs;
 using Emzi0767.Utilities;
@@ -516,13 +517,21 @@ namespace DSharpPlus.SlashCommands
                 // Retrieves the attribute
                 var optionAttribute = parameter.GetCustomAttribute<OptionAttribute>() ?? throw new ArgumentException($"Argument {parameter.Name} on method {this.GetFullname(parameter.Member)} requires an {this.GetFullname(typeof(OptionAttribute))}!");
 
-                // Remove the type nullability for retrieving the option type from the dictionary.
-                var parameterType = Nullable.GetUnderlyingType(parameter.ParameterType) ?? parameter.ParameterType;
+                Type parameterType;
+                if (parameter.ParameterType.IsArray)
+                {
+                    parameterType = parameter.ParameterType.GetElementType();
+                }
+                else
+                {
+                    // Remove the type nullability for retrieving the option type from the dictionary.
+                    parameterType = Nullable.GetUnderlyingType(parameter.ParameterType) ?? parameter.ParameterType;
+                }
 
                 if (!_validOptionTypes.TryGetValue(parameterType.IsEnum ? typeof(Enum) : parameterType, out var parameterOptionType))
                 {
-                    // `string.Join` to prevent hardcoding the types. Could lead to extremely an long error message when custom converters are implemented.
-                    throw new MissingArgumentConverterException(parameterType, $"Argument {parameter.Name} on method {this.GetFullname(parameter.Member)} has an invalid type! Acceptable types are: {string.Join(", ", _validOptionTypes.Keys.Select(type => type.Name))}");
+                    // `string.Join` to prevent hardcoding the types. Could lead to extremely an long error message when many custom converters are registered.
+                    throw new MissingArgumentConverterException(parameterType, $"Argument {parameter.Name} on method {this.GetFullname(parameter.Member)} is missing a type converter! Acceptable types are: {string.Join(", ", _validOptionTypes.Keys.Select(type => type.Name))}");
                 }
 
                 IEnumerable<DiscordApplicationCommandOptionChoice> choices;
@@ -557,7 +566,35 @@ namespace DSharpPlus.SlashCommands
                 if (autocompleteAttribute != null && autocompleteAttribute.Provider.IsSubclassOf(typeof(IAutocompleteProvider)))
                     throw new ArgumentException($"Type {this.GetFullname(autocompleteAttribute.Provider)} on parameter {parameter.Name} in method {this.GetFullname(parameter.Member)} was used as an autocomplete provider, however it does not inherit from {nameof(IAutocompleteProvider)}!");
 
-                options.Add(new DiscordApplicationCommandOption(optionAttribute.Name, optionAttribute.Description, parameterOptionType, !parameter.IsOptional, choices, null, channelTypes, autocompleteAttribute != null || optionAttribute.Autocomplete, minimumValue, maximumValue, nameLocalizations, descriptionLocalizations, minimumLength, maximumLength));
+                // I don't enjoy how we're checking this twice instead of doing it in a singular check.
+                if (parameter.ParameterType.IsArray)
+                {
+                    var limitAttribute = parameter.GetCustomAttribute<ParamLimitAttribute>();
+                    if (!parameter.IsDefined(typeof(ParamArrayAttribute)))
+                    {
+                        throw new ArgumentException($"Parameter {parameter.Name} in method {this.GetFullname(parameter.Member)} is an array, but is not marked with the params modifier! In order to use arrays in slash commands, you must mark the parameter with the params modifier and the {nameof(ParamLimitAttribute)}.");
+                    }
+                    else if (limitAttribute is null)
+                    {
+                        throw new ArgumentException($"Parameter {parameter.Name} in method {this.GetFullname(parameter.Member)} is an array, but is not marked with the {nameof(ParamLimitAttribute)}! In order to use arrays in slash commands, you must mark the parameter with the params modifier and the {nameof(ParamLimitAttribute)}.");
+                    }
+
+                    for (var i = 1; i <= limitAttribute.Max; i++)
+                    {
+                        options.Add(new DiscordApplicationCommandOption(
+                            _configuration.ParamNamingStrategy switch
+                            {
+                                ParamNamingStrategy.Underscored => optionAttribute.Name + "_" + i,
+                                ParamNamingStrategy.Dashed => optionAttribute.Name + "-" + i,
+                                ParamNamingStrategy.None => optionAttribute.Name + i,
+                                _ => throw new ArgumentOutOfRangeException(nameof(_configuration.ParamNamingStrategy), _configuration.ParamNamingStrategy, "Unknown param naming strategy! This is a library bug, please report it.")
+                            }, optionAttribute.Description, parameterOptionType, i <= limitAttribute.Min, choices, null, channelTypes, autocompleteAttribute is not null || optionAttribute.Autocomplete, minimumValue, maximumValue, nameLocalizations, descriptionLocalizations, minimumLength, maximumLength));
+                    }
+                }
+                else
+                {
+                    options.Add(new DiscordApplicationCommandOption(optionAttribute.Name, optionAttribute.Description, parameterOptionType, !parameter.IsOptional, choices, null, channelTypes, autocompleteAttribute is not null || optionAttribute.Autocomplete, minimumValue, maximumValue, nameLocalizations, descriptionLocalizations, minimumLength, maximumLength));
+                }
             }
 
             return options;
@@ -913,26 +950,40 @@ namespace DSharpPlus.SlashCommands
         private async Task<List<object>> ResolveInteractionCommandParameters(InteractionContext context, MethodInfo method, IEnumerable<DiscordInteractionDataOption> options)
         {
             var args = new List<object> { context };
+            var methodParameters = method.GetParameters();
 
-            // Skipping the first method argument, InteractionContext
-            foreach (var parameter in method.GetParameters().Skip(1))
+            // Start at 1 to skip the first parameter (interaction context)
+            for (var i = 1; i < methodParameters.Length; i++)
             {
+                var parameter = methodParameters[i];
                 var parameterOptionAttribute = parameter.GetCustomAttribute<OptionAttribute>();
-                var parameterOptionData = options.FirstOrDefault(option => option.Name.Equals(parameterOptionAttribute.Name, StringComparison.InvariantCultureIgnoreCase));
+                var parameterParamLimitAttribute = parameter.GetCustomAttribute<ParamLimitAttribute>();
+                var relatedOptions = parameterParamLimitAttribute is null
+                    // Should only be 1 element but it's in IEnumerable form
+                    ? options.Where(option => option.Name.Equals(parameterOptionAttribute.Name, StringComparison.InvariantCultureIgnoreCase))
+                    // The rest of the choices generated by params
+                    : options.Skip(i - 1);
 
-                // Accounts for optional arguments without values given
-                if (parameter.IsOptional && parameterOptionData == null)
-                    args.Add(parameter.DefaultValue);
-                else
+                List<object> resolvedParams = new();
+                foreach (var option in relatedOptions)
                 {
-                    var parameterType = Nullable.GetUnderlyingType(parameter.ParameterType) ?? parameter.ParameterType;
+                    Type parameterType;
+                    if (parameter.ParameterType.IsArray)
+                    {
+                        parameterType = parameter.ParameterType.GetElementType();
+                    }
+                    else
+                    {
+                        parameterType = Nullable.GetUnderlyingType(parameter.ParameterType) ?? parameter.ParameterType;
+                    }
+
                     if (!_validOptionTypes.ContainsKey(parameterType) || !_converters.TryGetValue(parameterType, out var converter))
                     {
                         throw new InvalidOperationException($"Parameter {parameter.Name} on method {method.Name} in class {this.GetFullname(method.DeclaringType)} does not have a converter for type {this.GetFullname(parameterType)}");
                     }
 
                     var convertArgumentGenericMethod = _convertArgumentMethodInfo.MakeGenericMethod(parameterType);
-                    var conversionTask = (Task<IOptional>)convertArgumentGenericMethod.Invoke(converter, new object[] { converter, context, parameterOptionData, parameter });
+                    var conversionTask = (Task<IOptional>)convertArgumentGenericMethod.Invoke(converter, new object[] { converter, context, option, parameter });
                     await conversionTask;
                     if (conversionTask.Exception != null)
                     {
@@ -944,10 +995,29 @@ namespace DSharpPlus.SlashCommands
                     }
 
                     // TODO: Attribute checks
-                    args.Add(conversionTask.Result.RawValue);
+                    resolvedParams.Add(conversionTask.Result.RawValue);
+                }
+
+                if (resolvedParams.Count == 0 && parameter.IsOptional)
+                {
+                    args.Add(parameter.DefaultValue);
+                }
+                else if (!parameter.ParameterType.IsArray)
+                {
+                    args.Add(resolvedParams[0]);
+                }
+                else
+                {
+                    // Copy resolvedParams to Array.CreateInstance
+                    var array = Array.CreateInstance(parameter.ParameterType.GetElementType(), resolvedParams.Count);
+                    for (var item = 0; item < resolvedParams.Count; item++)
+                    {
+                        array.SetValue(resolvedParams[item], item);
+                    }
+                    args.Add(array);
+                    break;
                 }
             }
-
             return args;
         }
 

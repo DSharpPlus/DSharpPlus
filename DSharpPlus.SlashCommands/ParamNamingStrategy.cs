@@ -21,26 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
-using Microsoft.Extensions.DependencyInjection;
-
 namespace DSharpPlus.SlashCommands
 {
     /// <summary>
-    /// A configuration for a <see cref="SlashCommandsExtension"/>.
+    /// How generated <see cref="Entities.DiscordApplicationCommandOption"/> names should be formatted. Only applicable to parameters with the <see langword="params"/> modifier and has the <see cref="Attributes.ParamLimitAttribute"/> attribute.
     /// </summary>
-    public sealed class SlashCommandsConfiguration
+    public enum ParamNamingStrategy
     {
         /// <summary>
-        /// <para>Sets the service provider.</para>
-        /// <para>Objects in this provider are used when instantiating slash command modules. This allows passing data around without resorting to static members.</para>
-        /// <para>Defaults to null.</para>
+        /// parameter name_1
         /// </summary>
-        public IServiceProvider Services { internal get; set; } = new ServiceCollection().BuildServiceProvider(true);
+        Underscored,
 
         /// <summary>
-        /// When using params and the <see cref="Attributes.ParamLimitAttribute"/>, this determines how the generated <see cref="Entities.DiscordApplicationCommandOption"/> names are formatted.
+        /// parameter name-1
         /// </summary>
-        public ParamNamingStrategy ParamNamingStrategy { internal get; set; } = ParamNamingStrategy.Underscored;
+        Dashed,
+
+        /// <summary>
+        /// parameter name1
+        /// </summary>
+        None
     }
 }
