@@ -23,6 +23,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using DSharpPlus.Entities;
 
@@ -51,12 +52,12 @@ namespace DSharpPlus.EventArgs
         /// <summary>
         /// Gets a collection containing post-update roles.
         /// </summary>
-        public IReadOnlyList<DiscordRole> RolesAfter => this.MemberAfter.Roles.ToList();
+        public IReadOnlyList<DiscordRole> RolesAfter => new ReadOnlyCollection<DiscordRole>(new List<DiscordRole>(this.MemberAfter.Roles));
 
         /// <summary>
         /// Gets a collection containing pre-update roles.
         /// </summary>
-        public IReadOnlyList<DiscordRole> RolesBefore => this.MemberBefore.Roles.ToList();
+        public IReadOnlyList<DiscordRole> RolesBefore => new ReadOnlyCollection<DiscordRole>(new List<DiscordRole>(this.MemberBefore.Roles));
 
         /// <summary>
         /// Gets the member's new nickname.
