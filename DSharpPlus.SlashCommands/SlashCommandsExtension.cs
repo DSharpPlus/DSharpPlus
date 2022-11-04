@@ -509,13 +509,14 @@ namespace DSharpPlus.SlashCommands
         /// <param name="parameters">The parameters to convert.</param>
         /// <param name="guildId">The guild id to register the commands to. <see langword="null"/> to register the slash command globally.</param>
         /// <returns>A list of <see cref="DiscordApplicationCommandOption"/>, options Discord can parse in slash commands.</returns>
+        [SuppressMessage("Styling", "IDE0047", Justification = "Readability for basic arithmetic.")]
         private async Task<List<DiscordApplicationCommandOption>> ParseParameters(ParameterInfo[] parameters, ulong? guildId)
         {
             var options = new List<DiscordApplicationCommandOption>();
             foreach (var parameter in parameters)
             {
                 // Retrieves the attribute
-                var optionAttribute = parameter.GetCustomAttribute<OptionAttribute>() ?? throw new ArgumentException($"Argument {parameter.Name} on method {this.GetFullname(parameter.Member)} requires an {this.GetFullname(typeof(OptionAttribute))}!");
+                var optionAttribute = parameter.GetCustomAttribute<OptionAttribute>() ?? throw new ArgumentException($"Argument \"{parameter.Name}\" on method \"{this.GetFullname(parameter.Member)}\" requires an {this.GetFullname(typeof(OptionAttribute))}!");
 
                 Type parameterType;
                 if (parameter.ParameterType.IsArray)
@@ -581,12 +582,15 @@ namespace DSharpPlus.SlashCommands
 
                     for (var i = 1; i <= limitAttribute.Max; i++)
                     {
+                        if (options.Count >= 25)
+                            throw new ArgumentException($"Parameter \"{parameter.Name}\" in method \"{this.GetFullname(parameter.Member)}\" has too many options! The maximum amount of options is 25, the amount attempted to be registered is {(options.Count - i) + options.Count + 1}. Try changing the {nameof(ParamLimitAttribute)}.{nameof(ParamLimitAttribute.Max)} on parameter \"{parameter.Name}\" to {25 - parameters.Length + 1}.");
+
                         options.Add(new DiscordApplicationCommandOption(
                             _configuration.ParamNamingStrategy switch
                             {
-                                ParamNamingStrategy.Underscored => optionAttribute.Name + "_" + i,
-                                ParamNamingStrategy.Dashed => optionAttribute.Name + "-" + i,
-                                ParamNamingStrategy.None => optionAttribute.Name + i,
+                                ParamNamingStrategy.Underscored => SetOptionName(optionAttribute.Name, i, '_'), // MyThirtyTwoCharacterFillerString -> MyThirtyTwoCharacterFillerStri_1
+                                ParamNamingStrategy.Dashed => SetOptionName(optionAttribute.Name, i, '-'), // MyThirtyTwoCharacterFillerString -> MyThirtyTwoCharacterFillerStri-1
+                                ParamNamingStrategy.None => SetOptionName(optionAttribute.Name, i), // MyThirtyTwoCharacterFillerString -> MyThirtyTwoCharacterFillerStrie1
                                 _ => throw new ArgumentOutOfRangeException(nameof(_configuration.ParamNamingStrategy), _configuration.ParamNamingStrategy, "Unknown param naming strategy! This is a library bug, please report it.")
                             }, optionAttribute.Description, parameterOptionType, i <= limitAttribute.Min, choices, null, channelTypes, autocompleteAttribute is not null || optionAttribute.Autocomplete, minimumValue, maximumValue, nameLocalizations, descriptionLocalizations, minimumLength, maximumLength));
                     }
@@ -598,6 +602,12 @@ namespace DSharpPlus.SlashCommands
             }
 
             return options;
+        }
+
+        private static string SetOptionName(string source, int number, char? separator = null)
+        {
+            var temp = $"{separator}{number}";
+            return source.Length + temp.Length > 32 ? $"{source.Substring(0, 32 - temp.Length)}{temp}" : $"{source}{temp}";
         }
 
         /// <summary>
@@ -956,6 +966,12 @@ namespace DSharpPlus.SlashCommands
             for (var i = 1; i < methodParameters.Length; i++)
             {
                 var parameter = methodParameters[i];
+                if (options == null)
+                {
+                    args.Add(parameter.ParameterType.IsArray ? Array.CreateInstance(parameter.ParameterType.GetElementType(), 0) : parameter.DefaultValue);
+                    continue;
+                }
+
                 var parameterOptionAttribute = parameter.GetCustomAttribute<OptionAttribute>();
                 var parameterParamLimitAttribute = parameter.GetCustomAttribute<ParamLimitAttribute>();
                 var relatedOptions = parameterParamLimitAttribute is null
