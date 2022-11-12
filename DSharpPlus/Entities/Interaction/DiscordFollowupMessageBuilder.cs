@@ -31,7 +31,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Constructs a followup message to an interaction.
     /// </summary>
-    public sealed class DiscordFollowupMessageBuilder
+    public sealed class DiscordFollowupMessageBuilder : IDiscordMessageBuilder<DiscordFollowupMessageBuilder>
     {
         /// <summary>
         /// Whether this followup message is text-to-speech.
@@ -226,7 +226,7 @@ namespace DSharpPlus.Entities
         /// <param name="files">Dictionary of file name and file data.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
         /// <returns>The builder to chain calls with.</returns>
-        public DiscordFollowupMessageBuilder AddFiles(Dictionary<string, Stream> files, bool resetStreamPosition = false)
+        public DiscordFollowupMessageBuilder AddFiles(IDictionary<string, Stream> files, bool resetStreamPosition = false)
         {
             if (this.Files.Count + files.Count > 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
