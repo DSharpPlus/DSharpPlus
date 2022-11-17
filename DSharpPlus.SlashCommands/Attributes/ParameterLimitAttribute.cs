@@ -29,7 +29,7 @@ namespace DSharpPlus.SlashCommands.Attributes
     /// Intended to be used in conjunction on parameters marked with <see langword="params"/>, this attribute will limit the amount of elements in the array.
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter, Inherited = true, AllowMultiple = false)]
-    public sealed class ParamLimitAttribute : Attribute
+    public sealed class ParameterLimitAttribute : Attribute
     {
         /// <summary>
         /// The minimum amount of elements required in the parameter array.
@@ -46,7 +46,7 @@ namespace DSharpPlus.SlashCommands.Attributes
         /// </summary>
         /// <param name="min">The minimum amount of elements required in the parameter array.</param>
         /// <param name="max">The maximum amount of elements allowed in the parameter array.</param>
-        public ParamLimitAttribute(int min, int max)
+        public ParameterLimitAttribute(int min, int max)
         {
             if (min < 0 || min > 25)
                 throw new ArgumentException("Minimum must be between 0 and 25 inclusive.", nameof(min));

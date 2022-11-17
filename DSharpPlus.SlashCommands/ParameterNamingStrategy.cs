@@ -24,9 +24,9 @@
 namespace DSharpPlus.SlashCommands
 {
     /// <summary>
-    /// How generated <see cref="Entities.DiscordApplicationCommandOption"/> names should be formatted. Only applicable to parameters with the <see langword="params"/> modifier and has the <see cref="Attributes.ParamLimitAttribute"/> attribute.
+    /// How generated <see cref="Entities.DiscordApplicationCommandOption"/> names should be formatted. Only applicable to parameters with the <see langword="params"/> modifier and has the <see cref="Attributes.ParameterLimitAttribute"/> attribute.
     /// </summary>
-    public enum ParamNamingStrategy
+    public enum ParameterNamingStrategy
     {
         /// <summary>
         /// parameter name_1

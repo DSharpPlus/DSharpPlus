@@ -39,8 +39,8 @@ namespace DSharpPlus.SlashCommands
         public IServiceProvider Services { internal get; set; } = new ServiceCollection().BuildServiceProvider(true);
 
         /// <summary>
-        /// When using params and the <see cref="Attributes.ParamLimitAttribute"/>, this determines how the generated <see cref="Entities.DiscordApplicationCommandOption"/> names are formatted.
+        /// When using params and the <see cref="Attributes.ParameterLimitAttribute"/>, this determines how the generated <see cref="Entities.DiscordApplicationCommandOption"/> names are formatted.
         /// </summary>
-        public ParamNamingStrategy ParamNamingStrategy { internal get; set; } = ParamNamingStrategy.Underscored;
+        public ParameterNamingStrategy ParameterNamingStrategy { internal get; set; } = ParameterNamingStrategy.Underscored;
     }
 }

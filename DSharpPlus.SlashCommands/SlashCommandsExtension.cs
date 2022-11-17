@@ -570,28 +570,28 @@ namespace DSharpPlus.SlashCommands
                 // I don't enjoy how we're checking this twice instead of doing it in a singular check.
                 if (parameter.ParameterType.IsArray)
                 {
-                    var limitAttribute = parameter.GetCustomAttribute<ParamLimitAttribute>();
+                    var limitAttribute = parameter.GetCustomAttribute<ParameterLimitAttribute>();
                     if (!parameter.IsDefined(typeof(ParamArrayAttribute)))
                     {
-                        throw new ArgumentException($"Parameter {parameter.Name} in method {this.GetFullname(parameter.Member)} is an array, but is not marked with the params modifier! In order to use arrays in slash commands, you must mark the parameter with the params modifier and the {nameof(ParamLimitAttribute)}.");
+                        throw new ArgumentException($"Parameter {parameter.Name} in method {this.GetFullname(parameter.Member)} is an array, but is not marked with the params modifier! In order to use arrays in slash commands, you must mark the parameter with the params modifier and the {nameof(ParameterLimitAttribute)}.");
                     }
                     else if (limitAttribute is null)
                     {
-                        throw new ArgumentException($"Parameter {parameter.Name} in method {this.GetFullname(parameter.Member)} is an array, but is not marked with the {nameof(ParamLimitAttribute)}! In order to use arrays in slash commands, you must mark the parameter with the params modifier and the {nameof(ParamLimitAttribute)}.");
+                        throw new ArgumentException($"Parameter {parameter.Name} in method {this.GetFullname(parameter.Member)} is an array, but is not marked with the {nameof(ParameterLimitAttribute)}! In order to use arrays in slash commands, you must mark the parameter with the params modifier and the {nameof(ParameterLimitAttribute)}.");
                     }
 
                     for (var i = 1; i <= limitAttribute.Max; i++)
                     {
                         if (options.Count >= 25)
-                            throw new ArgumentException($"Parameter \"{parameter.Name}\" in method \"{this.GetFullname(parameter.Member)}\" has too many options! The maximum amount of options is 25, the amount attempted to be registered is {(options.Count - i) + options.Count + 1}. Try changing the {nameof(ParamLimitAttribute)}.{nameof(ParamLimitAttribute.Max)} on parameter \"{parameter.Name}\" to {25 - parameters.Length + 1}.");
+                            throw new ArgumentException($"Parameter \"{parameter.Name}\" in method \"{this.GetFullname(parameter.Member)}\" has too many options! The maximum amount of options is 25, the amount attempted to be registered is {(options.Count - i) + options.Count + 1}. Try changing the {nameof(ParameterLimitAttribute)}.{nameof(ParameterLimitAttribute.Max)} on parameter \"{parameter.Name}\" to {25 - parameters.Length + 1}.");
 
                         options.Add(new DiscordApplicationCommandOption(
-                            _configuration.ParamNamingStrategy switch
+                            _configuration.ParameterNamingStrategy switch
                             {
-                                ParamNamingStrategy.Underscored => SetOptionName(optionAttribute.Name, i, '_'), // MyThirtyTwoCharacterFillerString -> MyThirtyTwoCharacterFillerStri_1
-                                ParamNamingStrategy.Dashed => SetOptionName(optionAttribute.Name, i, '-'), // MyThirtyTwoCharacterFillerString -> MyThirtyTwoCharacterFillerStri-1
-                                ParamNamingStrategy.None => SetOptionName(optionAttribute.Name, i), // MyThirtyTwoCharacterFillerString -> MyThirtyTwoCharacterFillerStrie1
-                                _ => throw new ArgumentOutOfRangeException(nameof(_configuration.ParamNamingStrategy), _configuration.ParamNamingStrategy, "Unknown param naming strategy! This is a library bug, please report it.")
+                                ParameterNamingStrategy.Underscored => SetOptionName(optionAttribute.Name, i, '_'), // MyThirtyTwoCharacterFillerString -> MyThirtyTwoCharacterFillerStri_1
+                                ParameterNamingStrategy.Dashed => SetOptionName(optionAttribute.Name, i, '-'), // MyThirtyTwoCharacterFillerString -> MyThirtyTwoCharacterFillerStri-1
+                                ParameterNamingStrategy.None => SetOptionName(optionAttribute.Name, i), // MyThirtyTwoCharacterFillerString -> MyThirtyTwoCharacterFillerStrie1
+                                _ => throw new ArgumentOutOfRangeException(nameof(_configuration.ParameterNamingStrategy), _configuration.ParameterNamingStrategy, "Unknown param naming strategy! This is a library bug, please report it.")
                             }, optionAttribute.Description, parameterOptionType, i <= limitAttribute.Min, choices, null, channelTypes, autocompleteAttribute is not null || optionAttribute.Autocomplete, minimumValue, maximumValue, nameLocalizations, descriptionLocalizations, minimumLength, maximumLength));
                     }
                 }
@@ -973,7 +973,7 @@ namespace DSharpPlus.SlashCommands
                 }
 
                 var parameterOptionAttribute = parameter.GetCustomAttribute<OptionAttribute>();
-                var parameterParamLimitAttribute = parameter.GetCustomAttribute<ParamLimitAttribute>();
+                var parameterParamLimitAttribute = parameter.GetCustomAttribute<ParameterLimitAttribute>();
                 var relatedOptions = parameterParamLimitAttribute is null
                     // Should only be 1 element but it's in IEnumerable form
                     ? options.Where(option => option.Name.Equals(parameterOptionAttribute.Name, StringComparison.InvariantCultureIgnoreCase))
