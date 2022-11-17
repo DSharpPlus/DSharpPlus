@@ -37,11 +37,7 @@ namespace DSharpPlus.CommandsNext.Converters
 
         static DiscordUserConverter()
         {
-#if NETSTANDARD1_3
-            UserRegex = new Regex(@"^<@\!?(\d+?)>$", RegexOptions.ECMAScript);
-#else
             UserRegex = new Regex(@"^<@\!?(\d+?)>$", RegexOptions.ECMAScript | RegexOptions.Compiled);
-#endif
         }
 
         async Task<Optional<DiscordUser>> IArgumentConverter<DiscordUser>.ConvertAsync(string value, CommandContext ctx)
@@ -83,11 +79,7 @@ namespace DSharpPlus.CommandsNext.Converters
 
         static DiscordMemberConverter()
         {
-#if NETSTANDARD1_3
-            UserRegex = new Regex(@"^<@\!?(\d+?)>$", RegexOptions.ECMAScript);
-#else
             UserRegex = new Regex(@"^<@\!?(\d+?)>$", RegexOptions.ECMAScript | RegexOptions.Compiled);
-#endif
         }
 
         async Task<Optional<DiscordMember>> IArgumentConverter<DiscordMember>.ConvertAsync(string value, CommandContext ctx)
@@ -136,11 +128,7 @@ namespace DSharpPlus.CommandsNext.Converters
 
         static DiscordChannelConverter()
         {
-#if NETSTANDARD1_3
-            ChannelRegex = new Regex(@"^<#(\d+)>$", RegexOptions.ECMAScript);
-#else
             ChannelRegex = new Regex(@"^<#(\d+)>$", RegexOptions.ECMAScript | RegexOptions.Compiled);
-#endif
         }
 
         async Task<Optional<DiscordChannel>> IArgumentConverter<DiscordChannel>.ConvertAsync(string value, CommandContext ctx)
@@ -174,11 +162,7 @@ namespace DSharpPlus.CommandsNext.Converters
 
         static DiscordThreadChannelConverter()
         {
-#if NETSTANDARD1_3
-            ThreadRegex = new Regex(@"^<#(\d+)>$", RegexOptions.ECMAScript);
-#else
             ThreadRegex = new Regex(@"^<#(\d+)>$", RegexOptions.ECMAScript | RegexOptions.Compiled);
-#endif
         }
 
         Task<Optional<DiscordThreadChannel>> IArgumentConverter<DiscordThreadChannel>.ConvertAsync(string value, CommandContext ctx)
@@ -211,11 +195,7 @@ namespace DSharpPlus.CommandsNext.Converters
 
         static DiscordRoleConverter()
         {
-#if NETSTANDARD1_3
-            RoleRegex = new Regex(@"^<@&(\d+?)>$", RegexOptions.ECMAScript);
-#else
             RoleRegex = new Regex(@"^<@&(\d+?)>$", RegexOptions.ECMAScript | RegexOptions.Compiled);
-#endif
         }
 
         Task<Optional<DiscordRole>> IArgumentConverter<DiscordRole>.ConvertAsync(string value, CommandContext ctx)
@@ -271,11 +251,7 @@ namespace DSharpPlus.CommandsNext.Converters
 
         static DiscordMessageConverter()
         {
-#if NETSTANDARD1_3
-            MessagePathRegex = new Regex(@"^\/channels\/(?<guild>(?:\d+|@me))\/(?<channel>\d+)\/(?<message>\d+)\/?$", RegexOptions.ECMAScript);
-#else
             MessagePathRegex = new Regex(@"^\/channels\/(?<guild>(?:\d+|@me))\/(?<channel>\d+)\/(?<message>\d+)\/?$", RegexOptions.ECMAScript | RegexOptions.Compiled);
-#endif
         }
 
         async Task<Optional<DiscordMessage>> IArgumentConverter<DiscordMessage>.ConvertAsync(string value, CommandContext ctx)
@@ -320,11 +296,7 @@ namespace DSharpPlus.CommandsNext.Converters
 
         static DiscordEmojiConverter()
         {
-#if NETSTANDARD1_3
-            EmoteRegex = new Regex(@"^<a?:([a-zA-Z0-9_]+?):(\d+?)>$", RegexOptions.ECMAScript);
-#else
             EmoteRegex = new Regex(@"^<(?<animated>a)?:(?<name>[a-zA-Z0-9_]+?):(?<id>\d+?)>$", RegexOptions.ECMAScript | RegexOptions.Compiled);
-#endif
         }
 
         Task<Optional<DiscordEmoji>> IArgumentConverter<DiscordEmoji>.ConvertAsync(string value, CommandContext ctx)
@@ -370,13 +342,8 @@ namespace DSharpPlus.CommandsNext.Converters
 
         static DiscordColorConverter()
         {
-#if NETSTANDARD1_3
-            ColorRegexHex = new Regex(@"^#?([a-fA-F0-9]{6})$", RegexOptions.ECMAScript);
-            ColorRegexRgb = new Regex(@"^(\d{1,3})\s*?,\s*?(\d{1,3}),\s*?(\d{1,3})$", RegexOptions.ECMAScript);
-#else
             ColorRegexHex = new Regex(@"^#?([a-fA-F0-9]{6})$", RegexOptions.ECMAScript | RegexOptions.Compiled);
             ColorRegexRgb = new Regex(@"^(\d{1,3})\s*?,\s*?(\d{1,3}),\s*?(\d{1,3})$", RegexOptions.ECMAScript | RegexOptions.Compiled);
-#endif
         }
 
         Task<Optional<DiscordColor>> IArgumentConverter<DiscordColor>.ConvertAsync(string value, CommandContext ctx)
