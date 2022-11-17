@@ -210,20 +210,6 @@ namespace DSharpPlus.SlashCommands
             this._converters.Add(entityType, converter);
         }
 
-        public void UnregisterConverter<T>() => this.UnregisterConverter(typeof(T));
-
-        public void UnregisterConverter(Type type)
-        {
-            if (type is null)
-                throw new ArgumentNullException(nameof(type));
-            else if (!this._validOptionTypes.ContainsKey(type))
-                throw new ArgumentException("The specified type is not registered as a converter.", nameof(type));
-            else if (!this._converters.ContainsKey(type)) // If one does, so should the other.
-                throw new ArgumentException("The specified type is not registered as a converter. This is a bug with the library, please open an issue.", nameof(type));
-            this._converters.Remove(type);
-            this._validOptionTypes.Remove(type);
-        }
-
         /// <summary>
         /// Registers an application command class.
         /// </summary>
