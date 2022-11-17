@@ -33,16 +33,7 @@ namespace DSharpPlus.SlashCommands.Converters
     public sealed class TimeSpanSlashArgumentConverter : ISlashArgumentConverter<TimeSpan>
     {
         public static readonly string[] TimeUnitMeasurements = new[] { "days", "hours", "minutes", "seconds" };
-        public static readonly Regex TimeSpanParseRegex;
-
-        static TimeSpanSlashArgumentConverter()
-        {
-#if NETSTANDARD1_3
-            TimeSpanParseRegex = new Regex(@"^((?<days>\d+)d\s*)?((?<hours>\d+)h\s*)?((?<minutes>\d+)m\s*)?((?<seconds>\d+)s\s*)?$", RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant | RegexOptions.RightToLeft);
-#else
-            TimeSpanParseRegex = new Regex(@"^((?<days>\d+)d\s*)?((?<hours>\d+)h\s*)?((?<minutes>\d+)m\s*)?((?<seconds>\d+)s\s*)?$", RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant | RegexOptions.RightToLeft | RegexOptions.Compiled);
-#endif
-        }
+        public static readonly Regex TimeSpanParseRegex = new(@"^((?<days>\d+)d\s*)?((?<hours>\d+)h\s*)?((?<minutes>\d+)m\s*)?((?<seconds>\d+)s\s*)?$", RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant | RegexOptions.RightToLeft | RegexOptions.Compiled);
 
         public Task<Optional<TimeSpan>> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo interactionMethodArgument)
         {
@@ -63,10 +54,9 @@ namespace DSharpPlus.SlashCommands.Converters
             var ss = m.Groups["seconds"].Success ? int.Parse(m.Groups["seconds"].Value) : 0;
 
             result = TimeSpan.FromSeconds((ds * 24 * 60 * 60) + (hs * 60 * 60) + (ms * 60) + ss);
-            if (result.TotalSeconds < 1)
-                return Task.FromResult(Optional.FromNoValue<TimeSpan>());
-
-            return Task.FromResult(Optional.FromValue(result));
+            return result.TotalSeconds < 1
+                ? Task.FromResult(Optional.FromNoValue<TimeSpan>())
+                : Task.FromResult(Optional.FromValue(result));
         }
     }
 }

@@ -32,48 +32,39 @@ namespace DSharpPlus.SlashCommands.Converters
 {
     public class DiscordMessageSlashArgumentConverter : ISlashArgumentConverter<DiscordMessage>
     {
-        private static Regex _messagePathRegex { get; }
-
-        static DiscordMessageSlashArgumentConverter()
-        {
-#if NETSTANDARD1_3
-            MessagePathRegex = new Regex(@"^\/channels\/(?<guild>(?:\d+|@me))\/(?<channel>\d+)\/(?<message>\d+)\/?$", RegexOptions.ECMAScript);
-#else
-            _messagePathRegex = new Regex(@"^\/channels\/(?<guild>(?:\d+|@me))\/(?<channel>\d+)\/(?<message>\d+)\/?$", RegexOptions.ECMAScript | RegexOptions.Compiled);
-#endif
-        }
+        private static readonly Regex _messagePathRegex = new(@"^\/channels\/(?<guild>(?:\d+|@me))\/(?<channel>\d+)\/(?<message>\d+)\/?$", RegexOptions.ECMAScript | RegexOptions.Compiled);
 
         // Copied with modifications from DSharpPlus.CommandsNext.Converters.EntityConverter+DiscordMessageConverter
         public async Task<Optional<DiscordMessage>> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo interactionMethodArgument)
         {
-            var value = interactionDataOption.Value.ToString();
-            if (string.IsNullOrWhiteSpace(value))
+            if (interactionDataOption.Value is not string value || string.IsNullOrWhiteSpace(value))
                 return Optional.FromNoValue<DiscordMessage>();
 
-            var msguri = value.StartsWith("<") && value.EndsWith(">") ? value.Substring(1, value.Length - 2) : value;
-            ulong mid;
-            if (Uri.TryCreate(msguri, UriKind.Absolute, out var uri))
+            // Handle <http://localhost> links, which supresses embeds.
+            var messageUri = value.StartsWith("<") && value.EndsWith(">") ? value.Substring(1, value.Length - 2) : value;
+            ulong messageId;
+            if (Uri.TryCreate(messageUri, UriKind.Absolute, out var uri))
             {
-                if (uri.Host != "discordapp.com" && uri.Host != "discord.com" && !uri.Host.EndsWith(".discordapp.com") && !uri.Host.EndsWith(".discord.com"))
+                if (!uri.Host.EndsWith("discordapp.com") && !uri.Host.EndsWith("discord.com"))
                     return Optional.FromNoValue<DiscordMessage>();
 
-                var uripath = _messagePathRegex.Match(uri.AbsolutePath);
-                if (!uripath.Success
-                    || !ulong.TryParse(uripath.Groups["channel"].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var cid)
-                    || !ulong.TryParse(uripath.Groups["message"].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out mid))
+                var uriPath = _messagePathRegex.Match(uri.AbsolutePath);
+                if (!uriPath.Success
+                    || !ulong.TryParse(uriPath.Groups["channel"].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var cid)
+                    || !ulong.TryParse(uriPath.Groups["message"].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out messageId))
                     return Optional.FromNoValue<DiscordMessage>();
 
-                var chn = await interactionContext.Client.GetChannelAsync(cid).ConfigureAwait(false);
-                if (chn == null)
+                var channel = await interactionContext.Client.GetChannelAsync(cid).ConfigureAwait(false);
+                if (channel == null)
                     return Optional.FromNoValue<DiscordMessage>();
 
-                var msg = await chn.GetMessageAsync(mid).ConfigureAwait(false);
-                return msg != null ? Optional.FromValue(msg) : Optional.FromNoValue<DiscordMessage>();
+                var message = await channel.GetMessageAsync(messageId).ConfigureAwait(false);
+                return message != null ? Optional.FromValue(message) : Optional.FromNoValue<DiscordMessage>();
             }
 
-            if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out mid))
+            if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out messageId))
             {
-                var result = await interactionContext.Channel.GetMessageAsync(mid).ConfigureAwait(false);
+                var result = await interactionContext.Channel.GetMessageAsync(messageId).ConfigureAwait(false);
                 return result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordMessage>();
             }
 
