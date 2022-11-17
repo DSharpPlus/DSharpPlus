@@ -27,10 +27,10 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.SlashCommands.Converters
 {
-    public sealed class IntSlashArgumentConverter : ISlashArgumentConverter<int>
+    public sealed class UInt64SlashArgumentConverter : ISlashArgumentConverter<ulong>
     {
-        public Task<Optional<int>> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo interactionMethodArgument) => int.TryParse(interactionDataOption.Value.ToString(), out var result)
+        public Task<Optional<ulong>> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo interactionMethodArgument) => ulong.TryParse(interactionDataOption.Value.ToString(), out var result)
             ? Task.FromResult(Optional.FromValue(result))
-            : Task.FromResult(Optional.FromNoValue<int>());
+            : Task.FromResult(Optional.FromNoValue<ulong>());
     }
 }

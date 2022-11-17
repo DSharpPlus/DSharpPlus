@@ -27,7 +27,7 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.SlashCommands.Converters
 {
-    public sealed class UnsignedIntSlashArgumentConverter : ISlashArgumentConverter<uint>
+    public sealed class UInt32SlashArgumentConverter : ISlashArgumentConverter<uint>
     {
         public Task<Optional<uint>> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo interactionMethodArgument) => uint.TryParse(interactionDataOption.Value.ToString(), out var result)
             ? Task.FromResult(Optional.FromValue(result))
