@@ -517,9 +517,10 @@ namespace DSharpPlus.SlashCommands
             {
                 // Retrieves the attribute
                 var optionAttribute = parameter.GetCustomAttribute<OptionAttribute>() ?? throw new ArgumentException($"Argument \"{parameter.Name}\" on method \"{this.GetFullname(parameter.Member)}\" requires an {this.GetFullname(typeof(OptionAttribute))}!");
+                var parameterLimitAttribute = parameter.GetCustomAttribute<ParameterLimitAttribute>();
 
                 Type parameterType;
-                if (parameter.ParameterType.IsArray)
+                if (parameter.ParameterType.IsArray && parameterLimitAttribute != null)
                 {
                     parameterType = parameter.ParameterType.GetElementType();
                 }
@@ -570,17 +571,16 @@ namespace DSharpPlus.SlashCommands
                 // I don't enjoy how we're checking this twice instead of doing it in a singular check.
                 if (parameter.ParameterType.IsArray)
                 {
-                    var limitAttribute = parameter.GetCustomAttribute<ParameterLimitAttribute>();
                     if (!parameter.IsDefined(typeof(ParamArrayAttribute)))
                     {
                         throw new ArgumentException($"Parameter {parameter.Name} in method {this.GetFullname(parameter.Member)} is an array, but is not marked with the params modifier! In order to use arrays in slash commands, you must mark the parameter with the params modifier and the {nameof(ParameterLimitAttribute)}.");
                     }
-                    else if (limitAttribute is null)
+                    else if (parameterLimitAttribute is null)
                     {
                         throw new ArgumentException($"Parameter {parameter.Name} in method {this.GetFullname(parameter.Member)} is an array, but is not marked with the {nameof(ParameterLimitAttribute)}! In order to use arrays in slash commands, you must mark the parameter with the params modifier and the {nameof(ParameterLimitAttribute)}.");
                     }
 
-                    for (var i = 1; i <= limitAttribute.Max; i++)
+                    for (var i = 1; i <= parameterLimitAttribute.Max; i++)
                     {
                         if (options.Count >= 25)
                             throw new ArgumentException($"Parameter \"{parameter.Name}\" in method \"{this.GetFullname(parameter.Member)}\" has too many options! The maximum amount of options is 25, the amount attempted to be registered is {(options.Count - i) + options.Count + 1}. Try changing the {nameof(ParameterLimitAttribute)}.{nameof(ParameterLimitAttribute.Max)} on parameter \"{parameter.Name}\" to {25 - parameters.Length + 1}.");
@@ -592,7 +592,7 @@ namespace DSharpPlus.SlashCommands
                                 ParameterNamingStrategy.Dashed => SetOptionName(optionAttribute.Name, i, '-'), // MyThirtyTwoCharacterFillerString -> MyThirtyTwoCharacterFillerStri-1
                                 ParameterNamingStrategy.None => SetOptionName(optionAttribute.Name, i), // MyThirtyTwoCharacterFillerString -> MyThirtyTwoCharacterFillerStrie1
                                 _ => throw new ArgumentOutOfRangeException(nameof(_configuration.ParameterNamingStrategy), _configuration.ParameterNamingStrategy, "Unknown param naming strategy! This is a library bug, please report it.")
-                            }, optionAttribute.Description, parameterOptionType, i <= limitAttribute.Min, choices, null, channelTypes, autocompleteAttribute is not null || optionAttribute.Autocomplete, minimumValue, maximumValue, nameLocalizations, descriptionLocalizations, minimumLength, maximumLength));
+                            }, optionAttribute.Description, parameterOptionType, i <= parameterLimitAttribute.Min, choices, null, channelTypes, autocompleteAttribute is not null || optionAttribute.Autocomplete, minimumValue, maximumValue, nameLocalizations, descriptionLocalizations, minimumLength, maximumLength));
                     }
                 }
                 else
