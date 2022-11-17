@@ -32,7 +32,6 @@ namespace DSharpPlus.SlashCommands.Converters
 {
     public sealed class TimeSpanSlashArgumentConverter : ISlashArgumentConverter<TimeSpan>
     {
-        public static readonly string[] TimeUnitMeasurements = new[] { "days", "hours", "minutes", "seconds" };
         public static readonly Regex TimeSpanParseRegex = new(@"^((?<days>\d+)d\s*)?((?<hours>\d+)h\s*)?((?<minutes>\d+)m\s*)?((?<seconds>\d+)s\s*)?$", RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant | RegexOptions.RightToLeft | RegexOptions.Compiled);
 
         public Task<Optional<TimeSpan>> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo interactionMethodArgument)
