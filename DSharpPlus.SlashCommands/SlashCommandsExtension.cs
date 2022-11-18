@@ -756,7 +756,7 @@ namespace DSharpPlus.SlashCommands
                 }
                 catch (Exception ex)
                 {
-                    await this._slashError.InvokeAsync(this, new SlashCommandErrorEventArgs { Context = context, Exception = ex });
+                    await this._slashError.InvokeAsync(this, new SlashCommandErrorEventArgs { Context = context, Exception = ex.InnerException ?? ex });
                 }
             }
 
@@ -843,7 +843,7 @@ namespace DSharpPlus.SlashCommands
             }
             catch (Exception ex)
             {
-                await this._contextMenuErrored.InvokeAsync(this, new ContextMenuErrorEventArgs { Context = context, Exception = ex });
+                await this._contextMenuErrored.InvokeAsync(this, new ContextMenuErrorEventArgs { Context = context, Exception = ex.InnerException ?? ex });
             }
         }
 
