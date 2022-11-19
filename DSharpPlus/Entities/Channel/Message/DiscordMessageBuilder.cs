@@ -33,7 +33,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Constructs a Message to be sent.
     /// </summary>
-    public sealed class DiscordMessageBuilder
+    public sealed class DiscordMessageBuilder : IDiscordMessageBuilder<DiscordMessageBuilder>
     {
         /// <summary>
         /// Gets or Sets the Message to be sent.
@@ -64,13 +64,16 @@ namespace DSharpPlus.Entities
             }
         }
 
+        /// <summary>
+        /// Gets or Sets a sticker to be attached.
+        /// </summary>
         public DiscordMessageSticker Sticker { get; set; }
 
         /// <summary>
         /// Gets the Embeds to be sent.
         /// </summary>
         public IReadOnlyList<DiscordEmbed> Embeds => this._embeds;
-        private readonly List<DiscordEmbed> _embeds = new();
+        internal readonly List<DiscordEmbed> _embeds = new();
 
         /// <summary>
         /// Gets or Sets if the message should be TTS.
@@ -80,12 +83,13 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the Allowed Mentions for the message to be sent.
         /// </summary>
-        public List<IMention> Mentions { get; private set; } = null;
+        public IReadOnlyList<IMention> Mentions => this._mentions;
+        internal List<IMention> _mentions = new();
 
         /// <summary>
         /// Gets the Files to be sent in the Message.
         /// </summary>
-        public IReadOnlyCollection<DiscordMessageFile> Files => this._files;
+        public IReadOnlyList<DiscordMessageFile> Files => this._files;
         internal readonly List<DiscordMessageFile> _files = new();
 
         /// <summary>
@@ -189,7 +193,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="isTTS">If TTS should be set.</param>
         /// <returns>The current builder to be chained.</returns>
-        public DiscordMessageBuilder HasTTS(bool isTTS)
+        public DiscordMessageBuilder WithTTS(bool isTTS)
         {
             this.IsTTS = isTTS;
             return this;
@@ -242,10 +246,10 @@ namespace DSharpPlus.Entities
         /// <returns>The current builder to be chained.</returns>
         public DiscordMessageBuilder WithAllowedMention(IMention allowedMention)
         {
-            if (this.Mentions != null)
-                this.Mentions.Add(allowedMention);
+            if (this._mentions != null)
+                this._mentions.Add(allowedMention);
             else
-                this.Mentions = new List<IMention> { allowedMention };
+                this._mentions = new List<IMention> { allowedMention };
 
             return this;
         }
@@ -257,10 +261,10 @@ namespace DSharpPlus.Entities
         /// <returns>The current builder to be chained.</returns>
         public DiscordMessageBuilder WithAllowedMentions(IEnumerable<IMention> allowedMentions)
         {
-            if (this.Mentions != null)
-                this.Mentions.AddRange(allowedMentions);
+            if (this._mentions != null)
+                this._mentions.AddRange(allowedMentions);
             else
-                this.Mentions = allowedMentions.ToList();
+                this._mentions = allowedMentions.ToList();
 
             return this;
         }
@@ -272,7 +276,7 @@ namespace DSharpPlus.Entities
         /// <param name="stream">The Stream to the file.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
         /// <returns>The current builder to be chained.</returns>
-        public DiscordMessageBuilder WithFile(string fileName, Stream stream, bool resetStreamPosition = false)
+        public DiscordMessageBuilder AddFile(string fileName, Stream stream, bool resetStreamPosition = false)
         {
             if (this.Files.Count >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
@@ -294,7 +298,7 @@ namespace DSharpPlus.Entities
         /// <param name="stream">The Stream to the file.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
         /// <returns>The current builder to be chained.</returns>
-        public DiscordMessageBuilder WithFile(FileStream stream, bool resetStreamPosition = false)
+        public DiscordMessageBuilder AddFile(FileStream stream, bool resetStreamPosition = false)
         {
             if (this.Files.Count >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
@@ -316,7 +320,7 @@ namespace DSharpPlus.Entities
         /// <param name="files">The Files that should be sent.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
         /// <returns>The current builder to be chained.</returns>
-        public DiscordMessageBuilder WithFiles(Dictionary<string, Stream> files, bool resetStreamPosition = false)
+        public DiscordMessageBuilder AddFiles(IDictionary<string, Stream> files, bool resetStreamPosition = false)
         {
             if (this.Files.Count + files.Count > 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
@@ -350,13 +354,32 @@ namespace DSharpPlus.Entities
 
             if (mention)
             {
-                this.Mentions ??= new List<IMention>();
-                this.Mentions.Add(new RepliedUserMention());
+                this._mentions ??= new List<IMention>();
+                this._mentions.Add(new RepliedUserMention());
             }
 
             return this;
         }
 
+        /// <summary>
+        /// Adds the mention to the mentions to parse, etc. with the interaction response.
+        /// </summary>
+        /// <param name="mention">Mention to add.</param>
+        public DiscordMessageBuilder AddMention(IMention mention)
+        {
+            this._mentions.Add(mention);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the mentions to the mentions to parse, etc. with the interaction response.
+        /// </summary>
+        /// <param name="mentions">Mentions to add.</param>
+        public DiscordMessageBuilder AddMentions(IEnumerable<IMention> mentions)
+        {
+            this._mentions.AddRange(mentions);
+            return this;
+        }
 
         /// <summary>
         /// Sends the Message to a specific channel
@@ -387,7 +410,7 @@ namespace DSharpPlus.Entities
             this.Content = "";
             this._embeds.Clear();
             this.IsTTS = false;
-            this.Mentions = null;
+            this._mentions.Clear();
             this._files.Clear();
             this.ReplyId = null;
             this.MentionOnReply = false;

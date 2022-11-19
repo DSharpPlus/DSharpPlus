@@ -33,7 +33,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Constructs an interaction response.
     /// </summary>
-    public sealed class DiscordInteractionResponseBuilder
+    public sealed class DiscordInteractionResponseBuilder : IDiscordMessageBuilder<DiscordInteractionResponseBuilder>
     {
         /// <summary>
         /// Whether this interaction response is text-to-speech.
@@ -51,7 +51,7 @@ namespace DSharpPlus.Entities
         public string CustomId { get; set; }
 
         /// <summary>
-        /// The title to send with this interaction response. Only applicable
+        /// The title to send with this interaction response. Only applicable when creating a modal.
         /// </summary>
         public string Title { get; set; }
 
@@ -97,7 +97,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Mentions to send on this interaction response.
         /// </summary>
-        public IEnumerable<IMention> Mentions => this._mentions;
+        public IReadOnlyList<IMention> Mentions => this._mentions;
         private readonly List<IMention> _mentions = new();
 
         /// <summary>
@@ -113,7 +113,7 @@ namespace DSharpPlus.Entities
         public DiscordInteractionResponseBuilder(DiscordMessageBuilder builder)
         {
             this._content = builder.Content;
-            this._mentions = builder.Mentions;
+            this._mentions = builder._mentions;
             this._embeds.AddRange(builder.Embeds);
             this._components.AddRange(builder.Components);
         }
@@ -332,7 +332,7 @@ namespace DSharpPlus.Entities
         /// <param name="files">Dictionary of file name and file data.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
         /// <returns>The builder to chain calls with.</returns>
-        public DiscordInteractionResponseBuilder AddFiles(Dictionary<string, Stream> files, bool resetStreamPosition = false)
+        public DiscordInteractionResponseBuilder AddFiles(IDictionary<string, Stream> files, bool resetStreamPosition = false)
         {
             if (this.Files.Count + files.Count > 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");

@@ -32,7 +32,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Constructs ready-to-send webhook requests.
     /// </summary>
-    public sealed class DiscordWebhookBuilder
+    public sealed class DiscordWebhookBuilder : IDiscordMessageBuilder<DiscordWebhookBuilder>
     {
         /// <summary>
         /// Username to use for this webhook request.
@@ -261,7 +261,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="files">Dictionary of file name and file data.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
-        public DiscordWebhookBuilder AddFiles(Dictionary<string, Stream> files, bool resetStreamPosition = false)
+        public DiscordWebhookBuilder AddFiles(IDictionary<string, Stream> files, bool resetStreamPosition = false)
         {
             if (this.Files.Count() + files.Count() > 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
