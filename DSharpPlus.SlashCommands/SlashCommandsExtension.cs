@@ -974,6 +974,10 @@ namespace DSharpPlus.SlashCommands
                     {
                         parameterType = parameter.ParameterType.GetElementType();
                     }
+                    else if (parameter.ParameterType.IsEnum)
+                    {
+                        parameterType = typeof(Enum);
+                    }
                     else
                     {
                         parameterType = Nullable.GetUnderlyingType(parameter.ParameterType) ?? parameter.ParameterType;
