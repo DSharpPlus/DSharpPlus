@@ -504,6 +504,28 @@ namespace DSharpPlus.Net
             return this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.PATCH, route, headers, DiscordJson.SerializeObject(pld));
         }
 
+        internal async Task<DiscordRole[]> ModifyGuildRolePositionsAsync(ulong guild_id, IEnumerable<RestGuildRoleReorderPayload> newRolePositions, string reason)
+        {
+            var headers = Utilities.GetBaseHeaders();
+            if (!string.IsNullOrWhiteSpace(reason))
+                headers[REASON_HEADER_NAME] = reason;
+
+            var route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.ROLES}";
+            var bucket = this._rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+            var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.PATCH, route, headers, DiscordJson.SerializeObject(newRolePositions)).ConfigureAwait(false);
+
+            var ret = JsonConvert.DeserializeObject<DiscordRole[]>(res.Response);
+            foreach (var r in ret)
+            {
+                r.Discord = this._discord;
+                r._guild_id = guild_id;
+            }
+
+            return ret;
+        }
+
         internal async Task<AuditLog> GetAuditLogsAsync(ulong guild_id, int limit, ulong? after, ulong? before, ulong? responsible, int? action_type)
         {
             var urlparams = new Dictionary<string, string>
@@ -2869,11 +2891,13 @@ namespace DSharpPlus.Net
         {
             builder.Validate(true);
 
+            var mentions = builder.Mentions != null ? new DiscordMentions(builder.Mentions, builder.Mentions.Any()) : null;
+
             var pld = new RestWebhookMessageEditPayload
             {
                 Content = builder.Content,
                 Embeds = builder.Embeds,
-                Mentions = builder.Mentions,
+                Mentions =  mentions,
                 Components = builder.Components,
                 Attachments = attachments
             };

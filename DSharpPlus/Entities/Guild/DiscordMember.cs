@@ -54,19 +54,19 @@ namespace DSharpPlus.Entities
             this._role_ids_lazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(this._role_ids));
         }
 
-        internal DiscordMember(TransportMember mbr)
+        internal DiscordMember(TransportMember member)
         {
-            this.Id = mbr.User.Id;
-            this.IsDeafened = mbr.IsDeafened;
-            this.IsMuted = mbr.IsMuted;
-            this.JoinedAt = mbr.JoinedAt;
-            this.Nickname = mbr.Nickname;
-            this.PremiumSince = mbr.PremiumSince;
-            this.IsPending = mbr.IsPending;
-            this._avatarHash = mbr.AvatarHash;
-            this._role_ids = mbr.Roles ?? new List<ulong>();
+            this.Id = member.User.Id;
+            this.IsDeafened = member.IsDeafened;
+            this.IsMuted = member.IsMuted;
+            this.JoinedAt = member.JoinedAt;
+            this.Nickname = member.Nickname;
+            this.PremiumSince = member.PremiumSince;
+            this.IsPending = member.IsPending;
+            this._avatarHash = member.AvatarHash;
+            this._role_ids = member.Roles ?? new List<ulong>();
             this._role_ids_lazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(this._role_ids));
-            this.CommunicationDisabledUntil = mbr.CommunicationDisabledUntil;
+            this.CommunicationDisabledUntil = member.CommunicationDisabledUntil;
         }
 
         /// <summary>
@@ -94,9 +94,7 @@ namespace DSharpPlus.Entities
         /// Gets this member's display name.
         /// </summary>
         [JsonIgnore]
-        public string DisplayName
-            => this.Nickname ?? this.Username;
-
+        public string DisplayName => this.Nickname ?? this.Username;
 
         /// <summary>
         /// How long this member's communication will be supressed for.
@@ -108,8 +106,7 @@ namespace DSharpPlus.Entities
         /// List of role IDs
         /// </summary>
         [JsonIgnore]
-        internal IReadOnlyList<ulong> RoleIds
-            => this._role_ids_lazy.Value;
+        internal IReadOnlyList<ulong> RoleIds => this._role_ids_lazy.Value;
 
         [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
         internal List<ulong> _role_ids;

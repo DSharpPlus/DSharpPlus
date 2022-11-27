@@ -42,6 +42,11 @@ namespace DSharpPlus.CommandsNext.Builders
         public string Name { get; private set; } = null!;
 
         /// <summary>
+        /// Gets the category set for this command.
+        /// </summary>
+        public string? Category { get; private set; }
+
+        /// <summary>
         /// Gets the aliases set for this command.
         /// </summary>
         public IReadOnlyList<string> Aliases { get; }
@@ -123,6 +128,17 @@ namespace DSharpPlus.CommandsNext.Builders
                 throw new ArgumentException("Command name cannot be one of its aliases.", nameof(name));
 
             this.Name = name;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the category for this command.
+        /// </summary>
+        /// <param name="category">Category for this command. May be <see langword="null"/>.</param>
+        /// <returns>This builder.</returns>
+        public CommandBuilder WithCategory(string? category)
+        {
+            this.Category = category;
             return this;
         }
 
@@ -265,6 +281,7 @@ namespace DSharpPlus.CommandsNext.Builders
                     ? throw new InvalidOperationException($"Cannot build a command with an invalid name. Use the method {nameof(this.WithName)} to set a valid name.")
                     : this.Name,
 
+                Category = this.Category,
                 Description = this.Description,
                 Aliases = this.Aliases,
                 ExecutionChecks = this.ExecutionChecks,
