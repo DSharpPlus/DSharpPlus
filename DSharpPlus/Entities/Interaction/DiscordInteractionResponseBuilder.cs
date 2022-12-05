@@ -58,6 +58,12 @@ namespace DSharpPlus.Entities
         /// </summary>
         public DiscordInteractionResponseBuilder() { }
 
+        public DiscordInteractionResponseBuilder(DiscordInteractionResponseBuilder builder) : base(builder)
+        {
+            this.IsEphemeral = builder.IsEphemeral;
+            this._choices.AddRange(builder._choices);
+        }
+
         /// <summary>
         /// If responding with a modal, sets the title of the modal.
         /// </summary>

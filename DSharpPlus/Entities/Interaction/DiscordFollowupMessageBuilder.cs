@@ -44,6 +44,11 @@ namespace DSharpPlus.Entities
         /// </summary>
         public DiscordFollowupMessageBuilder() { }
 
+        public DiscordFollowupMessageBuilder(DiscordFollowupMessageBuilder builder) : base(builder)
+        {
+            this.IsEphemeral = builder.IsEphemeral;
+        }
+
         /// <summary>
         /// Constructs a new followup message builder based on a previous IDiscordMessageBuilder
         /// </summary>
