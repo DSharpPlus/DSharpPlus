@@ -132,6 +132,18 @@ namespace DSharpPlus.Entities
         /// <param name="mentions">Collection of mentions to allow in this message.</param>
         /// <returns></returns>
         public abstract T AddMentions(IEnumerable<IMention> mentions);
+
+        /// <summary>
+        /// Clears all components attached to this builder.
+        /// </summary>
+        public abstract void ClearComponents();
+
+        /// <summary>
+        /// Clears this builder.
+        /// </summary>
+        public abstract void Clear();
+
+
         IDiscordMessageBuilder IDiscordMessageBuilder.WithContent(string content) => this.WithContent(content);
         IDiscordMessageBuilder IDiscordMessageBuilder.AddComponents(params DiscordComponent[] components) => this.AddComponents(components);
         IDiscordMessageBuilder IDiscordMessageBuilder.AddComponents(IEnumerable<DiscordComponent> components) => this.AddComponents(components);
@@ -144,8 +156,6 @@ namespace DSharpPlus.Entities
         IDiscordMessageBuilder IDiscordMessageBuilder.AddFiles(IDictionary<string, Stream> files, bool resetStreams) => this.AddFiles(files, resetStreams);
         IDiscordMessageBuilder IDiscordMessageBuilder.AddMention(IMention mention) => this.AddMention(mention);
         IDiscordMessageBuilder IDiscordMessageBuilder.AddMentions(IEnumerable<IMention> mentions) => this.AddMentions(mentions);
-        public abstract void ClearComponents();
-        public abstract void Clear();
     }
 
     public interface IDiscordMessageBuilder
