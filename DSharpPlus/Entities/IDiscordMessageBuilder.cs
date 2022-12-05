@@ -32,7 +32,7 @@ namespace DSharpPlus.Entities
     /// Interface that provides abstractions for the various message builder types in DSharpPlus,
     /// allowing re-use of code.
     /// </summary>
-    public interface IDiscordMessageBuilder<T> where T : IDiscordMessageBuilder<T>
+    public interface IDiscordMessageBuilder<T> : IDiscordMessageBuilder where T : IDiscordMessageBuilder<T>
         // This has got to be the most big brain thing I have ever done with interfaces lmfao
     {
         /// <summary>
@@ -163,4 +163,6 @@ namespace DSharpPlus.Entities
         /// </summary>
         void Clear();
     }
+
+    public interface IDiscordMessageBuilder { }
 }
