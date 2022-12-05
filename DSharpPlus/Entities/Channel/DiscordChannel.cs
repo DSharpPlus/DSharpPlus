@@ -1046,8 +1046,6 @@ namespace DSharpPlus.Entities
                 throw new InvalidOperationException("News threads can only be created within a news channels.");
             else if (threadType != ChannelType.PublicThread && threadType != ChannelType.PrivateThread && threadType != ChannelType.NewsThread)
                 throw new ArgumentException("Given channel type for creating a thread is not a valid type of thread.");
-            else if (threadType == ChannelType.PrivateThread && !this.Guild.Features.Contains("PRIVATE_THREADS"))
-                throw new ArgumentException("This guild cannot create private threads.");
 
             var threadChannel = await this.Discord.ApiClient.CreateThreadAsync(this.Id, name, archiveAfter, threadType, reason);
             this.Guild._threads.AddOrUpdate(threadChannel.Id, threadChannel, (key, old) => threadChannel);
