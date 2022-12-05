@@ -41,7 +41,7 @@ namespace DSharpPlus.Entities
         public abstract IReadOnlyList<IMention> Mentions { get; }
 
         /// <summary>
-        /// You shall not pass ⚡
+        /// Thou shalt NOT PASS! ⚡
         /// </summary>
         internal BaseDiscordMessageBuilder(){}
 
