@@ -48,7 +48,7 @@ namespace DSharpPlus.Entities
                 this._content = value;
             }
         }
-        protected string _content;
+        internal string _content;
 
         public bool IsTTS { get; set; }
 
@@ -56,25 +56,25 @@ namespace DSharpPlus.Entities
         /// Embeds to send on this webhook request.
         /// </summary>
         public IReadOnlyList<DiscordEmbed> Embeds => this._embeds;
-        protected List<DiscordEmbed> _embeds = new();
+        internal List<DiscordEmbed> _embeds = new();
 
         /// <summary>
         /// Files to send on this webhook request.
         /// </summary>
         public IReadOnlyList<DiscordMessageFile> Files => this._files;
-        protected List<DiscordMessageFile> _files = new();
+        internal List<DiscordMessageFile> _files = new();
 
         /// <summary>
         /// Mentions to send on this webhook request.
         /// </summary>
         public IReadOnlyList<IMention> Mentions => this._mentions;
-        protected List<IMention> _mentions = new();
+        internal List<IMention> _mentions = new();
 
         /// <summary>
         /// Components to send on this followup message.
         /// </summary>
         public IReadOnlyList<DiscordActionRowComponent> Components => this._components;
-        protected List<DiscordActionRowComponent> _components = new();
+        internal List<DiscordActionRowComponent> _components = new();
 
         /// <summary>
         /// Thou shalt NOT PASS! ⚡
