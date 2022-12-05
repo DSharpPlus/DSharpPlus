@@ -3481,7 +3481,7 @@ namespace DSharpPlus.Net
                 Content = builder.Content,
                 IsTTS = builder.IsTTS,
                 Embeds = builder.Embeds,
-                Flags = builder.Flags,
+                Flags = builder._flags,
                 Components = builder.Components
             };
 
