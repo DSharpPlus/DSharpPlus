@@ -116,6 +116,7 @@ namespace DSharpPlus.Entities
             this._mentions = builder._mentions;
             this._embeds.AddRange(builder.Embeds);
             this._components.AddRange(builder.Components);
+            this._files.AddRange(builder.Files);
         }
 
 
