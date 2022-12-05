@@ -59,12 +59,6 @@ namespace DSharpPlus.Entities
         public DiscordInteractionResponseBuilder() { }
 
         /// <summary>
-        /// Constructs a new interaction response builder based on another IDiscordMessageBuilder
-        /// </summary>
-        /// <param name="builder"></param>
-        public DiscordInteractionResponseBuilder(IDiscordMessageBuilder builder) : base(builder) { }
-
-        /// <summary>
         /// If responding with a modal, sets the title of the modal.
         /// </summary>
         /// <param name="title"></param>
