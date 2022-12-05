@@ -32,7 +32,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Constructs ready-to-send webhook requests.
     /// </summary>
-    public sealed class DiscordWebhookBuilder : IDiscordMessageBuilder<DiscordWebhookBuilder>
+    public sealed class DiscordWebhookBuilder : BaseDiscordMessageBuilder<DiscordWebhookBuilder>
     {
         /// <summary>
         /// Username to use for this webhook request.
@@ -47,12 +47,12 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Whether this webhook request is text-to-speech.
         /// </summary>
-        public bool IsTTS { get; set; }
+        public override bool IsTTS { get; set; }
 
         /// <summary>
         /// Message to send on this webhook request.
         /// </summary>
-        public string Content
+        public override string Content
         {
             get => this._content;
             set
@@ -73,23 +73,23 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Embeds to send on this webhook request.
         /// </summary>
-        public IReadOnlyList<DiscordEmbed> Embeds => this._embeds;
+        public override IReadOnlyList<DiscordEmbed> Embeds => this._embeds;
         private readonly List<DiscordEmbed> _embeds = new();
 
         /// <summary>
         /// Files to send on this webhook request.
         /// </summary>
-        public IReadOnlyList<DiscordMessageFile> Files => this._files;
+        public override IReadOnlyList<DiscordMessageFile> Files => this._files;
         private readonly List<DiscordMessageFile> _files = new();
 
         /// <summary>
         /// Mentions to send on this webhook request.
         /// </summary>
-        public IReadOnlyList<IMention> Mentions => this._mentions;
+        public override IReadOnlyList<IMention> Mentions => this._mentions;
         private readonly List<IMention> _mentions = new();
 
 
-        public IReadOnlyList<DiscordActionRowComponent> Components => this._components;
+        public override IReadOnlyList<DiscordActionRowComponent> Components => this._components;
         private readonly List<DiscordActionRowComponent> _components = new();
 
 
@@ -105,7 +105,7 @@ namespace DSharpPlus.Entities
         /// <param name="components">The components to add to the builder.</param>
         /// <returns>The current builder to be chained.</returns>
         /// <exception cref="ArgumentOutOfRangeException">No components were passed.</exception>
-        public DiscordWebhookBuilder AddComponents(params DiscordComponent[] components)
+        public override DiscordWebhookBuilder AddComponents(params DiscordComponent[] components)
             => this.AddComponents((IEnumerable<DiscordComponent>)components);
 
 
@@ -114,7 +114,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="components">The rows of components to add, holding up to five each.</param>
         /// <returns></returns>
-        public DiscordWebhookBuilder AddComponents(IEnumerable<DiscordActionRowComponent> components)
+        public override DiscordWebhookBuilder AddComponents(IEnumerable<DiscordActionRowComponent> components)
         {
             var ara = components.ToArray();
 
@@ -133,7 +133,7 @@ namespace DSharpPlus.Entities
         /// <param name="components">The components to add to the builder.</param>
         /// <returns>The current builder to be chained.</returns>
         /// <exception cref="ArgumentOutOfRangeException">No components were passed.</exception>
-        public DiscordWebhookBuilder AddComponents(IEnumerable<DiscordComponent> components)
+        public override DiscordWebhookBuilder AddComponents(IEnumerable<DiscordComponent> components)
         {
             var cmpArr = components.ToArray();
             var count = cmpArr.Length;
@@ -174,7 +174,7 @@ namespace DSharpPlus.Entities
         /// Indicates if the webhook must use text-to-speech.
         /// </summary>
         /// <param name="tts">Text-to-speech</param>
-        public DiscordWebhookBuilder WithTTS(bool tts)
+        public override DiscordWebhookBuilder WithTTS(bool tts)
         {
             this.IsTTS = tts;
             return this;
@@ -184,7 +184,7 @@ namespace DSharpPlus.Entities
         /// Sets the message to send at the execution of the webhook.
         /// </summary>
         /// <param name="content">Message to send.</param>
-        public DiscordWebhookBuilder WithContent(string content)
+        public override DiscordWebhookBuilder WithContent(string content)
         {
             this.Content = content;
             return this;
@@ -194,7 +194,7 @@ namespace DSharpPlus.Entities
         /// Adds an embed to send at the execution of the webhook.
         /// </summary>
         /// <param name="embed">Embed to add.</param>
-        public DiscordWebhookBuilder AddEmbed(DiscordEmbed embed)
+        public override DiscordWebhookBuilder AddEmbed(DiscordEmbed embed)
         {
             if (embed != null)
                 this._embeds.Add(embed);
@@ -206,7 +206,7 @@ namespace DSharpPlus.Entities
         /// Adds the given embeds to send at the execution of the webhook.
         /// </summary>
         /// <param name="embeds">Embeds to add.</param>
-        public DiscordWebhookBuilder AddEmbeds(IEnumerable<DiscordEmbed> embeds)
+        public override DiscordWebhookBuilder AddEmbeds(IEnumerable<DiscordEmbed> embeds)
         {
             this._embeds.AddRange(embeds);
             return this;
@@ -218,7 +218,7 @@ namespace DSharpPlus.Entities
         /// <param name="filename">Name of the file.</param>
         /// <param name="data">File data.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
-        public DiscordWebhookBuilder AddFile(string filename, Stream data, bool resetStreamPosition = false)
+        public override DiscordWebhookBuilder AddFile(string filename, Stream data, bool resetStreamPosition = false)
         {
             if (this.Files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
@@ -240,7 +240,7 @@ namespace DSharpPlus.Entities
         /// <param name="stream">The Stream to the file.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
         /// <returns></returns>
-        public DiscordWebhookBuilder AddFile(FileStream stream, bool resetStreamPosition = false)
+        public override DiscordWebhookBuilder AddFile(FileStream stream, bool resetStreamPosition = false)
         {
             if (this.Files.Count() >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
@@ -261,7 +261,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="files">Dictionary of file name and file data.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
-        public DiscordWebhookBuilder AddFiles(IDictionary<string, Stream> files, bool resetStreamPosition = false)
+        public override DiscordWebhookBuilder AddFiles(IDictionary<string, Stream> files, bool resetStreamPosition = false)
         {
             if (this.Files.Count() + files.Count() > 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
@@ -285,7 +285,7 @@ namespace DSharpPlus.Entities
         /// Adds the mention to the mentions to parse, etc. at the execution of the webhook.
         /// </summary>
         /// <param name="mention">Mention to add.</param>
-        public DiscordWebhookBuilder AddMention(IMention mention)
+        public override DiscordWebhookBuilder AddMention(IMention mention)
         {
             this._mentions.Add(mention);
             return this;
@@ -295,7 +295,7 @@ namespace DSharpPlus.Entities
         /// Adds the mentions to the mentions to parse, etc. at the execution of the webhook.
         /// </summary>
         /// <param name="mentions">Mentions to add.</param>
-        public DiscordWebhookBuilder AddMentions(IEnumerable<IMention> mentions)
+        public override DiscordWebhookBuilder AddMentions(IEnumerable<IMention> mentions)
         {
             this._mentions.AddRange(mentions);
             return this;
@@ -336,13 +336,13 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Clears all message components on this builder.
         /// </summary>
-        public void ClearComponents()
+        public override void ClearComponents()
             => this._components.Clear();
 
         /// <summary>
         /// Allows for clearing the Webhook Builder so that it can be used again to send a new message.
         /// </summary>
-        public void Clear()
+        public override void Clear()
         {
             this.Content = "";
             this._embeds.Clear();

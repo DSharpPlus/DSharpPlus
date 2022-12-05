@@ -31,12 +31,12 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Constructs a followup message to an interaction.
     /// </summary>
-    public sealed class DiscordFollowupMessageBuilder : IDiscordMessageBuilder<DiscordFollowupMessageBuilder>
+    public sealed class DiscordFollowupMessageBuilder : BaseDiscordMessageBuilder<DiscordFollowupMessageBuilder>
     {
         /// <summary>
         /// Whether this followup message is text-to-speech.
         /// </summary>
-        public bool IsTTS { get; set; }
+        public override bool IsTTS { get; set; }
 
         /// <summary>
         /// Whether this followup message should be ephemeral.
@@ -49,7 +49,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Message to send on followup message.
         /// </summary>
-        public string Content
+        public override string Content
         {
             get => this._content;
             set
@@ -64,25 +64,25 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Embeds to send on followup message.
         /// </summary>
-        public IReadOnlyList<DiscordEmbed> Embeds => this._embeds;
+        public override IReadOnlyList<DiscordEmbed> Embeds => this._embeds;
         private readonly List<DiscordEmbed> _embeds = new();
 
         /// <summary>
         /// Files to send on this followup message.
         /// </summary>
-        public IReadOnlyList<DiscordMessageFile> Files => this._files;
+        public override IReadOnlyList<DiscordMessageFile> Files => this._files;
         private readonly List<DiscordMessageFile> _files = new();
 
         /// <summary>
         /// Components to send on this followup message.
         /// </summary>
-        public IReadOnlyList<DiscordActionRowComponent> Components => this._components;
+        public override IReadOnlyList<DiscordActionRowComponent> Components => this._components;
         private readonly List<DiscordActionRowComponent> _components = new();
 
         /// <summary>
         /// Mentions to send on this followup message.
         /// </summary>
-        public IReadOnlyList<IMention> Mentions => this._mentions;
+        public override IReadOnlyList<IMention> Mentions => this._mentions;
         private readonly List<IMention> _mentions = new();
 
 
@@ -92,7 +92,7 @@ namespace DSharpPlus.Entities
         /// <param name="components">The collection of components to add.</param>
         /// <returns>The builder to chain calls with.</returns>
         /// <exception cref="ArgumentException"><paramref name="components"/> contained more than 5 components.</exception>
-        public DiscordFollowupMessageBuilder AddComponents(params DiscordComponent[] components)
+        public override DiscordFollowupMessageBuilder AddComponents(params DiscordComponent[] components)
             => this.AddComponents((IEnumerable<DiscordComponent>)components);
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="components">The rows of components to add, holding up to five each.</param>
         /// <returns></returns>
-        public DiscordFollowupMessageBuilder AddComponents(IEnumerable<DiscordActionRowComponent> components)
+        public override DiscordFollowupMessageBuilder AddComponents(IEnumerable<DiscordActionRowComponent> components)
         {
             var ara = components.ToArray();
 
@@ -119,7 +119,7 @@ namespace DSharpPlus.Entities
         /// <param name="components">The collection of components to add.</param>
         /// <returns>The builder to chain calls with.</returns>
         /// <exception cref="ArgumentException"><paramref name="components"/> contained more than 5 components.</exception>
-        public DiscordFollowupMessageBuilder AddComponents(IEnumerable<DiscordComponent> components)
+        public override DiscordFollowupMessageBuilder AddComponents(IEnumerable<DiscordComponent> components)
         {
             var compArr = components.ToArray();
             var count = compArr.Length;
@@ -136,7 +136,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="tts">Text-to-speech</param>
         /// <returns>The builder to chain calls with.</returns>
-        public DiscordFollowupMessageBuilder WithTTS(bool tts)
+        public override DiscordFollowupMessageBuilder WithTTS(bool tts)
         {
             this.IsTTS = tts;
             return this;
@@ -147,7 +147,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="content">Message to send.</param>
         /// <returns>The builder to chain calls with.</returns>
-        public DiscordFollowupMessageBuilder WithContent(string content)
+        public override DiscordFollowupMessageBuilder WithContent(string content)
         {
             this.Content = content;
             return this;
@@ -158,7 +158,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="embed">Embed to add.</param>
         /// <returns>The builder to chain calls with.</returns>
-        public DiscordFollowupMessageBuilder AddEmbed(DiscordEmbed embed)
+        public override DiscordFollowupMessageBuilder AddEmbed(DiscordEmbed embed)
         {
             this._embeds.Add(embed);
             return this;
@@ -169,7 +169,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="embeds">Embeds to add.</param>
         /// <returns>The builder to chain calls with.</returns>
-        public DiscordFollowupMessageBuilder AddEmbeds(IEnumerable<DiscordEmbed> embeds)
+        public override DiscordFollowupMessageBuilder AddEmbeds(IEnumerable<DiscordEmbed> embeds)
         {
             this._embeds.AddRange(embeds);
             return this;
@@ -182,7 +182,7 @@ namespace DSharpPlus.Entities
         /// <param name="data">File data.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
         /// <returns>The builder to chain calls with.</returns>
-        public DiscordFollowupMessageBuilder AddFile(string filename, Stream data, bool resetStreamPosition = false)
+        public override DiscordFollowupMessageBuilder AddFile(string filename, Stream data, bool resetStreamPosition = false)
         {
             if (this.Files.Count >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
@@ -204,7 +204,7 @@ namespace DSharpPlus.Entities
         /// <param name="stream">The Stream to the file.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
         /// <returns>The builder to chain calls with.</returns>
-        public DiscordFollowupMessageBuilder AddFile(FileStream stream, bool resetStreamPosition = false)
+        public override DiscordFollowupMessageBuilder AddFile(FileStream stream, bool resetStreamPosition = false)
         {
             if (this.Files.Count >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
@@ -226,7 +226,7 @@ namespace DSharpPlus.Entities
         /// <param name="files">Dictionary of file name and file data.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
         /// <returns>The builder to chain calls with.</returns>
-        public DiscordFollowupMessageBuilder AddFiles(IDictionary<string, Stream> files, bool resetStreamPosition = false)
+        public override DiscordFollowupMessageBuilder AddFiles(IDictionary<string, Stream> files, bool resetStreamPosition = false)
         {
             if (this.Files.Count + files.Count > 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
@@ -251,7 +251,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="mention">Mention to add.</param>
         /// <returns>The builder to chain calls with.</returns>
-        public DiscordFollowupMessageBuilder AddMention(IMention mention)
+        public override DiscordFollowupMessageBuilder AddMention(IMention mention)
         {
             this._mentions.Add(mention);
             return this;
@@ -262,7 +262,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="mentions">Mentions to add.</param>
         /// <returns>The builder to chain calls with.</returns>
-        public DiscordFollowupMessageBuilder AddMentions(IEnumerable<IMention> mentions)
+        public override DiscordFollowupMessageBuilder AddMentions(IEnumerable<IMention> mentions)
         {
             this._mentions.AddRange(mentions);
             return this;
@@ -282,13 +282,13 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Clears all message components on this builder.
         /// </summary>
-        public void ClearComponents()
+        public override void ClearComponents()
             => this._components.Clear();
 
         /// <summary>
         /// Allows for clearing the Followup Message builder so that it can be used again to send a new message.
         /// </summary>
-        public void Clear()
+        public override void Clear()
         {
             this.Content = "";
             this._embeds.Clear();

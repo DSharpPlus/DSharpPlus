@@ -33,12 +33,12 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Constructs a Message to be sent.
     /// </summary>
-    public sealed class DiscordMessageBuilder : IDiscordMessageBuilder<DiscordMessageBuilder>
+    public sealed class DiscordMessageBuilder : BaseDiscordMessageBuilder<DiscordMessageBuilder>
     {
         /// <summary>
         /// Gets or Sets the Message to be sent.
         /// </summary>
-        public string Content
+        public override string Content
         {
             get => this._content;
             set
@@ -72,30 +72,30 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the Embeds to be sent.
         /// </summary>
-        public IReadOnlyList<DiscordEmbed> Embeds => this._embeds;
+        public override IReadOnlyList<DiscordEmbed> Embeds => this._embeds;
         internal readonly List<DiscordEmbed> _embeds = new();
 
         /// <summary>
         /// Gets or Sets if the message should be TTS.
         /// </summary>
-        public bool IsTTS { get; set; } = false;
+        public override bool IsTTS { get; set; } = false;
 
         /// <summary>
         /// Gets the Allowed Mentions for the message to be sent.
         /// </summary>
-        public IReadOnlyList<IMention> Mentions => this._mentions;
+        public override IReadOnlyList<IMention> Mentions => this._mentions;
         internal List<IMention> _mentions = new();
 
         /// <summary>
         /// Gets the Files to be sent in the Message.
         /// </summary>
-        public IReadOnlyList<DiscordMessageFile> Files => this._files;
+        public override IReadOnlyList<DiscordMessageFile> Files => this._files;
         internal readonly List<DiscordMessageFile> _files = new();
 
         /// <summary>
         /// Gets the components that will be attached to the message.
         /// </summary>
-        public IReadOnlyList<DiscordActionRowComponent> Components => this._components;
+        public override IReadOnlyList<DiscordActionRowComponent> Components => this._components;
         internal readonly List<DiscordActionRowComponent> _components = new(5);
 
         /// <summary>
@@ -120,7 +120,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="content">The content to be set.</param>
         /// <returns>The current builder to be chained.</returns>
-        public DiscordMessageBuilder WithContent(string content)
+        public override DiscordMessageBuilder WithContent(string content)
         {
             this.Content = content;
             return this;
@@ -143,7 +143,7 @@ namespace DSharpPlus.Entities
         /// <param name="components">The components to add to the message.</param>
         /// <returns>The current builder to be chained.</returns>
         /// <exception cref="ArgumentOutOfRangeException">No components were passed.</exception>
-        public DiscordMessageBuilder AddComponents(params DiscordComponent[] components)
+        public override DiscordMessageBuilder AddComponents(params DiscordComponent[] components)
             => this.AddComponents((IEnumerable<DiscordComponent>)components);
 
 
@@ -152,7 +152,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="components">The rows of components to add, holding up to five each.</param>
         /// <returns></returns>
-        public DiscordMessageBuilder AddComponents(IEnumerable<DiscordActionRowComponent> components)
+        public override DiscordMessageBuilder AddComponents(IEnumerable<DiscordActionRowComponent> components)
         {
             var ara = components.ToArray();
 
@@ -171,7 +171,7 @@ namespace DSharpPlus.Entities
         /// <param name="components">The components to add to the message.</param>
         /// <returns>The current builder to be chained.</returns>
         /// <exception cref="ArgumentOutOfRangeException">No components were passed.</exception>
-        public DiscordMessageBuilder AddComponents(IEnumerable<DiscordComponent> components)
+        public override DiscordMessageBuilder AddComponents(IEnumerable<DiscordComponent> components)
         {
             var cmpArr = components.ToArray();
             var count = cmpArr.Length;
@@ -193,7 +193,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="isTTS">If TTS should be set.</param>
         /// <returns>The current builder to be chained.</returns>
-        public DiscordMessageBuilder WithTTS(bool isTTS)
+        public override DiscordMessageBuilder WithTTS(bool isTTS)
         {
             this.IsTTS = isTTS;
             return this;
@@ -218,7 +218,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="embed">The embed that should be appended.</param>
         /// <returns>The current builder to be chained.</returns>
-        public DiscordMessageBuilder AddEmbed(DiscordEmbed embed)
+        public override DiscordMessageBuilder AddEmbed(DiscordEmbed embed)
         {
             if (embed == null)
                 return this; //Providing null embeds will produce a 400 response from Discord.//
@@ -231,7 +231,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="embeds">The embeds that should be appended.</param>
         /// <returns>The current builder to be chained.</returns>
-        public DiscordMessageBuilder AddEmbeds(IEnumerable<DiscordEmbed> embeds)
+        public override DiscordMessageBuilder AddEmbeds(IEnumerable<DiscordEmbed> embeds)
         {
             this._embeds.AddRange(embeds);
             return this;
@@ -276,7 +276,7 @@ namespace DSharpPlus.Entities
         /// <param name="stream">The Stream to the file.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
         /// <returns>The current builder to be chained.</returns>
-        public DiscordMessageBuilder AddFile(string fileName, Stream stream, bool resetStreamPosition = false)
+        public override DiscordMessageBuilder AddFile(string fileName, Stream stream, bool resetStreamPosition = false)
         {
             if (this.Files.Count >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
@@ -298,7 +298,7 @@ namespace DSharpPlus.Entities
         /// <param name="stream">The Stream to the file.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
         /// <returns>The current builder to be chained.</returns>
-        public DiscordMessageBuilder AddFile(FileStream stream, bool resetStreamPosition = false)
+        public override DiscordMessageBuilder AddFile(FileStream stream, bool resetStreamPosition = false)
         {
             if (this.Files.Count >= 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
@@ -320,7 +320,7 @@ namespace DSharpPlus.Entities
         /// <param name="files">The Files that should be sent.</param>
         /// <param name="resetStreamPosition">Tells the API Client to reset the stream position to what it was after the file is sent.</param>
         /// <returns>The current builder to be chained.</returns>
-        public DiscordMessageBuilder AddFiles(IDictionary<string, Stream> files, bool resetStreamPosition = false)
+        public override DiscordMessageBuilder AddFiles(IDictionary<string, Stream> files, bool resetStreamPosition = false)
         {
             if (this.Files.Count + files.Count > 10)
                 throw new ArgumentException("Cannot send more than 10 files with a single message.");
@@ -365,7 +365,7 @@ namespace DSharpPlus.Entities
         /// Adds the mention to the mentions to parse, etc. with the interaction response.
         /// </summary>
         /// <param name="mention">Mention to add.</param>
-        public DiscordMessageBuilder AddMention(IMention mention)
+        public override DiscordMessageBuilder AddMention(IMention mention)
         {
             this._mentions.Add(mention);
             return this;
@@ -375,7 +375,7 @@ namespace DSharpPlus.Entities
         /// Adds the mentions to the mentions to parse, etc. with the interaction response.
         /// </summary>
         /// <param name="mentions">Mentions to add.</param>
-        public DiscordMessageBuilder AddMentions(IEnumerable<IMention> mentions)
+        public override DiscordMessageBuilder AddMentions(IEnumerable<IMention> mentions)
         {
             this._mentions.AddRange(mentions);
             return this;
@@ -399,13 +399,13 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Clears all message components on this builder.
         /// </summary>
-        public void ClearComponents()
+        public override void ClearComponents()
             => this._components.Clear();
 
         /// <summary>
         /// Allows for clearing the Message Builder so that it can be used again to send a new message.
         /// </summary>
-        public void Clear()
+        public override void Clear()
         {
             this.Content = "";
             this._embeds.Clear();
