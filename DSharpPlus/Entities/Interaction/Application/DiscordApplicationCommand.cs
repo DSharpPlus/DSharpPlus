@@ -154,7 +154,12 @@ namespace DSharpPlus.Entities
         /// <param name="name">The name of the subgroup and/or subcommand.</param>
         /// <returns>Formatted mention.</returns>
         public string GetSubcommandMention(params string[] name)
-            => $"</{this.Name} {string.Join(" ", name)}:{this.Id.ToString(CultureInfo.InvariantCulture)}>";
+        {
+            if (!this.Options.Any(x => x.Name == name[0]))
+                throw new ArgumentException("Specified subgroup/subcommand doesn't exist.");
+
+            return $"</{this.Name} {string.Join(" ", name)}:{this.Id.ToString(CultureInfo.InvariantCulture)}>";
+        }
 
         /// <summary>
         /// Checks whether this <see cref="DiscordApplicationCommand"/> object is equal to another object.
