@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json;
 
@@ -96,6 +97,13 @@ namespace DSharpPlus.Entities
         public IReadOnlyDictionary<string, string> DescriptionLocalizations { get; internal set; }
 
         /// <summary>
+        /// Gets the command's mention string.
+        /// </summary>
+        [JsonIgnore]
+        public string Mention
+            => Formatter.Mention(this);
+
+        /// <summary>
         /// Creates a new instance of a <see cref="DiscordApplicationCommand"/>.
         /// </summary>
         /// <param name="name">The name of the command.</param>
@@ -139,6 +147,14 @@ namespace DSharpPlus.Entities
             this.AllowDMUsage = allowDMUsage;
             this.DefaultMemberPermissions = defaultMemberPermissions;
         }
+
+        /// <summary>
+        /// Creates a mention for a subcommand.
+        /// </summary>
+        /// <param name="name">The name of the subgroup and/or subcommand.</param>
+        /// <returns>Formatted mention.</returns>
+        public string GetSubcommandMention(params string[] name)
+            => $"</{this.Name} {string.Join(" ", name)}:{this.Id.ToString(CultureInfo.InvariantCulture)}>";
 
         /// <summary>
         /// Checks whether this <see cref="DiscordApplicationCommand"/> object is equal to another object.
