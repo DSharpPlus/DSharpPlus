@@ -74,9 +74,9 @@ namespace DSharpPlus.Entities
         public DiscordMessageBuilder() { }
 
         /// <summary>
-        /// Constructs a new discord message builder based on a previous builder
+        /// Constructs a new discord message builder based on a previous builder.
         /// </summary>
-        /// <param name="builder"></param>
+        /// <param name="builder">The builder to copy.</param>
         public DiscordMessageBuilder(DiscordMessageBuilder builder) : base(builder)
         {
             this.Sticker = builder.Sticker;
@@ -84,6 +84,12 @@ namespace DSharpPlus.Entities
             this.MentionOnReply = builder.MentionOnReply;
             this.FailOnInvalidReply = builder.FailOnInvalidReply;
         }
+
+        /// <summary>
+        /// Copies the common properties from the passed builder.
+        /// </summary>
+        /// <param name="builder">The builder to copy.</param>
+        public DiscordMessageBuilder(IDiscordMessageBuilder builder) : base(builder) { }
 
         /// <summary>
         /// Adds a sticker to the message. Sticker must be from current guild.

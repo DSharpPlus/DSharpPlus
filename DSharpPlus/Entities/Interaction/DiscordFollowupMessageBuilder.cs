@@ -50,9 +50,9 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Constructs a new followup message builder based on a previous IDiscordMessageBuilder
+        /// Copies the common properties from the passed builder.
         /// </summary>
-        /// <param name="builder"></param>
+        /// <param name="builder">The builder to copy.</param>
         public DiscordFollowupMessageBuilder(IDiscordMessageBuilder builder) : base(builder) { }
 
         /// <summary>

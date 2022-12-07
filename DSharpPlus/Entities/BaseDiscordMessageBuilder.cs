@@ -79,14 +79,14 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Thou shalt NOT PASS! ⚡
         /// </summary>
-        internal BaseDiscordMessageBuilder(){}
+        internal BaseDiscordMessageBuilder() { }
 
         /// <summary>
         /// Constructs a new <see cref="BaseDiscordMessageBuilder{T}"/> based on an existing <see cref="IDiscordMessageBuilder"/>.
         /// Existing file streams will have their position reset to 0.
         /// </summary>
         /// <param name="builder">The builder to copy.</param>
-        public BaseDiscordMessageBuilder(IDiscordMessageBuilder builder)
+        protected BaseDiscordMessageBuilder(IDiscordMessageBuilder builder)
         {
             this._content = builder.Content;
             this._mentions.AddRange(builder.Mentions.ToList());
@@ -308,7 +308,6 @@ namespace DSharpPlus.Entities
             this._files.Clear();
             this._components.Clear();
         }
-
 
         IDiscordMessageBuilder IDiscordMessageBuilder.WithContent(string content) => this.WithContent(content);
         IDiscordMessageBuilder IDiscordMessageBuilder.AddComponents(params DiscordComponent[] components) => this.AddComponents(components);

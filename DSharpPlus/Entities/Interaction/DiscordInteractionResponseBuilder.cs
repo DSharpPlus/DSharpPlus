@@ -58,6 +58,16 @@ namespace DSharpPlus.Entities
         /// </summary>
         public DiscordInteractionResponseBuilder() { }
 
+        /// <summary>
+        /// Copies the common properties from the passed builder.
+        /// </summary>
+        /// <param name="builder">The builder to copy.</param>
+        public DiscordInteractionResponseBuilder(IDiscordMessageBuilder builder) : base(builder) { }
+
+        /// <summary>
+        /// Constructs a new interaction response builder based on the passed builder.
+        /// </summary>
+        /// <param name="builder">The builder to copy.</param>
         public DiscordInteractionResponseBuilder(DiscordInteractionResponseBuilder builder) : base(builder)
         {
             this.IsEphemeral = builder.IsEphemeral;
