@@ -112,22 +112,28 @@ namespace DSharpPlus.Entities
         public DiscordMessageBuilder(DiscordMessage baseMessage)
         {
             this.IsTTS = baseMessage.IsTTS;
-            this.ReplyId = baseMessage.ReferencedMessage.Id;
+            this.ReplyId = baseMessage.ReferencedMessage?.Id;
             this._components = baseMessage.Components.ToList(); // Calling ToList copies the list instead of referencing it
             this._content = baseMessage.Content;
             this._embeds = baseMessage.Embeds.ToList();
-            this._mentions = new();
             this._stickers = baseMessage.Stickers.ToList();
+            this._mentions = new();
 
-            foreach (var user in baseMessage._mentionedUsers)
+            if (baseMessage._mentionedRoles != null)
             {
-                this._mentions.Add(new UserMention(user.Id));
+                foreach (var user in baseMessage._mentionedUsers)
+                {
+                    this._mentions.Add(new UserMention(user.Id));
+                }
             }
 
             // Unsure about mentionedRoleIds
-            foreach (var role in baseMessage._mentionedRoles)
+            if (baseMessage._mentionedRoles != null)
             {
-                this._mentions.Add(new RoleMention(role.Id));
+                foreach (var role in baseMessage._mentionedRoles)
+                {
+                    this._mentions.Add(new RoleMention(role.Id));
+                }
             }
         }
 
