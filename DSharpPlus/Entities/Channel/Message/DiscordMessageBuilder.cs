@@ -253,6 +253,9 @@ namespace DSharpPlus.Entities
 
             if (this.Components.Any(c => c.Components.Count > 5))
                 throw new InvalidOperationException("Action rows can only have 5 components");
+
+            if (this.Stickers?.Count > 3)
+                throw new InvalidOperationException("You can only have 3 stickers per message.");
         }
     }
 }
