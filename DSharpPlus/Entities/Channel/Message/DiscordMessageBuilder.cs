@@ -47,9 +47,23 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Gets or Sets a sticker to be attached.
+        /// Gets or sets the sticker for the builder. This will always set the builder to have one sticker.
         /// </summary>
-        public DiscordMessageSticker Sticker { get; set; }
+        public DiscordMessageSticker Sticker
+        {
+            get => this._stickers.Count > 0 ? this._stickers[0] : null;
+            set
+            {
+                this._stickers.Clear();
+                this._stickers.Add(value);
+            }
+        }
+
+        /// <summary>
+        /// The stickers to attach to the message.
+        /// </summary>
+        public IReadOnlyList<DiscordMessageSticker> Stickers => this._stickers;
+        internal List<DiscordMessageSticker> _stickers = new();
 
         /// <summary>
         /// Gets the Reply Message ID.
@@ -74,15 +88,53 @@ namespace DSharpPlus.Entities
         public DiscordMessageBuilder() { }
 
         /// <summary>
-        /// Constructs a new discord message builder based on a previous builder
+        /// Constructs a new discord message builder based on a previous builder.
         /// </summary>
-        /// <param name="builder"></param>
+        /// <param name="builder">The builder to copy.</param>
         public DiscordMessageBuilder(DiscordMessageBuilder builder) : base(builder)
         {
             this.Sticker = builder.Sticker;
             this.ReplyId = builder.ReplyId;
             this.MentionOnReply = builder.MentionOnReply;
             this.FailOnInvalidReply = builder.FailOnInvalidReply;
+        }
+
+        /// <summary>
+        /// Copies the common properties from the passed builder.
+        /// </summary>
+        /// <param name="builder">The builder to copy.</param>
+        public DiscordMessageBuilder(IDiscordMessageBuilder builder) : base(builder) { }
+
+        /// <summary>
+        /// Constructs a new discord message builder based on the passed message.
+        /// </summary>
+        /// <param name="baseMessage">The message to copy.</param>
+        public DiscordMessageBuilder(DiscordMessage baseMessage)
+        {
+            this.IsTTS = baseMessage.IsTTS;
+            this.ReplyId = baseMessage.ReferencedMessage?.Id;
+            this._components = baseMessage.Components.ToList(); // Calling ToList copies the list instead of referencing it
+            this._content = baseMessage.Content;
+            this._embeds = baseMessage.Embeds.ToList();
+            this._stickers = baseMessage.Stickers.ToList();
+            this._mentions = new();
+
+            if (baseMessage._mentionedRoles != null)
+            {
+                foreach (var user in baseMessage._mentionedUsers)
+                {
+                    this._mentions.Add(new UserMention(user.Id));
+                }
+            }
+
+            // Unsure about mentionedRoleIds
+            if (baseMessage._mentionedRoles != null)
+            {
+                foreach (var role in baseMessage._mentionedRoles)
+                {
+                    this._mentions.Add(new RoleMention(role.Id));
+                }
+            }
         }
 
         /// <summary>
@@ -93,6 +145,17 @@ namespace DSharpPlus.Entities
         public DiscordMessageBuilder WithSticker(DiscordMessageSticker sticker)
         {
             this.Sticker = sticker;
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a sticker to the message. Sticker must be from current guild.
+        /// </summary>
+        /// <param name="stickers">The sticker to add.</param>
+        /// <returns>The current builder to be chained.</returns>
+        public DiscordMessageBuilder WithStickers(IEnumerable<DiscordMessageSticker> stickers)
+        {
+            this._stickers = stickers.ToList();
             return this;
         }
 
@@ -190,6 +253,9 @@ namespace DSharpPlus.Entities
 
             if (this.Components.Any(c => c.Components.Count > 5))
                 throw new InvalidOperationException("Action rows can only have 5 components");
+
+            if (this.Stickers?.Count > 3)
+                throw new InvalidOperationException("You can only have 3 stickers per message.");
         }
     }
 }

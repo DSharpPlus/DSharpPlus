@@ -55,13 +55,19 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Constructs a new webhook request builder based on a previous message builder
         /// </summary>
-        /// <param name="builder"></param>
+        /// <param name="builder">The builder to copy.</param>
         public DiscordWebhookBuilder(DiscordWebhookBuilder builder) : base(builder)
         {
             this.Username = builder.Username;
             this.AvatarUrl = builder.AvatarUrl;
-            this.ThreadId= builder.ThreadId;
+            this.ThreadId = builder.ThreadId;
         }
+
+        /// <summary>
+        /// Copies the common properties from the passed builder.
+        /// </summary>
+        /// <param name="builder">The builder to copy.</param>
+        public DiscordWebhookBuilder(IDiscordMessageBuilder builder) : base(builder) { }
 
         /// <summary>
         /// Sets the username for this webhook builder.
