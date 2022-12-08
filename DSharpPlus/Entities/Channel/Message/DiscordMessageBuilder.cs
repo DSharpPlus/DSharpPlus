@@ -47,9 +47,23 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Gets or Sets a sticker to be attached.
+        /// Gets or sets the sticker for the builder. This will always set the builder to have one sticker.
         /// </summary>
-        public DiscordMessageSticker Sticker { get; set; }
+        public DiscordMessageSticker Sticker
+        {
+            get => this._stickers.Count > 0 ? this._stickers[0] : null;
+            set
+            {
+                this._stickers.Clear();
+                this._stickers.Add(value);
+            }
+        }
+
+        /// <summary>
+        /// The stickers to attach to the message.
+        /// </summary>
+        public IReadOnlyList<DiscordMessageSticker> Stickers => this._stickers;
+        internal List<DiscordMessageSticker> _stickers = new();
 
         /// <summary>
         /// Gets the Reply Message ID.
@@ -92,6 +106,32 @@ namespace DSharpPlus.Entities
         public DiscordMessageBuilder(IDiscordMessageBuilder builder) : base(builder) { }
 
         /// <summary>
+        /// Constructs a new discord message builder based on the passed message.
+        /// </summary>
+        /// <param name="baseMessage">The message to copy.</param>
+        public DiscordMessageBuilder(DiscordMessage baseMessage)
+        {
+            this.IsTTS = baseMessage.IsTTS;
+            this.ReplyId = baseMessage.ReferencedMessage.Id;
+            this._components = baseMessage.Components.ToList(); // Calling ToList copies the list instead of referencing it
+            this._content = baseMessage.Content;
+            this._embeds = baseMessage.Embeds.ToList();
+            this._mentions = new();
+            this._stickers = baseMessage.Stickers.ToList();
+
+            foreach (var user in baseMessage._mentionedUsers)
+            {
+                this._mentions.Add(new UserMention(user.Id));
+            }
+
+            // Unsure about mentionedRoleIds
+            foreach (var role in baseMessage._mentionedRoles)
+            {
+                this._mentions.Add(new RoleMention(role.Id));
+            }
+        }
+
+        /// <summary>
         /// Adds a sticker to the message. Sticker must be from current guild.
         /// </summary>
         /// <param name="sticker">The sticker to add.</param>
@@ -99,6 +139,17 @@ namespace DSharpPlus.Entities
         public DiscordMessageBuilder WithSticker(DiscordMessageSticker sticker)
         {
             this.Sticker = sticker;
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a sticker to the message. Sticker must be from current guild.
+        /// </summary>
+        /// <param name="stickers">The sticker to add.</param>
+        /// <returns>The current builder to be chained.</returns>
+        public DiscordMessageBuilder WithStickers(IEnumerable<DiscordMessageSticker> stickers)
+        {
+            this._stickers = stickers.ToList();
             return this;
         }
 
