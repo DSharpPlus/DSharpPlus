@@ -8,27 +8,31 @@ jobs:
     runs-on: "self-hosted"
     if: "!contains(format('{0} {1}', github.event.head_commit.message, github.event.pull_request.title), '[ci-skip]')"
     steps:
-      - name: "Checkout"
-        uses: "actions/checkout@v3"
+      - name: Checkout
+        uses: actions/checkout@v3
 
-      - name: "Setup .NET"
-        uses: "actions/setup-dotnet@v2"
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: "6.0.x"
+          dotnet-version: 7
+        env:
+          DOTNET_INSTALL_DIR: ${{ github.workspace }}/.dotnet # Attempts to install to `/usr/share/dotnet`, which is not writable on GitHub Actions by default.
+          DOTNET_NOLOGO: true
+          DOTNET_CLI_TELEMETRY_OPTOUT: true
 
-      - name: "Build Nuget Packages"
+      - name: Build Nuget Packages
         run: "mkdir build && dotnet pack -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg -c Release -o build"
 
-      - name: "Publish Nuget Packages"
+      - name: Publish Nuget Packages
         run: "dotnet nuget push \"build/*\" -k ${{ secrets.NUGET_ORG_API_KEY }} -s https://api.nuget.org/v3/index.json"
 
-      - name: "Upload Nuget Packages To Github Actions"
+      - name: Upload Nuget Packages To Github Actions
         uses: actions/upload-artifact@v3
         with:
           name: PR Nuget Packages
           path: build/*
 
-      - name: "Upload Nuget Packages To Github Release"
+      - name: Upload Nuget Packages To Github Release
         uses: "ncipollo/release-action@v1"
         with:
           allowUpdates: true
@@ -37,3 +41,13 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           omitBodyDuringUpdate: true # We don't want to update the body of the release.
           omitNameDuringUpdate: true # We don't want to update the name of the release.
+
+      - name: Update Discord Channel Topic
+        run: "dotnet run --project ./tools/AutoUpdateChannelDescription -p:Nightly=${{ github.run_number }} -- $(git describe --abbrev=0 --tags)"
+        env:
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
+          DISCORD_CHANNEL_ID: ${{ secrets.DISCORD_CHANNEL_ID }}
+          DISCORD_CHANNEL_TOPIC: ${{ secrets.DISCORD_CHANNEL_TOPIC }}
+          NUGET_URL: ${{ secrets.NUGET_URL }}
+          GITHUB_URL : ${{ github.server_url }}/${{ github.repository }}
