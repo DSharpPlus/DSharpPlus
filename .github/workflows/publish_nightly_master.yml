@@ -2,13 +2,21 @@ name: .NET Build
 
 on:
   push:
+    branches:
+      - master
   pull_request:
+    branches:
+      - master
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
 
 jobs:
-  build-and-test:
-    name: Publish Nightly
+  build_and_publish:
+    name: Publish Nightly (Master)
     runs-on: self-hosted
-    if: "!contains(toJSON(github.event.commits.*.message), '[ci-skip]')"
+    if: "!contains(toJSON(github.event.head_commit.message), '[ci-skip]')"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -19,17 +27,15 @@ jobs:
           dotnet-version: 7
         env:
           DOTNET_INSTALL_DIR: ${{ github.workspace }}/.dotnet # Attempts to install to `/usr/share/dotnet`, which is not writable on GitHub Actions by default.
-          DOTNET_NOLOGO: true
-          DOTNET_CLI_TELEMETRY_OPTOUT: true
 
       - name: Package
-        run: "mkdir build && dotnet pack -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --include-source -o build -p:VersionSuffix='nightly' -p:BuildNumber=0$(( 1091 + ${{ github.run_number }} ))" # We add 1091 since it's the last build number AppVeyor used.
+        run: "mkdir build && dotnet pack -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --include-source -o build -p:VersionSuffix='nightly' -p:BuildNumber=$(printf "%0*d\n" 5 $(( 1091 + ${{ github.run_number }} )))" # We add 1091 since it's the last build number AppVeyor used.
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
           name: DSharpPlus-Nightly-${{ github.run_number }}∕${{ github.run_attempt }}
-          path: ./src/bin/Debug/net7.0/publish/
+          path: ./build/*
 
       - name: Publish Nightly Nuget Packages
         if: ${{ github.event_name == 'push' }} # Ensure we don't push nightlies to the nuget feed on PRs.
@@ -37,7 +43,7 @@ jobs:
 
       - name: Update Discord Channel Topic
         if: ${{ github.event_name == 'push' }} # Only update channel topic when a PR is merged
-        run: "dotnet run --project ./tools/AutoUpdateChannelDescription -p:Nightly=${{ github.run_number }} -- $(git describe --abbrev=0 --tags)"
+        run: "dotnet run --no-build --project ./tools/AutoUpdateChannelDescription -- $(git describe --abbrev=0 --tags)"
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
           DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}

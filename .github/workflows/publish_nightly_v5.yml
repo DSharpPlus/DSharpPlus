@@ -1,0 +1,44 @@
+name: .NET Build
+
+on:
+  push:
+    branches:
+      - v5
+  pull_request:
+    branches:
+      - v5
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  build_and_publish:
+    name: Publish Nightly (V5)
+    runs-on: self-hosted
+    if: "!contains(toJSON(github.event.head_commit.message), '[ci-skip]')"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: v5
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 7
+        env:
+          DOTNET_INSTALL_DIR: ${{ github.workspace }}/.dotnet # Attempts to install to `/usr/share/dotnet`, which is not writable on GitHub Actions by default.
+
+      - name: Package
+        run: "mkdir build && dotnet pack -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --include-source -o build -p:VersionPrefix="5.0.0" -p:VersionSuffix='nightly' -p:BuildNumber=$(printf "%0*d\n" 5 ${{ github.run_number }})"
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: DSharpPlus-Nightly-V5-${{ github.run_number }}∕${{ github.run_attempt }}
+          path: ./build/*
+
+      - name: Publish Nightly Nuget Packages
+        if: ${{ github.event_name == 'push' }} # Ensure we don't push nightlies to the nuget feed on PRs.
+        run: "dotnet nuget push \"build/*\" -k ${{ secrets.NUGET_ORG_API_KEY }} -s https://api.nuget.org/v3/index.json" # If the package version does not comply with SemVer, it will be set as a pre-release version automatically.

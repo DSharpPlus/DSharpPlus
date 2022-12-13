@@ -3,10 +3,15 @@ on:
   release:
     types: ["published"]
 
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
 jobs:
   publish_release:
+    name: Publish Release (Master)
     runs-on: "self-hosted"
-    if: "!contains(format('{0} {1}', github.event.head_commit.message, github.event.pull_request.title), '[ci-skip]')"
+    if: "!contains(format('{0} {1}', github.event.head_commit.message, github.event.pull_request.title), '[ci-skip]') && contains(github.event.release.target_commitish, 'master')"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -17,8 +22,6 @@ jobs:
           dotnet-version: 7
         env:
           DOTNET_INSTALL_DIR: ${{ github.workspace }}/.dotnet # Attempts to install to `/usr/share/dotnet`, which is not writable on GitHub Actions by default.
-          DOTNET_NOLOGO: true
-          DOTNET_CLI_TELEMETRY_OPTOUT: true
 
       - name: Build Nuget Packages
         run: "mkdir build && dotnet pack -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg -c Release -o build"
