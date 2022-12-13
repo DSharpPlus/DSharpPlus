@@ -29,7 +29,7 @@ jobs:
           DOTNET_INSTALL_DIR: ${{ github.workspace }}/.dotnet # Attempts to install to `/usr/share/dotnet`, which is not writable on GitHub Actions by default.
 
       - name: Package
-        run: "mkdir build && dotnet pack -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --include-source -o build -p:VersionSuffix='nightly' -p:BuildNumber=$(printf "%0*d\n" 5 $(( 1091 + ${{ github.run_number }} )))" # We add 1091 since it's the last build number AppVeyor used.
+        run: "mkdir build && dotnet pack -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --include-source -o build -p:VersionSuffix='nightly' -p:BuildNumber=$(printf \"%0*d\n\" 5 $(( 1091 + ${{ github.run_number }} )))" # We add 1091 since it's the last build number AppVeyor used.
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
