@@ -3,32 +3,41 @@ on:
   release:
     types: ["published"]
 
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
 jobs:
   publish_release:
+    name: Publish Release (Master)
     runs-on: "self-hosted"
-    if: "!contains(format('{0} {1}', github.event.head_commit.message, github.event.pull_request.title), '[ci-skip]')"
+    if: "!contains(format('{0} {1}', github.event.head_commit.message, github.event.pull_request.title), '[ci-skip]') && contains(github.event.release.target_commitish, 'v5')"
     steps:
-      - name: "Checkout"
-        uses: "actions/checkout@v3"
-
-      - name: "Setup .NET"
-        uses: "actions/setup-dotnet@v2"
+      - name: Checkout
+        uses: actions/checkout@v3
         with:
-          dotnet-version: "6.0.x"
+          ref: v5
 
-      - name: "Build Nuget Packages"
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 7
+        env:
+          DOTNET_INSTALL_DIR: ${{ github.workspace }}/.dotnet # Attempts to install to `/usr/share/dotnet`, which is not writable on GitHub Actions by default.
+
+      - name: Build Nuget Packages
         run: "mkdir build && dotnet pack -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg -c Release -o build"
 
-      - name: "Publish Nuget Packages"
+      - name: Publish Nuget Packages
         run: "dotnet nuget push \"build/*\" -k ${{ secrets.NUGET_ORG_API_KEY }} -s https://api.nuget.org/v3/index.json"
 
-      - name: "Upload Nuget Packages To Github Actions"
+      - name: Upload Nuget Packages To Github Actions
         uses: actions/upload-artifact@v3
         with:
           name: PR Nuget Packages
           path: build/*
 
-      - name: "Upload Nuget Packages To Github Release"
+      - name: Upload Nuget Packages To Github Release
         uses: "ncipollo/release-action@v1"
         with:
           allowUpdates: true
