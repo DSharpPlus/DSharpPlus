@@ -110,7 +110,7 @@ namespace DSharpPlus.Net.Models
         public Optional<string> Description { get; set; }
 
         /// <summary>
-        /// The new discorvery splash image of the guild
+        /// The new discovery splash image of the guild
         /// </summary>
         public Optional<string> DiscoverySplash { get; set; }
 

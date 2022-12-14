@@ -288,7 +288,7 @@ namespace DSharpPlus.Net
             Optional<ExplicitContentFilter> explicitContentFilter, Optional<ulong?> afkChannelId,
             Optional<int> afkTimeout, Optional<string> iconb64, Optional<ulong> ownerId, Optional<string> splashb64,
             Optional<ulong?> systemChannelId, Optional<string> banner, Optional<string> description,
-            Optional<string> discorverySplash, Optional<IEnumerable<string>> features, Optional<string> preferredLocale,
+            Optional<string> discoverySplash, Optional<IEnumerable<string>> features, Optional<string> preferredLocale,
             Optional<ulong?> publicUpdatesChannelId, Optional<ulong?> rulesChannelId, Optional<SystemChannelFlags> systemChannelFlags,
             string reason)
         {
@@ -308,7 +308,7 @@ namespace DSharpPlus.Net
                 SystemChannelId = systemChannelId,
                 Banner = banner,
                 Description = description,
-                DiscoverySplash = discorverySplash,
+                DiscoverySplash = discoverySplash,
                 Features = features,
                 PreferredLocale = preferredLocale,
                 PublicUpdatesChannelId = publicUpdatesChannelId,

@@ -99,7 +99,7 @@ namespace DSharpPlus
         GuildDiscoveryDisqualified = 14,
 
         /// <summary>
-        /// Message indicating a guild was readed to guild discovery.
+        /// Message indicating a guild was re-added to guild discovery.
         /// </summary>
         GuildDiscoveryRequalified = 15,
 

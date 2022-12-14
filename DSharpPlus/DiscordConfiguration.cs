@@ -65,7 +65,7 @@ namespace DSharpPlus
 
         /// <summary>
         /// <para>Sets whether to rely on Discord for NTP (Network Time Protocol) synchronization with the "X-Ratelimit-Reset-After" header.</para>
-        /// <para>If the system clock is unsynced, setting this to true will ensure ratelimits are synced with Discord and reduce the risk of hitting one.</para>
+        /// <para>If the system clock is not synced, setting this to true will ensure ratelimits are synced with Discord and reduce the risk of hitting one.</para>
         /// <para>This should only be set to false if the system clock is synced with NTP.</para>
         /// <para>Defaults to true.</para>
         /// </summary>

@@ -496,7 +496,7 @@ namespace DSharpPlus
             this._integrationUpdated = new AsyncEvent<DiscordClient, IntegrationUpdateEventArgs>("INTEGRATION_UPDATED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._integrationDeleted = new AsyncEvent<DiscordClient, IntegrationDeleteEventArgs>("INTEGRATION_DELETED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._stageInstanceCreated = new AsyncEvent<DiscordClient, StageInstanceCreateEventArgs>("STAGE_INSTANCE_CREATED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
-            this._stageInstanceUpdated = new AsyncEvent<DiscordClient, StageInstanceUpdateEventArgs>("STAGE_INSTANCE_UPDAED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
+            this._stageInstanceUpdated = new AsyncEvent<DiscordClient, StageInstanceUpdateEventArgs>("STAGE_INSTANCE_UPDATED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
             this._stageInstanceDeleted = new AsyncEvent<DiscordClient, StageInstanceDeleteEventArgs>("STAGE_INSTANCE_DELETED", DiscordClient.EventExecutionLimit, this.EventErrorHandler);
 
             #region ThreadEvents

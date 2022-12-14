@@ -387,7 +387,7 @@ namespace DSharpPlus.Net
                 {
                     if (Interlocked.CompareExchange(ref bucket._limitTesting, 1, 0) == 0)
                     {
-                        // if we got here when the first request was just finishing, we must not create the waiter task as it would signel ExecureRequestAsync to bypass rate limiting
+                        // if we got here when the first request was just finishing, we must not create the waiter task as it would signal ExecuteRequestAsync to bypass rate limiting
                         if (bucket._limitValid)
                             return null;
 
