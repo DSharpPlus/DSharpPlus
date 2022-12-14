@@ -570,11 +570,17 @@ namespace DSharpPlus.SlashCommands
                 if (e.Interaction.Type == InteractionType.ApplicationCommand)
                 {
                     var qualifiedName = new StringBuilder(e.Interaction.Data.Name);
-                    var options = e.Interaction.Data.Options ?? Enumerable.Empty<DiscordInteractionDataOption>();
-                    while (options.Any() && options.First().Type is ApplicationCommandOptionType.SubCommandGroup or ApplicationCommandOptionType.SubCommand) // ... I'm sorry
+                    var options = e.Interaction.Data.Options?.ToArray() ?? Array.Empty<DiscordInteractionDataOption>();
+                    while (options.Any())
                     {
-                        _ = qualifiedName.AppendFormat(" {0}", options.First().Name);
-                        options = options.First().Options ?? Enumerable.Empty<DiscordInteractionDataOption>();
+                        var firstOption = options[0];
+                        if (firstOption.Type is not ApplicationCommandOptionType.SubCommandGroup and not ApplicationCommandOptionType.SubCommand)
+                        {
+                            break;
+                        }
+
+                        _ = qualifiedName.AppendFormat(" {0}", firstOption.Name);
+                        options = firstOption.Options?.ToArray() ?? Array.Empty<DiscordInteractionDataOption>();
                     }
 
                     //Creates the context
