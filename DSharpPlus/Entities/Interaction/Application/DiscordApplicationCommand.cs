@@ -84,7 +84,7 @@ namespace DSharpPlus.Entities
 
 
         /// <summary>
-        /// Gets the autoincrementing version number for this command.
+        /// Gets the auto-incrementing version number for this command.
         /// </summary>
         [JsonProperty("version")]
         public ulong Version { get; internal set; }

@@ -59,7 +59,7 @@ namespace DSharpPlus
         ChannelIconChange = 5,
 
         /// <summary>
-        /// Message indiciating a user pinned a message to a channel.
+        /// Message indicating a user pinned a message to a channel.
         /// </summary>
         ChannelPinnedMessage = 6,
 
@@ -99,7 +99,7 @@ namespace DSharpPlus
         GuildDiscoveryDisqualified = 14,
 
         /// <summary>
-        /// Message indicating a guild was readded to guild discovery.
+        /// Message indicating a guild was readed to guild discovery.
         /// </summary>
         GuildDiscoveryRequalified = 15,
 

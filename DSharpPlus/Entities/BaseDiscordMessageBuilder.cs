@@ -417,7 +417,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Attaches a file to this message.
         /// </summary>
-        /// <param name="stream">FileStream pointiong to the file to attach.</param>
+        /// <param name="stream">FileStream pointing to the file to attach.</param>
         /// <param name="resetStream">Whether to reset the stream position to 0 after sending.</param>
         /// <returns></returns>
         IDiscordMessageBuilder AddFile(FileStream stream, bool resetStream = false);
