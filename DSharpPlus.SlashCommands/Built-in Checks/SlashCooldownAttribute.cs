@@ -122,7 +122,7 @@ namespace DSharpPlus.SlashCommands.Attributes
                 }
             }
 
-            var bucketId = SlashCommandCooldownBucket.MakeId(ctx.CommandName, userId, channelId, guildId);
+            var bucketId = SlashCommandCooldownBucket.MakeId(ctx.QualifiedName, userId, channelId, guildId);
             return bucketId;
         }
 
@@ -131,7 +131,7 @@ namespace DSharpPlus.SlashCommands.Attributes
             var bucketId = this.GetBucketId(ctx, out var userId, out var channelId, out var guildId);
             if (!_buckets.TryGetValue(bucketId, out var bucket))
             {
-                bucket = new SlashCommandCooldownBucket(ctx.CommandName, this.MaxUses, this.Reset, userId, channelId, guildId);
+                bucket = new SlashCommandCooldownBucket(ctx.QualifiedName, this.MaxUses, this.Reset, userId, channelId, guildId);
                 _buckets.AddOrUpdate(bucketId, bucket, (key, value) => bucket);
             }
 

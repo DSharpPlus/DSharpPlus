@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -568,6 +569,14 @@ namespace DSharpPlus.SlashCommands
             {
                 if (e.Interaction.Type == InteractionType.ApplicationCommand)
                 {
+                    var qualifiedName = new StringBuilder(e.Interaction.Data.Name);
+                    var options = e.Interaction.Data.Options ?? Enumerable.Empty<DiscordInteractionDataOption>();
+                    while (options.Any() && options.First().Type is ApplicationCommandOptionType.SubCommandGroup or ApplicationCommandOptionType.SubCommand) // ... I'm sorry
+                    {
+                        _ = qualifiedName.AppendFormat(" {0}", options.First().Name);
+                        options = options.First().Options ?? Enumerable.Empty<DiscordInteractionDataOption>();
+                    }
+
                     //Creates the context
                     var context = new InteractionContext
                     {
@@ -578,6 +587,7 @@ namespace DSharpPlus.SlashCommands
                         Client = client,
                         SlashCommandsExtension = this,
                         CommandName = e.Interaction.Data.Name,
+                        QualifiedName = qualifiedName.ToString(),
                         InteractionId = e.Interaction.Id,
                         Token = e.Interaction.Token,
                         Services = this._configuration?.Services,

@@ -63,6 +63,11 @@ namespace DSharpPlus.SlashCommands
         public string CommandName { get; internal set; }
 
         /// <summary>
+        /// Gets the qualified name of the command.
+        /// </summary>
+        public string QualifiedName { get; internal set; }
+
+        /// <summary>
         /// Gets the type of this interaction.
         /// </summary>
         public ApplicationCommandType Type { get; internal set; }
