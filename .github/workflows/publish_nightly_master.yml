@@ -45,7 +45,7 @@ jobs:
 
       - name: Update Discord Channel Topic
         if: ${{ github.event_name == 'push' }} # Only update channel topic when a PR is merged
-        run: "dotnet run --no-build --project ./tools/AutoUpdateChannelDescription -- $(git describe --abbrev=0 --tags)"
+        run: "dotnet run --project ./tools/AutoUpdateChannelDescription -- $(git describe --abbrev=0 --tags)"
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
           DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
