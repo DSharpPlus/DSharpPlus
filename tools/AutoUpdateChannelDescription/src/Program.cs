@@ -41,7 +41,7 @@ namespace DSharpPlus.Tools.AutoUpdateChannelDescription
                     }
                     catch (DiscordException error)
                     {
-                        Console.WriteLine(error.WebResponse);
+                        Console.WriteLine($"Error: HTTP {error.WebResponse.ResponseCode}, {error.WebResponse.Response}");
                         Environment.Exit(1);
                     }
                     Environment.Exit(0);
