@@ -15,7 +15,7 @@ namespace DSharpPlus.Tools.AutoUpdateChannelDescription
             var channelId = Environment.GetEnvironmentVariable("DISCORD_CHANNEL_ID") ?? throw new InvalidOperationException("DISCORD_CHANNEL_ID environment variable is not set.");
             var channelTopic = Environment.GetEnvironmentVariable("DISCORD_CHANNEL_TOPIC") ?? throw new InvalidOperationException("DISCORD_DESCRIPTION environment variable is not set.");
             var latestStableVersion = args.Length == 1 ? args[0] : throw new InvalidOperationException("LATEST_STABLE_VERSION should be the first argument passed.");
-            var nugetUrl = Environment.GetEnvironmentVariable("NUGET_ORG_URL") ?? throw new InvalidOperationException("NUGET_ORG_URL environment variable is not set.");
+            var nugetUrl = Environment.GetEnvironmentVariable("NUGET_URL") ?? throw new InvalidOperationException("NUGET_URL environment variable is not set.");
             var githubUrl = Environment.GetEnvironmentVariable("GITHUB_URL") ?? throw new InvalidOperationException("GITHUB_URL environment variable is not set.");
 
             DiscordClient client = new(new DiscordConfiguration
