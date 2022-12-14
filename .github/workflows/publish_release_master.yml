@@ -48,7 +48,7 @@ jobs:
           omitNameDuringUpdate: true # We don't want to update the name of the release.
 
       - name: Update Discord Channel Topic
-        run: "dotnet run --project ./tools/AutoUpdateChannelDescription -p:Nightly=$(printf \"%0*d\n\" 5 $(( 1091 + ${{ github.run_number }} )) -- $(git describe --abbrev=0 --tags)"
+        run: "dotnet run --project ./tools/AutoUpdateChannelDescription -p:Nightly=$(printf \"%0*d\n\" 5 $(( 1195 + ${{ github.run_number }} )) -- $(git describe --abbrev=0 --tags)"
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
           DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
