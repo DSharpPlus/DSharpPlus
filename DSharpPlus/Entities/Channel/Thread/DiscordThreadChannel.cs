@@ -97,7 +97,7 @@ namespace DSharpPlus.Entities
             => await this.Discord.ApiClient.ListThreadMembersAsync(this.Id);
 
         /// <summary>
-        /// Adds the given DiscordMember to this thread. Requires an unarchived thread and send message permissions.
+        /// Adds the given DiscordMember to this thread. Requires an not archived thread and send message permissions.
         /// </summary>
         /// <param name="member">The member to add to the thread.</param>
         /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.SendMessages"/>.</exception>
@@ -110,7 +110,7 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Removes the given DiscordMember from this thread. Requires an unarchived thread and send message permissions.
+        /// Removes the given DiscordMember from this thread. Requires an not archived thread and send message permissions.
         /// </summary>
         /// <param name="member">The member to remove from the thread.</param>
         /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageThreads"/> permission, or is not the creator of the thread if it is private.</exception>
