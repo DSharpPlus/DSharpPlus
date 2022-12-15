@@ -3545,7 +3545,7 @@ namespace DSharpPlus.Net
 
         internal async Task<DiscordGuildApplicationCommandPermissions> EditApplicationCommandPermissionsAsync(ulong application_id, ulong guild_id, ulong command_id, IEnumerable<DiscordApplicationCommandPermission> permissions)
         {
-            var pld = new RestEditApplicationCommmandPermissionsPayload
+            var pld = new RestEditApplicationCommandPermissionsPayload
             {
                 Permissions = permissions
             };
