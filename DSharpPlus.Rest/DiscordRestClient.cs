@@ -758,7 +758,7 @@ namespace DSharpPlus
         }
 
         /// <summary>
-        /// Modifes the visibility of embeds in a message.
+        /// Modifies the visibility of embeds in a message.
         /// </summary>
         /// <param name="channel_id">Channel ID</param>
         /// <param name="message_id">Message ID</param>
@@ -850,7 +850,7 @@ namespace DSharpPlus
             => this.ApiClient.GetPinnedMessagesAsync(channel_id);
 
         /// <summary>
-        /// Unpuns a message
+        /// Unpins a message
         /// </summary>
         /// <param name="channel_id">Channel ID</param>
         /// <param name="message_id">Message ID</param>

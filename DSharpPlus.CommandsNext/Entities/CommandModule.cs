@@ -44,7 +44,7 @@ namespace DSharpPlus.CommandsNext.Entities
     }
 
     /// <summary>
-    /// Represents a transient command module. This type of module is reinstantiated on every command call.
+    /// Represents a transient command module. This type of module is reinstated on every command call.
     /// </summary>
     public class TransientCommandModule : ICommandModule
     {

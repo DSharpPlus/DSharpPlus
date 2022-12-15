@@ -822,7 +822,7 @@ namespace DSharpPlus.VoiceNext
                 Address = ip,
                 Port = port
             };
-            this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceHandshake, "Endpoint dicovery finished - discovered endpoint is {Ip}:{Port}", ip, port);
+            this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceHandshake, "Endpoint discovery finished - discovered endpoint is {Ip}:{Port}", ip, port);
 
             void PreparePacket(byte[] packet)
             {

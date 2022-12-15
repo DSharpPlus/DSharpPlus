@@ -68,9 +68,9 @@ namespace DSharpPlus.Lavalink
         public int ResumeTimeout { internal get; set; } = 60;
 
         /// <summary>
-        /// Sets the time in miliseconds to wait for Lavalink's voice WebSocket to close after leaving a voice channel.
+        /// Sets the time in milliseconds to wait for Lavalink's voice WebSocket to close after leaving a voice channel.
         /// <para>This will be the delay before the guild connection is removed.</para>
-        /// <para>Defaults to 3000 miliseconds.</para>
+        /// <para>Defaults to 3000 milliseconds.</para>
         /// </summary>
         public int WebSocketCloseTimeout { internal get; set; } = 3000;
 

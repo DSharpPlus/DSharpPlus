@@ -59,7 +59,7 @@ namespace DSharpPlus.VoiceNext.EventArgs
         /// <summary>
         /// Gets the format of the received PCM data.
         /// <para>
-        /// Important: This isn't always the format set in <see cref="VoiceNextConfiguration.AudioFormat"/>, and depends on the audio data recieved.
+        /// Important: This isn't always the format set in <see cref="VoiceNextConfiguration.AudioFormat"/>, and depends on the audio data received.
         /// </para>
         /// </summary>
         public AudioFormat AudioFormat { get; internal set; }
