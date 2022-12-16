@@ -122,7 +122,7 @@ namespace DSharpPlus.CommandsNext.Attributes
                 }
             }
 
-            var bucketId = CommandCooldownBucket.MakeId(ctx.Command!.QualifiedName, userId, channelId, guildId);
+            var bucketId = CommandCooldownBucket.MakeId(ctx.Command!.QualifiedName, ctx.Client.CurrentUser.Id, userId, channelId, guildId);
             return bucketId;
         }
 
@@ -134,7 +134,7 @@ namespace DSharpPlus.CommandsNext.Attributes
             var bucketId = this.GetBucketId(ctx, out var userId, out var channelId, out var guildId);
             if (!_buckets.TryGetValue(bucketId, out var bucket))
             {
-                bucket = new CommandCooldownBucket(ctx.Command!.QualifiedName, this.MaxUses, this.Reset, userId, channelId, guildId);
+                bucket = new CommandCooldownBucket(ctx.Command!.QualifiedName, ctx.Client.CurrentUser.Id, this.MaxUses, this.Reset, userId, channelId, guildId);
                 _buckets.AddOrUpdate(bucketId, bucket, (key, value) => bucket);
             }
 
@@ -177,6 +177,11 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// The command's full name (includes groups and subcommands).
         /// </summary>
         public string FullCommandName { get; }
+
+        /// <summary>
+        /// The Id of the bot.
+        /// </summary>
+        public ulong BotId { get; }
 
         /// <summary>
         /// Gets the ID of the user with whom this cooldown is associated.
@@ -228,21 +233,23 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// Creates a new command cooldown bucket.
         /// </summary>
         /// <param name="fullCommandName">Full name of the command.</param>
+        /// <param name="botId">ID of the bot.</param>
         /// <param name="maxUses">Maximum number of uses for this bucket.</param>
         /// <param name="resetAfter">Time after which this bucket resets.</param>
         /// <param name="userId">ID of the user with which this cooldown is associated.</param>
         /// <param name="channelId">ID of the channel with which this cooldown is associated.</param>
         /// <param name="guildId">ID of the guild with which this cooldown is associated.</param>
-        internal CommandCooldownBucket(string fullCommandName, int maxUses, TimeSpan resetAfter, ulong userId = 0, ulong channelId = 0, ulong guildId = 0)
+        internal CommandCooldownBucket(string fullCommandName, ulong botId, int maxUses, TimeSpan resetAfter, ulong userId = 0, ulong channelId = 0, ulong guildId = 0)
         {
             this.FullCommandName = fullCommandName;
+            this.BotId = botId;
             this.MaxUses = maxUses;
             this.ResetsAt = DateTimeOffset.UtcNow + resetAfter;
             this.Reset = resetAfter;
             this.UserId = userId;
             this.ChannelId = channelId;
             this.GuildId = guildId;
-            this.BucketId = MakeId(fullCommandName, userId, channelId, guildId);
+            this.BucketId = MakeId(fullCommandName, botId, userId, channelId, guildId);
             this._remainingUses = maxUses;
             this._usageSemaphore = new SemaphoreSlim(1, 1);
         }
@@ -339,11 +346,12 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// Creates a bucket ID from given bucket parameters.
         /// </summary>
         /// <param name="fullCommandName">Full name of the command with which this cooldown is associated.</param>
+        /// <param name="botId">ID of the bot with which this cooldown is associated.</param>
         /// <param name="userId">ID of the user with which this cooldown is associated.</param>
         /// <param name="channelId">ID of the channel with which this cooldown is associated.</param>
         /// <param name="guildId">ID of the guild with which this cooldown is associated.</param>
         /// <returns>Generated bucket ID.</returns>
-        public static string MakeId(string fullCommandName, ulong userId = 0, ulong channelId = 0, ulong guildId = 0)
-            => $"{userId.ToString(CultureInfo.InvariantCulture)}:{channelId.ToString(CultureInfo.InvariantCulture)}:{guildId.ToString(CultureInfo.InvariantCulture)}:{fullCommandName}";
+        public static string MakeId(string fullCommandName, ulong botId, ulong userId = 0, ulong channelId = 0, ulong guildId = 0)
+            => $"{userId.ToString(CultureInfo.InvariantCulture)}:{channelId.ToString(CultureInfo.InvariantCulture)}:{guildId.ToString(CultureInfo.InvariantCulture)}:{botId}:{fullCommandName}";
     }
 }
