@@ -29,7 +29,7 @@ jobs:
         with:
           dotnet-version: 7
         env:
-          DOTNET_INSTALL_DIR: ${{ github.workspace }}/.dotnet # Attempts to install to `/usr/share/dotnet`, which is not writable on GitHub Actions by default.
+          DOTNET_INSTALL_DIR: ${{ github.workspace }}/../.dotnet # Attempts to install to `/usr/share/dotnet`, which is not writable on GitHub Actions by default.
 
       - name: Package
         run: "mkdir build && dotnet pack -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --include-source -o build -p:VersionPrefix='5.0.0' -p:VersionSuffix='nightly' -p:BuildNumber=$(printf \"%0*d\n\" 5 ${{ github.run_number }})"
