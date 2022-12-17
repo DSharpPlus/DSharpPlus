@@ -88,10 +88,7 @@ namespace DSharpPlus.SlashCommands.Attributes
         public TimeSpan GetRemainingCooldown(InteractionContext ctx)
         {
             var bucket = this.GetBucket(ctx);
-            if (bucket is null)
-                return TimeSpan.Zero;
-
-            return bucket.RemainingUses > 0 ? TimeSpan.Zero : bucket.ResetsAt - DateTimeOffset.UtcNow;
+            return (bucket is null || bucket.RemainingUses > 0) ? TimeSpan.Zero : bucket.ResetsAt - DateTimeOffset.UtcNow;
         }
 
         /// <summary>
@@ -105,30 +102,37 @@ namespace DSharpPlus.SlashCommands.Attributes
         private string GetBucketId(InteractionContext ctx, out ulong userId, out ulong channelId, out ulong guildId)
         {
             userId = 0ul;
-            if ((this.BucketType & SlashCooldownBucketType.User) != 0)
+            if (this.BucketType.HasFlag(SlashCooldownBucketType.User))
                 userId = ctx.User.Id;
 
             channelId = 0ul;
-            if ((this.BucketType & SlashCooldownBucketType.Channel) != 0)
-                channelId = ctx.Channel.Id;
-            if ((this.BucketType & SlashCooldownBucketType.Guild) != 0 && ctx.Guild == null)
+            if (this.BucketType.HasFlag(SlashCooldownBucketType.Channel))
                 channelId = ctx.Channel.Id;
 
             guildId = 0ul;
-            if (ctx.Guild != null && (this.BucketType & SlashCooldownBucketType.Guild) != 0)
-                guildId = ctx.Guild.Id;
+            if (this.BucketType.HasFlag(SlashCooldownBucketType.Guild))
+            {
+                if (ctx.Guild == null)
+                {
+                    channelId = ctx.Channel.Id;
+                }
+                else
+                {
+                    guildId = ctx.Guild.Id;
+                }
+            }
 
-            var bid = SlashCommandCooldownBucket.MakeId(userId, channelId, guildId);
-            return bid;
+            var bucketId = SlashCommandCooldownBucket.MakeId(ctx.QualifiedName, ctx.Client.CurrentUser.Id, userId, channelId, guildId);
+            return bucketId;
         }
 
         public override async Task<bool> ExecuteChecksAsync(InteractionContext ctx)
         {
-            var bid = this.GetBucketId(ctx, out var usr, out var chn, out var gld);
-            if (!_buckets.TryGetValue(bid, out var bucket))
+            var bucketId = this.GetBucketId(ctx, out var userId, out var channelId, out var guildId);
+            if (!_buckets.TryGetValue(bucketId, out var bucket))
             {
-                bucket = new SlashCommandCooldownBucket(this.MaxUses, this.Reset, usr, chn, gld);
-                _buckets.AddOrUpdate(bid, bucket, (k, v) => bucket);
+                bucket = new SlashCommandCooldownBucket(ctx.QualifiedName, ctx.Client.CurrentUser.Id, this.MaxUses, this.Reset, userId, channelId, guildId);
+                _buckets.AddOrUpdate(bucketId, bucket, (key, value) => bucket);
             }
 
             return await bucket.DecrementUseAsync().ConfigureAwait(false);
@@ -167,6 +171,16 @@ namespace DSharpPlus.SlashCommands.Attributes
     public sealed class SlashCommandCooldownBucket : IEquatable<SlashCommandCooldownBucket>
     {
         /// <summary>
+        /// The command's full name (includes groups and subcommands).
+        /// </summary>
+        public string FullCommandName { get; }
+
+        /// <summary>
+        /// The bot's ID.
+        /// </summary>
+        public ulong BotId { get; }
+
+        /// <summary>
         /// Gets the ID of the user with whom this cooldown is associated.
         /// </summary>
         public ulong UserId { get; }
@@ -189,10 +203,8 @@ namespace DSharpPlus.SlashCommands.Attributes
         /// <summary>
         /// Gets the remaining number of uses before the cooldown is triggered.
         /// </summary>
-        public int RemainingUses
-            => Volatile.Read(ref this._remaining_uses);
-
-        private int _remaining_uses;
+        public int RemainingUses => Volatile.Read(ref this._remainingUses);
+        private int _remainingUses;
 
         /// <summary>
         /// Gets the maximum number of times this command can be used in given timespan.
@@ -217,21 +229,25 @@ namespace DSharpPlus.SlashCommands.Attributes
         /// <summary>
         /// Creates a new command cooldown bucket.
         /// </summary>
+        /// <param name="fullCommandName">Full name of the command.</param>
+        /// <param name="botId">ID of the bot.</param>
         /// <param name="maxUses">Maximum number of uses for this bucket.</param>
         /// <param name="resetAfter">Time after which this bucket resets.</param>
         /// <param name="userId">ID of the user with which this cooldown is associated.</param>
         /// <param name="channelId">ID of the channel with which this cooldown is associated.</param>
         /// <param name="guildId">ID of the guild with which this cooldown is associated.</param>
-        internal SlashCommandCooldownBucket(int maxUses, TimeSpan resetAfter, ulong userId = 0, ulong channelId = 0, ulong guildId = 0)
+        internal SlashCommandCooldownBucket(string fullCommandName, ulong botId, int maxUses, TimeSpan resetAfter, ulong userId = 0, ulong channelId = 0, ulong guildId = 0)
         {
-            this._remaining_uses = maxUses;
+            this.FullCommandName = fullCommandName;
+            this.BotId = botId;
             this.MaxUses = maxUses;
             this.ResetsAt = DateTimeOffset.UtcNow + resetAfter;
             this.Reset = resetAfter;
             this.UserId = userId;
             this.ChannelId = channelId;
             this.GuildId = guildId;
-            this.BucketId = MakeId(userId, channelId, guildId);
+            this.BucketId = MakeId(fullCommandName, botId, userId, channelId, guildId);
+            this._remainingUses = maxUses;
             this._usageSemaphore = new SemaphoreSlim(1, 1);
         }
 
@@ -248,7 +264,7 @@ namespace DSharpPlus.SlashCommands.Attributes
             if (now >= this.ResetsAt)
             {
                 // ...do the reset and set a new reset time
-                Interlocked.Exchange(ref this._remaining_uses, this.MaxUses);
+                Interlocked.Exchange(ref this._remainingUses, this.MaxUses);
                 this.ResetsAt = now + this.Reset;
             }
 
@@ -257,7 +273,7 @@ namespace DSharpPlus.SlashCommands.Attributes
             if (this.RemainingUses > 0)
             {
                 // ...decrement, and return success...
-                Interlocked.Decrement(ref this._remaining_uses);
+                Interlocked.Decrement(ref this._remainingUses);
                 success = true;
             }
 
@@ -284,9 +300,7 @@ namespace DSharpPlus.SlashCommands.Attributes
         /// </summary>
         /// <param name="other"><see cref="SlashCommandCooldownBucket"/> to compare to.</param>
         /// <returns>Whether the <see cref="SlashCommandCooldownBucket"/> is equal to this <see cref="SlashCommandCooldownBucket"/>.</returns>
-        public bool Equals(SlashCommandCooldownBucket other) => other is not null
-            && (ReferenceEquals(this, other)
-                || (this.UserId == other.UserId && this.ChannelId == other.ChannelId && this.GuildId == other.GuildId));
+        public bool Equals(SlashCommandCooldownBucket other) => other is not null && (ReferenceEquals(this, other) || (this.UserId == other.UserId && this.ChannelId == other.ChannelId && this.GuildId == other.GuildId));
 
         /// <summary>
         /// Gets the hash code for this <see cref="SlashCommandCooldownBucket"/>.
@@ -328,11 +342,13 @@ namespace DSharpPlus.SlashCommands.Attributes
         /// <summary>
         /// Creates a bucket ID from given bucket parameters.
         /// </summary>
+        /// <param name="fullCommandName">Full name of the command with which this cooldown is associated.</param>
+        /// <param name="botId">ID of the bot with which this cooldown is associated.</param>
         /// <param name="userId">ID of the user with which this cooldown is associated.</param>
         /// <param name="channelId">ID of the channel with which this cooldown is associated.</param>
         /// <param name="guildId">ID of the guild with which this cooldown is associated.</param>
         /// <returns>Generated bucket ID.</returns>
-        public static string MakeId(ulong userId = 0, ulong channelId = 0, ulong guildId = 0)
-            => $"{userId.ToString(CultureInfo.InvariantCulture)}:{channelId.ToString(CultureInfo.InvariantCulture)}:{guildId.ToString(CultureInfo.InvariantCulture)}";
+        public static string MakeId(string fullCommandName, ulong botId, ulong userId = 0, ulong channelId = 0, ulong guildId = 0)
+            => $"{userId.ToString(CultureInfo.InvariantCulture)}:{channelId.ToString(CultureInfo.InvariantCulture)}:{guildId.ToString(CultureInfo.InvariantCulture)}:{botId}:{fullCommandName}";
     }
 }
