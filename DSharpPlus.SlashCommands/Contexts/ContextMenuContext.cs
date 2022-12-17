@@ -3,7 +3,7 @@
 namespace DSharpPlus.SlashCommands
 {
     /// <summary>
-    /// Respresents a context for a context menu.
+    /// Represents a context for a context menu.
     /// </summary>
     public sealed class ContextMenuContext : BaseContext
     {

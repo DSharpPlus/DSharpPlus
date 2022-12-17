@@ -955,7 +955,7 @@ namespace DSharpPlus.Entities
             // assign permissions from member's roles (in order)
             perms |= mbRoles.Aggregate(Permissions.None, (c, role) => c | role.Permissions);
 
-            // Adminstrator grants all permissions and cannot be overridden
+            // Administrator grants all permissions and cannot be overridden
             if ((perms & Permissions.Administrator) == Permissions.Administrator)
                 return PermissionMethods.FULL_PERMS;
 

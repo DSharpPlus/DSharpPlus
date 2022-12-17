@@ -97,7 +97,7 @@ namespace DSharpPlus.Entities
         public string DisplayName => this.Nickname ?? this.Username;
 
         /// <summary>
-        /// How long this member's communication will be supressed for.
+        /// How long this member's communication will be suppressed for.
         /// </summary>
         [JsonProperty("communication_disabled_until", NullValueHandling = NullValueHandling.Include)]
         public DateTimeOffset? CommunicationDisabledUntil { get; internal set; }
@@ -615,7 +615,7 @@ namespace DSharpPlus.Entities
             if (!(imageSize is not 0 && (imageSize & (imageSize - 1)) is 0))
                 throw new ArgumentOutOfRangeException("Image size is not a power of two: " + nameof(imageSize));
 
-            // Get the string varients of the method parameters to use in the urls.
+            // Get the string variants of the method parameters to use in the urls.
             var stringImageFormat = imageFormat switch
             {
                 ImageFormat.Gif => "gif",
@@ -714,7 +714,7 @@ namespace DSharpPlus.Entities
             // assign permissions from member's roles (in order)
             perms |= this.Roles.Aggregate(Permissions.None, (c, role) => c | role.Permissions);
 
-            // Adminstrator grants all permissions and cannot be overridden
+            // Administrator grants all permissions and cannot be overridden
             if ((perms & Permissions.Administrator) == Permissions.Administrator)
                 return PermissionMethods.FULL_PERMS;
 

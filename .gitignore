@@ -399,3 +399,6 @@ FodyWeavers.xsd
 
 # Credentials for the DSharpPlus.Test bot
 DSharpPlus.Test/config.json
+
+# Github Codespaces configuration file
+.devcontainer/devcontainer.json

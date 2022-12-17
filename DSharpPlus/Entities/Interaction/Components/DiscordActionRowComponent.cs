@@ -29,7 +29,7 @@ using Newtonsoft.Json;
 namespace DSharpPlus.Entities
 {
     /// <summary>
-    /// Represents a row of components. Acion rows can have up to five components.
+    /// Represents a row of components. Action rows can have up to five components.
     /// </summary>
     public sealed class DiscordActionRowComponent : DiscordComponent
     {

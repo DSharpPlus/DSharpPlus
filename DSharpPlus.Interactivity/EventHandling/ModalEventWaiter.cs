@@ -49,7 +49,7 @@ namespace DSharpPlus.Interactivity.EventHandling
         }
 
         /// <summary>
-        /// Waits for a specified <see cref="ModalMatchRequest"/>'s predicate to be fufilled.
+        /// Waits for a specified <see cref="ModalMatchRequest"/>'s predicate to be fulfilled.
         /// </summary>
         /// <param name="request">The request to wait for a match.</param>
         /// <returns>The returned args, or null if it timed out.</returns>
@@ -59,7 +59,7 @@ namespace DSharpPlus.Interactivity.EventHandling
 
             try
             {
-                return await request.Tcs.Task.ConfigureAwait(false); // awaits request until completeion or cancellation
+                return await request.Tcs.Task.ConfigureAwait(false); // awaits request until completion or cancellation
             }
             catch (Exception e)
             {

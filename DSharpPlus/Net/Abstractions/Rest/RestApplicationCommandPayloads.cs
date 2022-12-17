@@ -115,7 +115,7 @@ namespace DSharpPlus.Net.Abstractions
         public IReadOnlyCollection<DiscordActionRowComponent> Components { get; set; }
     }
 
-    internal class RestEditApplicationCommmandPermissionsPayload
+    internal class RestEditApplicationCommandPermissionsPayload
     {
         [JsonProperty("permissions")]
         public IEnumerable<DiscordApplicationCommandPermission> Permissions { get; set; }
