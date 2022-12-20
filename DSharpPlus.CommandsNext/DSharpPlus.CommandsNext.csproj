@@ -1,7 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="../DSharpPlus.targets" />
-
   <PropertyGroup>
     <AssemblyName>DSharpPlus.CommandsNext</AssemblyName>
     <RootNamespace>DSharpPlus.CommandsNext</RootNamespace>
