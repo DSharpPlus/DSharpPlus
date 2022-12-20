@@ -1,13 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-
-  <Import Project="../DSharpPlus.targets" />
-
   <PropertyGroup>
     <AssemblyName>DSharpPlus.Interactivity</AssemblyName>
     <RootNamespace>DSharpPlus.Interactivity</RootNamespace>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>

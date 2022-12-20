@@ -1,13 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-
-  <Import Project="../DSharpPlus.targets" />
 
   <PropertyGroup>
     <AssemblyName>DSharpPlus</AssemblyName>
     <RootNamespace>DSharpPlus</RootNamespace>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -16,6 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+<<<<<<< HEAD
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     <PackageReference Include="System.Collections.Immutable" Version="7.0.0" />
     <PackageReference Include="System.Memory" Version="4.5.5" />
@@ -31,3 +28,11 @@
   </ItemGroup>
 
 </Project>
+=======
+    <PackageReference Include="Newtonsoft.Json" />
+    <PackageReference Include="Emzi0767.Common" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+
+</Project>
+>>>>>>> b9447017 (.NET 7 🎉  (#1438))
