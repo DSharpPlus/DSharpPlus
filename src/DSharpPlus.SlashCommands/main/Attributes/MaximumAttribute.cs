@@ -23,33 +23,32 @@
 
 using System;
 
-namespace DSharpPlus.SlashCommands
+namespace DSharpPlus.SlashCommands;
+
+/// <summary>
+/// Sets a maximum value for this slash command option. Only valid for <see cref="long"/> or <see cref="double"/> parameters.
+/// </summary>
+[AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
+public class MaximumAttribute : Attribute
 {
+    /// <summary>
+    /// The value.
+    /// </summary>
+    public object Value { get; internal set; }
+
     /// <summary>
     /// Sets a maximum value for this slash command option. Only valid for <see cref="long"/> or <see cref="double"/> parameters.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
-    public class MaximumAttribute : Attribute
+    public MaximumAttribute(long value)
     {
-        /// <summary>
-        /// The value.
-        /// </summary>
-        public object Value { get; internal set; }
+        this.Value = value;
+    }
 
-        /// <summary>
-        /// Sets a maximum value for this slash command option. Only valid for <see cref="long"/> or <see cref="double"/> parameters.
-        /// </summary>
-        public MaximumAttribute(long value)
-        {
-            this.Value = value;
-        }
-
-        /// <summary>
-        /// Sets a maximum value for this slash command option. Only valid for <see cref="long"/> or <see cref="double"/> parameters.
-        /// </summary>
-        public MaximumAttribute(double value)
-        {
-            this.Value = value;
-        }
+    /// <summary>
+    /// Sets a maximum value for this slash command option. Only valid for <see cref="long"/> or <see cref="double"/> parameters.
+    /// </summary>
+    public MaximumAttribute(double value)
+    {
+        this.Value = value;
     }
 }

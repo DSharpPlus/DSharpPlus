@@ -21,13 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace DSharpPlus.EventArgs
+namespace DSharpPlus.EventArgs;
+
+/// <summary>
+/// Represents arguments for <see cref="DiscordClient.Ready"/> event.
+/// </summary>
+public sealed class ReadyEventArgs : DiscordEventArgs
 {
-    /// <summary>
-    /// Represents arguments for <see cref="DiscordClient.Ready"/> event.
-    /// </summary>
-    public sealed class ReadyEventArgs : DiscordEventArgs
-    {
-        internal ReadyEventArgs() : base() { }
-    }
+    internal ReadyEventArgs() : base() { }
 }

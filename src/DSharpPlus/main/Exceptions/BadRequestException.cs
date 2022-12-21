@@ -24,43 +24,42 @@
 using DSharpPlus.Net;
 using Newtonsoft.Json.Linq;
 
-namespace DSharpPlus.Exceptions
+namespace DSharpPlus.Exceptions;
+
+/// <summary>
+/// Represents an exception thrown when a malformed request is sent.
+/// </summary>
+public class BadRequestException : DiscordException
 {
+
     /// <summary>
-    /// Represents an exception thrown when a malformed request is sent.
+    /// Gets the error code for this exception.
     /// </summary>
-    public class BadRequestException : DiscordException
+    public int Code { get; internal set; }
+
+    /// <summary>
+    /// Gets the form error responses in JSON format.
+    /// </summary>
+    public string Errors { get; internal set; }
+
+    internal BadRequestException(BaseRestRequest request, RestResponse response) : base("Bad request: " + response.ResponseCode)
     {
+        this.WebRequest = request;
+        this.WebResponse = response;
 
-        /// <summary>
-        /// Gets the error code for this exception.
-        /// </summary>
-        public int Code { get; internal set; }
-
-        /// <summary>
-        /// Gets the form error responses in JSON format.
-        /// </summary>
-        public string Errors { get; internal set; }
-
-        internal BadRequestException(BaseRestRequest request, RestResponse response) : base("Bad request: " + response.ResponseCode)
+        try
         {
-            this.WebRequest = request;
-            this.WebResponse = response;
+            var j = JObject.Parse(response.Response);
 
-            try
-            {
-                var j = JObject.Parse(response.Response);
+            if (j["code"] != null)
+                this.Code = (int)j["code"];
 
-                if (j["code"] != null)
-                    this.Code = (int)j["code"];
+            if (j["message"] != null)
+                this.JsonMessage = j["message"].ToString();
 
-                if (j["message"] != null)
-                    this.JsonMessage = j["message"].ToString();
-
-                if (j["errors"] != null)
-                    this.Errors = j["errors"].ToString();
-            }
-            catch { }
+            if (j["errors"] != null)
+                this.Errors = j["errors"].ToString();
         }
+        catch { }
     }
 }

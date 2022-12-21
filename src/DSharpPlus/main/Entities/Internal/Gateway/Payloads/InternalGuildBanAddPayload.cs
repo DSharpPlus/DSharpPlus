@@ -1,25 +1,21 @@
-using DSharpPlus.Core.Attributes;
-using DSharpPlus.Core.Entities;
 using System.Text.Json.Serialization;
 
-namespace DSharpPlus.Core.Entities.Gateway.Payloads
+namespace DSharpPlus.Entities.Internal.Gateway.Payloads;
+
+/// <summary>
+/// Sent when a user is banned from a guild.
+/// </summary>
+public sealed record InternalGuildBanAddPayload
 {
     /// <summary>
-    /// Sent when a user is banned from a guild.
+    /// The id of the guild.
     /// </summary>
-    [InternalGatewayPayload("GUILD_BAN_ADD")]
-    public sealed record InternalGuildBanAddPayload
-    {
-        /// <summary>
-        /// The id of the guild.
-        /// </summary>
-        [JsonPropertyName("guild_id")]
-        public InternalSnowflake GuildId { get; init; } = null!;
+    [JsonPropertyName("guild_id")]
+    public InternalSnowflake GuildId { get; init; } = null!;
 
-        /// <summary>
-        /// The banned user.
-        /// </summary>
-        [JsonPropertyName("user")]
-        public InternalUser User { get; init; } = null!;
-    }
+    /// <summary>
+    /// The banned user.
+    /// </summary>
+    [JsonPropertyName("user")]
+    public InternalUser User { get; init; } = null!;
 }

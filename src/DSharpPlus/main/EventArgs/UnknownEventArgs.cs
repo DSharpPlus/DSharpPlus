@@ -21,23 +21,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace DSharpPlus.EventArgs
+namespace DSharpPlus.EventArgs;
+
+/// <summary>
+/// Represents arguments for <see cref="DiscordClient.UnknownEvent"/> event.
+/// </summary>
+public class UnknownEventArgs : DiscordEventArgs
 {
     /// <summary>
-    /// Represents arguments for <see cref="DiscordClient.UnknownEvent"/> event.
+    /// Gets the event's name.
     /// </summary>
-    public class UnknownEventArgs : DiscordEventArgs
-    {
-        /// <summary>
-        /// Gets the event's name.
-        /// </summary>
-        public string EventName { get; internal set; }
+    public string EventName { get; internal set; }
 
-        /// <summary>
-        /// Gets the event's data.
-        /// </summary>
-        public string Json { get; internal set; }
+    /// <summary>
+    /// Gets the event's data.
+    /// </summary>
+    public string Json { get; internal set; }
 
-        internal UnknownEventArgs() : base() { }
-    }
+    internal UnknownEventArgs() : base() { }
 }

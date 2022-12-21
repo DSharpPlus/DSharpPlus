@@ -1,32 +1,30 @@
-using DSharpPlus.Core.Entities;
 using System.Text.Json.Serialization;
 
-namespace DSharpPlus.Core.Entities.Gateway.Commands
+namespace DSharpPlus.Entities.Internal.Gateway.Commands;
+
+public sealed record InternalVoiceStateUpdateCommand
 {
-    public sealed record InternalVoiceStateUpdateCommand
-    {
-        /// <summary>
-        /// The id of the guild.
-        /// </summary>
-        [JsonPropertyName("guild_id")]
-        public InternalSnowflake GuildId { get; init; } = null!;
+    /// <summary>
+    /// The id of the guild.
+    /// </summary>
+    [JsonPropertyName("guild_id")]
+    public InternalSnowflake GuildId { get; init; } = null!;
 
-        /// <summary>
-        /// The id of the voice channel the client wants to join (null if disconnecting).
-        /// </summary>
-        [JsonPropertyName("channel_id")]
-        public InternalSnowflake? ChannelId { get; init; }
+    /// <summary>
+    /// The id of the voice channel the client wants to join (null if disconnecting).
+    /// </summary>
+    [JsonPropertyName("channel_id")]
+    public InternalSnowflake? ChannelId { get; init; }
 
-        /// <summary>
-        /// Is the client muted.
-        /// </summary>
-        [JsonPropertyName("self_mute")]
-        public bool SelfMute { get; init; }
+    /// <summary>
+    /// Is the client muted.
+    /// </summary>
+    [JsonPropertyName("self_mute")]
+    public bool SelfMute { get; init; }
 
-        /// <summary>
-        /// Is the client deafened.
-        /// </summary>
-        [JsonPropertyName("self_deaf")]
-        public bool SelfDeaf { get; init; }
-    }
+    /// <summary>
+    /// Is the client deafened.
+    /// </summary>
+    [JsonPropertyName("self_deaf")]
+    public bool SelfDeaf { get; init; }
 }

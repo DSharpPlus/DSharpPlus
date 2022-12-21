@@ -22,132 +22,129 @@
 // SOFTWARE.
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity.Enums;
 using Microsoft.Extensions.Logging;
 
-namespace DSharpPlus.Interactivity.EventHandling
+namespace DSharpPlus.Interactivity.EventHandling;
+
+internal class ComponentPaginator : IPaginator
 {
-    internal class ComponentPaginator : IPaginator
+    private readonly DiscordClient _client;
+    private readonly InteractivityConfiguration _config;
+    private readonly DiscordMessageBuilder _builder = new();
+    private readonly Dictionary<ulong, IPaginationRequest> _requests = new();
+
+    public ComponentPaginator(DiscordClient client, InteractivityConfiguration config)
     {
-        private readonly DiscordClient _client;
-        private readonly InteractivityConfiguration _config;
-        private readonly DiscordMessageBuilder _builder = new();
-        private readonly Dictionary<ulong, IPaginationRequest> _requests = new();
+        this._client = client;
+        this._client.ComponentInteractionCreated += this.Handle;
+        this._config = config;
+    }
 
-        public ComponentPaginator(DiscordClient client, InteractivityConfiguration config)
+    public async Task DoPaginationAsync(IPaginationRequest request)
+    {
+        var id = (await request.GetMessageAsync().ConfigureAwait(false)).Id;
+        this._requests.Add(id, request);
+
+        try
         {
-            this._client = client;
-            this._client.ComponentInteractionCreated += this.Handle;
-            this._config = config;
+            var tcs = await request.GetTaskCompletionSourceAsync().ConfigureAwait(false);
+            await tcs.Task.ConfigureAwait(false);
         }
-
-        public async Task DoPaginationAsync(IPaginationRequest request)
+        catch (Exception ex)
         {
-            var id = (await request.GetMessageAsync().ConfigureAwait(false)).Id;
-            this._requests.Add(id, request);
-
+            this._client.Logger.LogError(InteractivityEvents.InteractivityPaginationError, ex, "There was an exception while paginating.");
+        }
+        finally
+        {
+            this._requests.Remove(id);
             try
             {
-                var tcs = await request.GetTaskCompletionSourceAsync().ConfigureAwait(false);
-                await tcs.Task.ConfigureAwait(false);
+                await request.DoCleanupAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                this._client.Logger.LogError(InteractivityEvents.InteractivityPaginationError, ex, "There was an exception while paginating.");
-            }
-            finally
-            {
-                this._requests.Remove(id);
-                try
-                {
-                    await request.DoCleanupAsync().ConfigureAwait(false);
-                }
-                catch (Exception ex)
-                {
-                    this._client.Logger.LogError(InteractivityEvents.InteractivityPaginationError, ex, "There was an exception while cleaning up pagination.");
-                }
+                this._client.Logger.LogError(InteractivityEvents.InteractivityPaginationError, ex, "There was an exception while cleaning up pagination.");
             }
         }
+    }
 
-        public void Dispose() => this._client.ComponentInteractionCreated -= this.Handle;
+    public void Dispose() => this._client.ComponentInteractionCreated -= this.Handle;
 
 
-        private async Task Handle(DiscordClient _, ComponentInteractionCreateEventArgs e)
+    private async Task Handle(DiscordClient _, ComponentInteractionCreateEventArgs e)
+    {
+        if (!this._requests.TryGetValue(e.Message.Id, out var req))
+            return;
+
+        if (this._config.AckPaginationButtons)
         {
-            if (!this._requests.TryGetValue(e.Message.Id, out var req))
-                return;
-
-            if (this._config.AckPaginationButtons)
-            {
-                e.Handled = true;
-                await e.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate).ConfigureAwait(false);
-            }
-
-            if (await req.GetUserAsync().ConfigureAwait(false) != e.User)
-            {
-                if (this._config.ResponseBehavior is InteractionResponseBehavior.Respond)
-                    await e.Interaction.CreateFollowupMessageAsync(new() {Content = this._config.ResponseMessage, IsEphemeral = true}).ConfigureAwait(false);
-
-                return;
-            }
-
-            if (req is InteractionPaginationRequest ipr)
-                ipr.RegenerateCTS(e.Interaction); // Necessary to ensure we don't prematurely yeet the CTS //
-
-            await this.HandlePaginationAsync(req, e).ConfigureAwait(false);
+            e.Handled = true;
+            await e.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate).ConfigureAwait(false);
         }
 
-        private async Task HandlePaginationAsync(IPaginationRequest request, ComponentInteractionCreateEventArgs args)
+        if (await req.GetUserAsync().ConfigureAwait(false) != e.User)
         {
-            var buttons = this._config.PaginationButtons;
-            var msg = await request.GetMessageAsync().ConfigureAwait(false);
-            var id = args.Id;
-            var tcs = await request.GetTaskCompletionSourceAsync().ConfigureAwait(false);
+            if (this._config.ResponseBehavior is InteractionResponseBehavior.Respond)
+                await e.Interaction.CreateFollowupMessageAsync(new() {Content = this._config.ResponseMessage, IsEphemeral = true}).ConfigureAwait(false);
 
-            var paginationTask = id switch
-            {
-                _ when id == buttons.SkipLeft.CustomId => request.SkipLeftAsync(),
-                _ when id == buttons.SkipRight.CustomId => request.SkipRightAsync(),
-                _ when id == buttons.Stop.CustomId => Task.FromResult(tcs.TrySetResult(true)),
-                _ when id == buttons.Left.CustomId => request.PreviousPageAsync(),
-                _ when id == buttons.Right.CustomId => request.NextPageAsync(),
-                _ => Task.CompletedTask
-            };
+            return;
+        }
 
-            await paginationTask.ConfigureAwait(false);
+        if (req is InteractionPaginationRequest ipr)
+            ipr.RegenerateCTS(e.Interaction); // Necessary to ensure we don't prematurely yeet the CTS //
 
-            if (id == buttons.Stop.CustomId)
-                return;
+        await this.HandlePaginationAsync(req, e).ConfigureAwait(false);
+    }
 
-            var page = await request.GetPageAsync().ConfigureAwait(false);
-            var bts = await request.GetButtonsAsync().ConfigureAwait(false);
+    private async Task HandlePaginationAsync(IPaginationRequest request, ComponentInteractionCreateEventArgs args)
+    {
+        var buttons = this._config.PaginationButtons;
+        var msg = await request.GetMessageAsync().ConfigureAwait(false);
+        var id = args.Id;
+        var tcs = await request.GetTaskCompletionSourceAsync().ConfigureAwait(false);
 
-            if (request is InteractionPaginationRequest ipr)
-            {
-                var builder = new DiscordWebhookBuilder()
-                    .WithContent(page.Content)
-                    .AddEmbed(page.Embed)
-                    .AddComponents(bts);
+        var paginationTask = id switch
+        {
+            _ when id == buttons.SkipLeft.CustomId => request.SkipLeftAsync(),
+            _ when id == buttons.SkipRight.CustomId => request.SkipRightAsync(),
+            _ when id == buttons.Stop.CustomId => Task.FromResult(tcs.TrySetResult(true)),
+            _ when id == buttons.Left.CustomId => request.PreviousPageAsync(),
+            _ when id == buttons.Right.CustomId => request.NextPageAsync(),
+            _ => Task.CompletedTask
+        };
 
-                await args.Interaction.EditOriginalResponseAsync(builder).ConfigureAwait(false);
-                return;
-            }
+        await paginationTask.ConfigureAwait(false);
 
+        if (id == buttons.Stop.CustomId)
+            return;
 
-            this._builder.Clear();
+        var page = await request.GetPageAsync().ConfigureAwait(false);
+        var bts = await request.GetButtonsAsync().ConfigureAwait(false);
 
-            this._builder
+        if (request is InteractionPaginationRequest ipr)
+        {
+            var builder = new DiscordWebhookBuilder()
                 .WithContent(page.Content)
                 .AddEmbed(page.Embed)
                 .AddComponents(bts);
 
-            await this._builder.ModifyAsync(msg).ConfigureAwait(false);
-
+            await args.Interaction.EditOriginalResponseAsync(builder).ConfigureAwait(false);
+            return;
         }
+
+
+        this._builder.Clear();
+
+        this._builder
+            .WithContent(page.Content)
+            .AddEmbed(page.Embed)
+            .AddComponents(bts);
+
+        await this._builder.ModifyAsync(msg).ConfigureAwait(false);
+
     }
 }

@@ -25,26 +25,25 @@ using System;
 using DSharpPlus.Net;
 using Newtonsoft.Json.Linq;
 
-namespace DSharpPlus.Exceptions
+namespace DSharpPlus.Exceptions;
+
+/// <summary>
+/// Represents an exception thrown when Discord returns an Internal Server Error.
+/// </summary>
+public class ServerErrorException : DiscordException
 {
-    /// <summary>
-    /// Represents an exception thrown when Discord returns an Internal Server Error.
-    /// </summary>
-    public class ServerErrorException : DiscordException
+    internal ServerErrorException(BaseRestRequest request, RestResponse response) : base("Internal Server Error: " + response.ResponseCode)
     {
-        internal ServerErrorException(BaseRestRequest request, RestResponse response) : base("Internal Server Error: " + response.ResponseCode)
+        this.WebRequest = request;
+        this.WebResponse = response;
+
+        try
         {
-            this.WebRequest = request;
-            this.WebResponse = response;
+            var j = JObject.Parse(response.Response);
 
-            try
-            {
-                var j = JObject.Parse(response.Response);
-
-                if (j["message"] != null)
-                    this.JsonMessage = j["message"].ToString();
-            }
-            catch (Exception) { }
+            if (j["message"] != null)
+                this.JsonMessage = j["message"].ToString();
         }
+        catch (Exception) { }
     }
 }

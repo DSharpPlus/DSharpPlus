@@ -21,17 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace DSharpPlus.CommandsNext
+namespace DSharpPlus.CommandsNext;
+
+/// <summary>
+/// Represents arguments for <see cref="CommandsNextExtension.CommandExecuted"/> event.
+/// </summary>
+public class CommandExecutionEventArgs : CommandEventArgs
 {
     /// <summary>
-    /// Represents arguments for <see cref="CommandsNextExtension.CommandExecuted"/> event.
+    /// Gets the command that was executed.
     /// </summary>
-    public class CommandExecutionEventArgs : CommandEventArgs
-    {
-        /// <summary>
-        /// Gets the command that was executed.
-        /// </summary>
-        public new Command Command
-            => this.Context.Command!;
-    }
+    public new Command Command
+        => this.Context.Command!;
 }

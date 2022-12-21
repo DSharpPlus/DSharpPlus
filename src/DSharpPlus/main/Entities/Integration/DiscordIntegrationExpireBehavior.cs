@@ -1,8 +1,7 @@
-namespace DSharpPlus.Core.Enums
+namespace DSharpPlus.Entities;
+
+public enum DiscordIntegrationExpireBehavior
 {
-    public enum DiscordIntegrationExpireBehavior
-    {
-        RemoveRole = 0,
-        Kick = 1
-    }
+    RemoveRole = 0,
+    Kick = 1
 }

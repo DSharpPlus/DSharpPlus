@@ -24,20 +24,19 @@
 using System;
 using System.Threading.Tasks;
 
-namespace DSharpPlus.CommandsNext.Executors
-{
-    /// <summary>
-    /// Executes commands using <see cref="Task.Run(Func{Task})"/>.
-    /// </summary>
-    public sealed class AsynchronousCommandExecutor : ICommandExecutor
-    {
-        Task ICommandExecutor.ExecuteAsync(CommandContext ctx)
-        {
-            _ = Task.Run(() => ctx.CommandsNext.ExecuteCommandAsync(ctx).ConfigureAwait(false));
-            return Task.CompletedTask;
-        }
+namespace DSharpPlus.CommandsNext.Executors;
 
-        void IDisposable.Dispose()
-        { }
+/// <summary>
+/// Executes commands using <see cref="Task.Run(Func{Task})"/>.
+/// </summary>
+public sealed class AsynchronousCommandExecutor : ICommandExecutor
+{
+    Task ICommandExecutor.ExecuteAsync(CommandContext ctx)
+    {
+        _ = Task.Run(() => ctx.CommandsNext.ExecuteCommandAsync(ctx).ConfigureAwait(false));
+        return Task.CompletedTask;
     }
+
+    void IDisposable.Dispose()
+    { }
 }

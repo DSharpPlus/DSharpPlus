@@ -1,31 +1,30 @@
 using System.Text.Json.Serialization;
 
-namespace DSharpPlus.Core.Entities
+namespace DSharpPlus.Entities.Internal;
+
+/// <summary>
+/// A <see cref="InternalRole"/>'s metadata.
+/// </summary>
+public sealed record InternalRoleTags
 {
     /// <summary>
-    /// A <see cref="InternalRole"/>'s metadata.
+    /// The id of the bot this role belongs to.
     /// </summary>
-    public sealed record InternalRoleTags
-    {
-        /// <summary>
-        /// The id of the bot this role belongs to.
-        /// </summary>
-        [JsonPropertyName("bot_id")]
-        public Optional<InternalSnowflake> BotId { get; init; }
+    [JsonPropertyName("bot_id")]
+    public Optional<InternalSnowflake> BotId { get; init; }
 
-        /// <summary>
-        /// The id of the integration this role belongs to.
-        /// </summary>
-        [JsonPropertyName("integration_id")]
-        public Optional<InternalSnowflake> IntegrationId { get; init; }
+    /// <summary>
+    /// The id of the integration this role belongs to.
+    /// </summary>
+    [JsonPropertyName("integration_id")]
+    public Optional<InternalSnowflake> IntegrationId { get; init; }
 
-        /// <summary>
-        /// Whether this is the guild's premium subscriber role.
-        /// </summary>
-        /// <remarks>
-        /// Null when it is the guild's premium subscriber role, otherwise <see cref="Optional{T}.Empty"/>. You should use <see cref="Optional{T}.HasValue"/> to check if this is the guild's premium subscriber role.
-        /// </remarks>
-        [JsonPropertyName("premium_subscriber")]
-        internal Optional<bool> PremiumSubscriber { get; init; }
-    }
+    /// <summary>
+    /// Whether this is the guild's premium subscriber role.
+    /// </summary>
+    /// <remarks>
+    /// Null when it is the guild's premium subscriber role, otherwise <see cref="Optional{T}.Empty"/>. You should use <see cref="Optional{T}.HasValue"/> to check if this is the guild's premium subscriber role.
+    /// </remarks>
+    [JsonPropertyName("premium_subscriber")]
+    internal Optional<bool> PremiumSubscriber { get; init; }
 }

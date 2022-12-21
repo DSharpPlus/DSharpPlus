@@ -21,21 +21,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace DSharpPlus
+namespace DSharpPlus;
+
+/// <summary>
+/// Represents a channel permissions overwrite's type.
+/// </summary>
+public enum OverwriteType : int
 {
     /// <summary>
-    /// Represents a channel permissions overwrite's type.
+    /// Specifies that this overwrite applies to a role.
     /// </summary>
-    public enum OverwriteType : int
-    {
-        /// <summary>
-        /// Specifies that this overwrite applies to a role.
-        /// </summary>
-        Role,
+    Role,
 
-        /// <summary>
-        /// Specifies that this overwrite applies to a member.
-        /// </summary>
-        Member
-    }
+    /// <summary>
+    /// Specifies that this overwrite applies to a member.
+    /// </summary>
+    Member
 }

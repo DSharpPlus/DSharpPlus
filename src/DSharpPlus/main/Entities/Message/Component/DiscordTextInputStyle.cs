@@ -1,15 +1,14 @@
-namespace DSharpPlus.Core.Enums
-{
-    public enum DiscordTextInputStyle
-    {
-        /// <summary>
-        /// A single-line input.
-        /// </summary>
-        Short = 1,
+namespace DSharpPlus.Entities;
 
-        /// <summary>
-        /// A multi-line input.
-        /// </summary>
-        Paragraph = 2
-    }
+public enum DiscordTextInputStyle
+{
+    /// <summary>
+    /// A single-line input.
+    /// </summary>
+    Short = 1,
+
+    /// <summary>
+    /// A multi-line input.
+    /// </summary>
+    Paragraph = 2
 }

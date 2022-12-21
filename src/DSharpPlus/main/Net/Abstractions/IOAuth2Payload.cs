@@ -21,10 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace DSharpPlus.Net.Abstractions
+namespace DSharpPlus.Net.Abstractions;
+
+internal interface IOAuth2Payload
 {
-    internal interface IOAuth2Payload
-    {
-        string AccessToken { get; set; }
-    }
+    string AccessToken { get; set; }
 }

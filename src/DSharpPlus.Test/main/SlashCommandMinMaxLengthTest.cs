@@ -25,12 +25,11 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 
-namespace DSharpPlus.Test
+namespace DSharpPlus.Test;
+
+public class SlashCommandMinMaxLengthTest : ApplicationCommandModule
 {
-    public class SlashCommandMinMaxLengthTest : ApplicationCommandModule
-    {
-        [SlashCommand("minmaxlength", "testing min and max length")]
-        public async Task MinMaxAsync(InteractionContext ctx, [Option("value", "value with limits")][MinimumLength(5), MaximumLength(7)] string thing)
-            => await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(thing));
-    }
+    [SlashCommand("minmaxlength", "testing min and max length")]
+    public async Task MinMaxAsync(InteractionContext ctx, [Option("value", "value with limits")][MinimumLength(5), MaximumLength(7)] string thing)
+        => await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent(thing));
 }

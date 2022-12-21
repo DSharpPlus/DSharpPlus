@@ -21,21 +21,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace DSharpPlus.Interactivity.Enums
+namespace DSharpPlus.Interactivity.Enums;
+
+/// <summary>
+/// Specifies how to split a string.
+/// </summary>
+public enum SplitType
 {
     /// <summary>
-    /// Specifies how to split a string.
+    /// Splits string per 500 characters.
     /// </summary>
-    public enum SplitType
-    {
-        /// <summary>
-        /// Splits string per 500 characters.
-        /// </summary>
-        Character,
+    Character,
 
-        /// <summary>
-        /// Splits string per 15 lines.
-        /// </summary>
-        Line
-    }
+    /// <summary>
+    /// Splits string per 15 lines.
+    /// </summary>
+    Line
 }

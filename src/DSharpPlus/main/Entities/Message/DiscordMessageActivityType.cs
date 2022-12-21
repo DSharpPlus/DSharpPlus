@@ -1,10 +1,9 @@
-namespace DSharpPlus.Core.Enums
+namespace DSharpPlus.Entities;
+
+public enum DiscordMessageActivityType
 {
-    public enum DiscordMessageActivityType
-    {
-        Join = 1,
-        Spectate = 2,
-        Listen = 3,
-        JoinRequest = 5
-    }
+    Join = 1,
+    Spectate = 2,
+    Listen = 3,
+    JoinRequest = 5
 }

@@ -26,31 +26,30 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.VoiceNext;
 
-namespace DSharpPlus.Test
+namespace DSharpPlus.Test;
+
+public class VoiceNextTest : BaseCommandModule
 {
-    public class VoiceNextTest : BaseCommandModule
+    static VoiceNextTest()
     {
-        static VoiceNextTest()
-        {
-            TaskScheduler.UnobservedTaskException += OhNo;
-        }
+        TaskScheduler.UnobservedTaskException += OhNo;
+    }
 
-        private static void OhNo(object sender, UnobservedTaskExceptionEventArgs e) => Console.Error.WriteLine("SOMETHING WENT TERRIBLY WRONG WHEN DISCONNECTING");
+    private static void OhNo(object sender, UnobservedTaskExceptionEventArgs e) => Console.Error.WriteLine("SOMETHING WENT TERRIBLY WRONG WHEN DISCONNECTING");
 
-        [Command]
-        public async Task JoinAsync(CommandContext ctx)
-        {
-            var vnext = ctx.Client.GetVoiceNext();
-            await vnext.ConnectAsync(ctx.Member.VoiceState.Channel);
-        }
+    [Command]
+    public async Task JoinAsync(CommandContext ctx)
+    {
+        var vnext = ctx.Client.GetVoiceNext();
+        await vnext.ConnectAsync(ctx.Member.VoiceState.Channel);
+    }
 
-        [Command]
-        public static Task Leave(CommandContext ctx)
-        {
-            var vnext = ctx.Client.GetVoiceNext();
+    [Command]
+    public static Task Leave(CommandContext ctx)
+    {
+        var vnext = ctx.Client.GetVoiceNext();
 
-            vnext.GetConnection(ctx.Guild)?.Disconnect(); // Calls .Dispose(); //
-            return Task.CompletedTask;
-        }
+        vnext.GetConnection(ctx.Guild)?.Disconnect(); // Calls .Dispose(); //
+        return Task.CompletedTask;
     }
 }

@@ -20,28 +20,27 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace DSharpPlus
+namespace DSharpPlus;
+
+/// <summary>
+/// Represents the type of an <see cref="Entities.DiscordApplicationCommand"/>.
+/// </summary>
+public enum ApplicationCommandType
 {
     /// <summary>
-    /// Represents the type of an <see cref="Entities.DiscordApplicationCommand"/>.
+    /// This command is registered as a slash-command, aka "Chat Input".
     /// </summary>
-    public enum ApplicationCommandType
-    {
-        /// <summary>
-        /// This command is registered as a slash-command, aka "Chat Input".
-        /// </summary>
-        SlashCommand = 1,
-        /// <summary>
-        /// This command is registered as a user context menu, and is applicable when interacting a user.
-        /// </summary>
-        UserContextMenu = 2,
-        /// <summary>
-        /// This command is registered as a message context menu, and is applicable when interacting with a message.
-        /// </summary>
-        MessageContextMenu = 3,
-        /// <summary>
-        /// Inbound only: An auto-complete option is being interacted with.
-        /// </summary>
-        AutoCompleteRequest = 4,
-    }
+    SlashCommand = 1,
+    /// <summary>
+    /// This command is registered as a user context menu, and is applicable when interacting a user.
+    /// </summary>
+    UserContextMenu = 2,
+    /// <summary>
+    /// This command is registered as a message context menu, and is applicable when interacting with a message.
+    /// </summary>
+    MessageContextMenu = 3,
+    /// <summary>
+    /// Inbound only: An auto-complete option is being interacted with.
+    /// </summary>
+    AutoCompleteRequest = 4,
 }

@@ -1,20 +1,19 @@
-namespace DSharpPlus.Core.Enums
+namespace DSharpPlus.Entities;
+
+public enum DiscordGuildExplicitContentFilterLevel
 {
-    public enum DiscordGuildExplicitContentFilterLevel
-    {
-        /// <summary>
-        /// Media content will not be scanned.
-        /// </summary>
-        Disabled = 0,
+    /// <summary>
+    /// Media content will not be scanned.
+    /// </summary>
+    Disabled = 0,
 
-        /// <summary>
-        /// Media content sent by members without roles will be scanned.
-        /// </summary>
-        MembersWithoutRoles = 1,
+    /// <summary>
+    /// Media content sent by members without roles will be scanned.
+    /// </summary>
+    MembersWithoutRoles = 1,
 
-        /// <summary>
-        /// Media content sent by all members will be scanned.
-        /// </summary>
-        AllMembers = 2
-    }
+    /// <summary>
+    /// Media content sent by all members will be scanned.
+    /// </summary>
+    AllMembers = 2
 }

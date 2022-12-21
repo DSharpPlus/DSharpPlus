@@ -27,165 +27,164 @@ using DSharpPlus.Net.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace DSharpPlus.Net.Abstractions
+namespace DSharpPlus.Net.Abstractions;
+
+internal sealed class AuditLogUser
 {
-    internal sealed class AuditLogUser
-    {
-        [JsonProperty("username")]
-        public string Username { get; set; }
+    [JsonProperty("username")]
+    public string Username { get; set; }
 
-        [JsonProperty("discriminator")]
-        public string Discriminator { get; set; }
+    [JsonProperty("discriminator")]
+    public string Discriminator { get; set; }
 
-        [JsonProperty("id")]
-        public ulong Id { get; set; }
+    [JsonProperty("id")]
+    public ulong Id { get; set; }
 
-        [JsonProperty("avatar")]
-        public string AvatarHash { get; set; }
-    }
+    [JsonProperty("avatar")]
+    public string AvatarHash { get; set; }
+}
 
-    internal sealed class AuditLogWebhook
-    {
-        [JsonProperty("name")]
-        public string Name { get; set; }
+internal sealed class AuditLogWebhook
+{
+    [JsonProperty("name")]
+    public string Name { get; set; }
 
-        [JsonProperty("channel_id")]
-        public ulong ChannelId { get; set; }
+    [JsonProperty("channel_id")]
+    public ulong ChannelId { get; set; }
 
-        [JsonProperty("token")]
-        public string Token { get; set; }
+    [JsonProperty("token")]
+    public string Token { get; set; }
 
-        [JsonProperty("avatar")]
-        public string AvatarHash { get; set; }
+    [JsonProperty("avatar")]
+    public string AvatarHash { get; set; }
 
-        [JsonProperty("guild_id")]
-        public ulong GuildId { get; set; }
+    [JsonProperty("guild_id")]
+    public ulong GuildId { get; set; }
 
-        [JsonProperty("id")]
-        public ulong Id { get; set; }
-    }
+    [JsonProperty("id")]
+    public ulong Id { get; set; }
+}
 
-    internal sealed class AuditLogActionChange
-    {
-        // this can be a string or an array
-        [JsonProperty("old_value")]
-        public object OldValue { get; set; }
+internal sealed class AuditLogActionChange
+{
+    // this can be a string or an array
+    [JsonProperty("old_value")]
+    public object OldValue { get; set; }
 
-        [JsonIgnore]
-        public IEnumerable<JObject> OldValues
-            => (this.OldValue as JArray)?.ToDiscordObject<IEnumerable<JObject>>();
+    [JsonIgnore]
+    public IEnumerable<JObject> OldValues
+        => (this.OldValue as JArray)?.ToDiscordObject<IEnumerable<JObject>>();
 
-        [JsonIgnore]
-        public ulong OldValueUlong
-            => (ulong)this.OldValue;
+    [JsonIgnore]
+    public ulong OldValueUlong
+        => (ulong)this.OldValue;
 
-        [JsonIgnore]
-        public string OldValueString
-            => (string)this.OldValue;
+    [JsonIgnore]
+    public string OldValueString
+        => (string)this.OldValue;
 
-        [JsonIgnore]
-        public bool OldValueBool
-            => (bool)this.OldValue;
+    [JsonIgnore]
+    public bool OldValueBool
+        => (bool)this.OldValue;
 
-        [JsonIgnore]
-        public long OldValueLong
-            => (long)this.OldValue;
+    [JsonIgnore]
+    public long OldValueLong
+        => (long)this.OldValue;
 
 
-        // this can be a string or an array
-        [JsonProperty("new_value")]
-        public object NewValue { get; set; }
+    // this can be a string or an array
+    [JsonProperty("new_value")]
+    public object NewValue { get; set; }
 
-        [JsonIgnore]
-        public IEnumerable<JObject> NewValues
-            => (this.NewValue as JArray)?.ToDiscordObject<IEnumerable<JObject>>();
+    [JsonIgnore]
+    public IEnumerable<JObject> NewValues
+        => (this.NewValue as JArray)?.ToDiscordObject<IEnumerable<JObject>>();
 
-        [JsonIgnore]
-        public ulong NewValueUlong
-            => (ulong)this.NewValue;
+    [JsonIgnore]
+    public ulong NewValueUlong
+        => (ulong)this.NewValue;
 
-        [JsonIgnore]
-        public string NewValueString
-            => (string)this.NewValue;
+    [JsonIgnore]
+    public string NewValueString
+        => (string)this.NewValue;
 
-        [JsonIgnore]
-        public bool NewValueBool
-            => (bool)this.NewValue;
+    [JsonIgnore]
+    public bool NewValueBool
+        => (bool)this.NewValue;
 
-        [JsonIgnore]
-        public long NewValueLong
-            => (long)this.NewValue;
+    [JsonIgnore]
+    public long NewValueLong
+        => (long)this.NewValue;
 
-        [JsonProperty("key")]
-        public string Key { get; set; }
-    }
+    [JsonProperty("key")]
+    public string Key { get; set; }
+}
 
-    internal sealed class AuditLogActionOptions
-    {
-        [JsonProperty("type")]
-        public object Type { get; set; }
+internal sealed class AuditLogActionOptions
+{
+    [JsonProperty("type")]
+    public object Type { get; set; }
 
-        [JsonProperty("id")]
-        public ulong Id { get; set; }
+    [JsonProperty("id")]
+    public ulong Id { get; set; }
 
-        [JsonProperty("channel_id")]
-        public ulong ChannelId { get; set; }
+    [JsonProperty("channel_id")]
+    public ulong ChannelId { get; set; }
 
-        [JsonProperty("message_id")]
-        public ulong MessageId { get; set; }
+    [JsonProperty("message_id")]
+    public ulong MessageId { get; set; }
 
-        [JsonProperty("count")]
-        public int Count { get; set; }
+    [JsonProperty("count")]
+    public int Count { get; set; }
 
-        [JsonProperty("delete_member_days")]
-        public int DeleteMemberDays { get; set; }
+    [JsonProperty("delete_member_days")]
+    public int DeleteMemberDays { get; set; }
 
-        [JsonProperty("members_removed")]
-        public int MembersRemoved { get; set; }
-    }
+    [JsonProperty("members_removed")]
+    public int MembersRemoved { get; set; }
+}
 
-    internal sealed class AuditLogAction
-    {
-        [JsonProperty("target_id")]
-        public ulong? TargetId { get; set; }
+internal sealed class AuditLogAction
+{
+    [JsonProperty("target_id")]
+    public ulong? TargetId { get; set; }
 
-        [JsonProperty("user_id")]
-        public ulong UserId { get; set; }
+    [JsonProperty("user_id")]
+    public ulong UserId { get; set; }
 
-        [JsonProperty("id")]
-        public ulong Id { get; set; }
+    [JsonProperty("id")]
+    public ulong Id { get; set; }
 
-        [JsonProperty("action_type")]
-        public AuditLogActionType ActionType { get; set; }
+    [JsonProperty("action_type")]
+    public AuditLogActionType ActionType { get; set; }
 
-        [JsonProperty("changes")]
-        public IEnumerable<AuditLogActionChange> Changes { get; set; }
+    [JsonProperty("changes")]
+    public IEnumerable<AuditLogActionChange> Changes { get; set; }
 
-        [JsonProperty("options")]
-        public AuditLogActionOptions Options { get; set; }
+    [JsonProperty("options")]
+    public AuditLogActionOptions Options { get; set; }
 
-        [JsonProperty("reason")]
-        public string Reason { get; set; }
-    }
+    [JsonProperty("reason")]
+    public string Reason { get; set; }
+}
 
-    internal sealed class AuditLog
-    {
-        [JsonProperty("webhooks")]
-        public IEnumerable<AuditLogWebhook> Webhooks { get; set; }
+internal sealed class AuditLog
+{
+    [JsonProperty("webhooks")]
+    public IEnumerable<AuditLogWebhook> Webhooks { get; set; }
 
-        [JsonProperty("users")]
-        public IEnumerable<AuditLogUser> Users { get; set; }
+    [JsonProperty("users")]
+    public IEnumerable<AuditLogUser> Users { get; set; }
 
-        [JsonProperty("audit_log_entries")]
-        public IEnumerable<AuditLogAction> Entries { get; set; }
+    [JsonProperty("audit_log_entries")]
+    public IEnumerable<AuditLogAction> Entries { get; set; }
 
-        [JsonProperty("guild_scheduled_events")]
-        public IEnumerable<DiscordScheduledGuildEvent> Events { get; set; }
+    [JsonProperty("guild_scheduled_events")]
+    public IEnumerable<DiscordScheduledGuildEvent> Events { get; set; }
 
-        [JsonProperty("integrations")]
-        public IEnumerable<DiscordIntegration> Integrations { get; set; }
+    [JsonProperty("integrations")]
+    public IEnumerable<DiscordIntegration> Integrations { get; set; }
 
-        [JsonProperty("threads")]
-        public IEnumerable<DiscordThreadChannel> Threads { get; set; }
-    }
+    [JsonProperty("threads")]
+    public IEnumerable<DiscordThreadChannel> Threads { get; set; }
 }

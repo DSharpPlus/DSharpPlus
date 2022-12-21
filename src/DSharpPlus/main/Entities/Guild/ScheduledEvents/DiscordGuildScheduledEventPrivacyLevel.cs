@@ -1,10 +1,9 @@
-namespace DSharpPlus.Core.Enums
+namespace DSharpPlus.Entities;
+
+public enum DiscordGuildScheduledEventPrivacyLevel
 {
-    public enum DiscordGuildScheduledEventPrivacyLevel
-    {
-        /// <summary>
-        /// The scheduled event is only accessible to guild members.
-        /// </summary>
-        GuildOnly = 2
-    }
+    /// <summary>
+    /// The scheduled event is only accessible to guild members.
+    /// </summary>
+    GuildOnly = 2
 }

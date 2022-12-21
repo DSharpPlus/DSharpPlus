@@ -29,99 +29,98 @@ using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.EventHandling;
 
-namespace DSharpPlus.Test
+namespace DSharpPlus.Test;
+
+/// <summary>
+/// An example implementation of the IPaginationRequest interface.
+/// Take a look at the IPaginationRequest interface in DSharpPlus.Interactivity for more information.
+/// </summary>
+public class TestBotPaginator : IPaginationRequest
 {
-    /// <summary>
-    /// An example implementation of the IPaginationRequest interface.
-    /// Take a look at the IPaginationRequest interface in DSharpPlus.Interactivity for more information.
-    /// </summary>
-    public class TestBotPaginator : IPaginationRequest
+    private readonly List<Page> _pages;
+    private readonly TaskCompletionSource<bool> _tcs;
+    private readonly CancellationTokenSource _cts;
+    private readonly DiscordMessage _msg;
+    private int _index = 0;
+    private readonly PaginationEmojis _emojis;
+    private readonly DiscordUser _usr;
+
+    public int PageCount
+        => this._pages.Count;
+
+    public TestBotPaginator(DiscordClient client, DiscordUser usr, DiscordMessage msg, List<Page> pages)
     {
-        private readonly List<Page> _pages;
-        private readonly TaskCompletionSource<bool> _tcs;
-        private readonly CancellationTokenSource _cts;
-        private readonly DiscordMessage _msg;
-        private int _index = 0;
-        private readonly PaginationEmojis _emojis;
-        private readonly DiscordUser _usr;
+        this._pages = pages;
+        this._tcs = new TaskCompletionSource<bool>();
+        this._cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+        this._cts.Token.Register(() => this._tcs.TrySetResult(true));
+        this._msg = msg;
+        this._emojis = new PaginationEmojis();
+        this._usr = usr;
+    }
 
-        public int PageCount
-            => this._pages.Count;
+    public async Task DoCleanupAsync() => await this._msg.DeleteAsync().ConfigureAwait(false);
 
-        public TestBotPaginator(DiscordClient client, DiscordUser usr, DiscordMessage msg, List<Page> pages)
-        {
-            this._pages = pages;
-            this._tcs = new TaskCompletionSource<bool>();
-            this._cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
-            this._cts.Token.Register(() => this._tcs.TrySetResult(true));
-            this._msg = msg;
-            this._emojis = new PaginationEmojis();
-            this._usr = usr;
-        }
+    public async Task<PaginationEmojis> GetEmojisAsync()
+    {
+        await Task.Yield();
+        return this._emojis;
+    }
 
-        public async Task DoCleanupAsync() => await this._msg.DeleteAsync().ConfigureAwait(false);
+    public Task<IEnumerable<DiscordButtonComponent>> GetButtonsAsync()
+        => throw new NotSupportedException("This request does not support buttons.");
 
-        public async Task<PaginationEmojis> GetEmojisAsync()
-        {
-            await Task.Yield();
-            return this._emojis;
-        }
+    public async Task<DiscordMessage> GetMessageAsync()
+    {
+        await Task.Yield();
+        return this._msg;
+    }
 
-        public Task<IEnumerable<DiscordButtonComponent>> GetButtonsAsync()
-            => throw new NotSupportedException("This request does not support buttons.");
+    public async Task<Page> GetPageAsync()
+    {
+        await Task.Yield();
+        return this._pages[this._index];
+    }
 
-        public async Task<DiscordMessage> GetMessageAsync()
-        {
-            await Task.Yield();
-            return this._msg;
-        }
+    public async Task<TaskCompletionSource<bool>> GetTaskCompletionSourceAsync()
+    {
+        await Task.Yield();
+        return this._tcs;
+    }
 
-        public async Task<Page> GetPageAsync()
-        {
-            await Task.Yield();
-            return this._pages[this._index];
-        }
+    public async Task<DiscordUser> GetUserAsync()
+    {
+        await Task.Yield();
+        return this._usr;
+    }
 
-        public async Task<TaskCompletionSource<bool>> GetTaskCompletionSourceAsync()
-        {
-            await Task.Yield();
-            return this._tcs;
-        }
+    public async Task NextPageAsync()
+    {
+        await Task.Yield();
 
-        public async Task<DiscordUser> GetUserAsync()
-        {
-            await Task.Yield();
-            return this._usr;
-        }
+        if (this._index < this._pages.Count - 1)
+            this._index++;
+    }
 
-        public async Task NextPageAsync()
-        {
-            await Task.Yield();
+    public async Task PreviousPageAsync()
+    {
+        await Task.Yield();
 
-            if (this._index < this._pages.Count - 1)
-                this._index++;
-        }
+        if (this._index > 0)
+            this._index--;
+    }
 
-        public async Task PreviousPageAsync()
-        {
-            await Task.Yield();
+    public async Task SkipLeftAsync()
+    {
+        await Task.Yield();
 
-            if (this._index > 0)
-                this._index--;
-        }
+        this._index = 0;
+    }
 
-        public async Task SkipLeftAsync()
-        {
-            await Task.Yield();
+    public async Task SkipRightAsync()
+    {
+        await Task.Yield();
 
-            this._index = 0;
-        }
-
-        public async Task SkipRightAsync()
-        {
-            await Task.Yield();
-
-            this._index = this._pages.Count - 1;
-        }
+        this._index = this._pages.Count - 1;
     }
 }

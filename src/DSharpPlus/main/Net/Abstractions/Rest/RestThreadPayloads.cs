@@ -21,21 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System.Collections.Generic;
-using DSharpPlus.Entities;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Net.Abstractions
+namespace DSharpPlus.Net.Abstractions;
+
+internal sealed class RestThreadCreatePayload
 {
-    internal sealed class RestThreadCreatePayload
-    {
-        [JsonProperty("name")]
-        public string Name { get; set; }
+    [JsonProperty("name")]
+    public string Name { get; set; }
 
-        [JsonProperty("auto_archive_duration", NullValueHandling = NullValueHandling.Ignore)]
-        public AutoArchiveDuration ArchiveAfter { get; set; }
+    [JsonProperty("auto_archive_duration", NullValueHandling = NullValueHandling.Ignore)]
+    public AutoArchiveDuration ArchiveAfter { get; set; }
 
-        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-        public ChannelType? Type { get; set; }
-    }
+    [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
+    public ChannelType? Type { get; set; }
 }

@@ -1,8 +1,7 @@
-namespace DSharpPlus.Core.Enums
+namespace DSharpPlus.Entities;
+
+public enum DiscordInviteTargetType
 {
-    public enum DiscordInviteTargetType
-    {
-        Stream = 1,
-        EmbeddedApplication = 2
-    }
+    Stream = 1,
+    EmbeddedApplication = 2
 }

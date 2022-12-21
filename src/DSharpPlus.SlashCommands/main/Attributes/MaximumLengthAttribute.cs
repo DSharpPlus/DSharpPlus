@@ -23,25 +23,24 @@
 
 using System;
 
-namespace DSharpPlus.SlashCommands
+namespace DSharpPlus.SlashCommands;
+
+/// <summary>
+/// Sets a maximum allowed length for this slash command option. Only valid for <see cref="string"/> parameters.
+/// </summary>
+[AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
+public class MaximumLengthAttribute : Attribute
 {
+    /// <summary>
+    /// The value.
+    /// </summary>
+    public int Value { get; internal set; }
+
     /// <summary>
     /// Sets a maximum allowed length for this slash command option. Only valid for <see cref="string"/> parameters.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
-    public class MaximumLengthAttribute : Attribute
+    public MaximumLengthAttribute(int value)
     {
-        /// <summary>
-        /// The value.
-        /// </summary>
-        public int Value { get; internal set; }
-
-        /// <summary>
-        /// Sets a maximum allowed length for this slash command option. Only valid for <see cref="string"/> parameters.
-        /// </summary>
-        public MaximumLengthAttribute(int value)
-        {
-            this.Value = value;
-        }
+        this.Value = value;
     }
 }

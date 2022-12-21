@@ -25,26 +25,25 @@ using System;
 using DSharpPlus.Net;
 using Newtonsoft.Json.Linq;
 
-namespace DSharpPlus.Exceptions
+namespace DSharpPlus.Exceptions;
+
+/// <summary>
+/// Represents an exception thrown when requester doesn't have necessary permissions to complete the request.
+/// </summary>
+public class UnauthorizedException : DiscordException
 {
-    /// <summary>
-    /// Represents an exception thrown when requester doesn't have necessary permissions to complete the request.
-    /// </summary>
-    public class UnauthorizedException : DiscordException
+    internal UnauthorizedException(BaseRestRequest request, RestResponse response) : base("Unauthorized: " + response.ResponseCode)
     {
-        internal UnauthorizedException(BaseRestRequest request, RestResponse response) : base("Unauthorized: " + response.ResponseCode)
+        this.WebRequest = request;
+        this.WebResponse = response;
+
+        try
         {
-            this.WebRequest = request;
-            this.WebResponse = response;
+            var j = JObject.Parse(response.Response);
 
-            try
-            {
-                var j = JObject.Parse(response.Response);
-
-                if (j["message"] != null)
-                    this.JsonMessage = j["message"].ToString();
-            }
-            catch (Exception) { }
+            if (j["message"] != null)
+                this.JsonMessage = j["message"].ToString();
         }
+        catch (Exception) { }
     }
 }

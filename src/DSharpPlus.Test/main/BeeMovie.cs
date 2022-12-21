@@ -21,13 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace DSharpPlus.Test
+namespace DSharpPlus.Test;
+
+public static class BeeMovie
 {
-    public static class BeeMovie
-    {
-        public const string Script =
-            @"Removed because copyright or something but I had the whole bee movie script in here and it worked so just take my word for it";
-    }
+    public const string Script =
+        @"Removed because copyright or something but I had the whole bee movie script in here and it worked so just take my word for it";
 }
 
 // DM me for a paste if you really wanna try it out yourself

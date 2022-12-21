@@ -1,8 +1,7 @@
-namespace DSharpPlus.Core.Enums
+namespace DSharpPlus.Entities;
+
+public enum DiscordMembershipState
 {
-    public enum DiscordMembershipState
-    {
-        Invited = 1,
-        Accepted = 2,
-    }
+    Invited = 1,
+    Accepted = 2,
 }

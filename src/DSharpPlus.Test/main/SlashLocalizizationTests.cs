@@ -22,50 +22,48 @@
 // SOFTWARE.
 
 using System.Threading.Tasks;
-using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.SlashCommands;
 
-namespace DSharpPlus.Test
+namespace DSharpPlus.Test;
+
+public class SlashLocalizizationTests : ApplicationCommandModule
 {
-    public class SlashLocalizizationTests : ApplicationCommandModule
+    [SlashCommand("cool_command", "This is the default description of the command, written in English.")]
+
+    [NameLocalization(Localization.German, "cooles_kommando")]
+    [DescriptionLocalization(Localization.German, "Dies ist die Standardbeschreibung des Befehls in deutscher Sprache.")]
+
+    [NameLocalization(Localization.French, "commande_cool")]
+    [DescriptionLocalization(Localization.French, "Ceci est la description par défaut de la commande, écrite en français.")]
+
+    [NameLocalization(Localization.Spanish, "comando_cool")]
+    [DescriptionLocalization(Localization.Spanish, "Esta es la descripción por defecto de la orden, escrita en español.")]
+    public async Task CoolCommand
+    (
+        InteractionContext ctx,
+
+        [Option("some_option", "This is the default description of the option, written in English.")]
+
+        [NameLocalization(Localization.German, "einige_optionen")]
+        [DescriptionLocalization(Localization.German, "Dies ist die Standardbeschreibung des Argumentes, in Deutsch.")]
+
+        [NameLocalization(Localization.French, "une_option")]
+        [DescriptionLocalization(Localization.French, "Ceci est la description par défaut de l'argument, écrite en français.")]
+
+        [NameLocalization(Localization.Spanish, "alguna_opción")]
+        [DescriptionLocalization(Localization.Spanish, "Esta es la descripción por defecto del argumento, escrita en español.")]
+        string argument = null
+    )
     {
-        [SlashCommand("cool_command", "This is the default description of the command, written in English.")]
+        var locale = ctx.Interaction.Locale is null ? Localization.AmericanEnglish : LocaleHelper.StringsToLocale[ctx.Interaction.Locale];
 
-        [NameLocalization(Localization.German, "cooles_kommando")]
-        [DescriptionLocalization(Localization.German, "Dies ist die Standardbeschreibung des Befehls in deutscher Sprache.")]
-
-        [NameLocalization(Localization.French, "commande_cool")]
-        [DescriptionLocalization(Localization.French, "Ceci est la description par défaut de la commande, écrite en français.")]
-
-        [NameLocalization(Localization.Spanish, "comando_cool")]
-        [DescriptionLocalization(Localization.Spanish, "Esta es la descripción por defecto de la orden, escrita en español.")]
-        public async Task CoolCommand
-        (
-            InteractionContext ctx,
-
-            [Option("some_option", "This is the default description of the option, written in English.")]
-
-            [NameLocalization(Localization.German, "einige_optionen")]
-            [DescriptionLocalization(Localization.German, "Dies ist die Standardbeschreibung des Argumentes, in Deutsch.")]
-
-            [NameLocalization(Localization.French, "une_option")]
-            [DescriptionLocalization(Localization.French, "Ceci est la description par défaut de l'argument, écrite en français.")]
-
-            [NameLocalization(Localization.Spanish, "alguna_opción")]
-            [DescriptionLocalization(Localization.Spanish, "Esta es la descripción por defecto del argumento, escrita en español.")]
-            string argument = null
-        )
-        {
-            var locale = ctx.Interaction.Locale is null ? Localization.AmericanEnglish : LocaleHelper.StringsToLocale[ctx.Interaction.Locale];
-
-            await ctx.CreateResponseAsync(
-                locale switch {
-                    Localization.German => "Du hast die Sache gemacht!",
-                    Localization.French => "Vous avez fait la chose!",
-                    Localization.Spanish => "Has hecho la cosa!",
-                    _ => "You did the thing!"
-                });
-        }
-
+        await ctx.CreateResponseAsync(
+            locale switch {
+                Localization.German => "Du hast die Sache gemacht!",
+                Localization.French => "Vous avez fait la chose!",
+                Localization.Spanish => "Has hecho la cosa!",
+                _ => "You did the thing!"
+            });
     }
+
 }

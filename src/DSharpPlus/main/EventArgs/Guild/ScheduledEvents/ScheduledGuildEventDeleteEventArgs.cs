@@ -22,18 +22,17 @@
 // SOFTWARE.
 using DSharpPlus.Entities;
 
-namespace DSharpPlus.EventArgs
+namespace DSharpPlus.EventArgs;
+
+/// <summary>
+/// Fired when an event is deleted.
+/// </summary>
+public class ScheduledGuildEventDeleteEventArgs : DiscordEventArgs
 {
     /// <summary>
-    /// Fired when an event is deleted.
+    /// The event that was deleted.
     /// </summary>
-    public class ScheduledGuildEventDeleteEventArgs : DiscordEventArgs
-    {
-        /// <summary>
-        /// The event that was deleted.
-        /// </summary>
-        public DiscordScheduledGuildEvent Event { get; internal set; }
+    public DiscordScheduledGuildEvent Event { get; internal set; }
 
-        internal ScheduledGuildEventDeleteEventArgs() : base() { }
-    }
+    internal ScheduledGuildEventDeleteEventArgs() : base() { }
 }

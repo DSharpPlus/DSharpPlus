@@ -1,9 +1,8 @@
-namespace DSharpPlus.Core.Enums
+namespace DSharpPlus.Entities;
+
+public enum DiscordGuildScheduledEventEntityType
 {
-    public enum DiscordGuildScheduledEventEntityType
-    {
-        StageInstance = 1,
-        Voice = 2,
-        External = 3
-    }
+    StageInstance = 1,
+    Voice = 2,
+    External = 3
 }

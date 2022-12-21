@@ -1,10 +1,9 @@
-namespace DSharpPlus.Core.Enums
+namespace DSharpPlus.Entities;
+
+public enum DiscordGuildNSFWLevel
 {
-    public enum DiscordGuildNSFWLevel
-    {
-        Default = 0,
-        Explicit = 1,
-        Safe = 2,
-        AgeRestricted = 3
-    }
+    Default = 0,
+    Explicit = 1,
+    Safe = 2,
+    AgeRestricted = 3
 }

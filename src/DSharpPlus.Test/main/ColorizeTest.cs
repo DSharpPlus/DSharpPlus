@@ -25,12 +25,11 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 
-namespace DSharpPlus.Test
+namespace DSharpPlus.Test;
+
+public class ColorizeTest : BaseCommandModule
 {
-    public class ColorizeTest : BaseCommandModule
-    {
-        [Command]
-        public Task Colorize(CommandContext ctx, [RemainingText] string text)
-            => ctx.RespondAsync(Formatter.BlockCode(Formatter.Colorize(text, AnsiColor.Bold, AnsiColor.Blue, AnsiColor.WhiteBackground), "ansi"));
-    }
+    [Command]
+    public Task Colorize(CommandContext ctx, [RemainingText] string text)
+        => ctx.RespondAsync(Formatter.BlockCode(Formatter.Colorize(text, AnsiColor.Bold, AnsiColor.Blue, AnsiColor.WhiteBackground), "ansi"));
 }

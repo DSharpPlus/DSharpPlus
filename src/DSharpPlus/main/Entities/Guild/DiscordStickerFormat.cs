@@ -1,9 +1,8 @@
-namespace DSharpPlus.Core.Enums
+namespace DSharpPlus.Entities;
+
+public enum DiscordStickerFormatType
 {
-    public enum DiscordStickerFormatType
-    {
-        Png = 1,
-        APng = 2,
-        Lottie = 3
-    }
+    Png = 1,
+    APng = 2,
+    Lottie = 3
 }

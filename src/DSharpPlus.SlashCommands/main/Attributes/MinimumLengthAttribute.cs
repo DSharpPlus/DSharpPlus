@@ -23,25 +23,24 @@
 
 using System;
 
-namespace DSharpPlus.SlashCommands
+namespace DSharpPlus.SlashCommands;
+
+/// <summary>
+/// Sets a minimum allowed length for this slash command option. Only valid for <see cref="string"/> parameters.
+/// </summary>
+[AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
+public class MinimumLengthAttribute : Attribute
 {
+    /// <summary>
+    /// The value.
+    /// </summary>
+    public int Value { get; internal set; }
+
     /// <summary>
     /// Sets a minimum allowed length for this slash command option. Only valid for <see cref="string"/> parameters.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
-    public class MinimumLengthAttribute : Attribute
+    public MinimumLengthAttribute(int value)
     {
-        /// <summary>
-        /// The value.
-        /// </summary>
-        public int Value { get; internal set; }
-
-        /// <summary>
-        /// Sets a minimum allowed length for this slash command option. Only valid for <see cref="string"/> parameters.
-        /// </summary>
-        public MinimumLengthAttribute(int value)
-        {
-            this.Value = value;
-        }
+        this.Value = value;
     }
 }

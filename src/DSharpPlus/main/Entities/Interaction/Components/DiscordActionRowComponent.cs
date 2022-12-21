@@ -20,38 +20,35 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Entities
+namespace DSharpPlus.Entities;
+
+/// <summary>
+/// Represents a row of components. Action rows can have up to five components.
+/// </summary>
+public sealed class DiscordActionRowComponent : DiscordComponent
 {
     /// <summary>
-    /// Represents a row of components. Action rows can have up to five components.
+    /// The components contained within the action row.
     /// </summary>
-    public sealed class DiscordActionRowComponent : DiscordComponent
+    public IReadOnlyCollection<DiscordComponent> Components
     {
-        /// <summary>
-        /// The components contained within the action row.
-        /// </summary>
-        public IReadOnlyCollection<DiscordComponent> Components
-        {
-            get => this._components ?? new List<DiscordComponent>();
-            set => this._components = new List<DiscordComponent>(value);
-        }
-
-        [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
-        private List<DiscordComponent> _components;
-
-        public DiscordActionRowComponent(IEnumerable<DiscordComponent> components) : this()
-        {
-            this.Components = components.ToList().AsReadOnly();
-        }
-        internal DiscordActionRowComponent()
-        {
-            this.Type = ComponentType.ActionRow;
-        } // For Json.NET
+        get => this._components ?? new List<DiscordComponent>();
+        set => this._components = new List<DiscordComponent>(value);
     }
+
+    [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
+    private List<DiscordComponent> _components;
+
+    public DiscordActionRowComponent(IEnumerable<DiscordComponent> components) : this()
+    {
+        this.Components = components.ToList().AsReadOnly();
+    }
+    internal DiscordActionRowComponent()
+    {
+        this.Type = ComponentType.ActionRow;
+    } // For Json.NET
 }

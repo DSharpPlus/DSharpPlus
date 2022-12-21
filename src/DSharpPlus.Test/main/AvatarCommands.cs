@@ -24,17 +24,16 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 
-namespace DSharpPlus.Test
+namespace DSharpPlus.Test;
+
+public class AvatarCommands : BaseCommandModule
 {
-    public class AvatarCommands : BaseCommandModule
+    [Command("avatar")]
+    public async Task AvatarAsync(CommandContext ctx)
     {
-        [Command("avatar")]
-        public async Task AvatarAsync(CommandContext ctx)
-        {
-            if (ctx.Member.GuildAvatarHash != ctx.User.AvatarHash)
-                await ctx.RespondAsync($"You have a custom guild-specific avatar set! Guild: {ctx.Member.GuildAvatarUrl}\n User: {ctx.Member.AvatarUrl}");
-            else
-                await ctx.RespondAsync($"You don't have a custom guild-specific avatar set! Avatar url: {ctx.Member.AvatarUrl}");
-        }
+        if (ctx.Member.GuildAvatarHash != ctx.User.AvatarHash)
+            await ctx.RespondAsync($"You have a custom guild-specific avatar set! Guild: {ctx.Member.GuildAvatarUrl}\n User: {ctx.Member.AvatarUrl}");
+        else
+            await ctx.RespondAsync($"You don't have a custom guild-specific avatar set! Avatar url: {ctx.Member.AvatarUrl}");
     }
 }

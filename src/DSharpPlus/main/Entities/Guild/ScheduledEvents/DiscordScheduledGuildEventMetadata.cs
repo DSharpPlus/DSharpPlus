@@ -20,27 +20,25 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Entities
+namespace DSharpPlus.Entities;
+
+/// <summary>
+/// Metadata for a <see cref="DiscordScheduledGuildEvent"/>.
+/// </summary>
+public sealed class DiscordScheduledGuildEventMetadata
 {
     /// <summary>
-    /// Metadata for a <see cref="DiscordScheduledGuildEvent"/>.
+    /// If this is an external event, where this event is hosted.
     /// </summary>
-    public sealed class DiscordScheduledGuildEventMetadata
+    [JsonProperty("location")]
+    public string Location { get; internal set; }
+
+    internal DiscordScheduledGuildEventMetadata() { }
+
+    public DiscordScheduledGuildEventMetadata(string location)
     {
-        /// <summary>
-        /// If this is an external event, where this event is hosted.
-        /// </summary>
-        [JsonProperty("location")]
-        public string Location { get; internal set; }
-
-        internal DiscordScheduledGuildEventMetadata() { }
-
-        public DiscordScheduledGuildEventMetadata(string location)
-        {
-            this.Location = location;
-        }
+        this.Location = location;
     }
 }

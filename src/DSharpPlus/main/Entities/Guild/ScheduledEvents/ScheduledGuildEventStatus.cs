@@ -20,31 +20,30 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-namespace DSharpPlus.Entities
+namespace DSharpPlus.Entities;
+
+/// <summary>
+/// Represents the status of a <see cref="DiscordScheduledGuildEvent"/>.
+/// </summary>
+public enum ScheduledGuildEventStatus
 {
     /// <summary>
-    /// Represents the status of a <see cref="DiscordScheduledGuildEvent"/>.
+    /// This event is scheduled.
     /// </summary>
-    public enum ScheduledGuildEventStatus
-    {
-        /// <summary>
-        /// This event is scheduled.
-        /// </summary>
-        Scheduled = 1,
+    Scheduled = 1,
 
-        /// <summary>
-        /// This event is currently running.
-        /// </summary>
-        Active = 2,
+    /// <summary>
+    /// This event is currently running.
+    /// </summary>
+    Active = 2,
 
-        /// <summary>
-        /// This event has finished running.
-        /// </summary>
-        Completed = 3,
+    /// <summary>
+    /// This event has finished running.
+    /// </summary>
+    Completed = 3,
 
-        /// <summary>
-        /// This event has been cancelled.
-        /// </summary>
-        Cancelled = 4
-    }
+    /// <summary>
+    /// This event has been cancelled.
+    /// </summary>
+    Cancelled = 4
 }

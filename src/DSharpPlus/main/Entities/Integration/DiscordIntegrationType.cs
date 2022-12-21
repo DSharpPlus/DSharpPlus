@@ -1,12 +1,11 @@
 using System.Text.Json.Serialization;
 
-namespace DSharpPlus.Core.Enums
+namespace DSharpPlus.Entities;
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum DiscordIntegrationType
 {
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum DiscordIntegrationType
-    {
-        Twitch,
-        Youtube,
-        Discord
-    }
+    Twitch,
+    Youtube,
+    Discord
 }

@@ -1,18 +1,17 @@
-namespace DSharpPlus.Core.Enums
+namespace DSharpPlus.Entities;
+
+/// <summary>
+/// The camera video quality mode of the voice channel, <see cref="Auto"/> when not present
+/// </summary>
+public enum DiscordChannelVideoQualityMode
 {
     /// <summary>
-    /// The camera video quality mode of the voice channel, <see cref="Auto"/> when not present
+    /// Discord chooses the quality for optimal performance.
     /// </summary>
-    public enum DiscordChannelVideoQualityMode
-    {
-        /// <summary>
-        /// Discord chooses the quality for optimal performance.
-        /// </summary>
-        Auto = 1,
+    Auto = 1,
 
-        /// <summary>
-        /// 720p.
-        /// </summary>
-        Full = 2
-    }
+    /// <summary>
+    /// 720p.
+    /// </summary>
+    Full = 2
 }

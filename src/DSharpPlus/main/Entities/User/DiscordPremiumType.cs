@@ -1,12 +1,11 @@
-namespace DSharpPlus.Core.Enums
+namespace DSharpPlus.Entities;
+
+/// <summary>
+/// Premium types denote the level of premium a user has. Also known as the Nitro level.
+/// </summary>
+public enum DiscordPremiumType
 {
-    /// <summary>
-    /// Premium types denote the level of premium a user has. Also known as the Nitro level.
-    /// </summary>
-    public enum DiscordPremiumType
-    {
-        None = 0,
-        NitroClassic = 1,
-        Nitro = 2,
-    }
+    None = 0,
+    NitroClassic = 1,
+    Nitro = 2,
 }

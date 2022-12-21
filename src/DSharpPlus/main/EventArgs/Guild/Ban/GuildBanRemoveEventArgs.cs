@@ -23,23 +23,22 @@
 
 using DSharpPlus.Entities;
 
-namespace DSharpPlus.EventArgs
+namespace DSharpPlus.EventArgs;
+
+/// <summary>
+/// Represents arguments for <see cref="DiscordClient.GuildBanRemoved"/> event.
+/// </summary>
+public class GuildBanRemoveEventArgs : DiscordEventArgs
 {
     /// <summary>
-    /// Represents arguments for <see cref="DiscordClient.GuildBanRemoved"/> event.
+    /// Gets the member that just got unbanned.
     /// </summary>
-    public class GuildBanRemoveEventArgs : DiscordEventArgs
-    {
-        /// <summary>
-        /// Gets the member that just got unbanned.
-        /// </summary>
-        public DiscordMember Member { get; internal set; }
+    public DiscordMember Member { get; internal set; }
 
-        /// <summary>
-        /// Gets the guild this member was unbanned in.
-        /// </summary>
-        public DiscordGuild Guild { get; internal set; }
+    /// <summary>
+    /// Gets the guild this member was unbanned in.
+    /// </summary>
+    public DiscordGuild Guild { get; internal set; }
 
-        internal GuildBanRemoveEventArgs() : base() { }
-    }
+    internal GuildBanRemoveEventArgs() : base() { }
 }

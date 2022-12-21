@@ -21,16 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace DSharpPlus.EventArgs
+namespace DSharpPlus.EventArgs;
+
+/// <summary>
+/// Represents basic socket event arguments. 
+/// </summary>
+public class SocketEventArgs : DiscordEventArgs
 {
     /// <summary>
-    /// Represents basic socket event arguments. 
+    /// Creates a new event argument container.
     /// </summary>
-    public class SocketEventArgs : DiscordEventArgs
-    {
-        /// <summary>
-        /// Creates a new event argument container.
-        /// </summary>
-        public SocketEventArgs() : base() { }
-    }
+    public SocketEventArgs() : base() { }
 }

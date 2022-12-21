@@ -23,18 +23,17 @@
 
 using DSharpPlus.Entities;
 
-namespace DSharpPlus.EventArgs
+namespace DSharpPlus.EventArgs;
+
+/// <summary>
+/// Represents arguments for <see cref="DiscordClient.GuildIntegrationsUpdated"/> event.
+/// </summary>
+public class GuildIntegrationsUpdateEventArgs : DiscordEventArgs
 {
     /// <summary>
-    /// Represents arguments for <see cref="DiscordClient.GuildIntegrationsUpdated"/> event.
+    /// Gets the guild that had its integrations updated.
     /// </summary>
-    public class GuildIntegrationsUpdateEventArgs : DiscordEventArgs
-    {
-        /// <summary>
-        /// Gets the guild that had its integrations updated.
-        /// </summary>
-        public DiscordGuild Guild { get; internal set; }
+    public DiscordGuild Guild { get; internal set; }
 
-        internal GuildIntegrationsUpdateEventArgs() : base() { }
-    }
+    internal GuildIntegrationsUpdateEventArgs() : base() { }
 }

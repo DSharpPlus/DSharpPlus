@@ -25,16 +25,15 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 
-namespace DSharpPlus.Test
-{
-    public class DMTest : BaseCommandModule
-    {
-        [Command("dm")]
-        public async Task DMAsync(CommandContext ctx)
-        {
-            await ctx.Member.CreateDmChannelAsync();
-            await ctx.Message.CreateReactionAsync(DiscordEmoji.FromUnicode("👌🏽"));
-        }
+namespace DSharpPlus.Test;
 
+public class DMTest : BaseCommandModule
+{
+    [Command("dm")]
+    public async Task DMAsync(CommandContext ctx)
+    {
+        await ctx.Member.CreateDmChannelAsync();
+        await ctx.Message.CreateReactionAsync(DiscordEmoji.FromUnicode("👌🏽"));
     }
+
 }

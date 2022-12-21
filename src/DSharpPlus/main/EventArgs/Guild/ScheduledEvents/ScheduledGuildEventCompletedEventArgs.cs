@@ -22,19 +22,18 @@
 // SOFTWARE.
 using DSharpPlus.Entities;
 
-namespace DSharpPlus.EventArgs
+namespace DSharpPlus.EventArgs;
+
+/// <summary>
+/// Fired when an event is completed.
+/// </summary>
+public class ScheduledGuildEventCompletedEventArgs : DiscordEventArgs
 {
     /// <summary>
-    /// Fired when an event is completed.
+    /// The event that finished.
     /// </summary>
-    public class ScheduledGuildEventCompletedEventArgs : DiscordEventArgs
-    {
-        /// <summary>
-        /// The event that finished.
-        /// </summary>
-        public DiscordScheduledGuildEvent Event { get; internal set; }
+    public DiscordScheduledGuildEvent Event { get; internal set; }
 
 
-        internal ScheduledGuildEventCompletedEventArgs() : base() { }
-    }
+    internal ScheduledGuildEventCompletedEventArgs() : base() { }
 }

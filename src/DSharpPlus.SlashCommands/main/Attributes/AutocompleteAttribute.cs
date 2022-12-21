@@ -23,26 +23,25 @@
 
 using System;
 
-namespace DSharpPlus.SlashCommands
+namespace DSharpPlus.SlashCommands;
+
+/// <summary>
+/// Handles autocomplete choices for a slash command parameter.
+/// </summary>
+[AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
+public class AutocompleteAttribute : Attribute
 {
+    /// <summary>
+    /// The provider for this autocomplete parameter.
+    /// </summary>
+    public Type Provider { get; }
+
     /// <summary>
     /// Handles autocomplete choices for a slash command parameter.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
-    public class AutocompleteAttribute : Attribute
+    /// <param name="provider">The type of the autocomplete provider. This should inherit from <see cref="IAutocompleteProvider"/>.</param>
+    public AutocompleteAttribute(Type provider)
     {
-        /// <summary>
-        /// The provider for this autocomplete parameter.
-        /// </summary>
-        public Type Provider { get; }
-
-        /// <summary>
-        /// Handles autocomplete choices for a slash command parameter.
-        /// </summary>
-        /// <param name="provider">The type of the autocomplete provider. This should inherit from <see cref="IAutocompleteProvider"/>.</param>
-        public AutocompleteAttribute(Type provider)
-        {
-            this.Provider = provider;
-        }
+        this.Provider = provider;
     }
 }

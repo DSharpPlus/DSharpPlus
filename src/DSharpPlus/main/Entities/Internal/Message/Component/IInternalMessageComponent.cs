@@ -1,14 +1,12 @@
-using DSharpPlus.Core.Enums;
 using System.Text.Json.Serialization;
 
-namespace DSharpPlus.Core.Entities
+namespace DSharpPlus.Entities.Internal;
+
+public interface IInternalMessageComponent
 {
-    public interface IInternalMessageComponent
-    {
-        /// <summary>
-        /// The type of component.
-        /// </summary>
-        [JsonPropertyName("type")]
-        InternalComponentType Type { get; init; }
-    }
+    /// <summary>
+    /// The type of component.
+    /// </summary>
+    [JsonPropertyName("type")]
+    DiscordComponentType Type { get; init; }
 }

@@ -21,11 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace DSharpPlus
+namespace DSharpPlus;
+
+public enum ApplicationCommandPermissionType
 {
-    public enum ApplicationCommandPermissionType
-    {
-        Role = 1,
-        User
-    }
+    Role = 1,
+    User
 }

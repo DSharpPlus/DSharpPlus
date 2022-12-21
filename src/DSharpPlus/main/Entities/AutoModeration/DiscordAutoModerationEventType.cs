@@ -1,13 +1,12 @@
-namespace DSharpPlus.Core.Enums
+namespace DSharpPlus.Entities;
+
+/// <summary>
+/// Indicates in what event context a rule should be checked.
+/// </summary>
+public enum DiscordAutoModerationEventType
 {
     /// <summary>
-    /// Indicates in what event context a rule should be checked.
+    /// When a member sends or edits a message in the guild.
     /// </summary>
-    public enum DiscordAutoModerationEventType
-    {
-        /// <summary>
-        /// When a member sends or edits a message in the guild.
-        /// </summary>
-        MessageSend = 1
-    }
+    MessageSend = 1
 }
