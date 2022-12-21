@@ -26,13 +26,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DSharpPlus.Lavalink\DSharpPlus.Lavalink.csproj" />
-    <ProjectReference Include="..\DSharpPlus.Rest\DSharpPlus.Rest.csproj" />
-    <ProjectReference Include="..\DSharpPlus.SlashCommands\DSharpPlus.SlashCommands.csproj" />
-    <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj" />
-    <ProjectReference Include="..\DSharpPlus.CommandsNext\DSharpPlus.CommandsNext.csproj" />
-    <ProjectReference Include="..\DSharpPlus.Interactivity\DSharpPlus.Interactivity.csproj" />
-    <ProjectReference Include="..\DSharpPlus.VoiceNext\DSharpPlus.VoiceNext.csproj" />
+    <ProjectReference Include="../../DSharpPlus.Lavalink/main/DSharpPlus.Lavalink.csproj" />
+    <ProjectReference Include="../../DSharpPlus.Rest/main/DSharpPlus.Rest.csproj" />
+    <ProjectReference Include="../../DSharpPlus.SlashCommands/main/DSharpPlus.SlashCommands.csproj" />
+    <ProjectReference Include="../../DSharpPlus/main/DSharpPlus.csproj" />
+    <ProjectReference Include="../../DSharpPlus.CommandsNext/main/DSharpPlus.CommandsNext.csproj" />
+    <ProjectReference Include="../../DSharpPlus.Interactivity/main/DSharpPlus.Interactivity.csproj" />
+    <ProjectReference Include="../../DSharpPlus.VoiceNext/main/DSharpPlus.VoiceNext.csproj" />
   </ItemGroup>
 
   <ItemGroup>

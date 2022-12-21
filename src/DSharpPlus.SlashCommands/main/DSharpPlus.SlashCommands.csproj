@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>DSharpPlus.SlashCommands</AssemblyName>
     <RootNamespace>DSharpPlus.SlashCommands</RootNamespace>
@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj" />
+    <ProjectReference Include="../../DSharpPlus/main/DSharpPlus.csproj" />
   </ItemGroup>
 
 </Project>

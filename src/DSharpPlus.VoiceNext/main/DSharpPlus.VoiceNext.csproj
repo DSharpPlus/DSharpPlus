@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj" />
+    <ProjectReference Include="../../DSharpPlus/main/DSharpPlus.csproj" />
   </ItemGroup>
 
 </Project>

@@ -16,7 +16,7 @@
         <PackageIconUrl>https://raw.githubusercontent.com/DSharpPlus/DSharpPlus/master/logo/dsharpplus.png</PackageIconUrl>
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <NoWarn>CS1591</NoWarn>
-        <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+        <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
         <ManagePackageVersionsCentrally>True</ManagePackageVersionsCentrally>
 
         <!-- SourceLink -->
@@ -49,6 +49,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="../logo/dsharpplus.png" Pack="true" PackagePath="/" />
+        <None Include="../../../logo/dsharpplus.png" Pack="true" PackagePath="/" />
     </ItemGroup>
 </Project>
