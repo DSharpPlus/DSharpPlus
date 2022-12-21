@@ -7,10 +7,10 @@ using DSharpPlus.Core.JsonConverters.Attributes;
 namespace DSharpPlus.Core.Entities
 {
     /// <summary>
-    /// Often used in Discord API responses and requests, this class is used to represent an optional field.
+    /// Often used in Internal API responses and requests, this class is used to represent an optional field.
     /// </summary>
     /// <remarks>
-    /// While a Json field can be null, Discord enforces that a field can be missing entirely. This means that a field can be missing and/or null at any time. This struct is used to represent that.
+    /// While a Json field can be null, Internal enforces that a field can be missing entirely. This means that a field can be missing and/or null at any time. This struct is used to represent that.
     /// </remarks>
     [JsonConverter(typeof(OptionalJsonConverterFactory))]
     [TypeJsonIgnore(JsonIgnoreCondition.WhenWritingDefault)]
