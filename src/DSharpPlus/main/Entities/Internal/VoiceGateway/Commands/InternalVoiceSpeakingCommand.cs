@@ -8,7 +8,7 @@ namespace DSharpPlus.Entities.Internal.VoiceGateway.Commands;
 /// </remarks>
 public sealed record InternalVoiceSpeakingCommand
 {
-    public InternalVoiceSpeakingIndicators Speaking { get; init; }
+    public DiscordVoiceSpeakingIndicators Speaking { get; init; }
     public int Delay { get; init; }
     public uint SSRC { get; init; }
 }
