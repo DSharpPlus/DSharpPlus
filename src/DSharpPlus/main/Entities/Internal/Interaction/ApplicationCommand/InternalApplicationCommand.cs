@@ -12,7 +12,7 @@ public sealed record InternalApplicationCommand
     /// The unique id of the command.
     /// </summary>
     [JsonPropertyName("id")]
-    public InternalSnowflake Id { get; init; } = null!;
+    public Snowflake Id { get; init; } = null!;
 
     /// <summary>
     /// The type of command, defaults <see cref="DiscordApplicationCommandType.ChatInput"/> if not set.
@@ -24,13 +24,13 @@ public sealed record InternalApplicationCommand
     /// The unique id of the parent application.
     /// </summary>
     [JsonPropertyName("application_id")]
-    public InternalSnowflake ApplicationId { get; init; } = null!;
+    public Snowflake ApplicationId { get; init; } = null!;
 
     /// <summary>
     /// The guild id of the command, if not global.
     /// </summary>
     [JsonPropertyName("guild_id")]
-    public Optional<InternalSnowflake> GuildId { get; init; }
+    public Optional<Snowflake> GuildId { get; init; }
 
     /// <summary>
     /// A 1-32 character name that matches against the following Regex: <c>^[-_\p{L}\p{N}\p{sc=Deva}\p{sc=Thai}]{1,32}$</c> with the unicode flag set. If there is a lowercase variant of any letters used, you must use those. Characters with no lowercase variants and/or uncased letters are still allowed. <see cref="InternalApplicationCommandType.User"/> and <see cref="InternalApplicationCommandType.Message"/> commands may be mixed case and can include spaces.
@@ -75,5 +75,5 @@ public sealed record InternalApplicationCommand
     /// An autoincrementing version identifier updated during substantial record changes.
     /// </summary>
     [JsonPropertyName("version")]
-    public InternalSnowflake Version { get; init; } = null!;
+    public Snowflake Version { get; init; } = null!;
 }

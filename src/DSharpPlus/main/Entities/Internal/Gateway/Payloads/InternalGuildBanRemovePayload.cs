@@ -11,7 +11,7 @@ public sealed record InternalGuildBanRemovePayload
     /// The id of the guild.
     /// </summary>
     [JsonPropertyName("guild_id")]
-    public InternalSnowflake GuildId { get; init; } = null!;
+    public Snowflake GuildId { get; init; } = null!;
 
     /// <summary>
     /// The unbanned user.

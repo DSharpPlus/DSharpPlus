@@ -24,13 +24,13 @@ public sealed record InternalAuditLogEntry
     /// The user who made the changes.
     /// </summary>
     [JsonPropertyName("user_id")]
-    public InternalSnowflake? UserId { get; init; }
+    public Snowflake? UserId { get; init; }
 
     /// <summary>
     /// The id of the entry.
     /// </summary>
     [JsonPropertyName("id")]
-    public InternalSnowflake Id { get; init; } = null!;
+    public Snowflake Id { get; init; } = null!;
 
     /// <summary>
     /// The type of action that occurred.
@@ -51,5 +51,5 @@ public sealed record InternalAuditLogEntry
     public Optional<string> Reason { get; init; }
 
     public static implicit operator ulong(InternalAuditLogEntry auditLogEntry) => auditLogEntry.Id;
-    public static implicit operator InternalSnowflake(InternalAuditLogEntry auditLogEntry) => auditLogEntry.Id;
+    public static implicit operator Snowflake(InternalAuditLogEntry auditLogEntry) => auditLogEntry.Id;
 }

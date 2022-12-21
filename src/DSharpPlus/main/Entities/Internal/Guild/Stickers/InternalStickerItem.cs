@@ -8,7 +8,7 @@ public sealed record InternalStickerItem
     /// <summary>
     /// The id of the sticker.
     /// </summary>
-    public InternalSnowflake Id { get; init; } = null!;
+    public Snowflake Id { get; init; } = null!;
 
     /// <summary>
     /// The name of the sticker.

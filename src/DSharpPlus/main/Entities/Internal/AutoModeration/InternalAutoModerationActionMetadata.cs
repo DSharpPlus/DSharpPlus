@@ -11,7 +11,7 @@ public sealed record InternalAutoModerationActionMetadata
     /// The channel to which user content should be logged.
     /// </summary>
     [JsonPropertyName("channel_id")]
-    public InternalSnowflake ChannelId { get; init; } = null!;
+    public Snowflake ChannelId { get; init; } = null!;
 
     /// <summary>
     /// The timeout duration in seconds.

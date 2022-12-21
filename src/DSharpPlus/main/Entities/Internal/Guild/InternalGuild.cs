@@ -13,7 +13,7 @@ public sealed record InternalGuild
     /// The guild id.
     /// </summary>
     [JsonPropertyName("id")]
-    public InternalSnowflake Id { get; init; } = null!;
+    public Snowflake Id { get; init; } = null!;
 
     /// <summary>
     /// The guild name (2-100 characters, excluding trailing and leading whitespace).
@@ -55,7 +55,7 @@ public sealed record InternalGuild
     /// The id of owner.
     /// </summary>
     [JsonPropertyName("owner_id")]
-    public InternalSnowflake OwnerId { get; init; } = null!;
+    public Snowflake OwnerId { get; init; } = null!;
 
     /// <summary>
     /// The total permissions for the user in the guild (excludes overwrites).
@@ -74,7 +74,7 @@ public sealed record InternalGuild
     /// The id of afk channel.
     /// </summary>
     [JsonPropertyName("afk_channel_id")]
-    public InternalSnowflake? AfkChannelId { get; init; }
+    public Snowflake? AfkChannelId { get; init; }
 
     /// <summary>
     /// The afk timeout in seconds.
@@ -92,7 +92,7 @@ public sealed record InternalGuild
     /// The channel id that the widget will generate an invite to, or null if set to no invite.
     /// </summary>
     [JsonPropertyName("widget_channel_id")]
-    public Optional<InternalSnowflake?> WidgetChannelId { get; init; }
+    public Optional<Snowflake?> WidgetChannelId { get; init; }
 
     /// <summary>
     /// The verification level required for the guild.
@@ -143,13 +143,13 @@ public sealed record InternalGuild
     /// The application id of the guild creator if it is bot-created.
     /// </summary>
     [JsonPropertyName("application_id")]
-    public InternalSnowflake? ApplicationId { get; init; }
+    public Snowflake? ApplicationId { get; init; }
 
     /// <summary>
     /// The id of the channel where guild notices such as welcome messages and boost events are posted.
     /// </summary>
     [JsonPropertyName("system_channel_id")]
-    public InternalSnowflake? SystemChannelId { get; init; }
+    public Snowflake? SystemChannelId { get; init; }
 
     /// <summary>
     /// The system channel flags.
@@ -161,7 +161,7 @@ public sealed record InternalGuild
     /// The the id of the channel where Community guilds can display rules and/or guidelines.
     /// </summary>
     [JsonPropertyName("rules_channel_id")]
-    public InternalSnowflake? RulesChannelId { get; init; }
+    public Snowflake? RulesChannelId { get; init; }
 
     /// <summary>
     /// The maximum number of presences for the guild (null is always returned, apart from the largest of guilds).
@@ -215,7 +215,7 @@ public sealed record InternalGuild
     /// The id of the channel where admins and moderators of Community guilds receive notices from Internal.
     /// </summary>
     [JsonPropertyName("public_updates_channel_id")]
-    public InternalSnowflake? PublicUpdatesChannelId { get; init; }
+    public Snowflake? PublicUpdatesChannelId { get; init; }
 
     /// <summary>
     /// The maximum amount of users in a video channel.

@@ -11,7 +11,7 @@ public sealed record InternalUser
     /// The user's id, used to identify the user across all of Internal.
     /// </summary>
     [JsonPropertyName("id")]
-    public InternalSnowflake Id { get; init; } = null!;
+    public Snowflake Id { get; init; } = null!;
 
     /// <summary>
     /// The user's username, not unique across the platform.
@@ -104,5 +104,5 @@ public sealed record InternalUser
     public Optional<InternalGuildMember> Member { get; init; }
 
     public static implicit operator ulong(InternalUser user) => user.Id;
-    public static implicit operator InternalSnowflake(InternalUser user) => user.Id;
+    public static implicit operator Snowflake(InternalUser user) => user.Id;
 }

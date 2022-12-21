@@ -9,7 +9,7 @@ public sealed record InternalInteraction
     /// The ID of the invoked command.
     /// </summary>
     [JsonPropertyName("id")]
-    public InternalSnowflake Id { get; init; } = null!;
+    public Snowflake Id { get; init; } = null!;
 
     /// <summary>
     /// The name of the invoked command.
@@ -39,7 +39,7 @@ public sealed record InternalInteraction
     /// The id of the guild the command is registered to.
     /// </summary>
     [JsonPropertyName("guild_id")]
-    public Optional<InternalSnowflake> GuildId { get; init; }
+    public Optional<Snowflake> GuildId { get; init; }
 
     /// <summary>
     /// The custom_id of the component.
@@ -63,7 +63,7 @@ public sealed record InternalInteraction
     /// The id the of user or message targeted by a user or message command.
     /// </summary>
     [JsonPropertyName("target_id")]
-    public Optional<InternalSnowflake> TargetId { get; init; }
+    public Optional<Snowflake> TargetId { get; init; }
 
     /// <summary>
     /// The values submitted by the user.

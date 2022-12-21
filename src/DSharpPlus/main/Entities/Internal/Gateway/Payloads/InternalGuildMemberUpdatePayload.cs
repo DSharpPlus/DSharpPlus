@@ -13,13 +13,13 @@ public sealed record InternalGuildMemberUpdatePayload
     /// The id of the guild.
     /// </summary>
     [JsonPropertyName("guild_id")]
-    public InternalSnowflake GuildId { get; init; } = null!;
+    public Snowflake GuildId { get; init; } = null!;
 
     /// <summary>
     /// User's role ids.
     /// </summary>
     [JsonPropertyName("roles")]
-    public IReadOnlyList<InternalSnowflake> Roles { get; init; } = Array.Empty<InternalSnowflake>();
+    public IReadOnlyList<Snowflake> Roles { get; init; } = Array.Empty<Snowflake>();
 
     /// <summary>
     /// The user.

@@ -8,13 +8,13 @@ public sealed record InternalVoiceStateUpdateCommand
     /// The id of the guild.
     /// </summary>
     [JsonPropertyName("guild_id")]
-    public InternalSnowflake GuildId { get; init; } = null!;
+    public Snowflake GuildId { get; init; } = null!;
 
     /// <summary>
     /// The id of the voice channel the client wants to join (null if disconnecting).
     /// </summary>
     [JsonPropertyName("channel_id")]
-    public InternalSnowflake? ChannelId { get; init; }
+    public Snowflake? ChannelId { get; init; }
 
     /// <summary>
     /// Is the client muted.

@@ -12,19 +12,19 @@ public sealed record InternalGuildScheduledEvent
     /// The id of the scheduled event.
     /// </summary>
     [JsonPropertyName("id")]
-    public InternalSnowflake Id { get; init; } = null!;
+    public Snowflake Id { get; init; } = null!;
 
     /// <summary>
     /// The guild id which the scheduled event belongs to.
     /// </summary>
     [JsonPropertyName("guild_id")]
-    public InternalSnowflake GuildId { get; init; } = null!;
+    public Snowflake GuildId { get; init; } = null!;
 
     /// <summary>
     /// The channel id in which the scheduled event will be hosted, or null if <see cref="EntityType"/> is <see cref="InternalGuildScheduledEventEntityType.External"/>.
     /// </summary>
     [JsonPropertyName("channel_id")]
-    public InternalSnowflake? ChannelId { get; init; }
+    public Snowflake? ChannelId { get; init; }
 
     /// <summary>
     /// The id of the user that created the scheduled event.
@@ -33,7 +33,7 @@ public sealed record InternalGuildScheduledEvent
     /// Null if the event was created before October 25th, 2021.
     /// </remarks>
     [JsonPropertyName("creator_id")]
-    public Optional<InternalSnowflake?> CreatorId { get; init; }
+    public Optional<Snowflake?> CreatorId { get; init; }
 
     /// <summary>
     /// The name of the scheduled event (1-100 characters).
@@ -81,7 +81,7 @@ public sealed record InternalGuildScheduledEvent
     /// The id of an entity associated with a guild scheduled event.
     /// </summary>
     [JsonPropertyName("entity_id")]
-    public InternalSnowflake? EntityId { get; init; }
+    public Snowflake? EntityId { get; init; }
 
     /// <summary>
     /// Additional metadata for the guild scheduled event.
@@ -111,5 +111,5 @@ public sealed record InternalGuildScheduledEvent
     public Optional<string?> Image { get; init; }
 
     public static implicit operator ulong(InternalGuildScheduledEvent guildScheduledEvent) => guildScheduledEvent.Id;
-    public static implicit operator InternalSnowflake(InternalGuildScheduledEvent guildScheduledEvent) => guildScheduledEvent.Id;
+    public static implicit operator Snowflake(InternalGuildScheduledEvent guildScheduledEvent) => guildScheduledEvent.Id;
 }

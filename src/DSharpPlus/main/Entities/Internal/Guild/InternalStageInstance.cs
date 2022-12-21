@@ -12,19 +12,19 @@ public sealed record InternalStageInstance
     /// The id of this Stage instance.
     /// </summary>
     [JsonPropertyName("id")]
-    public InternalSnowflake Id { get; init; } = null!;
+    public Snowflake Id { get; init; } = null!;
 
     /// <summary>
     /// The guild id of the associated Stage channel.
     /// </summary>
     [JsonPropertyName("guild_id")]
-    public InternalSnowflake GuildId { get; init; } = null!;
+    public Snowflake GuildId { get; init; } = null!;
 
     /// <summary>
     /// The id of the associated Stage channel.
     /// </summary>
     [JsonPropertyName("channel_id")]
-    public InternalSnowflake ChannelId { get; init; } = null!;
+    public Snowflake ChannelId { get; init; } = null!;
 
     /// <summary>
     /// The topic of the Stage instance (1-120 characters).
@@ -49,5 +49,5 @@ public sealed record InternalStageInstance
     /// The id of the scheduled event for this Stage instance.
     /// </summary>
     [JsonPropertyName("guild_scheduled_event_id")]
-    public InternalSnowflake? GuildScheduledEventId { get; init; }
+    public Snowflake? GuildScheduledEventId { get; init; }
 }

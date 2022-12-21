@@ -13,7 +13,7 @@ public sealed record InternalChannel
     /// The id of this channel.
     /// </summary>
     [JsonPropertyName("id")]
-    public InternalSnowflake Id { get; init; } = null!;
+    public Snowflake Id { get; init; } = null!;
 
     /// <summary>
     /// The <see cref="DiscordChannelType">type of channel</see>.
@@ -25,7 +25,7 @@ public sealed record InternalChannel
     /// The id of the guild (may be missing for some channel objects received over gateway guild dispatches).
     /// </summary>
     [JsonPropertyName("guild_id")]
-    public Optional<InternalSnowflake> GuildId { get; init; }
+    public Optional<Snowflake> GuildId { get; init; }
 
     /// <summary>
     /// The sorting position of the channel.
@@ -61,7 +61,7 @@ public sealed record InternalChannel
     /// The id of the last message sent in this channel (or thread for <see cref="InternalChannelType.GuildForum"/> channels) (may not point to an existing or valid message or thread)
     /// </summary>
     [JsonPropertyName("last_message_id")]
-    public Optional<InternalSnowflake?> LastMessageId { get; init; }
+    public Optional<Snowflake?> LastMessageId { get; init; }
 
     /// <summary>
     /// The bitrate (in bits) of the voice channel.
@@ -97,19 +97,19 @@ public sealed record InternalChannel
     /// Id of the creator of the group DM or thread.
     /// </summary>
     [JsonPropertyName("owner_id")]
-    public Optional<InternalSnowflake> OwnerId { get; init; }
+    public Optional<Snowflake> OwnerId { get; init; }
 
     /// <summary>
     /// Application id of the group DM creator if it is bot-created.
     /// </summary>
     [JsonPropertyName("application_id")]
-    public Optional<InternalSnowflake> ApplicationId { get; init; }
+    public Optional<Snowflake> ApplicationId { get; init; }
 
     /// <summary>
     /// For guild channels: id of the parent category for a channel (each parent category can contain up to 50 channels), for threads: id of the text channel this thread was created.
     /// </summary>
     [JsonPropertyName("parent_id")]
-    public Optional<InternalSnowflake?> ParentId { get; init; }
+    public Optional<Snowflake?> ParentId { get; init; }
 
     /// <summary>
     /// When the last pinned message was pinned. This may be null in events such as GUILD_CREATE when a message is not pinned.
@@ -178,5 +178,5 @@ public sealed record InternalChannel
     public Optional<DiscordChannelFlags> Flags { get; init; }
 
     public static implicit operator ulong(InternalChannel channel) => channel.Id;
-    public static implicit operator InternalSnowflake(InternalChannel channel) => channel.Id;
+    public static implicit operator Snowflake(InternalChannel channel) => channel.Id;
 }

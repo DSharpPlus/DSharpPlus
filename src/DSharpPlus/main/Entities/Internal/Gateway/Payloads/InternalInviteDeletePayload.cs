@@ -11,13 +11,13 @@ public sealed record InternalInviteDeletePayload
     /// The channel of the invite.
     /// </summary>
     [JsonPropertyName("channel_id")]
-    public InternalSnowflake ChannelId { get; init; } = null!;
+    public Snowflake ChannelId { get; init; } = null!;
 
     /// <summary>
     /// The guild of the invite.
     /// </summary>
     [JsonPropertyName("guild_id")]
-    public Optional<InternalSnowflake> GuildId { get; init; }
+    public Optional<Snowflake> GuildId { get; init; }
 
     /// <summary>
     /// The unique invite code.

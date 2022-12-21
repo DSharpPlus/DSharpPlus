@@ -14,7 +14,7 @@ public sealed record InternalActivityEmoji
     /// The id of the emoji.
     /// </summary>
     [JsonPropertyName("id")]
-    public Optional<InternalSnowflake> Id { get; init; }
+    public Optional<Snowflake> Id { get; init; }
 
     /// <summary>
     /// Whether this emoji is animated.

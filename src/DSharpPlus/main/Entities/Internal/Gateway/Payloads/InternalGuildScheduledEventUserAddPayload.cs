@@ -11,17 +11,17 @@ public sealed record InternalGuildScheduledEventUserAddPayload
     /// The id of the guild scheduled event.
     /// </summary>
     [JsonPropertyName("guild_scheduled_event_id")]
-    public InternalSnowflake GuildScheduledEventId { get; init; } = null!;
+    public Snowflake GuildScheduledEventId { get; init; } = null!;
 
     /// <summary>
     /// The id of the user.
     /// </summary>
     [JsonPropertyName("user_id")]
-    public InternalSnowflake UserId { get; init; } = null!;
+    public Snowflake UserId { get; init; } = null!;
 
     /// <summary>
     /// The id of the guild.
     /// </summary>
     [JsonPropertyName("guild_id")]
-    public InternalSnowflake GuildId { get; init; } = null!;
+    public Snowflake GuildId { get; init; } = null!;
 }

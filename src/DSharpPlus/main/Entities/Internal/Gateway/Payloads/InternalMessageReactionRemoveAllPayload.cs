@@ -11,17 +11,17 @@ public sealed record InternalMessageReactionRemoveAllPayload
     /// The id of the channel.
     /// </summary>
     [JsonPropertyName("channel_id")]
-    public InternalSnowflake ChannelId { get; init; } = null!;
+    public Snowflake ChannelId { get; init; } = null!;
 
     /// <summary>
     /// The id of the message.
     /// </summary>
     [JsonPropertyName("message_id")]
-    public InternalSnowflake MessageId { get; init; } = null!;
+    public Snowflake MessageId { get; init; } = null!;
 
     /// <summary>
     /// The id of the guild.
     /// </summary>
     [JsonPropertyName("guild_id")]
-    public Optional<InternalSnowflake> GuildId { get; init; }
+    public Optional<Snowflake> GuildId { get; init; }
 }

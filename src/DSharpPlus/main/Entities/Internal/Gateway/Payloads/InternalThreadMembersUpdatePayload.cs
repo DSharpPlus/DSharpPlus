@@ -15,13 +15,13 @@ public sealed record InternalThreadMembersUpdatePayload
     /// The id of the thread.
     /// </summary>
     [JsonPropertyName("id")]
-    public InternalSnowflake Id { get; init; } = null!;
+    public Snowflake Id { get; init; } = null!;
 
     /// <summary>
     /// The id of the guild.
     /// </summary>
     [JsonPropertyName("guild_id")]
-    public InternalSnowflake GuildId { get; init; } = null!;
+    public Snowflake GuildId { get; init; } = null!;
 
     /// <summary>
     /// The approximate number of members in the thread, capped at 50.
@@ -39,5 +39,5 @@ public sealed record InternalThreadMembersUpdatePayload
     /// The id of the users who were removed from the thread.
     /// </summary>
     [JsonPropertyName("removed_member_ids")]
-    public Optional<IReadOnlyList<InternalSnowflake>> RemovedMemberIds { get; init; }
+    public Optional<IReadOnlyList<Snowflake>> RemovedMemberIds { get; init; }
 }

@@ -13,7 +13,7 @@ public sealed record InternalEmoji
     /// The emoji's Id.
     /// </summary>
     [JsonPropertyName("id")]
-    public InternalSnowflake? Id { get; init; } = null!;
+    public Snowflake? Id { get; init; } = null!;
 
     /// <summary>
     /// The emoji's name.
@@ -25,7 +25,7 @@ public sealed record InternalEmoji
     /// The roles allowed to use this emoji.
     /// </summary>
     [JsonPropertyName("roles")]
-    public Optional<IReadOnlyList<InternalSnowflake>> Roles { get; init; }
+    public Optional<IReadOnlyList<Snowflake>> Roles { get; init; }
 
     /// <summary>
     /// The user that created this emoji.
@@ -61,5 +61,5 @@ public sealed record InternalEmoji
     public static implicit operator ulong(InternalEmoji emoji) => emoji.Id!;
 
     /// <exception cref="NullReferenceException">If the emoji does not have an id.</exception>
-    public static implicit operator InternalSnowflake(InternalEmoji emoji) => emoji.Id!;
+    public static implicit operator Snowflake(InternalEmoji emoji) => emoji.Id!;
 }

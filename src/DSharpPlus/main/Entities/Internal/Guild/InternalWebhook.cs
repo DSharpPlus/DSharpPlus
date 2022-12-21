@@ -11,7 +11,7 @@ public sealed record InternalWebhook
     /// The id of the webhook.
     /// </summary>
     [JsonPropertyName("id")]
-    public InternalSnowflake Id { get; init; } = null!;
+    public Snowflake Id { get; init; } = null!;
 
     /// <summary>
     /// The <see cref="DiscordWebhookType"/> of the webhook.
@@ -23,13 +23,13 @@ public sealed record InternalWebhook
     /// The guild id this webhook is for, if any.
     /// </summary>
     [JsonPropertyName("guild_id")]
-    public Optional<InternalSnowflake?> GuildId { get; init; }
+    public Optional<Snowflake?> GuildId { get; init; }
 
     /// <summary>
     /// The channel id this webhook is for, if any.
     /// </summary>
     [JsonPropertyName("channel_id")]
-    public InternalSnowflake? ChannelId { get; init; }
+    public Snowflake? ChannelId { get; init; }
 
     /// <summary>
     /// The user this webhook was created by (not returned when getting a webhook with its token).
@@ -59,7 +59,7 @@ public sealed record InternalWebhook
     /// The bot/OAuth2 application that created this webhook.
     /// </summary>
     [JsonPropertyName("application_id")]
-    public InternalSnowflake? ApplicationId { get; init; }
+    public Snowflake? ApplicationId { get; init; }
 
     /// <summary>
     /// The guild of the channel that this webhook is following (returned for Channel Follower Webhooks).

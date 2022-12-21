@@ -5,7 +5,7 @@ namespace DSharpPlus.Entities.Internal.VoiceGateway.Commands;
 /// </summary>
 public sealed record InternalVoiceResumingCommand
 {
-    public InternalSnowflake ServerId { get; init; } = null!;
+    public Snowflake ServerId { get; init; } = null!;
     public string SessionId { get; init; } = null!;
     public string Token { get; init; } = null!;
 }

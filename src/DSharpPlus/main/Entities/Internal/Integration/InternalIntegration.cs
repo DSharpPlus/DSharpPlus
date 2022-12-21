@@ -9,7 +9,7 @@ public sealed record InternalIntegration
     /// The integration id.
     /// </summary>
     [JsonPropertyName("id")]
-    public InternalSnowflake Id { get; init; } = null!;
+    public Snowflake Id { get; init; } = null!;
 
     /// <summary>
     /// The integration name.
@@ -128,5 +128,5 @@ public sealed record InternalIntegration
     /// <summary>
     /// Sent on gateway integration events such as INTEGRATION_CREATE or INTEGRATION_UPDATE.
     /// </summary>
-    public Optional<InternalSnowflake> GuildId { get; init; }
+    public Optional<Snowflake> GuildId { get; init; }
 }

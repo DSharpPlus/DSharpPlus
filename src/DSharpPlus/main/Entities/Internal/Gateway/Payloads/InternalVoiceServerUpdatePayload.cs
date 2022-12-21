@@ -14,7 +14,7 @@ public sealed record InternalVoiceServerUpdatePayload
     /// The guild this voice server update is for.
     /// </summary>
     [JsonPropertyName("guild_id")]
-    public InternalSnowflake GuildId { get; init; } = null!;
+    public Snowflake GuildId { get; init; } = null!;
 
     /// <summary>
     /// The voice server host.

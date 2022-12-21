@@ -12,13 +12,13 @@ public sealed record InternalChannelPinsUpdatePayload
     /// The id of the guild.
     /// </summary>
     [JsonPropertyName("guild_id")]
-    public Optional<InternalSnowflake> GuildId { get; init; }
+    public Optional<Snowflake> GuildId { get; init; }
 
     /// <summary>
     /// The id of the channel.
     /// </summary>
     [JsonPropertyName("channel_id")]
-    public InternalSnowflake ChannelId { get; init; } = null!;
+    public Snowflake ChannelId { get; init; } = null!;
 
     /// <summary>
     /// The time at which the most recent pinned message was pinned.

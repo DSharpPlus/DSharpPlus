@@ -31,7 +31,7 @@ public sealed record InternalGuildMember
     /// Array of <see href="https://discord.com/developers/docs/topics/permissions#role-object">role</see> object ids.
     /// </summary>
     [JsonPropertyName("roles")]
-    public IReadOnlyList<InternalSnowflake> Roles { get; init; } = Array.Empty<InternalSnowflake>();
+    public IReadOnlyList<Snowflake> Roles { get; init; } = Array.Empty<Snowflake>();
 
     /// <summary>
     /// When the user joined the guild.
@@ -99,5 +99,5 @@ public sealed record InternalGuildMember
     /// <remarks>
     /// Only sent in the GUILD_MEMBER_ADD and GUILD_MEMBER_UPDATE payloads.
     /// </remarks>
-    public Optional<InternalSnowflake> GuildId { get; init; }
+    public Optional<Snowflake> GuildId { get; init; }
 }

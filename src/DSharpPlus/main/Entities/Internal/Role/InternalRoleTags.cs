@@ -11,13 +11,13 @@ public sealed record InternalRoleTags
     /// The id of the bot this role belongs to.
     /// </summary>
     [JsonPropertyName("bot_id")]
-    public Optional<InternalSnowflake> BotId { get; init; }
+    public Optional<Snowflake> BotId { get; init; }
 
     /// <summary>
     /// The id of the integration this role belongs to.
     /// </summary>
     [JsonPropertyName("integration_id")]
-    public Optional<InternalSnowflake> IntegrationId { get; init; }
+    public Optional<Snowflake> IntegrationId { get; init; }
 
     /// <summary>
     /// Whether this is the guild's premium subscriber role.

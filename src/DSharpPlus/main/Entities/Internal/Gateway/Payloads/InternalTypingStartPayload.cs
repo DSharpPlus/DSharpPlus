@@ -11,19 +11,19 @@ public sealed record InternalTypingStartPayload
     /// The id of the channel.
     /// </summary>
     [JsonPropertyName("channel_id")]
-    public InternalSnowflake ChannelId { get; init; } = null!;
+    public Snowflake ChannelId { get; init; } = null!;
 
     /// <summary>
     /// The id of the guild.
     /// </summary>
     [JsonPropertyName("guild_id")]
-    public Optional<InternalSnowflake> GuildId { get; init; }
+    public Optional<Snowflake> GuildId { get; init; }
 
     /// <summary>
     /// The id of the user.
     /// </summary>
     [JsonPropertyName("user_id")]
-    public InternalSnowflake UserId { get; init; } = null!;
+    public Snowflake UserId { get; init; } = null!;
 
     /// <summary>
     /// The unix time (in seconds) of when the user started typing.

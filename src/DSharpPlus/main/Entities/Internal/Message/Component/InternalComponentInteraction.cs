@@ -17,17 +17,17 @@ public sealed record InternalComponentInteraction
     public InternalGuildMember Member { get; init; } = null!;
 
     [JsonPropertyName("id")]
-    public InternalSnowflake Id { get; init; } = null!;
+    public Snowflake Id { get; init; } = null!;
 
     [JsonPropertyName("guild_id")]
-    public InternalSnowflake GuildId { get; init; } = null!;
+    public Snowflake GuildId { get; init; } = null!;
 
     [JsonPropertyName("data")]
     public InternalInteractionResolvedData Data { get; init; } = null!;
 
     [JsonPropertyName("channel_id")]
-    public InternalSnowflake ChannelId { get; init; } = null!;
+    public Snowflake ChannelId { get; init; } = null!;
 
     [JsonPropertyName("application_id")]
-    public InternalSnowflake ApplicationId { get; init; } = null!;
+    public Snowflake ApplicationId { get; init; } = null!;
 }

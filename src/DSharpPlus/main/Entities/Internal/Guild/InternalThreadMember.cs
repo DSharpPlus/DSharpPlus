@@ -15,13 +15,13 @@ public sealed record InternalThreadMember
     /// The id of the thread.
     /// </summary>
     [JsonPropertyName("id")]
-    public Optional<InternalSnowflake> Id { get; init; }
+    public Optional<Snowflake> Id { get; init; }
 
     /// <summary>
     /// The id of the user.
     /// </summary>
     [JsonPropertyName("user_id")]
-    public Optional<InternalSnowflake> UserId { get; init; }
+    public Optional<Snowflake> UserId { get; init; }
 
     /// <summary>
     /// The time the current user last joined the thread.
@@ -42,5 +42,5 @@ public sealed record InternalThreadMember
     /// Only sent on the ThreadMemberUpdate gateway payload.
     /// </remarks>
     [JsonPropertyName("guild_id")]
-    public Optional<InternalSnowflake> GuildId { get; init; }
+    public Optional<Snowflake> GuildId { get; init; }
 }

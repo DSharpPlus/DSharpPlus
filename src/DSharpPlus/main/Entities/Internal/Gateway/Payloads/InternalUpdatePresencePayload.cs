@@ -19,7 +19,7 @@ public sealed record InternalUpdatePresencePayload
     /// The id of the guild.
     /// </summary>
     [JsonPropertyName("guild_id")]
-    public InternalSnowflake GuildId { get; init; } = null!;
+    public Snowflake GuildId { get; init; } = null!;
 
     /// <summary>
     /// Either "idle", "dnd", "online", or "offline".

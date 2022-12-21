@@ -8,13 +8,13 @@ public sealed record InternalAuditLogEntryInfo
     /// The ID of the app whose permissions were targeted.
     /// </summary>
     [JsonPropertyName("application_id")]
-    public InternalSnowflake ApplicationId { get; init; } = null!;
+    public Snowflake ApplicationId { get; init; } = null!;
 
     /// <summary>
     /// The channel in which the entities were targeted.
     /// </summary>
     [JsonPropertyName("channel_id")]
-    public InternalSnowflake ChannelId { get; init; } = null!;
+    public Snowflake ChannelId { get; init; } = null!;
 
     /// <summary>
     /// The number of entities that were targeted.
@@ -32,7 +32,7 @@ public sealed record InternalAuditLogEntryInfo
     /// The id of the overwritten entity.
     /// </summary>
     [JsonPropertyName("id")]
-    public InternalSnowflake Id { get; init; } = null!;
+    public Snowflake Id { get; init; } = null!;
 
     /// <summary>
     /// The number of members removed by the prune.
@@ -44,7 +44,7 @@ public sealed record InternalAuditLogEntryInfo
     /// The id of the message that was targeted.
     /// </summary>
     [JsonPropertyName("message_id")]
-    public InternalSnowflake MessageId { get; init; } = null!;
+    public Snowflake MessageId { get; init; } = null!;
 
     /// <summary>
     /// The name of the role if <see cref="Type"/> is "0" (not present if <see cref="Type"/> is "1").
@@ -59,5 +59,5 @@ public sealed record InternalAuditLogEntryInfo
     public string Type { get; init; } = null!;
 
     public static implicit operator ulong(InternalAuditLogEntryInfo auditLogEntryInfo) => auditLogEntryInfo.Id;
-    public static implicit operator InternalSnowflake(InternalAuditLogEntryInfo auditLogEntryInfo) => auditLogEntryInfo.Id;
+    public static implicit operator Snowflake(InternalAuditLogEntryInfo auditLogEntryInfo) => auditLogEntryInfo.Id;
 }

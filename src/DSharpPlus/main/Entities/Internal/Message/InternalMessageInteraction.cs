@@ -14,7 +14,7 @@ public sealed record InternalMessageInteraction
     /// The id of the interaction.
     /// </summary>
     [JsonPropertyName("id")]
-    public InternalSnowflake Id { get; init; } = null!;
+    public Snowflake Id { get; init; } = null!;
 
     /// <summary>
     /// The type of interaction.

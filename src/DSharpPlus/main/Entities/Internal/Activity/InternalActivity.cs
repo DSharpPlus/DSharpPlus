@@ -38,7 +38,7 @@ public sealed record InternalActivity
     /// The application id for the game.
     /// </summary>
     [JsonPropertyName("application_id")]
-    public Optional<InternalSnowflake> ApplicationId { get; init; }
+    public Optional<Snowflake> ApplicationId { get; init; }
 
     /// <summary>
     /// What the player is currently doing.

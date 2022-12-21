@@ -8,7 +8,7 @@ public sealed record InternalIntegrationApplication
     /// The id of the app.
     /// </summary>
     [JsonPropertyName("id")]
-    public InternalSnowflake Id { get; init; } = null!;
+    public Snowflake Id { get; init; } = null!;
 
     /// <summary>
     /// The name of the app.

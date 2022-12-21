@@ -19,13 +19,13 @@ public sealed record InternalAutoModerationRule
     /// The id of this rule.
     /// </summary>
     [JsonPropertyName("id")]
-    public InternalSnowflake Id { get; init; } = null!;
+    public Snowflake Id { get; init; } = null!;
 
     /// <summary>
     /// The guild which this rule belongs to.
     /// </summary>
     [JsonPropertyName("guild_id")]
-    public InternalSnowflake GuildId { get; init; } = null!;
+    public Snowflake GuildId { get; init; } = null!;
 
     /// <summary>
     /// The rule name.
@@ -37,7 +37,7 @@ public sealed record InternalAutoModerationRule
     /// The user which first created this rule.
     /// </summary>
     [JsonPropertyName("creator_id")]
-    public InternalSnowflake CreatorId { get; init; } = null!;
+    public Snowflake CreatorId { get; init; } = null!;
 
     /// <summary>
     /// The rule event type.
@@ -73,11 +73,11 @@ public sealed record InternalAutoModerationRule
     /// The role ids that should not be affected by the rule (Maximum of 20).
     /// </summary>
     [JsonPropertyName("exempt_roles")]
-    public IReadOnlyList<InternalSnowflake> ExemptRoles { get; init; } = Array.Empty<InternalSnowflake>();
+    public IReadOnlyList<Snowflake> ExemptRoles { get; init; } = Array.Empty<Snowflake>();
 
     /// <summary>
     /// The channel ids that should not be affected by the rule (Maximum of 50).
     /// </summary>
     [JsonPropertyName("exempt_channels")]
-    public IReadOnlyList<InternalSnowflake> ExemptChannels { get; init; } = Array.Empty<InternalSnowflake>();
+    public IReadOnlyList<Snowflake> ExemptChannels { get; init; } = Array.Empty<Snowflake>();
 }

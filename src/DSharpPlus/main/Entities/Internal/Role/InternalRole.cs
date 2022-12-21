@@ -11,7 +11,7 @@ public sealed record InternalRole
     /// Role Id.
     /// </summary>
     [JsonPropertyName("id")]
-    public InternalSnowflake Id { get; init; } = null!;
+    public Snowflake Id { get; init; } = null!;
 
     /// <summary>
     /// Name of the role.
@@ -74,5 +74,5 @@ public sealed record InternalRole
     public Optional<InternalRoleTags> Tags { get; init; }
 
     public static implicit operator ulong(InternalRole role) => role.Id;
-    public static implicit operator InternalSnowflake(InternalRole role) => role.Id;
+    public static implicit operator Snowflake(InternalRole role) => role.Id;
 }

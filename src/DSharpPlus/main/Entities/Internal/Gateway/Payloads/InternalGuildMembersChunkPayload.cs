@@ -13,7 +13,7 @@ public sealed record InternalGuildMembersChunkPayload
     /// The id of the guild.
     /// </summary>
     [JsonPropertyName("guild_id")]
-    public InternalSnowflake GuildId { get; init; } = null!;
+    public Snowflake GuildId { get; init; } = null!;
 
     /// <summary>
     /// A set of guild members.
@@ -37,7 +37,7 @@ public sealed record InternalGuildMembersChunkPayload
     /// If passing an invalid id to REQUEST_GUILD_MEMBERS, it will be returned here.
     /// </summary>
     [JsonPropertyName("not_found")]
-    public Optional<IReadOnlyList<InternalSnowflake>> NotFound { get; init; }
+    public Optional<IReadOnlyList<Snowflake>> NotFound { get; init; }
 
     /// <summary>
     /// If passing true to REQUEST_GUILD_MEMBERS, presences of the returned members will be here.

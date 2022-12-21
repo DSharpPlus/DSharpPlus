@@ -10,5 +10,5 @@ public sealed record InternalGuildWidgetSettings
     /// <summary>
     /// The widget channel id.
     /// </summary>
-    public InternalSnowflake? ChannelId { get; init; }
+    public Snowflake? ChannelId { get; init; }
 }

@@ -11,11 +11,11 @@ public sealed record InternalGuildRoleDeletePayload
     /// The id of the guild.
     /// </summary>
     [JsonPropertyName("guild_id")]
-    public InternalSnowflake GuildId { get; init; } = null!;
+    public Snowflake GuildId { get; init; } = null!;
 
     /// <summary>
     /// The role deleted.
     /// </summary>
     [JsonPropertyName("role_id")]
-    public InternalSnowflake RoleId { get; init; } = null!;
+    public Snowflake RoleId { get; init; } = null!;
 }

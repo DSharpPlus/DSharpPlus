@@ -12,13 +12,13 @@ public sealed record InternalSticker
     /// The id of the sticker.
     /// </summary>
     [JsonPropertyName("id")]
-    public InternalSnowflake Id { get; init; } = null!;
+    public Snowflake Id { get; init; } = null!;
 
     /// <summary>
     /// For standard stickers, id of the pack the sticker is from.
     /// </summary>
     [JsonPropertyName("pack_id")]
-    public Optional<InternalSnowflake> PackId { get; init; }
+    public Optional<Snowflake> PackId { get; init; }
 
     /// <summary>
     /// The name of the sticker.
@@ -70,7 +70,7 @@ public sealed record InternalSticker
     /// The id of the guild that owns this sticker.
     /// </summary>
     [JsonPropertyName("guild_id")]
-    public Optional<InternalSnowflake?> GuildId { get; init; }
+    public Optional<Snowflake?> GuildId { get; init; }
 
     /// <summary>
     /// The user that uploaded the guild sticker.

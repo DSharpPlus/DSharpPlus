@@ -16,7 +16,7 @@ public sealed record InternalTeam
     /// The unique id of the team.
     /// </summary>
     [JsonPropertyName("id")]
-    public InternalSnowflake Id { get; init; } = null!;
+    public Snowflake Id { get; init; } = null!;
 
     /// <summary>
     /// The members of the team.
@@ -34,8 +34,8 @@ public sealed record InternalTeam
     /// The user id of the current team owner.
     /// </summary>
     [JsonPropertyName("owner_user_id")]
-    public InternalSnowflake OwnerUserId { get; init; } = null!;
+    public Snowflake OwnerUserId { get; init; } = null!;
 
     public static implicit operator ulong(InternalTeam team) => team.Id;
-    public static implicit operator InternalSnowflake(InternalTeam team) => team.Id;
+    public static implicit operator Snowflake(InternalTeam team) => team.Id;
 }

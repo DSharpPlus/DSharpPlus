@@ -12,7 +12,7 @@ public sealed record InternalInviteCreatePayload
     /// The channel the invite is for.
     /// </summary>
     [JsonPropertyName("channel_id")]
-    public InternalSnowflake ChannelId { get; init; } = null!;
+    public Snowflake ChannelId { get; init; } = null!;
 
     /// <summary>
     /// The unique invite code.
@@ -30,7 +30,7 @@ public sealed record InternalInviteCreatePayload
     /// The guild of the invite.
     /// </summary>
     [JsonPropertyName("guild_id")]
-    public Optional<InternalSnowflake> GuildId { get; init; }
+    public Optional<Snowflake> GuildId { get; init; }
 
     /// <summary>
     /// The user that created the invite.

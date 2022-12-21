@@ -8,7 +8,7 @@ public sealed record InternalGuildScheduledEventUser
     /// The scheduled event id which the user subscribed to.
     /// </summary>
     [JsonPropertyName("guild_scheduled_event_id")]
-    public InternalSnowflake GuildScheduledEventId { get; init; } = null!;
+    public Snowflake GuildScheduledEventId { get; init; } = null!;
 
     /// <summary>
     /// The user which subscribed to an event.

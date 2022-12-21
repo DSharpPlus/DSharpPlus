@@ -10,7 +10,7 @@ public sealed record InternalApplication
     /// The id of the app.
     /// </summary>
     [JsonPropertyName("id")]
-    public InternalSnowflake Id { get; init; } = null!;
+    public Snowflake Id { get; init; } = null!;
 
     /// <summary>
     /// The name of the app.
@@ -89,13 +89,13 @@ public sealed record InternalApplication
     /// If this application is a game sold on Internal, this field will be the guild to which it has been linked.
     /// </summary>
     [JsonPropertyName("guild_id")]
-    public Optional<InternalSnowflake> GuildId { get; init; }
+    public Optional<Snowflake> GuildId { get; init; }
 
     /// <summary>
     /// If this application is a game sold on Internal, this field will be the id of the "Game SKU" that is created, if exists.
     /// </summary>
     [JsonPropertyName("primary_sku_id")]
-    public Optional<InternalSnowflake> PrimarySKUId { get; init; }
+    public Optional<Snowflake> PrimarySKUId { get; init; }
 
     /// <summary>
     /// If this application is a game sold on Internal, this field will be the URL slug that links to the store page.
@@ -131,5 +131,5 @@ public sealed record InternalApplication
     public Optional<string> CustomInstallUrl { get; init; }
 
     public static implicit operator ulong(InternalApplication application) => application.Id;
-    public static implicit operator InternalSnowflake(InternalApplication application) => application.Id;
+    public static implicit operator Snowflake(InternalApplication application) => application.Id;
 }

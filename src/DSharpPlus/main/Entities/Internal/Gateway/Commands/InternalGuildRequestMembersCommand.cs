@@ -15,7 +15,7 @@ public sealed record InternalGuildRequestMembersCommand
     /// Always required.
     /// </remarks>
     [JsonPropertyName("guild_id")]
-    public InternalSnowflake GuildId { get; init; } = null!;
+    public Snowflake GuildId { get; init; } = null!;
 
     /// <summary>
     /// The string that username starts with, or an empty string to return all members.
@@ -48,7 +48,7 @@ public sealed record InternalGuildRequestMembersCommand
     /// Required if <see cref="Query"/> is not set.
     /// </remarks>
     [JsonPropertyName("user_ids")]
-    public Optional<IReadOnlyList<InternalSnowflake>> UserIds { get; init; }
+    public Optional<IReadOnlyList<Snowflake>> UserIds { get; init; }
 
     /// <summary>
     /// Nonce to identify the Guild Members Chunk response.

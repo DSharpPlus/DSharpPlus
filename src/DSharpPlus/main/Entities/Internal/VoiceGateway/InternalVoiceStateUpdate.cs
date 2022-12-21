@@ -12,19 +12,19 @@ public sealed record InternalVoiceStateUpdate
     /// The guild id this voice state is for.
     /// </summary>
     [JsonPropertyName("guild_id")]
-    public Optional<InternalSnowflake> GuildId { get; init; }
+    public Optional<Snowflake> GuildId { get; init; }
 
     /// <summary>
     /// The channel id this user is connected to.
     /// </summary>
     [JsonPropertyName("channel_id")]
-    public InternalSnowflake? ChannelId { get; init; }
+    public Snowflake? ChannelId { get; init; }
 
     /// <summary>
     /// The user id this voice state is for.
     /// </summary>
     [JsonPropertyName("user_id")]
-    public InternalSnowflake UserId { get; init; } = null!;
+    public Snowflake UserId { get; init; } = null!;
 
     /// <summary>
     /// The guild member this voice state is for.

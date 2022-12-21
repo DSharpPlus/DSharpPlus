@@ -13,7 +13,7 @@ public sealed record InternalGuildStickersUpdatePayload
     /// The id of the guild.
     /// </summary>
     [JsonPropertyName("guild_id")]
-    public InternalSnowflake GuildId { get; init; } = null!;
+    public Snowflake GuildId { get; init; } = null!;
 
     /// <summary>
     /// An array of stickers.

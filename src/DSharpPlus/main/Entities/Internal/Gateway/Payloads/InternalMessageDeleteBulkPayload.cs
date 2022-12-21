@@ -13,17 +13,17 @@ public sealed record InternalMessageDeleteBulkPayload
     /// The id of the messages.
     /// </summary>
     [JsonPropertyName("ids")]
-    public IReadOnlyList<InternalSnowflake> Ids { get; init; } = Array.Empty<InternalSnowflake>();
+    public IReadOnlyList<Snowflake> Ids { get; init; } = Array.Empty<Snowflake>();
 
     /// <summary>
     /// The id of the channel.
     /// </summary>
     [JsonPropertyName("channel_id")]
-    public InternalSnowflake ChannelId { get; init; } = null!;
+    public Snowflake ChannelId { get; init; } = null!;
 
     /// <summary>
     /// The id of the guild.
     /// </summary>
     [JsonPropertyName("guild_id")]
-    public Optional<InternalSnowflake> GuildId { get; init; }
+    public Optional<Snowflake> GuildId { get; init; }
 }

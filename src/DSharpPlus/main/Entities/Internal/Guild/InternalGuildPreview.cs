@@ -10,7 +10,7 @@ public sealed record InternalGuildPreview
     /// The guild id.
     /// </summary>
     [JsonPropertyName("id")]
-    public InternalSnowflake Id { get; init; } = null!;
+    public Snowflake Id { get; init; } = null!;
 
     /// <summary>
     /// The guild name (2-100 characters).

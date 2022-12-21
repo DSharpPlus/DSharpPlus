@@ -11,17 +11,17 @@ public sealed record InternalGuildIntegrationDeletePayload
     /// The integration id.
     /// </summary>
     [JsonPropertyName("id")]
-    public InternalSnowflake Id { get; init; } = null!;
+    public Snowflake Id { get; init; } = null!;
 
     /// <summary>
     /// The id of the guild.
     /// </summary>
     [JsonPropertyName("guild_id")]
-    public InternalSnowflake GuildId { get; init; } = null!;
+    public Snowflake GuildId { get; init; } = null!;
 
     /// <summary>
     /// The id of the bot/OAuth2 application for this discord integration.
     /// </summary>
     [JsonPropertyName("application_id")]
-    public Optional<InternalSnowflake> ApplicationId { get; init; }
+    public Optional<Snowflake> ApplicationId { get; init; }
 }

@@ -22,7 +22,7 @@ public sealed record InternalTeamMember
     /// The id of the parent team of which they are a member.
     /// </summary>
     [JsonPropertyName("team_id")]
-    public InternalSnowflake TeamId { get; init; } = null!;
+    public Snowflake TeamId { get; init; } = null!;
 
     /// <summary>
     /// The avatar, discriminator, id, and username of the user.
@@ -31,5 +31,5 @@ public sealed record InternalTeamMember
     public InternalUser User { get; init; } = null!;
 
     public static implicit operator ulong(InternalTeamMember teamMember) => teamMember.User.Id;
-    public static implicit operator InternalSnowflake(InternalTeamMember teamMember) => teamMember.User.Id;
+    public static implicit operator Snowflake(InternalTeamMember teamMember) => teamMember.User.Id;
 }

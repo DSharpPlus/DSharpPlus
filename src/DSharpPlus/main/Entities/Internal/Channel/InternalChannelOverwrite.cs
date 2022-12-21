@@ -11,7 +11,7 @@ public sealed record InternalChannelOverwrite
     /// Role or user id.
     /// </summary>
     [JsonPropertyName("id")]
-    public InternalSnowflake Id { get; init; } = null!;
+    public Snowflake Id { get; init; } = null!;
 
     /// <summary>
     /// Either 0 (role) or 1 (member).
@@ -32,5 +32,5 @@ public sealed record InternalChannelOverwrite
     public DiscordPermissions Deny { get; init; }
 
     public static implicit operator ulong(InternalChannelOverwrite channelOverwrite) => channelOverwrite.Id;
-    public static implicit operator InternalSnowflake(InternalChannelOverwrite channelOverwrite) => channelOverwrite.Id;
+    public static implicit operator Snowflake(InternalChannelOverwrite channelOverwrite) => channelOverwrite.Id;
 }

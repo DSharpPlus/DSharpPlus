@@ -11,7 +11,7 @@ public sealed record InternalAutoModerationActionExecutionPayload
     /// The id of the guild in which action was executed.
     /// </summary>
     [JsonPropertyName("guild_id")]
-    public InternalSnowflake GuildId { get; init; } = null!;
+    public Snowflake GuildId { get; init; } = null!;
 
     /// <summary>
     /// The action which was executed.
@@ -23,7 +23,7 @@ public sealed record InternalAutoModerationActionExecutionPayload
     /// The id of the rule which action belongs to.
     /// </summary>
     [JsonPropertyName("rule_id")]
-    public InternalSnowflake RuleId { get; init; } = null!;
+    public Snowflake RuleId { get; init; } = null!;
 
     /// <summary>
     /// The trigger type of rule which was triggered.
@@ -35,13 +35,13 @@ public sealed record InternalAutoModerationActionExecutionPayload
     /// The id of the user which generated the content which triggered the rule.
     /// </summary>
     [JsonPropertyName("user_id")]
-    public InternalSnowflake UserId { get; init; } = null!;
+    public Snowflake UserId { get; init; } = null!;
 
     /// <summary>
     /// The id of the channel in which user content was posted.
     /// </summary>
     [JsonPropertyName("channel_id")]
-    public Optional<InternalSnowflake> ChannelId { get; init; }
+    public Optional<Snowflake> ChannelId { get; init; }
 
     /// <summary>
     /// The id of any user message which content belongs to.
@@ -50,7 +50,7 @@ public sealed record InternalAutoModerationActionExecutionPayload
     /// This will be empty if the message was blocked by automod or content was not part of any message.
     /// </remarks>
     [JsonPropertyName("message_id")]
-    public Optional<InternalSnowflake> MessageId { get; init; }
+    public Optional<Snowflake> MessageId { get; init; }
 
     /// <summary>
     /// The id of any system auto moderation messages posted as a result of this action.
@@ -59,7 +59,7 @@ public sealed record InternalAutoModerationActionExecutionPayload
     /// This will be empty if this event does not correspond to an action with type <see cref="InternalAutoModerationActionType.SendAlertMessage"/>.
     /// </remarks>
     [JsonPropertyName("alert_system_message_id")]
-    public Optional<InternalSnowflake> AlertSystemMessageId { get; init; }
+    public Optional<Snowflake> AlertSystemMessageId { get; init; }
 
     /// <summary>
     /// The user generated text content. Requires the <see cref="DiscordGatewayIntents."/> intent.

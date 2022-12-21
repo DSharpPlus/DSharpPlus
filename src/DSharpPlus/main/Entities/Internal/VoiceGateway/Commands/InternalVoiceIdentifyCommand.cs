@@ -11,10 +11,10 @@ public sealed record InternalVoiceIdentifyCommand
     /// Also known as the guild id.
     /// </summary>
     [JsonPropertyName("server_id")]
-    public InternalSnowflake ServerId { get; init; } = null!;
+    public Snowflake ServerId { get; init; } = null!;
 
     [JsonPropertyName("user_id")]
-    public InternalSnowflake UserId { get; init; } = null!;
+    public Snowflake UserId { get; init; } = null!;
 
     [JsonPropertyName("session_id")]
     public string SessionId { get; init; } = null!;

@@ -13,13 +13,13 @@ public sealed record InternalThreadListSyncPayload
     /// The id of the guild.
     /// </summary>
     [JsonPropertyName("guild_id")]
-    public InternalSnowflake GuildId { get; init; } = null!;
+    public Snowflake GuildId { get; init; } = null!;
 
     /// <summary>
     /// The parent channel ids whose threads are being synced. If omitted, then threads were synced for the entire guild. This array may contain channel_ids that have no active threads as well, so you know to clear that data.
     /// </summary>
     [JsonPropertyName("channel_ids")]
-    public Optional<IReadOnlyList<InternalSnowflake>> ChannelIds { get; init; }
+    public Optional<IReadOnlyList<Snowflake>> ChannelIds { get; init; }
 
     /// <summary>
     /// All active threads in the given channels that the current user can access.

@@ -36,7 +36,7 @@ public sealed record InternalGuildTemplate
     /// The ID of the user who created the template.
     /// </summary>
     [JsonPropertyName("creator_id")]
-    public InternalSnowflake CreatorId { get; init; } = null!;
+    public Snowflake CreatorId { get; init; } = null!;
 
     /// <summary>
     /// The user who created the template.
@@ -60,7 +60,7 @@ public sealed record InternalGuildTemplate
     /// The ID of the guild this template is based on.
     /// </summary>
     [JsonPropertyName("source_guild_id")]
-    public InternalSnowflake SourceGuildId { get; init; } = null!;
+    public Snowflake SourceGuildId { get; init; } = null!;
 
     /// <summary>
     /// The guild snapshot this template contains.
