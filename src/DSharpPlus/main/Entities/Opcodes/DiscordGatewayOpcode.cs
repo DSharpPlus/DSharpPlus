@@ -1,6 +1,6 @@
 namespace DSharpPlus.Core.Enums
 {
-    public enum DiscordGatewayOpCode
+    public enum DiscordGatewayOpcode
     {
         /// <summary>
         /// An event was dispatched.

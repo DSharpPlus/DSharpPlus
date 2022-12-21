@@ -1,6 +1,6 @@
 namespace DSharpPlus.Core.Enums
 {
-    public enum DiscordVoiceOpCode
+    public enum DiscordVoiceOpcode
     {
         /// <summary>
         /// Begin a voice websocket connection.
