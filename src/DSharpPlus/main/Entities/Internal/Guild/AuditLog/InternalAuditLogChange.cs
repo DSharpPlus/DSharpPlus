@@ -3,7 +3,8 @@ using System.Text.Json.Serialization;
 namespace DSharpPlus.Entities.Internal;
 
 /// <remarks>
-/// If <see cref="NewValue"/> is not present in the change object, while <see cref="OldValue"/> is, that means the property that was changed has been reset, or set to null
+/// If <see cref="NewValue"/> is not present in the change object, while <see cref="OldValue"/> is, 
+/// that means the property that was changed has been reset, or set to null
 /// </remarks>
 public sealed record InternalAuditLogChange
 {
