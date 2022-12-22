@@ -4,17 +4,18 @@ using System.Text.Json.Serialization;
 using DSharpPlus.Core.JsonConverters;
 using DSharpPlus.Core.JsonConverters.Attributes;
 
-namespace DSharpPlus.Entities.Internal;
+namespace DSharpPlus.Entities;
 
 /// <summary>
-/// Often used in Internal API responses and requests, this class is used to represent an optional field.
+/// Often used in Discord API responses and requests, this class is used to represent an optional field.
 /// </summary>
 /// <remarks>
-/// While a Json field can be null, Internal enforces that a field can be missing entirely. This means that a field can be missing and/or null at any time. This struct is used to represent that.
+/// While a Json field can be null, Discord enforces that a field can be missing entirely. 
+/// This means that a field can be missing and/or null at any time. This struct is used to represent that.
 /// </remarks>
 [JsonConverter(typeof(OptionalJsonConverterFactory))]
 [TypeJsonIgnore(JsonIgnoreCondition.WhenWritingDefault)]
-public struct Optional<T> : IEquatable<Optional<T>>
+public readonly struct Optional<T> : IEquatable<Optional<T>>, IOptional
 {
     /// <summary>
     /// An <see cref="Optional{T}"/> without a value.
@@ -25,6 +26,8 @@ public struct Optional<T> : IEquatable<Optional<T>>
     /// If the <see cref="Optional{T}"/> has a value. The value may be null.
     /// </summary>
     public bool HasValue { get; }
+
+    public object? RawValue => _value;
 
     /// <summary>
     /// The value to be returned if the <see cref="Optional{T}"/> has a value.
@@ -70,7 +73,7 @@ public struct Optional<T> : IEquatable<Optional<T>>
     /// Gets the hash code for this <see cref="Optional{T}"/>.
     /// </summary>
     /// <returns>The hash code for this <see cref="Optional{T}"/>.</returns>
-    public override int GetHashCode() => HasValue ? (_value?.GetHashCode() ?? 0) : 0;
+    public override int GetHashCode() => HasValue ? _value?.GetHashCode() ?? 0 : 0;
 
     /// <summary>
     /// Checks whether this <see cref="Optional{T}"/> is equal to another <see cref="Optional{T}"/>.
@@ -78,7 +81,7 @@ public struct Optional<T> : IEquatable<Optional<T>>
     /// <param name="other"><see cref="Optional{T}"/> to compare to.</param>
     /// <returns>Whether the <see cref="Optional{T}"/> is equal to this <see cref="Optional{T}"/>.</returns>
     public bool Equals(Optional<T> other) => HasValue
-        ? (other.HasValue && EqualityComparer<T>.Default.Equals(_value, other._value))
+        ? other.HasValue && EqualityComparer<T>.Default.Equals(_value, other._value)
         : !other.HasValue;
 
     /// <summary>
@@ -104,7 +107,7 @@ public struct Optional<T> : IEquatable<Optional<T>>
     /// Returns a string that represents the current object.
     /// </summary>
     /// <returns>A string that represents the current object</returns>
-    public override string ToString() => HasValue ? (_value?.ToString() ?? string.Empty) : "<Empty>";
+    public override string ToString() => HasValue ? _value?.ToString() ?? string.Empty : "<Empty>";
 
     public static implicit operator Optional<T>(T value) => new(value);
     public static explicit operator T(Optional<T> optional) => optional.Value;
