@@ -61,10 +61,10 @@ public sealed class DiscordSelectComponentOption
 
     public DiscordSelectComponentOption(string label, string value, string description = null, bool isDefault = false, DiscordComponentEmoji emoji = null)
     {
-        this.Label = label;
-        this.Value = value;
-        this.Description = description;
-        this.Default = isDefault;
-        this.Emoji = emoji;
+        Label = label;
+        Value = value;
+        Description = description;
+        Default = isDefault;
+        Emoji = emoji;
     }
 }

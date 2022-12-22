@@ -42,7 +42,7 @@ public class CommandGroup : Command
     /// <summary>
     /// Gets whether this command is executable without subcommands.
     /// </summary>
-    public bool IsExecutableWithoutSubcommands => this.Overloads.Count > 0;
+    public bool IsExecutableWithoutSubcommands => Overloads.Count > 0;
 
     internal CommandGroup() : base() { }
 
@@ -53,21 +53,21 @@ public class CommandGroup : Command
     /// <returns>Command's execution results.</returns>
     public override async Task<CommandResult> ExecuteAsync(CommandContext ctx)
     {
-        var findpos = 0;
-        var cn = CommandsNextUtilities.ExtractNextArgument(ctx.RawArgumentString, ref findpos, ctx.Config.QuotationMarks);
+        int findpos = 0;
+        string? cn = CommandsNextUtilities.ExtractNextArgument(ctx.RawArgumentString, ref findpos, ctx.Config.QuotationMarks);
 
         if (cn != null)
         {
-            var (comparison, comparer) = ctx.Config.CaseSensitive
+            (StringComparison comparison, StringComparer comparer) = ctx.Config.CaseSensitive
                 ? (StringComparison.InvariantCulture, StringComparer.InvariantCulture)
                 : (StringComparison.InvariantCultureIgnoreCase, StringComparer.InvariantCultureIgnoreCase);
 
-            var cmd = this.Children.FirstOrDefault(xc => xc.Name.Equals(cn, comparison) || xc.Aliases.Contains(cn, comparer));
+            Command? cmd = Children.FirstOrDefault(xc => xc.Name.Equals(cn, comparison) || xc.Aliases.Contains(cn, comparer));
 
             if (cmd is not null)
             {
                 // pass the execution on
-                var xctx = new CommandContext
+                CommandContext xctx = new CommandContext
                 {
                     Client = ctx.Client,
                     Message = ctx.Message,
@@ -79,7 +79,7 @@ public class CommandGroup : Command
                     Services = ctx.Services
                 };
 
-                var fchecks = await cmd.RunChecksAsync(xctx, false).ConfigureAwait(false);
+                IEnumerable<Attributes.CheckBaseAttribute> fchecks = await cmd.RunChecksAsync(xctx, false).ConfigureAwait(false);
                 return !fchecks.Any()
                     ? await cmd.ExecuteAsync(xctx).ConfigureAwait(false)
                     : new CommandResult
@@ -91,7 +91,7 @@ public class CommandGroup : Command
             }
         }
 
-        return this.IsExecutableWithoutSubcommands
+        return IsExecutableWithoutSubcommands
             ? await base.ExecuteAsync(ctx).ConfigureAwait(false)
             : new CommandResult
             {

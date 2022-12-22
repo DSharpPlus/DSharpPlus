@@ -49,27 +49,30 @@ public sealed class RequireBotPermissionsAttribute : CheckBaseAttribute
     /// <param name="ignoreDms">Sets this check's behaviour in DMs. True means the check will always pass in DMs, whereas false means that it will always fail.</param>
     public RequireBotPermissionsAttribute(Permissions permissions, bool ignoreDms = true)
     {
-        this.Permissions = permissions;
-        this.IgnoreDms = ignoreDms;
+        Permissions = permissions;
+        IgnoreDms = ignoreDms;
     }
 
     public override async Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
     {
         if (ctx.Guild == null)
-            return this.IgnoreDms;
+        {
+            return IgnoreDms;
+        }
 
-        var bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id).ConfigureAwait(false);
+        DSharpPlus.Entities.DiscordMember bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id).ConfigureAwait(false);
         if (bot == null)
+        {
             return false;
+        }
 
         if (bot.Id == ctx.Guild.OwnerId)
+        {
             return true;
+        }
 
-        var pbot = ctx.Channel.PermissionsFor(bot);
+        Permissions pbot = ctx.Channel.PermissionsFor(bot);
 
-        if ((pbot & Permissions.Administrator) != 0)
-            return true;
-
-        return (pbot & this.Permissions) == this.Permissions;
+        return (pbot & Permissions.Administrator) != 0 ? true : (pbot & Permissions) == Permissions;
     }
 }

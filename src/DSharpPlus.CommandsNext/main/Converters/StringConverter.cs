@@ -40,7 +40,9 @@ public class UriConverter : IArgumentConverter<Uri>
         try
         {
             if (value.StartsWith("<") && value.EndsWith(">"))
+            {
                 value = value.Substring(1, value.Length - 2);
+            }
 
             return Task.FromResult(Optional.FromValue(new Uri(value)));
         }

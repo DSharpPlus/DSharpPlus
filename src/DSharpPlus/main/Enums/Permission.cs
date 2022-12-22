@@ -272,7 +272,7 @@ public enum Permissions : long
     /// Allows the user to go live.
     /// </summary>
     [PermissionString("Allow stream")]
-    Stream  = 0x0000000000000200,
+    Stream = 0x0000000000000200,
 
     /// <summary>
     /// Allows the user to use slash commands.
@@ -371,8 +371,5 @@ public sealed class PermissionStringAttribute : Attribute
     /// Defines a readable name for this permission.
     /// </summary>
     /// <param name="str">Readable name for this permission.</param>
-    public PermissionStringAttribute(string str)
-    {
-        this.String = str;
-    }
+    public PermissionStringAttribute(string str) => String = str;
 }

@@ -57,17 +57,14 @@ public class TransientCommandModule : ICommandModule
     /// Creates a new transient module.
     /// </summary>
     /// <param name="t">Type of the module to create.</param>
-    internal TransientCommandModule(Type t)
-    {
-        this.ModuleType = t;
-    }
+    internal TransientCommandModule(Type t) => ModuleType = t;
 
     /// <summary>
     /// Creates a new instance of this module.
     /// </summary>
     /// <param name="services">Services to instantiate the module with.</param>
     /// <returns>Created module.</returns>
-    public BaseCommandModule GetInstance(IServiceProvider services) => (BaseCommandModule)this.ModuleType.CreateInstance(services);
+    public BaseCommandModule GetInstance(IServiceProvider services) => (BaseCommandModule)ModuleType.CreateInstance(services);
 }
 
 /// <summary>
@@ -92,8 +89,8 @@ public class SingletonCommandModule : ICommandModule
     /// <param name="services">Services to instantiate the module with.</param>
     internal SingletonCommandModule(Type t, IServiceProvider services)
     {
-        this.ModuleType = t;
-        this.Instance = (BaseCommandModule)t.CreateInstance(services);
+        ModuleType = t;
+        Instance = (BaseCommandModule)t.CreateInstance(services);
     }
 
     /// <summary>
@@ -101,5 +98,5 @@ public class SingletonCommandModule : ICommandModule
     /// </summary>
     /// <param name="services">Services to instantiate the module with.</param>
     /// <returns>This module's instance.</returns>
-    public BaseCommandModule GetInstance(IServiceProvider services) => this.Instance;
+    public BaseCommandModule GetInstance(IServiceProvider services) => Instance;
 }

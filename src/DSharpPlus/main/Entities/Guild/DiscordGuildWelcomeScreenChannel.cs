@@ -56,14 +56,18 @@ public class DiscordGuildWelcomeScreenChannel
 
     public DiscordGuildWelcomeScreenChannel(ulong channelId, string description, DiscordEmoji emoji = null)
     {
-        this.ChannelId = channelId;
-        this.Description = description;
+        ChannelId = channelId;
+        Description = description;
         if (emoji != null)
         {
             if (emoji.Id == 0)
-                this.EmojiName = emoji.Name;
+            {
+                EmojiName = emoji.Name;
+            }
             else
-                this.EmojiId = emoji.Id;
+            {
+                EmojiId = emoji.Id;
+            }
         }
     }
 }

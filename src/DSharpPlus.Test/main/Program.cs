@@ -43,8 +43,8 @@ internal sealed class Program
     public static async Task MainAsync()
     {
         Console.CancelKeyPress += Console_CancelKeyPress;
-        var cfg = new TestBotConfig();
-        var json = string.Empty;
+        TestBotConfig? cfg = new TestBotConfig();
+        string json = string.Empty;
         if (!File.Exists("config.json"))
         {
             json = JsonConvert.SerializeObject(cfg);
@@ -58,10 +58,10 @@ internal sealed class Program
         json = File.ReadAllText("config.json", new UTF8Encoding(false));
         cfg = JsonConvert.DeserializeObject<TestBotConfig>(json);
 
-        var tskl = new List<Task>();
-        for (var i = 0; i < cfg.ShardCount; i++)
+        List<Task> tskl = new List<Task>();
+        for (int i = 0; i < cfg.ShardCount; i++)
         {
-            var bot = new TestBot(cfg, i);
+            TestBot bot = new TestBot(cfg, i);
             Shards.Add(bot);
             tskl.Add(bot.RunAsync());
             await Task.Delay(7500).ConfigureAwait(false);
@@ -80,8 +80,10 @@ internal sealed class Program
     {
         e.Cancel = true;
 
-        foreach (var shard in Shards)
+        foreach (TestBot shard in Shards)
+        {
             shard.StopAsync().GetAwaiter().GetResult(); // it dun matter
+        }
 
         CancelTokenSource.Cancel();
     }

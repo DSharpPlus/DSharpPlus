@@ -39,15 +39,12 @@ internal readonly struct ReadOnlySet<T> : IReadOnlyCollection<T>
     /// Creates a new read-only view of the given set.
     /// </summary>
     /// <param name="sourceSet">Set to create a view over.</param>
-    public ReadOnlySet(ISet<T> sourceSet)
-    {
-        this._underlyingSet = sourceSet;
-    }
+    public ReadOnlySet(ISet<T> sourceSet) => _underlyingSet = sourceSet;
 
     /// <summary>
     /// Gets the number of items in the underlying set.
     /// </summary>
-    public int Count => this._underlyingSet.Count;
+    public int Count => _underlyingSet.Count;
 
     /// <summary>
     /// Returns an enumerator that iterates through this set view.
@@ -55,7 +52,7 @@ internal readonly struct ReadOnlySet<T> : IReadOnlyCollection<T>
     /// <returns>Enumerator for the underlying set.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IEnumerator<T> GetEnumerator()
-        => this._underlyingSet.GetEnumerator();
+        => _underlyingSet.GetEnumerator();
 
     /// <summary>
     /// Returns an enumerator that iterates through this set view.
@@ -63,5 +60,5 @@ internal readonly struct ReadOnlySet<T> : IReadOnlyCollection<T>
     /// <returns>Enumerator for the underlying set.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     IEnumerator IEnumerable.GetEnumerator()
-        => (this._underlyingSet as IEnumerable).GetEnumerator();
+        => (_underlyingSet as IEnumerable).GetEnumerator();
 }

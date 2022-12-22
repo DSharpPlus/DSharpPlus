@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -20,9 +20,11 @@ public static class ExtensionMethods
     public static SlashCommandsExtension UseSlashCommands(this DiscordClient client, SlashCommandsConfiguration config = null)
     {
         if (client.GetExtension<SlashCommandsExtension>() != null)
+        {
             throw new InvalidOperationException("Slash commands are already enabled for that client.");
+        }
 
-        var scomm = new SlashCommandsExtension(config);
+        SlashCommandsExtension scomm = new SlashCommandsExtension(config);
         client.AddExtension(scomm);
         return scomm;
     }
@@ -43,13 +45,15 @@ public static class ExtensionMethods
     /// <returns>A dictionary of created <see cref="SlashCommandsExtension"/> with the key being the shard id.</returns>
     public static async Task<IReadOnlyDictionary<int, SlashCommandsExtension>> UseSlashCommandsAsync(this DiscordShardedClient client, SlashCommandsConfiguration config = null)
     {
-        var modules = new Dictionary<int, SlashCommandsExtension>();
+        Dictionary<int, SlashCommandsExtension> modules = new Dictionary<int, SlashCommandsExtension>();
         await client.InitializeShardsAsync();
-        foreach (var shard in client.ShardClients.Values)
+        foreach (DiscordClient shard in client.ShardClients.Values)
         {
-            var scomm = shard.GetSlashCommands();
+            SlashCommandsExtension? scomm = shard.GetSlashCommands();
             if (scomm == null)
+            {
                 scomm = shard.UseSlashCommands(config);
+            }
 
             modules[shard.ShardId] = scomm;
         }
@@ -65,8 +69,10 @@ public static class ExtensionMethods
     /// <param name="guildId">The guild id to register it on. If you want global commands, leave it null.</param>
     public static void RegisterCommands<T>(this IReadOnlyDictionary<int, SlashCommandsExtension> modules, ulong? guildId = null) where T : ApplicationCommandModule
     {
-        foreach (var module in modules.Values)
+        foreach (SlashCommandsExtension module in modules.Values)
+        {
             module.RegisterCommands<T>(guildId);
+        }
     }
 
     /// <summary>
@@ -77,8 +83,10 @@ public static class ExtensionMethods
     /// <param name="guildId">The guild id to register it on. If you want global commands, leave it null.</param>
     public static void RegisterCommands(this IReadOnlyDictionary<int, SlashCommandsExtension> modules, Type type, ulong? guildId = null)
     {
-        foreach (var module in modules.Values)
+        foreach (SlashCommandsExtension module in modules.Values)
+        {
             module.RegisterCommands(type, guildId);
+        }
     }
 
     /// <summary>
@@ -89,14 +97,14 @@ public static class ExtensionMethods
     {
         if (e is Enum)
         {
-            var type = e.GetType();
-            var values = Enum.GetValues(type);
+            Type type = e.GetType();
+            Array values = Enum.GetValues(type);
 
             foreach (int val in values)
             {
                 if (val == e.ToInt32(CultureInfo.InvariantCulture))
                 {
-                    var memInfo = type.GetMember(type.GetEnumName(val));
+                    System.Reflection.MemberInfo[] memInfo = type.GetMember(type.GetEnumName(val));
 
                     return memInfo[0].GetCustomAttributes(typeof(ChoiceNameAttribute), false).FirstOrDefault() is ChoiceNameAttribute nameAttribute
                         ? nameAttribute.Name

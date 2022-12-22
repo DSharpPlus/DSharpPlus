@@ -78,19 +78,19 @@ public abstract class BaseRestRequest
     /// <param name="ratelimitWaitOverride">Override for ratelimit bucket wait time.</param>
     internal BaseRestRequest(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, string route, IReadOnlyDictionary<string, string> headers = null, double? ratelimitWaitOverride = null)
     {
-        this.Discord = client;
-        this.RateLimitBucket = bucket;
-        this.RequestTaskSource = new TaskCompletionSource<RestResponse>();
-        this.Url = url;
-        this.Method = method;
-        this.Route = route;
-        this.RateLimitWaitOverride = ratelimitWaitOverride;
+        Discord = client;
+        RateLimitBucket = bucket;
+        RequestTaskSource = new TaskCompletionSource<RestResponse>();
+        Url = url;
+        Method = method;
+        Route = route;
+        RateLimitWaitOverride = ratelimitWaitOverride;
 
         if (headers != null)
         {
             headers = headers.Select(x => new KeyValuePair<string, string>(x.Key, Uri.EscapeDataString(x.Value)))
                 .ToDictionary(x => x.Key, x => x.Value);
-            this.Headers = headers;
+            Headers = headers;
         }
     }
 
@@ -99,15 +99,15 @@ public abstract class BaseRestRequest
     /// </summary>
     /// <returns>HTTP response to this request.</returns>
     public Task<RestResponse> WaitForCompletionAsync()
-        => this.RequestTaskSource.Task;
+        => RequestTaskSource.Task;
 
     protected internal void SetCompleted(RestResponse response)
-        => this.RequestTaskSource.SetResult(response);
+        => RequestTaskSource.SetResult(response);
 
     protected internal void SetFaulted(Exception ex)
-        => this.RequestTaskSource.SetException(ex);
+        => RequestTaskSource.SetException(ex);
 
     protected internal bool TrySetFaulted(Exception ex)
-        => this.RequestTaskSource.TrySetException(ex);
+        => RequestTaskSource.TrySetException(ex);
 
 }

@@ -39,16 +39,13 @@ public abstract class BaseHelpFormatter
     /// <summary>
     /// Gets the CommandsNext extension which constructed this help formatter.
     /// </summary>
-    protected CommandsNextExtension CommandsNext => this.Context.CommandsNext;
+    protected CommandsNextExtension CommandsNext => Context.CommandsNext;
 
     /// <summary>
     /// Creates a new help formatter for specified CommandsNext extension instance.
     /// </summary>
     /// <param name="ctx">Context in which this formatter is being invoked.</param>
-    public BaseHelpFormatter(CommandContext ctx)
-    {
-        this.Context = ctx;
-    }
+    public BaseHelpFormatter(CommandContext ctx) => Context = ctx;
 
     /// <summary>
     /// Sets the command this help message will be for.

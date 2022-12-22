@@ -73,19 +73,19 @@ internal class TransportUser
 
     internal TransportUser(TransportUser other)
     {
-        this.Id = other.Id;
-        this.Username = other.Username;
-        this.Discriminator = other.Discriminator;
-        this.AvatarHash = other.AvatarHash;
-        this.BannerHash = other.BannerHash;
-        this.BannerColor = other.BannerColor;
-        this.IsBot = other.IsBot;
-        this.MfaEnabled = other.MfaEnabled;
-        this.Verified = other.Verified;
-        this.Email = other.Email;
-        this.PremiumType = other.PremiumType;
-        this.Locale = other.Locale;
-        this.Flags = other.Flags;
-        this.OAuthFlags = other.OAuthFlags;
+        Id = other.Id;
+        Username = other.Username;
+        Discriminator = other.Discriminator;
+        AvatarHash = other.AvatarHash;
+        BannerHash = other.BannerHash;
+        BannerColor = other.BannerColor;
+        IsBot = other.IsBot;
+        MfaEnabled = other.MfaEnabled;
+        Verified = other.Verified;
+        Email = other.Email;
+        PremiumType = other.PremiumType;
+        Locale = other.Locale;
+        Flags = other.Flags;
+        OAuthFlags = other.OAuthFlags;
     }
 }

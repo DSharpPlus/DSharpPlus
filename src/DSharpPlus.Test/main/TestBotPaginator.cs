@@ -46,25 +46,25 @@ public class TestBotPaginator : IPaginationRequest
     private readonly DiscordUser _usr;
 
     public int PageCount
-        => this._pages.Count;
+        => _pages.Count;
 
     public TestBotPaginator(DiscordClient client, DiscordUser usr, DiscordMessage msg, List<Page> pages)
     {
-        this._pages = pages;
-        this._tcs = new TaskCompletionSource<bool>();
-        this._cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
-        this._cts.Token.Register(() => this._tcs.TrySetResult(true));
-        this._msg = msg;
-        this._emojis = new PaginationEmojis();
-        this._usr = usr;
+        _pages = pages;
+        _tcs = new TaskCompletionSource<bool>();
+        _cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+        _cts.Token.Register(() => _tcs.TrySetResult(true));
+        _msg = msg;
+        _emojis = new PaginationEmojis();
+        _usr = usr;
     }
 
-    public async Task DoCleanupAsync() => await this._msg.DeleteAsync().ConfigureAwait(false);
+    public async Task DoCleanupAsync() => await _msg.DeleteAsync().ConfigureAwait(false);
 
     public async Task<PaginationEmojis> GetEmojisAsync()
     {
         await Task.Yield();
-        return this._emojis;
+        return _emojis;
     }
 
     public Task<IEnumerable<DiscordButtonComponent>> GetButtonsAsync()
@@ -73,54 +73,58 @@ public class TestBotPaginator : IPaginationRequest
     public async Task<DiscordMessage> GetMessageAsync()
     {
         await Task.Yield();
-        return this._msg;
+        return _msg;
     }
 
     public async Task<Page> GetPageAsync()
     {
         await Task.Yield();
-        return this._pages[this._index];
+        return _pages[_index];
     }
 
     public async Task<TaskCompletionSource<bool>> GetTaskCompletionSourceAsync()
     {
         await Task.Yield();
-        return this._tcs;
+        return _tcs;
     }
 
     public async Task<DiscordUser> GetUserAsync()
     {
         await Task.Yield();
-        return this._usr;
+        return _usr;
     }
 
     public async Task NextPageAsync()
     {
         await Task.Yield();
 
-        if (this._index < this._pages.Count - 1)
-            this._index++;
+        if (_index < _pages.Count - 1)
+        {
+            _index++;
+        }
     }
 
     public async Task PreviousPageAsync()
     {
         await Task.Yield();
 
-        if (this._index > 0)
-            this._index--;
+        if (_index > 0)
+        {
+            _index--;
+        }
     }
 
     public async Task SkipLeftAsync()
     {
         await Task.Yield();
 
-        this._index = 0;
+        _index = 0;
     }
 
     public async Task SkipRightAsync()
     {
         await Task.Yield();
 
-        this._index = this._pages.Count - 1;
+        _index = _pages.Count - 1;
     }
 }

@@ -42,7 +42,7 @@ internal sealed class RestWebhookPayload
     public bool AvatarSet { get; set; }
 
     public bool ShouldSerializeAvatarBase64()
-        => this.AvatarSet;
+        => AvatarSet;
 }
 
 internal sealed class RestWebhookExecutePayload

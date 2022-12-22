@@ -46,7 +46,7 @@ public class DiscordMessageReference
     public DiscordGuild Guild { get; internal set; }
 
     public override string ToString()
-        => $"Guild: {this.Guild.Id}, Channel: {this.Channel.Id}, Message: {this.Message.Id}";
+        => $"Guild: {Guild.Id}, Channel: {Channel.Id}, Message: {Message.Id}";
 
     internal DiscordMessageReference() { }
 }

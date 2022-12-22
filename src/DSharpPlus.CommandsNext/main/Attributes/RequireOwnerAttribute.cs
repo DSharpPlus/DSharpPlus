@@ -35,8 +35,8 @@ public sealed class RequireOwnerAttribute : CheckBaseAttribute
 {
     public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
     {
-        var app = ctx.Client.CurrentApplication;
-        var me = ctx.Client.CurrentUser;
+        DSharpPlus.Entities.DiscordApplication app = ctx.Client.CurrentApplication;
+        DSharpPlus.Entities.DiscordUser me = ctx.Client.CurrentUser;
 
         return app != null ? Task.FromResult(app.Owners.Any(x => x.Id == ctx.User.Id)) : Task.FromResult(ctx.User.Id == me.Id);
     }

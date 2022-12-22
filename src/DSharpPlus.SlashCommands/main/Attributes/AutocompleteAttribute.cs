@@ -1,4 +1,4 @@
-﻿// This file is part of the DSharpPlus project.
+// This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
 // Copyright (c) 2016-2022 DSharpPlus Contributors
@@ -40,8 +40,5 @@ public class AutocompleteAttribute : Attribute
     /// Handles autocomplete choices for a slash command parameter.
     /// </summary>
     /// <param name="provider">The type of the autocomplete provider. This should inherit from <see cref="IAutocompleteProvider"/>.</param>
-    public AutocompleteAttribute(Type provider)
-    {
-        this.Provider = provider;
-    }
+    public AutocompleteAttribute(Type provider) => Provider = provider;
 }

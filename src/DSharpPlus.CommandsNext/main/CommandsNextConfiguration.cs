@@ -155,19 +155,19 @@ public sealed class CommandsNextConfiguration
     /// <param name="other">Configuration the properties of which are to be copied.</param>
     public CommandsNextConfiguration(CommandsNextConfiguration other)
     {
-        this.CaseSensitive = other.CaseSensitive;
-        this.PrefixResolver = other.PrefixResolver;
-        this.DefaultHelpChecks = other.DefaultHelpChecks;
-        this.EnableDefaultHelp = other.EnableDefaultHelp;
-        this.EnableDms = other.EnableDms;
-        this.EnableMentionPrefix = other.EnableMentionPrefix;
-        this.IgnoreExtraArguments = other.IgnoreExtraArguments;
-        this.QuotationMarks = other.QuotationMarks;
-        this.UseDefaultCommandHandler = other.UseDefaultCommandHandler;
-        this.Services = other.Services;
-        this.StringPrefixes = other.StringPrefixes.ToArray();
-        this.DmHelp = other.DmHelp;
-        this.DefaultParserCulture = other.DefaultParserCulture;
-        this.CommandExecutor = other.CommandExecutor;
+        CaseSensitive = other.CaseSensitive;
+        PrefixResolver = other.PrefixResolver;
+        DefaultHelpChecks = other.DefaultHelpChecks;
+        EnableDefaultHelp = other.EnableDefaultHelp;
+        EnableDms = other.EnableDms;
+        EnableMentionPrefix = other.EnableMentionPrefix;
+        IgnoreExtraArguments = other.IgnoreExtraArguments;
+        QuotationMarks = other.QuotationMarks;
+        UseDefaultCommandHandler = other.UseDefaultCommandHandler;
+        Services = other.Services;
+        StringPrefixes = other.StringPrefixes.ToArray();
+        DmHelp = other.DmHelp;
+        DefaultParserCulture = other.DefaultParserCulture;
+        CommandExecutor = other.CommandExecutor;
     }
 }

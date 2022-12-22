@@ -40,19 +40,22 @@ public class PaginationTest : BaseCommandModule
     [Command("paginate")]
     public async Task PaginateAsync(CommandContext ctx)
     {
-        var builder = new DiscordMessageBuilder().WithContent("** **").AddComponents(new DiscordButtonComponent(ButtonStyle.Primary, "a", "Paginate"));
+        DiscordMessageBuilder builder = new DiscordMessageBuilder().WithContent("** **").AddComponents(new DiscordButtonComponent(ButtonStyle.Primary, "a", "Paginate"));
         await ctx.RespondAsync(builder);
 
-        ctx.Client.ComponentInteractionCreated += this.Handle;
+        ctx.Client.ComponentInteractionCreated += Handle;
     }
 
     private Task Handle(DiscordClient sender, ComponentInteractionCreateEventArgs e)
     {
         if (e.Id != "a")
+        {
             return Task.CompletedTask;
-        var pages = sender.GetInteractivity().GeneratePagesInContent(Lorem);
+        }
+
+        System.Collections.Generic.IEnumerable<Interactivity.Page> pages = sender.GetInteractivity().GeneratePagesInContent(Lorem);
         _ = sender.GetInteractivity().SendPaginatedResponseAsync(e.Interaction, true, e.User, pages);
-        sender.ComponentInteractionCreated -= this.Handle;
+        sender.ComponentInteractionCreated -= Handle;
         return Task.CompletedTask;
     }
 }

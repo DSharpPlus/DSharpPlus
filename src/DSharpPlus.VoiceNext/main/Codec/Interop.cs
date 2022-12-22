@@ -62,10 +62,10 @@ internal static class Interop
     private static extern UIntPtr _SodiumSecretBoxMacSize();
 
     [DllImport(SodiumLibraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "crypto_secretbox_easy")]
-    private static unsafe extern int _SodiumSecretBoxCreate(byte* buffer, byte* message, ulong messageLength, byte* nonce, byte* key);
+    private static extern unsafe int _SodiumSecretBoxCreate(byte* buffer, byte* message, ulong messageLength, byte* nonce, byte* key);
 
     [DllImport(SodiumLibraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "crypto_secretbox_open_easy")]
-    private static unsafe extern int _SodiumSecretBoxOpen(byte* buffer, byte* encryptedMessage, ulong encryptedLength, byte* nonce, byte* key);
+    private static extern unsafe int _SodiumSecretBoxOpen(byte* buffer, byte* encryptedMessage, ulong encryptedLength, byte* nonce, byte* key);
 
     /// <summary>
     /// Encrypts supplied buffer using xsalsa20_poly1305 algorithm, using supplied key and nonce to perform encryption.
@@ -77,12 +77,14 @@ internal static class Interop
     /// <returns>Encryption status.</returns>
     public static unsafe int Encrypt(ReadOnlySpan<byte> source, Span<byte> target, ReadOnlySpan<byte> key, ReadOnlySpan<byte> nonce)
     {
-        var status = 0;
+        int status = 0;
         fixed (byte* sourcePtr = &source.GetPinnableReference())
         fixed (byte* targetPtr = &target.GetPinnableReference())
         fixed (byte* keyPtr = &key.GetPinnableReference())
         fixed (byte* noncePtr = &nonce.GetPinnableReference())
+        {
             status = _SodiumSecretBoxCreate(targetPtr, sourcePtr, (ulong)source.Length, noncePtr, keyPtr);
+        }
 
         return status;
     }
@@ -97,12 +99,14 @@ internal static class Interop
     /// <returns>Decryption status.</returns>
     public static unsafe int Decrypt(ReadOnlySpan<byte> source, Span<byte> target, ReadOnlySpan<byte> key, ReadOnlySpan<byte> nonce)
     {
-        var status = 0;
+        int status = 0;
         fixed (byte* sourcePtr = &source.GetPinnableReference())
         fixed (byte* targetPtr = &target.GetPinnableReference())
         fixed (byte* keyPtr = &key.GetPinnableReference())
         fixed (byte* noncePtr = &nonce.GetPinnableReference())
+        {
             status = _SodiumSecretBoxOpen(targetPtr, sourcePtr, (ulong)source.Length, noncePtr, keyPtr);
+        }
 
         return status;
     }
@@ -118,7 +122,7 @@ internal static class Interop
     public static extern void OpusDestroyEncoder(IntPtr encoder);
 
     [DllImport(OpusLibraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_encode")]
-    private static unsafe extern int _OpusEncode(IntPtr encoder, byte* pcmData, int frameSize, byte* data, int maxDataBytes);
+    private static extern unsafe int _OpusEncode(IntPtr encoder, byte* pcmData, int frameSize, byte* data, int maxDataBytes);
 
     [DllImport(OpusLibraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_encoder_ctl")]
     private static extern OpusError _OpusEncoderControl(IntPtr encoder, OpusControl request, int value);
@@ -130,44 +134,48 @@ internal static class Interop
     public static extern void OpusDestroyDecoder(IntPtr decoder);
 
     [DllImport(OpusLibraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_decode")]
-    private static unsafe extern int _OpusDecode(IntPtr decoder, byte* opusData, int opusDataLength, byte* data, int frameSize, int decodeFec);
+    private static extern unsafe int _OpusDecode(IntPtr decoder, byte* opusData, int opusDataLength, byte* data, int frameSize, int decodeFec);
 
     [DllImport(OpusLibraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_packet_get_nb_channels")]
-    private static unsafe extern int _OpusGetPacketChanelCount(byte* opusData);
+    private static extern unsafe int _OpusGetPacketChanelCount(byte* opusData);
 
     [DllImport(OpusLibraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_packet_get_nb_frames")]
-    private static unsafe extern int _OpusGetPacketFrameCount(byte* opusData, int length);
+    private static extern unsafe int _OpusGetPacketFrameCount(byte* opusData, int length);
 
     [DllImport(OpusLibraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_packet_get_samples_per_frame")]
-    private static unsafe extern int _OpusGetPacketSamplePerFrameCount(byte* opusData, int samplingRate);
+    private static extern unsafe int _OpusGetPacketSamplePerFrameCount(byte* opusData, int samplingRate);
 
     [DllImport(OpusLibraryName, CallingConvention = CallingConvention.Cdecl, EntryPoint = "opus_decoder_ctl")]
     private static extern int _OpusDecoderControl(IntPtr decoder, OpusControl request, out int value);
 
     public static IntPtr OpusCreateEncoder(AudioFormat audioFormat)
     {
-        var encoder = _OpusCreateEncoder(audioFormat.SampleRate, audioFormat.ChannelCount, (int)audioFormat.VoiceApplication, out var error);
+        nint encoder = _OpusCreateEncoder(audioFormat.SampleRate, audioFormat.ChannelCount, (int)audioFormat.VoiceApplication, out OpusError error);
         return error != OpusError.Ok ? throw new Exception($"Could not instantiate Opus encoder: {error} ({(int)error}).") : encoder;
     }
 
     public static void OpusSetEncoderOption(IntPtr encoder, OpusControl option, int value)
     {
-        var error = OpusError.Ok;
+        OpusError error = OpusError.Ok;
         if ((error = _OpusEncoderControl(encoder, option, value)) != OpusError.Ok)
+        {
             throw new Exception($"Could not set Opus encoder option: {error} ({(int)error}).");
+        }
     }
 
     public static unsafe void OpusEncode(IntPtr encoder, ReadOnlySpan<byte> pcm, int frameSize, ref Span<byte> opus)
     {
-        var len = 0;
+        int len = 0;
 
         fixed (byte* pcmPtr = &pcm.GetPinnableReference())
         fixed (byte* opusPtr = &opus.GetPinnableReference())
+        {
             len = _OpusEncode(encoder, pcmPtr, frameSize, opusPtr, opus.Length);
+        }
 
         if (len < 0)
         {
-            var error = (OpusError)len;
+            OpusError error = (OpusError)len;
             throw new Exception($"Could not encode PCM data to Opus: {error} ({(int)error}).");
         }
 
@@ -176,21 +184,23 @@ internal static class Interop
 
     public static IntPtr OpusCreateDecoder(AudioFormat audioFormat)
     {
-        var decoder = _OpusCreateDecoder(audioFormat.SampleRate, audioFormat.ChannelCount, out var error);
+        nint decoder = _OpusCreateDecoder(audioFormat.SampleRate, audioFormat.ChannelCount, out OpusError error);
         return error != OpusError.Ok ? throw new Exception($"Could not instantiate Opus decoder: {error} ({(int)error}).") : decoder;
     }
 
     public static unsafe int OpusDecode(IntPtr decoder, ReadOnlySpan<byte> opus, int frameSize, Span<byte> pcm, bool useFec)
     {
-        var len = 0;
+        int len = 0;
 
         fixed (byte* opusPtr = &opus.GetPinnableReference())
         fixed (byte* pcmPtr = &pcm.GetPinnableReference())
+        {
             len = _OpusDecode(decoder, opusPtr, opus.Length, pcmPtr, frameSize, useFec ? 1 : 0);
+        }
 
         if (len < 0)
         {
-            var error = (OpusError)len;
+            OpusError error = (OpusError)len;
             throw new Exception($"Could not decode PCM data from Opus: {error} ({(int)error}).");
         }
 
@@ -199,14 +209,16 @@ internal static class Interop
 
     public static unsafe int OpusDecode(IntPtr decoder, int frameSize, Span<byte> pcm)
     {
-        var len = 0;
+        int len = 0;
 
         fixed (byte* pcmPtr = &pcm.GetPinnableReference())
+        {
             len = _OpusDecode(decoder, null, 0, pcmPtr, frameSize, 1);
+        }
 
         if (len < 0)
         {
-            var error = (OpusError)len;
+            OpusError error = (OpusError)len;
             throw new Exception($"Could not decode PCM data from Opus: {error} ({(int)error}).");
         }
 

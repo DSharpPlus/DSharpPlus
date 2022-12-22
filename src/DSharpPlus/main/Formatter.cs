@@ -47,7 +47,7 @@ public static class Formatter
     /// <returns></returns>
     public static string Colorize(string text, params AnsiColor[] styles)
     {
-        var joined = styles.Select(s => ((int)s).ToString()).Aggregate((a, b) => $"{a};{b}");
+        string joined = styles.Select(s => ((int)s).ToString()).Aggregate((a, b) => $"{a};{b}");
 
         return $"{AnsiEscapeStarter}{joined}m{text}{AnsiEscapeStarter}{(int)AnsiColor.Reset}m";
     }

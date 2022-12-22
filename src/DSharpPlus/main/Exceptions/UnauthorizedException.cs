@@ -34,15 +34,17 @@ public class UnauthorizedException : DiscordException
 {
     internal UnauthorizedException(BaseRestRequest request, RestResponse response) : base("Unauthorized: " + response.ResponseCode)
     {
-        this.WebRequest = request;
-        this.WebResponse = response;
+        WebRequest = request;
+        WebResponse = response;
 
         try
         {
-            var j = JObject.Parse(response.Response);
+            JObject j = JObject.Parse(response.Response);
 
             if (j["message"] != null)
-                this.JsonMessage = j["message"].ToString();
+            {
+                JsonMessage = j["message"].ToString();
+            }
         }
         catch (Exception) { }
     }

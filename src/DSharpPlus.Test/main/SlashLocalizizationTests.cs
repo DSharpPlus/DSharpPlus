@@ -55,10 +55,11 @@ public class SlashLocalizizationTests : ApplicationCommandModule
         string argument = null
     )
     {
-        var locale = ctx.Interaction.Locale is null ? Localization.AmericanEnglish : LocaleHelper.StringsToLocale[ctx.Interaction.Locale];
+        Localization locale = ctx.Interaction.Locale is null ? Localization.AmericanEnglish : LocaleHelper.StringsToLocale[ctx.Interaction.Locale];
 
         await ctx.CreateResponseAsync(
-            locale switch {
+            locale switch
+            {
                 Localization.German => "Du hast die Sache gemacht!",
                 Localization.French => "Vous avez fait la chose!",
                 Localization.Spanish => "Has hecho la cosa!",

@@ -43,10 +43,13 @@ public static class ClientExtensions
     /// <exception cref="InvalidOperationException">Thrown if interactivity has already been enabled for the client instance.</exception>
     public static InteractivityExtension UseInteractivity(this DiscordClient client, InteractivityConfiguration configuration = null)
     {
-        if (client.GetExtension<InteractivityExtension>() != null) throw new InvalidOperationException($"Interactivity is already enabled for this {(client._isShard ? "shard" : "client")}.");
+        if (client.GetExtension<InteractivityExtension>() != null)
+        {
+            throw new InvalidOperationException($"Interactivity is already enabled for this {(client._isShard ? "shard" : "client")}.");
+        }
 
         configuration ??= new InteractivityConfiguration();
-        var extension = new InteractivityExtension(configuration);
+        InteractivityExtension extension = new InteractivityExtension(configuration);
         client.AddExtension(extension);
 
         return extension;
@@ -60,12 +63,12 @@ public static class ClientExtensions
     /// <returns>A dictionary containing new <see cref="InteractivityExtension"/> instances for each shard.</returns>
     public static async Task<IReadOnlyDictionary<int, InteractivityExtension>> UseInteractivityAsync(this DiscordShardedClient client, InteractivityConfiguration configuration = null)
     {
-        var extensions = new Dictionary<int, InteractivityExtension>();
+        Dictionary<int, InteractivityExtension> extensions = new Dictionary<int, InteractivityExtension>();
         await client.InitializeShardsAsync().ConfigureAwait(false);
 
-        foreach (var shard in client.ShardClients.Select(xkvp => xkvp.Value))
+        foreach (DiscordClient? shard in client.ShardClients.Select(xkvp => xkvp.Value))
         {
-            var extension = shard.GetExtension<InteractivityExtension>() ?? shard.UseInteractivity(configuration);
+            InteractivityExtension extension = shard.GetExtension<InteractivityExtension>() ?? shard.UseInteractivity(configuration);
             extensions.Add(shard.ShardId, extension);
         }
 
@@ -88,9 +91,9 @@ public static class ClientExtensions
     public static async Task<ReadOnlyDictionary<int, InteractivityExtension>> GetInteractivityAsync(this DiscordShardedClient client)
     {
         await client.InitializeShardsAsync().ConfigureAwait(false);
-        var extensions = new Dictionary<int, InteractivityExtension>();
+        Dictionary<int, InteractivityExtension> extensions = new Dictionary<int, InteractivityExtension>();
 
-        foreach (var shard in client.ShardClients.Select(xkvp => xkvp.Value))
+        foreach (DiscordClient? shard in client.ShardClients.Select(xkvp => xkvp.Value))
         {
             extensions.Add(shard.ShardId, shard.GetExtension<InteractivityExtension>());
         }

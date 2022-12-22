@@ -40,7 +40,9 @@ internal sealed class Rtp : IDisposable
     public void EncodeHeader(ushort sequence, uint timestamp, uint ssrc, Span<byte> target)
     {
         if (target.Length < HeaderSize)
+        {
             throw new ArgumentException("Header buffer is too short.", nameof(target));
+        }
 
         target[0] = RtpNoExtension;
         target[1] = RtpVersion;
@@ -53,19 +55,20 @@ internal sealed class Rtp : IDisposable
 
     public bool IsRtpHeader(ReadOnlySpan<byte> source)
     {
-        if (source.Length < HeaderSize)
-            return false;
-
-        return (source[0] == RtpNoExtension || source[0] == RtpExtension) && source[1] == RtpVersion;
+        return source.Length < HeaderSize ? false : (source[0] == RtpNoExtension || source[0] == RtpExtension) && source[1] == RtpVersion;
     }
 
     public void DecodeHeader(ReadOnlySpan<byte> source, out ushort sequence, out uint timestamp, out uint ssrc, out bool hasExtension)
     {
         if (source.Length < HeaderSize)
+        {
             throw new ArgumentException("Header buffer is too short.", nameof(source));
+        }
 
         if ((source[0] != RtpNoExtension && source[0] != RtpExtension) || source[1] != RtpVersion)
+        {
             throw new ArgumentException("Invalid RTP header.", nameof(source));
+        }
 
         hasExtension = source[0] == RtpExtension;
 
@@ -75,16 +78,13 @@ internal sealed class Rtp : IDisposable
         ssrc = BinaryPrimitives.ReadUInt32BigEndian(source.Slice(8));
     }
 
-    public int CalculatePacketSize(int encryptedLength, EncryptionMode encryptionMode)
+    public int CalculatePacketSize(int encryptedLength, EncryptionMode encryptionMode) => encryptionMode switch
     {
-        return encryptionMode switch
-        {
-            EncryptionMode.XSalsa20_Poly1305 => HeaderSize + encryptedLength,
-            EncryptionMode.XSalsa20_Poly1305_Suffix => HeaderSize + encryptedLength + Interop.SodiumNonceSize,
-            EncryptionMode.XSalsa20_Poly1305_Lite => HeaderSize + encryptedLength + 4,
-            _ => throw new ArgumentException("Unsupported encryption mode.", nameof(encryptionMode)),
-        };
-    }
+        EncryptionMode.XSalsa20_Poly1305 => HeaderSize + encryptedLength,
+        EncryptionMode.XSalsa20_Poly1305_Suffix => HeaderSize + encryptedLength + Interop.SodiumNonceSize,
+        EncryptionMode.XSalsa20_Poly1305_Lite => HeaderSize + encryptedLength + 4,
+        _ => throw new ArgumentException("Unsupported encryption mode.", nameof(encryptionMode)),
+    };
 
     public void GetDataFromPacket(ReadOnlySpan<byte> packet, out ReadOnlySpan<byte> data, EncryptionMode encryptionMode)
     {

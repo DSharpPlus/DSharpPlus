@@ -47,7 +47,7 @@ public struct CommandHelpMessage
     /// <param name="embed">Embed to attach to the message.</param>
     public CommandHelpMessage(string? content = null, DiscordEmbed? embed = null)
     {
-        this.Content = content;
-        this.Embed = embed;
+        Content = content;
+        Embed = embed;
     }
 }

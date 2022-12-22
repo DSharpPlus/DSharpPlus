@@ -36,9 +36,9 @@ public class InteractivityTest : BaseCommandModule
     {
         await ctx.RespondAsync(":warning: This is a test method, and will test interactivity methods. Please be ready to click. :warning:");
 
-        var one = await ctx.RespondAsync(m => m.WithContent("**Button**: 1/6")
+        DiscordMessage one = await ctx.RespondAsync(m => m.WithContent("**Button**: 1/6")
             .AddComponents(new DiscordButtonComponent(ButtonStyle.Primary, "button-one", "Push me")));
-        var buttonRes = await one.WaitForButtonAsync();
+        Interactivity.InteractivityResult<EventArgs.ComponentInteractionCreateEventArgs> buttonRes = await one.WaitForButtonAsync();
 
         if (!buttonRes.TimedOut)
         {
@@ -50,7 +50,7 @@ public class InteractivityTest : BaseCommandModule
             await one.ModifyAsync("❎ WaitForButtonAsync() failed");
         }
 
-        var two = await ctx.RespondAsync(m => m.WithContent("**Button**: 2/6")
+        DiscordMessage two = await ctx.RespondAsync(m => m.WithContent("**Button**: 2/6")
             .AddComponents(new DiscordButtonComponent(ButtonStyle.Primary, "button-two", "Push me")));
 
         buttonRes = await two.WaitForButtonAsync(ctx.User);
@@ -65,7 +65,7 @@ public class InteractivityTest : BaseCommandModule
             await two.ModifyAsync("❎ WaitForButtonAsync(DiscordUser) failed");
         }
 
-        var three = await ctx.RespondAsync(m => m.WithContent("**Button**: 3/6")
+        DiscordMessage three = await ctx.RespondAsync(m => m.WithContent("**Button**: 3/6")
             .AddComponents(new DiscordButtonComponent(ButtonStyle.Primary, "button-three", "Push me")));
 
         buttonRes = await three.WaitForButtonAsync(b => b.User == ctx.User, null);
@@ -81,7 +81,7 @@ public class InteractivityTest : BaseCommandModule
         }
 
 
-        var four = await ctx.RespondAsync(m => m.WithContent("**Button**: 4/6")
+        DiscordMessage four = await ctx.RespondAsync(m => m.WithContent("**Button**: 4/6")
             .AddComponents(new DiscordButtonComponent(ButtonStyle.Primary, "button-four", "Push me")));
 
         buttonRes = await four.WaitForButtonAsync("button-four");
@@ -97,7 +97,7 @@ public class InteractivityTest : BaseCommandModule
         }
 
 
-        var five = await ctx.RespondAsync(m => m.WithContent("**Button**: 5/6")
+        DiscordMessage five = await ctx.RespondAsync(m => m.WithContent("**Button**: 5/6")
             .AddComponents(new DiscordButtonComponent(ButtonStyle.Primary, "button-five", "Push me")));
 
         buttonRes = await ctx.Client.GetInteractivity().WaitForButtonAsync(five, new[] { new DiscordButtonComponent(ButtonStyle.Primary, "button-five", "Push me") }, null);
@@ -113,13 +113,13 @@ public class InteractivityTest : BaseCommandModule
         }
 
 
-        var six = await ctx.RespondAsync(m => m.WithContent("**Button**: 6/6")
+        DiscordMessage six = await ctx.RespondAsync(m => m.WithContent("**Button**: 6/6")
             .AddComponents(new DiscordButtonComponent(ButtonStyle.Primary, "button-six", "Push me")));
-        var seven = await  ctx.RespondAsync(m => m.WithContent("**Button**: 6/6")
+        DiscordMessage seven = await ctx.RespondAsync(m => m.WithContent("**Button**: 6/6")
             .AddComponents(new DiscordButtonComponent(ButtonStyle.Primary, "button-six", "Push me too")));
 
         buttonRes = await six.WaitForButtonAsync();
-        var buttonRes2 = await seven.WaitForButtonAsync();
+        Interactivity.InteractivityResult<EventArgs.ComponentInteractionCreateEventArgs> buttonRes2 = await seven.WaitForButtonAsync();
 
         if (!buttonRes.TimedOut && !buttonRes2.TimedOut)
         {

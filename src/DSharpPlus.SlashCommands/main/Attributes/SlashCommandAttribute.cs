@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace DSharpPlus.SlashCommands;
 
@@ -31,8 +31,8 @@ public sealed class SlashCommandAttribute : Attribute
     /// <param name="defaultPermission">Sets whether the command should be enabled by default.</param>
     public SlashCommandAttribute(string name, string description, bool defaultPermission = true)
     {
-        this.Name = name.ToLower();
-        this.Description = description;
-        this.DefaultPermission = defaultPermission;
+        Name = name.ToLower();
+        Description = description;
+        DefaultPermission = defaultPermission;
     }
 }

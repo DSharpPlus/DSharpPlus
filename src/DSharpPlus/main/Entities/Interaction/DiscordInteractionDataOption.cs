@@ -58,18 +58,18 @@ public sealed class DiscordInteractionDataOption
     /// <para>This can be cast to a <see langword="long"/>, <see langword="bool"></see>, <see langword="string"></see>, <see langword="double"></see> or <see langword="ulong"/> depending on the <see cref="Type"/></para>
     /// </summary>
     [JsonIgnore]
-    public object Value => this.Type switch
+    public object Value => Type switch
     {
-        ApplicationCommandOptionType.Boolean => bool.Parse(this.InternalValue),
-        ApplicationCommandOptionType.Integer => long.Parse(this.InternalValue),
-        ApplicationCommandOptionType.String => this.InternalValue,
-        ApplicationCommandOptionType.Channel => ulong.Parse(this.InternalValue),
-        ApplicationCommandOptionType.User => ulong.Parse(this.InternalValue),
-        ApplicationCommandOptionType.Role => ulong.Parse(this.InternalValue),
-        ApplicationCommandOptionType.Mentionable => ulong.Parse(this.InternalValue),
-        ApplicationCommandOptionType.Number => double.Parse(this.InternalValue, CultureInfo.InvariantCulture),
-        ApplicationCommandOptionType.Attachment => ulong.Parse(this.InternalValue, CultureInfo.InvariantCulture),
-        _ => this.InternalValue,
+        ApplicationCommandOptionType.Boolean => bool.Parse(InternalValue),
+        ApplicationCommandOptionType.Integer => long.Parse(InternalValue),
+        ApplicationCommandOptionType.String => InternalValue,
+        ApplicationCommandOptionType.Channel => ulong.Parse(InternalValue),
+        ApplicationCommandOptionType.User => ulong.Parse(InternalValue),
+        ApplicationCommandOptionType.Role => ulong.Parse(InternalValue),
+        ApplicationCommandOptionType.Mentionable => ulong.Parse(InternalValue),
+        ApplicationCommandOptionType.Number => double.Parse(InternalValue, CultureInfo.InvariantCulture),
+        ApplicationCommandOptionType.Attachment => ulong.Parse(InternalValue, CultureInfo.InvariantCulture),
+        _ => InternalValue,
     };
 
     /// <summary>

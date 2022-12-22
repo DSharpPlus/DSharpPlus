@@ -32,11 +32,11 @@ public class DiscordMessageFile
 {
     internal DiscordMessageFile(string fileName, Stream stream, long? resetPositionTo, string fileType = null, string contentType = null)
     {
-        this.FileName = fileName ?? "file";
-        this.FileType = fileType;
-        this.ContentType = contentType;
-        this.Stream = stream;
-        this.ResetPositionTo = resetPositionTo;
+        FileName = fileName ?? "file";
+        FileType = fileType;
+        ContentType = contentType;
+        Stream = stream;
+        ResetPositionTo = resetPositionTo;
     }
 
     /// <summary>

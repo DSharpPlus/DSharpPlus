@@ -61,7 +61,7 @@ public class SessionBucket
 
 #pragma warning disable CS0114
     public override string ToString()
-        => $"[{this.Remaining}/{this.Total}] {this.ResetAfter}. {this.MaxConcurrency}x concurrency";
+        => $"[{Remaining}/{Total}] {ResetAfter}. {MaxConcurrency}x concurrency";
 
 #pragma warning restore CS0114
 }

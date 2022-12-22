@@ -38,7 +38,7 @@ public enum ButtonStyle : int
     /// <summary>
     /// Green button.
     /// </summary>
-    Success  = 3,
+    Success = 3,
     /// <summary>
     /// Red button.
     /// </summary>

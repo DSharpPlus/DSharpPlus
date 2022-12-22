@@ -91,23 +91,23 @@ public sealed class LavalinkConfiguration
     /// <param name="other">Configuration the properties of which are to be copied.</param>
     public LavalinkConfiguration(LavalinkConfiguration other)
     {
-        this.RestEndpoint = new ConnectionEndpoint
+        RestEndpoint = new ConnectionEndpoint
         {
             Hostname = other.RestEndpoint.Hostname,
             Port = other.RestEndpoint.Port,
             Secured = other.RestEndpoint.Secured
         };
-        this.SocketEndpoint = new ConnectionEndpoint
+        SocketEndpoint = new ConnectionEndpoint
         {
             Hostname = other.SocketEndpoint.Hostname,
             Port = other.SocketEndpoint.Port,
             Secured = other.SocketEndpoint.Secured
         };
-        this.Password = other.Password;
-        this.ResumeKey = other.ResumeKey;
-        this.ResumeTimeout = other.ResumeTimeout;
-        this.SocketAutoReconnect = other.SocketAutoReconnect;
-        this.Region = other.Region;
-        this.WebSocketCloseTimeout = other.WebSocketCloseTimeout;
+        Password = other.Password;
+        ResumeKey = other.ResumeKey;
+        ResumeTimeout = other.ResumeTimeout;
+        SocketAutoReconnect = other.SocketAutoReconnect;
+        Region = other.Region;
+        WebSocketCloseTimeout = other.WebSocketCloseTimeout;
     }
 }

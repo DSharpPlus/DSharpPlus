@@ -37,7 +37,7 @@ public sealed class DiscordChannelSelectComponent : BaseDiscordSelectComponent
     /// <returns>The current component.</returns>
     public DiscordChannelSelectComponent Enable()
     {
-        this.Disabled = false;
+        Disabled = false;
         return this;
     }
 
@@ -47,14 +47,11 @@ public sealed class DiscordChannelSelectComponent : BaseDiscordSelectComponent
     /// <returns>The current component.</returns>
     public DiscordChannelSelectComponent Disable()
     {
-        this.Disabled = true;
+        Disabled = true;
         return this;
     }
 
-    internal DiscordChannelSelectComponent()
-    {
-        this.Type = ComponentType.ChannelSelect;
-    }
+    internal DiscordChannelSelectComponent() => Type = ComponentType.ChannelSelect;
 
     /// <summary>
     /// Creates a new channel select component.
@@ -67,11 +64,11 @@ public sealed class DiscordChannelSelectComponent : BaseDiscordSelectComponent
     /// <param name="maxOptions">The maximum amount of options to be selected, up to 25.</param>
     public DiscordChannelSelectComponent(string customId, string placeholder, IEnumerable<ChannelType>? channelTypes = null, bool disabled = false, int minOptions = 1, int maxOptions = 1) : this()
     {
-        this.CustomId = customId;
-        this.Placeholder = placeholder;
-        this.ChannelTypes = channelTypes?.ToList();
-        this.Disabled = disabled;
-        this.MinimumSelectedValues = minOptions;
-        this.MaximumSelectedValues = maxOptions;
+        CustomId = customId;
+        Placeholder = placeholder;
+        ChannelTypes = channelTypes?.ToList();
+        Disabled = disabled;
+        MinimumSelectedValues = minOptions;
+        MaximumSelectedValues = maxOptions;
     }
 }

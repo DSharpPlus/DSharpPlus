@@ -40,8 +40,5 @@ public sealed class DescriptionAttribute : Attribute
     /// Gives this command, group, or argument a description, which is used when listing help.
     /// </summary>
     /// <param name="description"></param>
-    public DescriptionAttribute(string description)
-    {
-        this.Description = description;
-    }
+    public DescriptionAttribute(string description) => Description = description;
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace DSharpPlus.SlashCommands;
 
@@ -32,11 +32,17 @@ public sealed class OptionAttribute : Attribute
     public OptionAttribute(string name, string description, bool autocomplete = false)
     {
         if (name.Length > 32)
+        {
             throw new ArgumentException("Slash command option names cannot go over 32 characters.");
+        }
+
         if (description.Length > 100)
+        {
             throw new ArgumentException("Slash command option descriptions cannot go over 100 characters.");
-        this.Name = name.ToLower();
-        this.Description = description;
-        this.Autocomplete = autocomplete;
+        }
+
+        Name = name.ToLower();
+        Description = description;
+        Autocomplete = autocomplete;
     }
 }

@@ -34,7 +34,7 @@ namespace DSharpPlus.Interactivity.EventHandling
     {
         private TaskCompletionSource<bool> _tcs;
         private readonly CancellationTokenSource _ct;
-        private TimeSpan _timeout;
+        private readonly TimeSpan _timeout;
         private readonly List<Page> _pages;
         private readonly PaginationBehaviour _behaviour;
         private readonly DiscordMessage _message;
@@ -55,26 +55,26 @@ namespace DSharpPlus.Interactivity.EventHandling
         internal PaginationRequest(DiscordMessage message, DiscordUser user, PaginationBehaviour behaviour, PaginationDeletion deletion,
             PaginationEmojis emojis, TimeSpan timeout, params Page[] pages)
         {
-            this._tcs = new();
-            this._ct = new(timeout);
-            this._ct.Token.Register(() => this._tcs.TrySetResult(true));
-            this._timeout = timeout;
+            _tcs = new();
+            _ct = new(timeout);
+            _ct.Token.Register(() => _tcs.TrySetResult(true));
+            _timeout = timeout;
 
-            this._message = message;
-            this._user = user;
+            _message = message;
+            _user = user;
 
-            this.PaginationDeletion = deletion;
-            this._behaviour = behaviour;
-            this._emojis = emojis;
+            PaginationDeletion = deletion;
+            _behaviour = behaviour;
+            _emojis = emojis;
 
-            this._pages = new List<Page>();
-            foreach (var p in pages)
+            _pages = new List<Page>();
+            foreach (Page p in pages)
             {
-                this._pages.Add(p);
+                _pages.Add(p);
             }
         }
 
-        public int PageCount => this._pages.Count;
+        public int PageCount => _pages.Count;
 
         public PaginationDeletion PaginationDeletion { get; }
 
@@ -82,42 +82,50 @@ namespace DSharpPlus.Interactivity.EventHandling
         {
             await Task.Yield();
 
-            return this._pages[this._index];
+            return _pages[_index];
         }
 
         public async Task SkipLeftAsync()
         {
             await Task.Yield();
 
-            this._index = 0;
+            _index = 0;
         }
 
         public async Task SkipRightAsync()
         {
             await Task.Yield();
 
-            this._index = this._pages.Count - 1;
+            _index = _pages.Count - 1;
         }
 
         public async Task NextPageAsync()
         {
             await Task.Yield();
 
-            switch (this._behaviour)
+            switch (_behaviour)
             {
                 case PaginationBehaviour.Ignore:
-                    if (this._index == this._pages.Count - 1)
+                    if (_index == _pages.Count - 1)
+                    {
                         break;
+                    }
                     else
-                        this._index++;
+                    {
+                        _index++;
+                    }
 
                     break;
 
                 case PaginationBehaviour.WrapAround:
-                    if (this._index == this._pages.Count - 1)
-                        this._index = 0;
+                    if (_index == _pages.Count - 1)
+                    {
+                        _index = 0;
+                    }
                     else
-                        this._index++;
+                    {
+                        _index++;
+                    }
 
                     break;
             }
@@ -127,21 +135,29 @@ namespace DSharpPlus.Interactivity.EventHandling
         {
             await Task.Yield();
 
-            switch (this._behaviour)
+            switch (_behaviour)
             {
                 case PaginationBehaviour.Ignore:
-                    if (this._index == 0)
+                    if (_index == 0)
+                    {
                         break;
+                    }
                     else
-                        this._index--;
+                    {
+                        _index--;
+                    }
 
                     break;
 
                 case PaginationBehaviour.WrapAround:
-                    if (this._index == 0)
-                        this._index = this._pages.Count - 1;
+                    if (_index == 0)
+                    {
+                        _index = _pages.Count - 1;
+                    }
                     else
-                        this._index--;
+                    {
+                        _index--;
+                    }
 
                     break;
             }
@@ -151,7 +167,7 @@ namespace DSharpPlus.Interactivity.EventHandling
         {
             await Task.Yield();
 
-            return this._emojis;
+            return _emojis;
         }
 
         public Task<IEnumerable<DiscordButtonComponent>> GetButtonsAsync()
@@ -161,26 +177,26 @@ namespace DSharpPlus.Interactivity.EventHandling
         {
             await Task.Yield();
 
-            return this._message;
+            return _message;
         }
 
         public async Task<DiscordUser> GetUserAsync()
         {
             await Task.Yield();
 
-            return this._user;
+            return _user;
         }
 
         public async Task DoCleanupAsync()
         {
-            switch (this.PaginationDeletion)
+            switch (PaginationDeletion)
             {
                 case PaginationDeletion.DeleteEmojis:
-                    await this._message.DeleteAllReactionsAsync().ConfigureAwait(false);
+                    await _message.DeleteAllReactionsAsync().ConfigureAwait(false);
                     break;
 
                 case PaginationDeletion.DeleteMessage:
-                    await this._message.DeleteAsync().ConfigureAwait(false);
+                    await _message.DeleteAsync().ConfigureAwait(false);
                     break;
 
                 case PaginationDeletion.KeepEmojis:
@@ -192,12 +208,12 @@ namespace DSharpPlus.Interactivity.EventHandling
         {
             await Task.Yield();
 
-            return this._tcs;
+            return _tcs;
         }
 
         ~PaginationRequest()
         {
-            this.Dispose();
+            Dispose();
         }
 
         /// <summary>
@@ -205,8 +221,8 @@ namespace DSharpPlus.Interactivity.EventHandling
         /// </summary>
         public void Dispose()
         {
-            this._ct.Dispose();
-            this._tcs = null;
+            _ct.Dispose();
+            _tcs = null;
         }
     }
 }
@@ -223,11 +239,11 @@ namespace DSharpPlus.Interactivity
 
         public PaginationEmojis()
         {
-            this.Left = DiscordEmoji.FromUnicode("◀");
-            this.Right = DiscordEmoji.FromUnicode("▶");
-            this.SkipLeft = DiscordEmoji.FromUnicode("⏮");
-            this.SkipRight = DiscordEmoji.FromUnicode("⏭");
-            this.Stop = DiscordEmoji.FromUnicode("⏹");
+            Left = DiscordEmoji.FromUnicode("◀");
+            Right = DiscordEmoji.FromUnicode("▶");
+            SkipLeft = DiscordEmoji.FromUnicode("⏮");
+            SkipRight = DiscordEmoji.FromUnicode("⏭");
+            Stop = DiscordEmoji.FromUnicode("⏹");
         }
     }
 
@@ -238,8 +254,8 @@ namespace DSharpPlus.Interactivity
 
         public Page(string content = "", DiscordEmbedBuilder embed = null)
         {
-            this.Content = content;
-            this.Embed = embed?.Build();
+            Content = content;
+            Embed = embed?.Build();
         }
     }
 }

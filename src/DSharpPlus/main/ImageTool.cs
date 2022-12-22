@@ -59,16 +59,20 @@ public sealed class ImageTool : IDisposable
     public ImageTool(Stream stream)
     {
         if (stream == null)
+        {
             throw new ArgumentNullException(nameof(stream));
+        }
 
         if (!stream.CanRead || !stream.CanSeek)
+        {
             throw new ArgumentException("The stream needs to be both readable and seekable.", nameof(stream));
+        }
 
-        this.SourceStream = stream;
-        this.SourceStream.Seek(0, SeekOrigin.Begin);
+        SourceStream = stream;
+        SourceStream.Seek(0, SeekOrigin.Begin);
 
-        this._ifcache = 0;
-        this._b64cache = null;
+        _ifcache = 0;
+        _b64cache = null;
     }
 
     /// <summary>
@@ -77,29 +81,39 @@ public sealed class ImageTool : IDisposable
     /// <returns>Detected format.</returns>
     public ImageFormat GetFormat()
     {
-        if (this._ifcache != ImageFormat.Unknown)
-            return this._ifcache;
-
-        using (var br = new BinaryReader(this.SourceStream, Utilities.UTF8, true))
+        if (_ifcache != ImageFormat.Unknown)
         {
-            var bgn64 = br.ReadUInt64();
+            return _ifcache;
+        }
+
+        using (BinaryReader br = new BinaryReader(SourceStream, Utilities.UTF8, true))
+        {
+            ulong bgn64 = br.ReadUInt64();
             if (bgn64 == PNG_MAGIC)
-                return this._ifcache = ImageFormat.Png;
+            {
+                return _ifcache = ImageFormat.Png;
+            }
 
             bgn64 &= GIF_MASK;
             if (bgn64 == GIF_MAGIC_1 || bgn64 == GIF_MAGIC_2)
-                return this._ifcache = ImageFormat.Gif;
+            {
+                return _ifcache = ImageFormat.Gif;
+            }
 
-            var bgn32 = (uint)(bgn64 & MASK32);
+            uint bgn32 = (uint)(bgn64 & MASK32);
             if (bgn32 == WEBP_MAGIC_1 && br.ReadUInt32() == WEBP_MAGIC_2)
-                return this._ifcache = ImageFormat.WebP;
+            {
+                return _ifcache = ImageFormat.WebP;
+            }
 
-            var bgn16 = (ushort)(bgn32 & MASK16);
+            ushort bgn16 = (ushort)(bgn32 & MASK16);
             if (bgn16 == JPEG_MAGIC_1)
             {
-                this.SourceStream.Seek(-2, SeekOrigin.End);
+                SourceStream.Seek(-2, SeekOrigin.End);
                 if (br.ReadUInt16() == JPEG_MAGIC_2)
-                    return this._ifcache = ImageFormat.Jpeg;
+                {
+                    return _ifcache = ImageFormat.Jpeg;
+                }
             }
         }
 
@@ -112,35 +126,35 @@ public sealed class ImageTool : IDisposable
     /// <returns>Data-scheme base64 string.</returns>
     public string GetBase64()
     {
-        if (this._b64cache != null)
-            return this._b64cache;
+        if (_b64cache != null)
+        {
+            return _b64cache;
+        }
 
-        var fmt = this.GetFormat();
-        var sb = new StringBuilder();
+        ImageFormat fmt = GetFormat();
+        StringBuilder sb = new StringBuilder();
 
         sb.Append("data:image/")
             .Append(fmt.ToString().ToLowerInvariant())
             .Append(";base64,");
 
-        this.SourceStream.Seek(0, SeekOrigin.Begin);
-        var buff = new byte[this.SourceStream.Length];
-        var br = 0;
+        SourceStream.Seek(0, SeekOrigin.Begin);
+        byte[] buff = new byte[SourceStream.Length];
+        int br = 0;
         while (br < buff.Length)
-            br += this.SourceStream.Read(buff, br, (int)this.SourceStream.Length - br);
+        {
+            br += SourceStream.Read(buff, br, (int)SourceStream.Length - br);
+        }
 
         sb.Append(Convert.ToBase64String(buff));
 
-        return this._b64cache = sb.ToString();
+        return _b64cache = sb.ToString();
     }
 
     /// <summary>
     /// Disposes this image tool.
     /// </summary>
-    public void Dispose()
-    {
-        if (this.SourceStream != null)
-            this.SourceStream.Dispose();
-    }
+    public void Dispose() => SourceStream?.Dispose();
 }
 
 /// <summary>

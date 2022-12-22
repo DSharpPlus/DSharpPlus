@@ -23,7 +23,7 @@ public sealed record InternalEmbed
     /// </summary>
     [JsonPropertyName("type")]
 #pragma warning disable CS0618 // Type or member is obsolete
-    public Optional<DiscordEmbedType> Type { get; init; } 
+    public Optional<DiscordEmbedType> Type { get; init; }
 #pragma warning restore CS0618 // Type or member is obsolete
 
     /// <summary>

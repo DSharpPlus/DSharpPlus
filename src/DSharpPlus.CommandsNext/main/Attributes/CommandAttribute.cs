@@ -40,10 +40,7 @@ public sealed class CommandAttribute : Attribute
     /// <summary>
     /// Marks this method as a command, using the method's name as command name.
     /// </summary>
-    public CommandAttribute()
-    {
-        this.Name = null;
-    }
+    public CommandAttribute() => Name = null;
 
     /// <summary>
     /// Marks this method as a command with specified name.
@@ -52,12 +49,16 @@ public sealed class CommandAttribute : Attribute
     public CommandAttribute(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
+        {
             throw new ArgumentNullException(nameof(name), "Command names cannot be null, empty, or all-whitespace.");
+        }
 
         if (name.Any(xc => char.IsWhiteSpace(xc)))
+        {
             throw new ArgumentException("Command names cannot contain whitespace characters.", nameof(name));
+        }
 
-        this.Name = name;
+        Name = name;
     }
 }
 

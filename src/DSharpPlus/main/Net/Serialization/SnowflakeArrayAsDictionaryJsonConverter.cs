@@ -50,23 +50,23 @@ internal class SnowflakeArrayAsDictionaryJsonConverter : JsonConverter
         }
         else
         {
-            var type = value.GetType().GetTypeInfo();
+            TypeInfo type = value.GetType().GetTypeInfo();
             JToken.FromObject(type.GetDeclaredProperty("Values").GetValue(value)).WriteTo(writer);
         }
     }
 
     public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
     {
-        var constructor = objectType.GetTypeInfo().DeclaredConstructors
+        ConstructorInfo? constructor = objectType.GetTypeInfo().DeclaredConstructors
             .FirstOrDefault(e => !e.IsStatic && e.GetParameters().Length == 0);
 
-        var dict = constructor.Invoke(new object[] {});
+        object dict = constructor.Invoke(new object[] { });
 
         // the default name of an indexer is "Item"
-        var properties = objectType.GetTypeInfo().GetDeclaredProperty("Item");
+        PropertyInfo? properties = objectType.GetTypeInfo().GetDeclaredProperty("Item");
 
-        var entries = (IEnumerable) serializer.Deserialize(reader, objectType.GenericTypeArguments[1].MakeArrayType());
-        foreach (var entry in entries)
+        IEnumerable? entries = (IEnumerable)serializer.Deserialize(reader, objectType.GenericTypeArguments[1].MakeArrayType());
+        foreach (object? entry in entries)
         {
             properties.SetValue(dict, entry, new object[]
             {
@@ -81,11 +81,18 @@ internal class SnowflakeArrayAsDictionaryJsonConverter : JsonConverter
 
     public override bool CanConvert(Type objectType)
     {
-        var genericTypedef = objectType.GetGenericTypeDefinition();
-        if (genericTypedef != typeof(Dictionary<,>) && genericTypedef != typeof(ConcurrentDictionary<,>)) return false;
-        if (objectType.GenericTypeArguments[0] != typeof(ulong)) return false;
+        Type genericTypedef = objectType.GetGenericTypeDefinition();
+        if (genericTypedef != typeof(Dictionary<,>) && genericTypedef != typeof(ConcurrentDictionary<,>))
+        {
+            return false;
+        }
 
-        var valueParam = objectType.GenericTypeArguments[1];
+        if (objectType.GenericTypeArguments[0] != typeof(ulong))
+        {
+            return false;
+        }
+
+        Type valueParam = objectType.GenericTypeArguments[1];
         return typeof(SnowflakeObject).GetTypeInfo().IsAssignableFrom(valueParam.GetTypeInfo()) ||
                valueParam == typeof(DiscordVoiceState);
     }

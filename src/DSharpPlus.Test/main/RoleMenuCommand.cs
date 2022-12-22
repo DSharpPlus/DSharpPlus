@@ -15,48 +15,61 @@ public class RoleMenuCommand : BaseCommandModule
     [Command("role_menu")]
     public async Task RoleMenuAsync(CommandContext ctx, string message, string emojis, [RemainingText] params DiscordRole[] roles)
     {
-        var converter = (IArgumentConverter<DiscordEmoji>)new DiscordEmojiConverter();
-        var split = emojis.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        var emojiArray = new DiscordEmoji[roles.Length];
+        IArgumentConverter<DiscordEmoji> converter = (IArgumentConverter<DiscordEmoji>)new DiscordEmojiConverter();
+        string[] split = emojis.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        DiscordEmoji[] emojiArray = new DiscordEmoji[roles.Length];
 
         if (split.Length < roles.Length)
+        {
             throw new ArgumentOutOfRangeException(nameof(emojis), "You don't have enough emojis!");
+        }
 
         if (roles.Length > 25)
-            throw new ArgumentOutOfRangeException(nameof(roles), "You can only have up to 25 roles per role menu!");
-
-        for (var i = 0; i < roles.Length; i++)
         {
-            var e = await converter.ConvertAsync(split[i], ctx);
+            throw new ArgumentOutOfRangeException(nameof(roles), "You can only have up to 25 roles per role menu!");
+        }
+
+        for (int i = 0; i < roles.Length; i++)
+        {
+            Optional<DiscordEmoji> e = await converter.ConvertAsync(split[i], ctx);
             if (!e.HasValue)
+            {
                 throw new ArgumentException($"I couldn't parse {split[i]}");
+            }
+
             emojiArray[i] = e.Value;
         }
 
-        var unavailable = emojiArray.Where(e => !e.IsAvailable && e.Id != 0);
+        IEnumerable<DiscordEmoji> unavailable = emojiArray.Where(e => !e.IsAvailable && e.Id != 0);
 
         if (unavailable.Any())
+        {
             throw new ArgumentException($"One or more emojis is from a server I'm not in!\nNames: {string.Join(", ", unavailable.Select(u => u.GetDiscordName()))}");
+        }
 
-        var buttons = new List<DiscordComponent>(5);
-        var chnk = roles.Zip(emojiArray).Chunk(5).OrderBy(l => l.Count).ToList();
+        List<DiscordComponent> buttons = new List<DiscordComponent>(5);
+        List<List<(DiscordRole First, DiscordEmoji Second)>> chnk = roles.Zip(emojiArray).Chunk(5).OrderBy(l => l.Count).ToList();
 
-        var builder = new DiscordMessageBuilder()
+        DiscordMessageBuilder builder = new DiscordMessageBuilder()
             .WithContent(message.Replace("\\n", "\n") + $"\n{string.Join('\n', chnk.SelectMany(c => c).Select(p => $"{p.Second} -> {p.First.Mention}"))}")
             .WithAllowedMentions(Mentions.None);
 
-        foreach (var chunklist in chnk)
+        foreach (List<(DiscordRole First, DiscordEmoji Second)>? chunklist in chnk)
         {
-            foreach (var (first, second) in chunklist)
+            foreach ((DiscordRole first, DiscordEmoji second) in chunklist)
             {
                 if (first.Position >= ctx.Guild.CurrentMember.Hierarchy)
+                {
                     throw new InvalidOperationException("Cannot assign role higher or equal to my own role!");
+                }
 
                 if (first.Position > ctx.Member.Hierarchy)
+                {
                     throw new InvalidOperationException("Cannot assign role higher than your own!");
+                }
 
-                var e = new DiscordComponentEmoji(second.Id);
-                var b = new DiscordButtonComponent(ButtonStyle.Success, $"{first.Mention}", "", emoji: e);
+                DiscordComponentEmoji e = new DiscordComponentEmoji(second.Id);
+                DiscordButtonComponent b = new DiscordButtonComponent(ButtonStyle.Success, $"{first.Mention}", "", emoji: e);
                 buttons.Add(b);
             }
             builder.AddComponents(buttons.ToArray());

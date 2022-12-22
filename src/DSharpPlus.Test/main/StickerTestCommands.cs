@@ -37,7 +37,7 @@ public class StickerTestCommands : BaseCommandModule
     [Command]
     public async Task CreateStickerAsync(CommandContext ctx)
     {
-        var mref = ctx.Message.ReferencedMessage;
+        DiscordMessage? mref = ctx.Message.ReferencedMessage;
 
         if (mref is null)
         {
@@ -51,7 +51,7 @@ public class StickerTestCommands : BaseCommandModule
             return;
         }
 
-        var ms = new MemoryStream(await _client.GetByteArrayAsync(mref.Attachments[0].Url));
+        MemoryStream ms = new MemoryStream(await _client.GetByteArrayAsync(mref.Attachments[0].Url));
 
         try
         {
@@ -73,7 +73,7 @@ public class StickerTestCommands : BaseCommandModule
             return;
         }
 
-        var str = ctx.Message.Stickers[0];
+        DiscordMessageSticker str = ctx.Message.Stickers[0];
 
         if (!ctx.Guild.Stickers.TryGetValue(str.Id, out _))
         {
@@ -81,7 +81,7 @@ public class StickerTestCommands : BaseCommandModule
             return;
         }
 
-        var builder = new DiscordMessageBuilder
+        DiscordMessageBuilder builder = new DiscordMessageBuilder
         {
             Sticker = str
         };

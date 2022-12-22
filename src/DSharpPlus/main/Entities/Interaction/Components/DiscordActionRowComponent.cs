@@ -36,19 +36,13 @@ public sealed class DiscordActionRowComponent : DiscordComponent
     /// </summary>
     public IReadOnlyCollection<DiscordComponent> Components
     {
-        get => this._components ?? new List<DiscordComponent>();
-        set => this._components = new List<DiscordComponent>(value);
+        get => _components ?? new List<DiscordComponent>();
+        set => _components = new List<DiscordComponent>(value);
     }
 
     [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
     private List<DiscordComponent> _components;
 
-    public DiscordActionRowComponent(IEnumerable<DiscordComponent> components) : this()
-    {
-        this.Components = components.ToList().AsReadOnly();
-    }
-    internal DiscordActionRowComponent()
-    {
-        this.Type = ComponentType.ActionRow;
-    } // For Json.NET
+    public DiscordActionRowComponent(IEnumerable<DiscordComponent> components) : this() => Components = components.ToList().AsReadOnly();
+    internal DiscordActionRowComponent() => Type = ComponentType.ActionRow; // For Json.NET
 }

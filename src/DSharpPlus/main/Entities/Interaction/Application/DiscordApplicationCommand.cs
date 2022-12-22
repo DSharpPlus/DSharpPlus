@@ -112,32 +112,44 @@ public sealed class DiscordApplicationCommand : SnowflakeObject, IEquatable<Disc
         if (type is ApplicationCommandType.SlashCommand)
         {
             if (!Utilities.IsValidSlashCommandName(name))
+            {
                 throw new ArgumentException("Invalid slash command name specified. It must be below 32 characters and not contain any whitespace.", nameof(name));
+            }
+
             if (name.Any(ch => char.IsUpper(ch)))
+            {
                 throw new ArgumentException("Slash command name cannot have any upper case characters.", nameof(name));
+            }
+
             if (description.Length > 100)
+            {
                 throw new ArgumentException("Slash command description cannot exceed 100 characters.", nameof(description));
+            }
         }
         else
         {
             if (!string.IsNullOrWhiteSpace(description))
+            {
                 throw new ArgumentException("Context menus do not support descriptions.");
+            }
 
             if (options?.Any() ?? false)
+            {
                 throw new ArgumentException("Context menus do not support options.");
+            }
         }
 
-        var optionsList = options != null ? new ReadOnlyCollection<DiscordApplicationCommandOption>(options.ToList()) : null;
+        ReadOnlyCollection<DiscordApplicationCommandOption>? optionsList = options != null ? new ReadOnlyCollection<DiscordApplicationCommandOption>(options.ToList()) : null;
 
-        this.Type = type;
-        this.Name = name;
-        this.Description = description;
-        this.Options = optionsList;
-        this.DefaultPermission = defaultPermission;
-        this.NameLocalizations = name_localizations;
-        this.DescriptionLocalizations = description_localizations;
-        this.AllowDMUsage = allowDMUsage;
-        this.DefaultMemberPermissions = defaultMemberPermissions;
+        Type = type;
+        Name = name;
+        Description = description;
+        Options = optionsList;
+        DefaultPermission = defaultPermission;
+        NameLocalizations = name_localizations;
+        DescriptionLocalizations = description_localizations;
+        AllowDMUsage = allowDMUsage;
+        DefaultMemberPermissions = defaultMemberPermissions;
     }
 
     /// <summary>
@@ -146,7 +158,7 @@ public sealed class DiscordApplicationCommand : SnowflakeObject, IEquatable<Disc
     /// <param name="other">The command to compare to.</param>
     /// <returns>Whether the command is equal to this <see cref="DiscordApplicationCommand"/>.</returns>
     public bool Equals(DiscordApplicationCommand other)
-        => this.Id == other.Id;
+        => Id == other.Id;
 
     /// <summary>
     /// Determines if two <see cref="DiscordApplicationCommand"/> objects are equal.
@@ -172,12 +184,12 @@ public sealed class DiscordApplicationCommand : SnowflakeObject, IEquatable<Disc
     /// <param name="other">The object to compare to.</param>
     /// <returns>Whether the two <see cref="DiscordApplicationCommand"/> objects are not equal.</returns>
     public override bool Equals(object other)
-        => other is DiscordApplicationCommand dac ? this.Equals(dac) : false;
+        => other is DiscordApplicationCommand dac ? Equals(dac) : false;
 
     /// <summary>
     /// Gets the hash code for this <see cref="DiscordApplicationCommand"/>.
     /// </summary>
     /// <returns>The hash code for this <see cref="DiscordApplicationCommand"/>.</returns>
     public override int GetHashCode()
-        => this.Id.GetHashCode();
+        => Id.GetHashCode();
 }

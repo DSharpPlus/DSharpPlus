@@ -44,7 +44,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// Gets the application's icon.
     /// </summary>
     public override string Icon
-        => !string.IsNullOrWhiteSpace(this.IconHash) ? $"https://cdn.discordapp.com/app-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.IconHash}.png?size=1024" : null;
+        => !string.IsNullOrWhiteSpace(IconHash) ? $"https://cdn.discordapp.com/app-icons/{Id.ToString(CultureInfo.InvariantCulture)}/{IconHash}.png?size=1024" : null;
 
     /// <summary>
     /// Gets the application's icon hash.
@@ -95,7 +95,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// Gets this application's cover image URL.
     /// </summary>
     public override string CoverImageUrl
-        => $"https://cdn.discordapp.com/app-icons/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.CoverImageHash}.png?size=1024";
+        => $"https://cdn.discordapp.com/app-icons/{Id.ToString(CultureInfo.InvariantCulture)}/{CoverImageHash}.png?size=1024";
 
     /// <summary>
     /// Gets the team which owns this application.
@@ -115,16 +115,22 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     public string GetAvatarUrl(ImageFormat fmt, ushort size = 1024)
     {
         if (fmt == ImageFormat.Unknown)
+        {
             throw new ArgumentException("You must specify valid image format.", nameof(fmt));
+        }
 
         if (size < 16 || size > 2048)
+        {
             throw new ArgumentOutOfRangeException(nameof(size));
+        }
 
-        var log = Math.Log(size, 2);
+        double log = Math.Log(size, 2);
         if (log < 4 || log > 11 || log % 1 != 0)
+        {
             throw new ArgumentOutOfRangeException(nameof(size));
+        }
 
-        var sfmt = "";
+        string sfmt = "";
         sfmt = fmt switch
         {
             ImageFormat.Gif => "gif",
@@ -133,11 +139,11 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
             ImageFormat.WebP => "webp",
             _ => throw new ArgumentOutOfRangeException(nameof(fmt)),
         };
-        var ssize = size.ToString(CultureInfo.InvariantCulture);
-        if (!string.IsNullOrWhiteSpace(this.CoverImageHash))
+        string ssize = size.ToString(CultureInfo.InvariantCulture);
+        if (!string.IsNullOrWhiteSpace(CoverImageHash))
         {
-            var id = this.Id.ToString(CultureInfo.InvariantCulture);
-            return $"https://cdn.discordapp.com/avatars/{id}/{this.CoverImageHash}.{sfmt}?size={ssize}";
+            string id = Id.ToString(CultureInfo.InvariantCulture);
+            return $"https://cdn.discordapp.com/avatars/{id}/{CoverImageHash}.{sfmt}?size={ssize}";
         }
         else
         {
@@ -152,10 +158,12 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// <returns>This application's assets.</returns>
     public async Task<IReadOnlyList<DiscordApplicationAsset>> GetAssetsAsync(bool updateCache = false)
     {
-        if (updateCache || this.Assets == null)
-            this.Assets = await this.Discord.ApiClient.GetApplicationAssetsAsync(this).ConfigureAwait(false);
+        if (updateCache || Assets == null)
+        {
+            Assets = await Discord.ApiClient.GetApplicationAssetsAsync(this).ConfigureAwait(false);
+        }
 
-        return this.Assets;
+        return Assets;
     }
 
     public string GenerateBotOAuth(Permissions permissions = Permissions.None)
@@ -163,7 +171,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
         permissions &= PermissionMethods.FULL_PERMS;
         // hey look, it's not all annoying and blue :P
         return new QueryUriBuilder("https://discord.com/oauth2/authorize")
-            .AddParameter("client_id", this.Id.ToString(CultureInfo.InvariantCulture))
+            .AddParameter("client_id", Id.ToString(CultureInfo.InvariantCulture))
             .AddParameter("scope", "bot")
             .AddParameter("permissions", ((long)permissions).ToString(CultureInfo.InvariantCulture))
             .ToString();
@@ -183,23 +191,28 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     {
         permissions &= PermissionMethods.FULL_PERMS;
 
-        var scopeBuilder = new StringBuilder();
+        StringBuilder scopeBuilder = new StringBuilder();
 
-        foreach(var v in scopes)
-            scopeBuilder.Append(" ").Append(this.TranslateOAuthScope(v));
+        foreach (OAuthScope v in scopes)
+        {
+            scopeBuilder.Append(" ").Append(TranslateOAuthScope(v));
+        }
 
-
-        var queryBuilder = new QueryUriBuilder("https://discord.com/oauth2/authorize")
-            .AddParameter("client_id", this.Id.ToString(CultureInfo.InvariantCulture))
+        QueryUriBuilder queryBuilder = new QueryUriBuilder("https://discord.com/oauth2/authorize")
+            .AddParameter("client_id", Id.ToString(CultureInfo.InvariantCulture))
             .AddParameter("scope", scopeBuilder.ToString().Trim());
 
         if (permissions != null)
+        {
             queryBuilder.AddParameter("permissions", ((long)permissions).ToString(CultureInfo.InvariantCulture));
+        }
 
         // response_type=code is always given for /authorize
         if (redirectUri != null)
+        {
             queryBuilder.AddParameter("redirect_uri", redirectUri)
                 .AddParameter("response_type", "code");
+        }
 
         return queryBuilder.ToString();
     }
@@ -209,7 +222,7 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// </summary>
     /// <param name="obj">Object to compare to.</param>
     /// <returns>Whether the object is equal to this <see cref="DiscordApplication"/>.</returns>
-    public override bool Equals(object obj) => this.Equals(obj as DiscordApplication);
+    public override bool Equals(object obj) => Equals(obj as DiscordApplication);
 
     /// <summary>
     /// Checks whether this <see cref="DiscordApplication"/> is equal to another <see cref="DiscordApplication"/>.
@@ -218,17 +231,14 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// <returns>Whether the <see cref="DiscordApplication"/> is equal to this <see cref="DiscordApplication"/>.</returns>
     public bool Equals(DiscordApplication e)
     {
-        if (e is null)
-            return false;
-
-        return ReferenceEquals(this, e) ? true : this.Id == e.Id;
+        return e is null ? false : ReferenceEquals(this, e) ? true : Id == e.Id;
     }
 
     /// <summary>
     /// Gets the hash code for this <see cref="DiscordApplication"/>.
     /// </summary>
     /// <returns>The hash code for this <see cref="DiscordApplication"/>.</returns>
-    public override int GetHashCode() => this.Id.GetHashCode();
+    public override int GetHashCode() => Id.GetHashCode();
 
     /// <summary>
     /// Gets whether the two <see cref="DiscordApplication"/> objects are equal.
@@ -238,13 +248,10 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     /// <returns>Whether the two applications are equal.</returns>
     public static bool operator ==(DiscordApplication e1, DiscordApplication e2)
     {
-        var o1 = e1 as object;
-        var o2 = e2 as object;
+        object? o1 = e1 as object;
+        object? o2 = e2 as object;
 
-        if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
-            return false;
-
-        return o1 == null && o2 == null ? true : e1.Id == e2.Id;
+        return (o1 == null && o2 != null) || (o1 != null && o2 == null) ? false : o1 == null && o2 == null ? true : e1.Id == e2.Id;
     }
 
     /// <summary>
@@ -256,36 +263,33 @@ public sealed class DiscordApplication : DiscordMessageApplication, IEquatable<D
     public static bool operator !=(DiscordApplication e1, DiscordApplication e2)
         => !(e1 == e2);
 
-    private string TranslateOAuthScope(OAuthScope scope)
+    private string TranslateOAuthScope(OAuthScope scope) => scope switch
     {
-        return scope switch
-        {
-            OAuthScope.Identify => "identify",
-            OAuthScope.Email => "email",
-            OAuthScope.Connections => "connections",
-            OAuthScope.Guilds => "guilds",
-            OAuthScope.GuildsJoin => "guilds.join",
-            OAuthScope.GuildsMembersRead => "guilds.members.read",
-            OAuthScope.GdmJoin => "gdm.join",
-            OAuthScope.Rpc => "rpc",
-            OAuthScope.RpcNotificationsRead => "rpc.notifications.read",
-            OAuthScope.RpcVoiceRead => "rpc.voice.read",
-            OAuthScope.RpcVoiceWrite => "rpc.voice.write",
-            OAuthScope.RpcActivitiesWrite => "rpc.activities.write",
-            OAuthScope.Bot => "bot",
-            OAuthScope.WebhookIncoming => "webhook.incoming",
-            OAuthScope.MessagesRead => "messages.read",
-            OAuthScope.ApplicationsBuildsUpload => "applications.builds.upload",
-            OAuthScope.ApplicationsBuildsRead => "applications.builds.read",
-            OAuthScope.ApplicationsCommands => "applications.commands",
-            OAuthScope.ApplicationsStoreUpdate => "applications.store.update",
-            OAuthScope.ApplicationsEntitlements => "applications.entitlements",
-            OAuthScope.ActivitiesRead => "activities.read",
-            OAuthScope.ActivitiesWrite => "activities.write",
-            OAuthScope.RelationshipsRead => "relationships.read",
-            _ => null
-        };
-    }
+        OAuthScope.Identify => "identify",
+        OAuthScope.Email => "email",
+        OAuthScope.Connections => "connections",
+        OAuthScope.Guilds => "guilds",
+        OAuthScope.GuildsJoin => "guilds.join",
+        OAuthScope.GuildsMembersRead => "guilds.members.read",
+        OAuthScope.GdmJoin => "gdm.join",
+        OAuthScope.Rpc => "rpc",
+        OAuthScope.RpcNotificationsRead => "rpc.notifications.read",
+        OAuthScope.RpcVoiceRead => "rpc.voice.read",
+        OAuthScope.RpcVoiceWrite => "rpc.voice.write",
+        OAuthScope.RpcActivitiesWrite => "rpc.activities.write",
+        OAuthScope.Bot => "bot",
+        OAuthScope.WebhookIncoming => "webhook.incoming",
+        OAuthScope.MessagesRead => "messages.read",
+        OAuthScope.ApplicationsBuildsUpload => "applications.builds.upload",
+        OAuthScope.ApplicationsBuildsRead => "applications.builds.read",
+        OAuthScope.ApplicationsCommands => "applications.commands",
+        OAuthScope.ApplicationsStoreUpdate => "applications.store.update",
+        OAuthScope.ApplicationsEntitlements => "applications.entitlements",
+        OAuthScope.ActivitiesRead => "activities.read",
+        OAuthScope.ActivitiesWrite => "activities.write",
+        OAuthScope.RelationshipsRead => "relationships.read",
+        _ => null
+    };
 }
 
 public abstract class DiscordAsset
@@ -332,21 +336,18 @@ public sealed class DiscordApplicationAsset : DiscordAsset, IEquatable<DiscordAp
     /// Gets the Url of this asset.
     /// </summary>
     public override Uri Url
-        => new($"https://cdn.discordapp.com/app-assets/{this.Application.Id.ToString(CultureInfo.InvariantCulture)}/{this.Id}.png");
+        => new($"https://cdn.discordapp.com/app-assets/{Application.Id.ToString(CultureInfo.InvariantCulture)}/{Id}.png");
 
     internal DiscordApplicationAsset() { }
 
-    internal DiscordApplicationAsset(DiscordApplication app)
-    {
-        this.Discord = app.Discord;
-    }
+    internal DiscordApplicationAsset(DiscordApplication app) => Discord = app.Discord;
 
     /// <summary>
     /// Checks whether this <see cref="DiscordApplicationAsset"/> is equal to another object.
     /// </summary>
     /// <param name="obj">Object to compare to.</param>
     /// <returns>Whether the object is equal to this <see cref="DiscordApplicationAsset"/>.</returns>
-    public override bool Equals(object obj) => this.Equals(obj as DiscordApplicationAsset);
+    public override bool Equals(object obj) => Equals(obj as DiscordApplicationAsset);
 
     /// <summary>
     /// Checks whether this <see cref="DiscordApplicationAsset"/> is equal to another <see cref="DiscordApplicationAsset"/>.
@@ -355,17 +356,14 @@ public sealed class DiscordApplicationAsset : DiscordAsset, IEquatable<DiscordAp
     /// <returns>Whether the <see cref="DiscordApplicationAsset"/> is equal to this <see cref="DiscordApplicationAsset"/>.</returns>
     public bool Equals(DiscordApplicationAsset e)
     {
-        if (e is null)
-            return false;
-
-        return ReferenceEquals(this, e) ? true : this.Id == e.Id;
+        return e is null ? false : ReferenceEquals(this, e) ? true : Id == e.Id;
     }
 
     /// <summary>
     /// Gets the hash code for this <see cref="DiscordApplication"/>.
     /// </summary>
     /// <returns>The hash code for this <see cref="DiscordApplication"/>.</returns>
-    public override int GetHashCode() => this.Id.GetHashCode();
+    public override int GetHashCode() => Id.GetHashCode();
 
     /// <summary>
     /// Gets whether the two <see cref="DiscordApplicationAsset"/> objects are equal.
@@ -375,13 +373,10 @@ public sealed class DiscordApplicationAsset : DiscordAsset, IEquatable<DiscordAp
     /// <returns>Whether the two application assets not equal.</returns>
     public static bool operator ==(DiscordApplicationAsset e1, DiscordApplicationAsset e2)
     {
-        var o1 = e1 as object;
-        var o2 = e2 as object;
+        object? o1 = e1 as object;
+        object? o2 = e2 as object;
 
-        if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
-            return false;
-
-        return o1 == null && o2 == null ? true : e1.Id == e2.Id;
+        return (o1 == null && o2 != null) || (o1 != null && o2 == null) ? false : o1 == null && o2 == null ? true : e1.Id == e2.Id;
     }
 
     /// <summary>
@@ -400,19 +395,16 @@ public sealed class DiscordSpotifyAsset : DiscordAsset
     /// Gets the URL of this asset.
     /// </summary>
     public override Uri Url
-        => this._url.Value;
+        => _url.Value;
 
     private readonly Lazy<Uri> _url;
 
-    public DiscordSpotifyAsset()
-    {
-        this._url = new Lazy<Uri>(() =>
-        {
-            var ids = this.Id.Split(':');
-            var id = ids[1];
-            return new Uri($"https://i.scdn.co/image/{id}");
-        });
-    }
+    public DiscordSpotifyAsset() => _url = new Lazy<Uri>(() =>
+                                         {
+                                             string[] ids = Id.Split(':');
+                                             string id = ids[1];
+                                             return new Uri($"https://i.scdn.co/image/{id}");
+                                         });
 }
 
 /// <summary>

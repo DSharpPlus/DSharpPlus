@@ -34,15 +34,17 @@ public class ServerErrorException : DiscordException
 {
     internal ServerErrorException(BaseRestRequest request, RestResponse response) : base("Internal Server Error: " + response.ResponseCode)
     {
-        this.WebRequest = request;
-        this.WebResponse = response;
+        WebRequest = request;
+        WebResponse = response;
 
         try
         {
-            var j = JObject.Parse(response.Response);
+            JObject j = JObject.Parse(response.Response);
 
             if (j["message"] != null)
-                this.JsonMessage = j["message"].ToString();
+            {
+                JsonMessage = j["message"].ToString();
+            }
         }
         catch (Exception) { }
     }

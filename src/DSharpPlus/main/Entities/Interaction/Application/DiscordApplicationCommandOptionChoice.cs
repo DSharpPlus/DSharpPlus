@@ -51,14 +51,21 @@ public sealed class DiscordApplicationCommandOptionChoice
     public DiscordApplicationCommandOptionChoice(string name, object value)
     {
         if (!(value is string || value is long || value is int || value is double))
+        {
             throw new InvalidOperationException($"Only {typeof(string)}, {typeof(long)}, {typeof(double)} or {typeof(int)} types may be passed to a command option choice.");
+        }
 
         if (name.Length > 100)
+        {
             throw new ArgumentException("Application command choice name cannot exceed 100 characters.", nameof(name));
-        if (value is string val && val.Length > 100)
-            throw new ArgumentException("Application command choice value cannot exceed 100 characters.", nameof(value));
+        }
 
-        this.Name = name;
-        this.Value = value;
+        if (value is string val && val.Length > 100)
+        {
+            throw new ArgumentException("Application command choice value cannot exceed 100 characters.", nameof(value));
+        }
+
+        Name = name;
+        Value = value;
     }
 }

@@ -38,7 +38,7 @@ public sealed class DiscordStageInstance : SnowflakeObject
     /// </summary>
     [JsonIgnore]
     public DiscordGuild Guild
-        => this.Discord.Guilds.TryGetValue(this.GuildId, out var guild) ? guild : null;
+        => Discord.Guilds.TryGetValue(GuildId, out DiscordGuild? guild) ? guild : null;
 
     /// <summary>
     /// Gets the id of the guild this stage instance is in.
@@ -51,7 +51,7 @@ public sealed class DiscordStageInstance : SnowflakeObject
     /// </summary>
     [JsonIgnore]
     public DiscordChannel Channel
-        => (this.Discord as DiscordClient)?.InternalGetCachedChannel(this.ChannelId) ?? null;
+        => (Discord as DiscordClient)?.InternalGetCachedChannel(ChannelId) ?? null;
 
     /// <summary>
     /// Gets the id of the channel this stage instance is in.
@@ -83,14 +83,14 @@ public sealed class DiscordStageInstance : SnowflakeObject
     /// <returns></returns>
     /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.MoveMembers"/> permission</exception>
     public Task BecomeSpeakerAsync()
-        => this.Discord.ApiClient.BecomeStageInstanceSpeakerAsync(this.GuildId, this.Id, null);
+        => Discord.ApiClient.BecomeStageInstanceSpeakerAsync(GuildId, Id, null);
 
     /// <summary>
     /// Request to become a speaker in the stage instance.
     /// </summary>
     /// <returns></returns>
     /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.RequestToSpeak"/> permission</exception>
-    public Task SendSpeakerRequestAsync() => this.Discord.ApiClient.BecomeStageInstanceSpeakerAsync(this.GuildId, this.Id, null, DateTime.Now);
+    public Task SendSpeakerRequestAsync() => Discord.ApiClient.BecomeStageInstanceSpeakerAsync(GuildId, Id, null, DateTime.Now);
 
     /// <summary>
     /// Invite a member to become a speaker in the state instance.
@@ -98,5 +98,5 @@ public sealed class DiscordStageInstance : SnowflakeObject
     /// <param name="member">The member to invite to speak on stage.</param>
     /// <returns></returns>
     /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.MoveMembers"/> permission</exception>
-    public Task InviteToSpeakAsync(DiscordMember member) => this.Discord.ApiClient.BecomeStageInstanceSpeakerAsync(this.GuildId, this.Id, member.Id, null, suppress: false);
+    public Task InviteToSpeakAsync(DiscordMember member) => Discord.ApiClient.BecomeStageInstanceSpeakerAsync(GuildId, Id, member.Id, null, suppress: false);
 }

@@ -49,9 +49,11 @@ public static class DiscordClientExtensions
     public static VoiceNextExtension UseVoiceNext(this DiscordClient client, VoiceNextConfiguration config)
     {
         if (client.GetExtension<VoiceNextExtension>() != null)
+        {
             throw new InvalidOperationException("VoiceNext is already enabled for that client.");
+        }
 
-        var vnext = new VoiceNextExtension(config);
+        VoiceNextExtension vnext = new VoiceNextExtension(config);
         client.AddExtension(vnext);
         return vnext;
     }
@@ -64,14 +66,16 @@ public static class DiscordClientExtensions
     /// <returns>A dictionary of created VoiceNext clients.</returns>
     public static async Task<IReadOnlyDictionary<int, VoiceNextExtension>> UseVoiceNextAsync(this DiscordShardedClient client, VoiceNextConfiguration config)
     {
-        var modules = new Dictionary<int, VoiceNextExtension>();
+        Dictionary<int, VoiceNextExtension> modules = new Dictionary<int, VoiceNextExtension>();
         await client.InitializeShardsAsync().ConfigureAwait(false);
 
-        foreach (var shard in client.ShardClients.Select(xkvp => xkvp.Value))
+        foreach (DiscordClient? shard in client.ShardClients.Select(xkvp => xkvp.Value))
         {
-            var vnext = shard.GetExtension<VoiceNextExtension>();
+            VoiceNextExtension? vnext = shard.GetExtension<VoiceNextExtension>();
             if (vnext == null)
+            {
                 vnext = shard.UseVoiceNext(config);
+            }
 
             modules[shard.ShardId] = vnext;
         }
@@ -95,9 +99,9 @@ public static class DiscordClientExtensions
     public static async Task<IReadOnlyDictionary<int, VoiceNextExtension>> GetVoiceNextAsync(this DiscordShardedClient client)
     {
         await client.InitializeShardsAsync().ConfigureAwait(false);
-        var extensions = new Dictionary<int, VoiceNextExtension>();
+        Dictionary<int, VoiceNextExtension> extensions = new Dictionary<int, VoiceNextExtension>();
 
-        foreach (var shard in client.ShardClients.Values)
+        foreach (DiscordClient shard in client.ShardClients.Values)
         {
             extensions.Add(shard.ShardId, shard.GetExtension<VoiceNextExtension>());
         }
@@ -113,22 +117,32 @@ public static class DiscordClientExtensions
     public static Task<VoiceNextConnection> ConnectAsync(this DiscordChannel channel)
     {
         if (channel == null)
+        {
             throw new NullReferenceException();
+        }
 
         if (channel.Guild == null)
+        {
             throw new InvalidOperationException("VoiceNext can only be used with guild channels.");
+        }
 
         if (channel.Type != ChannelType.Voice && channel.Type != ChannelType.Stage)
+        {
             throw new InvalidOperationException("You can only connect to voice or stage channels.");
+        }
 
         if (channel.Discord is not DiscordClient discord || discord == null)
+        {
             throw new NullReferenceException();
+        }
 
-        var vnext = discord.GetVoiceNext();
+        VoiceNextExtension vnext = discord.GetVoiceNext();
         if (vnext == null)
+        {
             throw new InvalidOperationException("VoiceNext is not initialized for this Discord client.");
+        }
 
-        var vnc = vnext.GetConnection(channel.Guild);
+        VoiceNextConnection vnc = vnext.GetConnection(channel.Guild);
         return vnc != null
             ? throw new InvalidOperationException("VoiceNext is already connected in this guild.")
             : vnext.ConnectAsync(channel);

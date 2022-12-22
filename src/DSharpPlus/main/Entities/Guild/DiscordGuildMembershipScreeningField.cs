@@ -58,10 +58,10 @@ public class DiscordGuildMembershipScreeningField
 
     public DiscordGuildMembershipScreeningField(MembershipScreeningFieldType type, string label, IEnumerable<string> values, bool required = true)
     {
-        this.Type = type;
-        this.Label = label;
-        this.Values = values.ToList();
-        this.IsRequired = required;
+        Type = type;
+        Label = label;
+        Values = values.ToList();
+        IsRequired = required;
     }
 
     internal DiscordGuildMembershipScreeningField() { }

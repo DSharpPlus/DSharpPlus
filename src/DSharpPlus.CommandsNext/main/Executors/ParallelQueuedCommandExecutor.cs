@@ -59,17 +59,19 @@ public sealed class ParallelQueuedCommandExecutor : ICommandExecutor
     /// <param name="parallelism">The number of workers to use. It is recommended this number does not exceed 150% of the physical CPU count.</param>
     public ParallelQueuedCommandExecutor(int parallelism)
     {
-        this.Parallelism = parallelism;
+        Parallelism = parallelism;
 
-        this._cts = new();
-        this._ct = this._cts.Token;
-        this._queue = Channel.CreateUnbounded<CommandContext>();
-        this._queueReader = this._queue.Reader;
-        this._queueWriter = this._queue.Writer;
+        _cts = new();
+        _ct = _cts.Token;
+        _queue = Channel.CreateUnbounded<CommandContext>();
+        _queueReader = _queue.Reader;
+        _queueWriter = _queue.Writer;
 
-        this._tasks = new Task[parallelism];
-        for (var i = 0; i < parallelism; i++)
-            this._tasks[i] = Task.Run(this.ExecuteAsync);
+        _tasks = new Task[parallelism];
+        for (int i = 0; i < parallelism; i++)
+        {
+            _tasks[i] = Task.Run(ExecuteAsync);
+        }
     }
 
     /// <summary>
@@ -77,21 +79,23 @@ public sealed class ParallelQueuedCommandExecutor : ICommandExecutor
     /// </summary>
     public void Dispose()
     {
-        this._queueWriter.Complete();
-        this._cts.Cancel();
-        this._cts.Dispose();
+        _queueWriter.Complete();
+        _cts.Cancel();
+        _cts.Dispose();
     }
 
     async Task ICommandExecutor.ExecuteAsync(CommandContext ctx)
-        => await this._queueWriter.WriteAsync(ctx, this._ct);
+        => await _queueWriter.WriteAsync(ctx, _ct);
 
     private async Task ExecuteAsync()
     {
-        while (!this._ct.IsCancellationRequested)
+        while (!_ct.IsCancellationRequested)
         {
-            var ctx = await this._queueReader.ReadAsync(this._ct);
+            CommandContext? ctx = await _queueReader.ReadAsync(_ct);
             if (ctx is null)
+            {
                 continue;
+            }
 
             await ctx.CommandsNext.ExecuteCommandAsync(ctx).ConfigureAwait(false);
         }

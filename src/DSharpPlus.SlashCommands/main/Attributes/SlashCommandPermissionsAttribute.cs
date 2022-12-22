@@ -29,8 +29,5 @@ public class SlashCommandPermissionsAttribute : Attribute
 {
     public Permissions Permissions { get; }
 
-    public SlashCommandPermissionsAttribute(Permissions permissions)
-    {
-        this.Permissions = permissions;
-    }
+    public SlashCommandPermissionsAttribute(Permissions permissions) => Permissions = permissions;
 }

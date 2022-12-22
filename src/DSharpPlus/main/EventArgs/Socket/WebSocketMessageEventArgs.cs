@@ -45,10 +45,7 @@ public sealed class SocketTextMessageEventArgs : SocketMessageEventArgs
     /// Creates a new instance of text message event arguments.
     /// </summary>
     /// <param name="message">Received message string.</param>
-    public SocketTextMessageEventArgs(string message)
-    {
-        this.Message = message;
-    }
+    public SocketTextMessageEventArgs(string message) => Message = message;
 }
 
 /// <summary>
@@ -65,8 +62,5 @@ public sealed class SocketBinaryMessageEventArgs : SocketMessageEventArgs
     /// Creates a new instance of binary message event arguments.
     /// </summary>
     /// <param name="message">Received message bytes.</param>
-    public SocketBinaryMessageEventArgs(byte[] message)
-    {
-        this.Message = message;
-    }
+    public SocketBinaryMessageEventArgs(byte[] message) => Message = message;
 }

@@ -36,12 +36,11 @@ public class EnumConverter<T> : IArgumentConverter<T> where T : struct, ICompara
 {
     Task<Optional<T>> IArgumentConverter<T>.ConvertAsync(string value, CommandContext ctx)
     {
-        var t = typeof(T);
-        var ti = t.GetTypeInfo();
-        if (!ti.IsEnum)
-            throw new InvalidOperationException("Cannot convert non-enum value to an enum.");
-
-        return Enum.TryParse(value, !ctx.Config.CaseSensitive, out T ev)
+        Type t = typeof(T);
+        TypeInfo ti = t.GetTypeInfo();
+        return !ti.IsEnum
+            ? throw new InvalidOperationException("Cannot convert non-enum value to an enum.")
+            : Enum.TryParse(value, !ctx.Config.CaseSensitive, out T ev)
             ? Task.FromResult(Optional.FromValue(ev))
             : Task.FromResult(Optional.FromNoValue<T>());
     }

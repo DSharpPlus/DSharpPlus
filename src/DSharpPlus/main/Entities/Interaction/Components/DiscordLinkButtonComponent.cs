@@ -57,10 +57,7 @@ public class DiscordLinkButtonComponent : DiscordComponent
     internal int Style { get; } = 5; // Link = 5; Discord throws 400 otherwise //
 
 
-    internal DiscordLinkButtonComponent()
-    {
-        this.Type = ComponentType.Button;
-    }
+    internal DiscordLinkButtonComponent() => Type = ComponentType.Button;
 
     /// <summary>
     /// Constructs a new <see cref="DiscordLinkButtonComponent"/>. This type of button does not send back and interaction when pressed.
@@ -71,9 +68,9 @@ public class DiscordLinkButtonComponent : DiscordComponent
     /// <param name="emoji">The emoji to set with this button. This is required if <paramref name="label"/> is null or empty.</param>
     public DiscordLinkButtonComponent(string url, string label, bool disabled = false, DiscordComponentEmoji emoji = null) : this()
     {
-        this.Url = url;
-        this.Label = label;
-        this.Disabled = disabled;
-        this.Emoji = emoji;
+        Url = url;
+        Label = label;
+        Disabled = disabled;
+        Emoji = emoji;
     }
 }

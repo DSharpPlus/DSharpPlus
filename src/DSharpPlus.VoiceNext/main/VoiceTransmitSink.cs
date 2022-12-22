@@ -41,27 +41,29 @@ public sealed class VoiceTransmitSink : IDisposable
     /// Gets the PCM sample duration for this sink.
     /// </summary>
     public int SampleDuration
-        => this.PcmBufferDuration;
+        => PcmBufferDuration;
 
     /// <summary>
     /// Gets the length of the PCM buffer for this sink. 
     /// Written packets should adhere to this size, but the sink will adapt to fit.
     /// </summary>
     public int SampleLength
-        => this.PcmBuffer.Length;
+        => PcmBuffer.Length;
 
     /// <summary>
     /// Gets or sets the volume modifier for this sink. Changing this will alter the volume of the output. 1.0 is 100%.
     /// </summary>
     public double VolumeModifier
     {
-        get => this._volume;
+        get => _volume;
         set
         {
             if (value < 0 || value > 2.5)
+            {
                 throw new ArgumentOutOfRangeException(nameof(value), "Volume needs to be between 0% and 250%.");
+            }
 
-            this._volume = value;
+            _volume = value;
         }
     }
     private double _volume = 1.0;
@@ -76,13 +78,13 @@ public sealed class VoiceTransmitSink : IDisposable
 
     internal VoiceTransmitSink(VoiceNextConnection vnc, int pcmBufferDuration)
     {
-        this.Connection = vnc;
-        this.PcmBufferDuration = pcmBufferDuration;
-        this.PcmBuffer = new byte[vnc.AudioFormat.CalculateSampleSize(pcmBufferDuration)];
-        this.PcmMemory = this.PcmBuffer.AsMemory();
-        this.PcmBufferLength = 0;
-        this.WriteSemaphore = new SemaphoreSlim(1, 1);
-        this.Filters = new List<IVoiceFilter>();
+        Connection = vnc;
+        PcmBufferDuration = pcmBufferDuration;
+        PcmBuffer = new byte[vnc.AudioFormat.CalculateSampleSize(pcmBufferDuration)];
+        PcmMemory = PcmBuffer.AsMemory();
+        PcmBufferLength = 0;
+        WriteSemaphore = new SemaphoreSlim(1, 1);
+        Filters = new List<IVoiceFilter>();
     }
 
     /// <summary>
@@ -92,7 +94,7 @@ public sealed class VoiceTransmitSink : IDisposable
     /// <param name="offset">Start of the data in the buffer.</param>
     /// <param name="count">Number of bytes from the buffer.</param>
     /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
-    public async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default) => await this.WriteAsync(new ReadOnlyMemory<byte>(buffer, offset, count), cancellationToken).ConfigureAwait(false);
+    public async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default) => await WriteAsync(new ReadOnlyMemory<byte>(buffer, offset, count), cancellationToken).ConfigureAwait(false);
 
     /// <summary>
     /// Writes PCM data to the sink. The data is prepared for transmission, and enqueued.
@@ -101,43 +103,43 @@ public sealed class VoiceTransmitSink : IDisposable
     /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     public async Task WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
     {
-        await this.WriteSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+        await WriteSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
 
         try
         {
-            var remaining = buffer.Length;
-            var buffSpan = buffer;
-            var pcmSpan = this.PcmMemory;
+            int remaining = buffer.Length;
+            ReadOnlyMemory<byte> buffSpan = buffer;
+            Memory<byte> pcmSpan = PcmMemory;
 
             while (remaining > 0)
             {
-                var len = Math.Min(pcmSpan.Length - this.PcmBufferLength, remaining);
+                int len = Math.Min(pcmSpan.Length - PcmBufferLength, remaining);
 
-                var tgt = pcmSpan.Slice(this.PcmBufferLength);
-                var src = buffSpan.Slice(0, len);
+                Memory<byte> tgt = pcmSpan.Slice(PcmBufferLength);
+                ReadOnlyMemory<byte> src = buffSpan.Slice(0, len);
 
                 src.CopyTo(tgt);
-                this.PcmBufferLength += len;
+                PcmBufferLength += len;
                 remaining -= len;
                 buffSpan = buffSpan.Slice(len);
 
-                if (this.PcmBufferLength == this.PcmBuffer.Length)
+                if (PcmBufferLength == PcmBuffer.Length)
                 {
-                    this.ApplyFiltersSync(pcmSpan);
+                    ApplyFiltersSync(pcmSpan);
 
-                    this.PcmBufferLength = 0;
+                    PcmBufferLength = 0;
 
-                    var packet = ArrayPool<byte>.Shared.Rent(this.PcmMemory.Length);
-                    var packetMemory = packet.AsMemory().Slice(0, this.PcmMemory.Length);
-                    this.PcmMemory.CopyTo(packetMemory);
+                    byte[] packet = ArrayPool<byte>.Shared.Rent(PcmMemory.Length);
+                    Memory<byte> packetMemory = packet.AsMemory().Slice(0, PcmMemory.Length);
+                    PcmMemory.CopyTo(packetMemory);
 
-                    await this.Connection.EnqueuePacketAsync(new RawVoicePacket(packetMemory, this.PcmBufferDuration, false, packet), cancellationToken).ConfigureAwait(false);
+                    await Connection.EnqueuePacketAsync(new RawVoicePacket(packetMemory, PcmBufferDuration, false, packet), cancellationToken).ConfigureAwait(false);
                 }
             }
         }
         finally
         {
-            this.WriteSemaphore.Release();
+            WriteSemaphore.Release();
         }
     }
 
@@ -147,30 +149,30 @@ public sealed class VoiceTransmitSink : IDisposable
     /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     public async Task FlushAsync(CancellationToken cancellationToken = default)
     {
-        var pcm = this.PcmMemory;
-        Helpers.ZeroFill(pcm.Slice(this.PcmBufferLength).Span);
+        Memory<byte> pcm = PcmMemory;
+        Helpers.ZeroFill(pcm.Slice(PcmBufferLength).Span);
 
-        this.ApplyFiltersSync(pcm);
+        ApplyFiltersSync(pcm);
 
-        var packet = ArrayPool<byte>.Shared.Rent(pcm.Length);
-        var packetMemory = packet.AsMemory().Slice(0, pcm.Length);
+        byte[] packet = ArrayPool<byte>.Shared.Rent(pcm.Length);
+        Memory<byte> packetMemory = packet.AsMemory().Slice(0, pcm.Length);
         pcm.CopyTo(packetMemory);
 
-        await this.Connection.EnqueuePacketAsync(new RawVoicePacket(packetMemory, this.PcmBufferDuration, false, packet), cancellationToken).ConfigureAwait(false);
+        await Connection.EnqueuePacketAsync(new RawVoicePacket(packetMemory, PcmBufferDuration, false, packet), cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
     /// Pauses playback.
     /// </summary>
     public void Pause()
-        => this.Connection.Pause();
+        => Connection.Pause();
 
     /// <summary>
     /// Resumes playback.
     /// </summary>
     /// <returns></returns>
     public async Task ResumeAsync()
-        => await this.Connection.ResumeAsync().ConfigureAwait(false);
+        => await Connection.ResumeAsync().ConfigureAwait(false);
 
     /// <summary>
     /// Gets the collection of installed PCM filters, in order of their execution.
@@ -178,8 +180,10 @@ public sealed class VoiceTransmitSink : IDisposable
     /// <returns>Installed PCM filters, in order of execution.</returns>
     public IEnumerable<IVoiceFilter> GetInstalledFilters()
     {
-        foreach (var filter in this.Filters)
+        foreach (IVoiceFilter filter in Filters)
+        {
             yield return filter;
+        }
     }
 
     /// <summary>
@@ -190,18 +194,26 @@ public sealed class VoiceTransmitSink : IDisposable
     public void InstallFilter(IVoiceFilter filter, int order = int.MaxValue)
     {
         if (filter == null)
+        {
             throw new ArgumentNullException(nameof(filter));
+        }
 
         if (order < 0)
-            throw new ArgumentOutOfRangeException(nameof(order), "Filter order must be greater than or equal to 0.");
-
-        lock (this.Filters)
         {
-            var filters = this.Filters;
+            throw new ArgumentOutOfRangeException(nameof(order), "Filter order must be greater than or equal to 0.");
+        }
+
+        lock (Filters)
+        {
+            List<IVoiceFilter> filters = Filters;
             if (order >= filters.Count)
+            {
                 filters.Add(filter);
+            }
             else
+            {
                 filters.Insert(order, filter);
+            }
         }
     }
 
@@ -213,37 +225,43 @@ public sealed class VoiceTransmitSink : IDisposable
     public bool UninstallFilter(IVoiceFilter filter)
     {
         if (filter == null)
-            throw new ArgumentNullException(nameof(filter));
-
-        lock (this.Filters)
         {
-            var filters = this.Filters;
+            throw new ArgumentNullException(nameof(filter));
+        }
+
+        lock (Filters)
+        {
+            List<IVoiceFilter> filters = Filters;
             return !filters.Contains(filter) ? false : filters.Remove(filter);
         }
     }
 
     private void ApplyFiltersSync(Memory<byte> pcmSpan)
     {
-        var pcm16 = MemoryMarshal.Cast<byte, short>(pcmSpan.Span);
+        Span<short> pcm16 = MemoryMarshal.Cast<byte, short>(pcmSpan.Span);
 
         // pass through any filters, if applicable
-        lock (this.Filters)
+        lock (Filters)
         {
-            if (this.Filters.Any())
+            if (Filters.Any())
             {
-                foreach (var filter in this.Filters)
-                    filter.Transform(pcm16, this.Connection.AudioFormat, this.SampleDuration);
+                foreach (IVoiceFilter filter in Filters)
+                {
+                    filter.Transform(pcm16, Connection.AudioFormat, SampleDuration);
+                }
             }
         }
 
-        if (this.VolumeModifier != 1)
+        if (VolumeModifier != 1)
         {
             // alter volume
-            for (var i = 0; i < pcm16.Length; i++)
-                pcm16[i] = (short)(pcm16[i] * this.VolumeModifier);
+            for (int i = 0; i < pcm16.Length; i++)
+            {
+                pcm16[i] = (short)(pcm16[i] * VolumeModifier);
+            }
         }
     }
 
     public void Dispose()
-        => this.WriteSemaphore?.Dispose();
+        => WriteSemaphore?.Dispose();
 }

@@ -41,12 +41,16 @@ public static class DiscordClientExtensions
     public static LavalinkExtension UseLavalink(this DiscordClient client)
     {
         if (client.GetExtension<LavalinkExtension>() != null)
+        {
             throw new InvalidOperationException("Lavalink is already enabled for that client.");
+        }
 
         if (!client.Configuration.Intents.HasIntent(DiscordIntents.GuildVoiceStates))
+        {
             client.Logger.LogCritical(LavalinkEvents.Intents, "The Lavalink extension is registered but the guild voice states intent is not enabled. It is highly recommended to enable it.");
+        }
 
-        var lava = new LavalinkExtension();
+        LavalinkExtension lava = new LavalinkExtension();
         client.AddExtension(lava);
         return lava;
     }
@@ -58,14 +62,16 @@ public static class DiscordClientExtensions
     /// <returns>A dictionary of created Lavalink clients.</returns>
     public static async Task<IReadOnlyDictionary<int, LavalinkExtension>> UseLavalinkAsync(this DiscordShardedClient client)
     {
-        var modules = new Dictionary<int, LavalinkExtension>();
+        Dictionary<int, LavalinkExtension> modules = new Dictionary<int, LavalinkExtension>();
         await client.InitializeShardsAsync().ConfigureAwait(false);
 
-        foreach (var shard in client.ShardClients.Select(xkvp => xkvp.Value))
+        foreach (DiscordClient? shard in client.ShardClients.Select(xkvp => xkvp.Value))
         {
-            var lava = shard.GetExtension<LavalinkExtension>();
+            LavalinkExtension? lava = shard.GetExtension<LavalinkExtension>();
             if (lava == null)
+            {
                 lava = shard.UseLavalink();
+            }
 
             modules[shard.ShardId] = lava;
         }
@@ -89,9 +95,9 @@ public static class DiscordClientExtensions
     public static async Task<IReadOnlyDictionary<int, LavalinkExtension>> GetLavalinkAsync(this DiscordShardedClient client)
     {
         await client.InitializeShardsAsync().ConfigureAwait(false);
-        var extensions = new Dictionary<int, LavalinkExtension>();
+        Dictionary<int, LavalinkExtension> extensions = new Dictionary<int, LavalinkExtension>();
 
-        foreach (var shard in client.ShardClients.Values)
+        foreach (DiscordClient shard in client.ShardClients.Values)
         {
             extensions.Add(shard.ShardId, shard.GetExtension<LavalinkExtension>());
         }
@@ -108,18 +114,26 @@ public static class DiscordClientExtensions
     public static Task ConnectAsync(this DiscordChannel channel, LavalinkNodeConnection node)
     {
         if (channel == null)
+        {
             throw new NullReferenceException();
+        }
 
         if (channel.Guild == null)
+        {
             throw new InvalidOperationException("Lavalink can only be used with guild channels.");
+        }
 
         if (channel.Type != ChannelType.Voice && channel.Type != ChannelType.Stage)
+        {
             throw new InvalidOperationException("You can only connect to voice and stage channels.");
+        }
 
         if (channel.Discord is not DiscordClient discord || discord == null)
+        {
             throw new NullReferenceException();
+        }
 
-        var lava = discord.GetLavalink();
+        LavalinkExtension lava = discord.GetLavalink();
         return lava == null
             ? throw new InvalidOperationException("Lavalink is not initialized for this Discord client.")
             : node.ConnectAsync(channel);

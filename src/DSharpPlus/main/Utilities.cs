@@ -52,28 +52,30 @@ public static class Utilities
     static Utilities()
     {
         PermissionStrings = new Dictionary<Permissions, string>();
-        var t = typeof(Permissions);
-        var ti = t.GetTypeInfo();
-        var vals = Enum.GetValues(t).Cast<Permissions>();
+        Type t = typeof(Permissions);
+        TypeInfo ti = t.GetTypeInfo();
+        IEnumerable<Permissions> vals = Enum.GetValues(t).Cast<Permissions>();
 
-        foreach (var xv in vals)
+        foreach (Permissions xv in vals)
         {
-            var xsv = xv.ToString();
-            var xmv = ti.DeclaredMembers.FirstOrDefault(xm => xm.Name == xsv);
-            var xav = xmv.GetCustomAttribute<PermissionStringAttribute>();
+            string xsv = xv.ToString();
+            MemberInfo? xmv = ti.DeclaredMembers.FirstOrDefault(xm => xm.Name == xsv);
+            PermissionStringAttribute? xav = xmv.GetCustomAttribute<PermissionStringAttribute>();
 
             PermissionStrings[xv] = xav.String;
         }
 
-        var a = typeof(DiscordClient).GetTypeInfo().Assembly;
+        Assembly a = typeof(DiscordClient).GetTypeInfo().Assembly;
 
-        var vs = "";
-        var iv = a.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+        string vs = "";
+        AssemblyInformationalVersionAttribute? iv = a.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
         if (iv != null)
+        {
             vs = iv.InformationalVersion;
+        }
         else
         {
-            var v = a.GetName().Version;
+            Version? v = a.GetName().Version;
             vs = v.ToString(3);
         }
 
@@ -94,15 +96,12 @@ public static class Utilities
 
     internal static string GetFormattedToken(BaseDiscordClient client) => GetFormattedToken(client.Configuration);
 
-    internal static string GetFormattedToken(DiscordConfiguration config)
+    internal static string GetFormattedToken(DiscordConfiguration config) => config.TokenType switch
     {
-        return config.TokenType switch
-        {
-            TokenType.Bearer => $"Bearer {config.Token}",
-            TokenType.Bot => $"Bot {config.Token}",
-            _ => throw new ArgumentException("Invalid token type specified.", nameof(config.Token)),
-        };
-    }
+        TokenType.Bearer => $"Bearer {config.Token}",
+        TokenType.Bot => $"Bot {config.Token}",
+        _ => throw new ArgumentException("Invalid token type specified.", nameof(config.Token)),
+    };
 
     internal static Dictionary<string, string> GetBaseHeaders()
         => new();
@@ -112,74 +111,82 @@ public static class Utilities
 
     internal static bool ContainsUserMentions(string message)
     {
-        var pattern = @"<@(\d+)>";
-        var regex = new Regex(pattern, RegexOptions.ECMAScript);
+        string pattern = @"<@(\d+)>";
+        Regex regex = new Regex(pattern, RegexOptions.ECMAScript);
         return regex.IsMatch(message);
     }
 
     internal static bool ContainsNicknameMentions(string message)
     {
-        var pattern = @"<@!(\d+)>";
-        var regex = new Regex(pattern, RegexOptions.ECMAScript);
+        string pattern = @"<@!(\d+)>";
+        Regex regex = new Regex(pattern, RegexOptions.ECMAScript);
         return regex.IsMatch(message);
     }
 
     internal static bool ContainsChannelMentions(string message)
     {
-        var pattern = @"<#(\d+)>";
-        var regex = new Regex(pattern, RegexOptions.ECMAScript);
+        string pattern = @"<#(\d+)>";
+        Regex regex = new Regex(pattern, RegexOptions.ECMAScript);
         return regex.IsMatch(message);
     }
 
     internal static bool ContainsRoleMentions(string message)
     {
-        var pattern = @"<@&(\d+)>";
-        var regex = new Regex(pattern, RegexOptions.ECMAScript);
+        string pattern = @"<@&(\d+)>";
+        Regex regex = new Regex(pattern, RegexOptions.ECMAScript);
         return regex.IsMatch(message);
     }
 
     internal static bool ContainsEmojis(string message)
     {
-        var pattern = @"<a?:(.*):(\d+)>";
-        var regex = new Regex(pattern, RegexOptions.ECMAScript);
+        string pattern = @"<a?:(.*):(\d+)>";
+        Regex regex = new Regex(pattern, RegexOptions.ECMAScript);
         return regex.IsMatch(message);
     }
 
     internal static IEnumerable<ulong> GetUserMentions(DiscordMessage message)
     {
-        var regex = new Regex(@"<@!?(\d+)>", RegexOptions.ECMAScript);
-        var matches = regex.Matches(message.Content);
+        Regex regex = new Regex(@"<@!?(\d+)>", RegexOptions.ECMAScript);
+        MatchCollection matches = regex.Matches(message.Content);
         foreach (Match match in matches)
+        {
             yield return ulong.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+        }
     }
 
     internal static IEnumerable<ulong> GetRoleMentions(DiscordMessage message)
     {
-        var regex = new Regex(@"<@&(\d+)>", RegexOptions.ECMAScript);
-        var matches = regex.Matches(message.Content);
+        Regex regex = new Regex(@"<@&(\d+)>", RegexOptions.ECMAScript);
+        MatchCollection matches = regex.Matches(message.Content);
         foreach (Match match in matches)
+        {
             yield return ulong.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+        }
     }
 
     internal static IEnumerable<ulong> GetChannelMentions(DiscordMessage message)
     {
-        var regex = new Regex(@"<#(\d+)>", RegexOptions.ECMAScript);
-        var matches = regex.Matches(message.Content);
+        Regex regex = new Regex(@"<#(\d+)>", RegexOptions.ECMAScript);
+        MatchCollection matches = regex.Matches(message.Content);
         foreach (Match match in matches)
+        {
             yield return ulong.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+        }
     }
 
     internal static IEnumerable<ulong> GetEmojis(DiscordMessage message)
     {
-        var regex = new Regex(@"<a?:([a-zA-Z0-9_]+):(\d+)>", RegexOptions.ECMAScript);
-        var matches = regex.Matches(message.Content);
+        Regex regex = new Regex(@"<a?:([a-zA-Z0-9_]+):(\d+)>", RegexOptions.ECMAScript);
+        MatchCollection matches = regex.Matches(message.Content);
         foreach (Match match in matches)
+        {
             yield return ulong.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
+        }
     }
 
     internal static bool IsValidSlashCommandName(string name)
     {
-        var regex = new Regex(@"^[\w-]{1,32}$");
+        Regex regex = new Regex(@"^[\w-]{1,32}$");
         return regex.IsMatch(name);
     }
 
@@ -232,7 +239,9 @@ public static class Utilities
         catch (Exception)
         {
             if (shouldThrow)
+            {
                 throw;
+            }
 
             return DateTimeOffset.MinValue;
         }
@@ -253,7 +262,9 @@ public static class Utilities
         catch (Exception)
         {
             if (shouldThrow)
+            {
                 throw;
+            }
 
             return DateTimeOffset.MinValue;
         }
@@ -284,11 +295,13 @@ public static class Utilities
     public static string ToPermissionString(this Permissions perm)
     {
         if (perm == Permissions.None)
+        {
             return PermissionStrings[perm];
+        }
 
         perm &= PermissionMethods.FULL_PERMS;
 
-        var strs = PermissionStrings
+        IEnumerable<string> strs = PermissionStrings
             .Where(xkvp => xkvp.Key != Permissions.None && (perm & xkvp.Key) == xkvp.Key)
             .Select(xkvp => xkvp.Value);
 
@@ -303,9 +316,13 @@ public static class Utilities
     /// <returns>Whether the string contained these characters.</returns>
     public static bool Contains(this string str, params char[] characters)
     {
-        foreach (var xc in str)
+        foreach (char xc in str)
+        {
             if (characters.Contains(xc))
+            {
                 return true;
+            }
+        }
 
         return false;
     }
@@ -313,10 +330,14 @@ public static class Utilities
     internal static void LogTaskFault(this Task task, ILogger logger, LogLevel level, EventId eventId, string message)
     {
         if (task == null)
+        {
             throw new ArgumentNullException(nameof(task));
+        }
 
         if (logger == null)
+        {
             return;
+        }
 
         task.ContinueWith(t => logger.Log(level, eventId, t.Exception, message), TaskContinuationOptions.OnlyOnFaulted);
     }

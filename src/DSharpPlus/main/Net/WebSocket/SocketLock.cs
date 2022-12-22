@@ -35,57 +35,59 @@ internal sealed class SocketLock : IDisposable
 
     private SemaphoreSlim LockSemaphore { get; }
     private CancellationTokenSource TimeoutCancelSource { get; set; }
-    private CancellationToken TimeoutCancel => this.TimeoutCancelSource.Token;
+    private CancellationToken TimeoutCancel => TimeoutCancelSource.Token;
     private Task UnlockTask { get; set; }
     private int MaxConcurrency { get; set; }
 
     public SocketLock(ulong appId, int maxConcurrency)
     {
-        this.ApplicationId = appId;
-        this.TimeoutCancelSource = null;
-        this.MaxConcurrency = maxConcurrency;
-        this.LockSemaphore = new SemaphoreSlim(maxConcurrency);
+        ApplicationId = appId;
+        TimeoutCancelSource = null;
+        MaxConcurrency = maxConcurrency;
+        LockSemaphore = new SemaphoreSlim(maxConcurrency);
     }
 
     public async Task LockAsync()
     {
-        await this.LockSemaphore.WaitAsync().ConfigureAwait(false);
+        await LockSemaphore.WaitAsync().ConfigureAwait(false);
 
-        this.TimeoutCancelSource = new CancellationTokenSource();
-        this.UnlockTask = Task.Delay(TimeSpan.FromSeconds(30), this.TimeoutCancel);
-        _ = this.UnlockTask.ContinueWith(this.InternalUnlock, TaskContinuationOptions.NotOnCanceled);
+        TimeoutCancelSource = new CancellationTokenSource();
+        UnlockTask = Task.Delay(TimeSpan.FromSeconds(30), TimeoutCancel);
+        _ = UnlockTask.ContinueWith(InternalUnlock, TaskContinuationOptions.NotOnCanceled);
     }
 
     public void UnlockAfter(TimeSpan unlockDelay)
     {
-        if (this.TimeoutCancelSource == null || this.LockSemaphore.CurrentCount > 0)
+        if (TimeoutCancelSource == null || LockSemaphore.CurrentCount > 0)
+        {
             return; // it's not unlockable because it's post-IDENTIFY or not locked
+        }
 
         try
         {
-            this.TimeoutCancelSource.Cancel();
-            this.TimeoutCancelSource.Dispose();
+            TimeoutCancelSource.Cancel();
+            TimeoutCancelSource.Dispose();
         }
         catch { }
-        this.TimeoutCancelSource = null;
+        TimeoutCancelSource = null;
 
-        this.UnlockTask = Task.Delay(unlockDelay, CancellationToken.None);
-        _ = this.UnlockTask.ContinueWith(this.InternalUnlock);
+        UnlockTask = Task.Delay(unlockDelay, CancellationToken.None);
+        _ = UnlockTask.ContinueWith(InternalUnlock);
     }
 
     public Task WaitAsync()
-        => this.LockSemaphore.WaitAsync();
+        => LockSemaphore.WaitAsync();
 
     public void Dispose()
     {
         try
         {
-            this.TimeoutCancelSource?.Cancel();
-            this.TimeoutCancelSource?.Dispose();
+            TimeoutCancelSource?.Cancel();
+            TimeoutCancelSource?.Dispose();
         }
         catch { }
     }
 
     private void InternalUnlock(Task t)
-        => this.LockSemaphore.Release(this.MaxConcurrency);
+        => LockSemaphore.Release(MaxConcurrency);
 }

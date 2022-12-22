@@ -44,21 +44,27 @@ public class BadRequestException : DiscordException
 
     internal BadRequestException(BaseRestRequest request, RestResponse response) : base("Bad request: " + response.ResponseCode)
     {
-        this.WebRequest = request;
-        this.WebResponse = response;
+        WebRequest = request;
+        WebResponse = response;
 
         try
         {
-            var j = JObject.Parse(response.Response);
+            JObject j = JObject.Parse(response.Response);
 
             if (j["code"] != null)
-                this.Code = (int)j["code"];
+            {
+                Code = (int)j["code"];
+            }
 
             if (j["message"] != null)
-                this.JsonMessage = j["message"].ToString();
+            {
+                JsonMessage = j["message"].ToString();
+            }
 
             if (j["errors"] != null)
-                this.Errors = j["errors"].ToString();
+            {
+                Errors = j["errors"].ToString();
+            }
         }
         catch { }
     }

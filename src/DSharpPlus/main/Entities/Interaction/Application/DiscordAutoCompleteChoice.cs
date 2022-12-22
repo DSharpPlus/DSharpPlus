@@ -50,14 +50,21 @@ public sealed class DiscordAutoCompleteChoice
     public DiscordAutoCompleteChoice(string name, object value)
     {
         if (value is not (string or int or long))
+        {
             throw new ArgumentException($"Object type must be of {typeof(int)} or {typeof(string)} or {typeof(long)}", nameof(value));
+        }
 
         if (name.Length > 100)
+        {
             throw new ArgumentException("Application command choice name cannot exceed 100 characters.", nameof(name));
-        if (value is string val && val.Length > 100)
-            throw new ArgumentException("Application command choice value cannot exceed 100 characters.", nameof(value));
+        }
 
-        this.Name = name;
-        this.Value = value;
+        if (value is string val && val.Length > 100)
+        {
+            throw new ArgumentException("Application command choice value cannot exceed 100 characters.", nameof(value));
+        }
+
+        Name = name;
+        Value = value;
     }
 }

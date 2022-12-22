@@ -32,7 +32,7 @@ public class ScheduledGuildEventUserAddEventArgs : DiscordEventArgs
     /// <summary>
     /// The guild the event is scheduled for.
     /// </summary>
-    public DiscordGuild Guild => this.Event.Guild;
+    public DiscordGuild Guild => Event.Guild;
 
     /// <summary>
     /// The event that was subscribed to.

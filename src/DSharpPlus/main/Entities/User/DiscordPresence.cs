@@ -44,7 +44,7 @@ public sealed class DiscordPresence
     /// </summary>
     [JsonIgnore]
     public DiscordUser User
-        => this.Discord.GetCachedOrEmptyUserInternal(this.InternalUser.Id);
+        => Discord.GetCachedOrEmptyUserInternal(InternalUser.Id);
 
     /// <summary>
     /// Gets the user's current activity.
@@ -58,7 +58,7 @@ public sealed class DiscordPresence
     /// Gets the user's current activities.
     /// </summary>
     [JsonIgnore]
-    public IReadOnlyList<DiscordActivity> Activities => this._internalActivities;
+    public IReadOnlyList<DiscordActivity> Activities => _internalActivities;
 
     [JsonIgnore]
     internal DiscordActivity[] _internalActivities;
@@ -80,7 +80,7 @@ public sealed class DiscordPresence
     /// </summary>
     [JsonIgnore]
     public DiscordGuild Guild
-        => this.GuildId != 0 ? this.Discord._guilds[this.GuildId] : null;
+        => GuildId != 0 ? Discord._guilds[GuildId] : null;
 
     /// <summary>
     /// Gets this user's platform-dependent status.
@@ -92,15 +92,21 @@ public sealed class DiscordPresence
 
     internal DiscordPresence(DiscordPresence other)
     {
-        this.Discord = other.Discord;
+        Discord = other.Discord;
         if (other.Activity != null)
-            this.Activity = new DiscordActivity(other.Activity);
+        {
+            Activity = new DiscordActivity(other.Activity);
+        }
+
         if (other.Activity != null)
-            this.RawActivity = new TransportActivity(this.Activity);
-        this._internalActivities = (DiscordActivity[])other._internalActivities?.Clone();
-        this.RawActivities = (TransportActivity[])other.RawActivities?.Clone();
-        this.Status = other.Status;
-        this.InternalUser = new TransportUser(other.InternalUser);
+        {
+            RawActivity = new TransportActivity(Activity);
+        }
+
+        _internalActivities = (DiscordActivity[])other._internalActivities?.Clone();
+        RawActivities = (TransportActivity[])other.RawActivities?.Clone();
+        Status = other.Status;
+        InternalUser = new TransportUser(other.InternalUser);
     }
 }
 

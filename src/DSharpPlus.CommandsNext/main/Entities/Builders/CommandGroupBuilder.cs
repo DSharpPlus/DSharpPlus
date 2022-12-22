@@ -50,8 +50,8 @@ public sealed class CommandGroupBuilder : CommandBuilder
     /// <param name="module">Module on which this group is to be defined.</param>
     public CommandGroupBuilder(ICommandModule? module) : base(module)
     {
-        this._childrenList = new List<CommandBuilder>();
-        this.Children = new ReadOnlyCollection<CommandBuilder>(this._childrenList);
+        _childrenList = new List<CommandBuilder>();
+        Children = new ReadOnlyCollection<CommandBuilder>(_childrenList);
     }
 
     /// <summary>
@@ -61,29 +61,31 @@ public sealed class CommandGroupBuilder : CommandBuilder
     /// <returns>This builder.</returns>
     public CommandGroupBuilder WithChild(CommandBuilder child)
     {
-        this._childrenList.Add(child);
+        _childrenList.Add(child);
         return this;
     }
 
     internal override Command Build(CommandGroup? parent)
     {
-        var cmd = new CommandGroup
+        CommandGroup cmd = new CommandGroup
         {
-            Name = this.Name,
-            Description = this.Description,
-            Aliases = this.Aliases,
-            ExecutionChecks = this.ExecutionChecks,
-            IsHidden = this.IsHidden,
+            Name = Name,
+            Description = Description,
+            Aliases = Aliases,
+            ExecutionChecks = ExecutionChecks,
+            IsHidden = IsHidden,
             Parent = parent,
-            Overloads = new ReadOnlyCollection<CommandOverload>(this.Overloads.Select(xo => xo.Build()).ToList()),
-            Module = this.Module,
-            CustomAttributes = this.CustomAttributes,
-            Category = this.Category
+            Overloads = new ReadOnlyCollection<CommandOverload>(Overloads.Select(xo => xo.Build()).ToList()),
+            Module = Module,
+            CustomAttributes = CustomAttributes,
+            Category = Category
         };
 
-        var cs = new List<Command>();
-        foreach (var xc in this.Children)
+        List<Command> cs = new List<Command>();
+        foreach (CommandBuilder xc in Children)
+        {
             cs.Add(xc.Build(cmd));
+        }
 
         cmd.Children = new ReadOnlyCollection<Command>(cs);
         return cmd;

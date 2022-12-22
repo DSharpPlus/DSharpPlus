@@ -36,7 +36,7 @@ internal sealed class ISO8601DateTimeOffsetJsonConverter : JsonConverter
         => writer.WriteValue(((DateTimeOffset)value).ToString("O", CultureInfo.InvariantCulture));
     public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
     {
-        var jr = JToken.Load(reader);
+        JToken jr = JToken.Load(reader);
 
         return jr.ToObject<DateTimeOffset>();
     }

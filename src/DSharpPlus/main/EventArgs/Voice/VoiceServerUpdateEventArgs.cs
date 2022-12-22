@@ -33,12 +33,12 @@ public class VoiceServerUpdateEventArgs : DiscordEventArgs
     /// <summary>
     /// Gets the guild for which the update occurred.
     /// </summary>
-		public DiscordGuild Guild { get; internal set; }
+    public DiscordGuild Guild { get; internal set; }
 
     /// <summary>
     /// Gets the new voice endpoint.
     /// </summary>
-		public string Endpoint { get; internal set; }
+    public string Endpoint { get; internal set; }
 
     /// <summary>
     /// Gets the voice connection token.

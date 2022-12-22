@@ -97,20 +97,20 @@ public class CommandBuilder
     /// <param name="module">Module on which this command is to be defined.</param>
     public CommandBuilder(ICommandModule? module)
     {
-        this._aliasList = new List<string>();
-        this.Aliases = new ReadOnlyCollection<string>(this._aliasList);
+        _aliasList = new List<string>();
+        Aliases = new ReadOnlyCollection<string>(_aliasList);
 
-        this._executionCheckList = new List<CheckBaseAttribute>();
-        this.ExecutionChecks = new ReadOnlyCollection<CheckBaseAttribute>(this._executionCheckList);
+        _executionCheckList = new List<CheckBaseAttribute>();
+        ExecutionChecks = new ReadOnlyCollection<CheckBaseAttribute>(_executionCheckList);
 
-        this._overloadArgumentSets = new HashSet<string>();
-        this._overloadList = new List<CommandOverloadBuilder>();
-        this.Overloads = new ReadOnlyCollection<CommandOverloadBuilder>(this._overloadList);
+        _overloadArgumentSets = new HashSet<string>();
+        _overloadList = new List<CommandOverloadBuilder>();
+        Overloads = new ReadOnlyCollection<CommandOverloadBuilder>(_overloadList);
 
-        this.Module = module;
+        Module = module;
 
-        this._customAttributeList = new List<Attribute>();
-        this.CustomAttributes = new ReadOnlyCollection<Attribute>(this._customAttributeList);
+        _customAttributeList = new List<Attribute>();
+        CustomAttributes = new ReadOnlyCollection<Attribute>(_customAttributeList);
     }
 
     /// <summary>
@@ -121,13 +121,19 @@ public class CommandBuilder
     public CommandBuilder WithName(string name)
     {
         if (name == null || name.ToCharArray().Any(xc => char.IsWhiteSpace(xc)))
+        {
             throw new ArgumentException("Command name cannot be null or contain any whitespace characters.", nameof(name));
-        else if (this.Name != null)
+        }
+        else if (Name != null)
+        {
             throw new InvalidOperationException("This command already has a name.");
-        else if (this._aliasList.Contains(name))
+        }
+        else if (_aliasList.Contains(name))
+        {
             throw new ArgumentException("Command name cannot be one of its aliases.", nameof(name));
+        }
 
-        this.Name = name;
+        Name = name;
         return this;
     }
 
@@ -138,7 +144,7 @@ public class CommandBuilder
     /// <returns>This builder.</returns>
     public CommandBuilder WithCategory(string? category)
     {
-        this.Category = category;
+        Category = category;
         return this;
     }
 
@@ -150,10 +156,14 @@ public class CommandBuilder
     public CommandBuilder WithAliases(params string[] aliases)
     {
         if (aliases == null || !aliases.Any())
+        {
             throw new ArgumentException("You need to pass at least one alias.", nameof(aliases));
+        }
 
-        foreach (var alias in aliases)
-            this.WithAlias(alias);
+        foreach (string alias in aliases)
+        {
+            WithAlias(alias);
+        }
 
         return this;
     }
@@ -166,12 +176,16 @@ public class CommandBuilder
     public CommandBuilder WithAlias(string alias)
     {
         if (alias.ToCharArray().Any(xc => char.IsWhiteSpace(xc)))
+        {
             throw new ArgumentException("Aliases cannot contain whitespace characters or null strings.", nameof(alias));
+        }
 
-        if (this.Name == alias || this._aliasList.Contains(alias))
+        if (Name == alias || _aliasList.Contains(alias))
+        {
             throw new ArgumentException("Aliases cannot contain the command name, and cannot be duplicate.", nameof(alias));
+        }
 
-        this._aliasList.Add(alias);
+        _aliasList.Add(alias);
         return this;
     }
 
@@ -182,7 +196,7 @@ public class CommandBuilder
     /// <returns>This builder.</returns>
     public CommandBuilder WithDescription(string description)
     {
-        this.Description = description;
+        Description = description;
         return this;
     }
 
@@ -193,7 +207,7 @@ public class CommandBuilder
     /// <returns>This builder.</returns>
     public CommandBuilder WithHiddenStatus(bool hidden)
     {
-        this.IsHidden = hidden;
+        IsHidden = hidden;
         return this;
     }
 
@@ -204,7 +218,7 @@ public class CommandBuilder
     /// <returns>This builder.</returns>
     public CommandBuilder WithExecutionChecks(params CheckBaseAttribute[] checks)
     {
-        this._executionCheckList.AddRange(checks.Except(this._executionCheckList));
+        _executionCheckList.AddRange(checks.Except(_executionCheckList));
         return this;
     }
 
@@ -215,8 +229,11 @@ public class CommandBuilder
     /// <returns>This builder.</returns>
     public CommandBuilder WithExecutionCheck(CheckBaseAttribute check)
     {
-        if (!this._executionCheckList.Contains(check))
-            this._executionCheckList.Add(check);
+        if (!_executionCheckList.Contains(check))
+        {
+            _executionCheckList.Add(check);
+        }
+
         return this;
     }
 
@@ -227,8 +244,10 @@ public class CommandBuilder
     /// <returns>This builder.</returns>
     public CommandBuilder WithOverloads(params CommandOverloadBuilder[] overloads)
     {
-        foreach (var overload in overloads)
-            this.WithOverload(overload);
+        foreach (CommandOverloadBuilder overload in overloads)
+        {
+            WithOverload(overload);
+        }
 
         return this;
     }
@@ -240,11 +259,13 @@ public class CommandBuilder
     /// <returns>This builder.</returns>
     public CommandBuilder WithOverload(CommandOverloadBuilder overload)
     {
-        if (this._overloadArgumentSets.Contains(overload._argumentSet))
-            throw new DuplicateOverloadException(this.Name, overload.Arguments.Select(x => x.Type).ToList(), overload._argumentSet);
+        if (_overloadArgumentSets.Contains(overload._argumentSet))
+        {
+            throw new DuplicateOverloadException(Name, overload.Arguments.Select(x => x.Type).ToList(), overload._argumentSet);
+        }
 
-        this._overloadArgumentSets.Add(overload._argumentSet);
-        this._overloadList.Add(overload);
+        _overloadArgumentSets.Add(overload._argumentSet);
+        _overloadList.Add(overload);
 
         return this;
     }
@@ -256,7 +277,7 @@ public class CommandBuilder
     /// <returns>This builder.</returns>
     public CommandBuilder WithCustomAttribute(Attribute attribute)
     {
-        this._customAttributeList.Add(attribute);
+        _customAttributeList.Add(attribute);
         return this;
     }
 
@@ -267,29 +288,31 @@ public class CommandBuilder
     /// <returns>This builder.</returns>
     public CommandBuilder WithCustomAttributes(params Attribute[] attributes)
     {
-        foreach (var attr in attributes)
-            this.WithCustomAttribute(attr);
+        foreach (Attribute attr in attributes)
+        {
+            WithCustomAttribute(attr);
+        }
 
         return this;
     }
 
     internal virtual Command Build(CommandGroup? parent)
     {
-        var cmd = new Command
+        Command cmd = new Command
         {
-            Name = string.IsNullOrWhiteSpace(this.Name)
+            Name = string.IsNullOrWhiteSpace(Name)
                 ? throw new InvalidOperationException($"Cannot build a command with an invalid name. Use the method {nameof(this.WithName)} to set a valid name.")
-                : this.Name,
+                : Name,
 
-            Category = this.Category,
-            Description = this.Description,
-            Aliases = this.Aliases,
-            ExecutionChecks = this.ExecutionChecks,
-            IsHidden = this.IsHidden,
+            Category = Category,
+            Description = Description,
+            Aliases = Aliases,
+            ExecutionChecks = ExecutionChecks,
+            IsHidden = IsHidden,
             Parent = parent,
-            Overloads = new ReadOnlyCollection<CommandOverload>(this.Overloads.Select(xo => xo.Build()).ToList()),
-            Module = this.Module,
-            CustomAttributes = this.CustomAttributes
+            Overloads = new ReadOnlyCollection<CommandOverload>(Overloads.Select(xo => xo.Build()).ToList()),
+            Module = Module,
+            CustomAttributes = CustomAttributes
         };
 
         return cmd;

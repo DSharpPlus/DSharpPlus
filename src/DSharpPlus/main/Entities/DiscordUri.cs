@@ -44,24 +44,26 @@ public class DiscordUri
 
     internal DiscordUri(Uri value)
     {
-        this._value = value ?? throw new ArgumentNullException(nameof(value));
-        this.Type = DiscordUriType.Standard;
+        _value = value ?? throw new ArgumentNullException(nameof(value));
+        Type = DiscordUriType.Standard;
     }
 
     internal DiscordUri(string value)
     {
         if (value == null)
+        {
             throw new ArgumentNullException(nameof(value));
+        }
 
         if (IsStandard(value))
         {
-            this._value = new Uri(value);
-            this.Type = DiscordUriType.Standard;
+            _value = new Uri(value);
+            Type = DiscordUriType.Standard;
         }
         else
         {
-            this._value = value;
-            this.Type = DiscordUriType.NonStandard;
+            _value = value;
+            Type = DiscordUriType.NonStandard;
         }
     }
 
@@ -73,7 +75,7 @@ public class DiscordUri
     /// Returns a string representation of this DiscordUri.
     /// </summary>
     /// <returns>This DiscordUri, as a string.</returns>
-    public override string ToString() => this._value.ToString();
+    public override string ToString() => _value.ToString();
 
     /// <summary>
     /// Converts this DiscordUri into a canonical representation of a <see cref="Uri"/> if it can be represented as
@@ -83,10 +85,10 @@ public class DiscordUri
     /// <exception cref="UriFormatException">If <see cref="Type"/> is not <see cref="DiscordUriType.Standard"/>, as
     /// that would mean creating an invalid Uri, which would result in loss of data.</exception>
     public Uri ToUri()
-        => this.Type == DiscordUriType.Standard
-            ? this._value as Uri
+        => Type == DiscordUriType.Standard
+            ? _value as Uri
             : throw new UriFormatException(
-                $@"DiscordUri ""{this._value}"" would be invalid as a regular URI, please the {nameof(this.Type)} property first.");
+                $@"DiscordUri ""{_value}"" would be invalid as a regular URI, please the {nameof(Type)} property first.");
 
     internal sealed class DiscordUriJsonConverter : JsonConverter
     {
@@ -95,16 +97,15 @@ public class DiscordUri
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue,
             JsonSerializer serializer)
         {
-            var val = reader.Value;
-            if (val == null)
-                return null;
-
-            return val is not string s
+            object? val = reader.Value;
+            return val == null
+                ? null
+                : (object)(val is not string s
                 ? throw new JsonReaderException("DiscordUri value invalid format! This is a bug in DSharpPlus. " +
                                               $"Include the type in your bug report: [[{reader.TokenType}]]")
                 : IsStandard(s)
                 ? new DiscordUri(new Uri(s))
-                : new DiscordUri(s);
+                : new DiscordUri(s));
         }
 
         public override bool CanConvert(Type objectType) => objectType == typeof(DiscordUri);

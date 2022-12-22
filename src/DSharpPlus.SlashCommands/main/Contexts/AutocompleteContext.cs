@@ -1,4 +1,4 @@
-﻿// This file is part of the DSharpPlus project.
+// This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
 // Copyright (c) 2016-2022 DSharpPlus Contributors
@@ -62,7 +62,7 @@ public class AutocompleteContext
     /// Gets the member which executed this interaction, or null if the command is in a DM.
     /// </summary>
     public DiscordMember Member
-        => this.User is DiscordMember member ? member : null;
+        => User is DiscordMember member ? member : null;
 
     /// <summary>
     /// Gets the slash command module this interaction was created in.
@@ -90,5 +90,5 @@ public class AutocompleteContext
     /// The given value of the focused option.
     /// </summary>
     public object OptionValue
-        => this.FocusedOption.Value;
+        => FocusedOption.Value;
 }

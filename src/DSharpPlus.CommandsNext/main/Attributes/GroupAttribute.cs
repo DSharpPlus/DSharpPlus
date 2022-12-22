@@ -40,10 +40,7 @@ public sealed class GroupAttribute : Attribute
     /// <summary>
     /// Marks this class as a command group, using the class' name as group name.
     /// </summary>
-    public GroupAttribute()
-    {
-        this.Name = null;
-    }
+    public GroupAttribute() => Name = null;
 
     /// <summary>
     /// Marks this class as a command group with specified name.
@@ -52,11 +49,15 @@ public sealed class GroupAttribute : Attribute
     public GroupAttribute(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
+        {
             throw new ArgumentNullException(nameof(name), "Group names cannot be null, empty, or all-whitespace.");
+        }
 
         if (name.Any(xc => char.IsWhiteSpace(xc)))
+        {
             throw new ArgumentException("Group names cannot contain whitespace characters.", nameof(name));
+        }
 
-        this.Name = name;
+        Name = name;
     }
 }

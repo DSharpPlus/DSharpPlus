@@ -1,4 +1,4 @@
-﻿// This file is part of the DSharpPlus project.
+// This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
 // Copyright (c) 2016-2022 DSharpPlus Contributors
@@ -39,16 +39,10 @@ public class MinimumAttribute : Attribute
     /// <summary>
     /// Sets a minimum value for this slash command option. Only valid for <see cref="long"/> or <see cref="double"/> parameters.
     /// </summary>
-    public MinimumAttribute(long value)
-    {
-        this.Value = value;
-    }
+    public MinimumAttribute(long value) => Value = value;
 
     /// <summary>
     /// Sets a minimum value for this slash command option. Only valid for <see cref="long"/> or <see cref="double"/> parameters.
     /// </summary>
-    public MinimumAttribute(double value)
-    {
-        this.Value = value;
-    }
+    public MinimumAttribute(double value) => Value = value;
 }

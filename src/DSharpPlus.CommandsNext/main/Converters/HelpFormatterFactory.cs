@@ -32,10 +32,10 @@ internal class HelpFormatterFactory
 
     public HelpFormatterFactory() { }
 
-    public void SetFormatterType<T>() where T : BaseHelpFormatter => this.Factory = ActivatorUtilities.CreateFactory(typeof(T), new[] { typeof(CommandContext) });
+    public void SetFormatterType<T>() where T : BaseHelpFormatter => Factory = ActivatorUtilities.CreateFactory(typeof(T), new[] { typeof(CommandContext) });
 
     public BaseHelpFormatter Create(CommandContext ctx)
-        => this.Factory is null
+        => Factory is null
             ? throw new InvalidOperationException($"A formatter type must be set with the {nameof(this.SetFormatterType)} method.")
-            : (BaseHelpFormatter)this.Factory(ctx.Services, new object[] { ctx });
+            : (BaseHelpFormatter)Factory(ctx.Services, new object[] { ctx });
 }

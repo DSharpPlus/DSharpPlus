@@ -34,15 +34,17 @@ public class RequestSizeException : DiscordException
 {
     internal RequestSizeException(BaseRestRequest request, RestResponse response) : base($"Request entity too large: {response.ResponseCode}. Make sure the data sent is within Discord's upload limit.")
     {
-        this.WebRequest = request;
-        this.WebResponse = response;
+        WebRequest = request;
+        WebResponse = response;
 
         try
         {
-            var j = JObject.Parse(response.Response);
+            JObject j = JObject.Parse(response.Response);
 
             if (j["message"] != null)
-                this.JsonMessage = j["message"].ToString();
+            {
+                JsonMessage = j["message"].ToString();
+            }
         }
         catch (Exception) { }
     }

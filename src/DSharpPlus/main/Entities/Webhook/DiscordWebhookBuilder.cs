@@ -58,9 +58,9 @@ public sealed class DiscordWebhookBuilder : BaseDiscordMessageBuilder<DiscordWeb
     /// <param name="builder">The builder to copy.</param>
     public DiscordWebhookBuilder(DiscordWebhookBuilder builder) : base(builder)
     {
-        this.Username = builder.Username;
-        this.AvatarUrl = builder.AvatarUrl;
-        this.ThreadId = builder.ThreadId;
+        Username = builder.Username;
+        AvatarUrl = builder.AvatarUrl;
+        ThreadId = builder.ThreadId;
     }
 
     /// <summary>
@@ -75,7 +75,7 @@ public sealed class DiscordWebhookBuilder : BaseDiscordMessageBuilder<DiscordWeb
     /// <param name="username">Username of the webhook</param>
     public DiscordWebhookBuilder WithUsername(string username)
     {
-        this.Username = username;
+        Username = username;
         return this;
     }
 
@@ -85,7 +85,7 @@ public sealed class DiscordWebhookBuilder : BaseDiscordMessageBuilder<DiscordWeb
     /// <param name="avatarUrl">Avatar url of the webhook</param>
     public DiscordWebhookBuilder WithAvatarUrl(string avatarUrl)
     {
-        this.AvatarUrl = avatarUrl;
+        AvatarUrl = avatarUrl;
         return this;
     }
 
@@ -95,15 +95,15 @@ public sealed class DiscordWebhookBuilder : BaseDiscordMessageBuilder<DiscordWeb
     /// <param name="threadId">The id of the thread</param>
     public DiscordWebhookBuilder WithThreadId(ulong? threadId)
     {
-        this.ThreadId = threadId;
+        ThreadId = threadId;
         return this;
     }
 
     public override void Clear()
     {
-        this.Username = default;
-        this.AvatarUrl = default;
-        this.ThreadId = default;
+        Username = default;
+        AvatarUrl = default;
+        ThreadId = default;
         base.Clear();
     }
 
@@ -120,7 +120,7 @@ public sealed class DiscordWebhookBuilder : BaseDiscordMessageBuilder<DiscordWeb
     /// <param name="webhook">The webhook that should be executed.</param>
     /// <param name="message">The message to modify.</param>
     /// <returns>The modified message</returns>
-    public async Task<DiscordMessage> ModifyAsync(DiscordWebhook webhook, DiscordMessage message) => await this.ModifyAsync(webhook, message.Id).ConfigureAwait(false);
+    public async Task<DiscordMessage> ModifyAsync(DiscordWebhook webhook, DiscordMessage message) => await ModifyAsync(webhook, message.Id).ConfigureAwait(false);
     /// <summary>
     /// Sends the modified webhook message.
     /// </summary>
@@ -139,32 +139,46 @@ public sealed class DiscordWebhookBuilder : BaseDiscordMessageBuilder<DiscordWeb
     {
         if (isModify)
         {
-            if (this.Username.HasValue)
+            if (Username.HasValue)
+            {
                 throw new ArgumentException("You cannot change the username of a message.");
+            }
 
-            if (this.AvatarUrl.HasValue)
+            if (AvatarUrl.HasValue)
+            {
                 throw new ArgumentException("You cannot change the avatar of a message.");
+            }
         }
         else if (isFollowup)
         {
-            if (this.Username.HasValue)
+            if (Username.HasValue)
+            {
                 throw new ArgumentException("You cannot change the username of a follow up message.");
+            }
 
-            if (this.AvatarUrl.HasValue)
+            if (AvatarUrl.HasValue)
+            {
                 throw new ArgumentException("You cannot change the avatar of a follow up message.");
+            }
         }
         else if (isInteractionResponse)
         {
-            if (this.Username.HasValue)
+            if (Username.HasValue)
+            {
                 throw new ArgumentException("You cannot change the username of an interaction response.");
+            }
 
-            if (this.AvatarUrl.HasValue)
+            if (AvatarUrl.HasValue)
+            {
                 throw new ArgumentException("You cannot change the avatar of an interaction response.");
+            }
         }
         else
         {
-            if (this.Files?.Count == 0 && string.IsNullOrEmpty(this.Content) && !this.Embeds.Any())
+            if (Files?.Count == 0 && string.IsNullOrEmpty(Content) && !Embeds.Any())
+            {
                 throw new ArgumentException("You must specify content, an embed, or at least one file.");
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace DSharpPlus.SlashCommands;
 
@@ -32,10 +32,12 @@ public sealed class ContextMenuAttribute : Attribute
     public ContextMenuAttribute(ApplicationCommandType type, string name, bool defaultPermission = true)
     {
         if (type == ApplicationCommandType.SlashCommand)
+        {
             throw new ArgumentException("Context menus cannot be of type SlashCommand.");
+        }
 
-        this.Type = type;
-        this.Name = name;
-        this.DefaultPermission = defaultPermission;
+        Type = type;
+        Name = name;
+        DefaultPermission = defaultPermission;
     }
 }

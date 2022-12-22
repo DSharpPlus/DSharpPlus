@@ -74,28 +74,32 @@ public sealed class CommandOverloadBuilder
 
     private CommandOverloadBuilder(MethodInfo method, object? target)
     {
-        if (!method.IsCommandCandidate(out var prms))
+        if (!method.IsCommandCandidate(out ParameterInfo[]? prms))
+        {
             throw new ArgumentException("Specified method is not suitable for a command.", nameof(method));
+        }
 
-        this._invocationTarget = target;
+        _invocationTarget = target;
 
         // create the argument array
-        var ea = new ParameterExpression[prms.Length + 1];
-        var iep = Expression.Parameter(target?.GetType() ?? method.DeclaringType, "instance");
+        ParameterExpression[] ea = new ParameterExpression[prms.Length + 1];
+        ParameterExpression iep = Expression.Parameter(target?.GetType() ?? method.DeclaringType, "instance");
         ea[0] = iep;
         ea[1] = Expression.Parameter(typeof(CommandContext), "ctx");
 
-        var pri = method.GetCustomAttribute<PriorityAttribute>();
+        PriorityAttribute? pri = method.GetCustomAttribute<PriorityAttribute>();
         if (pri != null)
-            this.Priority = pri.Priority;
+        {
+            Priority = pri.Priority;
+        }
 
-        var i = 2;
-        var args = new List<CommandArgument>(prms.Length - 1);
-        var setb = new StringBuilder();
-        foreach (var arg in prms.Skip(1))
+        int i = 2;
+        List<CommandArgument> args = new List<CommandArgument>(prms.Length - 1);
+        StringBuilder setb = new StringBuilder();
+        foreach (ParameterInfo? arg in prms.Skip(1))
         {
             setb.Append(arg.ParameterType).Append(";");
-            var ca = new CommandArgument
+            CommandArgument ca = new CommandArgument
             {
                 Name = arg.Name,
                 Type = arg.ParameterType,
@@ -103,10 +107,10 @@ public sealed class CommandOverloadBuilder
                 DefaultValue = arg.IsOptional ? arg.DefaultValue : null
             };
 
-            var attrsCustom = new List<Attribute>();
-            var attrs = arg.GetCustomAttributes();
-            var isParams = false;
-            foreach (var xa in attrs)
+            List<Attribute> attrsCustom = new List<Attribute>();
+            IEnumerable<Attribute> attrs = arg.GetCustomAttributes();
+            bool isParams = false;
+            foreach (Attribute xa in attrs)
             {
                 switch (xa)
                 {
@@ -132,10 +136,14 @@ public sealed class CommandOverloadBuilder
             }
 
             if (i > 2 && !ca.IsOptional && !ca.IsCatchAll && args[i - 3].IsOptional)
+            {
                 throw new InvalidOverloadException("Non-optional argument cannot appear after an optional one", method, arg);
+            }
 
             if (arg.ParameterType.IsArray && !isParams)
+            {
                 throw new InvalidOverloadException("Cannot use array arguments without params modifier.", method, arg);
+            }
 
             ca.CustomAttributes = new ReadOnlyCollection<Attribute>(attrsCustom);
             args.Add(ca);
@@ -143,12 +151,12 @@ public sealed class CommandOverloadBuilder
         }
 
         //var ec = Expression.Call(iev, method, ea.Skip(2));
-        var ec = Expression.Call(iep, method, ea.Skip(1));
-        var el = Expression.Lambda(ec, ea);
+        MethodCallExpression ec = Expression.Call(iep, method, ea.Skip(1));
+        LambdaExpression el = Expression.Lambda(ec, ea);
 
-        this._argumentSet = setb.ToString();
-        this.Arguments = new ReadOnlyCollection<CommandArgument>(args);
-        this.Callable = el.Compile();
+        _argumentSet = setb.ToString();
+        Arguments = new ReadOnlyCollection<CommandArgument>(args);
+        Callable = el.Compile();
     }
 
     /// <summary>
@@ -158,18 +166,18 @@ public sealed class CommandOverloadBuilder
     /// <returns>This builder.</returns>
     public CommandOverloadBuilder WithPriority(int priority)
     {
-        this.Priority = priority;
+        Priority = priority;
         return this;
     }
 
     internal CommandOverload Build()
     {
-        var ovl = new CommandOverload()
+        CommandOverload ovl = new CommandOverload()
         {
-            Arguments = this.Arguments,
-            Priority = this.Priority,
-            _callable = this.Callable,
-            _invocationTarget = this._invocationTarget
+            Arguments = Arguments,
+            Priority = Priority,
+            _callable = Callable,
+            _invocationTarget = _invocationTarget
         };
 
         return ovl;

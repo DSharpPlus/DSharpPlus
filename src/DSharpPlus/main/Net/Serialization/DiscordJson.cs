@@ -50,7 +50,7 @@ public static class DiscordJson
     /// <param name="target">The object to populate.</param>
     public static void PopulateObject(JToken value, object target)
     {
-        using var reader = value.CreateReader();
+        using JsonReader reader = value.CreateReader();
         _serializer.Populate(reader, target);
     }
 
@@ -65,8 +65,8 @@ public static class DiscordJson
 
     private static string SerializeObjectInternal(object value, Type type, JsonSerializer jsonSerializer)
     {
-        var stringWriter = new StringWriter(new StringBuilder(256), CultureInfo.InvariantCulture);
-        using (var jsonTextWriter = new JsonTextWriter(stringWriter))
+        StringWriter stringWriter = new StringWriter(new StringBuilder(256), CultureInfo.InvariantCulture);
+        using (JsonTextWriter jsonTextWriter = new JsonTextWriter(stringWriter))
         {
             jsonTextWriter.Formatting = jsonSerializer.Formatting;
             jsonSerializer.Serialize(jsonTextWriter, value, type);

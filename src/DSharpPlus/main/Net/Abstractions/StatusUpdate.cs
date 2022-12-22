@@ -50,20 +50,14 @@ internal sealed class StatusUpdate
     public UserStatus Status { get; set; } = UserStatus.Online;
 
     [JsonProperty("status")]
-    internal string StatusString
+    internal string StatusString => Status switch
     {
-        get
-        {
-            return this.Status switch
-            {
-                UserStatus.Online => "online",
-                UserStatus.Idle => "idle",
-                UserStatus.DoNotDisturb => "dnd",
-                UserStatus.Invisible or UserStatus.Offline => "invisible",
-                _ => "online",
-            };
-        }
-    }
+        UserStatus.Online => "online",
+        UserStatus.Idle => "idle",
+        UserStatus.DoNotDisturb => "dnd",
+        UserStatus.Invisible or UserStatus.Offline => "invisible",
+        _ => "online",
+    };
 
     /// <summary>
     /// Gets or sets the game the user is playing.

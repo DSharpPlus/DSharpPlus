@@ -38,8 +38,8 @@ internal sealed class LavalinkConfigureResume : LavalinkPayload
     public LavalinkConfigureResume(string key, int timeout)
         : base("configureResuming")
     {
-        this.Key = key;
-        this.Timeout = timeout;
+        Key = key;
+        Timeout = timeout;
     }
 }
 
@@ -56,10 +56,7 @@ internal sealed class LavalinkPlay : LavalinkPayload
     public string Track { get; }
 
     public LavalinkPlay(LavalinkGuildConnection lvl, LavalinkTrack track)
-        : base("play", lvl.GuildIdString)
-    {
-        this.Track = track.TrackString;
-    }
+        : base("play", lvl.GuildIdString) => Track = track.TrackString;
 }
 
 internal sealed class LavalinkPlayPartial : LavalinkPayload
@@ -76,9 +73,9 @@ internal sealed class LavalinkPlayPartial : LavalinkPayload
     public LavalinkPlayPartial(LavalinkGuildConnection lvl, LavalinkTrack track, TimeSpan start, TimeSpan stop)
         : base("play", lvl.GuildIdString)
     {
-        this.Track = track.TrackString;
-        this.StartTime = (long)start.TotalMilliseconds;
-        this.StopTime = (long)stop.TotalMilliseconds;
+        Track = track.TrackString;
+        StartTime = (long)start.TotalMilliseconds;
+        StopTime = (long)stop.TotalMilliseconds;
     }
 }
 
@@ -88,10 +85,7 @@ internal sealed class LavalinkPause : LavalinkPayload
     public bool Pause { get; }
 
     public LavalinkPause(LavalinkGuildConnection lvl, bool pause)
-        : base("pause", lvl.GuildIdString)
-    {
-        this.Pause = pause;
-    }
+        : base("pause", lvl.GuildIdString) => Pause = pause;
 }
 
 internal sealed class LavalinkStop : LavalinkPayload
@@ -107,10 +101,7 @@ internal sealed class LavalinkSeek : LavalinkPayload
     public long Position { get; }
 
     public LavalinkSeek(LavalinkGuildConnection lvl, TimeSpan position)
-        : base("seek", lvl.GuildIdString)
-    {
-        this.Position = (long)position.TotalMilliseconds;
-    }
+        : base("seek", lvl.GuildIdString) => Position = (long)position.TotalMilliseconds;
 }
 
 internal sealed class LavalinkVolume : LavalinkPayload
@@ -119,10 +110,7 @@ internal sealed class LavalinkVolume : LavalinkPayload
     public int Volume { get; }
 
     public LavalinkVolume(LavalinkGuildConnection lvl, int volume)
-        : base("volume", lvl.GuildIdString)
-    {
-        this.Volume = volume;
-    }
+        : base("volume", lvl.GuildIdString) => Volume = volume;
 }
 
 internal sealed class LavalinkEqualizer : LavalinkPayload
@@ -131,8 +119,5 @@ internal sealed class LavalinkEqualizer : LavalinkPayload
     public IEnumerable<LavalinkBandAdjustment> Bands { get; }
 
     public LavalinkEqualizer(LavalinkGuildConnection lvl, IEnumerable<LavalinkBandAdjustment> bands)
-        : base("equalizer", lvl.GuildIdString)
-    {
-        this.Bands = bands;
-    }
+        : base("equalizer", lvl.GuildIdString) => Bands = bands;
 }

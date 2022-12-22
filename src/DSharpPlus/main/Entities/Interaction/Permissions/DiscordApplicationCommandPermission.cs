@@ -55,9 +55,9 @@ public class DiscordApplicationCommandPermission
     /// <param name="permission">Whether the command should be enabled for the role.</param>
     public DiscordApplicationCommandPermission(DiscordRole role, bool permission)
     {
-        this.Id = role.Id;
-        this.Type = ApplicationCommandPermissionType.Role;
-        this.Permission = permission;
+        Id = role.Id;
+        Type = ApplicationCommandPermissionType.Role;
+        Permission = permission;
     }
 
     /// <summary>
@@ -67,9 +67,9 @@ public class DiscordApplicationCommandPermission
     /// <param name="permission">Whether the command should be enabled for the role.</param>
     public DiscordApplicationCommandPermission(DiscordMember member, bool permission)
     {
-        this.Id = member.Id;
-        this.Type = ApplicationCommandPermissionType.User;
-        this.Permission = permission;
+        Id = member.Id;
+        Type = ApplicationCommandPermissionType.User;
+        Permission = permission;
     }
 
     internal DiscordApplicationCommandPermission() { }

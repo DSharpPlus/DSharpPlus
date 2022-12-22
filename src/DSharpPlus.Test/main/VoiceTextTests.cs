@@ -40,49 +40,51 @@ public class VoiceTextTests : BaseCommandModule
             return;
         }
 
-        var channel = ctx.Member.VoiceState.Channel;
+        DiscordChannel channel = ctx.Member.VoiceState.Channel;
 
-        var s = new Stack<string>();
+        Stack<string> s = new Stack<string>();
 
         try
         {
             await channel.SendMessageAsync("Testing Guild Voice Text (1/5).");
-            this.ChannelPassed(s, "content");
+            ChannelPassed(s, "content");
         }
-        catch { this.ChannelFailed(s, "content"); }
+        catch { ChannelFailed(s, "content"); }
 
 
         try
         {
             await channel.SendMessageAsync(new DiscordEmbedBuilder().WithTitle("Testing Guild Voice Text (2/5)"));
-            this.ChannelPassed(s, "embed");
+            ChannelPassed(s, "embed");
         }
-        catch { this.ChannelFailed(s, "embed"); }
+        catch { ChannelFailed(s, "embed"); }
 
         try
         {
             await channel.SendMessageAsync("Testing Guild Voice Text (3/5)", new DiscordEmbedBuilder().WithTitle("Testing Guild Voice Text (3/5)"));
-            this.ChannelPassed(s, "embed, content");
+            ChannelPassed(s, "embed, content");
         }
-        catch { this.ChannelFailed(s, "embed, content"); }
+        catch { ChannelFailed(s, "embed, content"); }
 
         try
         {
             await channel.SendMessageAsync(new DiscordMessageBuilder().WithContent("Testing Guild Voice Text (4/5)").WithEmbed(new DiscordEmbedBuilder().WithTitle("Testing Guild Voice Text (4/5)")));
-            this.ChannelPassed(s, "builder");
+            ChannelPassed(s, "builder");
         }
-        catch { this.ChannelFailed(s, "builder"); }
+        catch { ChannelFailed(s, "builder"); }
 
         try
         {
             await channel.SendMessageAsync(b => b.WithContent("Testing Guild Voice Text (5/5)").WithEmbed(new DiscordEmbedBuilder().WithTitle("Testing Guild Voice Text (5/5)")));
-            this.ChannelPassed(s, "builder [action]");
+            ChannelPassed(s, "builder [action]");
         }
-        catch { this.ChannelFailed(s, "builder [action]"); }
+        catch { ChannelFailed(s, "builder [action]"); }
 
-        var sb = new StringBuilder();
-        while (s.TryPop(out var res))
+        StringBuilder sb = new StringBuilder();
+        while (s.TryPop(out string? res))
+        {
             sb.AppendLine(res);
+        }
 
         await ctx.RespondAsync(sb.ToString());
     }

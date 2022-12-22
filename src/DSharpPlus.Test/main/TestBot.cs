@@ -56,40 +56,40 @@ internal sealed class TestBot
     public TestBot(TestBotConfig cfg, int shardid)
     {
         // global bot config
-        this.Config = cfg;
+        Config = cfg;
 
         // discord instance config and the instance itself
-        var dcfg = new DiscordConfiguration
+        DiscordConfiguration dcfg = new DiscordConfiguration
         {
             AutoReconnect = true,
             LargeThreshold = 250,
             MinimumLogLevel = LogLevel.Trace,
-            Token = this.Config.Token,
+            Token = Config.Token,
             TokenType = TokenType.Bot,
             ShardId = shardid,
-            ShardCount = this.Config.ShardCount,
+            ShardCount = Config.ShardCount,
             MessageCacheSize = 2048,
             LogTimestampFormat = "dd-MM-yyyy HH:mm:ss zzz",
             Intents = DiscordIntents.All // if 4013 is received, change to DiscordIntents.AllUnprivileged
         };
-        this.Discord = new DiscordClient(dcfg);
+        Discord = new DiscordClient(dcfg);
 
         // events
-        this.Discord.Ready += this.Discord_Ready;
-        this.Discord.GuildStickersUpdated += this.Discord_StickersUpdated;
-        this.Discord.GuildAvailable += this.Discord_GuildAvailable;
+        Discord.Ready += Discord_Ready;
+        Discord.GuildStickersUpdated += Discord_StickersUpdated;
+        Discord.GuildAvailable += Discord_GuildAvailable;
         //Discord.PresenceUpdated += this.Discord_PresenceUpdated;
         //Discord.ClientErrored += this.Discord_ClientErrored;
-        this.Discord.SocketErrored += this.Discord_SocketError;
-        this.Discord.GuildCreated += this.Discord_GuildCreated;
-        this.Discord.VoiceStateUpdated += this.Discord_VoiceStateUpdated;
-        this.Discord.GuildDownloadCompleted += this.Discord_GuildDownloadCompleted;
-        this.Discord.GuildUpdated += this.Discord_GuildUpdated;
-        this.Discord.ChannelDeleted += this.Discord_ChannelDeleted;
+        Discord.SocketErrored += Discord_SocketError;
+        Discord.GuildCreated += Discord_GuildCreated;
+        Discord.VoiceStateUpdated += Discord_VoiceStateUpdated;
+        Discord.GuildDownloadCompleted += Discord_GuildDownloadCompleted;
+        Discord.GuildUpdated += Discord_GuildUpdated;
+        Discord.ChannelDeleted += Discord_ChannelDeleted;
 
-        this.Discord.InteractionCreated += this.Discord_InteractionCreated;
-        this.Discord.ComponentInteractionCreated += this.Discord_ModalCheck;
-        this.Discord.ModalSubmitted += this.Discord_ModalSubmitted;
+        Discord.InteractionCreated += Discord_InteractionCreated;
+        Discord.ComponentInteractionCreated += Discord_ModalCheck;
+        Discord.ModalSubmitted += Discord_ModalSubmitted;
         //this.Discord.ComponentInteractionCreated += this.RoleMenu;
         //this.Discord.ComponentInteractionCreated += this.DiscordComponentInteractionCreated;
         //this.Discord.InteractionCreated += this.SendButton;
@@ -100,27 +100,27 @@ internal sealed class TestBot
         //    throw new Exception("Flippin' tables");
         //};
 
-        this.Discord.ThreadCreated += this.Discord_ThreadCreated;
-        this.Discord.ThreadUpdated += this.Discord_ThreadUpdated;
-        this.Discord.ThreadDeleted += this.Discord_ThreadDeleted;
-        this.Discord.ThreadListSynced += this.Discord_ThreadListSynced;
-        this.Discord.ThreadMemberUpdated += this.Discord_ThreadMemberUpdated;
-        this.Discord.ThreadMembersUpdated += this.Discord_ThreadMembersUpdated;
+        Discord.ThreadCreated += Discord_ThreadCreated;
+        Discord.ThreadUpdated += Discord_ThreadUpdated;
+        Discord.ThreadDeleted += Discord_ThreadDeleted;
+        Discord.ThreadListSynced += Discord_ThreadListSynced;
+        Discord.ThreadMemberUpdated += Discord_ThreadMemberUpdated;
+        Discord.ThreadMembersUpdated += Discord_ThreadMembersUpdated;
 
         // voice config and the voice service itself
-        var vcfg = new VoiceNextConfiguration
+        VoiceNextConfiguration vcfg = new VoiceNextConfiguration
         {
             AudioFormat = AudioFormat.Default,
             EnableIncoming = true
         };
 
         // build a dependency collection for commandsnext
-        var depco = new ServiceCollection();
+        ServiceCollection depco = new ServiceCollection();
 
         // commandsnext config and the commandsnext service itself
-        var cncfg = new CommandsNextConfiguration
+        CommandsNextConfiguration cncfg = new CommandsNextConfiguration
         {
-            StringPrefixes = this.Config.CommandPrefixes,
+            StringPrefixes = Config.CommandPrefixes,
             EnableDms = true,
             EnableMentionPrefix = true,
             CaseSensitive = false,
@@ -130,14 +130,14 @@ internal sealed class TestBot
             DefaultParserCulture = CultureInfo.InvariantCulture,
             //CommandExecutor = new ParallelQueuedCommandExecutor(2),
         };
-        this.CommandsNextService = this.Discord.UseCommandsNext(cncfg);
-        this.CommandsNextService.CommandErrored += this.CommandsNextService_CommandErrored;
-        this.CommandsNextService.CommandExecuted += this.CommandsNextService_CommandExecuted;
-        this.CommandsNextService.RegisterCommands(typeof(TestBot).GetTypeInfo().Assembly);
-        this.CommandsNextService.SetHelpFormatter<TestBotHelpFormatter>();
+        CommandsNextService = Discord.UseCommandsNext(cncfg);
+        CommandsNextService.CommandErrored += CommandsNextService_CommandErrored;
+        CommandsNextService.CommandExecuted += CommandsNextService_CommandExecuted;
+        CommandsNextService.RegisterCommands(typeof(TestBot).GetTypeInfo().Assembly);
+        CommandsNextService.SetHelpFormatter<TestBotHelpFormatter>();
 
         // interactivity service
-        var icfg = new InteractivityConfiguration()
+        InteractivityConfiguration icfg = new InteractivityConfiguration()
         {
             Timeout = TimeSpan.FromSeconds(10),
             AckPaginationButtons = true,
@@ -154,13 +154,15 @@ internal sealed class TestBot
             }
         };
 
-        this.SlashCommandService = this.Discord.UseSlashCommands();
-        this.SlashCommandService.SlashCommandErrored += this.SlashCommandService_CommandErrored;
-        this.SlashCommandService.SlashCommandInvoked += this.SlashCommandService_CommandReceived;
-        this.SlashCommandService.SlashCommandExecuted += this.SlashCommandService_CommandExecuted;
+        SlashCommandService = Discord.UseSlashCommands();
+        SlashCommandService.SlashCommandErrored += SlashCommandService_CommandErrored;
+        SlashCommandService.SlashCommandInvoked += SlashCommandService_CommandReceived;
+        SlashCommandService.SlashCommandExecuted += SlashCommandService_CommandExecuted;
 
-        if (this.Config.SlashCommandGuild != 0)
-            this.SlashCommandService.RegisterCommands(typeof(TestBot).GetTypeInfo().Assembly, this.Config.SlashCommandGuild);
+        if (Config.SlashCommandGuild != 0)
+        {
+            SlashCommandService.RegisterCommands(typeof(TestBot).GetTypeInfo().Assembly, Config.SlashCommandGuild);
+        }
 
         //this.Discord.MessageCreated += async e =>
         //{
@@ -175,38 +177,46 @@ internal sealed class TestBot
     private async Task Discord_ModalSubmitted(DiscordClient sender, ModalSubmitEventArgs e)
     {
         bool testWaitForModal = true;
-        if(!testWaitForModal)
+        if (!testWaitForModal)
+        {
             await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder().WithContent("Thank you!"));
+        }
 
-        this.Discord.Logger.LogInformation("Got callback from user {User}, {Modal}", e.Interaction.User, e.Values);
+        Discord.Logger.LogInformation("Got callback from user {User}, {Modal}", e.Interaction.User, e.Values);
     }
 
     private async Task Discord_ModalCheck(DiscordClient sender, ComponentInteractionCreateEventArgs e)
     {
         if (e.Id == "modal")
+        {
             await e.Interaction.CreateResponseAsync(InteractionResponseType.Modal, new DiscordInteractionResponseBuilder()
                 .WithTitle("Test!")
                 .WithCustomId("owo")
                 .AddComponents(new TextInputComponent("Short, optional", "short_opt", "Placeholder!"))
                 .AddComponents(new TextInputComponent("Long, optional", "long_opt", "Placeholder 2!", style: TextInputStyle.Paragraph))
-                .AddComponents(new TextInputComponent("Short, required", "short_req", "Placeholder 3!", style:  TextInputStyle.Short, min_length: 10, max_length: 20))
+                .AddComponents(new TextInputComponent("Short, required", "short_req", "Placeholder 3!", style: TextInputStyle.Short, min_length: 10, max_length: 20))
                 .AddComponents(new TextInputComponent("Long, required", "long_req", "Placeholder 4!", "Lorem Ipsum", true, TextInputStyle.Paragraph, 100, 300))
             );
+        }
     }
 
     private async Task Discord_InteractionCreated(DiscordClient sender, InteractionCreateEventArgs e)
     {
         if (e.Interaction.Type != InteractionType.AutoComplete)
+        {
             return;
+        }
 
-        this.Discord.Logger.LogInformation("AutoComplete: Focused: {Focused}, Data: {Data}", e.Interaction.Data.Options.First().Focused, e.Interaction.Data.Options.First().Value);
+        Discord.Logger.LogInformation("AutoComplete: Focused: {Focused}, Data: {Data}", e.Interaction.Data.Options.First().Focused, e.Interaction.Data.Options.First().Value);
 
-        var option = e.Interaction.Data.Options.First();
+        DiscordInteractionDataOption option = e.Interaction.Data.Options.First();
 
         if (string.IsNullOrEmpty(option.Value as string))
+        {
             return;
+        }
 
-        var builder = new DiscordInteractionResponseBuilder()
+        DiscordInteractionResponseBuilder builder = new DiscordInteractionResponseBuilder()
             .AddAutoCompleteChoice(new DiscordAutoCompleteChoice(option.Value as string, "pog ig"));
 
         await e.Interaction.CreateResponseAsync(InteractionResponseType.AutoCompleteResult, builder);
@@ -216,17 +226,17 @@ internal sealed class TestBot
 
     private Task Discord_StickersUpdated(DiscordClient sender, GuildStickersUpdateEventArgs e)
     {
-        this.Discord.Logger.LogInformation("{GuildId}'s stickers updated: {StickerBeforeCount} -> {StickerAfterCount}", e.Guild.Id, e.StickersBefore.Count, e.StickersAfter.Count);
+        Discord.Logger.LogInformation("{GuildId}'s stickers updated: {StickerBeforeCount} -> {StickerAfterCount}", e.Guild.Id, e.StickersBefore.Count, e.StickersAfter.Count);
         return Task.CompletedTask;
     }
 
     public async Task RunAsync()
     {
-        var act = new DiscordActivity("the screams of your ancestors", ActivityType.ListeningTo);
-        await this.Discord.ConnectAsync(act, UserStatus.DoNotDisturb).ConfigureAwait(false);
+        DiscordActivity act = new DiscordActivity("the screams of your ancestors", ActivityType.ListeningTo);
+        await Discord.ConnectAsync(act, UserStatus.DoNotDisturb).ConfigureAwait(false);
     }
 
-    public async Task StopAsync() => await this.Discord.DisconnectAsync().ConfigureAwait(false);
+    public async Task StopAsync() => await Discord.DisconnectAsync().ConfigureAwait(false);
 
     private Task Discord_Ready(DiscordClient client, ReadyEventArgs e) => Task.CompletedTask;
 
@@ -250,7 +260,7 @@ internal sealed class TestBot
 
     private Task Discord_SocketError(DiscordClient client, SocketErrorEventArgs e)
     {
-        var ex = e.Exception is AggregateException ae ? ae.InnerException : e.Exception;
+        Exception? ex = e.Exception is AggregateException ae ? ae.InnerException : e.Exception;
         client.Logger.LogError(TestBotEventId, ex, "WebSocket threw an exception");
         return Task.CompletedTask;
     }
@@ -270,29 +280,37 @@ internal sealed class TestBot
     private async Task CommandsNextService_CommandErrored(CommandsNextExtension cnext, CommandErrorEventArgs e)
     {
         if (e.Exception is CommandNotFoundException && (e.Command == null || e.Command.QualifiedName != "help"))
+        {
             return;
+        }
 
         e.Context.Client.Logger.LogError(TestBotEventId, e.Exception, "Exception occurred during {User}'s invocation of '{Command}'", e.Context.User.Username, e.Context.Command.QualifiedName);
 
-        var exs = new List<Exception>();
+        List<Exception> exs = new List<Exception>();
         if (e.Exception is AggregateException ae)
+        {
             exs.AddRange(ae.InnerExceptions);
+        }
         else
+        {
             exs.Add(e.Exception);
+        }
 
-        foreach (var ex in exs)
+        foreach (Exception ex in exs)
         {
             if (ex is CommandNotFoundException && (e.Command == null || e.Command.QualifiedName != "help"))
+            {
                 return;
+            }
 
-            var embed = new DiscordEmbedBuilder
+            DiscordEmbedBuilder embed = new DiscordEmbedBuilder
             {
                 Color = new DiscordColor("#FF0000"),
                 Title = "An exception occurred when executing a command",
                 Description = $"`{e.Exception.GetType()}` occurred when executing `{e.Command.QualifiedName}`.",
                 Timestamp = DateTime.UtcNow
             };
-            embed.WithFooter(this.Discord.CurrentUser.Username, this.Discord.CurrentUser.AvatarUrl)
+            embed.WithFooter(Discord.CurrentUser.Username, Discord.CurrentUser.AvatarUrl)
                 .AddField("Message", ex.Message);
             await e.Context.RespondAsync(embed: embed.Build()).ConfigureAwait(false);
         }
@@ -308,10 +326,10 @@ internal sealed class TestBot
     {
         e.Context.Client.Logger.LogError(TestBotEventId, e.Exception, "Exception occurred during {User}'s invocation of '{Command}'", e.Context.User.Username, e.Context.CommandName);
 
-        var emoji = DiscordEmoji.FromName(e.Context.Client, ":no_entry:");
+        DiscordEmoji emoji = DiscordEmoji.FromName(e.Context.Client, ":no_entry:");
 
         // let's wrap the response into an embed
-        var embed = new DiscordEmbedBuilder
+        DiscordEmbedBuilder embed = new DiscordEmbedBuilder
         {
             Title = "Error",
             Description = $"{emoji} Error!",
@@ -334,16 +352,16 @@ internal sealed class TestBot
 
     private Task Discord_GuildUpdated(DiscordClient client, GuildUpdateEventArgs e)
     {
-        var str = new StringBuilder();
+        StringBuilder str = new StringBuilder();
 
         str.AppendLine($"The guild {e.GuildBefore.Name} has been updated.");
 
-        foreach (var prop in typeof(DiscordGuild).GetProperties())
+        foreach (PropertyInfo prop in typeof(DiscordGuild).GetProperties())
         {
             try
             {
-                var bfr = prop.GetValue(e.GuildBefore);
-                var aft = prop.GetValue(e.GuildAfter);
+                object? bfr = prop.GetValue(e.GuildBefore);
+                object? aft = prop.GetValue(e.GuildAfter);
 
                 if (bfr is null)
                 {
@@ -382,8 +400,8 @@ internal sealed class TestBot
 
     private async Task Discord_ChannelDeleted(DiscordClient client, ChannelDeleteEventArgs e)
     {
-        var logs = (await e.Guild.GetAuditLogsAsync(5, null, AuditLogActionType.ChannelDelete).ConfigureAwait(false)).Cast<DiscordAuditLogChannelEntry>();
-        foreach (var entry in logs)
+        IEnumerable<DiscordAuditLogChannelEntry> logs = (await e.Guild.GetAuditLogsAsync(5, null, AuditLogActionType.ChannelDelete).ConfigureAwait(false)).Cast<DiscordAuditLogChannelEntry>();
+        foreach (DiscordAuditLogChannelEntry entry in logs)
         {
             Console.WriteLine("TargetId: " + entry.Target.Id);
         }

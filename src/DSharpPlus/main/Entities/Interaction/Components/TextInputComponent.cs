@@ -71,10 +71,7 @@ public sealed class TextInputComponent : DiscordComponent
     [JsonProperty("style")]
     public TextInputStyle Style { get; set; }
 
-    public TextInputComponent()
-    {
-        this.Type = ComponentType.FormInput;
-    }
+    public TextInputComponent() => Type = ComponentType.FormInput;
 
     /// <summary>
     /// Constructs a new text input field.
@@ -89,14 +86,14 @@ public sealed class TextInputComponent : DiscordComponent
     /// <param name="max_length">The maximum input length. Must be greater than the minimum, if set.</param>
     public TextInputComponent(string label, string customId, string placeholder = null, string value = null, bool required = true, TextInputStyle style = TextInputStyle.Short, int min_length = 0, int? max_length = null)
     {
-        this.CustomId = customId;
-        this.Type = ComponentType.FormInput;
-        this.Label = label;
-        this.Required = required;
-        this.Placeholder = placeholder;
-        this.MinimumLength = min_length;
-        this.MaximumLength = max_length;
-        this.Style = style;
-        this.Value = value;
+        CustomId = customId;
+        Type = ComponentType.FormInput;
+        Label = label;
+        Required = required;
+        Placeholder = placeholder;
+        MinimumLength = min_length;
+        MaximumLength = max_length;
+        Style = style;
+        Value = value;
     }
 }

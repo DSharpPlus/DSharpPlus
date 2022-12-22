@@ -58,7 +58,7 @@ public enum ApplicationFlags
     /// Indicates that the application is a voice channel application.
     /// </summary>
     Embedded = 1 << 17,
-    
+
     /// <summary>
     /// The application can track message content.
     /// </summary>

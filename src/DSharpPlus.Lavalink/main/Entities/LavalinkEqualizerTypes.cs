@@ -52,13 +52,17 @@ public struct LavalinkBandAdjustment
     public LavalinkBandAdjustment(int bandId, float gain)
     {
         if (bandId < 0 || bandId > 14)
+        {
             throw new ArgumentOutOfRangeException(nameof(bandId), "Band ID cannot be lower than 0 or greater than 14.");
+        }
 
         if (gain < -0.25 || gain > 1.0)
+        {
             throw new ArgumentOutOfRangeException(nameof(gain), "Gain cannot be lower than -0.25 or greater than 1.0.");
+        }
 
-        this.BandId = bandId;
-        this.Gain = gain;
+        BandId = bandId;
+        Gain = gain;
     }
 }
 

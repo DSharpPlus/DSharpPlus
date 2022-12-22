@@ -1,4 +1,4 @@
-﻿// This file is part of the DSharpPlus project.
+// This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
 // Copyright (c) 2016-2022 DSharpPlus Contributors
@@ -39,16 +39,10 @@ public class MaximumAttribute : Attribute
     /// <summary>
     /// Sets a maximum value for this slash command option. Only valid for <see cref="long"/> or <see cref="double"/> parameters.
     /// </summary>
-    public MaximumAttribute(long value)
-    {
-        this.Value = value;
-    }
+    public MaximumAttribute(long value) => Value = value;
 
     /// <summary>
     /// Sets a maximum value for this slash command option. Only valid for <see cref="long"/> or <see cref="double"/> parameters.
     /// </summary>
-    public MaximumAttribute(double value)
-    {
-        this.Value = value;
-    }
+    public MaximumAttribute(double value) => Value = value;
 }

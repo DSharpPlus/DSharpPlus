@@ -46,7 +46,7 @@ public class DiscordVoiceState
     /// </summary>
     [JsonIgnore]
     public DiscordGuild Guild
-        => this.GuildId != null ? this.Discord.Guilds[this.GuildId.Value] : this.Channel?.Guild;
+        => GuildId != null ? Discord.Guilds[GuildId.Value] : Channel?.Guild;
 
     /// <summary>
     /// Gets ID of the channel this user is connected to.
@@ -59,7 +59,7 @@ public class DiscordVoiceState
     /// </summary>
     [JsonIgnore]
     public DiscordChannel Channel
-        => this.ChannelId != null && this.ChannelId.Value != 0 ? this.Discord.InternalGetCachedChannel(this.ChannelId.Value) : null;
+        => ChannelId != null && ChannelId.Value != 0 ? Discord.InternalGetCachedChannel(ChannelId.Value) : null;
 
     /// <summary>
     /// Gets ID of the user to which this voice state belongs.
@@ -76,13 +76,17 @@ public class DiscordVoiceState
     {
         get
         {
-            var usr = null as DiscordUser;
+            DiscordUser? usr = null as DiscordUser;
 
-            if (this.Guild != null)
-                usr = this.Guild._members.TryGetValue(this.UserId, out var member) ? member : null;
+            if (Guild != null)
+            {
+                usr = Guild._members.TryGetValue(UserId, out DiscordMember? member) ? member : null;
+            }
 
             if (usr == null)
-                usr = this.Discord.GetCachedOrEmptyUserInternal(this.UserId);
+            {
+                usr = Discord.GetCachedOrEmptyUserInternal(UserId);
+            }
 
             return usr;
         }
@@ -147,7 +151,7 @@ public class DiscordVoiceState
     /// </summary>
     [JsonIgnore]
     public DiscordMember Member
-        => this.Guild.Members.TryGetValue(this.TransportMember.User.Id, out var member) ? member : new DiscordMember(this.TransportMember) { Discord = this.Discord };
+        => Guild.Members.TryGetValue(TransportMember.User.Id, out DiscordMember? member) ? member : new DiscordMember(TransportMember) { Discord = Discord };
 
     [JsonProperty("member", NullValueHandling = NullValueHandling.Ignore)]
     internal TransportMember TransportMember { get; set; }
@@ -157,37 +161,37 @@ public class DiscordVoiceState
     // copy constructor for reduced boilerplate
     internal DiscordVoiceState(DiscordVoiceState other)
     {
-        this.Discord = other.Discord;
+        Discord = other.Discord;
 
-        this.UserId = other.UserId;
-        this.ChannelId = other.ChannelId;
-        this.GuildId = other.GuildId;
+        UserId = other.UserId;
+        ChannelId = other.ChannelId;
+        GuildId = other.GuildId;
 
-        this.IsServerDeafened = other.IsServerDeafened;
-        this.IsServerMuted = other.IsServerMuted;
-        this.IsSuppressed = other.IsSuppressed;
-        this.IsSelfDeafened = other.IsSelfDeafened;
-        this.IsSelfMuted = other.IsSelfMuted;
-        this.IsSelfStream = other.IsSelfStream;
-        this.IsSelfVideo = other.IsSelfVideo;
+        IsServerDeafened = other.IsServerDeafened;
+        IsServerMuted = other.IsServerMuted;
+        IsSuppressed = other.IsSuppressed;
+        IsSelfDeafened = other.IsSelfDeafened;
+        IsSelfMuted = other.IsSelfMuted;
+        IsSelfStream = other.IsSelfStream;
+        IsSelfVideo = other.IsSelfVideo;
 
-        this.SessionId = other.SessionId;
-        this.RequestToSpeakTimestamp = other.RequestToSpeakTimestamp;
+        SessionId = other.SessionId;
+        RequestToSpeakTimestamp = other.RequestToSpeakTimestamp;
     }
 
     internal DiscordVoiceState(DiscordMember m)
     {
-        this.Discord = m.Discord as DiscordClient;
+        Discord = m.Discord as DiscordClient;
 
-        this.UserId = m.Id;
-        this.ChannelId = 0;
-        this.GuildId = m._guild_id;
+        UserId = m.Id;
+        ChannelId = 0;
+        GuildId = m._guild_id;
 
-        this.IsServerDeafened = m.IsDeafened;
-        this.IsServerMuted = m.IsMuted;
+        IsServerDeafened = m.IsDeafened;
+        IsServerMuted = m.IsMuted;
 
         // Values not filled out are values that are not known from a DiscordMember
     }
 
-    public override string ToString() => $"{this.UserId.ToString(CultureInfo.InvariantCulture)} in {(this.GuildId ?? this.Channel.GuildId.Value).ToString(CultureInfo.InvariantCulture)}";
+    public override string ToString() => $"{UserId.ToString(CultureInfo.InvariantCulture)} in {(GuildId ?? Channel.GuildId.Value).ToString(CultureInfo.InvariantCulture)}";
 }

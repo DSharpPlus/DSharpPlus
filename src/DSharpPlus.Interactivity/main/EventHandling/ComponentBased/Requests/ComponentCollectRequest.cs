@@ -36,5 +36,6 @@ internal sealed class ComponentCollectRequest : ComponentMatchRequest
     public ConcurrentBag<ComponentInteractionCreateEventArgs> Collected { get; private set; }
 
     public ComponentCollectRequest(DiscordMessage message, Func<ComponentInteractionCreateEventArgs, bool> predicate, CancellationToken cancellation) :
-        base(message, predicate, cancellation) { }
+        base(message, predicate, cancellation)
+    { }
 }

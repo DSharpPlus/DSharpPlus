@@ -44,7 +44,7 @@ public sealed class DiscordSelectComponent : BaseDiscordSelectComponent
     /// <returns>The current component.</returns>
     public DiscordSelectComponent Enable()
     {
-        this.Disabled = false;
+        Disabled = false;
         return this;
     }
 
@@ -54,22 +54,19 @@ public sealed class DiscordSelectComponent : BaseDiscordSelectComponent
     /// <returns>The current component.</returns>
     public DiscordSelectComponent Disable()
     {
-        this.Disabled = true;
+        Disabled = true;
         return this;
     }
 
-    internal DiscordSelectComponent()
-    {
-        this.Type = ComponentType.StringSelect;
-    }
+    internal DiscordSelectComponent() => Type = ComponentType.StringSelect;
 
     public DiscordSelectComponent(string customId, string placeholder, IEnumerable<DiscordSelectComponentOption> options, bool disabled = false, int minOptions = 1, int maxOptions = 1) : this()
     {
-        this.CustomId = customId;
-        this.Options = options.ToArray();
-        this.Placeholder = placeholder;
-        this.Disabled = disabled;
-        this.MinimumSelectedValues = minOptions;
-        this.MaximumSelectedValues = maxOptions;
+        CustomId = customId;
+        Options = options.ToArray();
+        Placeholder = placeholder;
+        Disabled = disabled;
+        MinimumSelectedValues = minOptions;
+        MaximumSelectedValues = maxOptions;
     }
 }

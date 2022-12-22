@@ -42,7 +42,7 @@ public class TestBotCommands : BaseCommandModule
     [Command("crosspost")]
     public async Task CrosspostAsync(CommandContext ctx, DiscordChannel chn, DiscordMessage msg)
     {
-        var message = await chn.CrosspostMessageAsync(msg).ConfigureAwait(false);
+        DiscordMessage message = await chn.CrosspostMessageAsync(msg).ConfigureAwait(false);
         await ctx.RespondAsync($":ok_hand: Message published: {message.Id}").ConfigureAwait(false);
     }
 
@@ -57,10 +57,16 @@ public class TestBotCommands : BaseCommandModule
     public async Task SetPrefixAsync(CommandContext ctx, [Description("The prefix to use for current channel.")] string prefix = null)
     {
         if (string.IsNullOrWhiteSpace(prefix))
+        {
             if (PrefixSettings.TryRemove(ctx.Channel.Id, out _))
+            {
                 await ctx.RespondAsync("👍").ConfigureAwait(false);
+            }
             else
+            {
                 await ctx.RespondAsync("👎").ConfigureAwait(false);
+            }
+        }
         else
         {
             PrefixSettings.AddOrUpdate(ctx.Channel.Id, prefix, (k, vold) => prefix);
@@ -71,8 +77,8 @@ public class TestBotCommands : BaseCommandModule
     [Command("sudo"), Description("Run a command as another user."), Hidden, RequireOwner]
     public async Task SudoAsync(CommandContext ctx, DiscordUser user, [RemainingText] string content)
     {
-        var cmd = ctx.CommandsNext.FindCommand(content, out var args);
-        var fctx = ctx.CommandsNext.CreateFakeContext(user, ctx.Channel, content, ctx.Prefix, cmd, args);
+        Command? cmd = ctx.CommandsNext.FindCommand(content, out string? args);
+        CommandContext fctx = ctx.CommandsNext.CreateFakeContext(user, ctx.Channel, content, ctx.Prefix, cmd, args);
         await ctx.CommandsNext.ExecuteCommandAsync(fctx).ConfigureAwait(false);
     }
 
@@ -96,14 +102,14 @@ public class TestBotCommands : BaseCommandModule
             .AddMention(new RoleMention(879398655130472508));
         //.WithAllowedMention(new UserMention(743323785549316197));//.WithAllowedMention(new RoleMention(879398655130472508));
 
-        var msg = await (builder as DiscordMessageBuilder).SendAsync(ctx.Channel);
+        DiscordMessage msg = await (builder as DiscordMessageBuilder).SendAsync(ctx.Channel);
         await msg.ModifyAsync("Mentioning <@&879398655130472508> and <@743323785549316197>, but edited!");
     }
 
     [Command("mention"), Description("Attempts to mention a user")]
     public async Task MentionablesAsync(CommandContext ctx, DiscordUser user)
     {
-        var content = $"Hey, {user.Mention}! Listen!";
+        string content = $"Hey, {user.Mention}! Listen!";
         await ctx.Channel.SendMessageAsync("✔ should ping, ❌ should not ping.").ConfigureAwait(false);
 
         await ctx.Channel.SendMessageAsync("✔ Default Behaviour: " + content).ConfigureAwait(false);                                                                                            //Should ping User
@@ -155,60 +161,60 @@ public class TestBotCommands : BaseCommandModule
     [Command("editMention"), Description("Attempts to mention a user via edit message")]
     public async Task EditMentionablesAsync(CommandContext ctx, DiscordUser user)
     {
-        var origcontent = $"Hey, silly! Listen!";
-        var newContent = $"Hey, {user.Mention}! Listen!";
+        string origcontent = $"Hey, silly! Listen!";
+        string newContent = $"Hey, {user.Mention}! Listen!";
 
         await ctx.Channel.SendMessageAsync("✔ should ping, ❌ should not ping.").ConfigureAwait(false);
 
-        var test1Msg = await ctx.Channel.SendMessageAsync("✔ Default Behaviour: " + origcontent).ConfigureAwait(false);
+        DiscordMessage test1Msg = await ctx.Channel.SendMessageAsync("✔ Default Behaviour: " + origcontent).ConfigureAwait(false);
         await new DiscordMessageBuilder()
            .WithContent("✔ Default Behaviour: " + newContent)
            .ModifyAsync(test1Msg)
            .ConfigureAwait(false);                                                                                                                               //Should ping User
 
-        var test2Msg = await ctx.Channel.SendMessageAsync("✔ UserMention(user): " + origcontent).ConfigureAwait(false);
+        DiscordMessage test2Msg = await ctx.Channel.SendMessageAsync("✔ UserMention(user): " + origcontent).ConfigureAwait(false);
         await new DiscordMessageBuilder()
            .WithContent("✔ UserMention(user): " + newContent)
            .WithAllowedMentions(new IMention[] { new UserMention(user) })
            .ModifyAsync(test2Msg)
            .ConfigureAwait(false);                                                                                                                               //Should ping user
 
-        var test3Msg = await ctx.Channel.SendMessageAsync("✔ UserMention(): " + origcontent).ConfigureAwait(false);
+        DiscordMessage test3Msg = await ctx.Channel.SendMessageAsync("✔ UserMention(): " + origcontent).ConfigureAwait(false);
         await new DiscordMessageBuilder()
            .WithContent("✔ UserMention(): " + newContent)
            .WithAllowedMentions(new IMention[] { new UserMention() })
            .ModifyAsync(test3Msg)
            .ConfigureAwait(false);                                                                                                                               //Should ping user
 
-        var test4Msg = await ctx.Channel.SendMessageAsync("✔ User Mention Everyone & Self: " + origcontent).ConfigureAwait(false);
+        DiscordMessage test4Msg = await ctx.Channel.SendMessageAsync("✔ User Mention Everyone & Self: " + origcontent).ConfigureAwait(false);
         await new DiscordMessageBuilder()
            .WithContent("✔ User Mention Everyone & Self: " + newContent)
            .WithAllowedMentions(new IMention[] { new UserMention(), new UserMention(user) })
            .ModifyAsync(test4Msg)
            .ConfigureAwait(false);                                                                                                                               //Should ping user
 
-        var test5Msg = await ctx.Channel.SendMessageAsync("✔ UserMention.All: " + origcontent).ConfigureAwait(false);
+        DiscordMessage test5Msg = await ctx.Channel.SendMessageAsync("✔ UserMention.All: " + origcontent).ConfigureAwait(false);
         await new DiscordMessageBuilder()
            .WithContent("✔ UserMention.All: " + newContent)
            .WithAllowedMentions(new IMention[] { UserMention.All })
            .ModifyAsync(test5Msg)
            .ConfigureAwait(false);                                                                                                                               //Should ping user
 
-        var test6Msg = await ctx.Channel.SendMessageAsync("❌ Empty Mention Array: " + origcontent).ConfigureAwait(false);
+        DiscordMessage test6Msg = await ctx.Channel.SendMessageAsync("❌ Empty Mention Array: " + origcontent).ConfigureAwait(false);
         await new DiscordMessageBuilder()
            .WithContent("❌ Empty Mention Array: " + newContent)
            .WithAllowedMentions(Array.Empty<IMention>())
            .ModifyAsync(test6Msg)
            .ConfigureAwait(false);                                                                                                                               //Should ping no one
 
-        var test7Msg = await ctx.Channel.SendMessageAsync("❌ UserMention(SomeoneElse): " + origcontent).ConfigureAwait(false);
+        DiscordMessage test7Msg = await ctx.Channel.SendMessageAsync("❌ UserMention(SomeoneElse): " + origcontent).ConfigureAwait(false);
         await new DiscordMessageBuilder()
            .WithContent("❌ UserMention(SomeoneElse): " + newContent)
            .WithAllowedMentions(new IMention[] { new UserMention(777677298316214324) })
            .ModifyAsync(test7Msg)
            .ConfigureAwait(false);                                                                                                                               //Should ping no one (@user was not pinged)
 
-        var test8Msg = await ctx.Channel.SendMessageAsync("❌ Everyone(): " + origcontent).ConfigureAwait(false);
+        DiscordMessage test8Msg = await ctx.Channel.SendMessageAsync("❌ Everyone(): " + origcontent).ConfigureAwait(false);
         await new DiscordMessageBuilder()
            .WithContent("❌ Everyone(): " + newContent)
            .WithAllowedMentions(new IMention[] { new EveryoneMention() })
@@ -219,11 +225,11 @@ public class TestBotCommands : BaseCommandModule
     [Command("SendSomeFile")]
     public async Task SendSomeFileAsync(CommandContext ctx)
     {
-        using (var fs = new FileStream("ADumbFile.txt", FileMode.Open, FileAccess.Read))
+        using (FileStream fs = new FileStream("ADumbFile.txt", FileMode.Open, FileAccess.Read))
         {
 
             // Verify that the lib resets the position when asked
-            var builder = new DiscordMessageBuilder()
+            DiscordMessageBuilder builder = new DiscordMessageBuilder()
                 .WithContent("Testing the `Dictionary<string, stream>` Overload with resetting the postion turned on.")
                 .AddFiles(new Dictionary<string, Stream>() { { "ADumbFile1.txt", fs } }, true);
 
@@ -284,24 +290,24 @@ public class TestBotCommands : BaseCommandModule
     [Command("CreateSomeFile")]
     public async Task CreateSomeFileAsync(CommandContext ctx, string fileName, [RemainingText] string fileBody)
     {
-        using (var fs = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite))
-        using (var sw = new StreamWriter(fs))
+        using (FileStream fs = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite))
+        using (StreamWriter sw = new StreamWriter(fs))
         {
             await sw.WriteAsync(fileBody);
         }
 
-        using (var fs = new FileStream($"another {fileName}", FileMode.Create, FileAccess.ReadWrite))
-        using (var sw = new StreamWriter(fs))
+        using (FileStream fs = new FileStream($"another {fileName}", FileMode.Create, FileAccess.ReadWrite))
+        using (StreamWriter sw = new StreamWriter(fs))
         {
             sw.AutoFlush = true;
             await sw.WriteLineAsync(fileBody);
             fs.Position = 0;
-            var builder = new DiscordMessageBuilder();
+            DiscordMessageBuilder builder = new DiscordMessageBuilder();
             builder.WithContent("Here is a really dumb file that i am testing with.");
             //builder.WithFile(fileName);
             builder.AddFile(fs);
 
-            foreach (var file in builder.Files)
+            foreach (DiscordMessageFile file in builder.Files)
             {
 
             }
@@ -318,13 +324,13 @@ public class TestBotCommands : BaseCommandModule
     [Command("SendWebhookFiles")]
     public async Task SendWebhookFilesAsync(CommandContext ctx)
     {
-        var webhook = await ctx.Channel.CreateWebhookAsync("webhook-test");
+        DiscordWebhook webhook = await ctx.Channel.CreateWebhookAsync("webhook-test");
 
-        using (var fs = new FileStream("ADumbFile.txt", FileMode.Open, FileAccess.Read))
+        using (FileStream fs = new FileStream("ADumbFile.txt", FileMode.Open, FileAccess.Read))
         {
 
             // Verify that the lib resets the position when asked
-            var builder = new DiscordWebhookBuilder()
+            DiscordWebhookBuilder builder = new DiscordWebhookBuilder()
                 .WithContent("Testing the `AddFile(Dictionary<string, stream>)` Overload with resetting the postion turned on.")
                 .AddFiles(new Dictionary<string, Stream>() { { "ADumbFile1.txt", fs } }, true);
 
@@ -387,12 +393,12 @@ public class TestBotCommands : BaseCommandModule
     [Command("chainreply")]
     public async Task ChainReplyAsync(CommandContext ctx)
     {
-        var builder = new DiscordMessageBuilder();
+        DiscordMessageBuilder builder = new DiscordMessageBuilder();
 
-        var contentBuilder = new StringBuilder();
+        StringBuilder contentBuilder = new StringBuilder();
 
-        var reply = ctx.Message.Id;
-        var ping = false;
+        ulong reply = ctx.Message.Id;
+        bool ping = false;
 
         if (ctx.Message.MessageType == MessageType.Reply)
         {
@@ -422,9 +428,11 @@ public class TestBotCommands : BaseCommandModule
     [Command("mentionusers")]
     public async Task MentionAllMentionedUsersAsync(CommandContext ctx, [RemainingText][Description("Just a string so that DSharpPlus will parse no matter what I say")] string mentionedUsers)
     {
-        var content = "You didn't have any users to mention";
+        string content = "You didn't have any users to mention";
         if (ctx.Message.MentionedUsers.Any())
+        {
             content = string.Join(", ", ctx.Message.MentionedUsers.Select(usr => usr.Mention));
+        }
 
         await ctx.RespondAsync(content);
     }
@@ -432,9 +440,11 @@ public class TestBotCommands : BaseCommandModule
     [Command("mentionroles")]
     public async Task MentionAllMentionedRolesAsync(CommandContext ctx, [RemainingText][Description("Just a string so that DSharpPlus will parse no matter what I say")] string mentionedRoles)
     {
-        var content = "You didn't have any roles to mention";
+        string content = "You didn't have any roles to mention";
         if (ctx.Message.MentionedRoles.Any())
+        {
             content = string.Join(", ", ctx.Message.MentionedRoles.Select(role => role.Mention));
+        }
 
         await ctx.RespondAsync(content);
     }
@@ -442,9 +452,11 @@ public class TestBotCommands : BaseCommandModule
     [Command("mentionchannels")]
     public async Task MentionChannelsAsync(CommandContext ctx, [RemainingText][Description("Just a string so that DSharpPlus will parse no matter what I say")] string mentionedChannels)
     {
-        var content = "You didn't have any channels to mention";
+        string content = "You didn't have any channels to mention";
         if (ctx.Message.MentionedChannels.Any())
+        {
             content = string.Join(", ", ctx.Message.MentionedChannels.Select(role => role.Mention));
+        }
 
         await ctx.RespondAsync(content);
     }
@@ -452,8 +464,8 @@ public class TestBotCommands : BaseCommandModule
     [Command("getmessagementions")]
     public async Task GetMessageMentionsAsync(CommandContext ctx, ulong msgId)
     {
-        var msg = await ctx.Channel.GetMessageAsync(msgId);
-        var contentBuilder = new StringBuilder("You didn't mention any user, channel, or role.");
+        DiscordMessage msg = await ctx.Channel.GetMessageAsync(msgId);
+        StringBuilder contentBuilder = new StringBuilder("You didn't mention any user, channel, or role.");
 
         if (msg.MentionedUsers.Any() || msg.MentionedRoles.Any() || msg.MentionedChannels.Any())
         {
@@ -469,16 +481,18 @@ public class TestBotCommands : BaseCommandModule
     public async Task GetAttachmentsTypesAsync(CommandContext ctx, ulong? messageId = null)
     {
         if (messageId is null)
+        {
             messageId = ctx.Message.Id;
+        }
 
-        var message = await ctx.Channel.GetMessageAsync(messageId.Value);
-        var contentBuilder = new StringBuilder("Message has no attachment.");
+        DiscordMessage message = await ctx.Channel.GetMessageAsync(messageId.Value);
+        StringBuilder contentBuilder = new StringBuilder("Message has no attachment.");
 
 
         if (message.Attachments.Any())
         {
             contentBuilder.Clear();
-            foreach (var attachment in message.Attachments)
+            foreach (DiscordAttachment attachment in message.Attachments)
             {
                 contentBuilder.AppendLine($"{attachment.FileName} is {attachment.MediaType}");
             }
@@ -494,12 +508,12 @@ public class TestBotCommands : BaseCommandModule
             return;
         }
 
-        var cNull = await ctx.Guild.CreateVoiceChannelAsync(channel.Name + " [Null]", channel.Parent, null, null, null, null, null);
-        var cAuto = await ctx.Guild.CreateVoiceChannelAsync(channel.Name + " [Auto]", channel.Parent, null, null, null, VideoQualityMode.Auto, null);
-        var cFull = await ctx.Guild.CreateVoiceChannelAsync(channel.Name + " [Full]", channel.Parent, null, null, null, VideoQualityMode.Full, null);
+        DiscordChannel cNull = await ctx.Guild.CreateVoiceChannelAsync(channel.Name + " [Null]", channel.Parent, null, null, null, null, null);
+        DiscordChannel cAuto = await ctx.Guild.CreateVoiceChannelAsync(channel.Name + " [Auto]", channel.Parent, null, null, null, VideoQualityMode.Auto, null);
+        DiscordChannel cFull = await ctx.Guild.CreateVoiceChannelAsync(channel.Name + " [Full]", channel.Parent, null, null, null, VideoQualityMode.Full, null);
 
         await ctx.RespondAsync($"{cNull.Mention}, {cAuto.Mention}, and {cFull.Mention} created. Delete channels? (Y)");
-        var result = await ctx.Message.GetNextMessageAsync(m => m.Content.Equals("Y", StringComparison.OrdinalIgnoreCase), TimeSpan.FromMinutes(1));
+        Interactivity.InteractivityResult<DiscordMessage> result = await ctx.Message.GetNextMessageAsync(m => m.Content.Equals("Y", StringComparison.OrdinalIgnoreCase), TimeSpan.FromMinutes(1));
 
         if (!result.TimedOut)
         {
@@ -518,9 +532,9 @@ public class TestBotCommands : BaseCommandModule
             return;
         }
 
-        var channel = await ctx.Guild.CreateTextChannelAsync(name);
-        var msg = await ctx.RespondAsync($"{channel.Mention} created. Delete? (Y)");
-        var result = await ctx.Message.GetNextMessageAsync(m => m.Content.Equals("y", StringComparison.OrdinalIgnoreCase), TimeSpan.FromMinutes(1));
+        DiscordChannel channel = await ctx.Guild.CreateTextChannelAsync(name);
+        DiscordMessage msg = await ctx.RespondAsync($"{channel.Mention} created. Delete? (Y)");
+        Interactivity.InteractivityResult<DiscordMessage> result = await ctx.Message.GetNextMessageAsync(m => m.Content.Equals("y", StringComparison.OrdinalIgnoreCase), TimeSpan.FromMinutes(1));
 
         if (!result.TimedOut)
         {
@@ -535,12 +549,12 @@ public class TestBotCommands : BaseCommandModule
     [RequirePermissions(Permissions.ManageChannels)]
     public async Task PurgeChatAsync(CommandContext ctx)
     {
-        var channel = ctx.Channel;
-        var z = ctx.Channel.Position;
-        var x = await channel.CloneAsync();
+        DiscordChannel channel = ctx.Channel;
+        int z = ctx.Channel.Position;
+        DiscordChannel x = await channel.CloneAsync();
         await channel.DeleteAsync();
         await x.ModifyPositionAsync(z);
-        var embed2 = new DiscordEmbedBuilder()
+        DiscordEmbedBuilder embed2 = new DiscordEmbedBuilder()
             .WithTitle("✅ Purged")
             .WithFooter($"foo");
         await x.SendMessageAsync(embed: embed2);

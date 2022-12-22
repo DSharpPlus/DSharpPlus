@@ -32,15 +32,19 @@ public class NullableConverter<T> : IArgumentConverter<Nullable<T>> where T : st
     async Task<Optional<Nullable<T>>> IArgumentConverter<Nullable<T>>.ConvertAsync(string value, CommandContext ctx)
     {
         if (!ctx.Config.CaseSensitive)
+        {
             value = value.ToLowerInvariant();
+        }
 
         if (value == "null")
-            return Optional.FromValue<Nullable<T>>(null);
-
-        if (ctx.CommandsNext.ArgumentConverters.TryGetValue(typeof(T), out var cv))
         {
-            var cvx = (IArgumentConverter<T>)cv;
-            var val = await cvx.ConvertAsync(value, ctx).ConfigureAwait(false);
+            return Optional.FromValue<Nullable<T>>(null);
+        }
+
+        if (ctx.CommandsNext.ArgumentConverters.TryGetValue(typeof(T), out IArgumentConverter? cv))
+        {
+            IArgumentConverter<T> cvx = (IArgumentConverter<T>)cv;
+            Optional<T> val = await cvx.ConvertAsync(value, ctx).ConfigureAwait(false);
             return val.HasValue ? Optional.FromValue<Nullable<T>>(val.Value) : Optional.FromNoValue<Nullable<T>>();
         }
 

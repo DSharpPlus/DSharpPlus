@@ -49,33 +49,45 @@ public sealed class RequirePermissionsAttribute : CheckBaseAttribute
     /// <param name="ignoreDms">Sets this check's behaviour in DMs. True means the check will always pass in DMs, whereas false means that it will always fail.</param>
     public RequirePermissionsAttribute(Permissions permissions, bool ignoreDms = true)
     {
-        this.Permissions = permissions;
-        this.IgnoreDms = ignoreDms;
+        Permissions = permissions;
+        IgnoreDms = ignoreDms;
     }
 
     public override async Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
     {
         if (ctx.Guild == null)
-            return this.IgnoreDms;
+        {
+            return IgnoreDms;
+        }
 
-        var usr = ctx.Member;
+        DSharpPlus.Entities.DiscordMember? usr = ctx.Member;
         if (usr == null)
+        {
             return false;
-        var pusr = ctx.Channel.PermissionsFor(usr);
+        }
 
-        var bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id).ConfigureAwait(false);
+        Permissions pusr = ctx.Channel.PermissionsFor(usr);
+
+        DSharpPlus.Entities.DiscordMember bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id).ConfigureAwait(false);
         if (bot == null)
+        {
             return false;
-        var pbot = ctx.Channel.PermissionsFor(bot);
+        }
 
-        var usrok = ctx.Guild.OwnerId == usr.Id;
-        var botok = ctx.Guild.OwnerId == bot.Id;
+        Permissions pbot = ctx.Channel.PermissionsFor(bot);
+
+        bool usrok = ctx.Guild.OwnerId == usr.Id;
+        bool botok = ctx.Guild.OwnerId == bot.Id;
 
         if (!usrok)
-            usrok = (pusr & Permissions.Administrator) != 0 || (pusr & this.Permissions) == this.Permissions;
+        {
+            usrok = (pusr & Permissions.Administrator) != 0 || (pusr & Permissions) == Permissions;
+        }
 
         if (!botok)
-            botok = (pbot & Permissions.Administrator) != 0 || (pbot & this.Permissions) == this.Permissions;
+        {
+            botok = (pbot & Permissions.Administrator) != 0 || (pbot & Permissions) == Permissions;
+        }
 
         return usrok && botok;
     }

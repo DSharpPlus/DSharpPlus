@@ -138,31 +138,42 @@ public sealed class DiscordApplicationCommandOption
     public DiscordApplicationCommandOption(string name, string description, ApplicationCommandOptionType type, bool? required = null, IEnumerable<DiscordApplicationCommandOptionChoice> choices = null, IEnumerable<DiscordApplicationCommandOption> options = null, IEnumerable<ChannelType> channelTypes = null, bool? autocomplete = null, object minValue = null, object maxValue = null, IReadOnlyDictionary<string, string> name_localizations = null, IReadOnlyDictionary<string, string> description_localizations = null, int? minLength = null, int? maxLength = null)
     {
         if (!Utilities.IsValidSlashCommandName(name))
+        {
             throw new ArgumentException("Invalid slash command option name specified. It must be below 32 characters and not contain any whitespace.", nameof(name));
+        }
+
         if (name.Any(ch => char.IsUpper(ch)))
+        {
             throw new ArgumentException("Slash command option name cannot have any upper case characters.", nameof(name));
+        }
+
         if (description.Length > 100)
+        {
             throw new ArgumentException("Slash command option description cannot exceed 100 characters.", nameof(description));
+        }
+
         if ((autocomplete ?? false) && (choices?.Any() ?? false))
+        {
             throw new InvalidOperationException("Auto-complete slash command options cannot provide choices.");
+        }
 
-        var choiceList = choices != null ? new ReadOnlyCollection<DiscordApplicationCommandOptionChoice>(choices.ToList()) : null;
-        var optionList = options != null ? new ReadOnlyCollection<DiscordApplicationCommandOption>(options.ToList()) : null;
-        var channelTypeList = channelTypes != null ? new ReadOnlyCollection<ChannelType>(channelTypes.ToList()) : null;
+        ReadOnlyCollection<DiscordApplicationCommandOptionChoice>? choiceList = choices != null ? new ReadOnlyCollection<DiscordApplicationCommandOptionChoice>(choices.ToList()) : null;
+        ReadOnlyCollection<DiscordApplicationCommandOption>? optionList = options != null ? new ReadOnlyCollection<DiscordApplicationCommandOption>(options.ToList()) : null;
+        ReadOnlyCollection<ChannelType>? channelTypeList = channelTypes != null ? new ReadOnlyCollection<ChannelType>(channelTypes.ToList()) : null;
 
-        this.Name = name;
-        this.Description = description;
-        this.Type = type;
-        this.AutoComplete = autocomplete;
-        this.Required = required;
-        this.Choices = choiceList;
-        this.Options = optionList;
-        this.ChannelTypes = channelTypeList;
-        this.MinValue = minValue;
-        this.MaxValue = maxValue;
-        this.MinLength = minLength;
-        this.MaxLength = maxLength;
-        this.NameLocalizations = name_localizations;
-        this.DescriptionLocalizations = description_localizations;
+        Name = name;
+        Description = description;
+        Type = type;
+        AutoComplete = autocomplete;
+        Required = required;
+        Choices = choiceList;
+        Options = optionList;
+        ChannelTypes = channelTypeList;
+        MinValue = minValue;
+        MaxValue = maxValue;
+        MinLength = minLength;
+        MaxLength = maxLength;
+        NameLocalizations = name_localizations;
+        DescriptionLocalizations = description_localizations;
     }
 }

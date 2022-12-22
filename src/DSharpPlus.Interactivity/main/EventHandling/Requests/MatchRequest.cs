@@ -47,16 +47,16 @@ internal class MatchRequest<T> : IDisposable where T : AsyncEventArgs
     /// <param name="timeout">Timeout time</param>
     public MatchRequest(Func<T, bool> predicate, TimeSpan timeout)
     {
-        this._tcs = new TaskCompletionSource<T>();
-        this._ct = new CancellationTokenSource(timeout);
-        this._predicate = predicate;
-        this._ct.Token.Register(() => this._tcs.TrySetResult(null));
-        this._timeout = timeout;
+        _tcs = new TaskCompletionSource<T>();
+        _ct = new CancellationTokenSource(timeout);
+        _predicate = predicate;
+        _ct.Token.Register(() => _tcs.TrySetResult(null));
+        _timeout = timeout;
     }
 
     ~MatchRequest()
     {
-        this.Dispose();
+        Dispose();
     }
 
     /// <summary>
@@ -64,8 +64,8 @@ internal class MatchRequest<T> : IDisposable where T : AsyncEventArgs
     /// </summary>
     public void Dispose()
     {
-        this._ct.Dispose();
-        this._tcs = null;
-        this._predicate = null;
+        _ct.Dispose();
+        _tcs = null;
+        _predicate = null;
     }
 }

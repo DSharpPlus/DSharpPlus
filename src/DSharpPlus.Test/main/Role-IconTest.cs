@@ -33,14 +33,11 @@ namespace DSharpPlus.Test;
 public class Role_IconTest : BaseCommandModule
 {
     [Command("fetch")]
-    public async Task FetchAsync(CommandContext ctx, DiscordRole role)
-    {
-        await ctx.RespondAsync(
+    public async Task FetchAsync(CommandContext ctx, DiscordRole role) => await ctx.RespondAsync(
             $"Role: {role.Mention}\n" +
             $"Role has icon: {role.IconHash != null}\n" +
             $"Associated emoji: {role.Emoji}\n" +
             $"Role icon: {role.IconUrl ?? "Not applicable"}");
-    }
 
     [Command("create")]
     public async Task CreateAsync(CommandContext ctx, string name, DiscordColor color = default)
@@ -51,12 +48,12 @@ public class Role_IconTest : BaseCommandModule
             return;
         }
 
-        var fileStream = File.Open("./icon.png", FileMode.OpenOrCreate);
+        FileStream fileStream = File.Open("./icon.png", FileMode.OpenOrCreate);
         await (await new HttpClient().GetStreamAsync(ctx.Message.Attachments[0].Url)).CopyToAsync(fileStream);
         fileStream.Close();
 
-        var stream = File.OpenRead("./icon.png");
-        var role = await ctx.Guild.CreateRoleAsync(name, Permissions.None, color, icon: stream, emoji: DiscordEmoji.FromUnicode("👀"));
+        FileStream stream = File.OpenRead("./icon.png");
+        DiscordRole role = await ctx.Guild.CreateRoleAsync(name, Permissions.None, color, icon: stream, emoji: DiscordEmoji.FromUnicode("👀"));
 
         await ctx.RespondAsync($"Created role! {role.Mention}");
 
@@ -72,11 +69,11 @@ public class Role_IconTest : BaseCommandModule
             return;
         }
 
-        var fileStream = File.Open("./icon.png", FileMode.OpenOrCreate);
+        FileStream fileStream = File.Open("./icon.png", FileMode.OpenOrCreate);
         await (await new HttpClient().GetStreamAsync(ctx.Message.Attachments[0].Url)).CopyToAsync(fileStream);
         fileStream.Close();
 
-        var stream = File.OpenRead("./icon.png");
+        FileStream stream = File.OpenRead("./icon.png");
         await role.ModifyAsync(icon: stream);
 
         await ctx.RespondAsync($"Edited role! {role.Mention}");

@@ -67,7 +67,7 @@ public sealed class DiscordEmbed
     /// </summary>
     [JsonIgnore]
     public Optional<DiscordColor> Color
-        => this._colorLazy.Value;
+        => _colorLazy.Value;
 
     [JsonProperty("color", NullValueHandling = NullValueHandling.Include)]
     internal Optional<int> _color;
@@ -116,8 +116,5 @@ public sealed class DiscordEmbed
     [JsonProperty("fields", NullValueHandling = NullValueHandling.Ignore)]
     public IReadOnlyList<DiscordEmbedField> Fields { get; internal set; }
 
-    internal DiscordEmbed()
-    {
-        this._colorLazy = new Lazy<Optional<DiscordColor>>(() => this._color.HasValue ? Optional.FromValue<DiscordColor>(this._color.Value) : Optional.FromNoValue<DiscordColor>());
-    }
+    internal DiscordEmbed() => _colorLazy = new Lazy<Optional<DiscordColor>>(() => _color.HasValue ? Optional.FromValue<DiscordColor>(_color.Value) : Optional.FromNoValue<DiscordColor>());
 }

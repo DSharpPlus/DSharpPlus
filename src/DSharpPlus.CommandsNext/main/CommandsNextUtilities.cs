@@ -52,11 +52,8 @@ public static class CommandsNextUtilities
     /// <returns>Positive number if the prefix is present, -1 otherwise.</returns>
     public static int GetStringPrefixLength(this DiscordMessage msg, string str, StringComparison comparisonType = StringComparison.Ordinal)
     {
-        var content = msg.Content;
-        if (str.Length >= content.Length)
-            return -1;
-
-        return !content.StartsWith(str, comparisonType) ? -1 : str.Length;
+        string content = msg.Content;
+        return str.Length >= content.Length ? -1 : !content.StartsWith(str, comparisonType) ? -1 : str.Length;
     }
 
     /// <summary>
@@ -67,20 +64,26 @@ public static class CommandsNextUtilities
     /// <returns>Positive number if the prefix is present, -1 otherwise.</returns>
     public static int GetMentionPrefixLength(this DiscordMessage msg, DiscordUser user)
     {
-        var content = msg.Content;
+        string content = msg.Content;
         if (!content.StartsWith("<@"))
+        {
             return -1;
+        }
 
-        var cni = content.IndexOf('>');
+        int cni = content.IndexOf('>');
         if (cni == -1 || content.Length <= cni + 2)
+        {
             return -1;
+        }
 
-        var cnp = content.Substring(0, cni + 2);
-        var m = UserRegex.Match(cnp);
+        string cnp = content.Substring(0, cni + 2);
+        Match m = UserRegex.Match(cnp);
         if (!m.Success)
+        {
             return -1;
+        }
 
-        var userId = ulong.Parse(m.Groups[1].Value, CultureInfo.InvariantCulture);
+        ulong userId = ulong.Parse(m.Groups[1].Value, CultureInfo.InvariantCulture);
         return user.Id != userId ? -1 : m.Value.Length;
     }
 
@@ -88,26 +91,35 @@ public static class CommandsNextUtilities
     internal static string? ExtractNextArgument(this string str, ref int startPos, IEnumerable<char> quoteChars)
     {
         if (string.IsNullOrWhiteSpace(str))
+        {
             return null;
+        }
 
-        var inBacktick = false;
-        var inTripleBacktick = false;
-        var inQuote = false;
-        var inEscape = false;
-        var removeIndices = new List<int>(str.Length - startPos);
+        bool inBacktick = false;
+        bool inTripleBacktick = false;
+        bool inQuote = false;
+        bool inEscape = false;
+        List<int> removeIndices = new List<int>(str.Length - startPos);
 
-        var i = startPos;
+        int i = startPos;
         for (; i < str.Length; i++)
+        {
             if (!char.IsWhiteSpace(str[i]))
+            {
                 break;
+            }
+        }
+
         startPos = i;
 
-        var endPosition = -1;
-        var startPosition = startPos;
+        int endPosition = -1;
+        int startPosition = startPos;
         for (i = startPosition; i < str.Length; i++)
         {
             if (char.IsWhiteSpace(str[i]) && !inQuote && !inTripleBacktick && !inBacktick && !inEscape)
+            {
                 endPosition = i;
+            }
 
             if (str[i] == '\\' && str.Length > i + 1)
             {
@@ -115,7 +127,10 @@ public static class CommandsNextUtilities
                 {
                     inEscape = true;
                     if (str.IndexOf("\\`", i) == i || quoteChars.Any(c => str.IndexOf($"\\{c}", i) == i) || str.IndexOf("\\\\", i) == i || (str.Length >= i && char.IsWhiteSpace(str[i + 1])))
+                    {
                         removeIndices.Add(i - startPosition);
+                    }
+
                     i++;
                 }
                 else if ((inBacktick || inTripleBacktick) && str.IndexOf("\\`", i) == i)
@@ -128,7 +143,7 @@ public static class CommandsNextUtilities
 
             if (str[i] == '`' && !inEscape)
             {
-                var tripleBacktick = str.IndexOf("```", i) == i;
+                bool tripleBacktick = str.IndexOf("```", i) == i;
                 if (inTripleBacktick && tripleBacktick)
                 {
                     inTripleBacktick = false;
@@ -141,9 +156,13 @@ public static class CommandsNextUtilities
                 }
 
                 if (inBacktick && !tripleBacktick)
+                {
                     inBacktick = false;
+                }
                 else if (!inTripleBacktick && tripleBacktick)
+                {
                     inBacktick = true;
+                }
             }
 
             if (quoteChars.Contains(str[i]) && !inEscape && !inBacktick && !inTripleBacktick)
@@ -154,7 +173,9 @@ public static class CommandsNextUtilities
             }
 
             if (inEscape)
+            {
                 inEscape = false;
+            }
 
             if (endPosition != -1)
             {
@@ -170,11 +191,13 @@ public static class CommandsNextUtilities
     internal static string CleanupString(this string s, IList<int> indices)
     {
         if (!indices.Any())
+        {
             return s;
+        }
 
-        var li = indices.Last();
-        var ll = 1;
-        for (var x = indices.Count - 2; x >= 0; x--)
+        int li = indices.Last();
+        int ll = 1;
+        for (int x = indices.Count - 2; x >= 0; x--)
         {
             if (li - indices[x] == ll)
             {
@@ -192,19 +215,19 @@ public static class CommandsNextUtilities
 
     internal static async Task<ArgumentBindingResult> BindArgumentsAsync(CommandContext ctx, bool ignoreSurplus)
     {
-        var command = ctx.Command;
-        var overload = ctx.Overload;
+        Command? command = ctx.Command;
+        CommandOverload overload = ctx.Overload;
 
-        var args = new object?[overload.Arguments.Count + 2];
+        object?[] args = new object?[overload.Arguments.Count + 2];
         args[1] = ctx;
-        var rawArgumentList = new List<string?>(overload.Arguments.Count);
-        var argString = ctx.RawArgumentString;
-        var foundAt = 0;
+        List<string?> rawArgumentList = new List<string?>(overload.Arguments.Count);
+        string? argString = ctx.RawArgumentString;
+        int foundAt = 0;
 
-        for (var i = 0; i < overload.Arguments.Count; i++)
+        for (int i = 0; i < overload.Arguments.Count; i++)
         {
-            var arg = overload.Arguments[i];
-            var argValue = string.Empty;
+            CommandArgument arg = overload.Arguments[i];
+            string? argValue = string.Empty;
             if (arg.IsCatchAll)
             {
                 if (arg._isArray)
@@ -213,7 +236,9 @@ public static class CommandsNextUtilities
                     {
                         argValue = ExtractNextArgument(argString, ref foundAt, ctx.Config.QuotationMarks);
                         if (argValue == null)
+                        {
                             break;
+                        }
 
                         rawArgumentList.Add(argValue);
                     }
@@ -223,7 +248,9 @@ public static class CommandsNextUtilities
                 else
                 {
                     if (argString == null)
+                    {
                         break;
+                    }
 
                     argValue = argString.Substring(foundAt).Trim();
                     argValue = argValue == "" ? null : argValue;
@@ -240,21 +267,27 @@ public static class CommandsNextUtilities
             }
 
             if (argValue == null && !arg.IsOptional && !arg.IsCatchAll)
+            {
                 return new ArgumentBindingResult(new ArgumentException("Not enough arguments supplied to the command."));
+            }
             else if (argValue == null)
+            {
                 rawArgumentList.Add(null);
+            }
         }
 
         if (!ignoreSurplus && foundAt < (argString?.Length ?? 0))
-            return new ArgumentBindingResult(new ArgumentException("Too many arguments were supplied to this command."));
-
-        for (var i = 0; i < overload.Arguments.Count; i++)
         {
-            var arg = overload.Arguments[i];
+            return new ArgumentBindingResult(new ArgumentException("Too many arguments were supplied to this command."));
+        }
+
+        for (int i = 0; i < overload.Arguments.Count; i++)
+        {
+            CommandArgument arg = overload.Arguments[i];
             if (arg.IsCatchAll && arg._isArray)
             {
-                var array = Array.CreateInstance(arg.Type, rawArgumentList.Count - i);
-                var start = i;
+                Array array = Array.CreateInstance(arg.Type, rawArgumentList.Count - i);
+                int start = i;
                 while (i < rawArgumentList.Count)
                 {
                     try
@@ -294,26 +327,36 @@ public static class CommandsNextUtilities
     {
         // check if compiler-generated
         if (ti.GetCustomAttribute<CompilerGeneratedAttribute>(false) != null)
+        {
             return false;
+        }
 
         // check if derives from the required base class
-        var tmodule = typeof(BaseCommandModule);
-        var timodule = tmodule.GetTypeInfo();
+        Type tmodule = typeof(BaseCommandModule);
+        TypeInfo timodule = tmodule.GetTypeInfo();
         if (!timodule.IsAssignableFrom(ti))
+        {
             return false;
+        }
 
         // check if anonymous
         if (ti.IsGenericType && ti.Name.Contains("AnonymousType") && (ti.Name.StartsWith("<>") || ti.Name.StartsWith("VB$")) && (ti.Attributes & TypeAttributes.NotPublic) == TypeAttributes.NotPublic)
+        {
             return false;
+        }
 
         // check if abstract, static, or not a class
         if (!ti.IsClass || ti.IsAbstract)
+        {
             return false;
+        }
 
         // check if delegate type
-        var tdelegate = typeof(Delegate).GetTypeInfo();
+        TypeInfo tdelegate = typeof(Delegate).GetTypeInfo();
         if (tdelegate.IsAssignableFrom(ti))
+        {
             return false;
+        }
 
         // qualifies if any method or type qualifies
         return ti.DeclaredMethods.Any(xmi => xmi.IsCommandCandidate(out _)) || ti.DeclaredNestedTypes.Any(xti => xti.IsModuleCandidateType());
@@ -325,16 +368,22 @@ public static class CommandsNextUtilities
 
         // check if exists
         if (method == null)
+        {
             return false;
+        }
 
         // check if static, non-public, abstract, a constructor, or a special name
         if (method.IsStatic || method.IsAbstract || method.IsConstructor || method.IsSpecialName)
+        {
             return false;
+        }
 
         // check if appropriate return and arguments
         parameters = method.GetParameters();
         if (!parameters.Any() || parameters.First().ParameterType != typeof(CommandContext) || method.ReturnType != typeof(Task))
+        {
             return false;
+        }
 
         // qualifies
         return true;
@@ -342,52 +391,68 @@ public static class CommandsNextUtilities
 
     internal static object CreateInstance(this Type t, IServiceProvider services)
     {
-        var ti = t.GetTypeInfo();
-        var constructors = ti.DeclaredConstructors
+        TypeInfo ti = t.GetTypeInfo();
+        ConstructorInfo[] constructors = ti.DeclaredConstructors
             .Where(xci => xci.IsPublic)
             .ToArray();
 
         if (constructors.Length != 1)
+        {
             throw new ArgumentException("Specified type does not contain a public constructor or contains more than one public constructor.");
+        }
 
-        var constructor = constructors[0];
-        var constructorArgs = constructor.GetParameters();
-        var args = new object[constructorArgs.Length];
+        ConstructorInfo constructor = constructors[0];
+        ParameterInfo[] constructorArgs = constructor.GetParameters();
+        object[] args = new object[constructorArgs.Length];
 
         if (constructorArgs.Length != 0 && services == null)
+        {
             throw new InvalidOperationException("Dependency collection needs to be specified for parameterized constructors.");
+        }
 
         // inject via constructor
         if (constructorArgs.Length != 0)
-            for (var i = 0; i < args.Length; i++)
+        {
+            for (int i = 0; i < args.Length; i++)
+            {
                 args[i] = services.GetRequiredService(constructorArgs[i].ParameterType);
+            }
+        }
 
-        var moduleInstance = Activator.CreateInstance(t, args);
+        object? moduleInstance = Activator.CreateInstance(t, args);
 
         // inject into properties
-        var props = t.GetRuntimeProperties().Where(xp => xp.CanWrite && xp.SetMethod != null && !xp.SetMethod.IsStatic && xp.SetMethod.IsPublic);
-        foreach (var prop in props)
+        IEnumerable<PropertyInfo> props = t.GetRuntimeProperties().Where(xp => xp.CanWrite && xp.SetMethod != null && !xp.SetMethod.IsStatic && xp.SetMethod.IsPublic);
+        foreach (PropertyInfo? prop in props)
         {
             if (prop.GetCustomAttribute<DontInjectAttribute>() != null)
+            {
                 continue;
+            }
 
-            var service = services.GetService(prop.PropertyType);
+            object? service = services.GetService(prop.PropertyType);
             if (service == null)
+            {
                 continue;
+            }
 
             prop.SetValue(moduleInstance, service);
         }
 
         // inject into fields
-        var fields = t.GetRuntimeFields().Where(xf => !xf.IsInitOnly && !xf.IsStatic && xf.IsPublic);
-        foreach (var field in fields)
+        IEnumerable<FieldInfo> fields = t.GetRuntimeFields().Where(xf => !xf.IsInitOnly && !xf.IsStatic && xf.IsPublic);
+        foreach (FieldInfo? field in fields)
         {
             if (field.GetCustomAttribute<DontInjectAttribute>() != null)
+            {
                 continue;
+            }
 
-            var service = services.GetService(field.FieldType);
+            object? service = services.GetService(field.FieldType);
             if (service == null)
+            {
                 continue;
+            }
 
             field.SetValue(moduleInstance, service);
         }

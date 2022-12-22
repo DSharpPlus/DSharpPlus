@@ -54,21 +54,21 @@ public class DiscordThreadChannelMember
     /// </summary>
     [JsonIgnore]
     public DiscordMember Member
-        => this.Guild != null ? (this.Guild._members.TryGetValue(this.Id, out var member) ? member : new DiscordMember { Id = this.Id, _guild_id = this._guild_id, Discord = this.Discord}) : null;
+        => Guild != null ? (Guild._members.TryGetValue(Id, out DiscordMember? member) ? member : new DiscordMember { Id = Id, _guild_id = _guild_id, Discord = Discord }) : null;
 
     /// <summary>
     /// Gets the category that contains this channel. For threads, gets the channel this thread was created in.
     /// </summary>
     [JsonIgnore]
     public DiscordChannel Thread
-        => this.Guild != null ? (this.Guild._threads.TryGetValue(this.ThreadId, out var thread) ? thread : null) : null;
+        => Guild != null ? (Guild._threads.TryGetValue(ThreadId, out DiscordThreadChannel? thread) ? thread : null) : null;
 
     /// <summary>
     /// Gets the guild to which this channel belongs.
     /// </summary>
     [JsonIgnore]
     public DiscordGuild Guild
-        => this.Discord.Guilds.TryGetValue(this._guild_id, out var guild) ? guild : null;
+        => Discord.Guilds.TryGetValue(_guild_id, out DiscordGuild? guild) ? guild : null;
 
     [JsonIgnore]
     internal ulong _guild_id;
@@ -86,7 +86,7 @@ public class DiscordThreadChannelMember
     /// </summary>
     /// <param name="obj">Object to compare to.</param>
     /// <returns>Whether the object is equal to this <see cref="DiscordThreadChannelMember"/>.</returns>
-    public override bool Equals(object obj) => this.Equals(obj as DiscordThreadChannelMember);
+    public override bool Equals(object obj) => Equals(obj as DiscordThreadChannelMember);
 
     /// <summary>
     /// Checks whether this <see cref="DiscordThreadChannelMember"/> is equal to another <see cref="DiscordThreadChannelMember"/>.
@@ -95,10 +95,7 @@ public class DiscordThreadChannelMember
     /// <returns>Whether the <see cref="DiscordThreadChannelMember"/> is equal to this <see cref="DiscordThreadChannelMember"/>.</returns>
     public bool Equals(DiscordThreadChannelMember e)
     {
-        if (e is null)
-            return false;
-
-        return ReferenceEquals(this, e) ? true : this.Id == e.Id && this.ThreadId == e.ThreadId;
+        return e is null ? false : ReferenceEquals(this, e) ? true : Id == e.Id && ThreadId == e.ThreadId;
     }
 
     /// <summary>
@@ -107,10 +104,10 @@ public class DiscordThreadChannelMember
     /// <returns>The hash code for this <see cref="DiscordThreadChannelMember"/>.</returns>
     public override int GetHashCode()
     {
-        var hash = 13;
+        int hash = 13;
 
-        hash = (hash * 7) + this.Id.GetHashCode();
-        hash = (hash * 7) + this.ThreadId.GetHashCode();
+        hash = (hash * 7) + Id.GetHashCode();
+        hash = (hash * 7) + ThreadId.GetHashCode();
 
         return hash;
     }
@@ -123,13 +120,12 @@ public class DiscordThreadChannelMember
     /// <returns>Whether the two messages are equal.</returns>
     public static bool operator ==(DiscordThreadChannelMember e1, DiscordThreadChannelMember e2)
     {
-        var o1 = e1 as object;
-        var o2 = e2 as object;
+        object? o1 = e1 as object;
+        object? o2 = e2 as object;
 
-        if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
-            return false;
-
-        return o1 == null && o2 == null ? true : e1.Id == e2.Id && e1.ThreadId == e2.ThreadId;
+        return (o1 == null && o2 != null) || (o1 != null && o2 == null)
+            ? false
+            : o1 == null && o2 == null ? true : e1.Id == e2.Id && e1.ThreadId == e2.ThreadId;
     }
 
     /// <summary>

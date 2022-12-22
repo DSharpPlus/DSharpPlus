@@ -63,7 +63,7 @@ internal sealed class GatewayIdentify
     /// <summary>
     /// Gets or sets the presence for this connection.
     /// </summary>
-		[JsonProperty("presence", NullValueHandling = NullValueHandling.Ignore)]
+    [JsonProperty("presence", NullValueHandling = NullValueHandling.Ignore)]
     public StatusUpdate Presence { get; set; } = null;
 
     /// <summary>

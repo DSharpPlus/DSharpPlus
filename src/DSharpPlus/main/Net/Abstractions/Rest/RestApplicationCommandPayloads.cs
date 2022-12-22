@@ -48,7 +48,7 @@ internal class RestApplicationCommandCreatePayload
     public IReadOnlyDictionary<string, string> NameLocalizations { get; set; }
 
     [JsonProperty("description_localizations")]
-    public IReadOnlyDictionary<string, string> DescriptionLocalizations{ get; set; }
+    public IReadOnlyDictionary<string, string> DescriptionLocalizations { get; set; }
 
     [JsonProperty("dm_permission", NullValueHandling = NullValueHandling.Ignore)]
     public bool? AllowDMUsage { get; set; }
@@ -76,7 +76,7 @@ internal class RestApplicationCommandEditPayload
     public IReadOnlyDictionary<string, string> NameLocalizations { get; set; }
 
     [JsonProperty("description_localizations")]
-    public IReadOnlyDictionary<string, string> DescriptionLocalizations{ get; set; }
+    public IReadOnlyDictionary<string, string> DescriptionLocalizations { get; set; }
 
     [JsonProperty("dm_permission", NullValueHandling = NullValueHandling.Ignore)]
     public Optional<bool> AllowDMUsage { get; set; }

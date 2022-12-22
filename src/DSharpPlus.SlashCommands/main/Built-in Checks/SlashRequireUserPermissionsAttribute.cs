@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 
 namespace DSharpPlus.SlashCommands.Attributes;
@@ -26,8 +26,8 @@ public sealed class SlashRequireUserPermissionsAttribute : SlashCheckBaseAttribu
     /// <param name="ignoreDms">Sets this check's behaviour in DMs. True means the check will always pass in DMs, whereas false means that it will always fail.</param>
     public SlashRequireUserPermissionsAttribute(Permissions permissions, bool ignoreDms = true)
     {
-        this.Permissions = permissions;
-        this.IgnoreDms = ignoreDms;
+        Permissions = permissions;
+        IgnoreDms = ignoreDms;
     }
 
     /// <summary>
@@ -36,20 +36,25 @@ public sealed class SlashRequireUserPermissionsAttribute : SlashCheckBaseAttribu
     public override Task<bool> ExecuteChecksAsync(InteractionContext ctx)
     {
         if (ctx.Guild == null)
-            return Task.FromResult(this.IgnoreDms);
+        {
+            return Task.FromResult(IgnoreDms);
+        }
 
-        var usr = ctx.Member;
+        Entities.DiscordMember usr = ctx.Member;
         if (usr == null)
+        {
             return Task.FromResult(false);
+        }
 
         if (usr.Id == ctx.Guild.OwnerId)
+        {
             return Task.FromResult(true);
+        }
 
-        var pusr = ctx.Channel.PermissionsFor(usr);
+        Permissions pusr = ctx.Channel.PermissionsFor(usr);
 
-        if ((pusr & Permissions.Administrator) != 0)
-            return Task.FromResult(true);
-
-        return (pusr & this.Permissions) == this.Permissions ? Task.FromResult(true) : Task.FromResult(false);
+        return (pusr & Permissions.Administrator) != 0
+            ? Task.FromResult(true)
+            : (pusr & Permissions) == Permissions ? Task.FromResult(true) : Task.FromResult(false);
     }
 }

@@ -45,23 +45,25 @@ public class TestBotLavaCommands : BaseCommandModule
     [Command, Description("Connects to Lavalink")]
     public async Task ConnectAsync(CommandContext ctx, string hostname, int port, string password)
     {
-        if (this.Lavalink != null)
+        if (Lavalink != null)
+        {
             return;
+        }
 
-        var lava = ctx.Client.GetLavalink();
+        LavalinkExtension lava = ctx.Client.GetLavalink();
         if (lava == null)
         {
             await ctx.RespondAsync("Lavalink is not enabled.").ConfigureAwait(false);
             return;
         }
 
-        this.Lavalink = await lava.ConnectAsync(new LavalinkConfiguration
+        Lavalink = await lava.ConnectAsync(new LavalinkConfiguration
         {
             RestEndpoint = new ConnectionEndpoint(hostname, port),
             SocketEndpoint = new ConnectionEndpoint(hostname, port),
             Password = password
         }).ConfigureAwait(false);
-        this.Lavalink.Disconnected += this.Lavalink_Disconnected;
+        Lavalink.Disconnected += Lavalink_Disconnected;
         await ctx.RespondAsync("Connected to lavalink node.").ConfigureAwait(false);
     }
 
@@ -69,8 +71,8 @@ public class TestBotLavaCommands : BaseCommandModule
     {
         if (e.IsCleanClose)
         {
-            this.Lavalink = null;
-            this.LavalinkVoice = null;
+            Lavalink = null;
+            LavalinkVoice = null;
         }
         return Task.CompletedTask;
     }
@@ -78,74 +80,82 @@ public class TestBotLavaCommands : BaseCommandModule
     [Command, Description("Disconnects from Lavalink")]
     public async Task DisconnectAsync(CommandContext ctx)
     {
-        if (this.Lavalink == null)
+        if (Lavalink == null)
+        {
             return;
+        }
 
-        var lava = ctx.Client.GetLavalink();
+        LavalinkExtension lava = ctx.Client.GetLavalink();
         if (lava == null)
         {
             await ctx.RespondAsync("Lavalink is not enabled.").ConfigureAwait(false);
             return;
         }
 
-        await this.Lavalink.StopAsync().ConfigureAwait(false);
-        this.Lavalink = null;
+        await Lavalink.StopAsync().ConfigureAwait(false);
+        Lavalink = null;
         await ctx.RespondAsync("Disconnected from Lavalink node.").ConfigureAwait(false);
     }
 
     [Command, Description("Joins a voice channel.")]
     public async Task JoinAsync(CommandContext ctx, DiscordChannel chn = null)
     {
-        if (this.Lavalink == null)
+        if (Lavalink == null)
         {
             await ctx.RespondAsync("Lavalink is not connected.").ConfigureAwait(false);
             return;
         }
 
-        var vc = chn ?? ctx.Member.VoiceState.Channel;
+        DiscordChannel vc = chn ?? ctx.Member.VoiceState.Channel;
         if (vc == null)
         {
             await ctx.RespondAsync("You are not in a voice channel or you did not specify a voice channel.").ConfigureAwait(false);
             return;
         }
 
-        this.LavalinkVoice = await this.Lavalink.ConnectAsync(vc).ConfigureAwait(false);
-        this.LavalinkVoice.PlaybackFinished += this.LavalinkVoice_PlaybackFinished;
-        this.LavalinkVoice.DiscordWebSocketClosed += (s, e) => ctx.RespondAsync("discord websocket close event");
+        LavalinkVoice = await Lavalink.ConnectAsync(vc).ConfigureAwait(false);
+        LavalinkVoice.PlaybackFinished += LavalinkVoice_PlaybackFinished;
+        LavalinkVoice.DiscordWebSocketClosed += (s, e) => ctx.RespondAsync("discord websocket close event");
         await ctx.RespondAsync("Connected.").ConfigureAwait(false);
     }
 
     private async Task LavalinkVoice_PlaybackFinished(LavalinkGuildConnection ll, TrackFinishEventArgs e)
     {
-        if (this.ContextChannel == null)
+        if (ContextChannel == null)
+        {
             return;
+        }
 
-        await this.ContextChannel.SendMessageAsync($"Playback of {Formatter.Bold(Formatter.Sanitize(e.Track.Title))} by {Formatter.Bold(Formatter.Sanitize(e.Track.Author))} finished.").ConfigureAwait(false);
-        this.ContextChannel = null;
+        await ContextChannel.SendMessageAsync($"Playback of {Formatter.Bold(Formatter.Sanitize(e.Track.Title))} by {Formatter.Bold(Formatter.Sanitize(e.Track.Author))} finished.").ConfigureAwait(false);
+        ContextChannel = null;
     }
 
     [Command, Description("Leaves a voice channel.")]
     public async Task LeaveAsync(CommandContext ctx)
     {
-        if (this.LavalinkVoice == null)
+        if (LavalinkVoice == null)
+        {
             return;
+        }
 
-        await this.LavalinkVoice.DisconnectAsync().ConfigureAwait(false);
-        this.LavalinkVoice = null;
+        await LavalinkVoice.DisconnectAsync().ConfigureAwait(false);
+        LavalinkVoice = null;
         await ctx.RespondAsync("Disconnected.").ConfigureAwait(false);
     }
 
     [Command, Description("Queues tracks for playback.")]
     public async Task PlayAsync(CommandContext ctx, [RemainingText] Uri uri)
     {
-        if (this.LavalinkVoice == null)
+        if (LavalinkVoice == null)
+        {
             return;
+        }
 
-        this.ContextChannel = ctx.Channel;
+        ContextChannel = ctx.Channel;
 
-        var trackLoad = await this.Lavalink.Rest.GetTracksAsync(uri).ConfigureAwait(false);
-        var track = trackLoad.Tracks.First();
-        await this.LavalinkVoice.PlayAsync(track).ConfigureAwait(false);
+        LavalinkLoadResult trackLoad = await Lavalink.Rest.GetTracksAsync(uri).ConfigureAwait(false);
+        LavalinkTrack track = trackLoad.Tracks.First();
+        await LavalinkVoice.PlayAsync(track).ConfigureAwait(false);
 
         await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))}.").ConfigureAwait(false);
     }
@@ -153,12 +163,14 @@ public class TestBotLavaCommands : BaseCommandModule
     [Command, Description("Queues tracks for playback.")]
     public async Task PlayFileAsync(CommandContext ctx, [RemainingText] string path)
     {
-        if (this.LavalinkVoice == null)
+        if (LavalinkVoice == null)
+        {
             return;
+        }
 
-        var trackLoad = await this.Lavalink.Rest.GetTracksAsync(new FileInfo(path)).ConfigureAwait(false);
-        var track = trackLoad.Tracks.First();
-        await this.LavalinkVoice.PlayAsync(track).ConfigureAwait(false);
+        LavalinkLoadResult trackLoad = await Lavalink.Rest.GetTracksAsync(new FileInfo(path)).ConfigureAwait(false);
+        LavalinkTrack track = trackLoad.Tracks.First();
+        await LavalinkVoice.PlayAsync(track).ConfigureAwait(false);
 
         await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))}.").ConfigureAwait(false);
     }
@@ -166,12 +178,14 @@ public class TestBotLavaCommands : BaseCommandModule
     [Command, Description("Queues track for playback.")]
     public async Task PlaySoundCloudAsync(CommandContext ctx, string search)
     {
-        if (this.Lavalink == null)
+        if (Lavalink == null)
+        {
             return;
+        }
 
-        var result = await this.Lavalink.Rest.GetTracksAsync(search, LavalinkSearchType.SoundCloud).ConfigureAwait(false);
-        var track = result.Tracks.First();
-        await this.LavalinkVoice.PlayAsync(track).ConfigureAwait(false);
+        LavalinkLoadResult result = await Lavalink.Rest.GetTracksAsync(search, LavalinkSearchType.SoundCloud).ConfigureAwait(false);
+        LavalinkTrack track = result.Tracks.First();
+        await LavalinkVoice.PlayAsync(track).ConfigureAwait(false);
 
         await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))}.").ConfigureAwait(false);
     }
@@ -179,12 +193,14 @@ public class TestBotLavaCommands : BaseCommandModule
     [Command, Description("Queues tracks for playback.")]
     public async Task PlayPartialAsync(CommandContext ctx, TimeSpan start, TimeSpan stop, [RemainingText] Uri uri)
     {
-        if (this.LavalinkVoice == null)
+        if (LavalinkVoice == null)
+        {
             return;
+        }
 
-        var trackLoad = await this.Lavalink.Rest.GetTracksAsync(uri).ConfigureAwait(false);
-        var track = trackLoad.Tracks.First();
-        await this.LavalinkVoice.PlayPartialAsync(track, start, stop).ConfigureAwait(false);
+        LavalinkLoadResult trackLoad = await Lavalink.Rest.GetTracksAsync(uri).ConfigureAwait(false);
+        LavalinkTrack track = trackLoad.Tracks.First();
+        await LavalinkVoice.PlayPartialAsync(track, start, stop).ConfigureAwait(false);
 
         await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))}.").ConfigureAwait(false);
     }
@@ -192,92 +208,110 @@ public class TestBotLavaCommands : BaseCommandModule
     [Command, Description("Pauses playback.")]
     public async Task PauseAsync(CommandContext ctx)
     {
-        if (this.LavalinkVoice == null)
+        if (LavalinkVoice == null)
+        {
             return;
+        }
 
-        await this.LavalinkVoice.PauseAsync().ConfigureAwait(false);
+        await LavalinkVoice.PauseAsync().ConfigureAwait(false);
         await ctx.RespondAsync("Paused.").ConfigureAwait(false);
     }
 
     [Command, Description("Resumes playback.")]
     public async Task ResumeAsync(CommandContext ctx)
     {
-        if (this.LavalinkVoice == null)
+        if (LavalinkVoice == null)
+        {
             return;
+        }
 
-        await this.LavalinkVoice.ResumeAsync().ConfigureAwait(false);
+        await LavalinkVoice.ResumeAsync().ConfigureAwait(false);
         await ctx.RespondAsync("Resumed.").ConfigureAwait(false);
     }
 
     [Command, Description("Stops playback.")]
     public async Task StopAsync(CommandContext ctx)
     {
-        if (this.LavalinkVoice == null)
+        if (LavalinkVoice == null)
+        {
             return;
+        }
 
-        await this.LavalinkVoice.StopAsync().ConfigureAwait(false);
+        await LavalinkVoice.StopAsync().ConfigureAwait(false);
         await ctx.RespondAsync("Stopped.").ConfigureAwait(false);
     }
 
     [Command, Description("Seeks in the current track.")]
     public async Task SeekAsync(CommandContext ctx, TimeSpan position)
     {
-        if (this.LavalinkVoice == null)
+        if (LavalinkVoice == null)
+        {
             return;
+        }
 
-        await this.LavalinkVoice.SeekAsync(position).ConfigureAwait(false);
+        await LavalinkVoice.SeekAsync(position).ConfigureAwait(false);
         await ctx.RespondAsync($"Seeking to {position}.").ConfigureAwait(false);
     }
 
     [Command, Description("Changes playback volume.")]
     public async Task VolumeAsync(CommandContext ctx, int volume)
     {
-        if (this.LavalinkVoice == null)
+        if (LavalinkVoice == null)
+        {
             return;
+        }
 
-        await this.LavalinkVoice.SetVolumeAsync(volume).ConfigureAwait(false);
+        await LavalinkVoice.SetVolumeAsync(volume).ConfigureAwait(false);
         await ctx.RespondAsync($"Volume set to {volume}%.").ConfigureAwait(false);
     }
 
     [Command, Description("Shows what's being currently played."), Aliases("np")]
     public async Task NowPlayingAsync(CommandContext ctx)
     {
-        if (this.LavalinkVoice == null)
+        if (LavalinkVoice == null)
+        {
             return;
+        }
 
-        var state = this.LavalinkVoice.CurrentState;
-        var track = state.CurrentTrack;
+        Lavalink.Entities.LavalinkPlayerState state = LavalinkVoice.CurrentState;
+        LavalinkTrack track = state.CurrentTrack;
         await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))} [{state.PlaybackPosition}/{track.Length}].").ConfigureAwait(false);
     }
 
     [Command, Description("Sets or resets equalizer settings."), Aliases("eq")]
     public async Task EqualizerAsync(CommandContext ctx)
     {
-        if (this.LavalinkVoice == null)
+        if (LavalinkVoice == null)
+        {
             return;
+        }
 
-        await this.LavalinkVoice.ResetEqualizerAsync().ConfigureAwait(false);
+        await LavalinkVoice.ResetEqualizerAsync().ConfigureAwait(false);
         await ctx.RespondAsync("All equalizer bands were reset.").ConfigureAwait(false);
     }
 
     [Command]
     public async Task EqualizerAsync(CommandContext ctx, int band, float gain)
     {
-        if (this.LavalinkVoice == null)
+        if (LavalinkVoice == null)
+        {
             return;
+        }
 
-        await this.LavalinkVoice.AdjustEqualizerAsync(new LavalinkBandAdjustment(band, gain)).ConfigureAwait(false);
+        await LavalinkVoice.AdjustEqualizerAsync(new LavalinkBandAdjustment(band, gain)).ConfigureAwait(false);
         await ctx.RespondAsync($"Band {band} adjusted by {gain}").ConfigureAwait(false);
     }
 
     [Command, Description("Displays Lavalink statistics.")]
     public async Task StatsAsync(CommandContext ctx)
     {
-        if (this.LavalinkVoice == null)
+        if (LavalinkVoice == null)
+        {
             return;
+        }
 
-        var stats = this.Lavalink.Statistics;
-        var sb = new StringBuilder();
+        Lavalink.Entities.LavalinkStatistics stats = Lavalink.Statistics;
+        StringBuilder sb = new StringBuilder();
         sb.Append("Lavalink resources usage statistics: ```")
             .Append("Uptime:                    ").Append(stats.Uptime).AppendLine()
             .Append("Players:                   ").AppendFormat("{0} active / {1} total", stats.ActivePlayers, stats.TotalPlayers).AppendLine()
@@ -293,7 +327,7 @@ public class TestBotLavaCommands : BaseCommandModule
     private static string SizeToString(long l)
     {
         double d = l;
-        var u = 0;
+        int u = 0;
         while (d >= 900 && u < _units.Length - 2)
         {
             u++;

@@ -33,7 +33,7 @@ public class LavalinkRouteStatus
     /// </summary>
     [JsonIgnore]
     public LavalinkRoutePlannerType? Class
-        => this.GetLavalinkRoutePlannerType(this.ClassInternal);
+        => GetLavalinkRoutePlannerType(ClassInternal);
 
     /// <summary>
     /// Gets the details of the route planner.
@@ -44,17 +44,14 @@ public class LavalinkRouteStatus
     [JsonProperty("class", NullValueHandling = NullValueHandling.Ignore)]
     internal string ClassInternal { get; set; }
 
-    private LavalinkRoutePlannerType? GetLavalinkRoutePlannerType(string type)
+    private LavalinkRoutePlannerType? GetLavalinkRoutePlannerType(string type) => type switch
     {
-        return type switch
-        {
-            "RotatingIpRoutePlanner" => LavalinkRoutePlannerType.RotatingIpRoutePlanner,
-            "BalancingIpRoutePlanner" => LavalinkRoutePlannerType.BalancingIpRoutePlanner,
-            "NanoIpRoutePlanner" => LavalinkRoutePlannerType.NanoIpRoutePlanner,
-            "RotatingNanoIpRoutePlanner" => LavalinkRoutePlannerType.RotatingNanoIpRoutePlanner,
-            _ => null,
-        };
-    }
+        "RotatingIpRoutePlanner" => LavalinkRoutePlannerType.RotatingIpRoutePlanner,
+        "BalancingIpRoutePlanner" => LavalinkRoutePlannerType.BalancingIpRoutePlanner,
+        "NanoIpRoutePlanner" => LavalinkRoutePlannerType.NanoIpRoutePlanner,
+        "RotatingNanoIpRoutePlanner" => LavalinkRoutePlannerType.RotatingNanoIpRoutePlanner,
+        _ => null,
+    };
 }
 
 public class LavalinkRouteStatusDetails

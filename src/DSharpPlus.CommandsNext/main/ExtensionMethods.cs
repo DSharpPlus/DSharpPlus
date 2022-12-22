@@ -47,15 +47,21 @@ public static class ExtensionMethods
     public static CommandsNextExtension UseCommandsNext(this DiscordClient client, CommandsNextConfiguration cfg)
     {
         if (client.GetExtension<CommandsNextExtension>() != null)
+        {
             throw new InvalidOperationException("CommandsNext is already enabled for that client.");
+        }
 
         if (!Utilities.HasMessageIntents(client.Configuration.Intents))
+        {
             client.Logger.LogCritical(CommandsNextEvents.Intents, "The CommandsNext extension is registered but there are no message intents enabled. It is highly recommended to enable them.");
+        }
 
         if (!client.Configuration.Intents.HasIntent(DiscordIntents.Guilds))
+        {
             client.Logger.LogCritical(CommandsNextEvents.Intents, "The CommandsNext extension is registered but the guilds intent is not enabled. It is highly recommended to enable it.");
+        }
 
-        var cnext = new CommandsNextExtension(cfg);
+        CommandsNextExtension cnext = new CommandsNextExtension(cfg);
         client.AddExtension(cnext);
         return cnext;
     }
@@ -68,14 +74,16 @@ public static class ExtensionMethods
     /// <returns>A dictionary of created <see cref="CommandsNextExtension"/>, indexed by shard id.</returns>
     public static async Task<IReadOnlyDictionary<int, CommandsNextExtension>> UseCommandsNextAsync(this DiscordShardedClient client, CommandsNextConfiguration cfg)
     {
-        var modules = new Dictionary<int, CommandsNextExtension>();
+        Dictionary<int, CommandsNextExtension> modules = new Dictionary<int, CommandsNextExtension>();
         await client.InitializeShardsAsync().ConfigureAwait(false);
 
-        foreach (var shard in client.ShardClients.Select(xkvp => xkvp.Value))
+        foreach (DiscordClient? shard in client.ShardClients.Select(xkvp => xkvp.Value))
         {
-            var cnext = shard.GetExtension<CommandsNextExtension>();
+            CommandsNextExtension? cnext = shard.GetExtension<CommandsNextExtension>();
             if (cnext == null)
+            {
                 cnext = shard.UseCommandsNext(cfg);
+            }
 
             modules[shard.ShardId] = cnext;
         }
@@ -100,9 +108,9 @@ public static class ExtensionMethods
     public static async Task<IReadOnlyDictionary<int, CommandsNextExtension>> GetCommandsNextAsync(this DiscordShardedClient client)
     {
         await client.InitializeShardsAsync().ConfigureAwait(false);
-        var extensions = new Dictionary<int, CommandsNextExtension>();
+        Dictionary<int, CommandsNextExtension> extensions = new Dictionary<int, CommandsNextExtension>();
 
-        foreach (var shard in client.ShardClients.Select(xkvp => xkvp.Value))
+        foreach (DiscordClient? shard in client.ShardClients.Select(xkvp => xkvp.Value))
         {
             extensions.Add(shard.ShardId, shard.GetExtension<CommandsNextExtension>());
         }
@@ -117,8 +125,10 @@ public static class ExtensionMethods
     /// <param name="assembly">Assembly to register commands from.</param>
     public static void RegisterCommands(this IReadOnlyDictionary<int, CommandsNextExtension> extensions, Assembly assembly)
     {
-        foreach (var extension in extensions.Values)
+        foreach (CommandsNextExtension extension in extensions.Values)
+        {
             extension.RegisterCommands(assembly);
+        }
     }
     /// <summary>
     /// Registers all commands from a given command class.
@@ -127,8 +137,10 @@ public static class ExtensionMethods
     /// <param name="extensions">Extensions to register commands on.</param>
     public static void RegisterCommands<T>(this IReadOnlyDictionary<int, CommandsNextExtension> extensions) where T : BaseCommandModule
     {
-        foreach (var extension in extensions.Values)
+        foreach (CommandsNextExtension extension in extensions.Values)
+        {
             extension.RegisterCommands<T>();
+        }
     }
     /// <summary>
     /// Registers all commands from a given command class.
@@ -137,8 +149,10 @@ public static class ExtensionMethods
     /// <param name="t">Type of the class which holds commands to register.</param>
     public static void RegisterCommands(this IReadOnlyDictionary<int, CommandsNextExtension> extensions, Type t)
     {
-        foreach (var extension in extensions.Values)
+        foreach (CommandsNextExtension extension in extensions.Values)
+        {
             extension.RegisterCommands(t);
+        }
     }
     /// <summary>
     /// Builds and registers all supplied commands.
@@ -147,8 +161,10 @@ public static class ExtensionMethods
     /// <param name="cmds">Commands to build and register.</param>
     public static void RegisterCommands(this IReadOnlyDictionary<int, CommandsNextExtension> extensions, params CommandBuilder[] cmds)
     {
-        foreach (var extension in extensions.Values)
+        foreach (CommandsNextExtension extension in extensions.Values)
+        {
             extension.RegisterCommands(cmds);
+        }
     }
 
     /// <summary>
@@ -158,8 +174,10 @@ public static class ExtensionMethods
     /// <param name="cmds">Commands to unregister.</param>
     public static void UnregisterCommands(this IReadOnlyDictionary<int, CommandsNextExtension> extensions, params Command[] cmds)
     {
-        foreach (var extension in extensions.Values)
+        foreach (CommandsNextExtension extension in extensions.Values)
+        {
             extension.UnregisterCommands(cmds);
+        }
     }
 
     /// <summary>
@@ -170,8 +188,10 @@ public static class ExtensionMethods
     /// <param name="converter">Converter to register.</param>
     public static void RegisterConverter<T>(this IReadOnlyDictionary<int, CommandsNextExtension> extensions, IArgumentConverter<T> converter)
     {
-        foreach (var extension in extensions.Values)
+        foreach (CommandsNextExtension extension in extensions.Values)
+        {
             extension.RegisterConverter(converter);
+        }
     }
 
     /// <summary>
@@ -181,8 +201,10 @@ public static class ExtensionMethods
     /// <param name="extensions">Extensions to unregister the converter on.</param>
     public static void UnregisterConverter<T>(this IReadOnlyDictionary<int, CommandsNextExtension> extensions)
     {
-        foreach (var extension in extensions.Values)
+        foreach (CommandsNextExtension extension in extensions.Values)
+        {
             extension.UnregisterConverter<T>();
+        }
     }
 
     /// <summary>
@@ -193,8 +215,10 @@ public static class ExtensionMethods
     /// <param name="value">Name to register.</param>
     public static void RegisterUserFriendlyTypeName<T>(this IReadOnlyDictionary<int, CommandsNextExtension> extensions, string value)
     {
-        foreach (var extension in extensions.Values)
+        foreach (CommandsNextExtension extension in extensions.Values)
+        {
             extension.RegisterUserFriendlyTypeName<T>(value);
+        }
     }
 
     /// <summary>
@@ -204,7 +228,9 @@ public static class ExtensionMethods
     /// <param name="extensions">Extensions to set the help formatter on.</param>
     public static void SetHelpFormatter<T>(this IReadOnlyDictionary<int, CommandsNextExtension> extensions) where T : BaseHelpFormatter
     {
-        foreach (var extension in extensions.Values)
+        foreach (CommandsNextExtension extension in extensions.Values)
+        {
             extension.SetHelpFormatter<T>();
+        }
     }
 }

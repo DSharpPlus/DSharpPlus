@@ -63,7 +63,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     [JsonIgnore]
     public string IconUrl
-        => this.GetIconUrl(ImageFormat.Auto, 1024);
+        => GetIconUrl(ImageFormat.Auto, 1024);
 
     /// <summary>
     /// Gets the guild splash's hash.
@@ -76,7 +76,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     [JsonIgnore]
     public string SplashUrl
-        => !string.IsNullOrWhiteSpace(this.SplashHash) ? $"https://cdn.discordapp.com/splashes/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.SplashHash}.jpg" : null;
+        => !string.IsNullOrWhiteSpace(SplashHash) ? $"https://cdn.discordapp.com/splashes/{Id.ToString(CultureInfo.InvariantCulture)}/{SplashHash}.jpg" : null;
 
     /// <summary>
     /// Gets the guild discovery splash's hash.
@@ -89,7 +89,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     [JsonIgnore]
     public string DiscoverySplashUrl
-        => !string.IsNullOrWhiteSpace(this.DiscoverySplashHash) ? $"https://cdn.discordapp.com/discovery-splashes/{this.Id.ToString(CultureInfo.InvariantCulture)}/{this.DiscoverySplashHash}.jpg" : null;
+        => !string.IsNullOrWhiteSpace(DiscoverySplashHash) ? $"https://cdn.discordapp.com/discovery-splashes/{Id.ToString(CultureInfo.InvariantCulture)}/{DiscoverySplashHash}.jpg" : null;
 
     /// <summary>
     /// Gets the preferred locale of this guild.
@@ -115,9 +115,9 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     [JsonIgnore]
     public DiscordMember Owner
-        => this.Members.TryGetValue(this.OwnerId, out var owner)
+        => Members.TryGetValue(OwnerId, out DiscordMember? owner)
             ? owner
-            : this.Discord.ApiClient.GetGuildMemberAsync(this.Id, this.OwnerId).ConfigureAwait(false).GetAwaiter().GetResult();
+            : Discord.ApiClient.GetGuildMemberAsync(Id, OwnerId).ConfigureAwait(false).GetAwaiter().GetResult();
 
     /// <summary>
     /// Gets the guild's voice region ID.
@@ -130,7 +130,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     [JsonIgnore]
     public DiscordVoiceRegion VoiceRegion
-        => this.Discord.VoiceRegions[this._voiceRegionId];
+        => Discord.VoiceRegions[_voiceRegionId];
 
     /// <summary>
     /// Gets the guild's AFK voice channel ID.
@@ -143,7 +143,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     [JsonIgnore]
     public DiscordChannel AfkChannel
-        => this.GetChannel(this._afkChannelId);
+        => GetChannel(_afkChannelId);
 
     /// <summary>
     /// Gets the guild's AFK timeout.
@@ -182,8 +182,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets the channel where system messages (such as boost and welcome messages) are sent.
     /// </summary>
     [JsonIgnore]
-    public DiscordChannel SystemChannel => this._systemChannelId.HasValue
-        ? this.GetChannel(this._systemChannelId.Value)
+    public DiscordChannel SystemChannel => _systemChannelId.HasValue
+        ? GetChannel(_systemChannelId.Value)
         : null;
 
     /// <summary>
@@ -205,8 +205,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets the widget channel for this guild.
     /// </summary>
     [JsonIgnore]
-    public DiscordChannel WidgetChannel => this._widgetChannelId.HasValue
-        ? this.GetChannel(this._widgetChannelId.Value)
+    public DiscordChannel WidgetChannel => _widgetChannelId.HasValue
+        ? GetChannel(_widgetChannelId.Value)
         : null;
 
     [JsonProperty("rules_channel_id")]
@@ -217,8 +217,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <para>This is only available if the guild is considered "discoverable".</para>
     /// </summary>
     [JsonIgnore]
-    public DiscordChannel RulesChannel => this._rulesChannelId.HasValue
-        ? this.GetChannel(this._rulesChannelId.Value)
+    public DiscordChannel RulesChannel => _rulesChannelId.HasValue
+        ? GetChannel(_rulesChannelId.Value)
         : null;
 
     [JsonProperty("public_updates_channel_id")]
@@ -229,8 +229,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <para>This is only available if the guild is considered "discoverable".</para>
     /// </summary>
     [JsonIgnore]
-    public DiscordChannel PublicUpdatesChannel => this._publicUpdatesChannelId.HasValue
-        ? this.GetChannel(this._publicUpdatesChannelId.Value)
+    public DiscordChannel PublicUpdatesChannel => _publicUpdatesChannelId.HasValue
+        ? GetChannel(_publicUpdatesChannelId.Value)
         : null;
 
     /// <summary>
@@ -243,7 +243,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Sceduled events for this guild.
     /// </summary>
     public IReadOnlyDictionary<ulong, DiscordScheduledGuildEvent> ScheduledEvents
-        => new ReadOnlyConcurrentDictionary<ulong, DiscordScheduledGuildEvent>(this._scheduledEvents);
+        => new ReadOnlyConcurrentDictionary<ulong, DiscordScheduledGuildEvent>(_scheduledEvents);
 
     [JsonProperty("guild_scheduled_events")]
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
@@ -254,7 +254,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets a collection of this guild's roles.
     /// </summary>
     [JsonIgnore]
-    public IReadOnlyDictionary<ulong, DiscordRole> Roles => new ReadOnlyConcurrentDictionary<ulong, DiscordRole>(this._roles);
+    public IReadOnlyDictionary<ulong, DiscordRole> Roles => new ReadOnlyConcurrentDictionary<ulong, DiscordRole>(_roles);
 
     [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
@@ -265,7 +265,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets a collection of this guild's stickers.
     /// </summary>
     [JsonIgnore]
-    public IReadOnlyDictionary<ulong, DiscordMessageSticker> Stickers => new ReadOnlyConcurrentDictionary<ulong, DiscordMessageSticker>(this._stickers);
+    public IReadOnlyDictionary<ulong, DiscordMessageSticker> Stickers => new ReadOnlyConcurrentDictionary<ulong, DiscordMessageSticker>(_stickers);
 
     [JsonProperty("stickers", NullValueHandling = NullValueHandling.Ignore)]
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
@@ -276,7 +276,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets a collection of this guild's emojis.
     /// </summary>
     [JsonIgnore]
-    public IReadOnlyDictionary<ulong, DiscordEmoji> Emojis => new ReadOnlyConcurrentDictionary<ulong, DiscordEmoji>(this._emojis);
+    public IReadOnlyDictionary<ulong, DiscordEmoji> Emojis => new ReadOnlyConcurrentDictionary<ulong, DiscordEmoji>(_emojis);
 
     [JsonProperty("emojis", NullValueHandling = NullValueHandling.Ignore)]
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
@@ -355,7 +355,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// the voice state corresponds to.
     /// </summary>
     [JsonIgnore]
-    public IReadOnlyDictionary<ulong, DiscordVoiceState> VoiceStates => new ReadOnlyConcurrentDictionary<ulong, DiscordVoiceState>(this._voiceStates);
+    public IReadOnlyDictionary<ulong, DiscordVoiceState> VoiceStates => new ReadOnlyConcurrentDictionary<ulong, DiscordVoiceState>(_voiceStates);
 
     [JsonProperty("voice_states", NullValueHandling = NullValueHandling.Ignore)]
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
@@ -365,7 +365,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets a dictionary of all the members that belong to this guild. The dictionary's key is the member ID.
     /// </summary>
     [JsonIgnore] // TODO overhead of => vs Lazy? it's a struct
-    public IReadOnlyDictionary<ulong, DiscordMember> Members => new ReadOnlyConcurrentDictionary<ulong, DiscordMember>(this._members);
+    public IReadOnlyDictionary<ulong, DiscordMember> Members => new ReadOnlyConcurrentDictionary<ulong, DiscordMember>(_members);
 
     [JsonProperty("members", NullValueHandling = NullValueHandling.Ignore)]
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
@@ -375,7 +375,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets a dictionary of all the channels associated with this guild. The dictionary's key is the channel ID.
     /// </summary>
     [JsonIgnore]
-    public IReadOnlyDictionary<ulong, DiscordChannel> Channels => new ReadOnlyConcurrentDictionary<ulong, DiscordChannel>(this._channels);
+    public IReadOnlyDictionary<ulong, DiscordChannel> Channels => new ReadOnlyConcurrentDictionary<ulong, DiscordChannel>(_channels);
 
     [JsonProperty("channels", NullValueHandling = NullValueHandling.Ignore)]
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
@@ -385,7 +385,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets a dictionary of all the active threads associated with this guild the user has permission to view. The dictionary's key is the channel ID.
     /// </summary>
     [JsonIgnore]
-    public IReadOnlyDictionary<ulong, DiscordThreadChannel> Threads => new ReadOnlyConcurrentDictionary<ulong, DiscordThreadChannel>(this._threads);
+    public IReadOnlyDictionary<ulong, DiscordThreadChannel> Threads => new ReadOnlyConcurrentDictionary<ulong, DiscordThreadChannel>(_threads);
 
     [JsonProperty("threads", NullValueHandling = NullValueHandling.Ignore)]
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
@@ -398,7 +398,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     [JsonIgnore]
     public DiscordMember CurrentMember
-        => this._current_member_lazy.Value;
+        => _current_member_lazy.Value;
 
     [JsonIgnore]
     private readonly Lazy<DiscordMember> _current_member_lazy;
@@ -408,7 +408,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     [JsonIgnore]
     public DiscordRole EveryoneRole
-        => this.GetRole(this.Id);
+        => GetRole(Id);
 
     [JsonIgnore]
     internal bool _isOwner;
@@ -419,8 +419,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     [JsonProperty("owner", NullValueHandling = NullValueHandling.Ignore)]
     public bool IsOwner
     {
-        get => this._isOwner || this.OwnerId == this.Discord.CurrentUser.Id;
-        internal set => this._isOwner = value;
+        get => _isOwner || OwnerId == Discord.CurrentUser.Id;
+        internal set => _isOwner = value;
     }
 
     /// <summary>
@@ -446,7 +446,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     [JsonIgnore]
     public string BannerUrl
-        => !string.IsNullOrWhiteSpace(this.Banner) ? $"https://cdn.discordapp.com/banners/{this.Id}/{this.Banner}" : null;
+        => !string.IsNullOrWhiteSpace(Banner) ? $"https://cdn.discordapp.com/banners/{Id}/{Banner}" : null;
 
     /// <summary>
     /// Gets this guild's premium tier (Nitro boosting).
@@ -476,7 +476,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets the stage instances in this guild.
     /// </summary>
     [JsonIgnore]
-    public IReadOnlyDictionary<ulong, DiscordStageInstance> StageInstances => new ReadOnlyConcurrentDictionary<ulong, DiscordStageInstance>(this._stageInstances);
+    public IReadOnlyDictionary<ulong, DiscordStageInstance> StageInstances => new ReadOnlyConcurrentDictionary<ulong, DiscordStageInstance>(_stageInstances);
 
     [JsonProperty("stage_instances", NullValueHandling = NullValueHandling.Ignore)]
     [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
@@ -498,8 +498,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
     internal DiscordGuild()
     {
-        this._current_member_lazy = new Lazy<DiscordMember>(() => (this._members != null && this._members.TryGetValue(this.Discord.CurrentUser.Id, out var member)) ? member : null);
-        this._invites = new ConcurrentDictionary<string, DiscordInvite>();
+        _current_member_lazy = new Lazy<DiscordMember>(() => (_members != null && _members.TryGetValue(Discord.CurrentUser.Id, out DiscordMember? member)) ? member : null);
+        _invites = new ConcurrentDictionary<string, DiscordInvite>();
     }
 
     #region Guild Methods
@@ -513,33 +513,41 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     public string GetIconUrl(ImageFormat imageFormat, ushort imageSize = 1024)
     {
 
-        if (string.IsNullOrWhiteSpace(this.IconHash))
+        if (string.IsNullOrWhiteSpace(IconHash))
+        {
             return null;
+        }
 
         if (imageFormat == ImageFormat.Unknown)
+        {
             throw new ArgumentException("You must specify valid image format.", nameof(imageFormat));
+        }
 
         // Makes sure the image size is in between Discord's allowed range.
         if (imageSize < 16 || imageSize > 4096)
+        {
             throw new ArgumentOutOfRangeException(nameof(imageSize), imageSize, "Image Size is not in between 16 and 4096.");
+        }
 
         // Checks to see if the image size is not a power of two.
         if (!(imageSize is not 0 && (imageSize & (imageSize - 1)) is 0))
+        {
             throw new ArgumentOutOfRangeException(nameof(imageSize), imageSize, "Image size is not a power of two.");
+        }
 
         // Get the string variants of the method parameters to use in the urls.
-        var stringImageFormat = imageFormat switch
+        string stringImageFormat = imageFormat switch
         {
             ImageFormat.Gif => "gif",
             ImageFormat.Jpeg => "jpg",
             ImageFormat.Png => "png",
             ImageFormat.WebP => "webp",
-            ImageFormat.Auto => !string.IsNullOrWhiteSpace(this.IconHash) ? (this.IconHash.StartsWith("a_") ? "gif" : "png") : "png",
+            ImageFormat.Auto => !string.IsNullOrWhiteSpace(IconHash) ? (IconHash.StartsWith("a_") ? "gif" : "png") : "png",
             _ => throw new ArgumentOutOfRangeException(nameof(imageFormat)),
         };
-        var stringImageSize = imageSize.ToString(CultureInfo.InvariantCulture);
+        string stringImageSize = imageSize.ToString(CultureInfo.InvariantCulture);
 
-        return $"https://cdn.discordapp.com{Endpoints.ICONS}/{this.Id}/{this.IconHash}.{stringImageFormat}?size={stringImageSize}";
+        return $"https://cdn.discordapp.com{Endpoints.ICONS}/{Id}/{IconHash}.{stringImageFormat}?size={stringImageSize}";
 
     }
 
@@ -559,10 +567,14 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     public Task<DiscordScheduledGuildEvent> CreateEventAsync(string name, string description, ulong? channelId, ScheduledGuildEventType type, ScheduledGuildEventPrivacyLevel privacyLevel, DateTimeOffset start, DateTimeOffset? end, string location = null, string reason = null)
     {
         if (start <= DateTimeOffset.Now)
+        {
             throw new ArgumentOutOfRangeException("The start time for an event must be in the future.");
+        }
 
         if (end != null && end <= start)
+        {
             throw new ArgumentOutOfRangeException("The end time for an event must be after the start time.");
+        }
 
         DiscordScheduledGuildEventMetadata metadata = null;
         switch (type)
@@ -577,12 +589,14 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 throw new ArgumentException($"{nameof(end)} must not be null when using external event type", nameof(end));
         }
         if (!string.IsNullOrEmpty(location))
+        {
             metadata = new DiscordScheduledGuildEventMetadata()
             {
                 Location = location
             };
+        }
 
-        return this.Discord.ApiClient.CreateScheduledGuildEventAsync(this.Id, name, description, channelId, start, end, type, privacyLevel, metadata, reason);
+        return Discord.ApiClient.CreateScheduledGuildEventAsync(Id, name, description, channelId, start, end, type, privacyLevel, metadata, reason);
     }
 
     /// <summary>
@@ -593,10 +607,9 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="InvalidOperationException"></exception>
     public Task StartEventAsync(DiscordScheduledGuildEvent guildEvent)
     {
-        if (guildEvent.Status is not ScheduledGuildEventStatus.Scheduled)
-            throw new InvalidOperationException("The event must be scheduled for it to be started.");
-
-        return this.ModifyEventAsync(guildEvent, m => m.Status = ScheduledGuildEventStatus.Active);
+        return guildEvent.Status is not ScheduledGuildEventStatus.Scheduled
+            ? throw new InvalidOperationException("The event must be scheduled for it to be started.")
+            : ModifyEventAsync(guildEvent, m => m.Status = ScheduledGuildEventStatus.Active);
     }
 
     /// <summary>
@@ -605,10 +618,9 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="guildEvent">The event to delete.</param>
     public Task CancelEventAsync(DiscordScheduledGuildEvent guildEvent)
     {
-        if (guildEvent.Status is not ScheduledGuildEventStatus.Scheduled)
-            throw new InvalidOperationException("The event must be scheduled for it to be cancelled.");
-
-        return this.ModifyEventAsync(guildEvent, m => m.Status = ScheduledGuildEventStatus.Cancelled);
+        return guildEvent.Status is not ScheduledGuildEventStatus.Scheduled
+            ? throw new InvalidOperationException("The event must be scheduled for it to be cancelled.")
+            : ModifyEventAsync(guildEvent, m => m.Status = ScheduledGuildEventStatus.Cancelled);
     }
 
     /// <summary>
@@ -621,41 +633,59 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="ArgumentException"></exception>
     public async Task ModifyEventAsync(DiscordScheduledGuildEvent guildEvent, Action<ScheduledGuildEventEditModel> mdl, string reason = null)
     {
-        var model = new ScheduledGuildEventEditModel();
+        ScheduledGuildEventEditModel model = new ScheduledGuildEventEditModel();
         mdl(model);
 
         if (model.Type.HasValue && model.Type.Value is not ScheduledGuildEventType.External)
         {
             if (!model.Channel.HasValue)
+            {
                 throw new ArgumentException("Channel must be supplied if the event is a stage instance or voice channel event.");
+            }
 
             if (model.Type.Value is ScheduledGuildEventType.StageInstance && model.Channel.Value.Type is not ChannelType.Stage)
+            {
                 throw new ArgumentException("Channel must be a stage channel if the event is a stage instance event.");
+            }
 
             if (model.Type.Value is ScheduledGuildEventType.VoiceChannel && model.Channel.Value.Type is not ChannelType.Voice)
+            {
                 throw new ArgumentException("Channel must be a voice channel if the event is a voice channel event.");
+            }
 
             if (model.EndTime.HasValue && model.EndTime.Value < guildEvent.StartTime)
+            {
                 throw new ArgumentException("End time must be after the start time.");
+            }
         }
 
         if (model.Type.HasValue && model.Type.Value is ScheduledGuildEventType.External)
         {
             if (!model.EndTime.HasValue)
+            {
                 throw new ArgumentException("End must be supplied if the event is an external event.");
+            }
 
             if (!model.Metadata.HasValue || string.IsNullOrEmpty(model.Metadata.Value.Location))
+            {
                 throw new ArgumentException("Location must be supplied if the event is an external event.");
+            }
 
             if (model.Channel.HasValue && model.Channel.Value != null)
+            {
                 throw new ArgumentException("Channel must not be supplied if the event is an external event.");
+            }
         }
 
         if (guildEvent.Status is ScheduledGuildEventStatus.Completed)
+        {
             throw new ArgumentException("The event must not be completed for it to be modified.");
+        }
 
         if (guildEvent.Status is ScheduledGuildEventStatus.Cancelled)
+        {
             throw new ArgumentException("The event must not be cancelled for it to be modified.");
+        }
 
         if (model.Status.HasValue)
         {
@@ -672,15 +702,15 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             }
         }
 
-        var modifiedEvent = await this.Discord.ApiClient.ModifyScheduledGuildEventAsync(
-            this.Id, guildEvent.Id,
+        DiscordScheduledGuildEvent modifiedEvent = await Discord.ApiClient.ModifyScheduledGuildEventAsync(
+            Id, guildEvent.Id,
             model.Name, model.Description,
             model.Channel.IfPresent(c => c?.Id),
             model.StartTime, model.EndTime,
             model.Type, model.PrivacyLevel,
             model.Metadata, model.Status, reason).ConfigureAwait(false);
 
-        this._scheduledEvents[modifiedEvent.Id] = modifiedEvent;
+        _scheduledEvents[modifiedEvent.Id] = modifiedEvent;
         return;
     }
 
@@ -692,8 +722,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <returns></returns>
     public Task DeleteEventAsync(DiscordScheduledGuildEvent guildEvent, string reason = null)
     {
-        this._scheduledEvents.TryRemove(guildEvent.Id, out _);
-        return this.Discord.ApiClient.DeleteScheduledGuildEventAsync(this.Id, guildEvent.Id);
+        _scheduledEvents.TryRemove(guildEvent.Id, out _);
+        return Discord.ApiClient.DeleteScheduledGuildEventAsync(Id, guildEvent.Id);
     }
 
     /// <summary>
@@ -703,10 +733,12 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <returns>The active and scheduled events on the server, if any.</returns>
     public async Task<IReadOnlyList<DiscordScheduledGuildEvent>> GetEventsAsync(bool withUserCounts = false)
     {
-        var events = await this.Discord.ApiClient.GetScheduledGuildEventsAsync(this.Id, withUserCounts);
+        IReadOnlyList<DiscordScheduledGuildEvent> events = await Discord.ApiClient.GetScheduledGuildEventsAsync(Id, withUserCounts);
 
-        foreach (var @event in events)
-            this._scheduledEvents[@event.Id] = @event;
+        foreach (DiscordScheduledGuildEvent @event in events)
+        {
+            _scheduledEvents[@event.Id] = @event;
+        }
 
         return events;
     }
@@ -720,17 +752,17 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="before">Fetch users before this id. Mutually exclusive with after</param>
     public async Task<IReadOnlyList<DiscordUser>> GetEventUsersAsync(DiscordScheduledGuildEvent guildEvent, int limit = 100, ulong? after = null, ulong? before = null)
     {
-        var remaining = limit;
+        int remaining = limit;
         ulong? last = null;
-        var isAfter = after != null;
+        bool isAfter = after != null;
 
-        var users = new List<DiscordUser>();
+        List<DiscordUser> users = new List<DiscordUser>();
 
         int lastCount;
         do
         {
-            var fetchSize = remaining > 100 ? 100 : remaining;
-            var fetch = await this.Discord.ApiClient.GetScheduledGuildEventUsersAsync(this.Id, guildEvent.Id, true, fetchSize, !isAfter ? last ?? before : null, isAfter ? last ?? after : null);
+            int fetchSize = remaining > 100 ? 100 : remaining;
+            IReadOnlyList<DiscordUser> fetch = await Discord.ApiClient.GetScheduledGuildEventUsersAsync(Id, guildEvent.Id, true, fetchSize, !isAfter ? last ?? before : null, isAfter ? last ?? after : null);
 
             lastCount = fetch.Count;
             remaining -= lastCount;
@@ -759,7 +791,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="limit">The maximum amount of members to return. Max 1000. Defaults to 1.</param>
     /// <returns>The members found, if any.</returns>
     public Task<IReadOnlyList<DiscordMember>> SearchMembersAsync(string name, int? limit = 1)
-        => this.Discord.ApiClient.SearchMembersAsync(this.Id, name, limit);
+        => Discord.ApiClient.SearchMembersAsync(Id, name, limit);
 
     /// <summary>
     /// Adds a new member to this guild
@@ -777,7 +809,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task AddMemberAsync(DiscordUser user, string access_token, string nickname = null, IEnumerable<DiscordRole> roles = null,
         bool muted = false, bool deaf = false)
-        => this.Discord.ApiClient.AddGuildMemberAsync(this.Id, user.Id, access_token, nickname, roles, muted, deaf);
+        => Discord.ApiClient.AddGuildMemberAsync(Id, user.Id, access_token, nickname, roles, muted, deaf);
 
     /// <summary>
     /// Deletes this guild. Requires the caller to be the owner of the guild.
@@ -786,7 +818,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="UnauthorizedException">Thrown when the client is not the owner of the guild.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task DeleteAsync()
-        => this.Discord.ApiClient.DeleteGuildAsync(this.Id);
+        => Discord.ApiClient.DeleteGuildAsync(Id);
 
     /// <summary>
     /// Modifies this guild.
@@ -799,40 +831,60 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordGuild> ModifyAsync(Action<GuildEditModel> action)
     {
-        var mdl = new GuildEditModel();
+        GuildEditModel mdl = new GuildEditModel();
         action(mdl);
 
         if (mdl.AfkChannel.HasValue && mdl.AfkChannel.Value.Type != ChannelType.Voice)
+        {
             throw new ArgumentException("AFK channel needs to be a voice channel.");
+        }
 
-        var iconb64 = Optional.FromNoValue<string>();
+        Optional<string> iconb64 = Optional.FromNoValue<string>();
 
         if (mdl.Icon.HasValue && mdl.Icon.Value != null)
-            using (var imgtool = new ImageTool(mdl.Icon.Value))
+        {
+            using (ImageTool imgtool = new ImageTool(mdl.Icon.Value))
+            {
                 iconb64 = imgtool.GetBase64();
+            }
+        }
         else if (mdl.Icon.HasValue)
+        {
             iconb64 = null;
+        }
 
-        var splashb64 = Optional.FromNoValue<string>();
+        Optional<string> splashb64 = Optional.FromNoValue<string>();
 
         if (mdl.Splash.HasValue && mdl.Splash.Value != null)
-            using (var imgtool = new ImageTool(mdl.Splash.Value))
+        {
+            using (ImageTool imgtool = new ImageTool(mdl.Splash.Value))
+            {
                 splashb64 = imgtool.GetBase64();
+            }
+        }
         else if (mdl.Splash.HasValue)
+        {
             splashb64 = null;
+        }
 
-        var bannerb64 = Optional.FromNoValue<string>();
+        Optional<string> bannerb64 = Optional.FromNoValue<string>();
 
         if (mdl.Banner.HasValue)
         {
             if (mdl.Banner.Value == null)
+            {
                 bannerb64 = null;
+            }
             else
-                using (var imgtool = new ImageTool(mdl.Banner.Value))
+            {
+                using (ImageTool imgtool = new ImageTool(mdl.Banner.Value))
+                {
                     bannerb64 = imgtool.GetBase64();
+                }
+            }
         }
 
-        return await this.Discord.ApiClient.ModifyGuildAsync(this.Id, mdl.Name, mdl.Region.IfPresent(e => e.Id),
+        return await Discord.ApiClient.ModifyGuildAsync(Id, mdl.Name, mdl.Region.IfPresent(e => e.Id),
             mdl.VerificationLevel, mdl.DefaultMessageNotifications, mdl.MfaLevel, mdl.ExplicitContentFilter,
             mdl.AfkChannel.IfPresent(e => e?.Id), mdl.AfkTimeout, iconb64, mdl.Owner.IfPresent(e => e.Id), splashb64,
             mdl.SystemChannel.IfPresent(e => e?.Id), bannerb64,
@@ -850,13 +902,15 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     public async Task<IReadOnlyList<DiscordRole>> ModifyRolePositionsAsync(IDictionary<int, DiscordRole> roles, string reason = null)
     {
         if (roles.Count == 0)
+        {
             throw new ArgumentException("Roles cannot be empty.", nameof(roles));
+        }
 
         // Sort the roles by position and create skeleton roles for the payload.
-        var returnedRoles = await this.Discord.ApiClient.ModifyGuildRolePositionsAsync(this.Id, roles.Select(x => new RestGuildRoleReorderPayload() { RoleId = x.Value.Id, Position = x.Key }), reason).ConfigureAwait(false);
+        DiscordRole[] returnedRoles = await Discord.ApiClient.ModifyGuildRolePositionsAsync(Id, roles.Select(x => new RestGuildRoleReorderPayload() { RoleId = x.Value.Id, Position = x.Key }), reason).ConfigureAwait(false);
 
         // Update the cache as the endpoint returns all roles in the order they were sent.
-        this._roles = new(returnedRoles.Select(x => new KeyValuePair<ulong, DiscordRole>(x.Id, x)));
+        _roles = new(returnedRoles.Select(x => new KeyValuePair<ulong, DiscordRole>(x.Id, x)));
         return returnedRoles;
     }
 
@@ -872,7 +926,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task BanMemberAsync(DiscordMember member, int delete_message_days = 0, string reason = null)
-        => this.Discord.ApiClient.CreateGuildBanAsync(this.Id, member.Id, delete_message_days, reason);
+        => Discord.ApiClient.CreateGuildBanAsync(Id, member.Id, delete_message_days, reason);
 
     /// <summary>
     /// Bans a specified user by ID. This doesn't require the user to be in this guild.
@@ -886,7 +940,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task BanMemberAsync(ulong user_id, int delete_message_days = 0, string reason = null)
-        => this.Discord.ApiClient.CreateGuildBanAsync(this.Id, user_id, delete_message_days, reason);
+        => Discord.ApiClient.CreateGuildBanAsync(Id, user_id, delete_message_days, reason);
 
     /// <summary>
     /// Unbans a user from this guild.
@@ -899,7 +953,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task UnbanMemberAsync(DiscordUser user, string reason = null)
-        => this.Discord.ApiClient.RemoveGuildBanAsync(this.Id, user.Id, reason);
+        => Discord.ApiClient.RemoveGuildBanAsync(Id, user.Id, reason);
 
     /// <summary>
     /// Unbans a user by ID.
@@ -912,7 +966,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task UnbanMemberAsync(ulong user_id, string reason = null)
-        => this.Discord.ApiClient.RemoveGuildBanAsync(this.Id, user_id, reason);
+        => Discord.ApiClient.RemoveGuildBanAsync(Id, user_id, reason);
 
     /// <summary>
     /// Leaves this guild.
@@ -920,7 +974,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <returns></returns>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task LeaveAsync()
-        => this.Discord.ApiClient.LeaveGuildAsync(this.Id);
+        => Discord.ApiClient.LeaveGuildAsync(Id);
 
     /// <summary>
     /// Gets the bans for this guild.
@@ -932,7 +986,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.BanMembers"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task<IReadOnlyList<DiscordBan>> GetBansAsync(int? limit = null, ulong? before = null, ulong? after = null)
-        => this.Discord.ApiClient.GetGuildBansAsync(this.Id, limit, before, after);
+        => Discord.ApiClient.GetGuildBansAsync(Id, limit, before, after);
 
     /// <summary>
     /// Gets a ban for a specific user.
@@ -941,7 +995,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="NotFoundException">Thrown when the specified user is not banned.</exception>
     /// <returns>The requested ban object.</returns>
     public Task<DiscordBan> GetBanAsync(ulong userId)
-        => this.Discord.ApiClient.GetGuildBanAsync(this.Id, userId);
+        => Discord.ApiClient.GetGuildBanAsync(Id, userId);
 
     /// <summary>
     /// Gets a ban for a specific user.
@@ -950,7 +1004,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="NotFoundException">Thrown when the specified user is not banned.</exception>
     /// <returns>The requested ban object.</returns>
     public Task<DiscordBan> GetBanAsync(DiscordUser user)
-        => this.GetBanAsync(user.Id);
+        => GetBanAsync(user.Id);
 
     /// <summary>
     /// Creates a new text channel in this guild.
@@ -969,7 +1023,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task<DiscordChannel> CreateTextChannelAsync(string name, DiscordChannel parent = null, Optional<string> topic = default, IEnumerable<DiscordOverwriteBuilder> overwrites = null, bool? nsfw = null, Optional<int?> perUserRateLimit = default, int? position = null, string reason = null)
-        => this.CreateChannelAsync(name, ChannelType.Text, parent, topic, null, null, overwrites, nsfw, perUserRateLimit, null, position, reason);
+        => CreateChannelAsync(name, ChannelType.Text, parent, topic, null, null, overwrites, nsfw, perUserRateLimit, null, position, reason);
 
     /// <summary>
     /// Creates a new channel category in this guild.
@@ -984,7 +1038,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task<DiscordChannel> CreateChannelCategoryAsync(string name, IEnumerable<DiscordOverwriteBuilder> overwrites = null, int? position = null, string reason = null)
-        => this.CreateChannelAsync(name, ChannelType.Category, null, Optional.FromNoValue<string>(), null, null, overwrites, null, Optional.FromNoValue<int?>(), null, position, reason);
+        => CreateChannelAsync(name, ChannelType.Category, null, Optional.FromNoValue<string>(), null, null, overwrites, null, Optional.FromNoValue<int?>(), null, position, reason);
 
     /// <summary>
     /// Creates a new voice channel in this guild.
@@ -1003,7 +1057,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task<DiscordChannel> CreateVoiceChannelAsync(string name, DiscordChannel parent = null, int? bitrate = null, int? user_limit = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, VideoQualityMode? qualityMode = null, int? position = null, string reason = null)
-        => this.CreateChannelAsync(name, ChannelType.Voice, parent, Optional.FromNoValue<string>(), bitrate, user_limit, overwrites, null, Optional.FromNoValue<int?>(), qualityMode, position, reason);
+        => CreateChannelAsync(name, ChannelType.Voice, parent, Optional.FromNoValue<string>(), bitrate, user_limit, overwrites, null, Optional.FromNoValue<int?>(), qualityMode, position, reason);
 
     /// <summary>
     /// Creates a new channel in this guild.
@@ -1028,12 +1082,11 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     public Task<DiscordChannel> CreateChannelAsync(string name, ChannelType type, DiscordChannel parent = null, Optional<string> topic = default, int? bitrate = null, int? userLimit = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, bool? nsfw = null, Optional<int?> perUserRateLimit = default, VideoQualityMode? qualityMode = null, int? position = null, string reason = null)
     {
         // technically you can create news/store channels but not always
-        if (type != ChannelType.Text && type != ChannelType.Voice && type != ChannelType.Category && type != ChannelType.News && type != ChannelType.Stage)
-            throw new ArgumentException("Channel type must be text, voice, stage, or category.", nameof(type));
-
-        return type == ChannelType.Category && parent != null
+        return type != ChannelType.Text && type != ChannelType.Voice && type != ChannelType.Category && type != ChannelType.News && type != ChannelType.Stage
+            ? throw new ArgumentException("Channel type must be text, voice, stage, or category.", nameof(type))
+            : type == ChannelType.Category && parent != null
             ? throw new ArgumentException("Cannot specify parent of a channel category.", nameof(parent))
-            : this.Discord.ApiClient.CreateGuildChannelAsync(this.Id, name, type, parent?.Id, topic, bitrate, userLimit, overwrites, nsfw, perUserRateLimit, qualityMode, position, reason);
+            : Discord.ApiClient.CreateGuildChannelAsync(Id, name, type, parent?.Id, topic, bitrate, userLimit, overwrites, nsfw, perUserRateLimit, qualityMode, position, reason);
     }
 
     // this is to commemorate the Great DAPI Channel Massacre of 2017-11-19.
@@ -1044,7 +1097,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <returns></returns>
     public Task DeleteAllChannelsAsync()
     {
-        var tasks = this.Channels.Values.Select(xc => xc.DeleteAsync());
+        IEnumerable<Task> tasks = Channels.Values.Select(xc => xc.DeleteAsync());
         return Task.WhenAll(tasks);
     }
 
@@ -1063,20 +1116,22 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         if (includedRoles != null)
         {
             includedRoles = includedRoles.Where(r => r != null);
-            var roleCount = includedRoles.Count();
-            var roleArr = includedRoles.ToArray();
-            var rawRoleIds = new List<ulong>();
+            int roleCount = includedRoles.Count();
+            DiscordRole[] roleArr = includedRoles.ToArray();
+            List<ulong> rawRoleIds = new List<ulong>();
 
-            for (var i = 0; i < roleCount; i++)
+            for (int i = 0; i < roleCount; i++)
             {
-                if (this._roles.ContainsKey(roleArr[i].Id))
+                if (_roles.ContainsKey(roleArr[i].Id))
+                {
                     rawRoleIds.Add(roleArr[i].Id);
+                }
             }
 
-            return this.Discord.ApiClient.GetGuildPruneCountAsync(this.Id, days, rawRoleIds);
+            return Discord.ApiClient.GetGuildPruneCountAsync(Id, days, rawRoleIds);
         }
 
-        return this.Discord.ApiClient.GetGuildPruneCountAsync(this.Id, days, null);
+        return Discord.ApiClient.GetGuildPruneCountAsync(Id, days, null);
     }
 
     /// <summary>
@@ -1096,20 +1151,22 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         if (includedRoles != null)
         {
             includedRoles = includedRoles.Where(r => r != null);
-            var roleCount = includedRoles.Count();
-            var roleArr = includedRoles.ToArray();
-            var rawRoleIds = new List<ulong>();
+            int roleCount = includedRoles.Count();
+            DiscordRole[] roleArr = includedRoles.ToArray();
+            List<ulong> rawRoleIds = new List<ulong>();
 
-            for (var i = 0; i < roleCount; i++)
+            for (int i = 0; i < roleCount; i++)
             {
-                if (this._roles.ContainsKey(roleArr[i].Id))
+                if (_roles.ContainsKey(roleArr[i].Id))
+                {
                     rawRoleIds.Add(roleArr[i].Id);
+                }
             }
 
-            return this.Discord.ApiClient.BeginGuildPruneAsync(this.Id, days, computePruneCount, rawRoleIds, reason);
+            return Discord.ApiClient.BeginGuildPruneAsync(Id, days, computePruneCount, rawRoleIds, reason);
         }
 
-        return this.Discord.ApiClient.BeginGuildPruneAsync(this.Id, days, computePruneCount, null, reason);
+        return Discord.ApiClient.BeginGuildPruneAsync(Id, days, computePruneCount, null, reason);
     }
 
     /// <summary>
@@ -1121,7 +1178,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task<IReadOnlyList<DiscordIntegration>> GetIntegrationsAsync()
-        => this.Discord.ApiClient.GetGuildIntegrationsAsync(this.Id);
+        => Discord.ApiClient.GetGuildIntegrationsAsync(Id);
 
     /// <summary>
     /// Attaches an integration from current user to this guild.
@@ -1133,7 +1190,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task<DiscordIntegration> AttachUserIntegrationAsync(DiscordIntegration integration)
-        => this.Discord.ApiClient.CreateGuildIntegrationAsync(this.Id, integration.Type, integration.Id);
+        => Discord.ApiClient.CreateGuildIntegrationAsync(Id, integration.Type, integration.Id);
 
     /// <summary>
     /// Modifies an integration in this guild.
@@ -1148,7 +1205,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task<DiscordIntegration> ModifyIntegrationAsync(DiscordIntegration integration, int expire_behaviour, int expire_grace_period, bool enable_emoticons)
-        => this.Discord.ApiClient.ModifyGuildIntegrationAsync(this.Id, integration.Id, expire_behaviour, expire_grace_period, enable_emoticons);
+        => Discord.ApiClient.ModifyGuildIntegrationAsync(Id, integration.Id, expire_behaviour, expire_grace_period, enable_emoticons);
 
     /// <summary>
     /// Removes an integration from this guild.
@@ -1161,7 +1218,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task DeleteIntegrationAsync(DiscordIntegration integration, string reason = null)
-        => this.Discord.ApiClient.DeleteGuildIntegrationAsync(this.Id, integration, reason);
+        => Discord.ApiClient.DeleteGuildIntegrationAsync(Id, integration, reason);
 
     /// <summary>
     /// Forces re-synchronization of an integration for this guild.
@@ -1173,7 +1230,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task SyncIntegrationAsync(DiscordIntegration integration)
-        => this.Discord.ApiClient.SyncGuildIntegrationAsync(this.Id, integration.Id);
+        => Discord.ApiClient.SyncGuildIntegrationAsync(Id, integration.Id);
 
     /// <summary>
     /// Gets the voice regions for this guild.
@@ -1182,9 +1239,11 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<IReadOnlyList<DiscordVoiceRegion>> ListVoiceRegionsAsync()
     {
-        var vrs = await this.Discord.ApiClient.GetGuildVoiceRegionsAsync(this.Id).ConfigureAwait(false);
-        foreach (var xvr in vrs)
-            this.Discord.InternalVoiceRegions.TryAdd(xvr.Id, xvr);
+        IReadOnlyList<DiscordVoiceRegion> vrs = await Discord.ApiClient.GetGuildVoiceRegionsAsync(Id).ConfigureAwait(false);
+        foreach (DiscordVoiceRegion xvr in vrs)
+        {
+            Discord.InternalVoiceRegions.TryAdd(xvr.Id, xvr);
+        }
 
         return vrs;
     }
@@ -1196,7 +1255,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<ThreadQueryResult> ListActiveThreadsAsync()
     {
-        var threads = await this.Discord.ApiClient.ListActiveThreadsAsync(this.Id);
+        ThreadQueryResult threads = await Discord.ApiClient.ListActiveThreadsAsync(Id);
         // Gateway handles thread cache (if it does it properly
         /*foreach (var thread in threads)
             this._threads[thread.Id] = thread;*/
@@ -1209,7 +1268,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="code">The invite code</param>
     /// <returns>An invite, or null if not in cache.</returns>
     public DiscordInvite GetInvite(string code)
-        => this._invites.TryGetValue(code, out var invite) ? invite : null;
+        => _invites.TryGetValue(code, out DiscordInvite? invite) ? invite : null;
 
     /// <summary>
     /// Gets all the invites created for all the channels in this guild.
@@ -1218,14 +1277,16 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<IReadOnlyList<DiscordInvite>> GetInvitesAsync()
     {
-        var res = await this.Discord.ApiClient.GetGuildInvitesAsync(this.Id).ConfigureAwait(false);
+        IReadOnlyList<DiscordInvite> res = await Discord.ApiClient.GetGuildInvitesAsync(Id).ConfigureAwait(false);
 
-        var intents = this.Discord.Configuration.Intents;
+        DiscordIntents intents = Discord.Configuration.Intents;
 
         if (!intents.HasIntent(DiscordIntents.GuildInvites))
         {
-            for (var i = 0; i < res.Count; i++)
-                this._invites[res[i].Code] = res[i];
+            for (int i = 0; i < res.Count; i++)
+            {
+                _invites[res[i].Code] = res[i];
+            }
         }
 
         return res;
@@ -1238,7 +1299,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task<DiscordInvite> GetVanityInviteAsync()
-        => this.Discord.ApiClient.GetGuildVanityUrlAsync(this.Id);
+        => Discord.ApiClient.GetGuildVanityUrlAsync(Id);
 
 
     /// <summary>
@@ -1248,7 +1309,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageWebhooks"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task<IReadOnlyList<DiscordWebhook>> GetWebhooksAsync()
-        => this.Discord.ApiClient.GetGuildWebhooksAsync(this.Id);
+        => Discord.ApiClient.GetGuildWebhooksAsync(Id);
 
     /// <summary>
     /// Gets this guild's widget image.
@@ -1257,7 +1318,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <returns>The URL of the widget image.</returns>
     public string GetWidgetImage(WidgetType bannerType = WidgetType.Shield)
     {
-        var param = bannerType switch
+        string param = bannerType switch
         {
             WidgetType.Banner1 => "banner1",
             WidgetType.Banner2 => "banner2",
@@ -1265,7 +1326,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             WidgetType.Banner4 => "banner4",
             _ => "shield",
         };
-        return $"{Net.Endpoints.BASE_URI}{Net.Endpoints.GUILDS}/{this.Id}{Net.Endpoints.WIDGET_PNG}?style={param}";
+        return $"{Net.Endpoints.BASE_URI}{Net.Endpoints.GUILDS}/{Id}{Net.Endpoints.WIDGET_PNG}?style={param}";
     }
 
     /// <summary>
@@ -1277,18 +1338,20 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordMember> GetMemberAsync(ulong userId, bool updateCache = false)
     {
-        if (!updateCache && this._members != null && this._members.TryGetValue(userId, out var mbr))
+        if (!updateCache && _members != null && _members.TryGetValue(userId, out DiscordMember? mbr))
+        {
             return mbr;
+        }
 
-        mbr = await this.Discord.ApiClient.GetGuildMemberAsync(this.Id, userId).ConfigureAwait(false);
+        mbr = await Discord.ApiClient.GetGuildMemberAsync(Id, userId).ConfigureAwait(false);
 
-        var intents = this.Discord.Configuration.Intents;
+        DiscordIntents intents = Discord.Configuration.Intents;
 
         if (intents.HasIntent(DiscordIntents.GuildMembers))
         {
-            if (this._members != null)
+            if (_members != null)
             {
-                this._members[userId] = mbr;
+                _members[userId] = mbr;
             }
         }
 
@@ -1302,25 +1365,25 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<IReadOnlyCollection<DiscordMember>> GetAllMembersAsync()
     {
-        var recmbr = new HashSet<DiscordMember>();
+        HashSet<DiscordMember> recmbr = new HashSet<DiscordMember>();
 
-        var recd = 1000;
-        var last = 0ul;
+        int recd = 1000;
+        ulong last = 0ul;
         while (recd > 0)
         {
-            var tms = await this.Discord.ApiClient.ListGuildMembersAsync(this.Id, 1000, last == 0 ? null : (ulong?)last).ConfigureAwait(false);
+            IReadOnlyList<TransportMember> tms = await Discord.ApiClient.ListGuildMembersAsync(Id, 1000, last == 0 ? null : (ulong?)last).ConfigureAwait(false);
             recd = tms.Count;
 
-            foreach (var xtm in tms)
+            foreach (TransportMember xtm in tms)
             {
-                var usr = new DiscordUser(xtm.User) { Discord = this.Discord };
+                DiscordUser usr = new DiscordUser(xtm.User) { Discord = Discord };
 
-                usr = this.Discord.UpdateUserCache(usr);
+                usr = Discord.UpdateUserCache(usr);
 
-                recmbr.Add(new DiscordMember(xtm) { Discord = this.Discord, _guild_id = this.Id });
+                recmbr.Add(new DiscordMember(xtm) { Discord = Discord, _guild_id = Id });
             }
 
-            var tm = tms.LastOrDefault();
+            TransportMember? tm = tms.LastOrDefault();
             last = tm?.User.Id ?? 0;
         }
 
@@ -1339,16 +1402,22 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="nonce">The unique string to identify the response.</param>
     public async Task RequestMembersAsync(string query = "", int limit = 0, bool? presences = null, IEnumerable<ulong> userIds = null, string nonce = null)
     {
-        if (this.Discord is not DiscordClient client)
+        if (Discord is not DiscordClient client)
+        {
             throw new InvalidOperationException("This operation is only valid for regular Discord clients.");
+        }
 
         if (query == null && userIds == null)
+        {
             throw new ArgumentException("The query and user IDs cannot both be null.");
+        }
 
         if (query != null && userIds != null)
+        {
             query = null;
+        }
 
-        var grgm = new GatewayRequestGuildMembers(this)
+        GatewayRequestGuildMembers grgm = new GatewayRequestGuildMembers(this)
         {
             Query = query,
             Limit = limit >= 0 ? limit : 0,
@@ -1357,13 +1426,13 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             Nonce = nonce
         };
 
-        var payload = new GatewayPayload
+        GatewayPayload payload = new GatewayPayload
         {
             OpCode = GatewayOpCode.RequestGuildMembers,
             Data = grgm
         };
 
-        var payloadStr = JsonConvert.SerializeObject(payload, Formatting.None);
+        string payloadStr = JsonConvert.SerializeObject(payload, Formatting.None);
         await client.WsSendAsync(payloadStr).ConfigureAwait(false);
     }
 
@@ -1373,7 +1442,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <returns>A collection of this guild's channels.</returns>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task<IReadOnlyList<DiscordChannel>> GetChannelsAsync()
-        => this.Discord.ApiClient.GetGuildChannelsAsync(this.Id);
+        => Discord.ApiClient.GetGuildChannelsAsync(Id);
 
     /// <summary>
     /// Creates a new role in this guild.
@@ -1390,7 +1459,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageRoles"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task<DiscordRole> CreateRoleAsync(string name = null, Permissions? permissions = null, DiscordColor? color = null, bool? hoist = null, bool? mentionable = null, string reason = null, Stream icon = null, DiscordEmoji emoji = null)
-        => this.Discord.ApiClient.CreateGuildRoleAsync(this.Id, name, permissions, color?.Value, hoist, mentionable, reason, icon, emoji?.ToString());
+        => Discord.ApiClient.CreateGuildRoleAsync(Id, name, permissions, color?.Value, hoist, mentionable, reason, icon, emoji?.ToString());
     /// <summary>
     /// Gets a role from this guild by its ID.
     /// </summary>
@@ -1398,7 +1467,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <returns>Requested role.</returns>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public DiscordRole GetRole(ulong id)
-        => this._roles.TryGetValue(id, out var role) ? role : null;
+        => _roles.TryGetValue(id, out DiscordRole? role) ? role : null;
 
     /// <summary>
     /// Gets a channel from this guild by its ID.
@@ -1407,7 +1476,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <returns>Requested channel.</returns>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public DiscordChannel GetChannel(ulong id)
-        => (this._channels != null && this._channels.TryGetValue(id, out var channel)) ? channel : null;
+        => (_channels != null && _channels.TryGetValue(id, out DiscordChannel? channel)) ? channel : null;
 
     /// <summary>
     /// Gets audit log entries for this guild.
@@ -1420,16 +1489,19 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<IReadOnlyList<DiscordAuditLogEntry>> GetAuditLogsAsync(int? limit = null, DiscordMember by_member = null, AuditLogActionType? action_type = null)
     {
-        var alrs = new List<AuditLog>();
+        List<AuditLog> alrs = new List<AuditLog>();
         int ac = 1, tc = 0, rmn = 100;
-        var last = 0ul;
+        ulong last = 0ul;
         while (ac > 0)
         {
             rmn = limit != null ? limit.Value - tc : 100;
             rmn = Math.Min(100, rmn);
-            if (rmn <= 0) break;
+            if (rmn <= 0)
+            {
+                break;
+            }
 
-            var alr = await this.Discord.ApiClient.GetAuditLogsAsync(this.Id, rmn, null, last == 0 ? null : (ulong?)last, by_member?.Id, (int?)action_type).ConfigureAwait(false);
+            AuditLog alr = await Discord.ApiClient.GetAuditLogsAsync(Id, rmn, null, last == 0 ? null : (ulong?)last, by_member?.Id, (int?)action_type).ConfigureAwait(false);
             ac = alr.Entries.Count();
             tc += ac;
             if (ac > 0)
@@ -1439,69 +1511,71 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             }
         }
 
-        var amr = alrs.SelectMany(xa => xa.Users)
+        IEnumerable<AuditLogUser> amr = alrs.SelectMany(xa => xa.Users)
             .GroupBy(xu => xu.Id)
             .Select(xgu => xgu.First());
 
-        foreach (var xau in amr)
+        foreach (AuditLogUser? xau in amr)
         {
-            if (this.Discord.UserCache.ContainsKey(xau.Id))
+            if (Discord.UserCache.ContainsKey(xau.Id))
+            {
                 continue;
+            }
 
-            var xtu = new TransportUser
+            TransportUser xtu = new TransportUser
             {
                 Id = xau.Id,
                 Username = xau.Username,
                 Discriminator = xau.Discriminator,
                 AvatarHash = xau.AvatarHash
             };
-            var xu = new DiscordUser(xtu) { Discord = this.Discord };
-            xu = this.Discord.UpdateUserCache(xu);
+            DiscordUser xu = new DiscordUser(xtu) { Discord = Discord };
+            xu = Discord.UpdateUserCache(xu);
         }
 
-        var ahr = alrs.SelectMany(xa => xa.Webhooks)
+        IEnumerable<AuditLogWebhook> ahr = alrs.SelectMany(xa => xa.Webhooks)
             .GroupBy(xh => xh.Id)
             .Select(xgh => xgh.First());
 
-        var eve = alrs.SelectMany(xr => xr.Events)
+        IEnumerable<DiscordScheduledGuildEvent> eve = alrs.SelectMany(xr => xr.Events)
             .GroupBy(xa => xa.Id)
             .Select(xu => xu.First());
 
-        var thr = alrs.SelectMany(xr => xr.Threads)
+        IEnumerable<DiscordThreadChannel> thr = alrs.SelectMany(xr => xr.Threads)
             .GroupBy(xa => xa.Id)
             .Select(xu => xu.First());
 
         Dictionary<ulong, DiscordWebhook> ahd = null;
         if (ahr.Any())
         {
-            var whr = await this.GetWebhooksAsync().ConfigureAwait(false);
-            var whs = whr.ToDictionary(xh => xh.Id, xh => xh);
+            IReadOnlyList<DiscordWebhook> whr = await GetWebhooksAsync().ConfigureAwait(false);
+            Dictionary<ulong, DiscordWebhook> whs = whr.ToDictionary(xh => xh.Id, xh => xh);
 
-            var amh = ahr.Select(xah => whs.TryGetValue(xah.Id, out var webhook) ? webhook : new DiscordWebhook { Discord = this.Discord, Name = xah.Name, Id = xah.Id, AvatarHash = xah.AvatarHash, ChannelId = xah.ChannelId, GuildId = xah.GuildId, Token = xah.Token });
+            IEnumerable<DiscordWebhook> amh = ahr.Select(xah => whs.TryGetValue(xah.Id, out DiscordWebhook? webhook) ? webhook : new DiscordWebhook { Discord = Discord, Name = xah.Name, Id = xah.Id, AvatarHash = xah.AvatarHash, ChannelId = xah.ChannelId, GuildId = xah.GuildId, Token = xah.Token });
             ahd = amh.ToDictionary(xh => xh.Id, xh => xh);
         }
 
         Dictionary<ulong, DiscordScheduledGuildEvent> events = null;
         if (eve.Any())
         {
-            var evb = this._scheduledEvents;
-            var evf = eve.Select(xa => evb.TryGetValue(xa.Id, out var Event) ? Event : new DiscordScheduledGuildEvent { Discord = this.Discord, Name = xa.Name, Id = xa.Id, ChannelId = xa.ChannelId, GuildId = xa.GuildId, Creator = xa.Creator, Description = xa.Description, EndTime = xa.EndTime, Metadata = xa.Metadata, PrivacyLevel = xa.PrivacyLevel, StartTime = xa.StartTime, Status = xa.Status, Type = xa.Type, UserCount = xa.UserCount});
+            ConcurrentDictionary<ulong, DiscordScheduledGuildEvent> evb = _scheduledEvents;
+            IEnumerable<DiscordScheduledGuildEvent> evf = eve.Select(xa => evb.TryGetValue(xa.Id, out DiscordScheduledGuildEvent? Event) ? Event : new DiscordScheduledGuildEvent { Discord = Discord, Name = xa.Name, Id = xa.Id, ChannelId = xa.ChannelId, GuildId = xa.GuildId, Creator = xa.Creator, Description = xa.Description, EndTime = xa.EndTime, Metadata = xa.Metadata, PrivacyLevel = xa.PrivacyLevel, StartTime = xa.StartTime, Status = xa.Status, Type = xa.Type, UserCount = xa.UserCount });
             events = evf.ToDictionary(xb => xb.Id, xb => xb);
         }
 
         Dictionary<ulong, DiscordThreadChannel> threads = null;
         if (thr.Any())
         {
-            var thb = thr.Select(xr => xr ?? new DiscordThreadChannel{ Discord = this.Discord, Id = xr.Id, Name = xr.Name, GuildId = xr.GuildId});
+            IEnumerable<DiscordThreadChannel> thb = thr.Select(xr => xr ?? new DiscordThreadChannel { Discord = Discord, Id = xr.Id, Name = xr.Name, GuildId = xr.GuildId });
             threads = thb.ToDictionary(xa => xa.Id, xa => xa);
         }
 
-        var ams = amr.Select(xau => (this._members != null && this._members.TryGetValue(xau.Id, out var member)) ? member : new DiscordMember { Discord = this.Discord, Id = xau.Id, _guild_id = this.Id });
-        var amd = ams.ToDictionary(xm => xm.Id, xm => xm);
+        IEnumerable<DiscordMember> ams = amr.Select(xau => (_members != null && _members.TryGetValue(xau.Id, out DiscordMember? member)) ? member : new DiscordMember { Discord = Discord, Id = xau.Id, _guild_id = Id });
+        Dictionary<ulong, DiscordMember> amd = ams.ToDictionary(xm => xm.Id, xm => xm);
 
-        var acs = alrs.SelectMany(xa => xa.Entries).OrderByDescending(xa => xa.Id);
-        var entries = new List<DiscordAuditLogEntry>();
-        foreach (var xac in acs)
+        IOrderedEnumerable<AuditLogAction> acs = alrs.SelectMany(xa => xa.Entries).OrderByDescending(xa => xa.Id);
+        List<DiscordAuditLogEntry> entries = new List<DiscordAuditLogEntry>();
+        foreach (AuditLogAction? xac in acs)
         {
             DiscordAuditLogEntry entry = null;
             ulong t1, t2;
@@ -1516,8 +1590,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                         Target = this
                     };
 
-                    var entrygld = entry as DiscordAuditLogGuildEntry;
-                    foreach (var xc in xac.Changes)
+                    DiscordAuditLogGuildEntry? entrygld = entry as DiscordAuditLogGuildEntry;
+                    foreach (AuditLogActionChange xc in xac.Changes)
                     {
                         switch (xc.Key.ToLowerInvariant())
                         {
@@ -1532,16 +1606,16 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                             case "owner_id":
                                 entrygld.OwnerChange = new PropertyChange<DiscordMember>
                                 {
-                                    Before = (this._members != null && this._members.TryGetValue(xc.OldValueUlong, out var oldMember)) ? oldMember : await this.GetMemberAsync(xc.OldValueUlong).ConfigureAwait(false),
-                                    After = (this._members != null && this._members.TryGetValue(xc.NewValueUlong, out var newMember)) ? newMember : await this.GetMemberAsync(xc.NewValueUlong).ConfigureAwait(false)
+                                    Before = (_members != null && _members.TryGetValue(xc.OldValueUlong, out DiscordMember? oldMember)) ? oldMember : await GetMemberAsync(xc.OldValueUlong).ConfigureAwait(false),
+                                    After = (_members != null && _members.TryGetValue(xc.NewValueUlong, out DiscordMember? newMember)) ? newMember : await GetMemberAsync(xc.NewValueUlong).ConfigureAwait(false)
                                 };
                                 break;
 
                             case "icon_hash":
                                 entrygld.IconChange = new PropertyChange<string>
                                 {
-                                    Before = xc.OldValueString != null ? $"https://cdn.discordapp.com/icons/{this.Id}/{xc.OldValueString}.webp" : null,
-                                    After = xc.OldValueString != null ? $"https://cdn.discordapp.com/icons/{this.Id}/{xc.NewValueString}.webp" : null
+                                    Before = xc.OldValueString != null ? $"https://cdn.discordapp.com/icons/{Id}/{xc.OldValueString}.webp" : null,
+                                    After = xc.OldValueString != null ? $"https://cdn.discordapp.com/icons/{Id}/{xc.NewValueString}.webp" : null
                                 };
                                 break;
 
@@ -1559,8 +1633,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
                                 entrygld.AfkChannelChange = new PropertyChange<DiscordChannel>
                                 {
-                                    Before = this.GetChannel(t1) ?? new DiscordChannel { Id = t1, Discord = this.Discord, GuildId = this.Id },
-                                    After = this.GetChannel(t2) ?? new DiscordChannel { Id = t1, Discord = this.Discord, GuildId = this.Id }
+                                    Before = GetChannel(t1) ?? new DiscordChannel { Id = t1, Discord = Discord, GuildId = Id },
+                                    After = GetChannel(t2) ?? new DiscordChannel { Id = t1, Discord = Discord, GuildId = Id }
                                 };
                                 break;
 
@@ -1570,16 +1644,16 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
                                 entrygld.EmbedChannelChange = new PropertyChange<DiscordChannel>
                                 {
-                                    Before = this.GetChannel(t1) ?? new DiscordChannel { Id = t1, Discord = this.Discord, GuildId = this.Id },
-                                    After = this.GetChannel(t2) ?? new DiscordChannel { Id = t1, Discord = this.Discord, GuildId = this.Id }
+                                    Before = GetChannel(t1) ?? new DiscordChannel { Id = t1, Discord = Discord, GuildId = Id },
+                                    After = GetChannel(t2) ?? new DiscordChannel { Id = t1, Discord = Discord, GuildId = Id }
                                 };
                                 break;
 
                             case "splash_hash":
                                 entrygld.SplashChange = new PropertyChange<string>
                                 {
-                                    Before = xc.OldValueString != null ? $"https://cdn.discordapp.com/splashes/{this.Id}/{xc.OldValueString}.webp?size=2048" : null,
-                                    After = xc.NewValueString != null ? $"https://cdn.discordapp.com/splashes/{this.Id}/{xc.NewValueString}.webp?size=2048" : null
+                                    Before = xc.OldValueString != null ? $"https://cdn.discordapp.com/splashes/{Id}/{xc.OldValueString}.webp?size=2048" : null,
+                                    After = xc.NewValueString != null ? $"https://cdn.discordapp.com/splashes/{Id}/{xc.NewValueString}.webp?size=2048" : null
                                 };
                                 break;
 
@@ -1597,8 +1671,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
                                 entrygld.SystemChannelChange = new PropertyChange<DiscordChannel>
                                 {
-                                    Before = this.GetChannel(t1) ?? new DiscordChannel { Id = t1, Discord = this.Discord, GuildId = this.Id },
-                                    After = this.GetChannel(t2) ?? new DiscordChannel { Id = t1, Discord = this.Discord, GuildId = this.Id }
+                                    Before = GetChannel(t1) ?? new DiscordChannel { Id = t1, Discord = Discord, GuildId = Id },
+                                    After = GetChannel(t2) ?? new DiscordChannel { Id = t1, Discord = Discord, GuildId = Id }
                                 };
                                 break;
 
@@ -1627,7 +1701,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                                 break;
 
                             default:
-                                this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in guild update: {Key} - this should be reported to library developers", xc.Key);
+                                Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in guild update: {Key} - this should be reported to library developers", xc.Key);
                                 break;
                         }
                     }
@@ -1638,11 +1712,11 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 case AuditLogActionType.ChannelUpdate:
                     entry = new DiscordAuditLogChannelEntry
                     {
-                        Target = this.GetChannel(xac.TargetId.Value) ?? new DiscordChannel { Id = xac.TargetId.Value, Discord = this.Discord, GuildId = this.Id }
+                        Target = GetChannel(xac.TargetId.Value) ?? new DiscordChannel { Id = xac.TargetId.Value, Discord = Discord, GuildId = Id }
                     };
 
-                    var entrychn = entry as DiscordAuditLogChannelEntry;
-                    foreach (var xc in xac.Changes)
+                    DiscordAuditLogChannelEntry? entrychn = entry as DiscordAuditLogChannelEntry;
+                    foreach (AuditLogActionChange xc in xac.Changes)
                     {
                         switch (xc.Key.ToLowerInvariant())
                         {
@@ -1666,13 +1740,13 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                                 break;
 
                             case "permission_overwrites":
-                                var olds = xc.OldValues?.OfType<JObject>()
+                                IEnumerable<DiscordOverwrite>? olds = xc.OldValues?.OfType<JObject>()
                                     ?.Select(xjo => xjo.ToDiscordObject<DiscordOverwrite>())
-                                    ?.Select(xo => { xo.Discord = this.Discord; return xo; });
+                                    ?.Select(xo => { xo.Discord = Discord; return xo; });
 
-                                var news = xc.NewValues?.OfType<JObject>()
+                                IEnumerable<DiscordOverwrite>? news = xc.NewValues?.OfType<JObject>()
                                     ?.Select(xjo => xjo.ToDiscordObject<DiscordOverwrite>())
-                                    ?.Select(xo => { xo.Discord = this.Discord; return xo; });
+                                    ?.Select(xo => { xo.Discord = Discord; return xo; });
 
                                 entrychn.OverwriteChange = new PropertyChange<IReadOnlyList<DiscordOverwrite>>
                                 {
@@ -1714,7 +1788,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                                 break;
 
                             default:
-                                this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in channel update: {Key} - this should be reported to library developers", xc.Key);
+                                Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in channel update: {Key} - this should be reported to library developers", xc.Key);
                                 break;
                         }
                     }
@@ -1725,12 +1799,12 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 case AuditLogActionType.OverwriteUpdate:
                     entry = new DiscordAuditLogOverwriteEntry
                     {
-                        Target = this.GetChannel(xac.TargetId.Value)?.PermissionOverwrites.FirstOrDefault(xo => xo.Id == xac.Options.Id),
-                        Channel = this.GetChannel(xac.TargetId.Value)
+                        Target = GetChannel(xac.TargetId.Value)?.PermissionOverwrites.FirstOrDefault(xo => xo.Id == xac.Options.Id),
+                        Channel = GetChannel(xac.TargetId.Value)
                     };
 
-                    var entryovr = entry as DiscordAuditLogOverwriteEntry;
-                    foreach (var xc in xac.Changes)
+                    DiscordAuditLogOverwriteEntry? entryovr = entry as DiscordAuditLogOverwriteEntry;
+                    foreach (AuditLogActionChange xc in xac.Changes)
                     {
                         switch (xc.Key.ToLowerInvariant())
                         {
@@ -1776,7 +1850,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                                 break;
 
                             default:
-                                this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in overwrite update: {Key} - this should be reported to library developers", xc.Key);
+                                Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in overwrite update: {Key} - this should be reported to library developers", xc.Key);
                                 break;
                         }
                     }
@@ -1785,7 +1859,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 case AuditLogActionType.Kick:
                     entry = new DiscordAuditLogKickEntry
                     {
-                        Target = amd.TryGetValue(xac.TargetId.Value, out var kickMember) ? kickMember : new DiscordMember { Id = xac.TargetId.Value, Discord = this.Discord, _guild_id = this.Id }
+                        Target = amd.TryGetValue(xac.TargetId.Value, out DiscordMember? kickMember) ? kickMember : new DiscordMember { Id = xac.TargetId.Value, Discord = Discord, _guild_id = Id }
                     };
                     break;
 
@@ -1801,7 +1875,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 case AuditLogActionType.Unban:
                     entry = new DiscordAuditLogBanEntry
                     {
-                        Target = amd.TryGetValue(xac.TargetId.Value, out var unbanMember) ? unbanMember : new DiscordMember { Id = xac.TargetId.Value, Discord = this.Discord, _guild_id = this.Id }
+                        Target = amd.TryGetValue(xac.TargetId.Value, out DiscordMember? unbanMember) ? unbanMember : new DiscordMember { Id = xac.TargetId.Value, Discord = Discord, _guild_id = Id }
                     };
                     break;
 
@@ -1809,11 +1883,11 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 case AuditLogActionType.MemberRoleUpdate:
                     entry = new DiscordAuditLogMemberUpdateEntry
                     {
-                        Target = amd.TryGetValue(xac.TargetId.Value, out var roleUpdMember) ? roleUpdMember : new DiscordMember { Id = xac.TargetId.Value, Discord = this.Discord, _guild_id = this.Id }
+                        Target = amd.TryGetValue(xac.TargetId.Value, out DiscordMember? roleUpdMember) ? roleUpdMember : new DiscordMember { Id = xac.TargetId.Value, Discord = Discord, _guild_id = Id }
                     };
 
-                    var entrymbu = entry as DiscordAuditLogMemberUpdateEntry;
-                    foreach (var xc in xac.Changes)
+                    DiscordAuditLogMemberUpdateEntry? entrymbu = entry as DiscordAuditLogMemberUpdateEntry;
+                    foreach (AuditLogActionChange xc in xac.Changes)
                     {
                         switch (xc.Key.ToLowerInvariant())
                         {
@@ -1850,15 +1924,15 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                                 break;
 
                             case "$add":
-                                entrymbu.AddedRoles = new ReadOnlyCollection<DiscordRole>(xc.NewValues.Select(xo => (ulong)xo["id"]).Select(this.GetRole).ToList());
+                                entrymbu.AddedRoles = new ReadOnlyCollection<DiscordRole>(xc.NewValues.Select(xo => (ulong)xo["id"]).Select(GetRole).ToList());
                                 break;
 
                             case "$remove":
-                                entrymbu.RemovedRoles = new ReadOnlyCollection<DiscordRole>(xc.NewValues.Select(xo => (ulong)xo["id"]).Select(this.GetRole).ToList());
+                                entrymbu.RemovedRoles = new ReadOnlyCollection<DiscordRole>(xc.NewValues.Select(xo => (ulong)xo["id"]).Select(GetRole).ToList());
                                 break;
 
                             default:
-                                this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in member update: {Key} - this should be reported to library developers", xc.Key);
+                                Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in member update: {Key} - this should be reported to library developers", xc.Key);
                                 break;
                         }
                     }
@@ -1869,11 +1943,11 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 case AuditLogActionType.RoleUpdate:
                     entry = new DiscordAuditLogRoleUpdateEntry
                     {
-                        Target = this.GetRole(xac.TargetId.Value) ?? new DiscordRole { Id = xac.TargetId.Value, Discord = this.Discord }
+                        Target = GetRole(xac.TargetId.Value) ?? new DiscordRole { Id = xac.TargetId.Value, Discord = Discord }
                     };
 
-                    var entryrol = entry as DiscordAuditLogRoleUpdateEntry;
-                    foreach (var xc in xac.Changes)
+                    DiscordAuditLogRoleUpdateEntry? entryrol = entry as DiscordAuditLogRoleUpdateEntry;
+                    foreach (AuditLogActionChange xc in xac.Changes)
                     {
                         switch (xc.Key.ToLowerInvariant())
                         {
@@ -1929,7 +2003,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                                 break;
 
                             default:
-                                this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in role update: {Key} - this should be reported to library developers", xc.Key);
+                                Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in role update: {Key} - this should be reported to library developers", xc.Key);
                                 break;
                         }
                     }
@@ -1940,20 +2014,20 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 case AuditLogActionType.InviteUpdate:
                     entry = new DiscordAuditLogInviteEntry();
 
-                    var inv = new DiscordInvite
+                    DiscordInvite inv = new DiscordInvite
                     {
-                        Discord = this.Discord,
+                        Discord = Discord,
                         Guild = new DiscordInviteGuild
                         {
-                            Discord = this.Discord,
-                            Id = this.Id,
-                            Name = this.Name,
-                            SplashHash = this.SplashHash
+                            Discord = Discord,
+                            Id = Id,
+                            Name = Name,
+                            SplashHash = SplashHash
                         }
                     };
 
-                    var entryinv = entry as DiscordAuditLogInviteEntry;
-                    foreach (var xc in xac.Changes)
+                    DiscordAuditLogInviteEntry? entryinv = entry as DiscordAuditLogInviteEntry;
+                    foreach (AuditLogActionChange xc in xac.Changes)
                     {
                         switch (xc.Key.ToLowerInvariant())
                         {
@@ -1992,8 +2066,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
                                 entryinv.InviterChange = new PropertyChange<DiscordMember>
                                 {
-                                    Before = amd.TryGetValue(t1, out var propBeforeMember) ? propBeforeMember : new DiscordMember { Id = t1, Discord = this.Discord, _guild_id = this.Id },
-                                    After = amd.TryGetValue(t2, out var propAfterMember) ? propAfterMember : new DiscordMember { Id = t1, Discord = this.Discord, _guild_id = this.Id },
+                                    Before = amd.TryGetValue(t1, out DiscordMember? propBeforeMember) ? propBeforeMember : new DiscordMember { Id = t1, Discord = Discord, _guild_id = Id },
+                                    After = amd.TryGetValue(t2, out DiscordMember? propAfterMember) ? propAfterMember : new DiscordMember { Id = t1, Discord = Discord, _guild_id = Id },
                                 };
                                 break;
 
@@ -2003,15 +2077,15 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
                                 entryinv.ChannelChange = new PropertyChange<DiscordChannel>
                                 {
-                                    Before = p1 ? this.GetChannel(t1) ?? new DiscordChannel { Id = t1, Discord = this.Discord, GuildId = this.Id } : null,
-                                    After = p2 ? this.GetChannel(t2) ?? new DiscordChannel { Id = t1, Discord = this.Discord, GuildId = this.Id } : null
+                                    Before = p1 ? GetChannel(t1) ?? new DiscordChannel { Id = t1, Discord = Discord, GuildId = Id } : null,
+                                    After = p2 ? GetChannel(t2) ?? new DiscordChannel { Id = t1, Discord = Discord, GuildId = Id } : null
                                 };
 
-                                var ch = entryinv.ChannelChange.Before ?? entryinv.ChannelChange.After;
-                                var cht = ch?.Type;
+                                DiscordChannel? ch = entryinv.ChannelChange.Before ?? entryinv.ChannelChange.After;
+                                ChannelType? cht = ch?.Type;
                                 inv.Channel = new DiscordInviteChannel
                                 {
-                                    Discord = this.Discord,
+                                    Discord = Discord,
                                     Id = p1 ? t1 : t2,
                                     Name = ch?.Name,
                                     Type = cht != null ? cht.Value : ChannelType.Unknown
@@ -2041,7 +2115,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                                 break;
 
                             default:
-                                this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in invite update: {Key} - this should be reported to library developers", xc.Key);
+                                Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in invite update: {Key} - this should be reported to library developers", xc.Key);
                                 break;
                         }
                     }
@@ -2054,11 +2128,11 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 case AuditLogActionType.WebhookUpdate:
                     entry = new DiscordAuditLogWebhookEntry
                     {
-                        Target = ahd.TryGetValue(xac.TargetId.Value, out var webhook) ? webhook : new DiscordWebhook { Id = xac.TargetId.Value, Discord = this.Discord }
+                        Target = ahd.TryGetValue(xac.TargetId.Value, out DiscordWebhook? webhook) ? webhook : new DiscordWebhook { Id = xac.TargetId.Value, Discord = Discord }
                     };
 
-                    var entrywhk = entry as DiscordAuditLogWebhookEntry;
-                    foreach (var xc in xac.Changes)
+                    DiscordAuditLogWebhookEntry? entrywhk = entry as DiscordAuditLogWebhookEntry;
+                    foreach (AuditLogActionChange xc in xac.Changes)
                     {
                         switch (xc.Key.ToLowerInvariant())
                         {
@@ -2076,8 +2150,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
                                 entrywhk.ChannelChange = new PropertyChange<DiscordChannel>
                                 {
-                                    Before = p1 ? this.GetChannel(t1) ?? new DiscordChannel { Id = t1, Discord = this.Discord, GuildId = this.Id } : null,
-                                    After = p2 ? this.GetChannel(t2) ?? new DiscordChannel { Id = t1, Discord = this.Discord, GuildId = this.Id } : null
+                                    Before = p1 ? GetChannel(t1) ?? new DiscordChannel { Id = t1, Discord = Discord, GuildId = Id } : null,
+                                    After = p2 ? GetChannel(t2) ?? new DiscordChannel { Id = t1, Discord = Discord, GuildId = Id } : null
                                 };
                                 break;
 
@@ -2110,7 +2184,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
 
                             default:
-                                this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in webhook update: {Key} - this should be reported to library developers", xc.Key);
+                                Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in webhook update: {Key} - this should be reported to library developers", xc.Key);
                                 break;
                         }
                     }
@@ -2121,11 +2195,11 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 case AuditLogActionType.EmojiUpdate:
                     entry = new DiscordAuditLogEmojiEntry
                     {
-                        Target = this._emojis.TryGetValue(xac.TargetId.Value, out var target) ? target : new DiscordEmoji { Id = xac.TargetId.Value, Discord = this.Discord }
+                        Target = _emojis.TryGetValue(xac.TargetId.Value, out DiscordEmoji? target) ? target : new DiscordEmoji { Id = xac.TargetId.Value, Discord = Discord }
                     };
 
-                    var entryemo = entry as DiscordAuditLogEmojiEntry;
-                    foreach (var xc in xac.Changes)
+                    DiscordAuditLogEmojiEntry? entryemo = entry as DiscordAuditLogEmojiEntry;
+                    foreach (AuditLogActionChange xc in xac.Changes)
                     {
                         switch (xc.Key.ToLowerInvariant())
                         {
@@ -2138,7 +2212,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                                 break;
 
                             default:
-                                this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in emote update: {Key} - this should be reported to library developers", xc.Key);
+                                Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in emote update: {Key} - this should be reported to library developers", xc.Key);
                                 break;
                         }
                     }
@@ -2149,11 +2223,11 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 case AuditLogActionType.StickerUpdate:
                     entry = new DiscordAuditLogStickerEntry
                     {
-                        Target = this._stickers.TryGetValue(xac.TargetId.Value, out var sticker) ? sticker : new DiscordMessageSticker { Id = xac.TargetId.Value, Discord = this.Discord }
+                        Target = _stickers.TryGetValue(xac.TargetId.Value, out DiscordMessageSticker? sticker) ? sticker : new DiscordMessageSticker { Id = xac.TargetId.Value, Discord = Discord }
                     };
 
-                    var entrysti = entry as DiscordAuditLogStickerEntry;
-                    foreach (var xc in xac.Changes)
+                    DiscordAuditLogStickerEntry? entrysti = entry as DiscordAuditLogStickerEntry;
+                    foreach (AuditLogActionChange xc in xac.Changes)
                     {
                         switch (xc.Key.ToLowerInvariant())
                         {
@@ -2181,8 +2255,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                             case "guild_id":
                                 entrysti.GuildIdChange = new PropertyChange<ulong?>
                                 {
-                                    Before = ulong.TryParse(xc.OldValueString, out var ogid) ? ogid : null,
-                                    After = ulong.TryParse(xc.NewValueString, out var ngid) ? ngid : null
+                                    Before = ulong.TryParse(xc.OldValueString, out ulong ogid) ? ogid : null,
+                                    After = ulong.TryParse(xc.NewValueString, out ulong ngid) ? ngid : null
                                 };
                                 break;
                             case "available":
@@ -2202,8 +2276,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                             case "id":
                                 entrysti.IdChange = new PropertyChange<ulong?>
                                 {
-                                    Before = ulong.TryParse(xc.OldValueString, out var oid) ? oid : null,
-                                    After = ulong.TryParse(xc.NewValueString, out var nid) ? nid : null
+                                    Before = ulong.TryParse(xc.OldValueString, out ulong oid) ? oid : null,
+                                    After = ulong.TryParse(xc.NewValueString, out ulong nid) ? nid : null
                                 };
                                 break;
                             case "type":
@@ -2226,7 +2300,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                                 break;
 
                             default:
-                                this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in sticker update: {Key} - this should be reported to library developers", xc.Key);
+                                Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in sticker update: {Key} - this should be reported to library developers", xc.Key);
                                 break;
                         }
                     }
@@ -2234,72 +2308,72 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
                 case AuditLogActionType.MessageDelete:
                 case AuditLogActionType.MessageBulkDelete:
-                {
-                    entry = new DiscordAuditLogMessageEntry();
-
-                    var entrymsg = entry as DiscordAuditLogMessageEntry;
-
-                    if (xac.Options != null)
                     {
-                        entrymsg.Channel = this.GetChannel(xac.Options.ChannelId) ?? new DiscordChannel { Id = xac.Options.ChannelId, Discord = this.Discord, GuildId = this.Id };
-                        entrymsg.MessageCount = xac.Options.Count;
-                    }
+                        entry = new DiscordAuditLogMessageEntry();
 
-                    if (entrymsg.Channel != null)
-                    {
-                        entrymsg.Target = this.Discord is DiscordClient dc
-                            && dc.MessageCache != null
-                            && dc.MessageCache.TryGet(xm => xm.Id == xac.TargetId.Value && xm.ChannelId == entrymsg.Channel.Id, out var msg)
-                            ? msg
-                            : new DiscordMessage { Discord = this.Discord, Id = xac.TargetId.Value };
+                        DiscordAuditLogMessageEntry? entrymsg = entry as DiscordAuditLogMessageEntry;
+
+                        if (xac.Options != null)
+                        {
+                            entrymsg.Channel = GetChannel(xac.Options.ChannelId) ?? new DiscordChannel { Id = xac.Options.ChannelId, Discord = Discord, GuildId = Id };
+                            entrymsg.MessageCount = xac.Options.Count;
+                        }
+
+                        if (entrymsg.Channel != null)
+                        {
+                            entrymsg.Target = Discord is DiscordClient dc
+                                && dc.MessageCache != null
+                                && dc.MessageCache.TryGet(xm => xm.Id == xac.TargetId.Value && xm.ChannelId == entrymsg.Channel.Id, out DiscordMessage? msg)
+                                ? msg
+                                : new DiscordMessage { Discord = Discord, Id = xac.TargetId.Value };
+                        }
+                        break;
                     }
-                    break;
-                }
 
                 case AuditLogActionType.MessagePin:
                 case AuditLogActionType.MessageUnpin:
-                {
-                    entry = new DiscordAuditLogMessagePinEntry();
-
-                    var entrypin = entry as DiscordAuditLogMessagePinEntry;
-
-                    if (this.Discord is not DiscordClient dc)
                     {
+                        entry = new DiscordAuditLogMessagePinEntry();
+
+                        DiscordAuditLogMessagePinEntry? entrypin = entry as DiscordAuditLogMessagePinEntry;
+
+                        if (Discord is not DiscordClient dc)
+                        {
+                            break;
+                        }
+
+                        if (xac.Options != null)
+                        {
+                            DiscordMessage message = default;
+                            dc.MessageCache?.TryGet(x => x.Id == xac.Options.MessageId && x.ChannelId == xac.Options.ChannelId, out message);
+
+                            entrypin.Channel = GetChannel(xac.Options.ChannelId) ?? new DiscordChannel { Id = xac.Options.ChannelId, Discord = Discord, GuildId = Id };
+                            entrypin.Message = message ?? new DiscordMessage { Id = xac.Options.MessageId, Discord = Discord };
+                        }
+
+                        if (xac.TargetId.HasValue)
+                        {
+                            dc.UserCache.TryGetValue(xac.TargetId.Value, out DiscordUser? user);
+                            entrypin.Target = user ?? new DiscordUser { Id = user.Id, Discord = Discord };
+                        }
+
                         break;
                     }
-
-                    if (xac.Options != null)
-                    {
-                        DiscordMessage message = default;
-                        dc.MessageCache?.TryGet(x => x.Id == xac.Options.MessageId && x.ChannelId == xac.Options.ChannelId, out message);
-
-                        entrypin.Channel = this.GetChannel(xac.Options.ChannelId) ?? new DiscordChannel { Id = xac.Options.ChannelId, Discord = this.Discord, GuildId = this.Id };
-                        entrypin.Message = message ?? new DiscordMessage { Id = xac.Options.MessageId, Discord = this.Discord };
-                    }
-
-                    if (xac.TargetId.HasValue)
-                    {
-                        dc.UserCache.TryGetValue(xac.TargetId.Value, out var user);
-                        entrypin.Target = user ?? new DiscordUser { Id = user.Id, Discord = this.Discord };
-                    }
-
-                    break;
-                }
 
                 case AuditLogActionType.BotAdd:
-                {
-                    entry = new DiscordAuditLogBotAddEntry();
-
-                    if (!(this.Discord is DiscordClient dc && xac.TargetId.HasValue))
                     {
+                        entry = new DiscordAuditLogBotAddEntry();
+
+                        if (!(Discord is DiscordClient dc && xac.TargetId.HasValue))
+                        {
+                            break;
+                        }
+
+                        dc.UserCache.TryGetValue(xac.TargetId.Value, out DiscordUser? bot);
+                        (entry as DiscordAuditLogBotAddEntry).TargetBot = bot ?? new DiscordUser { Id = xac.TargetId.Value, Discord = Discord };
+
                         break;
                     }
-
-                    dc.UserCache.TryGetValue(xac.TargetId.Value, out var bot);
-                    (entry as DiscordAuditLogBotAddEntry).TargetBot = bot ?? new DiscordUser { Id = xac.TargetId.Value, Discord = this.Discord };
-
-                    break;
-                }
 
                 case AuditLogActionType.MemberMove:
                     entry = new DiscordAuditLogMemberMoveEntry();
@@ -2309,10 +2383,10 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                         break;
                     }
 
-                    var moveentry = entry as DiscordAuditLogMemberMoveEntry;
+                    DiscordAuditLogMemberMoveEntry? moveentry = entry as DiscordAuditLogMemberMoveEntry;
 
                     moveentry.UserCount = xac.Options.Count;
-                    moveentry.Channel = this.GetChannel(xac.Options.ChannelId) ?? new DiscordChannel { Id = xac.Options.ChannelId, Discord = this.Discord, GuildId = this.Id };
+                    moveentry.Channel = GetChannel(xac.Options.ChannelId) ?? new DiscordChannel { Id = xac.Options.ChannelId, Discord = Discord, GuildId = Id };
                     break;
 
                 case AuditLogActionType.MemberDisconnect:
@@ -2327,8 +2401,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 case AuditLogActionType.IntegrationUpdate:
                     entry = new DiscordAuditLogIntegrationEntry();
 
-                    var integentry = entry as DiscordAuditLogIntegrationEntry;
-                    foreach (var xc in xac.Changes)
+                    DiscordAuditLogIntegrationEntry? integentry = entry as DiscordAuditLogIntegrationEntry;
+                    foreach (AuditLogActionChange xc in xac.Changes)
                     {
                         switch (xc.Key.ToLowerInvariant())
                         {
@@ -2355,7 +2429,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                                 break;
 
                             default:
-                                this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in integration update: {Key} - this should be reported to library developers", xc.Key);
+                                Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in integration update: {Key} - this should be reported to library developers", xc.Key);
                                 break;
                         }
                     }
@@ -2366,11 +2440,11 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 case AuditLogActionType.GuildScheduledEventUpdate:
                     entry = new DiscordAuditLogGuildScheduledEventEntry()
                     {
-                        Target = events.TryGetValue(xac.TargetId.Value, out var ta) ? ta : new DiscordScheduledGuildEvent() { Id = xac.TargetId.Value, Discord = this.Discord },
+                        Target = events.TryGetValue(xac.TargetId.Value, out DiscordScheduledGuildEvent? ta) ? ta : new DiscordScheduledGuildEvent() { Id = xac.TargetId.Value, Discord = Discord },
                     };
 
-                    var evententry = entry as DiscordAuditLogGuildScheduledEventEntry;
-                    foreach (var xc in xac.Changes)
+                    DiscordAuditLogGuildScheduledEventEntry? evententry = entry as DiscordAuditLogGuildScheduledEventEntry;
+                    foreach (AuditLogActionChange xc in xac.Changes)
                     {
                         switch (xc.Key.ToLowerInvariant())
                         {
@@ -2386,8 +2460,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                                 ulong.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t2);
                                 evententry.Channel = new PropertyChange<DiscordChannel?>
                                 {
-                                    Before = this.GetChannel(t2) ?? new DiscordChannel { Id = t2, Discord = this.Discord, GuildId = this.Id },
-                                    After = this.GetChannel(t1) ?? new DiscordChannel { Id = t1, Discord = this.Discord, GuildId = this.Id }
+                                    Before = GetChannel(t2) ?? new DiscordChannel { Id = t2, Discord = Discord, GuildId = Id },
+                                    After = GetChannel(t1) ?? new DiscordChannel { Id = t1, Discord = Discord, GuildId = Id }
                                 };
                                 break;
 
@@ -2440,7 +2514,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                                 break;
 
                             default:
-                                this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in scheduled event update: {Key} - this should be reported to library developers", xc.Key);
+                                Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in scheduled event update: {Key} - this should be reported to library developers", xc.Key);
                                 break;
                         }
                     }
@@ -2451,11 +2525,11 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 case AuditLogActionType.ThreadUpdate:
                     entry = new DiscordAuditLogThreadEventEntry()
                     {
-                        Target = this.Threads.TryGetValue(xac.TargetId.Value, out var channel) ? channel : new DiscordThreadChannel() { Id = xac.TargetId.Value, Discord = this.Discord },
+                        Target = Threads.TryGetValue(xac.TargetId.Value, out DiscordThreadChannel? channel) ? channel : new DiscordThreadChannel() { Id = xac.TargetId.Value, Discord = Discord },
                     };
 
-                    var threadentry = entry as DiscordAuditLogThreadEventEntry;
-                    foreach (var xc in xac.Changes)
+                    DiscordAuditLogThreadEventEntry? threadentry = entry as DiscordAuditLogThreadEventEntry;
+                    foreach (AuditLogActionChange xc in xac.Changes)
                     {
                         switch (xc.Key.ToLowerInvariant())
                         {
@@ -2516,19 +2590,21 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                                 break;
 
                             default:
-                                this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in thread update: {Key} - this should be reported to library developers", xc.Key);
+                                Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in thread update: {Key} - this should be reported to library developers", xc.Key);
                                 break;
                         }
                     }
                     break;
 
                 default:
-                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown audit log action type: {0} - this should be reported to library developers", (int)xac.ActionType);
+                    Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown audit log action type: {0} - this should be reported to library developers", (int)xac.ActionType);
                     break;
             }
 
             if (entry == null)
+            {
                 continue;
+            }
 
             entry.ActionCategory = xac.ActionType switch
             {
@@ -2537,7 +2613,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 AuditLogActionType.ChannelUpdate or AuditLogActionType.EmojiUpdate or AuditLogActionType.InviteUpdate or AuditLogActionType.MemberRoleUpdate or AuditLogActionType.MemberUpdate or AuditLogActionType.OverwriteUpdate or AuditLogActionType.RoleUpdate or AuditLogActionType.WebhookUpdate or AuditLogActionType.IntegrationUpdate or AuditLogActionType.StickerUpdate => AuditLogActionCategory.Update,
                 _ => AuditLogActionCategory.Other,
             };
-            entry.Discord = this.Discord;
+            entry.Discord = Discord;
             entry.ActionType = xac.ActionType;
             entry.Id = xac.Id;
             entry.Reason = xac.Reason;
@@ -2554,7 +2630,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <returns>All of this guild's custom emojis.</returns>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task<IReadOnlyList<DiscordGuildEmoji>> GetEmojisAsync()
-        => this.Discord.ApiClient.GetGuildEmojisAsync(this.Id);
+        => Discord.ApiClient.GetGuildEmojisAsync(Id);
 
     /// <summary>
     /// Gets this guild's specified custom emoji.
@@ -2563,7 +2639,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <returns>The requested custom emoji.</returns>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task<DiscordGuildEmoji> GetEmojiAsync(ulong id)
-        => this.Discord.ApiClient.GetGuildEmojiAsync(this.Id, id);
+        => Discord.ApiClient.GetGuildEmojiAsync(Id, id);
 
     /// <summary>
     /// Creates a new custom emoji for this guild.
@@ -2578,20 +2654,28 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     public Task<DiscordGuildEmoji> CreateEmojiAsync(string name, Stream image, IEnumerable<DiscordRole> roles = null, string reason = null)
     {
         if (string.IsNullOrWhiteSpace(name))
+        {
             throw new ArgumentNullException(nameof(name));
+        }
 
         name = name.Trim();
         if (name.Length < 2 || name.Length > 50)
+        {
             throw new ArgumentException("Emoji name needs to be between 2 and 50 characters long.");
+        }
 
         if (image == null)
+        {
             throw new ArgumentNullException(nameof(image));
+        }
 
         string image64 = null;
-        using (var imgtool = new ImageTool(image))
+        using (ImageTool imgtool = new ImageTool(image))
+        {
             image64 = imgtool.GetBase64();
+        }
 
-        return this.Discord.ApiClient.CreateGuildEmojiAsync(this.Id, name, image64, roles?.Select(xr => xr.Id), reason);
+        return Discord.ApiClient.CreateGuildEmojiAsync(Id, name, image64, roles?.Select(xr => xr.Id), reason);
     }
 
     /// <summary>
@@ -2607,18 +2691,24 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     public Task<DiscordGuildEmoji> ModifyEmojiAsync(DiscordGuildEmoji emoji, string name, IEnumerable<DiscordRole> roles = null, string reason = null)
     {
         if (emoji == null)
+        {
             throw new ArgumentNullException(nameof(emoji));
+        }
 
-        if (emoji.Guild.Id != this.Id)
+        if (emoji.Guild.Id != Id)
+        {
             throw new ArgumentException("This emoji does not belong to this guild.");
+        }
 
         if (string.IsNullOrWhiteSpace(name))
+        {
             throw new ArgumentNullException(nameof(name));
+        }
 
         name = name.Trim();
         return name.Length < 2 || name.Length > 50
             ? throw new ArgumentException("Emoji name needs to be between 2 and 50 characters long.")
-            : this.Discord.ApiClient.ModifyGuildEmojiAsync(this.Id, emoji.Id, name, roles?.Select(xr => xr.Id), reason);
+            : Discord.ApiClient.ModifyGuildEmojiAsync(Id, emoji.Id, name, roles?.Select(xr => xr.Id), reason);
     }
 
     /// <summary>
@@ -2631,12 +2721,11 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task DeleteEmojiAsync(DiscordGuildEmoji emoji, string reason = null)
     {
-        if (emoji == null)
-            throw new ArgumentNullException(nameof(emoji));
-
-        return emoji.Guild.Id != this.Id
+        return emoji == null
+            ? throw new ArgumentNullException(nameof(emoji))
+            : emoji.Guild.Id != Id
             ? throw new ArgumentException("This emoji does not belong to this guild.")
-            : this.Discord.ApiClient.DeleteGuildEmojiAsync(this.Id, emoji.Id, reason);
+            : Discord.ApiClient.DeleteGuildEmojiAsync(Id, emoji.Id, reason);
     }
 
     /// <summary>
@@ -2645,26 +2734,23 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     /// <returns>This member's default guild.</returns>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public DiscordChannel GetDefaultChannel()
-    {
-        return this._channels?.Values.Where(xc => xc.Type == ChannelType.Text)
+    public DiscordChannel GetDefaultChannel() => _channels?.Values.Where(xc => xc.Type == ChannelType.Text)
                 .OrderBy(xc => xc.Position)
-                .FirstOrDefault(xc => (xc.PermissionsFor(this.CurrentMember) & DSharpPlus.Permissions.AccessChannels) == DSharpPlus.Permissions.AccessChannels);
-    }
+                .FirstOrDefault(xc => (xc.PermissionsFor(CurrentMember) & DSharpPlus.Permissions.AccessChannels) == DSharpPlus.Permissions.AccessChannels);
 
     /// <summary>
     /// Gets the guild's widget
     /// </summary>
     /// <returns>The guild's widget</returns>
     public Task<DiscordWidget> GetWidgetAsync()
-        => this.Discord.ApiClient.GetGuildWidgetAsync(this.Id);
+        => Discord.ApiClient.GetGuildWidgetAsync(Id);
 
     /// <summary>
     /// Gets the guild's widget settings
     /// </summary>
     /// <returns>The guild's widget settings</returns>
     public Task<DiscordWidgetSettings> GetWidgetSettingsAsync()
-        => this.Discord.ApiClient.GetGuildWidgetSettingsAsync(this.Id);
+        => Discord.ApiClient.GetGuildWidgetSettingsAsync(Id);
 
     /// <summary>
     /// Modifies the guild's widget settings
@@ -2674,7 +2760,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="reason">Reason the widget settings were modified</param>
     /// <returns>The newly modified widget settings</returns>
     public Task<DiscordWidgetSettings> ModifyWidgetSettingsAsync(bool? isEnabled = null, DiscordChannel channel = null, string reason = null)
-        => this.Discord.ApiClient.ModifyGuildWidgetSettingsAsync(this.Id, isEnabled, channel?.Id, reason);
+        => Discord.ApiClient.ModifyGuildWidgetSettingsAsync(Id, isEnabled, channel?.Id, reason);
 
     /// <summary>
     /// Gets all of this guild's templates.
@@ -2683,7 +2769,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="UnauthorizedException">Throws when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task<IReadOnlyList<DiscordGuildTemplate>> GetTemplatesAsync()
-        => this.Discord.ApiClient.GetGuildTemplatesAsync(this.Id);
+        => Discord.ApiClient.GetGuildTemplatesAsync(Id);
 
     /// <summary>
     /// Creates a guild template.
@@ -2695,7 +2781,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="UnauthorizedException">Throws when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task<DiscordGuildTemplate> CreateTemplateAsync(string name, string description = null)
-        => this.Discord.ApiClient.CreateGuildTemplateAsync(this.Id, name, description);
+        => Discord.ApiClient.CreateGuildTemplateAsync(Id, name, description);
 
     /// <summary>
     /// Syncs the template to the current guild's state.
@@ -2706,7 +2792,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="UnauthorizedException">Throws when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task<DiscordGuildTemplate> SyncTemplateAsync(string code)
-        => this.Discord.ApiClient.SyncGuildTemplateAsync(this.Id, code);
+        => Discord.ApiClient.SyncGuildTemplateAsync(Id, code);
 
     /// <summary>
     /// Modifies the template's metadata.
@@ -2719,7 +2805,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="UnauthorizedException">Throws when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task<DiscordGuildTemplate> ModifyTemplateAsync(string code, string name = null, string description = null)
-        => this.Discord.ApiClient.ModifyGuildTemplateAsync(this.Id, code, name, description);
+        => Discord.ApiClient.ModifyGuildTemplateAsync(Id, code, name, description);
 
     /// <summary>
     /// Deletes the template.
@@ -2730,7 +2816,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="UnauthorizedException">Throws when the client does not have the <see cref="Permissions.ManageGuild"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task<DiscordGuildTemplate> DeleteTemplateAsync(string code)
-        => this.Discord.ApiClient.DeleteGuildTemplateAsync(this.Id, code);
+        => Discord.ApiClient.DeleteGuildTemplateAsync(Id, code);
 
     /// <summary>
     /// Gets this guild's membership screening form.
@@ -2738,7 +2824,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <returns>This guild's membership screening form.</returns>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task<DiscordGuildMembershipScreening> GetMembershipScreeningFormAsync()
-        => this.Discord.ApiClient.GetGuildMembershipScreeningFormAsync(this.Id);
+        => Discord.ApiClient.GetGuildMembershipScreeningFormAsync(Id);
 
     /// <summary>
     /// Modifies this guild's membership screening form.
@@ -2749,9 +2835,9 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task<DiscordGuildMembershipScreening> ModifyMembershipScreeningFormAsync(Action<MembershipScreeningEditModel> action)
     {
-        var mdl = new MembershipScreeningEditModel();
+        MembershipScreeningEditModel mdl = new MembershipScreeningEditModel();
         action(mdl);
-        return this.Discord.ApiClient.ModifyGuildMembershipScreeningFormAsync(this.Id, mdl.Enabled, mdl.Fields, mdl.Description);
+        return Discord.ApiClient.ModifyGuildMembershipScreeningFormAsync(Id, mdl.Enabled, mdl.Fields, mdl.Description);
     }
 
     /// <summary>
@@ -2759,7 +2845,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     /// <returns></returns>
     public Task<IReadOnlyList<DiscordMessageSticker>> GetStickersAsync()
-        => this.Discord.ApiClient.GetGuildStickersAsync(this.Id);
+        => Discord.ApiClient.GetGuildStickersAsync(Id);
 
     /// <summary>
     /// Gets a sticker from this guild.
@@ -2767,7 +2853,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="stickerId">The id of the sticker.</param>
     /// <returns></returns>
     public Task<DiscordMessageSticker> GetStickerAsync(ulong stickerId)
-        => this.Discord.ApiClient.GetGuildStickerAsync(this.Id, stickerId);
+        => Discord.ApiClient.GetGuildStickerAsync(Id, stickerId);
 
     /// <summary>
     /// Creates a sticker in this guild. Lottie stickers can only be created on verified and/or partnered servers.
@@ -2790,14 +2876,16 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         }
         else
         {
-            if (!this.Features.Contains("PARTNERED") && !this.Features.Contains("VERIFIED"))
+            if (!Features.Contains("PARTNERED") && !Features.Contains("VERIFIED"))
+            {
                 throw new InvalidOperationException("Lottie stickers can only be created on partnered or verified guilds.");
+            }
 
             contentType = "application/json";
             extension = "json";
         }
 
-        return this.Discord.ApiClient.CreateGuildStickerAsync(this.Id, name, description ?? string.Empty, tags, new DiscordMessageFile(null, imageContents, null, extension, contentType), reason);
+        return Discord.ApiClient.CreateGuildStickerAsync(Id, name, description ?? string.Empty, tags, new DiscordMessageFile(null, imageContents, null, extension, contentType), reason);
     }
 
     /// <summary>
@@ -2808,9 +2896,9 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="reason">Reason for audit log.</param>
     public Task<DiscordMessageSticker> ModifyStickerAsync(ulong stickerId, Action<StickerEditModel> action, string reason = null)
     {
-        var mdl = new StickerEditModel();
+        StickerEditModel mdl = new StickerEditModel();
         action(mdl);
-        return this.Discord.ApiClient.ModifyStickerAsync(this.Id, stickerId, mdl.Name, mdl.Description, mdl.Tags, reason ?? mdl.AuditLogReason);
+        return Discord.ApiClient.ModifyStickerAsync(Id, stickerId, mdl.Name, mdl.Description, mdl.Tags, reason ?? mdl.AuditLogReason);
     }
 
     /// <summary>
@@ -2821,9 +2909,9 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="reason">Reason for audit log.</param>
     public Task<DiscordMessageSticker> ModifyStickerAsync(DiscordMessageSticker sticker, Action<StickerEditModel> action, string reason = null)
     {
-        var mdl = new StickerEditModel();
+        StickerEditModel mdl = new StickerEditModel();
         action(mdl);
-        return this.Discord.ApiClient.ModifyStickerAsync(this.Id, sticker.Id, mdl.Name, mdl.Description, mdl.Tags, reason ?? mdl.AuditLogReason);
+        return Discord.ApiClient.ModifyStickerAsync(Id, sticker.Id, mdl.Name, mdl.Description, mdl.Tags, reason ?? mdl.AuditLogReason);
     }
 
     /// <summary>
@@ -2832,7 +2920,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="stickerId">The id of the sticker.</param>
     /// <param name="reason">Reason for audit log.</param>
     public Task DeleteStickerAsync(ulong stickerId, string reason = null)
-        => this.Discord.ApiClient.DeleteStickerAsync(this.Id, stickerId, reason);
+        => Discord.ApiClient.DeleteStickerAsync(Id, stickerId, reason);
 
     /// <summary>
     /// Deletes a sticker in this guild.
@@ -2840,14 +2928,14 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="sticker">Sticker to delete.</param>
     /// <param name="reason">Reason for audit log.</param>
     public Task DeleteStickerAsync(DiscordMessageSticker sticker, string reason = null)
-        => this.Discord.ApiClient.DeleteStickerAsync(this.Id, sticker.Id, reason);
+        => Discord.ApiClient.DeleteStickerAsync(Id, sticker.Id, reason);
 
     /// <summary>
     /// Gets all the application commands in this guild.
     /// </summary>
     /// <returns>A list of application commands in this guild.</returns>
     public Task<IReadOnlyList<DiscordApplicationCommand>> GetApplicationCommandsAsync() =>
-        this.Discord.ApiClient.GetGuildApplicationCommandsAsync(this.Discord.CurrentApplication.Id, this.Id);
+        Discord.ApiClient.GetGuildApplicationCommandsAsync(Discord.CurrentApplication.Id, Id);
 
     /// <summary>
     /// Overwrites the existing application commands in this guild. New commands are automatically created and missing commands are automatically delete
@@ -2855,7 +2943,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="commands">The list of commands to overwrite with.</param>
     /// <returns>The list of guild commands</returns>
     public Task<IReadOnlyList<DiscordApplicationCommand>> BulkOverwriteApplicationCommandsAsync(IEnumerable<DiscordApplicationCommand> commands) =>
-        this.Discord.ApiClient.BulkOverwriteGuildApplicationCommandsAsync(this.Discord.CurrentApplication.Id, this.Id, commands);
+        Discord.ApiClient.BulkOverwriteGuildApplicationCommandsAsync(Discord.CurrentApplication.Id, Id, commands);
 
     /// <summary>
     /// Creates or overwrites a application command in this guild.
@@ -2863,7 +2951,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="command">The command to create.</param>
     /// <returns>The created command.</returns>
     public Task<DiscordApplicationCommand> CreateApplicationCommandAsync(DiscordApplicationCommand command) =>
-        this.Discord.ApiClient.CreateGuildApplicationCommandAsync(this.Discord.CurrentApplication.Id, this.Id, command);
+        Discord.ApiClient.CreateGuildApplicationCommandAsync(Discord.CurrentApplication.Id, Id, command);
 
     /// <summary>
     /// Edits a application command in this guild.
@@ -2873,9 +2961,9 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <returns>The edit command.</returns>
     public async Task<DiscordApplicationCommand> EditApplicationCommandAsync(ulong commandId, Action<ApplicationCommandEditModel> action)
     {
-        var mdl = new ApplicationCommandEditModel();
+        ApplicationCommandEditModel mdl = new ApplicationCommandEditModel();
         action(mdl);
-        return await this.Discord.ApiClient.EditGuildApplicationCommandAsync(this.Discord.CurrentApplication.Id, this.Id, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission, default, default, mdl.AllowDMUsage, mdl.DefaultMemberPermissions).ConfigureAwait(false);
+        return await Discord.ApiClient.EditGuildApplicationCommandAsync(Discord.CurrentApplication.Id, Id, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission, default, default, mdl.AllowDMUsage, mdl.DefaultMemberPermissions).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -2884,7 +2972,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <returns>This guild's welcome screen object.</returns>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task<DiscordGuildWelcomeScreen> GetWelcomeScreenAsync() =>
-        this.Discord.ApiClient.GetGuildWelcomeScreenAsync(this.Id);
+        Discord.ApiClient.GetGuildWelcomeScreenAsync(Id);
 
     /// <summary>
     /// Modifies this guild's welcome screen.
@@ -2896,9 +2984,9 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordGuildWelcomeScreen> ModifyWelcomeScreenAsync(Action<WelcomeScreenEditModel> action, string reason = null)
     {
-        var mdl = new WelcomeScreenEditModel();
+        WelcomeScreenEditModel mdl = new WelcomeScreenEditModel();
         action(mdl);
-        return await this.Discord.ApiClient.ModifyGuildWelcomeScreenAsync(this.Id, mdl.Enabled, mdl.WelcomeChannels, mdl.Description, reason).ConfigureAwait(false);
+        return await Discord.ApiClient.ModifyGuildWelcomeScreenAsync(Id, mdl.Enabled, mdl.WelcomeChannels, mdl.Description, reason).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -2906,7 +2994,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     /// <returns>A list of permissions.</returns>
     public Task<IReadOnlyList<DiscordGuildApplicationCommandPermissions>> GetApplicationCommandsPermissionsAsync()
-        => this.Discord.ApiClient.GetGuildApplicationCommandPermissionsAsync(this.Discord.CurrentApplication.Id, this.Id);
+        => Discord.ApiClient.GetGuildApplicationCommandPermissionsAsync(Discord.CurrentApplication.Id, Id);
 
     /// <summary>
     /// Gets permissions for a application command in this guild.
@@ -2914,7 +3002,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="command">The command to get them for.</param>
     /// <returns>The permissions.</returns>
     public Task<DiscordGuildApplicationCommandPermissions> GetApplicationCommandPermissionsAsync(DiscordApplicationCommand command)
-        => this.Discord.ApiClient.GetApplicationCommandPermissionsAsync(this.Discord.CurrentApplication.Id, this.Id, command.Id);
+        => Discord.ApiClient.GetApplicationCommandPermissionsAsync(Discord.CurrentApplication.Id, Id, command.Id);
 
     /// <summary>
     /// Edits permissions for a application command in this guild.
@@ -2923,7 +3011,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="permissions">The list of permissions to use.</param>
     /// <returns>The edited permissions.</returns>
     public Task<DiscordGuildApplicationCommandPermissions> EditApplicationCommandPermissionsAsync(DiscordApplicationCommand command, IEnumerable<DiscordApplicationCommandPermission> permissions)
-        => this.Discord.ApiClient.EditApplicationCommandPermissionsAsync(this.Discord.CurrentApplication.Id, this.Id, command.Id, permissions);
+        => Discord.ApiClient.EditApplicationCommandPermissionsAsync(Discord.CurrentApplication.Id, Id, command.Id, permissions);
 
     /// <summary>
     /// Batch edits permissions for a application command in this guild.
@@ -2931,21 +3019,21 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="permissions">The list of permissions to use.</param>
     /// <returns>A list of edited permissions.</returns>
     public Task<IReadOnlyList<DiscordGuildApplicationCommandPermissions>> BatchEditApplicationCommandPermissionsAsync(IEnumerable<DiscordGuildApplicationCommandPermissions> permissions)
-        => this.Discord.ApiClient.BatchEditApplicationCommandPermissionsAsync(this.Discord.CurrentApplication.Id, this.Id, permissions);
+        => Discord.ApiClient.BatchEditApplicationCommandPermissionsAsync(Discord.CurrentApplication.Id, Id, permissions);
     #endregion
 
     /// <summary>
     /// Returns a string representation of this guild.
     /// </summary>
     /// <returns>String representation of this guild.</returns>
-    public override string ToString() => $"Guild {this.Id}; {this.Name}";
+    public override string ToString() => $"Guild {Id}; {Name}";
 
     /// <summary>
     /// Checks whether this <see cref="DiscordGuild"/> is equal to another object.
     /// </summary>
     /// <param name="obj">Object to compare to.</param>
     /// <returns>Whether the object is equal to this <see cref="DiscordGuild"/>.</returns>
-    public override bool Equals(object obj) => this.Equals(obj as DiscordGuild);
+    public override bool Equals(object obj) => Equals(obj as DiscordGuild);
 
     /// <summary>
     /// Checks whether this <see cref="DiscordGuild"/> is equal to another <see cref="DiscordGuild"/>.
@@ -2954,17 +3042,14 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <returns>Whether the <see cref="DiscordGuild"/> is equal to this <see cref="DiscordGuild"/>.</returns>
     public bool Equals(DiscordGuild e)
     {
-        if (e is null)
-            return false;
-
-        return ReferenceEquals(this, e) || this.Id == e.Id;
+        return e is null ? false : ReferenceEquals(this, e) || Id == e.Id;
     }
 
     /// <summary>
     /// Gets the hash code for this <see cref="DiscordGuild"/>.
     /// </summary>
     /// <returns>The hash code for this <see cref="DiscordGuild"/>.</returns>
-    public override int GetHashCode() => this.Id.GetHashCode();
+    public override int GetHashCode() => Id.GetHashCode();
 
     /// <summary>
     /// Gets whether the two <see cref="DiscordGuild"/> objects are equal.
@@ -2974,13 +3059,10 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <returns>Whether the two members are equal.</returns>
     public static bool operator ==(DiscordGuild e1, DiscordGuild e2)
     {
-        var o1 = e1 as object;
-        var o2 = e2 as object;
+        object? o1 = e1 as object;
+        object? o2 = e2 as object;
 
-        if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
-            return false;
-
-        return (o1 == null && o2 == null) || e1.Id == e2.Id;
+        return (o1 == null && o2 != null) || (o1 != null && o2 == null) ? false : (o1 == null && o2 == null) || e1.Id == e2.Id;
     }
 
     /// <summary>

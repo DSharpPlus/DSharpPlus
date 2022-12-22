@@ -40,14 +40,18 @@ public class ModalSubmitEventArgs : InteractionCreateEventArgs
 
     internal ModalSubmitEventArgs(DiscordInteraction interaction)
     {
-        this.Interaction = interaction;
+        Interaction = interaction;
 
-        var dict = new Dictionary<string, string>();
+        Dictionary<string, string> dict = new Dictionary<string, string>();
 
-        foreach (var component in interaction.Data._components)
+        foreach (DiscordActionRowComponent component in interaction.Data._components)
+        {
             if (component.Components.First() is TextInputComponent input)
+            {
                 dict.Add(input.CustomId, input.Value);
+            }
+        }
 
-        this.Values = dict;
+        Values = dict;
     }
 }

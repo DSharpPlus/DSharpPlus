@@ -48,7 +48,7 @@ public class Command
     /// <summary>
     /// Gets this command's qualified name (i.e. one that includes all module names).
     /// </summary>
-    public string QualifiedName => this.Parent is not null ? string.Concat(this.Parent.QualifiedName, " ", this.Name) : this.Name;
+    public string QualifiedName => Parent is not null ? string.Concat(Parent.QualifiedName, " ", Name) : Name;
 
     /// <summary>
     /// Gets this command's aliases.
@@ -102,23 +102,27 @@ public class Command
         CommandResult res = default;
         try
         {
-            var executed = false;
-            foreach (var ovl in this.Overloads.OrderByDescending(x => x.Priority))
+            bool executed = false;
+            foreach (CommandOverload? ovl in Overloads.OrderByDescending(x => x.Priority))
             {
                 ctx.Overload = ovl;
-                var args = await CommandsNextUtilities.BindArgumentsAsync(ctx, ctx.Config.IgnoreExtraArguments).ConfigureAwait(false);
+                Converters.ArgumentBindingResult args = await CommandsNextUtilities.BindArgumentsAsync(ctx, ctx.Config.IgnoreExtraArguments).ConfigureAwait(false);
 
                 if (!args.IsSuccessful)
+                {
                     continue;
+                }
 
                 ctx.RawArguments = args.Raw;
 
-                var mdl = ovl._invocationTarget ?? this.Module?.GetInstance(ctx.Services);
+                object? mdl = ovl._invocationTarget ?? Module?.GetInstance(ctx.Services);
                 if (mdl is BaseCommandModule bcmBefore)
+                {
                     await bcmBefore.BeforeExecutionAsync(ctx).ConfigureAwait(false);
+                }
 
                 args.Converted[0] = mdl;
-                var ret = (Task)ovl._callable.DynamicInvoke(args.Converted);
+                Task? ret = (Task)ovl._callable.DynamicInvoke(args.Converted);
                 await ret.ConfigureAwait(false);
                 executed = true;
                 res = new CommandResult
@@ -128,12 +132,17 @@ public class Command
                 };
 
                 if (mdl is BaseCommandModule bcmAfter)
+                {
                     await bcmAfter.AfterExecutionAsync(ctx).ConfigureAwait(false);
+                }
+
                 break;
             }
 
             if (!executed)
+            {
                 throw new ArgumentException("Could not find a suitable overload for the command.");
+            }
         }
         catch (Exception ex)
         {
@@ -156,11 +165,17 @@ public class Command
     /// <returns>Pre-execution checks that fail for given context.</returns>
     public async Task<IEnumerable<CheckBaseAttribute>> RunChecksAsync(CommandContext ctx, bool help)
     {
-        var fchecks = new List<CheckBaseAttribute>();
-        if (this.ExecutionChecks.Any())
-            foreach (var ec in this.ExecutionChecks)
+        List<CheckBaseAttribute> fchecks = new List<CheckBaseAttribute>();
+        if (ExecutionChecks.Any())
+        {
+            foreach (CheckBaseAttribute ec in ExecutionChecks)
+            {
                 if (!await ec.ExecuteCheckAsync(ctx, help).ConfigureAwait(false))
+                {
                     fchecks.Add(ec);
+                }
+            }
+        }
 
         return fchecks;
     }
@@ -173,8 +188,8 @@ public class Command
     /// <returns>Whether the two commands are equal.</returns>
     public static bool operator ==(Command? cmd1, Command? cmd2)
     {
-        var o1 = cmd1 as object;
-        var o2 = cmd2 as object;
+        object? o1 = cmd1 as object;
+        object? o2 = cmd2 as object;
         return (o1 != null || o2 == null) && (o1 == null || o2 != null) && ((o1 == null && o2 == null) || cmd1!.QualifiedName == cmd2!.QualifiedName);
     }
 
@@ -193,24 +208,21 @@ public class Command
     /// <returns>Whether this command is equal to another object.</returns>
     public override bool Equals(object? obj)
     {
-        var o2 = this as object;
-        return (obj != null || o2 == null) && (obj == null || o2 != null) && ((obj == null && o2 == null) || (obj is Command cmd && cmd.QualifiedName == this.QualifiedName));
+        object? o2 = this as object;
+        return (obj != null || o2 == null) && (obj == null || o2 != null) && ((obj == null && o2 == null) || (obj is Command cmd && cmd.QualifiedName == QualifiedName));
     }
 
     /// <summary>
     /// Gets this command's hash code.
     /// </summary>
     /// <returns>This command's hash code.</returns>
-    public override int GetHashCode() => this.QualifiedName.GetHashCode();
+    public override int GetHashCode() => QualifiedName.GetHashCode();
 
     /// <summary>
     /// Returns a string representation of this command.
     /// </summary>
     /// <returns>String representation of this command.</returns>
-    public override string ToString()
-    {
-        return this is CommandGroup g
-            ? $"Command Group: {this.QualifiedName}, {g.Children.Count} top-level children"
-            : $"Command: {this.QualifiedName}";
-    }
+    public override string ToString() => this is CommandGroup g
+            ? $"Command Group: {QualifiedName}, {g.Children.Count} top-level children"
+            : $"Command: {QualifiedName}";
 }

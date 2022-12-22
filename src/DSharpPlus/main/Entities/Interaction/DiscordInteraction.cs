@@ -55,7 +55,7 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// </summary>
     [JsonIgnore]
     public DiscordGuild Guild
-        => (this.Discord as DiscordClient).InternalGetCachedGuild(this.GuildId);
+        => (Discord as DiscordClient).InternalGetCachedGuild(GuildId);
 
     /// <summary>
     /// Gets the Id of the channel that invoked this interaction.
@@ -68,7 +68,7 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// </summary>
     [JsonIgnore]
     public DiscordChannel Channel
-        => (this.Discord as DiscordClient).InternalGetCachedChannel(this.ChannelId) ?? (DiscordChannel)(this.Discord as DiscordClient).InternalGetCachedThread(this.ChannelId) ?? (this.Guild == null ? new DiscordDmChannel { Id = this.ChannelId, Type = ChannelType.Private, Discord = this.Discord, Recipients = new DiscordUser[] { this.User }} : null);
+        => (Discord as DiscordClient).InternalGetCachedChannel(ChannelId) ?? (DiscordChannel)(Discord as DiscordClient).InternalGetCachedThread(ChannelId) ?? (Guild == null ? new DiscordDmChannel { Id = ChannelId, Type = ChannelType.Private, Discord = Discord, Recipients = new DiscordUser[] { User } } : null);
 
     /// <summary>
     /// Gets the user that invoked this interaction.
@@ -120,13 +120,13 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// <param name="type">The type of the response.</param>
     /// <param name="builder">The data, if any, to send.</param>
     public Task CreateResponseAsync(InteractionResponseType type, DiscordInteractionResponseBuilder builder = null) =>
-        this.Discord.ApiClient.CreateInteractionResponseAsync(this.Id, this.Token, type, builder);
+        Discord.ApiClient.CreateInteractionResponseAsync(Id, Token, type, builder);
 
     /// <summary>
     ///     Creates a deferred response to this interaction.
     /// </summary>
     /// <param name="ephemeral">Whether the response should be ephemeral.</param>
-    public Task DeferAsync(bool ephemeral = false) => this.CreateResponseAsync(
+    public Task DeferAsync(bool ephemeral = false) => CreateResponseAsync(
         InteractionResponseType.DeferredChannelMessageWithSource,
         new DiscordInteractionResponseBuilder().AsEphemeral(ephemeral));
 
@@ -135,7 +135,7 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// </summary>
     /// <returns>The original message that was sent. This <b>does not work on ephemeral messages.</b></returns>
     public Task<DiscordMessage> GetOriginalResponseAsync() =>
-        this.Discord.ApiClient.GetOriginalInteractionResponseAsync(this.Discord.CurrentApplication.Id, this.Token);
+        Discord.ApiClient.GetOriginalInteractionResponseAsync(Discord.CurrentApplication.Id, Token);
 
     /// <summary>
     /// Edits the original interaction response.
@@ -147,14 +147,14 @@ public sealed class DiscordInteraction : SnowflakeObject
     {
         builder.Validate(isInteractionResponse: true);
 
-        return await this.Discord.ApiClient.EditOriginalInteractionResponseAsync(this.Discord.CurrentApplication.Id, this.Token, builder, attachments).ConfigureAwait(false);
+        return await Discord.ApiClient.EditOriginalInteractionResponseAsync(Discord.CurrentApplication.Id, Token, builder, attachments).ConfigureAwait(false);
     }
 
     /// <summary>
     /// Deletes the original interaction response.
     /// </summary>>
     public Task DeleteOriginalResponseAsync() =>
-        this.Discord.ApiClient.DeleteOriginalInteractionResponseAsync(this.Discord.CurrentApplication.Id, this.Token);
+        Discord.ApiClient.DeleteOriginalInteractionResponseAsync(Discord.CurrentApplication.Id, Token);
 
     /// <summary>
     /// Creates a follow up message to this interaction.
@@ -165,7 +165,7 @@ public sealed class DiscordInteraction : SnowflakeObject
     {
         builder.Validate();
 
-        return await this.Discord.ApiClient.CreateFollowupMessageAsync(this.Discord.CurrentApplication.Id, this.Token, builder).ConfigureAwait(false);
+        return await Discord.ApiClient.CreateFollowupMessageAsync(Discord.CurrentApplication.Id, Token, builder).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -173,7 +173,7 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// </summary>
     /// <param name="messageId">The id of the follow up message.</param>
     public Task<DiscordMessage> GetFollowupMessageAsync(ulong messageId) =>
-        this.Discord.ApiClient.GetFollowupMessageAsync(this.Discord.CurrentApplication.Id, this.Token, messageId);
+        Discord.ApiClient.GetFollowupMessageAsync(Discord.CurrentApplication.Id, Token, messageId);
 
     /// <summary>
     /// Edits a follow up message.
@@ -186,7 +186,7 @@ public sealed class DiscordInteraction : SnowflakeObject
     {
         builder.Validate(isFollowup: true);
 
-        return await this.Discord.ApiClient.EditFollowupMessageAsync(this.Discord.CurrentApplication.Id, this.Token, messageId, builder, attachments).ConfigureAwait(false);
+        return await Discord.ApiClient.EditFollowupMessageAsync(Discord.CurrentApplication.Id, Token, messageId, builder, attachments).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -194,5 +194,5 @@ public sealed class DiscordInteraction : SnowflakeObject
     /// </summary>
     /// <param name="messageId">The id of the follow up message.</param>
     public Task DeleteFollowupMessageAsync(ulong messageId) =>
-        this.Discord.ApiClient.DeleteFollowupMessageAsync(this.Discord.CurrentApplication.Id, this.Token, messageId);
+        Discord.ApiClient.DeleteFollowupMessageAsync(Discord.CurrentApplication.Id, Token, messageId);
 }

@@ -44,8 +44,8 @@ internal class ModalEventWaiter : IDisposable
 
     public ModalEventWaiter(DiscordClient client)
     {
-        this.Client = client;
-        this.Client.ModalSubmitted += this.Handle; //registering Handle event to be fired upon ModalSubmitted
+        Client = client;
+        Client.ModalSubmitted += Handle; //registering Handle event to be fired upon ModalSubmitted
     }
 
     /// <summary>
@@ -55,7 +55,7 @@ internal class ModalEventWaiter : IDisposable
     /// <returns>The returned args, or null if it timed out.</returns>
     public async Task<ModalSubmitEventArgs> WaitForMatchAsync(ModalMatchRequest request)
     {
-        this.MatchRequests.Add(request);
+        MatchRequests.Add(request);
 
         try
         {
@@ -63,12 +63,12 @@ internal class ModalEventWaiter : IDisposable
         }
         catch (Exception e)
         {
-            this.Client.Logger.LogError(InteractivityEvents.InteractivityWaitError, e, "An exception was thrown while waiting for a modal.");
+            Client.Logger.LogError(InteractivityEvents.InteractivityWaitError, e, "An exception was thrown while waiting for a modal.");
             return null;
         }
         finally
         {
-            this.MatchRequests.TryRemove(request);
+            MatchRequests.TryRemove(request);
         }
     }
 
@@ -80,17 +80,19 @@ internal class ModalEventWaiter : IDisposable
     /// <returns>A task that represents matching the requests.</returns>
     private Task Handle(DiscordClient _, ModalSubmitEventArgs args)
     {
-        foreach (var req in this.MatchRequests.ToArray()) // ToArray to get a copy of the collection that won't be modified during iteration
+        foreach (ModalMatchRequest? req in MatchRequests.ToArray()) // ToArray to get a copy of the collection that won't be modified during iteration
         {
             if (req.ModalId == args.Interaction.Data.CustomId && req.IsMatch(args)) // will catch all matches
+            {
                 req.Tcs.TrySetResult(args);
+            }
         }
         return Task.CompletedTask;
     }
 
     public void Dispose()
     {
-        this.MatchRequests.Clear();
-        this.Client.ModalSubmitted -= this.Handle;
+        MatchRequests.Clear();
+        Client.ModalSubmitted -= Handle;
     }
 }

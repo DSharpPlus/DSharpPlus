@@ -40,16 +40,18 @@ public sealed class TestBotDynamicCommands : BaseCommandModule
     [Command("add"), Aliases("register"), Description("Dynamically registers a command from given source code."), Hidden, RequireOwner]
     public async Task AddCommandAsync(CommandContext ctx, string code)
     {
-        var msg = ctx.Message;
+        DiscordMessage msg = ctx.Message;
 
-        var cs1 = code.IndexOf("```") + 3;
+        int cs1 = code.IndexOf("```") + 3;
         cs1 = code.IndexOf('\n', cs1) + 1;
-        var cs2 = code.LastIndexOf("```");
+        int cs2 = code.LastIndexOf("```");
 
         if (cs1 == -1 || cs2 == -1)
+        {
             throw new ArgumentException("You need to wrap the code into a code block.");
+        }
 
-        var cs = code.Substring(cs1, cs2 - cs1);
+        string cs = code.Substring(cs1, cs2 - cs1);
 
         // I hate this
         cs = $"[ModuleLifespan(ModuleLifespan.Transient)]\npublic sealed class DynamicCommands : BaseCommandModule\n{{\n{cs}\n}}";
@@ -59,31 +61,31 @@ public sealed class TestBotDynamicCommands : BaseCommandModule
             .WithDescription("Compiling...")
             .Build()).ConfigureAwait(false);
 
-        var number = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        var typeName = $"DynamicCommands{number}";
+        long number = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        string typeName = $"DynamicCommands{number}";
         Type moduleType = null;
         try
         {
-            var references = AppDomain.CurrentDomain.GetAssemblies().Where(xa => !xa.IsDynamic && !string.IsNullOrWhiteSpace(xa.Location))
+            System.Collections.Generic.IEnumerable<PortableExecutableReference> references = AppDomain.CurrentDomain.GetAssemblies().Where(xa => !xa.IsDynamic && !string.IsNullOrWhiteSpace(xa.Location))
                 .Select(x => MetadataReference.CreateFromFile(x.Location));
 
-            var ast = SyntaxFactory.ParseSyntaxTree(cs, new CSharpParseOptions().WithKind(SourceCodeKind.Script).WithLanguageVersion(LanguageVersion.CSharp7_1));
-            var copts = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, false, null, null, typeName,
+            SyntaxTree ast = SyntaxFactory.ParseSyntaxTree(cs, new CSharpParseOptions().WithKind(SourceCodeKind.Script).WithLanguageVersion(LanguageVersion.CSharp7_1));
+            CSharpCompilationOptions copts = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, false, null, null, typeName,
                 new[] { "System", "System.Collections.Generic", "System.Linq", "System.Text", "System.Threading.Tasks", "DSharpPlus", "DSharpPlus.Entities", "DSharpPlus.CommandsNext", "DSharpPlus.CommandsNext.Attributes", "DSharpPlus.Interactivity" },
                 OptimizationLevel.Release, false, true, null, null, default, null, Platform.AnyCpu, ReportDiagnostic.Default, 4, null, true, false, null, null, null, null, null, false);
 
-            var csc = CSharpCompilation.CreateScriptCompilation($"DynamicCommands{number}", ast, references, copts, null, typeof(object), null);
+            CSharpCompilation csc = CSharpCompilation.CreateScriptCompilation($"DynamicCommands{number}", ast, references, copts, null, typeof(object), null);
 
             Assembly asm = null;
-            using (var ms = new MemoryStream())
+            using (MemoryStream ms = new MemoryStream())
             {
-                var er = csc.Emit(ms);
+                Microsoft.CodeAnalysis.Emit.EmitResult er = csc.Emit(ms);
                 ms.Position = 0;
 
                 asm = Assembly.Load(ms.ToArray());
             }
 
-            var outerType = asm.ExportedTypes.FirstOrDefault(x => x.Name == typeName);
+            Type? outerType = asm.ExportedTypes.FirstOrDefault(x => x.Name == typeName);
             moduleType = outerType.GetNestedTypes().FirstOrDefault(x => x.BaseType == typeof(BaseCommandModule));
 
             ctx.CommandsNext.RegisterCommands(moduleType);
@@ -100,7 +102,7 @@ public sealed class TestBotDynamicCommands : BaseCommandModule
     public async Task AddSimpleAsync(CommandContext ctx, string name, params string[] aliases)
     {
         await Task.Yield();
-        var command = new CommandBuilder(null)
+        CommandBuilder command = new CommandBuilder(null)
             .WithName(name)
             .WithDescription("Automatically-added command.")
             .WithExecutionChecks(new CooldownAttribute(1, 5, CooldownBucketType.Channel))
@@ -108,7 +110,9 @@ public sealed class TestBotDynamicCommands : BaseCommandModule
             .WithOverload(new CommandOverloadBuilder(new Func<CommandContext, string, Task>(Func1)).WithPriority(0));
 
         if (aliases?.Any() == true)
+        {
             command.WithAliases(aliases);
+        }
 
         ctx.CommandsNext.RegisterCommands(command);
         await ctx.RespondAsync(DiscordEmoji.FromUnicode("👌").ToString()).ConfigureAwait(false);

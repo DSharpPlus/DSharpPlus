@@ -78,31 +78,33 @@ public sealed class RequireRolesAttribute : CheckBaseAttribute
     /// <param name="roleIds">IDs of the roles to be verified by this check.</param>
     public RequireRolesAttribute(RoleCheckMode checkMode, string[] roleNames, ulong[] roleIds)
     {
-        this.CheckMode = checkMode;
-        this.RoleIds = new ReadOnlyCollection<ulong>(roleIds);
-        this.RoleNames = new ReadOnlyCollection<string>(roleNames);
+        CheckMode = checkMode;
+        RoleIds = new ReadOnlyCollection<ulong>(roleIds);
+        RoleNames = new ReadOnlyCollection<string>(roleNames);
     }
 
     public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
     {
         if (ctx.Guild == null || ctx.Member == null)
+        {
             return Task.FromResult(false);
-
-        if ((this.CheckMode.HasFlag(RoleCheckMode.MatchNames) && !this.CheckMode.HasFlag(RoleCheckMode.MatchIds)) || this.RoleIds.Count == 0)
-        {
-            return Task.FromResult(this.MatchRoles(
-                this.RoleNames, ctx.Member.Roles.Select(xm => xm.Name), ctx.CommandsNext.GetStringComparer()));
         }
-        else if ((!this.CheckMode.HasFlag(RoleCheckMode.MatchNames) && this.CheckMode.HasFlag(RoleCheckMode.MatchIds)) || this.RoleNames.Count == 0)
+
+        if ((CheckMode.HasFlag(RoleCheckMode.MatchNames) && !CheckMode.HasFlag(RoleCheckMode.MatchIds)) || RoleIds.Count == 0)
         {
-            return Task.FromResult(this.MatchRoles(this.RoleIds, ctx.Member.RoleIds));
+            return Task.FromResult(MatchRoles(
+                RoleNames, ctx.Member.Roles.Select(xm => xm.Name), ctx.CommandsNext.GetStringComparer()));
+        }
+        else if ((!CheckMode.HasFlag(RoleCheckMode.MatchNames) && CheckMode.HasFlag(RoleCheckMode.MatchIds)) || RoleNames.Count == 0)
+        {
+            return Task.FromResult(MatchRoles(RoleIds, ctx.Member.RoleIds));
         }
         else // match both names and IDs
         {
-            bool nameMatch = this.MatchRoles(this.RoleNames, ctx.Member.Roles.Select(xm => xm.Name), ctx.CommandsNext.GetStringComparer()),
-                idMatch = this.MatchRoles(this.RoleIds, ctx.Member.RoleIds);
+            bool nameMatch = MatchRoles(RoleNames, ctx.Member.Roles.Select(xm => xm.Name), ctx.CommandsNext.GetStringComparer()),
+                idMatch = MatchRoles(RoleIds, ctx.Member.RoleIds);
 
-            return Task.FromResult(this.CheckMode switch
+            return Task.FromResult(CheckMode switch
             {
                 RoleCheckMode.Any => nameMatch || idMatch,
                 _ => nameMatch && idMatch
@@ -112,9 +114,9 @@ public sealed class RequireRolesAttribute : CheckBaseAttribute
 
     private bool MatchRoles<T>(IReadOnlyList<T> present, IEnumerable<T> passed, IEqualityComparer<T>? comparer = null)
     {
-        var intersect = passed.Intersect(present, comparer ?? EqualityComparer<T>.Default);
+        IEnumerable<T> intersect = passed.Intersect(present, comparer ?? EqualityComparer<T>.Default);
 
-        return this.CheckMode switch
+        return CheckMode switch
         {
             RoleCheckMode.All => present.Count() == intersect.Count(),
             RoleCheckMode.SpecifiedOnly => passed.Count() == intersect.Count(),

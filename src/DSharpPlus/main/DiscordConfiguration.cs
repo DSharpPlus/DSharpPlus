@@ -40,13 +40,15 @@ public sealed class DiscordConfiguration
     /// </summary>
     public string Token
     {
-        internal get => this._token;
+        internal get => _token;
         set
         {
             if (string.IsNullOrWhiteSpace(value))
+            {
                 throw new ArgumentNullException(nameof(value), "Token cannot be null, empty, or all whitespace.");
+            }
 
-            this._token = value.Trim();
+            _token = value.Trim();
         }
     }
     private string _token = "";
@@ -158,13 +160,10 @@ public sealed class DiscordConfiguration
     /// </summary>
     public WebSocketClientFactoryDelegate WebSocketClientFactory
     {
-        internal get => this._webSocketClientFactory;
+        internal get => _webSocketClientFactory;
         set
         {
-            if (value == null)
-                throw new InvalidOperationException("You need to supply a valid WebSocket client factory method.");
-
-            this._webSocketClientFactory = value;
+            _webSocketClientFactory = value ?? throw new InvalidOperationException("You need to supply a valid WebSocket client factory method.");
         }
     }
     private WebSocketClientFactoryDelegate _webSocketClientFactory = WebSocketClient.CreateNew;
@@ -176,8 +175,8 @@ public sealed class DiscordConfiguration
     /// </summary>
     public UdpClientFactoryDelegate UdpClientFactory
     {
-        internal get => this._udpClientFactory;
-        set => this._udpClientFactory = value ?? throw new InvalidOperationException("You need to supply a valid UDP client factory method.");
+        internal get => _udpClientFactory;
+        set => _udpClientFactory = value ?? throw new InvalidOperationException("You need to supply a valid UDP client factory method.");
     }
     private UdpClientFactoryDelegate _udpClientFactory = DspUdpClient.CreateNew;
 
@@ -205,24 +204,24 @@ public sealed class DiscordConfiguration
     /// <param name="other">Client configuration to clone.</param>
     public DiscordConfiguration(DiscordConfiguration other)
     {
-        this.Token = other.Token;
-        this.TokenType = other.TokenType;
-        this.MinimumLogLevel = other.MinimumLogLevel;
-        this.UseRelativeRatelimit = other.UseRelativeRatelimit;
-        this.LogTimestampFormat = other.LogTimestampFormat;
-        this.LargeThreshold = other.LargeThreshold;
-        this.AutoReconnect = other.AutoReconnect;
-        this.ShardId = other.ShardId;
-        this.ShardCount = other.ShardCount;
-        this.GatewayCompressionLevel = other.GatewayCompressionLevel;
-        this.MessageCacheSize = other.MessageCacheSize;
-        this.WebSocketClientFactory = other.WebSocketClientFactory;
-        this.UdpClientFactory = other.UdpClientFactory;
-        this.Proxy = other.Proxy;
-        this.HttpTimeout = other.HttpTimeout;
-        this.ReconnectIndefinitely = other.ReconnectIndefinitely;
-        this.Intents = other.Intents;
-        this.LoggerFactory = other.LoggerFactory;
-        this.LogUnknownEvents = other.LogUnknownEvents;
+        Token = other.Token;
+        TokenType = other.TokenType;
+        MinimumLogLevel = other.MinimumLogLevel;
+        UseRelativeRatelimit = other.UseRelativeRatelimit;
+        LogTimestampFormat = other.LogTimestampFormat;
+        LargeThreshold = other.LargeThreshold;
+        AutoReconnect = other.AutoReconnect;
+        ShardId = other.ShardId;
+        ShardCount = other.ShardCount;
+        GatewayCompressionLevel = other.GatewayCompressionLevel;
+        MessageCacheSize = other.MessageCacheSize;
+        WebSocketClientFactory = other.WebSocketClientFactory;
+        UdpClientFactory = other.UdpClientFactory;
+        Proxy = other.Proxy;
+        HttpTimeout = other.HttpTimeout;
+        ReconnectIndefinitely = other.ReconnectIndefinitely;
+        Intents = other.Intents;
+        LoggerFactory = other.LoggerFactory;
+        LogUnknownEvents = other.LogUnknownEvents;
     }
 }

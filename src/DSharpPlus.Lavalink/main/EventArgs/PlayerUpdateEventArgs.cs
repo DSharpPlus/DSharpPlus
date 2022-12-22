@@ -48,8 +48,8 @@ public sealed class PlayerUpdateEventArgs : AsyncEventArgs
 
     internal PlayerUpdateEventArgs(LavalinkGuildConnection lvl, DateTimeOffset timestamp, TimeSpan position)
     {
-        this.Player = lvl;
-        this.Timestamp = timestamp;
-        this.Position = position;
+        Player = lvl;
+        Timestamp = timestamp;
+        Position = position;
     }
 }

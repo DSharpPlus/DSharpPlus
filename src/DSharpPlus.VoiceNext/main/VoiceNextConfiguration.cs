@@ -57,8 +57,8 @@ public sealed class VoiceNextConfiguration
     /// <param name="other">Configuration the properties of which are to be copied.</param>
     public VoiceNextConfiguration(VoiceNextConfiguration other)
     {
-        this.AudioFormat = new AudioFormat(other.AudioFormat.SampleRate, other.AudioFormat.ChannelCount, other.AudioFormat.VoiceApplication);
-        this.EnableIncoming = other.EnableIncoming;
-        this.PacketQueueSize = other.PacketQueueSize;
+        AudioFormat = new AudioFormat(other.AudioFormat.SampleRate, other.AudioFormat.ChannelCount, other.AudioFormat.VoiceApplication);
+        EnableIncoming = other.EnableIncoming;
+        PacketQueueSize = other.PacketQueueSize;
     }
 }

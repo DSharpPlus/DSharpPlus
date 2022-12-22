@@ -33,7 +33,7 @@ public class Reply : BaseCommandModule
     [Command, Priority(0)]
     public async Task ReplyAsync(CommandContext ctx, [RemainingText] string response = "")
     {
-        var builder = new DiscordMessageBuilder();
+        DiscordMessageBuilder builder = new DiscordMessageBuilder();
 
         if (string.IsNullOrEmpty(response))
         {
@@ -54,7 +54,9 @@ public class Reply : BaseCommandModule
     public async Task ReplyAsync(CommandContext ctx, DiscordUser user, [RemainingText] string response = "")
     {
         if (ctx.Message.Reference?.Message is null)
+        {
             await ctx.RespondAsync("You need to reply to a message for this :(");
+        }
         else
         {
             await new DiscordMessageBuilder()
@@ -67,7 +69,7 @@ public class Reply : BaseCommandModule
     [Command, Priority(1)]
     public async Task ReplyAsync(CommandContext ctx, bool mention, [RemainingText] string response = "")
     {
-        var builder = new DiscordMessageBuilder();
+        DiscordMessageBuilder builder = new DiscordMessageBuilder();
 
         if (string.IsNullOrEmpty(response))
         {
