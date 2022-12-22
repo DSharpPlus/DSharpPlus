@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
@@ -10,13 +9,13 @@ public sealed record InternalGuildPreview
     /// The guild id.
     /// </summary>
     [JsonPropertyName("id")]
-    public Snowflake Id { get; init; } = null!;
+    public required Snowflake Id { get; init; }
 
     /// <summary>
     /// The guild name (2-100 characters).
     /// </summary>
     [JsonPropertyName("name")]
-    public string Name { get; init; } = null!;
+    public required string Name { get; init; }
 
     /// <summary>
     /// The <see href="https://discord.com/developers/docs/reference#image-formatting">icon hash</see>.
@@ -40,7 +39,7 @@ public sealed record InternalGuildPreview
     /// The guild's custom emojis.
     /// </summary>
     [JsonPropertyName("emojis")]
-    public IReadOnlyList<InternalEmoji> Emojis { get; init; } = Array.Empty<InternalEmoji>();
+    public required IReadOnlyList<InternalEmoji> Emojis { get; init; } 
 
     /// <summary>
     /// The enabled guild features.
@@ -49,19 +48,19 @@ public sealed record InternalGuildPreview
     /// See <see cref="InternalGuildFeature"/> for more information.
     /// </remarks>
     [JsonPropertyName("features")]
-    public string[] Features { get; init; } = Array.Empty<string>();
+    public required IReadOnlyList<string> Features { get; init; } 
 
     /// <summary>
     /// The approximate number of members in this guild.
     /// </summary>
     [JsonPropertyName("approximate_member_count")]
-    public int ApproximateMemberCount { get; init; }
+    public required int ApproximateMemberCount { get; init; }
 
     /// <summary>
     /// The approximate number of online members in this guild.
     /// </summary>
     [JsonPropertyName("approximate_presence_count")]
-    public int ApproximatePresenceCount { get; init; }
+    public required int ApproximatePresenceCount { get; init; }
 
     /// <summary>
     /// The description for the guild.
@@ -73,5 +72,5 @@ public sealed record InternalGuildPreview
     /// The guild's custom stickers.
     /// </summary>
     [JsonPropertyName("stickers")]
-    public IReadOnlyList<InternalSticker> Stickers { get; init; } = Array.Empty<InternalSticker>();
+    public required IReadOnlyList<InternalSticker> Stickers { get; init; } 
 }

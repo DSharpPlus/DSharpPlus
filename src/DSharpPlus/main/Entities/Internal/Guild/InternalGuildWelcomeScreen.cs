@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
@@ -16,5 +15,5 @@ public sealed record InternalGuildWelcomeScreen
     /// The channels shown in the welcome screen, up to 5.
     /// </summary>
     [JsonPropertyName("welcome_channels")]
-    public IReadOnlyList<InternalGuildWelcomeScreenChannel> WelcomeChannels { get; init; } = Array.Empty<InternalGuildWelcomeScreenChannel>();
+    public required IReadOnlyList<InternalGuildWelcomeScreenChannel> WelcomeChannels { get; init; } 
 }

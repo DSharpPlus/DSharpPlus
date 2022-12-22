@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
@@ -10,13 +9,13 @@ public sealed record InternalGuildWidget
     /// The guild id.
     /// </summary>
     [JsonPropertyName("id")]
-    public Snowflake Id { get; init; } = null!;
+    public required Snowflake Id { get; init; } 
 
     /// <summary>
     /// The guild name (2-100 characters).
     /// </summary>
     [JsonPropertyName("name")]
-    public string Name { get; init; } = null!;
+    public required string Name { get; init; } 
 
     /// <summary>
     /// The instant invite for the guilds specified widget invite channel.
@@ -28,21 +27,22 @@ public sealed record InternalGuildWidget
     /// The voice and stage channels which are accessible by @everyone
     /// </summary>
     [JsonPropertyName("channels")]
-    public IReadOnlyList<InternalChannel> Channels { get; init; } = Array.Empty<InternalChannel>();
+    public required IReadOnlyList<InternalChannel> Channels { get; init; } 
 
     /// <summary>
     /// A list of special widget user objects that includes users presence (Limit 100).
     /// </summary>
     /// <remarks>
-    /// The fields <see cref="InternalUser.Id"/>, <see cref="InternalUser.Discriminator"/> and <see cref="InternalUser.Avatar"/>, are anonymized to prevent abuse.
+    /// The fields <see cref="InternalUser.Id"/>, <see cref="InternalUser.Discriminator"/> and 
+    /// <see cref="InternalUser.Avatar"/> are anonymized to prevent abuse.
     /// <b>This field is full of <see cref="InternalUser"/> objects, NOT <see cref="InternalGuildMember"/> objects.</b>
     /// </remarks>
     [JsonPropertyName("members")]
-    public IReadOnlyList<InternalUser> Members { get; init; } = Array.Empty<InternalUser>();
+    public required IReadOnlyList<InternalUser> Members { get; init; } 
 
     /// <summary>
     /// The number of online members in this guild.
     /// </summary>
     [JsonPropertyName("presence_count")]
-    public int PresenceCount { get; init; }
+    public required int PresenceCount { get; init; }
 }

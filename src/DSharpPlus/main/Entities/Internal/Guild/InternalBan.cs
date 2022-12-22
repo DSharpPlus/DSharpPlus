@@ -14,5 +14,5 @@ public sealed record InternalBan
     /// The banned user.
     /// </summary>
     [JsonPropertyName("user")]
-    public InternalUser User { get; init; } = null!;
+    public required InternalUser User { get; init; }
 }

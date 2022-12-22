@@ -43,7 +43,7 @@ public static class InternalGuildFeature
     public const string InviteSplash = "INVITE_SPLASH";
 
     /// <summary>
-    /// The guild has enabled <see cref="InternalGuildMembershipScreen"/> (Membership Screening).
+    /// The guild has enabled membership screening.
     /// </summary>
     public const string MemberVerificationGateEnabled = "MEMBER_VERIFICATION_GATE_ENABLED";
 

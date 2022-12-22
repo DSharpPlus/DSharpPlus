@@ -28,10 +28,10 @@ public sealed record InternalGuildMember
     public Optional<string?> Avatar { get; init; }
 
     /// <summary>
-    /// Array of <see href="https://discord.com/developers/docs/topics/permissions#role-object">role</see> object ids.
+    /// Array of <see cref="InternalRole"/> object ids.
     /// </summary>
     [JsonPropertyName("roles")]
-    public IReadOnlyList<Snowflake> Roles { get; init; } = Array.Empty<Snowflake>();
+    public required IReadOnlyList<Snowflake> Roles { get; init; }
 
     /// <summary>
     /// When the user joined the guild.
@@ -40,10 +40,10 @@ public sealed record InternalGuildMember
     /// Resets when the member leaves and rejoins the guild.
     /// </remarks>
     [JsonPropertyName("joined_at")]
-    public DateTimeOffset JoinedAt { get; init; }
+    public required DateTimeOffset JoinedAt { get; init; }
 
     /// <summary>
-    /// When the user started <see href="https://support.discord.com/hc/en-us/articles/360028038352-Server-Boosting-">boosting</see> the guild.
+    /// When the user started boosting the guild.
     /// </summary>
     /// <remarks>
     /// Can also be seen as "Nitro boosting since".
@@ -58,7 +58,7 @@ public sealed record InternalGuildMember
     /// This could be a self or server deafen.
     /// </remarks>
     [JsonPropertyName("deaf")]
-    public bool Deaf { get; init; }
+    public required bool Deaf { get; init; }
 
     /// <summary>
     /// Whether the user is muted in voice channels.
@@ -67,10 +67,10 @@ public sealed record InternalGuildMember
     /// This could be a self or server mute.
     /// </remarks>
     [JsonPropertyName("mute")]
-    public bool Mute { get; init; }
+    public required bool Mute { get; init; }
 
     /// <summary>
-    /// Whether the user has not yet passed the guild's <see href="https://discord.com/developers/docs/resources/guild#membership-screening-object">Membership Screening</see> requirements.
+    /// Whether the user has not yet passed the guild's membership screening requirements.
     /// </summary>
     [JsonPropertyName("pending")]
     public Optional<bool> Pending { get; init; }
@@ -85,7 +85,8 @@ public sealed record InternalGuildMember
     public Optional<DiscordPermissions> Permissions { get; init; }
 
     /// <summary>
-    /// When the user's <see href="https://support.discord.com/hc/en-us/articles/4413305239191-Time-Out-FAQ">timeout</see> will expire and the user will be able to communicate in the guild again, null or a time in the past if the user is not timed out.
+    /// When the user's timeout will expire and the user will be able to communicate in the guild again, 
+    /// null or a time in the past if the user is not timed out.
     /// </summary>
     /// <remarks>
     /// Could also be seen as "muted until".

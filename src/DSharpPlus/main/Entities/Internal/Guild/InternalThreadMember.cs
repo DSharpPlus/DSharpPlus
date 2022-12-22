@@ -27,13 +27,13 @@ public sealed record InternalThreadMember
     /// The time the current user last joined the thread.
     /// </summary>
     [JsonPropertyName("join_timestamp")]
-    public DateTimeOffset JoinTimestamp { get; init; }
+    public required DateTimeOffset JoinTimestamp { get; init; }
 
     /// <summary>
     /// Any user-thread settings, currently only used for notifications.
     /// </summary>
     [JsonPropertyName("flags")]
-    public int Flags { get; init; }
+    public required int Flags { get; init; }
 
     /// <summary>
     /// The id of the guild.

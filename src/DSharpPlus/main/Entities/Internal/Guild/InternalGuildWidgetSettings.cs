@@ -5,7 +5,7 @@ public sealed record InternalGuildWidgetSettings
     /// <summary>
     /// Whether the widget is enabled.
     /// </summary>
-    public bool Enabled { get; init; }
+    public required bool Enabled { get; init; }
 
     /// <summary>
     /// The widget channel id.

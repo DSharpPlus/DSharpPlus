@@ -13,13 +13,13 @@ public sealed record InternalGuild
     /// The guild id.
     /// </summary>
     [JsonPropertyName("id")]
-    public Snowflake Id { get; init; } = null!;
+    public required Snowflake Id { get; init; }
 
     /// <summary>
     /// The guild name (2-100 characters, excluding trailing and leading whitespace).
     /// </summary>
     [JsonPropertyName("name")]
-    public string Name { get; init; } = null!;
+    public required string Name { get; init; }
 
     /// <summary>
     /// The icon hash.
@@ -40,7 +40,8 @@ public sealed record InternalGuild
     public string? Splash { get; init; }
 
     /// <summary>
-    /// The discovery splash hash; only present for guilds with the <see cref="InternalGuildFeature.Discoverable"/> feature.
+    /// The discovery splash hash; only present for guilds with the 
+    /// <see cref="InternalGuildFeature.Discoverable"/> feature.
     /// </summary>
     [JsonPropertyName("discovery_splash")]
     public string? DiscoverySplash { get; init; }
@@ -55,7 +56,7 @@ public sealed record InternalGuild
     /// The id of owner.
     /// </summary>
     [JsonPropertyName("owner_id")]
-    public Snowflake OwnerId { get; init; } = null!;
+    public required Snowflake OwnerId { get; init; } 
 
     /// <summary>
     /// The total permissions for the user in the guild (excludes overwrites).
@@ -80,7 +81,7 @@ public sealed record InternalGuild
     /// The afk timeout in seconds.
     /// </summary>
     [JsonPropertyName("afk_timeout")]
-    public int AfkTimeout { get; init; }
+    public required int AfkTimeout { get; init; }
 
     /// <summary>
     /// True if the server widget is enabled.
@@ -98,31 +99,31 @@ public sealed record InternalGuild
     /// The verification level required for the guild.
     /// </summary>
     [JsonPropertyName("verification_level")]
-    public DiscordGuildVerificationLevel VerificationLevel { get; init; }
+    public required DiscordGuildVerificationLevel VerificationLevel { get; init; }
 
     /// <summary>
     /// The default message notifications level.
     /// </summary>
     [JsonPropertyName("default_message_notifications")]
-    public DiscordGuildMessageNotificationLevel DefaultMessageNotifications { get; init; }
+    public required DiscordGuildMessageNotificationLevel DefaultMessageNotifications { get; init; }
 
     /// <summary>
     /// The explicit content filter level.
     /// </summary>
     [JsonPropertyName("explicit_content_filter")]
-    public DiscordGuildExplicitContentFilterLevel ExplicitContentFilter { get; init; }
+    public required DiscordGuildExplicitContentFilterLevel ExplicitContentFilter { get; init; }
 
     /// <summary>
     /// The roles in the guild.
     /// </summary>
     [JsonPropertyName("roles")]
-    public IReadOnlyList<InternalRole> Roles { get; init; } = Array.Empty<InternalRole>();
+    public required IReadOnlyList<InternalRole> Roles { get; init; }
 
     /// <summary>
     /// The custom guild emojis.
     /// </summary>
     [JsonPropertyName("emojis")]
-    public IReadOnlyList<InternalEmoji> Emojis { get; init; } = Array.Empty<InternalEmoji>();
+    public required IReadOnlyList<InternalEmoji> Emojis { get; init; } 
 
     /// <summary>
     /// The enabled guild features.
@@ -131,13 +132,13 @@ public sealed record InternalGuild
     /// See <see cref="InternalGuildFeature"/> for more information.
     /// </remarks>
     [JsonPropertyName("features")]
-    public IReadOnlyList<string> Features { get; init; } = Array.Empty<string>();
+    public required IReadOnlyList<string> Features { get; init; } 
 
     /// <summary>
     /// The required MFA level for the guild.
     /// </summary>
     [JsonPropertyName("mfa_level")]
-    public DiscordGuildMFALevel MfaLevel { get; init; }
+    public required DiscordGuildMFALevel MfaLevel { get; init; }
 
     /// <summary>
     /// The application id of the guild creator if it is bot-created.
@@ -155,7 +156,7 @@ public sealed record InternalGuild
     /// The system channel flags.
     /// </summary>
     [JsonPropertyName("system_channel_flags")]
-    public DiscordGuildSystemChannelFlags SystemChannelFlags { get; init; }
+    public required DiscordGuildSystemChannelFlags SystemChannelFlags { get; init; }
 
     /// <summary>
     /// The the id of the channel where Community guilds can display rules and/or guidelines.
@@ -197,7 +198,7 @@ public sealed record InternalGuild
     /// The premium tier (Server Boost level).
     /// </summary>
     [JsonPropertyName("premium_tier")]
-    public DiscordGuildPremiumTier PremiumTier { get; init; }
+    public required DiscordGuildPremiumTier PremiumTier { get; init; }
 
     /// <summary>
     /// The number of boosts this guild currently has.
@@ -206,10 +207,11 @@ public sealed record InternalGuild
     public Optional<int> PremiumSubscriptionCount { get; init; }
 
     /// <summary>
-    /// The preferred locale of a Community guild; used in server discovery and notices from Internal, and sent in interactions; defaults to "en-US".
+    /// The preferred locale of a Community guild; used in server discovery and notices from Internal, 
+    /// and sent in interactions; defaults to "en-US".
     /// </summary>
     [JsonPropertyName("preferred_locale")]
-    public string PreferredLocale { get; init; } = null!;
+    public required string PreferredLocale { get; init; }
 
     /// <summary>
     /// The id of the channel where admins and moderators of Community guilds receive notices from Internal.
@@ -224,13 +226,15 @@ public sealed record InternalGuild
     public Optional<int> MaxVideoChannelUsers { get; init; }
 
     /// <summary>
-    /// The approximate number of members in this guild, returned from the <c>GET /guilds/:id</c> endpoint when <c>with_counts</c> is true.
+    /// The approximate number of members in this guild, returned from the <c>GET /guilds/:id</c> endpoint 
+    /// when <c>with_counts</c> is true.
     /// </summary>
     [JsonPropertyName("approximate_member_count")]
     public Optional<int> ApproximateMemberCount { get; init; }
 
     /// <summary>
-    /// The approximate number of non-offline members in this guild, returned from the <c>GET /guilds/:id</c> endpoint when <c>with_counts</c> is true.
+    /// The approximate number of non-offline members in this guild, returned from the <c>GET /guilds/:id</c> 
+    /// endpoint when <c>with_counts</c> is true.
     /// </summary>
     [JsonPropertyName("approximate_presence_count")]
     public Optional<int> ApproximatePresenceCount { get; init; }
@@ -245,7 +249,7 @@ public sealed record InternalGuild
     /// The guild NSFW level.
     /// </summary>
     [JsonPropertyName("nsfw_level")]
-    public DiscordGuildNSFWLevel NSFWLevel { get; init; }
+    public required DiscordGuildNSFWLevel NSFWLevel { get; init; }
 
     /// <summary>
     /// Custom guild stickers.
@@ -257,5 +261,5 @@ public sealed record InternalGuild
     /// Whether the guild has the boost progress bar enabled.
     /// </summary>
     [JsonPropertyName("premium_progress_bar_enabled")]
-    public bool PremiumProgressBarEnabled { get; init; }
+    public required bool PremiumProgressBarEnabled { get; init; }
 }

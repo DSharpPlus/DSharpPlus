@@ -12,7 +12,7 @@ public sealed record InternalInvite
     /// The invite code (unique ID).
     /// </summary>
     [JsonPropertyName("code")]
-    public string Code { get; init; } = null!;
+    public required string Code { get; init; } 
 
     /// <summary>
     /// The guild this invite is for.
@@ -81,37 +81,33 @@ public sealed record InternalInvite
     [JsonPropertyName("guild_scheduled_event")]
     public Optional<InternalGuildScheduledEvent> GuildScheduledEvent { get; init; }
 
-    #region Invite Metadata Object
-    // Why does this "extend" the object instead of just modifying the object directly?
-
     /// <summary>
     /// The number of times this invite has been used.
     /// </summary>
     [JsonPropertyName("uses")]
-    public int Uses { get; init; }
+    public Optional<int> Uses { get; init; }
 
     /// <summary>
     /// The max number of times this invite can be used.
     /// </summary>
     [JsonPropertyName("max_uses")]
-    public int MaxUses { get; init; }
+    public Optional<int> MaxUses { get; init; }
 
     /// <summary>
     /// The duration (in seconds) after which the invite expires.
     /// </summary>
     [JsonPropertyName("max_age")]
-    public int MaxAge { get; init; }
+    public Optional<int> MaxAge { get; init; }
 
     /// <summary>
     /// Whether this invite only grants temporary membership.
     /// </summary>
     [JsonPropertyName("temporary")]
-    public bool Temporary { get; init; }
+    public Optional<bool> Temporary { get; init; }
 
     /// <summary>
     /// When this invite was created.
     /// </summary>
     [JsonPropertyName("created_at")]
-    public DateTimeOffset CreatedAt { get; init; }
-    #endregion
+    public Optional<DateTimeOffset> CreatedAt { get; init; }
 }

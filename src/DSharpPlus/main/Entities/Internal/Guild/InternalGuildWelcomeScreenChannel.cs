@@ -8,13 +8,13 @@ public sealed record InternalGuildWelcomeScreenChannel
     /// The channel's id.
     /// </summary>
     [JsonPropertyName("channel_id")]
-    public Snowflake ChannelId { get; init; } = null!;
+    public required Snowflake ChannelId { get; init; } 
 
     /// <summary>
     /// The description shown for the channel.
     /// </summary>
     [JsonPropertyName("description")]
-    public string Description { get; init; } = null!;
+    public required string Description { get; init; }
 
     /// <summary>
     /// The emoji id, if the emoji is custom.
@@ -26,5 +26,5 @@ public sealed record InternalGuildWelcomeScreenChannel
     /// The emoji name if custom, the unicode character if standard, or null if no emoji is set.
     /// </summary>
     [JsonPropertyName("emoji_name")]
-    public string? EmojiName { get; init; } = null!;
+    public string? EmojiName { get; init; } 
 }

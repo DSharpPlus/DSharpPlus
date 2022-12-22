@@ -11,13 +11,13 @@ public sealed record InternalWebhook
     /// The id of the webhook.
     /// </summary>
     [JsonPropertyName("id")]
-    public Snowflake Id { get; init; } = null!;
+    public required Snowflake Id { get; init; } 
 
     /// <summary>
     /// The <see cref="DiscordWebhookType"/> of the webhook.
     /// </summary>
     [JsonPropertyName("type")]
-    public DiscordWebhookType Type { get; init; }
+    public required DiscordWebhookType Type { get; init; }
 
     /// <summary>
     /// The guild id this webhook is for, if any.
