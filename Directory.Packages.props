@@ -1,6 +1,8 @@
 <Project>
     <ItemGroup>
+        <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.3" />
         <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="3.9.0" />
+        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.4.0" />
         <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
         <PackageVersion Include="Microsoft.Extensions.DependencyModel" Version="5.0.0" />
         <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />

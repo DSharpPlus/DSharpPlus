@@ -26,7 +26,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{430C
 		.github\PULL_REQUEST_TEMPLATE.md = .github\PULL_REQUEST_TEMPLATE.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{1092E215-3968-4EB5-998F-93F0F0809728}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{1092E215-3968-4EB5-998F-93F0F0809728}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Tools.AutoUpdateChannelDescription", "tools\AutoUpdateChannelDescription\DSharpPlus.Tools.AutoUpdateChannelDescription.csproj", "{DE29AE1F-012F-45C1-96D9-AADC037CCA51}"
 EndProject
@@ -45,6 +45,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Test", "src\DSharpPlus.Test\main\DSharpPlus.Test.csproj", "{7B6D295E-EBE0-4EE1-B1D2-11CD435B69AE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.VoiceNext", "src\DSharpPlus.VoiceNext\main\DSharpPlus.VoiceNext.csproj", "{45556861-95F0-4A50-B901-70A558AFC2BB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Analyzers", "Analyzers", "{1BF0BB14-7EC8-4242-A946-E03A4239FFD9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Analyzers", "src\DSharpPlus\analyzer\DSharpPlus.Analyzers.csproj", "{86D25491-7389-4ADC-8462-35C2AF95423E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -88,6 +92,10 @@ Global
 		{45556861-95F0-4A50-B901-70A558AFC2BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{45556861-95F0-4A50-B901-70A558AFC2BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{45556861-95F0-4A50-B901-70A558AFC2BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{86D25491-7389-4ADC-8462-35C2AF95423E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{86D25491-7389-4ADC-8462-35C2AF95423E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{86D25491-7389-4ADC-8462-35C2AF95423E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{86D25491-7389-4ADC-8462-35C2AF95423E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -95,6 +103,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{430C28D8-5F85-4D6E-AA68-211549435245} = {4255B64D-92EC-46B3-BC3B-ED2C3A8073EE}
 		{DE29AE1F-012F-45C1-96D9-AADC037CCA51} = {1092E215-3968-4EB5-998F-93F0F0809728}
+		{86D25491-7389-4ADC-8462-35C2AF95423E} = {1BF0BB14-7EC8-4242-A946-E03A4239FFD9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {23F3A981-51B8-4285-A38C-3267F1D25FE7}

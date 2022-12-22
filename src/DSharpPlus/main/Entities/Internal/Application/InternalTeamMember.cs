@@ -9,7 +9,7 @@ public sealed record InternalTeamMember
     /// The user's <see cref="DiscordMembershipState">membership state</see> on the team.
     /// </summary>
     [JsonPropertyName("membership_state")]
-    public DiscordMembershipState MembershipState { get; init; }
+    public required DiscordMembershipState MembershipState { get; init; }
 
     /// <summary>
     /// Will always be <c>["*"]</c>.
