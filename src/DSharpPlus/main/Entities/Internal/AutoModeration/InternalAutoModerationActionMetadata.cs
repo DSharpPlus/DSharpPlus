@@ -11,7 +11,7 @@ public sealed record InternalAutoModerationActionMetadata
     /// The channel to which user content should be logged.
     /// </summary>
     [JsonPropertyName("channel_id")]
-    public Snowflake ChannelId { get; init; } = null!;
+    public required Snowflake ChannelId { get; init; } 
 
     /// <summary>
     /// The timeout duration in seconds.
@@ -20,5 +20,5 @@ public sealed record InternalAutoModerationActionMetadata
     /// Maximum of 2419200 seconds (4 weeks).
     /// </remarks>
     [JsonPropertyName("duration_seconds")]
-    public int DurationSeconds { get; init; }
+    public required int DurationSeconds { get; init; }
 }

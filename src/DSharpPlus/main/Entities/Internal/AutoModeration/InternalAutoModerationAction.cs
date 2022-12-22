@@ -11,7 +11,7 @@ public sealed record InternalAutoModerationAction
     /// The type of action.
     /// </summary>
     [JsonPropertyName("type")]
-    public DiscordAutoModerationActionType Type { get; init; }
+    public required DiscordAutoModerationActionType Type { get; init; }
 
     /// <summary>
     /// The additional metadata needed during execution for this specific action type.
@@ -20,5 +20,5 @@ public sealed record InternalAutoModerationAction
     /// Can be omitted based on type. See the Associated Action Types column in action metadata to understand which type values require metadata to be set.
     /// </remarks>
     [JsonPropertyName("metadata")]
-    public InternalAutoModerationActionMetadata Metadata { get; init; } = null!;
+    public required InternalAutoModerationActionMetadata Metadata { get; init; }
 }
