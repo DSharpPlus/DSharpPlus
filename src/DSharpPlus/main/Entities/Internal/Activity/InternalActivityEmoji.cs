@@ -8,7 +8,7 @@ public sealed record InternalActivityEmoji
     /// The name of the emoji.
     /// </summary>
     [JsonPropertyName("name")]
-    public string Name { get; init; } = null!;
+    public required string Name { get; init; }
 
     /// <summary>
     /// The id of the emoji.

@@ -8,7 +8,7 @@ public sealed record InternalActivity
     /// The activity's name.
     /// </summary>
     [JsonPropertyName("name")]
-    public string Name { get; init; } = null!;
+    public required string Name { get; init; }
 
     /// <summary>
     ///The activity type.
@@ -26,7 +26,7 @@ public sealed record InternalActivity
     /// A unix timestamp (in milliseconds) of when the activity was added to the user's session.
     /// </summary>
     [JsonPropertyName("created_at")]
-    public int CreatedAt { get; init; }
+    public required int CreatedAt { get; init; }
 
     /// <summary>
     /// Timestamps for start and/or end of the game.
