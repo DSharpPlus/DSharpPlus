@@ -12,16 +12,17 @@ public sealed record InternalGuildScheduledEvent
     /// The id of the scheduled event.
     /// </summary>
     [JsonPropertyName("id")]
-    public Snowflake Id { get; init; } = null!;
+    public required Snowflake Id { get; init; } 
 
     /// <summary>
     /// The guild id which the scheduled event belongs to.
     /// </summary>
     [JsonPropertyName("guild_id")]
-    public Snowflake GuildId { get; init; } = null!;
+    public required Snowflake GuildId { get; init; } 
 
     /// <summary>
-    /// The channel id in which the scheduled event will be hosted, or null if <see cref="EntityType"/> is <see cref="InternalGuildScheduledEventEntityType.External"/>.
+    /// The channel id in which the scheduled event will be hosted, or null if 
+    /// <see cref="EntityType"/> is <see cref="DiscordGuildScheduledEventEntityType.External"/>.
     /// </summary>
     [JsonPropertyName("channel_id")]
     public Snowflake? ChannelId { get; init; }
@@ -39,7 +40,7 @@ public sealed record InternalGuildScheduledEvent
     /// The name of the scheduled event (1-100 characters).
     /// </summary>
     [JsonPropertyName("name")]
-    public string Name { get; init; } = null!;
+    public required string Name { get; init; }
 
     /// <summary>
     /// The description of the scheduled event (1-1000 characters).
@@ -51,10 +52,11 @@ public sealed record InternalGuildScheduledEvent
     /// The time the scheduled event will start.
     /// </summary>
     [JsonPropertyName("scheduled_start_time")]
-    public DateTimeOffset ScheduledStartTime { get; init; }
+    public required DateTimeOffset ScheduledStartTime { get; init; }
 
     /// <summary>
-    /// The time the scheduled event will end, required if <see cref="EntityType"/> is <see cref="InternalGuildScheduledEventEntityType.External"/>.
+    /// The time the scheduled event will end, required if <see cref="EntityType"/> is 
+    /// <see cref="DiscordGuildScheduledEventEntityType.External"/>.
     /// </summary>
     [JsonPropertyName("scheduled_end_time")]
     public DateTimeOffset? ScheduledEndTime { get; init; }
@@ -63,19 +65,19 @@ public sealed record InternalGuildScheduledEvent
     /// The privacy level of the scheduled event.
     /// </summary>
     [JsonPropertyName("privacy_level")]
-    public DiscordGuildScheduledEventPrivacyLevel PrivacyLevel { get; init; }
+    public required DiscordGuildScheduledEventPrivacyLevel PrivacyLevel { get; init; }
 
     /// <summary>
     /// The status of the scheduled event.
     /// </summary>
     [JsonPropertyName("status")]
-    public DiscordGuildScheduledEventStatus Status { get; init; }
+    public required DiscordGuildScheduledEventStatus Status { get; init; }
 
     /// <summary>
     /// The type of the scheduled event
     /// </summary>
     [JsonPropertyName("entity_type")]
-    public DiscordGuildScheduledEventEntityType EntityType { get; init; }
+    public required DiscordGuildScheduledEventEntityType EntityType { get; init; }
 
     /// <summary>
     /// The id of an entity associated with a guild scheduled event.

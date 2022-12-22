@@ -8,15 +8,15 @@ public sealed record InternalStickerItem
     /// <summary>
     /// The id of the sticker.
     /// </summary>
-    public Snowflake Id { get; init; } = null!;
+    public required Snowflake Id { get; init; }
 
     /// <summary>
     /// The name of the sticker.
     /// </summary>
-    public string Name { get; init; } = null!;
+    public required string Name { get; init; }
 
     /// <summary>
     /// The type of sticker format.
     /// </summary>
-    public DiscordStickerFormatType FormatType { get; init; }
+    public required DiscordStickerFormatType FormatType { get; init; }
 }

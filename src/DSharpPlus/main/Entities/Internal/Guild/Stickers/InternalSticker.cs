@@ -12,7 +12,7 @@ public sealed record InternalSticker
     /// The id of the sticker.
     /// </summary>
     [JsonPropertyName("id")]
-    public Snowflake Id { get; init; } = null!;
+    public required Snowflake Id { get; init; }
 
     /// <summary>
     /// For standard stickers, id of the pack the sticker is from.
@@ -24,7 +24,7 @@ public sealed record InternalSticker
     /// The name of the sticker.
     /// </summary>
     [JsonPropertyName("name")]
-    public string Name { get; init; } = null!;
+    public required string Name { get; init; }
 
     /// <summary>
     /// The description of the sticker.
@@ -39,26 +39,26 @@ public sealed record InternalSticker
     /// A comma separated list of keywords is the format used in this field by standard stickers, but this is just a convention. Incidentally the client will always use a name generated from an emoji as the value of this field when creating or modifying a guild sticker.
     /// </remarks>
     [JsonPropertyName("tags")]
-    public string Tags { get; init; } = null!;
+    public required string Tags { get; init; }
 
     /// <summary>
     /// Deprecated previously the sticker asset hash, now an empty string
     /// </summary>
     [JsonPropertyName("asset")]
     [Obsolete("Deprecated previously the sticker asset hash, now an empty string")]
-    public Optional<string> Asset { get; set; } = null!;
+    public Optional<string> Asset { get; set; }
 
     /// <summary>
     /// The type of sticker.
     /// </summary>
     [JsonPropertyName("type")]
-    public DiscordStickerType Type { get; init; }
+    public required DiscordStickerType Type { get; init; }
 
     /// <summary>
     /// The type of sticker format.
     /// </summary>
     [JsonPropertyName("format_type")]
-    public DiscordStickerFormatType FormatType { get; init; }
+    public required DiscordStickerFormatType FormatType { get; init; }
 
     /// <summary>
     /// Whether this guild sticker can be used, may be false due to loss of Server Boosts.

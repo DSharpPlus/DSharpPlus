@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
@@ -10,25 +9,25 @@ public sealed record InternalStickerPack
     /// The id of the sticker pack.
     /// </summary>
     [JsonPropertyName("id")]
-    public Snowflake Id { get; init; } = null!;
+    public required Snowflake Id { get; init; }
 
     /// <summary>
     /// The stickers in the pack.
     /// </summary>
     [JsonPropertyName("stickers")]
-    public IReadOnlyList<InternalSticker> Stickers { get; init; } = Array.Empty<InternalSticker>();
+    public required IReadOnlyList<InternalSticker> Stickers { get; init; }
 
     /// <summary>
     /// The name of the sticker pack.
     /// </summary>
     [JsonPropertyName("name")]
-    public string Name { get; init; } = null!;
+    public required string Name { get; init; }
 
     /// <summary>
     /// The id of the pack's SKU.
     /// </summary>
     [JsonPropertyName("sku_id")]
-    public Snowflake SkuId { get; init; } = null!;
+    public required Snowflake SkuId { get; init; }
 
     /// <summary>
     /// The id of a sticker in the pack which is shown as the pack's icon.
@@ -40,10 +39,11 @@ public sealed record InternalStickerPack
     /// The description of the sticker pack.
     /// </summary>
     [JsonPropertyName("description")]
-    public string Description { get; init; } = null!;
+    public required string Description { get; init; } 
 
     /// <summary>
-    /// The id of the sticker pack's <see href="https://discord.com/developers/docs/reference#image-formatting">banner image</see>.
+    /// The id of the sticker pack's 
+    /// <see href="https://discord.com/developers/docs/reference#image-formatting">banner image</see>.
     /// </summary>
     [JsonPropertyName("banner_image_id")]
     public Optional<Snowflake> BannerAssetId { get; init; }
