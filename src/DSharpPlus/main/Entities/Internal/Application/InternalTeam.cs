@@ -16,25 +16,25 @@ public sealed record InternalTeam
     /// The unique id of the team.
     /// </summary>
     [JsonPropertyName("id")]
-    public Snowflake Id { get; init; } = null!;
+    public required Snowflake Id { get; init; }
 
     /// <summary>
     /// The members of the team.
     /// </summary>
     [JsonPropertyName("members")]
-    public IReadOnlyList<InternalTeamMember> Members { get; init; } = Array.Empty<InternalTeamMember>();
+    public required IReadOnlyList<InternalTeamMember> Members { get; init; } 
 
     /// <summary>
     /// The name of the team.
     /// </summary>
     [JsonPropertyName("name")]
-    public string Name { get; init; } = null!;
+    public required string Name { get; init; } 
 
     /// <summary>
     /// The user id of the current team owner.
     /// </summary>
     [JsonPropertyName("owner_user_id")]
-    public Snowflake OwnerUserId { get; init; } = null!;
+    public required Snowflake OwnerUserId { get; init; } 
 
     public static implicit operator ulong(InternalTeam team) => team.Id;
     public static implicit operator Snowflake(InternalTeam team) => team.Id;

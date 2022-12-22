@@ -16,19 +16,19 @@ public sealed record InternalTeamMember
     /// Will always be <c>["*"]</c>.
     /// </summary>
     [JsonPropertyName("permissions")]
-    public IReadOnlyList<string> Permissions { get; init; } = Array.Empty<string>();
+    public required IReadOnlyList<string> Permissions { get; init; } 
 
     /// <summary>
     /// The id of the parent team of which they are a member.
     /// </summary>
     [JsonPropertyName("team_id")]
-    public Snowflake TeamId { get; init; } = null!;
+    public required Snowflake TeamId { get; init; } 
 
     /// <summary>
     /// The avatar, discriminator, id, and username of the user.
     /// </summary>
     [JsonPropertyName("user")]
-    public InternalUser User { get; init; } = null!;
+    public required InternalUser User { get; init; }
 
     public static implicit operator ulong(InternalTeamMember teamMember) => teamMember.User.Id;
     public static implicit operator Snowflake(InternalTeamMember teamMember) => teamMember.User.Id;

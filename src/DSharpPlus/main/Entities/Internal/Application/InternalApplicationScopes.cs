@@ -3,12 +3,13 @@ namespace DSharpPlus.Entities.Internal;
 public static class InternalApplicationScopes
 {
     /// <summary>
-    /// Allows your app to fetch data from a user's "Now Playing/Recently Played" list - requires Internal approval.
+    /// Allows your app to fetch data from a user's "Now Playing/Recently Played" list - requires Discord approval.
     /// </summary>
     public const string ActivitiesRead = "activities.read";
 
     /// <summary>
-    /// Allows your app to update a user's activity - requires Internal approval (NOT REQUIRED FOR <see href="https://discord.com/developers/docs/game-sdk/activities">GAMESDK ACTIVITY MANAGER</see>).
+    /// Allows your app to update a user's activity - requires Discord approval (NOT REQUIRED FOR 
+    /// <see href="https://discord.com/developers/docs/game-sdk/activities">GAMESDK ACTIVITY MANAGER</see>).
     /// </summary>
     public const string ActivitiesWrite = "activities.write";
 
@@ -18,22 +19,23 @@ public static class InternalApplicationScopes
     public const string ApplicationsBuildsRead = "applications.builds.read";
 
     /// <summary>
-    /// Allows your app to upload/update builds for a user's applications - requires Internal approval.
+    /// Allows your app to upload/update builds for a user's applications - requires Discord approval.
     /// </summary>
     public const string ApplicationsBuildsUpload = "applications.builds.upload";
 
     /// <summary>
-    /// Allows your app to use <see href="https://discord.com/developers/docs/interactions/application-commands"/>commands</see> in a guild.
+    /// Allows your app to use <seealso cref="InternalApplicationCommand"/>s in a guild.
     /// </summary>
     public const string ApplicationsCommands = "applications.commands";
 
     /// <summary>
-    /// Allows your app to update its <see href="https://discord.com/developers/docs/interactions/application-commands">commands</see> using a Bearer token - <see href="https://discord.com/developers/docs/topics/oauth2#client-credentials-grant">client credentials grant</see> only.
+    /// Allows your app to update its <seealso cref="InternalApplicationCommand"/>s using a Bearer token - 
+    /// client credentials grant only.
     /// </summary>
     public const string ApplicationsCommandsUpdate = "applications.commands.update";
 
     /// <summary>
-    /// Allows your app to update <see href="https://discord.com/developers/docs/interactions/application-commands#permissions">permissions for its commands</see> in a guild a user has permissions to.
+    /// Allows your app to update application command permissions in a guild a user has permissions to.
     /// </summary>
     public const string ApplicationsCommandsPermissionsUpdate = "applications.commands.permissions.update";
 
@@ -61,7 +63,7 @@ public static class InternalApplicationScopes
     public const string Connections = "connections";
 
     /// <summary>
-    /// Allows your app to see information about the user's DMs and group DMs - requires Internal approval.
+    /// Allows your app to see information about the user's DMs and group DMs - requires Discord approval.
     /// </summary>
     public const string DmChannelsRead = "dm_channels.read";
 
@@ -104,37 +106,37 @@ public static class InternalApplicationScopes
     public const string MessagesRead = "messages.read";
 
     /// <summary>
-    /// Allows your app to know a user's friends and implicit relationships - requires Internal approval.
+    /// Allows your app to know a user's friends and implicit relationships - requires Discord approval.
     /// </summary>
     public const string RelationshipsRead = "relationships.read";
 
     /// <summary>
-    /// For local rpc server access, this allows you to control a user's local Internal client - requires Internal approval.
+    /// For local rpc server access, this allows you to control a user's local Discord client - requires Discord approval.
     /// </summary>
     public const string Rpc = "rpc";
 
     /// <summary>
-    /// For local rpc server access, this allows you to update a user's activity - requires Internal approval.
+    /// For local rpc server access, this allows you to update a user's activity - requires Discord approval.
     /// </summary>
     public const string RpcActivitiesWrite = "rpc.activities.write";
 
     /// <summary>
-    /// For local rpc server access, this allows you to receive notifications pushed out to the user - requires Internal approval.
+    /// For local rpc server access, this allows you to receive notifications pushed out to the user - requires Discord approval.
     /// </summary>
     public const string RpcNotificationsRead = "rpc.notifications.read";
 
     /// <summary>
-    /// For local rpc server access, this allows you to read a user's voice settings and listen for voice events - requires Internal approval.
+    /// For local rpc server access, this allows you to read a user's voice settings and listen for voice events - requires Discord approval.
     /// </summary>
     public const string RpcVoiceRead = "rpc.voice.read";
 
     /// <summary>
-    /// For local rpc server access, this allows you to update a user's voice settings - requires Internal approval.
+    /// For local rpc server access, this allows you to update a user's voice settings - requires Discord approval.
     /// </summary>
     public const string RpcVoiceWrite = "rpc.voice.write";
 
     /// <summary>
-    /// Allows your app to connect to voice on user's behalf and see all the voice members - requires Internal approval.
+    /// Allows your app to connect to voice on user's behalf and see all the voice members - requires Discord approval.
     /// </summary>
     public const string Voice = "voice";
 

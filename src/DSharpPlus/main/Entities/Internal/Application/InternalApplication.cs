@@ -10,13 +10,13 @@ public sealed record InternalApplication
     /// The id of the app.
     /// </summary>
     [JsonPropertyName("id")]
-    public Snowflake Id { get; init; } = null!;
+    public required Snowflake Id { get; init; }
 
     /// <summary>
     /// The name of the app.
     /// </summary>
     [JsonPropertyName("name")]
-    public string Name { get; init; } = null!;
+    public required string Name { get; init; }
 
     /// <summary>
     /// The icon hash of the app.
@@ -28,7 +28,7 @@ public sealed record InternalApplication
     /// The description of the app.
     /// </summary>
     [JsonPropertyName("description")]
-    public string Description { get; init; } = null!;
+    public required string Description { get; init; }
 
     /// <summary>
     /// An array of rpc origin urls, if rpc is enabled.
@@ -67,17 +67,18 @@ public sealed record InternalApplication
     public Optional<InternalUser> Owner { get; init; }
 
     /// <summary>
-    /// deprecated: previously if this application was a game sold on Internal, this field would be the summary field for the store page of its primary SKU; now an empty string
+    /// deprecated: previously if this application was a game sold on Discord, this field would be the summary field 
+    /// for the store page of its primary SKU; now an empty string
     /// </summary>
     [JsonPropertyName("summary")]
-    [Obsolete("deprecated: previously if this application was a game sold on Internal, this field would be the summary field for the store page of its primary SKU; now an empty string")]
+    [Obsolete("deprecated: previously if this application was a game sold on Discord, this field would be the summary field for the store page of its primary SKU; now an empty string")]
     public string Summary { get; set; } = null!;
 
     /// <summary>
     /// The hex encoded key for verification in interactions and the GameSDK's GetTicket.
     /// </summary>
     [JsonPropertyName("verify_key")]
-    public string VerifyKey { get; init; } = null!;
+    public required string VerifyKey { get; init; }
 
     /// <summary>
     /// If the application belongs to a team, this will be a list of the members of that team.
@@ -86,19 +87,19 @@ public sealed record InternalApplication
     public InternalTeam? Team { get; init; }
 
     /// <summary>
-    /// If this application is a game sold on Internal, this field will be the guild to which it has been linked.
+    /// If this application is a game sold on Discord, this field will be the guild to which it has been linked.
     /// </summary>
     [JsonPropertyName("guild_id")]
     public Optional<Snowflake> GuildId { get; init; }
 
     /// <summary>
-    /// If this application is a game sold on Internal, this field will be the id of the "Game SKU" that is created, if exists.
+    /// If this application is a game sold on Discord, this field will be the id of the "Game SKU" that is created, if exists.
     /// </summary>
     [JsonPropertyName("primary_sku_id")]
     public Optional<Snowflake> PrimarySKUId { get; init; }
 
     /// <summary>
-    /// If this application is a game sold on Internal, this field will be the URL slug that links to the store page.
+    /// If this application is a game sold on Discord, this field will be the URL slug that links to the store page.
     /// </summary>
     [JsonPropertyName("slug")]
     public Optional<string> Slug { get; init; }
