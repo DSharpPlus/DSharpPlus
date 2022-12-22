@@ -40,13 +40,13 @@ public sealed record InternalApplication
     /// When false only app owner can join the app's bot to guilds.
     /// </summary>
     [JsonPropertyName("bot_public")]
-    public bool BotPublic { get; init; }
+    public required bool BotPublic { get; init; }
 
     /// <summary>
     /// When true the app's bot will only join upon completion of the full oauth2 code grant flow.
     /// </summary>
     [JsonPropertyName("bot_require_code_grant")]
-    public bool BotRequireCodeGrant { get; init; }
+    public required bool BotRequireCodeGrant { get; init; }
 
     /// <summary>
     /// The url of the app's terms of service.
@@ -72,7 +72,9 @@ public sealed record InternalApplication
     /// </summary>
     [JsonPropertyName("summary")]
     [Obsolete("deprecated: previously if this application was a game sold on Discord, this field would be the summary field for the store page of its primary SKU; now an empty string")]
-    public string Summary { get; set; } = null!;
+#pragma warning disable DSI0001 // this is obsolete
+    public string Summary { get; set; } = default!;
+#pragma warning restore DSI0001
 
     /// <summary>
     /// The hex encoded key for verification in interactions and the GameSDK's GetTicket.

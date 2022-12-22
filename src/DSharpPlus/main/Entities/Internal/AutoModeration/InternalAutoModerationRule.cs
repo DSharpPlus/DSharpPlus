@@ -67,7 +67,7 @@ public sealed record InternalAutoModerationRule
     /// Whether the rule is enabled.
     /// </summary>
     [JsonPropertyName("enabled")]
-    public bool Enabled { get; init; }
+    public required bool Enabled { get; init; }
 
     /// <summary>
     /// The role ids that should not be affected by the rule (Maximum of 20).

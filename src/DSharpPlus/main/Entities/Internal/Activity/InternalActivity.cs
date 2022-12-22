@@ -14,7 +14,7 @@ public sealed record InternalActivity
     ///The activity type.
     /// </summary>
     [JsonPropertyName("type")]
-    public DiscordActivityType Type { get; init; }
+    public required DiscordActivityType Type { get; init; }
 
     /// <summary>
     /// The stream url, is validated when type is <see cref="DiscordActivityType.Streaming"/>.

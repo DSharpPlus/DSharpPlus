@@ -106,6 +106,9 @@ dotnet_naming_symbols.async_methods.required_modifiers = async
 # Don't force namespaces to match their folder names
 dotnet_diagnostic.IDE0130.severity = none
 
+# Silence VS about source generators and analyzers that work just fine
+dotnet_diagnostic.CS8032.severity = none
+
 ###############################
 # C# Coding Conventions       #
 ###############################

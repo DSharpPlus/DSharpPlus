@@ -12,5 +12,5 @@ public sealed record InternalApplicationInstallParameters
     /// <summary>
     /// The <see cref="DiscordPermissions"/> to request for the bot role.
     /// </summary>
-    public DiscordPermissions Permissions { get; init; }
+    public required DiscordPermissions Permissions { get; init; }
 }
