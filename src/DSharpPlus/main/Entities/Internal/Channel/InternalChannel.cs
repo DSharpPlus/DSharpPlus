@@ -13,13 +13,13 @@ public sealed record InternalChannel
     /// The id of this channel.
     /// </summary>
     [JsonPropertyName("id")]
-    public Snowflake Id { get; init; } = null!;
+    public required Snowflake Id { get; init; } 
 
     /// <summary>
     /// The <see cref="DiscordChannelType">type of channel</see>.
     /// </summary>
     [JsonPropertyName("type")]
-    public DiscordChannelType Type { get; init; }
+    public required DiscordChannelType Type { get; init; }
 
     /// <summary>
     /// The id of the guild (may be missing for some channel objects received over gateway guild dispatches).
@@ -58,7 +58,8 @@ public sealed record InternalChannel
     public Optional<bool> NSFW { get; init; }
 
     /// <summary>
-    /// The id of the last message sent in this channel (or thread for <see cref="InternalChannelType.GuildForum"/> channels) (may not point to an existing or valid message or thread)
+    /// The id of the last message sent in this channel (or thread for 
+    /// <see cref="DiscordChannelType.GuildForum"/> channels) (may not point to an existing or valid message or thread)
     /// </summary>
     [JsonPropertyName("last_message_id")]
     public Optional<Snowflake?> LastMessageId { get; init; }
@@ -76,7 +77,9 @@ public sealed record InternalChannel
     public Optional<int> UserLimit { get; init; }
 
     /// <summary>
-    /// The amount of seconds a user has to wait before sending another message (0-21600); bots, as well as users with the permission <see cref="DiscordPermissions.ManageMessages"/> or <see cref="DiscordPermissions.ManageChannels"/>, are unaffected
+    /// The amount of seconds a user has to wait before sending another message (0-21600); bots, 
+    /// as well as users with the permission <see cref="DiscordPermissions.ManageMessages"/> or 
+    /// <see cref="DiscordPermissions.ManageChannels"/>, are unaffected
     /// </summary>
     [JsonPropertyName("rate_limit_per_user")]
     public Optional<int> RateLimitPerUser { get; init; }
@@ -106,7 +109,8 @@ public sealed record InternalChannel
     public Optional<Snowflake> ApplicationId { get; init; }
 
     /// <summary>
-    /// For guild channels: id of the parent category for a channel (each parent category can contain up to 50 channels), for threads: id of the text channel this thread was created.
+    /// For guild channels: id of the parent category for a channel (each parent category can contain up to 50 channels),
+    /// for threads: id of the text channel this thread was created.
     /// </summary>
     [JsonPropertyName("parent_id")]
     public Optional<Snowflake?> ParentId { get; init; }
@@ -124,7 +128,8 @@ public sealed record InternalChannel
     public Optional<string?> RtcRegion { get; init; }
 
     /// <summary>
-    /// The camera video quality mode of the voice channel, <see cref="DiscordChannelVideoQualityMode.Auto"/> when not present.
+    /// The camera video quality mode of the voice channel, <see cref="DiscordChannelVideoQualityMode.Auto"/> 
+    /// when not present.
     /// </summary>
     [JsonPropertyName("video_quality_mode")]
     public Optional<DiscordChannelVideoQualityMode> VideoQualityMode { get; init; } = DiscordChannelVideoQualityMode.Auto;
@@ -154,7 +159,8 @@ public sealed record InternalChannel
     public Optional<InternalThreadMember> Member { get; init; }
 
     /// <summary>
-    /// Default duration that the clients (not the API) will use for newly created threads, in minutes, to automatically archive the thread after recent activity, can be set to: 60, 1440, 4320, 10080.
+    /// Default duration that the clients (not the API) will use for newly created threads, in minutes, to 
+    /// automatically archive the thread after recent activity, can be set to: 60, 1440, 4320, 10080.
     /// </summary>
     [JsonPropertyName("default_auto_archive_duration")]
     public Optional<DiscordThreadAutoArchiveDuration> DefaultAutoArchiveDuration { get; init; }

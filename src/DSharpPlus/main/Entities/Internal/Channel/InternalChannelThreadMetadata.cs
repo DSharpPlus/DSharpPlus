@@ -12,25 +12,26 @@ public sealed record InternalChannelThreadMetadata
     /// Whether the thread is archived.
     /// </summary>
     [JsonPropertyName("archived")]
-    public bool Archived { get; init; }
+    public required bool Archived { get; init; }
 
     /// <summary>
     /// Duration in minutes to automatically archive the thread after recent activity, can be set to: 60, 1440, 4320, 10080.
     /// </summary>
     [JsonPropertyName("auto_archive_duration")]
-    public DiscordThreadAutoArchiveDuration AutoArchiveDuration { get; init; }
+    public required DiscordThreadAutoArchiveDuration AutoArchiveDuration { get; init; }
 
     /// <summary>
     /// Timestamp when the thread's archive status was last changed, used for calculating recent activity.
     /// </summary>
     [JsonPropertyName("archive_timestamp")]
-    public DateTimeOffset ArchiveTimestamp { get; init; }
+    public required DateTimeOffset ArchiveTimestamp { get; init; }
 
     /// <summary>
-    /// Whether the thread is locked; when a thread is locked, only users with <see cref="DiscordPermissions.ManageThreads"/> can unarchive it.
+    /// Whether the thread is locked; when a thread is locked, only users with 
+    /// <see cref="DiscordPermissions.ManageThreads"/> can unarchive it.
     /// </summary>
     [JsonPropertyName("locked")]
-    public bool Locked { get; init; }
+    public required bool Locked { get; init; }
 
     /// <summary>
     /// Whether non-moderators can add other non-moderators to a thread; only available on private threads.

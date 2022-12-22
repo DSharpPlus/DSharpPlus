@@ -3,7 +3,8 @@ using System.Text.Json.Serialization;
 namespace DSharpPlus.Entities.Internal;
 
 /// <summary>
-/// Additional data used when an action is executed. Different fields are relevant based on value of <see cref="InternalGuildAutomoderationActionType"/>.
+/// Additional data used when an action is executed. Different fields are relevant based on value of 
+/// <see cref="DiscordAutoModerationActionType"/>.
 /// </summary>
 public sealed record InternalAutoModerationActionMetadata
 {

@@ -3,7 +3,8 @@ using System.Text.Json.Serialization;
 namespace DSharpPlus.Entities.Internal;
 
 /// <remarks>
-/// See <see href="https://discord.com/developers/docs/topics/permissions#permissions">permissions</see> for more information about the allow and deny fields.
+/// See <see href="https://discord.com/developers/docs/topics/permissions#permissions">permissions</see> 
+/// for more information about the allow and deny fields.
 /// </remarks>
 public sealed record InternalChannelOverwrite
 {
@@ -11,25 +12,25 @@ public sealed record InternalChannelOverwrite
     /// Role or user id.
     /// </summary>
     [JsonPropertyName("id")]
-    public Snowflake Id { get; init; } = null!;
+    public required Snowflake Id { get; init; }
 
     /// <summary>
     /// Either 0 (role) or 1 (member).
     /// </summary>
     [JsonPropertyName("type")]
-    public int Type { get; init; }
+    public required int Type { get; init; }
 
     /// <summary>
     /// Permission bit set.
     /// </summary>
     [JsonPropertyName("allow")]
-    public DiscordPermissions Allow { get; init; }
+    public required DiscordPermissions Allow { get; init; }
 
     /// <summary>
     /// Permission bit set.
     /// </summary>
     [JsonPropertyName("deny")]
-    public DiscordPermissions Deny { get; init; }
+    public required DiscordPermissions Deny { get; init; }
 
     public static implicit operator ulong(InternalChannelOverwrite channelOverwrite) => channelOverwrite.Id;
     public static implicit operator Snowflake(InternalChannelOverwrite channelOverwrite) => channelOverwrite.Id;
