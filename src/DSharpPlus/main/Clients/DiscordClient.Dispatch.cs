@@ -1411,7 +1411,7 @@ public sealed partial class DiscordClient
         GuildMembersChunkEventArgs ea = new GuildMembersChunkEventArgs
         {
             Guild = guild,
-            Members = new ReadOnlySet<DiscordMember>(mbrs),
+            Members = new List<DiscordMember>(mbrs).AsReadOnly(),
             ChunkIndex = chunkIndex,
             ChunkCount = chunkCount,
             Nonce = nonce,
@@ -1440,13 +1440,13 @@ public sealed partial class DiscordClient
                 pres.Add(xp);
             }
 
-            ea.Presences = new ReadOnlySet<DiscordPresence>(pres);
+            ea.Presences = new List<DiscordPresence>(pres).AsReadOnly();
         }
 
         if (dat["not_found"] != null)
         {
             ISet<ulong> nf = dat["not_found"].ToDiscordObject<ISet<ulong>>();
-            ea.NotFound = new ReadOnlySet<ulong>(nf);
+            ea.NotFound = new List<ulong>(nf).AsReadOnly();
         }
 
         await _guildMembersChunked.InvokeAsync(this, ea).ConfigureAwait(false);

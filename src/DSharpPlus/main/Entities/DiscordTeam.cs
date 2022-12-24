@@ -131,7 +131,7 @@ public sealed class DiscordTeamMember : IEquatable<DiscordTeamMember>
     internal DiscordTeamMember(TransportTeamMember ttm)
     {
         MembershipStatus = (DiscordTeamMembershipStatus)ttm.MembershipState;
-        Permissions = new ReadOnlySet<string>(new HashSet<string>(ttm.Permissions));
+        Permissions = new List<string>(ttm.Permissions).AsReadOnly();
     }
 
     /// <summary>

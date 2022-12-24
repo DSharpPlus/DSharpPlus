@@ -1365,7 +1365,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<IReadOnlyList<DiscordMember>> GetAllMembersAsync()
     {
-        HashSet<DiscordMember> recmbr = new HashSet<DiscordMember>();
+        List<DiscordMember> recmbr = new();
 
         int recd = 1000;
         ulong last = 0ul;
@@ -1387,7 +1387,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             last = tm?.User.Id ?? 0;
         }
 
-        return new ReadOnlySet<DiscordMember>(recmbr);
+        return recmbr.AsReadOnly();
     }
 
     /// <summary>
