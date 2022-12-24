@@ -1363,7 +1363,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// </summary>
     /// <returns>A collection of all members in this guild.</returns>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task<IReadOnlyCollection<DiscordMember>> GetAllMembersAsync()
+    public async Task<IReadOnlyList<DiscordMember>> GetAllMembersAsync()
     {
         HashSet<DiscordMember> recmbr = new HashSet<DiscordMember>();
 

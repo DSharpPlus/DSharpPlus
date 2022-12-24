@@ -34,7 +34,7 @@ public sealed class DiscordActionRowComponent : DiscordComponent
     /// <summary>
     /// The components contained within the action row.
     /// </summary>
-    public IReadOnlyCollection<DiscordComponent> Components
+    public IReadOnlyList<DiscordComponent> Components
     {
         get => _components ?? new List<DiscordComponent>();
         set => _components = new List<DiscordComponent>(value);

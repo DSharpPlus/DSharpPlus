@@ -67,7 +67,7 @@ internal class RestApplicationCommandEditPayload
     public Optional<string> Description { get; set; }
 
     [JsonProperty("options")]
-    public Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> Options { get; set; }
+    public Optional<IReadOnlyList<DiscordApplicationCommandOption>> Options { get; set; }
 
     [JsonProperty("default_permission", NullValueHandling = NullValueHandling.Ignore)]
     public Optional<bool?> DefaultPermission { get; set; }
@@ -112,7 +112,7 @@ internal class RestFollowupMessageCreatePayload
     public int? Flags { get; set; }
 
     [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
-    public IReadOnlyCollection<DiscordActionRowComponent> Components { get; set; }
+    public IReadOnlyList<DiscordActionRowComponent> Components { get; set; }
 }
 
 internal class RestEditApplicationCommandPermissionsPayload

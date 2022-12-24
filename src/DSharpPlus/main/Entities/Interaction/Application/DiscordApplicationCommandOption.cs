@@ -68,19 +68,19 @@ public sealed class DiscordApplicationCommandOption
     /// Gets the optional choices for this command parameter. Not applicable for auto-complete options.
     /// </summary>
     [JsonProperty("choices", NullValueHandling = NullValueHandling.Ignore)]
-    public IReadOnlyCollection<DiscordApplicationCommandOptionChoice> Choices { get; internal set; }
+    public IReadOnlyList<DiscordApplicationCommandOptionChoice> Choices { get; internal set; }
 
     /// <summary>
     /// Gets the optional subcommand parameters for this parameter.
     /// </summary>
     [JsonProperty("options", NullValueHandling = NullValueHandling.Ignore)]
-    public IReadOnlyCollection<DiscordApplicationCommandOption> Options { get; internal set; }
+    public IReadOnlyList<DiscordApplicationCommandOption> Options { get; internal set; }
 
     /// <summary>
     /// Gets the channel types this command parameter is restricted to, if of type <see cref="ApplicationCommandOptionType.Channel"/>..
     /// </summary>
     [JsonProperty("channel_types", NullValueHandling = NullValueHandling.Ignore)]
-    public IReadOnlyCollection<ChannelType> ChannelTypes { get; internal set; }
+    public IReadOnlyList<ChannelType> ChannelTypes { get; internal set; }
 
     /// <summary>
     /// Gets the minimum value for this slash command parameter.

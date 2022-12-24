@@ -37,17 +37,17 @@ public struct AudioFormat
     /// <summary>
     /// Gets the collection of sampling rates (in Hz) the Opus encoder can use.
     /// </summary>
-    public static IReadOnlyCollection<int> AllowedSampleRates { get; } = new ReadOnlyCollection<int>(new[] { 8000, 12000, 16000, 24000, 48000 });
+    public static IReadOnlyList<int> AllowedSampleRates { get; } = new ReadOnlyCollection<int>(new[] { 8000, 12000, 16000, 24000, 48000 });
 
     /// <summary>
     /// Gets the collection of channel counts the Opus encoder can use.
     /// </summary>
-    public static IReadOnlyCollection<int> AllowedChannelCounts { get; } = new ReadOnlyCollection<int>(new[] { 1, 2 });
+    public static IReadOnlyList<int> AllowedChannelCounts { get; } = new ReadOnlyCollection<int>(new[] { 1, 2 });
 
     /// <summary>
     /// Gets the collection of sample durations (in ms) the Opus encoder can use.
     /// </summary>
-    public static IReadOnlyCollection<int> AllowedSampleDurations { get; } = new ReadOnlyCollection<int>(new[] { 5, 10, 20, 40, 60 });
+    public static IReadOnlyList<int> AllowedSampleDurations { get; } = new ReadOnlyCollection<int>(new[] { 5, 10, 20, 40, 60 });
 
     /// <summary>
     /// Gets the default audio format. This is a format configured for 48kHz sampling rate, 2 channels, with music quality preset.

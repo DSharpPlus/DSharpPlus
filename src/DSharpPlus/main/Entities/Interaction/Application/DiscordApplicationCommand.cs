@@ -62,7 +62,7 @@ public sealed class DiscordApplicationCommand : SnowflakeObject, IEquatable<Disc
     /// Gets the potential parameters for this command.
     /// </summary>
     [JsonProperty("options", NullValueHandling = NullValueHandling.Ignore)]
-    public IReadOnlyCollection<DiscordApplicationCommandOption> Options { get; internal set; }
+    public IReadOnlyList<DiscordApplicationCommandOption> Options { get; internal set; }
 
     /// <summary>
     /// Gets whether the command is enabled by default when the application is added to a guild.

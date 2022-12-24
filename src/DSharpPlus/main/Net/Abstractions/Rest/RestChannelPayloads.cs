@@ -166,7 +166,7 @@ internal class RestChannelMessageEditPayload
     public DiscordMentions Mentions { get; set; }
 
     [JsonProperty("components", NullValueHandling = NullValueHandling.Ignore)]
-    public IReadOnlyCollection<DiscordActionRowComponent> Components { get; set; }
+    public IReadOnlyList<DiscordActionRowComponent> Components { get; set; }
 
     [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
     public MessageFlags? Flags { get; set; }

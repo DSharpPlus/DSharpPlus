@@ -66,5 +66,5 @@ public sealed class CommandArgument
     /// <summary>
     /// Gets the custom attributes attached to this argument.
     /// </summary>
-    public IReadOnlyCollection<Attribute> CustomAttributes { get; internal set; } = Array.Empty<Attribute>();
+    public IReadOnlyList<Attribute> CustomAttributes { get; internal set; } = Array.Empty<Attribute>();
 }
