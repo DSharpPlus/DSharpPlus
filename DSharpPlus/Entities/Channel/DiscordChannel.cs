@@ -69,7 +69,7 @@ namespace DSharpPlus.Entities
         /// Gets the type of this channel.
         /// </summary>
         [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-        public ChannelType Type { get; internal set; }
+        public virtual ChannelType Type { get; internal set; }
 
         /// <summary>
         /// Gets the position of this channel.
