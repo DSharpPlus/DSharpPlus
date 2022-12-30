@@ -70,7 +70,8 @@ namespace DSharpPlus.Test
                 ShardCount = this.Config.ShardCount,
                 MessageCacheSize = 2048,
                 LogTimestampFormat = "dd-MM-yyyy HH:mm:ss zzz",
-                Intents = DiscordIntents.All // if 4013 is received, change to DiscordIntents.AllUnprivileged
+                Intents = DiscordIntents.All, // if 4013 is received, change to DiscordIntents.AllUnprivileged
+                ApiBaseUri = this.Config.ApiEndpointUrl
             };
             this.Discord = new DiscordClient(dcfg);
 

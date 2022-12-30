@@ -38,5 +38,8 @@ namespace DSharpPlus.Test
 
         [JsonProperty("slash_command_guild")]
         public ulong SlashCommandGuild { get; private set; }
+        
+        [JsonProperty("api_endpoint_url")]
+        public string ApiEndpointUrl { get; private set; } = "https://discord.com/api/v10";
     }
 }

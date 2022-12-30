@@ -194,6 +194,11 @@ namespace DSharpPlus
         public bool LogUnknownEvents { internal get; set; } = true;
 
         /// <summary>
+        /// Base URI for the Discord API. Defaults to "https://discord.com/api/v10".
+        /// </summary>
+        public string ApiBaseUri { internal get; set; } = "https://discord.com/api/v10";
+
+        /// <summary>
         /// Creates a new configuration with default values.
         /// </summary>
         public DiscordConfiguration()
@@ -224,6 +229,7 @@ namespace DSharpPlus
             this.Intents = other.Intents;
             this.LoggerFactory = other.LoggerFactory;
             this.LogUnknownEvents = other.LogUnknownEvents;
+            this.ApiBaseUri = other.ApiBaseUri;
         }
     }
 }

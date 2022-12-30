@@ -80,17 +80,17 @@ namespace DSharpPlus
             VersionHeader = $"DiscordBot (https://github.com/DSharpPlus/DSharpPlus, v{vs})";
         }
 
-        internal static string GetApiBaseUri()
-            => Endpoints.BASE_URI;
+        internal static string GetApiBaseUri(DiscordConfiguration configuration)
+            => configuration.ApiBaseUri;
 
-        internal static Uri GetApiUriFor(string path)
-            => new($"{GetApiBaseUri()}{path}");
+        internal static Uri GetApiUriFor(DiscordConfiguration configuration, string path)
+            => new($"{GetApiBaseUri(configuration)}{path}");
 
-        internal static Uri GetApiUriFor(string path, string queryString)
-            => new($"{GetApiBaseUri()}{path}{queryString}");
+        internal static Uri GetApiUriFor(DiscordConfiguration configuration, string path, string queryString)
+            => new($"{GetApiBaseUri(configuration)}{path}{queryString}");
 
-        internal static QueryUriBuilder GetApiUriBuilderFor(string path)
-            => new($"{GetApiBaseUri()}{path}");
+        internal static QueryUriBuilder GetApiUriBuilderFor(DiscordConfiguration configuration, string path)
+            => new($"{GetApiBaseUri(configuration)}{path}");
 
         internal static string GetFormattedToken(BaseDiscordClient client) => GetFormattedToken(client.Configuration);
 

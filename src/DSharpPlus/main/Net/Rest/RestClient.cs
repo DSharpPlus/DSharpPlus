@@ -68,7 +68,7 @@ namespace DSharpPlus.Net
         }
 
         internal RestClient(IWebProxy proxy, TimeSpan timeout, bool useRelativeRatelimit,
-            ILogger logger) // This is for meta-clients, such as the webhook client
+            ILogger logger, string ApiBaseUri = "https://discord.com/api/v10") // This is for meta-clients, such as the webhook client
         {
             this.Logger = logger;
 
@@ -82,7 +82,7 @@ namespace DSharpPlus.Net
 
             this.HttpClient = new HttpClient(httphandler)
             {
-                BaseAddress = new Uri(Utilities.GetApiBaseUri()),
+                BaseAddress = new Uri(ApiBaseUri),
                 Timeout = timeout
             };
 

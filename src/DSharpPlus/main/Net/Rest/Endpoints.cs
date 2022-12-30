@@ -27,9 +27,6 @@ namespace DSharpPlus.Net
 {
     internal static class Endpoints
     {
-        public const string API_VERSION = "10";
-        public const string BASE_URI = "https://discord.com/api/v" + API_VERSION;
-
         public const string ORIGINAL = "/@original";
         public const string OAUTH2 = "/oauth2";
         public const string APPLICATIONS = "/applications";
