@@ -59,6 +59,8 @@
       topicUid: articles.audio.voicenext.receive
 - name: Interactivity
   topicUid: articles.interactivity
+- name: Slash Commands
+  topicUid: articles.slash_commands
 - name: Advanced Topics
   items:
   - name: Buttons
