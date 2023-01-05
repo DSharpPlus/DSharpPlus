@@ -1978,7 +1978,7 @@ namespace DSharpPlus.Net
             return result;
         }
 
-        internal async Task<ThreadQueryResult> ListPublicArchivedThreadsAsync(ulong guild_id, ulong channel_id, ulong? before, int limit)
+        internal async Task<ThreadQueryResult> ListPublicArchivedThreadsAsync(ulong guild_id, ulong channel_id, string before, int limit)
         {
             var queryParams = new Dictionary<string, string>();
             if (before != null)
@@ -2008,7 +2008,7 @@ namespace DSharpPlus.Net
             return result;
         }
 
-        internal async Task<ThreadQueryResult> ListPrivateArchivedThreadsAsync(ulong guild_id, ulong channel_id, ulong? before, int limit)
+        internal async Task<ThreadQueryResult> ListPrivateArchivedThreadsAsync(ulong guild_id, ulong channel_id, string before, int limit)
         {
             var queryParams = new Dictionary<string, string>();
             if (before != null)
