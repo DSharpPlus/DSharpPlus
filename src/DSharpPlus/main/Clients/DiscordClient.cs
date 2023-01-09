@@ -302,6 +302,13 @@ namespace DSharpPlus
             {
                 if (this.Configuration.TokenType != TokenType.Bot)
                     this.Logger.LogWarning(LoggerEvents.Misc, "You are logging in with a token that is not a bot token. This is not officially supported by Discord, and can result in your account being terminated if you aren't careful.");
+
+                if (this.Configuration.ApiBaseUri != DiscordConfiguration.DefaultApiBaseUri)
+                {
+                    this.Logger.LogWarning(LoggerEvents.Misc, $"Using custom API base URI: {this.Configuration.ApiBaseUri}");
+                    this.Logger.LogWarning(LoggerEvents.Misc, "Any issues that may arise from this are not supported by the D#+ team");
+                }
+
                 this.Logger.LogInformation(LoggerEvents.Startup, "DSharpPlus, version {Version}", this.VersionString);
             }
 

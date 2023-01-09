@@ -35,6 +35,11 @@ namespace DSharpPlus
     /// </summary>
     public sealed class DiscordConfiguration
     {
+        // This summary block is inherited in the summary for ApiBaseUrl.
+        // It is here to keep this value close to the definition.
+        /// <summary><code>https://discord.com/api/v10</code></summary>
+        internal const string DefaultApiBaseUri = "https://discord.com/api/v10";
+
         /// <summary>
         /// Sets the token used to identify the client.
         /// </summary>
@@ -194,9 +199,11 @@ namespace DSharpPlus
         public bool LogUnknownEvents { internal get; set; } = true;
 
         /// <summary>
-        /// Base URI for the Discord API. Defaults to "https://discord.com/api/v10".
+        /// <para>Base URI for the Discord API.</para>
+        /// <para>Defaults to "<inheritdoc cref="DefaultApiBaseUri"/>".</para>
+        /// <para>NOTE: Changing this variable will waive any rights to support!</para>
         /// </summary>
-        public string ApiBaseUri { internal get; set; } = "https://discord.com/api/v10";
+        public string ApiBaseUri { internal get; set; } = DefaultApiBaseUri;
 
         /// <summary>
         /// Creates a new configuration with default values.
