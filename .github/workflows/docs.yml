@@ -23,7 +23,7 @@ jobs:
     - name: Install DocFX
       run: dotnet tool update -g docfx --prerelease
     - name: Build
-      run: build ./docs/docfx.json 
+      run: docfx build ./docs/docfx.json 
     - name: Push to docs repo
       uses: markjivko/push-to-github@0.0.4
       with:
