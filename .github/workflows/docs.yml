@@ -31,6 +31,6 @@ jobs:
       with:
         source-directory: ./docs/_site
         target-github-username: InFTord
-        target-github-repository: dsharpplus
+        target-github-repository: dsharpplus.github.io
         target-github-branch: master
       
