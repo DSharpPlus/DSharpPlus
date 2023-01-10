@@ -26,6 +26,8 @@ jobs:
       run: docfx build ./docs/docfx.json 
     - name: Push to docs repo
       uses: markjivko/push-to-github@0.0.4
+      env:
+        GITHUB_SSH_KEY: ${{ secrets.PRIVATE_SSH_KEY }}
       with:
         source-directory: ./docs
         target-github-username: InFTord
