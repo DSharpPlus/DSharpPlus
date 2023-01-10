@@ -10,8 +10,9 @@ echo "Installing .NET"
 ./dotnet-install.sh
 echo "Installing DocFX"
 rm -f ./dotnet-install.sh
+echo "Removing temporary files..."
 # install docfx preview (so it would work with .NET 6+)
 dotnet tool update -g docfx --prerelease
 
-echo "Building docs"
+echo "Building docs..."
 docfx build ../docs/docfx.json
