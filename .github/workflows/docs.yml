@@ -1,31 +1,38 @@
-# This workflow will build a .NET project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
-
-name: .NET
+name: .NET Docs
 
 on:
   push:
-    branches: [ "master" ]
+    branches: ["master"]
   pull_request:
-    branches: [ "master" ]
+    branches: ["master"]
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 6.0.x
+
     - name: Install DocFX
       run: dotnet tool update -g docfx --prerelease
+
     - name: Build API docs
       run: docfx ./docs/docfx.json
+
     - name: Build website for docs
       run: docfx build ./docs/docfx.json 
+
+    - name: Allow pushing to external repos # https://stackoverflow.com/a/64271581/10942966
+      run: git config --unset-all http.https://github.com/.extraheader
+
     - name: Push to docs repo
       uses: markjivko/push-to-github@0.0.4
       env:
@@ -35,4 +42,3 @@ jobs:
         target-github-username: InFTord
         target-github-repository: dsharpplus.github.io
         target-github-branch: master
-      
