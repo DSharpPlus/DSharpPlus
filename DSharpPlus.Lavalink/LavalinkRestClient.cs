@@ -126,7 +126,7 @@ namespace DSharpPlus.Lavalink
         /// <returns>A collection of tracks from the URL.</returns>
         public Task<LavalinkLoadResult> GetTracksAsync(Uri uri)
         {
-            var str = WebUtility.UrlEncode(uri.ToString());
+            var str = WebUtility.UrlEncode(uri.AbsoluteUri);
             var tracksUri = new Uri($"{this.RestEndpoint.ToHttpString()}{Endpoints.LOAD_TRACKS}?identifier={str}");
             return this.InternalResolveTracksAsync(tracksUri);
         }
