@@ -24,11 +24,11 @@ jobs:
     - name: Install DocFX
       run: dotnet tool update -g docfx --prerelease
 
-    - name: Build API docs
-      run: docfx ./docs/docfx.json
+    - name: Build website for our documentation
+      run: docfx build ./docs/docfx.json
 
-    - name: Build website for docs
-      run: docfx build ./docs/docfx.json 
+    - name: Build API documentation
+      run: docfx ./docs/docfx.json 
 
     - name: Allow pushing to external repos # https://stackoverflow.com/a/64271581/10942966
       run: git config --unset-all http.https://github.com/.extraheader
