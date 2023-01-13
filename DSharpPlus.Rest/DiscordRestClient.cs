@@ -2059,7 +2059,7 @@ namespace DSharpPlus
         /// <param name="before">Date to filter by.</param>
         /// <param name="limit">Limit.</param>
         public Task<ThreadQueryResult> ListPublicArchivedThreadsAsync(ulong guildId, ulong channelId, DateTimeOffset? before = null, int limit = 0)
-           => this.ApiClient.ListPublicArchivedThreadsAsync(guildId, channelId, (ulong?)before?.ToUnixTimeSeconds(), limit);
+           => this.ApiClient.ListPublicArchivedThreadsAsync(guildId, channelId, before?.ToString("o"), limit);
 
         /// <summary>
         /// Gets the threads that are public and archived for a channel.
@@ -2069,7 +2069,7 @@ namespace DSharpPlus
         /// <param name="before">Date to filter by.</param>
         /// <param name="limit">Limit.</param>
         public Task<ThreadQueryResult> ListPrivateArchivedThreadAsync(ulong guildId, ulong channelId, DateTimeOffset? before = null, int limit = 0)
-           => this.ApiClient.ListPrivateArchivedThreadsAsync(guildId, channelId, (ulong?)before?.ToUnixTimeSeconds(), limit);
+           => this.ApiClient.ListPrivateArchivedThreadsAsync(guildId, channelId, before?.ToString("o"), limit);
 
         /// <summary>
         /// Gets the private archived threads the user has joined for a channel.
