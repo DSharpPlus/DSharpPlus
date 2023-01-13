@@ -30,15 +30,9 @@ jobs:
     - name: Build API documentation
       run: docfx ./docs/docfx.json 
 
-    - name: Allow pushing to external repos # https://stackoverflow.com/a/64271581/10942966
-      run: git config --unset-all http.https://github.com/.extraheader
 
-    - name: Push to docs repo
-      uses: markjivko/push-to-github@0.0.4
-      env:
-        GITHUB_SSH_KEY: ${{ secrets.PRIVATE_SSH_KEY }}
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
       with:
-        source-directory: ./docs/_site
-        target-github-username: InFTord
-        target-github-repository: dsharpplus.github.io
-        target-github-branch: master
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: docs/_site
