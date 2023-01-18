@@ -39,7 +39,7 @@ namespace DSharpPlus.Entities
 
         internal DiscordForumPostStarter() { }
 
-        internal DiscordForumPostStarter(DiscordForumChannel chn, DiscordMessage msg)
+        internal DiscordForumPostStarter(DiscordThreadChannel chn, DiscordMessage msg)
         {
             Channel = chn;
             Message = msg;

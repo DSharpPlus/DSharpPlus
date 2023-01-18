@@ -3685,7 +3685,7 @@ namespace DSharpPlus.Net
 
             var msg = this.PrepareMessage(msgToken);
             // We know the return type; deserialize directly.
-            var chn = ret.ToDiscordObject<DiscordForumChannel>();
+            var chn = ret.ToDiscordObject<DiscordThreadChannel>();
 
             return new DiscordForumPostStarter(chn, msg);
         }

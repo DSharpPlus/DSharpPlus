@@ -31,7 +31,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents either a forum channel or a post in the forum.
     /// </summary>
-    public class DiscordForumChannel : DiscordThreadChannel
+    public sealed class DiscordForumChannel : DiscordChannel
     {
         [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
         public override ChannelType Type => ChannelType.GuildForum;
@@ -65,6 +65,11 @@ namespace DSharpPlus.Entities
         [JsonProperty("default_forum_layout", NullValueHandling = NullValueHandling.Ignore)]
         public DefaultForumLayout? DefaultForumLayout { get; internal set; }
 
+        /// <summary>
+        /// Creates a forum post.
+        /// </summary>
+        /// <param name="builder">The builder to create the forum post with.</param>
+        /// <returns>The starter (the created thread, and the initial message) from creating the post.</returns>
         public Task<DiscordForumPostStarter> CreateForumPostAsync(ForumPostBuilder builder)
             => this.Discord.ApiClient.CreateForumPostAsync(this.Id, builder.Name, builder.AutoArchiveDuration, builder.SlowMode, builder.Message, builder.AppliedTags.Select(t => t.Id));
 
