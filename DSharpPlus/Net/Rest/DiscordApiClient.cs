@@ -3629,5 +3629,65 @@ namespace DSharpPlus.Net
         }
         #endregion
 
+        public async Task<DiscordForumPostStarter> CreateForumPostAsync
+        (
+            ulong channelId,
+            string name,
+            AutoArchiveDuration? autoArchiveDuration,
+            int? rate_limit_per_user,
+            DiscordMessageBuilder message,
+            IEnumerable<ulong> appliedTags
+        )
+        {
+            var route = $"{Endpoints.CHANNELS}/:channel_id{Endpoints.THREADS}";
+
+            var bucket = this._rest.GetBucket(RestRequestMethod.POST, route, new { channel_id = channelId }, out var path);
+
+            var url = Utilities.GetApiUriFor(path);
+
+            var pld = new RestForumPostCreatePayload
+            {
+                Name = name,
+                ArchiveAfter = autoArchiveDuration,
+                RateLimitPerUser = rate_limit_per_user,
+                Message = new RestChannelMessageCreatePayload
+                {
+                    Content = message.Content,
+                    Embeds = message.Embeds,
+                    Mentions = new DiscordMentions(message.Mentions, message.Mentions.Any()),
+                    Components = message.Components,
+                    StickersIds = message.Stickers.Select(s => s.Id),
+                },
+                AppliedTags = appliedTags
+            };
+
+            JObject ret;
+            if (message.Files.Count is 0)
+            {
+                var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld)).ConfigureAwait(false);
+
+                ret = JObject.Parse(res.Response);
+            }
+            else
+            {
+                var values = new Dictionary<string, string>
+                {
+                    ["payload_json"] = DiscordJson.SerializeObject(pld)
+                };
+
+                var res = await this.DoMultipartAsync(this._discord, bucket, url, RestRequestMethod.POST, route, values: values, files: message.Files).ConfigureAwait(false);
+
+                ret = JObject.Parse(res.Response);
+            }
+
+            var msgToken = ret["message"];
+            ret.Remove("message");
+
+            var msg = this.PrepareMessage(msgToken);
+            // We know the return type; deserialize directly.
+            var chn = ret.ToDiscordObject<DiscordForumChannel>();
+
+            return new DiscordForumPostStarter(chn, msg);
+        }
     }
 }

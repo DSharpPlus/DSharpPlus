@@ -23,6 +23,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
@@ -33,7 +34,7 @@ namespace DSharpPlus.Entities
     public class DiscordForumChannel : DiscordThreadChannel
     {
         [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-        public override ChannelType Type { get; internal set; }
+        public override ChannelType Type => ChannelType.GuildForum;
 
         /// <summary>
         /// Gets the topic of the forum. This doubles as the guidelines for the forum.
@@ -55,18 +56,6 @@ namespace DSharpPlus.Entities
         [JsonProperty("available_tags")]
         private List<DiscordForumTag> _availableTags;
 
-        /// <summary>
-        /// Gets the tags applied to this forum post.
-        /// </summary>
-        // Performant? No. Ideally, you're not using this property often.
-        public IReadOnlyList<DiscordForumTag> AppliedTags =>
-            this.Parent is DiscordForumChannel parent
-                ? parent.AvailableTags.Where(pt => _appliedTagIds.Contains(pt.Id)).ToArray()
-                : Array.Empty<DiscordForumTag>();
-
-        [JsonProperty("applied_tags")]
-        private List<ulong> _appliedTagIds;
-
         [JsonProperty("default_reaction", NullValueHandling = NullValueHandling.Ignore)]
         public DefaultReaction? DefaultReaction { get; internal set; }
 
@@ -76,6 +65,8 @@ namespace DSharpPlus.Entities
         [JsonProperty("default_forum_layout", NullValueHandling = NullValueHandling.Ignore)]
         public DefaultForumLayout? DefaultForumLayout { get; internal set; }
 
+        public async Task<DiscordForumPostStarter> CreateForumPostAsync(ForumPostBuilder builder)
+            => this.Discord.ApiClient.CreateForumPostAsync(this.Id, builder.Name, builder.AutoArchiveDuration, builder.SlowMode, builder.Message, builder.AppliedTags.Select(t => t.Id));
 
         internal DiscordForumChannel() {}
     }

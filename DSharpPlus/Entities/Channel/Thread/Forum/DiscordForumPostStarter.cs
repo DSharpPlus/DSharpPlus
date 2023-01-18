@@ -20,41 +20,29 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-
-using System.Collections.Generic;
-using DSharpPlus.Entities;
-using Newtonsoft.Json;
-
-namespace DSharpPlus.Net.Abstractions
+namespace DSharpPlus.Entities
 {
-    internal sealed class RestThreadCreatePayload
+    /// <summary>
+    /// Represents the return of creating a forum post.
+    /// </summary>
+    public sealed class DiscordForumPostStarter
     {
-        [JsonProperty("name")]
-        public string Name { get; set; }
+        /// <summary>
+        /// The channel of the forum post.
+        /// </summary>
+        public DiscordThreadChannel Channel { get; internal set; }
 
-        [JsonProperty("auto_archive_duration", NullValueHandling = NullValueHandling.Ignore)]
-        public AutoArchiveDuration ArchiveAfter { get; set; }
+        /// <summary>
+        /// The message of the forum post.
+        /// </summary>
+        public DiscordMessage Message { get; internal set; }
 
-        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-        public ChannelType? Type { get; set; }
+        internal DiscordForumPostStarter() { }
+
+        internal DiscordForumPostStarter(DiscordForumChannel chn, DiscordMessage msg)
+        {
+            Channel = chn;
+            Message = msg;
+        }
     }
-
-    internal sealed class RestForumPostCreatePayload
-    {
-        [JsonProperty("name")]
-        public string Name { get; set; }
-
-        [JsonProperty("auto_archive_duration", NullValueHandling = NullValueHandling.Ignore)]
-        public AutoArchiveDuration? ArchiveAfter { get; set; }
-
-        [JsonProperty("rate_limit_per_user", NullValueHandling = NullValueHandling.Include)]
-        public int? RateLimitPerUser { get; set; }
-
-        [JsonProperty("message")]
-        public RestChannelMessageCreatePayload Message { get; set; }
-
-        [JsonProperty("applied_tags", NullValueHandling = NullValueHandling.Ignore)]
-        public IEnumerable<ulong> AppliedTags { get; set; }
-    }
-
 }

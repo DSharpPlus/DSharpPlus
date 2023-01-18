@@ -23,6 +23,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.Exceptions;
 using DSharpPlus.Net.Models;
@@ -70,6 +71,18 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("newly_created", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsNew { get; internal set; }
+
+        /// <summary>
+        /// Gets the tags applied to this forum post.
+        /// </summary>
+        // Performant? No. Ideally, you're not using this property often.
+        public IReadOnlyList<DiscordForumTag> AppliedTags =>
+        this.Parent is DiscordForumChannel parent
+        ? parent.AvailableTags.Where(pt => _appliedTagIds.Contains(pt.Id)).ToArray()
+        : Array.Empty<DiscordForumTag>();
+
+        [JsonProperty("applied_tags")]
+        private List<ulong> _appliedTagIds;
 
         #region Methods
 
