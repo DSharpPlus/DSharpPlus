@@ -27,9 +27,13 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
 {
+    /// <summary>
+    /// Represents either a forum channel or a post in the forum.
+    /// </summary>
     public class DiscordForumChannel : DiscordThreadChannel
     {
-        public override ChannelType Type => ChannelType.GuildForum;
+        [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
+        public override ChannelType Type { get; internal set; }
 
         /// <summary>
         /// Gets the topic of the forum. This doubles as the guidelines for the forum.
@@ -54,7 +58,11 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the tags applied to this forum post.
         /// </summary>
-        public IReadOnlyList<DiscordForumTag> AppliedTags { get; internal set; }
+        // Performant? No. Ideally, you're not using this property often.
+        public IReadOnlyList<DiscordForumTag> AppliedTags =>
+            this.Parent is DiscordForumChannel parent
+                ? parent.AvailableTags.Where(pt => _appliedTagIds.Contains(pt.Id)).ToArray()
+                : Array.Empty<DiscordForumTag>();
 
         [JsonProperty("applied_tags")]
         private List<ulong> _appliedTagIds;
@@ -68,11 +76,7 @@ namespace DSharpPlus.Entities
         [JsonProperty("default_forum_layout", NullValueHandling = NullValueHandling.Ignore)]
         public DefaultForumLayout? DefaultForumLayout { get; internal set; }
 
-        internal DiscordForumChannel()
-        {
-            AppliedTags = this.Parent is DiscordForumChannel parent
-                                                           ? parent.AvailableTags.Where(pt => _appliedTagIds.Contains(pt.Id)).ToArray()
-                                                           : Array.Empty<DiscordForumTag>();
-        }
+
+        internal DiscordForumChannel() {}
     }
 }
