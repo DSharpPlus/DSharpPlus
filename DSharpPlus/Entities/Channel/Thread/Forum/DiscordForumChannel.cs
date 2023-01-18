@@ -65,7 +65,7 @@ namespace DSharpPlus.Entities
         [JsonProperty("default_forum_layout", NullValueHandling = NullValueHandling.Ignore)]
         public DefaultForumLayout? DefaultForumLayout { get; internal set; }
 
-        public async Task<DiscordForumPostStarter> CreateForumPostAsync(ForumPostBuilder builder)
+        public Task<DiscordForumPostStarter> CreateForumPostAsync(ForumPostBuilder builder)
             => this.Discord.ApiClient.CreateForumPostAsync(this.Id, builder.Name, builder.AutoArchiveDuration, builder.SlowMode, builder.Message, builder.AppliedTags.Select(t => t.Id));
 
         internal DiscordForumChannel() {}
