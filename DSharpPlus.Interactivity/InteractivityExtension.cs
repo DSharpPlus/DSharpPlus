@@ -55,6 +55,8 @@ namespace DSharpPlus.Interactivity
 
         private ComponentEventWaiter ComponentEventWaiter;
 
+        private ModalEventWaiter ModalEventWaiter;
+
         private ReactionCollector ReactionCollector;
 
         private Poller Poller;
@@ -81,6 +83,7 @@ namespace DSharpPlus.Interactivity
             this.Paginator = new Paginator(this.Client);
             this._compPaginator = new(this.Client, this.Config);
             this.ComponentEventWaiter = new(this.Client, this.Config);
+            this.ModalEventWaiter = new(this.Client);
 
         }
 
@@ -112,6 +115,63 @@ namespace DSharpPlus.Interactivity
                 await m.DeleteAllReactionsAsync().ConfigureAwait(false);
 
             return new ReadOnlyCollection<PollEmoji>(res.ToList());
+        }
+
+        /// <summary>
+        /// Waits for a modal with the specified id to be submitted.
+        /// </summary>
+        /// <param name="modal_id">The id of the modal to wait for. Should be unique to avoid issues.</param>
+        /// <param name="timeoutOverride">Override the timeout period in <see cref="InteractivityConfiguration"/>.</param>
+        /// <returns>A <see cref="InteractivityResult{ModalSubmitEventArgs}"/> with a modal if the interactivity did not time out.</returns>
+        public Task<InteractivityResult<ModalSubmitEventArgs>> WaitForModalAsync(string modal_id, TimeSpan? timeoutOverride = null)
+            => this.WaitForModalAsync(modal_id, this.GetCancellationToken(timeoutOverride));
+
+        /// <summary>
+        /// Waits for a modal with the specified id to be submitted.
+        /// </summary>
+        /// <param name="modal_id">The id of the modal to wait for. Should be unique to avoid issues.</param>
+        /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
+        /// <returns>A <see cref="InteractivityResult{ModalSubmitEventArgs}"/> with a modal if the interactivity did not time out.</returns>
+        public async Task<InteractivityResult<ModalSubmitEventArgs>> WaitForModalAsync(string modal_id, CancellationToken token)
+        {
+            if (string.IsNullOrEmpty(modal_id) || modal_id.Length > 100)
+                throw new ArgumentException("Custom ID must be between 1 and 100 characters.");
+
+            var matchRequest = new ModalMatchRequest(modal_id,
+                    c => c.Interaction.Data.CustomId == modal_id, cancellation: token);
+            var result = await this.ModalEventWaiter.WaitForMatchAsync(matchRequest).ConfigureAwait(false);
+
+            return new(result is null, result);
+        }
+
+        /// <summary>
+        /// Waits for a modal with the specificed custom id to be submitted by the given user.
+        /// </summary>
+        /// <param name="modal_id">The id of the modal to wait for. Should be unique to avoid issues.</param>
+        /// <param name="user">The user to wait for the modal from.</param>
+        /// <param name="timeoutOverride">Override the timeout period in <see cref="InteractivityConfiguration"/>.</param>
+        /// <returns>A <see cref="InteractivityResult{ModalSubmitEventArgs}"/> with a modal if the interactivity did not time out.</returns>
+        public Task<InteractivityResult<ModalSubmitEventArgs>> WaitForModalAsync(string modal_id, DiscordUser user, TimeSpan? timeoutOverride = null)
+            => this.WaitForModalAsync(modal_id, user, this.GetCancellationToken(timeoutOverride));
+
+        /// <summary>
+        /// Waits for a modal with the specificed custom id to be submitted by the given user.
+        /// </summary>
+        /// <param name="modal_id">The id of the modal to wait for. Should be unique to avoid issues.</param>
+        /// <param name="user">The user to wait for the modal from.</param>
+        /// <param name="token">A custom cancellation token that can be cancelled at any point.</param>
+        /// <returns>A <see cref="InteractivityResult{ModalSubmitEventArgs}"/> with a modal if the interactivity did not time out.</returns>
+        public async Task<InteractivityResult<ModalSubmitEventArgs>> WaitForModalAsync(string modal_id, DiscordUser user, CancellationToken token)
+        {
+            if (string.IsNullOrEmpty(modal_id) || modal_id.Length > 100)
+                throw new ArgumentException("Custom ID must be between 1 and 100 characters.");
+
+            var matchRequest = new ModalMatchRequest(modal_id,
+                    c => c.Interaction.Data.CustomId == modal_id &&
+                    c.Interaction.User.Id == user.Id, cancellation: token);
+            var result = await this.ModalEventWaiter.WaitForMatchAsync(matchRequest).ConfigureAwait(false);
+
+            return new(result is null, result);
         }
 
         /// <summary>
@@ -343,13 +403,13 @@ namespace DSharpPlus.Interactivity
             if (!message.Components.Any())
                 throw new ArgumentException("Provided message does not contain any components.");
 
-            if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is ComponentType.Select))
+            if (!message.Components.SelectMany(c => c.Components).Any(this.IsSelect))
                 throw new ArgumentException("Provided message does not contain any select components.");
 
 
             var result = await this
                 .ComponentEventWaiter
-                .WaitForMatchAsync(new(message, c => c.Interaction.Data.ComponentType is ComponentType.Select && predicate(c), token))
+                .WaitForMatchAsync(new(message, c => this.IsSelect(c.Interaction.Data.ComponentType) && predicate(c), token))
                 .ConfigureAwait(false);
 
             return new(result is null, result);
@@ -382,19 +442,31 @@ namespace DSharpPlus.Interactivity
             if (!message.Components.Any())
                 throw new ArgumentException("Provided message does not contain any components.");
 
-            if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is ComponentType.Select))
+            if (!message.Components.SelectMany(c => c.Components).Any(this.IsSelect))
                 throw new ArgumentException("Provided message does not contain any select components.");
 
-            if (message.Components.SelectMany(c => c.Components).OfType<DiscordSelectComponent>().All(c => c.CustomId != id))
+            if (message.Components.SelectMany(c => c.Components).Where(this.IsSelect).All(c => c.CustomId != id))
                 throw new ArgumentException($"Provided message does not contain select component with Id of '{id}'.");
 
             var result = await this
                 .ComponentEventWaiter
-                .WaitForMatchAsync(new(message, (c) => c.Interaction.Data.ComponentType is ComponentType.Select && c.Id == id, token))
+                .WaitForMatchAsync(new(message, (c) => this.IsSelect(c.Interaction.Data.ComponentType) && c.Id == id, token))
                 .ConfigureAwait(false);
 
             return new(result is null, result);
         }
+
+        private bool IsSelect(DiscordComponent component)
+            => this.IsSelect(component.Type);
+
+        private bool IsSelect(ComponentType type)
+            => type is
+                ComponentType.StringSelect or
+                ComponentType.UserSelect or
+                ComponentType.RoleSelect or
+                ComponentType.MentionableSelect or
+                ComponentType.ChannelSelect;
+
 
         /// <summary>
         /// Waits for a dropdown to be interacted with by a specific user.
@@ -423,10 +495,10 @@ namespace DSharpPlus.Interactivity
             if (!message.Components.Any())
                 throw new ArgumentException("Provided message does not contain any components.");
 
-            if (!message.Components.SelectMany(c => c.Components).Any(c => c.Type is ComponentType.Select))
+            if (!message.Components.SelectMany(c => c.Components).Any(this.IsSelect))
                 throw new ArgumentException("Provided message does not contain any select components.");
 
-            if (message.Components.SelectMany(c => c.Components).OfType<DiscordSelectComponent>().All(c => c.CustomId != id))
+            if (message.Components.SelectMany(c => c.Components).Where(this.IsSelect).All(c => c.CustomId != id))
                 throw new ArgumentException($"Provided message does not contain button with Id of '{id}'.");
 
             var result = await this
@@ -596,7 +668,7 @@ namespace DSharpPlus.Interactivity
         {
             var timeout = timeoutoverride ?? this.Config.Timeout;
 
-            using var waiter = new EventWaiter<T>(this.Client);
+            var waiter = new EventWaiter<T>(this.Client);
             var res = await waiter.WaitForMatch(new MatchRequest<T>(predicate, timeout)).ConfigureAwait(false);
             return new InteractivityResult<T>(res == null, res);
         }
@@ -682,7 +754,7 @@ namespace DSharpPlus.Interactivity
         /// <inheritdoc cref="SendPaginatedMessageAsync(DiscordChannel, DiscordUser, IEnumerable{Page}, PaginationButtons, TimeSpan?, PaginationBehaviour?, ButtonPaginationBehavior?)"/>
         /// <remarks>This is the "default" overload for SendPaginatedMessageAsync, and will use buttons. Feel free to specify default(PaginationEmojis) to use reactions and emojis specified in <see cref="InteractivityConfiguration"/>, instead. </remarks>
         public Task SendPaginatedMessageAsync(DiscordChannel channel, DiscordUser user, IEnumerable<Page> pages, TimeSpan? timeoutoverride, PaginationBehaviour? behaviour = default, ButtonPaginationBehavior? deletion = default)
-            => this.SendPaginatedMessageAsync(channel, user, pages, timeoutoverride, behaviour, deletion);
+            => this.SendPaginatedMessageAsync(channel, user, pages, default, timeoutoverride, behaviour, deletion);
 
         /// <summary>
         /// Sends a paginated message.

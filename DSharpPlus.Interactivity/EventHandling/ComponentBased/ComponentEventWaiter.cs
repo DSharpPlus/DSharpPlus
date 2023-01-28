@@ -59,7 +59,7 @@ namespace DSharpPlus.Interactivity.EventHandling
         }
 
         /// <summary>
-        /// Waits for a specified <see cref="ComponentMatchRequest"/>'s predicate to be fufilled.
+        /// Waits for a specified <see cref="ComponentMatchRequest"/>'s predicate to be fulfilled.
         /// </summary>
         /// <param name="request">The request to wait for.</param>
         /// <returns>The returned args, or null if it timed out.</returns>

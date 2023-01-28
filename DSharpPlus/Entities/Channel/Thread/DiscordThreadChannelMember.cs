@@ -42,7 +42,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("id", NullValueHandling = NullValueHandling.Ignore)]
         public ulong ThreadId { get; set; }
-        
+
         /// <summary>
         /// Gets ID of the user.
         /// </summary>
@@ -52,13 +52,8 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets timestamp when the user joined the thread.
         /// </summary>
-        [JsonIgnore]
-        public DateTimeOffset? JoinTimeStamp
-            => !string.IsNullOrWhiteSpace(this.JoinTimeStampRaw) && DateTimeOffset.TryParse(this.JoinTimeStampRaw, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dto) ?
-                dto : null;
-
         [JsonProperty("join_timestamp", NullValueHandling = NullValueHandling.Ignore)]
-        internal string JoinTimeStampRaw { get; set; }
+        public DateTimeOffset? JoinTimeStamp { get; internal set; }
 
         [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
         internal int UserFlags { get; set; }

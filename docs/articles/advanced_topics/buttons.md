@@ -161,7 +161,7 @@ client.ComponentInteractionCreated += async (s, e) =>
             .WithContent("No more buttons for you >:)"));
 }
 ```
-This will update the message, and without the infamous <sub>(edited)</sub> next to it. Nice.
+This will update the message, and remove all the buttons. Nice.
 
 
 # Interactivity

@@ -1,5 +1,5 @@
-﻿using DSharpPlus.Entities;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using DSharpPlus.Entities;
 
 namespace DSharpPlus.SlashCommands
 {

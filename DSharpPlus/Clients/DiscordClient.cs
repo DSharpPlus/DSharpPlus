@@ -196,6 +196,7 @@ namespace DSharpPlus
             this._messagesBulkDeleted = new AsyncEvent<DiscordClient, MessageBulkDeleteEventArgs>("MESSAGE_BULK_DELETED", EventExecutionLimit, this.EventErrorHandler);
             this._interactionCreated = new AsyncEvent<DiscordClient, InteractionCreateEventArgs>("INTERACTION_CREATED", EventExecutionLimit, this.EventErrorHandler);
             this._componentInteractionCreated = new AsyncEvent<DiscordClient, ComponentInteractionCreateEventArgs>("COMPONENT_INTERACTED", EventExecutionLimit, this.EventErrorHandler);
+            this._modalSubmitted = new AsyncEvent<DiscordClient, ModalSubmitEventArgs>("MODAL_SUBMITTED", EventExecutionLimit, this.EventErrorHandler);
             this._contextMenuInteractionCreated = new AsyncEvent<DiscordClient, ContextMenuInteractionCreateEventArgs>("CONTEXT_MENU_INTERACTED", EventExecutionLimit, this.EventErrorHandler);
             this._typingStarted = new AsyncEvent<DiscordClient, TypingStartEventArgs>("TYPING_STARTED", EventExecutionLimit, this.EventErrorHandler);
             this._userSettingsUpdated = new AsyncEvent<DiscordClient, UserSettingsUpdateEventArgs>("USER_SETTINGS_UPDATED", EventExecutionLimit, this.EventErrorHandler);
@@ -214,11 +215,12 @@ namespace DSharpPlus
             this._applicationCommandCreated = new AsyncEvent<DiscordClient, ApplicationCommandEventArgs>("APPLICATION_COMMAND_CREATED", EventExecutionLimit, this.EventErrorHandler);
             this._applicationCommandUpdated = new AsyncEvent<DiscordClient, ApplicationCommandEventArgs>("APPLICATION_COMMAND_UPDATED", EventExecutionLimit, this.EventErrorHandler);
             this._applicationCommandDeleted = new AsyncEvent<DiscordClient, ApplicationCommandEventArgs>("APPLICATION_COMMAND_DELETED", EventExecutionLimit, this.EventErrorHandler);
+            this._applicationCommandPermissionsUpdated = new AsyncEvent<DiscordClient, ApplicationCommandPermissionsUpdatedEventArgs>("APPLICATION_COMMAND_PERMISSIONS_UPDATED", EventExecutionLimit, this.EventErrorHandler);
             this._integrationCreated = new AsyncEvent<DiscordClient, IntegrationCreateEventArgs>("INTEGRATION_CREATED", EventExecutionLimit, this.EventErrorHandler);
             this._integrationUpdated = new AsyncEvent<DiscordClient, IntegrationUpdateEventArgs>("INTEGRATION_UPDATED", EventExecutionLimit, this.EventErrorHandler);
             this._integrationDeleted = new AsyncEvent<DiscordClient, IntegrationDeleteEventArgs>("INTEGRATION_DELETED", EventExecutionLimit, this.EventErrorHandler);
             this._stageInstanceCreated = new AsyncEvent<DiscordClient, StageInstanceCreateEventArgs>("STAGE_INSTANCE_CREATED", EventExecutionLimit, this.EventErrorHandler);
-            this._stageInstanceUpdated = new AsyncEvent<DiscordClient, StageInstanceUpdateEventArgs>("STAGE_INSTANCE_UPDAED", EventExecutionLimit, this.EventErrorHandler);
+            this._stageInstanceUpdated = new AsyncEvent<DiscordClient, StageInstanceUpdateEventArgs>("STAGE_INSTANCE_UPDATED", EventExecutionLimit, this.EventErrorHandler);
             this._stageInstanceDeleted = new AsyncEvent<DiscordClient, StageInstanceDeleteEventArgs>("STAGE_INSTANCE_DELETED", EventExecutionLimit, this.EventErrorHandler);
 
             #region Threads
@@ -374,7 +376,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets a sticker.
         /// </summary>
-        /// <param name="stickerId">The Id of the sticker.</param>
+        /// <param name="stickerId">The ID of the sticker.</param>
         /// <returns>The specified sticker</returns>
         public Task<DiscordMessageSticker> GetStickerAsync(ulong stickerId)
             => this.ApiClient.GetStickerAsync(stickerId);
@@ -389,7 +391,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets a user
         /// </summary>
-        /// <param name="userId">Id of the user</param>
+        /// <param name="userId">ID of the user</param>
         /// <param name="updateCache">Whether to always make a REST request and update cache. Passing true will update the user, updating stale properties such as <see cref="DiscordUser.BannerHash"/>.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
@@ -400,15 +402,9 @@ namespace DSharpPlus
                 return usr;
 
             usr = await this.ApiClient.GetUserAsync(userId).ConfigureAwait(false);
-            usr = this.UserCache.AddOrUpdate(userId, usr, (id, old) =>
-            {
-                old.Username = usr.Username;
-                old.Discriminator = usr.Discriminator;
-                old.AvatarHash = usr.AvatarHash;
-                old.BannerHash = usr.BannerHash;
-                old._bannerColor = usr._bannerColor;
-                return old;
-            });
+
+            // See BaseDiscordClient.UpdateUser for why this is done like this.
+            this.UserCache.AddOrUpdate(userId, usr, (_, _) => usr);
 
             return usr;
         }
@@ -416,7 +412,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets a channel
         /// </summary>
-        /// <param name="id">The id of the channel to get.</param>
+        /// <param name="id">The ID of the channel to get.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
@@ -555,10 +551,10 @@ namespace DSharpPlus
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task<DiscordGuild> GetGuildAsync(ulong id, bool? withCounts = null)
         {
-            //if (this._guilds.TryGetValue(id, out var guild) && (!withCounts.HasValue || !withCounts.Value))
-            //    return guild;
+            if (this._guilds.TryGetValue(id, out var guild) && (!withCounts.HasValue || !withCounts.Value))
+                return guild;
 
-            DiscordGuild guild = await this.ApiClient.GetGuildAsync(id, withCounts).ConfigureAwait(false);
+            guild = await this.ApiClient.GetGuildAsync(id, withCounts).ConfigureAwait(false);
             var channels = await this.ApiClient.GetGuildChannelsAsync(guild.Id).ConfigureAwait(false);
             foreach (var channel in channels) guild._channels[channel.Id] = channel;
 
@@ -601,7 +597,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets a webhook
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="id">The ID of webhook to get.</param>
         /// <returns></returns>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the webhook does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
@@ -612,7 +608,7 @@ namespace DSharpPlus
         /// <summary>
         /// Gets a webhook
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="id">The ID of webhook to get.</param>
         /// <param name="token"></param>
         /// <returns></returns>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the webhook does not exist.</exception>
@@ -693,15 +689,29 @@ namespace DSharpPlus
         /// <summary>
         /// Gets a global application command by its id.
         /// </summary>
-        /// <param name="commandId">The id of the command to get.</param>
-        /// <returns>The command with the id.</returns>
+        /// <param name="commandId">The ID of the command to get.</param>
+        /// <returns>The command with the ID.</returns>
         public Task<DiscordApplicationCommand> GetGlobalApplicationCommandAsync(ulong commandId) =>
             this.ApiClient.GetGlobalApplicationCommandAsync(this.CurrentApplication.Id, commandId);
 
         /// <summary>
+        /// Gets a global application command by its name.
+        /// </summary>
+        /// <param name="commandName">The name of the command to get.</param>
+        /// <returns>The command with the name.</returns>
+        public async Task<DiscordApplicationCommand> GetGlobalApplicationCommandAsync(string commandName)
+        {
+            foreach (var command in await this.ApiClient.GetGlobalApplicationCommandsAsync(this.CurrentApplication.Id))
+                if (command.Name == commandName)
+                    return command;
+
+            return null;
+        }
+
+        /// <summary>
         /// Edits a global application command.
         /// </summary>
-        /// <param name="commandId">The id of the command to edit.</param>
+        /// <param name="commandId">The ID of the command to edit.</param>
         /// <param name="action">Action to perform.</param>
         /// <returns>The edited command.</returns>
         public async Task<DiscordApplicationCommand> EditGlobalApplicationCommandAsync(ulong commandId, Action<ApplicationCommandEditModel> action)
@@ -709,20 +719,20 @@ namespace DSharpPlus
             var mdl = new ApplicationCommandEditModel();
             action(mdl);
             var applicationId = this.CurrentApplication?.Id ?? (await this.GetCurrentApplicationAsync().ConfigureAwait(false)).Id;
-            return await this.ApiClient.EditGlobalApplicationCommandAsync(applicationId, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission).ConfigureAwait(false);
+            return await this.ApiClient.EditGlobalApplicationCommandAsync(applicationId, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission, default, default, mdl.AllowDMUsage, mdl.DefaultMemberPermissions).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Deletes a global application command.
         /// </summary>
-        /// <param name="commandId">The id of the command to delete.</param>
+        /// <param name="commandId">The ID of the command to delete.</param>
         public Task DeleteGlobalApplicationCommandAsync(ulong commandId) =>
             this.ApiClient.DeleteGlobalApplicationCommandAsync(this.CurrentApplication.Id, commandId);
 
         /// <summary>
         /// Gets all the application commands for a guild.
         /// </summary>
-        /// <param name="guildId">The id of the guild to get application commands for.</param>
+        /// <param name="guildId">The ID of the guild to get application commands for.</param>
         /// <returns>A list of application commands in the guild.</returns>
         public Task<IReadOnlyList<DiscordApplicationCommand>> GetGuildApplicationCommandsAsync(ulong guildId) =>
             this.ApiClient.GetGuildApplicationCommandsAsync(this.CurrentApplication.Id, guildId);
@@ -730,7 +740,7 @@ namespace DSharpPlus
         /// <summary>
         /// Overwrites the existing application commands in a guild. New commands are automatically created and missing commands are automatically deleted.
         /// </summary>
-        /// <param name="guildId">The id of the guild.</param>
+        /// <param name="guildId">The ID of the guild.</param>
         /// <param name="commands">The list of commands to overwrite with.</param>
         /// <returns>The list of guild commands.</returns>
         public Task<IReadOnlyList<DiscordApplicationCommand>> BulkOverwriteGuildApplicationCommandsAsync(ulong guildId, IEnumerable<DiscordApplicationCommand> commands) =>
@@ -739,26 +749,26 @@ namespace DSharpPlus
         /// <summary>
         /// Creates or overwrites a guild application command.
         /// </summary>
-        /// <param name="guildId">The id of the guild to create the application command in.</param>
+        /// <param name="guildId">The ID of the guild to create the application command in.</param>
         /// <param name="command">The command to create.</param>
         /// <returns>The created command.</returns>
         public Task<DiscordApplicationCommand> CreateGuildApplicationCommandAsync(ulong guildId, DiscordApplicationCommand command) =>
             this.ApiClient.CreateGuildApplicationCommandAsync(this.CurrentApplication.Id, guildId, command);
 
         /// <summary>
-        /// Gets a application command in a guild by its id.
+        /// Gets a application command in a guild by its ID.
         /// </summary>
-        /// <param name="guildId">The id of the guild the application command is in.</param>
-        /// <param name="commandId">The id of the command to get.</param>
-        /// <returns>The command with the id.</returns>
+        /// <param name="guildId">The ID of the guild the application command is in.</param>
+        /// <param name="commandId">The ID of the command to get.</param>
+        /// <returns>The command with the ID.</returns>
         public Task<DiscordApplicationCommand> GetGuildApplicationCommandAsync(ulong guildId, ulong commandId) =>
              this.ApiClient.GetGuildApplicationCommandAsync(this.CurrentApplication.Id, guildId, commandId);
 
         /// <summary>
         /// Edits a application command in a guild.
         /// </summary>
-        /// <param name="guildId">The id of the guild the application command is in.</param>
-        /// <param name="commandId">The id of the command to edit.</param>
+        /// <param name="guildId">The ID of the guild the application command is in.</param>
+        /// <param name="commandId">The ID of the command to edit.</param>
         /// <param name="action">Action to perform.</param>
         /// <returns>The edited command.</returns>
         public async Task<DiscordApplicationCommand> EditGuildApplicationCommandAsync(ulong guildId, ulong commandId, Action<ApplicationCommandEditModel> action)
@@ -766,14 +776,14 @@ namespace DSharpPlus
             var mdl = new ApplicationCommandEditModel();
             action(mdl);
             var applicationId = this.CurrentApplication?.Id ?? (await this.GetCurrentApplicationAsync().ConfigureAwait(false)).Id;
-            return await this.ApiClient.EditGuildApplicationCommandAsync(applicationId, guildId, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission).ConfigureAwait(false);
+            return await this.ApiClient.EditGuildApplicationCommandAsync(applicationId, guildId, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission, default, default, mdl.AllowDMUsage, mdl.DefaultMemberPermissions).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Deletes a application command in a guild.
         /// </summary>
-        /// <param name="guildId">The id of the guild to delete the application command in.</param>
-        /// <param name="commandId">The id of the command.</param>
+        /// <param name="guildId">The ID of the guild to delete the application command in.</param>
+        /// <param name="commandId">The ID of the command.</param>
         public Task DeleteGuildApplicationCommandAsync(ulong guildId, ulong commandId) =>
             this.ApiClient.DeleteGuildApplicationCommandAsync(this.CurrentApplication.Id, guildId, commandId);
         #endregion
@@ -829,7 +839,7 @@ namespace DSharpPlus
 
             if (channel != null) return;
 
-            channel = !message.GuildId.HasValue
+            channel = !message._guildId.HasValue
                 ? new DiscordDmChannel
                 {
                     Id = message.ChannelId,
@@ -959,18 +969,18 @@ namespace DSharpPlus
                     _ = guild._stageInstances.GetOrAdd(newStageInstance.Id, _ => newStageInstance);
 
             guild.Name = newGuild.Name;
-            guild.AfkChannelId = newGuild.AfkChannelId;
+            guild._afkChannelId = newGuild._afkChannelId;
             guild.AfkTimeout = newGuild.AfkTimeout;
             guild.DefaultMessageNotifications = newGuild.DefaultMessageNotifications;
             guild.Features = newGuild.Features;
             guild.IconHash = newGuild.IconHash;
             guild.MfaLevel = newGuild.MfaLevel;
             guild.OwnerId = newGuild.OwnerId;
-            guild.VoiceRegionId = newGuild.VoiceRegionId;
+            guild._voiceRegionId = newGuild._voiceRegionId;
             guild.SplashHash = newGuild.SplashHash;
             guild.VerificationLevel = newGuild.VerificationLevel;
             guild.WidgetEnabled = newGuild.WidgetEnabled;
-            guild.WidgetChannelId = newGuild.WidgetChannelId;
+            guild._widgetChannelId = newGuild._widgetChannelId;
             guild.ExplicitContentFilter = newGuild.ExplicitContentFilter;
             guild.PremiumTier = newGuild.PremiumTier;
             guild.PremiumSubscriptionCount = newGuild.PremiumSubscriptionCount;
@@ -978,7 +988,7 @@ namespace DSharpPlus
             guild.Description = newGuild.Description;
             guild.VanityUrlCode = newGuild.VanityUrlCode;
             guild.Banner = newGuild.Banner;
-            guild.SystemChannelId = newGuild.SystemChannelId;
+            guild._systemChannelId = newGuild._systemChannelId;
             guild.SystemChannelFlags = newGuild.SystemChannelFlags;
             guild.DiscoverySplashHash = newGuild.DiscoverySplashHash;
             guild.MaxMembers = newGuild.MaxMembers;
@@ -987,8 +997,8 @@ namespace DSharpPlus
             guild.ApproximatePresenceCount = newGuild.ApproximatePresenceCount;
             guild.MaxVideoChannelUsers = newGuild.MaxVideoChannelUsers;
             guild.PreferredLocale = newGuild.PreferredLocale;
-            guild.RulesChannelId = newGuild.RulesChannelId;
-            guild.PublicUpdatesChannelId = newGuild.PublicUpdatesChannelId;
+            guild._rulesChannelId = newGuild._rulesChannelId;
+            guild._publicUpdatesChannelId = newGuild._publicUpdatesChannelId;
             guild.PremiumProgressBarEnabled = newGuild.PremiumProgressBarEnabled;
 
             // fields not sent for update:
@@ -1002,7 +1012,7 @@ namespace DSharpPlus
 
         private void PopulateMessageReactionsAndCache(DiscordMessage message, TransportUser author, TransportMember member)
         {
-            var guild = message.Channel?.Guild ?? this.InternalGetCachedGuild(message.GuildId);
+            var guild = message.Channel?.Guild ?? this.InternalGetCachedGuild(message._guildId);
 
             this.UpdateMessage(message, author, guild, member);
 
@@ -1039,7 +1049,7 @@ namespace DSharpPlus
             GC.SuppressFinalize(this);
 
             this.DisconnectAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-            this.ApiClient.Rest.Dispose();
+            this.ApiClient._rest.Dispose();
             this.CurrentUser = null;
 
             var extensions = this._extensions; // prevent _extensions being modified during dispose

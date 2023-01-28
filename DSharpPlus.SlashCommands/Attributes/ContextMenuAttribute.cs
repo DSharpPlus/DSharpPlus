@@ -21,7 +21,7 @@ namespace DSharpPlus.SlashCommands
         /// <summary>
         /// Gets whether this command is enabled by default.
         /// </summary>
-        public bool DefaultPermission { get; internal set;}
+        public bool DefaultPermission { get; internal set; }
 
         /// <summary>
         /// Marks this method as a context menu.

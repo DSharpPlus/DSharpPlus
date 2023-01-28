@@ -274,7 +274,7 @@ namespace DSharpPlus
         {
             this._hooks.Clear();
             this._hooks = null;
-            this._apiclient.Rest.Dispose();
+            this._apiclient._rest.Dispose();
         }
     }
 }

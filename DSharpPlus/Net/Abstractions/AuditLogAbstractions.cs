@@ -23,6 +23,7 @@
 
 using System.Collections.Generic;
 using DSharpPlus.Entities;
+using DSharpPlus.Net.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -72,7 +73,7 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonIgnore]
         public IEnumerable<JObject> OldValues
-            => (this.OldValue as JArray)?.ToObject<IEnumerable<JObject>>();
+            => (this.OldValue as JArray)?.ToDiscordObject<IEnumerable<JObject>>();
 
         [JsonIgnore]
         public ulong OldValueUlong
@@ -82,13 +83,22 @@ namespace DSharpPlus.Net.Abstractions
         public string OldValueString
             => (string)this.OldValue;
 
+        [JsonIgnore]
+        public bool OldValueBool
+            => (bool)this.OldValue;
+
+        [JsonIgnore]
+        public long OldValueLong
+            => (long)this.OldValue;
+
+
         // this can be a string or an array
         [JsonProperty("new_value")]
         public object NewValue { get; set; }
 
         [JsonIgnore]
         public IEnumerable<JObject> NewValues
-            => (this.NewValue as JArray)?.ToObject<IEnumerable<JObject>>();
+            => (this.NewValue as JArray)?.ToDiscordObject<IEnumerable<JObject>>();
 
         [JsonIgnore]
         public ulong NewValueUlong
@@ -97,6 +107,14 @@ namespace DSharpPlus.Net.Abstractions
         [JsonIgnore]
         public string NewValueString
             => (string)this.NewValue;
+
+        [JsonIgnore]
+        public bool NewValueBool
+            => (bool)this.NewValue;
+
+        [JsonIgnore]
+        public long NewValueLong
+            => (long)this.NewValue;
 
         [JsonProperty("key")]
         public string Key { get; set; }
@@ -160,5 +178,14 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("audit_log_entries")]
         public IEnumerable<AuditLogAction> Entries { get; set; }
+
+        [JsonProperty("guild_scheduled_events")]
+        public IEnumerable<DiscordScheduledGuildEvent> Events { get; set; }
+
+        [JsonProperty("integrations")]
+        public IEnumerable<DiscordIntegration> Integrations { get; set; }
+
+        [JsonProperty("threads")]
+        public IEnumerable<DiscordThreadChannel> Threads { get; set; }
     }
 }

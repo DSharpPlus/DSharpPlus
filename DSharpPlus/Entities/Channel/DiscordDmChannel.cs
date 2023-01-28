@@ -47,13 +47,13 @@ namespace DSharpPlus.Entities
         public string IconHash { get; internal set; }
 
         /// <summary>
-        /// Gets the id of this direct message's creator.
+        /// Gets the ID of this direct message's creator.
         /// </summary>
         [JsonProperty("owner_id", NullValueHandling = NullValueHandling.Ignore)]
         public ulong OwnerId { get; internal set; }
 
         /// <summary>
-        /// Gets the application id of the direct message's creator if it a bot.
+        /// Gets the application ID of the direct message's creator if it a bot.
         /// </summary>
         [JsonProperty("application_id", NullValueHandling = NullValueHandling.Ignore)]
         public ulong ApplicationId { get; internal set; }
@@ -68,7 +68,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Only use for Group DMs! Whitelisted bots only. Requires user's oauth2 access token
         /// </summary>
-        /// <param name="user_id">The id of the user to add.</param>
+        /// <param name="user_id">The ID of the user to add.</param>
         /// <param name="accesstoken">The OAuth2 access token.</param>
         /// <param name="nickname">The nickname to give to the user.</param>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
@@ -80,7 +80,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Only use for Group DMs!
         /// </summary>
-        /// <param name="user_id">The id of the User to remove.</param>
+        /// <param name="user_id">The ID of the User to remove.</param>
         /// <param name="accesstoken">The OAuth2 access token.</param>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>

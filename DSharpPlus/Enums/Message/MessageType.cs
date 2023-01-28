@@ -59,7 +59,7 @@ namespace DSharpPlus
         ChannelIconChange = 5,
 
         /// <summary>
-        /// Message indiciating a user pinned a message to a channel.
+        /// Message indicating a user pinned a message to a channel.
         /// </summary>
         ChannelPinnedMessage = 6,
 
@@ -99,7 +99,7 @@ namespace DSharpPlus
         GuildDiscoveryDisqualified = 14,
 
         /// <summary>
-        /// Message indicating a guild was readded to guild discovery.
+        /// Message indicating a guild was re-added to guild discovery.
         /// </summary>
         GuildDiscoveryRequalified = 15,
 
@@ -131,6 +131,11 @@ namespace DSharpPlus
         /// <summary>
         /// Message indicating a context menu was executed.
         /// </summary>
-        ContextMenuCommand = 23
+        ContextMenuCommand = 23,
+
+        /// <summary>
+        /// Message indicating an AutoMod alert.
+        /// </summary>
+        AutoModAlert = 24,
     }
 }

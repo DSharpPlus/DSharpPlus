@@ -35,7 +35,7 @@ namespace DSharpPlus.CommandsNext.Builders
         /// <summary>
         /// Gets the type this build will construct a module out of.
         /// </summary>
-        public Type Type { get; private set; }
+        public Type Type { get; private set; } = null!;
 
         /// <summary>
         /// Gets the lifespan for the built module.
@@ -45,8 +45,7 @@ namespace DSharpPlus.CommandsNext.Builders
         /// <summary>
         /// Creates a new command module builder.
         /// </summary>
-        public CommandModuleBuilder()
-        { }
+        public CommandModuleBuilder() { }
 
         /// <summary>
         /// Sets the type this builder will construct a module out of.
@@ -75,6 +74,9 @@ namespace DSharpPlus.CommandsNext.Builders
 
         internal ICommandModule Build(IServiceProvider services)
         {
+            if (this.Type is null)
+                throw new InvalidOperationException($"A command module cannot be built without a module type, please use the {nameof(this.WithType)} method to set a type.");
+
             return this.Lifespan switch
             {
                 ModuleLifespan.Singleton => new SingletonCommandModule(this.Type, services),

@@ -24,7 +24,7 @@
 namespace DSharpPlus
 {
     /// <summary>
-    /// Represents a channelpermissions overwrite's type.
+    /// Represents a channel permissions overwrite's type.
     /// </summary>
     public enum OverwriteType : int
     {

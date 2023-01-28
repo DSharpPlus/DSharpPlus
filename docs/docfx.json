@@ -67,7 +67,7 @@
     "dest": "_site",
     "globalMetadata": {
       "_appTitle": "DSharpPlus documentation",
-      "_appFooter": "© 2016-2021 DSharpPlus Contributors",
+      "_appFooter": "© 2016-2023 DSharpPlus Contributors",
       "_enableSearch": "true"
     },
     "xrefService": [

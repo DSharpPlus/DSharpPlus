@@ -89,7 +89,7 @@ namespace DSharpPlus.Entities
         public DiscordGuild SourceGuild { get; internal set; }
 
         /// <summary>
-        /// Gets whether the template has unsynced changes.
+        /// Gets whether the template has not synced changes.
         /// </summary>
         [JsonProperty("is_dirty", NullValueHandling = NullValueHandling.Ignore)]
         public bool? IsDirty { get; internal set; }

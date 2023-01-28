@@ -1,17 +1,25 @@
-# Documentation
+---
+uid: articles.slash_commands
+title: Slash Commands
+---
+
+# Slash Commands
+
+## Introduction
 
 This is the documentation for the slash commands extension for DSharpPlus (it also supports context menus). This is a direct merge of IDoEverything's slash command extension, so if you've been using that one you shouldn't need to make any changes in your code.
 
 There are some caveats to the usage of the library that you should note:
 
 It does not support registering or editing commands at runtime. While you can make commands at runtime using the methods on the client, if you have a command class registered for that guild/globally if you're making global commands, it will be overwritten (therefore probably deleted) on the next startup due to the limitations of the bulk overwrite endpoint. If your usage of slash commands depends on dynamically registering commands, this extension will not work for you.
-# Important: Authorizing your bot
+
+## Important: Authorizing your bot
 
 For a bot to make slash commands in a server, it must be authorized with the applications.commands scope as well. In the OAuth2 section of the developer portal, you can check the applications.commands box to generate an invite link. You can check the bot box as well to generate a link that authorizes both. If a bot is already authorized with the bot scope, you can still authorize with just the applications.commands scope without having to kick out the bot.
 
 If your bot isn't properly authorized, a 403 exception will be thrown on startup.
 
-# Setup
+## Setup
 
 Add the using reference to your bot class:
 ```cs
@@ -25,6 +33,7 @@ var slash = discord.UseSlashCommands();
 ```
 
 ## Making a command class
+
 Similar to CommandsNext, you can make a module for slash commands and make it inherit from `ApplicationCommandModule`
 ```cs
 public class SlashCommands : ApplicationCommandModule
@@ -47,6 +56,7 @@ slash.RegisterCommands<SlashCommands>();
 *Make sure that you register them before your `ConnectAsync`*
 
 ## Making Slash Commands!
+
 On to the exciting part.
 
 Slash command methods must be `Task`s and have the `SlashCommand` attribute. The first argument for the method must be an `InteractionContext`. Let's make a simple slash command:
@@ -92,6 +102,7 @@ You can also override `BeforeExecutionAsync` and `AfterExecutionAsync` to run co
 `BeforeExecutionAsync` can also be used to prevent the command from running.
 
 ### Arguments
+
 If you want the user to be able to give more data to the command, you can add some arguments.
 
 Arguments must have the `Option` attribute, and can be of type:
@@ -102,6 +113,7 @@ Arguments must have the `Option` attribute, and can be of type:
 * `DiscordUser` - This can be cast to `DiscordMember` if the command is run in a guild
 * `DiscordChannel`
 * `DiscordRole`
+* `DiscordAttachment`
 * `SnowflakeObject` - This can accept both a user and a role; you can cast it `DiscordUser`, `DiscordMember` or `DiscordRole` to get the actual object
 * `Enum` - This can used for choices through an enum; read further
 
@@ -169,6 +181,7 @@ public async Task ChoiceProviderCommand(InteractionContext ctx,
 ```
 
 ### Groups
+
 You can have slash commands in groups. Their structure is explained [here](https://discord.com/developers/docs/interactions/application-commands#subcommands-and-subcommand-groups). You can simply mark your command class with the `[SlashCommandGroup]` attribute.
 ```cs
 //for regular groups
@@ -209,6 +222,7 @@ public class SubGroupContainer : ApplicationCommandModule
 ```
 
 ## Context Menus
+
 Context menus are commands that show up when you right click on a user or a message. Their implementation is fairly similar to slash commands.
 ```cs
 //For user commands
@@ -222,6 +236,7 @@ public async Task MessageMenu(ContextMenuContext ctx) { }
 Responding works exactly the same as slash commands. You cannot define any arguments.
 
 ### Pre-execution checks
+
 You can define some custom attributes that function as pre-execution checks, working very similarly to `CommandsNext`. Simply create an attribute that inherits `SlashCheckBaseAttribute` for slash commands, and `ContextMenuCheckBaseAttribute` for context menus and override the methods.
 
 There are also some built in ones for slash commands, the same ones as on `CommandsNext` but prefix with `Slash` - for example the `SlashRequirePermissionsAttribute`
@@ -282,6 +297,7 @@ public async Task Ban(InteractionContext ctx, [Option("user", "User to ban")] Di
 ```
 
 ### Dependency Injection
+
 To pass in a service collection, provide a `SlashCommandsConfiguration` in `UseSlashCommands`.
 ```cs
 var slash = discord.UseSlashCommands(new SlashCommandsConfiguration
@@ -302,10 +318,13 @@ public class Commands : ApplicationCommandModule
     });
 }
 ```
+
 ### Sharding
+
 `UseSlashCommands` -> `UseSlashCommmandsAsync` which returns a dictionary.
 
 You'll have to foreach over it to register events.
 
 ### Module Lifespans
+
 You can specify a module's lifespan by applying the `SlashModuleLifespan` attribute on it. Modules are transient by default.

@@ -222,7 +222,7 @@ namespace DSharpPlus.Entities
             if (!(imageSize is not 0 && (imageSize & (imageSize - 1)) is 0))
                 throw new ArgumentOutOfRangeException("Image size is not a power of two: " + nameof(imageSize));
 
-            // Get the string varients of the method parameters to use in the urls.
+            // Get the string variants of the method parameters to use in the urls.
             var stringImageFormat = imageFormat switch
             {
                 ImageFormat.Gif => "gif",

@@ -41,12 +41,12 @@ namespace DSharpPlus.CommandsNext.Builders
         /// <summary>
         /// Gets a value that uniquely identifies an overload.
         /// </summary>
-        internal string ArgumentSet { get; }
+        internal string _argumentSet { get; }
 
         /// <summary>
         /// Gets the collection of arguments this overload takes.
         /// </summary>
-        public IReadOnlyList<CommandArgument> Arguments { get; }
+        public IReadOnlyList<CommandArgument> Arguments { get; } = Array.Empty<CommandArgument>();
 
         /// <summary>
         /// Gets this overload's priority when picking a suitable one for execution.
@@ -58,30 +58,26 @@ namespace DSharpPlus.CommandsNext.Builders
         /// </summary>
         public Delegate Callable { get; set; }
 
-        private object InvocationTarget { get; }
+        private object? _invocationTarget { get; }
 
         /// <summary>
         /// Creates a new command overload builder from specified method.
         /// </summary>
         /// <param name="method">Method to use for this overload.</param>
-        public CommandOverloadBuilder(MethodInfo method)
-            : this(method, null)
-        { }
+        public CommandOverloadBuilder(MethodInfo method) : this(method, null) { }
 
         /// <summary>
         /// Creates a new command overload builder from specified delegate.
         /// </summary>
         /// <param name="method">Delegate to use for this overload.</param>
-        public CommandOverloadBuilder(Delegate method)
-            : this(method.GetMethodInfo(), method.Target)
-        { }
+        public CommandOverloadBuilder(Delegate method) : this(method.GetMethodInfo(), method.Target) { }
 
-        private CommandOverloadBuilder(MethodInfo method, object target)
+        private CommandOverloadBuilder(MethodInfo method, object? target)
         {
             if (!method.IsCommandCandidate(out var prms))
                 throw new ArgumentException("Specified method is not suitable for a command.", nameof(method));
 
-            this.InvocationTarget = target;
+            this._invocationTarget = target;
 
             // create the argument array
             var ea = new ParameterExpression[prms.Length + 1];
@@ -125,7 +121,7 @@ namespace DSharpPlus.CommandsNext.Builders
                         case ParamArrayAttribute p:
                             ca.IsCatchAll = true;
                             ca.Type = arg.ParameterType.GetElementType();
-                            ca.IsArray = true;
+                            ca._isArray = true;
                             isParams = true;
                             break;
 
@@ -150,7 +146,7 @@ namespace DSharpPlus.CommandsNext.Builders
             var ec = Expression.Call(iep, method, ea.Skip(1));
             var el = Expression.Lambda(ec, ea);
 
-            this.ArgumentSet = setb.ToString();
+            this._argumentSet = setb.ToString();
             this.Arguments = new ReadOnlyCollection<CommandArgument>(args);
             this.Callable = el.Compile();
         }
@@ -163,7 +159,6 @@ namespace DSharpPlus.CommandsNext.Builders
         public CommandOverloadBuilder WithPriority(int priority)
         {
             this.Priority = priority;
-
             return this;
         }
 
@@ -173,8 +168,8 @@ namespace DSharpPlus.CommandsNext.Builders
             {
                 Arguments = this.Arguments,
                 Priority = this.Priority,
-                Callable = this.Callable,
-                InvocationTarget = this.InvocationTarget
+                _callable = this.Callable,
+                _invocationTarget = this._invocationTarget
             };
 
             return ovl;

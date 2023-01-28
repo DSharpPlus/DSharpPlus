@@ -59,7 +59,7 @@ namespace DSharpPlus.Entities
     }
 
     // used internally to make serialization more convenient, do NOT change this, do NOT implement this yourself
-    internal interface IOptional
+    public interface IOptional
     {
         bool HasValue { get; }
         object RawValue { get; } // must NOT throw InvalidOperationException

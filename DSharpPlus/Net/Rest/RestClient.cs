@@ -387,7 +387,7 @@ namespace DSharpPlus.Net
                 {
                     if (Interlocked.CompareExchange(ref bucket._limitTesting, 1, 0) == 0)
                     {
-                        // if we got here when the first request was just finishing, we must not create the waiter task as it would signel ExecureRequestAsync to bypass rate limiting
+                        // if we got here when the first request was just finishing, we must not create the waiter task as it would signal ExecuteRequestAsync to bypass rate limiting
                         if (bucket._limitValid)
                             return null;
 
@@ -482,7 +482,7 @@ namespace DSharpPlus.Net
             }
 
             // check if global b1nzy
-            if (hs.TryGetValue("X-RateLimit-Global", out var isglobal) && isglobal.ToLowerInvariant() == "true")
+            if (hs.TryGetValue("X-RateLimit-Global", out var isglobal) && isglobal.Equals("true", StringComparison.InvariantCultureIgnoreCase))
             {
                 // global
                 global = true;
@@ -502,7 +502,7 @@ namespace DSharpPlus.Net
 
             var hs = response.Headers;
 
-            if (hs.TryGetValue("X-RateLimit-Global", out var isglobal) && isglobal.ToLowerInvariant() == "true")
+            if (hs.TryGetValue("X-RateLimit-Global", out var isglobal) && isglobal.Equals("true", StringComparison.InvariantCultureIgnoreCase))
             {
                 if (response.ResponseCode != 429)
                     this.FailInitialRateLimitTest(request, ratelimitTcs);

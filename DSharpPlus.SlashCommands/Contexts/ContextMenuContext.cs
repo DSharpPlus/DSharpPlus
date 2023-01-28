@@ -3,7 +3,7 @@
 namespace DSharpPlus.SlashCommands
 {
     /// <summary>
-    /// Respresents a context for a context menu.
+    /// Represents a context for a context menu.
     /// </summary>
     public sealed class ContextMenuContext : BaseContext
     {
@@ -15,8 +15,7 @@ namespace DSharpPlus.SlashCommands
         /// <summary>
         /// The member this command targets, if applicable.
         /// </summary>
-        public DiscordMember TargetMember
-            => this.TargetUser is DiscordMember member ? member : null;
+        public DiscordMember TargetMember { get; internal set; }
 
         /// <summary>
         /// The message this command targets, if applicable.

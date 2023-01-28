@@ -38,7 +38,7 @@ namespace DSharpPlus.Net.Serialization
                 return null;
 
             var job = JObject.Load(reader);
-            var type = job["type"]?.ToObject<ComponentType>();
+            var type = job["type"]?.ToDiscordObject<ComponentType>();
 
             if (type == null)
                 throw new ArgumentException($"Value {reader} does not have a component type specifier");
@@ -48,7 +48,12 @@ namespace DSharpPlus.Net.Serialization
                 ComponentType.ActionRow => new DiscordActionRowComponent(),
                 ComponentType.Button when (int)job["style"] is 5 => new DiscordLinkButtonComponent(),
                 ComponentType.Button => new DiscordButtonComponent(),
-                ComponentType.Select => new DiscordSelectComponent(),
+                ComponentType.StringSelect => new DiscordSelectComponent(),
+                ComponentType.FormInput => new TextInputComponent(),
+                ComponentType.UserSelect => new DiscordUserSelectComponent(),
+                ComponentType.RoleSelect => new DiscordRoleSelectComponent(),
+                ComponentType.MentionableSelect => new DiscordMentionableSelectComponent(),
+                ComponentType.ChannelSelect => new DiscordChannelSelectComponent(),
                 _ => new DiscordComponent() { Type = type.Value }
             };
 

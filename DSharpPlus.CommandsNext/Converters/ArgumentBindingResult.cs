@@ -29,11 +29,11 @@ namespace DSharpPlus.CommandsNext.Converters
     public struct ArgumentBindingResult
     {
         public bool IsSuccessful { get; }
-        public object[] Converted { get; }
+        public object?[] Converted { get; }
         public IReadOnlyList<string> Raw { get; }
-        public Exception Reason { get; }
+        public Exception? Reason { get; }
 
-        public ArgumentBindingResult(object[] converted, IReadOnlyList<string> raw)
+        public ArgumentBindingResult(object?[] converted, IReadOnlyList<string> raw)
         {
             this.IsSuccessful = true;
             this.Reason = null;
@@ -45,8 +45,8 @@ namespace DSharpPlus.CommandsNext.Converters
         {
             this.IsSuccessful = false;
             this.Reason = ex;
-            this.Converted = null;
-            this.Raw = null;
+            this.Converted = Array.Empty<object>();
+            this.Raw = Array.Empty<string>();
         }
     }
 }

@@ -36,8 +36,28 @@ namespace DSharpPlus
         /// </summary>
         Button = 2,
         /// <summary>
-        /// A select menu.
+        /// A select menu consisting of options.
         /// </summary>
-        Select = 3
+        StringSelect = 3,
+        /// <summary>
+        /// An input field.
+        /// </summary>
+        FormInput = 4,
+        /// <summary>
+        /// A select menu that allows users to be selected.
+        /// </summary>
+        UserSelect = 5,
+        /// <summary>
+        /// A select menu that allows roles to be selected.
+        /// </summary>
+        RoleSelect = 6,
+        /// <summary>
+        /// A select menu that allows either roles or users to be selected.
+        /// </summary>
+        MentionableSelect = 7,
+        /// <summary>
+        /// A select menu that allows channels to be selected.
+        /// </summary>
+        ChannelSelect = 8,
     }
 }

@@ -43,6 +43,19 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("default_permission", NullValueHandling = NullValueHandling.Ignore)]
         public bool? DefaultPermission { get; set; }
+
+        [JsonProperty("name_localizations")]
+        public IReadOnlyDictionary<string, string> NameLocalizations { get; set; }
+
+        [JsonProperty("description_localizations")]
+        public IReadOnlyDictionary<string, string> DescriptionLocalizations{ get; set; }
+
+        [JsonProperty("dm_permission", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? AllowDMUsage { get; set; }
+
+        [JsonProperty("default_member_permissions", NullValueHandling = NullValueHandling.Ignore)]
+        public Permissions? DefaultMemberPermissions { get; set; }
+
     }
 
     internal class RestApplicationCommandEditPayload
@@ -58,6 +71,18 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("default_permission", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<bool?> DefaultPermission { get; set; }
+
+        [JsonProperty("name_localizations")]
+        public IReadOnlyDictionary<string, string> NameLocalizations { get; set; }
+
+        [JsonProperty("description_localizations")]
+        public IReadOnlyDictionary<string, string> DescriptionLocalizations{ get; set; }
+
+        [JsonProperty("dm_permission", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<bool> AllowDMUsage { get; set; }
+
+        [JsonProperty("default_member_permissions", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<Permissions?> DefaultMemberPermissions { get; set; }
     }
 
     internal class RestInteractionResponsePayload
@@ -90,7 +115,7 @@ namespace DSharpPlus.Net.Abstractions
         public IReadOnlyCollection<DiscordActionRowComponent> Components { get; set; }
     }
 
-    internal class RestEditApplicationCommmandPermissionsPayload
+    internal class RestEditApplicationCommandPermissionsPayload
     {
         [JsonProperty("permissions")]
         public IEnumerable<DiscordApplicationCommandPermission> Permissions { get; set; }

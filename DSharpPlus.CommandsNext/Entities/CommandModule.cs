@@ -44,7 +44,7 @@ namespace DSharpPlus.CommandsNext.Entities
     }
 
     /// <summary>
-    /// Represents a transient command module. This type of module is reinstantiated on every command call.
+    /// Represents a transient command module. This type of module is reinstated on every command call.
     /// </summary>
     public class TransientCommandModule : ICommandModule
     {
@@ -67,8 +67,7 @@ namespace DSharpPlus.CommandsNext.Entities
         /// </summary>
         /// <param name="services">Services to instantiate the module with.</param>
         /// <returns>Created module.</returns>
-        public BaseCommandModule GetInstance(IServiceProvider services)
-            => this.ModuleType.CreateInstance(services) as BaseCommandModule;
+        public BaseCommandModule GetInstance(IServiceProvider services) => (BaseCommandModule)this.ModuleType.CreateInstance(services);
     }
 
     /// <summary>
@@ -94,7 +93,7 @@ namespace DSharpPlus.CommandsNext.Entities
         internal SingletonCommandModule(Type t, IServiceProvider services)
         {
             this.ModuleType = t;
-            this.Instance = t.CreateInstance(services) as BaseCommandModule;
+            this.Instance = (BaseCommandModule)t.CreateInstance(services);
         }
 
         /// <summary>
@@ -102,7 +101,6 @@ namespace DSharpPlus.CommandsNext.Entities
         /// </summary>
         /// <param name="services">Services to instantiate the module with.</param>
         /// <returns>This module's instance.</returns>
-        public BaseCommandModule GetInstance(IServiceProvider services)
-            => this.Instance;
+        public BaseCommandModule GetInstance(IServiceProvider services) => this.Instance;
     }
 }

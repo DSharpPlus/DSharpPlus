@@ -16,7 +16,7 @@ fine-print, and understand that these services may come with strings attached. Y
 
 ### Self Hosting
 If you have access to an unused machine, have the technical know-how, and you also have a solid internet connection, you
-might consider hosting your bot on your own. Even if you don't have a space PC on hand, parts to build one are fairly
+might consider hosting your bot on your own. Even if you don't have a spare PC on hand, parts to build one are fairly
 cheap in most regions. You could think of it as a one time investment with no monthly server fees. Any modern hardware
 will work just fine, new or used. 
 

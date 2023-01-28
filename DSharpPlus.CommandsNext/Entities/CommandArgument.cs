@@ -31,17 +31,17 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets this argument's name.
         /// </summary>
-        public string Name { get; internal set; }
+        public string Name { get; internal set; } = string.Empty;
 
         /// <summary>
         /// Gets this argument's type.
         /// </summary>
-        public Type Type { get; internal set; }
+        public Type Type { get; internal set; } = null!;
 
         /// <summary>
         /// Gets or sets whether this argument is an array argument.
         /// </summary>
-        internal bool IsArray { get; set; } = false;
+        internal bool _isArray { get; set; } = false;
 
         /// <summary>
         /// Gets whether this argument is optional.
@@ -51,7 +51,7 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets this argument's default value.
         /// </summary>
-        public object DefaultValue { get; internal set; }
+        public object? DefaultValue { get; internal set; }
 
         /// <summary>
         /// Gets whether this argument catches all remaining arguments.
@@ -61,11 +61,11 @@ namespace DSharpPlus.CommandsNext
         /// <summary>
         /// Gets this argument's description.
         /// </summary>
-        public string Description { get; internal set; }
+        public string? Description { get; internal set; }
 
         /// <summary>
         /// Gets the custom attributes attached to this argument.
         /// </summary>
-        public IReadOnlyCollection<Attribute> CustomAttributes { get; internal set; }
+        public IReadOnlyCollection<Attribute> CustomAttributes { get; internal set; } = Array.Empty<Attribute>();
     }
 }

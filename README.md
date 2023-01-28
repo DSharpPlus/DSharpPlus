@@ -3,28 +3,34 @@
 # DSharpPlus
 An unofficial .NET wrapper for the Discord API, based off [DiscordSharp](https://github.com/suicvne/DiscordSharp), but rewritten to fit the API standards.
 
-[![Build Status](https://img.shields.io/appveyor/ci/DSharpPlus/dsharpplus/master.svg)](https://ci.appveyor.com/project/DSharpPlus/dsharpplus/branch/master)
-[![Discord Server](https://img.shields.io/discord/379378609942560770.svg?label=discord)](https://discord.gg/dsharpplus) 
-[![SlimGet](https://img.shields.io/badge/dynamic/json.svg?color=yellow&label=slimget&query=%24.items%5B-1%3A%5D.upper&url=https%3A%2F%2Fnuget.emzi0767.com%2Fapi%2Fv3%2Fregistration%2FPlain%2Fdsharpplus%2Findex.json)](https://nuget.emzi0767.com/gallery/search?q=DSharpPlus&pre=true)
-[![NuGet](https://img.shields.io/nuget/vpre/DSharpPlus.svg)](https://nuget.org/packages/DSharpPlus)
+[![Nightly Build Status](https://github.com/DSharpPlus/DSharpPlus/actions/workflows/publish_nightly_master.yml/badge.svg?branch=master)](https://github.com/DSharpPlus/DSharpPlus/actions/workflows/publish_nightly_master.yml)
+[![Discord Server](https://img.shields.io/discord/379378609942560770.svg?label=Discord&color=506de2)](https://discord.gg/dsharpplus)
+[![NuGet](https://img.shields.io/nuget/v/DSharpPlus.svg?label=NuGet)](https://nuget.org/packages/DSharpPlus)
+[![NuGet Latest Nightly/Prerelease](https://img.shields.io/nuget/vpre/DSharpPlus?color=505050&label=NuGet%20Latest%20Nightly%2FPrerelease)](https://nuget.org/packages/DSharpPlus)
 
 # Installing
 You can install the library from following sources:
 
-1. The latest nightly release is available on [SlimGet](https://nuget.emzi0767.com/gallery/packages). These are cutting-edge versions automatically built from the latest commit in the `master` branch in this repository, and as such always contains the latest changes.
+1. All Nightly versions are available on [Nuget](https://www.nuget.org/packages/DSharpPlus/) as a pre-release. These are cutting-edge versions automatically built from the latest commit in the `master` branch in this repository, and as such always contains the latest changes. If you want to use the latest features on Discord, you should use the nightlies.
 
    Despite the nature of pre-release software, all changes to the library are held under a level of scrutiny; for this library, unstable does not mean bad quality, rather it means that the API can be subject to change without prior notice (to ease rapid iteration) and that consumers of the library should always remain on the latest version available (to immediately get the latest fixes and improvements). You will usually want to use this version.
-2. The latest stable release is always available on [NuGet](https://nuget.org/packages/DSharpPlus). This branch is less up-to-date than the nightly versions, but is guaranteed to not receive any breaking API changes without a major version bump.
+
+2. The latest stable release is always available on [NuGet](https://nuget.org/packages/DSharpPlus). Stable versions are released less often, but are guaranteed to not receive any breaking API changes without a major version bump.
 
    Critical bugfixes in the nightly releases will usually be backported to the latest major stable release, but only after they have passed our soak tests. Additionally, some smaller fixes may be infrastructurally impossible or very difficult to backport without "breaking everything", and as such they will remain only in the nightly release until the next major release. You should evaluate whether or not this version suits your specific needs.
-3. The library can be compiled from source on Windows using Visual Studio 2017 or Visual Studio 2019. Compilation on Mac and GNU/Linux devices is possible using the .NET Core SDK, but you will only be able to build for the .NET Standard targets.
 
-   On Windows, you will need SDKs for .NET 4.5, 4.6, and 4.7, as well as the .NET Core 1.1 and 2.0 SDKs. You can install these manually from the internet, or through the Visual Studio Installer.
+3. The library can be directly referenced from your csproj file. Cloning the repository and referencing the library is as easy as:
+    ```
+    git clone https://github.com/DSharpPlus/DSharpPlus.git DSharpPlus-Repo
+    ```
+    Edit MyProject.csproj and add the following line:
+    ```xml
+    <ProjectReference Include="../DSharpPlus-Repo/DSharpPlus/DSharpPlus.csproj" />
+    ```
+    This belongs in the ItemGroup tag with the rest of your dependencies. The library should not be in the same directory or subdirectory as your project. This method should only be used if you're making local changes to the library.
 
 # Documentation
 The documentation for the latest stable version is available at [dsharpplus.github.io](https://dsharpplus.github.io/).
-
-Do note that the documentation might not reflect the latest changes in nightly version of the library.
 
 ## Resources
 The following resources apply only for the latest stable version of the library.

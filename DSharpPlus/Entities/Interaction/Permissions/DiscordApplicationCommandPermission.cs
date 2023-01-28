@@ -51,7 +51,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Represents a permission for a application command.
         /// </summary>
-        /// <param name="role">The role to contruct the permission for.</param>
+        /// <param name="role">The role to construct the permission for.</param>
         /// <param name="permission">Whether the command should be enabled for the role.</param>
         public DiscordApplicationCommandPermission(DiscordRole role, bool permission)
         {

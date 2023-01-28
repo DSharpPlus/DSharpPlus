@@ -23,7 +23,7 @@
 namespace DSharpPlus
 {
     /// <summary>
-    /// Represents a server's conetent level.
+    /// Represents a server's content level.
     /// </summary>
     public enum NsfwLevel
     {

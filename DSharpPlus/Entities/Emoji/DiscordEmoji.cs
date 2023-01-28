@@ -87,7 +87,7 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Gets whether the emoji is available for use.  
+        /// Gets whether the emoji is available for use.
         /// An emoji may not be available due to loss of server boost.
         /// </summary>
         [JsonProperty("available", NullValueHandling = NullValueHandling.Ignore)]
@@ -105,7 +105,7 @@ namespace DSharpPlus.Entities
         {
             DiscordNameLookup.TryGetValue(this.Name, out var name);
 
-            return name ?? $":{ this.Name }:";
+            return name ?? $":{this.Name}:";
         }
 
         /// <summary>
@@ -171,10 +171,8 @@ namespace DSharpPlus.Entities
             var o1 = e1 as object;
             var o2 = e2 as object;
 
-            if ((o1 == null && o2 != null) || (o1 != null && o2 == null))
-                return false;
-
-            return (o1 == null && o2 == null) || (e1.Id == e2.Id && (e1.Id != 0 || e1.Name == e2.Name));
+            return (o1 != null ^ o2 == null)
+                && ((o1 == null && o2 == null) || (e1.Id == e2.Id && (e1.Id != 0 || e1.Name == e2.Name)));
         }
 
         /// <summary>
@@ -297,8 +295,8 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Creates an emoji obejct from emote name that includes colons (eg. :thinking:). This method also supports 
-        /// skin tone variations (eg. :ok_hand::skin-tone-2:), standard emoticons (eg. :D), as well as guild emoji 
+        /// Creates an emoji object from emote name that includes colons (eg. :thinking:). This method also supports
+        /// skin tone variations (eg. :ok_hand::skin-tone-2:), standard emoticons (eg. :D), as well as guild emoji
         /// (still specified by :name:).
         /// </summary>
         /// <param name="client"><see cref="BaseDiscordClient"/> to attach to the object.</param>
@@ -309,30 +307,30 @@ namespace DSharpPlus.Entities
         {
             if (client == null)
                 throw new ArgumentNullException(nameof(client), "Client cannot be null.");
-
-            if (string.IsNullOrWhiteSpace(name))
+            else if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentNullException(nameof(name), "Name cannot be empty or null.");
+            else if (name.Length < 2 || name[0] != ':' || name[name.Length - 1] != ':')
+                throw new ArgumentException("Invalid emoji name specified. Ensure the emoji name starts and ends with ':'", nameof(name));
 
             if (UnicodeEmojis.TryGetValue(name, out var unicodeEntity))
                 return new DiscordEmoji { Discord = client, Name = unicodeEntity };
-
-            if (includeGuilds)
+            else if (includeGuilds)
             {
-                var allEmojis = client.Guilds.Values
-                    .SelectMany(xg => xg.Emojis.Values); // save cycles - don't order
-
-                var ek = name.AsSpan().Slice(1, name.Length - 2);
-                foreach (var emoji in allEmojis)
-                    if (emoji.Name.AsSpan().SequenceEqual(ek))
-                        return emoji;
+                name = name.Substring(1, name.Length - 2); // remove colons
+                foreach (var guild in client.Guilds.Values)
+                {
+                    var found = guild.Emojis.Values.FirstOrDefault(emoji => emoji.Name == name);
+                    if (found != null)
+                        return found;
+                }
             }
 
             throw new ArgumentException("Invalid emoji name specified.", nameof(name));
         }
 
         /// <summary>
-        /// Attempts to create an emoji object from emote name that includes colons (eg. :thinking:). This method also 
-        /// supports skin tone variations (eg. :ok_hand::skin-tone-2:), standard emoticons (eg. :D), as well as guild 
+        /// Attempts to create an emoji object from emote name that includes colons (eg. :thinking:). This method also
+        /// supports skin tone variations (eg. :ok_hand::skin-tone-2:), standard emoticons (eg. :D), as well as guild
         /// emoji (still specified by :name:).
         /// </summary>
         /// <param name="client"><see cref="BaseDiscordClient"/> to attach to the object.</param>
@@ -343,8 +341,8 @@ namespace DSharpPlus.Entities
             => TryFromName(client, name, true, out emoji);
 
         /// <summary>
-        /// Attempts to create an emoji object from emote name that includes colons (eg. :thinking:). This method also 
-        /// supports skin tone variations (eg. :ok_hand::skin-tone-2:), standard emoticons (eg. :D), as well as guild 
+        /// Attempts to create an emoji object from emote name that includes colons (eg. :thinking:). This method also
+        /// supports skin tone variations (eg. :ok_hand::skin-tone-2:), standard emoticons (eg. :D), as well as guild
         /// emoji (still specified by :name:).
         /// </summary>
         /// <param name="client"><see cref="BaseDiscordClient"/> to attach to the object.</param>
@@ -356,28 +354,27 @@ namespace DSharpPlus.Entities
         {
             if (client == null)
                 throw new ArgumentNullException(nameof(client), "Client cannot be null.");
-
-            if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentNullException(nameof(name), "Name cannot be empty or null.");
+            // Checks if the emoji name is null
+            else if (string.IsNullOrWhiteSpace(name) || name.Length < 2 || name[0] != ':' || name[name.Length - 1] != ':')
+            {
+                emoji = null;
+                return false; // invalid name
+            }
 
             if (UnicodeEmojis.TryGetValue(name, out var unicodeEntity))
             {
                 emoji = new DiscordEmoji { Discord = client, Name = unicodeEntity };
                 return true;
             }
-
-            if (includeGuilds)
+            else if (includeGuilds)
             {
-                var allEmojis = client.Guilds.Values
-                    .SelectMany(xg => xg.Emojis.Values); // save cycles - don't order
-
-                var ek = name.AsSpan().Slice(1, name.Length - 2);
-                foreach (var xemoji in allEmojis)
-                    if (xemoji.Name.AsSpan().SequenceEqual(ek))
-                    {
-                        emoji = xemoji;
+                name = name.Substring(1, name.Length - 2); // remove colons
+                foreach (var guild in client.Guilds.Values)
+                {
+                    emoji = guild.Emojis.Values.FirstOrDefault(emoji => emoji.Name == name);
+                    if (emoji != null)
                         return true;
-                    }
+                }
             }
 
             emoji = null;

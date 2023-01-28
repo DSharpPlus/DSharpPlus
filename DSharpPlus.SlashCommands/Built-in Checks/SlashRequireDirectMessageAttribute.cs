@@ -1,6 +1,6 @@
-﻿using DSharpPlus.Entities;
-using System;
+﻿using System;
 using System.Threading.Tasks;
+using DSharpPlus.Entities;
 
 namespace DSharpPlus.SlashCommands.Attributes
 {
@@ -13,13 +13,11 @@ namespace DSharpPlus.SlashCommands.Attributes
         /// <summary>
         /// Defines that this command is only usable within a direct message channel.
         /// </summary>
-        public SlashRequireDirectMessageAttribute()
-        { }
+        public SlashRequireDirectMessageAttribute() { }
 
         /// <summary>
         /// Runs checks.
         /// </summary>
-        public override Task<bool> ExecuteChecksAsync(InteractionContext ctx)
-            => Task.FromResult(ctx.Channel is DiscordDmChannel);
+        public override Task<bool> ExecuteChecksAsync(InteractionContext ctx) => Task.FromResult(ctx.Channel is DiscordDmChannel);
     }
 }

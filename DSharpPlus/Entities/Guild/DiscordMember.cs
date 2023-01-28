@@ -54,19 +54,19 @@ namespace DSharpPlus.Entities
             this._role_ids_lazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(this._role_ids));
         }
 
-        internal DiscordMember(TransportMember mbr)
+        internal DiscordMember(TransportMember member)
         {
-            this.Id = mbr.User.Id;
-            this.IsDeafened = mbr.IsDeafened;
-            this.IsMuted = mbr.IsMuted;
-            this.JoinedAt = mbr.JoinedAt;
-            this.Nickname = mbr.Nickname;
-            this.PremiumSince = mbr.PremiumSince;
-            this.IsPending = mbr.IsPending;
-            this._avatarHash = mbr.AvatarHash;
-            this._role_ids = mbr.Roles ?? new List<ulong>();
+            this.Id = member.User.Id;
+            this.IsDeafened = member.IsDeafened;
+            this.IsMuted = member.IsMuted;
+            this.JoinedAt = member.JoinedAt;
+            this.Nickname = member.Nickname;
+            this.PremiumSince = member.PremiumSince;
+            this.IsPending = member.IsPending;
+            this._avatarHash = member.AvatarHash;
+            this._role_ids = member.Roles ?? new List<ulong>();
             this._role_ids_lazy = new Lazy<IReadOnlyList<ulong>>(() => new ReadOnlyCollection<ulong>(this._role_ids));
-            this.CommunicationDisabledUntil = mbr.CommunicationDisabledUntil;
+            this.CommunicationDisabledUntil = member.CommunicationDisabledUntil;
         }
 
         /// <summary>
@@ -94,22 +94,19 @@ namespace DSharpPlus.Entities
         /// Gets this member's display name.
         /// </summary>
         [JsonIgnore]
-        public string DisplayName
-            => this.Nickname ?? this.Username;
-
+        public string DisplayName => this.Nickname ?? this.Username;
 
         /// <summary>
-        /// How long this member's communication will be supressed for.
+        /// How long this member's communication will be suppressed for.
         /// </summary>
         [JsonProperty("communication_disabled_until", NullValueHandling = NullValueHandling.Include)]
         public DateTimeOffset? CommunicationDisabledUntil { get; internal set; }
 
         /// <summary>
-        /// List of role ids
+        /// List of role IDs
         /// </summary>
         [JsonIgnore]
-        internal IReadOnlyList<ulong> RoleIds
-            => this._role_ids_lazy.Value;
+        internal IReadOnlyList<ulong> RoleIds => this._role_ids_lazy.Value;
 
         [JsonProperty("roles", NullValueHandling = NullValueHandling.Ignore)]
         internal List<ulong> _role_ids;
@@ -214,6 +211,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets this member's username.
         /// </summary>
+        [JsonIgnore]
         public override string Username
         {
             get => this.User.Username;
@@ -223,6 +221,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the member's 4-digit discriminator.
         /// </summary>
+        [JsonIgnore]
         public override string Discriminator
         {
             get => this.User.Discriminator;
@@ -258,6 +257,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets whether the member is a bot.
         /// </summary>
+        [JsonIgnore]
         public override bool IsBot
         {
             get => this.User.IsBot;
@@ -268,6 +268,7 @@ namespace DSharpPlus.Entities
         /// Gets the member's email address.
         /// <para>This is only present in OAuth.</para>
         /// </summary>
+        [JsonIgnore]
         public override string Email
         {
             get => this.User.Email;
@@ -277,6 +278,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets whether the member has multi-factor authentication enabled.
         /// </summary>
+        [JsonIgnore]
         public override bool? MfaEnabled
         {
             get => this.User.MfaEnabled;
@@ -287,6 +289,7 @@ namespace DSharpPlus.Entities
         /// Gets whether the member is verified.
         /// <para>This is only present in OAuth.</para>
         /// </summary>
+        [JsonIgnore]
         public override bool? Verified
         {
             get => this.User.Verified;
@@ -296,6 +299,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the member's chosen language
         /// </summary>
+        [JsonIgnore]
         public override string Locale
         {
             get => this.User.Locale;
@@ -305,6 +309,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the user's flags.
         /// </summary>
+        [JsonIgnore]
         public override UserFlags? OAuthFlags
         {
             get => this.User.OAuthFlags;
@@ -314,6 +319,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the member's flags for OAuth.
         /// </summary>
+        [JsonIgnore]
         public override UserFlags? Flags
         {
             get => this.User.Flags;
@@ -609,14 +615,14 @@ namespace DSharpPlus.Entities
             if (!(imageSize is not 0 && (imageSize & (imageSize - 1)) is 0))
                 throw new ArgumentOutOfRangeException("Image size is not a power of two: " + nameof(imageSize));
 
-            // Get the string varients of the method parameters to use in the urls.
+            // Get the string variants of the method parameters to use in the urls.
             var stringImageFormat = imageFormat switch
             {
                 ImageFormat.Gif => "gif",
                 ImageFormat.Jpeg => "jpg",
                 ImageFormat.Png => "png",
                 ImageFormat.WebP => "webp",
-                ImageFormat.Auto => !string.IsNullOrWhiteSpace(this.AvatarHash) ? (this.AvatarHash.StartsWith("a_") ? "gif" : "png") : "png",
+                ImageFormat.Auto => !string.IsNullOrWhiteSpace(this.GuildAvatarHash) ? (this.GuildAvatarHash.StartsWith("a_") ? "gif" : "png") : "png",
                 _ => throw new ArgumentOutOfRangeException(nameof(imageFormat)),
             };
             var stringImageSize = imageSize.ToString(CultureInfo.InvariantCulture);
@@ -708,7 +714,7 @@ namespace DSharpPlus.Entities
             // assign permissions from member's roles (in order)
             perms |= this.Roles.Aggregate(Permissions.None, (c, role) => c | role.Permissions);
 
-            // Adminstrator grants all permissions and cannot be overridden
+            // Administrator grants all permissions and cannot be overridden
             if ((perms & Permissions.Administrator) == Permissions.Administrator)
                 return PermissionMethods.FULL_PERMS;
 

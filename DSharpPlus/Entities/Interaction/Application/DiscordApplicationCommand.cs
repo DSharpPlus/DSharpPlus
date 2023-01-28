@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using Newtonsoft.Json;
 
@@ -71,10 +72,36 @@ namespace DSharpPlus.Entities
         public bool? DefaultPermission { get; internal set; }
 
         /// <summary>
-        /// Gets the autoincrementing version number for this command.
+        /// Whether this command can be invoked in DMs.
+        /// </summary>
+        [JsonProperty("dm_permission")]
+        public bool? AllowDMUsage { get; internal set; }
+
+        /// <summary>
+        /// What permissions this command requires to be invoked.
+        /// </summary>
+        [JsonProperty("default_member_permissions")]
+        public Permissions? DefaultMemberPermissions { get; internal set; }
+
+
+        /// <summary>
+        /// Gets the auto-incrementing version number for this command.
         /// </summary>
         [JsonProperty("version")]
         public ulong Version { get; internal set; }
+
+        [JsonProperty("name_localizations")]
+        public IReadOnlyDictionary<string, string> NameLocalizations { get; internal set; }
+
+        [JsonProperty("description_localizations")]
+        public IReadOnlyDictionary<string, string> DescriptionLocalizations { get; internal set; }
+
+        /// <summary>
+        /// Gets the command's mention string.
+        /// </summary>
+        [JsonIgnore]
+        public string Mention
+            => Formatter.Mention(this);
 
         /// <summary>
         /// Creates a new instance of a <see cref="DiscordApplicationCommand"/>.
@@ -84,7 +111,11 @@ namespace DSharpPlus.Entities
         /// <param name="options">Optional parameters for this command.</param>
         /// <param name="defaultPermission">Whether the command is enabled by default when the application is added to a guild.</param>
         /// <param name="type">The type of the application command</param>
-        public DiscordApplicationCommand(string name, string description, IEnumerable<DiscordApplicationCommandOption> options = null, bool? defaultPermission = null, ApplicationCommandType type = ApplicationCommandType.SlashCommand)
+        /// <param name="name_localizations">Localization dictionary for <paramref name="name"/> field. Values follow the same restrictions as <paramref name="name"/>.</param>
+        /// <param name="description_localizations">Localization dictionary for <paramref name="description"/> field. Values follow the same restrictions as <paramref name="description"/>.</param>
+        /// <param name="allowDMUsage">Whether this command can be invoked in DMs.</param>
+        /// <param name="defaultMemberPermissions">What permissions this command requires to be invoked.</param>
+        public DiscordApplicationCommand(string name, string description, IEnumerable<DiscordApplicationCommandOption> options = null, bool? defaultPermission = null, ApplicationCommandType type = ApplicationCommandType.SlashCommand, IReadOnlyDictionary<string, string> name_localizations = null, IReadOnlyDictionary<string, string> description_localizations = null, bool? allowDMUsage = null, Permissions? defaultMemberPermissions = null)
         {
             if (type is ApplicationCommandType.SlashCommand)
             {
@@ -111,6 +142,23 @@ namespace DSharpPlus.Entities
             this.Description = description;
             this.Options = optionsList;
             this.DefaultPermission = defaultPermission;
+            this.NameLocalizations = name_localizations;
+            this.DescriptionLocalizations = description_localizations;
+            this.AllowDMUsage = allowDMUsage;
+            this.DefaultMemberPermissions = defaultMemberPermissions;
+        }
+
+        /// <summary>
+        /// Creates a mention for a subcommand.
+        /// </summary>
+        /// <param name="name">The name of the subgroup and/or subcommand.</param>
+        /// <returns>Formatted mention.</returns>
+        public string GetSubcommandMention(params string[] name)
+        {
+            if (!this.Options.Any(x => x.Name == name[0]))
+                throw new ArgumentException("Specified subgroup/subcommand doesn't exist.");
+
+            return $"</{this.Name} {string.Join(" ", name)}:{this.Id.ToString(CultureInfo.InvariantCulture)}>";
         }
 
         /// <summary>

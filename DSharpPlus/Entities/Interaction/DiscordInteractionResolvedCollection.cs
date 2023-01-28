@@ -60,5 +60,11 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("messages", NullValueHandling = NullValueHandling.Ignore)]
         public IReadOnlyDictionary<ulong, DiscordMessage> Messages { get; internal set; }
+
+        /// <summary>
+        /// The resolved attachment objects, if any.
+        /// </summary>
+        [JsonProperty("attachments")]
+        public IReadOnlyDictionary<ulong, DiscordAttachment> Attachments { get; internal set; }
     }
 }

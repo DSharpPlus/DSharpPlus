@@ -56,6 +56,11 @@ namespace DSharpPlus
         /// <summary>
         /// Responds to an auto-complete request.
         /// </summary>
-        AutoCompleteResult = 8
+        AutoCompleteResult = 8,
+
+        /// <summary>
+        /// Respond to an interaction with a modal popup.
+        /// </summary>
+        Modal = 9,
     }
 }

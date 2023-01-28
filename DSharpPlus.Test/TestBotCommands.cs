@@ -27,7 +27,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -81,7 +80,7 @@ namespace DSharpPlus.Test
         public class Binding : BaseCommandModule
         {
             [Command("message"), Aliases("msg"), Description("Attempts to bind a message.")]
-            public Task MessageAsync(CommandContext ctx, DiscordMessage msg)
+            public static Task MessageAsync(CommandContext ctx, DiscordMessage msg)
                 => ctx.RespondAsync(embed: new DiscordEmbedBuilder()
                     .WithTimestamp(msg.CreationTimestamp)
                     .WithAuthor($"{msg.Author.Username}#{msg.Author.Discriminator}", msg.Author.AvatarUrl)
@@ -91,13 +90,13 @@ namespace DSharpPlus.Test
         [Command("editmention")]
         public async Task EditMentionsAsync(CommandContext ctx)
         {
-            var builder = new DiscordMessageBuilder()
+            IDiscordMessageBuilder builder = new DiscordMessageBuilder()
                 .WithContent("Mentioning <@&879398655130472508> and <@743323785549316197>")
                 .WithReply(ctx.Message.Id, true)
-                .WithAllowedMention(new RoleMention(879398655130472508));
-                //.WithAllowedMention(new UserMention(743323785549316197));//.WithAllowedMention(new RoleMention(879398655130472508));
+                .AddMention(new RoleMention(879398655130472508));
+            //.WithAllowedMention(new UserMention(743323785549316197));//.WithAllowedMention(new RoleMention(879398655130472508));
 
-            var msg = await builder.SendAsync(ctx.Channel);
+            var msg = await (builder as DiscordMessageBuilder).SendAsync(ctx.Channel);
             await msg.ModifyAsync("Mentioning <@&879398655130472508> and <@743323785549316197>, but edited!");
         }
 
@@ -136,7 +135,7 @@ namespace DSharpPlus.Test
 
             await new DiscordMessageBuilder()
                .WithContent("❌ Empty Mention Array: " + content)
-               .WithAllowedMentions(new IMention[0])
+               .WithAllowedMentions(Array.Empty<IMention>())
                .SendAsync(ctx.Channel)
                .ConfigureAwait(false);                                                                                                                       //Should ping no one
 
@@ -198,7 +197,7 @@ namespace DSharpPlus.Test
             var test6Msg = await ctx.Channel.SendMessageAsync("❌ Empty Mention Array: " + origcontent).ConfigureAwait(false);
             await new DiscordMessageBuilder()
                .WithContent("❌ Empty Mention Array: " + newContent)
-               .WithAllowedMentions(new IMention[0])
+               .WithAllowedMentions(Array.Empty<IMention>())
                .ModifyAsync(test6Msg)
                .ConfigureAwait(false);                                                                                                                               //Should ping no one
 
@@ -226,7 +225,7 @@ namespace DSharpPlus.Test
                 // Verify that the lib resets the position when asked
                 var builder = new DiscordMessageBuilder()
                     .WithContent("Testing the `Dictionary<string, stream>` Overload with resetting the postion turned on.")
-                    .WithFiles(new Dictionary<string, Stream>() { { "ADumbFile1.txt", fs } }, true);
+                    .AddFiles(new Dictionary<string, Stream>() { { "ADumbFile1.txt", fs } }, true);
 
                 await builder.SendAsync(ctx.Channel);
                 await builder.SendAsync(ctx.Channel);
@@ -235,7 +234,7 @@ namespace DSharpPlus.Test
 
                 //Verify the lib doesnt reset the position.  THe file sent should have 0 bytes.
                 builder.WithContent("Testing the `WithFile(Dictionary<string, stream> files)` Overload with resetting the postion turned off  The 2nd file sent should have 0 bytes.")
-                    .WithFiles(new Dictionary<string, Stream>() { { "ADumbFile1.txt", fs } }, false);
+                    .AddFiles(new Dictionary<string, Stream>() { { "ADumbFile1.txt", fs } }, false);
 
                 await builder.SendAsync(ctx.Channel);
                 await builder.SendAsync(ctx.Channel);
@@ -246,7 +245,7 @@ namespace DSharpPlus.Test
 
                 // Verify that the lib resets the position when asked
                 builder.WithContent("Testing the `WithFile(Stream stream)` Overload with resetting the postion turned on.")
-                    .WithFile(fs, true);
+                    .AddFile(fs, true);
 
                 await builder.SendAsync(ctx.Channel);
                 await builder.SendAsync(ctx.Channel);
@@ -255,7 +254,7 @@ namespace DSharpPlus.Test
 
                 //Verify the lib doesnt reset the position.  THe file sent should have 0 bytes.
                 builder.WithContent("Testing the `WithFile(Stream stream)` Overload with resetting the postion turned off.  The 2nd file sent should have 0 bytes.")
-                    .WithFile(fs, false);
+                    .AddFile(fs, false);
 
                 await builder.SendAsync(ctx.Channel);
                 await builder.SendAsync(ctx.Channel);
@@ -266,7 +265,7 @@ namespace DSharpPlus.Test
 
                 // Verify that the lib resets the position when asked
                 builder.WithContent("Testing the `WithFile(string fileName, Stream stream)` Overload with resetting the postion turned on.")
-                    .WithFile("ADumbFile2.txt", fs, true);
+                    .AddFile("ADumbFile2.txt", fs, true);
 
                 await builder.SendAsync(ctx.Channel);
                 await builder.SendAsync(ctx.Channel);
@@ -275,7 +274,7 @@ namespace DSharpPlus.Test
 
                 //Verify the lib doesnt reset the position.  THe file sent should have 0 bytes.
                 builder.WithContent("Testing the `WithFile(string fileName, Stream stream)` Overload with resetting the postion turned off.  The 2nd file sent should have 0 bytes.")
-                    .WithFile("ADumbFile2.txt", fs, false);
+                    .AddFile("ADumbFile2.txt", fs, false);
 
                 await builder.SendAsync(ctx.Channel);
                 await builder.SendAsync(ctx.Channel);
@@ -300,7 +299,7 @@ namespace DSharpPlus.Test
                 var builder = new DiscordMessageBuilder();
                 builder.WithContent("Here is a really dumb file that i am testing with.");
                 //builder.WithFile(fileName);
-                builder.WithFile(fs);
+                builder.AddFile(fs);
 
                 foreach (var file in builder.Files)
                 {
@@ -502,7 +501,7 @@ namespace DSharpPlus.Test
             await ctx.RespondAsync($"{cNull.Mention}, {cAuto.Mention}, and {cFull.Mention} created. Delete channels? (Y)");
             var result = await ctx.Message.GetNextMessageAsync(m => m.Content.Equals("Y", StringComparison.OrdinalIgnoreCase), TimeSpan.FromMinutes(1));
 
-            if(!result.TimedOut)
+            if (!result.TimedOut)
             {
                 await cNull.DeleteAsync();
                 await cAuto.DeleteAsync();
@@ -536,7 +535,7 @@ namespace DSharpPlus.Test
         [RequirePermissions(Permissions.ManageChannels)]
         public async Task PurgeChatAsync(CommandContext ctx)
         {
-            DiscordChannel channel = ctx.Channel;
+            var channel = ctx.Channel;
             var z = ctx.Channel.Position;
             var x = await channel.CloneAsync();
             await channel.DeleteAsync();

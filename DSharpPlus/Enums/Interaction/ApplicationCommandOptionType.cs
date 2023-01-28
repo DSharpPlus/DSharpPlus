@@ -76,6 +76,11 @@ namespace DSharpPlus
         /// <summary>
         /// Whether this parameter is a double.
         /// </summary>
-        Number
+        Number,
+
+        /// <summary>
+        /// Whether this parameter is a Discord attachment.
+        /// </summary>
+        Attachment
     }
 }

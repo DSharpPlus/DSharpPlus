@@ -39,7 +39,7 @@ namespace DSharpPlus.CommandsNext.Exceptions
         /// <summary>
         /// Gets or sets the argument that caused the problem. This can be null.
         /// </summary>
-        public ParameterInfo Parameter { get; }
+        public ParameterInfo? Parameter { get; }
 
         /// <summary>
         /// Creates a new <see cref="InvalidOverloadException"/>.
@@ -47,7 +47,7 @@ namespace DSharpPlus.CommandsNext.Exceptions
         /// <param name="message">Exception message.</param>
         /// <param name="method">Method that caused the problem.</param>
         /// <param name="parameter">Method argument that caused the problem.</param>
-        public InvalidOverloadException(string message, MethodInfo method, ParameterInfo parameter)
+        public InvalidOverloadException(string message, MethodInfo method, ParameterInfo? parameter)
             : base(message)
         {
             this.Method = method;

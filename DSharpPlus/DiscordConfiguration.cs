@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using System.IO;
 using System.Net;
 using DSharpPlus.Net.Udp;
 using DSharpPlus.Net.WebSocket;
@@ -64,7 +65,7 @@ namespace DSharpPlus
 
         /// <summary>
         /// <para>Sets whether to rely on Discord for NTP (Network Time Protocol) synchronization with the "X-Ratelimit-Reset-After" header.</para>
-        /// <para>If the system clock is unsynced, setting this to true will ensure ratelimits are synced with Discord and reduce the risk of hitting one.</para>
+        /// <para>If the system clock is not synced, setting this to true will ensure ratelimits are synced with Discord and reduce the risk of hitting one.</para>
         /// <para>This should only be set to false if the system clock is synced with NTP.</para>
         /// <para>Defaults to true.</para>
         /// </summary>
@@ -102,8 +103,8 @@ namespace DSharpPlus
 
         /// <summary>
         /// <para>Sets the level of compression for WebSocket traffic.</para>
-        /// <para>Disabling this option will increase the amount of traffic sent via WebSocket. Setting <see cref="GatewayCompressionLevel.Payload"/> will enable compression for READY and GUILD_CREATE payloads. Setting <see cref="GatewayCompressionLevel.Stream"/> will enable compression for the entire WebSocket stream, drastically reducing amount of traffic.</para>
-        /// <para>Defaults to <see cref="GatewayCompressionLevel.Stream"/>.</para>
+        /// <para>Disabling this option will increase the amount of traffic sent via WebSocket. Setting <see cref="GatewayCompressionLevel.Payload"/> will enable compression for READY and GUILD_CREATE payloads. Setting <see cref="Stream"/> will enable compression for the entire WebSocket stream, drastically reducing amount of traffic.</para>
+        /// <para>Defaults to <see cref="Stream"/>.</para>
         /// </summary>
         public GatewayCompressionLevel GatewayCompressionLevel { internal get; set; } = GatewayCompressionLevel.Stream;
 
@@ -188,6 +189,11 @@ namespace DSharpPlus
         public ILoggerFactory LoggerFactory { internal get; set; } = null;
 
         /// <summary>
+        /// Whether to log unknown events or not. Defaults to true.
+        /// </summary>
+        public bool LogUnknownEvents { internal get; set; } = true;
+
+        /// <summary>
         /// Creates a new configuration with default values.
         /// </summary>
         public DiscordConfiguration()
@@ -217,6 +223,7 @@ namespace DSharpPlus
             this.ReconnectIndefinitely = other.ReconnectIndefinitely;
             this.Intents = other.Intents;
             this.LoggerFactory = other.LoggerFactory;
+            this.LogUnknownEvents = other.LogUnknownEvents;
         }
     }
 }

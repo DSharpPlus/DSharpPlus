@@ -118,7 +118,7 @@ namespace DSharpPlus.Entities
             if (!parse.Contains(ParseRoles) && roles.Count > 0)
                 this.Roles = roles;
 
-            //If we have a empty parse aray, we don't want to add it.
+            //If we have a empty parse array, we don't want to add it.
             if (parse.Count > 0)
                 this.Parse = parse;
         }
