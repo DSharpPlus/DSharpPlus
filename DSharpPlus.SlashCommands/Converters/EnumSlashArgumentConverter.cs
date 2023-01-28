@@ -22,25 +22,16 @@
 // SOFTWARE.
 
 using System;
-using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
+using System.Threading.Tasks;
+using DSharpPlus.Entities;
 
-namespace DSharpPlus.SlashCommands
+namespace DSharpPlus.SlashCommands.Converters
 {
-    /// <summary>
-    /// A configuration for a <see cref="SlashCommandsExtension"/>.
-    /// </summary>
-    public sealed class SlashCommandsConfiguration
+    public sealed class EnumSlashArgumentConverter : ISlashArgumentConverter<Enum>
     {
-        /// <summary>
-        /// <para>Sets the service provider.</para>
-        /// <para>Objects in this provider are used when instantiating slash command modules. This allows passing data around without resorting to static members.</para>
-        /// <para>Defaults to null.</para>
-        /// </summary>
-        public IServiceProvider Services { internal get; set; } = new ServiceCollection().BuildServiceProvider(true);
-
-        /// <summary>
-        /// When using params and the <see cref="Attributes.ParameterLimitAttribute"/>, this determines how the generated <see cref="Entities.DiscordApplicationCommandOption"/> names are formatted.
-        /// </summary>
-        public ParameterNamingStrategy ParameterNamingStrategy { internal get; set; } = ParameterNamingStrategy.Underscored;
+        // You're welcome for ruining your day.
+        public Task<Optional<Enum>> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo interactionMethodArgument)
+            => Task.FromResult(Optional.FromValue((Enum)Enum.Parse(interactionMethodArgument.ParameterType, interactionDataOption.Value.ToString())));
     }
 }

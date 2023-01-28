@@ -842,6 +842,25 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Batch modifies the role order in the guild.
+        /// </summary>
+        /// <param name="roles">A dictionary of guild roles indexed by their new role positions.</param>
+        /// <param name="reason">An optional Audit log reason on why this action was done.</param>
+        /// <returns>A list of all the current guild roles ordered in their new role positions.</returns>
+        public async Task<IReadOnlyList<DiscordRole>> ModifyRolePositionsAsync(IDictionary<int, DiscordRole> roles, string reason = null)
+        {
+            if (roles.Count == 0)
+                throw new ArgumentException("Roles cannot be empty.", nameof(roles));
+
+            // Sort the roles by position and create skeleton roles for the payload.
+            var returnedRoles = await this.Discord.ApiClient.ModifyGuildRolePositionsAsync(this.Id, roles.Select(x => new RestGuildRoleReorderPayload() { RoleId = x.Value.Id, Position = x.Key }), reason).ConfigureAwait(false);
+
+            // Update the cache as the endpoint returns all roles in the order they were sent.
+            this._roles = new(returnedRoles.Select(x => new KeyValuePair<ulong, DiscordRole>(x.Id, x)));
+            return returnedRoles;
+        }
+
+        /// <summary>
         /// Bans a specified member from this guild.
         /// </summary>
         /// <param name="member">Member to ban.</param>

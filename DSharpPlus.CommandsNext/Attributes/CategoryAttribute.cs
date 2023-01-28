@@ -22,25 +22,22 @@
 // SOFTWARE.
 
 using System;
-using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Generic;
+using System.Text;
 
-namespace DSharpPlus.SlashCommands
+namespace DSharpPlus.CommandsNext.Attributes
 {
-    /// <summary>
-    /// A configuration for a <see cref="SlashCommandsExtension"/>.
-    /// </summary>
-    public sealed class SlashCommandsConfiguration
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
+    public sealed class CategoryAttribute : Attribute
     {
-        /// <summary>
-        /// <para>Sets the service provider.</para>
-        /// <para>Objects in this provider are used when instantiating slash command modules. This allows passing data around without resorting to static members.</para>
-        /// <para>Defaults to null.</para>
-        /// </summary>
-        public IServiceProvider Services { internal get; set; } = new ServiceCollection().BuildServiceProvider(true);
+        public string? Name { get; }
 
-        /// <summary>
-        /// When using params and the <see cref="Attributes.ParameterLimitAttribute"/>, this determines how the generated <see cref="Entities.DiscordApplicationCommandOption"/> names are formatted.
-        /// </summary>
-        public ParameterNamingStrategy ParameterNamingStrategy { internal get; set; } = ParameterNamingStrategy.Underscored;
+        public CategoryAttribute(string? name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentNullException(nameof(name), "Command category names cannot be null, empty, or all-whitespace.");
+
+            this.Name = name;
+        }
     }
 }

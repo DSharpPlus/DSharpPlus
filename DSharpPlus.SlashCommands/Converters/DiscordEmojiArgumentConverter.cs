@@ -21,26 +21,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
-using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
+using System.Threading.Tasks;
+using DSharpPlus.Entities;
 
-namespace DSharpPlus.SlashCommands
+namespace DSharpPlus.SlashCommands.Converters
 {
-    /// <summary>
-    /// A configuration for a <see cref="SlashCommandsExtension"/>.
-    /// </summary>
-    public sealed class SlashCommandsConfiguration
+    public sealed class DiscordEmojiSlashArgumentConverter : ISlashArgumentConverter<DiscordEmoji>
     {
-        /// <summary>
-        /// <para>Sets the service provider.</para>
-        /// <para>Objects in this provider are used when instantiating slash command modules. This allows passing data around without resorting to static members.</para>
-        /// <para>Defaults to null.</para>
-        /// </summary>
-        public IServiceProvider Services { internal get; set; } = new ServiceCollection().BuildServiceProvider(true);
-
-        /// <summary>
-        /// When using params and the <see cref="Attributes.ParameterLimitAttribute"/>, this determines how the generated <see cref="Entities.DiscordApplicationCommandOption"/> names are formatted.
-        /// </summary>
-        public ParameterNamingStrategy ParameterNamingStrategy { internal get; set; } = ParameterNamingStrategy.Underscored;
+        public Task<Optional<DiscordEmoji>> ConvertAsync(InteractionContext interactionContext, DiscordInteractionDataOption interactionDataOption, ParameterInfo interactionMethodArgument)
+            => Task.FromResult(DiscordEmoji.TryFromUnicode(interactionContext.Client, interactionDataOption.ToString(), out var emoji) || DiscordEmoji.TryFromName(interactionContext.Client, interactionDataOption.ToString(), out emoji)
+                ? Optional.FromValue(emoji)
+                : Optional.FromNoValue<DiscordEmoji>());
     }
 }

@@ -214,7 +214,7 @@ namespace DSharpPlus
 
                 case "guild_member_update":
                     gid = (ulong)dat["guild_id"];
-                    await this.OnGuildMemberUpdateEventAsync(dat.ToDiscordObject<TransportMember>(), this._guilds[gid], dat["roles"].ToDiscordObject<IEnumerable<ulong>>(), (string)dat["nick"], (bool?)dat["pending"], (DateTimeOffset?)dat["communication_disabled_until"]).ConfigureAwait(false);
+                    await this.OnGuildMemberUpdateEventAsync(dat.ToDiscordObject<TransportMember>(), this._guilds[gid]).ConfigureAwait(false);
                     break;
 
                 case "guild_members_chunk":
@@ -1236,48 +1236,25 @@ namespace DSharpPlus
             await this._guildMemberRemoved.InvokeAsync(this, ea).ConfigureAwait(false);
         }
 
-        internal async Task OnGuildMemberUpdateEventAsync(TransportMember member, DiscordGuild guild, IEnumerable<ulong> roles, string nick, bool? pending, DateTimeOffset? comunication_disabled_until)
+        internal async Task OnGuildMemberUpdateEventAsync(TransportMember member, DiscordGuild guild)
         {
-            var usr = new DiscordUser(member.User) { Discord = this };
-            usr = this.UpdateUserCache(usr);
+            var userAfter = new DiscordUser(member.User) { Discord = this };
+            _ = this.UpdateUserCache(userAfter);
 
-            if (!guild.Members.TryGetValue(member.User.Id, out var mbr))
-                mbr = new DiscordMember(usr) { Discord = this, _guild_id = guild.Id };
+            var memberAfter = new DiscordMember(member) { Discord = this, _guild_id = guild.Id };
 
-            var nick_old = mbr.Nickname;
-            var pending_old = mbr.IsPending;
-            var roles_old = new ReadOnlyCollection<DiscordRole>(new List<DiscordRole>(mbr.Roles));
-            var avatar_old = mbr.GuildAvatarHash;
-            var username_old = mbr.Username;
-            var commm_old = mbr.CommunicationDisabledUntil;
+            if (!guild.Members.TryGetValue(member.User.Id, out var memberBefore))
+                memberBefore = new DiscordMember(member) { Discord = this, _guild_id = guild.Id };
 
-            mbr.Username = member.User.Username;
-            mbr._avatarHash = member.AvatarHash;
-            mbr.Nickname = nick;
-            mbr.IsPending = pending;
-            mbr._role_ids.Clear();
-            mbr._role_ids.AddRange(roles);
-            mbr.CommunicationDisabledUntil = comunication_disabled_until;
+            guild._members.AddOrUpdate(member.User.Id, memberAfter, (_, _) => memberAfter);
 
             var ea = new GuildMemberUpdateEventArgs
             {
                 Guild = guild,
-                Member = mbr,
-
-                NicknameAfter = mbr.Nickname,
-                RolesAfter = new ReadOnlyCollection<DiscordRole>(new List<DiscordRole>(mbr.Roles)),
-                AvatarHashAfter = mbr.AvatarHash,
-                UsernameAfter = mbr.Username,
-                PendingAfter = mbr.IsPending,
-                CommunicationDisabledUntilAfter = mbr.CommunicationDisabledUntil,
-
-                NicknameBefore = nick_old,
-                RolesBefore = roles_old,
-                AvatarHashBefore = avatar_old,
-                UsernameBefore = username_old,
-                PendingBefore = pending_old,
-                CommunicationDisabledUntilBefore = commm_old
+                MemberAfter = memberAfter,
+                MemberBefore = memberBefore,
             };
+
             await this._guildMemberUpdated.InvokeAsync(this, ea).ConfigureAwait(false);
         }
 

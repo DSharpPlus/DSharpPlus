@@ -23,16 +23,15 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using DSharpPlus.SlashCommands.Attributes;
+using DSharpPlus.SlashCommands.Converters;
 using DSharpPlus.SlashCommands.EventArgs;
 using Emzi0767.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -86,21 +85,54 @@ namespace DSharpPlus.SlashCommands
         /// <remarks>
         /// TODO: Use this to add converter support later.
         /// </remarks>
-        private static readonly ReadOnlyDictionary<Type, ApplicationCommandOptionType> _validOptionTypes = new(new Dictionary<Type, ApplicationCommandOptionType>()
+        private readonly Dictionary<Type, ApplicationCommandOptionType> _validOptionTypes = new()
         {
             [typeof(bool)] = ApplicationCommandOptionType.Boolean,
+            [typeof(byte)] = ApplicationCommandOptionType.Integer,
+            [typeof(sbyte)] = ApplicationCommandOptionType.Integer,
+            [typeof(short)] = ApplicationCommandOptionType.Integer,
+            [typeof(ushort)] = ApplicationCommandOptionType.Integer,
+            [typeof(int)] = ApplicationCommandOptionType.Integer,
+            [typeof(uint)] = ApplicationCommandOptionType.Integer,
             [typeof(long)] = ApplicationCommandOptionType.Integer,
+            [typeof(ulong)] = ApplicationCommandOptionType.Integer,
             [typeof(double)] = ApplicationCommandOptionType.Number,
             [typeof(string)] = ApplicationCommandOptionType.String,
             [typeof(TimeSpan)] = ApplicationCommandOptionType.String,
             [typeof(Enum)] = ApplicationCommandOptionType.String,
             [typeof(DiscordChannel)] = ApplicationCommandOptionType.Channel,
             [typeof(DiscordUser)] = ApplicationCommandOptionType.User,
+            [typeof(DiscordMember)] = ApplicationCommandOptionType.User,
             [typeof(DiscordRole)] = ApplicationCommandOptionType.Role,
             [typeof(DiscordEmoji)] = ApplicationCommandOptionType.String,
+            [typeof(DiscordMessage)] = ApplicationCommandOptionType.String,
             [typeof(DiscordAttachment)] = ApplicationCommandOptionType.Attachment,
             [typeof(SnowflakeObject)] = ApplicationCommandOptionType.Mentionable
-        });
+        };
+
+        private readonly Dictionary<Type, ISlashArgumentConverter> _converters = new()
+        {
+            [typeof(bool)] = new BooleanSlashArgumentConverter(),
+            [typeof(byte)] = new ByteSlashArgumentConverter(),
+            [typeof(sbyte)] = new SByteSlashArgumentConverter(),
+            [typeof(short)] = new Int16SlashArgumentConverter(),
+            [typeof(ushort)] = new UInt16SlashArgumentConverter(),
+            [typeof(int)] = new Int32SlashArgumentConverter(),
+            [typeof(uint)] = new UInt32SlashArgumentConverter(),
+            [typeof(long)] = new Int64SlashArgumentConverter(),
+            [typeof(ulong)] = new UInt64SlashArgumentConverter(),
+            [typeof(double)] = new DoubleSlashArgumentConverter(),
+            [typeof(string)] = new StringSlashArgumentConverter(),
+            [typeof(TimeSpan)] = new TimeSpanSlashArgumentConverter(),
+            [typeof(Enum)] = new EnumSlashArgumentConverter(),
+            [typeof(DiscordChannel)] = new DiscordChannelSlashArgumentConverter(),
+            [typeof(DiscordUser)] = new DiscordUserSlashArgumentConverter(),
+            [typeof(DiscordMember)] = new DiscordMemberSlashArgumentConverter(),
+            [typeof(DiscordRole)] = new DiscordRoleSlashArgumentConverter(),
+            [typeof(DiscordEmoji)] = new DiscordEmojiSlashArgumentConverter(),
+            [typeof(DiscordMessage)] = new DiscordMessageSlashArgumentConverter(),
+            [typeof(DiscordAttachment)] = new DiscordAttachmentSlashArgumentConverter()
+        };
 
         /// <summary>
         /// A list of registered application commands. The keys represent guild ids or global commands if the key is null.
@@ -111,6 +143,11 @@ namespace DSharpPlus.SlashCommands
         /// INTENTIONALLY not a dictionary because a dictionary cannot have null or duplicate keys (where the key represents guild ids or global commands).
         /// </summary>
         private static readonly List<KeyValuePair<ulong?, IReadOnlyList<DiscordApplicationCommand>>> _registeredCommands = new();
+
+        /// <summary>
+        /// The method info of the <see cref="ConvertArgumentAsync{T}(ISlashArgumentConverter{T}, InteractionContext, DiscordInteractionDataOption, ParameterInfo)"/> method. Inteded to be used to parse parameters with generics through reflection.
+        /// </summary>
+        private static readonly MethodInfo _convertArgumentMethodInfo = typeof(SlashCommandsExtension).GetMethod(nameof(ConvertArgumentAsync), BindingFlags.NonPublic | BindingFlags.Static);
 
         internal SlashCommandsExtension(SlashCommandsConfiguration configuration)
         {
@@ -157,6 +194,20 @@ namespace DSharpPlus.SlashCommands
                 }
             }
             return Task.CompletedTask;
+        }
+
+        public void RegisterConverter<T>(ISlashArgumentConverter<T> converter, ApplicationCommandOptionType optionType) => this.RegisterConverter(typeof(T), converter, optionType);
+
+        public void RegisterConverter(Type entityType, ISlashArgumentConverter converter, ApplicationCommandOptionType optionType)
+        {
+            if (entityType is null)
+                throw new ArgumentNullException(nameof(entityType));
+            else if (converter is null)
+                throw new ArgumentNullException(nameof(converter));
+            else if (!entityType.IsEquivalentTo(converter.GetType().GenericTypeArguments[0]))
+                throw new ArgumentException($"The entity type ({entityType.FullName}) must be the same as the converter type ({converter.GetType().GenericTypeArguments[0].FullName}).", nameof(entityType));
+            this._validOptionTypes.Add(entityType, optionType);
+            this._converters.Add(entityType, converter);
         }
 
         /// <summary>
@@ -409,7 +460,7 @@ namespace DSharpPlus.SlashCommands
 
                 IEnumerable<DiscordApplicationCommand> commands;
                 // Creates a guild command if a guild id is specified, otherwise global
-                commands = guildId is null
+                commands = guildId == 0
                     ? await this.Client.BulkOverwriteGlobalApplicationCommandsAsync(updateList)
                     : await this.Client.BulkOverwriteGuildApplicationCommandsAsync(guildId.Value, updateList);
 
@@ -444,20 +495,31 @@ namespace DSharpPlus.SlashCommands
         /// <param name="parameters">The parameters to convert.</param>
         /// <param name="guildId">The guild id to register the commands to. <see langword="null"/> to register the slash command globally.</param>
         /// <returns>A list of <see cref="DiscordApplicationCommandOption"/>, options Discord can parse in slash commands.</returns>
+        [SuppressMessage("Styling", "IDE0047", Justification = "Readability for basic arithmetic.")]
         private async Task<List<DiscordApplicationCommandOption>> ParseParameters(ParameterInfo[] parameters, ulong? guildId)
         {
             var options = new List<DiscordApplicationCommandOption>();
             foreach (var parameter in parameters)
             {
                 // Retrieves the attribute
-                var optionAttribute = parameter.GetCustomAttribute<OptionAttribute>() ?? throw new ArgumentException($"Argument {parameter.Name} on method {this.GetFullname(parameter.Member)} requires an {this.GetFullname(typeof(OptionAttribute))}!");
+                var optionAttribute = parameter.GetCustomAttribute<OptionAttribute>() ?? throw new ArgumentException($"Argument \"{parameter.Name}\" on method \"{this.GetFullname(parameter.Member)}\" requires an {this.GetFullname(typeof(OptionAttribute))}!");
+                var parameterLimitAttribute = parameter.GetCustomAttribute<ParameterLimitAttribute>();
 
-                // Remove the type nullability for retrieving the option type from the dictionary.
-                var parameterType = Nullable.GetUnderlyingType(parameter.ParameterType) ?? parameter.ParameterType;
-                if (!_validOptionTypes.TryGetValue(parameterType, out var parameterOptionType))
+                Type parameterType;
+                if (parameter.ParameterType.IsArray && parameterLimitAttribute != null)
                 {
-                    // `string.Join` to prevent hardcoding the types. Could lead to extremely an long error message when custom converters are implemented.
-                    throw new ArgumentException($"Argument {parameter.Name} on method {this.GetFullname(parameter.Member)} has an invalid type! Acceptable types are: {string.Join(", ", _validOptionTypes.Keys.Select(type => type.Name))}");
+                    parameterType = parameter.ParameterType.GetElementType();
+                }
+                else
+                {
+                    // Remove the type nullability for retrieving the option type from the dictionary.
+                    parameterType = Nullable.GetUnderlyingType(parameter.ParameterType) ?? parameter.ParameterType;
+                }
+
+                if (!_validOptionTypes.TryGetValue(parameterType.IsEnum ? typeof(Enum) : parameterType, out var parameterOptionType))
+                {
+                    // `string.Join` to prevent hardcoding the types. Could lead to extremely an long error message when many custom converters are registered.
+                    throw new MissingArgumentConverterException(parameterType, $"Argument {parameter.Name} on method {this.GetFullname(parameter.Member)} is missing a type converter! Acceptable types are: {string.Join(", ", _validOptionTypes.Keys.Select(type => type.Name))}");
                 }
 
                 IEnumerable<DiscordApplicationCommandOptionChoice> choices;
@@ -492,10 +554,46 @@ namespace DSharpPlus.SlashCommands
                 if (autocompleteAttribute != null && autocompleteAttribute.Provider.IsSubclassOf(typeof(IAutocompleteProvider)))
                     throw new ArgumentException($"Type {this.GetFullname(autocompleteAttribute.Provider)} on parameter {parameter.Name} in method {this.GetFullname(parameter.Member)} was used as an autocomplete provider, however it does not inherit from {nameof(IAutocompleteProvider)}!");
 
-                options.Add(new DiscordApplicationCommandOption(optionAttribute.Name, optionAttribute.Description, parameterOptionType, !parameter.IsOptional, choices, null, channelTypes, autocompleteAttribute != null || optionAttribute.Autocomplete, minimumValue, maximumValue, nameLocalizations, descriptionLocalizations, minimumLength, maximumLength));
+                // I don't enjoy how we're checking this twice instead of doing it in a singular check.
+                if (parameter.ParameterType.IsArray)
+                {
+                    if (!parameter.IsDefined(typeof(ParamArrayAttribute)))
+                    {
+                        throw new ArgumentException($"Parameter {parameter.Name} in method {this.GetFullname(parameter.Member)} is an array, but is not marked with the params modifier! In order to use arrays in slash commands, you must mark the parameter with the params modifier and the {nameof(ParameterLimitAttribute)}.");
+                    }
+                    else if (parameterLimitAttribute is null)
+                    {
+                        throw new ArgumentException($"Parameter {parameter.Name} in method {this.GetFullname(parameter.Member)} is an array, but is not marked with the {nameof(ParameterLimitAttribute)}! In order to use arrays in slash commands, you must mark the parameter with the params modifier and the {nameof(ParameterLimitAttribute)}.");
+                    }
+
+                    for (var i = 1; i <= parameterLimitAttribute.Max; i++)
+                    {
+                        if (options.Count >= 25)
+                            throw new ArgumentException($"Parameter \"{parameter.Name}\" in method \"{this.GetFullname(parameter.Member)}\" has too many options! The maximum amount of options is 25, the amount attempted to be registered is {(options.Count - i) + options.Count + 1}. Try changing the {nameof(ParameterLimitAttribute)}.{nameof(ParameterLimitAttribute.Max)} on parameter \"{parameter.Name}\" to {25 - parameters.Length + 1}.");
+
+                        options.Add(new DiscordApplicationCommandOption(
+                            _configuration.ParameterNamingStrategy switch
+                            {
+                                ParameterNamingStrategy.Underscored => SetOptionName(optionAttribute.Name, i, '_'), // MyThirtyTwoCharacterFillerString -> MyThirtyTwoCharacterFillerStri_1
+                                ParameterNamingStrategy.Dashed => SetOptionName(optionAttribute.Name, i, '-'), // MyThirtyTwoCharacterFillerString -> MyThirtyTwoCharacterFillerStri-1
+                                ParameterNamingStrategy.None => SetOptionName(optionAttribute.Name, i), // MyThirtyTwoCharacterFillerString -> MyThirtyTwoCharacterFillerStrie1
+                                _ => throw new ArgumentOutOfRangeException(nameof(_configuration.ParameterNamingStrategy), _configuration.ParameterNamingStrategy, "Unknown param naming strategy! This is a library bug, please report it.")
+                            }, optionAttribute.Description, parameterOptionType, i <= parameterLimitAttribute.Min, choices, null, channelTypes, autocompleteAttribute is not null || optionAttribute.Autocomplete, minimumValue, maximumValue, nameLocalizations, descriptionLocalizations, minimumLength, maximumLength));
+                    }
+                }
+                else
+                {
+                    options.Add(new DiscordApplicationCommandOption(optionAttribute.Name, optionAttribute.Description, parameterOptionType, !parameter.IsOptional, choices, null, channelTypes, autocompleteAttribute is not null || optionAttribute.Autocomplete, minimumValue, maximumValue, nameLocalizations, descriptionLocalizations, minimumLength, maximumLength));
+                }
             }
 
             return options;
+        }
+
+        private static string SetOptionName(string source, int number, char? separator = null)
+        {
+            var temp = $"{separator}{number}";
+            return source.Length + temp.Length > 32 ? $"{source.Substring(0, 32 - temp.Length)}{temp}" : $"{source}{temp}";
         }
 
         /// <summary>
@@ -631,7 +729,7 @@ namespace DSharpPlus.SlashCommands
                     if (methods.Any())
                     {
                         var method = methods.First().Method;
-                        var args = await this.ResolveInteractionCommandParameters(eventArgs, context, method, eventArgs.Interaction.Data.Options);
+                        var args = await this.ResolveInteractionCommandParameters(context, method, eventArgs.Interaction.Data.Options);
 
                         await this.RunCommandAsync(context, method, args);
                     }
@@ -640,7 +738,7 @@ namespace DSharpPlus.SlashCommands
                         var command = eventArgs.Interaction.Data.Options.First();
                         var method = groups.First().Methods.First(x => x.Key == command.Name).Value;
 
-                        var args = await this.ResolveInteractionCommandParameters(eventArgs, context, method, eventArgs.Interaction.Data.Options.First().Options);
+                        var args = await this.ResolveInteractionCommandParameters(context, method, eventArgs.Interaction.Data.Options.First().Options);
 
                         await this.RunCommandAsync(context, method, args);
                     }
@@ -650,7 +748,7 @@ namespace DSharpPlus.SlashCommands
                         var group = subgroups.First().SubCommands.First(x => x.Name == command.Name);
                         var method = group.Methods.First(x => x.Key == command.Options.First().Name).Value;
 
-                        var args = await this.ResolveInteractionCommandParameters(eventArgs, context, method, eventArgs.Interaction.Data.Options.First().Options.First().Options);
+                        var args = await this.ResolveInteractionCommandParameters(context, method, eventArgs.Interaction.Data.Options.First().Options.First().Options);
                         await this.RunCommandAsync(context, method, args);
                     }
 
@@ -658,7 +756,7 @@ namespace DSharpPlus.SlashCommands
                 }
                 catch (Exception ex)
                 {
-                    await this._slashError.InvokeAsync(this, new SlashCommandErrorEventArgs { Context = context, Exception = ex });
+                    await this._slashError.InvokeAsync(this, new SlashCommandErrorEventArgs { Context = context, Exception = ex.InnerException ?? ex });
                 }
             }
 
@@ -745,7 +843,7 @@ namespace DSharpPlus.SlashCommands
             }
             catch (Exception ex)
             {
-                await this._contextMenuErrored.InvokeAsync(this, new ContextMenuErrorEventArgs { Context = context, Exception = ex });
+                await this._contextMenuErrored.InvokeAsync(this, new ContextMenuErrorEventArgs { Context = context, Exception = ex.InnerException ?? ex });
             }
         }
 
@@ -767,37 +865,30 @@ namespace DSharpPlus.SlashCommands
                 _ => throw new NotImplementedException($"An unknown {nameof(SlashModuleLifespanAttribute)} scope was specified on command {context.CommandName}")
             };
 
-            var applicationCommand = classInstance as ApplicationCommandModule;
+            if (classInstance is not ApplicationCommandModule applicationCommand)
+            {
+                this.Client.Logger.LogError($"{context.Interaction.Data.Name} ({context.Interaction.Data.Id}) was executed as a slash command, however the registered module {this.GetFullname(method.DeclaringType)} is not an {nameof(ApplicationCommandModule)}.");
+                return;
+            }
 
+            // If there are more command types added in the future, turn this into a switch case.
             // Slash commands
             if (context is InteractionContext slashContext)
             {
                 await this._slashInvoked.InvokeAsync(this, new SlashCommandInvokedEventArgs { Context = slashContext }, AsyncEventExceptionMode.ThrowAll);
                 await this.RunPreexecutionChecksAsync(method, slashContext);
-
-                // Runs BeforeExecution and accounts for groups that don't inherit from ApplicationCommandModule
-                var shouldExecute = await (applicationCommand?.BeforeSlashExecutionAsync(slashContext) ?? Task.FromResult(true));
-
-                if (shouldExecute)
+                if (await applicationCommand.BeforeSlashExecutionAsync(slashContext))
                 {
                     await (Task)method.Invoke(classInstance, args.ToArray());
-
-                    // Runs AfterExecution and accounts for groups that don't inherit from ApplicationCommandModule
-                    await (applicationCommand?.AfterSlashExecutionAsync(slashContext) ?? Task.CompletedTask);
+                    await applicationCommand.AfterSlashExecutionAsync(slashContext);
                 }
             }
-
-            // A context can be both a context menu and a slash command context.
-
-            // Context menus
-            if (context is ContextMenuContext contextMenuContext)
+            // Context menu commands
+            else if (context is ContextMenuContext contextMenuContext)
             {
                 await this._contextMenuInvoked.InvokeAsync(this, new ContextMenuInvokedEventArgs() { Context = contextMenuContext }, AsyncEventExceptionMode.ThrowAll);
                 await this.RunPreexecutionChecksAsync(method, contextMenuContext);
-
-                // This null check actually shouldn't be necessary for context menus but I'll keep it in just in case
-                var shouldExecute = await (applicationCommand?.BeforeContextMenuExecutionAsync(contextMenuContext) ?? Task.FromResult(true));
-                if (shouldExecute)
+                if (await applicationCommand.BeforeContextMenuExecutionAsync(contextMenuContext))
                 {
                     await (Task)method.Invoke(classInstance, args.ToArray());
                     await (applicationCommand?.AfterContextMenuExecutionAsync(contextMenuContext) ?? Task.CompletedTask);
@@ -817,7 +908,7 @@ namespace DSharpPlus.SlashCommands
             var properties = type.GetRuntimeProperties().Where(x => x.CanWrite && x.SetMethod.IsPublic && !x.SetMethod.IsStatic && !x.IsDefined(typeof(DontInjectAttribute)));
             var fields = type.GetRuntimeFields().Where(x => x.IsPublic && !x.IsStatic && !x.IsInitOnly && !x.IsDefined(typeof(DontInjectAttribute)));
 
-            // Static constructor?
+            // No DI I guess?
             if (!constructors.Any() && !properties.Any() && !fields.Any())
             {
                 return Activator.CreateInstance(type);
@@ -839,6 +930,7 @@ namespace DSharpPlus.SlashCommands
                     property.SetValue(typeInstance, serviceProvider.GetService(property.PropertyType));
                 }
             }
+            // Not an else if because a class can have both properties and fields. Fun fact: Did you know that `init` property accessors are actually just readonly fields?
             if (fields.Any())
             {
                 foreach (var field in fields)
@@ -851,172 +943,101 @@ namespace DSharpPlus.SlashCommands
         }
 
         // Parses slash command parameters
-        private async Task<List<object>> ResolveInteractionCommandParameters(InteractionCreateEventArgs eventArgs, InteractionContext context, MethodInfo method, IEnumerable<DiscordInteractionDataOption> options)
+        private async Task<List<object>> ResolveInteractionCommandParameters(InteractionContext context, MethodInfo method, IEnumerable<DiscordInteractionDataOption> options)
         {
             var args = new List<object> { context };
-            var parameters = method.GetParameters().Skip(1);
+            var methodParameters = method.GetParameters();
 
-            for (var i = 0; i < parameters.Count(); i++)
+            // Start at 1 to skip the first parameter (interaction context)
+            for (var i = 1; i < methodParameters.Length; i++)
             {
-                var parameter = parameters.ElementAt(i);
-                var parameterOption = parameter.GetCustomAttribute<OptionAttribute>();
+                var parameter = methodParameters[i];
+                if (options == null)
+                {
+                    args.Add(parameter.ParameterType.IsArray ? Array.CreateInstance(parameter.ParameterType.GetElementType(), 0) : parameter.DefaultValue);
+                    continue;
+                }
 
-                // Accounts for optional arguments without values given
-                if (parameter.IsOptional && (!options?.Any(x => x.Name.Equals(parameterOption.Name, StringComparison.InvariantCultureIgnoreCase)) ?? true))
+                var parameterOptionAttribute = parameter.GetCustomAttribute<OptionAttribute>();
+                var parameterLimitAttribute = parameter.GetCustomAttribute<ParameterLimitAttribute>();
+                var relatedOptions = parameterLimitAttribute is null
+                    // Should only be 1 element but it's in IEnumerable form
+                    ? options.Where(option => option.Name.Equals(parameterOptionAttribute.Name, StringComparison.InvariantCultureIgnoreCase))
+                    // The rest of the choices generated by params
+                    : options.Skip(i - 1);
+
+                List<object> resolvedParams = new();
+                foreach (var option in relatedOptions)
+                {
+                    Type parameterType;
+                    if (parameter.ParameterType.IsArray)
+                    {
+                        parameterType = parameter.ParameterType.GetElementType();
+                    }
+                    else if (parameter.ParameterType.IsEnum)
+                    {
+                        parameterType = typeof(Enum);
+                    }
+                    else
+                    {
+                        parameterType = Nullable.GetUnderlyingType(parameter.ParameterType) ?? parameter.ParameterType;
+                    }
+
+                    if (!_validOptionTypes.ContainsKey(parameterType) || !_converters.TryGetValue(parameterType, out var converter))
+                    {
+                        throw new InvalidOperationException($"Parameter {parameter.Name} on method {method.Name} in class {this.GetFullname(method.DeclaringType)} does not have a converter for type {this.GetFullname(parameterType)}");
+                    }
+
+                    var convertArgumentGenericMethod = _convertArgumentMethodInfo.MakeGenericMethod(parameterType);
+                    var conversionTask = (Task<IOptional>)convertArgumentGenericMethod.Invoke(converter, new object[] { converter, context, option, parameter });
+                    await conversionTask;
+                    if (conversionTask.Exception != null)
+                    {
+                        throw new ArgumentException($"Failed to convert parameter {parameter.Name} on method {method.Name} in class {this.GetFullname(method.DeclaringType)}. See inner exception for details.", conversionTask.Exception);
+                    }
+                    else if (!conversionTask.Result.HasValue)
+                    {
+                        throw new ArgumentException($"Argument converter {this.GetFullname(converter.GetType())} returned false, indicating that the conversion for the parameter {parameter.Name} on method {method.Name} in class {this.GetFullname(method.DeclaringType)} failed.");
+                    }
+
+                    // TODO: Attribute checks
+                    resolvedParams.Add(conversionTask.Result.RawValue);
+                }
+
+                if (resolvedParams.Count == 0 && parameter.IsOptional)
+                {
                     args.Add(parameter.DefaultValue);
+                }
+                else if (!parameter.ParameterType.IsArray)
+                {
+                    args.Add(resolvedParams[0]);
+                }
                 else
                 {
-                    var option = options.Single(x => x.Name.Equals(parameterOption.Name, StringComparison.InvariantCultureIgnoreCase));
-
-                    // Checks the type and casts/references resolved and adds the value to the list
-                    // This can probably reference the slash command's type property that didn't exist when I wrote this and it could use a cleaner switch instead, but if it works it works
-                    // TODO: Custom converter support w/ _validOptionTypes
-                    // TODO: Move these converters to their own file.
-                    if (parameter.ParameterType == typeof(string))
-                        args.Add(option.Value.ToString());
-                    else if (parameter.ParameterType.IsEnum)
-                        args.Add(Enum.Parse(parameter.ParameterType, (string)option.Value));
-                    else if (Nullable.GetUnderlyingType(parameter.ParameterType)?.IsEnum == true)
-                        args.Add(Enum.Parse(Nullable.GetUnderlyingType(parameter.ParameterType), (string)option.Value));
-                    else if (parameter.ParameterType == typeof(long) || parameter.ParameterType == typeof(long?))
-                        args.Add((long?)option.Value);
-                    else if (parameter.ParameterType == typeof(bool) || parameter.ParameterType == typeof(bool?))
-                        args.Add((bool?)option.Value);
-                    else if (parameter.ParameterType == typeof(double) || parameter.ParameterType == typeof(double?))
-                        args.Add((double?)option.Value);
-                    else if (parameter.ParameterType == typeof(TimeSpan?))
+                    // Copy resolvedParams to Array.CreateInstance
+                    var array = Array.CreateInstance(parameter.ParameterType.GetElementType(), resolvedParams.Count);
+                    for (var item = 0; item < resolvedParams.Count; item++)
                     {
-                        var timeSpanRegex = new Regex(@"^(?<days>\d+d\s*)?(?<hours>\d{1,2}h\s*)?(?<minutes>\d{1,2}m\s*)?(?<seconds>\d{1,2}s\s*)?$", RegexOptions.ECMAScript);
-                        var value = option.Value.ToString();
-                        if (value == "0")
-                        {
-                            args.Add(TimeSpan.Zero);
-                            continue;
-                        }
-                        if (int.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out _))
-                        {
-                            args.Add(null);
-                            continue;
-                        }
-                        value = value.ToLowerInvariant();
-
-                        if (TimeSpan.TryParse(value, CultureInfo.InvariantCulture, out var result))
-                        {
-                            args.Add(result);
-                            continue;
-                        }
-                        var gps = new string[] { "days", "hours", "minutes", "seconds" };
-                        var mtc = timeSpanRegex.Match(value);
-                        if (!mtc.Success)
-                        {
-                            args.Add(null);
-                            continue;
-                        }
-
-                        var d = 0;
-                        var h = 0;
-                        var m = 0;
-                        var s = 0;
-                        foreach (var gp in gps)
-                        {
-                            var gpc = mtc.Groups[gp].Value;
-                            if (string.IsNullOrWhiteSpace(gpc))
-                                continue;
-                            gpc = gpc.Trim();
-
-                            var gpt = gpc[gpc.Length - 1];
-                            int.TryParse(gpc.Substring(0, gpc.Length - 1), NumberStyles.Integer, CultureInfo.InvariantCulture, out var val);
-                            switch (gpt)
-                            {
-                                case 'd':
-                                    d = val;
-                                    break;
-
-                                case 'h':
-                                    h = val;
-                                    break;
-
-                                case 'm':
-                                    m = val;
-                                    break;
-
-                                case 's':
-                                    s = val;
-                                    break;
-                            }
-                        }
-                        result = new TimeSpan(d, h, m, s);
-                        args.Add(result);
+                        array.SetValue(resolvedParams[item], item);
                     }
-                    else if (parameter.ParameterType == typeof(DiscordUser))
-                    {
-                        // Checks through resolved
-                        if (eventArgs.Interaction.Data.Resolved.Members != null &&
-                            eventArgs.Interaction.Data.Resolved.Members.TryGetValue((ulong)option.Value, out var member))
-                            args.Add(member);
-                        else if (eventArgs.Interaction.Data.Resolved.Users != null &&
-                                 eventArgs.Interaction.Data.Resolved.Users.TryGetValue((ulong)option.Value, out var user))
-                            args.Add(user);
-                        else
-                            args.Add(await this.Client.GetUserAsync((ulong)option.Value));
-                    }
-                    else if (parameter.ParameterType == typeof(DiscordChannel))
-                    {
-                        // Checks through resolved
-                        if (eventArgs.Interaction.Data.Resolved.Channels != null &&
-                            eventArgs.Interaction.Data.Resolved.Channels.TryGetValue((ulong)option.Value, out var channel))
-                            args.Add(channel);
-                        else
-                            args.Add(eventArgs.Interaction.Guild.GetChannel((ulong)option.Value));
-                    }
-                    else if (parameter.ParameterType == typeof(DiscordRole))
-                    {
-                        // Checks through resolved
-                        if (eventArgs.Interaction.Data.Resolved.Roles != null &&
-                            eventArgs.Interaction.Data.Resolved.Roles.TryGetValue((ulong)option.Value, out var role))
-                            args.Add(role);
-                        else
-                            args.Add(eventArgs.Interaction.Guild.GetRole((ulong)option.Value));
-                    }
-                    else if (parameter.ParameterType == typeof(SnowflakeObject))
-                    {
-                        // Checks through resolved
-                        if (eventArgs.Interaction.Data.Resolved.Roles != null && eventArgs.Interaction.Data.Resolved.Roles.TryGetValue((ulong)option.Value, out var role))
-                            args.Add(role);
-                        else if (eventArgs.Interaction.Data.Resolved.Members != null && eventArgs.Interaction.Data.Resolved.Members.TryGetValue((ulong)option.Value, out var member))
-                            args.Add(member);
-                        else if (eventArgs.Interaction.Data.Resolved.Users != null && eventArgs.Interaction.Data.Resolved.Users.TryGetValue((ulong)option.Value, out var user))
-                            args.Add(user);
-                        else
-                            throw new ArgumentException("Error resolving mentionable option.");
-                    }
-                    else if (parameter.ParameterType == typeof(DiscordEmoji))
-                    {
-                        var value = option.Value.ToString();
-
-                        if (DiscordEmoji.TryFromUnicode(this.Client, value, out var emoji) || DiscordEmoji.TryFromName(this.Client, value, out emoji))
-                            args.Add(emoji);
-                        else
-                            throw new ArgumentException("Error parsing emoji parameter.");
-                    }
-                    else if (parameter.ParameterType == typeof(DiscordAttachment))
-                    {
-                        if (eventArgs.Interaction.Data.Resolved.Attachments?.ContainsKey((ulong)option.Value) ?? false)
-                        {
-                            var attachment = eventArgs.Interaction.Data.Resolved.Attachments[(ulong)option.Value];
-                            args.Add(attachment);
-                        }
-                        else
-                            this.Client.Logger.LogError("Missing attachment in resolved data. This is an issue with Discord.");
-                    }
-
-                    else
-                        throw new ArgumentException("Error resolving interaction.");
+                    args.Add(array);
+                    break;
                 }
             }
-
             return args;
         }
+
+        /// <summary>
+        /// Executes <see cref="ISlashArgumentConverter{T}"/>s for the specified <see cref="DiscordInteractionDataOption"/>. Currently used by <see cref="_convertArgumentMethodInfo"/> to allow this method to be used through reflection.
+        /// </summary>
+        /// <param name="converter">An instance of the converter to execute.</param>
+        /// <param name="interactionContext">A context of the interaction.</param>
+        /// <param name="optionData">The data passed with the interaction.</param>
+        /// <param name="parameterInfo">The info for the parameter, intended for use in very specific and unusual situations.</param>
+        /// <typeparam name="T">The type to parse.</typeparam>
+        /// <returns>An Optional{T} cast to IOptional for use with reflection.</returns>
+        // Implicitly converts Task<Optional<T>> to Task<IOptional>. Await is required since we cannot cast generic parameters to a different type (Task<Optional<T>> to Task<IOptional>).
+        private static async Task<IOptional> ConvertArgumentAsync<T>(ISlashArgumentConverter<T> converter, InteractionContext interactionContext, DiscordInteractionDataOption optionData, ParameterInfo parameterInfo) => await converter.ConvertAsync(interactionContext, optionData, parameterInfo);
 
         // Runs pre-execution checks
         private async Task RunPreexecutionChecksAsync(MethodInfo method, BaseContext context)
@@ -1050,43 +1071,41 @@ namespace DSharpPlus.SlashCommands
 #pragma warning disable CS0618 // obsolete exceptions
             if (dict.Any(x => x.Value == false))
             {
-                if (context is InteractionContext)
-                    throw new SlashExecutionChecksFailedException
+                throw context switch
+                {
+                    InteractionContext interactionContext => new SlashExecutionChecksFailedException
                     {
+                        Context = interactionContext,
                         FailedChecks = dict.Where(x => x.Value == false)
                             .Select(x => x.Key as SlashCheckBaseAttribute)
                             .Where(x => x != null)
                             .ToList()
-                    };
-                else
-                    throw new ContextMenuExecutionChecksFailedException
+                    },
+                    ContextMenuContext contextMenuContext => new ContextMenuExecutionChecksFailedException
                     {
+                        Context = contextMenuContext,
                         FailedChecks = dict.Where(x => x.Value == false)
-                        .Select(x => x.Key as ContextMenuCheckBaseAttribute)
-                        .Where(x => x != null)
-                        .ToList()
-                    };
-#pragma warning restore CS0618
-
-                throw new ApplicationCommandExecutionChecksFailedException
-                {
-                    FailedChecks = dict.Where(x => x.Value == false)
-                        .Select(x => x.Key)
-                        .ToList(),
-                    Context = context
+                            .Select(x => x.Key as ContextMenuCheckBaseAttribute)
+                            .Where(x => x != null)
+                            .ToList()
+                    },
+                    _ => new ApplicationCommandExecutionChecksFailedException
+                    {
+                        Context = context,
+                        FailedChecks = dict.Where(x => x.Value == false)
+                            .Select(x => x.Key)
+                            .ToList(),
+                    }
                 };
             }
+#pragma warning restore CS0618 // obsolete exceptions
         }
 
-        private IEnumerable<TAttribute> GetCustomAttributesRecursively<TAttribute>(Type type)
-            where TAttribute : Attribute
+        private IEnumerable<TAttribute> GetCustomAttributesRecursively<TAttribute>(Type type) where TAttribute : Attribute
         {
-            if (type is null)
-            {
-                return Enumerable.Empty<TAttribute>();
-            }
-
-            return type.GetCustomAttributes<TAttribute>(true).Concat(this.GetCustomAttributesRecursively<TAttribute>(type));
+            return type is null
+                ? Enumerable.Empty<TAttribute>()
+                : type.GetCustomAttributes<TAttribute>(true).Concat(type.GetNestedTypes().SelectMany(nestedType => this.GetCustomAttributesRecursively<TAttribute>(nestedType)));
         }
 
         // Actually handles autocomplete interactions
@@ -1231,7 +1250,7 @@ namespace DSharpPlus.SlashCommands
     }
 
     // I'm not sure if creating separate classes is the cleanest thing here but I can't think of anything else so these stay
-
+    // NO ITS NOT CLEAN, THOU CRAWLER!
     internal class CommandMethod
     {
         public ulong CommandId { get; set; }
