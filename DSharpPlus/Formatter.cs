@@ -198,6 +198,14 @@ namespace DSharpPlus
             => $"<@&{role.Id.ToString(CultureInfo.InvariantCulture)}>";
 
         /// <summary>
+        /// Creates a mention for specified application command.
+        /// </summary>
+        /// <param name="command">Application command to mention.</param>
+        /// <returns>Formatted mention.</returns>
+        public static string Mention(DiscordApplicationCommand command)
+            => $"</{command.Name}:{command.Id.ToString(CultureInfo.InvariantCulture)}>";
+
+        /// <summary>
         /// Creates a custom emoji string.
         /// </summary>
         /// <param name="emoji">Emoji to display.</param>

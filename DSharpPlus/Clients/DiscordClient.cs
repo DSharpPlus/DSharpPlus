@@ -695,6 +695,20 @@ namespace DSharpPlus
             this.ApiClient.GetGlobalApplicationCommandAsync(this.CurrentApplication.Id, commandId);
 
         /// <summary>
+        /// Gets a global application command by its name.
+        /// </summary>
+        /// <param name="commandName">The name of the command to get.</param>
+        /// <returns>The command with the name.</returns>
+        public async Task<DiscordApplicationCommand> GetGlobalApplicationCommandAsync(string commandName)
+        {
+            foreach (var command in await this.ApiClient.GetGlobalApplicationCommandsAsync(this.CurrentApplication.Id))
+                if (command.Name == commandName)
+                    return command;
+
+            return null;
+        }
+
+        /// <summary>
         /// Edits a global application command.
         /// </summary>
         /// <param name="commandId">The ID of the command to edit.</param>
