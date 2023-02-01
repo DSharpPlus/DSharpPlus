@@ -68,6 +68,8 @@ namespace DSharpPlus
             TransportMember refMbr = default;
             JToken rawMbr = default;
             var rawRefMsg = dat["referenced_message"];
+            JArray rawMembers = default;
+            JArray rawPresences = default;
 
             switch (payload.EventName.ToLowerInvariant())
             {
@@ -76,6 +78,10 @@ namespace DSharpPlus
                 case "ready":
                     var glds = (JArray)dat["guilds"];
                     var dmcs = (JArray)dat["private_channels"];
+
+                    dat.Remove("guilds");
+                    dat.Remove("private_channels");
+
                     await this.OnReadyEventAsync(dat.ToDiscordObject<ReadyPayload>(), glds, dmcs).ConfigureAwait(false);
                     break;
 
@@ -97,8 +103,10 @@ namespace DSharpPlus
                     break;
 
                 case "channel_delete":
-                    chn = dat.ToDiscordObject<DiscordChannel>();
-                    await this.OnChannelDeleteEventAsync(chn.IsPrivate ? dat.ToDiscordObject<DiscordDmChannel>() : chn).ConfigureAwait(false);
+                    var isPrivate = dat["is_private"]?.ToObject<bool>() ?? false;
+
+                    chn = isPrivate ? dat.ToDiscordObject<DiscordDmChannel>() : dat.ToDiscordObject<DiscordChannel>();
+                    await this.OnChannelDeleteEventAsync(chn).ConfigureAwait(false);
                     break;
 
                 case "channel_pins_update":
@@ -140,20 +148,40 @@ namespace DSharpPlus
                 #region Guild
 
                 case "guild_create":
-                    await this.OnGuildCreateEventAsync(dat.ToDiscordObject<DiscordGuild>(), (JArray)dat["members"], dat["presences"].ToDiscordObject<IEnumerable<DiscordPresence>>()).ConfigureAwait(false);
+
+                    rawMembers = (JArray)dat["members"];
+                    rawPresences = (JArray)dat["presences"];
+                    dat.Remove("members");
+                    dat.Remove("presences");
+
+                    await this.OnGuildCreateEventAsync(dat.ToDiscordObject<DiscordGuild>(), rawMembers, rawPresences.ToDiscordObject<IEnumerable<DiscordPresence>>()).ConfigureAwait(false);
                     break;
 
                 case "guild_update":
-                    await this.OnGuildUpdateEventAsync(dat.ToDiscordObject<DiscordGuild>(), (JArray)dat["members"]).ConfigureAwait(false);
+
+                    rawMembers = (JArray)dat["members"];
+                    dat.Remove("members");
+
+                    await this.OnGuildUpdateEventAsync(dat.ToDiscordObject<DiscordGuild>(), rawMembers).ConfigureAwait(false);
                     break;
 
                 case "guild_delete":
-                    await this.OnGuildDeleteEventAsync(dat.ToDiscordObject<DiscordGuild>(), (JArray)dat["members"]).ConfigureAwait(false);
+
+                    rawMembers = (JArray)dat["members"];
+                    dat.Remove("members");
+
+                    await this.OnGuildDeleteEventAsync(dat.ToDiscordObject<DiscordGuild>(), rawMembers).ConfigureAwait(false);
                     break;
 
                 case "guild_sync":
                     gid = (ulong)dat["id"];
-                    await this.OnGuildSyncEventAsync(this._guilds[gid], (bool)dat["large"], (JArray)dat["members"], dat["presences"].ToDiscordObject<IEnumerable<DiscordPresence>>()).ConfigureAwait(false);
+
+                    rawMembers = (JArray)dat["members"];
+                    rawPresences = (JArray)dat["presences"];
+                    dat.Remove("members");
+                    dat.Remove("presences");
+
+                    await this.OnGuildSyncEventAsync(this._guilds[gid], (bool)dat["large"], rawMembers, rawPresences.ToDiscordObject<IEnumerable<DiscordPresence>>()).ConfigureAwait(false);
                     break;
 
                 case "guild_emojis_update":
@@ -285,7 +313,11 @@ namespace DSharpPlus
                         }
                     }
 
-                    await this.OnMessageCreateEventAsync(dat.ToDiscordObject<DiscordMessage>(), dat["author"].ToDiscordObject<TransportUser>(), mbr, refUsr, refMbr).ConfigureAwait(false);
+                    var author = dat["author"].ToDiscordObject<TransportUser>();
+                    dat.Remove("author");
+                    dat.Remove("member");
+
+                    await this.OnMessageCreateEventAsync(dat.ToDiscordObject<DiscordMessage>(), author, mbr, refUsr, refMbr).ConfigureAwait(false);
                     break;
 
                 case "message_update":
@@ -349,6 +381,7 @@ namespace DSharpPlus
                 #region User/Presence Update
 
                 case "presence_update":
+                    // Presences are a mess. I'm not touching this. ~Velvet
                     await this.OnPresenceUpdateEventAsync(dat, (JObject)dat["user"]).ConfigureAwait(false);
                     break;
 
@@ -423,6 +456,9 @@ namespace DSharpPlus
                     {
                         usr = dat["user"].ToDiscordObject<TransportUser>();
                     }
+
+                    // Re: Removing re-serialized data: This one is probably fine?
+                    // The user on the object is marked with [JsonIgnore].
 
                     cid = (ulong)dat["channel_id"];
                     await this.OnInteractionCreateAsync((ulong?)dat["guild_id"], cid, usr, mbr, dat.ToDiscordObject<DiscordInteraction>()).ConfigureAwait(false);
