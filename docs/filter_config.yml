@@ -11,3 +11,5 @@ apiRules:
     uidRegex: ^DSharpPlus\.HttpRequestMethod.*$
 - exclude:
     uidRegex: ^DSharpPlus\.VoiceNext\.Codec.*$
+- exclude:
+    uidRegex: ^DSharpPlus\.Tools\.AutoUpdateChannelDescription.*$
