@@ -25,7 +25,7 @@ jobs:
         dotnet-version: 7.0.x
 
     - name: Install DocFX
-      run: dotnet tool update -g docfx --prerelease
+      run: dotnet tool update -g docfx
 
     - name: Build website for our documentation
       run: docfx build ./docs/docfx.json
