@@ -27,10 +27,7 @@ jobs:
     - name: Install DocFX
       run: dotnet tool update -g docfx
 
-    - name: Build website for our documentation
-      run: docfx build ./docs/docfx.json
-
-    - name: Build API documentation
+    - name: Build documentation
       run: docfx ./docs/docfx.json 
 
 
@@ -38,7 +35,7 @@ jobs:
       uses: actions/upload-pages-artifact@v1.0.7
       with:
     # Path of the directory containing the static assets.
-        path: ./docs/ # default is _site/
+        path: ./docs/_site/ # default is _site/
 
   deploy:
     # Add a dependency to the build job
