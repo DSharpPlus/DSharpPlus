@@ -70,18 +70,14 @@
             "_appFooter": "© 2016-2023 DSharpPlus Contributors",
             "_enableSearch": "true"
         },
-        "xrefService": [
-            "https://xref.docs.microsoft.com/query?uid={uid}"
-        ],
         "globalMetadataFiles": [],
         "fileMetadataFiles": [],
         "template": [
             "default",
-            "templates/darkfx/darkfx"
+            "templates/darkfx"
         ],
         "postProcessors": [
-            "ExtractSearchIndex",
-            "CustomMemberIndexer"
+            "ExtractSearchIndex"
         ],
         "noLangKeyword": false,
         "keepFileLink": false,
