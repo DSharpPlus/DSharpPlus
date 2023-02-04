@@ -37,8 +37,6 @@ jobs:
     - name: Upload GitHub Pages artifact
       uses: actions/upload-pages-artifact@v1.0.7
       with:
-    # Artifact name
-        name: gh-pages # optional, default is github-pages
     # Path of the directory containing the static assets.
         path: ./docs/_site # default is _site/
 
