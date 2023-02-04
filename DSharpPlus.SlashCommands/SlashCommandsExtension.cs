@@ -412,7 +412,8 @@ namespace DSharpPlus.SlashCommands
 
                 //Sets the type
                 var type = parameter.ParameterType;
-                var parametertype = this.GetParameterType(type);
+                var commandName = parameter.Member.GetCustomAttribute<SlashCommandAttribute>()?.Name ?? parameter.Member.GetCustomAttribute<ContextMenuAttribute>().Name;
+                var parametertype = this.GetParameterType(commandName, type);
 
                 //Handles choices
                 //From attributes
@@ -519,7 +520,7 @@ namespace DSharpPlus.SlashCommands
         }
 
         //Small method to get the parameter's type from its type
-        private ApplicationCommandOptionType GetParameterType(Type type)
+        private ApplicationCommandOptionType GetParameterType(string commandName, Type type)
         {
             if (type == typeof(string))
                 return ApplicationCommandOptionType.String;
@@ -545,7 +546,7 @@ namespace DSharpPlus.SlashCommands
                 return ApplicationCommandOptionType.String;
             if (type == typeof(DiscordAttachment))
                 return ApplicationCommandOptionType.Attachment;
-            throw new ArgumentException("Cannot convert type! Argument types must be string, long, bool, double, TimeSpan?, DiscordChannel, DiscordUser, DiscordRole, DiscordEmoji, DiscordAttachment, SnowflakeObject, or an Enum.");
+            throw new ArgumentException($"Cannot convert type! (Command: {commandName}) Argument types must be string, long, bool, double, TimeSpan?, DiscordChannel, DiscordUser, DiscordRole, DiscordEmoji, DiscordAttachment, SnowflakeObject, or an Enum.");
         }
 
         //Gets choices from choice attributes

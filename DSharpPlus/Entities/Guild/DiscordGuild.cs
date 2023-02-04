@@ -2879,6 +2879,28 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
+        /// Gets a application command in this guild by its id.
+        /// </summary>
+        /// <param name="commandId">The ID of the command to get.</param>
+        /// <returns>The command with the ID.</returns>
+        public Task<DiscordApplicationCommand> GetApplicationCommandAsync(ulong commandId) =>
+            this.Discord.ApiClient.GetGlobalApplicationCommandAsync(this.Discord.CurrentApplication.Id, commandId);
+
+        /// <summary>
+        /// Gets a application command in this guild by its name.
+        /// </summary>
+        /// <param name="commandName">The name of the command to get.</param>
+        /// <returns>The command with the name.</returns>
+        public async Task<DiscordApplicationCommand> GetApplicationCommandAsync(string commandName)
+        {
+            foreach (var command in await this.Discord.ApiClient.GetGlobalApplicationCommandsAsync(this.Discord.CurrentApplication.Id))
+                if (command.Name == commandName)
+                    return command;
+
+            return null;
+        }
+
+        /// <summary>
         /// Gets this guild's welcome screen.
         /// </summary>
         /// <returns>This guild's welcome screen object.</returns>
