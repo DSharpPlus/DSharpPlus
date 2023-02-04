@@ -1,10 +1,8 @@
 name: .NET Docs
 
 on:
-  push:
-    branches: ["master"]
-  pull_request:
-    branches: ["master"]
+  release:
+    types: [published]
 
 env:
   DOTNET_NOLOGO: true
@@ -15,7 +13,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
     - uses: actions/checkout@v3
 
@@ -29,7 +27,6 @@ jobs:
 
     - name: Build documentation
       run: docfx ./docs/docfx.json 
-
 
     - name: Upload GitHub Pages artifact
       uses: actions/upload-pages-artifact@v1.0.7
@@ -52,7 +49,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     # Specify runner + deployment step
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
