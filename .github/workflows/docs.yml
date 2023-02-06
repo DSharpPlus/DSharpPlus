@@ -3,6 +3,11 @@ name: .NET Docs
 on:
   release:
     types: [published]
+  push:
+    branches:
+      - main
+    paths:
+      - docs/**
 
 env:
   DOTNET_NOLOGO: true
