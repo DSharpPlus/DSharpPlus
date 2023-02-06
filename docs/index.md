@@ -4,13 +4,12 @@ title: DSharpPlus Documentation
 ---
 
 <h1 class="delet-this">DSharpPlus Documentation</h1>
-<h1 class="logo-center"><img src="images/logobig.png" alt="DSharpPlus Logo"></h1>
+<img class="logo-center" src="images/logobig.png" alt="DSharpPlus Logo">
 
 
 
 [DSharpPlus][1] (D#+) is an unofficial .NET wrapper for the [Discord API][2] which was originally a fork of
-[DiscordSharp][3]. The library has since been rewritten to fit quality and API standards as well as target wider range
-of .NET implementations. [DSharpPlus Logo][0]
+[DiscordSharp][3]. The library has since been rewritten to fit quality and API standards as well as target modern .NET implementations. 
 
 ## Getting Started
 New users will want to take a look through the [articles][4] for quick start guides, tutorials, and examples of use.
