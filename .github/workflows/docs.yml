@@ -1,14 +1,11 @@
 name: .NET Docs
 
 on:
-  release:
-    types: [published]
   push:
     branches:
-      - master
+      - 'master'
     paths:
-      - docs/**
-
+      - 'docs/**'
 env:
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
