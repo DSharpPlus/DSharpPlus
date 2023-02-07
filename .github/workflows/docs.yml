@@ -26,7 +26,8 @@ jobs:
 
     - name: Install DocFX
       run: dotnet tool update -g docfx
-
+    - run: echo "${HOME}/.dotnet/tools" >> $GITHUB_PATH  
+    
     - name: Build documentation
       run: docfx ./docs/docfx.json 
 
