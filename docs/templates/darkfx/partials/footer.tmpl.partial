@@ -26,4 +26,4 @@
     </div>
   </div>
   <script type="text/javascript" src="{{_rel}}styles/toggle-theme.js"></script>
-</footer>
+</footer> 
