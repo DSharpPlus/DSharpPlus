@@ -15,7 +15,8 @@
                 }
             ],
             "dest": "api",
-            "filter": "filter_config.yml"
+            "filter": "filter_config.yml",
+	    "shouldSkipMarkup": true
         }
     ],
     "build": {
@@ -74,7 +75,7 @@
         "fileMetadataFiles": [],
         "template": [
             "default",
-            "templates/darkfx"
+            "templates/singulink"
         ],
         "postProcessors": [
             "ExtractSearchIndex"
