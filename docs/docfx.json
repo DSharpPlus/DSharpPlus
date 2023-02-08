@@ -75,7 +75,7 @@
         "fileMetadataFiles": [],
         "template": [
             "default",
-            "templates/singulink"
+            "templates/singulink/singulinkfx"
         ],
         "postProcessors": [
             "ExtractSearchIndex"
