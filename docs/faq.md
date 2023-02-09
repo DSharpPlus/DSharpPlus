@@ -39,7 +39,7 @@ Check your internet connection and ensure that the machine your bot is hosted on
 your local network has no issues, the problem could be with either Discord or Cloudfare. In which case, it's out of your
 control.
 
-#### Complex, long-running code in an event handler. 
+#### Complex, long-running code in an event handler.
 Any event handlers that have the potential to run for more than a few seconds could cause a deadlock, and cause several
 heartbeats to be skipped. Please take a look at our short article on [handling DSharpPlus exceptions][4] to learn how to
 avoid this.
@@ -74,16 +74,16 @@ However, if you meant an activity like this:
 
 You can use either of the following
 
-* The overload for 
-  @DSharpPlus.DiscordClient.ConnectAsync(DiscordActivity,System.Nullable{UserStatus},System.Nullable{DateTimeOffset}) 
+* The overload for
+  @DSharpPlus.DiscordClient.ConnectAsync(DiscordActivity,System.Nullable{UserStatus},System.Nullable{System.DateTimeOffset})
   which accepts a @DSharpPlus.Entities.DiscordActivity.
-* @DSharpPlus.DiscordClient.UpdateStatusAsync(DiscordActivity,System.Nullable{UserStatus},System.Nullable{DateTimeOffset})
+* @DSharpPlus.DiscordClient.UpdateStatusAsync(DiscordActivity,System.Nullable{UserStatus},System.Nullable{System.DateTimeOffset})
   OR
-  @DSharpPlus.DiscordShardedClient.UpdateStatusAsync(DiscordActivity,System.Nullable{UserStatus},System.Nullable{DateTimeOffset})
+  @DSharpPlus.DiscordShardedClient.UpdateStatusAsync(DiscordActivity,System.Nullable{UserStatus},System.Nullable{System.DateTimeOffset})
   (for the sharded client) at any point after `Ready` has been fired.
 
 ### Am I able to retrieve a @DSharpPlus.Entities.DiscordRole by name?
-Yes. Use LINQ on the `Roles` property of your instance of @DSharpPlus.Entities.DiscordGuild and compare against the 
+Yes. Use LINQ on the `Roles` property of your instance of @DSharpPlus.Entities.DiscordGuild and compare against the
 `Name` of each @DSharpPlus.Entities.DiscordRole.
 
 ### Why are you using Newtonsoft.Json when System.Text.Json is available
