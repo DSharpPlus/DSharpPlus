@@ -35,7 +35,11 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Whether this interaction response should be ephemeral.
         /// </summary>
-        public bool IsEphemeral { get; set; }
+        public bool IsEphemeral
+        {
+            get => (this.Flags & MessageFlags.Ephemeral) == MessageFlags.Ephemeral;
+            set => _ = value ? this.Flags |= MessageFlags.Ephemeral : this.Flags &= ~MessageFlags.Ephemeral;
+        }
 
         /// <summary>
         /// The custom id to send with this interaction response. Only applicable when creating a modal.

@@ -37,7 +37,7 @@ namespace DSharpPlus.Entities
         public bool IsEphemeral { get; set; }
 
         internal int? _flags
-            => this.IsEphemeral ? 64 : null;
+            => this.IsEphemeral ? (int?)(this.Flags | MessageFlags.Ephemeral) : null;
 
         /// <summary>
         /// Constructs a new followup message builder

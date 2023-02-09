@@ -1300,7 +1300,7 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content, IEnumerable<DiscordEmbed> embeds, ulong? replyMessageId, bool mentionReply, bool failOnInvalidReply)
+        internal async Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content, IEnumerable<DiscordEmbed> embeds, ulong? replyMessageId, bool mentionReply, bool failOnInvalidReply, bool suppressNotifications)
         {
             if (content != null && content.Length > 2000)
                 throw new ArgumentException("Message content length cannot exceed 2000 characters.");
@@ -1325,7 +1325,8 @@ namespace DSharpPlus.Net
                 Content = content,
                 IsTTS = false,
                 HasEmbed = embeds?.Any() ?? false,
-                Embeds = embeds
+                Embeds = embeds,
+                Flags = suppressNotifications ? MessageFlags.SupressNotifications : 0,
             };
 
             if (replyMessageId != null)
@@ -3416,7 +3417,7 @@ namespace DSharpPlus.Net
                     Embeds = builder.Embeds,
                     IsTTS = builder.IsTTS,
                     Mentions = new DiscordMentions(builder.Mentions ?? Mentions.All, builder.Mentions?.Any() ?? false),
-                    Flags = builder.IsEphemeral ? MessageFlags.Ephemeral : 0,
+                    Flags = builder.Flags,
                     Components = builder.Components,
                     Choices = builder.Choices
                 } : null
