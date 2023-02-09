@@ -599,7 +599,9 @@ namespace DSharpPlus
             }
 
             this._guilds.Clear();
-            foreach (var guild in ready.Guilds)
+
+            var guilds = rawGuilds.ToDiscordObject<IEnumerable<DiscordGuild>>();
+            foreach (var guild in guilds)
             {
                 guild.Discord = this;
                 guild._channels ??= new ConcurrentDictionary<ulong, DiscordChannel>();
