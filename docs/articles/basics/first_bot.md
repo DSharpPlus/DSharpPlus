@@ -219,23 +219,23 @@ Now that you have a basic bot up and running, you should take a look at the foll
 <!-- LINKS -->
 [0]:  xref:articles.basics.bot_account "Creating a Bot Account"
 [1]:  https://visualstudio.microsoft.com/vs/
-[2]:  /images/basics_first_bot_01.png
-[3]:  /images/basics_first_bot_02.png
-[4]:  /images/basics_first_bot_03.png
-[5]:  /images/basics_first_bot_04.png
-[6]:  /images/basics_first_bot_05.png
-[7]:  /images/basics_first_bot_06.png
-[8]:  /images/basics_first_bot_07.png
+[2]:  ../../images/basics_first_bot_01.png
+[3]:  ../../images/basics_first_bot_02.png
+[4]:  ../../images/basics_first_bot_03.png
+[5]:  ../../images/basics_first_bot_04.png
+[6]:  ../../images/basics_first_bot_05.png
+[7]:  ../../images/basics_first_bot_06.png
+[8]:  ../../images/basics_first_bot_07.png
 [9]:  xref:articles.audio.lavalink.setup
-[10]: /images/basics_first_bot_08.png
+[10]: ../../images/basics_first_bot_08.png
 [11]: https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/consuming-the-task-based-asynchronous-pattern
 [12]: https://en.wikipedia.org/wiki/Common_Intermediate_Language
-[13]: /images/basics_first_bot_09.png
-[14]: /images/basics_first_bot_10.png
-[15]: /images/basics_first_bot_11.png
+[13]: ../../images/basics_first_bot_09.png
+[14]: ../../images/basics_first_bot_10.png
+[15]: ../../images/basics_first_bot_11.png
 [16]: xref:articles.beyond_basics.intents
-[17]: /images/basics_first_bot_12.png
+[17]: ../../images/basics_first_bot_12.png
 [18]: https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/operators/lambda-expressions
-[19]: /images/basics_first_bot_13.png
+[19]: ../../images/basics_first_bot_13.png
 [20]: xref:articles.beyond_basics.events
 [21]: xref:articles.commands.intro

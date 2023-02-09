@@ -192,7 +192,7 @@ of the button to wait for.
 [1]:  https://discord.dev/interactions/slash-commands#interaction
 [2]:  #responding-to-button-presses
 [3]:  https://discord.dev/interactions/message-components#component-object
-[4]:  /images/advanced_topics_buttons_01.png
-[5]:  /images/advanced_topics_buttons_02.png
+[4]:  ../../images/advanced_topics_buttons_01.png
+[5]:  ../../images/advanced_topics_buttons_02.png
 [6]:  xref:DSharpPlus.Entities.DiscordFollowupMessageBuilder
 [7]:  xref:articles.interactivity

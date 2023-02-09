@@ -53,7 +53,7 @@ Name          | Position | Description
 > It is intended for debugging DSharpPlus and may display tokens and other sensitive data.
 
 <!-- LINKS -->
-[0]:  /images/beyond_basics_logging_default_01.png
-[1]:  /images/beyond_basics_logging_default_02.png
-[2]:  /images/beyond_basics_logging_default_03.png
+[0]:  ../../../images/beyond_basics_logging_default_01.png
+[1]:  ../../../images/beyond_basics_logging_default_02.png
+[2]:  ../../../images/beyond_basics_logging_default_03.png
 [3]:  https://docs.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings#day-d-format-specifier

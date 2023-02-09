@@ -67,6 +67,6 @@ for on the Discord Application page, an error will be thrown on the connection.
 
 <!-- LINKS -->
 [0]:  https://discord.com/developers/applications
-[1]:  /images/Intents.png
+[1]:  ../../images/Intents.png
 [2]:  https://support.discord.com/hc/en-us/articles/360040720412-Bot-Verification-and-Data-Whitelisting
 [3]:  xref:DSharpPlus.DiscordIntents

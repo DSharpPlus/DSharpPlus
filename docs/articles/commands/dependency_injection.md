@@ -100,4 +100,4 @@ Transient | Each time its requested.
 
 <!-- LINKS -->
 [0]:  xref:articles.commands.intro#argument-converters
-[1]:  /images/commands_dependency_injection_01.png
+[1]:  ../../images/commands_dependency_injection_01.png
