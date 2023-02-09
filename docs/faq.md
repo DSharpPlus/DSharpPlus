@@ -106,7 +106,7 @@ be done to set this up.
 [3]: xref:articles.audio.voicenext.prerequisites
 [4]: xref:articles.beyond_basics.events
 [5]: xref:articles.commands.command_attributes
-[6]: /images/faq_01.png
-[7]: /images/faq_02.png
+[6]: ./images/faq_01.png
+[7]: ./images/faq_02.png
 [8]: xref:articles.beyond_basics.intents
-[9]: /images/faq_03.png
+[9]: ./images/faq_03.png
