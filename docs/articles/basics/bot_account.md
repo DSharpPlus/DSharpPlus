@@ -91,13 +91,13 @@ You've got a bot account set up and a token ready for use. Sounds like it's time
 <!-- LINKS -->
 [0]:  https://discord.com/developers/docs/topics/oauth2#bots
 [1]:  https://discord.com/developers/applications
-[2]:  /images/basics_bot_account_01.png
-[3]:  /images/basics_bot_account_02.png "Naming Application"
-[4]:  /images/basics_bot_account_03.png
-[5]:  /images/basics_bot_account_04.png
-[6]:  /images/basics_bot_account_05.png
-[7]:  /images/basics_bot_account_06.png
-[8]:  /images/basics_bot_account_07.png
-[9]:  /images/basics_bot_account_08.png "Permissions Panel"
-[10]: /images/basics_bot_account_09.png "Token Reveal"
+[2]:  ../../images/basics_bot_account_01.png
+[3]:  ../../images/basics_bot_account_02.png "Naming Application"
+[4]:  ../../images/basics_bot_account_03.png
+[5]:  ../../images/basics_bot_account_04.png
+[6]:  ../../images/basics_bot_account_05.png
+[7]:  ../../images/basics_bot_account_06.png
+[8]:  ../../images/basics_bot_account_07.png
+[9]:  ../../images/basics_bot_account_08.png "Permissions Panel"
+[10]: ../../images/basics_bot_account_09.png "Token Reveal"
 [11]: xref:articles.basics.first_bot

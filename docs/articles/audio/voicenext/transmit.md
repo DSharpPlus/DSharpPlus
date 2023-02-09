@@ -121,5 +121,5 @@ private Stream ConvertAudioToPcm(string filePath)
 ```
 
 <!-- LINKS -->
-[0]:  /images/voicenext_transmit_01.png
+[0]:  ../../../images/voicenext_transmit_01.png
 [1]:  https://ffmpeg.org/about.html
