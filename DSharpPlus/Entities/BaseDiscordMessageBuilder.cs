@@ -52,10 +52,10 @@ namespace DSharpPlus.Entities
 
         public MessageFlags Flags { get; internal set; }
 
-        public BaseDiscordMessageBuilder<T> SuppressNotifications()
+        public T SuppressNotifications()
         {
             this.Flags |= MessageFlags.SupressNotifications;
-            return this;
+            return this as T;
         }
 
         public bool IsTTS { get; set; }
@@ -317,6 +317,7 @@ namespace DSharpPlus.Entities
             this._components.Clear();
         }
 
+        IDiscordMessageBuilder IDiscordMessageBuilder.SuppressNotifications() => this.SuppressNotifications();
         IDiscordMessageBuilder IDiscordMessageBuilder.WithContent(string content) => this.WithContent(content);
         IDiscordMessageBuilder IDiscordMessageBuilder.AddComponents(params DiscordComponent[] components) => this.AddComponents(components);
         IDiscordMessageBuilder IDiscordMessageBuilder.AddComponents(IEnumerable<DiscordComponent> components) => this.AddComponents(components);

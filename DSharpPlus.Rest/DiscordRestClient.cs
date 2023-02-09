@@ -649,7 +649,7 @@ namespace DSharpPlus
         /// <param name="content">Message (text) content</param>
         /// <returns></returns>
         public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content)
-            => this.ApiClient.CreateMessageAsync(channel_id, content, null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
+            => this.ApiClient.CreateMessageAsync(channel_id, content, null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false, suppressNotifications: false);
 
         /// <summary>
         /// Sends a message
@@ -658,7 +658,7 @@ namespace DSharpPlus
         /// <param name="embed">Embed to attach</param>
         /// <returns></returns>
         public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, DiscordEmbed embed)
-            => this.ApiClient.CreateMessageAsync(channel_id, null, embed != null ? new[] { embed } : null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
+            => this.ApiClient.CreateMessageAsync(channel_id, null, embed != null ? new[] { embed } : null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false, suppressNotifications: false);
 
         /// <summary>
         /// Sends a message
@@ -668,7 +668,7 @@ namespace DSharpPlus
         /// <param name="embed">Embed to attach</param>
         /// <returns></returns>
         public Task<DiscordMessage> CreateMessageAsync(ulong channel_id, string content, DiscordEmbed embed)
-            => this.ApiClient.CreateMessageAsync(channel_id, content, embed != null ? new[] { embed } : null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
+            => this.ApiClient.CreateMessageAsync(channel_id, content, embed != null ? new[] { embed } : null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false, suppressNotifications: false);
 
         /// <summary>
         /// Sends a message

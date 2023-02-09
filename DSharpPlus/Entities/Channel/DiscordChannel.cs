@@ -256,7 +256,7 @@ namespace DSharpPlus.Entities
             if (!Utilities.IsTextableChannel(this)) //NOTE: InvalidOperationException would be more apt, but would be a breaking change.
                 throw new ArgumentException($"{this.Type} channels do not support sending text messages.");
 
-            return this.Discord.ApiClient.CreateMessageAsync(this.Id, content, null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
+            return this.Discord.ApiClient.CreateMessageAsync(this.Id, content, null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false, suppressNotifications: false);
         }
 
         /// <summary>
@@ -273,7 +273,7 @@ namespace DSharpPlus.Entities
             if (!Utilities.IsTextableChannel(this))
                 throw new ArgumentException($"{this.Type} channels do not support sending text messages.");
 
-            return this.Discord.ApiClient.CreateMessageAsync(this.Id, null, embed != null ? new[] { embed } : null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
+            return this.Discord.ApiClient.CreateMessageAsync(this.Id, null, embed != null ? new[] { embed } : null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false, suppressNotifications: false);
         }
 
         /// <summary>
@@ -291,7 +291,7 @@ namespace DSharpPlus.Entities
             if (!Utilities.IsTextableChannel(this))
                 throw new ArgumentException($"{this.Type} channels do not support sending text messages.");
 
-            return this.Discord.ApiClient.CreateMessageAsync(this.Id, content, embed != null ? new[] { embed } : null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false);
+            return this.Discord.ApiClient.CreateMessageAsync(this.Id, content, embed != null ? new[] { embed } : null, replyMessageId: null, mentionReply: false, failOnInvalidReply: false, suppressNotifications: false);
         }
 
         /// <summary>
