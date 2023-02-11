@@ -73,6 +73,7 @@
             "_appTitle": "DSharpPlus documentation",
             "_appFooter": "© 2016-2023 DSharpPlus Contributors",
 	    "_appLogoPath": "images/logo.png",
+            "_appFaviconPath": "images/favicon.ico",
             "_enableSearch": "true"
         },
         "globalMetadataFiles": [],

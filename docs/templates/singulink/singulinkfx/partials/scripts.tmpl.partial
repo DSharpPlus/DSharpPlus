@@ -10,3 +10,4 @@
 <script type="text/javascript" src="{{_rel}}styles/docfx.js"></script>
 <script type="text/javascript" src="{{_rel}}styles/singulink.js"></script>
 <script type="text/javascript" src="{{_rel}}styles/main.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mark.js@8/dist/jquery.mark.min.js"></script>
