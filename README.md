@@ -30,13 +30,13 @@ You can install the library from following sources:
     This belongs in the ItemGroup tag with the rest of your dependencies. The library should not be in the same directory or subdirectory as your project. This method should only be used if you're making local changes to the library.
 
 # Documentation
-The documentation for the latest stable version is available at [dsharpplus.github.io](https://dsharpplus.github.io/).
+The documentation for the latest stable version is available at [dsharpplus.github.io](https://dsharpplus.github.io/DSharpPlus).
 
 ## Resources
 The following resources apply only for the latest stable version of the library.
 
 ### Tutorials
-* [Making your first bot in C#](https://dsharpplus.github.io/articles/basics/bot_account.html).
+* [Making your first bot in C#](https://dsharpplus.github.io/DSharpPlus/articles/basics/bot_account.html).
 
 ### Example bots
 * [Example by Emzi0767](https://github.com/DSharpPlus/Example-Bots)
