@@ -75,11 +75,11 @@ However, if you meant an activity like this:
 You can use either of the following
 
 * The overload for
-  <xref:DSharpPlus.DiscordClient.ConnectAsync(DiscordActivity,System.Nullable{UserStatus},System.Nullable{System.DateTimeOffset})>
+  @DSharpPlus.DiscordClient.ConnectAsync(DiscordActivity,System.Nullable{UserStatus},System.Nullable{DateTimeOffset})
   which accepts a @DSharpPlus.Entities.DiscordActivity.
-* <xref:DSharpPlus.DiscordClient.UpdateStatusAsync(DiscordActivity,System.Nullable{UserStatus},System.Nullable{System.DateTimeOffset})>
+* @DSharpPlus.DiscordClient.UpdateStatusAsync(DiscordActivity,System.Nullable{UserStatus},System.Nullable{DateTimeOffset})
   OR
-  <xref:DSharpPlus.DiscordShardedClient.UpdateStatusAsync(DiscordActivity,System.Nullable{UserStatus},System.Nullable{System.DateTimeOffset})>
+  @DSharpPlus.DiscordShardedClient.UpdateStatusAsync(DiscordActivity,System.Nullable{UserStatus},System.Nullable{DateTimeOffset})
   (for the sharded client) at any point after `Ready` has been fired.
 
 ### Am I able to retrieve a @DSharpPlus.Entities.DiscordRole by name?
