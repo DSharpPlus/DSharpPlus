@@ -1,9 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2023
-
- DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -45,7 +43,7 @@ namespace DSharpPlus.VoiceNext
         /// <returns></returns>
         public static async Task CopyToAsync(this Stream source, VoiceTransmitSink destination, int? bufferSize = null, CancellationToken cancellationToken = default)
         {
-            // adapted from CoreFX
+            // adapted from CoreFX 
             // https://source.dot.net/#System.Private.CoreLib/Stream.cs,8048a9680abdd13b
 
             if (source is null)

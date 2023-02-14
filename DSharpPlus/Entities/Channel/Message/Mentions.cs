@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2023 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -67,7 +67,7 @@ namespace DSharpPlus.Entities
         public static readonly UserMention All = new();
 
         /// <summary>
-        /// Optional Id of the user that is allowed to be mentioned. If null, then all user mentions will be allowed.
+        /// Optional Id of the user that is allowed to be mentioned. If null, then all user mentions will be allowed. 
         /// </summary>
         public ulong? Id { get; }
 
@@ -97,7 +97,7 @@ namespace DSharpPlus.Entities
         public static readonly RoleMention All = new();
 
         /// <summary>
-        /// Optional Id of the role that is allowed to be mentioned. If null, then all role mentions will be allowed.
+        /// Optional Id of the role that is allowed to be mentioned. If null, then all role mentions will be allowed. 
         /// </summary>
         public ulong? Id { get; }
 

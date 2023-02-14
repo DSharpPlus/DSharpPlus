@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2023 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -85,7 +85,7 @@ namespace DSharpPlus.Entities
         public int? ApproximatePresenceCount { get; internal set; }
 
         /// <summary>
-        /// Gets the approximate guild total member count for the invite.
+        /// Gets the approximate guild total member count for the invite. 
         /// </summary>
         [JsonProperty("approximate_member_count")]
         public int? ApproximateMemberCount { get; internal set; }
@@ -164,13 +164,13 @@ namespace DSharpPlus.Entities
 
         /*
          * Disabled due to API restrictions.
-         *
+         * 
          * /// <summary>
          * /// Accepts an invite. Not available to bot accounts. Requires "guilds.join" scope or user token. Please note that accepting these via the API will get your account unverified.
          * /// </summary>
          * /// <returns></returns>
          * [Obsolete("Using this method will get your account unverified.")]
-         * public Task<DiscordInvite> AcceptAsync()
+         * public Task<DiscordInvite> AcceptAsync() 
          *     => this.Discord._rest_client.InternalAcceptInvite(Code);
          */
 

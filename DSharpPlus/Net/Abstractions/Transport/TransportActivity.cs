@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2023 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -55,7 +55,7 @@ namespace DSharpPlus.Net.Abstractions
 
         /// <summary>
         /// Gets or sets the details.
-        ///
+        /// 
         /// <para>This is a component of the rich presence, and, as such, can only be used by regular users.</para>
         /// </summary>
         [JsonProperty("details", NullValueHandling = NullValueHandling.Ignore)]
@@ -63,7 +63,7 @@ namespace DSharpPlus.Net.Abstractions
 
         /// <summary>
         /// Gets or sets game state.
-        ///
+        /// 
         /// <para>This is a component of the rich presence, and, as such, can only be used by regular users.</para>
         /// </summary>
         [JsonProperty("state", NullValueHandling = NullValueHandling.Ignore)]
@@ -77,7 +77,7 @@ namespace DSharpPlus.Net.Abstractions
 
         /// <summary>
         /// Gets ID of the application for which this rich presence is for.
-        ///
+        /// 
         /// This is a component of the rich presence, and, as such, can only be used by regular users.
         /// </summary>
         [JsonIgnore]
@@ -92,7 +92,7 @@ namespace DSharpPlus.Net.Abstractions
 
         /// <summary>
         /// Gets or sets instance status.
-        ///
+        /// 
         /// This is a component of the rich presence, and, as such, can only be used by regular users.
         /// </summary>
         [JsonProperty("instance", NullValueHandling = NullValueHandling.Ignore)]
@@ -100,7 +100,7 @@ namespace DSharpPlus.Net.Abstractions
 
         /// <summary>
         /// Gets or sets information about the current game's party.
-        ///
+        /// 
         /// This is a component of the rich presence, and, as such, can only be used by regular users.
         /// </summary>
         [JsonProperty("party", NullValueHandling = NullValueHandling.Ignore)]
@@ -108,7 +108,7 @@ namespace DSharpPlus.Net.Abstractions
 
         /// <summary>
         /// Gets or sets information about assets related to this rich presence.
-        ///
+        /// 
         /// This is a component of the rich presence, and, as such, can only be used by regular users.
         /// </summary>
         [JsonProperty("assets", NullValueHandling = NullValueHandling.Ignore)]
@@ -116,7 +116,7 @@ namespace DSharpPlus.Net.Abstractions
 
         /// <summary>
         /// Gets or sets information about current game's timestamps.
-        ///
+        /// 
         /// This is a component of the rich presence, and, as such, can only be used by regular users.
         /// </summary>
         [JsonProperty("timestamps", NullValueHandling = NullValueHandling.Ignore)]
@@ -124,7 +124,7 @@ namespace DSharpPlus.Net.Abstractions
 
         /// <summary>
         /// Gets or sets information about current game's secret values.
-        ///
+        /// 
         /// This is a component of the rich presence, and, as such, can only be used by regular users.
         /// </summary>
         [JsonProperty("secrets", NullValueHandling = NullValueHandling.Ignore)]
