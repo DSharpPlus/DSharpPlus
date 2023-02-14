@@ -1,7 +1,9 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2022 DSharpPlus Contributors
+// Copyright (c) 2016-2023
+
+ DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -56,7 +58,7 @@ namespace DSharpPlus.Interactivity.Extensions
         /// Enables interactivity for each shard.
         /// </summary>
         /// <param name="client">The shard client to enable interactivity for.</param>
-        /// <param name="configuration">Configuration to use for all shards. If one isn't provided, default configuration values will be used.</param>        
+        /// <param name="configuration">Configuration to use for all shards. If one isn't provided, default configuration values will be used.</param>
         /// <returns>A dictionary containing new <see cref="InteractivityExtension"/> instances for each shard.</returns>
         public static async Task<IReadOnlyDictionary<int, InteractivityExtension>> UseInteractivityAsync(this DiscordShardedClient client, InteractivityConfiguration configuration = null)
         {
