@@ -23,7 +23,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: 7
+          dotnet-version: 7.0.103
       - name: Package
         run: "mkdir build && dotnet pack -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --include-source -o build -p:VersionPrefix='5.0.0' -p:VersionSuffix='nightly' -p:BuildNumber=$(printf \"%0*d\n\" 5 ${{ github.run_number }})"
       - name: Upload Artifact
