@@ -87,6 +87,7 @@
             "ExtractSearchIndex"
         ],
         "noLangKeyword": false,
+        "markdownEngineName": "markdig",
         "keepFileLink": false,
         "cleanupCacheHistory": false
     }
