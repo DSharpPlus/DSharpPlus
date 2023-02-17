@@ -1,0 +1,15 @@
+apiRules:
+- exclude:
+    uidRegex: ^DSharpPlus\.Test.*$
+- exclude:
+    uidRegex: ^System\..*$
+- exclude:
+    uidRegex: ^DSharpPlus\.RingBuffer.*$
+- exclude:
+    uidRegex: ^DSharpPlus\.Base(WebSocket|Udp)Client.*$
+- exclude:
+    uidRegex: ^DSharpPlus\.HttpRequestMethod.*$
+- exclude:
+    uidRegex: ^DSharpPlus\.VoiceNext\.Codec.*$
+- exclude:
+    uidRegex: ^DSharpPlus\.Tools.*$
