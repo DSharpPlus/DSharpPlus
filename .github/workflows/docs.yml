@@ -27,7 +27,7 @@ jobs:
         dotnet-version: 7.0.103
     - name: Build documentation
       run: dotnet build ./DSharpPlus.Docs/
-    - run: dotnet run ./DSharpPlus.Docs/
+    - run: cd ./DSharpPlus.Docs/ && dotnet run
     - name: Upload GitHub Pages artifact
       uses: actions/upload-pages-artifact@v1.0.7
       with:
