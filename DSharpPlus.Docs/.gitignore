@@ -1,0 +1,12 @@
+###############
+#    folder   #
+###############
+/**/DROP/
+/**/TEMP/
+/**/packages/
+/**/bin/
+/**/obj/
+_site
+
+# .manifest files
+api/.manifest
