@@ -3,7 +3,7 @@
         {
             "src": [
                 {
-                    "src": "..",
+                    "src": "../../",
                     "files": [
                         "**.cs"
                     ],
@@ -87,7 +87,6 @@
             "ExtractSearchIndex"
         ],
         "noLangKeyword": false,
-        "markdownEngineName": "markdig",
         "keepFileLink": false,
         "cleanupCacheHistory": false
     }
