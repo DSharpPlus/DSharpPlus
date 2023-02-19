@@ -4,11 +4,7 @@ on:
     branches:
       - 'master'
     paths:
-<<<<<<< HEAD
-      - './tools/DSharpPlus.Docs/**'
-=======
       - 'DSharpPlus.Docs/**'
->>>>>>> parent of 6fadf2f5 (move docs folder to tools)
   release:
     types:
       - published
