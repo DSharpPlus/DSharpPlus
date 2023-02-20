@@ -402,3 +402,6 @@ DSharpPlus.Test/config.json
 
 # Github Codespaces configuration file
 .devcontainer/devcontainer.json
+
+# Docfx
+docs/_site
