@@ -1,8 +1,5 @@
 name: .NET Docs
 on:
-  push:
-    branches:
-      - 'master'
   release:
     types:
       - published
