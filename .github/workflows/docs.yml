@@ -22,7 +22,7 @@ jobs:
       with:
         dotnet-version: 7.0.103
     - name: Install Docfx
-      run: dotnet install -g docfx
+      run: dotnet tool install -g docfx
     - name: Build Docs
       run: docfx build docs/docfx.json
     - name: Upload GitHub Pages artifact
