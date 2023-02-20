@@ -205,6 +205,10 @@ namespace DSharpPlus.SlashCommands
                                     throw new ArgumentException($"The first argument must be an InteractionContext!");
                                 parameters = parameters.Skip(1).ToArray();
 
+                                //Check if the ReturnType can be safely casted to a Task later on execution
+                                if (!typeof(Task).IsAssignableFrom(submethod.ReturnType))
+                                    throw new InvalidOperationException("The method has to return a Task or Task<> value");
+                                
                                 var options = await this.ParseParameters(parameters, guildId);
 
                                 var nameLocalizations = this.GetNameLocalizations(submethod);
