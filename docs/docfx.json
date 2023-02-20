@@ -16,13 +16,13 @@
             ],
             "dest": "api",
             "filter": "filter_config.yml",
-            "shouldSkipMarkup": true
+	    "shouldSkipMarkup": true
         }
     ],
     "build": {
-        "xrefService": [
-            "https://xref.docs.microsoft.com/query?uid={uid}"
-        ],
+	"xrefService":[
+		"https://xref.docs.microsoft.com/query?uid={uid}"
+	],
         "content": [
             {
                 "files": [
@@ -72,7 +72,7 @@
         "globalMetadata": {
             "_appTitle": "DSharpPlus documentation",
             "_appFooter": "© 2016-2023 DSharpPlus Contributors",
-            "_appLogoPath": "images/logo.png",
+	    "_appLogoPath": "images/logo.png",
             "_appFaviconPath": "images/favicon.ico",
             "_enableSearch": "true"
         },
@@ -81,12 +81,12 @@
         "template": [
             "default",
             "templates/singulink/singulinkfx",
-            "memberpage"
+	    "memberpage"
         ],
         "postProcessors": [
             "ExtractSearchIndex"
         ],
-        "noLangKrd": false,
+        "noLangKeyword": false,
         "keepFileLink": false,
         "cleanupCacheHistory": false
     }
