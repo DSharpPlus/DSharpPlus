@@ -1,8 +1,5 @@
 name: .NET Docs
 on:
-  push:
-    branches:
-      - master
   release:
     types:
       - published
@@ -20,7 +17,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 7.0.102 
+        dotnet-version: 7.0.103
     - name: Install DocFX
       run: dotnet tool install -g docfx
       continue-on-error: true
