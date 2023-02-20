@@ -3,13 +3,10 @@
         {
             "src": [
                 {
-                    "src": "..",
-                    "files": [
-                        "**.cs"
-                    ],
+                    "src": "../",
+                    "files": "**/bin/Debug/netstandard2.0/**.dll",
                     "exclude": [
                         "**/obj/**",
-                        "**/bin/**",
                         "_site/**"
                     ]
                 }
@@ -80,7 +77,8 @@
         "fileMetadataFiles": [],
         "template": [
             "default",
-            "templates/singulink/singulinkfx"
+            "templates/singulink/singulinkfx",
+	    "memberpage"
         ],
         "postProcessors": [
             "ExtractSearchIndex"
