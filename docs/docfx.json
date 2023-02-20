@@ -4,12 +4,9 @@
             "src": [
                 {
                     "src": "../",
-                    "files": [
-                        "**.cs"
-                    ],
+                    "files": "**/bin/Debug/netstandard2.0/**.dll",
                     "exclude": [
                         "**/obj/**",
-                        "**/bin/**",
                         "_site/**"
                     ]
                 }
