@@ -74,22 +74,17 @@ However, if you meant an activity like this:
 
 You can use either of the following
 
-* The overload for
-  @DSharpPlus.DiscordClient.ConnectAsync(DiscordActivity,System.Nullable{UserStatus},System.Nullable{DateTimeOffset})
-  which accepts a @DSharpPlus.Entities.DiscordActivity.
-* @DSharpPlus.DiscordClient.UpdateStatusAsync(DiscordActivity,System.Nullable{UserStatus},System.Nullable{DateTimeOffset})
-  OR
-  @DSharpPlus.DiscordShardedClient.UpdateStatusAsync(DiscordActivity,System.Nullable{UserStatus},System.Nullable{DateTimeOffset})
-  (for the sharded client) at any point after `Ready` has been fired.
+* The overload for @DSharpPlus.DiscordClient.UpdateStatusAsync(DSharpPlus.Entities.DiscordActivity,System.Nullable{DSharpPlus.Entities.UserStatus},System.Nullable{System.DateTimeOffset}) which accepts a @DSharpPlus.Entities.DiscordActivity.
+* The overload for @DSharpPlus.DiscordClient.UpdateStatusAsync(DSharpPlus.Entities.DiscordActivity,System.Nullable{DSharpPlus.Entities.UserStatus},System.Nullable{System.DateTimeOffset}) OR @DSharpPlus.DiscordShardedClient.UpdateStatusAsync(DSharpPlus.Entities.DiscordActivity,System.Nullable{DSharpPlus.Entities.UserStatus},System.Nullable{System.DateTimeOffset}) (for the sharded client) at any point after `Ready` has been fired.
 
 ### Am I able to retrieve a @DSharpPlus.Entities.DiscordRole by name?
-Yes. Use LINQ on the `Roles` property of your instance of @DSharpPlus.Entities.DiscordGuild and compare against the
-`Name` of each @DSharpPlus.Entities.DiscordRole.
+Yes. Use LINQ on the @DSharpPlus.Entities.DiscordGuild.Roles property of your instance of @DSharpPlus.Entities.DiscordGuild and compare against the
+@DSharpPlus.Entities.DiscordRole.Name of each @DSharpPlus.Entities.DiscordRole.
 
-### Why are you using Newtonsoft.Json when System.Text.Json is available
-Yes `System.Text.Json` is available to use but it still doesnt stand up to what we currently need which is why we still
-use Newtonsoft.Json. Maybe in time we can switch to your favorite Json Deserializer but for right now we will be using
-Newtonsoft.Json for the forseeable future.
+### Why are you using [Newtonsoft.Json][10] when <xref:System.Text.Json> is available?
+Yes <xref:System.Text.Json> is available to use but it still doesnt stand up to what we currently need which is why we still
+use [Newtonsoft.Json][10]. Maybe in time we can switch to your favorite Json Deserializer but for right now we will be using
+[Newtonsoft.Json][10] for the forseeable future.
 
 ### Why the hell are my events not firing?
 This is because since version 8 of the Discord API, @DSharpPlus.DiscordIntents are required to be enabled on
@@ -110,3 +105,4 @@ be done to set this up.
 [7]: ./images/faq_02.png
 [8]: xref:articles.beyond_basics.intents
 [9]: ./images/faq_03.png
+[10]: https://github.com/JamesNK/Newtonsoft.Json
