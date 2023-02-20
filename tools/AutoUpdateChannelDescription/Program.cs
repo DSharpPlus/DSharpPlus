@@ -29,7 +29,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.Exceptions;
 
-namespace DSharpPlus.Tools.AutoUpdateChannelDescription.src
+namespace DSharpPlus.Tools.AutoUpdateChannelDescription
 {
     public sealed class Program
     {
