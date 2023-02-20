@@ -25,7 +25,7 @@ jobs:
       run: dotnet tool install -g docfx
       continue-on-error: true
     - name: Build documentation
-      run: docfx docs/docfx.json && cd tools/Docs && dotnet run && cd ../../
+      run: dotnet build && docfx docs/docfx.json && cd tools/Docs && dotnet run && cd ../../
     - name: Upload GitHub Pages artifact
       uses: actions/upload-pages-artifact@v1
       with:
