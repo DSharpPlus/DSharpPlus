@@ -364,7 +364,7 @@ namespace DSharpPlus.SlashCommands
                                 
                                 //Check if the ReturnType can be safely casted to a Task later on execution
                                 if (!typeof(Task).IsAssignableFrom(moreSubMethod.ReturnType))
-                                    throw new InvalidOperationException($"The given command method {subsubmethod.Name} is invalid: The method has to return a Task or Task<> value");
+                                    throw new InvalidOperationException($"The given command method {moreSubMethod.Name} is invalid: The method has to return a Task or Task<> value");
 
                                 parameters = parameters.Skip(1).ToArray();
                                 subOptions = subOptions.Concat(await this.ParseParameters(parameters, guildId)).ToList();
