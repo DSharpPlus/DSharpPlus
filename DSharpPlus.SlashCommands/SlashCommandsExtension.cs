@@ -317,13 +317,17 @@ namespace DSharpPlus.SlashCommands
                         {
                             var commandAttribute = submethod.GetCustomAttribute<SlashCommandAttribute>();
 
-                            // Gets the paramaters and accounts for InteractionContext
-                            var parameters = submethod.GetParameters();
-                            if (parameters?.Length is null or 0 || !ReferenceEquals(parameters.First().ParameterType, typeof(InteractionContext)))
-                                throw new ArgumentException($"The first argument must be an InteractionContext!");
-                            parameters = parameters.Skip(1).ToArray();
+                                //Gets the paramaters and accounts for InteractionContext
+                                var parameters = submethod.GetParameters();
+                                if (parameters?.Length is null or 0 || !ReferenceEquals(parameters.First().ParameterType, typeof(InteractionContext)))
+                                    throw new ArgumentException($"The given command method {submethod.Name} is invalid: The first argument must be an InteractionContext!");
+                                parameters = parameters.Skip(1).ToArray();
 
-                            var options = await this.ParseParameters(parameters, guildId);
+                                //Check if the ReturnType can be safely casted to a Task later on execution
+                                if (!typeof(Task).IsAssignableFrom(submethod.ReturnType))
+                                    throw new InvalidOperationException($"The given command method {submethod.Name} is invalid: The method has to return a Task or Task<> value");
+                                
+                                var options = await this.ParseParameters(parameters, guildId);
 
                             var nameLocalizations = this.GetNameLocalizations(submethod);
                             var descriptionLocalizations = this.GetDescriptionLocalizations(submethod);
@@ -356,7 +360,12 @@ namespace DSharpPlus.SlashCommands
                                 var customAttribute = moreSubMethod.GetCustomAttribute<SlashCommandAttribute>();
                                 var parameters = moreSubMethod.GetParameters();
                                 if (parameters?.Length is null or 0 || !ReferenceEquals(parameters.First().ParameterType, typeof(InteractionContext)))
-                                    throw new ArgumentException($"The first argument must be an InteractionContext!");
+                                    throw new ArgumentException($"The given command method {moreSubMethod.Name} is invalid: The first argument must be an InteractionContext!");
+                                
+                                //Check if the ReturnType can be safely casted to a Task later on execution
+                                if (!typeof(Task).IsAssignableFrom(moreSubMethod.ReturnType))
+                                    throw new InvalidOperationException($"The given command method {subsubmethod.Name} is invalid: The method has to return a Task or Task<> value");
+
                                 parameters = parameters.Skip(1).ToArray();
                                 subOptions = subOptions.Concat(await this.ParseParameters(parameters, guildId)).ToList();
 
@@ -409,7 +418,7 @@ namespace DSharpPlus.SlashCommands
 
                             var parameters = method.GetParameters();
                             if (parameters?.Length is null or 0 || !ReferenceEquals(parameters.FirstOrDefault()?.ParameterType, typeof(InteractionContext)))
-                                throw new ArgumentException($"The first argument must be an InteractionContext!");
+                                throw new ArgumentException($"The given command method {method.Name} is invalid: The first argument must be an InteractionContext!");
                             parameters = parameters.Skip(1).ToArray();
                             var options = await this.ParseParameters(parameters, guildId);
 
@@ -445,11 +454,11 @@ namespace DSharpPlus.SlashCommands
                             var permissions = (contextMethod.GetCustomAttribute<SlashCommandPermissionsAttribute>() ?? contextMethod.DeclaringType.GetCustomAttribute<SlashCommandPermissionsAttribute>())?.Permissions;
                             var command = new DiscordApplicationCommand(contextAttribute.Name, null, type: contextAttribute.Type, defaultPermission: contextAttribute.DefaultPermission, allowDMUsage: allowDMUsage, defaultMemberPermissions: permissions);
 
-                            var parameters = contextMethod.GetParameters();
-                            if (parameters?.Length is null or 0 || !ReferenceEquals(parameters.FirstOrDefault()?.ParameterType, typeof(ContextMenuContext)))
-                                throw new ArgumentException($"The first argument must be a ContextMenuContext!");
-                            if (parameters.Length > 1)
-                                throw new ArgumentException($"A context menu cannot have parameters!");
+                                var parameters = contextMethod.GetParameters();
+                                if (parameters?.Length is null or 0 || !ReferenceEquals(parameters.FirstOrDefault()?.ParameterType, typeof(ContextMenuContext)))
+                                    throw new ArgumentException($"The given command method {contextMethod.Name} is invalid: The first argument must be a ContextMenuContext!");
+                                if (parameters.Length > 1)
+                                    throw new ArgumentException($"The given command method {contextMethod.Name} is invalid: A context menu cannot have parameters!");
 
                             contextMenuCommands.Add(new ContextMenuCommand { Method = contextMethod, Name = contextAttribute.Name });
 
