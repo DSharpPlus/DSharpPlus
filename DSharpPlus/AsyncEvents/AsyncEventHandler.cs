@@ -51,7 +51,7 @@ namespace DSharpPlus.AsyncEvents
     /// <param name="handler">The async event handler that threw this exception.</param>
     /// <param name="sender">The instance that dispatched this event.</param>
     /// <param name="args">The arguments passed to this event.</param>
-    public delegate Task AsyncEventExceptionHandler<TSender, TArgs>
+    public delegate void AsyncEventExceptionHandler<TSender, TArgs>
     (
         AsyncEvent<TSender, TArgs> @event,
         Exception exception,
