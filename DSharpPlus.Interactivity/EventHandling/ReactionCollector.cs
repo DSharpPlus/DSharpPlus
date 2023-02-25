@@ -29,9 +29,9 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using ConcurrentCollections;
+using DSharpPlus.AsyncEvents;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using Emzi0767.Utilities;
 using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.Interactivity.EventHandling

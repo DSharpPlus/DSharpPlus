@@ -25,7 +25,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using ConcurrentCollections;
-using Emzi0767.Utilities;
+using DSharpPlus.AsyncEvents;
 
 namespace DSharpPlus.Interactivity.EventHandling
 {
