@@ -22,9 +22,9 @@
 // SOFTWARE.
 
 using System;
+using DSharpPlus.AsyncEvents;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using Emzi0767.Utilities;
 using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus
