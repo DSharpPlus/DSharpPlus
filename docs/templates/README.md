@@ -9,7 +9,6 @@
 - Easily configurable colors and side bar width.
 - Empty table columns are removed, so if you don't comment the parameters or return value on some methods then it won't display an empty description column.
 - The table of contents supports 4 levels of items to properly facilitate usage together with `memberpage`.
-- Optional `memberpage-extras` plugin that improves wrapping behavior of long member names in the table of contents and puts explicit interface implementations into their own section to reduce clutter in the other sections, just like Microsoft's .NET documentation.
 - Contains optional style overrides optimized for displaying articles.
 - Includes [Bootstrap Icons](https://icons.getbootstrap.com/).
 
@@ -26,16 +25,26 @@ Visit https://github.com/Singulink to see our full list of publicly available li
 ## Installation 
 
 1. Download the source or the zipped file from the [releases page](https://github.com/Singulink/SingulinkFX/releases).
-2. In your DocFX project folder, create a new directory named `templates`, if it doesn't already exist.
+2. In your DocFX project folder, create a directory named `templates`, if it doesn't already exist.
 3. Copy the `singulinkfx` folder from this repository into the `templates` folder.
-4. (Optional) [Download the memberpage plugin](https://dotnet.github.io/docfx/templates-and-plugins/plugins-dashboard.html) and follow instructions, place it into a `plugins` folder
-5. (Optional) Copy the `memberpage-extras` folder from this repository into the `plugins` folder
-6. In your `docfx.json` configuration file, add the `singulinkfx`, `memberpage` and `memberpage-extras` path into the `build.template` property:
+4. In your `docfx.json` configuration file, add the `singulinkfx` path into the `build.template` property:
    ```json
-   "template": ["default", "templates/singulinkfx", "plugins/memberpage.2.59.0/content", "plugins/memberpage-extras"]
+   "template": ["default", "templates/singulinkfx"]
    ```
 
-A real-world example of a .NET library using this template with articles, `memberpage` and `memberpage-extras` can be found in the [Singulink.IO.FileSystem](https://github.com/Singulink/Singulink.IO.FileSystem) repository (check out the `Docs` folder). If you are new to DocFX you might also find it helpful for properly setting up the table of contents.
+A real-world example of a .NET library using this template with articles can be found in the [Singulink.IO.FileSystem](https://github.com/Singulink/Singulink.IO.FileSystem) repository (check out the `Docs` folder). If you are new to DocFX you might also find it helpful for properly setting up the table of contents.
+
+## Versions and Upgrading
+
+### Version 2.x
+
+For use with DocFX v2.62 and above.
+
+The `memberpage-extras` plugin has been removed for version 2+ of the template. DocFX v2.62 no longer shows explicit interface members by default. Furthermore, the functionality to group explicit interface implementations into their own section in the table of contents has been merged into the DocFX codebase and an option for including explicit interface implementations is in the works so the plugin should no longer be necessary moving forward.
+
+### Version 1.x
+
+For DocFX versions older than v2.62 you should use [v1.1 of this template](https://github.com/Singulink/SingulinkFX/tree/v1.1).
 
 ## Customization
 
@@ -72,10 +81,6 @@ The `styles/main.js` file can be used to add your own custom Javascript. The rec
 Wrap your HTML or markdown in a `<div class="article"></div>` to activate styles that change heading styles and spacing to something more suitable for articles instead of API member docs. Supports up to 5 heading levels (`h1` to `h5` for HTML or `#` to `#####` for markdown).
 
 ## More Screenshots
-
-### Memberpage-Extras
-
-![Memberpage-Extras Screenshot](./screenshots/memberpage-extras.png)
 
 ### Desktop
 
