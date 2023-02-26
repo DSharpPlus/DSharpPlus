@@ -615,7 +615,6 @@ li.in > ul
 ul.level2 > li > a.sidebar-item,
 ul.level3 > li > a.sidebar-item
 {
-    font-weight: 500;
     font-size: .95em;
     padding: 0;
     margin: 2px 16px;
