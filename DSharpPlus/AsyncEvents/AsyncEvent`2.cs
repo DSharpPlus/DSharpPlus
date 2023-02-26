@@ -37,8 +37,7 @@ namespace DSharpPlus.AsyncEvents
     public sealed class AsyncEvent<TSender, TArgs> : AsyncEvent
         where TArgs : AsyncEventArgs
     {
-        // we should look into not using a primitive lock here, but it's not a huge issue
-        private readonly object _lock = new();
+        private readonly ReaderWriterLockSlim _lock = new();
         private List<AsyncEventHandler<TSender, TArgs>> _handlers;
         private readonly AsyncEventExceptionHandler<TSender, TArgs> _exceptionHandler;
 
@@ -58,8 +57,15 @@ namespace DSharpPlus.AsyncEvents
             if (handler is null)
                 throw new ArgumentNullException(nameof(handler));
 
-            lock (this._lock)
+            this._lock.EnterWriteLock();
+            try
+            {
                 this._handlers.Add(handler);
+            }
+            finally
+            {
+                this._lock.ExitWriteLock();
+            }
         }
 
         /// <summary>
@@ -71,8 +77,15 @@ namespace DSharpPlus.AsyncEvents
             if (handler is null)
                 throw new ArgumentNullException(nameof(handler));
 
-            lock (this._lock)
+            this._lock.EnterWriteLock();
+            try
+            {
                 this._handlers.Remove(handler);
+            }
+            finally
+            {
+                this._lock.ExitWriteLock();
+            }
         }
 
         /// <summary>
@@ -86,28 +99,40 @@ namespace DSharpPlus.AsyncEvents
         /// </summary>
         /// <param name="sender">The instance that dispatched this event.</param>
         /// <param name="args">The arguments passed to this event.</param>
-        public Task InvokeAsync(TSender sender, TArgs args)
+        public async Task InvokeAsync(TSender sender, TArgs args)
         {
             if (this._handlers.Count == 0)
-                return Task.CompletedTask;
+                return;
 
-            Parallel.ForEach
-            (
-                this._handlers,
-                handler =>
+            this._lock.EnterReadLock();
+
+            try
+            {
+                var tasks = new List<Task>();
+
+                foreach (var handler in this._handlers)
                 {
-                    try
+                    tasks.Add(Task.Run(async () =>
                     {
-                        handler.Invoke(sender, args);
-                    }
-                    catch (Exception ex)
-                    {
-                        this._exceptionHandler.Invoke(this, ex, handler, sender, args);
-                    }
+                        try
+                        {
+                            await handler(sender, args);
+                        }
+                        catch (Exception ex)
+                        {
+                            this._exceptionHandler(this, ex, handler, sender, args);
+                        }
+                    }));
                 }
-            );
 
-            return Task.CompletedTask;
+                await Task.WhenAll(tasks);
+            }
+            finally
+            {
+                this._lock.ExitReadLock();
+            }
+
+            return;
         }
     }
 }
