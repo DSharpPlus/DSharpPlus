@@ -4,6 +4,9 @@ on:
     types:
       - published
   workflow_dispatch:
+  push:
+    paths:
+      - 'docs/**'
 env:
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
