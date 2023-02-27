@@ -143,6 +143,24 @@ single log message from DSharpPlus. Woo hoo!
 ## Spicing Up Your Bot
 Right now our bot doesn't do a whole lot. Let's bring it to life by having it respond to a message!
 
+As of September 1st 2022, Discord started requiring message content intent for bots that want to read message content. This is a privileged intent!
+
+If your bot has under 100 guilds, all you have to do is flip the switch in the developer dashboard. (over at https://discord.com/developers/applications)
+If your bot has over 100 guilds, you'll need approval from Discord's end.
+
+After enabling the intent in the developer dashboard, you have to specify your intents in you DiscordConfiguration:
+
+```cs
+var discord = new DiscordClient(new DiscordConfiguration()
+{
+    Token = "My First Token",
+    TokenType = TokenType.Bot,
+    Intents = DiscordIntents.AllUnprivileged | DiscordIntents.MessageContents  
+});
+```
+
+Now you can start to listen to messages.
+
 Hook the @DSharpPlus.DiscordClient.MessageCreated event fired by @DSharpPlus.DiscordClient with a [lambda][18]. Mark it
 as `async` and give it two parameters: `s` and `e`.
 ```cs
@@ -186,7 +204,8 @@ namespace MyFirstBot
             var discord = new DiscordClient(new DiscordConfiguration()
             {
                 Token = "My First Token",
-                TokenType = TokenType.Bot
+                TokenType = TokenType.Bot,
+		Intents = DiscordIntents.AllUnprivileged | DiscordIntents.MessageContents
             });
 
             discord.MessageCreated += async (s, e) =>
