@@ -148,7 +148,7 @@ As of September 1st 2022, Discord started requiring message content intent for b
 If your bot has under 100 guilds, all you have to do is flip the switch in the developer dashboard. (over at https://discord.com/developers/applications)
 If your bot has over 100 guilds, you'll need approval from Discord's end.
 
-After enabling the intent on Discords end, you have to specify your intents in you DiscordConfiguratioon:
+After enabling the intent in the developer dashboard, you have to specify your intents in you DiscordConfiguration:
 
 ```cs
 var discord = new DiscordClient(new DiscordConfiguration()
