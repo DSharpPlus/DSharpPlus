@@ -42,7 +42,8 @@ namespace DSharpPlus.Entities
             set
             {
                 this._embeds.Clear();
-                this._embeds.Add(value);
+                if (value != null)
+                    this._embeds.Add(value);
             }
         }
 
@@ -55,7 +56,8 @@ namespace DSharpPlus.Entities
             set
             {
                 this._stickers.Clear();
-                this._stickers.Add(value);
+                if (value != null)
+                    this._stickers.Add(value);
             }
         }
 
