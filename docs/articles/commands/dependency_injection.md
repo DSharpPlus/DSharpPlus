@@ -10,7 +10,7 @@ you *could* use `static` fields to accomplish this, the preferred solution would
 This would involve placing all required object instances and types (referred to as *services*) in a container, then
 providing that container to CommandsNext. Each time a command module is instantiated, CommandsNext will then attempt to
 populate constructor parameters, `public` properties, and `public` fields exposed by the module with instances of
-objects from the service container.
+objects from the service container - it is recommended you use constructor parameters for dependency injection.
 
 We'll go through a simple example of this process to help you understand better.
 
@@ -19,7 +19,7 @@ To begin, we'll need to create a service provider; this will act as the containe
 commands. Create a new variable just before you register CommandsNext with your @DSharpPlus.DiscordClient and assign it
 a new instance of `ServiceCollection`.
 ```cs
-var discord = new DiscordClient();	
+var discord = new DiscordClient();
 var services = new ServiceCollection();	// Right here!
 var commands = discord.UseCommandsNext();
 ```

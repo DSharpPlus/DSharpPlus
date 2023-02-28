@@ -9,6 +9,7 @@ The majority of these attributes can be applied to your command methods and comm
 - @DSharpPlus.CommandsNext.Attributes.AliasesAttribute
 - @DSharpPlus.CommandsNext.Attributes.CooldownAttribute
 - @DSharpPlus.CommandsNext.Attributes.DescriptionAttribute
+- @DSharpPlus.CommandsNext.Attributes.CategoryAttribute
 - @DSharpPlus.CommandsNext.Attributes.DontInjectAttribute
 - @DSharpPlus.CommandsNext.Attributes.HiddenAttribute
 - @DSharpPlus.CommandsNext.Attributes.ModuleLifespanAttribute
@@ -60,11 +61,11 @@ public class RequireYearAttribute : CheckBaseAttribute
 
 You can provide feedback to the user using the @DSharpPlus.CommandsNext.CommandsNextExtension.CommandErrored event.
 ```cs
-private async Task MainAsync()
+private async Task Main(string[] args)
 {
     var discord = new DiscordClient();
 	var commands = discord.UseCommandsNext();
-	
+
 	commands.CommandErrored += CmdErroredHandler;
 }
 
@@ -73,11 +74,11 @@ private async Task CmdErroredHandler(CommandsNextExtension _, CommandErrorEventA
     var failedChecks = ((ChecksFailedException)e.Exception).FailedChecks;
     foreach (var failedCheck in failedChecks)
     {
-        if (failedCheck is RequireYearAttribute) 
+        if (failedCheck is RequireYearAttribute)
         {
             var yearAttribute = (RequireYearAttribute)failedCheck;
             await e.Context.RespondAsync($"Only usable during year {yearAttribute.AllowedYear}.");
-        } 
+        }
     }
 }
 ```

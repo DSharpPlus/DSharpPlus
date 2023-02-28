@@ -15,13 +15,12 @@ go over some of the concepts of using the message builder:
 ### Adding a File:
 For sending files, you'll have to use the MessageBuilder to construct your message, see example below:
 ```cs
-using (var fs = new FileStream("ADumbFile.txt", FileMode.Open, FileAccess.Read))
-{
-    var msg = await new DiscordMessageBuilder()
-        .WithContent("Here is a really dumb file that I am testing with.")
-        .WithFiles(new Dictionary<string, Stream>() { { "ADumbFile1.txt", fs } })
-        .SendAsync(ctx.Channel);           
-}
+using fs = new FileStream("ADumbFile.txt", FileMode.Open, FileAccess.Read);
+
+var msg = await new DiscordMessageBuilder()
+    .WithContent("Here is a really dumb file that I am testing with.")
+    .WithFiles(new Dictionary<string, Stream>() { { "ADumbFile1.txt", fs } })
+    .SendAsync(ctx.Channel);
 ```
 
 ### Adding Mentions
@@ -30,7 +29,7 @@ For sending mentions, you'll have to use the MessageBuilder to construct your me
 var msg = await new DiscordMessageBuilder()
     .WithContent($"✔ UserMention(user): Hey, {user.Mention}! Listen!")
     .WithAllowedMentions(new IMention[] { new UserMention(user) })
-    .SendAsync(ctx.Channel);      
+    .SendAsync(ctx.Channel);
 ```
 
 ### Sending TTS Messages
@@ -39,7 +38,7 @@ For sending a TTS message, you'll have to use the MessageBuilder to construct yo
 var msg = await new DiscordMessageBuilder()
     .WithContent($"This is a dumb message")
     .HasTTS(true)
-    .SendAsync(ctx.Channel);      
+    .SendAsync(ctx.Channel);
 ```
 
 ### Sending an Inline Reply
