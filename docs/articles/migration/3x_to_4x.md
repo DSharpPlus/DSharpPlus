@@ -36,8 +36,8 @@ you will update it like this:
 ```cs
 await role.UpdateAsync(x =>
 {
-	x.Name = "Modified Role";
-	x.Color = new DiscordColor(0xFF00FF);
+    x.Name = "Modified Role";
+    x.Color = new DiscordColor(0xFF00FF);
 });
 ```
 

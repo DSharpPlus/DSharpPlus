@@ -29,7 +29,7 @@ We'll use `.AddSingleton` to add type `Random` to the collection, then chain tha
 ```cs
 var services = new ServiceCollection()
     .AddSingleton<Random>()
-	.BuildServiceProvider();
+    .BuildServiceProvider();
 ```
 
 Then we'll need to provide CommandsNext with our services.

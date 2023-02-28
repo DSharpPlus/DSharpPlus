@@ -64,9 +64,9 @@ You can provide feedback to the user using the @DSharpPlus.CommandsNext.Commands
 private async Task Main(string[] args)
 {
     var discord = new DiscordClient();
-	var commands = discord.UseCommandsNext();
+    var commands = discord.UseCommandsNext();
 
-	commands.CommandErrored += CmdErroredHandler;
+    commands.CommandErrored += CmdErroredHandler;
 }
 
 private async Task CmdErroredHandler(CommandsNextExtension _, CommandErrorEventArgs e)
