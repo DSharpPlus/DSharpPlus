@@ -21,7 +21,7 @@ method parameters.
 As mentioned in the [preamble][1], the Mono runtime is inherently unstable and has numerous flaws. Because of this we
 do not support Mono in any way, nor will we support any other projects which use it.
 
-Instead, we recommend using either the latest LTS release or most recent stable version of [.NET Core][2].
+Instead, we recommend using either the latest LTS release or most recent stable version of [.NET][2].
 
 ### Connecting to a voice channel with VoiceNext will either hang or throw an exception.
 To troubleshoot, please ensure that:
@@ -82,9 +82,8 @@ Yes. Use LINQ on the @DSharpPlus.Entities.DiscordGuild.Roles property of your in
 @DSharpPlus.Entities.DiscordRole.Name of each @DSharpPlus.Entities.DiscordRole.
 
 ### Why are you using [Newtonsoft.Json][10] when <xref:System.Text.Json> is available?
-Yes <xref:System.Text.Json> is available to use but it still doesnt stand up to what we currently need which is why we still
-use [Newtonsoft.Json][10]. Maybe in time we can switch to your favorite Json Deserializer but for right now we will be using
-[Newtonsoft.Json][10] for the forseeable future.
+Yes, <xref:System.Text.Json> is available to use, and we aim to use <xref:System.Text.Json> in DSharpPlus v5. Because of the large
+effort associated with switching, v4 will continue to use [Newtonsoft.Json][10]
 
 ### Why the hell are my events not firing?
 This is because since version 8 of the Discord API, @DSharpPlus.DiscordIntents are required to be enabled on
