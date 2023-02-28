@@ -22,7 +22,7 @@ private async Task Main(string[] args)
             await e.Message.RespondAsync("I want pictures of Spiderman!");
     };
 
-	discord.GuildMemberAdded += (s, e) =>
+    discord.GuildMemberAdded += (s, e) =>
     {
         // Non asynchronous code here.
         return Task.CompletedTask;
@@ -37,7 +37,7 @@ private async Task Main(string[] args)
     var discord = new DiscordClient();
 
     discord.MessageCreated += MessageCreatedHandler;
-	discord.GuildMemberAdded += MemberAddedHandler;
+    discord.GuildMemberAdded += MemberAddedHandler;
 }
 
 private async Task MessageCreatedHandler(DiscordClient s, MessageCreateEventArgs e)
