@@ -73,12 +73,12 @@ discord.MessageCreated += (s, e) =>
         var response = await QuerySlowWebServiceAsync(e.Message.Content);
 
         if (response.Status == HttpStatusCode.OK)
-		{
-			await e.Guild?.BanMemberAsync((DiscordMember)e.Author);
+        {
+            await e.Guild?.BanMemberAsync((DiscordMember)e.Author);
         }
     });
 
-	return Task.CompletedTask;
+    return Task.CompletedTask;
 };
 ```
 
