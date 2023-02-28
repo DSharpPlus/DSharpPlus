@@ -1359,7 +1359,7 @@ namespace DSharpPlus.Net
             {
                 HasContent = builder.Content != null,
                 Content = builder.Content,
-                StickersIds = builder._stickers?.Select(x => x.Id).ToArray(),
+                StickersIds = builder._stickers?.Where(s => s != null).Select(s => s.Id).ToArray(),
                 IsTTS = builder.IsTTS,
                 HasEmbed = builder.Embeds != null,
                 Embeds = builder.Embeds,
