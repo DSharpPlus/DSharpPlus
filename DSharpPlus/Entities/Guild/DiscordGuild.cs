@@ -489,9 +489,15 @@ namespace DSharpPlus.Entities
         /// Gets channels ordered in a manner in which they'd be ordered in the UI of the discord client.
         /// </summary>
         [JsonIgnore]
+        // Group the channels by category or parent id
         public IEnumerable<DiscordChannel> OrderedChannels => _channels.Values.GroupBy(channel => channel.IsCategory ? channel.Id : channel.ParentId)
-            .OrderBy(channels => channels.FirstOrDefault(ch => ch.IsCategory)?.Position)
+        // Order the channel by the category's position
+            .OrderBy(channels => channels.FirstOrDefault(channel => channel.IsCategory)?.Position)
+            // Select the category's channels
+            // Order them by text, shoving voice or stage types to the bottom
+            // Then order them by their position
             .Select(channel => channel.OrderBy(channel => channel.Type is ChannelType.Voice or ChannelType.Stage).ThenBy(channel => channel.Position))
+            // Group them all back together into a single enumerable.
             .SelectMany(channel => channel);
 
         [JsonIgnore]
