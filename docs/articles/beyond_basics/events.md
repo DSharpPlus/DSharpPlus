@@ -12,16 +12,16 @@ arguments object for the specific event you're handling.
 
 Below is a snippet demonstrating this with a lambda expression.
 ```cs
-private async Task MainAsync()
+private async Task Main(string[] args)
 {
     var discord = new DiscordClient();
-	
+
     discord.MessageCreated += async (s, e) =>
     {
-        if (e.Message.Content.ToLower().Contains("spiderman")) 
+        if (e.Message.Content.ToLower().Contains("spiderman"))
             await e.Message.RespondAsync("I want pictures of Spiderman!");
     };
-	
+
 	discord.GuildMemberAdded += (s, e) =>
     {
         // Non asynchronous code here.
@@ -32,10 +32,10 @@ private async Task MainAsync()
 
 Alternatively, you can create a new method to consume an event.
 ```cs
-private async Task MainAsync()
+private async Task Main(string[] args)
 {
     var discord = new DiscordClient();
-	
+
     discord.MessageCreated += MessageCreatedHandler;
 	discord.GuildMemberAdded += MemberAddedHandler;
 }
@@ -53,10 +53,13 @@ private Task MemberAddedHandler(DiscordClient s, GuildMemberAddEventArgs e)
 }
 ```
 
+You should only register or unregister events on startup or on deterministic points in execution: do not change
+event handlers based on user input, in commands or anything related unless you have a very good reason.
+
 # Avoiding Deadlocks
 Despite the fact that your event handlers are executed asynchronously, they are also executed one at a time on the
 gateway thread for consistency. This means that each handler must complete its execution before others can be
-dispatched. 
+dispatched.
 
 Because of this, executing code in your event handlers that runs for an extended period of time may inadvertently create
 brief unresponsiveness or, even worse, cause a [deadlock][0]. To prevent such issues, any event handler that has the
