@@ -28,6 +28,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
@@ -482,16 +483,16 @@ namespace DSharpPlus.Entities
         [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
         internal ConcurrentDictionary<ulong, DiscordStageInstance> _stageInstances;
 
-        // Seriously discord?
-
-        // I need to work on this
-        //
-        // /// <summary>
-        // /// Gets channels ordered in a manner in which they'd be ordered in the UI of the discord client.
-        // /// </summary>
-        // [JsonIgnore]
-        // public IEnumerable<DiscordChannel> OrderedChannels
-        //    => this._channels.OrderBy(xc => xc.Parent?.Position).ThenBy(xc => xc.Type).ThenBy(xc => xc.Position);
+        // Failed attempts so far: 8
+        // Velvet got it working in one attempt. I'm not mad, why would I be mad. - Lunar
+        /// <summary>
+        /// Gets channels ordered in a manner in which they'd be ordered in the UI of the discord client.
+        /// </summary>
+        [JsonIgnore]
+        public IEnumerable<DiscordChannel> OrderedChannels => _channels.Values.GroupBy(channel => channel.IsCategory ? channel.Id : channel.ParentId)
+            .OrderBy(channels => channels.FirstOrDefault(ch => ch.IsCategory)?.Position)
+            .Select(channel => channel.OrderBy(channel => channel.Type is ChannelType.Voice or ChannelType.Stage).ThenBy(channel => channel.Position))
+            .SelectMany(channel => channel);
 
         [JsonIgnore]
         internal bool _isSynced { get; set; }
