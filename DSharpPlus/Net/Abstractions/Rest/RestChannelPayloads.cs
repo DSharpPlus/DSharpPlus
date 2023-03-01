@@ -115,22 +115,22 @@ namespace DSharpPlus.Net.Abstractions
         public VideoQualityMode? QualityMode { get; set; }
 
         [JsonProperty("default_auto_archive_duration", NullValueHandling = NullValueHandling.Ignore)]
-        public AutoArchiveDuration? DefaultAutoArchiveDuration { get; set; }
+        public Optional<AutoArchiveDuration?> DefaultAutoArchiveDuration { get; set; }
 
         [JsonProperty("default_sort_order", NullValueHandling = NullValueHandling.Ignore)]
-        public DefaultSortOrder? DefaultSortOrder { get; set; }
+        public Optional<DefaultSortOrder?> DefaultSortOrder { get; set; }
 
         [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
-        public ChannelFlags? Flags { get; set; }
+        public Optional<ChannelFlags> Flags { get; set; }
 
         [JsonProperty("default_reaction_emoji", NullValueHandling = NullValueHandling.Ignore)]
-        public DefaultReaction? DefaultReaction { get; set; }
+        public Optional<DefaultReaction> DefaultReaction { get; set; }
 
         [JsonProperty("available_tags", NullValueHandling = NullValueHandling.Ignore)]
         public IEnumerable<DiscordForumTagBuilder> AvailableTags { get; set; }
 
         [JsonProperty("default_forum_layout", NullValueHandling = NullValueHandling.Ignore)]
-        public DefaultForumLayout? DefaultForumLayout { get; set; }
+        public Optional<DefaultForumLayout> DefaultForumLayout { get; set; }
     }
 
     internal sealed class RestThreadChannelModifyPayload

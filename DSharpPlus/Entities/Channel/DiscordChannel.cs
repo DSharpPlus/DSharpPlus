@@ -433,9 +433,30 @@ namespace DSharpPlus.Entities
         {
             var mdl = new ChannelEditModel();
             action(mdl);
-            return this.Discord.ApiClient.ModifyChannelAsync(this.Id, mdl.Name, mdl.Position, mdl.Topic, mdl.Nsfw,
-                mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.PerUserRateLimit, mdl.RtcRegion.IfPresent(r => r?.Id),
-                mdl.QualityMode, mdl.Type, mdl.PermissionOverwrites, mdl.AuditLogReason);
+            return this.Discord.ApiClient.ModifyChannelAsync
+            (
+                this.Id,
+                mdl.Name,
+                mdl.Position,
+                mdl.Topic,
+                mdl.Nsfw,
+                mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>),
+                mdl.Bitrate,
+                mdl.Userlimit,
+                mdl.PerUserRateLimit,
+                mdl.RtcRegion.IfPresent(r => r?.Id),
+                mdl.QualityMode,
+                mdl.Type,
+                mdl.PermissionOverwrites,
+                mdl.AuditLogReason,
+                mdl.Flags,
+                mdl.AvailableTags,
+                mdl.DefaultAutoArchiveDuration,
+                mdl.DefaultReaction,
+                mdl.DefaultThreadRateLimit,
+                mdl.DefaultSortOrder,
+                mdl.DefaultForumLayout
+            );
         }
 
         /// <summary>

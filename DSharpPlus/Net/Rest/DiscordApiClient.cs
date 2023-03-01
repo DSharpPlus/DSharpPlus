@@ -1056,13 +1056,13 @@ namespace DSharpPlus.Net
             Optional<ChannelType> type,
             IEnumerable<DiscordOverwriteBuilder> permissionOverwrites,
             string reason,
-            ChannelFlags? flags,
+            Optional<ChannelFlags> flags,
             IEnumerable<DiscordForumTagBuilder>? availableTags,
-            AutoArchiveDuration? defaultAutoArchiveDuration,
-            DefaultReaction? defaultReactionEmoji,
-            int? defaultPerUserRatelimit,
-            DefaultSortOrder? defaultSortOrder,
-            DefaultForumLayout? defaultForumLayout
+            Optional<AutoArchiveDuration?> defaultAutoArchiveDuration,
+            Optional<DefaultReaction?> defaultReactionEmoji,
+            Optional<int> defaultPerUserRatelimit,
+            Optional<DefaultSortOrder?> defaultSortOrder,
+            Optional<DefaultForumLayout> defaultForumLayout
         )
         {
             List<DiscordRestOverwrite> restoverwrites = null;
