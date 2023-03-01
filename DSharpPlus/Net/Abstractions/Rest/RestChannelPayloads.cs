@@ -62,6 +62,18 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("position", NullValueHandling = NullValueHandling.Ignore)]
         public int? Position { get; set; }
+
+        [JsonProperty("default_auth_archive_duration", NullValueHandling = NullValueHandling.Ignore)]
+        public AutoArchiveDuration? DefaultAutoArchiveDuration { get; set; }
+
+        [JsonProperty("default_reaction_emoji", NullValueHandling = NullValueHandling.Ignore)]
+        public DefaultReaction? DefaultReaction { get; set; }
+
+        [JsonProperty("available_tags", NullValueHandling = NullValueHandling.Ignore)]
+        public IEnumerable<DiscordForumTagBuilder> AvailableTags { get; set; }
+
+        [JsonProperty("default_sort_order", NullValueHandling = NullValueHandling.Ignore)]
+        public DefaultSortOrder? DefaultSortOrder { get; set; }
     }
 
     internal sealed class RestChannelModifyPayload
@@ -101,6 +113,24 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("video_quality_mode", NullValueHandling = NullValueHandling.Ignore)]
         public VideoQualityMode? QualityMode { get; set; }
+
+        [JsonProperty("default_auto_archive_duration", NullValueHandling = NullValueHandling.Ignore)]
+        public AutoArchiveDuration? DefaultAutoArchiveDuration { get; set; }
+
+        [JsonProperty("default_sort_order", NullValueHandling = NullValueHandling.Ignore)]
+        public DefaultSortOrder? DefaultSortOrder { get; set; }
+
+        [JsonProperty("flags", NullValueHandling = NullValueHandling.Ignore)]
+        public ChannelFlags? Flags { get; set; }
+
+        [JsonProperty("default_reaction_emoji", NullValueHandling = NullValueHandling.Ignore)]
+        public DefaultReaction? DefaultReaction { get; set; }
+
+        [JsonProperty("available_tags", NullValueHandling = NullValueHandling.Ignore)]
+        public IEnumerable<DiscordForumTagBuilder> AvailableTags { get; set; }
+
+        [JsonProperty("default_forum_layout", NullValueHandling = NullValueHandling.Ignore)]
+        public DefaultForumLayout? DefaultForumLayout { get; set; }
     }
 
     internal sealed class RestThreadChannelModifyPayload

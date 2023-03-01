@@ -973,7 +973,27 @@ namespace DSharpPlus.Net
         #endregion
 
         #region Channel
-        internal async Task<DiscordChannel> CreateGuildChannelAsync(ulong guild_id, string name, ChannelType type, ulong? parent, Optional<string> topic, int? bitrate, int? user_limit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, Optional<int?> perUserRateLimit, VideoQualityMode? qualityMode, int? position, string reason)
+        internal async Task<DiscordChannel> CreateGuildChannelAsync
+        (
+            ulong guild_id,
+            string name,
+            ChannelType type,
+            ulong? parent,
+            Optional<string> topic,
+            int? bitrate,
+            int? user_limit,
+            IEnumerable<DiscordOverwriteBuilder> overwrites,
+            bool? nsfw,
+            Optional<int?> perUserRateLimit,
+            VideoQualityMode? qualityMode,
+            int? position,
+            string reason,
+            AutoArchiveDuration? defaultAutoArchiveDuration,
+            DefaultReaction? defaultReactionEmoji,
+            IEnumerable<DiscordForumTagBuilder> forumTags,
+            DefaultSortOrder? defaultSortOrder
+
+        )
         {
             var restoverwrites = new List<DiscordRestOverwrite>();
             if (overwrites != null)
@@ -992,7 +1012,11 @@ namespace DSharpPlus.Net
                 Nsfw = nsfw,
                 PerUserRateLimit = perUserRateLimit,
                 QualityMode = qualityMode,
-                Position = position
+                Position = position,
+                DefaultAutoArchiveDuration = defaultAutoArchiveDuration,
+                DefaultReaction = defaultReactionEmoji,
+                AvailableTags = forumTags,
+                DefaultSortOrder = defaultSortOrder
             };
 
             var headers = Utilities.GetBaseHeaders();
@@ -1016,7 +1040,30 @@ namespace DSharpPlus.Net
             return ret;
         }
 
-        internal Task ModifyChannelAsync(ulong channel_id, string name, int? position, Optional<string> topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? user_limit, Optional<int?> perUserRateLimit, Optional<string> rtcRegion, VideoQualityMode? qualityMode, Optional<ChannelType> type, IEnumerable<DiscordOverwriteBuilder> permissionOverwrites, string reason)
+        internal Task ModifyChannelAsync
+        (
+            ulong channel_id,
+            string name,
+            int? position,
+            Optional<string> topic,
+            bool? nsfw,
+            Optional<ulong?> parent,
+            int? bitrate,
+            int? user_limit,
+            Optional<int?> perUserRateLimit,
+            Optional<string> rtcRegion,
+            VideoQualityMode? qualityMode,
+            Optional<ChannelType> type,
+            IEnumerable<DiscordOverwriteBuilder> permissionOverwrites,
+            string reason,
+            ChannelFlags? flags,
+            IEnumerable<DiscordForumTagBuilder>? availableTags,
+            AutoArchiveDuration? defaultAutoArchiveDuration,
+            DefaultReaction? defaultReactionEmoji,
+            int? defaultPerUserRatelimit,
+            DefaultSortOrder? defaultSortOrder,
+            DefaultForumLayout? defaultForumLayout
+        )
         {
             List<DiscordRestOverwrite> restoverwrites = null;
             if (permissionOverwrites != null)
@@ -1039,7 +1086,13 @@ namespace DSharpPlus.Net
                 RtcRegion = rtcRegion,
                 QualityMode = qualityMode,
                 Type = type,
-                PermissionOverwrites = restoverwrites
+                PermissionOverwrites = restoverwrites,
+                Flags = flags,
+                AvailableTags = availableTags,
+                DefaultAutoArchiveDuration = defaultAutoArchiveDuration,
+                DefaultReaction = defaultReactionEmoji,
+                DefaultForumLayout = defaultForumLayout,
+                DefaultSortOrder = defaultSortOrder
             };
 
             var headers = Utilities.GetBaseHeaders();

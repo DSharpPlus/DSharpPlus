@@ -27,11 +27,11 @@ namespace DSharpPlus
         /// <summary>
         /// The channel is pinned.
         /// </summary>
-        Pinned = 2,
+        Pinned = 1 << 1,
 
         /// <summary>
         /// The [forum] channel requires tags to be applied.
         /// </summary>
-        RequiresTag = 16
+        RequiresTag = 1 << 4
     }
 }
