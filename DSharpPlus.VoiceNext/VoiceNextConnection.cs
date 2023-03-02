@@ -847,7 +847,7 @@ namespace DSharpPlus.VoiceNext
                 // it has the same format as PreparePacket. All we really need is IP + port so we strip it from
                 // the response here, which are the last 6 bytes (4 for ip, 2 for port (ushort))
 
-                var ipString = Utilities.UTF8.GetString(packet, 4, 68 /* 74 - 6 */).TrimEnd('\0');
+                var ipString = Utilities.UTF8.GetString(packet, 8, 68 /* 74 - 6 */).TrimEnd('\0');
                 decodedIp = System.Net.IPAddress.Parse(ipString);
                 decodedPort = BinaryPrimitives.ReadUInt16LittleEndian(packetSpan.Slice(72 /* 74 - 2 */));
             }
