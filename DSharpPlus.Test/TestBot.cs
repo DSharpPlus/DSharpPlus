@@ -74,6 +74,8 @@ namespace DSharpPlus.Test
             };
             this.Discord = new DiscordClient(dcfg);
 
+            this.Discord.UseVoiceNext();
+
             // events
             this.Discord.Ready += this.Discord_Ready;
             this.Discord.GuildStickersUpdated += this.Discord_StickersUpdated;

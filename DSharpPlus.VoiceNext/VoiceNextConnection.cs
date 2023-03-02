@@ -813,6 +813,7 @@ namespace DSharpPlus.VoiceNext
 
             var pck = new byte[74];
             PreparePacket(pck);
+
             await this.UdpClient.SendAsync(pck, pck.Length).ConfigureAwait(false);
 
             var ipd = await this.UdpClient.ReceiveAsync().ConfigureAwait(false);
@@ -831,10 +832,22 @@ namespace DSharpPlus.VoiceNext
                 ushort length = 70; // length of everything after this. should for this step always be 70.
 
                 var packetSpan = packet.AsSpan();
-                MemoryMarshal.Write(packetSpan, ref type);
-                MemoryMarshal.Write(packetSpan, ref length);
-                MemoryMarshal.Write(packetSpan, ref ssrc);
-                Helpers.ZeroFill(packetSpan); // we zerofill for address+port
+                Helpers.ZeroFill(packetSpan); // fill with zeroes
+
+                var typeByte = BitConverter.GetBytes(type);
+                var lengthByte = BitConverter.GetBytes(length);
+                var ssrcByte = BitConverter.GetBytes(ssrc);
+
+                if(BitConverter.IsLittleEndian)
+                {
+                    Array.Reverse(typeByte);
+                    Array.Reverse(lengthByte);
+                    Array.Reverse(ssrcByte);
+                }
+
+                typeByte.CopyTo(packet, 0);
+                lengthByte.CopyTo(packet, 2);
+                ssrcByte.CopyTo(packet, 4);
                 // https://discord.com/developers/docs/topics/voice-connections#ip-discovery
             }
 
@@ -847,7 +860,7 @@ namespace DSharpPlus.VoiceNext
                 // it has the same format as PreparePacket. All we really need is IP + port so we strip it from
                 // the response here, which are the last 6 bytes (4 for ip, 2 for port (ushort))
 
-                var ipString = Utilities.UTF8.GetString(packet, 8, 68 /* 74 - 6 */).TrimEnd('\0');
+                var ipString = Utilities.UTF8.GetString(packet, 8, 64 /* 74 - 6 */).TrimEnd('\0');
                 decodedIp = System.Net.IPAddress.Parse(ipString);
                 decodedPort = BinaryPrimitives.ReadUInt16LittleEndian(packetSpan.Slice(72 /* 74 - 2 */));
             }
