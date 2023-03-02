@@ -811,8 +811,9 @@ namespace DSharpPlus.VoiceNext
             // IP Discovery
             this.UdpClient.Setup(this.UdpEndpoint);
 
-            var pck = new byte[70];
+            var pck = new byte[74];
             PreparePacket(pck);
+
             await this.UdpClient.SendAsync(pck, pck.Length).ConfigureAwait(false);
 
             var ipd = await this.UdpClient.ReceiveAsync().ConfigureAwait(false);
@@ -827,19 +828,41 @@ namespace DSharpPlus.VoiceNext
             void PreparePacket(byte[] packet)
             {
                 var ssrc = this.SSRC;
+                ushort type = 0x1; // type: request (isn't this one way anyway?)
+                ushort length = 70; // length of everything after this. should for this step always be 70.
+
                 var packetSpan = packet.AsSpan();
-                MemoryMarshal.Write(packetSpan, ref ssrc);
-                Helpers.ZeroFill(packetSpan);
+                Helpers.ZeroFill(packetSpan); // fill with zeroes
+
+                var typeByte = BitConverter.GetBytes(type);
+                var lengthByte = BitConverter.GetBytes(length);
+                var ssrcByte = BitConverter.GetBytes(ssrc);
+
+                if(BitConverter.IsLittleEndian)
+                {
+                    Array.Reverse(typeByte);
+                    Array.Reverse(lengthByte);
+                    Array.Reverse(ssrcByte);
+                }
+
+                typeByte.CopyTo(packet, 0);
+                lengthByte.CopyTo(packet, 2);
+                ssrcByte.CopyTo(packet, 4);
+                // https://discord.com/developers/docs/topics/voice-connections#ip-discovery
             }
 
             void ReadPacket(byte[] packet, out System.Net.IPAddress decodedIp, out ushort decodedPort)
             {
                 var packetSpan = packet.AsSpan();
 
-                var ipString = Utilities.UTF8.GetString(packet, 4, 64 /* 70 - 6 */).TrimEnd('\0');
-                decodedIp = System.Net.IPAddress.Parse(ipString);
+                // the packet we received in this step should be the IP discovery response.
 
-                decodedPort = BinaryPrimitives.ReadUInt16LittleEndian(packetSpan.Slice(68 /* 70 - 2 */));
+                // it has the same format as PreparePacket. All we really need is IP + port so we strip it from
+                // the response here, which are the last 6 bytes (4 for ip, 2 for port (ushort))
+
+                var ipString = Utilities.UTF8.GetString(packet, 8, 64 /* 74 - 6 */).TrimEnd('\0');
+                decodedIp = System.Net.IPAddress.Parse(ipString);
+                decodedPort = BinaryPrimitives.ReadUInt16LittleEndian(packetSpan.Slice(72 /* 74 - 2 */));
             }
 
             // Select voice encryption mode
