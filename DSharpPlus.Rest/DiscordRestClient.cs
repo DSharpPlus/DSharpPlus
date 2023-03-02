@@ -593,28 +593,29 @@ namespace DSharpPlus
             DefaultSortOrder? defaultSortOrder = null
         )
         {
-            return type != ChannelType.Category && type != ChannelType.Text && type != ChannelType.Voice && type != ChannelType.News && type != ChannelType.Stage
-                ? throw new ArgumentException("Channel type must be text, voice, stage, or category.", nameof(type))
-                : this.ApiClient.CreateGuildChannelAsync
-                (
-                    id,
-                    name,
-                    type,
-                    parent,
-                    topic,
-                    bitrate,
-                    userLimit,
-                    overwrites,
-                    nsfw,
-                    perUserRateLimit,
-                    qualityMode,
-                    position,
-                    reason,
-                    defaultAutoArchiveDuration,
-                    defaultReactionEmoji,
-                    availableTags,
-                    defaultSortOrder
-                );
+            if (type is not (ChannelType.Text or ChannelType.Voice or ChannelType.Category or ChannelType.News or ChannelType.Stage or ChannelType.GuildForum))
+                throw new ArgumentException("Channel type must be text, voice, stage, category, or a forum.", nameof(type));
+
+            return this.ApiClient.CreateGuildChannelAsync
+            (
+                id,
+                name,
+                type,
+                parent,
+                topic,
+                bitrate,
+                userLimit,
+                overwrites,
+                nsfw,
+                perUserRateLimit,
+                qualityMode,
+                position,
+                reason,
+                defaultAutoArchiveDuration,
+                defaultReactionEmoji,
+                availableTags,
+                defaultSortOrder
+            );
         }
 
         /// <summary>
