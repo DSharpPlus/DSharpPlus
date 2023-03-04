@@ -23,8 +23,8 @@ how to use the Generic Host to run a bot service:
 private static async Task Main() {
   await Host.CreateDefaultBuilder()
     .UseConsoleLifetime()
-    .ConfigureServices((HostContext, Services) => {
-      Services.AddHostedService<YourBotHost>();
+    .ConfigureServices((hostContext, services) => {
+      services.AddHostedService<YourBotHost>();
     })
     .RunConsoleAsync();
 }
