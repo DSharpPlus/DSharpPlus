@@ -44,40 +44,49 @@ namespace DSharpPlus.Net
         public bool Secured { get; set; }
 
         /// <summary>
+        /// Endpoint for connection.
+        /// </summary>
+        public string Endpoint { get; set; }
+
+        /// <summary>
         /// Creates a new endpoint structure.
         /// </summary>
         /// <param name="hostname">Hostname to connect to.</param>
         /// <param name="port">Port to use for connection.</param>
         /// <param name="secured">Whether the connection should be secured (https/wss).</param>
-        public ConnectionEndpoint(string hostname, int port, bool secured = false)
+        /// <param name="endpoint">Endpoint for connection</param>
+        public ConnectionEndpoint(string hostname, int port, bool secured = false, string endpoint = "")
         {
             this.Hostname = hostname;
             this.Port = port;
             this.Secured = secured;
+            this.Endpoint = endpoint;
         }
 
         /// <summary>
         /// Gets the hash code of this endpoint.
         /// </summary>
         /// <returns>Hash code of this endpoint.</returns>
-        public override int GetHashCode() => 13 + (7 * this.Hostname.GetHashCode()) + (7 * this.Port);
+        public override int GetHashCode() => 13 + (7 * this.Hostname.GetHashCode()) + (7 * this.Port) + (7 * this.Endpoint.GetHashCode());
 
         /// <summary>
         /// Gets the string representation of this connection endpoint.
         /// </summary>
         /// <returns>String representation of this endpoint.</returns>
-        public override string ToString() => $"{this.Hostname}:{this.Port}";
+        public override string ToString() => $"{this.Hostname}:{this.Port}/{this.Endpoint}";
 
         internal string ToHttpString()
         {
             var secure = this.Secured ? "s" : "";
-            return $"http{secure}://{this}";
+            var endpoint = string.IsNullOrEmpty(this.Endpoint) ? string.Empty : $"/{this.Endpoint}";
+            return $"http{secure}://{this}{endpoint}";
         }
 
         internal string ToWebSocketString()
         {
             var secure = this.Secured ? "s" : "";
-            return $"ws{secure}://{this}/";
+            var endpoint = string.IsNullOrEmpty(this.Endpoint) ? "/" : $"/{this.Endpoint}";
+            return $"ws{secure}://{this}{endpoint}";
         }
     }
 }
