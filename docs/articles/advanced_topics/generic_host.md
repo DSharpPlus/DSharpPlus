@@ -34,7 +34,7 @@ with some default settings. Then, it calls the `UseConsoleLifetime()` method to 
 the host to keep running until it receives a [SIGINT Signal](https://en.wikipedia.org/wiki/Signal_(IPC)#SIGINT) i.e. when the user
 presses Ctrl+C in the console, or when another program tells it to stop.
 
-Next, it configures the services that the host will use by calling the ConfigureServices() method. In this case, it adds a new `YourBotHost`
+Next, it configures the services that the host will use by calling the `ConfigureServices()` method. In this case, it adds a new `YourBotHost`
 service, which is a class that you'll need to define next.
 
 Finally, it calls the `RunConsoleAsync()` method to start the host and begin running your service. That's it! With just a few lines of code,
@@ -45,27 +45,27 @@ You'll need to create a class which implements the `IHostedService` interface, w
 These methods are called by the host when your application starts and stops, respectively.
 
 ```cs
-internal class YourBotHost : IHostedService {
-  private readonly ILogger<YourBotHost> Logger;
-  private readonly IHostApplicationLifetime AppLifetime;
-  private readonly DiscordClient Discord;
+public sealed class YourBotHost : IHostedService {
+  private readonly ILogger<YourBotHost> _logger;
+  private readonly IHostApplicationLifetime _appLifetime;
+  private readonly DiscordClient _discord;
 
-  public YourBotHost(ILogger<YourBotHost> Logger, IHostApplicationLifetime AppLifetime) {
-    this.Logger = Logger;
-    this.AppLifetime = AppLifetime;
-    this.Discord = new(new() {
+  public YourBotHost(ILogger<YourBotHost> logger, IHostApplicationLifetime appLifetime) {
+    this._logger = logger;
+    this._appLifetime = appLifetime;
+    this._discord = new(new() {
       Token = "YourBotTokenHere",
       TokenType = TokenType.Bot,
       Intents = DiscordIntents.AllUnprivileged
     });
   }
 
-  public async Task StartAsync(CancellationToken Token) {
+  public async Task StartAsync(CancellationToken token) {
     await Discord.ConnectAsync();
     return;
   }
 
-  public async Task StopAsync(CancellationToken Token) {
+  public async Task StopAsync(CancellationToken token) {
     await Discord.DisconnectAsync();
     return;
   }
@@ -94,7 +94,7 @@ Then, you will need to add Serilog to your DiscordBot initializer block to ensur
 create a new `LoggerFactory` object and add the Serilog logger provider to it. You can also specify a minimum log level and tell D#+ to shut up about unknown
 events, if you'd like.
 ```cs
-this.Discord = new(new() {
+this._discord = new(new() {
   [...]
   LoggerFactory = new LoggerFactory().AddSerilog(),
   MinimumLogLevel = LogLevel.Warning,
@@ -111,9 +111,9 @@ To do this, you can add the logger service to the `ConfigureServices()` method o
 await Host.CreateDefaultBuilder()
   .UseSerilog()
   .UseConsoleLifetime()
-  .ConfigureServices((HostContext, Services) => {
-    Services.AddLogging(Logging => Logging.ClearProviders().AddSerilog());
-    Services.AddHostedService<BotHost>();
+  .ConfigureServices((hostContext, services) => {
+    services.AddLogging(logging => logging.ClearProviders().AddSerilog());
+    services.AddHostedService<YourBotHost>();
   })
   .RunConsoleAsync();
 ```
@@ -142,9 +142,9 @@ private static async Task Main() {
   await Host.CreateDefaultBuilder()
     .UseSerilog()
     .UseConsoleLifetime()
-    .ConfigureServices((HostContext, Services) => {
-      Services.AddLogging(Logging => Logging.ClearProviders().AddSerilog());
-      Services.AddHostedService<BotHost>();
+    .ConfigureServices((hostContext, services) => {
+      services.AddLogging(logging => logging.ClearProviders().AddSerilog());
+      services.AddHostedService<YourBotHost>();
     })
     .RunConsoleAsync();
 
