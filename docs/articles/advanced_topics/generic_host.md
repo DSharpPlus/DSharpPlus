@@ -95,23 +95,23 @@ When configuring the .NET Generic Host to use Serilog, you will need to add the 
 To do this, you can add the logger service to the `ConfigureServices()` method of your host builder, like this:
 ```cs
 await Host.CreateDefaultBuilder()
-  .UseSerilog()
-  .UseConsoleLifetime()
-  .ConfigureServices((hostContext, services) =>
-  {
-      services.AddLogging(logging => logging.ClearProviders().AddSerilog());
-      services.AddHostedService<BotService>();
-  })
-  .RunConsoleAsync();
+    .UseSerilog()
+    .UseConsoleLifetime()
+    .ConfigureServices((hostContext, services) =>
+    {
+        services.AddLogging(logging => logging.ClearProviders().AddSerilog());
+        services.AddHostedService<BotService>();
+    })
+    .RunConsoleAsync();
 ```
 In this example, we call the `UseSerilog()` method to configure Serilog as our logging provider, and then add the logger service to the `ConfigureServices()` method using the `AddLogging()` method on the Services collection. We then call the `ClearProviders()` method to remove any default logging providers that may be present, and add the Serilog provider using the `AddSerilog()` method.
 
 Don't forget that before you can use Serilog to log messages in your bot, you will need to initialize Serilog and configure the sinks you want to use. For example, you can initialize Serilog like this:
 ```cs
 Log.Logger = new LoggerConfiguration()
-  .WriteTo.Console()
-  .WriteTo.File("logs/.log", rollingInterval: RollingInterval.Day)
-  .CreateLogger();
+    .WriteTo.Console()
+    .WriteTo.File("logs/.log", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
 ```
 
 When shutting down your bot, it's a good idea to call `Log.CloseAndFlushAsync()` to make sure that any pending log messages are written to the sinks before the process exits. You can add this call to your `Main` method, which could look like this once you're done:
@@ -119,19 +119,19 @@ When shutting down your bot, it's a good idea to call `Log.CloseAndFlushAsync()`
 private static async Task Main()
 {
     Log.Logger = new LoggerConfiguration()
-      .WriteTo.Console()
-      .WriteTo.File("logs/.log", rollingInterval: RollingInterval.Day)
-      .CreateLogger();
+        .WriteTo.Console()
+        .WriteTo.File("logs/.log", rollingInterval: RollingInterval.Day)
+        .CreateLogger();
 
     await Host.CreateDefaultBuilder()
-      .UseSerilog()
-      .UseConsoleLifetime()
-      .ConfigureServices((hostContext, services) =>
-      {
-          services.AddLogging(logging => logging.ClearProviders().AddSerilog());
-          services.AddHostedService<BotService>();
-      })
-      .RunConsoleAsync();
+        .UseSerilog()
+        .UseConsoleLifetime()
+        .ConfigureServices((hostContext, services) =>
+        {
+            services.AddLogging(logging => logging.ClearProviders().AddSerilog());
+            services.AddHostedService<BotService>();
+        })
+        .RunConsoleAsync();
 
     await Log.CloseAndFlushAsync();
 }
