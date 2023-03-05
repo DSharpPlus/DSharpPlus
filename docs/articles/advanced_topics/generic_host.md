@@ -20,13 +20,15 @@ You can read more about Generic hosts [here](https://learn.microsoft.com/en-us/d
 To get started, you'll need to write some code that configures and runs your application. Here's a simple example that shows
 how to use the Generic Host to run a bot service:
 ```cs
-private static async Task Main() {
-  await Host.CreateDefaultBuilder()
-    .UseConsoleLifetime()
-    .ConfigureServices((hostContext, services) => {
-      services.AddHostedService<YourBotHost>();
-    })
-    .RunConsoleAsync();
+private static async Task Main()
+{
+    await Host.CreateDefaultBuilder()
+      .UseConsoleLifetime()
+      .ConfigureServices((hostContext, services) =>
+      {
+          services.AddHostedService<YourBotHost>();
+      })
+      .RunConsoleAsync();
 }
 ```
 This code does a few things. First, it calls the `Host.CreateDefaultBuilder()` method, which creates a new `IHostBuilder` instance
@@ -45,30 +47,35 @@ You'll need to create a class which implements the `IHostedService` interface, w
 These methods are called by the host when your application starts and stops, respectively.
 
 ```cs
-public sealed class YourBotHost : IHostedService {
-  private readonly ILogger<YourBotHost> _logger;
-  private readonly IHostApplicationLifetime _appLifetime;
-  private readonly DiscordClient _discord;
+public sealed class YourBotHost : IHostedService
+{
+    private readonly ILogger<YourBotHost> _logger;
+    private readonly IHostApplicationLifetime _applicationLifetime;
+    private readonly DiscordClient _discordClient;
 
-  public YourBotHost(ILogger<YourBotHost> logger, IHostApplicationLifetime appLifetime) {
-    this._logger = logger;
-    this._appLifetime = appLifetime;
-    this._discord = new(new() {
-      Token = "YourBotTokenHere",
-      TokenType = TokenType.Bot,
-      Intents = DiscordIntents.AllUnprivileged
-    });
-  }
+    public YourBotHost(ILogger<YourBotHost> logger, IHostApplicationLifetime applicationLifetime)
+    {
+        this._logger = logger;
+        this._applicationLifetime = applicationLifetime;
+        this._discordClient = new(new()
+        {
+            Token = "YourBotTokenHere",
+            TokenType = TokenType.Bot,
+            Intents = DiscordIntents.AllUnprivileged
+        });
+    }
 
-  public async Task StartAsync(CancellationToken token) {
-    await Discord.ConnectAsync();
-    // Other startup things here
-  }
+    public async Task StartAsync(CancellationToken token)
+    {
+        await _discordClient.ConnectAsync();
+        // Other startup things here
+    }
 
-  public async Task StopAsync(CancellationToken token) {
-    await Discord.DisconnectAsync();
-    // More cleanup possibly here
-  }
+    public async Task StopAsync(CancellationToken token)
+    {
+        await _discordClient.DisconnectAsync();
+        // More cleanup possibly here
+    }
 }
 ```
 The `StartAsync()` method contains the code that runs when your application starts. In this case, the `DiscordClient` connects to the Discord API.
@@ -87,18 +94,18 @@ Logging is an important part of any application, especially one that runs as a s
 with popular logging libraries, like Serilog.
 
 ### Dependencies
-You will need the `Serilog.Extensions.Hosting` package (and obviously Serilog itself, with whichever sinks you'd like to use), which is available from NuGet.
+You will need the [`Serilog.Extensions.Hosting`](https://www.nuget.org/packages/Serilog.Extensions.Hosting) package (along with [`Serilog`](https://www.nuget.org/packages/Serilog) itself with whichever sinks you'd prefer), which is available from NuGet.
 
 ### In your Service
 Then, you will need to add Serilog to your DiscordBot initializer block to ensure that your bot logs messages using Serilog. To do this, you will need to
-create a new `LoggerFactory` object and add the Serilog logger provider to it. You can also specify a minimum log level and tell D#+ to shut up about unknown
-events, if you'd like.
+create a new `LoggerFactory` object and add the Serilog logger provider to it. You can also specify a minimum log level and silence certain DSharpPlus events, such as the "unknown event" log.
 ```cs
-this._discord = new(new() {
-  [...]
-  LoggerFactory = new LoggerFactory().AddSerilog(),
-  MinimumLogLevel = LogLevel.Warning,
-  LogUnknownEvents = false
+this._discordClient = new(new()
+{
+    [...]
+    LoggerFactory = new LoggerFactory().AddSerilog(),
+    MinimumLogLevel = LogLevel.Warning,
+    LogUnknownEvents = false
 });
 ```
 
@@ -111,9 +118,10 @@ To do this, you can add the logger service to the `ConfigureServices()` method o
 await Host.CreateDefaultBuilder()
   .UseSerilog()
   .UseConsoleLifetime()
-  .ConfigureServices((hostContext, services) => {
-    services.AddLogging(logging => logging.ClearProviders().AddSerilog());
-    services.AddHostedService<YourBotHost>();
+  .ConfigureServices((hostContext, services) =>
+  {
+      services.AddLogging(logging => logging.ClearProviders().AddSerilog());
+      services.AddHostedService<YourBotHost>();
   })
   .RunConsoleAsync();
 ```
@@ -126,28 +134,30 @@ For example, you can initialize Serilog like this:
 ```cs
 Log.Logger = new LoggerConfiguration()
   .WriteTo.Console()
-  .WriteTo.File($"Logs{Path.DirectorySeparatorChar}.log", rollingInterval: RollingInterval.Day)
+  .WriteTo.File($"logs/.log", rollingInterval: RollingInterval.Day)
   .CreateLogger();
 ```
 
 When shutting down your bot, it's a good idea to call `Log.CloseAndFlushAsync()` to make sure that any pending log messages are written to the sinks
 before the process exits. You can add this call to your `Main` method, which could look like this once you're done:
 ```cs
-private static async Task Main() {
-  Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console()
-    .WriteTo.File($"Logs{Path.DirectorySeparatorChar}.log", rollingInterval: RollingInterval.Day)
-    .CreateLogger();
+private static async Task Main()
+{
+    Log.Logger = new LoggerConfiguration()
+      .WriteTo.Console()
+      .WriteTo.File($"logs/.log", rollingInterval: RollingInterval.Day)
+      .CreateLogger();
 
-  await Host.CreateDefaultBuilder()
-    .UseSerilog()
-    .UseConsoleLifetime()
-    .ConfigureServices((hostContext, services) => {
-      services.AddLogging(logging => logging.ClearProviders().AddSerilog());
-      services.AddHostedService<YourBotHost>();
-    })
-    .RunConsoleAsync();
+    await Host.CreateDefaultBuilder()
+      .UseSerilog()
+      .UseConsoleLifetime()
+      .ConfigureServices((hostContext, services) =>
+      {
+          services.AddLogging(logging => logging.ClearProviders().AddSerilog());
+          services.AddHostedService<YourBotHost>();
+      })
+      .RunConsoleAsync();
 
-  await Log.CloseAndFlushAsync();
+    await Log.CloseAndFlushAsync();
 }
 ```
