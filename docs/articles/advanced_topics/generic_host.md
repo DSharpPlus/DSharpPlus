@@ -44,7 +44,7 @@ public sealed class BotService : IHostedService
         this._applicationLifetime = applicationLifetime;
         this._discordClient = new(new()
         {
-            Token = Environment.GetEnvironmentVariable("BotToken"),
+            Token = "YourBotTokenHere",
             TokenType = TokenType.Bot,
             Intents = DiscordIntents.AllUnprivileged
         });
@@ -63,6 +63,10 @@ public sealed class BotService : IHostedService
     }
 }
 ```
+>[!WARNING]
+> Hard-coding your bot token into your source code is not a good idea, especially if you plan to distribute your code publicly. This is because anyone with access to your code can easily extract your bot token, which can be used to perform unauthorized actions on your bot account.
+>Instead, it's recommended that you store your bot token in a secure location, such as a configuration file, environment variable, or secret storage service. You can then retrieve the token at runtime and pass it to the initializer.
+
 The `StartAsync()` method contains the code that runs when your application starts. In this case, the `DiscordClient` connects to the Discord API.
 
 The `StopAsync()` method contains the code that runs when your application is shut down. In the case of a bot, this might involve closing connections to external APIs, releasing resources, or performing other cleanup tasks.
