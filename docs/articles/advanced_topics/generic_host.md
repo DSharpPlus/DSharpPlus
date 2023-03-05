@@ -4,7 +4,7 @@ title: Generic Host
 ---
 
 # Introduction
-A .NET Generic Host is a reusable, lightweight, and extensible hosting framework that provides a consistent way to host different types of .NET applications. It is designed to simplify the startup process and provide a common infrastructure for configuring, logging, dependency injection, and other common tasks required by modern applications.
+The .NET Generic Host is a reusable, lightweight, and extensible hosting framework that provides a consistent way to host different types of .NET applications. It is designed to simplify the startup process and provide a common infrastructure for configuring, logging, dependency injection, and other common tasks required by modern applications.
 
 It allows developers to build console applications, background services, and other types of .NET applications that can run as standalone processes, Windows services, or Docker containers, among other deployment options. By using a generic host, developers can focus on implementing the core business logic of their application rather than dealing with the infrastructure and plumbing required to host and manage it.
 
@@ -65,7 +65,7 @@ public sealed class BotService : IHostedService
 ```
 >[!WARNING]
 > Hard-coding your bot token into your source code is not a good idea, especially if you plan to distribute your code publicly. This is because anyone with access to your code can easily extract your bot token, which can be used to perform unauthorized actions on your bot account.
->Instead, it's recommended that you store your bot token in a secure location, such as a configuration file, environment variable, or secret storage service. You can then retrieve the token at runtime and pass it to the initializer. See for example [How to use a configuration with GEneric Host](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-7.0) or [how to use an environment variable](https://learn.microsoft.com/en-us/dotnet/api/system.environment.getenvironmentvariable?view=net-7.0). 
+>Instead, it's recommended that you store your bot token in a secure location, such as a configuration file, environment variable, or secret storage service. You can then retrieve the token at runtime and pass it to the initializer. See for example [How to consume configuration with the Generic Host](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-7.0) or [how to use an environment variable](https://learn.microsoft.com/en-us/dotnet/api/system.environment.getenvironmentvariable?view=net-7.0). 
 
 The `StartAsync()` method contains the code that runs when your application starts. In this case, the `DiscordClient` connects to the Discord API.
 
@@ -82,7 +82,7 @@ Logging is an important part of any application, especially one that runs as a s
 You will need the [`Serilog.Extensions.Hosting`](https://www.nuget.org/packages/Serilog.Extensions.Hosting) package (along with [`Serilog`](https://www.nuget.org/packages/Serilog) itself with whichever sinks you prefer), which are available from NuGet.
 
 ### In your Service
-Then, you will need to add Serilog to your DiscordBot initializer block to ensure that your bot logs messages using Serilog. To do this, you will need to create a new `LoggerFactory` object and add the Serilog logger provider to it. You can also specify a minimum log level and silence certain DSharpPlus events, such as the "unknown event" log.
+Then, you will need to add Serilog to your DiscordClientConfiguration initializer block to ensure that your bot logs messages using Serilog. To do this, you will need to create a new `LoggerFactory` object and add the Serilog logger provider to it. You can also specify a minimum log level and silence certain DSharpPlus events, such as the "unknown event" log.
 ```cs
 this._discordClient = new(new()
 {
