@@ -17,37 +17,34 @@ To get started, you'll need to write some code that configures and runs your app
 private static async Task Main()
 {
     await Host.CreateDefaultBuilder()
-      .UseConsoleLifetime()
-      .ConfigureServices((hostContext, services) =>
-      {
-          services.AddHostedService<YourBotHost>();
-      })
-      .RunConsoleAsync();
+        .UseConsoleLifetime()
+        .ConfigureServices((hostContext, services) => services.AddHostedService<BotService>())
+        .RunConsoleAsync();
 }
 ```
-This code does a few things. First, it calls the `Host.CreateDefaultBuilder()` method, which creates a new `IHostBuilder` instance with some default settings. Then, it calls the `UseConsoleLifetime()` method to configure the lifetime of the host. This tells the host to keep running until it receives a [SIGINT Signal](https://en.wikipedia.org/wiki/Signal_(IPC)#SIGINT) i.e. when the user presses Ctrl+C in the console, or when another program tells it to stop.
+This code does a few things. First, it calls the `Host.CreateDefaultBuilder()` method, which creates a new `IHostBuilder` instance with some default settings. Then, it calls the `UseConsoleLifetime()` method to configure the lifetime of the host. This tells the host to keep running until it receives a [SIGINT or SIGTERM Signal](https://en.wikipedia.org/wiki/Signal_(IPC)#SIGINT) i.e. when the user presses Ctrl+C in the console, or when another program tells it to stop.
 
-Next, it configures the services that the host will use by calling the `ConfigureServices()` method. In this case, it adds a new `YourBotHost` service, which is a class that you'll need to define next.
+Next, it configures the services that the host will use by calling the `ConfigureServices()` method. In this case, it adds a new `BotService` service, which is a class that you'll need to define next.
 
 Finally, it calls the `RunConsoleAsync()` method to start the host and begin running your service. That's it! With just a few lines of code, you can use the .NET Generic Host to run your application as a service.
 
 ## Setting up your Service
-You'll need to create a class which implements the `IHostedService` interface, which defines two methods: `StartAsync()` and `StopAsync()`. These methods are called by the host when your application starts and stops, respectively.
+You'll need to create a class which implements the `IHostedService` interface, which defines two methods: `StartAsync()` and `StopAsync()`. These methods are called by the host when your application starts and stops respectively.
 
 ```cs
-public sealed class YourBotHost : IHostedService
+public sealed class BotService : IHostedService
 {
-    private readonly ILogger<YourBotHost> _logger;
+    private readonly ILogger<BotService> _logger;
     private readonly IHostApplicationLifetime _applicationLifetime;
     private readonly DiscordClient _discordClient;
 
-    public YourBotHost(ILogger<YourBotHost> logger, IHostApplicationLifetime applicationLifetime)
+    public BotService(ILogger<BotService> logger, IHostApplicationLifetime applicationLifetime)
     {
         this._logger = logger;
         this._applicationLifetime = applicationLifetime;
         this._discordClient = new(new()
         {
-            Token = "YourBotTokenHere",
+            Token = Environment.GetEnvironmentVariable("BotToken"),
             TokenType = TokenType.Bot,
             Intents = DiscordIntents.AllUnprivileged
         });
@@ -78,7 +75,7 @@ With this class, you can easily create and run your own bot services using the .
 Logging is an important part of any application, especially one that runs as a service. Fortunately, the .NET Generic Host makes it easy to integrate with popular logging libraries, like Serilog.
 
 ### Dependencies
-You will need the [`Serilog.Extensions.Hosting`](https://www.nuget.org/packages/Serilog.Extensions.Hosting) package (along with [`Serilog`](https://www.nuget.org/packages/Serilog) itself with whichever sinks you'd prefer), which is available from NuGet.
+You will need the [`Serilog.Extensions.Hosting`](https://www.nuget.org/packages/Serilog.Extensions.Hosting) package (along with [`Serilog`](https://www.nuget.org/packages/Serilog) itself with whichever sinks you prefer), which are available from NuGet.
 
 ### In your Service
 Then, you will need to add Serilog to your DiscordBot initializer block to ensure that your bot logs messages using Serilog. To do this, you will need to create a new `LoggerFactory` object and add the Serilog logger provider to it. You can also specify a minimum log level and silence certain DSharpPlus events, such as the "unknown event" log.
@@ -103,7 +100,7 @@ await Host.CreateDefaultBuilder()
   .ConfigureServices((hostContext, services) =>
   {
       services.AddLogging(logging => logging.ClearProviders().AddSerilog());
-      services.AddHostedService<YourBotHost>();
+      services.AddHostedService<BotService>();
   })
   .RunConsoleAsync();
 ```
@@ -132,7 +129,7 @@ private static async Task Main()
       .ConfigureServices((hostContext, services) =>
       {
           services.AddLogging(logging => logging.ClearProviders().AddSerilog());
-          services.AddHostedService<YourBotHost>();
+          services.AddHostedService<BotService>();
       })
       .RunConsoleAsync();
 
