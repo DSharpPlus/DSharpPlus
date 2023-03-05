@@ -73,7 +73,7 @@ namespace DSharpPlus.Net
         /// Gets the string representation of this connection endpoint.
         /// </summary>
         /// <returns>String representation of this endpoint.</returns>
-        public override string ToString() => $"{this.Hostname}:{this.Port}/{this.Endpoint}";
+        public override string ToString() => $"{this.Hostname}:{this.Port}{(string.IsNullOrEmpty(this.Endpoint) ? "/" : $"/{this.Endpoint}")}";
 
         internal string ToHttpString()
         {
