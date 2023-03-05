@@ -113,7 +113,7 @@ Don't forget that before you can use Serilog to log messages in your bot, you wi
 ```cs
 Log.Logger = new LoggerConfiguration()
   .WriteTo.Console()
-  .WriteTo.File($"logs/.log", rollingInterval: RollingInterval.Day)
+  .WriteTo.File("logs/.log", rollingInterval: RollingInterval.Day)
   .CreateLogger();
 ```
 
@@ -123,7 +123,7 @@ private static async Task Main()
 {
     Log.Logger = new LoggerConfiguration()
       .WriteTo.Console()
-      .WriteTo.File($"logs/.log", rollingInterval: RollingInterval.Day)
+      .WriteTo.File("logs/.log", rollingInterval: RollingInterval.Day)
       .CreateLogger();
 
     await Host.CreateDefaultBuilder()
