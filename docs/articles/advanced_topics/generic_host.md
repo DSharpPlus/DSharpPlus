@@ -65,7 +65,7 @@ public sealed class BotService : IHostedService
 ```
 >[!WARNING]
 > Hard-coding your bot token into your source code is not a good idea, especially if you plan to distribute your code publicly. This is because anyone with access to your code can easily extract your bot token, which can be used to perform unauthorized actions on your bot account.
->Instead, it's recommended that you store your bot token in a secure location, such as a configuration file, environment variable, or secret storage service. You can then retrieve the token at runtime and pass it to the initializer.
+>Instead, it's recommended that you store your bot token in a secure location, such as a configuration file, environment variable, or secret storage service. You can then retrieve the token at runtime and pass it to the initializer. See for example [How to use a configuration with GEneric Host](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-7.0) or [how to use an environment variable](https://learn.microsoft.com/en-us/dotnet/api/system.environment.getenvironmentvariable?view=net-7.0). 
 
 The `StartAsync()` method contains the code that runs when your application starts. In this case, the `DiscordClient` connects to the Discord API.
 
