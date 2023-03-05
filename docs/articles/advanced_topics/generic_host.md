@@ -62,12 +62,12 @@ public sealed class YourBotHost : IHostedService {
 
   public async Task StartAsync(CancellationToken token) {
     await Discord.ConnectAsync();
-    return;
+    // Other startup things here
   }
 
   public async Task StopAsync(CancellationToken token) {
     await Discord.DisconnectAsync();
-    return;
+    // More cleanup possibly here
   }
 }
 ```
