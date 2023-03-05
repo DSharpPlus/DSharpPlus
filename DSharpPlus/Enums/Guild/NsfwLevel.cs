@@ -43,6 +43,6 @@ namespace DSharpPlus
         /// <summary>
         /// Indicates a server's content is age-gated.
         /// </summary>
-        Age_Restricted = 3
+        AgeRestricted = 3
     }
 }
