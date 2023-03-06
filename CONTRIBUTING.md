@@ -108,7 +108,7 @@ In addition to these, we also have several preferences:
 
 # Code changes
 One of our requirements is that all code change commits must build successfully. This is verified by our CI. When you 
-open a pull request, AppVeyor will start a build. You can view its summary by visiting it from the checks section on 
+open a pull request, Github will start an action which will perform a build and create PR artifacts. You can view its summary by visiting it from the checks section on 
 the PR overview page.
 
 PRs that do not build will not be accepted.
