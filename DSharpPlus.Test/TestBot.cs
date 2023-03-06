@@ -36,6 +36,7 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.EventHandling;
+using DSharpPlus.Lavalink;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.EventArgs;
 using DSharpPlus.VoiceNext;
@@ -75,6 +76,7 @@ namespace DSharpPlus.Test
             this.Discord = new DiscordClient(dcfg);
 
             this.Discord.UseVoiceNext();
+            this.Discord.UseLavalink();
 
             // events
             this.Discord.Ready += this.Discord_Ready;

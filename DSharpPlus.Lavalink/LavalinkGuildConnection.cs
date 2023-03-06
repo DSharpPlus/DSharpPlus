@@ -30,7 +30,9 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Lavalink.Entities;
+using DSharpPlus.Lavalink.Entities.Filters;
 using DSharpPlus.Lavalink.EventArgs;
+using DSharpPlus.Net.Abstractions;
 using Emzi0767.Utilities;
 using Newtonsoft.Json;
 
@@ -113,12 +115,12 @@ namespace DSharpPlus.Lavalink
         /// <summary>
         /// Gets the current player state.
         /// </summary>
-        public LavalinkPlayer CurrentState { get; private set; }
+        public LavalinkPlayerState CurrentState { get; }
 
         /// <summary>
         /// Gets the voice channel associated with this connection.
         /// </summary>
-        public DiscordChannel Channel => this.VoiceStateUpdate.Channel;
+        public DiscordChannel Channel { get; }
 
         /// <summary>
         /// Gets the guild associated with this connection.
@@ -129,17 +131,21 @@ namespace DSharpPlus.Lavalink
         /// Gets the Lavalink node associated with this connection.
         /// </summary>
         public LavalinkNodeConnection Node { get; }
+        public LavalinkVoiceState VoiceState { get; private set; }
+        public VoiceStateUpdateEventArgs VoiceStateUpdate { get; set; }
 
         internal string GuildIdString => this.GuildId.ToString(CultureInfo.InvariantCulture);
         internal ulong GuildId => this.Channel.Guild.Id;
-        internal VoiceStateUpdateEventArgs VoiceStateUpdate { get; set; }
         internal TaskCompletionSource<bool> VoiceWsDisconnectTcs { get; set; }
 
-        internal LavalinkGuildConnection(LavalinkNodeConnection node, DiscordChannel channel, VoiceStateUpdateEventArgs vstu)
+        internal LavalinkGuildConnection(LavalinkNodeConnection node, DiscordChannel channel, LavalinkVoiceState state, VoiceStateUpdateEventArgs vstu)
         {
             this.Node = node;
+            this.VoiceState = state;
+            this.Channel = channel;
             this.VoiceStateUpdate = vstu;
-            this.CurrentState = new LavalinkPlayer();
+            this.CurrentState = new LavalinkPlayerState();
+            this.VoiceState = new LavalinkVoiceState();
             this.VoiceWsDisconnectTcs = new TaskCompletionSource<bool>();
 
             Volatile.Write(ref this._isDisposed, false);
@@ -219,6 +225,9 @@ namespace DSharpPlus.Lavalink
         public Task<LavalinkLoadResult> GetTracksAsync(FileInfo file)
             => this.Node.Rest.GetTracksAsync(file);
 
+        public Task<LavalinkPlayer> GetPlayerAsync()
+            => this.Node.Rest.GetPlayerAsync(this.VoiceState.SessionId, this.GuildId);
+
         /// <summary>
         /// Queues the specified track for playback.
         /// </summary>
@@ -228,12 +237,10 @@ namespace DSharpPlus.Lavalink
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
 
-            this.CurrentState = await this.Node.Rest.UpdatePlayerAsync(this.GuildId, new LavalinkPlayerUpdatePayload
+            await this.Node.Rest.UpdatePlayerAsync(this.GuildId, this.Node.SessionId, new LavalinkPlayerUpdatePayload
             {
                 EncodedTrack = track.Encoded
             }, noReplace);
-
-
         }
 
         /// <summary>
@@ -250,11 +257,11 @@ namespace DSharpPlus.Lavalink
             if (start.TotalMilliseconds < 0 || end <= start)
                 throw new ArgumentException("Both start and end timestamps need to be greater or equal to zero, and the end timestamp needs to be greater than start timestamp.");
 
-            this.CurrentState = await this.Node.Rest.UpdatePlayerAsync(this.GuildId, new LavalinkPlayerUpdatePayload
+            await this.Node.Rest.UpdatePlayerAsync(this.GuildId, this.Node.SessionId, new LavalinkPlayerUpdatePayload
             {
                 EncodedTrack = track.Encoded,
                 Position = start.Milliseconds,
-                EndTime = end.Milliseconds,
+                EndTime = end.Milliseconds
             }, noReplace);
 
         }
@@ -267,7 +274,7 @@ namespace DSharpPlus.Lavalink
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
 
-            this.CurrentState = await this.Node.Rest.UpdatePlayerAsync(this.GuildId, new LavalinkPlayerUpdatePayload
+            await this.Node.Rest.UpdatePlayerAsync(this.GuildId, this.Node.SessionId, new LavalinkPlayerUpdatePayload
             {
                 EncodedTrack = null
             });
@@ -283,7 +290,7 @@ namespace DSharpPlus.Lavalink
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
 
-            this.CurrentState = await this.Node.Rest.UpdatePlayerAsync(this.GuildId, new LavalinkPlayerUpdatePayload
+            await this.Node.Rest.UpdatePlayerAsync(this.GuildId, this.Node.SessionId, new LavalinkPlayerUpdatePayload
             {
                 Paused = true
             });
@@ -298,7 +305,10 @@ namespace DSharpPlus.Lavalink
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
 
-            await this.Node.SendPayloadAsync(new LavalinkPause(this, false)).ConfigureAwait(false);
+            await this.Node.Rest.UpdatePlayerAsync(this.GuildId, this.Node.SessionId, new LavalinkPlayerUpdatePayload
+            {
+                Paused = false
+            });
         }
 
         /// <summary>
@@ -310,7 +320,13 @@ namespace DSharpPlus.Lavalink
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
 
-            await this.Node.SendPayloadAsync(new LavalinkSeek(this, position)).ConfigureAwait(false);
+            if (position.TotalMilliseconds < 0)
+                throw new ArgumentOutOfRangeException(nameof(position), "Position needs to be greater or equal to zero.");
+
+            await this.Node.Rest.UpdatePlayerAsync(this.GuildId, this.Node.SessionId, new LavalinkPlayerUpdatePayload
+            {
+                Position = position.Milliseconds
+            });
         }
 
         /// <summary>
@@ -325,7 +341,10 @@ namespace DSharpPlus.Lavalink
             if (volume < 0 || volume > 1000)
                 throw new ArgumentOutOfRangeException(nameof(volume), "Volume needs to range from 0 to 1000.");
 
-            await this.Node.SendPayloadAsync(new LavalinkVolume(this, volume)).ConfigureAwait(false);
+            await this.Node.Rest.UpdatePlayerAsync(this.GuildId, this.Node.SessionId, new LavalinkPlayerUpdatePayload
+            {
+                Volume = volume
+            });
         }
 
         /// <summary>
@@ -343,7 +362,13 @@ namespace DSharpPlus.Lavalink
             if (bands.Distinct(new LavalinkBandAdjustmentComparer()).Count() != bands.Count())
                 throw new InvalidOperationException("You cannot specify multiple modifiers for the same band.");
 
-            await this.Node.SendPayloadAsync(new LavalinkEqualizer(this, bands)).ConfigureAwait(false);
+            await this.Node.Rest.UpdatePlayerAsync(this.GuildId, this.Node.SessionId, new LavalinkPlayerUpdatePayload
+            {
+                Filters = new LavalinkFilters
+                {
+                    Equalizers = bands
+                }
+            });
         }
 
         /// <summary>
@@ -354,21 +379,52 @@ namespace DSharpPlus.Lavalink
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
 
-            await this.Node.SendPayloadAsync(new LavalinkEqualizer(this, Enumerable.Range(0, 15).Select(x => new LavalinkBandAdjustment(x, 0)))).ConfigureAwait(false);
+            await this.Node.Rest.UpdatePlayerAsync(this.GuildId, this.Node.SessionId, new LavalinkPlayerUpdatePayload
+            {
+                Filters = new LavalinkFilters
+                {
+                    Equalizers = null
+                }
+            });
         }
 
-        internal Task InternalUpdatePlayerStateAsync(LavalinkState newState)
+        public async Task UpdateKaraokeFilterAsync(float level, float monoLevel, float filterBand, float filterWidth)
         {
-            if (this.CurrentState.Track is null) return Task.CompletedTask;
+            if (!this.IsConnected)
+                throw new InvalidOperationException("This connection is not valid.");
 
-            this.CurrentState.Track.Info._position = newState.Position.Milliseconds;
+            await this.Node.Rest.UpdatePlayerAsync(this.GuildId, this.Node.SessionId, new LavalinkPlayerUpdatePayload
+            {
+                Filters = new LavalinkFilters
+                {
+                    Karaoke = new LavalinkKaraokeFilter(level, monoLevel, filterBand, filterWidth)
+                }
+            });
+        }
 
-            return this._playerUpdated.InvokeAsync(this, new PlayerUpdateEventArgs(this, newState.Time, newState.Position));
+        public async Task UpdateTimescaleFilterAsync(float speed, float pitch, float rate)
+        {
+            if (!this.IsConnected)
+                throw new InvalidOperationException("This connection is not valid.");
+
+            await this.Node.Rest.UpdatePlayerAsync(this.GuildId, this.Node.SessionId, new LavalinkPlayerUpdatePayload
+            {
+                Filters = new LavalinkFilters
+                {
+                    Timescale = new LavalinkTimescaleFilter(speed, pitch, rate)
+                }
+            });
+        }
+
+        internal Task InternalUpdatePlayerStateAsync(LavalinkPlayerState newState)
+        {
+            return this._playerUpdated.InvokeAsync(this, new PlayerUpdateEventArgs(this, newState.Time, newState.Position, newState.Connected, newState.Ping));
         }
 
         internal Task InternalPlaybackStartedAsync(string track)
         {
             var ea = new TrackStartEventArgs(this, LavalinkUtilities.DecodeTrack(track));
+            this.CurrentState.Track = ea.Track;
             return this._playbackStarted.InvokeAsync(this, ea);
         }
 
@@ -397,5 +453,7 @@ namespace DSharpPlus.Lavalink
             => this._webSocketClosed.InvokeAsync(this, e);
 
         internal event ChannelDisconnectedEventHandler ChannelDisconnected;
+
+
     }
 }

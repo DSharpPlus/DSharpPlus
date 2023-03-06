@@ -42,7 +42,7 @@ namespace DSharpPlus.Test
         private LavalinkGuildConnection LavalinkVoice { get; set; }
         private DiscordChannel ContextChannel { get; set; }
 
-        [Command, Description("Connects to Lavalink")]
+        [Command("connect"), Description("Connects to Lavalink")]
         public async Task ConnectAsync(CommandContext ctx, string hostname, int port, string password)
         {
             if (this.Lavalink != null)
@@ -57,8 +57,8 @@ namespace DSharpPlus.Test
 
             this.Lavalink = await lava.ConnectAsync(new LavalinkConfiguration
             {
-                RestEndpoint = new ConnectionEndpoint(hostname, port),
-                SocketEndpoint = new ConnectionEndpoint(hostname, port),
+                RestEndpoint = new ConnectionEndpoint(hostname, port, false, "/v3"),
+                SocketEndpoint = new ConnectionEndpoint(hostname, port, false, "/v3/websocket"),
                 Password = password
             }).ConfigureAwait(false);
             this.Lavalink.Disconnected += this.Lavalink_Disconnected;
@@ -75,7 +75,7 @@ namespace DSharpPlus.Test
             return Task.CompletedTask;
         }
 
-        [Command, Description("Disconnects from Lavalink")]
+        [Command("disconnect"), Description("Disconnects from Lavalink")]
         public async Task DisconnectAsync(CommandContext ctx)
         {
             if (this.Lavalink == null)
@@ -93,7 +93,7 @@ namespace DSharpPlus.Test
             await ctx.RespondAsync("Disconnected from Lavalink node.").ConfigureAwait(false);
         }
 
-        [Command, Description("Joins a voice channel.")]
+        [Command("join"), Description("Joins a voice channel.")]
         public async Task JoinAsync(CommandContext ctx, DiscordChannel chn = null)
         {
             if (this.Lavalink == null)
@@ -120,11 +120,11 @@ namespace DSharpPlus.Test
             if (this.ContextChannel == null)
                 return;
 
-            await this.ContextChannel.SendMessageAsync($"Playback of {Formatter.Bold(Formatter.Sanitize(e.Track.Info.Title))} by {Formatter.Bold(Formatter.Sanitize(e.Track.Author))} finished.").ConfigureAwait(false);
+            await this.ContextChannel.SendMessageAsync($"Playback of {Formatter.Bold(Formatter.Sanitize(e.Track.Info.Title))} by {Formatter.Bold(Formatter.Sanitize(e.Track.Info.Author))} finished.").ConfigureAwait(false);
             this.ContextChannel = null;
         }
 
-        [Command, Description("Leaves a voice channel.")]
+        [Command("leave"), Description("Leaves a voice channel.")]
         public async Task LeaveAsync(CommandContext ctx)
         {
             if (this.LavalinkVoice == null)
@@ -135,7 +135,7 @@ namespace DSharpPlus.Test
             await ctx.RespondAsync("Disconnected.").ConfigureAwait(false);
         }
 
-        [Command, Description("Queues tracks for playback.")]
+        [Command("play"), Description("Queues tracks for playback.")]
         public async Task PlayAsync(CommandContext ctx, [RemainingText] Uri uri)
         {
             if (this.LavalinkVoice == null)
@@ -143,14 +143,14 @@ namespace DSharpPlus.Test
 
             this.ContextChannel = ctx.Channel;
 
-            var trackLoad = await this.Lavalink.Rest.GetTracksAsync(uri).ConfigureAwait(false);
+            var trackLoad = await this.Lavalink.Rest.GetTracksAsync(uri);
             var track = trackLoad.Tracks.First();
-            await this.LavalinkVoice.PlayAsync(track).ConfigureAwait(false);
+            await this.LavalinkVoice.PlayAsync(track);
 
-            await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Info.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))}.").ConfigureAwait(false);
+            await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Info.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Info.Author))}.").ConfigureAwait(false);
         }
 
-        [Command, Description("Queues tracks for playback.")]
+        [Command("play_file"), Description("Queues tracks for playback.")]
         public async Task PlayFileAsync(CommandContext ctx, [RemainingText] string path)
         {
             if (this.LavalinkVoice == null)
@@ -160,10 +160,10 @@ namespace DSharpPlus.Test
             var track = trackLoad.Tracks.First();
             await this.LavalinkVoice.PlayAsync(track).ConfigureAwait(false);
 
-            await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Info.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))}.").ConfigureAwait(false);
+            await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Info.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Info.Author))}.").ConfigureAwait(false);
         }
 
-        [Command, Description("Queues track for playback.")]
+        [Command("play_sc"), Description("Queues track for playback.")]
         public async Task PlaySoundCloudAsync(CommandContext ctx, string search)
         {
             if (this.Lavalink == null)
@@ -173,10 +173,10 @@ namespace DSharpPlus.Test
             var track = result.Tracks.First();
             await this.LavalinkVoice.PlayAsync(track).ConfigureAwait(false);
 
-            await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Info.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))}.").ConfigureAwait(false);
+            await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Info.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Info.Author))}.").ConfigureAwait(false);
         }
 
-        [Command, Description("Queues tracks for playback.")]
+        [Command("play_partial"), Description("Queues tracks for playback.")]
         public async Task PlayPartialAsync(CommandContext ctx, TimeSpan start, TimeSpan stop, [RemainingText] Uri uri)
         {
             if (this.LavalinkVoice == null)
@@ -186,10 +186,10 @@ namespace DSharpPlus.Test
             var track = trackLoad.Tracks.First();
             await this.LavalinkVoice.PlayPartialAsync(track, start, stop).ConfigureAwait(false);
 
-            await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Info.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))}.").ConfigureAwait(false);
+            await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Info.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Info.Author))}.").ConfigureAwait(false);
         }
 
-        [Command, Description("Pauses playback.")]
+        [Command("pause"), Description("Pauses playback.")]
         public async Task PauseAsync(CommandContext ctx)
         {
             if (this.LavalinkVoice == null)
@@ -199,7 +199,7 @@ namespace DSharpPlus.Test
             await ctx.RespondAsync("Paused.").ConfigureAwait(false);
         }
 
-        [Command, Description("Resumes playback.")]
+        [Command("resume"), Description("Resumes playback.")]
         public async Task ResumeAsync(CommandContext ctx)
         {
             if (this.LavalinkVoice == null)
@@ -209,7 +209,7 @@ namespace DSharpPlus.Test
             await ctx.RespondAsync("Resumed.").ConfigureAwait(false);
         }
 
-        [Command, Description("Stops playback.")]
+        [Command("stop"), Description("Stops playback.")]
         public async Task StopAsync(CommandContext ctx)
         {
             if (this.LavalinkVoice == null)
@@ -219,7 +219,7 @@ namespace DSharpPlus.Test
             await ctx.RespondAsync("Stopped.").ConfigureAwait(false);
         }
 
-        [Command, Description("Seeks in the current track.")]
+        [Command("seek"), Description("Seeks in the current track.")]
         public async Task SeekAsync(CommandContext ctx, TimeSpan position)
         {
             if (this.LavalinkVoice == null)
@@ -229,7 +229,7 @@ namespace DSharpPlus.Test
             await ctx.RespondAsync($"Seeking to {position}.").ConfigureAwait(false);
         }
 
-        [Command, Description("Changes playback volume.")]
+        [Command("volume"), Description("Changes playback volume.")]
         public async Task VolumeAsync(CommandContext ctx, int volume)
         {
             if (this.LavalinkVoice == null)
@@ -239,7 +239,7 @@ namespace DSharpPlus.Test
             await ctx.RespondAsync($"Volume set to {volume}%.").ConfigureAwait(false);
         }
 
-        [Command, Description("Shows what's being currently played."), Aliases("np")]
+        [Command("now_playing"), Description("Shows what's being currently played."), Aliases("np")]
         public async Task NowPlayingAsync(CommandContext ctx)
         {
             if (this.LavalinkVoice == null)
@@ -247,10 +247,10 @@ namespace DSharpPlus.Test
 
             var state = this.LavalinkVoice.CurrentState;
             var track = state.Track;
-            await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Info.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))} [{state.PlaybackPosition}/{track.Length}].").ConfigureAwait(false);
+            await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Info.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Info.Author))} [{state.Track.Info.Position}/{track.Info.Length}].").ConfigureAwait(false);
         }
 
-        [Command, Description("Sets or resets equalizer settings."), Aliases("eq")]
+        [Command("reset_equalizer"), Description("resets equalizer settings."),]
         public async Task EqualizerAsync(CommandContext ctx)
         {
             if (this.LavalinkVoice == null)
@@ -260,7 +260,7 @@ namespace DSharpPlus.Test
             await ctx.RespondAsync("All equalizer bands were reset.").ConfigureAwait(false);
         }
 
-        [Command]
+        [Command("equalizer"), Description("adjusts equalizer settings."), Aliases("eq")] 
         public async Task EqualizerAsync(CommandContext ctx, int band, float gain)
         {
             if (this.LavalinkVoice == null)
@@ -269,8 +269,28 @@ namespace DSharpPlus.Test
             await this.LavalinkVoice.AdjustEqualizerAsync(new LavalinkBandAdjustment(band, gain)).ConfigureAwait(false);
             await ctx.RespondAsync($"Band {band} adjusted by {gain}").ConfigureAwait(false);
         }
+        
+        [Command("karaoke"), Description("adjusts karaoke settings."), Aliases("k")]
+        public async Task KaraokeAsync(CommandContext ctx, float level, float monoLevel, float filterBand, float filterWidth)
+        {
+            if (this.LavalinkVoice == null)
+                return;
 
-        [Command, Description("Displays Lavalink statistics.")]
+            await this.LavalinkVoice.UpdateKaraokeFilterAsync(level, monoLevel, filterBand, filterWidth);
+            await ctx.RespondAsync($"Karaoke adjusted.");
+        }
+        
+        [Command("timescale"), Description("adjusts timescale settings."), Aliases("ts")]
+        public async Task TimescaleAsync(CommandContext ctx, float speed, float pitch, float rate)
+        {
+            if (this.LavalinkVoice == null)
+                return;
+
+            await this.LavalinkVoice.UpdateTimescaleFilterAsync(speed, pitch, rate);
+            await ctx.RespondAsync($"Timescale adjusted.");
+        }
+
+        [Command("stats"), Description("Displays Lavalink statistics.")]
         public async Task StatsAsync(CommandContext ctx)
         {
             if (this.LavalinkVoice == null)

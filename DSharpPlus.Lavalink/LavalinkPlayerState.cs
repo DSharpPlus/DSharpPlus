@@ -1,4 +1,4 @@
-// This file is part of the DSharpPlus project.
+﻿// This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
 // Copyright (c) 2016-2022 DSharpPlus Contributors
@@ -22,45 +22,44 @@
 // SOFTWARE.
 
 using System;
-using Emzi0767.Utilities;
+using Newtonsoft.Json;
 
-namespace DSharpPlus.Lavalink.EventArgs
+namespace DSharpPlus.Lavalink
 {
-    /// <summary>
-    /// Represents arguments for player update event.
-    /// </summary>
-    public sealed class PlayerUpdateEventArgs : AsyncEventArgs
+    public class LavalinkPlayerState
     {
-        /// <summary>
-        /// Gets the timestamp at which this event was emitted.
-        /// </summary>
-        public DateTimeOffset Timestamp { get; }
+        [JsonProperty("time")] private readonly long _time;
 
         /// <summary>
-        /// Gets the position in the playback stream.
+        /// Unix timestamp in milliseconds
         /// </summary>
-        public TimeSpan Position { get; }
-
+        public DateTimeOffset Time => DateTimeOffset.FromUnixTimeMilliseconds(this._time);
         /// <summary>
-        /// Gets the player that emitted this event.
+        /// The position of the track in milliseconds
         /// </summary>
-        public LavalinkGuildConnection Player { get; }
+        [JsonIgnore]
+        public TimeSpan Position {
+            get => TimeSpan.FromMilliseconds(this._position);
+            internal set => this._position = (long)value.TotalMilliseconds;
+        }
+        [JsonProperty("position")]
+        public long _position { get; internal set; }
+
         /// <summary>
         /// If Lavalink is connected to the voice gateway
         /// </summary>
-        public bool Connected { get; }
+        [JsonProperty("connected")]
+        public bool Connected { get; internal set; }
         /// <summary>
         /// The ping of the node to the Discord voice server in milliseconds (-1 if not connected)
         /// </summary>
-        public int Ping { get; }
+        [JsonProperty("ping")]
+        public int Ping { get; internal set; }
 
-        internal PlayerUpdateEventArgs(LavalinkGuildConnection lvl, DateTimeOffset timestamp, TimeSpan position, bool connected, int ping)
-        {
-            this.Player = lvl;
-            this.Timestamp = timestamp;
-            this.Position = position;
-            this.Connected = connected;
-            this.Ping = ping;
-        }
+        /// <summary>
+        /// Current track that playing on the player
+        /// </summary>
+        [JsonIgnore]
+        public LavalinkTrack Track { get; internal set; }
     }
 }

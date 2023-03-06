@@ -21,36 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using Newtonsoft.Json;
+using Emzi0767.Utilities;
 
-namespace DSharpPlus.Lavalink.Entities.Filters
+namespace DSharpPlus.Lavalink.EventArgs
 {
-    /// <summary>
-    /// Changes the speed, pitch, and rate. All default to 1.0.
-    /// </summary>
-    public class LavalinkTimescaleFilter
+    public class LavalinkReadyEventArgs : AsyncEventArgs
     {
-        /// <summary>
-        /// Playback speed (0.5 to 2.0 where 1.0 is normal speed)
-        /// </summary>
-        [JsonProperty("speed")]
-        public float? Speed { get; set; }
-        /// <summary>
-        /// The pitch (0.5 to 2.0 where 1.0 is normal pitch)
-        /// </summary>
-        [JsonProperty("pitch")]
-        public float? Pitch { get; set; }
-        /// <summary>
-        /// The rate (0.5 to 2.0 where 1.0 is normal rate)
-        /// </summary>
-        [JsonProperty("rate")]
-        public float? Rate { get; set; }
+        public bool IsResumed { get; internal set; }
+        public string SessionId { get; internal set; }
 
-        public LavalinkTimescaleFilter(float speed, float pitch, float rate)
+        public LavalinkReadyEventArgs(bool isResumed, string sessionId)
         {
-            this.Speed = speed;
-            this.Pitch = pitch;
-            this.Rate = rate;
+            this.IsResumed = isResumed;
+            this.SessionId = sessionId;
         }
     }
 }

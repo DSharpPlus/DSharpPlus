@@ -30,6 +30,7 @@ using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus.Lavalink.Entities;
+using DSharpPlus.Lavalink.Exceptions;
 using DSharpPlus.Net;
 using DSharpPlus.Net.Serialization;
 using Microsoft.Extensions.Logging;
@@ -227,56 +228,24 @@ namespace DSharpPlus.Lavalink
 
         internal async Task<LavalinkLoadResult> InternalResolveTracksAsync(Uri uri)
         {
-            // this function returns a Lavalink 3-like dataset regardless of input data version
-
-            var json = "[]";
-            using (var req = await this._http.GetAsync(uri).ConfigureAwait(false))
-            using (var res = await req.Content.ReadAsStreamAsync().ConfigureAwait(false))
-            using (var sr = new StreamReader(res, Utilities.UTF8))
-                json = await sr.ReadToEndAsync().ConfigureAwait(false);
-
-            var jdata = JToken.Parse(json);
-            if (jdata is JArray jarr)
+            using var req = await this._http.GetAsync(uri).ConfigureAwait(false);
+            using var res = await req.Content.ReadAsStreamAsync().ConfigureAwait(false);
+            using var sr = new StreamReader(res, Utilities.UTF8);
+            var json = await sr.ReadToEndAsync().ConfigureAwait(false);
+            if (!req.IsSuccessStatusCode)
             {
-                // Lavalink 2.x
-
-                var tracks = new List<LavalinkTrack>(jarr.Count);
-                foreach (var jt in jarr)
-                {
-                    var track = jt["info"].ToDiscordObject<LavalinkTrack>();
-                    track.Encoded = jt["track"].ToString();
-
-                    tracks.Add(track);
-                }
-
-                return new LavalinkLoadResult
-                {
-                    PlaylistInfo = default,
-                    LoadResultType = tracks.Count == 0 ? LavalinkLoadResultType.LoadFailed : LavalinkLoadResultType.TrackLoaded,
-                    Tracks = tracks
-                };
+                var jsonError = JObject.Parse(json);
+                throw new TrackLoadException($"Unable to load tracks: {jsonError["message"]}");
             }
-            else if (jdata is JObject jo)
+
+            var load = JsonConvert.DeserializeObject<LavalinkLoadResult>(json);
+
+            if (load.LoadResultType == LavalinkLoadResultType.LoadFailed)
             {
-                // Lavalink 3.x
-
-                jarr = jo["tracks"] as JArray;
-                var loadInfo = jo.ToDiscordObject<LavalinkLoadResult>();
-                var tracks = new List<LavalinkTrack>(jarr.Count);
-                foreach (var jt in jarr)
-                {
-                    var track = jt["info"].ToDiscordObject<LavalinkTrack>();
-                    track.Encoded = jt["track"].ToString();
-
-                    tracks.Add(track);
-                }
-
-                loadInfo.Tracks = new ReadOnlyCollection<LavalinkTrack>(tracks);
-
-                return loadInfo;
+                throw new TrackLoadException($"Unable to load tracks: {load.Exception.Message}");
             }
-            else
-                return null;
+
+            return load;
         }
 
         internal async Task<LavalinkTrack> InternalDecodeTrackAsync(Uri uri)
@@ -360,15 +329,29 @@ namespace DSharpPlus.Lavalink
 
         #region Player
 
-        internal async Task<LavalinkPlayer> UpdatePlayerAsync(ulong guildId, LavalinkPlayerUpdatePayload updatePayload, bool noReplace = false)
+        internal async Task<LavalinkPlayer> UpdatePlayerAsync(ulong guildId, string sessionId, LavalinkPlayerUpdatePayload updatePayload, bool noReplace = false)
         {
             var payload = JsonConvert.SerializeObject(updatePayload);
             var content = new StringContent(payload, Utilities.UTF8, "application/json");
-            var message = new HttpRequestMessage(new HttpMethod("PATCH"), new Uri(string.Format(Endpoints.PLAYER_UPDATE, updatePayload.VoiceState.SessionId, guildId)))
+            var message = new HttpRequestMessage(new HttpMethod("PATCH"), new Uri(string.Format(Endpoints.PLAYER, this.RestEndpoint.ToHttpString(), sessionId, guildId)))
             {
                 Content = content
             };
             using var req = await this._http.SendAsync(message).ConfigureAwait(false);
+            var res = await req.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+            if (!req.IsSuccessStatusCode)
+            {
+                var jo = JObject.Parse(res);
+                throw new HttpRequestException(jo["message"].ToString());
+            }
+
+            return JsonConvert.DeserializeObject<LavalinkPlayer>(res);
+        }
+
+        public async Task<LavalinkPlayer> GetPlayerAsync(string sessionId, ulong guildId)
+        {
+            using var req = await this._http.GetAsync(new Uri(string.Format(Endpoints.PLAYER, this.RestEndpoint.ToHttpString(), sessionId, guildId))).ConfigureAwait(false);
             var res = await req.Content.ReadAsStringAsync().ConfigureAwait(false);
 
             if (!req.IsSuccessStatusCode)
@@ -397,5 +380,7 @@ namespace DSharpPlus.Lavalink
             this._http.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", $"DSharpPlus.LavaLink/{this._dsharpplusVersionString}");
             this._http.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", password);
         }
+
+
     }
 }

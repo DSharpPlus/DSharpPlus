@@ -35,13 +35,13 @@ namespace DSharpPlus.Lavalink
         /// Sets the endpoint for Lavalink REST.
         /// <para>Defaults to 127.0.0.1 on port 2333.</para>
         /// </summary>
-        public ConnectionEndpoint RestEndpoint { internal get; set; } = new ConnectionEndpoint("127.0.0.1", 2333);
+        public ConnectionEndpoint RestEndpoint { internal get; set; } = new ConnectionEndpoint("127.0.0.1", 2333, false, "/v3");
 
         /// <summary>
         /// Sets the endpoint for the Lavalink Websocket connection.
         /// <para>Defaults to 127.0.0.1 on port 2333.</para>
         /// </summary>
-        public ConnectionEndpoint SocketEndpoint { internal get; set; } = new ConnectionEndpoint("127.0.0.1", 2333);
+        public ConnectionEndpoint SocketEndpoint { internal get; set; } = new ConnectionEndpoint("127.0.0.1", 2333, false, "/v3/websocket");
 
         /// <summary>
         /// Sets whether the connection wrapper should attempt automatic reconnects should the connection drop.
@@ -95,13 +95,15 @@ namespace DSharpPlus.Lavalink
             {
                 Hostname = other.RestEndpoint.Hostname,
                 Port = other.RestEndpoint.Port,
-                Secured = other.RestEndpoint.Secured
+                Secured = other.RestEndpoint.Secured,
+                Endpoint = other.RestEndpoint.Endpoint
             };
             this.SocketEndpoint = new ConnectionEndpoint
             {
                 Hostname = other.SocketEndpoint.Hostname,
                 Port = other.SocketEndpoint.Port,
-                Secured = other.SocketEndpoint.Secured
+                Secured = other.SocketEndpoint.Secured,
+                Endpoint = other.SocketEndpoint.Endpoint
             };
             this.Password = other.Password;
             this.ResumeKey = other.ResumeKey;

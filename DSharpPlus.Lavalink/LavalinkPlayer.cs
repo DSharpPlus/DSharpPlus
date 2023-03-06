@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System.Collections.Generic;
+using System.ComponentModel;
 using DSharpPlus.Entities;
 using DSharpPlus.Lavalink.Entities.Filters;
 using Newtonsoft.Json;
@@ -33,43 +34,55 @@ namespace DSharpPlus.Lavalink
         /// <summary>
         /// The Discord voice token to authenticate with
         /// </summary>
-        [JsonProperty("token")]
+        [JsonProperty("token", NullValueHandling = NullValueHandling.Ignore)]
         public string Token { get; set; }
         /// <summary>
         /// The Discord voice endpoint to connect to
         /// </summary>
-        [JsonProperty("endpoint")]
+        [JsonProperty("endpoint", NullValueHandling = NullValueHandling.Ignore)]
         public string Endpoint { get; set; }
         /// <summary>
         /// The Discord voice session id to authenticate with
         /// </summary>
-        [JsonProperty("sessionId")]
+        [JsonProperty("sessionId", NullValueHandling = NullValueHandling.Ignore)]
         public string SessionId { get; set; }
         /// <summary>
         /// Whether the player is connected. Response only
         /// </summary>
-        [JsonProperty("connected")]
-        public bool IsConnected { get; internal set; }
+        [JsonProperty("connected", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonIgnore]
+        public bool? IsConnected { get; internal set; }
         /// <summary>
         /// Roundtrip latency in milliseconds to the voice gateway (-1 if not connected). Response only
         /// </summary>
-        [JsonProperty("ping")]
+        [JsonIgnore]
+        [JsonProperty("ping", NullValueHandling = NullValueHandling.Ignore)]
         public int? Ping { get; internal set; }
     }
 
 
     public class LavalinkFilters
     {
+        [JsonProperty("volume", NullValueHandling = NullValueHandling.Ignore)]
         public float? Volume { get; internal set; }
-        public List<LavalinkBandAdjustment> Equalizers { get; internal set; }
-        public LavalinkKaraokeFilter Karaoke { get; internal set; }
-        public LavalinkTimescaleFilter Timescale { get; internal set; }
-        public LavalinkTremoloFilter Tremolo { get; internal set; }
-        public LavalinkVibratoFilter Vibrato { get; internal set; }
-        public LavalinkRotationFilter Rotation { get; internal set; }
-        public LavalinkDistortionFilter Distortion { get; internal set; }
-        public LavalinkChannelMixFilter ChannelMix { get; internal set; }
-        public LavalinkLowPassFilter LowPass { get; internal set; }
+        [JsonProperty("equalizers", NullValueHandling = NullValueHandling.Ignore)]
+        public LavalinkBandAdjustment[] Equalizers { get; internal set; }
+        [JsonProperty("karaoke", NullValueHandling = NullValueHandling.Ignore)]
+        public LavalinkKaraokeFilter? Karaoke { get; internal set; }
+        [JsonProperty("timescale", NullValueHandling = NullValueHandling.Ignore)]
+        public LavalinkTimescaleFilter? Timescale { get; internal set; }
+        [JsonProperty("tremolo", NullValueHandling = NullValueHandling.Ignore)]
+        public LavalinkTremoloFilter? Tremolo { get; internal set; }
+        [JsonProperty("vibrato", NullValueHandling = NullValueHandling.Ignore)]
+        public LavalinkVibratoFilter? Vibrato { get; internal set; }
+        [JsonProperty("rotation", NullValueHandling = NullValueHandling.Ignore)]
+        public LavalinkRotationFilter? Rotation { get; internal set; }
+        [JsonProperty("distortion", NullValueHandling = NullValueHandling.Ignore)]
+        public LavalinkDistortionFilter? Distortion { get; internal set; }
+        [JsonProperty("channelMix", NullValueHandling = NullValueHandling.Ignore)]
+        public LavalinkChannelMixFilter? ChannelMix { get; internal set; }
+        [JsonProperty("lowPass", NullValueHandling = NullValueHandling.Ignore)]
+        public LavalinkLowPassFilter? LowPass { get; internal set; }
     }
 
     public class LavalinkPlayerUpdatePayload
@@ -77,43 +90,44 @@ namespace DSharpPlus.Lavalink
         /// <summary>
         /// The encoded track base64 to play. null stops the current track
         /// </summary>
-        [JsonProperty("encodedTrack")]
-        public string? EncodedTrack { get; set; }
+        [JsonProperty("encodedTrack", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [DefaultValue("")]
+        public string? EncodedTrack { get; set; } = "";
         /// <summary>
         /// The track identifier to play
         /// </summary>
-        [JsonProperty("identifier")]
+        [JsonProperty("identifier", NullValueHandling = NullValueHandling.Ignore)]
         public string? Identifier { get; set; }
         /// <summary>
         /// The track position in milliseconds
         /// </summary>
-        [JsonProperty("position")]
+        [JsonProperty("position", NullValueHandling = NullValueHandling.Ignore)]
         public long? Position { get; set; }
         /// <summary>
         /// The track end time in milliseconds
         /// </summary>
-        [JsonProperty("endTime")]
-        public long EndTime { get; set; }
+        [JsonProperty("endTime", NullValueHandling = NullValueHandling.Ignore)]
+        public long? EndTime { get; set; }
         /// <summary>
         /// The player volume from 0 to 1000
         /// </summary>
-        [JsonProperty("volume")]
-        public int Volume { get; set; }
+        [JsonProperty("volume", NullValueHandling = NullValueHandling.Ignore)]
+        public int? Volume { get; set; }
         /// <summary>
         /// Whether the player is paused
         /// </summary>
-        [JsonProperty("paused")]
-        public bool Paused { get; set; }
+        [JsonProperty("paused", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? Paused { get; set; }
         /// <summary>
         /// The new filters to apply. This will override all previously applied filters
         /// </summary>
-        [JsonProperty("filters")]
-        public LavalinkFilters Filters { get; set; }
+        [JsonProperty("filters", NullValueHandling = NullValueHandling.Ignore)]
+        public LavalinkFilters? Filters { get; set; }
         /// <summary>
         /// Information required for connecting to Discord, without connected or ping
         /// </summary>
-        [JsonProperty("voice")]
-        public LavalinkVoiceState VoiceState { get; set; }
+        [JsonProperty("voice", NullValueHandling = NullValueHandling.Ignore)]
+        public LavalinkVoiceState? VoiceState { get; set; }
     }
     public sealed class LavalinkPlayer
     {

@@ -28,6 +28,9 @@ namespace DSharpPlus.Lavalink
         internal const string BASE_URL = "/v3";
         internal const string VERSION = "/version";
 
+        //Webosocket
+        internal const string WEBSOCKET = "/v3/websocket";
+
         //Track loading
         internal const string LOAD_TRACKS = "/loadtracks";
         internal const string DECODE_TRACK = "/decodetrack";
@@ -40,6 +43,6 @@ namespace DSharpPlus.Lavalink
         internal const string FREE_ALL = "/free/all";
 
         //Player
-        internal const string PLAYER_UPDATE = "/v3/sessions/{0}/players/{1}";
+        internal const string PLAYER = "{0}/sessions/{1}/players/{2}";
     }
 }

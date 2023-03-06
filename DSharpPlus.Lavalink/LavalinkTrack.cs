@@ -39,12 +39,6 @@ namespace DSharpPlus.Lavalink
         /// </summary>
         [JsonProperty("encoded")]
         public string Encoded { get; set; }
-
-        /// <summary>
-        /// The base64 encoded track data
-        /// </summary>
-        [Obsolete("This property is deprecated as of v3.7.0 and will be removed in v4. Use Encoded instead.")]
-        public string Track { get; set; }
         /// <summary>
         /// The track info
         /// </summary>
@@ -200,8 +194,7 @@ namespace DSharpPlus.Lavalink
         /// <summary>
         /// Gets the tracks that were loaded as a result of this request.
         /// </summary>
-        //[JsonProperty("tracks")]
-        [JsonIgnore]
+        [JsonProperty("tracks")]
         public IEnumerable<LavalinkTrack> Tracks { get; internal set; }
     }
 

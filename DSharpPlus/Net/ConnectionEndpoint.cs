@@ -67,26 +67,24 @@ namespace DSharpPlus.Net
         /// Gets the hash code of this endpoint.
         /// </summary>
         /// <returns>Hash code of this endpoint.</returns>
-        public override int GetHashCode() => 13 + (7 * this.Hostname.GetHashCode()) + (7 * this.Port) + (7 * this.Endpoint.GetHashCode());
+        public override int GetHashCode() => 13 + (7 * this.Hostname.GetHashCode()) + (7 * this.Port) + (string.IsNullOrEmpty(this.Endpoint) ? 0 : 7 * this.Endpoint.GetHashCode());
 
         /// <summary>
         /// Gets the string representation of this connection endpoint.
         /// </summary>
         /// <returns>String representation of this endpoint.</returns>
-        public override string ToString() => $"{this.Hostname}:{this.Port}{(string.IsNullOrEmpty(this.Endpoint) ? "/" : $"/{this.Endpoint}")}";
+        public override string ToString() => $"{this.Hostname}:{this.Port}{(string.IsNullOrEmpty(this.Endpoint) ? "/" : $"/{this.Endpoint.TrimStart('/')}")}";
 
         internal string ToHttpString()
         {
             var secure = this.Secured ? "s" : "";
-            var endpoint = string.IsNullOrEmpty(this.Endpoint) ? string.Empty : $"/{this.Endpoint}";
-            return $"http{secure}://{this}{endpoint}";
+            return $"http{secure}://{this}";
         }
 
         internal string ToWebSocketString()
         {
             var secure = this.Secured ? "s" : "";
-            var endpoint = string.IsNullOrEmpty(this.Endpoint) ? "/" : $"/{this.Endpoint}";
-            return $"ws{secure}://{this}{endpoint}";
+            return $"ws{secure}://{this}";
         }
     }
 }
