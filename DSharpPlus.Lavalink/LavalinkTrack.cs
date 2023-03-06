@@ -33,6 +33,26 @@ namespace DSharpPlus.Lavalink
 {
     public class LavalinkTrack
     {
+
+        /// <summary>
+        /// The base64 encoded track data
+        /// </summary>
+        [JsonProperty("encoded")]
+        public string Encoded { get; set; }
+
+        /// <summary>
+        /// The base64 encoded track data
+        /// </summary>
+        [Obsolete("This property is deprecated as of v3.7.0 and will be removed in v4. Use Encoded instead.")]
+        public string Track { get; set; }
+        /// <summary>
+        /// The track info
+        /// </summary>
+        [JsonProperty("info")]
+        public LavalinkTrackInfo Info { get; set; }
+    }
+    public class LavalinkTrackInfo
+    {
         /// <summary>
         /// Gets or sets the ID of the track to play.
         /// </summary>
@@ -90,6 +110,12 @@ namespace DSharpPlus.Lavalink
         /// </summary>
         [JsonProperty("uri")]
         public Uri Uri { get; internal set; }
+
+        /// <summary>
+        /// The track source name
+        /// </summary>
+        [JsonProperty("sourceName")]
+        public string SourceName { get; internal set; }
     }
 
     /// <summary>

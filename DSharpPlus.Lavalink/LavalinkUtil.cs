@@ -55,7 +55,7 @@ namespace DSharpPlus.Lavalink
 
             var decoded = new LavalinkTrack
             {
-                TrackString = track
+                Encoded = track
             };
 
             using (var ms = new MemoryStream(raw))
@@ -76,18 +76,18 @@ namespace DSharpPlus.Lavalink
                 //if (version != TRACK_INFO_VERSION)
                 //    Warn($"Version conflict: Expected {TRACK_INFO_VERSION} but got {version}");
 
-                decoded.Title = br.ReadJavaUtf8();
+                decoded.Info.Title = br.ReadJavaUtf8();
 
-                decoded.Author = br.ReadJavaUtf8();
+                decoded.Info.Author = br.ReadJavaUtf8();
 
-                decoded._length = br.ReadInt64();
+                decoded.Info._length = br.ReadInt64();
 
-                decoded.Identifier = br.ReadJavaUtf8();
+                decoded.Info.Identifier = br.ReadJavaUtf8();
 
-                decoded.IsStream = br.ReadBoolean();
+                decoded.Info.IsStream = br.ReadBoolean();
 
                 var uri = br.ReadNullableString();
-                decoded.Uri = uri != null && version >= 2 ? new Uri(uri) : null;
+                decoded.Info.Uri = uri != null && version >= 2 ? new Uri(uri) : null;
             }
 
             return decoded;

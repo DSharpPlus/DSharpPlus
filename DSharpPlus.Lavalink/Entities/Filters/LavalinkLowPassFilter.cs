@@ -1,4 +1,4 @@
-// This file is part of the DSharpPlus project.
+﻿// This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
 // Copyright (c) 2016-2022 DSharpPlus Contributors
@@ -21,25 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace DSharpPlus.Lavalink
+using Newtonsoft.Json;
+
+namespace DSharpPlus.Lavalink.Entities.Filters
 {
-    internal static class Endpoints
+    /// <summary>
+    /// Higher frequencies get suppressed, while lower frequencies pass through this filter, thus the name low pass. Any smoothing values equal to, or less than 1.0 will disable the filter.
+    /// </summary>
+    public class LavalinkLowPassFilter
     {
-        internal const string BASE_URL = "/v3";
-        internal const string VERSION = "/version";
-
-        //Track loading
-        internal const string LOAD_TRACKS = "/loadtracks";
-        internal const string DECODE_TRACK = "/decodetrack";
-        internal const string DECODE_TRACKS = "/decodetracks";
-
-        //Route Planner
-        internal const string ROUTE_PLANNER = "/routeplanner";
-        internal const string STATUS = "/status";
-        internal const string FREE_ADDRESS = "/free/address";
-        internal const string FREE_ALL = "/free/all";
-
-        //Player
-        internal const string PLAYER_UPDATE = "/v3/sessions/{0}/players/{1}";
+        /// <summary>
+        /// The smoothing factor (0 to 1.0 where 0.0 is no effect and 1.0 is full effect)
+        /// </summary>
+        [JsonProperty("smoothing")]
+        public float? Smoothing { get; set; }
     }
 }

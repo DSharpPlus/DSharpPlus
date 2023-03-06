@@ -113,7 +113,7 @@ namespace DSharpPlus.Lavalink
         /// <summary>
         /// Gets the current player state.
         /// </summary>
-        public LavalinkPlayerState CurrentState { get; }
+        public LavalinkPlayer CurrentState { get; private set; }
 
         /// <summary>
         /// Gets the voice channel associated with this connection.
@@ -139,7 +139,7 @@ namespace DSharpPlus.Lavalink
         {
             this.Node = node;
             this.VoiceStateUpdate = vstu;
-            this.CurrentState = new LavalinkPlayerState();
+            this.CurrentState = new LavalinkPlayer();
             this.VoiceWsDisconnectTcs = new TaskCompletionSource<bool>();
 
             Volatile.Write(ref this._isDisposed, false);
@@ -223,13 +223,17 @@ namespace DSharpPlus.Lavalink
         /// Queues the specified track for playback.
         /// </summary>
         /// <param name="track">Track to play.</param>
-        public async Task PlayAsync(LavalinkTrack track)
+        public async Task PlayAsync(LavalinkTrack track, bool noReplace = true)
         {
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
 
-            this.CurrentState.CurrentTrack = track;
-            await this.Node.SendPayloadAsync(new LavalinkPlay(this, track)).ConfigureAwait(false);
+            this.CurrentState = await this.Node.Rest.UpdatePlayerAsync(this.GuildId, new LavalinkPlayerUpdatePayload
+            {
+                EncodedTrack = track.Encoded
+            }, noReplace);
+
+
         }
 
         /// <summary>
@@ -238,7 +242,7 @@ namespace DSharpPlus.Lavalink
         /// <param name="track">Track to play.</param>
         /// <param name="start">Timestamp to start playback at.</param>
         /// <param name="end">Timestamp to stop playback at.</param>
-        public async Task PlayPartialAsync(LavalinkTrack track, TimeSpan start, TimeSpan end)
+        public async Task PlayPartialAsync(LavalinkTrack track, TimeSpan start, TimeSpan end, bool noReplace = true)
         {
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
@@ -246,8 +250,13 @@ namespace DSharpPlus.Lavalink
             if (start.TotalMilliseconds < 0 || end <= start)
                 throw new ArgumentException("Both start and end timestamps need to be greater or equal to zero, and the end timestamp needs to be greater than start timestamp.");
 
-            this.CurrentState.CurrentTrack = track;
-            await this.Node.SendPayloadAsync(new LavalinkPlayPartial(this, track, start, end)).ConfigureAwait(false);
+            this.CurrentState = await this.Node.Rest.UpdatePlayerAsync(this.GuildId, new LavalinkPlayerUpdatePayload
+            {
+                EncodedTrack = track.Encoded,
+                Position = start.Milliseconds,
+                EndTime = end.Milliseconds,
+            }, noReplace);
+
         }
 
         /// <summary>
@@ -258,7 +267,12 @@ namespace DSharpPlus.Lavalink
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
 
-            await this.Node.SendPayloadAsync(new LavalinkStop(this)).ConfigureAwait(false);
+            this.CurrentState = await this.Node.Rest.UpdatePlayerAsync(this.GuildId, new LavalinkPlayerUpdatePayload
+            {
+                EncodedTrack = null
+            });
+
+
         }
 
         /// <summary>
@@ -269,7 +283,11 @@ namespace DSharpPlus.Lavalink
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
 
-            await this.Node.SendPayloadAsync(new LavalinkPause(this, true)).ConfigureAwait(false);
+            this.CurrentState = await this.Node.Rest.UpdatePlayerAsync(this.GuildId, new LavalinkPlayerUpdatePayload
+            {
+                Paused = true
+            });
+
         }
 
         /// <summary>
@@ -341,8 +359,9 @@ namespace DSharpPlus.Lavalink
 
         internal Task InternalUpdatePlayerStateAsync(LavalinkState newState)
         {
-            this.CurrentState.LastUpdate = newState.Time;
-            this.CurrentState.PlaybackPosition = newState.Position;
+            if (this.CurrentState.Track is null) return Task.CompletedTask;
+
+            this.CurrentState.Track.Info._position = newState.Position.Milliseconds;
 
             return this._playerUpdated.InvokeAsync(this, new PlayerUpdateEventArgs(this, newState.Time, newState.Position));
         }
@@ -356,7 +375,7 @@ namespace DSharpPlus.Lavalink
         internal Task InternalPlaybackFinishedAsync(TrackFinishData e)
         {
             if (e.Reason != TrackEndReason.Replaced)
-                this.CurrentState.CurrentTrack = default;
+                this.CurrentState.Track = default;
 
             var ea = new TrackFinishEventArgs(this, LavalinkUtilities.DecodeTrack(e.Track), e.Reason);
             return this._playbackFinished.InvokeAsync(this, ea);

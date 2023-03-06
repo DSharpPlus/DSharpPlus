@@ -244,7 +244,7 @@ namespace DSharpPlus.Lavalink
                 foreach (var jt in jarr)
                 {
                     var track = jt["info"].ToDiscordObject<LavalinkTrack>();
-                    track.TrackString = jt["track"].ToString();
+                    track.Encoded = jt["track"].ToString();
 
                     tracks.Add(track);
                 }
@@ -266,7 +266,7 @@ namespace DSharpPlus.Lavalink
                 foreach (var jt in jarr)
                 {
                     var track = jt["info"].ToDiscordObject<LavalinkTrack>();
-                    track.TrackString = jt["track"].ToString();
+                    track.Encoded = jt["track"].ToString();
 
                     tracks.Add(track);
                 }
@@ -317,7 +317,7 @@ namespace DSharpPlus.Lavalink
             for (var i = 0; i < decodedTracks.Length; i++)
             {
                 decodedTracks[i] = JsonConvert.DeserializeObject<LavalinkTrack>(jarr[i]["info"].ToString());
-                decodedTracks[i].TrackString = jarr[i]["track"].ToString();
+                decodedTracks[i].Encoded = jarr[i]["track"].ToString();
             }
 
             var decodedTrackList = new ReadOnlyCollection<LavalinkTrack>(decodedTracks);
@@ -358,6 +358,29 @@ namespace DSharpPlus.Lavalink
 
         #endregion
 
+        #region Player
+
+        internal async Task<LavalinkPlayer> UpdatePlayerAsync(ulong guildId, LavalinkPlayerUpdatePayload updatePayload, bool noReplace = false)
+        {
+            var payload = JsonConvert.SerializeObject(updatePayload);
+            var content = new StringContent(payload, Utilities.UTF8, "application/json");
+            var message = new HttpRequestMessage(new HttpMethod("PATCH"), new Uri(string.Format(Endpoints.PLAYER_UPDATE, updatePayload.VoiceState.SessionId, guildId)))
+            {
+                Content = content
+            };
+            using var req = await this._http.SendAsync(message).ConfigureAwait(false);
+            var res = await req.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+            if (!req.IsSuccessStatusCode)
+            {
+                var jo = JObject.Parse(res);
+                throw new HttpRequestException(jo["message"].ToString());
+            }
+
+            return JsonConvert.DeserializeObject<LavalinkPlayer>(res);
+        }
+
+        #endregion
         private void ConfigureHttpHandling(string password, BaseDiscordClient client = null)
         {
             var httphandler = new HttpClientHandler

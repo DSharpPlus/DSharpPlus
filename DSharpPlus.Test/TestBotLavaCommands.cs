@@ -120,7 +120,7 @@ namespace DSharpPlus.Test
             if (this.ContextChannel == null)
                 return;
 
-            await this.ContextChannel.SendMessageAsync($"Playback of {Formatter.Bold(Formatter.Sanitize(e.Track.Title))} by {Formatter.Bold(Formatter.Sanitize(e.Track.Author))} finished.").ConfigureAwait(false);
+            await this.ContextChannel.SendMessageAsync($"Playback of {Formatter.Bold(Formatter.Sanitize(e.Track.Info.Title))} by {Formatter.Bold(Formatter.Sanitize(e.Track.Author))} finished.").ConfigureAwait(false);
             this.ContextChannel = null;
         }
 
@@ -147,7 +147,7 @@ namespace DSharpPlus.Test
             var track = trackLoad.Tracks.First();
             await this.LavalinkVoice.PlayAsync(track).ConfigureAwait(false);
 
-            await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))}.").ConfigureAwait(false);
+            await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Info.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))}.").ConfigureAwait(false);
         }
 
         [Command, Description("Queues tracks for playback.")]
@@ -160,7 +160,7 @@ namespace DSharpPlus.Test
             var track = trackLoad.Tracks.First();
             await this.LavalinkVoice.PlayAsync(track).ConfigureAwait(false);
 
-            await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))}.").ConfigureAwait(false);
+            await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Info.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))}.").ConfigureAwait(false);
         }
 
         [Command, Description("Queues track for playback.")]
@@ -173,7 +173,7 @@ namespace DSharpPlus.Test
             var track = result.Tracks.First();
             await this.LavalinkVoice.PlayAsync(track).ConfigureAwait(false);
 
-            await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))}.").ConfigureAwait(false);
+            await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Info.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))}.").ConfigureAwait(false);
         }
 
         [Command, Description("Queues tracks for playback.")]
@@ -186,7 +186,7 @@ namespace DSharpPlus.Test
             var track = trackLoad.Tracks.First();
             await this.LavalinkVoice.PlayPartialAsync(track, start, stop).ConfigureAwait(false);
 
-            await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))}.").ConfigureAwait(false);
+            await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Info.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))}.").ConfigureAwait(false);
         }
 
         [Command, Description("Pauses playback.")]
@@ -246,8 +246,8 @@ namespace DSharpPlus.Test
                 return;
 
             var state = this.LavalinkVoice.CurrentState;
-            var track = state.CurrentTrack;
-            await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))} [{state.PlaybackPosition}/{track.Length}].").ConfigureAwait(false);
+            var track = state.Track;
+            await ctx.RespondAsync($"Now playing: {Formatter.Bold(Formatter.Sanitize(track.Info.Title))} by {Formatter.Bold(Formatter.Sanitize(track.Author))} [{state.PlaybackPosition}/{track.Length}].").ConfigureAwait(false);
         }
 
         [Command, Description("Sets or resets equalizer settings."), Aliases("eq")]

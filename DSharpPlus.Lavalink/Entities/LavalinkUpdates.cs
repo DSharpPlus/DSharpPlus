@@ -41,27 +41,6 @@ namespace DSharpPlus.Lavalink.Entities
         private readonly long _position;
     }
 
-    /// <summary>
-    /// Represents current state of given player.
-    /// </summary>
-    public sealed class LavalinkPlayerState
-    {
-        /// <summary>
-        /// Gets the timestamp at which this state was last updated.
-        /// </summary>
-        public DateTimeOffset LastUpdate { get; internal set; }
-
-        /// <summary>
-        /// Gets the current playback position.
-        /// </summary>
-        public TimeSpan PlaybackPosition { get; internal set; }
-
-        /// <summary>
-        /// Gets the currently-played track.
-        /// </summary>
-        public LavalinkTrack CurrentTrack { get; internal set; }
-    }
-
     internal sealed class LavalinkStats
     {
         [JsonProperty("playingPlayers")]
