@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using DSharpPlus.Lavalink.Entities;
 using Emzi0767.Utilities;
 
 namespace DSharpPlus.Lavalink.EventArgs

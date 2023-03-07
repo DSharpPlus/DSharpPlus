@@ -30,6 +30,7 @@ using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus.Lavalink.Entities;
+using DSharpPlus.Lavalink.Enums;
 using DSharpPlus.Net;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;

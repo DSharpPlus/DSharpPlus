@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System.Collections.Generic;
+using DSharpPlus.Lavalink.Enums;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Lavalink.Entities

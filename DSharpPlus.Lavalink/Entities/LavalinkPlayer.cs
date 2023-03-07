@@ -23,11 +23,10 @@
 
 using System.Collections.Generic;
 using System.ComponentModel;
-using DSharpPlus.Entities;
 using DSharpPlus.Lavalink.Entities.Filters;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Lavalink
+namespace DSharpPlus.Lavalink.Entities
 {
     public class LavalinkVoiceState
     {

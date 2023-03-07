@@ -24,6 +24,7 @@
 using System;
 using System.IO;
 using System.Text;
+using DSharpPlus.Lavalink.Entities;
 using DSharpPlus.Lavalink.EventArgs;
 
 namespace DSharpPlus.Lavalink

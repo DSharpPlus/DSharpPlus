@@ -32,6 +32,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Lavalink.Entities;
 using DSharpPlus.Lavalink.Entities.Filters;
+using DSharpPlus.Lavalink.Enums;
 using DSharpPlus.Lavalink.EventArgs;
 using Emzi0767.Utilities;
 using Newtonsoft.Json;

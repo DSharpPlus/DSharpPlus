@@ -29,7 +29,7 @@ using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace DSharpPlus.Lavalink
+namespace DSharpPlus.Lavalink.Entities
 {
     public class LavalinkTrack
     {

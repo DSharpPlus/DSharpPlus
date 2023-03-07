@@ -30,7 +30,9 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.Lavalink;
+using DSharpPlus.Lavalink.Entities;
 using DSharpPlus.Lavalink.Entities.Filters;
+using DSharpPlus.Lavalink.Enums;
 using DSharpPlus.Lavalink.EventArgs;
 using DSharpPlus.Net;
 

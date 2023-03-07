@@ -24,7 +24,7 @@
 using System;
 using Newtonsoft.Json;
 
-namespace DSharpPlus.Lavalink
+namespace DSharpPlus.Lavalink.Entities
 {
     public class LavalinkPlayerState
     {
@@ -52,6 +52,7 @@ namespace DSharpPlus.Lavalink
         /// </summary>
         [JsonProperty("connected")]
         public bool Connected { get; internal set; }
+
         /// <summary>
         /// The ping of the node to the Discord voice server in milliseconds (-1 if not connected)
         /// </summary>
