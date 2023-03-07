@@ -30,6 +30,7 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.Lavalink;
+using DSharpPlus.Lavalink.Entities.Filters;
 using DSharpPlus.Lavalink.EventArgs;
 using DSharpPlus.Net;
 
@@ -276,7 +277,7 @@ namespace DSharpPlus.Test
             if (this.LavalinkVoice == null)
                 return;
 
-            await this.LavalinkVoice.UpdateKaraokeFilterAsync(level, monoLevel, filterBand, filterWidth);
+            await this.LavalinkVoice.AddFilterAsync(new LavalinkKaraokeFilter(level, monoLevel, filterBand, filterWidth));
             await ctx.RespondAsync($"Karaoke adjusted.");
         }
         
@@ -286,9 +287,30 @@ namespace DSharpPlus.Test
             if (this.LavalinkVoice == null)
                 return;
 
-            await this.LavalinkVoice.UpdateTimescaleFilterAsync(speed, pitch, rate);
+            await this.LavalinkVoice.AddFilterAsync(new LavalinkTimescaleFilter(speed, pitch, rate));
             await ctx.RespondAsync($"Timescale adjusted.");
         }
+        
+        [Command("tremolo"), Description("adjusts tremolo settings."), Aliases("tr")]
+        public async Task TremoloAsync(CommandContext ctx, float frequency, float depth)
+        {
+            if (this.LavalinkVoice == null)
+                return;
+
+            await this.LavalinkVoice.AddFilterAsync(new LavalinkTremoloFilter(frequency, depth));
+            await ctx.RespondAsync($"Tremolo adjusted.");
+        }
+        
+        [Command("filters_clear"), Description("clears all filters."), Aliases("fc")]
+        public async Task FiltersClearAsync(CommandContext ctx)
+        {
+            if (this.LavalinkVoice == null)
+                return;
+
+            await this.LavalinkVoice.ClearFiltersAsync();
+            await ctx.RespondAsync($"Filters cleared.");
+        }
+        
 
         [Command("stats"), Description("Displays Lavalink statistics.")]
         public async Task StatsAsync(CommandContext ctx)

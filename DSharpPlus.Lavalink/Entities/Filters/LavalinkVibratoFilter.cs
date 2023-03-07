@@ -28,7 +28,7 @@ namespace DSharpPlus.Lavalink.Entities.Filters
     /// <summary>
     /// Similar to tremolo. While tremolo oscillates the volume, vibrato oscillates the pitch.
     /// </summary>
-    public class LavalinkVibratoFilter
+    public class LavalinkVibratoFilter : ILavalinkFilter
     {
         /// <summary>
         /// The vibrato depth (0 to 1.0 where 0.0 is no effect and 1.0 is full effect)
@@ -40,5 +40,11 @@ namespace DSharpPlus.Lavalink.Entities.Filters
         /// </summary>
         [JsonProperty("frequency")]
         public float? Frequency { get; set; }
+
+        public LavalinkVibratoFilter(float? depth = null, float? frequency = null)
+        {
+            this.Depth = depth;
+            this.Frequency = frequency;
+        }
     }
 }

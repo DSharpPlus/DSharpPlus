@@ -30,9 +30,7 @@ using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus.Lavalink.Entities;
-using DSharpPlus.Lavalink.Exceptions;
 using DSharpPlus.Net;
-using DSharpPlus.Net.Serialization;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -235,15 +233,10 @@ namespace DSharpPlus.Lavalink
             if (!req.IsSuccessStatusCode)
             {
                 var jsonError = JObject.Parse(json);
-                throw new TrackLoadException($"Unable to load tracks: {jsonError["message"]}");
+                throw new HttpRequestException($"Unable to load tracks: {jsonError["message"]}");
             }
 
             var load = JsonConvert.DeserializeObject<LavalinkLoadResult>(json);
-
-            if (load.LoadResultType == LavalinkLoadResultType.LoadFailed)
-            {
-                throw new TrackLoadException($"Unable to load tracks: {load.Exception.Message}");
-            }
 
             return load;
         }
@@ -286,7 +279,7 @@ namespace DSharpPlus.Lavalink
             for (var i = 0; i < decodedTracks.Length; i++)
             {
                 decodedTracks[i] = JsonConvert.DeserializeObject<LavalinkTrack>(jarr[i]["info"].ToString());
-                decodedTracks[i].Encoded = jarr[i]["track"].ToString();
+                decodedTracks[i].Encoded = jarr[i]["encodedTrack"].ToString();
             }
 
             var decodedTrackList = new ReadOnlyCollection<LavalinkTrack>(decodedTracks);
@@ -329,7 +322,7 @@ namespace DSharpPlus.Lavalink
 
         #region Player
 
-        internal async Task<LavalinkPlayer> UpdatePlayerAsync(ulong guildId, string sessionId, LavalinkPlayerUpdatePayload updatePayload, bool noReplace = false)
+        internal async Task<LavalinkPlayer> InternalUpdatePlayerAsync(ulong guildId, string sessionId, LavalinkPlayerUpdatePayload updatePayload, bool noReplace = false)
         {
             var payload = JsonConvert.SerializeObject(updatePayload);
             var content = new StringContent(payload, Utilities.UTF8, "application/json");
@@ -349,7 +342,7 @@ namespace DSharpPlus.Lavalink
             return JsonConvert.DeserializeObject<LavalinkPlayer>(res);
         }
 
-        public async Task<LavalinkPlayer> GetPlayerAsync(string sessionId, ulong guildId)
+        internal async Task<LavalinkPlayer> InternalGetPlayerAsync(string sessionId, ulong guildId)
         {
             using var req = await this._http.GetAsync(new Uri(string.Format(Endpoints.PLAYER, this.RestEndpoint.ToHttpString(), sessionId, guildId))).ConfigureAwait(false);
             var res = await req.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -361,6 +354,42 @@ namespace DSharpPlus.Lavalink
             }
 
             return JsonConvert.DeserializeObject<LavalinkPlayer>(res);
+        }
+
+        internal async Task InternalDestroyAsync(ulong guildId, string nodeSessionId)
+        {
+            using var req = await this._http.DeleteAsync(new Uri(string.Format(Endpoints.PLAYER, this.RestEndpoint.ToHttpString(), nodeSessionId, guildId))).ConfigureAwait(false);
+            var res = await req.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+            if (!req.IsSuccessStatusCode)
+            {
+                var jo = JObject.Parse(res);
+                throw new HttpRequestException(jo["message"].ToString());
+            }
+        }
+
+        #endregion
+
+        #region Resuming
+        internal async Task ResumeAsync(string resumeKey, string sessionId, int timeout = 60)
+        {
+            var payload = new LavalinkUpdateSessionPayload { ResumingKey = resumeKey, Timeout = 60 };
+
+            var json = JsonConvert.SerializeObject(payload);
+            var content = new StringContent(json, Utilities.UTF8, "application/json");
+            var message = new HttpRequestMessage(new HttpMethod("PATCH"), new Uri(string.Format(Endpoints.SESSIONS, this.RestEndpoint.ToHttpString(), sessionId)))
+            {
+                Content = content
+            };
+
+            using var req = await this._http.SendAsync(message).ConfigureAwait(false);
+            var res = await req.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+            if (!req.IsSuccessStatusCode)
+            {
+                var jo = JObject.Parse(res);
+                throw new HttpRequestException(jo["message"].ToString());
+            }
         }
 
         #endregion
@@ -380,7 +409,5 @@ namespace DSharpPlus.Lavalink
             this._http.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", $"DSharpPlus.LavaLink/{this._dsharpplusVersionString}");
             this._http.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", password);
         }
-
-
     }
 }

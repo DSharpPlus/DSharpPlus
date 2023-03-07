@@ -28,12 +28,17 @@ namespace DSharpPlus.Lavalink.Entities.Filters
     /// <summary>
     /// Higher frequencies get suppressed, while lower frequencies pass through this filter, thus the name low pass. Any smoothing values equal to, or less than 1.0 will disable the filter.
     /// </summary>
-    public class LavalinkLowPassFilter
+    public class LavalinkLowPassFilter : ILavalinkFilter
     {
         /// <summary>
         /// The smoothing factor (0 to 1.0 where 0.0 is no effect and 1.0 is full effect)
         /// </summary>
         [JsonProperty("smoothing")]
         public float? Smoothing { get; set; }
+
+        public LavalinkLowPassFilter(float? smoothing = null)
+        {
+            this.Smoothing = smoothing;
+        }
     }
 }

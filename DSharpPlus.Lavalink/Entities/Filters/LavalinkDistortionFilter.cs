@@ -28,7 +28,7 @@ namespace DSharpPlus.Lavalink.Entities.Filters
     /// <summary>
     /// Distortion effect. It can generate some pretty unique audio effects.
     /// </summary>
-    public class LavalinkDistortionFilter
+    public class LavalinkDistortionFilter : ILavalinkFilter
     {
         /// <summary>
         /// The distortion level (0 to 1.0 where 0.0 is no effect and 1.0 is full effect)
@@ -70,5 +70,17 @@ namespace DSharpPlus.Lavalink.Entities.Filters
         /// </summary>
         [JsonProperty("scale")]
         public float? Scale { get; set; }
+
+        public LavalinkDistortionFilter(float? sinOffset = null, float? sinScale = null, float? cosOffset = null, float? cosScale = null, float? tanOffset = null, float? tanScale = null, float? offset = null, float? scale = null)
+        {
+            this.SinOffset = sinOffset;
+            this.SinScale = sinScale;
+            this.CosOffset = cosOffset;
+            this.CosScale = cosScale;
+            this.TanOffset = tanOffset;
+            this.TanScale = tanScale;
+            this.Offset = offset;
+            this.Scale = scale;
+        }
     }
 }

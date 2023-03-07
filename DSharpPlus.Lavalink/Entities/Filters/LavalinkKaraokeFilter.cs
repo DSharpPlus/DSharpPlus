@@ -28,7 +28,7 @@ namespace DSharpPlus.Lavalink.Entities.Filters
     /// <summary>
     /// Uses equalization to eliminate part of a band, usually targeting vocals.
     /// </summary>
-    public class LavalinkKaraokeFilter
+    public class LavalinkKaraokeFilter : ILavalinkFilter
     {
 
         /// <summary>

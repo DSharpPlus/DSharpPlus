@@ -28,7 +28,7 @@ namespace DSharpPlus.Lavalink.Entities.Filters
     /// <summary>
     /// Mixes both channels (left and right), with a configurable factor on how much each channel affects the other. With the defaults, both channels are kept independent of each other. Setting all factors to 0.5 means both channels get the same audio.
     /// </summary>
-    public class LavalinkChannelMixFilter
+    public class LavalinkChannelMixFilter : ILavalinkFilter
     {
         /// <summary>
         /// The left channel volume (0 to 1.0 where 0.0 is no effect and 1.0 is full effect)
@@ -50,5 +50,13 @@ namespace DSharpPlus.Lavalink.Entities.Filters
         /// </summary>
         [JsonProperty("rightToLeft")]
         public float? RightToLeft { get; set; }
+
+        public LavalinkChannelMixFilter(float? leftToLeft = null, float? leftToRight = null, float? rightToRight = null, float? rightToLeft = null)
+        {
+            this.LeftToLeft = leftToLeft;
+            this.LeftToRight = leftToRight;
+            this.RightToRight = rightToRight;
+            this.RightToLeft = rightToLeft;
+        }
     }
 }

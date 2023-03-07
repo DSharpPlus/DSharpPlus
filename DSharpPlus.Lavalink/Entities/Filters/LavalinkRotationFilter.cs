@@ -28,12 +28,17 @@ namespace DSharpPlus.Lavalink.Entities.Filters
     /// <summary>
     /// Rotates the sound around the stereo channels/user headphones aka Audio Panning.
     /// </summary>
-    public class LavalinkRotationFilter
+    public class LavalinkRotationFilter : ILavalinkFilter
     {
         /// <summary>
         /// The frequency of the audio rotating around the listener in Hz.
         /// </summary>
         [JsonProperty("rotationHz")]
         public float? RotationHz { get; set; }
+
+        public LavalinkRotationFilter(float? rotationHz = null)
+        {
+            this.RotationHz = rotationHz;
+        }
     }
 }

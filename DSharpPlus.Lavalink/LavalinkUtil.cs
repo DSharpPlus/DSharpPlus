@@ -47,15 +47,12 @@ namespace DSharpPlus.Lavalink
         /// <returns>Decoded Lavalink track.</returns>
         public static LavalinkTrack DecodeTrack(string track)
         {
-            // https://github.com/sedmelluq/lavaplayer/blob/804cd1038229230052d9b1dee5e6d1741e30e284/main/src/main/java/com/sedmelluq/discord/lavaplayer/player/DefaultAudioPlayerManager.java#L63-L64
-            const int TRACK_INFO_VERSIONED = 1;
-            //const int TRACK_INFO_VERSION = 2;
-
             var raw = Convert.FromBase64String(track);
 
             var decoded = new LavalinkTrack
             {
-                Encoded = track
+                Encoded = track,
+                Info = new LavalinkTrackInfo()
             };
 
             using (var ms = new MemoryStream(raw))
@@ -72,9 +69,7 @@ namespace DSharpPlus.Lavalink
 
                 // java bytes are signed
                 // https://docs.oracle.com/javase/7/docs/api/java/io/DataInput.html#readByte()
-                var version = (messageFlags & TRACK_INFO_VERSIONED) != 0 ? (br.ReadSByte() & 0xFF) : 1;
-                //if (version != TRACK_INFO_VERSION)
-                //    Warn($"Version conflict: Expected {TRACK_INFO_VERSION} but got {version}");
+                var version = (int)br.ReadByte();
 
                 decoded.Info.Title = br.ReadJavaUtf8();
 

@@ -63,26 +63,86 @@ namespace DSharpPlus.Lavalink
 
     public class LavalinkFilters
     {
+        /// <summary>
+        /// Lets you adjust the player volume from 0.0 to 5.0 where 1.0 is 100%. Values >1.0 may cause clipping
+        /// </summary>
         [JsonProperty("volume", NullValueHandling = NullValueHandling.Ignore)]
         public float? Volume { get; internal set; }
+        /// <summary>
+        /// Lets you adjust 15 different bands
+        /// </summary>
         [JsonProperty("equalizers", NullValueHandling = NullValueHandling.Ignore)]
-        public LavalinkBandAdjustment[] Equalizers { get; internal set; }
+        public IEnumerable<LavalinkBandAdjustment> Equalizers { get; internal set; }
+
+        /// <summary>
+        /// Lets you eliminate part of a band, usually targeting vocals
+        /// </summary>
         [JsonProperty("karaoke", NullValueHandling = NullValueHandling.Ignore)]
         public LavalinkKaraokeFilter? Karaoke { get; internal set; }
+        /// <summary>
+        ///Lets you change the speed, pitch, and rate
+        /// </summary>
         [JsonProperty("timescale", NullValueHandling = NullValueHandling.Ignore)]
         public LavalinkTimescaleFilter? Timescale { get; internal set; }
+
+        /// <summary>
+        /// Lets you create a shuddering effect, where the volume quickly oscillates
+        /// </summary>
         [JsonProperty("tremolo", NullValueHandling = NullValueHandling.Ignore)]
         public LavalinkTremoloFilter? Tremolo { get; internal set; }
+        /// <summary>
+        /// Lets you create a shuddering effect, where the pitch quickly oscillates
+        /// </summary>
         [JsonProperty("vibrato", NullValueHandling = NullValueHandling.Ignore)]
         public LavalinkVibratoFilter? Vibrato { get; internal set; }
+
+        /// <summary>
+        /// Lets you rotate the sound around the stereo channels/user headphones aka Audio Panning
+        /// </summary>
         [JsonProperty("rotation", NullValueHandling = NullValueHandling.Ignore)]
         public LavalinkRotationFilter? Rotation { get; internal set; }
+
+        /// <summary>
+        /// Lets you distort the audio
+        /// </summary>
         [JsonProperty("distortion", NullValueHandling = NullValueHandling.Ignore)]
         public LavalinkDistortionFilter? Distortion { get; internal set; }
+
+        /// <summary>
+        /// Lets you mix both channels (left and right)
+        /// </summary>
         [JsonProperty("channelMix", NullValueHandling = NullValueHandling.Ignore)]
         public LavalinkChannelMixFilter? ChannelMix { get; internal set; }
+
+        /// <summary>
+        /// Lets you filter higher frequencies
+        /// </summary>
         [JsonProperty("lowPass", NullValueHandling = NullValueHandling.Ignore)]
         public LavalinkLowPassFilter? LowPass { get; internal set; }
+
+        public static LavalinkFilters FromFilters(IEnumerable<ILavalinkFilter> filters, IEnumerable<LavalinkBandAdjustment> equalizers = null)
+        {
+            if (filters == null)
+                throw new System.ArgumentNullException(nameof(filters));
+
+            var lavalinkFilters = new LavalinkFilters();
+
+            if (equalizers != null)
+                lavalinkFilters.Equalizers = equalizers;
+            foreach (var filter in filters)
+            {
+                if (filter is LavalinkKaraokeFilter karaokeFilter) lavalinkFilters.Karaoke = karaokeFilter;
+                if (filter is LavalinkTimescaleFilter timescaleFilter) lavalinkFilters.Timescale = timescaleFilter;
+                if (filter is LavalinkTremoloFilter tremoloFilter) lavalinkFilters.Tremolo = tremoloFilter;
+                if (filter is LavalinkVibratoFilter vibratoFilter) lavalinkFilters.Vibrato = vibratoFilter;
+                if (filter is LavalinkRotationFilter rotationFilter) lavalinkFilters.Rotation = rotationFilter;
+                if (filter is LavalinkDistortionFilter distortionFilter) lavalinkFilters.Distortion = distortionFilter;
+                if (filter is LavalinkChannelMixFilter channelMixFilter) lavalinkFilters.ChannelMix = channelMixFilter;
+                if (filter is LavalinkLowPassFilter lowPassFilter) lavalinkFilters.LowPass = lowPassFilter;
+            }
+
+            return lavalinkFilters;
+        }
     }
 
     public class LavalinkPlayerUpdatePayload
@@ -161,6 +221,21 @@ namespace DSharpPlus.Lavalink
         /// </summary>
         [JsonProperty("filters")]
         public LavalinkFilters Filters { get; internal set; }
+    }
+
+    public class LavalinkUpdateSessionPayload
+    {
+        /// <summary>
+        /// The resuming key to be able to resume this session later
+        /// </summary>
+        [JsonProperty("resumingKey")]
+        public string? ResumingKey { get; internal set; }
+
+        /// <summary>
+        /// The timeout in seconds (default is 60s)
+        /// </summary>
+        [JsonProperty("timeout")]
+        public int Timeout { get; internal set; }
 
     }
 }

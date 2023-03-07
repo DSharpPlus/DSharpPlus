@@ -21,12 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
+
 namespace DSharpPlus.Lavalink
 {
     internal static class Endpoints
     {
         internal const string BASE_URL = "/v3";
         internal const string VERSION = "/version";
+        internal const string SESSIONS = "{0}/sessions/{1}";
 
         //Webosocket
         internal const string WEBSOCKET = "/v3/websocket";

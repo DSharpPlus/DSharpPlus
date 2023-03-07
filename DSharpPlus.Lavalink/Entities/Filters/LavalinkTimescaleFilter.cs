@@ -28,7 +28,7 @@ namespace DSharpPlus.Lavalink.Entities.Filters
     /// <summary>
     /// Changes the speed, pitch, and rate. All default to 1.0.
     /// </summary>
-    public class LavalinkTimescaleFilter
+    public class LavalinkTimescaleFilter : ILavalinkFilter
     {
         /// <summary>
         /// Playback speed (0.5 to 2.0 where 1.0 is normal speed)

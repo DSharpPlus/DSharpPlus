@@ -1,4 +1,4 @@
-// This file is part of the DSharpPlus project.
+﻿// This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
 // Copyright (c) 2016-2022 DSharpPlus Contributors
@@ -21,27 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using Newtonsoft.Json;
-
-namespace DSharpPlus.Lavalink.Entities
+namespace DSharpPlus.Lavalink.Entities.Filters
 {
-    internal abstract class LavalinkPayload
+    public interface ILavalinkFilter
     {
-        [JsonProperty("op")]
-        public string Operation { get; }
 
-        [JsonProperty("guildId", NullValueHandling = NullValueHandling.Ignore)]
-        public string GuildId { get; }
-
-        internal LavalinkPayload(string opcode)
-        {
-            this.Operation = opcode;
-        }
-
-        internal LavalinkPayload(string opcode, string guildId)
-        {
-            this.Operation = opcode;
-            this.GuildId = guildId;
-        }
     }
 }
