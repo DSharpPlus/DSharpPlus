@@ -186,7 +186,7 @@ namespace DSharpPlus.Lavalink
 
         internal async Task SendVoiceUpdateAsync()
         {
-            var vsd = new LavalinkDispatch.VoiceDispatch
+            var vsd = new VoiceDispatch
             {
                 OpCode = 4,
                 Payload = new VoiceStateUpdatePayload

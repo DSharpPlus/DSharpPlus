@@ -201,13 +201,20 @@ namespace DSharpPlus.Lavalink
         /// </summary>
         public DiscordClient Discord { get; }
 
+        /// <summary>
+        /// Session ID for this connection. (From Lavalink)
+        /// </summary>
+        public string SessionId { get; private set; }
+
+        /// <summary>
+        /// Gets whether the node is ready to accept commands / send REST requests.
+        /// </summary>
+        public bool IsReady { get; private set; }
+
         internal LavalinkConfiguration Configuration { get; }
         internal DiscordVoiceRegion Region { get; }
 
         private IWebSocketClient WebSocket { get; set; }
-
-        public bool IsReady { get; private set; }
-        public string SessionId { get; internal set; }
 
         private ConcurrentDictionary<ulong, TaskCompletionSource<VoiceStateUpdateEventArgs>> VoiceStateUpdates { get; }
         private ConcurrentDictionary<ulong, TaskCompletionSource<VoiceServerUpdateEventArgs>> VoiceServerUpdates { get; }
@@ -345,7 +352,7 @@ namespace DSharpPlus.Lavalink
             this.VoiceStateUpdates[channel.Guild.Id] = vstut;
             this.VoiceServerUpdates[channel.Guild.Id] = vsrut;
 
-            var vsd = new LavalinkDispatch.VoiceDispatch
+            var vsd = new VoiceDispatch
             {
                 OpCode = 4,
                 Payload = new VoiceStateUpdatePayload
@@ -529,10 +536,12 @@ namespace DSharpPlus.Lavalink
             }
         }
 
-        private async Task WebSocket_OnConnect(IWebSocketClient client, SocketEventArgs ea)
+        private Task WebSocket_OnConnect(IWebSocketClient client, SocketEventArgs ea)
         {
             this.Discord.Logger.LogDebug(LavalinkEvents.LavalinkConnected, "Connection to Lavalink node established");
             this._backoff = 0;
+
+            return Task.CompletedTask;
         }
 
         private async void Con_ChannelDisconnected(LavalinkGuildConnection con)
@@ -576,26 +585,20 @@ namespace DSharpPlus.Lavalink
             return Task.CompletedTask;
         }
 
-        private Task Discord_VoiceServerUpdated(DiscordClient client, VoiceServerUpdateEventArgs e)
+        private async Task Discord_VoiceServerUpdated(DiscordClient client, VoiceServerUpdateEventArgs e)
         {
             var gld = e.Guild;
             if (gld == null)
-                return Task.CompletedTask;
+                return;
 
             if (this._connectedGuilds.TryGetValue(e.Guild.Id, out var lvlgc))
             {
                 //Sending new voice state to lavalink
-                _ = Task.Run(() => this.Rest.InternalUpdatePlayerAsync(e.Guild.Id, this.SessionId,
-                    new LavalinkPlayerUpdatePayload
-                    {
-                        VoiceState = new LavalinkVoiceState { Token = e.VoiceToken, Endpoint = e.Endpoint, }
-                    }));
+                await this.Rest.InternalUpdatePlayerAsync(e.Guild.Id, this.SessionId, new LavalinkPlayerUpdatePayload { VoiceState = new LavalinkVoiceState { Token = e.VoiceToken, Endpoint = e.Endpoint } });
             }
 
             if (this.VoiceServerUpdates.TryRemove(gld.Id, out var xe))
                 xe.SetResult(e);
-
-            return Task.CompletedTask;
         }
 
         internal event NodeDisconnectedEventHandler NodeDisconnected;

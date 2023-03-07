@@ -34,6 +34,7 @@ namespace DSharpPlus.Lavalink
         /// Unix timestamp in milliseconds
         /// </summary>
         public DateTimeOffset Time => DateTimeOffset.FromUnixTimeMilliseconds(this._time);
+
         /// <summary>
         /// The position of the track in milliseconds
         /// </summary>
@@ -42,8 +43,9 @@ namespace DSharpPlus.Lavalink
             get => TimeSpan.FromMilliseconds(this._position);
             internal set => this._position = (long)value.TotalMilliseconds;
         }
+
         [JsonProperty("position")]
-        public long _position { get; internal set; }
+        internal long _position { get; set; }
 
         /// <summary>
         /// If Lavalink is connected to the voice gateway

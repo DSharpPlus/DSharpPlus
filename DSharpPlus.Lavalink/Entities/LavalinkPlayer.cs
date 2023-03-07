@@ -63,11 +63,23 @@ namespace DSharpPlus.Lavalink
 
     public class LavalinkFilters
     {
+        [JsonProperty("volume", NullValueHandling = NullValueHandling.Ignore)]
+        internal float _volume;
+
         /// <summary>
         /// Lets you adjust the player volume from 0.0 to 5.0 where 1.0 is 100%. Values >1.0 may cause clipping
         /// </summary>
-        [JsonProperty("volume", NullValueHandling = NullValueHandling.Ignore)]
-        public float? Volume { get; internal set; }
+        [JsonIgnore]
+        public float? Volume
+        {
+            get => this._volume;
+            set
+            {
+                if (value < 0.0f || value > 5.0f)
+                    throw new InvalidEnumArgumentException("Volume must be between 0.0 and 5.0");
+                this._volume = value.Value;
+            }
+        }
         /// <summary>
         /// Lets you adjust 15 different bands
         /// </summary>
