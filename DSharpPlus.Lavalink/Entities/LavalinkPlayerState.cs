@@ -28,12 +28,12 @@ namespace DSharpPlus.Lavalink.Entities
 {
     public class LavalinkPlayerState
     {
-        [JsonProperty("time")] private readonly long _time;
 
         /// <summary>
         /// Unix timestamp in milliseconds
         /// </summary>
         public DateTimeOffset Time => DateTimeOffset.FromUnixTimeMilliseconds(this._time);
+        [JsonProperty("time")] private readonly long _time;
 
         /// <summary>
         /// The position of the track in milliseconds
@@ -43,7 +43,6 @@ namespace DSharpPlus.Lavalink.Entities
             get => TimeSpan.FromMilliseconds(this._position);
             internal set => this._position = (long)value.TotalMilliseconds;
         }
-
         [JsonProperty("position")]
         internal long _position { get; set; }
 
