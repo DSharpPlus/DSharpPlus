@@ -433,6 +433,25 @@ namespace DSharpPlus.Lavalink
             });
         }
 
+        /// <summary>
+        /// Sets the volume filter. This will alter the sound output, and might incur a lot of CPU usage.
+        /// </summary>
+        /// <param name="volume">Volume to set. Needs to be greater or equal to 0, and less than or equal to 5. 1 means 100% and is the default value.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown when volume is less than 0 or greater than 5.</exception>
+        public async Task SetVolumeFilterAsync(float volume = 1f)
+        {
+            if (volume < 0 || volume > 5)
+                throw new ArgumentOutOfRangeException(nameof(volume), "Volume needs to range from 0 to 5.");
+
+            await this.Node.Rest.InternalUpdatePlayerAsync(this.GuildId, this.Node.SessionId, new LavalinkPlayerUpdatePayload
+            {
+                Filters = new LavalinkFilters
+                {
+                    Volume = volume
+                }
+            });
+        }
+
 
 
         internal Task InternalUpdatePlayerStateAsync(LavalinkPlayerState newState)
