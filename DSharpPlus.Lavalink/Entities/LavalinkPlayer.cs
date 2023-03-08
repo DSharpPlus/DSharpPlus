@@ -133,6 +133,10 @@ namespace DSharpPlus.Lavalink.Entities
         [JsonProperty("lowPass", NullValueHandling = NullValueHandling.Ignore)]
         public LavalinkLowPassFilter? LowPass { get; internal set; }
 
+        /// <summary>
+        /// Returns a new instance of <see cref="LavalinkFilters"/> with default values
+        /// </summary>
+        /// <returns>Default values for <see cref="LavalinkFilters"/></returns>
         public static LavalinkFilters DefaultValues() =>
             new()
             {
