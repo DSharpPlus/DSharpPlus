@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using DSharpPlus.Lavalink.Entities.Filters;
@@ -131,10 +133,25 @@ namespace DSharpPlus.Lavalink.Entities
         [JsonProperty("lowPass", NullValueHandling = NullValueHandling.Ignore)]
         public LavalinkLowPassFilter? LowPass { get; internal set; }
 
+        public static LavalinkFilters DefaultValues() =>
+            new()
+            {
+                Volume = 1.0f,
+                Equalizers = Array.Empty<LavalinkBandAdjustment>(),
+                Karaoke = new LavalinkKaraokeFilter(),
+                Timescale = new LavalinkTimescaleFilter(),
+                Tremolo = new LavalinkTremoloFilter(),
+                Vibrato = new LavalinkVibratoFilter(),
+                Rotation = new LavalinkRotationFilter(),
+                Distortion = new LavalinkDistortionFilter(),
+                ChannelMix = new LavalinkChannelMixFilter(),
+                LowPass = new LavalinkLowPassFilter()
+            };
+
         public static LavalinkFilters FromFilters(IEnumerable<ILavalinkFilter> filters, IEnumerable<LavalinkBandAdjustment> equalizers = null)
         {
             if (filters == null)
-                throw new System.ArgumentNullException(nameof(filters));
+                throw new ArgumentNullException(nameof(filters));
 
             var lavalinkFilters = new LavalinkFilters();
 

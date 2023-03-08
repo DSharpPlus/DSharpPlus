@@ -430,7 +430,7 @@ namespace DSharpPlus.Lavalink
 
             await this.Node.Rest.InternalUpdatePlayerAsync(this.GuildId, this.Node.SessionId, new LavalinkPlayerUpdatePayload
             {
-                Filters = LavalinkFilters.FromFilters(this.Filters)
+                Filters = LavalinkFilters.DefaultValues(),
             });
         }
 

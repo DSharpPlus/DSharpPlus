@@ -52,12 +52,14 @@ namespace DSharpPlus.Lavalink.Entities.Filters
         [JsonProperty("filterWidth")]
         public float? FilterWidth { get; set; }
 
-        public LavalinkKaraokeFilter(float level, float monoLevel, float filterBand, float filterWidth)
+        public LavalinkKaraokeFilter(float level = 0, float monoLevel = 0, float filterBand = 0, float filterWidth = 0)
         {
             this.Level = level;
             this.MonoLevel = monoLevel;
             this.FilterBand = filterBand;
             this.FilterWidth = filterWidth;
         }
+
+        public void Reset() => (this.Level, this.MonoLevel, this.FilterBand, this.FilterWidth) = (0, 0, 0, 0);
     }
 }

@@ -51,12 +51,14 @@ namespace DSharpPlus.Lavalink.Entities.Filters
         [JsonProperty("rightToLeft")]
         public float? RightToLeft { get; set; }
 
-        public LavalinkChannelMixFilter(float? leftToLeft = null, float? leftToRight = null, float? rightToRight = null, float? rightToLeft = null)
+        public LavalinkChannelMixFilter(float? leftToLeft = 0, float? leftToRight = 0, float? rightToRight = 0, float? rightToLeft = 0)
         {
             this.LeftToLeft = leftToLeft;
             this.LeftToRight = leftToRight;
             this.RightToRight = rightToRight;
             this.RightToLeft = rightToLeft;
         }
+
+        public void Reset() => (this.LeftToLeft, this.LeftToRight, this.RightToRight, this.RightToLeft) = (0, 0, 0, 0);
     }
 }

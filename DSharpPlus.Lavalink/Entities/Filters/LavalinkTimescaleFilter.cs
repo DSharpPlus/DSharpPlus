@@ -46,11 +46,13 @@ namespace DSharpPlus.Lavalink.Entities.Filters
         [JsonProperty("rate")]
         public float? Rate { get; set; }
 
-        public LavalinkTimescaleFilter(float speed, float pitch, float rate)
+        public LavalinkTimescaleFilter(float speed = 1, float pitch = 1, float rate = 1)
         {
             this.Speed = speed;
             this.Pitch = pitch;
             this.Rate = rate;
         }
+
+        public void Reset() => this.Speed = this.Pitch = this.Rate = 1.0f;
     }
 }

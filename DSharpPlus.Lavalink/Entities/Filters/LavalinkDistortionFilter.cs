@@ -71,7 +71,7 @@ namespace DSharpPlus.Lavalink.Entities.Filters
         [JsonProperty("scale")]
         public float? Scale { get; set; }
 
-        public LavalinkDistortionFilter(float? sinOffset = null, float? sinScale = null, float? cosOffset = null, float? cosScale = null, float? tanOffset = null, float? tanScale = null, float? offset = null, float? scale = null)
+        public LavalinkDistortionFilter(float? sinOffset = 0, float? sinScale = 0, float? cosOffset = 0, float? cosScale = 0, float? tanOffset = 0, float? tanScale = 0 , float? offset = 0, float? scale = 0)
         {
             this.SinOffset = sinOffset;
             this.SinScale = sinScale;
@@ -82,5 +82,7 @@ namespace DSharpPlus.Lavalink.Entities.Filters
             this.Offset = offset;
             this.Scale = scale;
         }
+
+        public void Reset() => this.SinOffset = this.SinScale = this.CosOffset = this.CosScale = this.TanOffset = this.TanScale = this.Offset = this.Scale = 0;
     }
 }

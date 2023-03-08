@@ -36,9 +36,11 @@ namespace DSharpPlus.Lavalink.Entities.Filters
         [JsonProperty("smoothing")]
         public float? Smoothing { get; set; }
 
-        public LavalinkLowPassFilter(float? smoothing = null)
+        public LavalinkLowPassFilter(float? smoothing = 0)
         {
             this.Smoothing = smoothing;
         }
+
+        public void Reset() => this.Smoothing = 0;
     }
 }

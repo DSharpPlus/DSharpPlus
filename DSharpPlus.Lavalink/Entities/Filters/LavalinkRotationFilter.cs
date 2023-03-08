@@ -36,9 +36,11 @@ namespace DSharpPlus.Lavalink.Entities.Filters
         [JsonProperty("rotationHz")]
         public float? RotationHz { get; set; }
 
-        public LavalinkRotationFilter(float? rotationHz = null)
+        public LavalinkRotationFilter(float? rotationHz = 0)
         {
             this.RotationHz = rotationHz;
         }
+
+        public void Reset() => this.RotationHz = 0;
     }
 }

@@ -41,10 +41,12 @@ namespace DSharpPlus.Lavalink.Entities.Filters
         [JsonProperty("frequency")]
         public float? Frequency { get; set; }
 
-        public LavalinkVibratoFilter(float? depth = null, float? frequency = null)
+        public LavalinkVibratoFilter(float? depth = 0, float? frequency = 0)
         {
             this.Depth = depth;
             this.Frequency = frequency;
         }
+
+        public void Reset() => (this.Depth, this.Frequency) = (0, 0);
     }
 }
