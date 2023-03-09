@@ -124,10 +124,14 @@ await builder.SendAsync(channel); // Replace with any method of getting a channe
 
 # Final result
 
-Congrats! You've made a dropdown. It should look like this ![SelectImageOne][2]
+Congrats! You've made a dropdown. It should look like this 
+
+![SelectImageOne][2]
 
 When you click the dropdown, the bottom option should be pre-selected, and it will look like this. You can choose one or
-two options. ![SelectImageTwo][3]
+two options. 
+
+![SelectImageTwo][3]
 
 # Interactivity/Footnotes
 "**Oh no, I'm getting 'This interaction failed' when selecting! What do I do?**"

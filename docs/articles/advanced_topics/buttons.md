@@ -122,7 +122,9 @@ var myButton = new DiscordButtonComponent(
     new DiscordComponentEmoji(595381687026843651));
 ```
 And you're done! Simply add that to a builder, and when you send, you'll get a message that has a button with a little
-Pikachu enjoying a lolipop. Adorable. ![PikaLolipop][5]
+Pikachu enjoying a lolipop. Adorable. 
+
+![PikaLolipop][5]
 
 
 # Responding to button presses
