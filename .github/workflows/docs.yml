@@ -5,6 +5,8 @@ on:
       - published
   workflow_dispatch:
   push:
+    branches:
+      - master
     paths:
       - 'docs/**'
 env:
