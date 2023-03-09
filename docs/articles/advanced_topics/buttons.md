@@ -109,7 +109,9 @@ builder.AddComponents(new DiscordComponent[]
 Practically identical, but now with `true` as an extra paremeter. This is the 
 @DSharpPlus.Entities.DiscordButtonComponent.Disabled property.
 
-Produces a message like such: ![Buttons][4]
+Produces a message like such:
+
+![Buttons][4]
 
 Well, that's all neat, but lets say you want to add an emoji. Being able to use any emoji is pretty neat, afterall.
 That's also very simple!
