@@ -16,3 +16,6 @@ If you find any problems in the nightly versions of the packages, please follow 
 Additionally, take care to not use 5.0.0 nightly builds. They are not currently production- or development-ready.
 4.x.x nightly builds are currently more up-to-date and more stable, as work on v5 is still in earliest stages and is not
 currently made available via nightly builds.
+
+<!-- LINKS -->
+[0]: xref:articles.misc.reporting_issues
