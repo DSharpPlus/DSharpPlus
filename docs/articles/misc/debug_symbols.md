@@ -7,16 +7,9 @@ title: Debug Symbols
 In the event you need to debug DSharpPlus, we offer debug symbols. They are available at the following locations:
 
 ## Symbol sources
-There are 2 symbol sources available:
-
-* Stable: [http://srv.symbolsource.org/pdb/Public][0]
-* Nightly: [https://nuget.emzi0767.com/api/v3/symbolstore][1]
+All of our symbols can be found on [Nuget](https://www.nuget.org/packages/DSharpPlus/). Nightly builds have symbols and source included inside of the packages, while release builds will only contain the symbols.
 
 ## Using the symbols
 In Visual Studio:
 1. Go to Tools > Options > Debugging and make sure "Just My Code" is disabled and "Source Server Support" is enabled.
 2. Go to Tools > Options > Debugging > Symbols, and add the URL in there.
-
-<!-- LINKS -->
-[0]:  http://srv.symbolsource.org/pdb/Public
-[1]:  https://nuget.emzi0767.com/api/v3/symbolstore

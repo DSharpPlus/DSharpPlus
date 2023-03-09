@@ -13,7 +13,7 @@ jobs:
   build_and_publish:
     name: Publish Nightly (Master)
     runs-on: self-hosted
-    if: "!contains(toJSON(github.event.head_commit.message), '[ci-skip]')"
+    if: "!contains(format('{0} {1}', github.event.head_commit.message, github.event.pull_request.title), '[ci-skip]')"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -24,7 +24,7 @@ jobs:
         with:
           dotnet-version: 7.0.103
       - name: Package
-        run: "mkdir build && dotnet pack -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --include-source -o build -p:VersionSuffix='nightly' -p:BuildNumber=$(printf \"%0*d\n\" 5 $(( 1195 + ${{ github.run_number }} )))" # We add 1195 since it's the last build number AppVeyor used.
+        run: "mkdir build && dotnet pack -o build --include-symbols --include-source -p:SymbolPackageFormat=snupkg -p:VersionSuffix='nightly' -p:BuildNumber=$(printf \"%0*d\n\" 5 $(( 1195 + ${{ github.run_number }} )))" # We add 1195 since it's the last build number AppVeyor used.
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:

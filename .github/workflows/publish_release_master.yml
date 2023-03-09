@@ -20,7 +20,7 @@ jobs:
         with:
           dotnet-version: 7.0.103
       - name: Build Nuget Packages
-        run: "mkdir build && dotnet pack -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg -c Release -o build"
+        run: "mkdir build && dotnet pack --include-symbols -p:SymbolPackageFormat=snupkg -c Release -o build"
       - name: Publish Nuget Packages
         run: "dotnet nuget push \"build/*\" -k ${{ secrets.NUGET_ORG_API_KEY }} -s https://api.nuget.org/v3/index.json"
       - name: Upload Nuget Packages To Github Actions
