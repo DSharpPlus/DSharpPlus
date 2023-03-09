@@ -167,8 +167,7 @@ Then, add an `if` statement into the body of your event lambda that will check i
 ```cs
 discord.MessageCreated += async (s, e) =>
 {
-    if (e.Message.Content.ToLower().StartsWith("ping"))
-		await e.Message.RespondAsync("pong!");
+    if (e.Message.Content.ToLower().StartsWith("ping")) await e.Message.RespondAsync("pong!");
 };
 ```
 
@@ -195,8 +194,7 @@ namespace MyFirstBot
 
             discord.MessageCreated += async (s, e) =>
             {
-                if (e.Message.Content.ToLower().StartsWith("ping"))
-                    await e.Message.RespondAsync("pong!");
+                if (e.Message.Content.ToLower().StartsWith("ping")) await e.Message.RespondAsync("pong!");
 
             };
 
