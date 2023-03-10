@@ -85,5 +85,12 @@ discord.MessageCreated += (s, e) =>
 Doing this will allow the handler to complete its execution quicker, which will in turn allow other handlers to be
 executed and prevent the gateway thread from being blocked.
 
+# Usage of the right events
+
+ We advise against the use of the `Ready` event in the `DiscordClient`, as it does not necessarily mean that the client 
+ is ready. If the goal is to obtain  `DiscordMember`/`DiscordGuild` information, this event should not be used. Instead,
+ the `GuildDownloadCompleted` event should be used. The `Ready` event is only meant to signal that the client has 
+ finished the initial handshake with the gateway and is prepared to begin sending payloads.
+
 <!-- LINKS -->
 [0]:  https://en.wikipedia.org/wiki/Deadlock
