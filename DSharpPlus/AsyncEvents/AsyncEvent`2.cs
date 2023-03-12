@@ -38,8 +38,8 @@ namespace DSharpPlus.AsyncEvents
         where TArgs : AsyncEventArgs
     {
         private readonly ReaderWriterLockSlim _lock = new();
-        private List<AsyncEventHandler<TSender, TArgs>> _handlers;
         private readonly AsyncEventExceptionHandler<TSender, TArgs> _exceptionHandler;
+        private List<AsyncEventHandler<TSender, TArgs>> _handlers;
 
         public AsyncEvent(string name, AsyncEventExceptionHandler<TSender, TArgs> exceptionHandler)
             : base(name)
