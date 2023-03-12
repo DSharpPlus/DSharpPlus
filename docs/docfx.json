@@ -4,7 +4,7 @@
             "src": [
                 {
                     "src": "../",
-                    "files": "**/bin/**/netstandard2.0/**.dll",
+                    "files": "**.sln",
                     "exclude": [
                         "**/obj/**",
                         "_site/**"
@@ -17,6 +17,9 @@
         }
     ],
     "build": {
+	"xref": [
+	   "https://inftord.github.io/Common/xrefmap.yml"
+	],
         "xrefService": [
             "https://xref.docs.microsoft.com/query?uid={uid}"
         ],
