@@ -3706,7 +3706,9 @@ namespace DSharpPlus.Net
                 Message = new RestChannelMessageCreatePayload
                 {
                     Content = message.Content,
+                    HasContent = !string.IsNullOrWhiteSpace(message.Content),
                     Embeds = message.Embeds,
+                    HasEmbed = message.Embeds.Count > 0,
                     Mentions = new DiscordMentions(message.Mentions, message.Mentions.Any()),
                     Components = message.Components,
                     StickersIds = message.Stickers?.Select(s => s.Id) ?? Array.Empty<ulong>(),
