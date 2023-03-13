@@ -3709,7 +3709,7 @@ namespace DSharpPlus.Net
                     Embeds = message.Embeds,
                     Mentions = new DiscordMentions(message.Mentions, message.Mentions.Any()),
                     Components = message.Components,
-                    StickersIds = message.Stickers.Select(s => s.Id),
+                    StickersIds = message.Stickers?.Select(s => s.Id) ?? Array.Empty<ulong>(),
                 },
                 AppliedTags = appliedTags
             };

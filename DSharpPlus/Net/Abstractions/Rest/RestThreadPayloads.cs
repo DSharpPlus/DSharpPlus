@@ -50,7 +50,7 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("rate_limit_per_user", NullValueHandling = NullValueHandling.Include)]
         public int? RateLimitPerUser { get; set; }
 
-        [JsonProperty("message")]
+        [JsonProperty("message", NullValueHandling = NullValueHandling.Ignore)]
         public RestChannelMessageCreatePayload Message { get; set; }
 
         [JsonProperty("applied_tags", NullValueHandling = NullValueHandling.Ignore)]
