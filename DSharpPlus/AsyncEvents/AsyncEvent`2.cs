@@ -23,6 +23,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -108,24 +109,17 @@ namespace DSharpPlus.AsyncEvents
 
             try
             {
-                var tasks = new List<Task>();
-
-                foreach (var handler in this._handlers)
+                await Task.WhenAll(this._handlers.Select(async (handler) =>
                 {
-                    tasks.Add(Task.Run(async () =>
+                    try
                     {
-                        try
-                        {
-                            await handler(sender, args);
-                        }
-                        catch (Exception ex)
-                        {
-                            this._exceptionHandler(this, ex, handler, sender, args);
-                        }
-                    }));
-                }
-
-                await Task.WhenAll(tasks);
+                        await handler(sender, args);
+                    }
+                    catch (Exception ex)
+                    {
+                        this._exceptionHandler?.Invoke(this, ex, handler, sender, args);
+                    }
+                }));
             }
             finally
             {
