@@ -1106,7 +1106,27 @@ namespace DSharpPlus.Net
             return this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.PATCH, route, headers, DiscordJson.SerializeObject(pld));
         }
 
-        internal Task ModifyThreadChannelAsync(ulong channel_id, string name, int? position, Optional<string> topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? user_limit, Optional<int?> perUserRateLimit, Optional<string> rtcRegion, VideoQualityMode? qualityMode, Optional<ChannelType> type, IEnumerable<DiscordOverwriteBuilder> permissionOverwrites, bool? isArchived, AutoArchiveDuration? autoArchiveDuration, bool? locked, string reason)
+        internal Task ModifyThreadChannelAsync
+        (
+            ulong channel_id,
+            string name,
+            int? position,
+            Optional<string> topic,
+            bool? nsfw,
+            Optional<ulong?> parent,
+            int? bitrate,
+            int? user_limit,
+            Optional<int?> perUserRateLimit,
+            Optional<string> rtcRegion,
+            VideoQualityMode? qualityMode,
+            Optional<ChannelType> type,
+            IEnumerable<DiscordOverwriteBuilder> permissionOverwrites,
+            bool? isArchived,
+            AutoArchiveDuration? autoArchiveDuration,
+            bool? locked,
+            string reason,
+            Optional<IEnumerable<ulong>> applied_tags
+        )
         {
             List<DiscordRestOverwrite> restoverwrites = null;
             if (permissionOverwrites != null)
@@ -1132,7 +1152,8 @@ namespace DSharpPlus.Net
                 PermissionOverwrites = restoverwrites,
                 IsArchived = isArchived,
                 ArchiveDuration = autoArchiveDuration,
-                Locked = locked
+                Locked = locked,
+                AppliedTags = applied_tags.HasValue ? applied_tags.Value : null
             };
 
             var headers = Utilities.GetBaseHeaders();

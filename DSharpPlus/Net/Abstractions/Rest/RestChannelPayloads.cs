@@ -179,6 +179,9 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("locked", NullValueHandling = NullValueHandling.Ignore)]
         public bool? Locked { get; set; }
+
+        [JsonProperty("applied_tags", NullValueHandling = NullValueHandling.Ignore)]
+        public IEnumerable<ulong> AppliedTags { get; set; }
     }
 
     internal class RestChannelMessageEditPayload

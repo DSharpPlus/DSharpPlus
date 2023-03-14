@@ -40,7 +40,9 @@ public class ForumTest : BaseCommandModule
 
         var post = new ForumPostBuilder().WithName("D#+ Test!!").WithMessage(new DiscordMessageBuilder().WithContent("Code is working! uwu"));
 
-        await fc.CreateForumPostAsync(post);
+        var post_ = await fc.CreateForumPostAsync(post);
+        
+        await ctx.RespondAsync($"Created post {post_.Channel.Name} in {fc.Name}.");
     }
 
 }
