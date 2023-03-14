@@ -39,7 +39,7 @@ The following resources apply only for the latest stable version of the library.
 * [Making your first bot in C#](https://dsharpplus.github.io/DSharpPlus/articles/basics/bot_account.html).
 
 ### Example bots
-* [Example by Emzi0767](https://github.com/DSharpPlus/Example-Bots)
+* [Example by OoLunar](https://github.com/DSharpPlus/Example-Bots)
 
 # I want to throw my money at you!
 If you want to give us some money as a thank you gesture, you can do so using one of these links:
