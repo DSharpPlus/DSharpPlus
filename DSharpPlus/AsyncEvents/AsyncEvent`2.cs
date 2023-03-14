@@ -38,7 +38,7 @@ namespace DSharpPlus.AsyncEvents
     public sealed class AsyncEvent<TSender, TArgs> : AsyncEvent
         where TArgs : AsyncEventArgs
     {
-        private readonly ReaderWriterLockSlim _lock = new();
+        private readonly SemaphoreSlim _lock = new(1);
         private readonly AsyncEventExceptionHandler<TSender, TArgs> _exceptionHandler;
         private List<AsyncEventHandler<TSender, TArgs>> _handlers;
 
@@ -58,14 +58,14 @@ namespace DSharpPlus.AsyncEvents
             if (handler is null)
                 throw new ArgumentNullException(nameof(handler));
 
-            this._lock.EnterWriteLock();
+            this._lock.Wait();
             try
             {
                 this._handlers.Add(handler);
             }
             finally
             {
-                this._lock.ExitWriteLock();
+                this._lock.Release();
             }
         }
 
@@ -78,14 +78,15 @@ namespace DSharpPlus.AsyncEvents
             if (handler is null)
                 throw new ArgumentNullException(nameof(handler));
 
-            this._lock.EnterWriteLock();
+            
+            this._lock.Wait();
             try
             {
                 this._handlers.Remove(handler);
             }
             finally
             {
-                this._lock.ExitWriteLock();
+                this._lock.Release();
             }
         }
 
@@ -105,7 +106,7 @@ namespace DSharpPlus.AsyncEvents
             if (this._handlers.Count == 0)
                 return;
 
-            this._lock.EnterReadLock();
+            await this._lock.WaitAsync();
 
             try
             {
@@ -123,7 +124,7 @@ namespace DSharpPlus.AsyncEvents
             }
             finally
             {
-                this._lock.ExitReadLock();
+                this._lock.Release();
             }
 
             return;
