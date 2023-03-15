@@ -1125,7 +1125,7 @@ namespace DSharpPlus.Net
             AutoArchiveDuration? autoArchiveDuration,
             bool? locked,
             string reason,
-            Optional<IEnumerable<ulong>> applied_tags
+            IEnumerable<ulong> applied_tags
         )
         {
             List<DiscordRestOverwrite> restoverwrites = null;
@@ -1153,7 +1153,7 @@ namespace DSharpPlus.Net
                 IsArchived = isArchived,
                 ArchiveDuration = autoArchiveDuration,
                 Locked = locked,
-                AppliedTags = applied_tags.HasValue ? applied_tags.Value : null
+                AppliedTags = applied_tags
             };
 
             var headers = Utilities.GetBaseHeaders();
