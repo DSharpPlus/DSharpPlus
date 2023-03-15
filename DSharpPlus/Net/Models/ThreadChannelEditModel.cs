@@ -45,7 +45,15 @@ namespace DSharpPlus.Net.Models
         /// </summary>
         public bool? Locked { internal get; set; }
 
-        public Optional<IEnumerable<ulong>> AppliedTags { internal get; set; }
+        /// <summary>
+        /// Sets the applied tags for the thread
+        /// </summary>
+        public IEnumerable<ulong> AppliedTags { internal get; set; }
+
+        /// <summary>
+        /// Sets the flags for the channel (Either PINNED or REQUIRE_TAG)
+        /// </summary>
+        public ChannelFlags? Flags { internal get; set; }
 
         internal ThreadChannelEditModel() { }
     }

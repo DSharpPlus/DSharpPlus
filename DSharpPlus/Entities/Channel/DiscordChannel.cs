@@ -192,9 +192,9 @@ namespace DSharpPlus.Entities
         {
             get
             {
-                return this.Type is not (ChannelType.Text or ChannelType.News)
+                return this.Type is not (ChannelType.Text or ChannelType.News or ChannelType.GuildForum)
                     ? throw new ArgumentException("Only text channels can have threads.")
-                    : this.Guild._threads.Values.Where(e => e.ParentId == this.Id).ToImmutableArray();
+                    : this.Guild._threads.Values.Where(e => e.ParentId == this.Id).ToArray();
             }
         }
 
