@@ -77,9 +77,9 @@ namespace DSharpPlus.Entities
         /// </summary>
         // Performant? No. Ideally, you're not using this property often.
         public IReadOnlyList<DiscordForumTag> AppliedTags =>
-        this.Parent is DiscordForumChannel parent
-        ? parent.AvailableTags.Where(pt => _appliedTagIds.Contains(pt.Id)).ToArray()
-        : Array.Empty<DiscordForumTag>();
+            this.Parent is DiscordForumChannel parent
+                ? parent.AvailableTags.Where(pt => _appliedTagIds.Contains(pt.Id)).ToArray()
+                : Array.Empty<DiscordForumTag>();
 
         [JsonProperty("applied_tags")]
         private List<ulong> _appliedTagIds;

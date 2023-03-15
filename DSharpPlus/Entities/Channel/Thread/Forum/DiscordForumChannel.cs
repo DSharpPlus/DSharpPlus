@@ -56,14 +56,23 @@ namespace DSharpPlus.Entities
         [JsonProperty("available_tags")]
         private List<DiscordForumTag> _availableTags;
 
+        /// <summary>
+        /// The default reaction shown on posts when they are created.
+        /// </summary>
         [JsonProperty("default_reaction", NullValueHandling = NullValueHandling.Ignore)]
         public DefaultReaction? DefaultReaction { get; internal set; }
 
+        /// <summary>
+        /// The default sort order of posts in the forum.
+        /// </summary>
         [JsonProperty("default_sort_order", NullValueHandling = NullValueHandling.Ignore)]
         public DefaultSortOrder? DefaultSortOrder { get; internal set; }
 
+        /// <summary>
+        /// The default layout of posts in the forum. Defaults to <see cref="DefaultForumLayout.ListView"/>
+        /// </summary>
         [JsonProperty("default_forum_layout", NullValueHandling = NullValueHandling.Ignore)]
-        public DefaultForumLayout? DefaultForumLayout { get; internal set; }
+        public DefaultForumLayout? DefaultLayout { get; internal set; }
 
         /// <summary>
         /// Creates a forum post.
