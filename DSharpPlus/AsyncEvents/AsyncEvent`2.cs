@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -78,7 +79,7 @@ namespace DSharpPlus.AsyncEvents
             if (handler is null)
                 throw new ArgumentNullException(nameof(handler));
 
-            
+
             this._lock.Wait();
             try
             {
@@ -107,22 +108,27 @@ namespace DSharpPlus.AsyncEvents
                 return;
 
             await this._lock.WaitAsync();
-
-            var tasks = this._handlers.Select(async (handler) =>
-            {
-                try
-                {
-                    await handler(sender, args);
-                }
-                catch (Exception ex)
-                {
-                    this._exceptionHandler?.Invoke(this, ex, handler, sender, args);
-                }
-            });
-
+            List<AsyncEventHandler<TSender, TArgs>> copiedHandlers = new(this._handlers);
             this._lock.Release();
 
-            await Task.WhenAll(tasks);
+            try
+            {
+                await Task.WhenAll(copiedHandlers.Select(async (handler) =>
+                {
+                    try
+                    {
+                        await handler(sender, args);
+                    }
+                    catch (Exception ex)
+                    {
+                        this._exceptionHandler?.Invoke(this, ex, handler, sender, args);
+                    }
+                }));
+            }
+            finally
+            {
+                this._lock.Release();
+            }
 
             return;
         }
