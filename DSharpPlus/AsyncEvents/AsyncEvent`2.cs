@@ -108,24 +108,21 @@ namespace DSharpPlus.AsyncEvents
 
             await this._lock.WaitAsync();
 
-            try
+            var tasks = this._handlers.Select(async (handler) =>
             {
-                await Task.WhenAll(this._handlers.Select(async (handler) =>
+                try
                 {
-                    try
-                    {
-                        await handler(sender, args);
-                    }
-                    catch (Exception ex)
-                    {
-                        this._exceptionHandler?.Invoke(this, ex, handler, sender, args);
-                    }
-                }));
-            }
-            finally
-            {
-                this._lock.Release();
-            }
+                    await handler(sender, args);
+                }
+                catch (Exception ex)
+                {
+                    this._exceptionHandler?.Invoke(this, ex, handler, sender, args);
+                }
+            });
+
+            this._lock.Release();
+
+            await Task.WhenAll(tasks);
 
             return;
         }
