@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2023 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,41 +20,26 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-
-using System;
-using System.Collections.Generic;
-using System.Text;
-using DSharpPlus.Entities;
-
-namespace DSharpPlus.Net.Models
+namespace DSharpPlus
 {
-    public class ThreadChannelEditModel : ChannelEditModel
+    /// <summary>
+    /// The layout type for forum channels.
+    /// </summary>
+    public enum DefaultForumLayout
     {
         /// <summary>
-        /// Sets if the thread is archived
+        /// The channel doesn't have a set layout.
         /// </summary>
-        public bool? IsArchived { internal get; set; }
+        Unset,
 
         /// <summary>
-        /// Sets AutoArchiveDuration of the thread
+        /// Posts will be displayed in a list format.
         /// </summary>
-        public AutoArchiveDuration? AutoArchiveDuration { internal get; set; }
+        ListView,
 
         /// <summary>
-        /// Sets if anyone can unarchive a thread
+        /// Posts will be displayed in a grid format that prioritizes image previews over the forum's content.
         /// </summary>
-        public bool? Locked { internal get; set; }
-
-        /// <summary>
-        /// Sets the applied tags for the thread
-        /// </summary>
-        public IEnumerable<ulong> AppliedTags { internal get; set; }
-
-        /// <summary>
-        /// Sets the flags for the channel (Either PINNED or REQUIRE_TAG)
-        /// </summary>
-        public ChannelFlags? Flags { internal get; set; }
-
-        internal ThreadChannelEditModel() { }
+        GalleryView
     }
 }

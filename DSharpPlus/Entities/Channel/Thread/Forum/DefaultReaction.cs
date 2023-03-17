@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2023 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,41 +20,25 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+using Newtonsoft.Json;
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using DSharpPlus.Entities;
-
-namespace DSharpPlus.Net.Models
+namespace DSharpPlus.Entities
 {
-    public class ThreadChannelEditModel : ChannelEditModel
+    /// <summary>
+    /// Represents an emoji used for reacting to a forum post.
+    /// </summary>
+    public sealed class DefaultReaction
     {
         /// <summary>
-        /// Sets if the thread is archived
+        /// The ID of the emoji, if applicable.
         /// </summary>
-        public bool? IsArchived { internal get; set; }
+        [JsonProperty("emoji_id")]
+        public ulong? EmojiId { get; internal set; }
 
         /// <summary>
-        /// Sets AutoArchiveDuration of the thread
+        /// The unicoide emoji, if applicable.
         /// </summary>
-        public AutoArchiveDuration? AutoArchiveDuration { internal get; set; }
-
-        /// <summary>
-        /// Sets if anyone can unarchive a thread
-        /// </summary>
-        public bool? Locked { internal get; set; }
-
-        /// <summary>
-        /// Sets the applied tags for the thread
-        /// </summary>
-        public IEnumerable<ulong> AppliedTags { internal get; set; }
-
-        /// <summary>
-        /// Sets the flags for the channel (Either PINNED or REQUIRE_TAG)
-        /// </summary>
-        public ChannelFlags? Flags { internal get; set; }
-
-        internal ThreadChannelEditModel() { }
+        [JsonProperty("emoji_name")]
+        public string EmojiName { get; internal set; }
     }
 }

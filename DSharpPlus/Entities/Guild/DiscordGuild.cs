@@ -1027,20 +1027,61 @@ namespace DSharpPlus.Entities
         /// <param name="qualityMode">Video quality mode of the channel. Applies to voice only.</param>
         /// <param name="position">Sorting position of the channel.</param>
         /// <param name="reason">Reason for audit logs.</param>
+        /// <param name="defaultAutoArchiveDuration">The default duration in which threads (or posts) will archive.</param>
+        /// <param name="defaultReactionEmoji">If applied to a forum, the default emoji to use for forum post reactions.</param>
+        /// <param name="availableTags">The tags available for a post in this channel.</param>
+        /// <param name="defaultSortOrder">The default sorting order.</param>
         /// <returns>The newly-created channel.</returns>
         /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
         /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
         /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordChannel> CreateChannelAsync(string name, ChannelType type, DiscordChannel parent = null, Optional<string> topic = default, int? bitrate = null, int? userLimit = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, bool? nsfw = null, Optional<int?> perUserRateLimit = default, VideoQualityMode? qualityMode = null, int? position = null, string reason = null)
+        public Task<DiscordChannel> CreateChannelAsync
+        (
+            string name,
+            ChannelType type,
+            DiscordChannel parent = null,
+            Optional<string> topic = default,
+            int? bitrate = null,
+            int? userLimit = null,
+            IEnumerable<DiscordOverwriteBuilder> overwrites = null,
+            bool? nsfw = null,
+            Optional<int?> perUserRateLimit = default,
+            VideoQualityMode? qualityMode = null,
+            int? position = null,
+            string reason = null,
+            AutoArchiveDuration? defaultAutoArchiveDuration = null,
+            DefaultReaction? defaultReactionEmoji = null,
+            IEnumerable<DiscordForumTagBuilder> availableTags = null,
+            DefaultSortOrder? defaultSortOrder = null
+        )
         {
             // technically you can create news/store channels but not always
-            if (type != ChannelType.Text && type != ChannelType.Voice && type != ChannelType.Category && type != ChannelType.News && type != ChannelType.Stage)
-                throw new ArgumentException("Channel type must be text, voice, stage, or category.", nameof(type));
+            if (type is not (ChannelType.Text or ChannelType.Voice or ChannelType.Category or ChannelType.News or ChannelType.Stage or ChannelType.GuildForum))
+                throw new ArgumentException("Channel type must be text, voice, stage, category, or a forum.", nameof(type));
 
             return type == ChannelType.Category && parent != null
                 ? throw new ArgumentException("Cannot specify parent of a channel category.", nameof(parent))
-                : this.Discord.ApiClient.CreateGuildChannelAsync(this.Id, name, type, parent?.Id, topic, bitrate, userLimit, overwrites, nsfw, perUserRateLimit, qualityMode, position, reason);
+                : this.Discord.ApiClient.CreateGuildChannelAsync
+                (
+                    this.Id,
+                    name,
+                    type,
+                    parent?.Id,
+                    topic,
+                    bitrate,
+                    userLimit,
+                    overwrites,
+                    nsfw,
+                    perUserRateLimit,
+                    qualityMode,
+                    position,
+                    reason,
+                    defaultAutoArchiveDuration,
+                    defaultReactionEmoji,
+                    availableTags,
+                    defaultSortOrder
+                );
         }
 
         // this is to commemorate the Great DAPI Channel Massacre of 2017-11-19.

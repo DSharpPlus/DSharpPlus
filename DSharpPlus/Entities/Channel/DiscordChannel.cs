@@ -31,6 +31,7 @@ using System.Threading.Tasks;
 using DSharpPlus.Exceptions;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Models;
+using DSharpPlus.Net.Serialization;
 using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities
@@ -38,6 +39,7 @@ namespace DSharpPlus.Entities
     /// <summary>
     /// Represents a discord channel.
     /// </summary>
+    [JsonConverter(typeof(DiscordForumChannelJsonConverter))]
     public class DiscordChannel : SnowflakeObject, IEquatable<DiscordChannel>
     {
         /// <summary>
@@ -69,7 +71,7 @@ namespace DSharpPlus.Entities
         /// Gets the type of this channel.
         /// </summary>
         [JsonProperty("type", NullValueHandling = NullValueHandling.Ignore)]
-        public ChannelType Type { get; internal set; }
+        public virtual ChannelType Type { get; internal set; }
 
         /// <summary>
         /// Gets the position of this channel.
@@ -126,6 +128,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets the ID of the last message sent in this channel. This is applicable to text channels only.
         /// </summary>
+        /// <remarks>For forum posts, this ID may point to an invalid mesage (e.g. the OP deleted the initial forum message).</remarks>
         [JsonProperty("last_message_id", NullValueHandling = NullValueHandling.Ignore)]
         public ulong? LastMessageId { get; internal set; }
 
@@ -189,9 +192,9 @@ namespace DSharpPlus.Entities
         {
             get
             {
-                return this.Type is not (ChannelType.Text or ChannelType.News)
+                return this.Type is not (ChannelType.Text or ChannelType.News or ChannelType.GuildForum)
                     ? throw new ArgumentException("Only text channels can have threads.")
-                    : this.Guild._threads.Values.Where(e => e.ParentId == this.Id).ToImmutableArray();
+                    : this.Guild._threads.Values.Where(e => e.ParentId == this.Id).ToArray();
             }
         }
 
@@ -430,9 +433,30 @@ namespace DSharpPlus.Entities
         {
             var mdl = new ChannelEditModel();
             action(mdl);
-            return this.Discord.ApiClient.ModifyChannelAsync(this.Id, mdl.Name, mdl.Position, mdl.Topic, mdl.Nsfw,
-                mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.PerUserRateLimit, mdl.RtcRegion.IfPresent(r => r?.Id),
-                mdl.QualityMode, mdl.Type, mdl.PermissionOverwrites, mdl.AuditLogReason);
+            return this.Discord.ApiClient.ModifyChannelAsync
+            (
+                this.Id,
+                mdl.Name,
+                mdl.Position,
+                mdl.Topic,
+                mdl.Nsfw,
+                mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>),
+                mdl.Bitrate,
+                mdl.Userlimit,
+                mdl.PerUserRateLimit,
+                mdl.RtcRegion.IfPresent(r => r?.Id),
+                mdl.QualityMode,
+                mdl.Type,
+                mdl.PermissionOverwrites,
+                mdl.AuditLogReason,
+                mdl.Flags,
+                mdl.AvailableTags,
+                mdl.DefaultAutoArchiveDuration,
+                mdl.DefaultReaction,
+                mdl.DefaultThreadRateLimit,
+                mdl.DefaultSortOrder,
+                mdl.DefaultForumLayout
+            );
         }
 
         /// <summary>

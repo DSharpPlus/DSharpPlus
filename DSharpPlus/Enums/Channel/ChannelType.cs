@@ -94,7 +94,7 @@ namespace DSharpPlus
         /// <summary>
         /// Indicates that this is a forum channel.
         /// </summary>
-        Forum = 15,
+        GuildForum = 15,
 
         /// <summary>
         /// Indicates unknown channel type.

@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2023 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,41 +20,21 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-
 using System;
-using System.Collections.Generic;
-using System.Text;
-using DSharpPlus.Entities;
 
-namespace DSharpPlus.Net.Models
+namespace DSharpPlus
 {
-    public class ThreadChannelEditModel : ChannelEditModel
+    [Flags]
+    public enum ChannelFlags
     {
         /// <summary>
-        /// Sets if the thread is archived
+        /// The channel is pinned.
         /// </summary>
-        public bool? IsArchived { internal get; set; }
+        Pinned = 1 << 1,
 
         /// <summary>
-        /// Sets AutoArchiveDuration of the thread
+        /// The [forum] channel requires tags to be applied.
         /// </summary>
-        public AutoArchiveDuration? AutoArchiveDuration { internal get; set; }
-
-        /// <summary>
-        /// Sets if anyone can unarchive a thread
-        /// </summary>
-        public bool? Locked { internal get; set; }
-
-        /// <summary>
-        /// Sets the applied tags for the thread
-        /// </summary>
-        public IEnumerable<ulong> AppliedTags { internal get; set; }
-
-        /// <summary>
-        /// Sets the flags for the channel (Either PINNED or REQUIRE_TAG)
-        /// </summary>
-        public ChannelFlags? Flags { internal get; set; }
-
-        internal ThreadChannelEditModel() { }
+        RequiresTag = 1 << 4
     }
 }

@@ -1,18 +1,18 @@
 // This file is part of the DSharpPlus project.
-//
+// 
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2023 DSharpPlus Contributors
-//
+// Copyright (c) 2016-2022 DSharpPlus Contributors
+// 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-//
+// 
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-//
+// 
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20,41 +20,29 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-
-using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Threading.Tasks;
+using DSharpPlus.CommandsNext;
+using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 
-namespace DSharpPlus.Net.Models
+namespace DSharpPlus.Test;
+
+public class ForumTest : BaseCommandModule
 {
-    public class ThreadChannelEditModel : ChannelEditModel
+    [Command("forum")]
+    public async Task Test(CommandContext ctx, DiscordChannel channel)
     {
-        /// <summary>
-        /// Sets if the thread is archived
-        /// </summary>
-        public bool? IsArchived { internal get; set; }
+        if (channel is not DiscordForumChannel fc)
+        {
+            await ctx.RespondAsync($"{channel.Mention} is not a forum channel.");
+            return;
+        }
 
-        /// <summary>
-        /// Sets AutoArchiveDuration of the thread
-        /// </summary>
-        public AutoArchiveDuration? AutoArchiveDuration { internal get; set; }
+        var post = new ForumPostBuilder().WithName("D#+ Test!!").WithMessage(new DiscordMessageBuilder().WithContent("Code is working! uwu"));
 
-        /// <summary>
-        /// Sets if anyone can unarchive a thread
-        /// </summary>
-        public bool? Locked { internal get; set; }
-
-        /// <summary>
-        /// Sets the applied tags for the thread
-        /// </summary>
-        public IEnumerable<ulong> AppliedTags { internal get; set; }
-
-        /// <summary>
-        /// Sets the flags for the channel (Either PINNED or REQUIRE_TAG)
-        /// </summary>
-        public ChannelFlags? Flags { internal get; set; }
-
-        internal ThreadChannelEditModel() { }
+        var post_ = await fc.CreateForumPostAsync(post);
+        
+        await ctx.RespondAsync($"Created post {post_.Channel.Name} in {fc.Name}.");
     }
+
 }
