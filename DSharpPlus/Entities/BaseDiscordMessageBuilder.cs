@@ -465,10 +465,9 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Applies <see cref="MessageFlags.SupressNotifications"/> to the message.
         /// </summary>
-        /// <param name="suppress">Whether to suprpess notifications</param>
         /// <returns></returns>
         /// <remarks>
-        /// As per <see cref="MessageFlag.SuppressNotification"/>, this does not change the message's allowed mentions
+        /// As per <see cref="MessageFlags.SupressNotifications"/>, this does not change the message's allowed mentions
         /// (controlled by <see cref="AddMentions"/>), but instead prevents a mention from triggering a push notification.
         /// </remarks>
         IDiscordMessageBuilder SuppressNotifications();
