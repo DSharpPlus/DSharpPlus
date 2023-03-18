@@ -571,6 +571,10 @@ namespace DSharpPlus
         /// <param name="qualityMode">Voice channel video quality mode.</param>
         /// <param name="position">Sorting position of the channel.</param>
         /// <param name="reason">Reason this channel was created</param>
+        /// <param name="defaultAutoArchiveDuration">Default duration for newly created forum posts in the channel.</param>
+        /// <param name="defaultReactionEmoji">Default emoji used for reacting to forum posts.</param>
+        /// <param name="availableTags">Tags available for use by forum posts in the channel.</param>
+        /// <param name="defaultSortOrder">Default sorting order for forum posts in the channel.</param>
         /// <returns></returns>
         public Task<DiscordChannel> CreateGuildChannelAsync
         (
@@ -635,6 +639,13 @@ namespace DSharpPlus
         /// <param name="type">New channel type.</param>
         /// <param name="permissionOverwrites">New channel permission overwrites.</param>
         /// <param name="reason">Reason why this channel was modified</param>
+        /// <param name="flags">Channel flags.</param>
+        /// <param name="defaultAutoArchiveDuration">Default duration for newly created forum posts in the channel.</param>
+        /// <param name="defaultReactionEmoji">Default emoji used for reacting to forum posts.</param>
+        /// <param name="availableTags">Tags available for use by forum posts in the channel.</param>
+        /// <param name="defaultPerUserRatelimit">Default per-user ratelimit for forum posts in the channel.</param>
+        /// <param name="defaultSortOrder">Default sorting order for forum posts in the channel.</param>
+        /// <param name="defaultForumLayout">Default layout for forum posts in the channel.</param>
         /// <returns></returns>
         public Task ModifyChannelAsync
         (
@@ -698,7 +709,7 @@ namespace DSharpPlus
 
             return this.ApiClient.ModifyChannelAsync
             (
-                channelId,mdl.Name,
+                channelId, mdl.Name,
                 mdl.Position,
                 mdl.Topic,
                 mdl.Nsfw,
