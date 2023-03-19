@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2023 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,14 +21,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using DSharpPlus.AsyncEvents;
+using System;
 
-namespace DSharpPlus.Lavalink.EventArgs
+namespace DSharpPlus.AsyncEvents
 {
     /// <summary>
-    /// Represents arguments for guild connection created event.
+    /// A base class for arguments passed to an event handler.
     /// </summary>
-    public sealed class GuildConnectionCreatedEventArgs : AsyncEventArgs
+    public class AsyncEventArgs : System.EventArgs
     {
+        /// <summary>
+        /// [UNUSED] This used to set whether an event was handled.
+        /// </summary>
+        // true here causes a compiler error, making this a source breaking change
+        // no matter whether warnings as errors is enabled or not. this should ensure
+        // that no one uses this any more.
+        [Obsolete("This is no longer utilized in DSharpPlus.", true)]
+        public bool Handled { get; set; } = false;
     }
 }

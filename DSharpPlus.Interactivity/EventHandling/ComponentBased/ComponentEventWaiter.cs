@@ -32,7 +32,6 @@ using ConcurrentCollections;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity.Enums;
-using Emzi0767.Utilities;
 using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.Interactivity.EventHandling

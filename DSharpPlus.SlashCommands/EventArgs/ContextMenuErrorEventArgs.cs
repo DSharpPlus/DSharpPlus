@@ -1,5 +1,5 @@
-﻿using System;
-using Emzi0767.Utilities;
+using System;
+using DSharpPlus.AsyncEvents;
 
 namespace DSharpPlus.SlashCommands.EventArgs
 {

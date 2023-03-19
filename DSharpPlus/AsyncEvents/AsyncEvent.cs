@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2023 DSharpPlus Contributors
+// Copyright (c) 2016-2022 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,14 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using DSharpPlus.AsyncEvents;
-
-namespace DSharpPlus.Lavalink.EventArgs
+namespace DSharpPlus.AsyncEvents
 {
     /// <summary>
-    /// Represents arguments for guild connection created event.
+    /// Represents a non-generic base for async events.
     /// </summary>
-    public sealed class GuildConnectionCreatedEventArgs : AsyncEventArgs
+    public abstract class AsyncEvent
     {
+        public string Name { get; }
+
+        protected internal AsyncEvent(string name)
+        {
+            this.Name = name;
+        }
     }
 }

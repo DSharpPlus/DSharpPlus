@@ -29,8 +29,8 @@ using System.Net;
 using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
+using DSharpPlus.AsyncEvents;
 using DSharpPlus.EventArgs;
-using Emzi0767.Utilities;
 
 namespace DSharpPlus.Net.WebSocket
 {
@@ -70,10 +70,10 @@ namespace DSharpPlus.Net.WebSocket
         /// <param name="proxy">Proxy settings for the client.</param>
         private WebSocketClient(IWebProxy proxy)
         {
-            this._connected = new AsyncEvent<WebSocketClient, SocketEventArgs>("WS_CONNECT", TimeSpan.Zero, this.EventErrorHandler);
-            this._disconnected = new AsyncEvent<WebSocketClient, SocketCloseEventArgs>("WS_DISCONNECT", TimeSpan.Zero, this.EventErrorHandler);
-            this._messageReceived = new AsyncEvent<WebSocketClient, SocketMessageEventArgs>("WS_MESSAGE", TimeSpan.Zero, this.EventErrorHandler);
-            this._exceptionThrown = new AsyncEvent<WebSocketClient, SocketErrorEventArgs>("WS_ERROR", TimeSpan.Zero, null);
+            this._connected = new AsyncEvent<WebSocketClient, SocketEventArgs>("WS_CONNECT", this.EventErrorHandler);
+            this._disconnected = new AsyncEvent<WebSocketClient, SocketCloseEventArgs>("WS_DISCONNECT", this.EventErrorHandler);
+            this._messageReceived = new AsyncEvent<WebSocketClient, SocketMessageEventArgs>("WS_MESSAGE", this.EventErrorHandler);
+            this._exceptionThrown = new AsyncEvent<WebSocketClient, SocketErrorEventArgs>("WS_ERROR", null);
 
             this.Proxy = proxy;
             this._defaultHeaders = new Dictionary<string, string>();

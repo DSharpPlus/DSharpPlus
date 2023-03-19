@@ -30,6 +30,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using DSharpPlus.AsyncEvents;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Builders;
 using DSharpPlus.CommandsNext.Converters;
@@ -38,7 +39,6 @@ using DSharpPlus.CommandsNext.Exceptions;
 using DSharpPlus.CommandsNext.Executors;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
-using Emzi0767.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -181,8 +181,8 @@ namespace DSharpPlus.CommandsNext
 
             this.Client = client;
 
-            this._executed = new AsyncEvent<CommandsNextExtension, CommandExecutionEventArgs>("COMMAND_EXECUTED", TimeSpan.Zero, this.Client.EventErrorHandler);
-            this._error = new AsyncEvent<CommandsNextExtension, CommandErrorEventArgs>("COMMAND_ERRORED", TimeSpan.Zero, this.Client.EventErrorHandler);
+            this._executed = new AsyncEvent<CommandsNextExtension, CommandExecutionEventArgs>("COMMAND_EXECUTED", this.Client.EventErrorHandler);
+            this._error = new AsyncEvent<CommandsNextExtension, CommandErrorEventArgs>("COMMAND_ERRORED", this.Client.EventErrorHandler);
 
             if (this.Config.UseDefaultCommandHandler)
                 this.Client.MessageCreated += this.HandleCommandsAsync;

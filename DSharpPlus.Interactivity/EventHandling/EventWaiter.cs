@@ -28,7 +28,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using ConcurrentCollections;
-using Emzi0767.Utilities;
+using DSharpPlus.AsyncEvents;
 using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.Interactivity.EventHandling

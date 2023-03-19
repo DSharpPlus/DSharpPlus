@@ -26,10 +26,10 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DSharpPlus.AsyncEvents;
 using DSharpPlus.Entities;
 using DSharpPlus.Lavalink.EventArgs;
 using DSharpPlus.Net;
-using Emzi0767.Utilities;
 
 namespace DSharpPlus.Lavalink
 {
@@ -71,7 +71,7 @@ namespace DSharpPlus.Lavalink
 
             this.Client = client;
 
-            this._nodeDisconnected = new AsyncEvent<LavalinkNodeConnection, NodeDisconnectedEventArgs>("LAVALINK_NODE_DISCONNECTED", TimeSpan.Zero, this.Client.EventErrorHandler);
+            this._nodeDisconnected = new AsyncEvent<LavalinkNodeConnection, NodeDisconnectedEventArgs>("LAVALINK_NODE_DISCONNECTED", this.Client.EventErrorHandler);
         }
 
         /// <summary>

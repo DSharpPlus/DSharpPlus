@@ -1,4 +1,4 @@
-﻿// This file is part of the DSharpPlus project.
+// This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
 // Copyright (c) 2016-2023 DSharpPlus Contributors
@@ -22,7 +22,7 @@
 // SOFTWARE.
 
 using System;
-using Emzi0767.Utilities;
+using DSharpPlus.AsyncEvents;
 
 namespace DSharpPlus.SlashCommands.EventArgs
 {

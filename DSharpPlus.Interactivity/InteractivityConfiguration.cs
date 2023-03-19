@@ -56,6 +56,7 @@ namespace DSharpPlus.Interactivity
         /// <summary>
         /// Whether interactivity should ACK buttons that are pushed. Setting this to <see langword="true"/> will also prevent subsequent event handlers from running.
         /// </summary>
+        [Obsolete("This setting is no longer used or possible to implement.", false)]
         public bool AckPaginationButtons { internal get; set; }
 
         /// <summary>
