@@ -1234,6 +1234,28 @@ namespace DSharpPlus.SlashCommands
             remove => this._autocompleteExecuted.Register(value);
         }
         private AsyncEvent<SlashCommandsExtension, AutocompleteExecutedEventArgs> _autocompleteExecuted;
+
+
+        public override void Dispose()
+        {
+            this._slashError.UnregisterAll();
+            this._slashInvoked.UnregisterAll();
+            this._slashExecuted.UnregisterAll();
+            this._contextMenuErrored.UnregisterAll();
+            this._contextMenuExecuted.UnregisterAll();
+            this._contextMenuInvoked.UnregisterAll();
+            this._autocompleteErrored.UnregisterAll();
+            this._autocompleteExecuted.UnregisterAll();
+
+            this.Client.Ready -= this.Update;
+            this.Client.InteractionCreated -= this.InteractionHandler;
+            this.Client.ContextMenuInteractionCreated -= this.ContextMenuHandler;
+        }
+
+        ~SlashCommandsExtension()
+        {
+            this.Dispose();
+        }
     }
 
     //I'm not sure if creating separate classes is the cleanest thing here but I can't think of anything else so these stay

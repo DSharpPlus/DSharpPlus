@@ -196,5 +196,25 @@ namespace DSharpPlus.Lavalink
 
         private Task Con_Disconnected(LavalinkNodeConnection node, NodeDisconnectedEventArgs e)
             => this._nodeDisconnected.InvokeAsync(node, e);
+
+        public override void Dispose()
+        {
+            foreach(var node in this._connectedNodes)
+            {
+                // undoubtedly there will be some GitHub comments about this. Help.
+                node.Value.StopAsync().GetAwaiter().GetResult();
+            }
+            this._connectedNodes.Clear();
+
+            // unhook events
+            _nodeDisconnected.UnregisterAll();
+
+            // Hi GC! <3 😘 clean me up uwu
+        }
+
+        ~LavalinkExtension()
+        {
+            this.Dispose();
+        }
     }
 }
