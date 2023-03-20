@@ -67,7 +67,8 @@
         ],
         "dest": "_site",
         "globalMetadata": {
-            "_appTitle": "DSharpPlus documentation",
+            "_appTitle": "DSharpPlus",
+            "_appName": "DSharpPlus",
             "_appFooter": "© 2016-2023 DSharpPlus Contributors",
             "_appLogoPath": "images/logo.png",
             "_appFaviconPath": "images/favicon.ico",
@@ -77,7 +78,7 @@
         "fileMetadataFiles": [],
         "template": [
             "default",
-            "templates/singulinkfx",
+            "modern",
             "memberpage"
         ],
         "postProcessors": [
