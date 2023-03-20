@@ -77,7 +77,7 @@
         "fileMetadataFiles": [],
         "template": [
             "default",
-            "templates/singulinkfx",
+            "modern"
             "memberpage"
         ],
         "postProcessors": [
