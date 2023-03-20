@@ -210,8 +210,7 @@ namespace DSharpPlus.Lavalink.Entities
         /// The encoded track base64 to play. null stops the current track
         /// </summary>
         [JsonProperty("encodedTrack", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        [DefaultValue("")]
-        public string? EncodedTrack { get; set; } = "";
+        public string? EncodedTrack { get; set; }
 
         /// <summary>
         /// The track identifier to play

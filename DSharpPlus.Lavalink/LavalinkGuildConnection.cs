@@ -409,8 +409,9 @@ namespace DSharpPlus.Lavalink
             if (this.Filters.Any(x => x.GetType() == filter.GetType()))
             {
                 this.Filters.Remove(this.Filters.First(x => x.GetType() == filter.GetType()));
-                this.Filters.Add(filter);
             }
+
+            this.Filters.Add(filter);
 
             return this.Node.Rest.InternalUpdatePlayerAsync(this.GuildId, this.Node.SessionId, new LavalinkPlayerUpdatePayload
             {
