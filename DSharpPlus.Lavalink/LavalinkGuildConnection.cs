@@ -107,6 +107,8 @@ namespace DSharpPlus.Lavalink
         }
         private readonly AsyncEvent<LavalinkGuildConnection, WebSocketCloseEventArgs> _webSocketClosed;
 
+        internal event ChannelDisconnectedEventHandler ChannelDisconnected;
+
         /// <summary>
         /// Gets whether this channel is still connected.
         /// </summary>
@@ -489,7 +491,5 @@ namespace DSharpPlus.Lavalink
 
         internal Task InternalWebSocketClosedAsync(WebSocketCloseEventArgs e)
             => this._webSocketClosed.InvokeAsync(this, e);
-
-        internal event ChannelDisconnectedEventHandler ChannelDisconnected;
     }
 }
