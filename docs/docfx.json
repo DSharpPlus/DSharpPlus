@@ -77,7 +77,7 @@
         "fileMetadataFiles": [],
         "template": [
             "default",
-            "modern"
+            "modern",
             "memberpage"
         ],
         "postProcessors": [
