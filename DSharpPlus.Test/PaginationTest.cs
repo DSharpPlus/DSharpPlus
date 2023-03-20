@@ -39,12 +39,7 @@ namespace DSharpPlus.Test
 
         [Command("paginate")]
         public async Task PaginateAsync(CommandContext ctx)
-        {
-            var builder = new DiscordMessageBuilder().WithContent("** **").AddComponents(new DiscordButtonComponent(ButtonStyle.Primary, "a", "Paginate"));
-            await ctx.RespondAsync(builder);
-
-            ctx.Client.ComponentInteractionCreated += this.Handle;
-        }
+            => await ctx.Channel.SendPaginatedMessageAsync(ctx.User, ctx.Client.GetInteractivity().GeneratePagesInEmbed(Lorem));
 
         private Task Handle(DiscordClient sender, ComponentInteractionCreateEventArgs e)
         {

@@ -82,6 +82,8 @@ namespace DSharpPlus.Interactivity.EventHandling
             if (!this._requests.TryGetValue(e.Message.Id, out var req))
                 return;
 
+            await e.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate).ConfigureAwait(false);
+
             if (await req.GetUserAsync().ConfigureAwait(false) != e.User)
             {
                 if (this._config.ResponseBehavior is InteractionResponseBehavior.Respond)
