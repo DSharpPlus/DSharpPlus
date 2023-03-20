@@ -35,11 +35,13 @@ namespace DSharpPlus.Lavalink.Entities.Filters
         /// </summary>
         [JsonProperty("speed")]
         public float? Speed { get; set; }
+
         /// <summary>
         /// The pitch (0.5 to 2.0 where 1.0 is normal pitch)
         /// </summary>
         [JsonProperty("pitch")]
         public float? Pitch { get; set; }
+
         /// <summary>
         /// The rate (0.5 to 2.0 where 1.0 is normal rate)
         /// </summary>
