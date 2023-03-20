@@ -25,6 +25,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using DSharpPlus.Lavalink.Entities.Filters;
 using Newtonsoft.Json;
 
@@ -37,26 +38,28 @@ namespace DSharpPlus.Lavalink.Entities
         /// </summary>
         [JsonProperty("token", NullValueHandling = NullValueHandling.Ignore)]
         public string Token { get; set; }
+
         /// <summary>
         /// The Discord voice endpoint to connect to
         /// </summary>
         [JsonProperty("endpoint", NullValueHandling = NullValueHandling.Ignore)]
         public string Endpoint { get; set; }
+
         /// <summary>
         /// The Discord voice session id to authenticate with
         /// </summary>
         [JsonProperty("sessionId", NullValueHandling = NullValueHandling.Ignore)]
         public string SessionId { get; set; }
+
         /// <summary>
         /// Whether the player is connected. Response only
         /// </summary>
         [JsonProperty("connected", NullValueHandling = NullValueHandling.Ignore)]
-        [JsonIgnore]
         public bool? IsConnected { get; internal set; }
+
         /// <summary>
         /// Roundtrip latency in milliseconds to the voice gateway (-1 if not connected). Response only
         /// </summary>
-        [JsonIgnore]
         [JsonProperty("ping", NullValueHandling = NullValueHandling.Ignore)]
         public int? Ping { get; internal set; }
     }
@@ -74,24 +77,27 @@ namespace DSharpPlus.Lavalink.Entities
         public float? Volume
         {
             get => this._volume;
-            set
-            {
-                if (value < 0.0f || value > 5.0f)
-                    throw new InvalidEnumArgumentException("Volume must be between 0.0 and 5.0");
-                this._volume = value.Value;
-            }
+            set => this._volume = (value < 0.0f || value > 5.0f) ? throw new InvalidEnumArgumentException("Volume must be between 0.0 and 5.0") : value.Value;
         }
+
+        [JsonProperty("equalizers", NullValueHandling = NullValueHandling.Ignore)]
+        public IEnumerable<LavalinkBandAdjustment> _equalizers = Array.Empty<LavalinkBandAdjustment>();
+
         /// <summary>
         /// Lets you adjust 15 different bands
         /// </summary>
-        [JsonProperty("equalizers", NullValueHandling = NullValueHandling.Ignore)]
-        public IEnumerable<LavalinkBandAdjustment> Equalizers { get; internal set; }
+        [JsonIgnore]
+        public IEnumerable<LavalinkBandAdjustment> Equalizers {
+            get => this._equalizers;
+            set => this._equalizers = value.Count() > 15 ? throw new InvalidEnumArgumentException("Equalizers must be between 0 and 15") : value;
+        }
 
         /// <summary>
         /// Lets you eliminate part of a band, usually targeting vocals
         /// </summary>
         [JsonProperty("karaoke", NullValueHandling = NullValueHandling.Ignore)]
         public LavalinkKaraokeFilter? Karaoke { get; internal set; }
+
         /// <summary>
         ///Lets you change the speed, pitch, and rate
         /// </summary>
@@ -103,6 +109,7 @@ namespace DSharpPlus.Lavalink.Entities
         /// </summary>
         [JsonProperty("tremolo", NullValueHandling = NullValueHandling.Ignore)]
         public LavalinkTremoloFilter? Tremolo { get; internal set; }
+
         /// <summary>
         /// Lets you create a shuddering effect, where the pitch quickly oscillates
         /// </summary>
@@ -161,16 +168,36 @@ namespace DSharpPlus.Lavalink.Entities
 
             if (equalizers != null)
                 lavalinkFilters.Equalizers = equalizers;
+
             foreach (var filter in filters)
             {
-                if (filter is LavalinkKaraokeFilter karaokeFilter) lavalinkFilters.Karaoke = karaokeFilter;
-                if (filter is LavalinkTimescaleFilter timescaleFilter) lavalinkFilters.Timescale = timescaleFilter;
-                if (filter is LavalinkTremoloFilter tremoloFilter) lavalinkFilters.Tremolo = tremoloFilter;
-                if (filter is LavalinkVibratoFilter vibratoFilter) lavalinkFilters.Vibrato = vibratoFilter;
-                if (filter is LavalinkRotationFilter rotationFilter) lavalinkFilters.Rotation = rotationFilter;
-                if (filter is LavalinkDistortionFilter distortionFilter) lavalinkFilters.Distortion = distortionFilter;
-                if (filter is LavalinkChannelMixFilter channelMixFilter) lavalinkFilters.ChannelMix = channelMixFilter;
-                if (filter is LavalinkLowPassFilter lowPassFilter) lavalinkFilters.LowPass = lowPassFilter;
+                switch (filter)
+                {
+                    case LavalinkKaraokeFilter karaokeFilter:
+                        lavalinkFilters.Karaoke = karaokeFilter;
+                        break;
+                    case LavalinkTimescaleFilter timescaleFilter:
+                        lavalinkFilters.Timescale = timescaleFilter;
+                        break;
+                    case LavalinkTremoloFilter tremoloFilter:
+                        lavalinkFilters.Tremolo = tremoloFilter;
+                        break;
+                    case LavalinkVibratoFilter vibratoFilter:
+                        lavalinkFilters.Vibrato = vibratoFilter;
+                        break;
+                    case LavalinkRotationFilter rotationFilter:
+                        lavalinkFilters.Rotation = rotationFilter;
+                        break;
+                    case LavalinkDistortionFilter distortionFilter:
+                        lavalinkFilters.Distortion = distortionFilter;
+                        break;
+                    case LavalinkChannelMixFilter channelMixFilter:
+                        lavalinkFilters.ChannelMix = channelMixFilter;
+                        break;
+                    case LavalinkLowPassFilter lowPassFilter:
+                        lavalinkFilters.LowPass = lowPassFilter;
+                        break;
+                }
             }
 
             return lavalinkFilters;
@@ -185,42 +212,50 @@ namespace DSharpPlus.Lavalink.Entities
         [JsonProperty("encodedTrack", DefaultValueHandling = DefaultValueHandling.Ignore)]
         [DefaultValue("")]
         public string? EncodedTrack { get; set; } = "";
+
         /// <summary>
         /// The track identifier to play
         /// </summary>
         [JsonProperty("identifier", NullValueHandling = NullValueHandling.Ignore)]
         public string? Identifier { get; set; }
+
         /// <summary>
         /// The track position in milliseconds
         /// </summary>
         [JsonProperty("position", NullValueHandling = NullValueHandling.Ignore)]
         public long? Position { get; set; }
+
         /// <summary>
         /// The track end time in milliseconds
         /// </summary>
         [JsonProperty("endTime", NullValueHandling = NullValueHandling.Ignore)]
         public long? EndTime { get; set; }
+
         /// <summary>
         /// The player volume from 0 to 1000
         /// </summary>
         [JsonProperty("volume", NullValueHandling = NullValueHandling.Ignore)]
         public int? Volume { get; set; }
+
         /// <summary>
         /// Whether the player is paused
         /// </summary>
         [JsonProperty("paused", NullValueHandling = NullValueHandling.Ignore)]
         public bool? Paused { get; set; }
+
         /// <summary>
         /// The new filters to apply. This will override all previously applied filters
         /// </summary>
         [JsonProperty("filters", NullValueHandling = NullValueHandling.Ignore)]
         public LavalinkFilters? Filters { get; set; }
+
         /// <summary>
         /// Information required for connecting to Discord, without connected or ping
         /// </summary>
         [JsonProperty("voice", NullValueHandling = NullValueHandling.Ignore)]
         public LavalinkVoiceState? VoiceState { get; set; }
     }
+
     public sealed class LavalinkPlayer
     {
         /// <summary>

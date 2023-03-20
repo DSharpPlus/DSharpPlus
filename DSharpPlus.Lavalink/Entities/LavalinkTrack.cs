@@ -39,12 +39,14 @@ namespace DSharpPlus.Lavalink.Entities
         /// </summary>
         [JsonProperty("encoded")]
         public string Encoded { get; set; }
+
         /// <summary>
         /// The track info
         /// </summary>
         [JsonProperty("info")]
         public LavalinkTrackInfo Info { get; set; }
     }
+
     public class LavalinkTrackInfo
     {
         /// <summary>

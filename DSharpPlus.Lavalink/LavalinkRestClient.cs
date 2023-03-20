@@ -323,7 +323,7 @@ namespace DSharpPlus.Lavalink
 
         #region Player
 
-        internal async Task<LavalinkPlayer> InternalUpdatePlayerAsync(ulong guildId, string sessionId, LavalinkPlayerUpdatePayload updatePayload, bool noReplace = false)
+        internal async Task InternalUpdatePlayerAsync(ulong guildId, string sessionId, LavalinkPlayerUpdatePayload updatePayload, bool noReplace = false)
         {
             var payload = JsonConvert.SerializeObject(updatePayload);
             var content = new StringContent(payload, Utilities.UTF8, "application/json");
@@ -339,8 +339,6 @@ namespace DSharpPlus.Lavalink
                 var jo = JObject.Parse(res);
                 throw new HttpRequestException(jo["message"].ToString());
             }
-
-            return JsonConvert.DeserializeObject<LavalinkPlayer>(res);
         }
 
         internal async Task<LavalinkPlayer> InternalGetPlayerAsync(string sessionId, ulong guildId)

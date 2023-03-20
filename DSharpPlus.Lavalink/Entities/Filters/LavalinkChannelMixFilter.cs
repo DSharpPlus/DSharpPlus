@@ -35,16 +35,19 @@ namespace DSharpPlus.Lavalink.Entities.Filters
         /// </summary>
         [JsonProperty("leftToLeft")]
         public float? LeftToLeft { get; set; }
+
         /// <summary>
         /// The left channel volume (0 to 1.0 where 0.0 is no effect and 1.0 is full effect)
         /// </summary>
         [JsonProperty("leftToRight")]
         public float? LeftToRight { get; set; }
+
         /// <summary>
         /// The right channel volume (0 to 1.0 where 0.0 is no effect and 1.0 is full effect)
         /// </summary>
         [JsonProperty("rightToRight")]
         public float? RightToRight { get; set; }
+
         /// <summary>
         /// The right channel volume (0 to 1.0 where 0.0 is no effect and 1.0 is full effect)
         /// </summary>

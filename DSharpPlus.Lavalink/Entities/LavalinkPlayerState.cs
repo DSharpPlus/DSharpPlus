@@ -28,7 +28,6 @@ namespace DSharpPlus.Lavalink.Entities
 {
     public class LavalinkPlayerState
     {
-
         /// <summary>
         /// Unix timestamp in milliseconds
         /// </summary>
@@ -43,6 +42,7 @@ namespace DSharpPlus.Lavalink.Entities
             get => TimeSpan.FromMilliseconds(this._position);
             internal set => this._position = (long)value.TotalMilliseconds;
         }
+
         [JsonProperty("position")]
         internal long _position { get; set; }
 

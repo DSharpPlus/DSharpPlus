@@ -35,36 +35,43 @@ namespace DSharpPlus.Lavalink.Entities.Filters
         /// </summary>
         [JsonProperty("sinOffset")]
         public float? SinOffset { get; set; }
+
         /// <summary>
         /// The distortion level (0 to 1.0 where 0.0 is no effect and 1.0 is full effect)
         /// </summary>
         [JsonProperty("sinScale")]
         public float? SinScale { get; set; }
+
         /// <summary>
         /// The distortion level (0 to 1.0 where 0.0 is no effect and 1.0 is full effect)
         /// </summary>
         [JsonProperty("cosOffset")]
         public float? CosOffset { get; set; }
+
         /// <summary>
         /// The distortion level (0 to 1.0 where 0.0 is no effect and 1.0 is full effect)
         /// </summary>
         [JsonProperty("cosScale")]
         public float? CosScale { get; set; }
+
         /// <summary>
         /// The distortion level (0 to 1.0 where 0.0 is no effect and 1.0 is full effect)
         /// </summary>
         [JsonProperty("tanOffset")]
         public float? TanOffset { get; set; }
+
         /// <summary>
         /// The distortion level (0 to 1.0 where 0.0 is no effect and 1.0 is full effect)
         /// </summary>
         [JsonProperty("tanScale")]
         public float? TanScale { get; set; }
+
         /// <summary>
         /// The distortion level (0 to 1.0 where 0.0 is no effect and 1.0 is full effect)
         /// </summary>
         [JsonProperty("offset")]
         public float? Offset { get; set; }
+
         /// <summary>
         /// The distortion level (0 to 1.0 where 0.0 is no effect and 1.0 is full effect)
         /// </summary>

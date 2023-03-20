@@ -30,22 +30,24 @@ namespace DSharpPlus.Lavalink.Entities.Filters
     /// </summary>
     public class LavalinkKaraokeFilter : ILavalinkFilter
     {
-
         /// <summary>
         /// The level (0 to 1.0 where 0.0 is no effect and 1.0 is full effect)
         /// </summary>
         [JsonProperty("level")]
         public float? Level { get; set; }
+
         /// <summary>
         /// The mono level (0 to 1.0 where 0.0 is no effect and 1.0 is full effect)
         /// </summary>
         [JsonProperty("monoLevel")]
         public float? MonoLevel { get; set; }
+
         /// <summary>
         /// The filter band
         /// </summary>
         [JsonProperty("filterBand")]
         public float? FilterBand { get; set; }
+
         /// <summary>
         /// The filter width
         /// </summary>

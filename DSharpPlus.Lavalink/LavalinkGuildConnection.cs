@@ -267,36 +267,33 @@ namespace DSharpPlus.Lavalink
                 Position = start.Milliseconds,
                 EndTime = end.Milliseconds
             }, noReplace);
-
         }
 
         /// <summary>
         /// Stops the player completely.
         /// </summary>
         /// <exception cref="InvalidOperationException">Thrown when connection is not valid.</exception>
-        public async Task StopAsync()
+        public Task StopAsync()
         {
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
 
-            await this.Node.Rest.InternalUpdatePlayerAsync(this.GuildId, this.Node.SessionId, new LavalinkPlayerUpdatePayload
+            return this.Node.Rest.InternalUpdatePlayerAsync(this.GuildId, this.Node.SessionId, new LavalinkPlayerUpdatePayload
             {
                 EncodedTrack = null
             });
-
-
         }
 
         /// <summary>
         /// Pauses the player.
         /// </summary>
         /// <exception cref="InvalidOperationException">Thrown when connection is not valid.</exception>
-        public async Task PauseAsync()
+        public Task PauseAsync()
         {
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
 
-            await this.Node.Rest.InternalUpdatePlayerAsync(this.GuildId, this.Node.SessionId, new LavalinkPlayerUpdatePayload
+            return this.Node.Rest.InternalUpdatePlayerAsync(this.GuildId, this.Node.SessionId, new LavalinkPlayerUpdatePayload
             {
                 Paused = true
             });
@@ -307,12 +304,12 @@ namespace DSharpPlus.Lavalink
         /// Resumes playback.
         /// </summary>
         /// <exception cref="InvalidOperationException">Thrown when connection is not valid.</exception>
-        public async Task ResumeAsync()
+        public Task ResumeAsync()
         {
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
 
-            await this.Node.Rest.InternalUpdatePlayerAsync(this.GuildId, this.Node.SessionId, new LavalinkPlayerUpdatePayload
+            return this.Node.Rest.InternalUpdatePlayerAsync(this.GuildId, this.Node.SessionId, new LavalinkPlayerUpdatePayload
             {
                 Paused = false
             });
@@ -323,7 +320,7 @@ namespace DSharpPlus.Lavalink
         /// </summary>
         /// <param name="position">Position to seek to.</param>
         /// <exception cref="InvalidOperationException">Thrown when connection is not valid.</exception>
-        public async Task SeekAsync(TimeSpan position)
+        public Task SeekAsync(TimeSpan position)
         {
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
@@ -331,7 +328,7 @@ namespace DSharpPlus.Lavalink
             if (position.TotalMilliseconds < 0)
                 throw new ArgumentOutOfRangeException(nameof(position), "Position needs to be greater or equal to zero.");
 
-            await this.Node.Rest.InternalUpdatePlayerAsync(this.GuildId, this.Node.SessionId, new LavalinkPlayerUpdatePayload
+            return this.Node.Rest.InternalUpdatePlayerAsync(this.GuildId, this.Node.SessionId, new LavalinkPlayerUpdatePayload
             {
                 Position = position.Milliseconds
             });
@@ -342,7 +339,7 @@ namespace DSharpPlus.Lavalink
         /// </summary>
         /// <param name="volume">Volume to set. Needs to be greater or equal to 0, and less than or equal to 100. 100 means 100% and is the default value.</param>
         /// <exception cref="InvalidOperationException">Thrown when connection is not valid.</exception>
-        public async Task SetVolumeAsync(int volume)
+        public Task SetVolumeAsync(int volume)
         {
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
@@ -350,7 +347,7 @@ namespace DSharpPlus.Lavalink
             if (volume < 0 || volume > 1000)
                 throw new ArgumentOutOfRangeException(nameof(volume), "Volume needs to range from 0 to 1000.");
 
-            await this.Node.Rest.InternalUpdatePlayerAsync(this.GuildId, this.Node.SessionId, new LavalinkPlayerUpdatePayload
+            return this.Node.Rest.InternalUpdatePlayerAsync(this.GuildId, this.Node.SessionId, new LavalinkPlayerUpdatePayload
             {
                 Volume = volume
             });
@@ -361,17 +358,17 @@ namespace DSharpPlus.Lavalink
         /// </summary>
         /// <param name="bands">Bands adjustments to make. You must specify one adjustment per band at most.</param>
         /// <exception cref="InvalidOperationException">Thrown when connection is not valid, or when multiple adjustments are specified for the same band.</exception>
-        public async Task AdjustEqualizerAsync(params LavalinkBandAdjustment[] bands)
+        public Task AdjustEqualizerAsync(params LavalinkBandAdjustment[] bands)
         {
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
 
             if (bands?.Any() != true)
-                return;
+                return this.ResetEqualizerAsync();
 
             if (bands.Distinct(new LavalinkBandAdjustmentComparer()).Count() != bands.Count())
                 throw new InvalidOperationException("You cannot specify multiple modifiers for the same band.");
-            await this.Node.Rest.InternalUpdatePlayerAsync(this.GuildId, this.Node.SessionId, new LavalinkPlayerUpdatePayload
+            return this.Node.Rest.InternalUpdatePlayerAsync(this.GuildId, this.Node.SessionId, new LavalinkPlayerUpdatePayload
             {
                 Filters = LavalinkFilters.FromFilters(this.Filters, bands)
             });
@@ -381,12 +378,12 @@ namespace DSharpPlus.Lavalink
         /// Resets the equalizer to default values.
         /// </summary>
         /// <exception cref="InvalidOperationException">Thrown when connection is not valid.</exception>
-        public async Task ResetEqualizerAsync()
+        public Task ResetEqualizerAsync()
         {
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
 
-            await this.Node.Rest.InternalUpdatePlayerAsync(this.GuildId, this.Node.SessionId, new LavalinkPlayerUpdatePayload
+            return this.Node.Rest.InternalUpdatePlayerAsync(this.GuildId, this.Node.SessionId, new LavalinkPlayerUpdatePayload
             {
                 Filters = new LavalinkFilters
                 {
@@ -401,7 +398,7 @@ namespace DSharpPlus.Lavalink
         /// <param name="filter">Filter to apply.</param>
         /// <exception cref="InvalidOperationException">Thrown when connection is not valid.</exception>
         /// <exception cref="ArgumentNullException">Thrown when filter is null.</exception>
-        public async Task AddFilterAsync(ILavalinkFilter filter)
+        public Task AddFilterAsync(ILavalinkFilter filter)
         {
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
@@ -409,9 +406,13 @@ namespace DSharpPlus.Lavalink
             if (filter == null)
                 throw new ArgumentNullException(nameof(filter));
 
-            this.Filters.Add(filter);
+            if (this.Filters.Any(x => x.GetType() == filter.GetType()))
+            {
+                this.Filters.Remove(this.Filters.First(x => x.GetType() == filter.GetType()));
+                this.Filters.Add(filter);
+            }
 
-            await this.Node.Rest.InternalUpdatePlayerAsync(this.GuildId, this.Node.SessionId, new LavalinkPlayerUpdatePayload
+            return this.Node.Rest.InternalUpdatePlayerAsync(this.GuildId, this.Node.SessionId, new LavalinkPlayerUpdatePayload
             {
                 Filters = LavalinkFilters.FromFilters(this.Filters)
             });
@@ -421,14 +422,14 @@ namespace DSharpPlus.Lavalink
         /// Clears all filters from the player.
         /// </summary>
         /// <exception cref="InvalidOperationException">Thrown when connection is not valid.</exception>
-        public async Task ClearFiltersAsync()
+        public Task ClearFiltersAsync()
         {
             if (!this.IsConnected)
                 throw new InvalidOperationException("This connection is not valid.");
 
             this.Filters.Clear();
 
-            await this.Node.Rest.InternalUpdatePlayerAsync(this.GuildId, this.Node.SessionId, new LavalinkPlayerUpdatePayload
+            return this.Node.Rest.InternalUpdatePlayerAsync(this.GuildId, this.Node.SessionId, new LavalinkPlayerUpdatePayload
             {
                 Filters = LavalinkFilters.DefaultValues(),
             });
@@ -439,12 +440,12 @@ namespace DSharpPlus.Lavalink
         /// </summary>
         /// <param name="volume">Volume to set. Needs to be greater or equal to 0, and less than or equal to 5. 1 means 100% and is the default value.</param>
         /// <exception cref="ArgumentOutOfRangeException">Thrown when volume is less than 0 or greater than 5.</exception>
-        public async Task SetVolumeFilterAsync(float volume = 1f)
+        public Task SetVolumeFilterAsync(float volume = 1f)
         {
             if (volume < 0 || volume > 5)
                 throw new ArgumentOutOfRangeException(nameof(volume), "Volume needs to range from 0 to 5.");
 
-            await this.Node.Rest.InternalUpdatePlayerAsync(this.GuildId, this.Node.SessionId, new LavalinkPlayerUpdatePayload
+            return this.Node.Rest.InternalUpdatePlayerAsync(this.GuildId, this.Node.SessionId, new LavalinkPlayerUpdatePayload
             {
                 Filters = new LavalinkFilters
                 {
@@ -455,10 +456,7 @@ namespace DSharpPlus.Lavalink
 
 
 
-        internal Task InternalUpdatePlayerStateAsync(LavalinkPlayerState newState)
-        {
-            return this._playerUpdated.InvokeAsync(this, new PlayerUpdateEventArgs(this, newState.Time, newState.Position, newState.Connected, newState.Ping));
-        }
+        internal Task InternalUpdatePlayerStateAsync(LavalinkPlayerState newState) => this._playerUpdated.InvokeAsync(this, new PlayerUpdateEventArgs(this, newState.Time, newState.Position, newState.Connected, newState.Ping));
 
         internal Task InternalPlaybackStartedAsync(string track)
         {
@@ -492,7 +490,5 @@ namespace DSharpPlus.Lavalink
             => this._webSocketClosed.InvokeAsync(this, e);
 
         internal event ChannelDisconnectedEventHandler ChannelDisconnected;
-
-
     }
 }

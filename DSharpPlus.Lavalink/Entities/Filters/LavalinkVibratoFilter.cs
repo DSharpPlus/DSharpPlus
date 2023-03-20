@@ -35,6 +35,7 @@ namespace DSharpPlus.Lavalink.Entities.Filters
         /// </summary>
         [JsonProperty("depth")]
         public float? Depth { get; set; }
+
         /// <summary>
         /// The vibrato frequency (0 to 14.0 where 0.0 is no effect and 14.0 is full effect)
         /// </summary>
