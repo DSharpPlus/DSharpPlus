@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#pragma warning disable CS0618
+//#pragma warning disable CS0618
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -36,6 +36,7 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.EventHandling;
+using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.EventArgs;
 using DSharpPlus.VoiceNext;
@@ -142,7 +143,6 @@ namespace DSharpPlus.Test
             var icfg = new InteractivityConfiguration()
             {
                 Timeout = TimeSpan.FromSeconds(10),
-                AckPaginationButtons = true,
                 ResponseBehavior = InteractionResponseBehavior.Respond,
                 PaginationBehaviour = PaginationBehaviour.Ignore,
                 ResponseMessage = "Sorry, but this wasn't a valid option, or does not belong to you!",
@@ -155,6 +155,8 @@ namespace DSharpPlus.Test
                     SkipRight = new DiscordButtonComponent(ButtonStyle.Primary, "skipr", null, false, new DiscordComponentEmoji(862259654403031050))
                 }
             };
+
+            this.Discord.UseInteractivity(icfg);
 
             this.SlashCommandService = this.Discord.UseSlashCommands();
             this.SlashCommandService.SlashCommandErrored += this.SlashCommandService_CommandErrored;
