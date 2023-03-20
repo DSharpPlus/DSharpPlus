@@ -207,7 +207,7 @@ namespace DSharpPlus.SlashCommands
                                 //Check if the ReturnType can be safely casted to a Task later on execution
                                 if (!typeof(Task).IsAssignableFrom(submethod.ReturnType))
                                     throw new InvalidOperationException("The method has to return a Task or Task<> value");
-                                
+
                                 var options = await this.ParseParameters(parameters, guildId);
 
                                 var nameLocalizations = this.GetNameLocalizations(submethod);
@@ -1120,7 +1120,7 @@ namespace DSharpPlus.SlashCommands
                 if (provider == null) return;
 
                 var providerMethod = provider.GetMethod(nameof(IAutocompleteProvider.Provider));
-                var providerInstance = Activator.CreateInstance(provider);
+                var providerInstance = ActivatorUtilities.CreateInstance(this._configuration.Services, provider);
 
                 var choices = await (Task<IEnumerable<DiscordAutoCompleteChoice>>) providerMethod.Invoke(providerInstance, new[] { context });
                 await interaction.CreateResponseAsync(InteractionResponseType.AutoCompleteResult, new DiscordInteractionResponseBuilder().AddAutoCompleteChoices(choices));
