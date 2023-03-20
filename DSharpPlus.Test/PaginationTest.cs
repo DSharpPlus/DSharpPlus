@@ -23,8 +23,6 @@
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
-using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity.Extensions;
 
 namespace DSharpPlus.Test
@@ -40,15 +38,5 @@ namespace DSharpPlus.Test
         [Command("paginate")]
         public async Task PaginateAsync(CommandContext ctx)
             => await ctx.Channel.SendPaginatedMessageAsync(ctx.User, ctx.Client.GetInteractivity().GeneratePagesInEmbed(Lorem));
-
-        private Task Handle(DiscordClient sender, ComponentInteractionCreateEventArgs e)
-        {
-            if (e.Id != "a")
-                return Task.CompletedTask;
-            var pages = sender.GetInteractivity().GeneratePagesInContent(Lorem);
-            _ = sender.GetInteractivity().SendPaginatedResponseAsync(e.Interaction, true, e.User, pages);
-            sender.ComponentInteractionCreated -= this.Handle;
-            return Task.CompletedTask;
-        }
     }
 }
