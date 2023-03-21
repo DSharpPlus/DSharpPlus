@@ -29,7 +29,7 @@ DSharpPlus is built by [Naamloos][7], [Emzi0767][8], [Axiom][9], [afroraydude][1
 [2]:  https://discordapp.com/developers/docs/intro "Discord API documentation"
 [3]:  https://github.com/suicvne/DiscordSharp "DiscordSharp GitHub repository"
 [4]:  xref:articles.preamble
-[5]:  /api/
+[5]:  xref:apidocs
 [6]:  https://github.com/DSharpPlus/DSharpPlus/blob/master/LICENSE
 [7]:  https://github.com/Naamloos
 [8]:  https://github.com/Emzi0767

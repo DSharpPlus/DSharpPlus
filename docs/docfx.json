@@ -79,7 +79,7 @@
         "template": [
             "default",
             "modern",
-            "memberpage"
+	    "memberpage"
         ],
         "postProcessors": [
             "ExtractSearchIndex"
