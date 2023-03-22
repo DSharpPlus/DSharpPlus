@@ -4,6 +4,7 @@ title: Interactivity Introduction
 ---
 
 # Introduction to Interactivity
+
 Interactivity will enable you to write commands which the user can interact with through reactions and messages.
 The goal of this article is to introduce you to the general flow of this extension.
 
@@ -12,6 +13,7 @@ Make sure to install the `DSharpPlus.Interactivity` package from NuGet before co
 ![Interactivity NuGet][0]
 
 ## Enabling Interactivity
+
 Interactivity can be registered using the
 @DSharpPlus.Interactivity.Extensions.ClientExtensions.UseInteractivity(DSharpPlus.DiscordClient,DSharpPlus.Interactivity.InteractivityConfiguration)
 extension method. Optionally, you can also provide an instance of @DSharpPlus.Interactivity.InteractivityConfiguration
@@ -28,7 +30,8 @@ discord.UseInteractivity(new InteractivityConfiguration()
 ```
 
 ## Using Interactivity
-There are two ways available to use interactivity: 
+
+There are two ways available to use interactivity:
 
 * Extension methods available for @DSharpPlus.Entities.DiscordChannel and @DSharpPlus.Entities.DiscordMessage.
 * [Instance methods][1] available from @DSharpPlus.Interactivity.InteractivityExtension.
@@ -42,7 +45,7 @@ This method displays a collection of *'pages'* which are selected one-at-a-time 
 Each button click will move the page view in one direction or the other until the timeout is reached.
 
 You'll need to create a collection of pages before you can invoke this method. This can be done easily using the
-@DSharpPlus.Interactivity.InteractivityExtension.GeneratePagesInEmbed* and
+@DSharpPlus.Interactivity.InteractivityExtension.GeneratePagesInEmbed*and
 @DSharpPlus.Interactivity.InteractivityExtension.GeneratePagesInContent* instance methods from
 @DSharpPlus.Interactivity.InteractivityExtension.
 Alternatively, for pre-generated content, you can create and add individual instances of @DSharpPlus.Interactivity.Page
@@ -50,6 +53,7 @@ to a collection.
 
 This example will use the @DSharpPlus.Interactivity.InteractivityExtension.GeneratePagesInEmbed* method to generate the
 pages.
+
 ```cs
 public async Task PaginationCommand(CommandContext ctx)
 {
@@ -69,6 +73,7 @@ Next we'll look at the @DSharpPlus.Interactivity.Extensions.MessageExtensions.Wa
 was used.
 
 An overload of this method also enables you to wait for a *specific* reaction, as shown in the example below.
+
 ```cs
 public async Task ReactionCommand(CommandContext ctx, DiscordMember member)
 {
@@ -86,6 +91,7 @@ public async Task ReactionCommand(CommandContext ctx, DiscordMember member)
 Another reaction extension method for @DSharpPlus.Entities.DiscordMessage is
 @DSharpPlus.Interactivity.InteractivityExtension.CollectReactionsAsync* As the name implies, this method collects all
 reactions on a message until the timeout is reached.
+
 ```cs
 public async Task CollectionCommand(CommandContext ctx)
 {
@@ -109,6 +115,7 @@ extension method for @DSharpPlus.Entities.DiscordMessage.
 
 This method will return the next message sent from the author of the original message. Our example here will use its
 alternate overload which accepts an additional predicate.
+
 ```cs
 public async Task ActionCommand(CommandContext ctx)
 {

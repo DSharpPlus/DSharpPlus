@@ -6,6 +6,7 @@ title: Creating a Bot Account
 # Creating a Bot Account
 
 ## Create an Application
+
 Before you're able to create a [bot account][0] to interact with the Discord API, you'll need to create a new OAuth2
 application. Go to the [Discord Developer Portal][1] and click `New Application` at the top right of the page.
 
@@ -31,6 +32,7 @@ will do. As with the name of your application, the application icon and descript
 adding your bot.
 
 ## Add a Bot Account
+
 Now that you have an application created, you'll be able to add a brand new bot account to it.
 
 Head on over to the bot page of your application by clicking on `Bot` in the left panel. From there, click on the
@@ -43,7 +45,9 @@ Then confirm the creation of the bot account.
 ![Creation Confirmation][6]
 
 # Using Your Bot Account
+
 ## Invite Your Bot
+
 Now that you have a bot account, you'll probably want to invite it to a server!
 
 A bot account joins a server through a special invite link that'll take users through the OAuth2 flow; you'll probably
@@ -68,6 +72,7 @@ The invite link in the *scopes* panel will update each time you change the permi
 any changes!
 
 ## Get Bot Token
+
 Instead of logging in to Discord with a username and password, bot accounts use a long string called a *token* to
 authenticate. You'll want to retrieve the token for your bot account so you can use it with DSharpPlus.
 
@@ -86,7 +91,8 @@ Go ahead and copy your bot token and save it somewhere. You'll be using it soon!
 > invalidate your old token and get a brand new token.
 
 ## Write Some Code
-You've got a bot account set up and a token ready for use. Sounds like it's time for you to [write your first bot][11]! 
+
+You've got a bot account set up and a token ready for use. Sounds like it's time for you to [write your first bot][11]!
 
 <!-- LINKS -->
 [0]:  https://discord.com/developers/docs/topics/oauth2#bots

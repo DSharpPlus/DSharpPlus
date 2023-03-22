@@ -7,6 +7,7 @@ title: CommandsNext Introduction
 > This article assumes you've recently read the article on *[writing your first bot][0]*.
 
 # Introduction to CommandsNext
+
 This article will introduce you to some basic concepts of our native command framework: *CommandsNext*. Be sure to
 install the `DSharpPlus.CommandsNext` package from NuGet before continuing.
 
@@ -15,6 +16,7 @@ install the `DSharpPlus.CommandsNext` package from NuGet before continuing.
 ## Writing a Basic Command
 
 ### Create a Command Module
+
 A command module is simply a class which acts as a container for your command methods. Instead of registering individual
 commands, you'd register a single command module which contains multiple commands. There's no limit to the amount of
 modules you can have, and no limit to the amount of commands each module can contain. For example: you could have a
@@ -27,6 +29,7 @@ a new folder named `Commands` which contains a new class named `MyFirstModule`.
 ![Solution Explorer][2]
 
 Give this new class `public` access and have it inherit from `BaseCommandModule`.
+
 ```cs
 public class MyFirstModule : BaseCommandModule
 {
@@ -35,8 +38,10 @@ public class MyFirstModule : BaseCommandModule
 ```
 
 ### Create a Command Method
+
 Within our new module, create a method named `GreetCommand` marked as `async` with a `Task` return type. The first
 parameter of your method *must* be of type @DSharpPlus.CommandsNext.CommandContext, as required by CommandsNext.
+
 ```cs
 public async Task GreetCommand(CommandContext ctx)
 {
@@ -45,6 +50,7 @@ public async Task GreetCommand(CommandContext ctx)
 ```
 
 In the body of our new method, we'll use @DSharpPlus.CommandsNext.CommandContext.RespondAsync* to send a simple message.
+
 ```cs
 await ctx.RespondAsync("Greetings! Thank you for executing me!");
 ```
@@ -53,6 +59,7 @@ Finally, mark your command method with the @DSharpPlus.CommandsNext.Attributes.C
 know to treat our method as a command method. This attribute takes a single parameter: the name of the command.
 
 We'll name our command *greet* to match the name of the method.
+
 ```cs
 [Command("greet")]
 public async Task GreetCommand(CommandContext ctx)
@@ -62,6 +69,7 @@ public async Task GreetCommand(CommandContext ctx)
 ```
 
 Your command module should now resemble this:
+
 ```cs
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
@@ -78,8 +86,10 @@ public class MyFirstModule : BaseCommandModule
 ```
 
 ### Cleanup and Configuration
+
 Before we can run our new command, we'll need modify our main method. Start by removing the event handler we created
 [previously][3].
+
 ```cs
 var discord = new DiscordClient();
 
@@ -92,10 +102,11 @@ discord.MessageCreated += async (s, e) =>               // REMOVE
 await discord.ConnectAsync();
 ```
 
-Next, call the @DSharpPlus.CommandsNext.ExtensionMethods.UseCommandsNext* extension method on your
+Next, call the @DSharpPlus.CommandsNext.ExtensionMethods.UseCommandsNext*extension method on your
 @DSharpPlus.DiscordClient instance and pass it a new @DSharpPlus.CommandsNext.CommandsNextConfiguration instance. Assign
-the resulting @DSharpPlus.CommandsNext.CommandsNextExtension instance to a new variable named *commands*. This important
+the resulting @DSharpPlus.CommandsNext.CommandsNextExtension instance to a new variable named*commands*. This important
 step will enable CommandsNext for your Discord client.
+
 ```cs
 var discord = new DiscordClient();
 var commands = discord.UseCommandsNext(new CommandsNextConfiguration());
@@ -104,6 +115,7 @@ var commands = discord.UseCommandsNext(new CommandsNextConfiguration());
 Create an object initializer for @DSharpPlus.CommandsNext.CommandsNextConfiguration and assign the
 @DSharpPlus.CommandsNext.CommandsNextConfiguration.StringPrefixes property a new `string` array containing your desired
 prefixes. Our example below will only define a single prefix: `!`.
+
 ```cs
 new CommandsNextConfiguration()
 {
@@ -113,6 +125,7 @@ new CommandsNextConfiguration()
 
 Now we'll register our command module. Call the @DSharpPlus.CommandsNext.CommandsNextExtension.RegisterCommands* method
 on our @DSharpPlus.CommandsNext.CommandsNextExtension instance and provide it with your command module.
+
 ```cs
 var discord = new DiscordClient();
 var commands = discord.UseCommandsNext();
@@ -123,11 +136,13 @@ await discord.ConnectAsync();
 ```
 
 Alternatively, you can pass in your assembly to register commands from all modules in your program.
+
 ```cs
 commands.RegisterCommands(Assembly.GetExecutingAssembly());
 ```
 
 Your main method should look similar to the following:
+
 ```cs
 static async Task Main(string[] args)
 {
@@ -145,6 +160,7 @@ static async Task Main(string[] args)
 ```
 
 ### Running Your Command
+
 It's now the moment of truth; all your blood, sweat, and tears have lead to this moment. Hit `F5` on your keyboard to
 compile and run your bot, then execute your command in any channel that your bot account has access to.
 
@@ -153,7 +169,9 @@ compile and run your bot, then execute your command in any channel that your bot
 [That was easy][5].
 
 ## Taking User Input
+
 ### Command Arguments
+
 Now that we have a basic command down, let's spice it up a bit by defining *arguments* to accept user input.
 
 Defining an argument is simple; just add additional parameters to your signature of your command method. CommandsNext
@@ -161,6 +179,7 @@ will automatically parse user input and populate the parameters of your command 
 demonstrate, we'll modify our *greet* command to greet a user with a given name.
 
 Head back to `MyFirstModule` and add a parameter of type `string` to the `GreetCommand` method.
+
 ```cs
 [Command("greet")]
 public async Task GreetCommand(CommandContext ctx, string name)
@@ -169,6 +188,7 @@ public async Task GreetCommand(CommandContext ctx, string name)
 CommandsNext will now interpret this as a command named *greet* that takes one argument.
 
 Next, replace our original response message with an [interpolated string][6] which uses our new parameter.
+
 ```cs
 public async Task GreetCommand(CommandContext ctx, string name)
 {
@@ -192,6 +212,7 @@ finding a valid overload to execute.
 
 The simplest way to get around this would be to wrap your input with double quotes. CommandsNext will parse this as one
 argument, allowing your command to be executed.
+
 ```
 !greet "Luke Smith"
 ```
@@ -199,16 +220,19 @@ argument, allowing your command to be executed.
 If you would prefer not to use quotes, you can use the @DSharpPlus.CommandsNext.Attributes.RemainingTextAttribute
 attribute on your parameter. This attribute will instruct CommandsNext to parse all remaining arguments into that
 parameter.
+
 ```cs
 public async Task GreetCommand(CommandContext ctx, [RemainingText] string name)
 ```
 
 Alternatively, you can use the `params` keyword to have all remaining arguments parsed into an array.
+
 ```cs
 public async Task GreetCommand(CommandContext ctx, params string[] names)
 ```
 
 A more obvious solution is to add additional parameters to the method signature of your command method.
+
 ```cs
 public async Task GreetCommand(CommandContext ctx, string firstName, string lastName)
 ```
@@ -216,6 +240,7 @@ public async Task GreetCommand(CommandContext ctx, string firstName, string last
 Each of these has their own caveats; it'll be up to you to choose the best solution for your commands.
 
 ### Argument Converters
+
 CommandsNext can convert arguments, which are natively `string`, to the type specified by a command method parameter.
 This functionality is powered by *argument converters*, and it'll help to eliminate the boilerplate code needed to parse
 and convert `string` arguments.
@@ -237,6 +262,7 @@ Let's do a quick demonstration of the built-in converters.
 
 Create a new command method above our `GreetCommand` method named `RandomCommand` and have it take two integer
 arguments. As the method name suggests, this command will be named *random*.
+
 ```cs
 [Command("random")]
 public async Task RandomCommand(CommandContext ctx, int min, int max)
@@ -246,11 +272,13 @@ public async Task RandomCommand(CommandContext ctx, int min, int max)
 ```
 
 Make a variable with a new instance of `Random`.
+
 ```cs
 var random = new Random();
 ```
 
 Finally, we'll respond with a random number within the range provided by the user.
+
 ```cs
 await ctx.RespondAsync($"Your number is: {random.Next(min, max)}");
 ```
@@ -264,12 +292,14 @@ removing the need to manually parse and convert the arguments yourself.
 
 We'll do one more to drive the point home. Head back to our old `GreetCommand` method, remove our `name` parameter, and
 replace it with a new parameter of type @DSharpPlus.Entities.DiscordMember named `member`.
+
 ```cs
 public async Task GreetCommand(CommandContext ctx, DiscordMember member)
 ```
 
 Then modify the response to mention the provided member with the @DSharpPlus.Entities.DiscordUser.Mention property on
 @DSharpPlus.Entities.DiscordMember.
+
 ```cs
 public async Task GreetCommand(CommandContext ctx, DiscordMember member)
 {
@@ -289,7 +319,9 @@ The argument converter for @DSharpPlus.Entities.DiscordMember is able to parse m
 IDs then look for a matching member within the guild the command was executed from. Ain't that neat?
 
 ## Command Overloads
+
 Command method overloading allows you to create multiple argument configurations for a single command.
+
 ```cs
 [Command("foo")]
 public Task FooCommand(CommandContext ctx, string bar, int baz) { }
@@ -301,6 +333,7 @@ public Task FooCommand(CommandContext ctx, DiscordUser bar) { }
 Executing `!foo green 5` will run the first method, and `!foo @Emzi0767` will run the second method.
 
 Additionally, all check attributes are shared between overloads.
+
 ```cs
 [Command("foo"), Aliases("bar", "baz")]
 [RequireGuild, RequireBotPermissions(Permissions.AttachFiles)]
@@ -313,6 +346,7 @@ public Task FooCommand(CommandContext ctx, DiscordChannel bar, TimeSpan baz) { }
 The additional attributes and checks applied to the first method will also be applied to the second method.
 
 ## Further Reading
+
 Now that you've gotten an understanding of CommandsNext, it'd be a good idea check out the following:
 
 * [Command Attributes][14]

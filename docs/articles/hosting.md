@@ -6,6 +6,7 @@ title: Hosting Solutions
 ## 24/7 Hosting Solutions
 
 ### Free hosting
+
 If you're looking for free hosts, you've likely considered using [Heroku][0] or [Glitch][1]. We advise against using
 these platforms as they are designed to host web services, not Discord bots, and instances from either of these
 companies will shut down if there isn't enough internet traffic. Save yourself the headache and don't bother.
@@ -15,14 +16,16 @@ have some sort of resource quota, and may charge money on exceeding these quotas
 fine-print, and understand that these services may come with strings attached. You can find examples below.
 
 ### Self Hosting
+
 If you have access to an unused machine, have the technical know-how, and you also have a solid internet connection, you
 might consider hosting your bot on your own. Even if you don't have a spare PC on hand, parts to build one are fairly
 cheap in most regions. You could think of it as a one time investment with no monthly server fees. Any modern hardware
-will work just fine, new or used. 
+will work just fine, new or used.
 
 Depending on how complex your bot is, you may even consider purchasing a Raspberry Pi ($35).
 
 ### Third-Party Hosting
+
 The simplest, and probably most hassle-free (and maybe cheapest in the long run for dedicated machines) option is to
 find a provider that will lend you their machine or a virtual host so you can run your bot in there.
 
@@ -39,6 +42,7 @@ There are several well-known, trusted, and cheap providers:
 * [Contabo][7] - Based in Germany, US locations available; extremely good value for the price. Starting from 4.99€/mo.
 
 Things to keep in mind when looking for a hosting provider:
+
 * The majority of cheap VPS hosts will be running some variant of Linux, and not Windows.
 * The primary Discord API server is located in East US.
   * If latency matters for you application, choose a provider who is closer to this location.
@@ -54,12 +58,12 @@ In addition to these, there are several hosting providers who offer free tiers, 
 * [**Google Cloud Platform**][10]: $300 in-service credit, to be used within year of registration, and several
   always-free resources available, albeit with heavy restrictions. GCP is based in the US, and offers very scalable
   products. Like the above, it's not the cheapest of offerings.
-* [**Oracle Cloud**][11] - $300 credit to be used within a month, and an always-free tier, which provides up to 4 ARM 
+* [**Oracle Cloud**][11] - $300 credit to be used within a month, and an always-free tier, which provides up to 4 ARM
   cores, 24GB of ram, and 200GB of storage in compute resources, as well as some small x64 instances. There is no
   monthly time limit. This service does require a valid credit card and offers no SLA.
 
-
 ### Hosting on Cloud Native Services
+
 With most bots, unless if you host many of them, they dont require a whole machine to run them, just a slice of a
 machine. This is where Docker and other cloud native hosting comes into play. There are many different options available
 to you and you will need to chose which one will suit you best. Here are a few services that offer Docker or other cloud
@@ -71,6 +75,7 @@ native solutions that are cheaper than running a whole VM.
 * [**Jelastic**][14]: Allows for hosting Docker images.
 
 ### Making your publishing life easier
+
 Now that we have covered where you can possibly host your application, now lets cover how to make your life easier
 publishing it. Many different source control solutions out there are free and also offer some type of CI/CD integration
 (paid and free). Below are some of the solutions that we recommend:

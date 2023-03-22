@@ -4,11 +4,13 @@ title: Lavalink Setup
 ---
 
 # Lavalink - the newer, better way to do music
+
 [Lavalink][0] is a standalone program, written in Java. It's a lightweight solution for playing music from sources such
 as YouTube or Soundcloud. Unlike raw voice solutions, such as VoiceNext, Lavalink can handle hundreds of concurrent
 streams, and supports sharding.
 
 ## Configuring Java
+
 In order to run Lavalink, you must have Java 13 or greater installed. Certain Java versions may not be functional with
 Lavalink, so it is best to check the [requirements][1] before downloading. The latest releases can be found [here][2].
 
@@ -17,11 +19,13 @@ command run from the latest runtime. You can verify that you have the right vers
 command prompt or terminal.
 
 ## Downloading Lavalink  
+
 Next, head over to the [releases][3] tab on the Lavalink GitHub page and download the Jar file from the latest version.
 Alternatively, stable builds with the latest changes can be found on their [CI Server][4].
 
 The program will not be ready to run yet, as you will need to create a configuration file first. To do so, create a new
 YAML file called `application.yml`, and use the [example file][5], or copy this text:
+
 ```yaml
 server: # REST and WS server
   port: 2333
@@ -68,12 +72,13 @@ logging:
     root: INFO
     lavalink: INFO
 ```
+
 YAML is whitespace-sensitive. Make sure you are using a text editor which properly handles this.
 
 There are a few values to keep in mind.
 
 `host` is the IP of the Lavalink host. This will be `0.0.0.0` by default, but it should be changed as it is a security
-risk. For this guide, set this to `127.0.0.1` as we will be running Lavalink locally. 
+risk. For this guide, set this to `127.0.0.1` as we will be running Lavalink locally.
 
 `port` is the allowed port for the Lavalink connection. `2333` is the default port, and is what will be used for this
 guide.
@@ -86,10 +91,12 @@ When you are finished configuring this, save the file in the same directory as y
 Keep note of your `port`, `address`, and `password` values, as you will need them later for connecting.
 
 ## Starting Lavalink
+
 Open your command prompt or terminal and navigate to the directory containing Lavalink. Once there, type
 `java -jar Lavalink.jar`. You should start seeing log output from Lavalink.
 
-If everything is configured properly, you should see this appear somewhere in the log output without any errors: 
+If everything is configured properly, you should see this appear somewhere in the log output without any errors:
+
 ```
 [           main] lavalink.server.Launcher                 : Started Launcher in 5.769 seconds (JVM running for 6.758)
 ```
