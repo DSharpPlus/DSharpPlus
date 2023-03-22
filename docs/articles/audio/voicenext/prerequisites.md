@@ -4,10 +4,12 @@ title: VoiceNext Prerequisites
 ---
 
 ## Required Libraries
+
 VoiceNext depends on the [libsodium][0] and [Opus][1] libraries to decrypt and process audio packets. Both *must* be
 available on your development and host machines otherwise VoiceNext will *not* work.
 
 ### Windows
+
 When installing VoiceNext though NuGet, an additional package containing the native Windows binaries will automatically
 be included with **no additional steps required**.
 
@@ -15,16 +17,20 @@ However, if you are using DSharpPlus from source or without a NuGet package mana
 binaries and place them at the root of your working directory where your application is located.
 
 ### MacOS
+
 Native libraries for Apple's macOS can be installed using the [Homebrew][3] package manager:
-```console 
-$ brew install opus libsodium
+
+```console
+brew install opus libsodium
 ```
 
 ### Linux
 
-#### Debian and Derivatives 
+#### Debian and Derivatives
+
 Opus package naming is consistent across Debian, Ubuntu, and most derivatives.
-```bash 
+
+```bash
 sudo apt-get install libopus0 libopus-dev
 ```
 

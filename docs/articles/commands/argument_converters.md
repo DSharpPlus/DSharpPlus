@@ -4,13 +4,15 @@ title: Argument Converter
 ---
 
 ## Custom Argument Converter
+
 Writing your own argument converter will enable you to convert custom types and replace the functionality of existing
 converters. Like many things in DSharpPlus, doing this is straightforward and simple.
 
-First, create a new class which implements @DSharpPlus.CommandsNext.Converters.IArgumentConverter`1 and its method 
+First, create a new class which implements @DSharpPlus.CommandsNext.Converters.IArgumentConverter`1 and its method
 @DSharpPlus.CommandsNext.Converters.IArgumentConverter`1.ConvertAsync(System.String,DSharpPlus.CommandsNext.CommandContext).
-Our example will be a boolean converter, so we'll also pass `bool` as the type parameter for 
+Our example will be a boolean converter, so we'll also pass `bool` as the type parameter for
 @DSharpPlus.CommandsNext.Converters.IArgumentConverter`1.
+
 ```cs
 public class CustomArgumentConverter : IArgumentConverter<bool>
 {
@@ -36,11 +38,12 @@ public class CustomArgumentConverter : IArgumentConverter<bool>
             default:
                 return Task.FromResult(Optional.FromNoValue<bool>());
         } 
-    }	
+    } 
 }
 ```
 
 Then register the argument converter with CommandContext.
+
 ```cs
 var discord = new DiscordClient();
 var commands = discord.UseCommandsNext();
@@ -49,6 +52,7 @@ commands.RegisterConverter(new CustomArgumentConverter());
 ```
 
 Once the argument converter is written and registered, we'll be able to use it:
+
 ```cs
 [Command("boolean")]
 public async Task BooleanCommand(CommandContext ctx, bool boolean)

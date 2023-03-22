@@ -4,6 +4,7 @@ title: Nightly Builds
 ---
 
 # I like living on the edge - give me the freshest builds
+
 We offer nightly builds for DSharpPlus. They contain bugfixes and new features before the stable releases, however they
 are not guaranteed to be stable, or work at all.
 

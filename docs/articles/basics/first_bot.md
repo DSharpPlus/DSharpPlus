@@ -4,12 +4,15 @@ title: Your First Bot
 ---
 
 # Your First Bot
+>
 >[!NOTE]
 > This article assumes the following:
+>
 > * You have [created a bot account][0] and have a bot token.
 > * You have [Visual Studio][1] installed on your computer.
 
 ## Create a Project
+
 Open up Visual Studio and click on `Create a new project` towards the bottom right.
 
 ![Visual Studio Start Screen][2]
@@ -30,6 +33,7 @@ Voilà! Your project has been created!
 ![Visual Studio IDE][5]
 
 ## Install Package
+
 Now that you have a project created, you'll want to get DSharpPlus installed.
 Locate the *solution explorer* on the right side, then right click on `Dependencies` and select `Manage NuGet Packages`
 from the context menu.
@@ -64,6 +68,7 @@ then click the `Install` button to the right (after verifing that you will be in
 You're now ready to write some code!
 
 ## First Lines of Code
+
 DSharpPlus implements the [Task-based Asynchronous Pattern][11]. Because of this, the majority of DSharpPlus methods must be
 executed in a method marked as `async` so they can be properly `await`ed.
 
@@ -97,6 +102,7 @@ and populate the @DSharpPlus.DiscordConfiguration.Token property with your bot t
 @DSharpPlus.DiscordConfiguration.TokenType property to @DSharpPlus.TokenType.Bot. Next add the
 @DSharpPlus.DiscordClient.Intents property and populate it with @DSharpPlus.DiscordIntents.AllUnprivileged.
 These Intents are required for certain events to be fired. Please visit this [article][14] for more information.
+
 ```cs
 var discord = new DiscordClient(new DiscordConfiguration()
 {
@@ -115,6 +121,7 @@ var discord = new DiscordClient(new DiscordConfiguration()
 
 Follow that up with @DSharpPlus.DiscordClient.ConnectAsync* to connect and login to Discord, and `await Task.Delay(-1);`
 at the end of the method to prevent the console window from closing prematurely.
+
 ```cs
 var discord = new DiscordClient();
 
@@ -131,11 +138,12 @@ single log message from DSharpPlus. Woo hoo!
 ![Program Console][15]
 
 ## Spicing Up Your Bot
+
 Right now our bot doesn't do a whole lot. Let's bring it to life by having it respond to a message!
 
 As of September 1st 2022, Discord started requiring message content intent for bots that want to read message content. This is a privileged intent!
 
-If your bot has under 100 guilds, all you have to do is flip the switch in the developer dashboard. (over at https://discord.com/developers/applications)
+If your bot has under 100 guilds, all you have to do is flip the switch in the developer dashboard. (over at <https://discord.com/developers/applications>)
 If your bot has over 100 guilds, you'll need approval from Discord's end.
 
 After enabling the intent in the developer dashboard, you have to specify your intents in you DiscordConfiguration:
@@ -153,6 +161,7 @@ Now you can start to listen to messages.
 
 Hook the @DSharpPlus.DiscordClient.MessageCreated event fired by @DSharpPlus.DiscordClient with a [lambda][18]. Mark it
 as `async` and give it two parameters: `s` and `e`.
+
 ```cs
 discord.MessageCreated += async (s, e) =>
 {
@@ -162,17 +171,19 @@ discord.MessageCreated += async (s, e) =>
 
 Then, add an `if` statement into the body of your event lambda that will check if
 @DSharpPlus.Entities.DiscordMessage.Content starts with your desired trigger word and respond with a message using
-@DSharpPlus.Entities.DiscordMessage.RespondAsync* if it does. For this example, we'll have the bot to respond with
-*pong!* for each message that starts with *ping*.
+@DSharpPlus.Entities.DiscordMessage.RespondAsync*if it does. For this example, we'll have the bot to respond with
+*pong!*for each message that starts with*ping*.
+
 ```cs
 discord.MessageCreated += async (s, e) =>
 {
     if (e.Message.Content.ToLower().StartsWith("ping"))
-		await e.Message.RespondAsync("pong!");
+  await e.Message.RespondAsync("pong!");
 };
 ```
 
 ## The Finished Product
+
 Your entire program should now look like this:
 
 ```cs
@@ -214,6 +225,7 @@ Congrats, your bot now does something!
 ![Bot Response][17]
 
 ## Further Reading
+
 Now that you have a basic bot up and running, you should take a look at the following:
 
 * [Events][18]
@@ -236,7 +248,6 @@ Now that you have a basic bot up and running, you should take a look at the foll
 [13]: ../../images/basics_first_bot_11.png
 [14]: xref:articles.beyond_basics.intents
 [15]: ../../images/basics_first_bot_12.png
-[16]: https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/operators/lambda-expressions
 [17]: ../../images/basics_first_bot_13.png
 [18]: xref:articles.beyond_basics.events
 [19]: xref:articles.commands.intro
