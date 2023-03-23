@@ -58,7 +58,7 @@ namespace DSharpPlus.EventArgs
         /// <summary>
         /// Gets the ID of voice session.
         /// </summary>
-        internal string SessionId { get; set; }
+        public string SessionId { get; set; }
 
         internal VoiceStateUpdateEventArgs() : base() { }
     }
