@@ -277,7 +277,7 @@ namespace DSharpPlus.Lavalink
                 { throw; }
                 catch (Exception ex)
                 {
-                    if(!this.Configuration.SocketAutoReconnect || this._backoff == MaximumBackoff)
+                    if (!this.Configuration.SocketAutoReconnect || this._backoff == MaximumBackoff)
                     {
                         this.Discord.Logger.LogCritical(LavalinkEvents.LavalinkConnectionError, ex, "Failed to connect to Lavalink.");
                         throw ex;
@@ -340,7 +340,7 @@ namespace DSharpPlus.Lavalink
                 }
             };
             var vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
-            await (channel.Discord as DiscordClient).WsSendAsync(vsj).ConfigureAwait(false);
+            await (channel.Discord as DiscordClient).SendRawPayloadAsync(vsj).ConfigureAwait(false);
             var vstu = await vstut.Task.ConfigureAwait(false);
             var vsru = await vsrut.Task.ConfigureAwait(false);
             await this.SendPayloadAsync(new LavalinkVoiceUpdate(vstu, vsru)).ConfigureAwait(false);

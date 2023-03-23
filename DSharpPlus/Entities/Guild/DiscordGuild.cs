@@ -1412,7 +1412,7 @@ namespace DSharpPlus.Entities
             };
 
             var payloadStr = JsonConvert.SerializeObject(payload, Formatting.None);
-            await client.WsSendAsync(payloadStr).ConfigureAwait(false);
+            await client.SendRawPayloadAsync(payloadStr).ConfigureAwait(false);
         }
 
         /// <summary>
