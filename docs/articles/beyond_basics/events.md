@@ -59,37 +59,6 @@ private Task MemberAddedHandler(DiscordClient s, GuildMemberAddEventArgs e)
 You should only register or unregister events on startup or on deterministic points in execution: do not change
 event handlers based on user input, in commands or anything related unless you have a very good reason.
 
-# Avoiding Deadlocks
-
-Despite the fact that your event handlers are executed asynchronously, they are also executed one at a time on the
-gateway thread for consistency. This means that each handler must complete its execution before others can be
-dispatched.
-
-Because of this, executing code in your event handlers that runs for an extended period of time may inadvertently create
-brief unresponsiveness or, even worse, cause a [deadlock][0]. To prevent such issues, any event handler that has the
-potential to take more than 2 seconds to execute should have its logic offloaded to a `Task.Run`.
-
-```cs
-discord.MessageCreated += (s, e) =>
-{
-    _ = Task.Run(async () =>
-    {
-        // Pretend this takes many, many seconds to execute.
-        var response = await QuerySlowWebServiceAsync(e.Message.Content);
-
-        if (response.Status == HttpStatusCode.OK)
-        {
-            await e.Guild?.BanMemberAsync((DiscordMember)e.Author);
-        }
-    });
-
-    return Task.CompletedTask;
-};
-```
-
-Doing this will allow the handler to complete its execution quicker, which will in turn allow other handlers to be
-executed and prevent the gateway thread from being blocked.
-
 # Usage of the right events
 
  We advise against the use of the `Ready` event in the `DiscordClient`, as it does not necessarily mean that the client
