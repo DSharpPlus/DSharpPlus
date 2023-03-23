@@ -61,8 +61,8 @@ namespace DSharpPlus
 
         #region Connection Semaphore
 
-        private static ConcurrentDictionary<ulong, SocketLock> SocketLocks { get; } = new ConcurrentDictionary<ulong, SocketLock>();
-        private ManualResetEventSlim SessionLock { get; } = new ManualResetEventSlim(true);
+        private static ConcurrentDictionary<ulong, SocketLock> _socketLocks { get; } = new ConcurrentDictionary<ulong, SocketLock>();
+        private ManualResetEventSlim _sessionLock { get; } = new ManualResetEventSlim(true);
 
         #endregion
 
@@ -187,7 +187,7 @@ namespace DSharpPlus
             {
                 // release session and connection
                 this.ConnectionLock.Set();
-                this.SessionLock.Set();
+                this._sessionLock.Set();
 
                 if (!this._disposed)
                     this._cancelTokenSource.Cancel();
@@ -269,8 +269,8 @@ namespace DSharpPlus
         internal async Task OnInvalidateSessionAsync(bool data)
         {
             // begin a session if one is not open already
-            if (this.SessionLock.Wait(0))
-                this.SessionLock.Reset();
+            if (this._sessionLock.Wait(0))
+                this._sessionLock.Reset();
 
             // we are sending a fresh resume/identify, so lock the socket
             var socketLock = this.GetSocketLock();
@@ -295,9 +295,9 @@ namespace DSharpPlus
         {
             this.Logger.LogTrace(LoggerEvents.WebSocketReceive, "Received HELLO (OP10)");
 
-            if (this.SessionLock.Wait(0))
+            if (this._sessionLock.Wait(0))
             {
-                this.SessionLock.Reset();
+                this._sessionLock.Reset();
                 this.GetSocketLock().UnlockAfter(TimeSpan.FromSeconds(5));
             }
             else
@@ -381,7 +381,7 @@ namespace DSharpPlus
 
             var statusstr = JsonConvert.SerializeObject(status_update);
 
-            await this.WsSendAsync(statusstr).ConfigureAwait(false);
+            await this.SendRawPayloadAsync(statusstr).ConfigureAwait(false);
 
             if (!this._presences.ContainsKey(this.CurrentUser.Id))
             {
@@ -442,7 +442,7 @@ namespace DSharpPlus
                 Data = seq
             };
             var heartbeat_str = JsonConvert.SerializeObject(heartbeat);
-            await this.WsSendAsync(heartbeat_str).ConfigureAwait(false);
+            await this.SendRawPayloadAsync(heartbeat_str).ConfigureAwait(false);
 
             this._lastHeartbeat = DateTimeOffset.Now;
 
@@ -470,7 +470,7 @@ namespace DSharpPlus
                 Data = identify
             };
             var payloadstr = JsonConvert.SerializeObject(payload);
-            await this.WsSendAsync(payloadstr).ConfigureAwait(false);
+            await this.SendRawPayloadAsync(payloadstr).ConfigureAwait(false);
 
             this.Logger.LogDebug(LoggerEvents.Intents, "Registered gateway intents ({Intents})", this.Configuration.Intents);
         }
@@ -490,8 +490,9 @@ namespace DSharpPlus
             };
             var resumestr = JsonConvert.SerializeObject(resume_payload);
 
-            await this.WsSendAsync(resumestr).ConfigureAwait(false);
+            await this.SendRawPayloadAsync(resumestr).ConfigureAwait(false);
         }
+
         internal async Task InternalUpdateGatewayAsync()
         {
             var info = await this.GetGatewayInfoAsync().ConfigureAwait(false);
@@ -499,18 +500,45 @@ namespace DSharpPlus
             this.GatewayUri = new Uri(info.Url);
         }
 
-        internal async Task WsSendAsync(string payload)
+        internal async Task SendRawPayloadAsync(string jsonPayload)
         {
-            this.Logger.LogTrace(LoggerEvents.GatewayWsTx, payload);
-            await this._webSocketClient.SendMessageAsync(payload).ConfigureAwait(false);
+            this.Logger.LogTrace(LoggerEvents.GatewayWsTx, jsonPayload);
+            await this._webSocketClient.SendMessageAsync(jsonPayload).ConfigureAwait(false);
         }
 
+#nullable enable
+        /// <summary>
+        /// Sends a raw payload to the gateway. This method is not recommended for use unless you know what you're doing.
+        /// </summary>
+        /// <param name="opCode">The opcode to send to the Discord gateway.</param>
+        /// <param name="data">The data to deserialize.</param>
+        /// <typeparam name="T">The type of data that the object belongs to.</typeparam>
+        /// <returns>A task representing the payload being sent.</returns>
+        [Obsolete("This method should not be used unless you know what you're doing. Instead, look towards the other explicitly implemented methods which come with client-side validation.")]
+        public Task SendPayloadAsync<T>(GatewayOpCode opCode, T data) => this.SendPayloadAsync(opCode, (object?)data);
+
+        /// <inheritdoc cref="SendPayloadAsync{T}(GatewayOpCode, T)"/>
+        /// <param name="data">The data to deserialize.</param>
+        /// <param name="opCode">The opcode to send to the Discord gateway.</param>
+        [Obsolete("This method should not be used unless you know what you're doing. Instead, look towards the other explicitly implemented methods which come with client-side validation.")]
+        public Task SendPayloadAsync(GatewayOpCode opCode, object? data = null)
+        {
+            var payload = new GatewayPayload
+            {
+                OpCode = opCode,
+                Data = data
+            };
+
+            var payloadString = DiscordJson.SerializeObject(payload);
+            return this.SendRawPayloadAsync(payloadString);
+        }
+#nullable disable
         #endregion
 
         #region Semaphore Methods
 
         private SocketLock GetSocketLock()
-            => SocketLocks.GetOrAdd(this.CurrentApplication.Id, appId => new SocketLock(appId, this.GatewayInfo.SessionBucket.MaxConcurrency));
+            => _socketLocks.GetOrAdd(this.CurrentApplication.Id, appId => new SocketLock(appId, this.GatewayInfo.SessionBucket.MaxConcurrency));
 
         #endregion
     }

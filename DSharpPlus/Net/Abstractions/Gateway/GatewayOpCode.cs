@@ -26,7 +26,7 @@ namespace DSharpPlus.Net.Abstractions
     /// <summary>
     /// Specifies an OP code in a gateway payload.
     /// </summary>
-    internal enum GatewayOpCode : int
+    public enum GatewayOpCode : int
     {
         /// <summary>
         /// Used for dispatching events.

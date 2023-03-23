@@ -191,7 +191,7 @@ namespace DSharpPlus.Lavalink
                 }
             };
             var vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
-            await (this.Channel.Discord as DiscordClient).WsSendAsync(vsj).ConfigureAwait(false);
+            await (this.Channel.Discord as DiscordClient).SendRawPayloadAsync(vsj).ConfigureAwait(false);
         }
 
         /// <summary>
