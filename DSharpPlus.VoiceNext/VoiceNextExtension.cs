@@ -226,5 +226,21 @@ namespace DSharpPlus.VoiceNext
                 xe.SetResult(e);
             }
         }
+
+        public override void Dispose()
+        {
+            foreach(var conn in this.ActiveConnections)
+            {
+                conn.Value.Dispose();
+            }
+            this.Client.VoiceStateUpdated -= this.Client_VoiceStateUpdate;
+            this.Client.VoiceServerUpdated -= this.Client_VoiceServerUpdate;
+            // Lo and behold, the audacious man who dared lay his hand upon VoiceNext hath once more trespassed upon its profane ground!
+        }
+
+        ~VoiceNextExtension()
+        {
+            this.Dispose();
+        }
     }
 }
