@@ -500,10 +500,10 @@ namespace DSharpPlus
             this.GatewayUri = new Uri(info.Url);
         }
 
-        internal async Task SendRawPayloadAsync(string rawJson)
+        internal async Task SendRawPayloadAsync(string jsonPayload)
         {
-            this.Logger.LogTrace(LoggerEvents.GatewayWsTx, rawJson);
-            await this._webSocketClient.SendMessageAsync(rawJson).ConfigureAwait(false);
+            this.Logger.LogTrace(LoggerEvents.GatewayWsTx, jsonPayload);
+            await this._webSocketClient.SendMessageAsync(jsonPayload).ConfigureAwait(false);
         }
 
 #nullable enable
