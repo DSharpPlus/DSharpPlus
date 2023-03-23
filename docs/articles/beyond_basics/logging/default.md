@@ -4,26 +4,32 @@ title: The Default Logger
 ---
 
 ## The Default Logger
+
 DSharpPlus ships with a default logging implementation which is **enabled automatically** with **no setup required**.
 
 ![Info Level Logging][0]
 
-This is a basic implementation that only sends log messages to the console. 
+This is a basic implementation that only sends log messages to the console.
 
 #### Minimum Logging Level
+
 You're able to adjust the verbosity of log messages via @DSharpPlus.DiscordConfiguration.
+
 ```cs
 new DiscordConfiguration()
 {
     MinimumLogLevel = LogLevel.Debug
 };
 ```
+
 The example above will display level log messages that are higher than or equal to `Debug`.
 
 ![Debug Level Logging][1]
 
 #### Timestamp Format
+
 You're also able to change the format of the log timestamp; this is also set through @DSharpPlus.DiscordConfiguration.
+
 ```cs
 new DiscordConfiguration()
 {
@@ -36,6 +42,7 @@ new DiscordConfiguration()
 For a list of all available format specifiers, check out the MSDN page for [custom date and time format strings][3].
 
 ## Log Levels
+
 Below is a table of all log levels and the kind of messages you can expect from each.
 
 Name          | Position | Description

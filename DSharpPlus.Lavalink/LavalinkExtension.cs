@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2022 DSharpPlus Contributors
+// Copyright (c) 2016-2023 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -26,10 +26,10 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DSharpPlus.AsyncEvents;
 using DSharpPlus.Entities;
 using DSharpPlus.Lavalink.EventArgs;
 using DSharpPlus.Net;
-using Emzi0767.Utilities;
 
 namespace DSharpPlus.Lavalink
 {
@@ -71,7 +71,7 @@ namespace DSharpPlus.Lavalink
 
             this.Client = client;
 
-            this._nodeDisconnected = new AsyncEvent<LavalinkNodeConnection, NodeDisconnectedEventArgs>("LAVALINK_NODE_DISCONNECTED", TimeSpan.Zero, this.Client.EventErrorHandler);
+            this._nodeDisconnected = new AsyncEvent<LavalinkNodeConnection, NodeDisconnectedEventArgs>("LAVALINK_NODE_DISCONNECTED", this.Client.EventErrorHandler);
         }
 
         /// <summary>
@@ -196,5 +196,25 @@ namespace DSharpPlus.Lavalink
 
         private Task Con_Disconnected(LavalinkNodeConnection node, NodeDisconnectedEventArgs e)
             => this._nodeDisconnected.InvokeAsync(node, e);
+
+        public override void Dispose()
+        {
+            foreach(var node in this._connectedNodes)
+            {
+                // undoubtedly there will be some GitHub comments about this. Help.
+                node.Value.StopAsync().GetAwaiter().GetResult();
+            }
+            this._connectedNodes.Clear();
+
+            // unhook events
+            _nodeDisconnected.UnregisterAll();
+
+            // Hi GC! <3 😘 clean me up uwu
+        }
+
+        ~LavalinkExtension()
+        {
+            this.Dispose();
+        }
     }
 }

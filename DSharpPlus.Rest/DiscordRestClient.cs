@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2022 DSharpPlus Contributors
+// Copyright (c) 2016-2023 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -571,12 +571,55 @@ namespace DSharpPlus
         /// <param name="qualityMode">Voice channel video quality mode.</param>
         /// <param name="position">Sorting position of the channel.</param>
         /// <param name="reason">Reason this channel was created</param>
+        /// <param name="defaultAutoArchiveDuration">Default duration for newly created forum posts in the channel.</param>
+        /// <param name="defaultReactionEmoji">Default emoji used for reacting to forum posts.</param>
+        /// <param name="availableTags">Tags available for use by forum posts in the channel.</param>
+        /// <param name="defaultSortOrder">Default sorting order for forum posts in the channel.</param>
         /// <returns></returns>
-        public Task<DiscordChannel> CreateGuildChannelAsync(ulong id, string name, ChannelType type, ulong? parent, Optional<string> topic, int? bitrate, int? userLimit, IEnumerable<DiscordOverwriteBuilder> overwrites, bool? nsfw, Optional<int?> perUserRateLimit, VideoQualityMode? qualityMode, int? position, string reason)
+        public Task<DiscordChannel> CreateGuildChannelAsync
+        (
+            ulong id,
+            string name,
+            ChannelType type,
+            ulong? parent,
+            Optional<string> topic,
+            int? bitrate,
+            int? userLimit,
+            IEnumerable<DiscordOverwriteBuilder> overwrites,
+            bool? nsfw,
+            Optional<int?> perUserRateLimit,
+            VideoQualityMode? qualityMode,
+            int? position,
+            string reason,
+            AutoArchiveDuration? defaultAutoArchiveDuration = null,
+            DefaultReaction? defaultReactionEmoji = null,
+            IEnumerable<DiscordForumTagBuilder> availableTags = null,
+            DefaultSortOrder? defaultSortOrder = null
+        )
         {
-            return type != ChannelType.Category && type != ChannelType.Text && type != ChannelType.Voice && type != ChannelType.News && type != ChannelType.Stage
-                ? throw new ArgumentException("Channel type must be text, voice, stage, or category.", nameof(type))
-                : this.ApiClient.CreateGuildChannelAsync(id, name, type, parent, topic, bitrate, userLimit, overwrites, nsfw, perUserRateLimit, qualityMode, position, reason);
+            if (type is not (ChannelType.Text or ChannelType.Voice or ChannelType.Category or ChannelType.News or ChannelType.Stage or ChannelType.GuildForum))
+                throw new ArgumentException("Channel type must be text, voice, stage, category, or a forum.", nameof(type));
+
+            return this.ApiClient.CreateGuildChannelAsync
+            (
+                id,
+                name,
+                type,
+                parent,
+                topic,
+                bitrate,
+                userLimit,
+                overwrites,
+                nsfw,
+                perUserRateLimit,
+                qualityMode,
+                position,
+                reason,
+                defaultAutoArchiveDuration,
+                defaultReactionEmoji,
+                availableTags,
+                defaultSortOrder
+            );
         }
 
         /// <summary>
@@ -596,9 +639,62 @@ namespace DSharpPlus
         /// <param name="type">New channel type.</param>
         /// <param name="permissionOverwrites">New channel permission overwrites.</param>
         /// <param name="reason">Reason why this channel was modified</param>
+        /// <param name="flags">Channel flags.</param>
+        /// <param name="defaultAutoArchiveDuration">Default duration for newly created forum posts in the channel.</param>
+        /// <param name="defaultReactionEmoji">Default emoji used for reacting to forum posts.</param>
+        /// <param name="availableTags">Tags available for use by forum posts in the channel.</param>
+        /// <param name="defaultPerUserRatelimit">Default per-user ratelimit for forum posts in the channel.</param>
+        /// <param name="defaultSortOrder">Default sorting order for forum posts in the channel.</param>
+        /// <param name="defaultForumLayout">Default layout for forum posts in the channel.</param>
         /// <returns></returns>
-        public Task ModifyChannelAsync(ulong id, string name, int? position, Optional<string> topic, bool? nsfw, Optional<ulong?> parent, int? bitrate, int? userLimit, Optional<int?> perUserRateLimit, Optional<DiscordVoiceRegion> rtcRegion, VideoQualityMode? qualityMode, Optional<ChannelType> type, IEnumerable<DiscordOverwriteBuilder> permissionOverwrites, string reason)
-            => this.ApiClient.ModifyChannelAsync(id, name, position, topic, nsfw, parent, bitrate, userLimit, perUserRateLimit, rtcRegion.IfPresent(e => e?.Id), qualityMode, type, permissionOverwrites, reason);
+        public Task ModifyChannelAsync
+        (
+            ulong id,
+            string name,
+            int? position,
+            Optional<string> topic,
+            bool? nsfw,
+            Optional<ulong?> parent,
+            int? bitrate,
+            int? userLimit,
+            Optional<int?> perUserRateLimit,
+            Optional<DiscordVoiceRegion> rtcRegion,
+            VideoQualityMode? qualityMode,
+            Optional<ChannelType> type,
+            IEnumerable<DiscordOverwriteBuilder> permissionOverwrites,
+            string reason,
+            Optional<ChannelFlags> flags,
+            IEnumerable<DiscordForumTagBuilder>? availableTags,
+            Optional<AutoArchiveDuration?> defaultAutoArchiveDuration,
+            Optional<DefaultReaction?> defaultReactionEmoji,
+            Optional<int> defaultPerUserRatelimit,
+            Optional<DefaultSortOrder?> defaultSortOrder,
+            Optional<DefaultForumLayout> defaultForumLayout
+        )
+            => this.ApiClient.ModifyChannelAsync
+            (
+                id,
+                name,
+                position,
+                topic,
+                nsfw,
+                parent,
+                bitrate,
+                userLimit,
+                perUserRateLimit,
+                rtcRegion.IfPresent(e => e?.Id),
+                qualityMode,
+                type,
+                permissionOverwrites,
+                reason,
+                flags,
+                availableTags,
+                defaultAutoArchiveDuration,
+                defaultReactionEmoji,
+                defaultPerUserRatelimit,
+                defaultSortOrder,
+                defaultForumLayout
+            );
 
         /// <summary>
         /// Modifies a channel
@@ -611,9 +707,29 @@ namespace DSharpPlus
             var mdl = new ChannelEditModel();
             action(mdl);
 
-            return this.ApiClient.ModifyChannelAsync(channelId, mdl.Name, mdl.Position, mdl.Topic, mdl.Nsfw,
-                mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.PerUserRateLimit, mdl.RtcRegion.IfPresent(e => e?.Id),
-                mdl.QualityMode, mdl.Type, mdl.PermissionOverwrites, mdl.AuditLogReason);
+            return this.ApiClient.ModifyChannelAsync
+            (
+                channelId, mdl.Name,
+                mdl.Position,
+                mdl.Topic,
+                mdl.Nsfw,
+                mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>),
+                mdl.Bitrate,
+                mdl.Userlimit,
+                mdl.PerUserRateLimit,
+                mdl.RtcRegion.IfPresent(r => r?.Id),
+                mdl.QualityMode,
+                mdl.Type,
+                mdl.PermissionOverwrites,
+                mdl.AuditLogReason,
+                mdl.Flags,
+                mdl.AvailableTags,
+                mdl.DefaultAutoArchiveDuration,
+                mdl.DefaultReaction,
+                mdl.DefaultThreadRateLimit,
+                mdl.DefaultSortOrder,
+                mdl.DefaultForumLayout
+            );
         }
 
         /// <summary>

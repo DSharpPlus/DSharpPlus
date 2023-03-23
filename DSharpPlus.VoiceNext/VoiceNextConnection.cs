@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2022 DSharpPlus Contributors
+// Copyright (c) 2016-2023 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -32,6 +32,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
+using DSharpPlus.AsyncEvents;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Net;
@@ -41,7 +42,6 @@ using DSharpPlus.Net.WebSocket;
 using DSharpPlus.VoiceNext.Codec;
 using DSharpPlus.VoiceNext.Entities;
 using DSharpPlus.VoiceNext.EventArgs;
-using Emzi0767.Utilities;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -210,11 +210,11 @@ namespace DSharpPlus.VoiceNext
             this.TargetChannel = channel;
             this.TransmittingSSRCs = new ConcurrentDictionary<uint, AudioSender>();
 
-            this._userSpeaking = new AsyncEvent<VoiceNextConnection, UserSpeakingEventArgs>("VNEXT_USER_SPEAKING", TimeSpan.Zero, this.Discord.EventErrorHandler);
-            this._userJoined = new AsyncEvent<VoiceNextConnection, VoiceUserJoinEventArgs>("VNEXT_USER_JOINED", TimeSpan.Zero, this.Discord.EventErrorHandler);
-            this._userLeft = new AsyncEvent<VoiceNextConnection, VoiceUserLeaveEventArgs>("VNEXT_USER_LEFT", TimeSpan.Zero, this.Discord.EventErrorHandler);
-            this._voiceReceived = new AsyncEvent<VoiceNextConnection, VoiceReceiveEventArgs>("VNEXT_VOICE_RECEIVED", TimeSpan.Zero, this.Discord.EventErrorHandler);
-            this._voiceSocketError = new AsyncEvent<VoiceNextConnection, SocketErrorEventArgs>("VNEXT_WS_ERROR", TimeSpan.Zero, this.Discord.EventErrorHandler);
+            this._userSpeaking = new AsyncEvent<VoiceNextConnection, UserSpeakingEventArgs>("VNEXT_USER_SPEAKING", this.Discord.EventErrorHandler);
+            this._userJoined = new AsyncEvent<VoiceNextConnection, VoiceUserJoinEventArgs>("VNEXT_USER_JOINED", this.Discord.EventErrorHandler);
+            this._userLeft = new AsyncEvent<VoiceNextConnection, VoiceUserLeaveEventArgs>("VNEXT_USER_LEFT", this.Discord.EventErrorHandler);
+            this._voiceReceived = new AsyncEvent<VoiceNextConnection, VoiceReceiveEventArgs>("VNEXT_VOICE_RECEIVED", this.Discord.EventErrorHandler);
+            this._voiceSocketError = new AsyncEvent<VoiceNextConnection, SocketErrorEventArgs>("VNEXT_WS_ERROR", this.Discord.EventErrorHandler);
             this.TokenSource = new CancellationTokenSource();
 
             this.Configuration = config;
@@ -811,8 +811,9 @@ namespace DSharpPlus.VoiceNext
             // IP Discovery
             this.UdpClient.Setup(this.UdpEndpoint);
 
-            var pck = new byte[70];
+            var pck = new byte[74];
             PreparePacket(pck);
+
             await this.UdpClient.SendAsync(pck, pck.Length).ConfigureAwait(false);
 
             var ipd = await this.UdpClient.ReceiveAsync().ConfigureAwait(false);
@@ -827,19 +828,41 @@ namespace DSharpPlus.VoiceNext
             void PreparePacket(byte[] packet)
             {
                 var ssrc = this.SSRC;
+                ushort type = 0x1; // type: request (isn't this one way anyway?)
+                ushort length = 70; // length of everything after this. should for this step always be 70.
+
                 var packetSpan = packet.AsSpan();
-                MemoryMarshal.Write(packetSpan, ref ssrc);
-                Helpers.ZeroFill(packetSpan);
+                Helpers.ZeroFill(packetSpan); // fill with zeroes
+
+                var typeByte = BitConverter.GetBytes(type);
+                var lengthByte = BitConverter.GetBytes(length);
+                var ssrcByte = BitConverter.GetBytes(ssrc);
+
+                if(BitConverter.IsLittleEndian)
+                {
+                    Array.Reverse(typeByte);
+                    Array.Reverse(lengthByte);
+                    Array.Reverse(ssrcByte);
+                }
+
+                typeByte.CopyTo(packet, 0);
+                lengthByte.CopyTo(packet, 2);
+                ssrcByte.CopyTo(packet, 4);
+                // https://discord.com/developers/docs/topics/voice-connections#ip-discovery
             }
 
             void ReadPacket(byte[] packet, out System.Net.IPAddress decodedIp, out ushort decodedPort)
             {
                 var packetSpan = packet.AsSpan();
 
-                var ipString = Utilities.UTF8.GetString(packet, 4, 64 /* 70 - 6 */).TrimEnd('\0');
-                decodedIp = System.Net.IPAddress.Parse(ipString);
+                // the packet we received in this step should be the IP discovery response.
 
-                decodedPort = BinaryPrimitives.ReadUInt16LittleEndian(packetSpan.Slice(68 /* 70 - 2 */));
+                // it has the same format as PreparePacket. All we really need is IP + port so we strip it from
+                // the response here, which are the last 6 bytes (4 for ip, 2 for port (ushort))
+
+                var ipString = Utilities.UTF8.GetString(packet, 8, 64 /* 74 - 6 */).TrimEnd('\0');
+                decodedIp = System.Net.IPAddress.Parse(ipString);
+                decodedPort = BinaryPrimitives.ReadUInt16LittleEndian(packetSpan.Slice(72 /* 74 - 2 */));
             }
 
             // Select voice encryption mode

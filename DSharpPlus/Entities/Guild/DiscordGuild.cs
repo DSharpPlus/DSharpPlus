@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2022 DSharpPlus Contributors
+// Copyright (c) 2016-2023 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +28,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
@@ -482,16 +483,22 @@ namespace DSharpPlus.Entities
         [JsonConverter(typeof(SnowflakeArrayAsDictionaryJsonConverter))]
         internal ConcurrentDictionary<ulong, DiscordStageInstance> _stageInstances;
 
-        // Seriously discord?
-
-        // I need to work on this
-        //
-        // /// <summary>
-        // /// Gets channels ordered in a manner in which they'd be ordered in the UI of the discord client.
-        // /// </summary>
-        // [JsonIgnore]
-        // public IEnumerable<DiscordChannel> OrderedChannels
-        //    => this._channels.OrderBy(xc => xc.Parent?.Position).ThenBy(xc => xc.Type).ThenBy(xc => xc.Position);
+        // Failed attempts so far: 8
+        // Velvet got it working in one attempt. I'm not mad, why would I be mad. - Lunar
+        /// <summary>
+        /// Gets channels ordered in a manner in which they'd be ordered in the UI of the discord client.
+        /// </summary>
+        [JsonIgnore]
+        // Group the channels by category or parent id
+        public IEnumerable<DiscordChannel> OrderedChannels => _channels.Values.GroupBy(channel => channel.IsCategory ? channel.Id : channel.ParentId)
+        // Order the channel by the category's position
+            .OrderBy(channels => channels.FirstOrDefault(channel => channel.IsCategory)?.Position)
+            // Select the category's channels
+            // Order them by text, shoving voice or stage types to the bottom
+            // Then order them by their position
+            .Select(channel => channel.OrderBy(channel => channel.Type is ChannelType.Voice or ChannelType.Stage).ThenBy(channel => channel.Position))
+            // Group them all back together into a single enumerable.
+            .SelectMany(channel => channel);
 
         [JsonIgnore]
         internal bool _isSynced { get; set; }
@@ -1020,20 +1027,61 @@ namespace DSharpPlus.Entities
         /// <param name="qualityMode">Video quality mode of the channel. Applies to voice only.</param>
         /// <param name="position">Sorting position of the channel.</param>
         /// <param name="reason">Reason for audit logs.</param>
+        /// <param name="defaultAutoArchiveDuration">The default duration in which threads (or posts) will archive.</param>
+        /// <param name="defaultReactionEmoji">If applied to a forum, the default emoji to use for forum post reactions.</param>
+        /// <param name="availableTags">The tags available for a post in this channel.</param>
+        /// <param name="defaultSortOrder">The default sorting order.</param>
         /// <returns>The newly-created channel.</returns>
         /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ManageChannels"/> permission.</exception>
         /// <exception cref="NotFoundException">Thrown when the guild does not exist.</exception>
         /// <exception cref="BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task<DiscordChannel> CreateChannelAsync(string name, ChannelType type, DiscordChannel parent = null, Optional<string> topic = default, int? bitrate = null, int? userLimit = null, IEnumerable<DiscordOverwriteBuilder> overwrites = null, bool? nsfw = null, Optional<int?> perUserRateLimit = default, VideoQualityMode? qualityMode = null, int? position = null, string reason = null)
+        public Task<DiscordChannel> CreateChannelAsync
+        (
+            string name,
+            ChannelType type,
+            DiscordChannel parent = null,
+            Optional<string> topic = default,
+            int? bitrate = null,
+            int? userLimit = null,
+            IEnumerable<DiscordOverwriteBuilder> overwrites = null,
+            bool? nsfw = null,
+            Optional<int?> perUserRateLimit = default,
+            VideoQualityMode? qualityMode = null,
+            int? position = null,
+            string reason = null,
+            AutoArchiveDuration? defaultAutoArchiveDuration = null,
+            DefaultReaction? defaultReactionEmoji = null,
+            IEnumerable<DiscordForumTagBuilder> availableTags = null,
+            DefaultSortOrder? defaultSortOrder = null
+        )
         {
             // technically you can create news/store channels but not always
-            if (type != ChannelType.Text && type != ChannelType.Voice && type != ChannelType.Category && type != ChannelType.News && type != ChannelType.Stage)
-                throw new ArgumentException("Channel type must be text, voice, stage, or category.", nameof(type));
+            if (type is not (ChannelType.Text or ChannelType.Voice or ChannelType.Category or ChannelType.News or ChannelType.Stage or ChannelType.GuildForum))
+                throw new ArgumentException("Channel type must be text, voice, stage, category, or a forum.", nameof(type));
 
             return type == ChannelType.Category && parent != null
                 ? throw new ArgumentException("Cannot specify parent of a channel category.", nameof(parent))
-                : this.Discord.ApiClient.CreateGuildChannelAsync(this.Id, name, type, parent?.Id, topic, bitrate, userLimit, overwrites, nsfw, perUserRateLimit, qualityMode, position, reason);
+                : this.Discord.ApiClient.CreateGuildChannelAsync
+                (
+                    this.Id,
+                    name,
+                    type,
+                    parent?.Id,
+                    topic,
+                    bitrate,
+                    userLimit,
+                    overwrites,
+                    nsfw,
+                    perUserRateLimit,
+                    qualityMode,
+                    position,
+                    reason,
+                    defaultAutoArchiveDuration,
+                    defaultReactionEmoji,
+                    availableTags,
+                    defaultSortOrder
+                );
         }
 
         // this is to commemorate the Great DAPI Channel Massacre of 2017-11-19.
@@ -1364,7 +1412,7 @@ namespace DSharpPlus.Entities
             };
 
             var payloadStr = JsonConvert.SerializeObject(payload, Formatting.None);
-            await client.WsSendAsync(payloadStr).ConfigureAwait(false);
+            await client.SendRawPayloadAsync(payloadStr).ConfigureAwait(false);
         }
 
         /// <summary>

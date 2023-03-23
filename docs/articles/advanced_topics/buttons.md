@@ -4,6 +4,7 @@ title: Buttons
 ---
 
 # Introduction
+
 Buttons are a feature in Discord based on the interaction framework appended to the bottom of a message which come in
 several colors. You will want to familarize yourself with the [message builder][0] as it and similar builder objects
 will be used throughout this article.
@@ -20,6 +21,7 @@ grey.
 > Link buttons do **not** have a custom id and do **not** send interactions when pressed.
 
 Buttons consist of five parts:
+
 - Id
 - Style
 - Label
@@ -33,6 +35,7 @@ Non-link buttons come in four colors, which are known as styles: Blurple, Grey, 
 named: Primary, Secondary, Success, and Danger respectively.
 
 How does one construct a button? It's simple, buttons support constructor and object initialization like so:
+
 ```cs
 var myButton = new DiscordButtonComponent(
     ButtonStyle.Primary,
@@ -47,18 +50,20 @@ This will create a blurple button with the text that reads "Very cool button!". 
 on the event. This is expanded on in the [how to respond to buttons][2].
 
 The label of a button is optional *if* an emoji is specified. The label can be up to 80 characters in length. The emoji
-of a button is a [partial emoji object][3], which means that **any valid emoji is usable**, even if your bot does not 
+of a button is a [partial emoji object][3], which means that **any valid emoji is usable**, even if your bot does not
 have access to it's origin server.
 
 The disabled field of a button is rather self explanatory. If this is set to true, the user will see a greyed out button
 which they cannot interact with.
 
 # Adding buttons
+>
 > [!NOTE]
 > This article will use underscores in button ids for consistency and styling, but spaces are also usable.
 
 Adding buttons to a message is relatively simple. Simply make a builder, and sprinkle some content and the buttons you'd
 like.
+
 ```cs
 var builder = new DiscordMessageBuilder();
 builder.WithContent("This message has buttons! Pretty neat innit?");
@@ -67,6 +72,7 @@ builder.WithContent("This message has buttons! Pretty neat innit?");
 Well, there's a builder, but no buttons. What now? Simply make a new @DSharpPlus.Entities.DiscordButtonComponent object
 and call @DSharpPlus.Entities.DiscordMessageBuilder.AddComponents* on the
 message builder.
+
 ```cs
 var myButton = new DiscordButtonComponent(ButtonStyle.Primary, "my_custom_id", "This is a button!");
 
@@ -74,6 +80,7 @@ var builder = new DiscordMessageBuilder()
     .WithContent("This message has buttons! Pretty neat innit?")
     .AddComponents(myButton);
 ```
+
 Now you have a message with a button. Congratulations! It's important to note that
 @DSharpPlus.Entities.DiscordMessageBuilder.AddComponents* will create a new row with each call, so **add everything you
 want on one row in one call!**
@@ -92,10 +99,12 @@ var builder = new DiscordMessageBuilder()
         new DiscordLinkButtonComponent("https://some-super-cool.site", "Link!")
     });
 ```
+
 As promised, not too complicated. Links however are @DSharpPlus.Entities.DiscordLinkButtonComponent, which takes a URL
 as its first parameter, and the label. Link buttons can also have an emoji, like regular buttons.
 
 Lets also add a second row of buttons, but disable them, so the user can't push them all willy-nilly.
+
 ```cs
 builder.AddComponents(new DiscordComponent[]
 {
@@ -106,13 +115,17 @@ builder.AddComponents(new DiscordComponent[]
     new DiscordLinkButtonComponent("https://some-super-cool.site", "Link!", true)
 });
 ```
-Practically identical, but now with `true` as an extra paremeter. This is the 
+
+Practically identical, but now with `true` as an extra paremeter. This is the
 @DSharpPlus.Entities.DiscordButtonComponent.Disabled property.
 
-Produces a message like such: ![Buttons][4]
+Produces a message like such:
+
+![Buttons][4]
 
 Well, that's all neat, but lets say you want to add an emoji. Being able to use any emoji is pretty neat, afterall.
 That's also very simple!
+
 ```cs
 var myButton = new DiscordButtonComponent(
     ButtonStyle.Primary,
@@ -121,11 +134,14 @@ var myButton = new DiscordButtonComponent(
     false,
     new DiscordComponentEmoji(595381687026843651));
 ```
-And you're done! Simply add that to a builder, and when you send, you'll get a message that has a button with a little
-Pikachu enjoying a lolipop. Adorable. ![PikaLolipop][5]
 
+And you're done! Simply add that to a builder, and when you send, you'll get a message that has a button with a little
+Pikachu enjoying a lolipop. Adorable.
+
+![PikaLolipop][5]
 
 # Responding to button presses
+
 When any button is pressed, it will fire the @DSharpPlus.DiscordClient.ComponentInteractionCreated.
 
 In the event args, @DSharpPlus.EventArgs.ComponentInteractionCreateEventArgs.Id will be the id of the button you
@@ -141,6 +157,7 @@ Using @DSharpPlus.InteractionResponseType.DeferredMessageUpdate lets you create 
 will.
 
 You have 15 minutes from that point to make followup messages. Responding to that interaction looks like this:
+
 ```cs
 client.ComponentInteractionCreated += async (s, e) =>
 {
@@ -152,6 +169,7 @@ client.ComponentInteractionCreated += async (s, e) =>
 If you would like to update the message when a button is pressed, however, you'd use
 @DSharpPlus.InteractionResponseType.UpdateMessage instead, and pass a
 @DSharpPlus.Entities.DiscordInteractionResponseBuilder with the new content you'd like.
+
 ```cs
 client.ComponentInteractionCreated += async (s, e) =>
 {
@@ -161,17 +179,19 @@ client.ComponentInteractionCreated += async (s, e) =>
             .WithContent("No more buttons for you >:)"));
 }
 ```
+
 This will update the message, and remove all the buttons. Nice.
 
-
 # Interactivity
-Along with the typical @DSharpPlus.Interactivity.InteractivityExtension.WaitForMessageAsync* and
+
+Along with the typical @DSharpPlus.Interactivity.InteractivityExtension.WaitForMessageAsync*and
 @DSharpPlus.Interactivity.InteractivityExtension.WaitForReactionAsync* methods provided by interactivity, there are also
 button implementations as well.
 
 More information about how interactivity works can be found in [the interactivity article][7].
 
 Since buttons create interactions, there are also two additional properties in the configuration:
+
 - @DSharpPlus.Interactivity.InteractivityConfiguration.ResponseBehavior
 - @DSharpPlus.Interactivity.InteractivityConfiguration.ResponseMessage
 

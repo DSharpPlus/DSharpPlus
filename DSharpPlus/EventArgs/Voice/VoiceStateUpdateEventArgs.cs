@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2022 DSharpPlus Contributors
+// Copyright (c) 2016-2023 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -58,7 +58,7 @@ namespace DSharpPlus.EventArgs
         /// <summary>
         /// Gets the ID of voice session.
         /// </summary>
-        internal string SessionId { get; set; }
+        public string SessionId { get; internal set; }
 
         internal VoiceStateUpdateEventArgs() : base() { }
     }

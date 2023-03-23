@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2022 DSharpPlus Contributors
+// Copyright (c) 2016-2023 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.Exceptions;
 using DSharpPlus.Net.Models;
@@ -70,6 +71,18 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("newly_created", NullValueHandling = NullValueHandling.Ignore)]
         public bool IsNew { get; internal set; }
+
+        /// <summary>
+        /// Gets the tags applied to this forum post.
+        /// </summary>
+        // Performant? No. Ideally, you're not using this property often.
+        public IReadOnlyList<DiscordForumTag> AppliedTags =>
+            this.Parent is DiscordForumChannel parent
+                ? parent.AvailableTags.Where(pt => _appliedTagIds.Contains(pt.Id)).ToArray()
+                : Array.Empty<DiscordForumTag>();
+
+        [JsonProperty("applied_tags")]
+        private List<ulong> _appliedTagIds;
 
         #region Methods
 
@@ -136,7 +149,7 @@ namespace DSharpPlus.Entities
             action(mdl);
             await this.Discord.ApiClient.ModifyThreadChannelAsync(this.Id, mdl.Name, mdl.Position, mdl.Topic, mdl.Nsfw,
                 mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.PerUserRateLimit, mdl.RtcRegion.IfPresent(r => r?.Id),
-                mdl.QualityMode, mdl.Type, mdl.PermissionOverwrites, mdl.IsArchived, mdl.AutoArchiveDuration, mdl.Locked, mdl.AuditLogReason).ConfigureAwait(false);
+                mdl.QualityMode, mdl.Type, mdl.PermissionOverwrites, mdl.IsArchived, mdl.AutoArchiveDuration, mdl.Locked, mdl.AuditLogReason, mdl.AppliedTags).ConfigureAwait(false);
 
             // We set these *after* the rest request so that Discord can validate the properties. This is useful if the requirements ever change.
             if (!string.IsNullOrWhiteSpace(mdl.Name))

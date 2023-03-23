@@ -67,6 +67,8 @@
     topicUid: articles.advanced_topics.buttons
   - name: Select Menus
     topicUid: articles.advanced_topics.selects
+  - name: Generic Host
+    topicUid: articles.advanced_topics.generic_host
 - name: Hosting
   topicUid: articles.hosting
 - name: Version Migration

@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2022 DSharpPlus Contributors
+// Copyright (c) 2016-2023 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -92,6 +92,42 @@ namespace DSharpPlus.Net.Models
         /// <para>Sets the channel's permission overwrites.</para>
         /// </summary>
         public IEnumerable<DiscordOverwriteBuilder> PermissionOverwrites { internal get; set; }
+
+        /// <summary>
+        /// <para>Sets the channel's auto-archive duration.</para>
+        /// </summary>
+        public Optional<AutoArchiveDuration?> DefaultAutoArchiveDuration { internal get; set; }
+
+        /// <summary>
+        /// <para>Sets the channel's flags (forum channels and posts only).</para>
+        /// </summary>
+        public Optional<ChannelFlags> Flags { internal get; set; }
+
+        /// <summary>
+        /// <para>Sets the channel's available tags.</para>
+        /// </summary>
+        public IEnumerable<DiscordForumTagBuilder> AvailableTags { internal get; set; }
+
+        /// <summary>
+        /// <para>Sets the channel's default reaction, if any.</para>
+        /// </summary>
+        public Optional<DefaultReaction?> DefaultReaction { internal get; set; }
+
+        /// <summary>
+        /// <para>Sets the default slowmode of newly created threads, but does not retroactively update.</para>
+        /// </summary>
+        /// <remarks>https://discord.com/developers/docs/resources/channel#modify-channel-json-params-guild-channel</remarks>
+        public Optional<int> DefaultThreadRateLimit { internal get; set; }
+
+        /// <summary>
+        /// Sets the default sort order of posts in this channel.
+        /// </summary>
+        public Optional<DefaultSortOrder?> DefaultSortOrder { internal get; set; }
+
+        /// <summary>
+        /// Sets the default layout of posts in this channel.
+        /// </summary>
+        public Optional<DefaultForumLayout> DefaultForumLayout { internal get; set; }
 
         internal ChannelEditModel() { }
     }

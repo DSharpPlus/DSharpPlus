@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2022 DSharpPlus Contributors
+// Copyright (c) 2016-2023 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -82,11 +82,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             if (!this._requests.TryGetValue(e.Message.Id, out var req))
                 return;
 
-            if (this._config.AckPaginationButtons)
-            {
-                e.Handled = true;
-                await e.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate).ConfigureAwait(false);
-            }
+            await e.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate).ConfigureAwait(false);
 
             if (await req.GetUserAsync().ConfigureAwait(false) != e.User)
             {

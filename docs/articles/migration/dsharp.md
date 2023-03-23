@@ -4,7 +4,9 @@ title: Migration From DiscordSharp
 ---
 
 ## Migration From DiscordSharp
+
 ### Connecting
+
 ```cs
 // Old.
 var discord = new DiscordClient("My First Token", true);
@@ -15,6 +17,7 @@ discord.Connect();
 
 The constructor of the @DSharpPlus.DiscordClient now requires a @DSharpPlus.DiscordConfiguration object instead of a
 simple string token and boolean.
+
 ```cs
 // New.
 var discord = new DiscordClient(new DiscordConfiguration
@@ -31,7 +34,9 @@ New versions of DSharpPlus implement [TAP][0], and the all DSharpPlus methods en
 `await`ed within an asynchronous method.
 
 ### Events
+
 While the signature will look similar, many changes have been done to events behind the scenes.
+
 ```cs
 discord.MessageReceived += async (sender, arg) =>
 {
@@ -42,6 +47,7 @@ discord.MessageReceived += async (sender, arg) =>
 We have a small article covering DSharpPlus events [here][1].
 
 #### New events
+
 * ChannelPinsUpdated
 * ClientErrored
 * GuildEmojisUpdated
@@ -62,10 +68,12 @@ We have a small article covering DSharpPlus events [here][1].
 * WebhooksUpdated
 
 #### Removed Events
+
 * TextClientDebugMessageReceived
 * VoiceClientDebugMessageReceived
 
 #### Changed Event names
+
 Old DiscordSharp Event | DSharpPlus Equivalent
 :----------------------|:----------------------
 MessageReceived        | MessageCreated

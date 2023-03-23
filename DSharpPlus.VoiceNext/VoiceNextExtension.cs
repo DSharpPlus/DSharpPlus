@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2022 DSharpPlus Contributors
+// Copyright (c) 2016-2023 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -111,7 +111,7 @@ namespace DSharpPlus.VoiceNext
                 }
             };
             var vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
-            await (channel.Discord as DiscordClient).WsSendAsync(vsj).ConfigureAwait(false);
+            await (channel.Discord as DiscordClient).SendRawPayloadAsync(vsj).ConfigureAwait(false);
 
             var vstu = await vstut.Task.ConfigureAwait(false);
             var vstup = new VoiceStateUpdatePayload
@@ -159,7 +159,7 @@ namespace DSharpPlus.VoiceNext
                 }
             };
             var vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
-            await (guild.Discord as DiscordClient).WsSendAsync(vsj).ConfigureAwait(false);
+            await (guild.Discord as DiscordClient).SendRawPayloadAsync(vsj).ConfigureAwait(false);
         }
 
         private Task Client_VoiceStateUpdate(DiscordClient client, VoiceStateUpdateEventArgs e)
@@ -225,6 +225,22 @@ namespace DSharpPlus.VoiceNext
                 this.VoiceServerUpdates.TryRemove(gld.Id, out var xe);
                 xe.SetResult(e);
             }
+        }
+
+        public override void Dispose()
+        {
+            foreach(var conn in this.ActiveConnections)
+            {
+                conn.Value.Dispose();
+            }
+            this.Client.VoiceStateUpdated -= this.Client_VoiceStateUpdate;
+            this.Client.VoiceServerUpdated -= this.Client_VoiceServerUpdate;
+            // Lo and behold, the audacious man who dared lay his hand upon VoiceNext hath once more trespassed upon its profane ground!
+        }
+
+        ~VoiceNextExtension()
+        {
+            this.Dispose();
         }
     }
 }

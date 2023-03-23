@@ -1,7 +1,7 @@
 // This file is part of the DSharpPlus project.
 //
 // Copyright (c) 2015 Mike Santiago
-// Copyright (c) 2016-2022 DSharpPlus Contributors
+// Copyright (c) 2016-2023 DSharpPlus Contributors
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,8 +23,6 @@
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
-using DSharpPlus.Entities;
-using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity.Extensions;
 
 namespace DSharpPlus.Test
@@ -39,21 +37,6 @@ namespace DSharpPlus.Test
 
         [Command("paginate")]
         public async Task PaginateAsync(CommandContext ctx)
-        {
-            var builder = new DiscordMessageBuilder().WithContent("** **").AddComponents(new DiscordButtonComponent(ButtonStyle.Primary, "a", "Paginate"));
-            await ctx.RespondAsync(builder);
-
-            ctx.Client.ComponentInteractionCreated += this.Handle;
-        }
-
-        private Task Handle(DiscordClient sender, ComponentInteractionCreateEventArgs e)
-        {
-            if (e.Id != "a")
-                return Task.CompletedTask;
-            var pages = sender.GetInteractivity().GeneratePagesInContent(Lorem);
-            _ = sender.GetInteractivity().SendPaginatedResponseAsync(e.Interaction, true, e.User, pages);
-            sender.ComponentInteractionCreated -= this.Handle;
-            return Task.CompletedTask;
-        }
+            => await ctx.Channel.SendPaginatedMessageAsync(ctx.User, ctx.Client.GetInteractivity().GeneratePagesInEmbed(Lorem));
     }
 }

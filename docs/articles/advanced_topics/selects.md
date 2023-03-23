@@ -3,20 +3,23 @@ uid: articles.advanced_topics.selects
 title: Select Menus
 ---
 # Introduction
+
 **They're here!** What's here? Select menus (aka dropdowns) of course.
 
-Dropdowns are another [message component][0] added to the Discord API. Additionally, just like buttons, dropdowns are 
+Dropdowns are another [message component][0] added to the Discord API. Additionally, just like buttons, dropdowns are
 supported in all builders that take @DSharpPlus.Entities.DiscordComponent. However, dropdowns occupy an entire action
 row, so you can only have up to 5! Furthermore, buttons cannot occupy the same row as a dropdown.
 
 In this article, we will go over what dropdowns are, how to use them, and the limitations of dropdowns.
 
 # Dropdowns overview
+>
 > [!NOTE]
 > This article is under the presumption that you are familiar with buttons.
 > In addition to this, just like buttons, select menu ids should be unique.
 
 Dropdowns consist of several parts, and share some in common with buttons. They have a:
+
 - Custom id
 - Placeholder
 - Disabled
@@ -42,8 +45,10 @@ Min and Max values determine how many or how few options are valid. There are fe
 section right below.
 
 # Dropdown options
+
 Dropdown options are somewhat more involved than handling buttons, but they're still relatively simple. They can have up
 to **25** options, but must have at least 1. These consist of several parts:
+
 - Label
 - Value
 - Default
@@ -71,12 +76,14 @@ automatically use either.
 > ex: 👋 and not \:wave\:
 
 # Putting it all together
+>
 > [!NOTE]
 > Spaces are valid in custom ids as well, but underscores will be used in this article for consistency.
 
 Well now you know how dropdowns work, and how dropdown options work, but how do you make the darn thing???
 
 It would look something along the lines of this:
+
 ```cs
 // Create the options for the user to pick
 var options = new List<DiscordSelectComponentOption>()
@@ -107,11 +114,13 @@ var options = new List<DiscordSelectComponentOption>()
 // Make the dropdown
 var dropdown = new DiscordSelectComponent("dropdown", null, options, false, 1, 2);
 ```
-Okay, so we have a dropdown...now what? Simply pass it to any builder that constructs a response, be it a 
-@DSharpPlus.Entities.DiscordMessageBuilder, @DSharpPlus.Entities.DiscordInteractionResponseBuilder, or 
+
+Okay, so we have a dropdown...now what? Simply pass it to any builder that constructs a response, be it a
+@DSharpPlus.Entities.DiscordMessageBuilder, @DSharpPlus.Entities.DiscordInteractionResponseBuilder, or
 @DSharpPlus.Entities.DiscordWebhookBuilder.
 
 It'll look something like this, using the code above:
+
 ```cs
 // [...] Code trunctated for brevity
 
@@ -124,19 +133,24 @@ await builder.SendAsync(channel); // Replace with any method of getting a channe
 
 # Final result
 
-Congrats! You've made a dropdown. It should look like this ![SelectImageOne][2]
+Congrats! You've made a dropdown. It should look like this
+
+![SelectImageOne][2]
 
 When you click the dropdown, the bottom option should be pre-selected, and it will look like this. You can choose one or
-two options. ![SelectImageTwo][3]
+two options.
+
+![SelectImageTwo][3]
 
 # Interactivity/Footnotes
+
 "**Oh no, I'm getting 'This interaction failed' when selecting! What do I do?**"
 
-Dropdowns are like buttons; when a user interacts with them, you need to respond to that interaction. 
+Dropdowns are like buttons; when a user interacts with them, you need to respond to that interaction.
 @DSharpPlus.DiscordClient.ComponentInteractionCreated is fired from the client, just like buttons.
 
 This applies to interactivity, too! Simply swap
-@DSharpPlus.Interactivity.Extensions.MessageExtensions.WaitForButtonAsync* for
+@DSharpPlus.Interactivity.Extensions.MessageExtensions.WaitForButtonAsync*for
 @DSharpPlus.Interactivity.Extensions.MessageExtensions.WaitForSelectAsync*, and pass a dropdown. How to go about
 component-based interactivity is described [in the buttons article][4].
 
