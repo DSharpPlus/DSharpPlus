@@ -43,7 +43,7 @@ namespace DSharpPlus.EventArgs
         /// <summary>
         /// Gets the voice connection token.
         /// </summary>
-        internal string VoiceToken { get; set; }
+        public string VoiceToken { get; internal set; }
 
         internal VoiceServerUpdateEventArgs() : base() { }
     }
