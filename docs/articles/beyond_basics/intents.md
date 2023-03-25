@@ -3,13 +3,13 @@ uid: articles.beyond_basics.intents
 title: Intents
 ---
 
-## Intents
+# Intents
 
 Intents were added to Discord to help the service not have to push so many events to the bots that were not using them.
 If you are going to be needing to subscribe to any type of event, they are going to have to be defined **BOTH** within
 the [Discord Application under the Bot Page][0] on Discords Site and also within the @DSharpPlus.DiscordConfiguration.
 
-### Discord Application
+## Discord Application
 
 On the [Discord Application under the Bot Page][0] you will have to specify if your bot requires Privileged Intents. We
 recommend having these all enabled at first to ensure the most stability when building your first bot, otherwise you may
@@ -23,7 +23,7 @@ run into issues when retrieving entities from the library's cache.
 > Due to their nature of sensitive data, Discord requires you to go through a verification process once your bot is in a
 > certain amount of servers. Please read this [blog post][2] for more information and how to apply.
 
-### Discord Configuration
+## Discord Configuration
 
 Within your @DSharpPlus.DiscordConfiguration you will have to specify all the intents you will need. Here is a list of
 all the [Intents][3] DSharpPlus Supports. By default, the configuration will use
