@@ -3,9 +3,9 @@ uid: articles.hosting
 title: Hosting Solutions
 ---
 
-## 24/7 Hosting Solutions
+# 24/7 Hosting Solutions
 
-### Free hosting
+## Free hosting
 
 If you're looking for free hosts, you've likely considered using [Heroku][0] or [Glitch][1]. We advise against using
 these platforms as they are designed to host web services, not Discord bots, and instances from either of these
@@ -15,7 +15,7 @@ Alternatively, some providers are offering Free Tiers which also allow applicati
 have some sort of resource quota, and may charge money on exceeding these quotas. Make sure to carefully review the
 fine-print, and understand that these services may come with strings attached. You can find examples below.
 
-### Self Hosting
+## Self Hosting
 
 If you have access to an unused machine, have the technical know-how, and you also have a solid internet connection, you
 might consider hosting your bot on your own. Even if you don't have a spare PC on hand, parts to build one are fairly
@@ -24,7 +24,7 @@ will work just fine, new or used.
 
 Depending on how complex your bot is, you may even consider purchasing a Raspberry Pi ($35).
 
-### Third-Party Hosting
+## Third-Party Hosting
 
 The simplest, and probably most hassle-free (and maybe cheapest in the long run for dedicated machines) option is to
 find a provider that will lend you their machine or a virtual host so you can run your bot in there.
@@ -62,7 +62,7 @@ In addition to these, there are several hosting providers who offer free tiers, 
   cores, 24GB of ram, and 200GB of storage in compute resources, as well as some small x64 instances. There is no
   monthly time limit. This service does require a valid credit card and offers no SLA.
 
-### Hosting on Cloud Native Services
+## Hosting on Cloud Native Services
 
 With most bots, unless if you host many of them, they dont require a whole machine to run them, just a slice of a
 machine. This is where Docker and other cloud native hosting comes into play. There are many different options available
@@ -74,7 +74,7 @@ native solutions that are cheaper than running a whole VM.
 * [**AWS Fargate**][13]: Allows for hosting Docker images within Amazon Web Services.
 * [**Jelastic**][14]: Allows for hosting Docker images.
 
-### Making your publishing life easier
+## Making your publishing life easier
 
 Now that we have covered where you can possibly host your application, now lets cover how to make your life easier
 publishing it. Many different source control solutions out there are free and also offer some type of CI/CD integration
