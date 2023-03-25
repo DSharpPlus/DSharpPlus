@@ -3,7 +3,7 @@ uid: articles.commands.dependency_injection
 title: Dependency Injection
 ---
 
-# Dependency Injection
+## Dependency Injection
 
 As you begin to write more complex commands, you'll find that you need a way to get data in and out of them. Although
 you *could* use `static` fields to accomplish this, the preferred solution would be *dependency injection*.
@@ -15,7 +15,7 @@ objects from the service container - it is recommended you use constructor param
 
 We'll go through a simple example of this process to help you understand better.
 
-## Create a Service Provider
+### Create a Service Provider
 
 To begin, we'll need to create a service provider; this will act as the container for the services you need for your
 commands. Create a new variable just before you register CommandsNext with your @DSharpPlus.DiscordClient and assign it
@@ -45,7 +45,7 @@ var commands = discord.UseCommandsNext(new CommandsNextConfiguration()
 });
 ```
 
-## Using Your Services
+### Using Your Services
 
 Now that we have our services set up, we're able to use them in commands. We'll be tweaking our
 [random number command][0] to demonstrate.
@@ -79,9 +79,9 @@ CommandsNext has automatically injected our singleton `Random` instance into the
 was instantiated. Now, for any command that needs `Random`, we can simply declare one as a property, field, or in the
 module constructor and CommandsNext will take care of the rest. Ain't that neat?
 
-# Lifespans
+## Lifespans
 
-## Modules
+### Modules
 
 By default, all command modules have a singleton lifespan; this means each command module is instantiated once for the
 lifetime of the CommandsNext instance. However, if the reuse of a module instance is undesired, you also have the option
@@ -97,7 +97,7 @@ public class MyFirstModule : BaseCommandModule
 
 Transient command modules are instantiated each time one of its containing commands is executed.
 
-## Services
+### Services
 
 In addition to the `.AddSingleton()` extension method, you're also able to use the `.AddScoped()` and `.AddTransient()`
 extension methods to add services to the collection. The extension method chosen will affect when and how often the
