@@ -31,10 +31,10 @@ To troubleshoot, please ensure that:
 * You have [opus and libsodium][3] available in your target environment.
 
 
-## Why am I getting *heartbeat skipped* message in my console?
+### Why am I getting *heartbeat skipped* message in my console?
 There are two possible reasons:
 
-## Connection issue between your bot application and Discord.
+### Connection issue between your bot application and Discord.
 Check your internet connection and ensure that the machine your bot is hosted on has a stable internet connection. If
 your local network has no issues, the problem could be with either Discord or Cloudfare. In which case, it's out of your
 control.
