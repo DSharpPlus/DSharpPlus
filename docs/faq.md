@@ -34,12 +34,12 @@ To troubleshoot, please ensure that:
 ## Why am I getting *heartbeat skipped* message in my console?
 There are two possible reasons:
 
-## Connection issue between your bot application and Discord.
+### Connection issue between your bot application and Discord.
 Check your internet connection and ensure that the machine your bot is hosted on has a stable internet connection. If
 your local network has no issues, the problem could be with either Discord or Cloudfare. In which case, it's out of your
 control.
 
-## Complex, long-running code in an event handler.
+### Complex, long-running code in an event handler.
 Any event handlers that have the potential to run for more than a few seconds could cause a deadlock, and cause several
 heartbeats to be skipped. Please take a look at our short article on [handling DSharpPlus exceptions][4] to learn how to
 avoid this.
