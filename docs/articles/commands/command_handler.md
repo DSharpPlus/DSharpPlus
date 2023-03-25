@@ -3,13 +3,13 @@ uid: articles.commands.command_handler
 title: Custom Command Handler
 ---
 
-## Custom Command Handler
+# Custom Command Handler
 >
 > [!IMPORTANT]
 > Writing your own handler logic should only be done if *you know what you're doing*. You will be responsible for
 > command execution and preventing deadlocks.
 
-### Disable Default Handler
+## Disable Default Handler
 
 To begin, we'll need to disable the default command handler provided by CommandsNext. This is done by setting the
 @DSharpPlus.CommandsNext.CommandsNextConfiguration.UseDefaultCommandHandler configuration property to `false`.
@@ -22,7 +22,7 @@ var commands = discord.UseCommandsNext(new CommandsNextConfiguration()
 });
 ```
 
-### Create Event Handler
+## Create Event Handler
 
 We'll then write a new handler for the @DSharpPlus.DiscordClient.MessageCreated event fired from
 @DSharpPlus.DiscordClient.
@@ -40,7 +40,7 @@ private Task CommandHandler(DiscordClient client, MessageCreateEventArgs e)
 
 This event handler will be our command handler, and you'll need to write the logic for it.
 
-### Handle Commands
+## Handle Commands
 
 Start by parsing the message content for a prefix and command string
 
@@ -78,7 +78,7 @@ _ = Task.Run(async () => await cnext.ExecuteCommandAsync(ctx));
 // Wrapped in Task.Run() to prevent deadlocks.
 ```
 
-### Finished Product
+## Finished Product
 
 Altogether, your implementation should function similarly to the following:
 
