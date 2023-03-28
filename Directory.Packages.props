@@ -5,7 +5,10 @@
         <PackageVersion Include="Microsoft.Extensions.DependencyModel" Version="5.0.0" />
         <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
 
-        <PackageVersion Include="ConcurrentHashSet" Version="1.1.0" />
+        <PackageVersion Include="ConcurrentHashSet" Version="1.3.0" />
+        <PackageVersion Include="Microsoft.DocAsCode.App" Version="2.63.1" />
+        <PackageVersion Include="Microsoft.DocAsCode.Build.MemberLevelManagedReference" Version="2.63.1" />
+
 
         <PackageVersion Include="DSharpPlus.VoiceNext.Natives" Version="1.0.0" />
 

@@ -6,7 +6,7 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.DocAsCode.App" Version="2.63.1" />
-    <PackageReference Include="Microsoft.DocAsCode.Build.MemberLevelManagedReference" Version="2.63.1" />
+    <PackageReference Include="Microsoft.DocAsCode.App"/>
+    <PackageReference Include="Microsoft.DocAsCode.Build.MemberLevelManagedReference"/>
   </ItemGroup>
 </Project>
