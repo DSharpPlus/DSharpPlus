@@ -1,19 +1,16 @@
 <Project>
     <ItemGroup>
-        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="3.9.0" />
-        <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
-        <PackageVersion Include="Microsoft.Extensions.DependencyModel" Version="5.0.0" />
-        <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
+        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="3.9.0"/>
+        <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1"/>
+        <PackageVersion Include="Microsoft.Extensions.DependencyModel" Version="5.0.0"/>
+        <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0"/>
 
-        <PackageVersion Include="ConcurrentHashSet" Version="1.3.0" />
-        <PackageVersion Include="Microsoft.DocAsCode.App" Version="2.63.1" />
-        <PackageVersion Include="Microsoft.DocAsCode.Build.MemberLevelManagedReference" Version="2.63.1" />
+        <PackageVersion Include="ConcurrentHashSet" Version="1.3.0"/>
+        <PackageVersion Include="Microsoft.DocAsCode.App" Version="2.63.1"/>
+        <PackageVersion Include="Microsoft.DocAsCode.Build.MemberLevelManagedReference" Version="2.63.1"/>
 
-
-        <PackageVersion Include="DSharpPlus.VoiceNext.Natives" Version="1.0.0" />
-
-        <PackageVersion Include="Emzi0767.Common" Version="2.6.2" />
-
-        <PackageVersion Include="Newtonsoft.Json" Version="13.0.2" />
+        <PackageVersion Include="DSharpPlus.VoiceNext.Natives" Version="1.0.0"/>
+        
+        <PackageVersion Include="Newtonsoft.Json" Version="13.0.3"/>
     </ItemGroup>
 </Project>

@@ -45,11 +45,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{1092E215-3968-4EB5-998F-93F0F0809728}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Tools.AutoUpdateChannelDescription", "tools\AutoUpdateChannelDescription\DSharpPlus.Tools.AutoUpdateChannelDescription.csproj", "{DE29AE1F-012F-45C1-96D9-AADC037CCA51}"
-<<<<<<< HEAD
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Tools.Docs", "tools\Docs\DSharpPlus.Tools.Docs.csproj", "{56A79AB7-B80F-4A79-9627-274C25C8B933}"
-=======
->>>>>>> b9447017 (.NET 7 🎉  (#1438))
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
