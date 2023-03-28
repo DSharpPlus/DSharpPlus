@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>DSharpPlus.Core</AssemblyName>
+    <RootNamespace>DSharpPlus.Core</RootNamespace>
+    <OutputType>Library</OutputType>
+    <!-- allow namespaces mismatching folder structure here -->
+    <NoWarn>$(NoWarn);IDE0130</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Description>A C# API for Discord based off DiscordSharp, but rewritten to fit the API standards.</Description>
+    <PackageTags>discord, discord-api, bots, discord-bots, chat, dsharp, dsharpplus, csharp, dotnet, vb-net, fsharp, webhooks</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Text.Json" />
+  </ItemGroup>
+
+</Project>
