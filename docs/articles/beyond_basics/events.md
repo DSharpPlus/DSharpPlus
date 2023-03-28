@@ -5,7 +5,7 @@ title: DSharpPlus Events
 
 # Consuming Events
 
-DSharpPlus makes use of *asynchronous events* which will execute each handler asynchronously parallel. This
+DSharpPlus makes use of *asynchronous events* which will execute each handler asynchronously and in parallel. This
 event system will require event handlers have a `Task` return type and take two parameters.
 
 The first parameter will contain an instance of the object which fired the event. The second parameter will contain an
@@ -75,10 +75,11 @@ event handlers based on user input, in commands or anything related unless you h
 
  For end users, this change should not cause any problems, **unless:**
 
- - **IF** you previously had an event handler for `ComponentInteractionCreated` that uncritically responded to all interactions
-    while also using button interactivity, your code will break. Make sure you only respond to events you actually handle.
- - **IF** you previously had two different event handlers on the same event relying on one completing before the other, your
-    code will break. Either register only one event handler dealing with all your logic, or manage state yourself.
+ - **IF** you previously had an event handler for `ComponentInteractionCreated` that indiscriminately responded to all
+    interactions while also using button interactivity, your code will break. Make sure you only respond to events you
+    actually handle.
+ - **IF** you previously had two different event handlers on the same event relying on one completing before the other,
+    your code will break. Either register only one event handler dealing with all your logic, or manage state yourself.
 
 This change also means that there is no longer a timeout on event handlers, and your event handler is free to take however
 long it needs to. There is no longer a reason to wrap your events in a `_ = Task.Run(async () => // logic);`.
