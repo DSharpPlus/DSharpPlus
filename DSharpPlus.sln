@@ -25,9 +25,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Rest", "DSharpPl
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build Items", "Build Items", "{84464D70-687B-40A8-836D-C4F737698969}"
 	ProjectSection(SolutionItems) = preProject
-		DSharpPlus.targets = DSharpPlus.targets
-		.github\workflows\publish_nightly_master.yml = .github\workflows\publish_nightly_master.yml
-		.github\workflows\publish_release_master.yml = .github\workflows\publish_release_master.yml
+		Directory.Build.props = Directory.Build.props
+		Directory.Packages.props = Directory.Packages.props
+		.github\workflows\publish_nightly_v5.yml = .github\workflows\publish_nightly_v5.yml
+		.github\workflows\publish_release_v5.yml = .github\workflows\publish_release_v5.yml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{430C28D8-5F85-4D6E-AA68-211549435245}"

@@ -1,15 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-
-  <Import Project="../DSharpPlus.targets" />
 
   <PropertyGroup>
     <AssemblyName>DSharpPlus.CommandsNext</AssemblyName>
     <RootNamespace>DSharpPlus.CommandsNext</RootNamespace>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
-    <Nullable>enable</Nullable>
-    <WarningsAsErrors>Nullable</WarningsAsErrors>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -18,8 +12,8 @@
     <PackageTags>discord, discord-api, bots, discord-bots, chat, dsharp, dsharpplus, csharp, dotnet, vb-net, fsharp, commands, commandsnext</PackageTags>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
   </ItemGroup>
 
   <ItemGroup>
