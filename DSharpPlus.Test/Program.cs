@@ -37,10 +37,7 @@ internal sealed class Program
     private static CancellationToken CancelToken => CancelTokenSource.Token;
     private static List<TestBot> Shards { get; } = new();
 
-    public static void Main()
-        => MainAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-
-    public static async Task MainAsync()
+    public static async Task Main()
     {
         Console.CancelKeyPress += Console_CancelKeyPress;
         TestBotConfig? cfg = new();
