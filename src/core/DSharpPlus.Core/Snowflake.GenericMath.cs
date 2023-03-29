@@ -1,10 +1,10 @@
-﻿using System;
-using System.Numerics;
-using System.Globalization;
+using System;
+using System.Buffers.Binary;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Buffers.Binary;
 
 namespace DSharpPlus.Core;
 
@@ -519,49 +519,49 @@ public readonly partial record struct Snowflake :
         out TOther result
     )
     {
-        if(typeof(TOther) == typeof(byte))
+        if (typeof(TOther) == typeof(byte))
         {
             byte actualResult = checked((byte)value);
             result = (TOther)(object)actualResult;
             return true;
         }
-        else if(typeof(TOther) == typeof(char))
+        else if (typeof(TOther) == typeof(char))
         {
             char actualResult = checked((char)value);
             result = (TOther)(object)actualResult;
             return true;
         }
-        else if(typeof(TOther) == typeof(decimal))
+        else if (typeof(TOther) == typeof(decimal))
         {
             decimal actualResult = value;
             result = (TOther)(object)actualResult;
             return true;
         }
-        else if(typeof(TOther) == typeof(ushort))
+        else if (typeof(TOther) == typeof(ushort))
         {
             ushort actualResult = checked((ushort)value);
             result = (TOther)(object)actualResult;
             return true;
         }
-        else if(typeof(TOther) == typeof(uint))
+        else if (typeof(TOther) == typeof(uint))
         {
             uint actualResult = checked((uint)value);
             result = (TOther)(object)actualResult;
             return true;
         }
-        else if(typeof(TOther) == typeof(ulong))
+        else if (typeof(TOther) == typeof(ulong))
         {
             ulong actualResult = checked((ulong)value.Value);
             result = (TOther)(object)actualResult;
             return true;
         }
-        else if(typeof(TOther) == typeof(UInt128))
+        else if (typeof(TOther) == typeof(UInt128))
         {
             UInt128 actualResult = checked((UInt128)value.Value);
             result = (TOther)(object)actualResult;
             return true;
         }
-        else if(typeof(TOther) == typeof(UIntPtr))
+        else if (typeof(TOther) == typeof(UIntPtr))
         {
             UIntPtr actualResult = checked((UIntPtr)value.Value);
             result = (TOther)(object)actualResult;
@@ -583,7 +583,7 @@ public readonly partial record struct Snowflake :
         out TOther result
     )
     {
-        if(typeof(TOther) == typeof(byte))
+        if (typeof(TOther) == typeof(byte))
         {
             byte actualResult = value >= byte.MaxValue
                 ? byte.MaxValue
@@ -594,7 +594,7 @@ public readonly partial record struct Snowflake :
             result = (TOther)(object)actualResult;
             return true;
         }
-        else if(typeof(TOther) == typeof(char))
+        else if (typeof(TOther) == typeof(char))
         {
             char actualResult = value >= char.MaxValue
                 ? char.MaxValue
@@ -605,13 +605,13 @@ public readonly partial record struct Snowflake :
             result = (TOther)(object)actualResult;
             return true;
         }
-        else if(typeof(TOther) == typeof(decimal))
+        else if (typeof(TOther) == typeof(decimal))
         {
             decimal actualResult = value;
             result = (TOther)(object)actualResult;
             return true;
         }
-        else if(typeof(TOther) == typeof(ushort))
+        else if (typeof(TOther) == typeof(ushort))
         {
             ushort actualResult = value >= ushort.MaxValue
                 ? ushort.MaxValue
@@ -622,7 +622,7 @@ public readonly partial record struct Snowflake :
             result = (TOther)(object)actualResult;
             return true;
         }
-        else if(typeof(TOther) == typeof(uint))
+        else if (typeof(TOther) == typeof(uint))
         {
             uint actualResult = value >= uint.MaxValue
                 ? uint.MaxValue
@@ -633,19 +633,19 @@ public readonly partial record struct Snowflake :
             result = (TOther)(object)actualResult;
             return true;
         }
-        else if(typeof(TOther) == typeof(ulong))
+        else if (typeof(TOther) == typeof(ulong))
         {
             ulong actualResult = value <= 0 ? ulong.MinValue : (ulong)value.Value;
             result = (TOther)(object)actualResult;
             return true;
         }
-        else if(typeof(TOther) == typeof(UInt128))
+        else if (typeof(TOther) == typeof(UInt128))
         {
             UInt128 actualResult = (value <= 0) ? UInt128.MinValue : (UInt128)value.Value;
             result = (TOther)(object)actualResult;
             return true;
         }
-        else if(typeof(TOther) == typeof(UIntPtr))
+        else if (typeof(TOther) == typeof(UIntPtr))
         {
             UIntPtr actualResult = (value <= 0) ? 0 : (UIntPtr)value.Value;
             result = (TOther)(object)actualResult;
@@ -667,49 +667,49 @@ public readonly partial record struct Snowflake :
         out TOther result
     )
     {
-        if(typeof(TOther) == typeof(byte))
+        if (typeof(TOther) == typeof(byte))
         {
             byte actualResult = (byte)value;
             result = (TOther)(object)actualResult;
             return true;
         }
-        else if(typeof(TOther) == typeof(char))
+        else if (typeof(TOther) == typeof(char))
         {
             char actualResult = (char)value;
             result = (TOther)(object)actualResult;
             return true;
         }
-        else if(typeof(TOther) == typeof(decimal))
+        else if (typeof(TOther) == typeof(decimal))
         {
             decimal actualResult = value;
             result = (TOther)(object)actualResult;
             return true;
         }
-        else if(typeof(TOther) == typeof(ushort))
+        else if (typeof(TOther) == typeof(ushort))
         {
             ushort actualResult = (ushort)value;
             result = (TOther)(object)actualResult;
             return true;
         }
-        else if(typeof(TOther) == typeof(uint))
+        else if (typeof(TOther) == typeof(uint))
         {
             uint actualResult = (uint)value;
             result = (TOther)(object)actualResult;
             return true;
         }
-        else if(typeof(TOther) == typeof(ulong))
+        else if (typeof(TOther) == typeof(ulong))
         {
             ulong actualResult = (ulong)value.Value;
             result = (TOther)(object)actualResult;
             return true;
         }
-        else if(typeof(TOther) == typeof(UInt128))
+        else if (typeof(TOther) == typeof(UInt128))
         {
             UInt128 actualResult = (UInt128)value.Value;
             result = (TOther)(object)actualResult;
             return true;
         }
-        else if(typeof(TOther) == typeof(UIntPtr))
+        else if (typeof(TOther) == typeof(UIntPtr))
         {
             UIntPtr actualResult = (UIntPtr)value.Value;
             result = (TOther)(object)actualResult;
@@ -816,7 +816,7 @@ public readonly partial record struct Snowflake :
         out Snowflake value
     )
     {
-        if(source.Length < 8)
+        if (source.Length < 8)
         {
             value = default;
             return false;
@@ -842,7 +842,7 @@ public readonly partial record struct Snowflake :
         out Snowflake value
     )
     {
-        if(source.Length < 8)
+        if (source.Length < 8)
         {
             value = default;
             return false;
@@ -961,7 +961,7 @@ public readonly partial record struct Snowflake :
         out int bytesWritten
     )
     {
-        if(destination.Length < 8)
+        if (destination.Length < 8)
         {
             bytesWritten = 0;
             return false;
@@ -988,7 +988,7 @@ public readonly partial record struct Snowflake :
         out int bytesWritten
     )
     {
-        if(destination.Length < 8)
+        if (destination.Length < 8)
         {
             bytesWritten = 0;
             return false;

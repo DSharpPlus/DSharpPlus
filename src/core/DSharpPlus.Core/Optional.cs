@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
@@ -52,7 +52,7 @@ public record struct Optional<T> : IOptional
         out T? value
     )
     {
-        if(IsDefined)
+        if (IsDefined)
         {
             value = Value!;
             return true;

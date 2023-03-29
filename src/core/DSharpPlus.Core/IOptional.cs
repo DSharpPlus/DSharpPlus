@@ -1,4 +1,4 @@
-﻿namespace DSharpPlus.Core;
+namespace DSharpPlus.Core;
 
 /// <summary>
 /// Serialization utility interface for optional values.
