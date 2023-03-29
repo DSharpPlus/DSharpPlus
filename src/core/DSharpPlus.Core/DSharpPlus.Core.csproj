@@ -17,4 +17,7 @@
     <PackageReference Include="System.Text.Json" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="../../../logo/dsharpplus.png" Pack="true" PackagePath="/"/>
+  </ItemGroup>
 </Project>

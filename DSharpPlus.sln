@@ -48,7 +48,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Tools.AutoUpdate
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Tools.Docs", "tools\Docs\DSharpPlus.Tools.Docs.csproj", "{56A79AB7-B80F-4A79-9627-274C25C8B933}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.Core", "DSharpPlus.Core\DSharpPlus.Core.csproj", "{AABD8C61-6F70-4DE0-B766-BEF8AD66DB21}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Core", "src\core\DSharpPlus.Core\DSharpPlus.Core.csproj", "{ECAD9735-8772-422E-8812-8AB5C554CD7C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -95,10 +95,10 @@ Global
 		{56A79AB7-B80F-4A79-9627-274C25C8B933}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{56A79AB7-B80F-4A79-9627-274C25C8B933}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{56A79AB7-B80F-4A79-9627-274C25C8B933}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AABD8C61-6F70-4DE0-B766-BEF8AD66DB21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AABD8C61-6F70-4DE0-B766-BEF8AD66DB21}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AABD8C61-6F70-4DE0-B766-BEF8AD66DB21}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AABD8C61-6F70-4DE0-B766-BEF8AD66DB21}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECAD9735-8772-422E-8812-8AB5C554CD7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECAD9735-8772-422E-8812-8AB5C554CD7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECAD9735-8772-422E-8812-8AB5C554CD7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECAD9735-8772-422E-8812-8AB5C554CD7C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
