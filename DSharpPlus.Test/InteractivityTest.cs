@@ -24,6 +24,8 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
+using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
 
 namespace DSharpPlus.Test;
@@ -38,7 +40,7 @@ public class InteractivityTest : BaseCommandModule
 
         DiscordMessage one = await ctx.RespondAsync(m => m.WithContent("**Button**: 1/6")
             .AddComponents(new DiscordButtonComponent(ButtonStyle.Primary, "button-one", "Push me")));
-        Interactivity.InteractivityResult<EventArgs.ComponentInteractionCreateEventArgs> buttonRes = await one.WaitForButtonAsync();
+        InteractivityResult<ComponentInteractionCreateEventArgs> buttonRes = await one.WaitForButtonAsync();
 
         if (!buttonRes.TimedOut)
         {
@@ -119,7 +121,7 @@ public class InteractivityTest : BaseCommandModule
             .AddComponents(new DiscordButtonComponent(ButtonStyle.Primary, "button-six", "Push me too")));
 
         buttonRes = await six.WaitForButtonAsync();
-        Interactivity.InteractivityResult<EventArgs.ComponentInteractionCreateEventArgs> buttonRes2 = await seven.WaitForButtonAsync();
+        InteractivityResult<ComponentInteractionCreateEventArgs> buttonRes2 = await seven.WaitForButtonAsync();
 
         if (!buttonRes.TimedOut && !buttonRes2.TimedOut)
         {

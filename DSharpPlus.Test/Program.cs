@@ -33,9 +33,9 @@ namespace DSharpPlus.Test;
 
 internal sealed class Program
 {
-    public static CancellationTokenSource CancelTokenSource { get; } = new CancellationTokenSource();
+    public static CancellationTokenSource CancelTokenSource { get; } = new();
     private static CancellationToken CancelToken => CancelTokenSource.Token;
-    private static List<TestBot> Shards { get; } = new List<TestBot>();
+    private static List<TestBot> Shards { get; } = new();
 
     public static void Main()
         => MainAsync().ConfigureAwait(false).GetAwaiter().GetResult();
@@ -43,7 +43,7 @@ internal sealed class Program
     public static async Task MainAsync()
     {
         Console.CancelKeyPress += Console_CancelKeyPress;
-        TestBotConfig? cfg = new TestBotConfig();
+        TestBotConfig? cfg = new();
         string json = string.Empty;
         if (!File.Exists("config.json"))
         {
@@ -58,10 +58,10 @@ internal sealed class Program
         json = File.ReadAllText("config.json", new UTF8Encoding(false));
         cfg = JsonConvert.DeserializeObject<TestBotConfig>(json);
 
-        List<Task> tskl = new List<Task>();
+        List<Task> tskl = new();
         for (int i = 0; i < cfg.ShardCount; i++)
         {
-            TestBot bot = new TestBot(cfg, i);
+            TestBot bot = new(cfg, i);
             Shards.Add(bot);
             tskl.Add(bot.RunAsync());
             await Task.Delay(7500).ConfigureAwait(false);

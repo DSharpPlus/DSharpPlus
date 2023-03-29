@@ -33,7 +33,7 @@ public class Reply : BaseCommandModule
     [Command, Priority(0)]
     public async Task ReplyAsync(CommandContext ctx, [RemainingText] string response = "")
     {
-        DiscordMessageBuilder builder = new DiscordMessageBuilder();
+        DiscordMessageBuilder builder = new();
 
         if (string.IsNullOrEmpty(response))
         {
@@ -69,7 +69,7 @@ public class Reply : BaseCommandModule
     [Command, Priority(1)]
     public async Task ReplyAsync(CommandContext ctx, bool mention, [RemainingText] string response = "")
     {
-        DiscordMessageBuilder builder = new DiscordMessageBuilder();
+        DiscordMessageBuilder builder = new();
 
         if (string.IsNullOrEmpty(response))
         {

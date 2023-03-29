@@ -40,7 +40,7 @@ public class SelectTests : BaseCommandModule
     public async Task Select_Interactive_Test_1_Async(CommandContext ctx)
     {
         Interactivity.InteractivityExtension input = ctx.Client.GetInteractivity();
-        DiscordMessageBuilder builder = new DiscordMessageBuilder();
+        DiscordMessageBuilder builder = new();
         builder.WithContent("This is a test! StringSelect is valid for 30 seconds.");
 
         DiscordSelectComponentOption[] opts = new[]
@@ -50,11 +50,11 @@ public class SelectTests : BaseCommandModule
             new DiscordSelectComponentOption("Label 3", "the third option", emoji: new DiscordComponentEmoji("⬛")),
         };
 
-        DiscordSelectComponent select = new DiscordSelectComponent("yert", "Dropdowns!", opts, true, 0, 1);
+        DiscordSelectComponent select = new("yert", "Dropdowns!", opts, true, 0, 1);
 
-        DiscordButtonComponent btn1 = new DiscordButtonComponent(ButtonStyle.Primary, "no1", "Button 1!", true);
-        DiscordButtonComponent btn2 = new DiscordButtonComponent(ButtonStyle.Secondary, "no2", "Button 2!", true);
-        DiscordButtonComponent btn3 = new DiscordButtonComponent(ButtonStyle.Success, "no3", "Button 3!", true);
+        DiscordButtonComponent btn1 = new(ButtonStyle.Primary, "no1", "Button 1!", true);
+        DiscordButtonComponent btn2 = new(ButtonStyle.Secondary, "no2", "Button 2!", true);
+        DiscordButtonComponent btn3 = new(ButtonStyle.Success, "no3", "Button 3!", true);
 
         builder.AddComponents(btn1, btn2, btn3);
         builder.AddComponents(select);
@@ -77,7 +77,7 @@ public class SelectTests : BaseCommandModule
     public async Task Select_Interactive_Test_2_Async(CommandContext ctx)
     {
         Interactivity.InteractivityExtension input = ctx.Client.GetInteractivity();
-        DiscordMessageBuilder builder = new DiscordMessageBuilder();
+        DiscordMessageBuilder builder = new();
         builder.WithContent("This is a test! StringSelect is valid for 30 seconds.");
 
         DiscordSelectComponentOption[] opts = new[]
@@ -87,11 +87,11 @@ public class SelectTests : BaseCommandModule
             new DiscordSelectComponentOption("Label 3", "the third option", emoji: new DiscordComponentEmoji("⬛")),
         };
 
-        DiscordSelectComponent select = new DiscordSelectComponent("yert", "Dropdowns!", opts, false);
+        DiscordSelectComponent select = new("yert", "Dropdowns!", opts, false);
 
-        DiscordButtonComponent btn1 = new DiscordButtonComponent(ButtonStyle.Primary, "no1", "Button 1!", true);
-        DiscordButtonComponent btn2 = new DiscordButtonComponent(ButtonStyle.Secondary, "no2", "Button 2!", true);
-        DiscordButtonComponent btn3 = new DiscordButtonComponent(ButtonStyle.Success, "no3", "Button 3!", true);
+        DiscordButtonComponent btn1 = new(ButtonStyle.Primary, "no1", "Button 1!", true);
+        DiscordButtonComponent btn2 = new(ButtonStyle.Secondary, "no2", "Button 2!", true);
+        DiscordButtonComponent btn3 = new(ButtonStyle.Success, "no3", "Button 3!", true);
 
         builder.AddComponents(btn1, btn2, btn3);
         builder.AddComponents(select);

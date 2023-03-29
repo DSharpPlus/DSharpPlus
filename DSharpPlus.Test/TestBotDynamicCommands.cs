@@ -69,15 +69,15 @@ public sealed class TestBotDynamicCommands : BaseCommandModule
             System.Collections.Generic.IEnumerable<PortableExecutableReference> references = AppDomain.CurrentDomain.GetAssemblies().Where(xa => !xa.IsDynamic && !string.IsNullOrWhiteSpace(xa.Location))
                 .Select(x => MetadataReference.CreateFromFile(x.Location));
 
-            SyntaxTree ast = SyntaxFactory.ParseSyntaxTree(cs, new CSharpParseOptions().WithKind(SourceCodeKind.Script).WithLanguageVersion(LanguageVersion.CSharp7_1));
-            CSharpCompilationOptions copts = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, false, null, null, typeName,
+            SyntaxTree ast = SyntaxFactory.ParseSyntaxTree(cs, new CSharpParseOptions().WithKind(SourceCodeKind.Script).WithLanguageVersion(LanguageVersion.CSharp9));
+            CSharpCompilationOptions copts = new(OutputKind.DynamicallyLinkedLibrary, false, null, null, typeName,
                 new[] { "System", "System.Collections.Generic", "System.Linq", "System.Text", "System.Threading.Tasks", "DSharpPlus", "DSharpPlus.Entities", "DSharpPlus.CommandsNext", "DSharpPlus.CommandsNext.Attributes", "DSharpPlus.Interactivity" },
                 OptimizationLevel.Release, false, true, null, null, default, null, Platform.AnyCpu, ReportDiagnostic.Default, 4, null, true, false, null, null, null, null, null, false);
 
             CSharpCompilation csc = CSharpCompilation.CreateScriptCompilation($"DynamicCommands{number}", ast, references, copts, null, typeof(object), null);
 
             Assembly asm = null;
-            using (MemoryStream ms = new MemoryStream())
+            using (MemoryStream ms = new())
             {
                 Microsoft.CodeAnalysis.Emit.EmitResult er = csc.Emit(ms);
                 ms.Position = 0;

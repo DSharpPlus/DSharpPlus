@@ -32,7 +32,7 @@ namespace DSharpPlus.Test;
 
 public class StickerTestCommands : BaseCommandModule
 {
-    private static readonly HttpClient _client = new HttpClient();
+    private static readonly HttpClient HttpClient = new();
 
     [Command]
     public async Task CreateStickerAsync(CommandContext ctx)
@@ -51,7 +51,7 @@ public class StickerTestCommands : BaseCommandModule
             return;
         }
 
-        MemoryStream ms = new MemoryStream(await _client.GetByteArrayAsync(mref.Attachments[0].Url));
+        MemoryStream ms = new(await HttpClient.GetByteArrayAsync(mref.Attachments[0].Url));
 
         try
         {
@@ -81,7 +81,7 @@ public class StickerTestCommands : BaseCommandModule
             return;
         }
 
-        DiscordMessageBuilder builder = new DiscordMessageBuilder
+        DiscordMessageBuilder builder = new()
         {
             Sticker = str
         };

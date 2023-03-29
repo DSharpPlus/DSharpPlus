@@ -42,7 +42,7 @@ public class VoiceTextTests : BaseCommandModule
 
         DiscordChannel channel = ctx.Member.VoiceState.Channel;
 
-        Stack<string> s = new Stack<string>();
+        Stack<string> s = new();
 
         try
         {
@@ -80,7 +80,7 @@ public class VoiceTextTests : BaseCommandModule
         }
         catch { this.ChannelFailed(s, "builder [action]"); }
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
         while (s.TryPop(out string? res))
         {
             sb.AppendLine(res);

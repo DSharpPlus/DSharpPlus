@@ -30,6 +30,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.VoiceNext;
 using DSharpPlus.VoiceNext.EventArgs;
@@ -121,7 +122,7 @@ public class TestBotVoiceCommands : BaseCommandModule
     [Command("join")]
     public async Task VoiceJoinAsync(CommandContext ctx)
     {
-        Entities.DiscordChannel? chn = ctx.Member?.VoiceState?.Channel;
+        DiscordChannel? chn = ctx.Member?.VoiceState?.Channel;
         if (chn == null)
         {
             await ctx.Message.RespondAsync("Your voice channel was not found or you are not connected").ConfigureAwait(false);
@@ -170,7 +171,7 @@ public class TestBotVoiceCommands : BaseCommandModule
             }
 
             using (FileStream fs = File.Create("index.txt"))
-            using (StreamWriter sw = new StreamWriter(fs, new UTF8Encoding(false)))
+            using (StreamWriter sw = new(fs, new UTF8Encoding(false)))
             {
                 foreach (System.Collections.Generic.KeyValuePair<uint, ulong> kvp in this._ssrcMap)
                 {
@@ -220,7 +221,7 @@ public class TestBotVoiceCommands : BaseCommandModule
             // borrowed from
             // https://github.com/RogueException/Discord.Net/blob/5ade1e387bb8ea808a9d858328e2d3db23fe0663/docs/guides/voice/samples/audio_create_ffmpeg.cs
 
-            ProcessStartInfo ffmpeg_inf = new ProcessStartInfo
+            ProcessStartInfo ffmpeg_inf = new()
             {
                 FileName = "ffmpeg",
                 Arguments = $"-i \"{snd}\" -ac 2 -f s16le -ar 48000 -",
@@ -278,14 +279,14 @@ public class TestBotVoiceCommands : BaseCommandModule
         this.AudioLoopCancelTokenSource = new CancellationTokenSource();
         this.AudioLoopTask = Task.Run(async () =>
         {
-            Entities.DiscordChannel chn = ctx.Channel;
+            DiscordChannel chn = ctx.Channel;
             CancellationToken token = this.AudioLoopCancelToken;
             try
             {
                 // borrowed from
                 // https://github.com/RogueException/Discord.Net/blob/5ade1e387bb8ea808a9d858328e2d3db23fe0663/docs/guides/voice/samples/audio_create_ffmpeg.cs
 
-                ProcessStartInfo ffmpeg_inf = new ProcessStartInfo
+                ProcessStartInfo ffmpeg_inf = new()
                 {
                     FileName = "ffmpeg",
                     Arguments = $"-i \"{snd}\" -ac 2 -f s16le -ar 48000 pipe:1",
@@ -368,7 +369,7 @@ public class TestBotVoiceCommands : BaseCommandModule
             // borrowed from
             // https://github.com/RogueException/Discord.Net/blob/5ade1e387bb8ea808a9d858328e2d3db23fe0663/docs/guides/voice/samples/audio_create_ffmpeg.cs
 
-            ProcessStartInfo ffmpeg_inf = new ProcessStartInfo
+            ProcessStartInfo ffmpeg_inf = new()
             {
                 FileName = "ffmpeg",
                 Arguments = $"-i \"{snd}\" -ac 2 -f s16le -ar 48000 pipe:1",

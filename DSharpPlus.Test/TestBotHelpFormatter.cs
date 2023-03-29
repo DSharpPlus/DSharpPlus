@@ -48,7 +48,7 @@ public sealed class TestBotHelpFormatter : BaseHelpFormatter
 
         if (command.Overloads.Count > 0)
         {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
 
             foreach (CommandOverload? ovl in command.Overloads.OrderByDescending(x => x.Priority))
             {
@@ -89,7 +89,7 @@ public sealed class TestBotHelpFormatter : BaseHelpFormatter
         if (subcommands?.Any() == true)
         {
             int ml = subcommands.Max(xc => xc.Name.Length);
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
             foreach (Command xc in subcommands)
             {
                 sb.Append(xc.Name.PadRight(ml, ' '))
@@ -103,6 +103,5 @@ public sealed class TestBotHelpFormatter : BaseHelpFormatter
         return this;
     }
 
-    public override CommandHelpMessage Build()
-        => new CommandHelpMessage($"```less\n{this.Content.ToString().Trim()}\n```");
+    public override CommandHelpMessage Build() => new($"```less\n{this.Content.ToString().Trim()}\n```");
 }

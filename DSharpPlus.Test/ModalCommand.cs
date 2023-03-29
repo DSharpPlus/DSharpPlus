@@ -27,6 +27,8 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
+using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.SlashCommands;
 
@@ -50,8 +52,8 @@ public class ModalSlashCommands : ApplicationCommandModule
             .AddComponents(new TextInputComponent(label: "User", customId: "id-user", value: "id-modal", max_length: 32));
         await ctx.CreateResponseAsync(InteractionResponseType.Modal, modal);
 
-        Interactivity.InteractivityExtension interactivity = ctx.Client.GetInteractivity();
-        Interactivity.InteractivityResult<EventArgs.ModalSubmitEventArgs> response = await interactivity.WaitForModalAsync("id-modal", user: ctx.User, timeoutOverride: TimeSpan.FromSeconds(30));
+        InteractivityExtension interactivity = ctx.Client.GetInteractivity();
+        InteractivityResult<ModalSubmitEventArgs> response = await interactivity.WaitForModalAsync("id-modal", user: ctx.User, timeoutOverride: TimeSpan.FromSeconds(30));
 
         if (!response.TimedOut)
         {
@@ -73,8 +75,8 @@ public class ModalSlashCommands : ApplicationCommandModule
             .AddComponents(new TextInputComponent(label: "Generic", customId: "id-generic", value: "id-modal", max_length: 32));
         await ctx.CreateResponseAsync(InteractionResponseType.Modal, modal);
 
-        Interactivity.InteractivityExtension interactivity = ctx.Client.GetInteractivity();
-        Interactivity.InteractivityResult<EventArgs.ModalSubmitEventArgs> response = await interactivity.WaitForModalAsync("id-modal", timeoutOverride: TimeSpan.FromSeconds(30));
+        InteractivityExtension interactivity = ctx.Client.GetInteractivity();
+        InteractivityResult<ModalSubmitEventArgs> response = await interactivity.WaitForModalAsync("id-modal", timeoutOverride: TimeSpan.FromSeconds(30));
 
         if (!response.TimedOut)
         {
@@ -97,8 +99,8 @@ public class ModalSlashCommands : ApplicationCommandModule
             .AddComponents(new TextInputComponent(label: "Salted", customId: "id-salted", value: modalId, max_length: 32));
         await ctx.CreateResponseAsync(InteractionResponseType.Modal, modal);
 
-        Interactivity.InteractivityExtension interactivity = ctx.Client.GetInteractivity();
-        Interactivity.InteractivityResult<EventArgs.ModalSubmitEventArgs> response = await interactivity.WaitForModalAsync(modalId, timeoutOverride: TimeSpan.FromSeconds(30));
+        InteractivityExtension interactivity = ctx.Client.GetInteractivity();
+        InteractivityResult<ModalSubmitEventArgs> response = await interactivity.WaitForModalAsync(modalId, timeoutOverride: TimeSpan.FromSeconds(30));
 
         if (!response.TimedOut)
         {

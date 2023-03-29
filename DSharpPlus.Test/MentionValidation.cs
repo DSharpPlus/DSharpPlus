@@ -33,7 +33,7 @@ public class MentionValidation : BaseCommandModule
     [Command("mention_test")]
     public async Task MentionTestAsync(CommandContext ctx, DiscordRole role)
     {
-        StringBuilder progressBuilder = new StringBuilder();
+        StringBuilder progressBuilder = new();
         DiscordMessage progressMessage = await ctx.RespondAsync("Waiting for results");
 
         DiscordMessage defaultMentionMessage = await new DiscordMessageBuilder().WithContent($"{ctx.User.Mention}, {role.Mention} Default").SendAsync(ctx.Channel);

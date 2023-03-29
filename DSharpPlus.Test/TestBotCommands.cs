@@ -37,7 +37,7 @@ namespace DSharpPlus.Test;
 
 public class TestBotCommands : BaseCommandModule
 {
-    public static ConcurrentDictionary<ulong, string> PrefixSettings { get; } = new ConcurrentDictionary<ulong, string>();
+    public static ConcurrentDictionary<ulong, string> PrefixSettings { get; } = new();
 
     [Command("crosspost")]
     public async Task CrosspostAsync(CommandContext ctx, DiscordChannel chn, DiscordMessage msg)
@@ -225,7 +225,7 @@ public class TestBotCommands : BaseCommandModule
     [Command("SendSomeFile")]
     public async Task SendSomeFileAsync(CommandContext ctx)
     {
-        using (FileStream fs = new FileStream("ADumbFile.txt", FileMode.Open, FileAccess.Read))
+        using (FileStream fs = new("ADumbFile.txt", FileMode.Open, FileAccess.Read))
         {
 
             // Verify that the lib resets the position when asked
@@ -290,19 +290,19 @@ public class TestBotCommands : BaseCommandModule
     [Command("CreateSomeFile")]
     public async Task CreateSomeFileAsync(CommandContext ctx, string fileName, [RemainingText] string fileBody)
     {
-        using (FileStream fs = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite))
-        using (StreamWriter sw = new StreamWriter(fs))
+        using (FileStream fs = new(fileName, FileMode.Create, FileAccess.ReadWrite))
+        using (StreamWriter sw = new(fs))
         {
             await sw.WriteAsync(fileBody);
         }
 
-        using (FileStream fs = new FileStream($"another {fileName}", FileMode.Create, FileAccess.ReadWrite))
-        using (StreamWriter sw = new StreamWriter(fs))
+        using (FileStream fs = new($"another {fileName}", FileMode.Create, FileAccess.ReadWrite))
+        using (StreamWriter sw = new(fs))
         {
             sw.AutoFlush = true;
             await sw.WriteLineAsync(fileBody);
             fs.Position = 0;
-            DiscordMessageBuilder builder = new DiscordMessageBuilder();
+            DiscordMessageBuilder builder = new();
             builder.WithContent("Here is a really dumb file that i am testing with.");
             //builder.WithFile(fileName);
             builder.AddFile(fs);
@@ -326,7 +326,7 @@ public class TestBotCommands : BaseCommandModule
     {
         DiscordWebhook webhook = await ctx.Channel.CreateWebhookAsync("webhook-test");
 
-        using (FileStream fs = new FileStream("ADumbFile.txt", FileMode.Open, FileAccess.Read))
+        using (FileStream fs = new("ADumbFile.txt", FileMode.Open, FileAccess.Read))
         {
 
             // Verify that the lib resets the position when asked
@@ -393,9 +393,9 @@ public class TestBotCommands : BaseCommandModule
     [Command("chainreply")]
     public async Task ChainReplyAsync(CommandContext ctx)
     {
-        DiscordMessageBuilder builder = new DiscordMessageBuilder();
+        DiscordMessageBuilder builder = new();
 
-        StringBuilder contentBuilder = new StringBuilder();
+        StringBuilder contentBuilder = new();
 
         ulong reply = ctx.Message.Id;
         bool ping = false;
@@ -465,7 +465,7 @@ public class TestBotCommands : BaseCommandModule
     public async Task GetMessageMentionsAsync(CommandContext ctx, ulong msgId)
     {
         DiscordMessage msg = await ctx.Channel.GetMessageAsync(msgId);
-        StringBuilder contentBuilder = new StringBuilder("You didn't mention any user, channel, or role.");
+        StringBuilder contentBuilder = new("You didn't mention any user, channel, or role.");
 
         if (msg.MentionedUsers.Any() || msg.MentionedRoles.Any() || msg.MentionedChannels.Any())
         {
@@ -486,7 +486,7 @@ public class TestBotCommands : BaseCommandModule
         }
 
         DiscordMessage message = await ctx.Channel.GetMessageAsync(messageId.Value);
-        StringBuilder contentBuilder = new StringBuilder("Message has no attachment.");
+        StringBuilder contentBuilder = new("Message has no attachment.");
 
 
         if (message.Attachments.Any())

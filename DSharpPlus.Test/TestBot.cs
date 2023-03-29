@@ -47,7 +47,7 @@ namespace DSharpPlus.Test;
 
 internal sealed class TestBot
 {
-    internal static EventId TestBotEventId { get; } = new EventId(1000, "TestBot");
+    internal static EventId TestBotEventId { get; } = new(1000, "TestBot");
 
     private TestBotConfig Config { get; }
     public DiscordClient Discord { get; }
@@ -60,7 +60,7 @@ internal sealed class TestBot
         this.Config = cfg;
 
         // discord instance config and the instance itself
-        DiscordConfiguration dcfg = new DiscordConfiguration
+        DiscordConfiguration dcfg = new()
         {
             AutoReconnect = true,
             LargeThreshold = 250,
@@ -111,17 +111,17 @@ internal sealed class TestBot
         this.Discord.ThreadMembersUpdated += this.Discord_ThreadMembersUpdated;
 
         // voice config and the voice service itself
-        VoiceNextConfiguration vcfg = new VoiceNextConfiguration
+        VoiceNextConfiguration vcfg = new()
         {
             AudioFormat = AudioFormat.Default,
             EnableIncoming = true
         };
 
         // build a dependency collection for commandsnext
-        ServiceCollection depco = new ServiceCollection();
+        ServiceCollection depco = new();
 
         // commandsnext config and the commandsnext service itself
-        CommandsNextConfiguration cncfg = new CommandsNextConfiguration
+        CommandsNextConfiguration cncfg = new()
         {
             StringPrefixes = this.Config.CommandPrefixes,
             EnableDms = true,
@@ -140,7 +140,7 @@ internal sealed class TestBot
         this.CommandsNextService.SetHelpFormatter<TestBotHelpFormatter>();
 
         // interactivity service
-        InteractivityConfiguration icfg = new InteractivityConfiguration()
+        InteractivityConfiguration icfg = new()
         {
             Timeout = TimeSpan.FromSeconds(10),
             ResponseBehavior = InteractionResponseBehavior.Respond,
@@ -224,8 +224,6 @@ internal sealed class TestBot
             .AddAutoCompleteChoice(new DiscordAutoCompleteChoice(option.Value as string, "pog ig"));
 
         await e.Interaction.CreateResponseAsync(InteractionResponseType.AutoCompleteResult, builder);
-
-        return;
     }
 
     private Task Discord_StickersUpdated(DiscordClient sender, GuildStickersUpdateEventArgs e)
@@ -236,7 +234,7 @@ internal sealed class TestBot
 
     public async Task RunAsync()
     {
-        DiscordActivity act = new DiscordActivity("the screams of your ancestors", ActivityType.ListeningTo);
+        DiscordActivity act = new("the screams of your ancestors", ActivityType.ListeningTo);
         await this.Discord.ConnectAsync(act, UserStatus.DoNotDisturb).ConfigureAwait(false);
     }
 
@@ -290,7 +288,7 @@ internal sealed class TestBot
 
         e.Context.Client.Logger.LogError(TestBotEventId, e.Exception, "Exception occurred during {User}'s invocation of '{Command}'", e.Context.User.Username, e.Context.Command.QualifiedName);
 
-        List<Exception> exs = new List<Exception>();
+        List<Exception> exs = new();
         if (e.Exception is AggregateException ae)
         {
             exs.AddRange(ae.InnerExceptions);
@@ -307,7 +305,7 @@ internal sealed class TestBot
                 return;
             }
 
-            DiscordEmbedBuilder embed = new DiscordEmbedBuilder
+            DiscordEmbedBuilder embed = new()
             {
                 Color = new DiscordColor("#FF0000"),
                 Title = "An exception occurred when executing a command",
@@ -333,7 +331,7 @@ internal sealed class TestBot
         DiscordEmoji emoji = DiscordEmoji.FromName(e.Context.Client, ":no_entry:");
 
         // let's wrap the response into an embed
-        DiscordEmbedBuilder embed = new DiscordEmbedBuilder
+        DiscordEmbedBuilder embed = new()
         {
             Title = "Error",
             Description = $"{emoji} Error!",
@@ -356,7 +354,7 @@ internal sealed class TestBot
 
     private Task Discord_GuildUpdated(DiscordClient client, GuildUpdateEventArgs e)
     {
-        StringBuilder str = new StringBuilder();
+        StringBuilder str = new();
 
         str.AppendLine($"The guild {e.GuildBefore.Name} has been updated.");
 

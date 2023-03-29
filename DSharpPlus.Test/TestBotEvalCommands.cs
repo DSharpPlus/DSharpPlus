@@ -65,7 +65,7 @@ public class TestBotEvalCommands : BaseCommandModule
 
         try
         {
-            TestVariables globals = new TestVariables(ctx.Message, ctx.Client, ctx);
+            TestVariables globals = new(ctx.Message, ctx.Client, ctx);
 
             ScriptOptions sopts = ScriptOptions.Default;
             sopts = sopts.WithImports("System", "System.Collections.Generic", "System.Linq", "System.Text", "System.Threading.Tasks", "DSharpPlus", "DSharpPlus.CommandsNext", "DSharpPlus.Interactivity", "Microsoft.Extensions.Logging");

@@ -311,7 +311,7 @@ public class TestBotLavaCommands : BaseCommandModule
         }
 
         Lavalink.Entities.LavalinkStatistics stats = this.Lavalink.Statistics;
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
         sb.Append("Lavalink resources usage statistics: ```")
             .Append("Uptime:                    ").Append(stats.Uptime).AppendLine()
             .Append("Players:                   ").AppendFormat("{0} active / {1} total", stats.ActivePlayers, stats.TotalPlayers).AppendLine()

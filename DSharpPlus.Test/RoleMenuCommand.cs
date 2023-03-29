@@ -15,7 +15,7 @@ public class RoleMenuCommand : BaseCommandModule
     [Command("role_menu")]
     public async Task RoleMenuAsync(CommandContext ctx, string message, string emojis, [RemainingText] params DiscordRole[] roles)
     {
-        IArgumentConverter<DiscordEmoji> converter = (IArgumentConverter<DiscordEmoji>)new DiscordEmojiConverter();
+        IArgumentConverter<DiscordEmoji> converter = new DiscordEmojiConverter();
         string[] split = emojis.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         DiscordEmoji[] emojiArray = new DiscordEmoji[roles.Length];
 
@@ -47,7 +47,7 @@ public class RoleMenuCommand : BaseCommandModule
             throw new ArgumentException($"One or more emojis is from a server I'm not in!\nNames: {string.Join(", ", unavailable.Select(u => u.GetDiscordName()))}");
         }
 
-        List<DiscordComponent> buttons = new List<DiscordComponent>(5);
+        List<DiscordComponent> buttons = new(5);
         List<List<(DiscordRole First, DiscordEmoji Second)>> chnk = roles.Zip(emojiArray).Chunk(5).OrderBy(l => l.Count).ToList();
 
         DiscordMessageBuilder builder = new DiscordMessageBuilder()
@@ -68,8 +68,8 @@ public class RoleMenuCommand : BaseCommandModule
                     throw new InvalidOperationException("Cannot assign role higher than your own!");
                 }
 
-                DiscordComponentEmoji e = new DiscordComponentEmoji(second.Id);
-                DiscordButtonComponent b = new DiscordButtonComponent(ButtonStyle.Success, $"{first.Mention}", "", emoji: e);
+                DiscordComponentEmoji e = new(second.Id);
+                DiscordButtonComponent b = new(ButtonStyle.Success, $"{first.Mention}", "", emoji: e);
                 buttons.Add(b);
             }
             builder.AddComponents(buttons.ToArray());
