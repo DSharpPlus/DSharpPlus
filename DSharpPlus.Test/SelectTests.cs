@@ -25,6 +25,8 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using DSharpPlus.EventArgs;
+using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
 
 namespace DSharpPlus.Test;
@@ -39,7 +41,7 @@ public class SelectTests : BaseCommandModule
     [Description("A test for select menus. This waits for one input.")]
     public async Task Select_Interactive_Test_1_Async(CommandContext ctx)
     {
-        Interactivity.InteractivityExtension input = ctx.Client.GetInteractivity();
+        InteractivityExtension input = ctx.Client.GetInteractivity();
         DiscordMessageBuilder builder = new();
         builder.WithContent("This is a test! StringSelect is valid for 30 seconds.");
 
@@ -60,7 +62,7 @@ public class SelectTests : BaseCommandModule
         builder.AddComponents(select);
 
         DiscordMessage msg = await builder.SendAsync(ctx.Channel);
-        Interactivity.InteractivityResult<EventArgs.ComponentInteractionCreateEventArgs> res = await input.WaitForSelectAsync(msg, "yert", TimeSpan.FromSeconds(30));
+        InteractivityResult<ComponentInteractionCreateEventArgs> res = await input.WaitForSelectAsync(msg, "yert", TimeSpan.FromSeconds(30));
 
         if (res.TimedOut)
         {
@@ -76,7 +78,7 @@ public class SelectTests : BaseCommandModule
     [Description("A test for select menus. This waits for two inputs.")]
     public async Task Select_Interactive_Test_2_Async(CommandContext ctx)
     {
-        Interactivity.InteractivityExtension input = ctx.Client.GetInteractivity();
+        InteractivityExtension input = ctx.Client.GetInteractivity();
         DiscordMessageBuilder builder = new();
         builder.WithContent("This is a test! StringSelect is valid for 30 seconds.");
 
@@ -98,7 +100,7 @@ public class SelectTests : BaseCommandModule
 
         DiscordMessage msg = await builder.SendAsync(ctx.Channel);
 wait:
-        Interactivity.InteractivityResult<EventArgs.ComponentInteractionCreateEventArgs> res = await input.WaitForSelectAsync(msg, "yert", TimeSpan.FromSeconds(30));
+        InteractivityResult<ComponentInteractionCreateEventArgs> res = await input.WaitForSelectAsync(msg, "yert", TimeSpan.FromSeconds(30));
 
         if (res.TimedOut)
         {

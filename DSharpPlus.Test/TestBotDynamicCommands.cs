@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -32,6 +33,7 @@ using DSharpPlus.CommandsNext.Builders;
 using DSharpPlus.Entities;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Emit;
 
 namespace DSharpPlus.Test;
 
@@ -66,7 +68,7 @@ public sealed class TestBotDynamicCommands : BaseCommandModule
         Type moduleType = null;
         try
         {
-            System.Collections.Generic.IEnumerable<PortableExecutableReference> references = AppDomain.CurrentDomain.GetAssemblies().Where(xa => !xa.IsDynamic && !string.IsNullOrWhiteSpace(xa.Location))
+            IEnumerable<PortableExecutableReference> references = AppDomain.CurrentDomain.GetAssemblies().Where(xa => !xa.IsDynamic && !string.IsNullOrWhiteSpace(xa.Location))
                 .Select(x => MetadataReference.CreateFromFile(x.Location));
 
             SyntaxTree ast = SyntaxFactory.ParseSyntaxTree(cs, new CSharpParseOptions().WithKind(SourceCodeKind.Script).WithLanguageVersion(LanguageVersion.CSharp9));
@@ -79,7 +81,7 @@ public sealed class TestBotDynamicCommands : BaseCommandModule
             Assembly asm = null;
             using (MemoryStream ms = new())
             {
-                Microsoft.CodeAnalysis.Emit.EmitResult er = csc.Emit(ms);
+                EmitResult er = csc.Emit(ms);
                 ms.Position = 0;
 
                 asm = Assembly.Load(ms.ToArray());
