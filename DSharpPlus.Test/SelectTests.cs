@@ -27,82 +27,91 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Extensions;
 
-namespace DSharpPlus.Test
+namespace DSharpPlus.Test;
+
+public class SelectTests : BaseCommandModule
 {
-    public class SelectTests : BaseCommandModule
+    [Command("send_select")]
+    public async Task SendSelectAsync(CommandContext ctx)
+        => await ctx.RespondAsync("This is missing an implementation!");
+
+    [Command("Select_Interactive_Test_1")]
+    [Description("A test for select menus. This waits for one input.")]
+    public async Task Select_Interactive_Test_1_Async(CommandContext ctx)
     {
-        [Command("send_select")]
-        public async Task SendSelectAsync(CommandContext ctx)
-            => await ctx.RespondAsync("This is missing an implementation!");
+        Interactivity.InteractivityExtension input = ctx.Client.GetInteractivity();
+        DiscordMessageBuilder builder = new DiscordMessageBuilder();
+        builder.WithContent("This is a test! StringSelect is valid for 30 seconds.");
 
-        [Command("Select_Interactive_Test_1")]
-        [Description("A test for select menus. This waits for one input.")]
-        public async Task Select_Interactive_Test_1_Async(CommandContext ctx)
+        DiscordSelectComponentOption[] opts = new[]
         {
-            var input = ctx.Client.GetInteractivity();
-            var builder = new DiscordMessageBuilder();
-            builder.WithContent("This is a test! StringSelect is valid for 30 seconds.");
+            new DiscordSelectComponentOption("Label 1", "the first option", emoji: new DiscordComponentEmoji("⬜")),
+            new DiscordSelectComponentOption("Label 2", "the second option", emoji: new DiscordComponentEmoji("🟦")),
+            new DiscordSelectComponentOption("Label 3", "the third option", emoji: new DiscordComponentEmoji("⬛")),
+        };
 
-            var opts = new[]
-            {
-                new DiscordSelectComponentOption("Label 1", "the first option", emoji: new DiscordComponentEmoji("⬜")),
-                new DiscordSelectComponentOption("Label 2", "the second option", emoji: new DiscordComponentEmoji("🟦")),
-                new DiscordSelectComponentOption("Label 3", "the third option", emoji: new DiscordComponentEmoji("⬛")),
-            };
+        DiscordSelectComponent select = new DiscordSelectComponent("yert", "Dropdowns!", opts, true, 0, 1);
 
-            var select = new DiscordSelectComponent("yert", "Dropdowns!", opts, true, 0, 1);
+        DiscordButtonComponent btn1 = new DiscordButtonComponent(ButtonStyle.Primary, "no1", "Button 1!", true);
+        DiscordButtonComponent btn2 = new DiscordButtonComponent(ButtonStyle.Secondary, "no2", "Button 2!", true);
+        DiscordButtonComponent btn3 = new DiscordButtonComponent(ButtonStyle.Success, "no3", "Button 3!", true);
 
-            var btn1 = new DiscordButtonComponent(ButtonStyle.Primary, "no1", "Button 1!", true);
-            var btn2 = new DiscordButtonComponent(ButtonStyle.Secondary, "no2", "Button 2!", true);
-            var btn3 = new DiscordButtonComponent(ButtonStyle.Success, "no3", "Button 3!", true);
+        builder.AddComponents(btn1, btn2, btn3);
+        builder.AddComponents(select);
 
-            builder.AddComponents(btn1, btn2, btn3);
-            builder.AddComponents(select);
+        DiscordMessage msg = await builder.SendAsync(ctx.Channel);
+        Interactivity.InteractivityResult<EventArgs.ComponentInteractionCreateEventArgs> res = await input.WaitForSelectAsync(msg, "yert", TimeSpan.FromSeconds(30));
 
-            var msg = await builder.SendAsync(ctx.Channel);
-            var res = await input.WaitForSelectAsync(msg, "yert", TimeSpan.FromSeconds(30));
-
-            if (res.TimedOut)
-                await ctx.RespondAsync("Sorry but it timed out!");
-            else
-                await ctx.RespondAsync($"You selected {string.Join(", ", res.Result.Values)}");
+        if (res.TimedOut)
+        {
+            await ctx.RespondAsync("Sorry but it timed out!");
         }
-
-        [Command("Select_Interactive_Test_2")]
-        [Description("A test for select menus. This waits for two inputs.")]
-        public async Task Select_Interactive_Test_2_Async(CommandContext ctx)
+        else
         {
-            var input = ctx.Client.GetInteractivity();
-            var builder = new DiscordMessageBuilder();
-            builder.WithContent("This is a test! StringSelect is valid for 30 seconds.");
+            await ctx.RespondAsync($"You selected {string.Join(", ", res.Result.Values)}");
+        }
+    }
 
-            var opts = new[]
-            {
-                new DiscordSelectComponentOption("Label 1", "the first option", emoji: new DiscordComponentEmoji("⬜")),
-                new DiscordSelectComponentOption("Label 2", "the second option", emoji: new DiscordComponentEmoji("🟦")),
-                new DiscordSelectComponentOption("Label 3", "the third option", emoji: new DiscordComponentEmoji("⬛")),
-            };
+    [Command("Select_Interactive_Test_2")]
+    [Description("A test for select menus. This waits for two inputs.")]
+    public async Task Select_Interactive_Test_2_Async(CommandContext ctx)
+    {
+        Interactivity.InteractivityExtension input = ctx.Client.GetInteractivity();
+        DiscordMessageBuilder builder = new DiscordMessageBuilder();
+        builder.WithContent("This is a test! StringSelect is valid for 30 seconds.");
 
-            var select = new DiscordSelectComponent("yert", "Dropdowns!", opts, false);
+        DiscordSelectComponentOption[] opts = new[]
+        {
+            new DiscordSelectComponentOption("Label 1", "the first option", emoji: new DiscordComponentEmoji("⬜")),
+            new DiscordSelectComponentOption("Label 2", "the second option", emoji: new DiscordComponentEmoji("🟦")),
+            new DiscordSelectComponentOption("Label 3", "the third option", emoji: new DiscordComponentEmoji("⬛")),
+        };
 
-            var btn1 = new DiscordButtonComponent(ButtonStyle.Primary, "no1", "Button 1!", true);
-            var btn2 = new DiscordButtonComponent(ButtonStyle.Secondary, "no2", "Button 2!", true);
-            var btn3 = new DiscordButtonComponent(ButtonStyle.Success, "no3", "Button 3!", true);
+        DiscordSelectComponent select = new DiscordSelectComponent("yert", "Dropdowns!", opts, false);
 
-            builder.AddComponents(btn1, btn2, btn3);
-            builder.AddComponents(select);
+        DiscordButtonComponent btn1 = new DiscordButtonComponent(ButtonStyle.Primary, "no1", "Button 1!", true);
+        DiscordButtonComponent btn2 = new DiscordButtonComponent(ButtonStyle.Secondary, "no2", "Button 2!", true);
+        DiscordButtonComponent btn3 = new DiscordButtonComponent(ButtonStyle.Success, "no3", "Button 3!", true);
 
-            var msg = await builder.SendAsync(ctx.Channel);
-        wait:
-            var res = await input.WaitForSelectAsync(msg, "yert", TimeSpan.FromSeconds(30));
+        builder.AddComponents(btn1, btn2, btn3);
+        builder.AddComponents(select);
 
-            if (res.TimedOut)
-                await ctx.RespondAsync("Sorry but it timed out!");
-            else if (res.Result.Values.Length != 2)
-                goto wait; // I'm lazy. A while(true) or while (res?.Result.Values.Length != 2 ?? false) would be better. This duplicates messages.
-                           // Velvet, why would you do this? You're scaring the children! - Lunar
-            else
-                await ctx.RespondAsync($"You selected {string.Join(", ", res.Result.Values)}");
+        DiscordMessage msg = await builder.SendAsync(ctx.Channel);
+wait:
+        Interactivity.InteractivityResult<EventArgs.ComponentInteractionCreateEventArgs> res = await input.WaitForSelectAsync(msg, "yert", TimeSpan.FromSeconds(30));
+
+        if (res.TimedOut)
+        {
+            await ctx.RespondAsync("Sorry but it timed out!");
+        }
+        else if (res.Result.Values.Length != 2)
+        {
+            goto wait; // I'm lazy. A while(true) or while (res?.Result.Values.Length != 2 ?? false) would be better. This duplicates messages.
+        }
+        // Velvet, why would you do this? You're scaring the children! - Lunar
+        else
+        {
+            await ctx.RespondAsync($"You selected {string.Join(", ", res.Result.Values)}");
         }
     }
 }
