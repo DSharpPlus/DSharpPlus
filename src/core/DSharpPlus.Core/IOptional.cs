@@ -5,5 +5,5 @@
 /// </summary>
 public interface IOptional
 {
-    public bool HasValue { get; set; }
+    public bool HasValue { get; }
 }

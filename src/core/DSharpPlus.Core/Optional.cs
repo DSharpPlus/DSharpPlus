@@ -34,7 +34,7 @@ public record struct Optional<T> : IOptional
     /// <summary>
     /// Specifies whether this instance represents a value.
     /// </summary>
-    public bool HasValue { get; set; } = false;
+    public bool HasValue { get; internal set; } = false;
 
     /// <summary>
     /// Specifies whether this instance represents a value that is not null.
