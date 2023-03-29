@@ -28,68 +28,64 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 
-namespace DSharpPlus.Test
+namespace DSharpPlus.Test;
+
+public class Role_IconTest : BaseCommandModule
 {
-    public class Role_IconTest : BaseCommandModule
+    [Command("fetch")]
+    public async Task FetchAsync(CommandContext ctx, DiscordRole role) => await ctx.RespondAsync(
+            $"Role: {role.Mention}\n" +
+            $"Role has icon: {role.IconHash != null}\n" +
+            $"Associated emoji: {role.Emoji}\n" +
+            $"Role icon: {role.IconUrl ?? "Not applicable"}");
+
+    [Command("create")]
+    public async Task CreateAsync(CommandContext ctx, string name, DiscordColor color = default)
     {
-        [Command("fetch")]
-        public async Task FetchAsync(CommandContext ctx, DiscordRole role)
+        if (!ctx.Message.Attachments.Any())
         {
-            await ctx.RespondAsync(
-                $"Role: {role.Mention}\n" +
-                $"Role has icon: {role.IconHash != null}\n" +
-                $"Associated emoji: {role.Emoji}\n" +
-                $"Role icon: {role.IconUrl ?? "Not applicable"}");
+            await ctx.RespondAsync("Provide an image please");
+            return;
         }
 
-        [Command("create")]
-        public async Task CreateAsync(CommandContext ctx, string name, DiscordColor color = default)
+        FileStream fileStream = File.Open("./icon.png", FileMode.OpenOrCreate);
+        await (await new HttpClient().GetStreamAsync(ctx.Message.Attachments[0].Url)).CopyToAsync(fileStream);
+        fileStream.Close();
+
+        FileStream stream = File.OpenRead("./icon.png");
+        DiscordRole role = await ctx.Guild.CreateRoleAsync(name, Permissions.None, color, icon: stream, emoji: DiscordEmoji.FromUnicode("👀"));
+
+        await ctx.RespondAsync($"Created role! {role.Mention}");
+
+        await ctx.Member.GrantRoleAsync(role);
+    }
+
+    [Command("edit")]
+    public async Task EditAsync(CommandContext ctx, DiscordRole role)
+    {
+        if (!ctx.Message.Attachments.Any())
         {
-            if (!ctx.Message.Attachments.Any())
-            {
-                await ctx.RespondAsync("Provide an image please");
-                return;
-            }
-
-            var fileStream = File.Open("./icon.png", FileMode.OpenOrCreate);
-            await (await new HttpClient().GetStreamAsync(ctx.Message.Attachments[0].Url)).CopyToAsync(fileStream);
-            fileStream.Close();
-
-            var stream = File.OpenRead("./icon.png");
-            var role = await ctx.Guild.CreateRoleAsync(name, Permissions.None, color, icon: stream, emoji: DiscordEmoji.FromUnicode("👀"));
-
-            await ctx.RespondAsync($"Created role! {role.Mention}");
-
-            await ctx.Member.GrantRoleAsync(role);
+            await ctx.RespondAsync("Provide an image please");
+            return;
         }
 
-        [Command("edit")]
-        public async Task EditAsync(CommandContext ctx, DiscordRole role)
-        {
-            if (!ctx.Message.Attachments.Any())
-            {
-                await ctx.RespondAsync("Provide an image please");
-                return;
-            }
+        FileStream fileStream = File.Open("./icon.png", FileMode.OpenOrCreate);
+        await (await new HttpClient().GetStreamAsync(ctx.Message.Attachments[0].Url)).CopyToAsync(fileStream);
+        fileStream.Close();
 
-            var fileStream = File.Open("./icon.png", FileMode.OpenOrCreate);
-            await (await new HttpClient().GetStreamAsync(ctx.Message.Attachments[0].Url)).CopyToAsync(fileStream);
-            fileStream.Close();
+        FileStream stream = File.OpenRead("./icon.png");
+        await role.ModifyAsync(icon: stream);
 
-            var stream = File.OpenRead("./icon.png");
-            await role.ModifyAsync(icon: stream);
+        await ctx.RespondAsync($"Edited role! {role.Mention}");
 
-            await ctx.RespondAsync($"Edited role! {role.Mention}");
+    }
 
-        }
+    [Command("edit")]
+    public async Task EditAsync(CommandContext ctx, DiscordRole role, DiscordEmoji emoji)
+    {
+        await role.ModifyAsync(emoji: emoji);
 
-        [Command("edit")]
-        public async Task EditAsync(CommandContext ctx, DiscordRole role, DiscordEmoji emoji)
-        {
-            await role.ModifyAsync(emoji: emoji);
+        await ctx.RespondAsync($"Edited role! {role.Mention}");
 
-            await ctx.RespondAsync($"Edited role! {role.Mention}");
-
-        }
     }
 }

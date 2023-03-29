@@ -38,10 +38,10 @@ public class ForumTest : BaseCommandModule
             return;
         }
 
-        var post = new ForumPostBuilder().WithName("D#+ Test!!").WithMessage(new DiscordMessageBuilder().WithContent("Code is working! uwu"));
+        ForumPostBuilder post = new ForumPostBuilder().WithName("D#+ Test!!").WithMessage(new DiscordMessageBuilder().WithContent("Code is working! uwu"));
 
-        var post_ = await fc.CreateForumPostAsync(post);
-        
+        DiscordForumPostStarter post_ = await fc.CreateForumPostAsync(post);
+
         await ctx.RespondAsync($"Created post {post_.Channel.Name} in {fc.Name}.");
     }
 

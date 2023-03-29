@@ -23,14 +23,13 @@
 using System.Threading.Tasks;
 using DSharpPlus.SlashCommands;
 
-namespace DSharpPlus.Test
-{
-    public class SlashCommandPermissionTest : ApplicationCommandModule
-    {
-        [SlashCommand("perms", "Test command for permissions")]
-        [SlashCommandPermissions(Permissions.BanMembers)]
-        public Task PermissionsTest(InteractionContext ctx)
-            => ctx.CreateResponseAsync("You have the Manage Guild permission!");
+namespace DSharpPlus.Test;
 
-    }
+public class SlashCommandPermissionTest : ApplicationCommandModule
+{
+    [SlashCommand("perms", "Test command for permissions")]
+    [SlashCommandPermissions(Permissions.BanMembers)]
+    public Task PermissionsTest(InteractionContext ctx)
+        => ctx.CreateResponseAsync("You have the Manage Guild permission!");
+
 }
