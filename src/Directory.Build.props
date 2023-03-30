@@ -1,0 +1,54 @@
+<Project>
+    <PropertyGroup>
+        <!-- general properties -->
+        <VersionPrefix>5.0.0</VersionPrefix>
+        <TargetFramework>net7.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <LangVersion>Latest</LangVersion>
+        <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+        <Authors>Naamloos, afroraydude, DrCreo, Death, TiaqoY0, Axiom, Emzi0767, IDoEverything, Velvet, OoLunar, akiraveliara, DSharpPlus contributors</Authors>
+        <Company>DSharpPlus developers</Company>
+        <PackageProjectUrl>https://github.com/DSharpPlus/DSharpPlus</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/DSharpPlus/DSharpPlus</RepositoryUrl>
+        <RepositoryType>Git</RepositoryType>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageIcon>dsharpplus.png</PackageIcon>
+        <PackageIconUrl>https://raw.githubusercontent.com/DSharpPlus/DSharpPlus/master/logo/dsharpplus.png</PackageIconUrl>
+        <GenerateDocumentationFile>True</GenerateDocumentationFile>
+        <NoWarn>CS1591</NoWarn>
+        <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+        <ManagePackageVersionsCentrally>True</ManagePackageVersionsCentrally>
+
+        <!-- SourceLink -->
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+        <Optimize>False</Optimize>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(VersionSuffix)' != '' And '$(BuildNumber)' != ''">
+        <Version>$(VersionPrefix)-$(VersionSuffix)-$(BuildNumber)</Version>
+        <AssemblyVersion>$(VersionPrefix).$(BuildNumber)</AssemblyVersion>
+        <FileVersion>$(VersionPrefix).$(BuildNumber)</FileVersion>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(VersionSuffix)' != '' And '$(BuildNumber)' == ''">
+        <Version>$(VersionPrefix)-$(VersionSuffix)</Version>
+        <AssemblyVersion>$(VersionPrefix).0</AssemblyVersion>
+        <FileVersion>$(VersionPrefix).0</FileVersion>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(VersionSuffix)' == ''">
+        <Version>$(VersionPrefix)</Version>
+        <AssemblyVersion>$(VersionPrefix).0</AssemblyVersion>
+        <FileVersion>$(VersionPrefix).0</FileVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="../../../logo/dsharpplus.png" Pack="true" PackagePath="/"/>
+    </ItemGroup>
+</Project>
