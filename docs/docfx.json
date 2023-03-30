@@ -13,13 +13,11 @@
       ],
       "dest": "api",
       "filter": "filter_config.yml",
-      "shouldSkipMarkup": true
+      "shouldSkipMarkup": true,
+      "memberLayout": "separatePages"
     }
   ],
   "build": {
-    "xrefService": [
-      "https://xref.docs.microsoft.com/query?uid={uid}"
-    ],
     "content": [
       {
         "files": [

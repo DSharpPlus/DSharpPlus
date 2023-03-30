@@ -5,11 +5,11 @@ title: Frequently Asked Questions
 
 # Frequently Asked Questions
 
-## I've updated from an old version to the latest version and my project won't build!
+## I have updated from an old version to the latest version and my project will not build!
 Please read the latest [migration article][0] to see a list of changes, as major version
 releases will usually have several breaking changes.
 
-## Code I copied from an article isn't compiling or working as expected. Why?
+## Code I copied from an article is not compiling or working as expected. Why?
 *Please use the code snippets as a reference; don't blindly copy-paste code!*
 
 The snippets of code in the articles are meant to serve as examples to help you understand how to use a part of the
@@ -17,7 +17,7 @@ library. Although most will compile and work at the time of writing, changes to 
 snippets obsolete. Many issues can be resolved with Intellisense by searching for similarly named methods and verifying
 method parameters.
 
-## I'm targeting Mono and have exceptions, crashes, or other problems.
+## I am targeting Mono and have exceptions, crashes, or other problems.
 As mentioned in the [preamble][1], the Mono runtime is inherently unstable and has numerous flaws. Because of this we
 do not support Mono in any way, nor will we support any other projects which use it.
 
@@ -36,7 +36,7 @@ There are two possible reasons:
 
 ### Connection issue between your bot application and Discord.
 Check your internet connection and ensure that the machine your bot is hosted on has a stable internet connection. If
-your local network has no issues, the problem could be with either Discord or Cloudfare. In which case, it's out of your
+your local network has no issues, the problem could be with either Discord or Cloudflare. In which case, it is out of your
 control.
 
 ### Complex, long-running code in an event handler.
@@ -81,8 +81,8 @@ You can use either of the following
 Yes. Use LINQ on the @DSharpPlus.Entities.DiscordGuild.Roles property of your instance of @DSharpPlus.Entities.DiscordGuild and compare against the
 @DSharpPlus.Entities.DiscordRole.Name of each @DSharpPlus.Entities.DiscordRole.
 
-## Why are you using [Newtonsoft.Json][10] when <xref:System.Text.Json> is available?
-Yes, <xref:System.Text.Json> is available to use, and we aim to use <xref:System.Text.Json> in DSharpPlus v5. Because of the large
+## Why are you using [Newtonsoft.Json][10] when System.Text.Json is available?
+Yes, System.Text.Json is available to use, and we aim to use System.Text.Json in DSharpPlus v5. Because of the large
 effort associated with switching, v4 will continue to use [Newtonsoft.Json][10]
 
 ## Why the hell are my events not firing?
