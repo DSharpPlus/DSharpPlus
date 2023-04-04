@@ -13,11 +13,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DSharpPlus.VoiceNext.Natives"/>
+    <PackageReference Include="OoLunar.DSharpPlus.VoiceLink.Natives.Opus"/>
+    <PackageReference Include="OoLunar.DSharpPlus.VoiceLink.Natives.Sodium"/>
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj"/>
+    <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj" />
   </ItemGroup>
 
 </Project>
