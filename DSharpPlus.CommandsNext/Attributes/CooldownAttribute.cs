@@ -138,7 +138,7 @@ namespace DSharpPlus.CommandsNext.Attributes
                 _buckets.AddOrUpdate(bucketId, bucket, (key, value) => bucket);
             }
 
-            return await bucket.DecrementUseAsync().ConfigureAwait(false);
+            return await bucket.DecrementUseAsync();
         }
     }
 
@@ -260,7 +260,7 @@ namespace DSharpPlus.CommandsNext.Attributes
         /// <returns>Whether decrement succeded or not.</returns>
         internal async Task<bool> DecrementUseAsync()
         {
-            await this._usageSemaphore.WaitAsync().ConfigureAwait(false);
+            await this._usageSemaphore.WaitAsync();
 
             // if we're past reset time...
             var now = DateTimeOffset.UtcNow;

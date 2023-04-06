@@ -259,7 +259,7 @@ namespace DSharpPlus.CommandsNext
                     {
                         try
                         {
-                            array.SetValue(await ctx.CommandsNext.ConvertArgument(rawArgumentList[i], ctx, arg.Type).ConfigureAwait(false), i - start);
+                            array.SetValue(await ctx.CommandsNext.ConvertArgument(rawArgumentList[i], ctx, arg.Type), i - start);
                         }
                         catch (Exception ex)
                         {
@@ -275,7 +275,7 @@ namespace DSharpPlus.CommandsNext
                 {
                     try
                     {
-                        args[i + 2] = rawArgumentList[i] != null ? await ctx.CommandsNext.ConvertArgument(rawArgumentList[i], ctx, arg.Type).ConfigureAwait(false) : arg.DefaultValue;
+                        args[i + 2] = rawArgumentList[i] != null ? await ctx.CommandsNext.ConvertArgument(rawArgumentList[i], ctx, arg.Type) : arg.DefaultValue;
                     }
                     catch (Exception ex)
                     {

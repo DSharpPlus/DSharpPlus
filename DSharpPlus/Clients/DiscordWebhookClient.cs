@@ -122,7 +122,7 @@ namespace DSharpPlus
             if (this._hooks.Any(x => x.Id == id))
                 throw new InvalidOperationException("This webhook is registered with this client.");
 
-            var wh = await this._apiclient.GetWebhookWithTokenAsync(id, token).ConfigureAwait(false);
+            var wh = await this._apiclient.GetWebhookWithTokenAsync(id, token);
             this._hooks.Add(wh);
 
             return wh;
@@ -165,7 +165,7 @@ namespace DSharpPlus
             if (this._hooks.Any(x => x.Id == id))
                 throw new ArgumentException("This webhook is already registered with this client.");
 
-            var wh = await client.ApiClient.GetWebhookAsync(id).ConfigureAwait(false);
+            var wh = await client.ApiClient.GetWebhookAsync(id);
             // personally I don't think we need to override anything.
             // it would even make sense to keep the hook as-is, in case
             // it's returned without a token for some bizarre reason
@@ -256,7 +256,7 @@ namespace DSharpPlus
             {
                 try
                 {
-                    messages.Add(hook, await hook.ExecuteAsync(builder).ConfigureAwait(false));
+                    messages.Add(hook, await hook.ExecuteAsync(builder));
                 }
                 catch (NotFoundException)
                 {

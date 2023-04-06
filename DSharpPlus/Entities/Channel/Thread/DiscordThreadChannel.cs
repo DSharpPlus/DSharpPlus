@@ -149,7 +149,7 @@ namespace DSharpPlus.Entities
             action(mdl);
             await this.Discord.ApiClient.ModifyThreadChannelAsync(this.Id, mdl.Name, mdl.Position, mdl.Topic, mdl.Nsfw,
                 mdl.Parent.HasValue ? mdl.Parent.Value?.Id : default(Optional<ulong?>), mdl.Bitrate, mdl.Userlimit, mdl.PerUserRateLimit, mdl.RtcRegion.IfPresent(r => r?.Id),
-                mdl.QualityMode, mdl.Type, mdl.PermissionOverwrites, mdl.IsArchived, mdl.AutoArchiveDuration, mdl.Locked, mdl.AuditLogReason, mdl.AppliedTags).ConfigureAwait(false);
+                mdl.QualityMode, mdl.Type, mdl.PermissionOverwrites, mdl.IsArchived, mdl.AutoArchiveDuration, mdl.Locked, mdl.AuditLogReason, mdl.AppliedTags);
 
             // We set these *after* the rest request so that Discord can validate the properties. This is useful if the requirements ever change.
             if (!string.IsNullOrWhiteSpace(mdl.Name))

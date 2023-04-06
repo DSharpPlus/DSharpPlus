@@ -153,7 +153,7 @@ namespace DSharpPlus.Entities
         public async Task<IReadOnlyList<DiscordApplicationAsset>> GetAssetsAsync(bool updateCache = false)
         {
             if (updateCache || this.Assets == null)
-                this.Assets = await this.Discord.ApiClient.GetApplicationAssetsAsync(this).ConfigureAwait(false);
+                this.Assets = await this.Discord.ApiClient.GetApplicationAssetsAsync(this);
 
             return this.Assets;
         }

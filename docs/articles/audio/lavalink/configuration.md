@@ -64,12 +64,7 @@ namespace MyFirstMusicBot
     {
         public static DiscordClient Discord;
 
-        static void Main(string[] args)
-        {
-            MainAsync(args).ConfigureAwait(false).GetAwaiter().GetResult();
-        }
-
-        static async Task MainAsync(string[] args)
+        public static async Task Main(string[] args)
         {
             Discord = new DiscordClient(new DiscordConfiguration
             {
@@ -94,8 +89,8 @@ namespace MyFirstMusicBot
             var lavalink = Discord.UseLavalink();
 
             await Discord.ConnectAsync();
-            await lavalink.ConnectAsync(lavalinkConfig); // Make sure this is after Discord.ConnectAsync(). 
-                                                         
+            await lavalink.ConnectAsync(lavalinkConfig); // Make sure this is after Discord.ConnectAsync().
+
             await Task.Delay(-1);
         }
     }

@@ -93,7 +93,7 @@ namespace DSharpPlus.CommandsNext.Executors
                 if (ctx is null)
                     continue;
 
-                await ctx.CommandsNext.ExecuteCommandAsync(ctx).ConfigureAwait(false);
+                await ctx.CommandsNext.ExecuteCommandAsync(ctx);
             }
         }
     }

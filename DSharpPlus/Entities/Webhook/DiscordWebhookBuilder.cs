@@ -112,7 +112,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="webhook">The webhook that should be executed.</param>
         /// <returns>The message sent</returns>
-        public async Task<DiscordMessage> SendAsync(DiscordWebhook webhook) => await webhook.ExecuteAsync(this).ConfigureAwait(false);
+        public async Task<DiscordMessage> SendAsync(DiscordWebhook webhook) => await webhook.ExecuteAsync(this);
 
         /// <summary>
         /// Sends the modified webhook message.
@@ -120,14 +120,14 @@ namespace DSharpPlus.Entities
         /// <param name="webhook">The webhook that should be executed.</param>
         /// <param name="message">The message to modify.</param>
         /// <returns>The modified message</returns>
-        public async Task<DiscordMessage> ModifyAsync(DiscordWebhook webhook, DiscordMessage message) => await this.ModifyAsync(webhook, message.Id).ConfigureAwait(false);
+        public async Task<DiscordMessage> ModifyAsync(DiscordWebhook webhook, DiscordMessage message) => await this.ModifyAsync(webhook, message.Id);
         /// <summary>
         /// Sends the modified webhook message.
         /// </summary>
         /// <param name="webhook">The webhook that should be executed.</param>
         /// <param name="messageId">The id of the message to modify.</param>
         /// <returns>The modified message</returns>
-        public async Task<DiscordMessage> ModifyAsync(DiscordWebhook webhook, ulong messageId) => await webhook.EditMessageAsync(messageId, this).ConfigureAwait(false);
+        public async Task<DiscordMessage> ModifyAsync(DiscordWebhook webhook, ulong messageId) => await webhook.EditMessageAsync(messageId, this);
 
         /// <summary>
         /// Does the validation before we send a the Create/Modify request.

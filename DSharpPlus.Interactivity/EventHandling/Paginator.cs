@@ -52,12 +52,12 @@ namespace DSharpPlus.Interactivity.EventHandling
 
         public async Task DoPaginationAsync(IPaginationRequest request)
         {
-            await this.ResetReactionsAsync(request).ConfigureAwait(false);
+            await this.ResetReactionsAsync(request);
             this._requests.Add(request);
             try
             {
-                var tcs = await request.GetTaskCompletionSourceAsync().ConfigureAwait(false);
-                await tcs.Task.ConfigureAwait(false);
+                var tcs = await request.GetTaskCompletionSourceAsync();
+                await tcs.Task;
             }
             catch (Exception ex)
             {
@@ -68,7 +68,7 @@ namespace DSharpPlus.Interactivity.EventHandling
                 this._requests.TryRemove(request);
                 try
                 {
-                    await request.DoCleanupAsync().ConfigureAwait(false);
+                    await request.DoCleanupAsync();
                 }
                 catch (Exception ex)
                 {
@@ -86,9 +86,9 @@ namespace DSharpPlus.Interactivity.EventHandling
             {
                 foreach (var req in this._requests)
                 {
-                    var emojis = await req.GetEmojisAsync().ConfigureAwait(false);
-                    var msg = await req.GetMessageAsync().ConfigureAwait(false);
-                    var usr = await req.GetUserAsync().ConfigureAwait(false);
+                    var emojis = await req.GetEmojisAsync();
+                    var msg = await req.GetMessageAsync();
+                    var usr = await req.GetUserAsync();
 
                     if (msg.Id == eventargs.Message.Id)
                     {
@@ -101,17 +101,17 @@ namespace DSharpPlus.Interactivity.EventHandling
                                  eventargs.Emoji == emojis.SkipRight ||
                                  eventargs.Emoji == emojis.Stop))
                             {
-                                await this.PaginateAsync(req, eventargs.Emoji).ConfigureAwait(false);
+                                await this.PaginateAsync(req, eventargs.Emoji);
                             }
                             else if (eventargs.Emoji == emojis.Stop &&
                                      req is PaginationRequest paginationRequest &&
                                      paginationRequest.PaginationDeletion == PaginationDeletion.DeleteMessage)
                             {
-                                await this.PaginateAsync(req, eventargs.Emoji).ConfigureAwait(false);
+                                await this.PaginateAsync(req, eventargs.Emoji);
                             }
                             else
                             {
-                                await msg.DeleteReactionAsync(eventargs.Emoji, eventargs.User).ConfigureAwait(false);
+                                await msg.DeleteReactionAsync(eventargs.Emoji, eventargs.User);
                             }
                         }
                         else if (eventargs.User.Id != this._client.CurrentUser.Id)
@@ -122,7 +122,7 @@ namespace DSharpPlus.Interactivity.EventHandling
                                eventargs.Emoji != emojis.SkipRight &&
                                eventargs.Emoji != emojis.Stop)
                             {
-                                await msg.DeleteReactionAsync(eventargs.Emoji, eventargs.User).ConfigureAwait(false);
+                                await msg.DeleteReactionAsync(eventargs.Emoji, eventargs.User);
                             }
                         }
                     }
@@ -140,9 +140,9 @@ namespace DSharpPlus.Interactivity.EventHandling
             {
                 foreach (var req in this._requests)
                 {
-                    var emojis = await req.GetEmojisAsync().ConfigureAwait(false);
-                    var msg = await req.GetMessageAsync().ConfigureAwait(false);
-                    var usr = await req.GetUserAsync().ConfigureAwait(false);
+                    var emojis = await req.GetEmojisAsync();
+                    var msg = await req.GetMessageAsync();
+                    var usr = await req.GetUserAsync();
 
                     if (msg.Id == eventargs.Message.Id)
                     {
@@ -155,13 +155,13 @@ namespace DSharpPlus.Interactivity.EventHandling
                                  eventargs.Emoji == emojis.SkipRight ||
                                  eventargs.Emoji == emojis.Stop))
                             {
-                                await this.PaginateAsync(req, eventargs.Emoji).ConfigureAwait(false);
+                                await this.PaginateAsync(req, eventargs.Emoji);
                             }
                             else if (eventargs.Emoji == emojis.Stop &&
                                      req is PaginationRequest paginationRequest &&
                                      paginationRequest.PaginationDeletion == PaginationDeletion.DeleteMessage)
                             {
-                                await this.PaginateAsync(req, eventargs.Emoji).ConfigureAwait(false);
+                                await this.PaginateAsync(req, eventargs.Emoji);
                             }
                         }
                     }
@@ -180,11 +180,11 @@ namespace DSharpPlus.Interactivity.EventHandling
             {
                 foreach (var req in this._requests)
                 {
-                    var msg = await req.GetMessageAsync().ConfigureAwait(false);
+                    var msg = await req.GetMessageAsync();
 
                     if (msg.Id == eventargs.Message.Id)
                     {
-                        await this.ResetReactionsAsync(req).ConfigureAwait(false);
+                        await this.ResetReactionsAsync(req);
                     }
                 }
             });
@@ -194,8 +194,8 @@ namespace DSharpPlus.Interactivity.EventHandling
 
         private async Task ResetReactionsAsync(IPaginationRequest p)
         {
-            var msg = await p.GetMessageAsync().ConfigureAwait(false);
-            var emojis = await p.GetEmojisAsync().ConfigureAwait(false);
+            var msg = await p.GetMessageAsync();
+            var emojis = await p.GetEmojisAsync();
 
             // Test permissions to avoid a 403:
             // https://totally-not.a-sketchy.site/3pXpRLK.png
@@ -210,54 +210,54 @@ namespace DSharpPlus.Interactivity.EventHandling
             var mbr = gld?.CurrentMember;
 
             if (mbr != null /* == is guild and cache is valid */ && (chn.PermissionsFor(mbr) & Permissions.ManageChannels) != 0) /* == has permissions */
-                await msg.DeleteAllReactionsAsync("Pagination").ConfigureAwait(false);
+                await msg.DeleteAllReactionsAsync("Pagination");
             // ENDOF: 403 fix
 
             if (p.PageCount > 1)
             {
                 if (emojis.SkipLeft != null)
-                    await msg.CreateReactionAsync(emojis.SkipLeft).ConfigureAwait(false);
+                    await msg.CreateReactionAsync(emojis.SkipLeft);
                 if (emojis.Left != null)
-                    await msg.CreateReactionAsync(emojis.Left).ConfigureAwait(false);
+                    await msg.CreateReactionAsync(emojis.Left);
                 if (emojis.Right != null)
-                    await msg.CreateReactionAsync(emojis.Right).ConfigureAwait(false);
+                    await msg.CreateReactionAsync(emojis.Right);
                 if (emojis.SkipRight != null)
-                    await msg.CreateReactionAsync(emojis.SkipRight).ConfigureAwait(false);
+                    await msg.CreateReactionAsync(emojis.SkipRight);
                 if (emojis.Stop != null)
-                    await msg.CreateReactionAsync(emojis.Stop).ConfigureAwait(false);
+                    await msg.CreateReactionAsync(emojis.Stop);
             }
             else if (emojis.Stop != null && p is PaginationRequest paginationRequest && paginationRequest.PaginationDeletion == PaginationDeletion.DeleteMessage)
             {
-                await msg.CreateReactionAsync(emojis.Stop).ConfigureAwait(false);
+                await msg.CreateReactionAsync(emojis.Stop);
             }
         }
 
         private async Task PaginateAsync(IPaginationRequest p, DiscordEmoji emoji)
         {
-            var emojis = await p.GetEmojisAsync().ConfigureAwait(false);
-            var msg = await p.GetMessageAsync().ConfigureAwait(false);
+            var emojis = await p.GetEmojisAsync();
+            var msg = await p.GetMessageAsync();
 
             if (emoji == emojis.SkipLeft)
-                await p.SkipLeftAsync().ConfigureAwait(false);
+                await p.SkipLeftAsync();
             else if (emoji == emojis.Left)
-                await p.PreviousPageAsync().ConfigureAwait(false);
+                await p.PreviousPageAsync();
             else if (emoji == emojis.Right)
-                await p.NextPageAsync().ConfigureAwait(false);
+                await p.NextPageAsync();
             else if (emoji == emojis.SkipRight)
-                await p.SkipRightAsync().ConfigureAwait(false);
+                await p.SkipRightAsync();
             else if (emoji == emojis.Stop)
             {
-                var tcs = await p.GetTaskCompletionSourceAsync().ConfigureAwait(false);
+                var tcs = await p.GetTaskCompletionSourceAsync();
                 tcs.TrySetResult(true);
                 return;
             }
 
-            var page = await p.GetPageAsync().ConfigureAwait(false);
+            var page = await p.GetPageAsync();
             var builder = new DiscordMessageBuilder()
                 .WithContent(page.Content)
                 .WithEmbed(page.Embed);
 
-            await builder.ModifyAsync(msg).ConfigureAwait(false);
+            await builder.ModifyAsync(msg);
         }
 
         ~Paginator()

@@ -68,7 +68,7 @@ namespace DSharpPlus.Interactivity.EventHandling
 
             try
             {
-                return await request.Tcs.Task.ConfigureAwait(false);
+                return await request.Tcs.Task;
             }
             catch (Exception e)
             {
@@ -91,7 +91,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             this._collectRequests.Add(request);
             try
             {
-                await request.Tcs.Task.ConfigureAwait(false);
+                await request.Tcs.Task;
             }
             catch (Exception e)
             {
@@ -112,7 +112,7 @@ namespace DSharpPlus.Interactivity.EventHandling
                     mreq.Tcs.TrySetResult(args);
 
                 else if (this._config.ResponseBehavior is InteractionResponseBehavior.Respond)
-                    await args.Interaction.CreateFollowupMessageAsync(this._message).ConfigureAwait(false);
+                    await args.Interaction.CreateFollowupMessageAsync(this._message);
             }
 
 
@@ -120,13 +120,13 @@ namespace DSharpPlus.Interactivity.EventHandling
             {
                 if (creq.Message == args.Message && creq.IsMatch(args))
                 {
-                    await args.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate).ConfigureAwait(false);
+                    await args.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
 
                     if (creq.IsMatch(args))
                         creq.Collected.Add(args);
 
                     else if (this._config.ResponseBehavior is InteractionResponseBehavior.Respond)
-                        await args.Interaction.CreateFollowupMessageAsync(this._message).ConfigureAwait(false);
+                        await args.Interaction.CreateFollowupMessageAsync(this._message);
                 }
             }
         }

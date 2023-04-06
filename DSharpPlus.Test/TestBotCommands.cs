@@ -42,15 +42,15 @@ public class TestBotCommands : BaseCommandModule
     [Command("crosspost")]
     public async Task CrosspostAsync(CommandContext ctx, DiscordChannel chn, DiscordMessage msg)
     {
-        DiscordMessage message = await chn.CrosspostMessageAsync(msg).ConfigureAwait(false);
-        await ctx.RespondAsync($":ok_hand: Message published: {message.Id}").ConfigureAwait(false);
+        DiscordMessage message = await chn.CrosspostMessageAsync(msg);
+        await ctx.RespondAsync($":ok_hand: Message published: {message.Id}");
     }
 
     [Command("follow")]
     public async Task FollowAsync(CommandContext ctx, DiscordChannel channelToFollow, DiscordChannel targetChannel)
     {
-        await channelToFollow.FollowAsync(targetChannel).ConfigureAwait(false);
-        await ctx.RespondAsync($":ok_hand: Following channel {channelToFollow.Mention} into {targetChannel.Mention} (Guild: {targetChannel.Guild.Id})").ConfigureAwait(false);
+        await channelToFollow.FollowAsync(targetChannel);
+        await ctx.RespondAsync($":ok_hand: Following channel {channelToFollow.Mention} into {targetChannel.Mention} (Guild: {targetChannel.Guild.Id})");
     }
 
     [Command("setprefix"), Aliases("channelprefix"), Description("Sets custom command prefix for current channel. The bot will still respond to the default one."), RequireOwner]
@@ -60,17 +60,17 @@ public class TestBotCommands : BaseCommandModule
         {
             if (PrefixSettings.TryRemove(ctx.Channel.Id, out _))
             {
-                await ctx.RespondAsync("👍").ConfigureAwait(false);
+                await ctx.RespondAsync("👍");
             }
             else
             {
-                await ctx.RespondAsync("👎").ConfigureAwait(false);
+                await ctx.RespondAsync("👎");
             }
         }
         else
         {
             PrefixSettings.AddOrUpdate(ctx.Channel.Id, prefix, (k, vold) => prefix);
-            await ctx.RespondAsync("👍").ConfigureAwait(false);
+            await ctx.RespondAsync("👍");
         }
     }
 
@@ -79,7 +79,7 @@ public class TestBotCommands : BaseCommandModule
     {
         Command? cmd = ctx.CommandsNext.FindCommand(content, out string? args);
         CommandContext fctx = ctx.CommandsNext.CreateFakeContext(user, ctx.Channel, content, ctx.Prefix, cmd, args);
-        await ctx.CommandsNext.ExecuteCommandAsync(fctx).ConfigureAwait(false);
+        await ctx.CommandsNext.ExecuteCommandAsync(fctx);
     }
 
     [Group("bind"), Description("Various argument binder testing commands.")]
@@ -110,52 +110,52 @@ public class TestBotCommands : BaseCommandModule
     public async Task MentionablesAsync(CommandContext ctx, DiscordUser user)
     {
         string content = $"Hey, {user.Mention}! Listen!";
-        await ctx.Channel.SendMessageAsync("✔ should ping, ❌ should not ping.").ConfigureAwait(false);
+        await ctx.Channel.SendMessageAsync("✔ should ping, ❌ should not ping.");
 
-        await ctx.Channel.SendMessageAsync("✔ Default Behaviour: " + content).ConfigureAwait(false);                                                                                            //Should ping User
+        await ctx.Channel.SendMessageAsync("✔ Default Behaviour: " + content);                                                                                            //Should ping User
 
         await new DiscordMessageBuilder()
             .WithContent("✔ UserMention(user): " + content)
             .WithAllowedMentions(new IMention[] { new UserMention(user) })
             .SendAsync(ctx.Channel)
-            .ConfigureAwait(false);                                                                                                                      //Should ping user
+            ;                                                                                                                      //Should ping user
 
         await new DiscordMessageBuilder()
             .WithContent("✔ UserMention(): " + content)
             .WithAllowedMentions(new IMention[] { new UserMention() })
             .SendAsync(ctx.Channel)
-            .ConfigureAwait(false);                                                                                                                      //Should ping user
+            ;                                                                                                                      //Should ping user
 
         await new DiscordMessageBuilder()
             .WithContent("✔ User Mention Everyone & Self: " + content)
             .WithAllowedMentions(new IMention[] { new UserMention(), new UserMention(user) })
             .SendAsync(ctx.Channel)
-            .ConfigureAwait(false);                                                                                                                      //Should ping user
+            ;                                                                                                                      //Should ping user
 
 
         await new DiscordMessageBuilder()
            .WithContent("✔ UserMention.All: " + content)
            .WithAllowedMentions(new IMention[] { UserMention.All })
            .SendAsync(ctx.Channel)
-           .ConfigureAwait(false);                                                                                                                       //Should ping user
+           ;                                                                                                                       //Should ping user
 
         await new DiscordMessageBuilder()
            .WithContent("❌ Empty Mention Array: " + content)
            .WithAllowedMentions(Array.Empty<IMention>())
            .SendAsync(ctx.Channel)
-           .ConfigureAwait(false);                                                                                                                       //Should ping no one
+           ;                                                                                                                       //Should ping no one
 
         await new DiscordMessageBuilder()
            .WithContent("❌ UserMention(SomeoneElse): " + content)
            .WithAllowedMentions(new IMention[] { new UserMention(545836271960850454L) })
            .SendAsync(ctx.Channel)
-           .ConfigureAwait(false);                                                                                                                       //Should ping no one (@user was not pinged)
+           ;                                                                                                                       //Should ping no one (@user was not pinged)
 
         await new DiscordMessageBuilder()
            .WithContent("❌ Everyone():" + content)
            .WithAllowedMentions(new IMention[] { new EveryoneMention() })
            .SendAsync(ctx.Channel)
-           .ConfigureAwait(false);                                                                                                                       //Should ping no one (@everyone was not pinged)
+           ;                                                                                                                       //Should ping no one (@everyone was not pinged)
     }
 
     [Command("editMention"), Description("Attempts to mention a user via edit message")]
@@ -164,62 +164,62 @@ public class TestBotCommands : BaseCommandModule
         string origcontent = $"Hey, silly! Listen!";
         string newContent = $"Hey, {user.Mention}! Listen!";
 
-        await ctx.Channel.SendMessageAsync("✔ should ping, ❌ should not ping.").ConfigureAwait(false);
+        await ctx.Channel.SendMessageAsync("✔ should ping, ❌ should not ping.");
 
-        DiscordMessage test1Msg = await ctx.Channel.SendMessageAsync("✔ Default Behaviour: " + origcontent).ConfigureAwait(false);
+        DiscordMessage test1Msg = await ctx.Channel.SendMessageAsync("✔ Default Behaviour: " + origcontent);
         await new DiscordMessageBuilder()
            .WithContent("✔ Default Behaviour: " + newContent)
            .ModifyAsync(test1Msg)
-           .ConfigureAwait(false);                                                                                                                               //Should ping User
+           ;                                                                                                                               //Should ping User
 
-        DiscordMessage test2Msg = await ctx.Channel.SendMessageAsync("✔ UserMention(user): " + origcontent).ConfigureAwait(false);
+        DiscordMessage test2Msg = await ctx.Channel.SendMessageAsync("✔ UserMention(user): " + origcontent);
         await new DiscordMessageBuilder()
            .WithContent("✔ UserMention(user): " + newContent)
            .WithAllowedMentions(new IMention[] { new UserMention(user) })
            .ModifyAsync(test2Msg)
-           .ConfigureAwait(false);                                                                                                                               //Should ping user
+           ;                                                                                                                               //Should ping user
 
-        DiscordMessage test3Msg = await ctx.Channel.SendMessageAsync("✔ UserMention(): " + origcontent).ConfigureAwait(false);
+        DiscordMessage test3Msg = await ctx.Channel.SendMessageAsync("✔ UserMention(): " + origcontent);
         await new DiscordMessageBuilder()
            .WithContent("✔ UserMention(): " + newContent)
            .WithAllowedMentions(new IMention[] { new UserMention() })
            .ModifyAsync(test3Msg)
-           .ConfigureAwait(false);                                                                                                                               //Should ping user
+           ;                                                                                                                               //Should ping user
 
-        DiscordMessage test4Msg = await ctx.Channel.SendMessageAsync("✔ User Mention Everyone & Self: " + origcontent).ConfigureAwait(false);
+        DiscordMessage test4Msg = await ctx.Channel.SendMessageAsync("✔ User Mention Everyone & Self: " + origcontent);
         await new DiscordMessageBuilder()
            .WithContent("✔ User Mention Everyone & Self: " + newContent)
            .WithAllowedMentions(new IMention[] { new UserMention(), new UserMention(user) })
            .ModifyAsync(test4Msg)
-           .ConfigureAwait(false);                                                                                                                               //Should ping user
+           ;                                                                                                                               //Should ping user
 
-        DiscordMessage test5Msg = await ctx.Channel.SendMessageAsync("✔ UserMention.All: " + origcontent).ConfigureAwait(false);
+        DiscordMessage test5Msg = await ctx.Channel.SendMessageAsync("✔ UserMention.All: " + origcontent);
         await new DiscordMessageBuilder()
            .WithContent("✔ UserMention.All: " + newContent)
            .WithAllowedMentions(new IMention[] { UserMention.All })
            .ModifyAsync(test5Msg)
-           .ConfigureAwait(false);                                                                                                                               //Should ping user
+           ;                                                                                                                               //Should ping user
 
-        DiscordMessage test6Msg = await ctx.Channel.SendMessageAsync("❌ Empty Mention Array: " + origcontent).ConfigureAwait(false);
+        DiscordMessage test6Msg = await ctx.Channel.SendMessageAsync("❌ Empty Mention Array: " + origcontent);
         await new DiscordMessageBuilder()
            .WithContent("❌ Empty Mention Array: " + newContent)
            .WithAllowedMentions(Array.Empty<IMention>())
            .ModifyAsync(test6Msg)
-           .ConfigureAwait(false);                                                                                                                               //Should ping no one
+           ;                                                                                                                               //Should ping no one
 
-        DiscordMessage test7Msg = await ctx.Channel.SendMessageAsync("❌ UserMention(SomeoneElse): " + origcontent).ConfigureAwait(false);
+        DiscordMessage test7Msg = await ctx.Channel.SendMessageAsync("❌ UserMention(SomeoneElse): " + origcontent);
         await new DiscordMessageBuilder()
            .WithContent("❌ UserMention(SomeoneElse): " + newContent)
            .WithAllowedMentions(new IMention[] { new UserMention(777677298316214324) })
            .ModifyAsync(test7Msg)
-           .ConfigureAwait(false);                                                                                                                               //Should ping no one (@user was not pinged)
+           ;                                                                                                                               //Should ping no one (@user was not pinged)
 
-        DiscordMessage test8Msg = await ctx.Channel.SendMessageAsync("❌ Everyone(): " + origcontent).ConfigureAwait(false);
+        DiscordMessage test8Msg = await ctx.Channel.SendMessageAsync("❌ Everyone(): " + origcontent);
         await new DiscordMessageBuilder()
            .WithContent("❌ Everyone(): " + newContent)
            .WithAllowedMentions(new IMention[] { new EveryoneMention() })
            .ModifyAsync(test8Msg)
-           .ConfigureAwait(false);                                                                                                                               //Should ping no one (@everyone was not pinged)
+           ;                                                                                                                               //Should ping no one (@everyone was not pinged)
     }
 
     [Command("SendSomeFile")]

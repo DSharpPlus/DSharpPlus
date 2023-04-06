@@ -100,7 +100,7 @@ namespace DSharpPlus.Net.Udp
             {
                 try
                 {
-                    var packet = await this.Client.ReceiveAsync().ConfigureAwait(false);
+                    var packet = await this.Client.ReceiveAsync();
                     this.PacketQueue.Add(packet.Buffer);
                 }
                 catch (Exception) { }

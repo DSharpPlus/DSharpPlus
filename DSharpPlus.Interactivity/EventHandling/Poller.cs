@@ -57,7 +57,7 @@ namespace DSharpPlus.Interactivity.EventHandling
             this._requests.Add(request);
             try
             {
-                await request._tcs.Task.ConfigureAwait(false);
+                await request._tcs.Task;
             }
             catch (Exception ex)
             {
@@ -91,9 +91,9 @@ namespace DSharpPlus.Interactivity.EventHandling
                         }
                         else
                         {
-                            var member = await eventargs.Channel.Guild.GetMemberAsync(client.CurrentUser.Id).ConfigureAwait(false);
+                            var member = await eventargs.Channel.Guild.GetMemberAsync(client.CurrentUser.Id);
                             if (eventargs.Channel.PermissionsFor(member).HasPermission(Permissions.ManageMessages))
-                                await eventargs.Message.DeleteReactionAsync(eventargs.Emoji, eventargs.User).ConfigureAwait(false);
+                                await eventargs.Message.DeleteReactionAsync(eventargs.Emoji, eventargs.User);
                         }
                     }
                 }

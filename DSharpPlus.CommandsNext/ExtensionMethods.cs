@@ -69,7 +69,7 @@ namespace DSharpPlus.CommandsNext
         public static async Task<IReadOnlyDictionary<int, CommandsNextExtension>> UseCommandsNextAsync(this DiscordShardedClient client, CommandsNextConfiguration cfg)
         {
             var modules = new Dictionary<int, CommandsNextExtension>();
-            await client.InitializeShardsAsync().ConfigureAwait(false);
+            await client.InitializeShardsAsync();
 
             foreach (var shard in client.ShardClients.Select(xkvp => xkvp.Value))
             {
@@ -99,7 +99,7 @@ namespace DSharpPlus.CommandsNext
         /// <returns>A dictionary of the modules, indexed by shard id.</returns>
         public static async Task<IReadOnlyDictionary<int, CommandsNextExtension>> GetCommandsNextAsync(this DiscordShardedClient client)
         {
-            await client.InitializeShardsAsync().ConfigureAwait(false);
+            await client.InitializeShardsAsync();
             var extensions = new Dictionary<int, CommandsNextExtension>();
 
             foreach (var shard in client.ShardClients.Select(xkvp => xkvp.Value))

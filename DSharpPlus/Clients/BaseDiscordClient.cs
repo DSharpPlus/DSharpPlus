@@ -128,7 +128,7 @@ namespace DSharpPlus
         /// <returns>Current API application.</returns>
         public async Task<DiscordApplication> GetCurrentApplicationAsync()
         {
-            var tapp = await this.ApiClient.GetCurrentApplicationInfoAsync().ConfigureAwait(false);
+            var tapp = await this.ApiClient.GetCurrentApplicationInfoAsync();
             var app = new DiscordApplication
             {
                 Discord = this,
@@ -194,16 +194,16 @@ namespace DSharpPlus
         {
             if (this.CurrentUser == null)
             {
-                this.CurrentUser = await this.ApiClient.GetCurrentUserAsync().ConfigureAwait(false);
+                this.CurrentUser = await this.ApiClient.GetCurrentUserAsync();
                 this.UpdateUserCache(this.CurrentUser);
             }
 
             if (this.Configuration.TokenType == TokenType.Bot && this.CurrentApplication == null)
-                this.CurrentApplication = await this.GetCurrentApplicationAsync().ConfigureAwait(false);
+                this.CurrentApplication = await this.GetCurrentApplicationAsync();
 
             if (this.Configuration.TokenType != TokenType.Bearer && this.InternalVoiceRegions.Count == 0)
             {
-                var vrs = await this.ListVoiceRegionsAsync().ConfigureAwait(false);
+                var vrs = await this.ListVoiceRegionsAsync();
                 foreach (var xvr in vrs)
                     this.InternalVoiceRegions.TryAdd(xvr.Id, xvr);
             }
@@ -226,12 +226,12 @@ namespace DSharpPlus
 
                 this.Configuration.Token = token;
 
-                var res = await this.ApiClient.GetGatewayInfoAsync().ConfigureAwait(false);
+                var res = await this.ApiClient.GetGatewayInfoAsync();
                 this.Configuration.Token = null;
                 return res;
             }
 
-            return await this.ApiClient.GetGatewayInfoAsync().ConfigureAwait(false);
+            return await this.ApiClient.GetGatewayInfoAsync();
         }
 
         internal DiscordUser GetCachedOrEmptyUserInternal(ulong user_id)

@@ -216,10 +216,10 @@ namespace DSharpPlus.Lavalink
 
         internal async Task<string> InternalGetVersionAsync(Uri uri)
         {
-            using var req = await this._http.GetAsync(uri).ConfigureAwait(false);
-            using var res = await req.Content.ReadAsStreamAsync().ConfigureAwait(false);
+            using var req = await this._http.GetAsync(uri);
+            using var res = await req.Content.ReadAsStreamAsync();
             using var sr = new StreamReader(res, Utilities.UTF8);
-            var json = await sr.ReadToEndAsync().ConfigureAwait(false);
+            var json = await sr.ReadToEndAsync();
             return json;
         }
 
@@ -230,10 +230,10 @@ namespace DSharpPlus.Lavalink
             // this function returns a Lavalink 3-like dataset regardless of input data version
 
             var json = "[]";
-            using (var req = await this._http.GetAsync(uri).ConfigureAwait(false))
-            using (var res = await req.Content.ReadAsStreamAsync().ConfigureAwait(false))
+            using (var req = await this._http.GetAsync(uri))
+            using (var res = await req.Content.ReadAsStreamAsync())
             using (var sr = new StreamReader(res, Utilities.UTF8))
-                json = await sr.ReadToEndAsync().ConfigureAwait(false);
+                json = await sr.ReadToEndAsync();
 
             var jdata = JToken.Parse(json);
             if (jdata is JArray jarr)
@@ -281,10 +281,10 @@ namespace DSharpPlus.Lavalink
 
         internal async Task<LavalinkTrack> InternalDecodeTrackAsync(Uri uri)
         {
-            using var req = await this._http.GetAsync(uri).ConfigureAwait(false);
-            using var res = await req.Content.ReadAsStreamAsync().ConfigureAwait(false);
+            using var req = await this._http.GetAsync(uri);
+            using var res = await req.Content.ReadAsStreamAsync();
             using var sr = new StreamReader(res, Utilities.UTF8);
-            var json = await sr.ReadToEndAsync().ConfigureAwait(false);
+            var json = await sr.ReadToEndAsync();
             if (!req.IsSuccessStatusCode)
             {
                 var jsonError = JObject.Parse(json);
@@ -300,10 +300,10 @@ namespace DSharpPlus.Lavalink
         {
             var jsonOut = JsonConvert.SerializeObject(ids);
             var content = new StringContent(jsonOut, Utilities.UTF8, "application/json");
-            using var req = await this._http.PostAsync(uri, content).ConfigureAwait(false);
-            using var res = await req.Content.ReadAsStreamAsync().ConfigureAwait(false);
+            using var req = await this._http.PostAsync(uri, content);
+            using var res = await req.Content.ReadAsStreamAsync();
             using var sr = new StreamReader(res, Utilities.UTF8);
-            var jsonIn = await sr.ReadToEndAsync().ConfigureAwait(false);
+            var jsonIn = await sr.ReadToEndAsync();
             if (!req.IsSuccessStatusCode)
             {
                 var jsonError = JObject.Parse(jsonIn);
@@ -331,10 +331,10 @@ namespace DSharpPlus.Lavalink
 
         internal async Task<LavalinkRouteStatus> InternalGetRoutePlannerStatusAsync(Uri uri)
         {
-            using var req = await this._http.GetAsync(uri).ConfigureAwait(false);
-            using var res = await req.Content.ReadAsStreamAsync().ConfigureAwait(false);
+            using var req = await this._http.GetAsync(uri);
+            using var res = await req.Content.ReadAsStreamAsync();
             using var sr = new StreamReader(res, Utilities.UTF8);
-            var json = await sr.ReadToEndAsync().ConfigureAwait(false);
+            var json = await sr.ReadToEndAsync();
             var status = JsonConvert.DeserializeObject<LavalinkRouteStatus>(json);
             return status;
         }
@@ -342,7 +342,7 @@ namespace DSharpPlus.Lavalink
         internal async Task InternalFreeAddressAsync(Uri uri, string address)
         {
             var payload = new StringContent(address, Utilities.UTF8, "application/json");
-            using var req = await this._http.PostAsync(uri, payload).ConfigureAwait(false);
+            using var req = await this._http.PostAsync(uri, payload);
             if (req.StatusCode == HttpStatusCode.InternalServerError)
                 this._logger?.LogWarning(LavalinkEvents.LavalinkRestError, "Request to {0} returned an internal server error - your server route planner configuration is likely incorrect", uri);
 
@@ -351,7 +351,7 @@ namespace DSharpPlus.Lavalink
         internal async Task InternalFreeAllAddressesAsync(Uri uri)
         {
             var httpReq = new HttpRequestMessage(HttpMethod.Post, uri);
-            using var req = await this._http.SendAsync(httpReq).ConfigureAwait(false);
+            using var req = await this._http.SendAsync(httpReq);
             if (req.StatusCode == HttpStatusCode.InternalServerError)
                 this._logger?.LogWarning(LavalinkEvents.LavalinkRestError, "Request to {0} returned an internal server error - your server route planner configuration is likely incorrect", uri);
         }

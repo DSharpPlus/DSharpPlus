@@ -99,7 +99,7 @@ internal sealed class TestBot
         // For event timeout testing
         //Discord.GuildDownloadCompleted += async (s, e) =>
         //{
-        //    await Task.Delay(TimeSpan.FromSeconds(2)).ConfigureAwait(false);
+        //    await Task.Delay(TimeSpan.FromSeconds(2));
         //    throw new Exception("Flippin' tables");
         //};
 
@@ -173,7 +173,7 @@ internal sealed class TestBot
         //    if (e.Message.Author.IsBot)
         //        return;
 
-        //    _ = Task.Run(async () => await e.Message.RespondAsync(e.Message.Content)).ConfigureAwait(false);
+        //    _ = Task.Run(async () => await e.Message.RespondAsync(e.Message.Content));
         //};
     }
 
@@ -235,10 +235,10 @@ internal sealed class TestBot
     public async Task RunAsync()
     {
         DiscordActivity act = new("the screams of your ancestors", ActivityType.ListeningTo);
-        await this.Discord.ConnectAsync(act, UserStatus.DoNotDisturb).ConfigureAwait(false);
+        await this.Discord.ConnectAsync(act, UserStatus.DoNotDisturb);
     }
 
-    public async Task StopAsync() => await this.Discord.DisconnectAsync().ConfigureAwait(false);
+    public async Task StopAsync() => await this.Discord.DisconnectAsync();
 
     private Task Discord_Ready(DiscordClient client, ReadyEventArgs e) => Task.CompletedTask;
 
@@ -314,7 +314,7 @@ internal sealed class TestBot
             };
             embed.WithFooter(this.Discord.CurrentUser.Username, this.Discord.CurrentUser.AvatarUrl)
                 .AddField("Message", ex.Message);
-            await e.Context.RespondAsync(embed: embed.Build()).ConfigureAwait(false);
+            await e.Context.RespondAsync(embed: embed.Build());
         }
     }
 
@@ -402,7 +402,7 @@ internal sealed class TestBot
 
     private async Task Discord_ChannelDeleted(DiscordClient client, ChannelDeleteEventArgs e)
     {
-        IEnumerable<DiscordAuditLogChannelEntry> logs = (await e.Guild.GetAuditLogsAsync(5, null, AuditLogActionType.ChannelDelete).ConfigureAwait(false)).Cast<DiscordAuditLogChannelEntry>();
+        IEnumerable<DiscordAuditLogChannelEntry> logs = (await e.Guild.GetAuditLogsAsync(5, null, AuditLogActionType.ChannelDelete)).Cast<DiscordAuditLogChannelEntry>();
         foreach (DiscordAuditLogChannelEntry entry in logs)
         {
             Console.WriteLine("TargetId: " + entry.Target.Id);

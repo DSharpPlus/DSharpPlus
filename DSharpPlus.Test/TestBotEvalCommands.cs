@@ -61,7 +61,7 @@ public class TestBotEvalCommands : BaseCommandModule
         msg = await ctx.RespondAsync(embed: new DiscordEmbedBuilder()
             .WithColor(new DiscordColor("#FF007F"))
             .WithDescription("Evaluating...")
-            .Build()).ConfigureAwait(false);
+            .Build());
 
         try
         {
@@ -73,20 +73,20 @@ public class TestBotEvalCommands : BaseCommandModule
 
             Script<object> script = CSharpScript.Create(cs, sopts, typeof(TestVariables));
             script.Compile();
-            ScriptState<object> result = await script.RunAsync(globals).ConfigureAwait(false);
+            ScriptState<object> result = await script.RunAsync(globals);
 
             if (result != null && result.ReturnValue != null && !string.IsNullOrWhiteSpace(result.ReturnValue.ToString()))
             {
-                await msg.ModifyAsync(embed: new DiscordEmbedBuilder { Title = "Evaluation Result", Description = result.ReturnValue.ToString(), Color = new DiscordColor("#007FFF") }.Build()).ConfigureAwait(false);
+                await msg.ModifyAsync(embed: new DiscordEmbedBuilder { Title = "Evaluation Result", Description = result.ReturnValue.ToString(), Color = new DiscordColor("#007FFF") }.Build());
             }
             else
             {
-                await msg.ModifyAsync(embed: new DiscordEmbedBuilder { Title = "Evaluation Successful", Description = "No result was returned.", Color = new DiscordColor("#007FFF") }.Build()).ConfigureAwait(false);
+                await msg.ModifyAsync(embed: new DiscordEmbedBuilder { Title = "Evaluation Successful", Description = "No result was returned.", Color = new DiscordColor("#007FFF") }.Build());
             }
         }
         catch (Exception ex)
         {
-            await msg.ModifyAsync(embed: new DiscordEmbedBuilder { Title = "Evaluation Failure", Description = string.Concat("**", ex.GetType().ToString(), "**: ", ex.Message), Color = new DiscordColor("#FF0000") }.Build()).ConfigureAwait(false);
+            await msg.ModifyAsync(embed: new DiscordEmbedBuilder { Title = "Evaluation Failure", Description = string.Concat("**", ex.GetType().ToString(), "**: ", ex.Message), Color = new DiscordColor("#FF0000") }.Build());
         }
     }
 }
@@ -110,7 +110,7 @@ public class TestVariables
         this.User = this.Message.Author;
         if (this.Guild != null)
         {
-            this.Member = this.Guild.GetMemberAsync(this.User.Id).ConfigureAwait(false).GetAwaiter().GetResult();
+            this.Member = this.Guild.GetMemberAsync(this.User.Id).GetAwaiter().GetResult();
         }
 
         this.Context = ctx;

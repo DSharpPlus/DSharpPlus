@@ -61,7 +61,7 @@ public sealed class TestBotDynamicCommands : BaseCommandModule
         msg = await ctx.RespondAsync(new DiscordEmbedBuilder()
             .WithColor(new DiscordColor("#FF007F"))
             .WithDescription("Compiling...")
-            .Build()).ConfigureAwait(false);
+            .Build());
 
         long number = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         string typeName = $"DynamicCommands{number}";
@@ -92,11 +92,11 @@ public sealed class TestBotDynamicCommands : BaseCommandModule
 
             ctx.CommandsNext.RegisterCommands(moduleType);
 
-            await msg.ModifyAsync(embed: new DiscordEmbedBuilder { Title = "Compilation Successful", Description = "Commands were registered.", Color = new DiscordColor("#007FFF") }.Build()).ConfigureAwait(false);
+            await msg.ModifyAsync(embed: new DiscordEmbedBuilder { Title = "Compilation Successful", Description = "Commands were registered.", Color = new DiscordColor("#007FFF") }.Build());
         }
         catch (Exception ex)
         {
-            await msg.ModifyAsync(embed: new DiscordEmbedBuilder { Title = "Compilation Failure", Description = string.Concat("**", ex.GetType().ToString(), "**: ", ex.Message), Color = new DiscordColor("#FF0000") }.Build()).ConfigureAwait(false);
+            await msg.ModifyAsync(embed: new DiscordEmbedBuilder { Title = "Compilation Failure", Description = string.Concat("**", ex.GetType().ToString(), "**: ", ex.Message), Color = new DiscordColor("#FF0000") }.Build());
         }
     }
 
@@ -117,7 +117,7 @@ public sealed class TestBotDynamicCommands : BaseCommandModule
         }
 
         ctx.CommandsNext.RegisterCommands(command);
-        await ctx.RespondAsync(DiscordEmoji.FromUnicode("👌").ToString()).ConfigureAwait(false);
+        await ctx.RespondAsync(DiscordEmoji.FromUnicode("👌").ToString());
 
         Task Func0(CommandContext c)
             => c.RespondAsync($"{c.Prefix} {c.Command.QualifiedName}");

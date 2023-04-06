@@ -61,14 +61,14 @@ internal sealed class Program
             TestBot bot = new(cfg, i);
             Shards.Add(bot);
             tskl.Add(bot.RunAsync());
-            await Task.Delay(7500).ConfigureAwait(false);
+            await Task.Delay(7500);
         }
 
-        await Task.WhenAll(tskl).ConfigureAwait(false);
+        await Task.WhenAll(tskl);
 
         try
         {
-            await Task.Delay(-1, CancelToken).ConfigureAwait(false);
+            await Task.Delay(-1, CancelToken);
         }
         catch (Exception) { /* shush */ }
     }

@@ -145,7 +145,7 @@ namespace DSharpPlus
                     this.Logger.LogWarning(LoggerEvents.Misc, "You are logging in with a token that is not a bot token. This is not officially supported by Discord, and can result in your account being terminated if you aren't careful.");
                 this.Logger.LogInformation(LoggerEvents.Startup, "DSharpPlus, version {Version}", this._versionString.Value);
 
-                var shardc = await this.InitializeShardsAsync().ConfigureAwait(false);
+                var shardc = await this.InitializeShardsAsync();
                 var connectTasks = new List<Task>();
                 this.Logger.LogInformation(LoggerEvents.ShardStartup, "Booting {ShardCount} shards.", shardc);
 
@@ -156,7 +156,7 @@ namespace DSharpPlus
                         this.GatewayInfo.SessionBucket.MaxConcurrency = 1;
 
                     if (this.GatewayInfo.SessionBucket.MaxConcurrency == 1)
-                        await this.ConnectShardAsync(i).ConfigureAwait(false);
+                        await this.ConnectShardAsync(i);
                     else
                     {
                         //Concurrent login.
@@ -164,7 +164,7 @@ namespace DSharpPlus
 
                         if (connectTasks.Count == this.GatewayInfo.SessionBucket.MaxConcurrency)
                         {
-                            await Task.WhenAll(connectTasks).ConfigureAwait(false);
+                            await Task.WhenAll(connectTasks);
                             connectTasks.Clear();
                         }
                     }
@@ -172,7 +172,7 @@ namespace DSharpPlus
             }
             catch (Exception ex)
             {
-                await this.InternalStopAsync(false).ConfigureAwait(false);
+                await this.InternalStopAsync(false);
 
                 var message = $"Shard initialization failed, check inner exceptions for details: ";
 
@@ -229,7 +229,7 @@ namespace DSharpPlus
             foreach (var client in this._shards.Values)
                 tasks.Add(client.UpdateStatusAsync(activity, userStatus, idleSince));
 
-            await Task.WhenAll(tasks).ConfigureAwait(false);
+            await Task.WhenAll(tasks);
         }
 
         #endregion
@@ -241,7 +241,7 @@ namespace DSharpPlus
             if (this._shards.Count != 0)
                 return this._shards.Count;
 
-            this.GatewayInfo = await this.GetGatewayInfoAsync().ConfigureAwait(false);
+            this.GatewayInfo = await this.GetGatewayInfoAsync();
             var shardc = this.Configuration.ShardCount == 1 ? this.GatewayInfo.ShardCount : this.Configuration.ShardCount;
             var lf = new ShardedLoggerFactory(this.Logger);
             for (var i = 0; i < shardc; i++)
@@ -274,22 +274,22 @@ namespace DSharpPlus
             http.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", Utilities.GetFormattedToken(this.Configuration));
 
             this.Logger.LogDebug(LoggerEvents.ShardRest, $"Obtaining gateway information from GET {Endpoints.GATEWAY}{Endpoints.BOT}...");
-            var resp = await http.GetAsync(url).ConfigureAwait(false);
+            var resp = await http.GetAsync(url);
 
             http.Dispose();
 
             if (!resp.IsSuccessStatusCode)
             {
-                var ratelimited = await HandleHttpError(url, resp).ConfigureAwait(false);
+                var ratelimited = await HandleHttpError(url, resp);
 
                 if (ratelimited)
-                    return await this.GetGatewayInfoAsync().ConfigureAwait(false);
+                    return await this.GetGatewayInfoAsync();
             }
 
             var timer = new Stopwatch();
             timer.Start();
 
-            var jo = JObject.Parse(await resp.Content.ReadAsStringAsync().ConfigureAwait(false));
+            var jo = JObject.Parse(await resp.Content.ReadAsStringAsync());
             var info = jo.ToDiscordObject<GatewayInfo>();
 
             //There is a delay from parsing here.
@@ -318,7 +318,7 @@ namespace DSharpPlus
                     if (hs.TryGetValue("Retry-After", out var retry_after_raw))
                         waitInterval = int.Parse(retry_after_raw, CultureInfo.InvariantCulture);
 
-                    await Task.Delay(waitInterval).ConfigureAwait(false);
+                    await Task.Delay(waitInterval);
                     return true;
                 }
                 else if (code >= 500)
@@ -381,7 +381,7 @@ namespace DSharpPlus
             this.HookEventHandlers(client);
 
             client._isShard = true;
-            await client.ConnectAsync().ConfigureAwait(false);
+            await client.ConnectAsync();
             this.Logger.LogInformation(LoggerEvents.ShardStartup, "Booted shard {Shard}.", i);
 
             if (this.CurrentUser == null)

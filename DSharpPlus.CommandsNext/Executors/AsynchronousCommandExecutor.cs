@@ -33,7 +33,7 @@ namespace DSharpPlus.CommandsNext.Executors
     {
         Task ICommandExecutor.ExecuteAsync(CommandContext ctx)
         {
-            _ = Task.Run(() => ctx.CommandsNext.ExecuteCommandAsync(ctx).ConfigureAwait(false));
+            _ = Task.Run(() => ctx.CommandsNext.ExecuteCommandAsync(ctx));
             return Task.CompletedTask;
         }
 

@@ -65,7 +65,7 @@ namespace DSharpPlus.VoiceNext
         public static async Task<IReadOnlyDictionary<int, VoiceNextExtension>> UseVoiceNextAsync(this DiscordShardedClient client, VoiceNextConfiguration config)
         {
             var modules = new Dictionary<int, VoiceNextExtension>();
-            await client.InitializeShardsAsync().ConfigureAwait(false);
+            await client.InitializeShardsAsync();
 
             foreach (var shard in client.ShardClients.Select(xkvp => xkvp.Value))
             {
@@ -94,7 +94,7 @@ namespace DSharpPlus.VoiceNext
         /// <returns>A dictionary containing <see cref="VoiceNextExtension"/> instances for each shard.</returns>
         public static async Task<IReadOnlyDictionary<int, VoiceNextExtension>> GetVoiceNextAsync(this DiscordShardedClient client)
         {
-            await client.InitializeShardsAsync().ConfigureAwait(false);
+            await client.InitializeShardsAsync();
             var extensions = new Dictionary<int, VoiceNextExtension>();
 
             foreach (var shard in client.ShardClients.Values)
