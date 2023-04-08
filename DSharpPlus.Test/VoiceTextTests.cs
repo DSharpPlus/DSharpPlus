@@ -20,77 +20,76 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using DSharpPlus.CommandsNext.Attributes;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
+using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 
-namespace DSharpPlus.Test
+namespace DSharpPlus.Test;
+
+public class VoiceTextTests : BaseCommandModule
 {
-    public class VoiceTextTests : BaseCommandModule
+    [Command("testvoice")]
+    public async Task TestVoice(CommandContext ctx)
     {
-        [Command("testvoice")]
-        public async Task TestVoice(CommandContext ctx)
+        if (ctx.Member.VoiceState is null)
         {
-            if (ctx.Member.VoiceState is null)
-            {
-                await ctx.RespondAsync("You're not in a voice channel!");
-                return;
-            }
-
-            var channel = ctx.Member.VoiceState.Channel;
-
-            var s = new Stack<string>();
-
-            try
-            {
-                await channel.SendMessageAsync("Testing Guild Voice Text (1/5).");
-                this.ChannelPassed(s, "content");
-            }
-            catch { this.ChannelFailed(s, "content"); }
-
-
-            try
-            {
-                await channel.SendMessageAsync(new DiscordEmbedBuilder().WithTitle("Testing Guild Voice Text (2/5)"));
-                this.ChannelPassed(s, "embed");
-            }
-            catch { this.ChannelFailed(s, "embed"); }
-
-            try
-            {
-                await channel.SendMessageAsync("Testing Guild Voice Text (3/5)", new DiscordEmbedBuilder().WithTitle("Testing Guild Voice Text (3/5)"));
-                this.ChannelPassed(s, "embed, content");
-            }
-            catch { this.ChannelFailed(s, "embed, content"); }
-
-            try
-            {
-                await channel.SendMessageAsync(new DiscordMessageBuilder().WithContent("Testing Guild Voice Text (4/5)").WithEmbed(new DiscordEmbedBuilder().WithTitle("Testing Guild Voice Text (4/5)")));
-                this.ChannelPassed(s, "builder");
-            }
-            catch { this.ChannelFailed(s, "builder"); }
-
-            try
-            {
-                await channel.SendMessageAsync(b => b.WithContent("Testing Guild Voice Text (5/5)").WithEmbed(new DiscordEmbedBuilder().WithTitle("Testing Guild Voice Text (5/5)")));
-                this.ChannelPassed(s, "builder [action]");
-            }
-            catch { this.ChannelFailed(s, "builder [action]"); }
-
-            var sb = new StringBuilder();
-            while (s.TryPop(out var res))
-                sb.AppendLine(res);
-
-            await ctx.RespondAsync(sb.ToString());
+            await ctx.RespondAsync("You're not in a voice channel!");
+            return;
         }
 
-        private void ChannelPassed(Stack<string> stack, string test) => stack.Push($"<:check:777724297627172884> {nameof(DiscordChannel.SendMessageAsync)} ({test}) **Passed**");
+        DiscordChannel channel = ctx.Member.VoiceState.Channel;
 
-        private void ChannelFailed(Stack<string> stack, string test) => stack.Push($"<:cross:777724316115796011> {nameof(DiscordChannel.SendMessageAsync)} ({test}) **Failed**");
+        Stack<string> s = new();
+
+        try
+        {
+            await channel.SendMessageAsync("Testing Guild Voice Text (1/5).");
+            this.ChannelPassed(s, "content");
+        }
+        catch { this.ChannelFailed(s, "content"); }
+
+
+        try
+        {
+            await channel.SendMessageAsync(new DiscordEmbedBuilder().WithTitle("Testing Guild Voice Text (2/5)"));
+            this.ChannelPassed(s, "embed");
+        }
+        catch { this.ChannelFailed(s, "embed"); }
+
+        try
+        {
+            await channel.SendMessageAsync("Testing Guild Voice Text (3/5)", new DiscordEmbedBuilder().WithTitle("Testing Guild Voice Text (3/5)"));
+            this.ChannelPassed(s, "embed, content");
+        }
+        catch { this.ChannelFailed(s, "embed, content"); }
+
+        try
+        {
+            await channel.SendMessageAsync(new DiscordMessageBuilder().WithContent("Testing Guild Voice Text (4/5)").WithEmbed(new DiscordEmbedBuilder().WithTitle("Testing Guild Voice Text (4/5)")));
+            this.ChannelPassed(s, "builder");
+        }
+        catch { this.ChannelFailed(s, "builder"); }
+
+        try
+        {
+            await channel.SendMessageAsync(b => b.WithContent("Testing Guild Voice Text (5/5)").WithEmbed(new DiscordEmbedBuilder().WithTitle("Testing Guild Voice Text (5/5)")));
+            this.ChannelPassed(s, "builder [action]");
+        }
+        catch { this.ChannelFailed(s, "builder [action]"); }
+
+        StringBuilder sb = new();
+        while (s.TryPop(out string? res))
+        {
+            sb.AppendLine(res);
+        }
+
+        await ctx.RespondAsync(sb.ToString());
     }
+
+    private void ChannelPassed(Stack<string> stack, string test) => stack.Push($"<:check:777724297627172884> {nameof(DiscordChannel.SendMessageAsync)} ({test}) **Passed**");
+
+    private void ChannelFailed(Stack<string> stack, string test) => stack.Push($"<:cross:777724316115796011> {nameof(DiscordChannel.SendMessageAsync)} ({test}) **Failed**");
 }

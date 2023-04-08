@@ -21,30 +21,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.Extensions;
 
 
-namespace DSharpPlus.Test
+namespace DSharpPlus.Test;
+
+public class Buttons : BaseCommandModule
 {
-    public class Buttons : BaseCommandModule
+    [Command("send_buttons")]
+    public async Task SendbuttonsAsync(CommandContext ctx)
     {
-        [Command("send_buttons")]
-        public async Task SendbuttonsAsync(CommandContext ctx)
-        {
-            var lipsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer tellus lectus, tristique at turpis nec, ultrices vestibulum mi. Praesent aliquam et neque sit amet suscipit. Nullam nec pulvinar leo. Integer pharetra mauris ac imperdiet vestibulum. Maecenas eu tellus at nisi bibendum pharetra a nec ligula. Curabitur euismod est sem, non tempus felis varius eu. Duis molestie quis ante sed elementum. Suspendisse in diam bibendum, cursus metus vel, imperdiet dolor. Etiam rutrum, justo sed vehicula ultrices, massa augue mollis odio, sed placerat diam orci in erat. Sed pulvinar felis eget lacus imperdiet fringilla. Nunc blandit, orci quis varius varius, nibh diam scelerisque dolor, a cursus ex dui non diam. Etiam a erat eros. Nulla porttitor venenatis ligula, ac tincidunt mauris auctor quis. Vivamus ut gravida urna, eu finibus enim. Quisque vitae vestibulum metus. Vestibulum non leo ut odio pharetra mattis." +
-                         "Donec volutpat condimentum velit. Aenean tincidunt massa eu malesuada aliquet. Suspendisse potenti. Nulla porttitor vel sem et pretium. Vestibulum tempus tortor lectus, aliquet tempus risus condimentum vel. Quisque ultricies dapibus lacus, nec mollis enim efficitur in. Aliquam laoreet ultricies lorem, quis hendrerit elit pellentesque at. Cras sit amet dignissim velit. Suspendisse vulputate aliquam faucibus. Morbi dictum magna gravida diam vehicula convallis. Sed egestas nulla lectus, id cursus libero pharetra id. Aliquam fermentum gravida dictum. Curabitur aliquam diam tortor.";
+        string lipsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer tellus lectus, tristique at turpis nec, ultrices vestibulum mi. Praesent aliquam et neque sit amet suscipit. Nullam nec pulvinar leo. Integer pharetra mauris ac imperdiet vestibulum. Maecenas eu tellus at nisi bibendum pharetra a nec ligula. Curabitur euismod est sem, non tempus felis varius eu. Duis molestie quis ante sed elementum. Suspendisse in diam bibendum, cursus metus vel, imperdiet dolor. Etiam rutrum, justo sed vehicula ultrices, massa augue mollis odio, sed placerat diam orci in erat. Sed pulvinar felis eget lacus imperdiet fringilla. Nunc blandit, orci quis varius varius, nibh diam scelerisque dolor, a cursus ex dui non diam. Etiam a erat eros. Nulla porttitor venenatis ligula, ac tincidunt mauris auctor quis. Vivamus ut gravida urna, eu finibus enim. Quisque vitae vestibulum metus. Vestibulum non leo ut odio pharetra mattis." +
+                     "Donec volutpat condimentum velit. Aenean tincidunt massa eu malesuada aliquet. Suspendisse potenti. Nulla porttitor vel sem et pretium. Vestibulum tempus tortor lectus, aliquet tempus risus condimentum vel. Quisque ultricies dapibus lacus, nec mollis enim efficitur in. Aliquam laoreet ultricies lorem, quis hendrerit elit pellentesque at. Cras sit amet dignissim velit. Suspendisse vulputate aliquam faucibus. Morbi dictum magna gravida diam vehicula convallis. Sed egestas nulla lectus, id cursus libero pharetra id. Aliquam fermentum gravida dictum. Curabitur aliquam diam tortor.";
 
-            var interactivity = ctx.Client.GetInteractivity();
-            var embedPages = interactivity.GeneratePagesInEmbed(lipsum);
-            var pages = interactivity.GeneratePagesInContent(lipsum, SplitType.Character);
+        InteractivityExtension interactivity = ctx.Client.GetInteractivity();
+        IEnumerable<Page> embedPages = interactivity.GeneratePagesInEmbed(lipsum);
+        IEnumerable<Page> pages = interactivity.GeneratePagesInContent(lipsum, SplitType.Character);
 
-            await interactivity.SendPaginatedMessageAsync(ctx.Channel, ctx.User, embedPages, token: new CancellationTokenSource(TimeSpan.FromSeconds(30)).Token);
-        }
-
+        await interactivity.SendPaginatedMessageAsync(ctx.Channel, ctx.User, embedPages, token: new CancellationTokenSource(TimeSpan.FromSeconds(30)).Token);
     }
+
 }

@@ -28,65 +28,64 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 
-namespace DSharpPlus.Test
+namespace DSharpPlus.Test;
+
+public class StickerTestCommands : BaseCommandModule
 {
-    public class StickerTestCommands : BaseCommandModule
+    private static readonly HttpClient HttpClient = new();
+
+    [Command]
+    public async Task CreateStickerAsync(CommandContext ctx)
     {
-        private static readonly HttpClient _client = new HttpClient();
+        DiscordMessage? mref = ctx.Message.ReferencedMessage;
 
-        [Command]
-        public async Task CreateStickerAsync(CommandContext ctx)
+        if (mref is null)
         {
-            var mref = ctx.Message.ReferencedMessage;
-
-            if (mref is null)
-            {
-                await ctx.RespondAsync("How to use this command: Reply to a message with an image that's exactly 320x320");
-                return;
-            }
-
-            if (mref.Attachments.Count is 0 || !mref.Attachments[0].FileName.EndsWith("png"))
-            {
-                await ctx.RespondAsync("You must reply to a message with an image (e.g. my_sticker.png)");
-                return;
-            }
-
-            var ms = new MemoryStream(await _client.GetByteArrayAsync(mref.Attachments[0].Url));
-
-            try
-            {
-                await ctx.Guild.CreateStickerAsync("sticker!", "A sticker", "✔", ms, StickerFormat.PNG);
-            }
-            catch (BadRequestException e)
-            {
-                await ctx.RespondAsync(e.JsonMessage);
-            }
-
+            await ctx.RespondAsync("How to use this command: Reply to a message with an image that's exactly 320x320");
+            return;
         }
 
-        [Command("send_sticker")]
-        public static async Task SendStickerAsync(CommandContext ctx)
+        if (mref.Attachments.Count is 0 || !mref.Attachments[0].FileName.EndsWith("png"))
         {
-            if (ctx.Message.Stickers.Count is 0)
-            {
-                await ctx.RespondAsync("Send a sticker!");
-                return;
-            }
-
-            var str = ctx.Message.Stickers[0];
-
-            if (!ctx.Guild.Stickers.TryGetValue(str.Id, out _))
-            {
-                await ctx.RespondAsync("Send a sticker from this guild!");
-                return;
-            }
-
-            var builder = new DiscordMessageBuilder
-            {
-                Sticker = str
-            };
-
-            await ctx.RespondAsync(builder);
+            await ctx.RespondAsync("You must reply to a message with an image (e.g. my_sticker.png)");
+            return;
         }
+
+        MemoryStream ms = new(await HttpClient.GetByteArrayAsync(mref.Attachments[0].Url));
+
+        try
+        {
+            await ctx.Guild.CreateStickerAsync("sticker!", "A sticker", "✔", ms, StickerFormat.PNG);
+        }
+        catch (BadRequestException e)
+        {
+            await ctx.RespondAsync(e.JsonMessage);
+        }
+
+    }
+
+    [Command("send_sticker")]
+    public static async Task SendStickerAsync(CommandContext ctx)
+    {
+        if (ctx.Message.Stickers.Count is 0)
+        {
+            await ctx.RespondAsync("Send a sticker!");
+            return;
+        }
+
+        DiscordMessageSticker str = ctx.Message.Stickers[0];
+
+        if (!ctx.Guild.Stickers.TryGetValue(str.Id, out _))
+        {
+            await ctx.RespondAsync("Send a sticker from this guild!");
+            return;
+        }
+
+        DiscordMessageBuilder builder = new()
+        {
+            Sticker = str
+        };
+
+        await ctx.RespondAsync(builder);
     }
 }

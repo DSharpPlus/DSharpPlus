@@ -25,14 +25,13 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 
-namespace DSharpPlus.Test
+namespace DSharpPlus.Test;
+
+public class MultiEmbedTest : BaseCommandModule
 {
-    public class MultiEmbedTest : BaseCommandModule
-    {
-        [Command("me")]
-        public Task MultiEmbed(CommandContext ctx)
-            => ctx.RespondAsync(m => m
-                .WithEmbed(new DiscordEmbedBuilder().WithTitle("Test 1"))
-                .WithEmbed(new DiscordEmbedBuilder().WithTitle("Test 2")));
-    }
+    [Command("me")]
+    public Task MultiEmbed(CommandContext ctx)
+        => ctx.RespondAsync(m => m
+            .WithEmbed(new DiscordEmbedBuilder().WithTitle("Test 1"))
+            .WithEmbed(new DiscordEmbedBuilder().WithTitle("Test 2")));
 }

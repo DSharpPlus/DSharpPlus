@@ -1,9 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <AssemblyName>DSharpPlus</AssemblyName>
-    <RootNamespace>DSharpPlus</RootNamespace>
+    <AssemblyName>DSharpPlus.Core</AssemblyName>
+    <RootNamespace>DSharpPlus.Core</RootNamespace>
     <OutputType>Library</OutputType>
+    <!-- allow namespaces mismatching folder structure here -->
+    <NoWarn>$(NoWarn);IDE0130</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -12,8 +14,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="System.Text.Json" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="../../../logo/dsharpplus.png" Pack="true" PackagePath="/"/>
+  </ItemGroup>
 </Project>
