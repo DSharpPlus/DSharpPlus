@@ -177,6 +177,18 @@ namespace DSharpPlus
         /// //TODO: reference events
         /// </summary>
         ScheduledGuildEvents = 1 << 16,
+        
+        /// <summary>
+        /// When a server self-moderation module rule has been either created, modified or deleted.
+        /// //TODO : add events 
+        /// </summary>
+        AutoModerationEvents = 1 << 20
+        
+        /// <summary>
+        /// When a server self-moderation module rule has been invoked.
+        /// //TODO : add event
+        /// </summary>
+        AutoModerationExecution = 1 << 21
 
         /// <summary>
         /// Includes all unprivileged intents.
