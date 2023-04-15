@@ -174,16 +174,29 @@ namespace DSharpPlus
 
         /// <summary>
         /// Whether to include scheduled event messages.
-        /// //TODO: reference events
+        /// // TODO: reference events
         /// </summary>
         ScheduledGuildEvents = 1 << 16,
+
+        /// <summary>
+        /// Whetever to include creation, modification or deletion of a Auto-Moderation rule.
+        /// // Todo : include the event.
+        /// </summary>
+        AutoModerationEvents = 1 << 20
+
+        /// <summary>
+        /// Whetever to include when a Auto-Moderation rule was fired.
+        /// // Todo : include the event.
+        /// </summary>
+        AutoModerationExecution = 1 << 21,
 
         /// <summary>
         /// Includes all unprivileged intents.
         /// <para>These are all intents excluding <see cref="DiscordIntents.GuildMembers"/> and <see cref="DiscordIntents.GuildPresences"/>.</para>
         /// </summary>
         AllUnprivileged = Guilds | GuildBans | GuildEmojis | GuildIntegrations | GuildWebhooks | GuildInvites | GuildVoiceStates | GuildMessages |
-            GuildMessageReactions | GuildMessageTyping | DirectMessages | DirectMessageReactions | DirectMessageTyping | ScheduledGuildEvents,
+            GuildMessageReactions | GuildMessageTyping | DirectMessages | DirectMessageReactions | DirectMessageTyping | ScheduledGuildEvents | 
+            AutoModerationEvents | AutoModerationExecution,
 
         /// <summary>
         /// Includes all intents.
