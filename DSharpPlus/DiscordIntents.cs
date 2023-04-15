@@ -182,7 +182,7 @@ namespace DSharpPlus
         /// Whetever to include creation, modification or deletion of a Auto-Moderation rule.
         /// // Todo : include the event.
         /// </summary>
-        AutoModerationEvents = 1 << 20
+        AutoModerationEvents = 1 << 20,
 
         /// <summary>
         /// Whetever to include when a Auto-Moderation rule was fired.
