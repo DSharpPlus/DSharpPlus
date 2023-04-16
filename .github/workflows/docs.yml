@@ -9,11 +9,16 @@ on:
       - master
     paths:
       - 'docs/**'
+
 env:
-  DOTNET_NOLOGO: true
-  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_NOLOGO: 1
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: 1
+
 permissions:
   contents: write
+
 jobs:
   build:
     runs-on: self-hosted
