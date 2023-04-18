@@ -90,7 +90,7 @@ namespace DSharpPlus.Lavalink
             this._connectedNodes[con.NodeEndpoint] = con;
             try
             {
-                await con.StartAsync().ConfigureAwait(false);
+                await con.StartAsync();
             }
             catch
             {

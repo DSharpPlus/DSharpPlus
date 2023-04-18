@@ -359,8 +359,8 @@ namespace DSharpPlus.Entities
             if (this.IsBot && this.Discord.CurrentUser.IsBot)
                 throw new ArgumentException("Bots cannot DM each other.");
 
-            var chn = await this.CreateDmChannelAsync().ConfigureAwait(false);
-            return await chn.SendMessageAsync(content).ConfigureAwait(false);
+            var chn = await this.CreateDmChannelAsync();
+            return await chn.SendMessageAsync(content);
         }
 
         /// <summary>
@@ -377,8 +377,8 @@ namespace DSharpPlus.Entities
             if (this.IsBot && this.Discord.CurrentUser.IsBot)
                 throw new ArgumentException("Bots cannot DM each other.");
 
-            var chn = await this.CreateDmChannelAsync().ConfigureAwait(false);
-            return await chn.SendMessageAsync(embed).ConfigureAwait(false);
+            var chn = await this.CreateDmChannelAsync();
+            return await chn.SendMessageAsync(embed);
         }
 
         /// <summary>
@@ -396,8 +396,8 @@ namespace DSharpPlus.Entities
             if (this.IsBot && this.Discord.CurrentUser.IsBot)
                 throw new ArgumentException("Bots cannot DM each other.");
 
-            var chn = await this.CreateDmChannelAsync().ConfigureAwait(false);
-            return await chn.SendMessageAsync(content, embed).ConfigureAwait(false);
+            var chn = await this.CreateDmChannelAsync();
+            return await chn.SendMessageAsync(content, embed);
         }
 
         /// <summary>
@@ -414,8 +414,8 @@ namespace DSharpPlus.Entities
             if (this.IsBot && this.Discord.CurrentUser.IsBot)
                 throw new ArgumentException("Bots cannot DM each other.");
 
-            var chn = await this.CreateDmChannelAsync().ConfigureAwait(false);
-            return await chn.SendMessageAsync(message).ConfigureAwait(false);
+            var chn = await this.CreateDmChannelAsync();
+            return await chn.SendMessageAsync(message);
         }
 
         /// <summary>
@@ -472,17 +472,17 @@ namespace DSharpPlus.Entities
             if (mdl.Nickname.HasValue && this.Discord.CurrentUser.Id == this.Id)
             {
                 await this.Discord.ApiClient.ModifyCurrentMemberAsync(this.Guild.Id, mdl.Nickname.Value,
-                    mdl.AuditLogReason).ConfigureAwait(false);
+                    mdl.AuditLogReason);
 
                 await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, Optional.FromNoValue<string>(),
                     mdl.Roles.IfPresent(e => e.Select(xr => xr.Id)), mdl.Muted, mdl.Deafened,
-                    mdl.VoiceChannel.IfPresent(e => e?.Id), default, mdl.AuditLogReason).ConfigureAwait(false);
+                    mdl.VoiceChannel.IfPresent(e => e?.Id), default, mdl.AuditLogReason);
             }
             else
             {
                 await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, this.Id, mdl.Nickname,
                     mdl.Roles.IfPresent(e => e.Select(xr => xr.Id)), mdl.Muted, mdl.Deafened,
-                    mdl.VoiceChannel.IfPresent(e => e?.Id), mdl.CommunicationDisabledUntil, mdl.AuditLogReason).ConfigureAwait(false);
+                    mdl.VoiceChannel.IfPresent(e => e?.Id), mdl.CommunicationDisabledUntil, mdl.AuditLogReason);
             }
         }
 
@@ -581,7 +581,7 @@ namespace DSharpPlus.Entities
             if (channel.Type != ChannelType.Stage)
                 throw new ArgumentException("Voice state can only be updated in a stage channel.");
 
-            await this.Discord.ApiClient.UpdateUserVoiceStateAsync(this.Guild.Id, this.Id, channel.Id, suppress).ConfigureAwait(false);
+            await this.Discord.ApiClient.UpdateUserVoiceStateAsync(this.Guild.Id, this.Id, channel.Id, suppress);
         }
 
         /// <summary>

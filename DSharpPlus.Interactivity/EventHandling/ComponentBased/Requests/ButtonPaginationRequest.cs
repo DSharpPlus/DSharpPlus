@@ -176,7 +176,7 @@ namespace DSharpPlus.Interactivity.EventHandling
                         .AddEmbed(this._pages[this._index].Embed)
                         .AddComponents(buttons);
 
-                    await builder.ModifyAsync(this._message).ConfigureAwait(false);
+                    await builder.ModifyAsync(this._message);
                     break;
 
                 case ButtonPaginationBehavior.DeleteButtons:
@@ -184,11 +184,11 @@ namespace DSharpPlus.Interactivity.EventHandling
                         .WithContent(this._pages[this._index].Content)
                         .AddEmbed(this._pages[this._index].Embed);
 
-                    await builder.ModifyAsync(this._message).ConfigureAwait(false);
+                    await builder.ModifyAsync(this._message);
                     break;
 
                 case ButtonPaginationBehavior.DeleteMessage:
-                    await this._message.DeleteAsync().ConfigureAwait(false);
+                    await this._message.DeleteAsync();
                     break;
 
                 case ButtonPaginationBehavior.Ignore:

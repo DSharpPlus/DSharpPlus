@@ -61,7 +61,7 @@ namespace DSharpPlus.Interactivity.Extensions
         public static async Task<IReadOnlyDictionary<int, InteractivityExtension>> UseInteractivityAsync(this DiscordShardedClient client, InteractivityConfiguration configuration = null)
         {
             var extensions = new Dictionary<int, InteractivityExtension>();
-            await client.InitializeShardsAsync().ConfigureAwait(false);
+            await client.InitializeShardsAsync();
 
             foreach (var shard in client.ShardClients.Select(xkvp => xkvp.Value))
             {
@@ -87,7 +87,7 @@ namespace DSharpPlus.Interactivity.Extensions
         /// <returns>A dictionary containing <see cref="InteractivityExtension"/> instances for each shard.</returns>
         public static async Task<ReadOnlyDictionary<int, InteractivityExtension>> GetInteractivityAsync(this DiscordShardedClient client)
         {
-            await client.InitializeShardsAsync().ConfigureAwait(false);
+            await client.InitializeShardsAsync();
             var extensions = new Dictionary<int, InteractivityExtension>();
 
             foreach (var shard in client.ShardClients.Select(xkvp => xkvp.Value))

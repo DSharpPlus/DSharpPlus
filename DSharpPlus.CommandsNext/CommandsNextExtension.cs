@@ -235,7 +235,7 @@ namespace DSharpPlus.CommandsNext
                         mpos = e.Message.GetStringPrefixLength(pfix, this.Config.CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
 
             if (mpos == -1 && this.Config.PrefixResolver != null)
-                mpos = await this.Config.PrefixResolver(e.Message).ConfigureAwait(false);
+                mpos = await this.Config.PrefixResolver(e.Message);
 
             if (mpos == -1)
                 return;
@@ -251,11 +251,11 @@ namespace DSharpPlus.CommandsNext
 
             if (cmd is null)
             {
-                await this._error.InvokeAsync(this, new CommandErrorEventArgs { Context = ctx, Exception = new CommandNotFoundException(fname ?? "UnknownCmd") }).ConfigureAwait(false);
+                await this._error.InvokeAsync(this, new CommandErrorEventArgs { Context = ctx, Exception = new CommandNotFoundException(fname ?? "UnknownCmd") });
                 return;
             }
 
-            await this.Config.CommandExecutor.ExecuteAsync(ctx).ConfigureAwait(false);
+            await this.Config.CommandExecutor.ExecuteAsync(ctx);
         }
 
         /// <summary>
@@ -361,18 +361,18 @@ namespace DSharpPlus.CommandsNext
                 if (cmd is null)
                     return;
 
-                await this.RunAllChecksAsync(cmd, ctx).ConfigureAwait(false);
+                await this.RunAllChecksAsync(cmd, ctx);
 
-                var res = await cmd.ExecuteAsync(ctx).ConfigureAwait(false);
+                var res = await cmd.ExecuteAsync(ctx);
 
                 if (res.IsSuccessful)
-                    await this._executed.InvokeAsync(this, new CommandExecutionEventArgs { Context = res.Context }).ConfigureAwait(false);
+                    await this._executed.InvokeAsync(this, new CommandExecutionEventArgs { Context = res.Context });
                 else
-                    await this._error.InvokeAsync(this, new CommandErrorEventArgs { Context = res.Context, Exception = res.Exception }).ConfigureAwait(false);
+                    await this._error.InvokeAsync(this, new CommandErrorEventArgs { Context = res.Context, Exception = res.Exception });
             }
             catch (Exception ex)
             {
-                await this._error.InvokeAsync(this, new CommandErrorEventArgs { Context = ctx, Exception = ex }).ConfigureAwait(false);
+                await this._error.InvokeAsync(this, new CommandErrorEventArgs { Context = ctx, Exception = ex });
             }
             finally
             {
@@ -384,9 +384,9 @@ namespace DSharpPlus.CommandsNext
         private async Task RunAllChecksAsync(Command cmd, CommandContext ctx)
         {
             if (cmd.Parent is not null)
-                await this.RunAllChecksAsync(cmd.Parent, ctx).ConfigureAwait(false);
+                await this.RunAllChecksAsync(cmd.Parent, ctx);
 
-            var fchecks = await cmd.RunChecksAsync(ctx, false).ConfigureAwait(false);
+            var fchecks = await cmd.RunChecksAsync(ctx, false);
             if (fchecks.Any())
                 throw new ChecksFailedException(cmd, ctx, fchecks);
         }
@@ -743,7 +743,7 @@ namespace DSharpPlus.CommandsNext
                         if (cmd is null)
                             break;
 
-                        var failedChecks = await cmd.RunChecksAsync(ctx, true).ConfigureAwait(false);
+                        var failedChecks = await cmd.RunChecksAsync(ctx, true);
                         if (failedChecks.Any())
                             throw new ChecksFailedException(cmd, ctx, failedChecks);
 
@@ -767,7 +767,7 @@ namespace DSharpPlus.CommandsNext
                                 continue;
                             }
 
-                            var candidateFailedChecks = await candidateCommand.RunChecksAsync(ctx, true).ConfigureAwait(false);
+                            var candidateFailedChecks = await candidateCommand.RunChecksAsync(ctx, true);
                             if (!candidateFailedChecks.Any())
                                 eligibleCommands.Add(candidateCommand);
                         }
@@ -788,7 +788,7 @@ namespace DSharpPlus.CommandsNext
                             continue;
                         }
 
-                        var candidateFailedChecks = await sc.RunChecksAsync(ctx, true).ConfigureAwait(false);
+                        var candidateFailedChecks = await sc.RunChecksAsync(ctx, true);
                         if (!candidateFailedChecks.Any())
                             eligibleCommands.Add(sc);
                     }
@@ -802,9 +802,9 @@ namespace DSharpPlus.CommandsNext
                 var builder = new DiscordMessageBuilder().WithContent(helpMessage.Content).WithEmbed(helpMessage.Embed);
 
                 if (!ctx.Config.DmHelp || ctx.Channel is DiscordDmChannel || ctx.Guild is null || ctx.Member is null)
-                    await ctx.RespondAsync(builder).ConfigureAwait(false);
+                    await ctx.RespondAsync(builder);
                 else
-                    await ctx.Member.SendMessageAsync(builder).ConfigureAwait(false);
+                    await ctx.Member.SendMessageAsync(builder);
             }
         }
         #endregion
@@ -906,7 +906,7 @@ namespace DSharpPlus.CommandsNext
             if (this.ArgumentConverters[t] is not IArgumentConverter<T> cv)
                 throw new ArgumentException("Invalid converter registered for this type.", nameof(T));
 
-            var cvr = await cv.ConvertAsync(value, ctx).ConfigureAwait(false);
+            var cvr = await cv.ConvertAsync(value, ctx);
             return !cvr.HasValue ? throw new ArgumentException("Could not convert specified value to given type.", nameof(value)) : cvr.Value!;
         }
 
@@ -922,7 +922,7 @@ namespace DSharpPlus.CommandsNext
             var m = this.ConvertGeneric.MakeGenericMethod(type);
             try
             {
-                return await ((Task<object>)m.Invoke(this, new object?[] { value, ctx })).ConfigureAwait(false);
+                return await ((Task<object>)m.Invoke(this, new object?[] { value, ctx }));
             }
             catch (Exception ex) when (ex is TargetInvocationException or InvalidCastException)
             {

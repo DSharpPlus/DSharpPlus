@@ -84,11 +84,11 @@ namespace DSharpPlus
             try
             {
                 if (this.GatewayInfo == null)
-                    await this.InternalUpdateGatewayAsync().ConfigureAwait(false);
-                await this.InitializeAsync().ConfigureAwait(false);
+                    await this.InternalUpdateGatewayAsync();
+                await this.InitializeAsync();
 
                 socketLock = this.GetSocketLock();
-                await socketLock.LockAsync().ConfigureAwait(false);
+                await socketLock.LockAsync();
             }
             catch
             {
@@ -143,7 +143,7 @@ namespace DSharpPlus
             if (this.Configuration.GatewayCompressionLevel == GatewayCompressionLevel.Stream)
                 gwuri.AddParameter("compress", "zlib-stream");
 
-            await this._webSocketClient.ConnectAsync(gwuri.Build()).ConfigureAwait(false);
+            await this._webSocketClient.ConnectAsync(gwuri.Build());
 
             Task SocketOnConnect(IWebSocketClient sender, SocketEventArgs e)
                 => this._socketOpened.InvokeAsync(this, e);
@@ -166,13 +166,13 @@ namespace DSharpPlus
 
                     ms.Position = 0;
                     using var sr = new StreamReader(ms, Utilities.UTF8);
-                    msg = await sr.ReadToEndAsync().ConfigureAwait(false);
+                    msg = await sr.ReadToEndAsync();
                 }
 
                 try
                 {
                     this.Logger.LogTrace(LoggerEvents.GatewayWsRx, msg);
-                    await this.HandleSocketMessageAsync(msg).ConfigureAwait(false);
+                    await this.HandleSocketMessageAsync(msg);
                 }
                 catch (Exception ex)
                 {
@@ -193,19 +193,19 @@ namespace DSharpPlus
                     this._cancelTokenSource.Cancel();
 
                 this.Logger.LogDebug(LoggerEvents.ConnectionClose, "Connection closed ({CloseCode}, '{CloseMessage}')", e.CloseCode, e.CloseMessage);
-                await this._socketClosed.InvokeAsync(this, e).ConfigureAwait(false);
+                await this._socketClosed.InvokeAsync(this, e);
 
                 if (this.Configuration.AutoReconnect && (e.CloseCode < 4001 || e.CloseCode >= 5000))
                 {
                     this.Logger.LogCritical(LoggerEvents.ConnectionClose, "Connection terminated ({CloseCode}, '{CloseMessage}'), reconnecting", e.CloseCode, e.CloseMessage);
 
                     if (this._status == null)
-                        await this.ConnectAsync().ConfigureAwait(false);
+                        await this.ConnectAsync();
                     else
                         if (this._status.IdleSince.HasValue)
-                        await this.ConnectAsync(this._status._activity, this._status.Status, Utilities.GetDateTimeOffsetFromMilliseconds(this._status.IdleSince.Value)).ConfigureAwait(false);
+                        await this.ConnectAsync(this._status._activity, this._status.Status, Utilities.GetDateTimeOffsetFromMilliseconds(this._status.IdleSince.Value));
                     else
-                        await this.ConnectAsync(this._status._activity, this._status.Status).ConfigureAwait(false);
+                        await this.ConnectAsync(this._status._activity, this._status.Status);
                 }
                 else
                 {
@@ -225,27 +225,27 @@ namespace DSharpPlus
             switch (payload.OpCode)
             {
                 case GatewayOpCode.Dispatch:
-                    await this.HandleDispatchAsync(payload).ConfigureAwait(false);
+                    await this.HandleDispatchAsync(payload);
                     break;
 
                 case GatewayOpCode.Heartbeat:
-                    await this.OnHeartbeatAsync((long)payload.Data).ConfigureAwait(false);
+                    await this.OnHeartbeatAsync((long)payload.Data);
                     break;
 
                 case GatewayOpCode.Reconnect:
-                    await this.OnReconnectAsync().ConfigureAwait(false);
+                    await this.OnReconnectAsync();
                     break;
 
                 case GatewayOpCode.InvalidSession:
-                    await this.OnInvalidateSessionAsync((bool)payload.Data).ConfigureAwait(false);
+                    await this.OnInvalidateSessionAsync((bool)payload.Data);
                     break;
 
                 case GatewayOpCode.Hello:
-                    await this.OnHelloAsync((payload.Data as JObject).ToDiscordObject<GatewayHello>()).ConfigureAwait(false);
+                    await this.OnHelloAsync((payload.Data as JObject).ToDiscordObject<GatewayHello>());
                     break;
 
                 case GatewayOpCode.HeartbeatAck:
-                    await this.OnHeartbeatAckAsync().ConfigureAwait(false);
+                    await this.OnHeartbeatAckAsync();
                     break;
 
                 default:
@@ -257,13 +257,13 @@ namespace DSharpPlus
         internal async Task OnHeartbeatAsync(long seq)
         {
             this.Logger.LogTrace(LoggerEvents.WebSocketReceive, "Received HEARTBEAT (OP1)");
-            await this.SendHeartbeatAsync(seq).ConfigureAwait(false);
+            await this.SendHeartbeatAsync(seq);
         }
 
         internal async Task OnReconnectAsync()
         {
             this.Logger.LogTrace(LoggerEvents.WebSocketReceive, "Received RECONNECT (OP7)");
-            await this.InternalReconnectAsync(code: 4000, message: "OP7 acknowledged").ConfigureAwait(false);
+            await this.InternalReconnectAsync(code: 4000, message: "OP7 acknowledged");
         }
 
         internal async Task OnInvalidateSessionAsync(bool data)
@@ -274,20 +274,20 @@ namespace DSharpPlus
 
             // we are sending a fresh resume/identify, so lock the socket
             var socketLock = this.GetSocketLock();
-            await socketLock.LockAsync().ConfigureAwait(false);
+            await socketLock.LockAsync();
             socketLock.UnlockAfter(TimeSpan.FromSeconds(5));
 
             if (data)
             {
                 this.Logger.LogTrace(LoggerEvents.WebSocketReceive, "Received INVALID_SESSION (OP9, true)");
-                await Task.Delay(6000).ConfigureAwait(false);
-                await this.SendResumeAsync().ConfigureAwait(false);
+                await Task.Delay(6000);
+                await this.SendResumeAsync();
             }
             else
             {
                 this.Logger.LogTrace(LoggerEvents.WebSocketReceive, "Received INVALID_SESSION (OP9, false)");
                 this._sessionId = null;
-                await this.SendIdentifyAsync(this._status).ConfigureAwait(false);
+                await this.SendIdentifyAsync(this._status);
             }
         }
 
@@ -311,9 +311,9 @@ namespace DSharpPlus
             this._heartbeatTask = Task.Run(this.HeartbeatLoopAsync, this._cancelToken);
 
             if (string.IsNullOrEmpty(this._sessionId))
-                await this.SendIdentifyAsync(this._status).ConfigureAwait(false);
+                await this.SendIdentifyAsync(this._status);
             else
-                await this.SendResumeAsync().ConfigureAwait(false);
+                await this.SendResumeAsync();
         }
 
         internal async Task OnHeartbeatAckAsync()
@@ -332,7 +332,7 @@ namespace DSharpPlus
                 Timestamp = DateTimeOffset.Now
             };
 
-            await this._heartbeated.InvokeAsync(this, args).ConfigureAwait(false);
+            await this._heartbeated.InvokeAsync(this, args);
         }
 
         internal async Task HeartbeatLoopAsync()
@@ -343,8 +343,8 @@ namespace DSharpPlus
             {
                 while (true)
                 {
-                    await this.SendHeartbeatAsync(this._lastSequence).ConfigureAwait(false);
-                    await Task.Delay(this._heartbeatInterval, token).ConfigureAwait(false);
+                    await this.SendHeartbeatAsync(this._lastSequence);
+                    await Task.Delay(this._heartbeatInterval, token);
                     token.ThrowIfCancellationRequested();
                 }
             }
@@ -381,7 +381,7 @@ namespace DSharpPlus
 
             var statusstr = JsonConvert.SerializeObject(status_update);
 
-            await this.SendRawPayloadAsync(statusstr).ConfigureAwait(false);
+            await this.SendRawPayloadAsync(statusstr);
 
             if (!this._presences.ContainsKey(this.CurrentUser.Id))
             {
@@ -415,9 +415,9 @@ namespace DSharpPlus
                     Failures = Volatile.Read(ref this._skippedHeartbeats),
                     GuildDownloadCompleted = true
                 };
-                await this._zombied.InvokeAsync(this, args).ConfigureAwait(false);
+                await this._zombied.InvokeAsync(this, args);
 
-                await this.InternalReconnectAsync(code: 4001, message: "Too many heartbeats missed").ConfigureAwait(false);
+                await this.InternalReconnectAsync(code: 4001, message: "Too many heartbeats missed");
 
                 return;
             }
@@ -429,7 +429,7 @@ namespace DSharpPlus
                     Failures = Volatile.Read(ref this._skippedHeartbeats),
                     GuildDownloadCompleted = false
                 };
-                await this._zombied.InvokeAsync(this, args).ConfigureAwait(false);
+                await this._zombied.InvokeAsync(this, args);
 
                 this.Logger.LogWarning(LoggerEvents.HeartbeatFailure, "Server failed to acknowledge more than 5 heartbeats, but the guild download is still running - check your connection speed");
             }
@@ -442,7 +442,7 @@ namespace DSharpPlus
                 Data = seq
             };
             var heartbeat_str = JsonConvert.SerializeObject(heartbeat);
-            await this.SendRawPayloadAsync(heartbeat_str).ConfigureAwait(false);
+            await this.SendRawPayloadAsync(heartbeat_str);
 
             this._lastHeartbeat = DateTimeOffset.Now;
 
@@ -470,7 +470,7 @@ namespace DSharpPlus
                 Data = identify
             };
             var payloadstr = JsonConvert.SerializeObject(payload);
-            await this.SendRawPayloadAsync(payloadstr).ConfigureAwait(false);
+            await this.SendRawPayloadAsync(payloadstr);
 
             this.Logger.LogDebug(LoggerEvents.Intents, "Registered gateway intents ({Intents})", this.Configuration.Intents);
         }
@@ -490,12 +490,12 @@ namespace DSharpPlus
             };
             var resumestr = JsonConvert.SerializeObject(resume_payload);
 
-            await this.SendRawPayloadAsync(resumestr).ConfigureAwait(false);
+            await this.SendRawPayloadAsync(resumestr);
         }
 
         internal async Task InternalUpdateGatewayAsync()
         {
-            var info = await this.GetGatewayInfoAsync().ConfigureAwait(false);
+            var info = await this.GetGatewayInfoAsync();
             this.GatewayInfo = info;
             this.GatewayUri = new Uri(info.Url);
         }
@@ -503,7 +503,7 @@ namespace DSharpPlus
         internal async Task SendRawPayloadAsync(string jsonPayload)
         {
             this.Logger.LogTrace(LoggerEvents.GatewayWsTx, jsonPayload);
-            await this._webSocketClient.SendMessageAsync(jsonPayload).ConfigureAwait(false);
+            await this._webSocketClient.SendMessageAsync(jsonPayload);
         }
 
 #nullable enable

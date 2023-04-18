@@ -309,7 +309,7 @@ namespace DSharpPlus.VoiceNext
                 };
             }
             var vdj = JsonConvert.SerializeObject(vdp, Formatting.None);
-            await this.WsSendAsync(vdj).ConfigureAwait(false);
+            await this.WsSendAsync(vdj);
         }
 
         internal Task WaitForReadyAsync()
@@ -317,7 +317,7 @@ namespace DSharpPlus.VoiceNext
 
         internal async Task EnqueuePacketAsync(RawVoicePacket packet, CancellationToken token = default)
         {
-            await this.TransmitChannel.Writer.WriteAsync(packet, token).ConfigureAwait(false);
+            await this.TransmitChannel.Writer.WriteAsync(packet, token);
             this._queueCount++;
         }
 
@@ -388,7 +388,7 @@ namespace DSharpPlus.VoiceNext
 
             while (!token.IsCancellationRequested)
             {
-                await this.PauseEvent.WaitAsync().ConfigureAwait(false);
+                await this.PauseEvent.WaitAsync();
 
                 var hasPacket = reader.TryRead(out var rawPacket);
                 if (hasPacket)
@@ -422,15 +422,15 @@ namespace DSharpPlus.VoiceNext
                 var durationModifier = hasPacket ? rawPacket.Duration / 5 : 4;
                 var cts = Math.Max(Stopwatch.GetTimestamp() - synchronizerTicks, 0);
                 if (cts < synchronizerResolution * durationModifier)
-                    await Task.Delay(TimeSpan.FromTicks((long)(((synchronizerResolution * durationModifier) - cts) * tickResolution))).ConfigureAwait(false);
+                    await Task.Delay(TimeSpan.FromTicks((long)(((synchronizerResolution * durationModifier) - cts) * tickResolution)));
 
                 synchronizerTicks += synchronizerResolution * durationModifier;
 
                 if (!hasPacket)
                     continue;
 
-                await this.SendSpeakingAsync(true).ConfigureAwait(false);
-                await client.SendAsync(data, length).ConfigureAwait(false);
+                await this.SendSpeakingAsync(true);
+                await client.SendAsync(data, length);
                 ArrayPool<byte>.Shared.Return(data);
 
                 if (!rawPacket.Silence && this._queueCount == 0)
@@ -440,12 +440,12 @@ namespace DSharpPlus.VoiceNext
                     {
                         var nullpacket = new byte[nullpcm.Length];
                         var nullpacketmem = nullpacket.AsMemory();
-                        await this.EnqueuePacketAsync(new RawVoicePacket(nullpacketmem, 20, true)).ConfigureAwait(false);
+                        await this.EnqueuePacketAsync(new RawVoicePacket(nullpacketmem, 20, true));
                     }
                 }
                 else if (this._queueCount == 0)
                 {
-                    await this.SendSpeakingAsync(false).ConfigureAwait(false);
+                    await this.SendSpeakingAsync(false);
                     this.PlayingWait?.SetResult(true);
                 }
             }
@@ -589,7 +589,7 @@ namespace DSharpPlus.VoiceNext
                         OpusData = new byte[0].AsMemory(),
                         AudioFormat = audioFormat,
                         AudioDuration = audioFormat.CalculateSampleDuration(pcmFiller.Length)
-                    }).ConfigureAwait(false);
+                    });
 
                 await this._voiceReceived.InvokeAsync(this, new VoiceReceiveEventArgs
                 {
@@ -599,7 +599,7 @@ namespace DSharpPlus.VoiceNext
                     OpusData = opusMem,
                     AudioFormat = audioFormat,
                     AudioDuration = audioFormat.CalculateSampleDuration(pcmMem.Length)
-                }).ConfigureAwait(false);
+                });
             }
             catch (Exception ex)
             {
@@ -633,11 +633,11 @@ namespace DSharpPlus.VoiceNext
 
             while (!token.IsCancellationRequested)
             {
-                var data = await client.ReceiveAsync().ConfigureAwait(false);
+                var data = await client.ReceiveAsync();
                 if (data.Length == 8)
                     this.ProcessKeepalive(data);
                 else if (this.Configuration.EnableIncoming)
-                    await this.ProcessVoicePacket(data).ConfigureAwait(false);
+                    await this.ProcessVoicePacket(data);
             }
         }
 
@@ -665,7 +665,7 @@ namespace DSharpPlus.VoiceNext
                 };
 
                 var plj = JsonConvert.SerializeObject(pld, Formatting.None);
-                await this.WsSendAsync(plj).ConfigureAwait(false);
+                await this.WsSendAsync(plj);
             }
         }
 
@@ -692,7 +692,7 @@ namespace DSharpPlus.VoiceNext
         public async Task WaitForPlaybackFinishAsync()
         {
             if (this.PlayingWait != null)
-                await this.PlayingWait.Task.ConfigureAwait(false);
+                await this.PlayingWait.Task;
         }
 
         /// <summary>
@@ -706,7 +706,7 @@ namespace DSharpPlus.VoiceNext
         /// </summary>
         /// <returns></returns>
         public async Task ResumeAsync()
-            => await this.PauseEvent.SetAsync().ConfigureAwait(false);
+            => await this.PauseEvent.SetAsync();
 
         /// <summary>
         /// Disconnects and disposes this voice connection.
@@ -736,7 +736,7 @@ namespace DSharpPlus.VoiceNext
 
             try
             {
-                this.VoiceWs.DisconnectAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+                this.VoiceWs.DisconnectAsync().GetAwaiter().GetResult();
                 this.UdpClient.Close();
             }
             catch { }
@@ -771,10 +771,10 @@ namespace DSharpPlus.VoiceNext
                         Payload = UnixTimestamp(dt)
                     };
                     var hbj = JsonConvert.SerializeObject(hbd);
-                    await this.WsSendAsync(hbj).ConfigureAwait(false);
+                    await this.WsSendAsync(hbj);
 
                     this.LastHeartbeat = dt;
-                    await Task.Delay(this.HeartbeatInterval).ConfigureAwait(false);
+                    await Task.Delay(this.HeartbeatInterval);
                 }
                 catch (OperationCanceledException)
                 {
@@ -800,9 +800,9 @@ namespace DSharpPlus.VoiceNext
                 var packet = new byte[8];
                 BinaryPrimitives.WriteUInt64LittleEndian(packet, keepalive);
 
-                await client.SendAsync(packet, packet.Length).ConfigureAwait(false);
+                await client.SendAsync(packet, packet.Length);
 
-                await Task.Delay(5000, token).ConfigureAwait(false);
+                await Task.Delay(5000, token);
             }
         }
 
@@ -814,9 +814,9 @@ namespace DSharpPlus.VoiceNext
             var pck = new byte[74];
             PreparePacket(pck);
 
-            await this.UdpClient.SendAsync(pck, pck.Length).ConfigureAwait(false);
+            await this.UdpClient.SendAsync(pck, pck.Length);
 
-            var ipd = await this.UdpClient.ReceiveAsync().ConfigureAwait(false);
+            var ipd = await this.UdpClient.ReceiveAsync();
             ReadPacket(ipd, out var ip, out var port);
             this.DiscoveredEndpoint = new IpEndpoint
             {
@@ -886,7 +886,7 @@ namespace DSharpPlus.VoiceNext
                 }
             };
             var vsj = JsonConvert.SerializeObject(vsp, Formatting.None);
-            await this.WsSendAsync(vsj).ConfigureAwait(false);
+            await this.WsSendAsync(vsj);
 
             this.SenderTokenSource = new CancellationTokenSource();
             this.SenderTask = Task.Run(this.VoiceSenderTask, this.SenderToken);
@@ -910,7 +910,7 @@ namespace DSharpPlus.VoiceNext
             {
                 var nullPcm = new byte[nullpcm.Length];
                 var nullpacketmem = nullPcm.AsMemory();
-                await this.EnqueuePacketAsync(new RawVoicePacket(nullpacketmem, 20, true)).ConfigureAwait(false);
+                await this.EnqueuePacketAsync(new RawVoicePacket(nullpacketmem, 20, true));
             }
 
             this.IsInitialized = true;
@@ -933,7 +933,7 @@ namespace DSharpPlus.VoiceNext
                     // oh, discord
                     //this.HeartbeatInterval = vrp.HeartbeatInterval;
                     this.HeartbeatTask = Task.Run(this.HeartbeatAsync);
-                    await this.Stage1(vrp).ConfigureAwait(false);
+                    await this.Stage1(vrp);
                     break;
 
                 case 4: // SESSION_DESCRIPTION
@@ -941,7 +941,7 @@ namespace DSharpPlus.VoiceNext
                     var vsd = opp.ToDiscordObject<VoiceSessionDescriptionPayload>();
                     this.Key = vsd.SecretKey;
                     this.Sodium = new Sodium(this.Key.AsMemory());
-                    await this.Stage2(vsd).ConfigureAwait(false);
+                    await this.Stage2(vsd);
                     break;
 
                 case 5: // SPEAKING
@@ -966,14 +966,14 @@ namespace DSharpPlus.VoiceNext
                         var opus = this.Opus.CreateDecoder();
                         var vtx = new AudioSender(spk.SSRC, opus)
                         {
-                            User = await this.Discord.GetUserAsync(spd.UserId.Value).ConfigureAwait(false)
+                            User = await this.Discord.GetUserAsync(spd.UserId.Value)
                         };
 
                         if (!this.TransmittingSSRCs.TryAdd(spk.SSRC, vtx))
                             this.Opus.DestroyDecoder(opus);
                     }
 
-                    await this._userSpeaking.InvokeAsync(this, spk).ConfigureAwait(false);
+                    await this._userSpeaking.InvokeAsync(this, spk);
                     break;
 
                 case 6: // HEARTBEAT ACK
@@ -998,7 +998,7 @@ namespace DSharpPlus.VoiceNext
                 case 12: // CLIENT_CONNECTED
                     this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceDispatch, "Received CLIENT_CONNECTED (OP12)");
                     var ujpd = opp.ToDiscordObject<VoiceUserJoinPayload>();
-                    var usrj = await this.Discord.GetUserAsync(ujpd.UserId).ConfigureAwait(false);
+                    var usrj = await this.Discord.GetUserAsync(ujpd.UserId);
                     {
                         var opus = this.Opus.CreateDecoder();
                         var vtx = new AudioSender(ujpd.SSRC, opus)
@@ -1010,7 +1010,7 @@ namespace DSharpPlus.VoiceNext
                             this.Opus.DestroyDecoder(opus);
                     }
 
-                    await this._userJoined.InvokeAsync(this, new VoiceUserJoinEventArgs { User = usrj, SSRC = ujpd.SSRC }).ConfigureAwait(false);
+                    await this._userJoined.InvokeAsync(this, new VoiceUserJoinEventArgs { User = usrj, SSRC = ujpd.SSRC });
                     break;
 
                 case 13: // CLIENT_DISCONNECTED
@@ -1023,12 +1023,12 @@ namespace DSharpPlus.VoiceNext
                         this.Opus.DestroyDecoder(txssrc13.Decoder);
                     }
 
-                    var usrl = await this.Discord.GetUserAsync(ulpd.UserId).ConfigureAwait(false);
+                    var usrl = await this.Discord.GetUserAsync(ulpd.UserId);
                     await this._userLeft.InvokeAsync(this, new VoiceUserLeaveEventArgs
                     {
                         User = usrl,
                         SSRC = txssrc.Key
-                    }).ConfigureAwait(false);
+                    });
                     break;
 
                 default:
@@ -1059,7 +1059,7 @@ namespace DSharpPlus.VoiceNext
                 this.VoiceWs.Connected += this.VoiceWS_SocketOpened;
 
                 if (this.Resume) // emzi you dipshit
-                    await this.ConnectAsync().ConfigureAwait(false);
+                    await this.ConnectAsync();
             }
         }
 
@@ -1084,7 +1084,7 @@ namespace DSharpPlus.VoiceNext
         private async Task WsSendAsync(string payload)
         {
             this.Discord.Logger.LogTrace(VoiceNextEvents.VoiceWsTx, payload);
-            await this.VoiceWs.SendMessageAsync(payload).ConfigureAwait(false);
+            await this.VoiceWs.SendMessageAsync(payload);
         }
 
         private static uint UnixTimestamp(DateTime dt)

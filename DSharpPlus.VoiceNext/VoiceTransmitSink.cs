@@ -95,7 +95,7 @@ namespace DSharpPlus.VoiceNext
         /// <param name="offset">Start of the data in the buffer.</param>
         /// <param name="count">Number of bytes from the buffer.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
-        public async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default) => await this.WriteAsync(new ReadOnlyMemory<byte>(buffer, offset, count), cancellationToken).ConfigureAwait(false);
+        public async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default) => await this.WriteAsync(new ReadOnlyMemory<byte>(buffer, offset, count), cancellationToken);
 
         /// <summary>
         /// Writes PCM data to the sink. The data is prepared for transmission, and enqueued.
@@ -104,7 +104,7 @@ namespace DSharpPlus.VoiceNext
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         public async Task WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
         {
-            await this.WriteSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+            await this.WriteSemaphore.WaitAsync(cancellationToken);
 
             try
             {
@@ -134,7 +134,7 @@ namespace DSharpPlus.VoiceNext
                         var packetMemory = packet.AsMemory().Slice(0, this.PcmMemory.Length);
                         this.PcmMemory.CopyTo(packetMemory);
 
-                        await this.Connection.EnqueuePacketAsync(new RawVoicePacket(packetMemory, this.PcmBufferDuration, false, packet), cancellationToken).ConfigureAwait(false);
+                        await this.Connection.EnqueuePacketAsync(new RawVoicePacket(packetMemory, this.PcmBufferDuration, false, packet), cancellationToken);
                     }
                 }
             }
@@ -159,7 +159,7 @@ namespace DSharpPlus.VoiceNext
             var packetMemory = packet.AsMemory().Slice(0, pcm.Length);
             pcm.CopyTo(packetMemory);
 
-            await this.Connection.EnqueuePacketAsync(new RawVoicePacket(packetMemory, this.PcmBufferDuration, false, packet), cancellationToken).ConfigureAwait(false);
+            await this.Connection.EnqueuePacketAsync(new RawVoicePacket(packetMemory, this.PcmBufferDuration, false, packet), cancellationToken);
         }
 
         /// <summary>
@@ -173,7 +173,7 @@ namespace DSharpPlus.VoiceNext
         /// </summary>
         /// <returns></returns>
         public async Task ResumeAsync()
-            => await this.Connection.ResumeAsync().ConfigureAwait(false);
+            => await this.Connection.ResumeAsync();
 
         /// <summary>
         /// Gets the collection of installed PCM filters, in order of their execution.

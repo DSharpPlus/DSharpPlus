@@ -49,7 +49,7 @@ namespace DSharpPlus.Net.WebSocket
 
         public async Task LockAsync()
         {
-            await this.LockSemaphore.WaitAsync().ConfigureAwait(false);
+            await this.LockSemaphore.WaitAsync();
 
             this.TimeoutCancelSource = new CancellationTokenSource();
             this.UnlockTask = Task.Delay(TimeSpan.FromSeconds(30), this.TimeoutCancel);

@@ -59,7 +59,7 @@ namespace DSharpPlus.Interactivity.EventHandling
 
             try
             {
-                return await request.Tcs.Task.ConfigureAwait(false); // awaits request until completion or cancellation
+                return await request.Tcs.Task; // awaits request until completion or cancellation
             }
             catch (Exception e)
             {

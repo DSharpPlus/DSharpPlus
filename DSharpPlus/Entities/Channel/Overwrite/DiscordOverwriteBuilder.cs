@@ -134,7 +134,7 @@ namespace DSharpPlus.Entities
             this.Allowed = other.Allowed;
             this.Denied = other.Denied;
             this.Type = other.Type;
-            this.Target = this.Type == OverwriteType.Member ? await other.GetMemberAsync().ConfigureAwait(false) as SnowflakeObject : await other.GetRoleAsync().ConfigureAwait(false) as SnowflakeObject;
+            this.Target = this.Type == OverwriteType.Member ? await other.GetMemberAsync() as SnowflakeObject : await other.GetRoleAsync() as SnowflakeObject;
 
             return this;
         }

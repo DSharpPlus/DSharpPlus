@@ -118,7 +118,7 @@ namespace DSharpPlus.Entities
         public DiscordMember Owner
             => this.Members.TryGetValue(this.OwnerId, out var owner)
                 ? owner
-                : this.Discord.ApiClient.GetGuildMemberAsync(this.Id, this.OwnerId).ConfigureAwait(false).GetAwaiter().GetResult();
+                : this.Discord.ApiClient.GetGuildMemberAsync(this.Id, this.OwnerId).GetAwaiter().GetResult();
 
         /// <summary>
         /// Gets the guild's voice region ID.
@@ -685,7 +685,7 @@ namespace DSharpPlus.Entities
                 model.Channel.IfPresent(c => c?.Id),
                 model.StartTime, model.EndTime,
                 model.Type, model.PrivacyLevel,
-                model.Metadata, model.Status, reason).ConfigureAwait(false);
+                model.Metadata, model.Status, reason);
 
             this._scheduledEvents[modifiedEvent.Id] = modifiedEvent;
             return;
@@ -845,7 +845,7 @@ namespace DSharpPlus.Entities
                 mdl.SystemChannel.IfPresent(e => e?.Id), bannerb64,
                 mdl.Description, mdl.DiscoverySplash, mdl.Features, mdl.PreferredLocale,
                 mdl.PublicUpdatesChannel.IfPresent(e => e?.Id), mdl.RulesChannel.IfPresent(e => e?.Id),
-                mdl.SystemChannelFlags, mdl.AuditLogReason).ConfigureAwait(false);
+                mdl.SystemChannelFlags, mdl.AuditLogReason);
         }
 
         /// <summary>
@@ -860,7 +860,7 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("Roles cannot be empty.", nameof(roles));
 
             // Sort the roles by position and create skeleton roles for the payload.
-            var returnedRoles = await this.Discord.ApiClient.ModifyGuildRolePositionsAsync(this.Id, roles.Select(x => new RestGuildRoleReorderPayload() { RoleId = x.Value.Id, Position = x.Key }), reason).ConfigureAwait(false);
+            var returnedRoles = await this.Discord.ApiClient.ModifyGuildRolePositionsAsync(this.Id, roles.Select(x => new RestGuildRoleReorderPayload() { RoleId = x.Value.Id, Position = x.Key }), reason);
 
             // Update the cache as the endpoint returns all roles in the order they were sent.
             this._roles = new(returnedRoles.Select(x => new KeyValuePair<ulong, DiscordRole>(x.Id, x)));
@@ -1230,7 +1230,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task<IReadOnlyList<DiscordVoiceRegion>> ListVoiceRegionsAsync()
         {
-            var vrs = await this.Discord.ApiClient.GetGuildVoiceRegionsAsync(this.Id).ConfigureAwait(false);
+            var vrs = await this.Discord.ApiClient.GetGuildVoiceRegionsAsync(this.Id);
             foreach (var xvr in vrs)
                 this.Discord.InternalVoiceRegions.TryAdd(xvr.Id, xvr);
 
@@ -1266,7 +1266,7 @@ namespace DSharpPlus.Entities
         /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
         public async Task<IReadOnlyList<DiscordInvite>> GetInvitesAsync()
         {
-            var res = await this.Discord.ApiClient.GetGuildInvitesAsync(this.Id).ConfigureAwait(false);
+            var res = await this.Discord.ApiClient.GetGuildInvitesAsync(this.Id);
 
             var intents = this.Discord.Configuration.Intents;
 
@@ -1328,7 +1328,7 @@ namespace DSharpPlus.Entities
             if (!updateCache && this._members != null && this._members.TryGetValue(userId, out var mbr))
                 return mbr;
 
-            mbr = await this.Discord.ApiClient.GetGuildMemberAsync(this.Id, userId).ConfigureAwait(false);
+            mbr = await this.Discord.ApiClient.GetGuildMemberAsync(this.Id, userId);
 
             var intents = this.Discord.Configuration.Intents;
 
@@ -1356,7 +1356,7 @@ namespace DSharpPlus.Entities
             var last = 0ul;
             while (recd > 0)
             {
-                var tms = await this.Discord.ApiClient.ListGuildMembersAsync(this.Id, 1000, last == 0 ? null : (ulong?)last).ConfigureAwait(false);
+                var tms = await this.Discord.ApiClient.ListGuildMembersAsync(this.Id, 1000, last == 0 ? null : (ulong?)last);
                 recd = tms.Count;
 
                 foreach (var xtm in tms)
@@ -1412,7 +1412,7 @@ namespace DSharpPlus.Entities
             };
 
             var payloadStr = JsonConvert.SerializeObject(payload, Formatting.None);
-            await client.SendRawPayloadAsync(payloadStr).ConfigureAwait(false);
+            await client.SendRawPayloadAsync(payloadStr);
         }
 
         /// <summary>
@@ -1477,7 +1477,7 @@ namespace DSharpPlus.Entities
                 rmn = Math.Min(100, rmn);
                 if (rmn <= 0) break;
 
-                var alr = await this.Discord.ApiClient.GetAuditLogsAsync(this.Id, rmn, null, last == 0 ? null : (ulong?)last, by_member?.Id, (int?)action_type).ConfigureAwait(false);
+                var alr = await this.Discord.ApiClient.GetAuditLogsAsync(this.Id, rmn, null, last == 0 ? null : (ulong?)last, by_member?.Id, (int?)action_type);
                 ac = alr.Entries.Count();
                 tc += ac;
                 if (ac > 0)
@@ -1522,7 +1522,7 @@ namespace DSharpPlus.Entities
             Dictionary<ulong, DiscordWebhook> ahd = null;
             if (ahr.Any())
             {
-                var whr = await this.GetWebhooksAsync().ConfigureAwait(false);
+                var whr = await this.GetWebhooksAsync();
                 var whs = whr.ToDictionary(xh => xh.Id, xh => xh);
 
                 var amh = ahr.Select(xah => whs.TryGetValue(xah.Id, out var webhook) ? webhook : new DiscordWebhook { Discord = this.Discord, Name = xah.Name, Id = xah.Id, AvatarHash = xah.AvatarHash, ChannelId = xah.ChannelId, GuildId = xah.GuildId, Token = xah.Token });
@@ -1580,8 +1580,8 @@ namespace DSharpPlus.Entities
                                 case "owner_id":
                                     entrygld.OwnerChange = new PropertyChange<DiscordMember>
                                     {
-                                        Before = (this._members != null && this._members.TryGetValue(xc.OldValueUlong, out var oldMember)) ? oldMember : await this.GetMemberAsync(xc.OldValueUlong).ConfigureAwait(false),
-                                        After = (this._members != null && this._members.TryGetValue(xc.NewValueUlong, out var newMember)) ? newMember : await this.GetMemberAsync(xc.NewValueUlong).ConfigureAwait(false)
+                                        Before = (this._members != null && this._members.TryGetValue(xc.OldValueUlong, out var oldMember)) ? oldMember : await this.GetMemberAsync(xc.OldValueUlong),
+                                        After = (this._members != null && this._members.TryGetValue(xc.NewValueUlong, out var newMember)) ? newMember : await this.GetMemberAsync(xc.NewValueUlong)
                                     };
                                     break;
 
@@ -2923,7 +2923,7 @@ namespace DSharpPlus.Entities
         {
             var mdl = new ApplicationCommandEditModel();
             action(mdl);
-            return await this.Discord.ApiClient.EditGuildApplicationCommandAsync(this.Discord.CurrentApplication.Id, this.Id, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission, default, default, mdl.AllowDMUsage, mdl.DefaultMemberPermissions).ConfigureAwait(false);
+            return await this.Discord.ApiClient.EditGuildApplicationCommandAsync(this.Discord.CurrentApplication.Id, this.Id, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission, default, default, mdl.AllowDMUsage, mdl.DefaultMemberPermissions);
         }
 
         /// <summary>
@@ -2968,7 +2968,7 @@ namespace DSharpPlus.Entities
         {
             var mdl = new WelcomeScreenEditModel();
             action(mdl);
-            return await this.Discord.ApiClient.ModifyGuildWelcomeScreenAsync(this.Id, mdl.Enabled, mdl.WelcomeChannels, mdl.Description, reason).ConfigureAwait(false);
+            return await this.Discord.ApiClient.ModifyGuildWelcomeScreenAsync(this.Id, mdl.Enabled, mdl.WelcomeChannels, mdl.Description, reason);
         }
 
         /// <summary>

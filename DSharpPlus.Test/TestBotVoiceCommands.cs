@@ -57,8 +57,8 @@ public class TestBotVoiceCommands : BaseCommandModule
 
         // e.Client.DebugLogger.LogMessage(LogLevel.Debug, "VNEXT RX", $"{e.User?.Username ?? "Unknown user"} sent voice data. {e.AudioFormat.ChannelCount}", DateTime.Now);
         byte[] buff = e.PcmData.ToArray();
-        await fs.WriteAsync(buff).ConfigureAwait(false);
-        // await fs.FlushAsync().ConfigureAwait(false);
+        await fs.WriteAsync(buff);
+        // await fs.FlushAsync();
     }
     private Task OnUserSpeaking(VoiceNextConnection vnc, UserSpeakingEventArgs e)
     {
@@ -102,21 +102,21 @@ public class TestBotVoiceCommands : BaseCommandModule
         VoiceNextExtension voice = ctx.Client.GetVoiceNext();
         if (voice == null)
         {
-            await ctx.Message.RespondAsync("Voice is not activated").ConfigureAwait(false);
+            await ctx.Message.RespondAsync("Voice is not activated");
             return;
         }
 
         VoiceNextConnection vnc = voice.GetConnection(ctx.Guild);
         if (vnc == null)
         {
-            await ctx.Message.RespondAsync("Voice is not connected in this guild").ConfigureAwait(false);
+            await ctx.Message.RespondAsync("Voice is not connected in this guild");
             return;
         }
 
         VoiceTransmitSink transmitStream = vnc.GetTransmitSink();
         transmitStream.VolumeModifier = vol;
 
-        await ctx.RespondAsync($"Volume set to {vol * 100:0.00}%").ConfigureAwait(false);
+        await ctx.RespondAsync($"Volume set to {vol * 100:0.00}%");
     }
 
     [Command("join")]
@@ -125,12 +125,12 @@ public class TestBotVoiceCommands : BaseCommandModule
         DiscordChannel? chn = ctx.Member?.VoiceState?.Channel;
         if (chn == null)
         {
-            await ctx.Message.RespondAsync("Your voice channel was not found or you are not connected").ConfigureAwait(false);
+            await ctx.Message.RespondAsync("Your voice channel was not found or you are not connected");
             return;
         }
 
-        VoiceNextConnection vnc = await chn.ConnectAsync().ConfigureAwait(false);
-        await ctx.Message.RespondAsync($"Tryina join `{chn.Name}` ({chn.Id})").ConfigureAwait(false);
+        VoiceNextConnection vnc = await chn.ConnectAsync();
+        await ctx.Message.RespondAsync($"Tryina join `{chn.Name}` ({chn.Id})");
 
         if (ctx.Client.GetVoiceNext().IsIncomingEnabled)
         {
@@ -149,14 +149,14 @@ public class TestBotVoiceCommands : BaseCommandModule
         VoiceNextExtension voice = ctx.Client.GetVoiceNext();
         if (voice == null)
         {
-            await ctx.Message.RespondAsync("Voice is not activated").ConfigureAwait(false);
+            await ctx.Message.RespondAsync("Voice is not activated");
             return;
         }
 
         VoiceNextConnection vnc = voice.GetConnection(ctx.Guild);
         if (vnc == null)
         {
-            await ctx.Message.RespondAsync("Voice is not connected in this guild").ConfigureAwait(false);
+            await ctx.Message.RespondAsync("Voice is not connected in this guild");
             return;
         }
 
@@ -175,13 +175,13 @@ public class TestBotVoiceCommands : BaseCommandModule
             {
                 foreach (System.Collections.Generic.KeyValuePair<uint, ulong> kvp in this._ssrcMap)
                 {
-                    await sw.WriteLineAsync(string.Format("{0} = {1}", kvp.Key, kvp.Value)).ConfigureAwait(false);
+                    await sw.WriteLineAsync(string.Format("{0} = {1}", kvp.Key, kvp.Value));
                 }
             }
         }
 
         vnc.Disconnect();
-        await ctx.Message.RespondAsync("Disconnected").ConfigureAwait(false);
+        await ctx.Message.RespondAsync("Disconnected");
     }
 
     [Command("play")]
@@ -190,32 +190,32 @@ public class TestBotVoiceCommands : BaseCommandModule
         VoiceNextExtension voice = ctx.Client.GetVoiceNext();
         if (voice == null)
         {
-            await ctx.Message.RespondAsync("Voice is not activated").ConfigureAwait(false);
+            await ctx.Message.RespondAsync("Voice is not activated");
             return;
         }
 
         VoiceNextConnection vnc = voice.GetConnection(ctx.Guild);
         if (vnc == null)
         {
-            await ctx.Message.RespondAsync("Voice is not connected in this guild").ConfigureAwait(false);
+            await ctx.Message.RespondAsync("Voice is not connected in this guild");
             return;
         }
 
         string snd = string.Join(" ", filename);
         if (string.IsNullOrWhiteSpace(snd) || !File.Exists(snd))
         {
-            await ctx.Message.RespondAsync("Invalid file specified").ConfigureAwait(false);
+            await ctx.Message.RespondAsync("Invalid file specified");
             return;
         }
 
         while (vnc.IsPlaying)
         {
-            await ctx.Message.RespondAsync("This connection is playing audio, waiting for end.").ConfigureAwait(false);
-            await vnc.WaitForPlaybackFinishAsync().ConfigureAwait(false);
+            await ctx.Message.RespondAsync("This connection is playing audio, waiting for end.");
+            await vnc.WaitForPlaybackFinishAsync();
         }
 
         Exception exc = null;
-        await ctx.Message.RespondAsync($"Playing `{snd}`").ConfigureAwait(false);
+        await ctx.Message.RespondAsync($"Playing `{snd}`");
         try
         {
             // borrowed from
@@ -232,10 +232,10 @@ public class TestBotVoiceCommands : BaseCommandModule
             Stream ffout = ffmpeg.StandardOutput.BaseStream;
 
             VoiceTransmitSink transmitStream = vnc.GetTransmitSink();
-            await ffout.CopyToAsync(transmitStream).ConfigureAwait(false);
-            await transmitStream.FlushAsync().ConfigureAwait(false);
+            await ffout.CopyToAsync(transmitStream);
+            await transmitStream.FlushAsync();
 
-            await vnc.WaitForPlaybackFinishAsync().ConfigureAwait(false);
+            await vnc.WaitForPlaybackFinishAsync();
         }
         catch (Exception ex) { exc = ex; }
 
@@ -251,31 +251,31 @@ public class TestBotVoiceCommands : BaseCommandModule
         VoiceNextExtension voice = ctx.Client.GetVoiceNext();
         if (voice == null)
         {
-            await ctx.Message.RespondAsync("Voice is not activated").ConfigureAwait(false);
+            await ctx.Message.RespondAsync("Voice is not activated");
             return;
         }
 
         VoiceNextConnection vnc = voice.GetConnection(ctx.Guild);
         if (vnc == null)
         {
-            await ctx.Message.RespondAsync("Voice is not connected in this guild").ConfigureAwait(false);
+            await ctx.Message.RespondAsync("Voice is not connected in this guild");
             return;
         }
 
         if (this.AudioLoopTask != null && !this.AudioLoopCancelToken.IsCancellationRequested)
         {
-            await ctx.Message.RespondAsync("Audio loop is already playing").ConfigureAwait(false);
+            await ctx.Message.RespondAsync("Audio loop is already playing");
             return;
         }
 
         string snd = string.Join(" ", filename);
         if (string.IsNullOrWhiteSpace(snd) || !File.Exists(snd))
         {
-            await ctx.Message.RespondAsync("Invalid file specified").ConfigureAwait(false);
+            await ctx.Message.RespondAsync("Invalid file specified");
             return;
         }
 
-        await ctx.Message.RespondAsync($"Playing `{snd}` in a loop").ConfigureAwait(false);
+        await ctx.Message.RespondAsync($"Playing `{snd}` in a loop");
         this.AudioLoopCancelTokenSource = new CancellationTokenSource();
         this.AudioLoopTask = Task.Run(async () =>
         {
@@ -298,13 +298,13 @@ public class TestBotVoiceCommands : BaseCommandModule
                 Stream ffout = ffmpeg.StandardOutput.BaseStream;
 
                 VoiceTransmitSink transmitStream = vnc.GetTransmitSink();
-                await ffout.CopyToAsync(transmitStream).ConfigureAwait(false);
-                await transmitStream.FlushAsync().ConfigureAwait(false);
+                await ffout.CopyToAsync(transmitStream);
+                await transmitStream.FlushAsync();
 
-                await vnc.WaitForPlaybackFinishAsync().ConfigureAwait(false);
+                await vnc.WaitForPlaybackFinishAsync();
             }
             catch (OperationCanceledException) { }
-            catch (Exception ex) { await chn.SendMessageAsync($"Audio loop crashed: {ex.GetType()}: {ex.Message}").ConfigureAwait(false); }
+            catch (Exception ex) { await chn.SendMessageAsync($"Audio loop crashed: {ex.GetType()}: {ex.Message}"); }
         }, this.AudioLoopCancelToken);
     }
 
@@ -314,28 +314,28 @@ public class TestBotVoiceCommands : BaseCommandModule
         VoiceNextExtension voice = ctx.Client.GetVoiceNext();
         if (voice == null)
         {
-            await ctx.Message.RespondAsync("Voice is not activated").ConfigureAwait(false);
+            await ctx.Message.RespondAsync("Voice is not activated");
             return;
         }
 
         VoiceNextConnection vnc = voice.GetConnection(ctx.Guild);
         if (vnc == null)
         {
-            await ctx.Message.RespondAsync("Voice is not connected in this guild").ConfigureAwait(false);
+            await ctx.Message.RespondAsync("Voice is not connected in this guild");
             return;
         }
 
         if (this.AudioLoopTask == null || this.AudioLoopCancelToken.IsCancellationRequested)
         {
-            await ctx.Message.RespondAsync("Audio loop is already paused").ConfigureAwait(false);
+            await ctx.Message.RespondAsync("Audio loop is already paused");
             return;
         }
 
         this.AudioLoopCancelTokenSource.Cancel();
-        await this.AudioLoopTask.ConfigureAwait(false);
+        await this.AudioLoopTask;
         this.AudioLoopTask = null;
 
-        await ctx.Message.RespondAsync("Audio loop stopped").ConfigureAwait(false);
+        await ctx.Message.RespondAsync("Audio loop stopped");
     }
 
     [Command("playforce"), Description("Forces audio playback, regardless of whether audio is playing or not.")]
@@ -344,26 +344,26 @@ public class TestBotVoiceCommands : BaseCommandModule
         VoiceNextExtension voice = ctx.Client.GetVoiceNext();
         if (voice == null)
         {
-            await ctx.Message.RespondAsync("Voice is not activated").ConfigureAwait(false);
+            await ctx.Message.RespondAsync("Voice is not activated");
             return;
         }
 
         VoiceNextConnection vnc = voice.GetConnection(ctx.Guild);
         if (vnc == null)
         {
-            await ctx.Message.RespondAsync("Voice is not connected in this guild").ConfigureAwait(false);
+            await ctx.Message.RespondAsync("Voice is not connected in this guild");
             return;
         }
 
         string snd = string.Join(" ", filename);
         if (string.IsNullOrWhiteSpace(snd) || !File.Exists(snd))
         {
-            await ctx.Message.RespondAsync("Invalid file specified").ConfigureAwait(false);
+            await ctx.Message.RespondAsync("Invalid file specified");
             return;
         }
 
         Exception exc = null;
-        await ctx.Message.RespondAsync($"Playing `{snd}`").ConfigureAwait(false);
+        await ctx.Message.RespondAsync($"Playing `{snd}`");
         try
         {
             // borrowed from
@@ -381,10 +381,10 @@ public class TestBotVoiceCommands : BaseCommandModule
             Stream ffout = ffmpeg.StandardOutput.BaseStream;
 
             VoiceTransmitSink transmitStream = vnc.GetTransmitSink();
-            await ffout.CopyToAsync(transmitStream).ConfigureAwait(false);
-            await transmitStream.FlushAsync().ConfigureAwait(false);
+            await ffout.CopyToAsync(transmitStream);
+            await transmitStream.FlushAsync();
 
-            await vnc.WaitForPlaybackFinishAsync().ConfigureAwait(false);
+            await vnc.WaitForPlaybackFinishAsync();
         }
         catch (Exception ex) { exc = ex; }
 
