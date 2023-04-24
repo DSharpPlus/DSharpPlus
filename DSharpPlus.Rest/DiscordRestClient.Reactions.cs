@@ -25,77 +25,76 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
-namespace DSharpPlus
+namespace DSharpPlus;
+
+public sealed partial class DiscordRestClient
 {
-    public sealed partial class DiscordRestClient
-    {
-        /// <summary>
-        /// Creates a new reaction
-        /// </summary>
-        /// <param name="channelId">Channel ID</param>
-        /// <param name="messageId">Message ID</param>
-        /// <param name="emoji">Emoji to react</param>
-        public Task CreateReactionAsync(ulong channelId, ulong messageId, string emoji)
-            => this.ApiClient.CreateReactionAsync(channelId, messageId, emoji);
+    /// <summary>
+    /// Creates a new reaction
+    /// </summary>
+    /// <param name="channelId">Channel ID</param>
+    /// <param name="messageId">Message ID</param>
+    /// <param name="emoji">Emoji to react</param>
+    public Task CreateReactionAsync(ulong channelId, ulong messageId, string emoji)
+        => ApiClient.CreateReactionAsync(channelId, messageId, emoji);
 
-        /// <summary>
-        /// Deletes own reaction
-        /// </summary>
-        /// <param name="channelId">Channel ID</param>
-        /// <param name="messageId">Message ID</param>
-        /// <param name="emoji">Emoji to remove from reaction</param>
-        public Task DeleteOwnReactionAsync(ulong channelId, ulong messageId, string emoji)
-            => this.ApiClient.DeleteOwnReactionAsync(channelId, messageId, emoji);
+    /// <summary>
+    /// Deletes own reaction
+    /// </summary>
+    /// <param name="channelId">Channel ID</param>
+    /// <param name="messageId">Message ID</param>
+    /// <param name="emoji">Emoji to remove from reaction</param>
+    public Task DeleteOwnReactionAsync(ulong channelId, ulong messageId, string emoji)
+        => ApiClient.DeleteOwnReactionAsync(channelId, messageId, emoji);
 
-        /// <summary>
-        /// Deletes someone elses reaction
-        /// </summary>
-        /// <param name="channelId">Channel ID</param>
-        /// <param name="messageId">Message ID</param>
-        /// <param name="userId">User ID</param>
-        /// <param name="emoji">Emoji to remove</param>
-        /// <param name="reason">Reason why this reaction was removed</param>
-        public Task DeleteUserReactionAsync(ulong channelId, ulong messageId, ulong userId, string emoji, string reason)
-            => this.ApiClient.DeleteUserReactionAsync(channelId, messageId, userId, emoji, reason);
+    /// <summary>
+    /// Deletes someone elses reaction
+    /// </summary>
+    /// <param name="channelId">Channel ID</param>
+    /// <param name="messageId">Message ID</param>
+    /// <param name="userId">User ID</param>
+    /// <param name="emoji">Emoji to remove</param>
+    /// <param name="reason">Reason why this reaction was removed</param>
+    public Task DeleteUserReactionAsync(ulong channelId, ulong messageId, ulong userId, string emoji, string reason)
+        => ApiClient.DeleteUserReactionAsync(channelId, messageId, userId, emoji, reason);
 
-        /// <summary>
-        /// Gets all users that reacted with a specific emoji to a message
-        /// </summary>
-        /// <param name="channelId">Channel ID</param>
-        /// <param name="messageId">Message ID</param>
-        /// <param name="emoji">Emoji to check for</param>
-        /// <param name="afterId">Whether to search for reactions after this message id.</param>
-        /// <param name="limit">The maximum amount of reactions to fetch.</param>
-        public Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(ulong channelId, ulong messageId, string emoji, ulong? afterId = null, int limit = 25)
-            => this.ApiClient.GetReactionsAsync(channelId, messageId, emoji, afterId, limit);
+    /// <summary>
+    /// Gets all users that reacted with a specific emoji to a message
+    /// </summary>
+    /// <param name="channelId">Channel ID</param>
+    /// <param name="messageId">Message ID</param>
+    /// <param name="emoji">Emoji to check for</param>
+    /// <param name="afterId">Whether to search for reactions after this message id.</param>
+    /// <param name="limit">The maximum amount of reactions to fetch.</param>
+    public Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(ulong channelId, ulong messageId, string emoji, ulong? afterId = null, int limit = 25)
+        => ApiClient.GetReactionsAsync(channelId, messageId, emoji, afterId, limit);
 
-        /// <summary>
-        /// Gets all users that reacted with a specific emoji to a message
-        /// </summary>
-        /// <param name="channelId">Channel ID</param>
-        /// <param name="messageId">Message ID</param>
-        /// <param name="emoji">Emoji to check for</param>
-        /// <param name="afterId">Whether to search for reactions after this message id.</param>
-        /// <param name="limit">The maximum amount of reactions to fetch.</param>
-        public Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(ulong channelId, ulong messageId, DiscordEmoji emoji, ulong? afterId = null, int limit = 25)
-            => this.ApiClient.GetReactionsAsync(channelId, messageId, emoji.ToReactionString(), afterId, limit);
+    /// <summary>
+    /// Gets all users that reacted with a specific emoji to a message
+    /// </summary>
+    /// <param name="channelId">Channel ID</param>
+    /// <param name="messageId">Message ID</param>
+    /// <param name="emoji">Emoji to check for</param>
+    /// <param name="afterId">Whether to search for reactions after this message id.</param>
+    /// <param name="limit">The maximum amount of reactions to fetch.</param>
+    public Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(ulong channelId, ulong messageId, DiscordEmoji emoji, ulong? afterId = null, int limit = 25)
+        => ApiClient.GetReactionsAsync(channelId, messageId, emoji.ToReactionString(), afterId, limit);
 
-        /// <summary>
-        /// Deletes all reactions from a message
-        /// </summary>
-        /// <param name="channelId">Channel ID</param>
-        /// <param name="messageId">Message ID</param>
-        /// <param name="reason">Reason why all reactions were removed</param>
-        public Task DeleteAllReactionsAsync(ulong channelId, ulong messageId, string reason)
-            => this.ApiClient.DeleteAllReactionsAsync(channelId, messageId, reason);
+    /// <summary>
+    /// Deletes all reactions from a message
+    /// </summary>
+    /// <param name="channelId">Channel ID</param>
+    /// <param name="messageId">Message ID</param>
+    /// <param name="reason">Reason why all reactions were removed</param>
+    public Task DeleteAllReactionsAsync(ulong channelId, ulong messageId, string reason)
+        => ApiClient.DeleteAllReactionsAsync(channelId, messageId, reason);
 
-        /// <summary>
-        /// Deletes all reactions of a specific reaction for a message.
-        /// </summary>
-        /// <param name="channelId">The ID of the channel.</param>
-        /// <param name="messageId">The ID of the message.</param>
-        /// <param name="emoji">The emoji to clear.</param>
-        public Task DeleteReactionsEmojiAsync(ulong channelId, ulong messageId, string emoji)
-            => this.ApiClient.DeleteReactionsEmojiAsync(channelId, messageId, emoji);
-    }
+    /// <summary>
+    /// Deletes all reactions of a specific reaction for a message.
+    /// </summary>
+    /// <param name="channelId">The ID of the channel.</param>
+    /// <param name="messageId">The ID of the message.</param>
+    /// <param name="emoji">The emoji to clear.</param>
+    public Task DeleteReactionsEmojiAsync(ulong channelId, ulong messageId, string emoji)
+        => ApiClient.DeleteReactionsEmojiAsync(channelId, messageId, emoji);
 }

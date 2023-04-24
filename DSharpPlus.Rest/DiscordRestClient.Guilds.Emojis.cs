@@ -27,67 +27,72 @@ using System.IO;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
-namespace DSharpPlus
+namespace DSharpPlus;
+
+public sealed partial class DiscordRestClient
 {
-    public sealed partial class DiscordRestClient
+    /// <summary>
+    /// Gets a guild's emojis.
+    /// </summary>
+    /// <param name="guildId">The ID of the guild.</param>
+    public Task<IReadOnlyList<DiscordGuildEmoji>> GetGuildEmojisAsync(ulong guildId)
+        => ApiClient.GetGuildEmojisAsync(guildId);
+
+    /// <summary>
+    /// Gets a guild emoji.
+    /// </summary>
+    /// <param name="guildId">The ID of the guild.</param>
+    /// <param name="emojiId">The ID of the emoji.</param>
+    public Task<DiscordGuildEmoji> GetGuildEmojiAsync(ulong guildId, ulong emojiId)
+        => ApiClient.GetGuildEmojiAsync(guildId, emojiId);
+
+    /// <summary>
+    /// Creates an emoji in a guild.
+    /// </summary>
+    /// <param name="name">Name of the emoji.</param>
+    /// <param name="guildId">The ID of the guild.</param>
+    /// <param name="image">Image to use as the emoji.</param>
+    /// <param name="roles">Roles for which the emoji will be available.</param>
+    /// <param name="reason">Reason for audit logs.</param>
+    public Task<DiscordGuildEmoji> CreateEmojiAsync(ulong guildId, string name, Stream image, IEnumerable<ulong>? roles = null, string? reason = null)
     {
-        /// <summary>
-        /// Gets a guild's emojis.
-        /// </summary>
-        /// <param name="guildId">The ID of the guild.</param>
-        public Task<IReadOnlyList<DiscordGuildEmoji>> GetGuildEmojisAsync(ulong guildId)
-            => this.ApiClient.GetGuildEmojisAsync(guildId);
-
-        /// <summary>
-        /// Gets a guild emoji.
-        /// </summary>
-        /// <param name="guildId">The ID of the guild.</param>
-        /// <param name="emojiId">The ID of the emoji.</param>
-        public Task<DiscordGuildEmoji> GetGuildEmojiAsync(ulong guildId, ulong emojiId)
-            => this.ApiClient.GetGuildEmojiAsync(guildId, emojiId);
-
-        /// <summary>
-        /// Creates an emoji in a guild.
-        /// </summary>
-        /// <param name="name">Name of the emoji.</param>
-        /// <param name="guildId">The ID of the guild.</param>
-        /// <param name="image">Image to use as the emoji.</param>
-        /// <param name="roles">Roles for which the emoji will be available.</param>
-        /// <param name="reason">Reason for audit logs.</param>
-        public Task<DiscordGuildEmoji> CreateEmojiAsync(ulong guildId, string name, Stream image, IEnumerable<ulong>? roles = null, string? reason = null)
+        if (string.IsNullOrWhiteSpace(name))
         {
-            if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentNullException(nameof(name));
-
-            name = name.Trim();
-            if (name.Length < 2 || name.Length > 50)
-                throw new ArgumentException("Emoji name needs to be between 2 and 50 characters long.");
-            else if (image == null)
-                throw new ArgumentNullException(nameof(image));
-
-            using var imgtool = new ImageTool(image);
-            var image64 = imgtool.GetBase64();
-            return this.ApiClient.CreateGuildEmojiAsync(guildId, name, image64, roles, reason);
+            throw new ArgumentNullException(nameof(name));
         }
 
-        /// <summary>
-        /// Modifies a guild's emoji.
-        /// </summary>
-        /// <param name="guildId">The ID of the guild.</param>
-        /// <param name="emojiId">The ID of the emoji.</param>
-        /// <param name="name">New name of the emoji.</param>
-        /// <param name="roles">Roles for which the emoji will be available.</param>
-        /// <param name="reason">Reason for audit logs.</param>
-        public Task<DiscordGuildEmoji> ModifyGuildEmojiAsync(ulong guildId, ulong emojiId, string name, IEnumerable<ulong>? roles = null, string? reason = null)
-            => this.ApiClient.ModifyGuildEmojiAsync(guildId, emojiId, name, roles, reason);
+        name = name.Trim();
+        if (name.Length < 2 || name.Length > 50)
+        {
+            throw new ArgumentException("Emoji name needs to be between 2 and 50 characters long.");
+        }
+        else if (image == null)
+        {
+            throw new ArgumentNullException(nameof(image));
+        }
 
-        /// <summary>
-        /// Deletes a guild's emoji.
-        /// </summary>
-        /// <param name="guildId">The ID of the guild.</param>
-        /// <param name="emojiId">The ID of the emoji.</param>
-        /// <param name="reason">Reason for audit logs.</param>
-        public Task DeleteGuildEmojiAsync(ulong guildId, ulong emojiId, string? reason = null)
-            => this.ApiClient.DeleteGuildEmojiAsync(guildId, emojiId, reason);
+        using ImageTool imgtool = new ImageTool(image);
+        string image64 = imgtool.GetBase64();
+        return ApiClient.CreateGuildEmojiAsync(guildId, name, image64, roles, reason);
     }
+
+    /// <summary>
+    /// Modifies a guild's emoji.
+    /// </summary>
+    /// <param name="guildId">The ID of the guild.</param>
+    /// <param name="emojiId">The ID of the emoji.</param>
+    /// <param name="name">New name of the emoji.</param>
+    /// <param name="roles">Roles for which the emoji will be available.</param>
+    /// <param name="reason">Reason for audit logs.</param>
+    public Task<DiscordGuildEmoji> ModifyGuildEmojiAsync(ulong guildId, ulong emojiId, string name, IEnumerable<ulong>? roles = null, string? reason = null)
+        => ApiClient.ModifyGuildEmojiAsync(guildId, emojiId, name, roles, reason);
+
+    /// <summary>
+    /// Deletes a guild's emoji.
+    /// </summary>
+    /// <param name="guildId">The ID of the guild.</param>
+    /// <param name="emojiId">The ID of the emoji.</param>
+    /// <param name="reason">Reason for audit logs.</param>
+    public Task DeleteGuildEmojiAsync(ulong guildId, ulong emojiId, string? reason = null)
+        => ApiClient.DeleteGuildEmojiAsync(guildId, emojiId, reason);
 }

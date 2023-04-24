@@ -28,112 +28,111 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.Net.Models;
 
-namespace DSharpPlus
+namespace DSharpPlus;
+
+public sealed partial class DiscordRestClient
 {
-    public sealed partial class DiscordRestClient
+    /// <summary>
+    /// Gets a sticker from a guild.
+    /// </summary>
+    /// <param name="guildId">The ID of the guild.</param>
+    /// <param name="stickerId">The ID of the sticker.</param>
+    public Task<DiscordMessageSticker> GetGuildStickerAsync(ulong guildId, ulong stickerId)
+        => ApiClient.GetGuildStickerAsync(guildId, stickerId);
+
+    /// <summary>
+    /// Gets a sticker by its ID.
+    /// </summary>
+    /// <param name="stickerId">The ID of the sticker.</param>
+    public Task<DiscordMessageSticker> GetStickerAsync(ulong stickerId)
+        => ApiClient.GetStickerAsync(stickerId);
+
+    /// <summary>
+    /// Gets a collection of sticker packs that may be used by nitro users.
+    /// </summary>
+    public Task<IReadOnlyList<DiscordMessageStickerPack>> GetStickerPacksAsync()
+        => ApiClient.GetStickerPacksAsync();
+
+    /// <summary>
+    /// Gets a list of stickers from a guild.
+    /// </summary>
+    /// <param name="guildId">The ID of the guild.</param>
+    public Task<IReadOnlyList<DiscordMessageSticker>> GetGuildStickersAsync(ulong guildId)
+        => ApiClient.GetGuildStickersAsync(guildId);
+
+    /// <summary>
+    /// Creates a sticker in a guild.
+    /// </summary>
+    /// <param name="guildId">The ID of the guild.</param>
+    /// <param name="name">The name of the sticker.</param>
+    /// <param name="description">The description of the sticker.</param>
+    /// <param name="tags">The tags of the sticker.</param>
+    /// <param name="imageContents">The image content of the sticker.</param>
+    /// <param name="format">The image format of the sticker.</param>
+    /// <param name="reason">The reason this sticker is being created.</param>
+    public Task<DiscordMessageSticker> CreateGuildStickerAsync
+    (
+        ulong guildId,
+        string name,
+        string description,
+        string tags,
+        Stream imageContents,
+        StickerFormat format,
+        string? reason = null
+    )
     {
-        /// <summary>
-        /// Gets a sticker from a guild.
-        /// </summary>
-        /// <param name="guildId">The ID of the guild.</param>
-        /// <param name="stickerId">The ID of the sticker.</param>
-        public Task<DiscordMessageSticker> GetGuildStickerAsync(ulong guildId, ulong stickerId)
-            => this.ApiClient.GetGuildStickerAsync(guildId, stickerId);
+        string contentType;
+        string extension;
 
-        /// <summary>
-        /// Gets a sticker by its ID.
-        /// </summary>
-        /// <param name="stickerId">The ID of the sticker.</param>
-        public Task<DiscordMessageSticker> GetStickerAsync(ulong stickerId)
-            => this.ApiClient.GetStickerAsync(stickerId);
-
-        /// <summary>
-        /// Gets a collection of sticker packs that may be used by nitro users.
-        /// </summary>
-        public Task<IReadOnlyList<DiscordMessageStickerPack>> GetStickerPacksAsync()
-            => this.ApiClient.GetStickerPacksAsync();
-
-        /// <summary>
-        /// Gets a list of stickers from a guild.
-        /// </summary>
-        /// <param name="guildId">The ID of the guild.</param>
-        public Task<IReadOnlyList<DiscordMessageSticker>> GetGuildStickersAsync(ulong guildId)
-            => this.ApiClient.GetGuildStickersAsync(guildId);
-
-        /// <summary>
-        /// Creates a sticker in a guild.
-        /// </summary>
-        /// <param name="guildId">The ID of the guild.</param>
-        /// <param name="name">The name of the sticker.</param>
-        /// <param name="description">The description of the sticker.</param>
-        /// <param name="tags">The tags of the sticker.</param>
-        /// <param name="imageContents">The image content of the sticker.</param>
-        /// <param name="format">The image format of the sticker.</param>
-        /// <param name="reason">The reason this sticker is being created.</param>
-        public Task<DiscordMessageSticker> CreateGuildStickerAsync
-        (
-            ulong guildId,
-            string name,
-            string description,
-            string tags,
-            Stream imageContents,
-            StickerFormat format,
-            string? reason = null
-        )
+        if (format == StickerFormat.PNG || format == StickerFormat.APNG)
         {
-            string contentType;
-            string extension;
-
-            if (format == StickerFormat.PNG || format == StickerFormat.APNG)
-            {
-                contentType = "image/png";
-                extension = "png";
-            }
-            else
-            {
-                contentType = "application/json";
-                extension = "json";
-            }
-
-            return this.ApiClient.CreateGuildStickerAsync(
-                guildId,
-                name,
-                description ?? string.Empty,
-                tags,
-                new DiscordMessageFile(null, imageContents, null, extension, contentType),
-                reason
-            );
+            contentType = "image/png";
+            extension = "png";
+        }
+        else
+        {
+            contentType = "application/json";
+            extension = "json";
         }
 
-        /// <summary>
-        /// Modifies a sticker in a guild.
-        /// </summary>
-        /// <param name="guildId">The ID of the guild.</param>
-        /// <param name="stickerId">The ID of the sticker.</param>
-        /// <param name="action">Action to perform.</param>
-        /// <param name="reason">Reason for audit log.</param>
-        public Task<DiscordMessageSticker> ModifyGuildStickerAsync(ulong guildId, ulong stickerId, Action<StickerEditModel> action, string? reason = null)
-        {
-            var stickerEditModel = new StickerEditModel();
-            action(stickerEditModel);
-            return this.ApiClient.ModifyStickerAsync(
-                guildId,
-                stickerId,
-                stickerEditModel.Name,
-                stickerEditModel.Description,
-                stickerEditModel.Tags,
-                reason
-            );
-        }
-
-        /// <summary>
-        /// Deletes a sticker in a guild.
-        /// </summary>
-        /// <param name="guildId">The ID of the guild.</param>
-        /// <param name="stickerId">The ID of the sticker.</param>
-        /// <param name="reason">Reason for audit log.</param>
-        /// <returns></returns>
-        public Task DeleteGuildStickerAsync(ulong guildId, ulong stickerId, string? reason = null)
-            => this.ApiClient.DeleteStickerAsync(guildId, stickerId, reason);
+        return ApiClient.CreateGuildStickerAsync(
+            guildId,
+            name,
+            description ?? string.Empty,
+            tags,
+            new DiscordMessageFile(null, imageContents, null, extension, contentType),
+            reason
+        );
     }
+
+    /// <summary>
+    /// Modifies a sticker in a guild.
+    /// </summary>
+    /// <param name="guildId">The ID of the guild.</param>
+    /// <param name="stickerId">The ID of the sticker.</param>
+    /// <param name="action">Action to perform.</param>
+    /// <param name="reason">Reason for audit log.</param>
+    public Task<DiscordMessageSticker> ModifyGuildStickerAsync(ulong guildId, ulong stickerId, Action<StickerEditModel> action, string? reason = null)
+    {
+        StickerEditModel stickerEditModel = new StickerEditModel();
+        action(stickerEditModel);
+        return ApiClient.ModifyStickerAsync(
+            guildId,
+            stickerId,
+            stickerEditModel.Name,
+            stickerEditModel.Description,
+            stickerEditModel.Tags,
+            reason
+        );
+    }
+
+    /// <summary>
+    /// Deletes a sticker in a guild.
+    /// </summary>
+    /// <param name="guildId">The ID of the guild.</param>
+    /// <param name="stickerId">The ID of the sticker.</param>
+    /// <param name="reason">Reason for audit log.</param>
+    /// <returns></returns>
+    public Task DeleteGuildStickerAsync(ulong guildId, ulong stickerId, string? reason = null)
+        => ApiClient.DeleteStickerAsync(guildId, stickerId, reason);
 }

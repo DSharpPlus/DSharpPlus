@@ -25,49 +25,47 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
-namespace DSharpPlus
+namespace DSharpPlus;
+
+public sealed partial class DiscordRestClient : BaseDiscordClient
 {
-    public sealed partial class DiscordRestClient : BaseDiscordClient
+    /// <summary>
+    /// Gets the dictionary of guilds cached by this client.
+    /// </summary>
+    public override IReadOnlyDictionary<ulong, DiscordGuild> Guilds => _guilds;
+    internal Dictionary<ulong, DiscordGuild> _guilds = new();
+    private bool _disposed;
+
+    public DiscordRestClient(DiscordConfiguration config) : base(config) => _disposed = false;
+
+    /// <summary>
+    /// Initializes cache
+    /// </summary>
+    /// <returns></returns>
+    public async Task InitializeCacheAsync()
     {
-        /// <summary>
-        /// Gets the dictionary of guilds cached by this client.
-        /// </summary>
-        public override IReadOnlyDictionary<ulong, DiscordGuild> Guilds => this._guilds;
-        internal Dictionary<ulong, DiscordGuild> _guilds = new();
-        private bool _disposed;
+        await InitializeAsync();
 
-        public DiscordRestClient(DiscordConfiguration config) : base(config)
+        IReadOnlyList<DiscordGuild> guilds = await ApiClient.GetCurrentUserGuildsAsync(100, null, null);
+        foreach (DiscordGuild guild in guilds)
         {
-            this._disposed = false;
+            _guilds[guild.Id] = guild;
+        }
+    }
+
+
+    /// <summary>
+    /// Disposes of this DiscordRestClient
+    /// </summary>
+    public override void Dispose()
+    {
+        if (_disposed)
+        {
+            return;
         }
 
-        /// <summary>
-        /// Initializes cache
-        /// </summary>
-        /// <returns></returns>
-        public async Task InitializeCacheAsync()
-        {
-            await this.InitializeAsync();
-
-            var guilds = await this.ApiClient.GetCurrentUserGuildsAsync(100, null, null);
-            foreach (var guild in guilds)
-            {
-                this._guilds[guild.Id] = guild;
-            }
-        }
-
-
-        /// <summary>
-        /// Disposes of this DiscordRestClient
-        /// </summary>
-        public override void Dispose()
-        {
-            if (this._disposed)
-                return;
-
-            this._disposed = true;
-            this._guilds.Clear();
-            this.ApiClient._rest.Dispose();
-        }
+        _disposed = true;
+        _guilds.Clear();
+        ApiClient._rest.Dispose();
     }
 }

@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="../DSharpPlus.targets" />
   <PropertyGroup>
     <AssemblyName>DSharpPlus.Rest</AssemblyName>
     <RootNamespace>DSharpPlus.Rest</RootNamespace>

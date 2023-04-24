@@ -25,59 +25,58 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
-namespace DSharpPlus
+namespace DSharpPlus;
+
+public sealed partial class DiscordRestClient
 {
-    public sealed partial class DiscordRestClient
-    {
-        /// <summary>
-        /// Gets guild integrations
-        /// </summary>
-        /// <param name="guildId">Guild ID</param>
-        public Task<IReadOnlyList<DiscordIntegration>> GetGuildIntegrationsAsync(ulong guildId)
-            => this.ApiClient.GetGuildIntegrationsAsync(guildId);
+    /// <summary>
+    /// Gets guild integrations
+    /// </summary>
+    /// <param name="guildId">Guild ID</param>
+    public Task<IReadOnlyList<DiscordIntegration>> GetGuildIntegrationsAsync(ulong guildId)
+        => ApiClient.GetGuildIntegrationsAsync(guildId);
 
-        /// <summary>
-        /// Creates guild integration
-        /// </summary>
-        /// <param name="guildId">Guild ID</param>
-        /// <param name="type">Integration type</param>
-        /// <param name="id">Integration id</param>
-        public Task<DiscordIntegration> CreateGuildIntegrationAsync(ulong guildId, string type, ulong id)
-            => this.ApiClient.CreateGuildIntegrationAsync(guildId, type, id);
+    /// <summary>
+    /// Creates guild integration
+    /// </summary>
+    /// <param name="guildId">Guild ID</param>
+    /// <param name="type">Integration type</param>
+    /// <param name="id">Integration id</param>
+    public Task<DiscordIntegration> CreateGuildIntegrationAsync(ulong guildId, string type, ulong id)
+        => ApiClient.CreateGuildIntegrationAsync(guildId, type, id);
 
-        /// <summary>
-        /// Modifies a guild integration
-        /// </summary>
-        /// <param name="guildId">Guild ID</param>
-        /// <param name="integrationId">Integration ID</param>
-        /// <param name="expireBehavior">Expiration behaviour</param>
-        /// <param name="expireGracePeriod">Expiration grace period</param>
-        /// <param name="enableEmoticons">Whether to enable emojis for this integration</param>
-        public Task<DiscordIntegration> ModifyGuildIntegrationAsync(ulong guildId, ulong integrationId, int expireBehavior, int expireGracePeriod, bool enableEmoticons)
-            => this.ApiClient.ModifyGuildIntegrationAsync(guildId, integrationId, expireBehavior, expireGracePeriod, enableEmoticons);
+    /// <summary>
+    /// Modifies a guild integration
+    /// </summary>
+    /// <param name="guildId">Guild ID</param>
+    /// <param name="integrationId">Integration ID</param>
+    /// <param name="expireBehavior">Expiration behaviour</param>
+    /// <param name="expireGracePeriod">Expiration grace period</param>
+    /// <param name="enableEmoticons">Whether to enable emojis for this integration</param>
+    public Task<DiscordIntegration> ModifyGuildIntegrationAsync(ulong guildId, ulong integrationId, int expireBehavior, int expireGracePeriod, bool enableEmoticons)
+        => ApiClient.ModifyGuildIntegrationAsync(guildId, integrationId, expireBehavior, expireGracePeriod, enableEmoticons);
 
-        /// <summary>
-        /// Removes a guild integration
-        /// </summary>
-        /// <param name="guildId">Guild ID</param>
-        /// <param name="integration">Integration to remove</param>
-        /// <param name="reason">Reason why this integration was removed</param>
-        public Task DeleteGuildIntegrationAsync(ulong guildId, DiscordIntegration integration, string? reason = null)
-            => this.ApiClient.DeleteGuildIntegrationAsync(guildId, integration, reason);
+    /// <summary>
+    /// Removes a guild integration
+    /// </summary>
+    /// <param name="guildId">Guild ID</param>
+    /// <param name="integration">Integration to remove</param>
+    /// <param name="reason">Reason why this integration was removed</param>
+    public Task DeleteGuildIntegrationAsync(ulong guildId, DiscordIntegration integration, string? reason = null)
+        => ApiClient.DeleteGuildIntegrationAsync(guildId, integration, reason);
 
-        /// <summary>
-        /// Syncs guild integration
-        /// </summary>
-        /// <param name="guildId">Guild ID</param>
-        /// <param name="integrationId">Integration ID</param>
-        public Task SyncGuildIntegrationAsync(ulong guildId, ulong integrationId)
-            => this.ApiClient.SyncGuildIntegrationAsync(guildId, integrationId);
+    /// <summary>
+    /// Syncs guild integration
+    /// </summary>
+    /// <param name="guildId">Guild ID</param>
+    /// <param name="integrationId">Integration ID</param>
+    public Task SyncGuildIntegrationAsync(ulong guildId, ulong integrationId)
+        => ApiClient.SyncGuildIntegrationAsync(guildId, integrationId);
 
-        /// <summary>
-        /// Gets assets from an application
-        /// </summary>
-        /// <param name="application">Application to get assets from</param>
-        public Task<IReadOnlyList<DiscordApplicationAsset>> GetApplicationAssetsAsync(DiscordApplication application)
-            => this.ApiClient.GetApplicationAssetsAsync(application);
-    }
+    /// <summary>
+    /// Gets assets from an application
+    /// </summary>
+    /// <param name="application">Application to get assets from</param>
+    public Task<IReadOnlyList<DiscordApplicationAsset>> GetApplicationAssetsAsync(DiscordApplication application)
+        => ApiClient.GetApplicationAssetsAsync(application);
 }

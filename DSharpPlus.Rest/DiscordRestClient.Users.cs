@@ -27,81 +27,80 @@ using System.IO;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
-namespace DSharpPlus
+namespace DSharpPlus;
+
+public sealed partial class DiscordRestClient
 {
-    public sealed partial class DiscordRestClient
+    /// <summary>
+    /// Gets current user object
+    /// </summary>
+    public Task<DiscordUser> GetCurrentUserAsync()
+        => ApiClient.GetCurrentUserAsync();
+
+    /// <summary>
+    /// Gets user object
+    /// </summary>
+    /// <param name="user">User ID</param>
+    public Task<DiscordUser> GetUserAsync(ulong user)
+        => ApiClient.GetUserAsync(user);
+
+    /// <summary>
+    /// Modifies current user
+    /// </summary>
+    /// <param name="username">New username</param>
+    /// <param name="avatarBase64">New avatar (base64)</param>
+    public async Task<DiscordUser> ModifyCurrentUserAsync(string? username, string? avatarBase64)
+        => new DiscordUser(await ApiClient.ModifyCurrentUserAsync(username, avatarBase64)) { Discord = this };
+
+    /// <summary>
+    /// Modifies current user
+    /// </summary>
+    /// <param name="username">username</param>
+    /// <param name="avatar">avatar</param>
+    public Task<DiscordUser> ModifyCurrentUserAsync(string? username = null, Stream? avatar = null)
     {
-        /// <summary>
-        /// Gets current user object
-        /// </summary>
-        public Task<DiscordUser> GetCurrentUserAsync()
-            => this.ApiClient.GetCurrentUserAsync();
-
-        /// <summary>
-        /// Gets user object
-        /// </summary>
-        /// <param name="user">User ID</param>
-        public Task<DiscordUser> GetUserAsync(ulong user)
-            => this.ApiClient.GetUserAsync(user);
-
-        /// <summary>
-        /// Modifies current user
-        /// </summary>
-        /// <param name="username">New username</param>
-        /// <param name="avatarBase64">New avatar (base64)</param>
-        public async Task<DiscordUser> ModifyCurrentUserAsync(string? username, string? avatarBase64)
-            => new DiscordUser(await this.ApiClient.ModifyCurrentUserAsync(username, avatarBase64)) { Discord = this };
-
-        /// <summary>
-        /// Modifies current user
-        /// </summary>
-        /// <param name="username">username</param>
-        /// <param name="avatar">avatar</param>
-        public Task<DiscordUser> ModifyCurrentUserAsync(string? username = null, Stream? avatar = null)
+        string? avatarBase64 = null;
+        if (avatar != null)
         {
-            string? avatarBase64 = null;
-            if (avatar != null)
-            {
-                using var imgtool = new ImageTool(avatar);
-                avatarBase64 = imgtool.GetBase64();
-            }
-
-            return this.ModifyCurrentUserAsync(username, avatarBase64);
+            using ImageTool imgtool = new ImageTool(avatar);
+            avatarBase64 = imgtool.GetBase64();
         }
 
-        /// <summary>
-        /// Gets current user's guilds
-        /// </summary>
-        /// <param name="limit">Limit of guilds to get</param>
-        /// <param name="before">Gets guild before ID</param>
-        /// <param name="after">Gets guilds after ID</param>
-        public Task<IReadOnlyList<DiscordGuild>> GetCurrentUserGuildsAsync(int limit = 100, ulong? before = null, ulong? after = null)
-            => this.ApiClient.GetCurrentUserGuildsAsync(limit, before, after);
-
-        /// <summary>
-        /// Gets current user's connections
-        /// </summary>
-        public Task<IReadOnlyList<DiscordConnection>> GetUsersConnectionsAsync()
-            => this.ApiClient.GetUsersConnectionsAsync();
-
-        /// <summary>
-        /// Updates the current user's suppress state in a stage channel.
-        /// </summary>
-        /// <param name="guildId">The ID of the guild.</param>
-        /// <param name="channelId">The ID of the channel.</param>
-        /// <param name="suppress">Toggles the suppress state.</param>
-        /// <param name="requestToSpeakTimestamp">Sets the time the user requested to speak.</param>
-        public Task UpdateCurrentUserVoiceStateAsync(ulong guildId, ulong channelId, bool? suppress, DateTimeOffset? requestToSpeakTimestamp = null)
-            => this.ApiClient.UpdateCurrentUserVoiceStateAsync(guildId, channelId, suppress, requestToSpeakTimestamp);
-
-        /// <summary>
-        /// Updates a member's suppress state in a stage channel.
-        /// </summary>
-        /// <param name="guildId">The ID of the guild.</param>
-        /// <param name="userId">The ID of the member.</param>
-        /// <param name="channelId">The ID of the stage channel.</param>
-        /// <param name="suppress">Toggles the member's suppress state.</param>
-        public Task UpdateUserVoiceStateAsync(ulong guildId, ulong userId, ulong channelId, bool? suppress)
-            => this.ApiClient.UpdateUserVoiceStateAsync(guildId, userId, channelId, suppress);
+        return ModifyCurrentUserAsync(username, avatarBase64);
     }
+
+    /// <summary>
+    /// Gets current user's guilds
+    /// </summary>
+    /// <param name="limit">Limit of guilds to get</param>
+    /// <param name="before">Gets guild before ID</param>
+    /// <param name="after">Gets guilds after ID</param>
+    public Task<IReadOnlyList<DiscordGuild>> GetCurrentUserGuildsAsync(int limit = 100, ulong? before = null, ulong? after = null)
+        => ApiClient.GetCurrentUserGuildsAsync(limit, before, after);
+
+    /// <summary>
+    /// Gets current user's connections
+    /// </summary>
+    public Task<IReadOnlyList<DiscordConnection>> GetUsersConnectionsAsync()
+        => ApiClient.GetUsersConnectionsAsync();
+
+    /// <summary>
+    /// Updates the current user's suppress state in a stage channel.
+    /// </summary>
+    /// <param name="guildId">The ID of the guild.</param>
+    /// <param name="channelId">The ID of the channel.</param>
+    /// <param name="suppress">Toggles the suppress state.</param>
+    /// <param name="requestToSpeakTimestamp">Sets the time the user requested to speak.</param>
+    public Task UpdateCurrentUserVoiceStateAsync(ulong guildId, ulong channelId, bool? suppress, DateTimeOffset? requestToSpeakTimestamp = null)
+        => ApiClient.UpdateCurrentUserVoiceStateAsync(guildId, channelId, suppress, requestToSpeakTimestamp);
+
+    /// <summary>
+    /// Updates a member's suppress state in a stage channel.
+    /// </summary>
+    /// <param name="guildId">The ID of the guild.</param>
+    /// <param name="userId">The ID of the member.</param>
+    /// <param name="channelId">The ID of the stage channel.</param>
+    /// <param name="suppress">Toggles the member's suppress state.</param>
+    public Task UpdateUserVoiceStateAsync(ulong guildId, ulong userId, ulong channelId, bool? suppress)
+        => ApiClient.UpdateUserVoiceStateAsync(guildId, userId, channelId, suppress);
 }

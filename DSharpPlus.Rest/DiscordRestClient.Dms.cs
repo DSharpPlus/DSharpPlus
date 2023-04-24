@@ -26,68 +26,67 @@ using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
-namespace DSharpPlus
+namespace DSharpPlus;
+
+public sealed partial class DiscordRestClient
 {
-    public sealed partial class DiscordRestClient
+    /// <summary>
+    /// Joins a group DM
+    /// </summary>
+    /// <param name="channelId">Channel ID</param>
+    /// <param name="nickname">DM nickname</param>
+    public Task JoinGroupDmAsync(ulong channelId, string nickname)
+        => ApiClient.AddGroupDmRecipientAsync(channelId, CurrentUser.Id, Configuration.Token, nickname);
+
+    /// <summary>
+    /// Adds a member to a group DM
+    /// </summary>
+    /// <param name="channelId">Channel ID</param>
+    /// <param name="userId">User ID</param>
+    /// <param name="accessToken">User's access token</param>
+    /// <param name="nickname">Nickname for user</param>
+    public Task GroupDmAddRecipientAsync(ulong channelId, ulong userId, string accessToken, string nickname)
+        => ApiClient.AddGroupDmRecipientAsync(channelId, userId, accessToken, nickname);
+
+    /// <summary>
+    /// Leaves a group DM
+    /// </summary>
+    /// <param name="channelId">Channel ID</param>
+    public Task LeaveGroupDmAsync(ulong channelId)
+        => ApiClient.RemoveGroupDmRecipientAsync(channelId, CurrentUser.Id);
+
+    /// <summary>
+    /// Removes a member from a group DM
+    /// </summary>
+    /// <param name="channelId">Channel ID</param>
+    /// <param name="userId">User ID</param>
+    public Task GroupDmRemoveRecipientAsync(ulong channelId, ulong userId)
+        => ApiClient.RemoveGroupDmRecipientAsync(channelId, userId);
+
+    /// <summary>
+    /// Creates a group DM
+    /// </summary>
+    /// <param name="accessTokens">Access tokens</param>
+    /// <param name="nicks">Nicknames per user</param>
+    public Task<DiscordDmChannel> CreateGroupDmAsync(IEnumerable<string> accessTokens, IDictionary<ulong, string> nicks)
+        => ApiClient.CreateGroupDmAsync(accessTokens, nicks);
+
+    /// <summary>
+    /// Creates a group DM with current user
+    /// </summary>
+    /// <param name="accessTokens">Access tokens</param>
+    /// <param name="nicks">Nicknames</param>
+    public Task<DiscordDmChannel> CreateGroupDmWithCurrentUserAsync(IEnumerable<string> accessTokens, IDictionary<ulong, string> nicks)
     {
-        /// <summary>
-        /// Joins a group DM
-        /// </summary>
-        /// <param name="channelId">Channel ID</param>
-        /// <param name="nickname">DM nickname</param>
-        public Task JoinGroupDmAsync(ulong channelId, string nickname)
-            => this.ApiClient.AddGroupDmRecipientAsync(channelId, this.CurrentUser.Id, this.Configuration.Token, nickname);
-
-        /// <summary>
-        /// Adds a member to a group DM
-        /// </summary>
-        /// <param name="channelId">Channel ID</param>
-        /// <param name="userId">User ID</param>
-        /// <param name="accessToken">User's access token</param>
-        /// <param name="nickname">Nickname for user</param>
-        public Task GroupDmAddRecipientAsync(ulong channelId, ulong userId, string accessToken, string nickname)
-            => this.ApiClient.AddGroupDmRecipientAsync(channelId, userId, accessToken, nickname);
-
-        /// <summary>
-        /// Leaves a group DM
-        /// </summary>
-        /// <param name="channelId">Channel ID</param>
-        public Task LeaveGroupDmAsync(ulong channelId)
-            => this.ApiClient.RemoveGroupDmRecipientAsync(channelId, this.CurrentUser.Id);
-
-        /// <summary>
-        /// Removes a member from a group DM
-        /// </summary>
-        /// <param name="channelId">Channel ID</param>
-        /// <param name="userId">User ID</param>
-        public Task GroupDmRemoveRecipientAsync(ulong channelId, ulong userId)
-            => this.ApiClient.RemoveGroupDmRecipientAsync(channelId, userId);
-
-        /// <summary>
-        /// Creates a group DM
-        /// </summary>
-        /// <param name="accessTokens">Access tokens</param>
-        /// <param name="nicks">Nicknames per user</param>
-        public Task<DiscordDmChannel> CreateGroupDmAsync(IEnumerable<string> accessTokens, IDictionary<ulong, string> nicks)
-            => this.ApiClient.CreateGroupDmAsync(accessTokens, nicks);
-
-        /// <summary>
-        /// Creates a group DM with current user
-        /// </summary>
-        /// <param name="accessTokens">Access tokens</param>
-        /// <param name="nicks">Nicknames</param>
-        public Task<DiscordDmChannel> CreateGroupDmWithCurrentUserAsync(IEnumerable<string> accessTokens, IDictionary<ulong, string> nicks)
-        {
-            var accessTokensList = accessTokens.ToList();
-            accessTokensList.Add(this.Configuration.Token);
-            return this.ApiClient.CreateGroupDmAsync(accessTokensList, nicks);
-        }
-
-        /// <summary>
-        /// Creates a DM
-        /// </summary>
-        /// <param name="recipientId">Recipient user ID</param>
-        public Task<DiscordDmChannel> CreateDmAsync(ulong recipientId)
-            => this.ApiClient.CreateDmAsync(recipientId);
+        List<string> accessTokensList = accessTokens.ToList();
+        accessTokensList.Add(Configuration.Token);
+        return ApiClient.CreateGroupDmAsync(accessTokensList, nicks);
     }
+
+    /// <summary>
+    /// Creates a DM
+    /// </summary>
+    /// <param name="recipientId">Recipient user ID</param>
+    public Task<DiscordDmChannel> CreateDmAsync(ulong recipientId)
+        => ApiClient.CreateDmAsync(recipientId);
 }
