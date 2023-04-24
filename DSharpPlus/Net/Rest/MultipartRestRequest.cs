@@ -26,12 +26,14 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 
+using DSharpPlus.Entities;
+
 namespace DSharpPlus.Net;
 
 /// <summary>
-/// Represents a non-multipart HTTP request.
+/// Represents a multipart HTTP request.
 /// </summary>
-internal readonly record struct RestRequest : IRestRequest
+internal readonly record struct MultipartRestRequest : IRestRequest
 {
     /// <summary>
     /// The URL this request is made to. This is distinct from the <seealso cref="Route"/> in that the route
@@ -55,28 +57,73 @@ internal readonly record struct RestRequest : IRestRequest
     public IReadOnlyDictionary<string, string>? Headers { get; init; }
 
     /// <summary>
-    /// The payload sent with this request.
+    /// Gets the dictionary of values attached to this request.
     /// </summary>
-    public string? Payload { get; init; }
+    public IReadOnlyDictionary<string, string> Values { get; init; }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Gets the dictionary of files attached to this request.
+    /// </summary>
+    public IReadOnlyList<DiscordMessageFile> Files { get; init; }
+
     public HttpRequestMessage Build()
     {
         HttpRequestMessage request = new(this.Method, this.Url);
 
-        if(this.Payload is not null)
+        if (this.Headers is not null)
         {
-            request.Content = new StringContent(this.Payload);
-            request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
-        }
-
-        if(this.Headers is not null)
-        {
-            foreach(KeyValuePair<string, string> header in this.Headers)
+            foreach (KeyValuePair<string, string> header in this.Headers)
             {
                 request.Headers.Add(header.Key, header.Value);
             }
         }
+
+        request.Headers.Add("Connection", "keep-alive");
+        request.Headers.Add("Keep-Alive", "600");
+
+        string boundary = "---------------------------" + DateTimeOffset.UtcNow.Ticks.ToString("x");
+
+        MultipartFormDataContent content = new(boundary);
+
+        if(this.Values is not null)
+        {
+            foreach(KeyValuePair<string, string> element in this.Values)
+            {
+                content.Add(new StringContent(element.Value), element.Key);
+            }
+        }
+
+        if(this.Files is not null)
+        {
+            for(int i = 0; i < this.Files.Count; i++)
+            {
+                DiscordMessageFile current = this.Files[i];
+
+                StreamContent file = new(current.Stream);
+
+                if(current.ContentType is not null)
+                {
+                    file.Headers.ContentType = MediaTypeHeaderValue.Parse(current.ContentType);
+                }
+
+                string filename = current.FileType is null
+                    ? current.FileName
+                    : $"{current.FileName}.{current.FileType}";
+
+                // do we actually need this distinction? it's been made since the beginning of time,
+                // but it doesn't seem very necessary
+                if(this.Files.Count > 1)
+                {
+                    content.Add(file, $"file{i + 1}", filename);
+                }
+                else
+                {
+                    content.Add(file, "file", filename);
+                }
+            }
+        }
+
+        request.Content = content;
 
         return request;
     }
