@@ -62,7 +62,7 @@ public sealed partial class DiscordRestClient
         }
 
         name = name.Trim();
-        if (name.Length < 2 || name.Length > 50)
+        if (name.Length is < 2 or > 50)
         {
             throw new ArgumentException("Emoji name needs to be between 2 and 50 characters long.");
         }
@@ -71,7 +71,7 @@ public sealed partial class DiscordRestClient
             throw new ArgumentNullException(nameof(image));
         }
 
-        using ImageTool imgtool = new ImageTool(image);
+        using ImageTool imgtool = new(image);
         string image64 = imgtool.GetBase64();
         return ApiClient.CreateGuildEmojiAsync(guildId, name, image64, roles, reason);
     }

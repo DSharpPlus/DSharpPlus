@@ -62,7 +62,7 @@ public sealed partial class DiscordRestClient
         string? avatarBase64 = null;
         if (avatar != null)
         {
-            using ImageTool imgtool = new ImageTool(avatar);
+            using ImageTool imgtool = new(avatar);
             avatarBase64 = imgtool.GetBase64();
         }
 

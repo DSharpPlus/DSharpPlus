@@ -101,7 +101,7 @@ public sealed partial class DiscordRestClient
     /// <param name="action">Modifications</param>
     public Task ModifyGuildRoleAsync(ulong roleId, ulong guildId, Action<RoleEditModel> action)
     {
-        RoleEditModel roleEditModel = new RoleEditModel();
+        RoleEditModel roleEditModel = new();
         action(roleEditModel);
         return ModifyGuildRoleAsync(
             guildId,

@@ -22,7 +22,6 @@
 // SOFTWARE.
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
@@ -77,11 +76,7 @@ public sealed partial class DiscordRestClient
     /// <param name="accessTokens">Access tokens</param>
     /// <param name="nicks">Nicknames</param>
     public Task<DiscordDmChannel> CreateGroupDmWithCurrentUserAsync(IEnumerable<string> accessTokens, IDictionary<ulong, string> nicks)
-    {
-        List<string> accessTokensList = accessTokens.ToList();
-        accessTokensList.Add(Configuration.Token);
-        return ApiClient.CreateGroupDmAsync(accessTokensList, nicks);
-    }
+        => ApiClient.CreateGroupDmAsync(new List<string>(accessTokens) { Configuration.Token }, nicks);
 
     /// <summary>
     /// Creates a DM

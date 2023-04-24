@@ -202,7 +202,7 @@ public sealed partial class DiscordRestClient
     /// <param name="action">Channel modifications</param>
     public Task ModifyChannelAsync(ulong channelId, Action<ChannelEditModel> action)
     {
-        ChannelEditModel channelEditModel = new ChannelEditModel();
+        ChannelEditModel channelEditModel = new();
         action(channelEditModel);
         return ApiClient.ModifyChannelAsync(
             channelId,
@@ -240,7 +240,7 @@ public sealed partial class DiscordRestClient
     /// <param name="parentId">The new parent id if the channel is to be moved to a new category.</param>
     public Task UpdateChannelPositionAsync(ulong guildId, ulong channelId, int position, string reason, bool? lockPermissions = null, ulong? parentId = null)
     {
-        List<RestGuildChannelReorderPayload> channelReorderPayload = new List<RestGuildChannelReorderPayload>()
+        List<RestGuildChannelReorderPayload> channelReorderPayload = new()
         {
             new RestGuildChannelReorderPayload
             {
@@ -345,7 +345,7 @@ public sealed partial class DiscordRestClient
     /// <returns>The modified stage instance.</returns>
     public Task<DiscordStageInstance> ModifyStageInstanceAsync(ulong channelId, Action<StageInstanceEditModel> action)
     {
-        StageInstanceEditModel stageInstanceEditModel = new StageInstanceEditModel();
+        StageInstanceEditModel stageInstanceEditModel = new();
         action(stageInstanceEditModel);
         return ApiClient.ModifyStageInstanceAsync(
             channelId,
@@ -402,7 +402,7 @@ public sealed partial class DiscordRestClient
         string? avatarBase64;
         if (avatar != null)
         {
-            using ImageTool imgtool = new ImageTool(avatar);
+            using ImageTool imgtool = new(avatar);
             avatarBase64 = imgtool.GetBase64();
         }
         else
@@ -466,7 +466,7 @@ public sealed partial class DiscordRestClient
         string? avatarBase64;
         if (avatar != null)
         {
-            using ImageTool imgtool = new ImageTool(avatar);
+            using ImageTool imgtool = new(avatar);
             avatarBase64 = imgtool.GetBase64();
         }
         else
@@ -501,7 +501,7 @@ public sealed partial class DiscordRestClient
         string? avatarBase64;
         if (avatar != null)
         {
-            using ImageTool imgtool = new ImageTool(avatar);
+            using ImageTool imgtool = new(avatar);
             avatarBase64 = imgtool.GetBase64();
         }
         else

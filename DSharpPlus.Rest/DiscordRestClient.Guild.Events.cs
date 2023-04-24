@@ -23,7 +23,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.Net.Models;
@@ -103,9 +102,8 @@ public sealed partial class DiscordRestClient
     /// <returns>The modified event.</returns>
     public Task<DiscordScheduledGuildEvent> ModifyScheduledGuildEventAsync(ulong guildId, ulong eventId, Action<ScheduledGuildEventEditModel> action)
     {
-        ScheduledGuildEventEditModel scheduledGuildEventEditModel = new ScheduledGuildEventEditModel();
+        ScheduledGuildEventEditModel scheduledGuildEventEditModel = new();
         action(scheduledGuildEventEditModel);
-
         if (scheduledGuildEventEditModel.Type.HasValue)
         {
             switch (scheduledGuildEventEditModel.Type.Value)
@@ -116,7 +114,6 @@ public sealed partial class DiscordRestClient
                     {
                         throw new ArgumentException("Channel must be supplied if the event is a stage instance or voice channel event.");
                     }
-
                     break;
                 case ScheduledGuildEventType.External:
                     if (!scheduledGuildEventEditModel.EndTime.HasValue)
@@ -131,7 +128,6 @@ public sealed partial class DiscordRestClient
                     {
                         throw new ArgumentException("Channel must not be supplied if the event is an external event.");
                     }
-
                     break;
                 default:
                     break;
@@ -142,18 +138,18 @@ public sealed partial class DiscordRestClient
         return scheduledGuildEventEditModel.Status.HasValue && scheduledGuildEventEditModel.Status.Value is ScheduledGuildEventStatus.Scheduled
             ? throw new ArgumentException("Status cannot be set to scheduled.")
             : ApiClient.ModifyScheduledGuildEventAsync(
-            guildId,
-            eventId,
-            scheduledGuildEventEditModel.Name,
-            scheduledGuildEventEditModel.Description,
-            scheduledGuildEventEditModel.Channel.IfPresent(c => c?.Id),
-            scheduledGuildEventEditModel.StartTime,
-            scheduledGuildEventEditModel.EndTime,
-            scheduledGuildEventEditModel.Type,
-            scheduledGuildEventEditModel.PrivacyLevel,
-            scheduledGuildEventEditModel.Metadata,
-            scheduledGuildEventEditModel.Status
-        );
+                guildId,
+                eventId,
+                scheduledGuildEventEditModel.Name,
+                scheduledGuildEventEditModel.Description,
+                scheduledGuildEventEditModel.Channel.IfPresent(c => c?.Id),
+                scheduledGuildEventEditModel.StartTime,
+                scheduledGuildEventEditModel.EndTime,
+                scheduledGuildEventEditModel.Type,
+                scheduledGuildEventEditModel.PrivacyLevel,
+                scheduledGuildEventEditModel.Metadata,
+                scheduledGuildEventEditModel.Status
+            );
     }
 
     /// <summary>
@@ -167,9 +163,9 @@ public sealed partial class DiscordRestClient
     /// <returns>The users interested in the event.</returns>
     public async Task<IReadOnlyList<DiscordUser>> GetScheduledGuildEventUsersAsync(ulong guildId, ulong eventId, int limit = 100, ulong? after = null, ulong? before = null)
     {
+        List<DiscordUser> users = new();
         ulong? last = null;
         bool isAfter = after != null;
-        List<DiscordUser> users = new List<DiscordUser>();
         int remaining = limit;
         int lastCount;
 
@@ -191,12 +187,12 @@ public sealed partial class DiscordRestClient
             if (!isAfter)
             {
                 users.AddRange(fetch);
-                last = fetch.LastOrDefault()?.Id;
+                last = fetch?[^1].Id;
             }
             else
             {
                 users.InsertRange(0, fetch);
-                last = fetch.FirstOrDefault()?.Id;
+                last = fetch?[0].Id;
             }
         }
         while (remaining > 0 && lastCount > 0);

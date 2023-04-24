@@ -102,7 +102,7 @@ public sealed partial class DiscordRestClient
     /// <param name="action">The Discord Message builder.</param>
     public Task<DiscordMessage> CreateMessageAsync(ulong channelId, Action<DiscordMessageBuilder> action)
     {
-        DiscordMessageBuilder messageBuilder = new DiscordMessageBuilder();
+        DiscordMessageBuilder messageBuilder = new();
         action(messageBuilder);
         return ApiClient.CreateMessageAsync(channelId, messageBuilder);
     }

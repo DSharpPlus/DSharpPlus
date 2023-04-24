@@ -27,6 +27,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
+using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Models;
 
 namespace DSharpPlus;
@@ -62,15 +63,15 @@ public sealed partial class DiscordRestClient
     public async Task<IReadOnlyList<DiscordMember>> ListGuildMembersAsync(ulong guildId, int? limit, ulong? after)
     {
         limit ??= 1000;
-        List<DiscordMember> receiveMembers = new List<DiscordMember>();
+        List<DiscordMember> receiveMembers = new();
         int? receivedMemberCount = limit;
         ulong? lastMemberId = after;
         while (receivedMemberCount == limit)
         {
-            IReadOnlyList<Net.Abstractions.TransportMember> transportMembers = await ApiClient.ListGuildMembersAsync(guildId, limit, lastMemberId == 0 ? null : lastMemberId);
+            IReadOnlyList<TransportMember> transportMembers = await ApiClient.ListGuildMembersAsync(guildId, limit, lastMemberId == 0 ? null : lastMemberId);
             receivedMemberCount = transportMembers.Count;
 
-            foreach (Net.Abstractions.TransportMember transportMember in transportMembers)
+            foreach (TransportMember transportMember in transportMembers)
             {
                 lastMemberId = transportMember.User.Id;
                 if (UserCache.ContainsKey(transportMember.User.Id))
@@ -156,15 +157,13 @@ public sealed partial class DiscordRestClient
     /// <param name="action">Modifications</param>
     public async Task ModifyAsync(ulong memberId, ulong guildId, Action<MemberEditModel> action)
     {
-        MemberEditModel memberEditModel = new MemberEditModel();
+        MemberEditModel memberEditModel = new();
         action(memberEditModel);
-
         if (memberEditModel.VoiceChannel.IsDefined(out DiscordChannel? voiceChannel) && voiceChannel!.Type is not ChannelType.Voice or ChannelType.Stage)
         {
-            throw new ArgumentException("Given channel is not a voice or stage channel.", nameof(memberEditModel.VoiceChannel));
+            throw new InvalidOperationException("Given channel is not a voice or stage channel.");
         }
-
-        if (memberEditModel.Nickname.HasValue && CurrentUser.Id == memberId)
+        else if (memberEditModel.Nickname.HasValue && CurrentUser.Id == memberId)
         {
             // TODO: Update ModifyCurrentMemberAsync on DiscordApiClient
             await ApiClient.ModifyCurrentMemberAsync(

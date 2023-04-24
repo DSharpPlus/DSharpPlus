@@ -35,32 +35,32 @@ public sealed partial class DiscordRestClient
     /// Gets all the global application commands for this application.
     /// </summary>
     /// <returns>A list of global application commands.</returns>
-    public Task<IReadOnlyList<DiscordApplicationCommand>> GetGlobalApplicationCommandsAsync() =>
-        ApiClient.GetGlobalApplicationCommandsAsync(CurrentApplication.Id);
+    public Task<IReadOnlyList<DiscordApplicationCommand>> GetGlobalApplicationCommandsAsync()
+        => ApiClient.GetGlobalApplicationCommandsAsync(CurrentApplication.Id);
 
     /// <summary>
     /// Overwrites the existing global application commands. New commands are automatically created and missing commands are automatically deleted.
     /// </summary>
     /// <param name="commands">The list of commands to overwrite with.</param>
     /// <returns>The list of global commands.</returns>
-    public Task<IReadOnlyList<DiscordApplicationCommand>> BulkOverwriteGlobalApplicationCommandsAsync(IEnumerable<DiscordApplicationCommand> commands) =>
-        ApiClient.BulkOverwriteGlobalApplicationCommandsAsync(CurrentApplication.Id, commands);
+    public Task<IReadOnlyList<DiscordApplicationCommand>> BulkOverwriteGlobalApplicationCommandsAsync(IEnumerable<DiscordApplicationCommand> commands)
+        => ApiClient.BulkOverwriteGlobalApplicationCommandsAsync(CurrentApplication.Id, commands);
 
     /// <summary>
     /// Creates or overwrites a global application command.
     /// </summary>
     /// <param name="command">The command to create.</param>
     /// <returns>The created command.</returns>
-    public Task<DiscordApplicationCommand> CreateGlobalApplicationCommandAsync(DiscordApplicationCommand command) =>
-        ApiClient.CreateGlobalApplicationCommandAsync(CurrentApplication.Id, command);
+    public Task<DiscordApplicationCommand> CreateGlobalApplicationCommandAsync(DiscordApplicationCommand command)
+        => ApiClient.CreateGlobalApplicationCommandAsync(CurrentApplication.Id, command);
 
     /// <summary>
     /// Gets a global application command by its ID.
     /// </summary>
     /// <param name="commandId">The ID of the command to get.</param>
     /// <returns>The command with the ID.</returns>
-    public Task<DiscordApplicationCommand> GetGlobalApplicationCommandAsync(ulong commandId) =>
-        ApiClient.GetGlobalApplicationCommandAsync(CurrentApplication.Id, commandId);
+    public Task<DiscordApplicationCommand> GetGlobalApplicationCommandAsync(ulong commandId)
+        => ApiClient.GetGlobalApplicationCommandAsync(CurrentApplication.Id, commandId);
 
     /// <summary>
     /// Edits a global application command.
@@ -70,7 +70,7 @@ public sealed partial class DiscordRestClient
     /// <returns>The edited command.</returns>
     public Task<DiscordApplicationCommand> EditGlobalApplicationCommandAsync(ulong commandId, Action<ApplicationCommandEditModel> action)
     {
-        ApplicationCommandEditModel applicationCommandEditModel = new ApplicationCommandEditModel();
+        ApplicationCommandEditModel applicationCommandEditModel = new();
         action(applicationCommandEditModel);
         return ApiClient.EditGlobalApplicationCommandAsync(
             CurrentApplication.Id,
@@ -137,7 +137,7 @@ public sealed partial class DiscordRestClient
     /// <returns>The edited command.</returns>
     public Task<DiscordApplicationCommand> EditGuildApplicationCommandAsync(ulong guildId, ulong commandId, Action<ApplicationCommandEditModel> action)
     {
-        ApplicationCommandEditModel applicationCommandEditModel = new ApplicationCommandEditModel();
+        ApplicationCommandEditModel applicationCommandEditModel = new();
         action(applicationCommandEditModel);
         return ApiClient.EditGuildApplicationCommandAsync(
             CurrentApplication.Id,
@@ -159,8 +159,8 @@ public sealed partial class DiscordRestClient
     /// </summary>
     /// <param name="guildId">The ID of the guild to delete the application command in.</param>
     /// <param name="commandId">The ID of the command.</param>
-    public Task DeleteGuildApplicationCommandAsync(ulong guildId, ulong commandId) =>
-        ApiClient.DeleteGuildApplicationCommandAsync(CurrentApplication.Id, guildId, commandId);
+    public Task DeleteGuildApplicationCommandAsync(ulong guildId, ulong commandId)
+        => ApiClient.DeleteGuildApplicationCommandAsync(CurrentApplication.Id, guildId, commandId);
 
     /// <summary>
     /// Creates a response to an interaction.

@@ -84,7 +84,7 @@ public sealed partial class DiscordRestClient
         string contentType;
         string extension;
 
-        if (format == StickerFormat.PNG || format == StickerFormat.APNG)
+        if (format is StickerFormat.PNG or StickerFormat.APNG)
         {
             contentType = "image/png";
             extension = "png";
@@ -114,7 +114,7 @@ public sealed partial class DiscordRestClient
     /// <param name="reason">Reason for audit log.</param>
     public Task<DiscordMessageSticker> ModifyGuildStickerAsync(ulong guildId, ulong stickerId, Action<StickerEditModel> action, string? reason = null)
     {
-        StickerEditModel stickerEditModel = new StickerEditModel();
+        StickerEditModel stickerEditModel = new();
         action(stickerEditModel);
         return ApiClient.ModifyStickerAsync(
             guildId,

@@ -23,6 +23,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.Net.Models;
@@ -162,48 +163,47 @@ public sealed partial class DiscordRestClient
     /// <param name="action">Guild modifications</param>
     public Task<DiscordGuild> ModifyGuildAsync(ulong guildId, Action<GuildEditModel> action)
     {
-        GuildEditModel guildEditModel = new GuildEditModel();
+        GuildEditModel guildEditModel = new();
         action(guildEditModel);
-
         if (guildEditModel.AfkChannel.HasValue && guildEditModel.AfkChannel.Value.Type != ChannelType.Voice)
         {
-            throw new ArgumentException("AFK channel needs to be a voice channel!");
+            throw new ArgumentException("The AFK channel needs to be a voice channel!");
         }
 
         // Icon
         Optional<string?> iconBase64;
-        if (guildEditModel.Icon.IsDefined(out System.IO.Stream? icon))
+        if (guildEditModel.Icon.IsDefined(out Stream? icon))
         {
-            using ImageTool imgtool = new ImageTool(guildEditModel.Icon.Value);
+            using ImageTool imgtool = new(guildEditModel.Icon.Value);
             iconBase64 = Optional.FromValue(imgtool.GetBase64())!;
         }
         else
         {
-            iconBase64 = guildEditModel.Icon.HasValue ? (Optional<string?>)null : Optional.FromValue<string?>(null);
+            iconBase64 = guildEditModel.Icon.HasValue ? Optional.FromNoValue<string?>() : Optional.FromValue<string?>(null);
         }
 
         // Splash
         Optional<string?> splashBase64;
-        if (guildEditModel.Splash.IsDefined(out System.IO.Stream? splash))
+        if (guildEditModel.Splash.IsDefined(out Stream? splash))
         {
-            using ImageTool imgtool = new ImageTool(guildEditModel.Splash.Value);
+            using ImageTool imgtool = new(guildEditModel.Splash.Value);
             splashBase64 = Optional.FromValue(imgtool.GetBase64())!;
         }
         else
         {
-            splashBase64 = guildEditModel.Splash.HasValue ? (Optional<string?>)null : Optional.FromValue<string?>(null);
+            splashBase64 = guildEditModel.Splash.HasValue ? Optional.FromNoValue<string?>() : Optional.FromValue<string?>(null);
         }
 
         // Banner
         Optional<string?> bannerBase64;
-        if (guildEditModel.Banner.IsDefined(out System.IO.Stream? banner))
+        if (guildEditModel.Banner.IsDefined(out Stream? banner))
         {
-            using ImageTool imgtool = new ImageTool(guildEditModel.Banner.Value);
+            using ImageTool imgtool = new(guildEditModel.Banner.Value);
             bannerBase64 = Optional.FromValue(imgtool.GetBase64())!;
         }
         else
         {
-            bannerBase64 = guildEditModel.Banner.HasValue ? (Optional<string?>)null : Optional.FromValue<string?>(null);
+            bannerBase64 = guildEditModel.Banner.HasValue ? Optional.FromNoValue<string?>() : Optional.FromValue<string?>(null);
         }
 
         // Modify
@@ -321,7 +321,7 @@ public sealed partial class DiscordRestClient
     /// <returns>The modified screening form.</returns>
     public Task<DiscordGuildMembershipScreening> ModifyGuildMembershipScreeningFormAsync(ulong guildId, Action<MembershipScreeningEditModel> action)
     {
-        MembershipScreeningEditModel membershipScreeningEditModel = new MembershipScreeningEditModel();
+        MembershipScreeningEditModel membershipScreeningEditModel = new();
         action(membershipScreeningEditModel);
         return ApiClient.ModifyGuildMembershipScreeningFormAsync(
             guildId,
@@ -390,8 +390,8 @@ public sealed partial class DiscordRestClient
     /// Gets a guild's welcome screen.
     /// </summary>
     /// <returns>The guild's welcome screen object.</returns>
-    public Task<DiscordGuildWelcomeScreen> GetGuildWelcomeScreenAsync(ulong guildId) =>
-        ApiClient.GetGuildWelcomeScreenAsync(guildId);
+    public Task<DiscordGuildWelcomeScreen> GetGuildWelcomeScreenAsync(ulong guildId)
+        => ApiClient.GetGuildWelcomeScreenAsync(guildId);
 
     /// <summary>
     /// Modifies a guild's welcome screen.
@@ -402,7 +402,7 @@ public sealed partial class DiscordRestClient
     /// <returns>The modified welcome screen.</returns>
     public Task<DiscordGuildWelcomeScreen> ModifyGuildWelcomeScreenAsync(ulong guildId, Action<WelcomeScreenEditModel> action, string? reason = null)
     {
-        WelcomeScreenEditModel welcomeScreenEditModel = new WelcomeScreenEditModel();
+        WelcomeScreenEditModel welcomeScreenEditModel = new();
         action(welcomeScreenEditModel);
         return ApiClient.ModifyGuildWelcomeScreenAsync(
             guildId,
