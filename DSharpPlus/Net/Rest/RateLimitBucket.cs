@@ -26,16 +26,18 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Http.Headers;
+using System.Runtime.InteropServices;
 
 namespace DSharpPlus.Net;
 
 /// <summary>
 /// Represents a rate limit bucket.
 /// </summary>
-internal record RateLimitBucket : IEquatable<RateLimitBucket>
-{
-    public string Hash { get; set; } = UNLIMITED_HASH;
 
+// let's keep this at 16 bytes regardless of ordering
+[StructLayout(LayoutKind.Auto)]
+internal record struct RateLimitBucket
+{
     /// <summary>
     /// Gets the number of uses left before pre-emptive rate limit is triggered.
     /// </summary>
@@ -54,26 +56,22 @@ internal record RateLimitBucket : IEquatable<RateLimitBucket>
 
     internal volatile int _remaining;
 
-    private const string UNLIMITED_HASH = "unlimited";
-
     public RateLimitBucket
     (
         int maximum, 
         int remaining, 
-        DateTimeOffset reset, 
-        string? hash
+        DateTimeOffset reset
     )
     {
         this.Maximum = maximum;
         this._remaining = remaining;
         this.Reset = reset;
-        this.Hash = hash ?? UNLIMITED_HASH;
     }
 
     /// <summary>
     /// Resets the bucket to the next reset time.
     /// </summary>
-    internal void TryResetLimit(DateTimeOffset nextReset)
+    internal void ResetLimit(DateTimeOffset nextReset)
     {
         if(nextReset < this.Reset)
         {
@@ -120,10 +118,9 @@ internal record RateLimitBucket : IEquatable<RateLimitBucket>
                 return false;
             }
 
-            string? hash = headers.GetValues("X-RateLimit-Name").SingleOrDefault();
             DateTimeOffset reset = DateTimeOffset.UnixEpoch + TimeSpan.FromSeconds(ratelimitReset);
 
-            bucket = new(limit, remaining, reset, hash);
+            bucket = new(limit, remaining, reset);
             return true;
         }
         catch
