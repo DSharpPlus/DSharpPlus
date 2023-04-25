@@ -54,6 +54,7 @@ public sealed partial class DiscordRestClient
     /// <param name="image">Image to use as the emoji.</param>
     /// <param name="roles">Roles for which the emoji will be available.</param>
     /// <param name="reason">Reason for audit logs.</param>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="name"/> or <paramref name="image"/> is <see langword="null"/>.</exception>
     public Task<DiscordGuildEmoji> CreateEmojiAsync(ulong guildId, string name, Stream image, IEnumerable<ulong>? roles = null, string? reason = null)
     {
         if (string.IsNullOrWhiteSpace(name))

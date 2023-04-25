@@ -75,6 +75,8 @@ public sealed partial class DiscordRestClient
     /// <param name="defaultReactionEmoji">Default emoji used for reacting to forum posts.</param>
     /// <param name="availableTags">Tags available for use by forum posts in the channel.</param>
     /// <param name="defaultSortOrder">Default sorting order for forum posts in the channel.</param>
+    /// <exception cref="ArgumentException">The channel type must be a category, text, news, forum, voice or stage.</exception>
+    /// <returns>The newly created channel.</returns>
     public Task<DiscordChannel> CreateGuildChannelAsync
     (
         ulong id,

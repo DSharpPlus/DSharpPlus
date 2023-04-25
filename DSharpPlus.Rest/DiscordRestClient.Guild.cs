@@ -161,6 +161,8 @@ public sealed partial class DiscordRestClient
     /// </summary>
     /// <param name="guildId">Guild ID</param>
     /// <param name="action">Guild modifications</param>
+    /// <exception cref="ArgumentException">Thrown when the AFK channel is not a voice channel.</exception>
+    /// <returns>The modified guild.</returns>
     public Task<DiscordGuild> ModifyGuildAsync(ulong guildId, Action<GuildEditModel> action)
     {
         GuildEditModel guildEditModel = new();

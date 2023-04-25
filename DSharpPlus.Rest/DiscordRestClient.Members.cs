@@ -155,6 +155,7 @@ public sealed partial class DiscordRestClient
     /// <param name="memberId">Member ID</param>
     /// <param name="guildId">Guild ID</param>
     /// <param name="action">Modifications</param>
+    /// <exception cref="InvalidOperationException">Given channel is not a voice or stage channel.</exception>
     public async Task ModifyAsync(ulong memberId, ulong guildId, Action<MemberEditModel> action)
     {
         MemberEditModel memberEditModel = new();

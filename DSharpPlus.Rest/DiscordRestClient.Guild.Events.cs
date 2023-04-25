@@ -99,6 +99,7 @@ public sealed partial class DiscordRestClient
     /// <param name="guildId">The ID of the guild the event resides on.</param>
     /// <param name="eventId">The ID of the event to modify.</param>
     /// <param name="action">The action to apply to the event.</param>
+    /// <exception cref="ArgumentException">If the event is an external event, end time and location must be specified. If the event is a stage instance or voice channel event, a channel must be specified. May also be thrown if the <</exception>
     /// <returns>The modified event.</returns>
     public Task<DiscordScheduledGuildEvent> ModifyScheduledGuildEventAsync(ulong guildId, ulong eventId, Action<ScheduledGuildEventEditModel> action)
     {
@@ -124,7 +125,7 @@ public sealed partial class DiscordRestClient
                     {
                         throw new ArgumentException("Location must be supplied if the event is an external event.");
                     }
-                    else if (scheduledGuildEventEditModel.Channel.HasValue && scheduledGuildEventEditModel.Channel.Value != null)
+                    else if (!scheduledGuildEventEditModel.Channel.IsDefined(out _))
                     {
                         throw new ArgumentException("Channel must not be supplied if the event is an external event.");
                     }
