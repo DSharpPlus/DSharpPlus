@@ -1,9 +1,10 @@
 namespace DSharpPlus.CH.Message.Internals
 {
-    public class MessageCommandFactory
+    internal class MessageCommandFactory
     {
         private Dictionary<string, MessageCommandMethodData> _commands = new Dictionary<string, MessageCommandMethodData>();
         internal Microsoft.Extensions.DependencyInjection.ServiceProvider _services = null!;
+        internal CHConfiguration _configuration = null!;
 
         internal void AddCommand(string name, MessageCommandMethodData data)
         {

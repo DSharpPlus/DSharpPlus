@@ -20,6 +20,7 @@ namespace DSharpPlus.CH.Internals
             _messageFactory = new MessageCommandFactory
             {
                 _services = Services,
+                _configuration = configuration,
             };
 
             CommandModuleRegister.RegisterMessageCommands(_messageFactory, Configuration.Assembly);
