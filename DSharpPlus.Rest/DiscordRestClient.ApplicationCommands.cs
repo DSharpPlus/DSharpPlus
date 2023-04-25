@@ -175,6 +175,7 @@ public sealed partial class DiscordRestClient
     /// <summary>
     /// Gets the original interaction response.
     /// </summary>
+    /// <param name="interactionToken">The token of the interaction.</param>
     /// <returns>The original message that was sent. This <b>does not work on ephemeral messages.</b></returns>
     public Task<DiscordMessage> GetOriginalInteractionResponseAsync(string interactionToken)
         => ApiClient.GetOriginalInteractionResponseAsync(CurrentApplication.Id, interactionToken);
