@@ -2,7 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using DSharpPlus.Entities;
 
-namespace DSharpPlus.CH.Internals
+namespace DSharpPlus.CH.Message.Internals
 {
     internal class MessageCommandHandler
     {
@@ -11,7 +11,7 @@ namespace DSharpPlus.CH.Internals
 
         internal async Task TurnResultIntoAction(IMessageCommandModuleResult result)
         {
-            [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)] // This should always be inlined cause it is literally just two lines of code.
+            // [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             void SetContentAndEmbeds(IMessageCommandModuleResult result, DiscordMessageBuilder messageBuilder)
             {
                 if (result.Content is not null) messageBuilder.WithContent(result.Content);
@@ -48,7 +48,6 @@ namespace DSharpPlus.CH.Internals
                 case MessageCommandModuleResultType.Edit:
                     SetContentAndEmbeds(result, msgBuilder);
                     if (_newMessage is not null) await _newMessage.ModifyAsync(msgBuilder);
-
                     break;
             }
         }

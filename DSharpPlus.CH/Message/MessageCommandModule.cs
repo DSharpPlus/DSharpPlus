@@ -1,6 +1,6 @@
-using DSharpPlus.CH.Internals;
+using DSharpPlus.CH.Message.Internals;
 
-namespace DSharpPlus.CH
+namespace DSharpPlus.CH.Message
 {
     public abstract class MessageCommandModule
     {

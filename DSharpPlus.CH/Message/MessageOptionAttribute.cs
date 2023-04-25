@@ -1,4 +1,4 @@
-namespace DSharpPlus.CH;
+namespace DSharpPlus.CH.Message;
 
 [AttributeUsage(AttributeTargets.Parameter)]
 public class MessageOptionAttribute : Attribute

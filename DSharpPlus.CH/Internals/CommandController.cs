@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using DSharpPlus.EventArgs;
+using DSharpPlus.CH.Message.Internals;
 
 namespace DSharpPlus.CH.Internals
 {

@@ -1,4 +1,6 @@
 using System.Reflection;
+using DSharpPlus.CH.Message.Internals;
+using DSharpPlus.CH.Message;
 
 namespace DSharpPlus.CH.Internals
 {

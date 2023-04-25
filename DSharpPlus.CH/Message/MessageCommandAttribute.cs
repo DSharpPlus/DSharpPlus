@@ -1,4 +1,4 @@
-namespace DSharpPlus.CH
+namespace DSharpPlus.CH.Message
 {
     [AttributeUsage(AttributeTargets.Method)]
     public class MessageCommandAttribute : Attribute

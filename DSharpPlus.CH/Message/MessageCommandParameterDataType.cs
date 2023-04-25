@@ -1,4 +1,4 @@
-namespace DSharpPlus.CH
+namespace DSharpPlus.CH.Message
 {
     internal enum MessageCommandParameterDataType
     {
@@ -9,5 +9,5 @@ namespace DSharpPlus.CH
         Member,
         Channel,
         Bool
-    }   
+    }
 }

@@ -1,4 +1,4 @@
-namespace DSharpPlus.CH.Internals
+namespace DSharpPlus.CH.Message.Internals
 {
     internal class MessageCommandModuleData
     {
