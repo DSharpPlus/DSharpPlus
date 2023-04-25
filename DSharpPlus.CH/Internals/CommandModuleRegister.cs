@@ -36,12 +36,12 @@ namespace DSharpPlus.CH.Internals
                         if (paramAttribute is null)
                         {
                             parameterData.IsArgument = true;
-                            parameterData.OptionName = string.Empty;
+                            parameterData.Name = parameter.Name ?? string.Empty;
                         }
                         else
                         {
                             parameterData.IsArgument = false;
-                            parameterData.OptionName = paramAttribute.Option;
+                            parameterData.Name = paramAttribute.Option;
                             parameterData.ShorthandOptionName = paramAttribute.ShorthandOption;
                         }
 

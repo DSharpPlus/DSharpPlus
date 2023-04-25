@@ -87,14 +87,59 @@ namespace DSharpPlus.CH.Message.Internals
 
                     if (parameter.IsArgument)
                     {
-                        parameters[i] = await ParseParameter(parameter, arguments.Dequeue(), client);
+                        try
+                        {
+                            parameters[i] = await ParseParameter(parameter, arguments.Dequeue(), client);
+                        }
+                        catch (Exceptions.ConvertionFailedException e)
+                        {
+                            var error = new InvalidMessageConvertionError
+                            {
+                                Value = e.Value,
+                                Type = e.Type,
+                                Name = parameter.Name,
+                                IsArgument = parameter.IsArgument
+                            };
+                            await MessageErrorHandler.HandleInvalidOption(error, _module.Message);
+                            return;
+                        }
                     }
                     else
                     {
-                        if (options.TryGetValue(parameter.OptionName, out var value))
-                            parameters[i] = await ParseParameter(parameter, value, client);
+                        if (options.TryGetValue(parameter.Name, out var value))
+                            try
+                            {
+                                parameters[i] = await ParseParameter(parameter, value, client);
+                            }
+                            catch (Exceptions.ConvertionFailedException e)
+                            {
+                                var error = new InvalidMessageConvertionError
+                                {
+                                    Value = e.Value,
+                                    Type = e.Type,
+                                    Name = parameter.Name,
+                                    IsArgument = parameter.IsArgument
+                                };
+                                await MessageErrorHandler.HandleInvalidOption(error, _module.Message);
+                                return;
+                            }
                         else if (parameter.ShorthandOptionName is not null && options.TryGetValue(parameter.ShorthandOptionName, out var val))
-                            parameters[i] = await ParseParameter(parameter, val, client);
+                            try
+                            {
+                                parameters[i] = await ParseParameter(parameter, val, client);
+                            }
+                            catch (Exceptions.ConvertionFailedException e)
+                            {
+                                var error = new InvalidMessageConvertionError
+                                {
+                                    Value = e.Value,
+                                    Type = e.Type,
+                                    Name = parameter.Name,
+                                    IsArgument = parameter.IsArgument
+                                };
+                                await MessageErrorHandler.HandleInvalidOption(error, _module.Message);
+                                return;
+                            }
                         else if (parameter.Type == MessageCommandParameterDataType.Bool)
                             parameters[i] = false;
                         else if (parameter.CanBeNull)
@@ -120,8 +165,13 @@ namespace DSharpPlus.CH.Message.Internals
         {
             object obj = new object();
 
-            if (data.Type == MessageCommandParameterDataType.Bool && value.GetType() != typeof(bool)) // This check is here to gurantee that we are working with strings on all other types that isn't bool.
+            if (data.Type == MessageCommandParameterDataType.Bool && value.GetType() != typeof(bool))
             {
+                throw new Exceptions.ConvertionFailedException(((bool)value).ToString(), InvalidMessageConvertionType.BoolShouldNotHaveValue);
+            }
+            else if (data.Type != MessageCommandParameterDataType.Bool && value.GetType() == typeof(bool))
+            {
+                throw new Exceptions.ConvertionFailedException(((bool)value).ToString(), InvalidMessageConvertionType.NoValueProvided);
             }
 
             switch (data.Type)
@@ -136,9 +186,7 @@ namespace DSharpPlus.CH.Message.Internals
                             obj = result;
                         }
                         else
-                        {
-
-                        }
+                            throw new Exceptions.ConvertionFailedException((string)value, InvalidMessageConvertionType.NotAValidInteger);
                         break;
                     }
                 case MessageCommandParameterDataType.Double:
@@ -167,13 +215,17 @@ namespace DSharpPlus.CH.Message.Internals
                                 {
                                     obj = await client.GetUserAsync(ulong.Parse(str));
                                 }
-                                catch (Exceptions.NotFoundException)
+                                catch (DSharpPlus.Exceptions.NotFoundException)
                                 {
+                                    throw new Exceptions.ConvertionFailedException((string)value, InvalidMessageConvertionType.UserDoesNotExist);
                                 }
-                                catch (Exceptions.ServerErrorException)
+                                catch (DSharpPlus.Exceptions.ServerErrorException)
                                 {
+                                    throw new Exceptions.ConvertionFailedException((string)value, InvalidMessageConvertionType.UserDoesNotExist);
                                 }
                             }
+                            else
+                                throw new Exceptions.ConvertionFailedException((string)value, InvalidMessageConvertionType.NotAValidUser);
                         }
                         else
                         {
@@ -182,9 +234,7 @@ namespace DSharpPlus.CH.Message.Internals
                                 obj = await client.GetUserAsync(result);
                             }
                             else
-                            {
-
-                            }
+                                throw new Exceptions.ConvertionFailedException((string)value, InvalidMessageConvertionType.NotAValidUser);
                         }
                         break;
                     }
@@ -210,13 +260,17 @@ namespace DSharpPlus.CH.Message.Internals
                                 {
                                     obj = await _module.Message.Channel.Guild.GetMemberAsync(ulong.Parse(str));
                                 }
-                                catch (Exceptions.NotFoundException)
+                                catch (DSharpPlus.Exceptions.NotFoundException)
                                 {
+                                    throw new Exceptions.ConvertionFailedException((string)value, InvalidMessageConvertionType.MemberDoesNotExist);
                                 }
-                                catch (Exceptions.ServerErrorException)
+                                catch (DSharpPlus.Exceptions.ServerErrorException)
                                 {
+                                    throw new Exceptions.ConvertionFailedException((string)value, InvalidMessageConvertionType.MemberDoesNotExist);
                                 }
                             }
+                            else
+                                throw new Exceptions.ConvertionFailedException((string)value, InvalidMessageConvertionType.NotAValidMember);
                         }
                         else
                         {
@@ -226,17 +280,17 @@ namespace DSharpPlus.CH.Message.Internals
                                 {
                                     obj = await _module.Message.Channel.Guild.GetMemberAsync(result);
                                 }
-                                catch (Exceptions.NotFoundException)
+                                catch (DSharpPlus.Exceptions.NotFoundException)
                                 {
+                                    throw new Exceptions.ConvertionFailedException((string)value, InvalidMessageConvertionType.MemberDoesNotExist);
                                 }
-                                catch (Exceptions.ServerErrorException)
+                                catch (DSharpPlus.Exceptions.ServerErrorException)
                                 {
+                                    throw new Exceptions.ConvertionFailedException((string)value, InvalidMessageConvertionType.MemberDoesNotExist);
                                 }
                             }
                             else
-                            {
-
-                            }
+                                throw new Exceptions.ConvertionFailedException((string)value, InvalidMessageConvertionType.NotAValidMember);
                         }
 
 
@@ -265,19 +319,17 @@ namespace DSharpPlus.CH.Message.Internals
                                 {
                                     obj = _module.Message.Channel.Guild.GetChannel(result);
                                 }
-                                catch (Exceptions.ServerErrorException)
+                                catch (DSharpPlus.Exceptions.ServerErrorException)
                                 {
-
+                                    throw new Exceptions.ConvertionFailedException((string)value, InvalidMessageConvertionType.ChannelDoesNotExist);
                                 }
-                                catch (Exceptions.NotFoundException)
+                                catch (DSharpPlus.Exceptions.NotFoundException)
                                 {
-
+                                    throw new Exceptions.ConvertionFailedException((string)value, InvalidMessageConvertionType.ChannelDoesNotExist);
                                 }
                             }
                             else
-                            {
-
-                            }
+                                throw new Exceptions.ConvertionFailedException((string)value, InvalidMessageConvertionType.NotAValidChannel);
                         }
                         break;
                     }
@@ -292,4 +344,3 @@ namespace DSharpPlus.CH.Message.Internals
 
     }
 }
-
