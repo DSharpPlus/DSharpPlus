@@ -5,9 +5,9 @@ namespace DSharpPlus.CH.Message.Internals
     /// <summary>
     /// The default class for error handling. 
     /// </summary>
-    internal static class MessageErrorHandler
+    internal class DefaultFailedConversion : IFailedConvertion
     {
-        internal static async Task HandleInvalidOption(InvalidMessageConvertionError error, DiscordMessage message)
+        public async Task HandleErrorAsync(InvalidMessageConvertionError error, DiscordMessage message)
         {
             var msgBuilder = new DiscordMessageBuilder();
             msgBuilder.WithReply(message.Id);

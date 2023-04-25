@@ -15,8 +15,28 @@ namespace DSharpPlus.CH.Internals
         public CommandController(CHConfiguration configuration, DiscordClient client)
         {
             Configuration = configuration;
-            Services = Configuration.Services?.BuildServiceProvider()
-                    ?? new ServiceCollection().BuildServiceProvider();
+
+
+            if (Configuration.Services is null)
+            {
+                var services = new ServiceCollection();
+                services.AddTransient<Message.IFailedConvertion, Message.Internals.DefaultFailedConversion>();
+
+                Services = services.BuildServiceProvider();
+            }
+            else
+            {
+                bool setDefaultIFailedConvertion = true;
+                foreach (var service in Configuration.Services)
+                {
+                    if (service.ImplementationType?.IsSubclassOf(typeof(Message.IFailedConvertion)) ?? false)
+                        setDefaultIFailedConvertion = false;
+                }
+                if (setDefaultIFailedConvertion) Configuration.Services.AddTransient<Message.IFailedConvertion, Message.Internals.DefaultFailedConversion>();
+
+                Services = Configuration.Services.BuildServiceProvider();
+            }
+
             _messageFactory = new MessageCommandFactory
             {
                 _services = Services,

@@ -100,7 +100,7 @@ namespace DSharpPlus.CH.Message.Internals
                                 Name = parameter.Name,
                                 IsArgument = parameter.IsArgument
                             };
-                            await MessageErrorHandler.HandleInvalidOption(error, _module.Message);
+                            await services.GetRequiredService<IFailedConvertion>().HandleErrorAsync(error, _module.Message);
                             return;
                         }
                     }
@@ -120,7 +120,7 @@ namespace DSharpPlus.CH.Message.Internals
                                     Name = parameter.Name,
                                     IsArgument = parameter.IsArgument
                                 };
-                                await MessageErrorHandler.HandleInvalidOption(error, _module.Message);
+                                await services.GetRequiredService<IFailedConvertion>().HandleErrorAsync(error, _module.Message);
                                 return;
                             }
                         else if (parameter.ShorthandOptionName is not null && options.TryGetValue(parameter.ShorthandOptionName, out var val))
@@ -137,7 +137,7 @@ namespace DSharpPlus.CH.Message.Internals
                                     Name = parameter.Name,
                                     IsArgument = parameter.IsArgument
                                 };
-                                await MessageErrorHandler.HandleInvalidOption(error, _module.Message);
+                                await services.GetRequiredService<IFailedConvertion>().HandleErrorAsync(error, _module.Message);
                                 return;
                             }
                         else if (parameter.Type == MessageCommandParameterDataType.Bool)
