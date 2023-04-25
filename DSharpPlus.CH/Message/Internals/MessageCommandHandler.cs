@@ -119,30 +119,172 @@ namespace DSharpPlus.CH.Message.Internals
         private async Task<object> ParseParameter(MessageCommandParameterData data, object value, DiscordClient client)
         {
             object obj = new object();
-            if (data.Type == MessageCommandParameterDataType.String)
-            {
-                obj = (string)value;
-            }
-            else if (data.Type == MessageCommandParameterDataType.User)
-            {
-                string str = (string)value;
 
-                if (str.StartsWith("<@"))
-                {
-                    if (str.Count() <= 3 && str[2] == '!')
-                        str = str.Remove(0, 3);
-                    else
-                        str = str.Remove(0, 2);
-
-                    str = str.Remove(str.Count() - 1, 1);
-                    obj = await client.GetUserAsync(ulong.Parse(str));
-                }
-                else
-                    obj = await client.GetUserAsync(ulong.Parse((string)value));
-            }
-            else if (data.Type == MessageCommandParameterDataType.Int)
+            if (data.Type == MessageCommandParameterDataType.Bool && value.GetType() != typeof(bool)) // This check is here to gurantee that we are working with strings on all other types that isn't bool.
             {
-                obj = int.Parse((string)value);
+            }
+
+            switch (data.Type)
+            {
+                case MessageCommandParameterDataType.String:
+                    obj = value;
+                    break;
+                case MessageCommandParameterDataType.Int:
+                    {
+                        if (int.TryParse((string)value, out var result))
+                        {
+                            obj = result;
+                        }
+                        else
+                        {
+
+                        }
+                        break;
+                    }
+                case MessageCommandParameterDataType.Double:
+                    {
+                        if (double.TryParse((string)value, out var result))
+                        {
+                            obj = result;
+                        }
+                        break;
+                    }
+                case MessageCommandParameterDataType.User:
+                    {
+                        string str = (string)value;
+
+                        if (str.StartsWith("<@"))
+                        {
+                            if (str.Count() >= 3 && str[2] == '!')
+                                str = str.Remove(0, 3);
+                            else
+                                str = str.Remove(0, 2);
+
+                            str = str.Remove(str.Count() - 1, 1);
+                            if (ulong.TryParse(str, out var result))
+                            {
+                                try
+                                {
+                                    obj = await client.GetUserAsync(ulong.Parse(str));
+                                }
+                                catch (Exceptions.NotFoundException)
+                                {
+                                }
+                                catch (Exceptions.ServerErrorException)
+                                {
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (ulong.TryParse((string)value, out var result))
+                            {
+                                obj = await client.GetUserAsync(result);
+                            }
+                            else
+                            {
+
+                            }
+                        }
+                        break;
+                    }
+                case MessageCommandParameterDataType.Member:
+                    {
+                        if (_module.Message.Channel.GuildId is null)
+                        {
+                            break;
+                        }
+
+                        string str = (string)value;
+                        if (str.StartsWith("<@"))
+                        {
+                            if (str.Count() >= 3 && str[2] == '!')
+                                str = str.Remove(0, 3);
+                            else
+                                str = str.Remove(0, 2);
+
+                            str = str.Remove(str.Count() - 1, 1);
+                            if (ulong.TryParse(str, out var result))
+                            {
+                                try
+                                {
+                                    obj = await _module.Message.Channel.Guild.GetMemberAsync(ulong.Parse(str));
+                                }
+                                catch (Exceptions.NotFoundException)
+                                {
+                                }
+                                catch (Exceptions.ServerErrorException)
+                                {
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (ulong.TryParse((string)value, out var result))
+                            {
+                                try
+                                {
+                                    obj = await _module.Message.Channel.Guild.GetMemberAsync(result);
+                                }
+                                catch (Exceptions.NotFoundException)
+                                {
+                                }
+                                catch (Exceptions.ServerErrorException)
+                                {
+                                }
+                            }
+                            else
+                            {
+
+                            }
+                        }
+
+
+                        break;
+                    }
+                case MessageCommandParameterDataType.Channel:
+                    {
+                        if (_module.Message.Channel.GuildId is null)
+                        {
+                            break;
+                        }
+
+                        string str = (string)value;
+
+                        if (str.StartsWith("<#"))
+                        {
+                            if (str.Count() >= 3 && str[2] == '!')
+                                str = str.Remove(0, 3);
+                            else
+                                str = str.Remove(0, 2);
+                            str = str.Remove(str.Count() - 1, 1);
+
+                            if (ulong.TryParse(str, out var result))
+                            {
+                                try
+                                {
+                                    obj = _module.Message.Channel.Guild.GetChannel(result);
+                                }
+                                catch (Exceptions.ServerErrorException)
+                                {
+
+                                }
+                                catch (Exceptions.NotFoundException)
+                                {
+
+                                }
+                            }
+                            else
+                            {
+
+                            }
+                        }
+                        break;
+                    }
+                case MessageCommandParameterDataType.Bool:
+                    obj = value;
+                    break;
+
             }
 
             return obj;
