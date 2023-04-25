@@ -5,3 +5,4 @@
 - [ ] Make the command parsing better
 - [ ] Implementing middleware
 - [ ] Implement a default error handler for parsing/converting and allow the developer to change that.
+- [ ] Making tests in DSharpPlus.Test
