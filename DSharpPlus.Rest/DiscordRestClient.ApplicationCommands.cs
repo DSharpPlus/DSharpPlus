@@ -269,6 +269,12 @@ public sealed partial class DiscordRestClient
     public Task<IReadOnlyList<DiscordGuildApplicationCommandPermissions>> BatchEditApplicationCommandPermissionsAsync(ulong guildId, IEnumerable<DiscordGuildApplicationCommandPermissions> permissions)
         => ApiClient.BatchEditApplicationCommandPermissionsAsync(CurrentApplication.Id, guildId, permissions);
 
+    /// <summary>
+    /// Returns the sent interaction followup.
+    /// </summary>
+    /// <param name="interactionToken">The token used for the interaction.</param>
+    /// <param name="messageId">The message id of the followup message.</param>
+    /// <returns>The message that was sent as an interaction followup.</returns>
     public Task<DiscordMessage> GetFollowupMessageAsync(string interactionToken, ulong messageId)
         => ApiClient.GetFollowupMessageAsync(CurrentApplication.Id, interactionToken, messageId);
 }

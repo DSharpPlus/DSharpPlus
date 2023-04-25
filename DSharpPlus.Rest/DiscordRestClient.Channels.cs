@@ -172,8 +172,7 @@ public sealed partial class DiscordRestClient
         Optional<int> defaultPerUserRatelimit,
         Optional<DefaultSortOrder?> defaultSortOrder,
         Optional<DefaultForumLayout> defaultForumLayout
-    ) => ApiClient.ModifyChannelAsync
-    (
+    ) => ApiClient.ModifyChannelAsync(
         id,
         name,
         position,
@@ -286,8 +285,7 @@ public sealed partial class DiscordRestClient
         InviteTargetType? targetType = null,
         ulong? targetUserId = null,
         ulong? targetApplicationId = null
-    ) => ApiClient.CreateChannelInviteAsync
-    (
+    ) => ApiClient.CreateChannelInviteAsync(
         channelId,
         maxAge,
         maxUses,

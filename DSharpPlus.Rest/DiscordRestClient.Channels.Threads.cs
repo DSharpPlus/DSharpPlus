@@ -103,7 +103,7 @@ public sealed partial class DiscordRestClient
     /// <param name="guildId">The ID of the guild.</param>
     /// <param name="channelId">The ID of the channel.</param>
     /// <param name="before">Date to filter by.</param>
-    /// <param name="limit">Limit.</param>
+    /// <param name="limit">How many threads to return.</param>
     public Task<ThreadQueryResult> ListPublicArchivedThreadsAsync(ulong guildId, ulong channelId, DateTimeOffset? before = null, int limit = 0)
        => ApiClient.ListPublicArchivedThreadsAsync(guildId, channelId, before?.ToString("o"), limit);
 
@@ -113,7 +113,7 @@ public sealed partial class DiscordRestClient
     /// <param name="guildId">The ID of the guild.</param>
     /// <param name="channelId">The ID of the channel.</param>
     /// <param name="before">Date to filter by.</param>
-    /// <param name="limit">Limit.</param>
+    /// <param name="limit">How many threads to return.</param>
     public Task<ThreadQueryResult> ListPrivateArchivedThreadAsync(ulong guildId, ulong channelId, DateTimeOffset? before = null, int limit = 0)
        => ApiClient.ListPrivateArchivedThreadsAsync(guildId, channelId, before?.ToString("o"), limit);
 
@@ -123,7 +123,7 @@ public sealed partial class DiscordRestClient
     /// <param name="guildId">The ID of the guild.</param>
     /// <param name="channelId">The ID of the channel.</param>
     /// <param name="before">Date to filter by.</param>
-    /// <param name="limit">Limit.</param>
+    /// <param name="limit">How many threads to return.</param>
     public Task<ThreadQueryResult> ListJoinedPrivateArchivedThreadsAsync(ulong guildId, ulong channelId, DateTimeOffset? before = null, int limit = 0)
        => ApiClient.ListJoinedPrivateArchivedThreadsAsync(guildId, channelId, (ulong?)before?.ToUnixTimeSeconds(), limit);
 }

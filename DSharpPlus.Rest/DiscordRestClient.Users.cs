@@ -55,8 +55,8 @@ public sealed partial class DiscordRestClient
     /// <summary>
     /// Modifies current user
     /// </summary>
-    /// <param name="username">username</param>
-    /// <param name="avatar">avatar</param>
+    /// <param name="username">The new username of the current user.</param>
+    /// <param name="avatar">The new avatar of the current user.</param>
     public Task<DiscordUser> ModifyCurrentUserAsync(string? username = null, Stream? avatar = null)
     {
         string? avatarBase64 = null;

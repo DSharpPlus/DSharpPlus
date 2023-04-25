@@ -52,7 +52,15 @@ public sealed partial class DiscordRestClient
         IEnumerable<DiscordRole> roles,
         bool muted,
         bool deafened
-    ) => ApiClient.AddGuildMemberAsync(guildId, userId, accessToken, nick, roles, muted, deafened);
+    ) => ApiClient.AddGuildMemberAsync(
+        guildId,
+        userId,
+        accessToken,
+        nick,
+        roles,
+        muted,
+        deafened
+    );
 
     /// <summary>
     /// Gets all guild members
@@ -147,7 +155,17 @@ public sealed partial class DiscordRestClient
         Optional<ulong?> voiceChannelId,
         Optional<DateTimeOffset?> communicationDisabledUntil,
         string reason
-    ) => ApiClient.ModifyGuildMemberAsync(guildId, userId, nick, roleIds, mute, deaf, voiceChannelId, communicationDisabledUntil, reason);
+    ) => ApiClient.ModifyGuildMemberAsync(
+        guildId,
+        userId,
+        nick,
+        roleIds,
+        mute,
+        deaf,
+        voiceChannelId,
+        communicationDisabledUntil,
+        reason
+    );
 
     /// <summary>
     /// Modifies a member

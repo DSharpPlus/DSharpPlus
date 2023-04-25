@@ -79,8 +79,7 @@ public sealed partial class DiscordRestClient
         string reason,
         Stream icon,
         DiscordEmoji emoji
-    ) => ApiClient.ModifyGuildRoleAsync
-    (
+    ) => ApiClient.ModifyGuildRoleAsync(
         guildId,
         roleId,
         name,
@@ -149,8 +148,7 @@ public sealed partial class DiscordRestClient
         string reason,
         Stream? icon = null,
         DiscordEmoji? emoji = null
-    ) => ApiClient.CreateGuildRoleAsync
-    (
+    ) => ApiClient.CreateGuildRoleAsync(
         guildId,
         name,
         permissions,

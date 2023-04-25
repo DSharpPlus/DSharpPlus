@@ -56,7 +56,14 @@ public sealed partial class DiscordRestClient
         VerificationLevel? verificationLevel,
         DefaultMessageNotifications? defaultMessageNotifications,
         SystemChannelFlags? systemChannelFlags
-    ) => ApiClient.CreateGuildAsync(name, regionId, iconBase64, verificationLevel, defaultMessageNotifications, systemChannelFlags);
+    ) => ApiClient.CreateGuildAsync(
+        name,
+        regionId,
+        iconBase64,
+        verificationLevel,
+        defaultMessageNotifications,
+        systemChannelFlags
+    );
 
     /// <summary>
     /// Creates a guild from a template. This requires the bot to be in less than 10 guilds total.
@@ -391,6 +398,7 @@ public sealed partial class DiscordRestClient
     /// <summary>
     /// Gets a guild's welcome screen.
     /// </summary>
+    /// <param name="guildId">Guild ID</param>
     /// <returns>The guild's welcome screen object.</returns>
     public Task<DiscordGuildWelcomeScreen> GetGuildWelcomeScreenAsync(ulong guildId)
         => ApiClient.GetGuildWelcomeScreenAsync(guildId);

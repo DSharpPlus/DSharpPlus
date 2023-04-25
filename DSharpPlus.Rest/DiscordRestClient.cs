@@ -36,12 +36,12 @@ public sealed partial class DiscordRestClient : BaseDiscordClient
     internal Dictionary<ulong, DiscordGuild> _guilds = new();
     private bool _disposed;
 
-    public DiscordRestClient(DiscordConfiguration config) : base(config) => _disposed = false;
+    public DiscordRestClient(DiscordConfiguration config) : base(config) { }
 
     /// <summary>
     /// Initializes cache
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A task representing the asyncronous operation of filling cache.</returns>
     public async Task InitializeCacheAsync()
     {
         await InitializeAsync();
@@ -52,7 +52,6 @@ public sealed partial class DiscordRestClient : BaseDiscordClient
             _guilds[guild.Id] = guild;
         }
     }
-
 
     /// <summary>
     /// Disposes of this DiscordRestClient
