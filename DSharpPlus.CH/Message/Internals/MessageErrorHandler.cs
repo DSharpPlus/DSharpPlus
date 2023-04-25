@@ -3,7 +3,7 @@ using DSharpPlus.Entities;
 namespace DSharpPlus.CH.Message.Internals
 {
     /// <summary>
-    /// The default class for error handling for convertion. Used if the configuration isn't set.
+    /// The default class for error handling. 
     /// </summary>
     internal static class MessageErrorHandler
     {
