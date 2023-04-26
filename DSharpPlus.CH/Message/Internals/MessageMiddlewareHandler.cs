@@ -5,10 +5,8 @@ namespace DSharpPlus.CH.Message.Internals;
 
 internal class MessageMiddlewareHandler
 {
-    private int _completions = 0;
-    private List<Type> _middlewares;
-    private Queue<IMessageMiddleware> _middlewareQueue = new();
-    private Func<Task> _executeCommand;
+    private readonly List<Type> _middlewares;
+    private readonly Func<Task> _executeCommand;
 
     internal MessageMiddlewareHandler(List<Type> middlewares, Func<Task> executeCommand)
     {
@@ -18,10 +16,12 @@ internal class MessageMiddlewareHandler
 
     internal async Task StartGoingThroughMiddlewaresAsync(MessageContext context, IServiceScope scope)
     {
-        _middlewareQueue.EnsureCapacity(_middlewares.Count);
+         IMessageMiddleware[] middlewareQueue = new IMessageMiddleware[_middlewares.Count];
 
-        foreach (Type? type in _middlewares)
+        for (int i = 0; i < _middlewares.Count; i++)
         {
+            Type type = _middlewares[i];
+
             object?[]? constructorParameters = null;
             if (type.GetConstructors().Length != 0)
             {
@@ -31,37 +31,31 @@ internal class MessageMiddlewareHandler
                     ParameterInfo[]? parameters = constructor.GetParameters();
                     constructorParameters = new object?[parameters.Length];
 
-                    for (int i = 0; i < parameters.Length; i++)
+                    for (int ii = 0; ii < parameters.Length; ii++)
                     {
-                        if (parameters[i].ParameterType != typeof(NextDelegate))
-                        {
-                            constructorParameters[i] = scope.ServiceProvider.GetService(parameters[i].ParameterType);
-                        }
-                        else
-                        {
-                            constructorParameters[i] = (NextDelegate)HandleNextAsync;
-                        }
+                        constructorParameters[ii] = scope.ServiceProvider.GetService(parameters[ii].ParameterType);
                     }
                 }
             }
 
             IMessageMiddleware? middleware = (IMessageMiddleware)Activator.CreateInstance(type, constructorParameters)!;
-            _middlewareQueue.Enqueue(middleware);
+            middlewareQueue[i] = middleware;
         }
 
-        await _middlewareQueue.Dequeue().InvokeAsync(context);
-    }
-
-    public async Task HandleNextAsync(MessageContext context)
-    {
-        ++_completions;
-        if (_middlewareQueue.Count != 0 && _completions != _middlewares.Count)
+        bool executeCommand = true;
+        foreach (IMessageMiddleware middleware in middlewareQueue)
         {
-            await _middlewareQueue.Dequeue().InvokeAsync(context);
+            if (await middleware.InvokeAsync(context))
+            {
+                executeCommand = false;
+                continue;
+            }
         }
-        else if (_middlewareQueue.Count == 0 && _completions == _middlewares.Count)
+
+        if (executeCommand)
         {
             await _executeCommand();
         }
     }
 }
+

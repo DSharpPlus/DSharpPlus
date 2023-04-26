@@ -1,6 +1,4 @@
 using System.Threading.Tasks;
-using DSharpPlus;
-using DSharpPlus.Entities;
 using DSharpPlus.CH.Message;
 using DSharpPlus.CH.Message.Permission;
 

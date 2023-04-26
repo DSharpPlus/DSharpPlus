@@ -4,7 +4,7 @@ namespace DSharpPlus.CH.Message.Internals;
 
 internal class MessageCommandFactory
 {
-    private Dictionary<string, MessageCommandMethodData> _commands = new();
+    private readonly Dictionary<string, MessageCommandMethodData> _commands = new();
     internal ServiceProvider _services = null!;
     internal CHConfiguration _configuration = null!;
 
@@ -33,7 +33,7 @@ internal class MessageCommandFactory
         }
     }
 
-    internal async Task ExecuteCommandAsync(MessageCommandMethodData data, Entities.DiscordMessage message,
+    internal static async Task ExecuteCommandAsync(MessageCommandMethodData data, Entities.DiscordMessage message,
         DiscordClient client, IServiceScope scope, string[]? args)
     {
         Dictionary<string, object>? options = new();
@@ -81,13 +81,9 @@ internal class MessageCommandFactory
                     {
                         throw new NotImplementedException();
                     }
-                    else if (tuple.Item2 is null)
-                    {
-                        tuple = new Tuple<string, object?>(tuple.Item1, arg);
-                    }
                     else
                     {
-                        throw new NotImplementedException();
+                        tuple = tuple.Item2 is null ? new Tuple<string, object?>(tuple.Item1, arg) : throw new NotImplementedException();
                     }
                 }
             }
