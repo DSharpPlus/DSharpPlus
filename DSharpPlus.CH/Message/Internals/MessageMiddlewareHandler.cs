@@ -23,15 +23,15 @@ internal class MessageMiddlewareHandler
         foreach (Type? type in _middlewares)
         {
             object?[]? constructorParameters = null;
-            if (type.GetConstructors().Count() != 0)
+            if (type.GetConstructors().Length != 0)
             {
                 ConstructorInfo? constructor = type.GetConstructors()[0];
-                if (constructor.GetParameters().Count() != 0)
+                if (constructor.GetParameters().Length != 0)
                 {
                     ParameterInfo[]? parameters = constructor.GetParameters();
-                    constructorParameters = new object?[parameters.Count()];
+                    constructorParameters = new object?[parameters.Length];
 
-                    for (int i = 0; i < parameters.Count(); i++)
+                    for (int i = 0; i < parameters.Length; i++)
                     {
                         if (parameters[i].ParameterType != typeof(NextDelegate))
                         {

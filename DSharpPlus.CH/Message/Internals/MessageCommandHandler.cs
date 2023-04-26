@@ -71,15 +71,13 @@ internal class MessageCommandHandler
         DiscordMessage message, DiscordClient client, Dictionary<string, object> options, Queue<string> arguments)
     {
         MessageCommandModuleData? moduleData = data.Module;
-        object?[]? constructorParams = null;
-
         ConstructorInfo[]? constructors = moduleData.Type.GetConstructors();
-        if (constructors is not null && constructors.Count() != 0)
+        if (constructors is not null && constructors.Length != 0)
         {
             ConstructorInfo? constructor = constructors[0];
             ParameterInfo[]? constructorParameters = constructor.GetParameters();
-            constructorParams = new object[constructorParameters.Count()];
-            for (int i = 0; i < constructorParameters.Count(); i++)
+            object?[]? constructorParams = new object[constructorParameters.Length];
+            for (int i = 0; i < constructorParameters.Length; i++)
             {
                 Type? type = constructorParameters[i].ParameterType;
                 constructorParams[i] = scope.ServiceProvider.GetService(type);
@@ -97,9 +95,9 @@ internal class MessageCommandHandler
         _module.Client = client;
 
         object?[]? parameters = null;
-        if (data.Parameters.Count() != 0)
+        if (data.Parameters.Count != 0)
         {
-            parameters = new object?[data.Parameters.Count()];
+            parameters = new object?[data.Parameters.Count];
             for (int i = 0; i < data.Parameters.Count; i++)
             {
                 MessageCommandParameterData? parameter = data.Parameters[i];
@@ -242,7 +240,7 @@ internal class MessageCommandHandler
 
                 if (str.StartsWith("<@"))
                 {
-                    if (str.Count() >= 3 && str[2] == '!')
+                    if (str.Length >= 3 && str[2] == '!')
                     {
                         str = str.Remove(0, 3);
                     }
@@ -251,7 +249,7 @@ internal class MessageCommandHandler
                         str = str.Remove(0, 2);
                     }
 
-                    str = str.Remove(str.Count() - 1, 1);
+                    str = str.Remove(str.Length - 1, 1);
                     if (ulong.TryParse(str, out ulong result))
                     {
                         try
@@ -300,7 +298,7 @@ internal class MessageCommandHandler
                 string str = (string)value;
                 if (str.StartsWith("<@"))
                 {
-                    if (str.Count() >= 3 && str[2] == '!')
+                    if (str.Length >= 3 && str[2] == '!')
                     {
                         str = str.Remove(0, 3);
                     }
@@ -309,7 +307,7 @@ internal class MessageCommandHandler
                         str = str.Remove(0, 2);
                     }
 
-                    str = str.Remove(str.Count() - 1, 1);
+                    str = str.Remove(str.Length - 1, 1);
                     if (ulong.TryParse(str, out ulong result))
                     {
                         try
@@ -373,7 +371,7 @@ internal class MessageCommandHandler
 
                 if (str.StartsWith("<#"))
                 {
-                    if (str.Count() >= 3 && str[2] == '!')
+                    if (str.Length >= 3 && str[2] == '!')
                     {
                         str = str.Remove(0, 3);
                     }
@@ -382,7 +380,7 @@ internal class MessageCommandHandler
                         str = str.Remove(0, 2);
                     }
 
-                    str = str.Remove(str.Count() - 1, 1);
+                    str = str.Remove(str.Length - 1, 1);
 
                     if (ulong.TryParse(str, out ulong result))
                     {
@@ -424,7 +422,7 @@ internal class MessageCommandHandler
                 if (str.StartsWith("<@&"))
                 {
                     str = str.Remove(0, 3);
-                    str = str.Remove(str.Count() - 1, 1);
+                    str = str.Remove(str.Length - 1, 1);
 
                     if (ulong.TryParse(str, out ulong result))
                     {

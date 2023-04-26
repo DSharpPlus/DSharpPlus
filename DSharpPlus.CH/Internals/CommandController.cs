@@ -1,5 +1,4 @@
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using DSharpPlus.EventArgs;
 using DSharpPlus.CH.Message.Internals;
 
@@ -7,13 +6,7 @@ namespace DSharpPlus.CH.Internals;
 
 internal class CommandController
 {
-    private MessageCommandFactory _messageFactory;
-
-    public MessageCommandFactory MessageCommandFactory
-    {
-        get => _messageFactory;
-        private set => _messageFactory = value;
-    }
+    public MessageCommandFactory MessageCommandFactory { get; private set; }
 
     public CHConfiguration Configuration { get; set; }
     public ServiceProvider Services { get; set; }
@@ -49,13 +42,13 @@ internal class CommandController
             Services = Configuration.Services.BuildServiceProvider();
         }
 
-        _messageFactory = new MessageCommandFactory { _services = Services, _configuration = configuration };
+        MessageCommandFactory = new MessageCommandFactory { _services = Services, _configuration = configuration };
 
-        CommandModuleRegister.RegisterMessageCommands(_messageFactory, Configuration.Assembly);
-        client.MessageCreated += HandleMessageCreation;
+        CommandModuleRegister.RegisterMessageCommands(MessageCommandFactory, Configuration.Assembly);
+        client.MessageCreated += HandleMessageCreationAsync;
     }
 
-    public async Task HandleMessageCreation(DiscordClient client, MessageCreateEventArgs msg)
+    public async Task HandleMessageCreationAsync(DiscordClient client, MessageCreateEventArgs msg)
     {
         if (msg.Author.IsBot)
         {
@@ -72,14 +65,14 @@ internal class CommandController
             return;
         }
 
-        string[]? content = msg.Message.Content.Remove(0, Configuration.Prefix.Count()).Split(' ');
-        if (content.Count() == 0)
+        string[]? content = msg.Message.Content.Remove(0, Configuration.Prefix.Length).Split(' ');
+        if (content.Length == 0)
         {
             return;
         }
 
         string? command = content[0];
         string[]? args = content.Skip(1).ToArray(); // Command argument parsing needed here.
-        await _messageFactory.ConstructAndExecuteCommandAsync(command, msg.Message, client, args);
+        await MessageCommandFactory.ConstructAndExecuteCommandAsync(command, msg.Message, client, args);
     }
 }
