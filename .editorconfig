@@ -137,7 +137,7 @@ csharp_style_throw_expression = true:error
 csharp_style_conditional_delegate_call = true:error
 
 # Modifier preferences
-csharp_preferred_modifier_order = public,private,protected,internal,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,volatile,async:error
+csharp_preferred_modifier_order = public, private, protected, internal, static, extern, new, virtual, abstract, sealed, override, readonly, unsafe, volatile, async:error
 
 # Expression-level preferences
 csharp_prefer_braces = true:error

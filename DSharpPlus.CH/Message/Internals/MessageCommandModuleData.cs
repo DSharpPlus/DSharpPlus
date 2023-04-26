@@ -1,11 +1,8 @@
-namespace DSharpPlus.CH.Message.Internals
-{
-    internal class MessageCommandModuleData
-    {
-        public Type Type { get; set; }
+namespace DSharpPlus.CH.Message.Internals;
 
-        public MessageCommandModuleData(Type type) {
-            Type = type;
-        }
-    }
+internal class MessageCommandModuleData
+{
+    public Type Type { get; set; }
+
+    public MessageCommandModuleData(Type type) => Type = type;
 }

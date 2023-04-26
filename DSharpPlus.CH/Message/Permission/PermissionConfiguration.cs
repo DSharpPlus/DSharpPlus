@@ -1,7 +1,5 @@
-namespace DSharpPlus.CH.Message.Permission
+namespace DSharpPlus.CH.Message.Permission;
+
+public class PermissionConfiguration
 {
-    public class PermissionConfiguration
-    {
-        
-    }
 }

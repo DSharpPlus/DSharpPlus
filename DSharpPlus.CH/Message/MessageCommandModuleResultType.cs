@@ -1,12 +1,11 @@
-namespace DSharpPlus.CH.Message
+namespace DSharpPlus.CH.Message;
+
+public enum MessageCommandModuleResultType
 {
-    public enum MessageCommandModuleResultType
-    {
-        Empty,
-        Reply,
-        NoMentionReply,
-        Send,
-        FollowUp,
-        Edit
-    }
+    Empty,
+    Reply,
+    NoMentionReply,
+    Send,
+    FollowUp,
+    Edit
 }

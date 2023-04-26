@@ -1,13 +1,9 @@
-namespace DSharpPlus.CH.Message.Permission
-{
-    [AttributeUsage(AttributeTargets.Method)]
-    public class MessagePermissionAttribute : Attribute
-    {
-        public DSharpPlus.Permissions Permissions { get; set; }
+namespace DSharpPlus.CH.Message.Permission;
 
-        public MessagePermissionAttribute(DSharpPlus.Permissions permissions)
-        {
-            Permissions = permissions;
-        }
-    }
+[AttributeUsage(AttributeTargets.Method)]
+public class MessagePermissionAttribute : Attribute
+{
+    public Permissions Permissions { get; set; }
+
+    public MessagePermissionAttribute(Permissions permissions) => Permissions = permissions;
 }

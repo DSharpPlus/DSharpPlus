@@ -1,19 +1,18 @@
-namespace DSharpPlus.CH.Message
+namespace DSharpPlus.CH.Message;
+
+public enum InvalidMessageConvertionType
 {
-    public enum InvalidMessageConvertionType
-    {
-        NotAValidNumber,
-        NotAValidInteger,
-        NotAValidUser,
-        UserDoesNotExist,
-        NotAValidMember,
-        MemberDoesNotExist,
-        NotAValidChannel,
-        ChannelDoesNotExist,
-        BoolShouldNotHaveValue,
-        NoValueProvided,
-        NotAValidRole,
-        RoleDoesNotExist,
-        IsInDMs
-    }
+    NotAValidNumber,
+    NotAValidInteger,
+    NotAValidUser,
+    UserDoesNotExist,
+    NotAValidMember,
+    MemberDoesNotExist,
+    NotAValidChannel,
+    ChannelDoesNotExist,
+    BoolShouldNotHaveValue,
+    NoValueProvided,
+    NotAValidRole,
+    RoleDoesNotExist,
+    IsInDMs
 }

@@ -11,16 +11,10 @@ public class CHCommandModuleTest : MessageCommandModule
 {
     private readonly string _str;
 
-    public CHCommandModuleTest(string str)
-    {
-        _str = str;
-    }
+    public CHCommandModuleTest(string str) => _str = str;
 
     [MessageCommand("test-sync")]
-    public IMessageCommandModuleResult TestSync()
-    {
-        return Reply("Sync works.");
-    }
+    public IMessageCommandModuleResult TestSync() => Reply("Sync works.");
 
     [MessageCommand("test-async")]
     public async Task<IMessageCommandModuleResult> TestAsync()
@@ -30,21 +24,12 @@ public class CHCommandModuleTest : MessageCommandModule
     }
 
     [MessageCommand("test-arg-opt")]
-    public IMessageCommandModuleResult TestArgOpt(string argument, [MessageOption("option", "o")] string? option)
-    {
-        return Reply(option != null ? $"Argument was {argument} and option was {option}" : $"Argument was {argument} and option wasn't provided.");
-    }
+    public IMessageCommandModuleResult TestArgOpt(string argument, [MessageOption("option", "o")] string? option) => Reply(option != null ? $"Argument was {argument} and option was {option}" : $"Argument was {argument} and option wasn't provided.");
 
     [MessageCommand("test-permissions")]
     [MessagePermission(Permissions.Administrator)]
-    public IMessageCommandModuleResult TestPermissions()
-    {
-        return Reply("You are a admin.");
-    }
+    public IMessageCommandModuleResult TestPermissions() => Reply("You are a admin.");
 
     [MessageCommand("test-di")]
-    public IMessageCommandModuleResult TestDI()
-    {
-        return Reply($"DI gave me value `{_str}`.");
-    }
+    public IMessageCommandModuleResult TestDI() => Reply($"DI gave me value `{_str}`.");
 }
