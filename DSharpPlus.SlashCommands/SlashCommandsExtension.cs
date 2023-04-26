@@ -50,7 +50,7 @@ namespace DSharpPlus.SlashCommands
 
         internal SlashCommandsExtension(SlashCommandsConfiguration configuration)
         {
-            this._configuration = configuration;
+            this._configuration = configuration ?? new SlashCommandsConfiguration();;
         }
 
         /// <summary>
