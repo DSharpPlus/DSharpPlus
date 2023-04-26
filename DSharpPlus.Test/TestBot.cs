@@ -40,6 +40,8 @@ using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.EventArgs;
 using DSharpPlus.VoiceNext;
+using DSharpPlus.CH;
+using DSharpPlus.CH.Message.Permission;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -167,6 +169,17 @@ internal sealed class TestBot
         {
             this.SlashCommandService.RegisterCommands(typeof(TestBot).GetTypeInfo().Assembly, this.Config.SlashCommandGuild);
         }
+
+        var chServices = new ServiceCollection();
+        chServices.AddScoped<string>(s => "This is a value.");
+        var chConfiguration = new CHConfiguration
+        {
+            Assembly = Assembly.GetExecutingAssembly(),
+            Prefix = this.Config.CommandPrefixes[0], // Only supports one for now.
+            Services = chServices
+        };
+        chConfiguration.UsePermission();
+        this.Discord.UseCH(chConfiguration);
 
         //this.Discord.MessageCreated += async e =>
         //{
