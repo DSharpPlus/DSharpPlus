@@ -11,6 +11,9 @@ namespace DSharpPlus.CH.Message
         NotAValidChannel,
         ChannelDoesNotExist,
         BoolShouldNotHaveValue,
-        NoValueProvided
+        NoValueProvided,
+        NotAValidRole,
+        RoleDoesNotExist,
+        IsInDMs
     }
 }

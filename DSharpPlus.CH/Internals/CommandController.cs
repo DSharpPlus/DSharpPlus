@@ -58,7 +58,7 @@ namespace DSharpPlus.CH.Internals
 
             var command = content[0];
             var args = content.Skip(1).ToArray(); // Command argument parsing needed here.
-            await _messageFactory.ExecuteCommand(command, msg.Message, client, args);
+            await _messageFactory.ExecuteCommandAsync(command, msg.Message, client, args);
         }
     }
 }

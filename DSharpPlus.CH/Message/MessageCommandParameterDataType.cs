@@ -8,6 +8,7 @@ namespace DSharpPlus.CH.Message
         User,
         Member,
         Channel,
+        Role, // Implement this in the MessageCommandHandler.
         Bool
     }
 }

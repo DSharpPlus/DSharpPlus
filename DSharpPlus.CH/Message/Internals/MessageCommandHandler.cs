@@ -9,7 +9,7 @@ namespace DSharpPlus.CH.Message.Internals
         private MessageCommandModule _module = null!; // Will be set by the factory.
         private DiscordMessage? _newMessage;
 
-        internal async Task TurnResultIntoAction(IMessageCommandModuleResult result)
+        internal async Task TurnResultIntoActionAsync(IMessageCommandModuleResult result)
         {
             // [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
             void SetContentAndEmbeds(IMessageCommandModuleResult result, DiscordMessageBuilder messageBuilder)
@@ -52,7 +52,7 @@ namespace DSharpPlus.CH.Message.Internals
             }
         }
 
-        internal async Task BuildModuleAndExecuteCommand(MessageCommandMethodData data, ServiceProvider services, DiscordMessage message, DiscordClient client, Dictionary<string, object> options, Queue<string> arguments)
+        internal async Task BuildModuleAndExecuteCommandAsync(MessageCommandMethodData data, ServiceProvider services, DiscordMessage message, DiscordClient client, Dictionary<string, object> options, Queue<string> arguments)
         {
             var moduleData = data.Module;
             using var scoped = services.CreateScope();
@@ -85,11 +85,11 @@ namespace DSharpPlus.CH.Message.Internals
                 {
                     var parameter = data.Parameters[i];
 
-                    if (parameter.IsArgument)
+                    if (parameter.IsPositionalArgument)
                     {
                         try
                         {
-                            parameters[i] = await ParseParameter(parameter, arguments.Dequeue(), client);
+                            parameters[i] = await ParseParameterAsync(parameter, arguments.Dequeue(), client);
                         }
                         catch (Exceptions.ConvertionFailedException e)
                         {
@@ -98,7 +98,7 @@ namespace DSharpPlus.CH.Message.Internals
                                 Value = e.Value,
                                 Type = e.Type,
                                 Name = parameter.Name,
-                                IsArgument = parameter.IsArgument
+                                IsPositionalArgument = parameter.IsPositionalArgument
                             };
                             await services.GetRequiredService<IFailedConvertion>().HandleErrorAsync(error, _module.Message);
                             return;
@@ -109,7 +109,7 @@ namespace DSharpPlus.CH.Message.Internals
                         if (options.TryGetValue(parameter.Name, out var value))
                             try
                             {
-                                parameters[i] = await ParseParameter(parameter, value, client);
+                                parameters[i] = await ParseParameterAsync(parameter, value, client);
                             }
                             catch (Exceptions.ConvertionFailedException e)
                             {
@@ -118,7 +118,7 @@ namespace DSharpPlus.CH.Message.Internals
                                     Value = e.Value,
                                     Type = e.Type,
                                     Name = parameter.Name,
-                                    IsArgument = parameter.IsArgument
+                                    IsPositionalArgument = parameter.IsPositionalArgument
                                 };
                                 await services.GetRequiredService<IFailedConvertion>().HandleErrorAsync(error, _module.Message);
                                 return;
@@ -126,7 +126,7 @@ namespace DSharpPlus.CH.Message.Internals
                         else if (parameter.ShorthandOptionName is not null && options.TryGetValue(parameter.ShorthandOptionName, out var val))
                             try
                             {
-                                parameters[i] = await ParseParameter(parameter, val, client);
+                                parameters[i] = await ParseParameterAsync(parameter, val, client);
                             }
                             catch (Exceptions.ConvertionFailedException e)
                             {
@@ -135,7 +135,7 @@ namespace DSharpPlus.CH.Message.Internals
                                     Value = e.Value,
                                     Type = e.Type,
                                     Name = parameter.Name,
-                                    IsArgument = parameter.IsArgument
+                                    IsPositionalArgument = parameter.IsPositionalArgument
                                 };
                                 await services.GetRequiredService<IFailedConvertion>().HandleErrorAsync(error, _module.Message);
                                 return;
@@ -152,16 +152,16 @@ namespace DSharpPlus.CH.Message.Internals
             {
                 var task = (Task<IMessageCommandModuleResult>)data.Method.Invoke(_module, parameters)!;
                 var result = await task;
-                await TurnResultIntoAction(result);
+                await TurnResultIntoActionAsync(result);
             }
             else
             {
                 var result = (IMessageCommandModuleResult)data.Method.Invoke(_module, parameters)!;
-                await TurnResultIntoAction(result);
+                await TurnResultIntoActionAsync(result);
             }
         }
 
-        private async Task<object> ParseParameter(MessageCommandParameterData data, object value, DiscordClient client)
+        private async Task<object> ParseParameterAsync(MessageCommandParameterData data, object value, DiscordClient client)
         {
             object obj = new object();
 
@@ -241,9 +241,7 @@ namespace DSharpPlus.CH.Message.Internals
                 case MessageCommandParameterDataType.Member:
                     {
                         if (_module.Message.Channel.GuildId is null)
-                        {
-                            break;
-                        }
+                            throw new Exceptions.ConvertionFailedException((string)value, InvalidMessageConvertionType.IsInDMs);
 
                         string str = (string)value;
                         if (str.StartsWith("<@"))
@@ -299,9 +297,7 @@ namespace DSharpPlus.CH.Message.Internals
                 case MessageCommandParameterDataType.Channel:
                     {
                         if (_module.Message.Channel.GuildId is null)
-                        {
-                            break;
-                        }
+                            throw new Exceptions.ConvertionFailedException((string)value, InvalidMessageConvertionType.IsInDMs);
 
                         string str = (string)value;
 
@@ -336,7 +332,61 @@ namespace DSharpPlus.CH.Message.Internals
                 case MessageCommandParameterDataType.Bool:
                     obj = value;
                     break;
+                case MessageCommandParameterDataType.Role:
+                    {
+                        if (_module.Message.Channel.GuildId is null)
+                            throw new Exceptions.ConvertionFailedException((string)value, InvalidMessageConvertionType.IsInDMs);
 
+                        string str = (string)value;
+                        if (str.StartsWith("<@&"))
+                        {
+                            str = str.Remove(0, 3);
+                            str = str.Remove(str.Count() - 1, 1);
+
+                            if (ulong.TryParse(str, out var result))
+                            {
+                                try
+                                {
+                                    obj = _module.Message.Channel.Guild.GetRole(result);
+                                }
+                                catch (DSharpPlus.Exceptions.ServerErrorException)
+                                {
+                                    throw new Exceptions.ConvertionFailedException((string)value, InvalidMessageConvertionType.RoleDoesNotExist);
+                                }
+                                catch (DSharpPlus.Exceptions.NotFoundException)
+                                {
+                                    throw new Exceptions.ConvertionFailedException((string)value, InvalidMessageConvertionType.RoleDoesNotExist);
+                                }
+                            }
+                            else
+                            {
+                                throw new Exceptions.ConvertionFailedException((string)value, InvalidMessageConvertionType.NotAValidRole);
+                            }
+                        }
+                        else
+                        {
+                            if (ulong.TryParse(str, out var result))
+                            {
+                                try
+                                {
+                                    obj = _module.Message.Channel.Guild.GetRole(result);
+                                }
+                                catch (DSharpPlus.Exceptions.ServerErrorException)
+                                {
+                                    throw new Exceptions.ConvertionFailedException((string)value, InvalidMessageConvertionType.RoleDoesNotExist);
+                                }
+                                catch (DSharpPlus.Exceptions.NotFoundException)
+                                {
+                                    throw new Exceptions.ConvertionFailedException((string)value, InvalidMessageConvertionType.RoleDoesNotExist);
+                                }
+                            }
+                            else
+                            {
+                                throw new Exceptions.ConvertionFailedException((string)value, InvalidMessageConvertionType.NotAValidRole);
+                            }
+                        }
+                        break;
+                    }
             }
 
             return obj;

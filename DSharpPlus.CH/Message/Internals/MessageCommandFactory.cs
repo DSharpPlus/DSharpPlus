@@ -11,7 +11,7 @@ namespace DSharpPlus.CH.Message.Internals
             _commands.Add(name, data);
         }
 
-        public async Task ExecuteCommand(string name, DSharpPlus.Entities.DiscordMessage message, DiscordClient client, string[]? args)
+        public async Task ExecuteCommandAsync(string name, DSharpPlus.Entities.DiscordMessage message, DiscordClient client, string[]? args)
         {
             var options = new Dictionary<string, object>();
             var arguments = new Queue<string>();
@@ -67,7 +67,7 @@ namespace DSharpPlus.CH.Message.Internals
             {
 
                 var handler = new MessageCommandHandler();
-                await handler.BuildModuleAndExecuteCommand(value, _services, message, client, options, arguments);
+                await handler.BuildModuleAndExecuteCommandAsync(value, _services, message, client, options, arguments);
             }
         }
     }

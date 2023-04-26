@@ -1,6 +1,7 @@
 using System.Reflection;
 using DSharpPlus.CH.Message.Internals;
 using DSharpPlus.CH.Message;
+using DSharpPlus.Entities;
 
 namespace DSharpPlus.CH.Internals
 {
@@ -35,12 +36,12 @@ namespace DSharpPlus.CH.Internals
                         var parameterData = new MessageCommandParameterData();
                         if (paramAttribute is null)
                         {
-                            parameterData.IsArgument = true;
+                            parameterData.IsPositionalArgument = true;
                             parameterData.Name = parameter.Name ?? string.Empty;
                         }
                         else
                         {
-                            parameterData.IsArgument = false;
+                            parameterData.IsPositionalArgument = false;
                             parameterData.Name = paramAttribute.Option;
                             parameterData.ShorthandOptionName = paramAttribute.ShorthandOption;
                         }
@@ -55,8 +56,18 @@ namespace DSharpPlus.CH.Internals
                             parameterData.Type = MessageCommandParameterDataType.String;
                         else if (parameterType == typeof(int))
                             parameterData.Type = MessageCommandParameterDataType.Int;
-                        else if (parameterType == typeof(DSharpPlus.Entities.DiscordUser))
+                        else if (parameterType == typeof(DiscordUser))
                             parameterData.Type = MessageCommandParameterDataType.User;
+                        else if (parameterType == typeof(DiscordRole))
+                            parameterData.Type = MessageCommandParameterDataType.Role;
+                        else if (parameterType == typeof(bool))
+                            parameterData.Type = MessageCommandParameterDataType.Bool;
+                        else if (parameterType == typeof(DiscordMember))
+                            parameterData.Type = MessageCommandParameterDataType.Member;
+                        else if (parameterType == typeof(DiscordChannel))
+                            parameterData.Type = MessageCommandParameterDataType.Channel;
+                        else if (parameterType == typeof(double))
+                            parameterData.Type = MessageCommandParameterDataType.Double;
                         else throw new NotImplementedException();
 
                         parameters.Add(parameterData);

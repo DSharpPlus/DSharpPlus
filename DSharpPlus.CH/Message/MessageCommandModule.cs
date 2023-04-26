@@ -9,9 +9,9 @@ namespace DSharpPlus.CH.Message
 
         internal MessageCommandHandler _handler = null!; // Will be set by the factory.
 
-        protected async Task Post(IMessageCommandModuleResult result)
+        protected async Task PostAsync(IMessageCommandModuleResult result)
         {
-            await _handler.TurnResultIntoAction(result);
+            await _handler.TurnResultIntoActionAsync(result);
         }
 
         protected IMessageCommandModuleResult Reply(MessageCommandModuleResult result, bool mention = false)
