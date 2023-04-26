@@ -3,62 +3,83 @@ using Microsoft.Extensions.Logging;
 using DSharpPlus.EventArgs;
 using DSharpPlus.CH.Message.Internals;
 
-namespace DSharpPlus.CH.Internals
+namespace DSharpPlus.CH.Internals;
+
+internal class CommandController
 {
-    internal class CommandController
+    private MessageCommandFactory _messageFactory;
+
+    public MessageCommandFactory MessageCommandFactory
     {
-        private MessageCommandFactory _messageFactory;
-        public MessageCommandFactory MessageCommandFactory { get => _messageFactory; private set => _messageFactory = value; }
-        public CHConfiguration Configuration { get; set; }
-        public ServiceProvider Services { get; set; }
+        get => _messageFactory;
+        private set => _messageFactory = value;
+    }
 
-        public CommandController(CHConfiguration configuration, DiscordClient client)
+    public CHConfiguration Configuration { get; set; }
+    public ServiceProvider Services { get; set; }
+
+    public CommandController(CHConfiguration configuration, DiscordClient client)
+    {
+        Configuration = configuration;
+
+
+        if (Configuration.Services is null)
         {
-            Configuration = configuration;
+            ServiceCollection? services = new();
+            services.AddTransient<Message.IFailedConvertion, DefaultFailedConversion>();
 
-
-            if (Configuration.Services is null)
+            Services = services.BuildServiceProvider();
+        }
+        else
+        {
+            bool setDefaultIFailedConvertion = true;
+            foreach (ServiceDescriptor? service in Configuration.Services)
             {
-                var services = new ServiceCollection();
-                services.AddTransient<Message.IFailedConvertion, Message.Internals.DefaultFailedConversion>();
-
-                Services = services.BuildServiceProvider();
-            }
-            else
-            {
-                bool setDefaultIFailedConvertion = true;
-                foreach (var service in Configuration.Services)
+                if (service.ImplementationType?.IsSubclassOf(typeof(Message.IFailedConvertion)) ?? false)
                 {
-                    if (service.ImplementationType?.IsSubclassOf(typeof(Message.IFailedConvertion)) ?? false)
-                        setDefaultIFailedConvertion = false;
+                    setDefaultIFailedConvertion = false;
                 }
-                if (setDefaultIFailedConvertion) Configuration.Services.AddTransient<Message.IFailedConvertion, Message.Internals.DefaultFailedConversion>();
-
-                Services = Configuration.Services.BuildServiceProvider();
             }
 
-            _messageFactory = new MessageCommandFactory
+            if (setDefaultIFailedConvertion)
             {
-                _services = Services,
-                _configuration = configuration,
-            };
+                Configuration.Services.AddTransient<Message.IFailedConvertion, DefaultFailedConversion>();
+            }
 
-            CommandModuleRegister.RegisterMessageCommands(_messageFactory, Configuration.Assembly);
-            client.MessageCreated += HandleMessageCreation;
+            Services = Configuration.Services.BuildServiceProvider();
         }
 
-        public async Task HandleMessageCreation(DiscordClient client, MessageCreateEventArgs msg)
+        _messageFactory = new MessageCommandFactory { _services = Services, _configuration = configuration };
+
+        CommandModuleRegister.RegisterMessageCommands(_messageFactory, Configuration.Assembly);
+        client.MessageCreated += HandleMessageCreation;
+    }
+
+    public async Task HandleMessageCreation(DiscordClient client, MessageCreateEventArgs msg)
+    {
+        if (msg.Author.IsBot)
         {
-            if (msg.Author.IsBot) return;
-            if (Configuration.Prefix is null) return;
-            if (!msg.Message.Content.StartsWith(Configuration.Prefix)) return;
-
-            var content = msg.Message.Content.Remove(0, Configuration.Prefix.Count()).Split(' ');
-            if (content.Count() == 0) return;
-
-            var command = content[0];
-            var args = content.Skip(1).ToArray(); // Command argument parsing needed here.
-            await _messageFactory.ConstructAndExecuteCommandAsync(command, msg.Message, client, args);
+            return;
         }
+
+        if (Configuration.Prefix is null)
+        {
+            return;
+        }
+
+        if (!msg.Message.Content.StartsWith(Configuration.Prefix))
+        {
+            return;
+        }
+
+        string[]? content = msg.Message.Content.Remove(0, Configuration.Prefix.Count()).Split(' ');
+        if (content.Count() == 0)
+        {
+            return;
+        }
+
+        string? command = content[0];
+        string[]? args = content.Skip(1).ToArray(); // Command argument parsing needed here.
+        await _messageFactory.ConstructAndExecuteCommandAsync(command, msg.Message, client, args);
     }
 }

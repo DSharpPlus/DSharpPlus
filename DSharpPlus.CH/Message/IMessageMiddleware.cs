@@ -1,9 +1,8 @@
-namespace DSharpPlus.CH.Message
-{
-    public delegate Task NextDelegate(MessageContext context);
+namespace DSharpPlus.CH.Message;
 
-    public interface IMessageMiddleware
-    {
-        public Task InvokeAsync(MessageContext context);
-    }
+public delegate Task NextDelegate(MessageContext context);
+
+public interface IMessageMiddleware
+{
+    public Task InvokeAsync(MessageContext context);
 }

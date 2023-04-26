@@ -1,9 +1,8 @@
-namespace DSharpPlus.CH.Message
+namespace DSharpPlus.CH.Message;
+
+public interface IMessageCommandModuleResult
 {
-    public interface IMessageCommandModuleResult
-    {
-        public MessageCommandModuleResultType Type { get; set; }
-        public string? Content { get; set; }
-        public List<DSharpPlus.Entities.DiscordEmbed>? Embeds { get; set; }
-    }
+    public MessageCommandModuleResultType Type { get; set; }
+    public string? Content { get; set; }
+    public List<Entities.DiscordEmbed>? Embeds { get; set; }
 }

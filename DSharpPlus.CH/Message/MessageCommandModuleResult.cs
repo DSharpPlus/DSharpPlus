@@ -1,34 +1,39 @@
-namespace DSharpPlus.CH.Message
+using DSharpPlus.Entities;
+
+namespace DSharpPlus.CH.Message;
+
+public class MessageCommandModuleResult : IMessageCommandModuleResult
 {
-    public class MessageCommandModuleResult : IMessageCommandModuleResult
+    public MessageCommandModuleResultType Type { get; set; }
+    public string? Content { get; set; }
+    public List<DiscordEmbed>? Embeds { get; set; }
+
+    public static implicit operator MessageCommandModuleResult(DiscordEmbed embed)
     {
-        public MessageCommandModuleResultType Type { get; set; }
-        public string? Content { get; set; }
-        public List<DSharpPlus.Entities.DiscordEmbed>? Embeds { get; set; }
-
-        public static implicit operator MessageCommandModuleResult(DSharpPlus.Entities.DiscordEmbed embed)
+        MessageCommandModuleResult msgCmdResult = new();
+        if (msgCmdResult.Embeds is null)
         {
-            var msgCmdResult = new MessageCommandModuleResult();
-            if (msgCmdResult.Embeds is null) msgCmdResult.Embeds = new List<Entities.DiscordEmbed> { embed };
-
-            return msgCmdResult;
+            msgCmdResult.Embeds = new List<DiscordEmbed> { embed };
         }
 
-        public static implicit operator MessageCommandModuleResult(DSharpPlus.Entities.DiscordEmbedBuilder builder)
-        {
-            var embed = builder.Build();
-            var msgCmdResult = new MessageCommandModuleResult();
-            if (msgCmdResult.Embeds is null) msgCmdResult.Embeds = new List<Entities.DiscordEmbed> { embed };
+        return msgCmdResult;
+    }
 
-            return msgCmdResult;
+    public static implicit operator MessageCommandModuleResult(DiscordEmbedBuilder builder)
+    {
+        DiscordEmbed embed = builder.Build();
+        MessageCommandModuleResult msgCmdResult = new();
+        if (msgCmdResult.Embeds is null)
+        {
+            msgCmdResult.Embeds = new List<DiscordEmbed> { embed };
         }
 
-        public static implicit operator MessageCommandModuleResult(string str)
-        {
-            var msgCmdResult = new MessageCommandModuleResult();
-            msgCmdResult.Content = str;
-            return msgCmdResult;
-        }
+        return msgCmdResult;
+    }
+
+    public static implicit operator MessageCommandModuleResult(string str)
+    {
+        MessageCommandModuleResult msgCmdResult = new() { Content = str };
+        return msgCmdResult;
     }
 }
-

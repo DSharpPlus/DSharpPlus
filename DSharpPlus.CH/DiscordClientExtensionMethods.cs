@@ -1,12 +1,11 @@
 ﻿using DSharpPlus.CH.Internals;
 
-namespace DSharpPlus.CH
+namespace DSharpPlus.CH;
+
+public static class DiscordClientExtensionMethods
 {
-    public static class DiscordClientExtensionMethods
+    public static void UseCH(this DiscordClient client, CHConfiguration config)
     {
-        public static void UseCH(this DiscordClient client, CHConfiguration config)
-        {
-            var controller = new CommandController(config, client);
-        }
+        CommandController? controller = new(config, client);
     }
 }
