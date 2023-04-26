@@ -1,3 +1,5 @@
+using Microsoft.Extensions.DependencyInjection;
+
 namespace DSharpPlus.CH.Message.Internals
 {
     internal class MessageCommandFactory
@@ -11,7 +13,25 @@ namespace DSharpPlus.CH.Message.Internals
             _commands.Add(name, data);
         }
 
-        public async Task ExecuteCommandAsync(string name, DSharpPlus.Entities.DiscordMessage message, DiscordClient client, string[]? args)
+        internal async Task ConstructAndExecuteCommandAsync(string name, DSharpPlus.Entities.DiscordMessage message, DiscordClient client, string[]? args)
+        {
+            if (_commands.TryGetValue(name, out var data))
+            {
+                var scope = _services.CreateScope();
+                if (_configuration.Middlewares.Count != 0)
+                {
+                    var preparedFunction = async () => await ExecuteCommandAsync(data, message, client, scope, args);
+                    var middlewareHandler = new MessageMiddlewareHandler(_configuration.Middlewares, preparedFunction);
+                    await middlewareHandler.StartGoingThroughMiddlewaresAsync(new MessageContext
+                    {
+                        Message = message,
+                        Data = new MessageCommandData(name, data.Method) // I gotta change this to something better later...
+                    }, scope);
+                }
+            }
+        }
+
+        internal async Task ExecuteCommandAsync(MessageCommandMethodData data, DSharpPlus.Entities.DiscordMessage message, DiscordClient client, IServiceScope scope, string[]? args)
         {
             var options = new Dictionary<string, object>();
             var arguments = new Queue<string>();
@@ -63,12 +83,8 @@ namespace DSharpPlus.CH.Message.Internals
                 }
             }
 
-            if (_commands.TryGetValue(name, out var value))
-            {
-
-                var handler = new MessageCommandHandler();
-                await handler.BuildModuleAndExecuteCommandAsync(value, _services, message, client, options, arguments);
-            }
+            var handler = new MessageCommandHandler();
+            await handler.BuildModuleAndExecuteCommandAsync(data, scope, message, client, options, arguments);
         }
     }
 }

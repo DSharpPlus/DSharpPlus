@@ -9,10 +9,10 @@ namespace DSharpPlus.CH
     {
         public required Assembly Assembly { get; set; }
         public ServiceCollection? Services { get; set; }
-        public List<Type> Middlewares { get; set; } = new List<Type>();
+        internal List<Type> Middlewares { get; set; } = new List<Type>();
         public string? Prefix { get; set; }
 
-        public CHConfiguration AddMiddleware<T>()
+        public CHConfiguration AddMessageMiddleware<T>() where T : Message.IMessageMiddleware
         {
             Middlewares.Add(typeof(T));
             return this;

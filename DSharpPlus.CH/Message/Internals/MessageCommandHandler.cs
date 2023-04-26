@@ -52,10 +52,9 @@ namespace DSharpPlus.CH.Message.Internals
             }
         }
 
-        internal async Task BuildModuleAndExecuteCommandAsync(MessageCommandMethodData data, ServiceProvider services, DiscordMessage message, DiscordClient client, Dictionary<string, object> options, Queue<string> arguments)
+        internal async Task BuildModuleAndExecuteCommandAsync(MessageCommandMethodData data, IServiceScope scope, DiscordMessage message, DiscordClient client, Dictionary<string, object> options, Queue<string> arguments)
         {
             var moduleData = data.Module;
-            using var scoped = services.CreateScope();
             object?[]? constructorParams = null;
 
             var constructors = moduleData.Type.GetConstructors();
@@ -67,7 +66,7 @@ namespace DSharpPlus.CH.Message.Internals
                 for (int i = 0; i < constructorParameters.Count(); i++)
                 {
                     var type = constructorParameters[i].ParameterType;
-                    constructorParams[i] = scoped.ServiceProvider.GetService(type);
+                    constructorParams[i] = scope.ServiceProvider.GetService(type);
                 }
                 _module = (Activator.CreateInstance(moduleData.Type, constructorParams) as MessageCommandModule)!;
             }
@@ -100,7 +99,7 @@ namespace DSharpPlus.CH.Message.Internals
                                 Name = parameter.Name,
                                 IsPositionalArgument = parameter.IsPositionalArgument
                             };
-                            await services.GetRequiredService<IFailedConvertion>().HandleErrorAsync(error, _module.Message);
+                            await scope.ServiceProvider.GetRequiredService<IFailedConvertion>().HandleErrorAsync(error, _module.Message);
                             return;
                         }
                     }
@@ -120,7 +119,7 @@ namespace DSharpPlus.CH.Message.Internals
                                     Name = parameter.Name,
                                     IsPositionalArgument = parameter.IsPositionalArgument
                                 };
-                                await services.GetRequiredService<IFailedConvertion>().HandleErrorAsync(error, _module.Message);
+                                await scope.ServiceProvider.GetRequiredService<IFailedConvertion>().HandleErrorAsync(error, _module.Message);
                                 return;
                             }
                         else if (parameter.ShorthandOptionName is not null && options.TryGetValue(parameter.ShorthandOptionName, out var val))
@@ -137,7 +136,7 @@ namespace DSharpPlus.CH.Message.Internals
                                     Name = parameter.Name,
                                     IsPositionalArgument = parameter.IsPositionalArgument
                                 };
-                                await services.GetRequiredService<IFailedConvertion>().HandleErrorAsync(error, _module.Message);
+                                await scope.ServiceProvider.GetRequiredService<IFailedConvertion>().HandleErrorAsync(error, _module.Message);
                                 return;
                             }
                         else if (parameter.Type == MessageCommandParameterDataType.Bool)

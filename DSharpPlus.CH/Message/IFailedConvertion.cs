@@ -1,6 +1,6 @@
 namespace DSharpPlus.CH.Message
 {
-    interface IFailedConvertion
+    public interface IFailedConvertion
     {
         public Task HandleErrorAsync(InvalidMessageConvertionError error, DSharpPlus.Entities.DiscordMessage message);
     }

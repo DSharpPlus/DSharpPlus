@@ -12,25 +12,26 @@ namespace DSharpPlus.CH.Message.Internals
             var msgBuilder = new DiscordMessageBuilder();
             msgBuilder.WithReply(message.Id);
             string argumentName = error.Name.Count() == 0 ? string.Empty : $" `{error.Name}`";
-            string safeValue = error.Value.Replace("`", string.Empty);
+
+            msgBuilder.WithAllowedMentions(Mentions.None);
 
             // This can be changed to a if else for .IsPositionalArgument
             switch (error.Type)
             {
                 case InvalidMessageConvertionType.NotAValidNumber:
                     if (error.IsPositionalArgument)
-                        msgBuilder.WithContent($"You cannot convert value `{safeValue}` to a number for argument{argumentName}");
+                        msgBuilder.WithContent($"You cannot convert value `{error.Value}` to a number for argument{argumentName}");
                     else
-                        msgBuilder.WithContent($"You cannot convert value `{safeValue}` to a number for option `{error.Name}`");
+                        msgBuilder.WithContent($"You cannot convert value `{error.Value}` to a number for option `{error.Name}`");
                     break;
                 case InvalidMessageConvertionType.NotAValidInteger:
                     if (error.IsPositionalArgument)
-                        msgBuilder.WithContent($"You cannot convert value `{safeValue}` to a integer for argument{argumentName}.");
+                        msgBuilder.WithContent($"You cannot convert value `{error.Value}` to a integer for argument{argumentName}.");
                     else
-                        msgBuilder.WithContent($"You cannot convert value `{safeValue}` to a integer for option `{error.Name}`.");
+                        msgBuilder.WithContent($"You cannot convert value `{error.Value}` to a integer for option `{error.Name}`.");
                     break;
                 case InvalidMessageConvertionType.NotAValidUser:
-                    msgBuilder.WithContent($"`{safeValue}` is not a valid user.");
+                    msgBuilder.WithContent($"`{error.Value}` is not a valid user.");
                     break;
                 case InvalidMessageConvertionType.UserDoesNotExist:
                     if (error.IsPositionalArgument)
@@ -39,7 +40,7 @@ namespace DSharpPlus.CH.Message.Internals
                         msgBuilder.WithContent($"Couldn't find the user for option `{error.Name}`.");
                     break;
                 case InvalidMessageConvertionType.NotAValidMember:
-                    msgBuilder.WithContent($"`{safeValue}` is not a valid member.");
+                    msgBuilder.WithContent($"`{error.Value}` is not a valid member.");
                     break;
                 case InvalidMessageConvertionType.MemberDoesNotExist:
                     if (error.IsPositionalArgument)
@@ -48,7 +49,7 @@ namespace DSharpPlus.CH.Message.Internals
                         msgBuilder.WithContent($"Couldn't find the member for option `{error.Name}`.");
                     break;
                 case InvalidMessageConvertionType.NotAValidChannel:
-                    msgBuilder.WithContent($"`{safeValue}` is not a valid channel.");
+                    msgBuilder.WithContent($"`{error.Value}` is not a valid channel.");
                     break;
                 case InvalidMessageConvertionType.ChannelDoesNotExist:
                     if (error.IsPositionalArgument)
@@ -60,7 +61,7 @@ namespace DSharpPlus.CH.Message.Internals
                     if (error.IsPositionalArgument)
                         msgBuilder.WithContent($"Argument{argumentName} shouldn't have a value.");
                     else
-                        msgBuilder.WithContent($"Option `{safeValue}` shouldn't have a value.");
+                        msgBuilder.WithContent($"Option `{error.Value}` shouldn't have a value.");
                     break;
                 case InvalidMessageConvertionType.NoValueProvided:
                     if (error.IsPositionalArgument)
@@ -69,7 +70,7 @@ namespace DSharpPlus.CH.Message.Internals
                         msgBuilder.WithContent($"You need to provide a value for option `{error.Name}`");
                     break;
                 case InvalidMessageConvertionType.NotAValidRole:
-                    msgBuilder.WithContent($"`{safeValue}` is not a valid role.");
+                    msgBuilder.WithContent($"`{error.Value}` is not a valid role.");
                     break;
                 case InvalidMessageConvertionType.RoleDoesNotExist:
                     if (error.IsPositionalArgument)
