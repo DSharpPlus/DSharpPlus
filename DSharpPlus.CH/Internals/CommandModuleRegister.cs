@@ -35,6 +35,9 @@ internal class CommandModuleRegister
                     continue;
                 }
 
+                string[] moduleName = @class.GetCustomAttribute<MessageModuleAttribute>()?.Name?.Split(' ') ?? Array.Empty<string>();
+
+
                 List<MessageCommandParameterData>? parameters = new();
                 foreach (ParameterInfo? parameter in method.GetParameters())
                 {
@@ -106,11 +109,31 @@ internal class CommandModuleRegister
                 }
 
                 bool isAsync = method.ReturnType.GetMethod(nameof(Task.GetAwaiter)) is not null;
-                factory.AddCommand(attribute.Name,
-                    new MessageCommandMethodData
+                MessageCommandMethodData methodData = new()
+                {
+                    Module = module,
+                    Method = method,
+                    IsAsync = isAsync,
+                    Parameters = parameters
+                };
+                if (moduleName.Length != 0)
+                {
+                    MessageCommandTree? tree = null;
+                    foreach (string name in moduleName)
                     {
-                        Module = module, Method = method, IsAsync = isAsync, Parameters = parameters
-                    });
+                        tree = factory.GetBranch(name);
+                        if (tree is null)
+                        {
+                            tree = new();
+                            factory.AddBranch(name, tree);
+                        }
+                    }
+                    tree?.Branches?.Add(attribute.Name, new(methodData));
+                }
+                else
+                {
+                    factory.AddCommand(attribute.Name, methodData);
+                }
             }
         }
     }

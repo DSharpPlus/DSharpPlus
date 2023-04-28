@@ -38,7 +38,7 @@ internal class MessageMiddlewareHandler
                 }
             }
 
-            IMessageMiddleware? middleware = (IMessageMiddleware)Activator.CreateInstance(type, constructorParameters)!;
+            IMessageMiddleware middleware = (IMessageMiddleware)Activator.CreateInstance(type, constructorParameters)!;
             middlewareQueue[i] = middleware;
         }
 

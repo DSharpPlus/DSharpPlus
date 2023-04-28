@@ -68,7 +68,7 @@ internal class MessageCommandHandler
     }
 
     internal async Task BuildModuleAndExecuteCommandAsync(MessageCommandMethodData data, IServiceScope scope,
-        DiscordMessage message, DiscordClient client, Dictionary<string, object> options, Queue<string> arguments)
+        DiscordMessage message, DiscordClient client, Dictionary<string, object> options, List<string> arguments)
     {
         MessageCommandModuleData? moduleData = data.Module;
         ConstructorInfo[]? constructors = moduleData.Type.GetConstructors();
@@ -97,6 +97,7 @@ internal class MessageCommandHandler
         object?[]? parameters = null;
         if (data.Parameters.Count != 0)
         {
+            int argumentPosition = 0;
             parameters = new object?[data.Parameters.Count];
             for (int i = 0; i < data.Parameters.Count; i++)
             {
@@ -106,7 +107,8 @@ internal class MessageCommandHandler
                 {
                     try
                     {
-                        parameters[i] = await ParseParameterAsync(parameter, arguments.Dequeue(), client);
+                        parameters[i] = await ParseParameterAsync(parameter, arguments[argumentPosition], client);
+                        argumentPosition++;
                     }
                     catch (Exceptions.ConvertionFailedException e)
                     {
@@ -254,7 +256,7 @@ internal class MessageCommandHandler
                     {
                         try
                         {
-                            obj = await client.GetUserAsync(ulong.Parse(str));
+                            obj = await client.GetUserAsync(result);
                         }
                         catch (DSharpPlus.Exceptions.NotFoundException)
                         {

@@ -65,14 +65,13 @@ internal class CommandController
             return;
         }
 
-        string[]? content = msg.Message.Content.Remove(0, Configuration.Prefix.Length).Split(' ');
-        if (content.Length == 0)
+        string[] content = msg.Message.Content.Remove(0, Configuration.Prefix.Length).Split(" ");
+        if (!content.Any())
         {
             return;
         }
 
-        string? command = content[0];
-        string[]? args = content.Skip(1).ToArray(); // Command argument parsing needed here.
-        await MessageCommandFactory.ConstructAndExecuteCommandAsync(command, msg.Message, client, args);
+        string[] args = content.ToArray();
+        await MessageCommandFactory.ConstructAndExecuteCommandAsync(msg.Message, client, args);
     }
 }

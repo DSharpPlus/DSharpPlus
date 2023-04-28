@@ -4,40 +4,94 @@ namespace DSharpPlus.CH.Message.Internals;
 
 internal class MessageCommandFactory
 {
-    private readonly Dictionary<string, MessageCommandMethodData> _commands = new();
+    private readonly MessageCommandTree _commands = new();
     internal ServiceProvider _services = null!;
     internal CHConfiguration _configuration = null!;
 
-    internal void AddCommand(string name, MessageCommandMethodData data) => _commands.Add(name, data);
+    internal void AddCommand(string name, MessageCommandMethodData data) => _commands.Branches!.Add(name, new(data));
+    internal void AddBranch(string name, MessageCommandTree branch) => _commands.Branches!.Add(name, branch);
+    internal MessageCommandTree? GetBranch(string name) => _commands.Branches!.TryGetValue(name, out MessageCommandTree? result) ? result : null;
 
-    internal async Task ConstructAndExecuteCommandAsync(string name, Entities.DiscordMessage message,
+    internal async Task ConstructAndExecuteCommandAsync(Entities.DiscordMessage message,
         DiscordClient client, string[]? args)
     {
-        if (_commands.TryGetValue(name, out MessageCommandMethodData? data))
+        string name = string.Empty;
+        MessageCommandTree? tree = null;
+        foreach (string arg in args ?? Array.Empty<string>())
         {
-            IServiceScope? scope = _services.CreateScope();
-            if (_configuration.Middlewares.Count != 0)
+            if (tree is null)
             {
-                async Task PreparedFunction()
+                if (_commands.Branches!.TryGetValue(arg, out MessageCommandTree? result))
                 {
-                    await ExecuteCommandAsync(data, message, client, scope, args);
+                    tree = result;
+                    name += arg;
                 }
-
-                MessageMiddlewareHandler? middlewareHandler = new(_configuration.Middlewares, PreparedFunction);
-                await middlewareHandler.StartGoingThroughMiddlewaresAsync(new MessageContext
+                else
                 {
-                    Message = message,
-                    Data = new MessageCommandData(name, data.Method) // I gotta change this to something better later...
-                }, scope);
+                    break;
+                }
+                continue;
             }
+
+            Console.WriteLine(arg);
+            if (tree?.Branches is not null && tree.Branches.TryGetValue(arg, out MessageCommandTree? res))
+            {
+                tree = res;
+                name += arg;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        if (tree is null || tree.Data is null)
+        {
+            return;
+        }
+
+        IServiceScope? scope = _services.CreateScope();
+        if (_configuration.Middlewares.Count != 0)
+        {
+            async Task PreparedFunction()
+            {
+                await ExecuteCommandAsync(tree.Data, message, client, scope, args);
+            }
+
+            MessageMiddlewareHandler? middlewareHandler = new(_configuration.Middlewares, PreparedFunction);
+            await middlewareHandler.StartGoingThroughMiddlewaresAsync(new MessageContext
+            {
+                Message = message,
+                Data = new MessageCommandData(name, tree.Data.Method) // I gotta change this to something better later...
+            }, scope);
         }
     }
 
     internal static async Task ExecuteCommandAsync(MessageCommandMethodData data, Entities.DiscordMessage message,
         DiscordClient client, IServiceScope scope, string[]? args)
     {
-        Dictionary<string, object>? options = new();
-        Queue<string>? arguments = new();
+        Dictionary<string, object> options = new();
+        List<string> arguments = new();
+
+        void Parse(Dictionary<string, object> options, List<string> arguments)
+        {
+            if (args is null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < args.Length; i++)
+            {
+                ReadOnlySpan<char> str = args[i].AsSpan();
+
+                if (str.StartsWith("-"))
+                {
+                    ReadOnlySpan<char> name = str.StartsWith("--") ? str[1..] : str[0..];
+
+                }
+            }
+        }
+
         if (args is not null)
         {
             bool parsingOptions = false;
@@ -75,7 +129,7 @@ internal class MessageCommandFactory
                 {
                     if (!parsingOptions)
                     {
-                        arguments.Enqueue(arg);
+                        arguments.Add(arg);
                     }
                     else if (tuple is null)
                     {
