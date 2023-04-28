@@ -48,30 +48,41 @@ internal class CommandController
         client.MessageCreated += HandleMessageCreationAsync;
     }
 
-    public async Task HandleMessageCreationAsync(DiscordClient client, MessageCreateEventArgs msg)
+    public Task HandleMessageCreationAsync(DiscordClient client, MessageCreateEventArgs msg)
     {
         if (msg.Author.IsBot)
         {
-            return;
+            return Task.CompletedTask;
         }
 
         if (Configuration.Prefix is null)
         {
-            return;
+            return Task.CompletedTask;
         }
 
         if (!msg.Message.Content.StartsWith(Configuration.Prefix))
         {
-            return;
+            return Task.CompletedTask;
         }
 
-        string[] content = msg.Message.Content.Remove(0, Configuration.Prefix.Length).Split(" ");
-        if (!content.Any())
+        ReadOnlySpan<char> content = msg.Message.Content.AsSpan();
+        if (content.Length == 0)
         {
-            return;
+            return Task.CompletedTask;
         }
 
-        string[] args = content.ToArray();
-        await MessageCommandFactory.ConstructAndExecuteCommandAsync(msg.Message, client, args);
+        List<Range> ranges = new();
+        Index last = 0;
+        for (int i = 0; i < content.Length; i++)
+        {
+            if (content[i] == ' ')
+            {
+                ranges.Add(new(last, i));
+                last = i + 1;
+            }
+        }
+
+        MessageCommandFactory.ConstructAndExecuteCommand(msg.Message, client, content, ranges);
+        return Task.CompletedTask;
     }
 }

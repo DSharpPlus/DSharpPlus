@@ -37,7 +37,6 @@ internal class CommandModuleRegister
 
                 string[] moduleName = @class.GetCustomAttribute<MessageModuleAttribute>()?.Name?.Split(' ') ?? Array.Empty<string>();
 
-
                 List<MessageCommandParameterData>? parameters = new();
                 foreach (ParameterInfo? parameter in method.GetParameters())
                 {

@@ -107,7 +107,7 @@ internal class MessageCommandHandler
                 {
                     try
                     {
-                        parameters[i] = await ParseParameterAsync(parameter, arguments[argumentPosition], client);
+                        parameters[i] = await ConvertParameterAsync(parameter, arguments[argumentPosition], client);
                         argumentPosition++;
                     }
                     catch (Exceptions.ConvertionFailedException e)
@@ -130,7 +130,7 @@ internal class MessageCommandHandler
                     {
                         try
                         {
-                            parameters[i] = await ParseParameterAsync(parameter, value, client);
+                            parameters[i] = await ConvertParameterAsync(parameter, value, client);
                         }
                         catch (Exceptions.ConvertionFailedException e)
                         {
@@ -151,7 +151,7 @@ internal class MessageCommandHandler
                     {
                         try
                         {
-                            parameters[i] = await ParseParameterAsync(parameter, val, client);
+                            parameters[i] = await ConvertParameterAsync(parameter, val, client);
                         }
                         catch (Exceptions.ConvertionFailedException e)
                         {
@@ -193,7 +193,7 @@ internal class MessageCommandHandler
         }
     }
 
-    private async Task<object> ParseParameterAsync(MessageCommandParameterData data, object value, DiscordClient client)
+    private async Task<object> ConvertParameterAsync(MessageCommandParameterData data, object value, DiscordClient client)
     {
         object obj = new();
 

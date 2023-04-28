@@ -12,19 +12,22 @@ internal class MessageCommandFactory
     internal void AddBranch(string name, MessageCommandTree branch) => _commands.Branches!.Add(name, branch);
     internal MessageCommandTree? GetBranch(string name) => _commands.Branches!.TryGetValue(name, out MessageCommandTree? result) ? result : null;
 
-    internal async Task ConstructAndExecuteCommandAsync(Entities.DiscordMessage message,
-        DiscordClient client, string[]? args)
+    internal void ConstructAndExecuteCommand(Entities.DiscordMessage message,
+        DiscordClient client, ReadOnlySpan<char> args, List<Range> argsRange)
     {
-        string name = string.Empty;
+        Index end = 0;
         MessageCommandTree? tree = null;
-        foreach (string arg in args ?? Array.Empty<string>())
+
+        foreach (Range argRange in argsRange)
         {
+            ReadOnlySpan<char> arg = args[argRange.Start..argRange.End];
+
             if (tree is null)
             {
-                if (_commands.Branches!.TryGetValue(arg, out MessageCommandTree? result))
+                if (_commands.Branches!.TryGetValue(arg.ToString(), out MessageCommandTree? res))
                 {
-                    tree = result;
-                    name += arg;
+                    tree = res;
+                    end = argRange.End;
                 }
                 else
                 {
@@ -33,11 +36,10 @@ internal class MessageCommandFactory
                 continue;
             }
 
-            Console.WriteLine(arg);
-            if (tree?.Branches is not null && tree.Branches.TryGetValue(arg, out MessageCommandTree? res))
+            if (tree?.Branches is not null && tree.Branches.TryGetValue(arg.ToString(), out MessageCommandTree? res2))
             {
-                tree = res;
-                name += arg;
+                tree = res2;
+                end = argRange.End;
             }
             else
             {
@@ -58,12 +60,14 @@ internal class MessageCommandFactory
                 await ExecuteCommandAsync(tree.Data, message, client, scope, args);
             }
 
+
             MessageMiddlewareHandler? middlewareHandler = new(_configuration.Middlewares, PreparedFunction);
-            await middlewareHandler.StartGoingThroughMiddlewaresAsync(new MessageContext
+            string name = args[0..end].ToString();
+            Task.Run(async () => await middlewareHandler.StartGoingThroughMiddlewaresAsync(new MessageContext
             {
                 Message = message,
                 Data = new MessageCommandData(name, tree.Data.Method) // I gotta change this to something better later...
-            }, scope);
+            }, scope));
         }
     }
 
