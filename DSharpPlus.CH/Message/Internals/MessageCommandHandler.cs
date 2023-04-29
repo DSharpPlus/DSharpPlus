@@ -26,7 +26,7 @@ internal class MessageCommandHandler
             }
         }
 
-        DiscordMessageBuilder? msgBuilder = new();
+        DiscordMessageBuilder msgBuilder = new();
         switch (result.Type)
         {
             case MessageCommandModuleResultType.Empty: return;
@@ -64,22 +64,24 @@ internal class MessageCommandHandler
                 }
 
                 break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
     }
 
     internal async Task BuildModuleAndExecuteCommandAsync(MessageCommandMethodData data, IServiceScope scope,
         DiscordMessage message, DiscordClient client, Dictionary<string, object> options, List<string> arguments)
     {
-        MessageCommandModuleData? moduleData = data.Module;
+        MessageCommandModuleData moduleData = data.Module;
         ConstructorInfo[]? constructors = moduleData.Type.GetConstructors();
         if (constructors is not null && constructors.Length != 0)
         {
-            ConstructorInfo? constructor = constructors[0];
-            ParameterInfo[]? constructorParameters = constructor.GetParameters();
-            object?[]? constructorParams = new object[constructorParameters.Length];
+            ConstructorInfo constructor = constructors[0];
+            ParameterInfo[] constructorParameters = constructor.GetParameters();
+            object?[] constructorParams = new object[constructorParameters.Length];
             for (int i = 0; i < constructorParameters.Length; i++)
             {
-                Type? type = constructorParameters[i].ParameterType;
+                Type type = constructorParameters[i].ParameterType;
                 constructorParams[i] = scope.ServiceProvider.GetService(type);
             }
 
@@ -101,7 +103,7 @@ internal class MessageCommandHandler
             parameters = new object?[data.Parameters.Count];
             for (int i = 0; i < data.Parameters.Count; i++)
             {
-                MessageCommandParameterData? parameter = data.Parameters[i];
+                MessageCommandParameterData parameter = data.Parameters[i];
 
                 if (parameter.IsPositionalArgument)
                 {
@@ -112,7 +114,7 @@ internal class MessageCommandHandler
                     }
                     catch (Exceptions.ConvertionFailedException e)
                     {
-                        InvalidMessageConvertionError? error = new()
+                        InvalidMessageConvertionError error = new()
                         {
                             Value = e.Value,
                             Type = e.Type,
@@ -134,7 +136,7 @@ internal class MessageCommandHandler
                         }
                         catch (Exceptions.ConvertionFailedException e)
                         {
-                            InvalidMessageConvertionError? error = new()
+                            InvalidMessageConvertionError error = new()
                             {
                                 Value = e.Value,
                                 Type = e.Type,
@@ -155,7 +157,7 @@ internal class MessageCommandHandler
                         }
                         catch (Exceptions.ConvertionFailedException e)
                         {
-                            InvalidMessageConvertionError? error = new()
+                            InvalidMessageConvertionError error = new()
                             {
                                 Value = e.Value,
                                 Type = e.Type,
@@ -181,14 +183,14 @@ internal class MessageCommandHandler
 
         if (data.IsAsync)
         {
-            Task<IMessageCommandModuleResult>? task =
+            Task<IMessageCommandModuleResult> task =
                 (Task<IMessageCommandModuleResult>)data.Method.Invoke(_module, parameters)!;
-            IMessageCommandModuleResult? result = await task;
+            IMessageCommandModuleResult result = await task;
             await TurnResultIntoActionAsync(result);
         }
         else
         {
-            IMessageCommandModuleResult? result = (IMessageCommandModuleResult)data.Method.Invoke(_module, parameters)!;
+            IMessageCommandModuleResult result = (IMessageCommandModuleResult)data.Method.Invoke(_module, parameters)!;
             await TurnResultIntoActionAsync(result);
         }
     }
@@ -202,7 +204,7 @@ internal class MessageCommandHandler
             throw new Exceptions.ConvertionFailedException(((bool)value).ToString(),
                 InvalidMessageConvertionType.BoolShouldNotHaveValue);
         }
-        else if (data.Type != MessageCommandParameterDataType.Bool && value.GetType() == typeof(bool))
+        else if (data.Type != MessageCommandParameterDataType.Bool && value is bool)
         {
             throw new Exceptions.ConvertionFailedException(((bool)value).ToString(),
                 InvalidMessageConvertionType.NoValueProvided);
@@ -477,6 +479,8 @@ internal class MessageCommandHandler
 
                 break;
             }
+            default:
+                throw new ArgumentOutOfRangeException();
         }
 
         return obj;

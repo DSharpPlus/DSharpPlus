@@ -111,7 +111,7 @@ internal class MessageCommandFactory
                 await ExecuteCommandAsync(tree.Data, message, client, scope, testArgs.ToArray());
             }
 
-            MessageMiddlewareHandler? middlewareHandler = new(_configuration.Middlewares, PreparedFunction);
+            MessageMiddlewareHandler middlewareHandler = new(_configuration.Middlewares, PreparedFunction);
             string name = args[0..end].ToString();
             Task.Run(async () => await middlewareHandler.StartGoingThroughMiddlewaresAsync(new MessageContext
             {
@@ -185,7 +185,7 @@ internal class MessageCommandFactory
             }
         }
 
-        MessageCommandHandler? handler = new();
+        MessageCommandHandler handler = new();
         await handler.BuildModuleAndExecuteCommandAsync(data, scope, message, client, options, arguments);
     }
 }

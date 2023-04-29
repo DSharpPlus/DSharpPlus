@@ -25,10 +25,10 @@ internal class MessageMiddlewareHandler
             object?[]? constructorParameters = null;
             if (type.GetConstructors().Length != 0)
             {
-                ConstructorInfo? constructor = type.GetConstructors()[0];
+                ConstructorInfo constructor = type.GetConstructors()[0];
                 if (constructor.GetParameters().Length != 0)
                 {
-                    ParameterInfo[]? parameters = constructor.GetParameters();
+                    ParameterInfo[] parameters = constructor.GetParameters();
                     constructorParameters = new object?[parameters.Length];
 
                     for (int ii = 0; ii < parameters.Length; ii++)
@@ -48,7 +48,6 @@ internal class MessageMiddlewareHandler
             if (await middleware.InvokeAsync(context))
             {
                 executeCommand = false;
-                continue;
             }
         }
 

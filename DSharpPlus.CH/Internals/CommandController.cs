@@ -18,7 +18,7 @@ internal class CommandController
 
         if (Configuration.Services is null)
         {
-            ServiceCollection? services = new();
+            ServiceCollection services = new();
             services.AddTransient<Message.IFailedConvertion, DefaultFailedConversion>();
 
             Services = services.BuildServiceProvider();

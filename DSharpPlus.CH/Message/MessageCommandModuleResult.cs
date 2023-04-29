@@ -11,10 +11,7 @@ public class MessageCommandModuleResult : IMessageCommandModuleResult
     public static implicit operator MessageCommandModuleResult(DiscordEmbed embed)
     {
         MessageCommandModuleResult msgCmdResult = new();
-        if (msgCmdResult.Embeds is null)
-        {
-            msgCmdResult.Embeds = new List<DiscordEmbed> { embed };
-        }
+        msgCmdResult.Embeds ??= new List<DiscordEmbed> { embed };
 
         return msgCmdResult;
     }
@@ -23,10 +20,7 @@ public class MessageCommandModuleResult : IMessageCommandModuleResult
     {
         DiscordEmbed embed = builder.Build();
         MessageCommandModuleResult msgCmdResult = new();
-        if (msgCmdResult.Embeds is null)
-        {
-            msgCmdResult.Embeds = new List<DiscordEmbed> { embed };
-        }
+        msgCmdResult.Embeds ??= new List<DiscordEmbed> { embed };
 
         return msgCmdResult;
     }

@@ -9,7 +9,7 @@ internal class CommandModuleRegister
 {
     internal static void RegisterMessageCommands(MessageCommandFactory factory, Assembly assembly)
     {
-        IEnumerable<Type>? classes = assembly.GetTypes()
+        IEnumerable<Type> classes = assembly.GetTypes()
             .Where(t => t.IsClass &&
                         !t.IsAbstract &&
                         t.GetCustomAttribute<MessageModuleAttribute>() is not null &&
@@ -18,8 +18,8 @@ internal class CommandModuleRegister
 
         foreach (Type? @class in classes)
         {
-            MessageCommandModuleData? data = new(@class);
-            MessageCommandModuleData? module = new(@class);
+            MessageCommandModuleData data = new(@class);
+            MessageCommandModuleData module = new(@class);
 
             MethodInfo[]? methods = @class.GetMethods();
             if (methods is null)
@@ -37,11 +37,11 @@ internal class CommandModuleRegister
 
                 string[] moduleName = @class.GetCustomAttribute<MessageModuleAttribute>()?.Name?.Split(' ') ?? Array.Empty<string>();
 
-                List<MessageCommandParameterData>? parameters = new();
+                List<MessageCommandParameterData> parameters = new();
                 foreach (ParameterInfo? parameter in method.GetParameters())
                 {
                     MessageOptionAttribute? paramAttribute = parameter.GetCustomAttribute<MessageOptionAttribute>();
-                    MessageCommandParameterData? parameterData = new();
+                    MessageCommandParameterData parameterData = new();
                     if (paramAttribute is null)
                     {
                         parameterData.IsPositionalArgument = true;
@@ -54,16 +54,10 @@ internal class CommandModuleRegister
                         parameterData.ShorthandOptionName = paramAttribute.ShorthandOption;
                     }
 
-                    if (Nullable.GetUnderlyingType(parameter.ParameterType) is not null)
-                    {
-                        parameterData.CanBeNull = true;
-                    }
-                    else
-                    {
-                        parameterData.CanBeNull = false;
-                    }
+                     
+                    parameterData.CanBeNull = Nullable.GetUnderlyingType(parameter.ParameterType) is not null;
 
-                    Type? parameterType =
+                    Type parameterType =
                         Nullable.GetUnderlyingType(parameter.ParameterType) ?? parameter.ParameterType;
 
                     // I don't know how I would make this into a switch case. 
