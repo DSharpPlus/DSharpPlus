@@ -81,11 +81,10 @@ namespace DSharpPlus.Entities
         /// Only use for Group DMs!
         /// </summary>
         /// <param name="user_id">The ID of the User to remove.</param>
-        /// <param name="accesstoken">The OAuth2 access token.</param>
         /// <exception cref="Exceptions.NotFoundException">Thrown when the channel does not exist.</exception>
         /// <exception cref="Exceptions.BadRequestException">Thrown when an invalid parameter was provided.</exception>
         /// <exception cref="Exceptions.ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-        public Task RemoveDmRecipientAsync(ulong user_id, string accesstoken)
+        public Task RemoveDmRecipientAsync(ulong user_id)
             => this.Discord.ApiClient.RemoveGroupDmRecipientAsync(this.Id, user_id);
     }
 }
