@@ -59,7 +59,7 @@ public class TestBotPaginator : IPaginationRequest
         this._usr = usr;
     }
 
-    public async Task DoCleanupAsync() => await this._msg.DeleteAsync().ConfigureAwait(false);
+    public async Task DoCleanupAsync() => await this._msg.DeleteAsync();
 
     public async Task<PaginationEmojis> GetEmojisAsync()
     {

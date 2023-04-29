@@ -79,9 +79,9 @@ namespace DSharpPlus.CommandsNext
                         Services = ctx.Services
                     };
 
-                    var fchecks = await cmd.RunChecksAsync(xctx, false).ConfigureAwait(false);
+                    var fchecks = await cmd.RunChecksAsync(xctx, false);
                     return !fchecks.Any()
-                        ? await cmd.ExecuteAsync(xctx).ConfigureAwait(false)
+                        ? await cmd.ExecuteAsync(xctx)
                         : new CommandResult
                         {
                             IsSuccessful = false,
@@ -92,7 +92,7 @@ namespace DSharpPlus.CommandsNext
             }
 
             return this.IsExecutableWithoutSubcommands
-                ? await base.ExecuteAsync(ctx).ConfigureAwait(false)
+                ? await base.ExecuteAsync(ctx)
                 : new CommandResult
                 {
                     IsSuccessful = false,

@@ -176,19 +176,19 @@ namespace DSharpPlus.Net
 
             try
             {
-                await this.GlobalRateLimitEvent.WaitAsync().ConfigureAwait(false);
+                await this.GlobalRateLimitEvent.WaitAsync();
 
                 if (bucket == null)
                     bucket = request.RateLimitBucket;
 
                 if (ratelimitTcs == null)
-                    ratelimitTcs = await this.WaitForInitialRateLimit(bucket).ConfigureAwait(false);
+                    ratelimitTcs = await this.WaitForInitialRateLimit(bucket);
 
                 if (ratelimitTcs == null) // ckeck rate limit only if we are not the probe request
                 {
                     var now = DateTimeOffset.UtcNow;
 
-                    await bucket.TryResetLimitAsync(now).ConfigureAwait(false);
+                    await bucket.TryResetLimitAsync(now);
 
                     // Decrement the remaining number of requests as there can be other concurrent requests before this one finishes and has a chance to update the bucket
                     if (Interlocked.Decrement(ref bucket._remaining) < 0)
@@ -231,9 +231,9 @@ namespace DSharpPlus.Net
                     if (this._disposed)
                         return;
 
-                    res = await this.HttpClient.SendAsync(req, HttpCompletionOption.ResponseContentRead, CancellationToken.None).ConfigureAwait(false);
+                    res = await this.HttpClient.SendAsync(req, HttpCompletionOption.ResponseContentRead, CancellationToken.None);
 
-                    var bts = await res.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+                    var bts = await res.Content.ReadAsByteArrayAsync();
                     var txt = Utilities.UTF8.GetString(bts, 0, bts.Length);
 
                     this.Logger.LogTrace(LoggerEvents.RestRx, txt);
@@ -286,7 +286,7 @@ namespace DSharpPlus.Net
                                 try
                                 {
                                     this.GlobalRateLimitEvent.Reset();
-                                    await wait.ConfigureAwait(false);
+                                    await wait;
                                 }
                                 finally
                                 {
@@ -299,7 +299,7 @@ namespace DSharpPlus.Net
                             else
                             {
                                 this.Logger.LogError(LoggerEvents.RatelimitHit, "Ratelimit hit, requeueing request to {Url}", request.Url);
-                                await wait.ConfigureAwait(false);
+                                await wait;
                                 this.ExecuteRequestAsync(request, bucket, ratelimitTcs)
                                     .LogTaskFault(this.Logger, LogLevel.Error, LoggerEvents.RestError, "Error while retrying request");
                             }
@@ -402,7 +402,7 @@ namespace DSharpPlus.Net
                 while (bucket._limitTesting != 0 && (waitTask = bucket._limitTestFinished) == null)
                     await Task.Yield();
                 if (waitTask != null)
-                    await waitTask.ConfigureAwait(false);
+                    await waitTask;
 
                 // if the request failed and the response did not have rate limit headers we have allow the next request and wait again, thus this is a loop here
             }
@@ -621,7 +621,7 @@ namespace DSharpPlus.Net
             {
                 try
                 {
-                    await Task.Delay(this._bucketCleanupDelay, this._bucketCleanerTokenSource.Token).ConfigureAwait(false);
+                    await Task.Delay(this._bucketCleanupDelay, this._bucketCleanerTokenSource.Token);
                 }
                 catch { }
 

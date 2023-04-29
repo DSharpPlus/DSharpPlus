@@ -48,13 +48,13 @@ namespace DSharpPlus.Interactivity.EventHandling
 
         public async Task DoPaginationAsync(IPaginationRequest request)
         {
-            var id = (await request.GetMessageAsync().ConfigureAwait(false)).Id;
+            var id = (await request.GetMessageAsync()).Id;
             this._requests.Add(id, request);
 
             try
             {
-                var tcs = await request.GetTaskCompletionSourceAsync().ConfigureAwait(false);
-                await tcs.Task.ConfigureAwait(false);
+                var tcs = await request.GetTaskCompletionSourceAsync();
+                await tcs.Task;
             }
             catch (Exception ex)
             {
@@ -65,7 +65,7 @@ namespace DSharpPlus.Interactivity.EventHandling
                 this._requests.Remove(id);
                 try
                 {
-                    await request.DoCleanupAsync().ConfigureAwait(false);
+                    await request.DoCleanupAsync();
                 }
                 catch (Exception ex)
                 {
@@ -82,12 +82,12 @@ namespace DSharpPlus.Interactivity.EventHandling
             if (!this._requests.TryGetValue(e.Message.Id, out var req))
                 return;
 
-            await e.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate).ConfigureAwait(false);
+            await e.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
 
-            if (await req.GetUserAsync().ConfigureAwait(false) != e.User)
+            if (await req.GetUserAsync() != e.User)
             {
                 if (this._config.ResponseBehavior is InteractionResponseBehavior.Respond)
-                    await e.Interaction.CreateFollowupMessageAsync(new() {Content = this._config.ResponseMessage, IsEphemeral = true}).ConfigureAwait(false);
+                    await e.Interaction.CreateFollowupMessageAsync(new() {Content = this._config.ResponseMessage, IsEphemeral = true});
 
                 return;
             }
@@ -95,15 +95,15 @@ namespace DSharpPlus.Interactivity.EventHandling
             if (req is InteractionPaginationRequest ipr)
                 ipr.RegenerateCTS(e.Interaction); // Necessary to ensure we don't prematurely yeet the CTS //
 
-            await this.HandlePaginationAsync(req, e).ConfigureAwait(false);
+            await this.HandlePaginationAsync(req, e);
         }
 
         private async Task HandlePaginationAsync(IPaginationRequest request, ComponentInteractionCreateEventArgs args)
         {
             var buttons = this._config.PaginationButtons;
-            var msg = await request.GetMessageAsync().ConfigureAwait(false);
+            var msg = await request.GetMessageAsync();
             var id = args.Id;
-            var tcs = await request.GetTaskCompletionSourceAsync().ConfigureAwait(false);
+            var tcs = await request.GetTaskCompletionSourceAsync();
 
             var paginationTask = id switch
             {
@@ -115,13 +115,13 @@ namespace DSharpPlus.Interactivity.EventHandling
                 _ => Task.CompletedTask
             };
 
-            await paginationTask.ConfigureAwait(false);
+            await paginationTask;
 
             if (id == buttons.Stop.CustomId)
                 return;
 
-            var page = await request.GetPageAsync().ConfigureAwait(false);
-            var bts = await request.GetButtonsAsync().ConfigureAwait(false);
+            var page = await request.GetPageAsync();
+            var bts = await request.GetButtonsAsync();
 
             if (request is InteractionPaginationRequest ipr)
             {
@@ -130,7 +130,7 @@ namespace DSharpPlus.Interactivity.EventHandling
                     .AddEmbed(page.Embed)
                     .AddComponents(bts);
 
-                await args.Interaction.EditOriginalResponseAsync(builder).ConfigureAwait(false);
+                await args.Interaction.EditOriginalResponseAsync(builder);
                 return;
             }
 
@@ -142,7 +142,7 @@ namespace DSharpPlus.Interactivity.EventHandling
                 .AddEmbed(page.Embed)
                 .AddComponents(bts);
 
-            await this._builder.ModifyAsync(msg).ConfigureAwait(false);
+            await this._builder.ModifyAsync(msg);
 
         }
     }

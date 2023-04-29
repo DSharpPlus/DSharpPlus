@@ -379,7 +379,7 @@ namespace DSharpPlus.Entities
 
             var ovrs = new List<DiscordOverwriteBuilder>();
             foreach (var ovr in this._permissionOverwrites)
-                ovrs.Add(await new DiscordOverwriteBuilder(member: null).FromAsync(ovr).ConfigureAwait(false));
+                ovrs.Add(await new DiscordOverwriteBuilder(member: null).FromAsync(ovr));
 
             var bitrate = this.Bitrate;
             var userLimit = this.UserLimit;
@@ -395,7 +395,7 @@ namespace DSharpPlus.Entities
                 perUserRateLimit = Optional.FromNoValue<int?>();
             }
 
-            return await this.Guild.CreateChannelAsync(this.Name, this.Type, this.Parent, this.Topic, bitrate, userLimit, ovrs, this.IsNSFW, perUserRateLimit, this.QualityMode, this.Position, reason).ConfigureAwait(false);
+            return await this.Guild.CreateChannelAsync(this.Name, this.Type, this.Parent, this.Topic, bitrate, userLimit, ovrs, this.IsNSFW, perUserRateLimit, this.QualityMode, this.Position, reason);
         }
 
         /// <summary>
@@ -417,7 +417,7 @@ namespace DSharpPlus.Entities
                 && dc.MessageCache != null
                 && dc.MessageCache.TryGet(xm => xm.Id == id && xm.ChannelId == this.Id, out var msg)
                 ? msg
-                : await this.Discord.ApiClient.GetMessageAsync(this.Id, id).ConfigureAwait(false);
+                : await this.Discord.ApiClient.GetMessageAsync(this.Id, id);
         }
 
         /// <summary>
@@ -564,7 +564,7 @@ namespace DSharpPlus.Entities
             do
             {
                 var fetchSize = remaining > 100 ? 100 : remaining;
-                var fetch = await this.Discord.ApiClient.GetChannelMessagesAsync(this.Id, fetchSize, !isAfter ? last ?? before : null, isAfter ? last ?? after : null, around).ConfigureAwait(false);
+                var fetch = await this.Discord.ApiClient.GetChannelMessagesAsync(this.Id, fetchSize, !isAfter ? last ?? before : null, isAfter ? last ?? after : null, around);
 
                 lastCount = fetch.Count;
                 remaining -= lastCount;
@@ -652,12 +652,12 @@ namespace DSharpPlus.Entities
 
             if (msgs.Count() < 2)
             {
-                await this.Discord.ApiClient.DeleteMessageAsync(this.Id, msgs.Single(), reason).ConfigureAwait(false);
+                await this.Discord.ApiClient.DeleteMessageAsync(this.Id, msgs.Single(), reason);
                 return;
             }
 
             for (var i = 0; i < msgs.Count(); i += 100)
-                await this.Discord.ApiClient.DeleteMessagesAsync(this.Id, msgs.Skip(i).Take(100), reason).ConfigureAwait(false);
+                await this.Discord.ApiClient.DeleteMessagesAsync(this.Id, msgs.Skip(i).Take(100), reason);
         }
 
         /// <summary>
@@ -812,7 +812,7 @@ namespace DSharpPlus.Entities
             else if (avatar.HasValue)
                 av64 = null;
 
-            return await this.Discord.ApiClient.CreateWebhookAsync(this.Id, name, av64, reason).ConfigureAwait(false);
+            return await this.Discord.ApiClient.CreateWebhookAsync(this.Id, name, av64, reason);
         }
 
         /// <summary>
@@ -840,7 +840,7 @@ namespace DSharpPlus.Entities
                 throw new ArgumentException("Cannot place a member in a non-voice channel!"); // be a little more angry, let em learn!!1
 
             await this.Discord.ApiClient.ModifyGuildMemberAsync(this.Guild.Id, member.Id, default, default, default,
-                default, this.Id, default, null).ConfigureAwait(false);
+                default, this.Id, default, null);
         }
 
         /// <summary>
@@ -882,7 +882,7 @@ namespace DSharpPlus.Entities
             if (this.Type != ChannelType.Stage)
                 throw new ArgumentException("Voice state can only be updated in a stage channel.");
 
-            await this.Discord.ApiClient.UpdateCurrentUserVoiceStateAsync(this.GuildId.Value, this.Id, suppress, requestToSpeakTimestamp).ConfigureAwait(false);
+            await this.Discord.ApiClient.UpdateCurrentUserVoiceStateAsync(this.GuildId.Value, this.Id, suppress, requestToSpeakTimestamp);
         }
 
         /// <summary>
@@ -897,7 +897,7 @@ namespace DSharpPlus.Entities
             if (this.Type != ChannelType.Stage)
                 throw new ArgumentException("A stage instance can only be created in a stage channel.");
 
-            return await this.Discord.ApiClient.CreateStageInstanceAsync(this.Id, topic, privacyLevel, reason).ConfigureAwait(false);
+            return await this.Discord.ApiClient.CreateStageInstanceAsync(this.Id, topic, privacyLevel, reason);
         }
 
         /// <summary>
@@ -909,7 +909,7 @@ namespace DSharpPlus.Entities
             if (this.Type != ChannelType.Stage)
                 throw new ArgumentException("A stage instance can only be created in a stage channel.");
 
-            return await this.Discord.ApiClient.GetStageInstanceAsync(this.Id).ConfigureAwait(false);
+            return await this.Discord.ApiClient.GetStageInstanceAsync(this.Id);
         }
 
         /// <summary>
@@ -924,7 +924,7 @@ namespace DSharpPlus.Entities
 
             var mdl = new StageInstanceEditModel();
             action(mdl);
-            return await this.Discord.ApiClient.ModifyStageInstanceAsync(this.Id, mdl.Topic, mdl.PrivacyLevel, mdl.AuditLogReason).ConfigureAwait(false);
+            return await this.Discord.ApiClient.ModifyStageInstanceAsync(this.Id, mdl.Topic, mdl.PrivacyLevel, mdl.AuditLogReason);
         }
 
         /// <summary>
@@ -1033,7 +1033,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         /// <param name="message">Message to create the thread from.</param>
         /// <param name="name">The name of the thread.</param>
-        /// <param name="archiveAfter">The auto archive duration of the thread. 3 day and 7 day archive durations require a level 1 and 2 server boost respectively.</param>
+        /// <param name="archiveAfter">The auto archive duration of the thread.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The created thread.</returns>
         /// <exception cref="NotFoundException">Thrown when the channel or message does not exist.</exception>
@@ -1055,8 +1055,8 @@ namespace DSharpPlus.Entities
         /// Creates a new thread within this channel.
         /// </summary>
         /// <param name="name">The name of the thread.</param>
-        /// <param name="archiveAfter">The auto archive duration of the thread. 3 day and 7 day archive durations require a level 1 and 2 server boost respectively.</param>
-        /// <param name="threadType">The type of thread to create, either a public, news or, private thread. Private threads requires a level 2 server boost and can only be created within channels of type <see cref="ChannelType.Text"/>.</param>
+        /// <param name="archiveAfter">The auto archive duration of the thread.</param>
+        /// <param name="threadType">The type of thread to create, either a public, news or, private thread.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The created thread.</returns>
         /// <exception cref="NotFoundException">Thrown when the channel or message does not exist.</exception>

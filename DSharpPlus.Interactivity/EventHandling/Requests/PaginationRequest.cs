@@ -176,11 +176,11 @@ namespace DSharpPlus.Interactivity.EventHandling
             switch (this.PaginationDeletion)
             {
                 case PaginationDeletion.DeleteEmojis:
-                    await this._message.DeleteAllReactionsAsync().ConfigureAwait(false);
+                    await this._message.DeleteAllReactionsAsync();
                     break;
 
                 case PaginationDeletion.DeleteMessage:
-                    await this._message.DeleteAsync().ConfigureAwait(false);
+                    await this._message.DeleteAsync();
                     break;
 
                 case PaginationDeletion.KeepEmojis:

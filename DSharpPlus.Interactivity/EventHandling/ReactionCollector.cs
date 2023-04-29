@@ -93,7 +93,7 @@ namespace DSharpPlus.Interactivity.EventHandling
 
             try
             {
-                await request._tcs.Task.ConfigureAwait(false);
+                await request._tcs.Task;
             }
             catch (Exception ex)
             {

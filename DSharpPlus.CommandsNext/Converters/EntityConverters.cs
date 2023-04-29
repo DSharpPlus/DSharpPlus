@@ -44,7 +44,7 @@ namespace DSharpPlus.CommandsNext.Converters
         {
             if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var uid))
             {
-                var result = await ctx.Client.GetUserAsync(uid).ConfigureAwait(false);
+                var result = await ctx.Client.GetUserAsync(uid);
                 var ret = result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordUser>();
                 return ret;
             }
@@ -52,7 +52,7 @@ namespace DSharpPlus.CommandsNext.Converters
             var m = UserRegex.Match(value);
             if (m.Success && ulong.TryParse(m.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out uid))
             {
-                var result = await ctx.Client.GetUserAsync(uid).ConfigureAwait(false);
+                var result = await ctx.Client.GetUserAsync(uid);
                 var ret = result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordUser>();
                 return ret;
             }
@@ -89,7 +89,7 @@ namespace DSharpPlus.CommandsNext.Converters
 
             if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var uid))
             {
-                var result = await ctx.Guild.GetMemberAsync(uid).ConfigureAwait(false);
+                var result = await ctx.Guild.GetMemberAsync(uid);
                 var ret = result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordMember>();
                 return ret;
             }
@@ -97,12 +97,12 @@ namespace DSharpPlus.CommandsNext.Converters
             var m = UserRegex.Match(value);
             if (m.Success && ulong.TryParse(m.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out uid))
             {
-                var result = await ctx.Guild.GetMemberAsync(uid).ConfigureAwait(false);
+                var result = await ctx.Guild.GetMemberAsync(uid);
                 var ret = result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordMember>();
                 return ret;
             }
 
-            var searchResult = await ctx.Guild.SearchMembersAsync(value).ConfigureAwait(false);
+            var searchResult = await ctx.Guild.SearchMembersAsync(value);
             if (searchResult.Any())
                 return Optional.FromValue(searchResult.First());
 
@@ -135,14 +135,14 @@ namespace DSharpPlus.CommandsNext.Converters
         {
             if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var cid))
             {
-                var result = await ctx.Client.GetChannelAsync(cid).ConfigureAwait(false);
+                var result = await ctx.Client.GetChannelAsync(cid);
                 return result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordChannel>();
             }
 
             var m = ChannelRegex.Match(value);
             if (m.Success && ulong.TryParse(m.Groups[1].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out cid))
             {
-                var result = await ctx.Client.GetChannelAsync(cid).ConfigureAwait(false);
+                var result = await ctx.Client.GetChannelAsync(cid);
                 return result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordChannel>();
             }
 
@@ -272,17 +272,17 @@ namespace DSharpPlus.CommandsNext.Converters
                     || !ulong.TryParse(uripath.Groups["message"].Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out mid))
                     return Optional.FromNoValue<DiscordMessage>();
 
-                var chn = await ctx.Client.GetChannelAsync(cid).ConfigureAwait(false);
+                var chn = await ctx.Client.GetChannelAsync(cid);
                 if (chn == null)
                     return Optional.FromNoValue<DiscordMessage>();
 
-                var msg = await chn.GetMessageAsync(mid).ConfigureAwait(false);
+                var msg = await chn.GetMessageAsync(mid);
                 return msg != null ? Optional.FromValue(msg) : Optional.FromNoValue<DiscordMessage>();
             }
 
             if (ulong.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out mid))
             {
-                var result = await ctx.Channel.GetMessageAsync(mid).ConfigureAwait(false);
+                var result = await ctx.Channel.GetMessageAsync(mid);
                 return result != null ? Optional.FromValue(result) : Optional.FromNoValue<DiscordMessage>();
             }
 

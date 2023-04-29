@@ -111,15 +111,15 @@ namespace DSharpPlus.VoiceNext
                 }
             };
             var vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
-            await (channel.Discord as DiscordClient).SendRawPayloadAsync(vsj).ConfigureAwait(false);
+            await (channel.Discord as DiscordClient).SendRawPayloadAsync(vsj);
 
-            var vstu = await vstut.Task.ConfigureAwait(false);
+            var vstu = await vstut.Task;
             var vstup = new VoiceStateUpdatePayload
             {
                 SessionId = vstu.SessionId,
                 UserId = vstu.User.Id
             };
-            var vsru = await vsrut.Task.ConfigureAwait(false);
+            var vsru = await vsrut.Task;
             var vsrup = new VoiceServerUpdatePayload
             {
                 Endpoint = vsru.Endpoint,
@@ -129,8 +129,8 @@ namespace DSharpPlus.VoiceNext
 
             var vnc = new VoiceNextConnection(this.Client, gld, channel, this.Configuration, vsrup, vstup);
             vnc.VoiceDisconnected += this.Vnc_VoiceDisconnected;
-            await vnc.ConnectAsync().ConfigureAwait(false);
-            await vnc.WaitForReadyAsync().ConfigureAwait(false);
+            await vnc.ConnectAsync();
+            await vnc.WaitForReadyAsync();
             this.ActiveConnections[gld.Id] = vnc;
             return vnc;
         }
@@ -159,7 +159,7 @@ namespace DSharpPlus.VoiceNext
                 }
             };
             var vsj = JsonConvert.SerializeObject(vsd, Formatting.None);
-            await (guild.Discord as DiscordClient).SendRawPayloadAsync(vsj).ConfigureAwait(false);
+            await (guild.Discord as DiscordClient).SendRawPayloadAsync(vsj);
         }
 
         private Task Client_VoiceStateUpdate(DiscordClient client, VoiceStateUpdateEventArgs e)
@@ -217,7 +217,7 @@ namespace DSharpPlus.VoiceNext
                 vnc.WebSocketEndpoint = new ConnectionEndpoint { Hostname = eph, Port = epp };
 
                 vnc.Resume = false;
-                await vnc.ReconnectAsync().ConfigureAwait(false);
+                await vnc.ReconnectAsync();
             }
 
             if (this.VoiceServerUpdates.ContainsKey(gld.Id))

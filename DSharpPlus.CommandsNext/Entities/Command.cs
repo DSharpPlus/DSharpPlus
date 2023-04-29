@@ -106,7 +106,7 @@ namespace DSharpPlus.CommandsNext
                 foreach (var ovl in this.Overloads.OrderByDescending(x => x.Priority))
                 {
                     ctx.Overload = ovl;
-                    var args = await CommandsNextUtilities.BindArgumentsAsync(ctx, ctx.Config.IgnoreExtraArguments).ConfigureAwait(false);
+                    var args = await CommandsNextUtilities.BindArgumentsAsync(ctx, ctx.Config.IgnoreExtraArguments);
 
                     if (!args.IsSuccessful)
                         continue;
@@ -115,11 +115,11 @@ namespace DSharpPlus.CommandsNext
 
                     var mdl = ovl._invocationTarget ?? this.Module?.GetInstance(ctx.Services);
                     if (mdl is BaseCommandModule bcmBefore)
-                        await bcmBefore.BeforeExecutionAsync(ctx).ConfigureAwait(false);
+                        await bcmBefore.BeforeExecutionAsync(ctx);
 
                     args.Converted[0] = mdl;
                     var ret = (Task)ovl._callable.DynamicInvoke(args.Converted);
-                    await ret.ConfigureAwait(false);
+                    await ret;
                     executed = true;
                     res = new CommandResult
                     {
@@ -128,7 +128,7 @@ namespace DSharpPlus.CommandsNext
                     };
 
                     if (mdl is BaseCommandModule bcmAfter)
-                        await bcmAfter.AfterExecutionAsync(ctx).ConfigureAwait(false);
+                        await bcmAfter.AfterExecutionAsync(ctx);
                     break;
                 }
 
@@ -159,7 +159,7 @@ namespace DSharpPlus.CommandsNext
             var fchecks = new List<CheckBaseAttribute>();
             if (this.ExecutionChecks.Any())
                 foreach (var ec in this.ExecutionChecks)
-                    if (!await ec.ExecuteCheckAsync(ctx, help).ConfigureAwait(false))
+                    if (!await ec.ExecuteCheckAsync(ctx, help))
                         fchecks.Add(ec);
 
             return fchecks;

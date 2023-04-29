@@ -59,7 +59,7 @@ namespace DSharpPlus.Lavalink
         public static async Task<IReadOnlyDictionary<int, LavalinkExtension>> UseLavalinkAsync(this DiscordShardedClient client)
         {
             var modules = new Dictionary<int, LavalinkExtension>();
-            await client.InitializeShardsAsync().ConfigureAwait(false);
+            await client.InitializeShardsAsync();
 
             foreach (var shard in client.ShardClients.Select(xkvp => xkvp.Value))
             {
@@ -88,7 +88,7 @@ namespace DSharpPlus.Lavalink
         /// <returns>A dictionary containing <see cref="LavalinkExtension"/> instances for each shard.</returns>
         public static async Task<IReadOnlyDictionary<int, LavalinkExtension>> GetLavalinkAsync(this DiscordShardedClient client)
         {
-            await client.InitializeShardsAsync().ConfigureAwait(false);
+            await client.InitializeShardsAsync();
             var extensions = new Dictionary<int, LavalinkExtension>();
 
             foreach (var shard in client.ShardClients.Values)

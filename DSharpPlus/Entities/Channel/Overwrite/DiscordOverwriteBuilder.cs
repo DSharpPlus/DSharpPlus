@@ -70,15 +70,6 @@ namespace DSharpPlus.Entities
         }
 
         /// <summary>
-        /// Creates a new Discord permission overwrite builder. This class can be used to construct permission overwrites for guild channels, used when creating channels.
-        /// </summary>
-        [Obsolete("The parameterless constructor will be removed in 4.4. Use the parameterized constructors instead", false)]
-        public DiscordOverwriteBuilder()
-        {
-
-        }
-
-        /// <summary>
         /// Allows a permission for this overwrite.
         /// </summary>
         /// <param name="permission">Permission or permission set to allow for this overwrite.</param>
@@ -134,7 +125,7 @@ namespace DSharpPlus.Entities
             this.Allowed = other.Allowed;
             this.Denied = other.Denied;
             this.Type = other.Type;
-            this.Target = this.Type == OverwriteType.Member ? await other.GetMemberAsync().ConfigureAwait(false) as SnowflakeObject : await other.GetRoleAsync().ConfigureAwait(false) as SnowflakeObject;
+            this.Target = this.Type == OverwriteType.Member ? await other.GetMemberAsync() as SnowflakeObject : await other.GetRoleAsync() as SnowflakeObject;
 
             return this;
         }
