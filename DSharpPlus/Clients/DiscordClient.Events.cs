@@ -917,5 +917,35 @@ namespace DSharpPlus
             where TArgs : AsyncEventArgs => this.Logger.LogCritical(LoggerEvents.EventHandlerException, ex, "Exception event handler {Method} (defined in {DeclaringType}) threw an exception", handler.Method, handler.Method.DeclaringType);
 
         #endregion
+
+        #region AutoModeration
+        public event AsyncEventHandler<DiscordClient, AutoModerationRuleCreateEventArgs> AutoModerationRuleCreated
+        {
+            add => this._autoModerationRuleCreated.Register(value);
+            remove => this._autoModerationRuleCreated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, AutoModerationRuleCreateEventArgs> _autoModerationRuleCreated;
+
+        public event AsyncEventHandler<DiscordClient, AutoModerationRuleUpdateEventArgs> AutoModerationRuleUpdated
+        {
+            add => this._autoModerationRuleUpdated.Register(value);
+            remove => this._autoModerationRuleUpdated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, AutoModerationRuleUpdateEventArgs> _autoModerationRuleUpdated;
+
+        public event AsyncEventHandler<DiscordClient, AutoModerationRuleDeleteEventArgs> AutoModerationRuleDeleted
+        {
+            add => this._autoModerationRuleDeleted.Register(value);
+            remove => this._autoModerationRuleDeleted.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, AutoModerationRuleDeleteEventArgs> _autoModerationRuleDeleted;
+
+        public event AsyncEventHandler<DiscordClient, AutoModerationRuleExecuteEventArgs> AutoModerationRuleExecuted
+        {
+            add => this._autoModerationRuleExecuted.Register(value);
+            remove => this._autoModerationRuleExecuted.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, AutoModerationRuleExecuteEventArgs> _autoModerationRuleExecuted;
+        #endregion
     }
 }
