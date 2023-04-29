@@ -72,7 +72,7 @@ internal class CommandController
         }
 
         List<Range> ranges = new();
-        Index last = 0;
+        Index last = Configuration.Prefix.Length;
         for (int i = 0; i < content.Length; i++)
         {
             if (content[i] == ' ')
@@ -81,8 +81,9 @@ internal class CommandController
                 last = i + 1;
             }
         }
+        ranges.Add(new(last, content.Length));
 
-        MessageCommandFactory.ConstructAndExecuteCommand(msg.Message, client, content, ranges);
+        MessageCommandFactory.ConstructAndExecuteCommand(msg.Message, client, ref content, ranges);
         return Task.CompletedTask;
     }
 }

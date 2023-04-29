@@ -13,9 +13,11 @@ internal class MessageCommandFactory
     internal MessageCommandTree? GetBranch(string name) => _commands.Branches!.TryGetValue(name, out MessageCommandTree? result) ? result : null;
 
     internal void ConstructAndExecuteCommand(Entities.DiscordMessage message,
-        DiscordClient client, ReadOnlySpan<char> args, List<Range> argsRange)
+        DiscordClient client, ref ReadOnlySpan<char> args, List<Range> argsRange)
     {
         Index end = 0;
+        int it = 0;
+
         MessageCommandTree? tree = null;
 
         foreach (Range argRange in argsRange)
@@ -28,6 +30,7 @@ internal class MessageCommandFactory
                 {
                     tree = res;
                     end = argRange.End;
+                    it++;
                 }
                 else
                 {
@@ -40,6 +43,7 @@ internal class MessageCommandFactory
             {
                 tree = res2;
                 end = argRange.End;
+                it++;
             }
             else
             {
@@ -52,14 +56,60 @@ internal class MessageCommandFactory
             return;
         }
 
+        System.Diagnostics.Stopwatch sw = new();
+        sw.Start();
+
+        List<(Range, Range?)> options = new();
+        List<Range> arguments = new();
+        bool parsingArguments = true;
+        Range? lastOption = null;
+        for (int i = it; i < argsRange.Count; i++)
+        {
+            Range argRange = argsRange[i];
+            ReadOnlySpan<char> argSpan = args[argRange.Start..argRange.End];
+
+            if (argSpan.StartsWith("-"))
+            {
+                parsingArguments = false;
+                if (lastOption is null)
+                {
+                    lastOption = argSpan.StartsWith("--") ? new(argRange.Start.Value + 2, argRange.End) :
+                        new(argRange.Start.Value + 1, argRange.End);
+                }
+                else
+                {
+                    options.Add(((Range)lastOption, null));
+                    lastOption = argSpan.StartsWith("--") ? new(argRange.Start.Value + 2, argRange.End) :
+                        new(argRange.Start.Value + 1, argRange.End);
+                }
+            }
+            else
+            {
+                if (lastOption is null && !parsingArguments)
+                {
+                    Console.WriteLine("Uh oh, floating value."); // Floating as it isn't related to anything whatsoever.
+                    continue;
+                }
+                else if (parsingArguments)
+                {
+                    arguments.Add(argRange);
+                    continue;
+                }
+
+                options.Add(((Range)lastOption!, argRange));
+            }
+        }
+
+        sw.Stop();
+        Console.WriteLine($"Took {sw.Elapsed.TotalNanoseconds}ns to process arguments");
+
         IServiceScope? scope = _services.CreateScope();
         if (_configuration.Middlewares.Count != 0)
         {
             async Task PreparedFunction()
             {
-                await ExecuteCommandAsync(tree.Data, message, client, scope, args);
+                await ExecuteCommandAsync(tree.Data, message, client, scope, testArgs.ToArray());
             }
-
 
             MessageMiddlewareHandler? middlewareHandler = new(_configuration.Middlewares, PreparedFunction);
             string name = args[0..end].ToString();
@@ -74,33 +124,15 @@ internal class MessageCommandFactory
     internal static async Task ExecuteCommandAsync(MessageCommandMethodData data, Entities.DiscordMessage message,
         DiscordClient client, IServiceScope scope, string[]? args)
     {
+        Console.WriteLine(args?.Length ?? null);
         Dictionary<string, object> options = new();
         List<string> arguments = new();
-
-        void Parse(Dictionary<string, object> options, List<string> arguments)
-        {
-            if (args is null)
-            {
-                return;
-            }
-
-            for (int i = 0; i < args.Length; i++)
-            {
-                ReadOnlySpan<char> str = args[i].AsSpan();
-
-                if (str.StartsWith("-"))
-                {
-                    ReadOnlySpan<char> name = str.StartsWith("--") ? str[1..] : str[0..];
-
-                }
-            }
-        }
 
         if (args is not null)
         {
             bool parsingOptions = false;
             Tuple<string, object?>? tuple = null;
-            foreach (string? arg in args)
+            foreach (string arg in args)
             {
                 if (arg.StartsWith("--"))
                 {
@@ -144,6 +176,7 @@ internal class MessageCommandFactory
                         tuple = tuple.Item2 is null ? new Tuple<string, object?>(tuple.Item1, arg) : throw new NotImplementedException();
                     }
                 }
+                Console.WriteLine(arg);
             }
 
             if (tuple is not null)
