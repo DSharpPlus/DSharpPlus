@@ -31,6 +31,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
+using DSharpPlus.Enums;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Serialization;
 using Microsoft.Extensions.Logging;
@@ -3765,6 +3766,129 @@ namespace DSharpPlus.Net
             var chn = ret.ToDiscordObject<DiscordThreadChannel>();
 
             return new DiscordForumPostStarter(chn, msg);
+        }
+        internal async Task<DiscordAutoModerationRule> CreateGuildAutoModerationRuleAsync
+        (
+            ulong guild_id,
+            string name,
+            RuleEventType event_type,
+            RuleTriggerType trigger_type,
+            RuleTriggerMetadata trigger_metadata,
+            IEnumerable<DiscordAutoModerationAction> actions,
+            Optional<bool> enabled = default,
+            Optional<IEnumerable<ulong>> exempt_roles = default,
+            Optional<IEnumerable<ulong>> exempt_channels = default,
+            string reason = null
+        )
+        {
+            string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.AUTO_MODERATION}{Endpoints.RULES}";
+
+            var bucket = this._rest.GetBucket(RestRequestMethod.POST, route, new { guild_id }, out var path);
+            var url = Utilities.GetApiUriFor(path);
+
+            var headers = Utilities.GetBaseHeaders();
+            if (!string.IsNullOrWhiteSpace(reason))
+                headers[REASON_HEADER_NAME] = reason;
+
+            string payload = DiscordJson.SerializeObject(new
+            {
+                guild_id,
+                name,
+                event_type,
+                trigger_type,
+                trigger_metadata,
+                actions,
+                enabled,
+                exempt_roles,
+                exempt_channels
+            });
+
+            var req = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.POST, route, headers, payload);
+
+            return JsonConvert.DeserializeObject<DiscordAutoModerationRule>(req.Response);
+        }
+
+        internal async Task<DiscordAutoModerationRule> GetGuildAutoModerationRuleAsync(ulong guild_id, ulong rule_id)
+        {
+            string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.AUTO_MODERATION}{Endpoints.RULES}/:rule_id";
+
+            var bucket = this._rest.GetBucket(RestRequestMethod.GET, route, new { guild_id, rule_id }, out var path);
+            var url = Utilities.GetApiUriFor(path);
+            var req = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.GET, route);
+            var rule = JsonConvert.DeserializeObject<DiscordAutoModerationRule>(req.Response);
+
+            return rule;
+        }
+
+        internal async Task<IReadOnlyList<DiscordAutoModerationRule>> GetGuildAutoModerationRulesAsync(ulong guild_id)
+        {
+            string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.AUTO_MODERATION}{Endpoints.RULES}";
+
+            var bucket = this._rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
+            var url = Utilities.GetApiUriFor(path);
+            var req = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.GET, route);
+            var rules = JsonConvert.DeserializeObject<IReadOnlyList<DiscordAutoModerationRule>>(req.Response);
+
+            return rules;
+        }
+
+        internal async Task<DiscordAutoModerationRule> ModifyGuildAutoModerationRuleAsync
+        (
+            ulong guild_id,
+            ulong rule_id,
+            Optional<string> name,
+            Optional<RuleEventType> event_type,
+            Optional<RuleTriggerMetadata> trigger_metadata,
+            Optional<IEnumerable<DiscordAutoModerationAction>> actions,
+            Optional<bool> enabled,
+            Optional<IEnumerable<ulong>> exempt_roles,
+            Optional<IEnumerable<ulong>> exempt_channels,
+            string reason = null
+        )
+        {
+            string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.AUTO_MODERATION}{Endpoints.RULES}/:rule_id";
+            var bucket = this._rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id, rule_id }, out var path);
+            var url = Utilities.GetApiUriFor(path);
+
+            var headers = Utilities.GetBaseHeaders();
+            if (!string.IsNullOrWhiteSpace(reason))
+                headers[REASON_HEADER_NAME] = reason;
+
+            string payload = DiscordJson.SerializeObject(new
+            {
+                name,
+                event_type,
+                trigger_metadata,
+                actions,
+                enabled,
+                exempt_roles = exempt_roles.HasValue ? exempt_roles.Value.ToArray() : Array.Empty<ulong>(),
+                exempt_channels = exempt_channels.HasValue ? exempt_channels.Value.ToArray() : Array.Empty<ulong>()
+            });
+
+            var req = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.PATCH, route, headers, payload);
+
+            return JsonConvert.DeserializeObject<DiscordAutoModerationRule>(req.Response);
+        }
+
+        internal async Task DeleteGuildAutoModerationRuleAsync(ulong guild_id, ulong rule_id, string reason)
+        {
+            string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.AUTO_MODERATION}{Endpoints.RULES}/:rule_id";
+
+            var bucket = this._rest.GetBucket(RestRequestMethod.DELETE, route, new { guild_id, rule_id }, out var path);
+            var url = Utilities.GetApiUriFor(path);
+
+            var headers = Utilities.GetBaseHeaders();
+            if (!string.IsNullOrWhiteSpace(reason))
+                headers[REASON_HEADER_NAME] = reason;
+
+            await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.DELETE, route, headers);
+        }
+
+        internal async Task DeleteAllGuildAutoModerationRulesAsync(ulong guild_id, string reason)
+        {
+            var rules = await this.GetGuildAutoModerationRulesAsync(guild_id);
+
+            _ = rules.Select(async x => await x.DeleteAsync(reason));
         }
     }
 }
