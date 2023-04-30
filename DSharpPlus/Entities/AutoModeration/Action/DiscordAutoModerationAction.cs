@@ -13,14 +13,14 @@ public class DiscordAutoModerationAction
     /// Gets additional metadata needed during execution for this specific action type.
     /// </summary>
     [JsonProperty("metadata", NullValueHandling = NullValueHandling.Ignore)]
-    public RuleActionMetadata? Metadata { get; internal set; }
+    public DiscordRuleActionMetadata? Metadata { get; internal set; }
 
     public DiscordAutoModerationAction()
     {
 
     }
 
-    internal DiscordAutoModerationAction(RuleActionType? ruleActionType = null, RuleActionMetadata? ruleActionMetadata = null)
+    internal DiscordAutoModerationAction(RuleActionType? ruleActionType = null, DiscordRuleActionMetadata? ruleActionMetadata = null)
     {
         this.Type = ruleActionType;
         this.Metadata = ruleActionMetadata;
@@ -32,14 +32,14 @@ public class DiscordAutoModerationActionBuilder
 {
     public RuleActionType? Type { internal get; set; }
 
-    public RuleActionMetadata? Metadata { internal get; set; }
+    public DiscordRuleActionMetadata? Metadata { internal get; set; }
 
     public DiscordAutoModerationActionBuilder()
     {
 
     }
 
-    public DiscordAutoModerationActionBuilder(RuleActionType? ruleActionType = null, RuleActionMetadata? ruleActionMetadata = null)
+    public DiscordAutoModerationActionBuilder(RuleActionType? ruleActionType = null, DiscordRuleActionMetadata? ruleActionMetadata = null)
     {
         this.Type = ruleActionType;
         this.Metadata = ruleActionMetadata;
