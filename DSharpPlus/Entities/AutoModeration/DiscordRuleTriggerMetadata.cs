@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
 
-public sealed class RuleTriggerMetadata
+public sealed class DiscordRuleTriggerMetadata
 {
     [JsonProperty("keyword_filter")]
     public string[]? KeywordFilter { get; internal set; }
@@ -21,13 +21,13 @@ public sealed class RuleTriggerMetadata
     [JsonProperty("mention_total_limit")]
     public int? MentionTotalLimit { get; internal set; }
 
-    internal RuleTriggerMetadata()
+    internal DiscordRuleTriggerMetadata()
     {
 
     }
 }
 
-public sealed class RuleTriggerMetadataBuilder
+public sealed class DiscordRuleTriggerMetadataBuilder
 {
     public string[]? KeywordFilter { get; set; }
 
@@ -39,7 +39,7 @@ public sealed class RuleTriggerMetadataBuilder
 
     public int? MentionTotalLimit { get; set; }
 
-    public RuleTriggerMetadataBuilder()
+    public DiscordRuleTriggerMetadataBuilder()
     {
 
     }
@@ -53,9 +53,9 @@ public sealed class RuleTriggerMetadataBuilder
         this.KeywordFilter = keywordFilter;
     }
 
-    public RuleTriggerMetadata Build()
+    public DiscordRuleTriggerMetadata Build()
     {
-        return new RuleTriggerMetadata
+        return new DiscordRuleTriggerMetadata
         {
             AllowedKeywords = this.AllowedKeywords,
             KeywordFilter = this.KeywordFilter,
