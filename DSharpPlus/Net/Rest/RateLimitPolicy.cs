@@ -19,7 +19,7 @@ internal class RateLimitPolicy : AsyncPolicy<HttpResponseMessage>
 
     public RateLimitPolicy()
     {
-        this.globalBucket = new(50, 50, DateTimeOffset.UtcNow.AddSeconds(1));
+        this.globalBucket = new(50, 50, DateTime.UtcNow.AddSeconds(1));
 
         // we don't actually care about any settings on this cache
         // in a future day and age, we'll hopefully replace this with an application-global cache, but oh well
@@ -55,7 +55,7 @@ internal class RateLimitPolicy : AsyncPolicy<HttpResponseMessage>
         }
 
         // check against ratelimits now
-        DateTimeOffset instant = DateTimeOffset.UtcNow;
+        DateTime instant = DateTime.UtcNow;
 
         if (!exemptFromGlobalLimit)
         {

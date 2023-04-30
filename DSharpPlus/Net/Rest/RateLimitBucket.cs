@@ -26,7 +26,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Http.Headers;
-using System.Runtime.InteropServices;
 
 namespace DSharpPlus.Net;
 
@@ -34,8 +33,11 @@ namespace DSharpPlus.Net;
 /// Represents a rate limit bucket.
 /// </summary>
 
-// let's keep this at 16 bytes regardless of ordering
-[StructLayout(LayoutKind.Auto)]
+// this is 16 bytes, which ensures that we can always move this within at most six CPU cycles on any
+// modern xarch CPU, and eight? cycles on modern aarch CPUs
+// do not change the order of properties without first verifying that `sizeof(RateLimitBucket)` remains
+// 16. note to testers: this requires an unsafe context for... some reason.
+// it is painful to use DateTime over DateTimeOffset here, but DateTimeOffset means double the copy cost.
 internal record struct RateLimitBucket
 {
     /// <summary>
@@ -45,14 +47,14 @@ internal record struct RateLimitBucket
         => this._remaining;
 
     /// <summary>
+    /// Gets the timestamp at which the rate limit resets.
+    /// </summary>
+    public DateTime Reset { get; internal set; }
+
+    /// <summary>
     /// Gets the maximum number of uses within a single bucket.
     /// </summary>
     public int Maximum { get; set; }
-
-    /// <summary>
-    /// Gets the timestamp at which the rate limit resets.
-    /// </summary>
-    public DateTimeOffset Reset { get; internal set; }
 
     internal volatile int _remaining;
 
@@ -60,7 +62,7 @@ internal record struct RateLimitBucket
     (
         int maximum, 
         int remaining, 
-        DateTimeOffset reset
+        DateTime reset
     )
     {
         this.Maximum = maximum;
@@ -71,7 +73,7 @@ internal record struct RateLimitBucket
     /// <summary>
     /// Resets the bucket to the next reset time.
     /// </summary>
-    internal void ResetLimit(DateTimeOffset nextReset)
+    internal void ResetLimit(DateTime nextReset)
     {
         if(nextReset < this.Reset)
         {
@@ -118,7 +120,7 @@ internal record struct RateLimitBucket
                 return false;
             }
 
-            DateTimeOffset reset = DateTimeOffset.UnixEpoch + TimeSpan.FromSeconds(ratelimitReset);
+            DateTime reset = (DateTimeOffset.UnixEpoch + TimeSpan.FromSeconds(ratelimitReset)).UtcDateTime;
 
             bucket = new(limit, remaining, reset);
             return true;
@@ -133,7 +135,7 @@ internal record struct RateLimitBucket
     {
         if (this.Remaining <= 0)
         {
-            return this.Reset < DateTimeOffset.UtcNow;
+            return this.Reset < DateTime.UtcNow;
         }
 
         this._remaining--;
