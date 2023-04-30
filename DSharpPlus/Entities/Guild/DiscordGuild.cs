@@ -3051,9 +3051,7 @@ namespace DSharpPlus.Entities
         /// <returns>The modified rule.</returns>
         /// <remarks>All arguments are optionals.</remarks>
         public Task<DiscordAutoModerationRule> ModifyAutoModerationRuleAsync(ulong rule_id, Optional<string> name = default, Optional<RuleEventType> event_type = default, Optional<RuleTriggerMetadata> trigger_metadata = default, Optional<IEnumerable<DiscordAutoModerationAction>> actions = default, Optional<bool> enabled = default, Optional<IEnumerable<ulong>> exempt_roles = default, Optional<IEnumerable<ulong>> exempt_channels = default, string reason = null)
-        {
-            return this.Discord.ApiClient.ModifyGuildAutoModerationRuleAsync(this.Id, rule_id, name, event_type, trigger_metadata, actions, enabled, exempt_roles, exempt_channels, reason);
-        }
+            => this.Discord.ApiClient.ModifyGuildAutoModerationRuleAsync(this.Id, rule_id, name, event_type, trigger_metadata, actions, enabled, exempt_roles, exempt_channels, reason);
 
         /// <summary>
         /// Deletes a auto-moderation rule by an id.
@@ -3063,14 +3061,6 @@ namespace DSharpPlus.Entities
         /// <returns></returns>
         public Task DeleteAutoModerationRuleAsync(ulong rule_id, string reason = null)
             => this.Discord.ApiClient.DeleteGuildAutoModerationRuleAsync(this.Id, rule_id, reason);
-
-        /// <summary>
-        /// Deletes all auto-moderation rules in the guild.
-        /// </summary>
-        /// <param name="reason">Reason for audit logs.</param>
-        /// <returns></returns>
-        public Task DeleteAllAutoModerationRulesAsync(string reason = null)
-            => this.Discord.ApiClient.DeleteAllGuildAutoModerationRulesAsync(this.Id, reason);
 
         #endregion
 
