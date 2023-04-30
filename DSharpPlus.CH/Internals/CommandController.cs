@@ -80,9 +80,11 @@ internal class CommandController
                 last = i + 1;
             }
         }
+
         ranges.Add(new(last, content.Length));
 
-        MessageCommandFactory.ConstructAndExecuteCommand(msg.Message, client, ref content, ranges);
+        MessageCommandFactory.ConstructAndExecuteCommand(msg.Message, client,
+            ref content, ranges);
         return Task.CompletedTask;
     }
 }

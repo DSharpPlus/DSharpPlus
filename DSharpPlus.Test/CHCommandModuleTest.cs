@@ -23,11 +23,12 @@ public class CHCommandModuleTest : MessageCommandModule
     }
 
     [MessageCommand("arg-opt")]
-    public IMessageCommandModuleResult TestArgOpt(string argument, [MessageOption("option", "o")] string? option)
+    public IMessageCommandModuleResult TestArgOpt(string argument,
+        [MessageOption("user", "u")] Entities.DiscordUser? user)
         => Reply(
-            option != null
-                ? $"Argument was {argument} and option was {option}"
-                : $"Argument was {argument} and option wasn't provided.");
+            user is not null
+                ? $"Argument was {argument} and user {user.Username} was given"
+                : $"Argument was {argument} and user wasn't provided.");
 
     [MessageCommand("permissions")]
     [MessagePermission(Permissions.Administrator)]

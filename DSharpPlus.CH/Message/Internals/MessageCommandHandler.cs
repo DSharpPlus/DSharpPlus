@@ -118,24 +118,34 @@ internal class MessageCommandHandler
         if (_data.Parameters.Count != 0)
         {
             MessageConvertValues conversion = new(_values, _data, _message, _client);
-            parameters = await conversion.StartConversionAsync();
+            try
+            {
+                parameters = await conversion.StartConversionAsync();
+            }
+            catch (Exceptions.ConversionFailedException e)
+            {
+                await _scope.ServiceProvider.GetRequiredService<IFailedConvertion>().HandleErrorAsync(
+                    new InvalidMessageConvertionError
+                    {
+                        Name = e.Name, IsPositionalArgument = e.IsPositionalArgument, Value = e.Value, Type = e.Type,
+                    }
+                    , _message);
+            }
         }
 
         if (_configuration.Middlewares.Count != 0)
         {
             MessageMiddlewareHandler middlewareHandler = new(_configuration.Middlewares);
             bool shouldContinue =
-                await middlewareHandler.StartGoingThroughMiddlewaresAsync(new MessageContext
-                {
-                    Message = _message, Data = new(_name, _data.Method)
-                }, _scope);
+                await middlewareHandler.StartGoingThroughMiddlewaresAsync(
+                    new MessageContext { Message = _message, Data = new(_name, _data.Method) }, _scope);
             if (!shouldContinue)
             {
                 return;
-            } 
+            }
         }
-        
-        
+
+
         if (_data.IsAsync)
         {
             Task<IMessageCommandModuleResult> task =
@@ -148,5 +158,7 @@ internal class MessageCommandHandler
             IMessageCommandModuleResult result = (IMessageCommandModuleResult)_data.Method.Invoke(_module, parameters)!;
             await TurnResultIntoActionAsync(result);
         }
+
+        _scope.Dispose();
     }
 }

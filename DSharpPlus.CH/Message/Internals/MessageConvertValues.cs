@@ -21,7 +21,7 @@ internal class MessageConvertValues
         for (int i = 0; i < _data.Parameters.Count; i++)
         {
             MessageCommandParameterData paramData = _data.Parameters[i];
-            
+
             if (_values.TryGetValue(paramData.Name, out string? value))
             {
                 object convertedValue = await ConvertValueAsync(value, paramData);
@@ -54,7 +54,8 @@ internal class MessageConvertValues
             case MessageCommandParameterDataType.Channel:
                 if (_message.Channel.GuildId is null)
                 {
-                    throw new Exceptions.ConvertionFailedException(value, InvalidMessageConvertionType.IsInDMs);
+                    throw new Exceptions.ConversionFailedException(value, InvalidMessageConvertionType.IsInDMs,
+                        data.IsPositionalArgument, data.Name);
                 }
 
                 if (ulong.TryParse(value, out ulong channelResult))
@@ -63,15 +64,16 @@ internal class MessageConvertValues
                 }
                 else
                 {
-                    throw new Exceptions.ConvertionFailedException(value,
-                        InvalidMessageConvertionType.NotAValidChannel);
+                    throw new Exceptions.ConversionFailedException(value,
+                        InvalidMessageConvertionType.NotAValidChannel, data.IsPositionalArgument, data.Name);
                 }
 
                 break;
             case MessageCommandParameterDataType.Role:
                 if (_message.Channel.GuildId is null)
                 {
-                    throw new Exceptions.ConvertionFailedException(value, InvalidMessageConvertionType.IsInDMs);
+                    throw new Exceptions.ConversionFailedException(value, InvalidMessageConvertionType.IsInDMs,
+                        data.IsPositionalArgument, data.Name);
                 }
 
                 if (ulong.TryParse(value, out ulong roleResult))
@@ -80,7 +82,8 @@ internal class MessageConvertValues
                 }
                 else
                 {
-                    throw new Exceptions.ConvertionFailedException(value, InvalidMessageConvertionType.NotAValidRole);
+                    throw new Exceptions.ConversionFailedException(value, InvalidMessageConvertionType.NotAValidRole,
+                        data.IsPositionalArgument, data.Name);
                 }
 
                 break;
@@ -91,7 +94,8 @@ internal class MessageConvertValues
                 }
                 else
                 {
-                    throw new Exceptions.ConvertionFailedException(value, InvalidMessageConvertionType.NotAValidUser);
+                    throw new Exceptions.ConversionFailedException(value, InvalidMessageConvertionType.NotAValidUser,
+                        data.IsPositionalArgument, data.Name);
                 }
 
                 break;
@@ -102,8 +106,8 @@ internal class MessageConvertValues
                 }
                 else
                 {
-                    throw new Exceptions.ConvertionFailedException(value,
-                        InvalidMessageConvertionType.NotAValidInteger);
+                    throw new Exceptions.ConversionFailedException(value,
+                        InvalidMessageConvertionType.NotAValidInteger, data.IsPositionalArgument, data.Name);
                 }
 
                 break;
@@ -114,7 +118,8 @@ internal class MessageConvertValues
                 }
                 else
                 {
-                    throw new Exceptions.ConvertionFailedException(value, InvalidMessageConvertionType.NotAValidNumber);
+                    throw new Exceptions.ConversionFailedException(value,
+                        InvalidMessageConvertionType.NotAValidNumber, data.IsPositionalArgument, data.Name);
                 }
 
                 break;

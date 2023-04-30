@@ -20,7 +20,7 @@ internal class MessageCommandFactory
         DiscordClient client, ref ReadOnlySpan<char> args, List<Range> argsRange)
     {
         long startTime = Stopwatch.GetTimestamp();
-        
+
         Index end = 0;
         int it = 0;
 
@@ -28,6 +28,7 @@ internal class MessageCommandFactory
 
         foreach (Range argRange in argsRange)
         {
+
             ReadOnlySpan<char> arg = args[argRange.Start..argRange.End];
 
             if (tree is null)
@@ -62,6 +63,8 @@ internal class MessageCommandFactory
         {
             return;
         }
+
+        string name = args[_configuration.Prefix!.Length..end].ToString();
 
         Dictionary<string, Range?> options = new();
         List<Range> arguments = new();
@@ -110,28 +113,46 @@ internal class MessageCommandFactory
         Dictionary<string, string> mappedValues = new();
         foreach (MessageCommandParameterData data in tree.Data.Parameters)
         {
-            if (options.TryGetValue(data.Name, out Range? value))
+            if (options.TryGetValue(data.Name, out Range? value) || (data.ShorthandOptionName is not null &&
+                                                                     options.TryGetValue(data.ShorthandOptionName,
+                                                                         out value)))
             {
                 if (data.Type == MessageCommandParameterDataType.Bool && value is not null)
                 {
-                    // Error handling needs to be implemented.
+                    string strValue = args[value.Value.Start..value.Value.End].ToString();
+                    Task.Run(async () => await _services.GetRequiredService<IFailedConvertion>().HandleErrorAsync(
+                        new InvalidMessageConvertionError
+                        {
+                            Name = name,
+                            IsPositionalArgument = data.IsPositionalArgument,
+                            Value = strValue,
+                            Type = InvalidMessageConvertionType.BoolShouldNotHaveValue,
+                        }, message));
+                    return;
                 }
                 else if (data.Type != MessageCommandParameterDataType.Bool && value is null)
                 {
+                    Task.Run(async () => await new DefaultFailedConversion().HandleErrorAsync(
+                        new InvalidMessageConvertionError
+                        {
+                            Name = name,
+                            IsPositionalArgument = data.IsPositionalArgument,
+                            Value = "",
+                            Type = InvalidMessageConvertionType.NoValueProvided,
+                        }, message));
                 }
                 else if (data.Type == MessageCommandParameterDataType.User
                          || data.Type == MessageCommandParameterDataType.Channel
                          || data.Type == MessageCommandParameterDataType.Member)
                 {
                     ReadOnlySpan<char> span = args[value!.Value.Start..value.Value.End];
-                    if (!span.StartsWith("<@") || !span.StartsWith("<#"))
+                    if (span.StartsWith("<@") || span.StartsWith("<#"))
                     {
-                        // Error handling;
+                        ReadOnlySpan<char> formattedSpan = span is [_, _, '!', ..] ? span[3..^1] : span[2..^1];
+                        mappedValues.Add(data.Name, formattedSpan.ToString());
                         continue;
                     }
-
-                    ReadOnlySpan<char> formattedSpan = span is [_, _, '!', ..] ? span[2..^1] : span[1..^1];
-                    mappedValues.Add(data.Name, formattedSpan.ToString());
+                    mappedValues.Add(data.Name, span.ToString()); // MIGHT be a ID.
                 }
                 else if (data.Type == MessageCommandParameterDataType.Role)
                 {
@@ -163,7 +184,7 @@ internal class MessageCommandFactory
                     {
                         if (!span.StartsWith("<@") || !span.StartsWith("<#"))
                         {
-                            // Error handling;
+                            mappedValues.Add(data.Name, span.ToString()); // MIGHT be a ID.
                             continue;
                         }
 
@@ -184,8 +205,7 @@ internal class MessageCommandFactory
                         mappedValues.Add(data.Name, "true");
                     }
                 }
-
-                if (data.Type != MessageCommandParameterDataType.Bool)
+                else if (data.Type != MessageCommandParameterDataType.Bool)
                 {
                     // Error handling.
                 }
@@ -195,12 +215,11 @@ internal class MessageCommandFactory
                 }
             }
         }
-        
+
         Console.WriteLine($"Took {Stopwatch.GetElapsedTime(startTime).TotalNanoseconds}ns");
 
         IServiceScope scope = _services.CreateScope(); // This will need to be disposed later somehow.
 
-        string name = args[0..end].ToString();
         MessageCommandHandler handler = new(message, tree.Data, scope, client, mappedValues, _configuration, name);
         Task.Run(handler.BuildModuleAndExecuteCommandAsync);
     }
