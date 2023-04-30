@@ -561,7 +561,7 @@ namespace DSharpPlus
                     break;
 
                 case "auto_moderation_action_execution":
-                    await this.OnAutoModerationRuleExecutedAsync(dat.ToDiscordObject<AutoModerationActionExecution>());
+                    await this.OnAutoModerationRuleExecutedAsync(dat.ToDiscordObject<DiscordAutoModerationActionExecution>());
                     break;
                 #endregion
             }
@@ -2687,7 +2687,7 @@ namespace DSharpPlus
             await this._autoModerationRuleDeleted.InvokeAsync(this, new AutoModerationRuleDeleteEventArgs { Rule = ruleDeleted });
         }
 
-        internal async Task OnAutoModerationRuleExecutedAsync(AutoModerationActionExecution ruleExecuted)
+        internal async Task OnAutoModerationRuleExecutedAsync(DiscordAutoModerationActionExecution ruleExecuted)
         {
             await this._autoModerationRuleExecuted.InvokeAsync(this, new AutoModerationRuleExecuteEventArgs { Rule = ruleExecuted });
         }
