@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.CH.Message.Internals;
 
@@ -10,11 +12,15 @@ internal class MessageCommandFactory
 
     internal void AddCommand(string name, MessageCommandMethodData data) => _commands.Branches!.Add(name, new(data));
     internal void AddBranch(string name, MessageCommandTree branch) => _commands.Branches!.Add(name, branch);
-    internal MessageCommandTree? GetBranch(string name) => _commands.Branches!.TryGetValue(name, out MessageCommandTree? result) ? result : null;
+
+    internal MessageCommandTree? GetBranch(string name) =>
+        _commands.Branches!.TryGetValue(name, out MessageCommandTree? result) ? result : null;
 
     internal void ConstructAndExecuteCommand(Entities.DiscordMessage message,
         DiscordClient client, ref ReadOnlySpan<char> args, List<Range> argsRange)
     {
+        long startTime = Stopwatch.GetTimestamp();
+        
         Index end = 0;
         int it = 0;
 
@@ -36,6 +42,7 @@ internal class MessageCommandFactory
                 {
                     break;
                 }
+
                 continue;
             }
 
@@ -56,10 +63,7 @@ internal class MessageCommandFactory
             return;
         }
 
-        System.Diagnostics.Stopwatch sw = new();
-        sw.Start();
-
-        List<(Range, Range?)> options = new();
+        Dictionary<string, Range?> options = new();
         List<Range> arguments = new();
         bool parsingArguments = true;
         Range? lastOption = null;
@@ -73,14 +77,16 @@ internal class MessageCommandFactory
                 parsingArguments = false;
                 if (lastOption is null)
                 {
-                    lastOption = argSpan.StartsWith("--") ? new(argRange.Start.Value + 2, argRange.End) :
-                        new(argRange.Start.Value + 1, argRange.End);
+                    lastOption = argSpan.StartsWith("--")
+                        ? new(argRange.Start.Value + 2, argRange.End)
+                        : new(argRange.Start.Value + 1, argRange.End);
                 }
                 else
                 {
-                    options.Add(((Range)lastOption, null));
-                    lastOption = argSpan.StartsWith("--") ? new(argRange.Start.Value + 2, argRange.End) :
-                        new(argRange.Start.Value + 1, argRange.End);
+                    options.Add(argSpan.ToString(), null);
+                    lastOption = argSpan.StartsWith("--")
+                        ? new(argRange.Start.Value + 2, argRange.End)
+                        : new(argRange.Start.Value + 1, argRange.End);
                 }
             }
             else
@@ -96,96 +102,106 @@ internal class MessageCommandFactory
                     continue;
                 }
 
-                options.Add(((Range)lastOption!, argRange));
+                options.Add(args[lastOption!.Value.Start..lastOption.Value!.End].ToString(), argRange);
             }
         }
 
-        sw.Stop();
-        Console.WriteLine($"Took {sw.Elapsed.TotalNanoseconds}ns to process arguments");
-
-        IServiceScope? scope = _services.CreateScope();
-        if (_configuration.Middlewares.Count != 0)
+        int positionalArgumentPosition = 0;
+        Dictionary<string, string> mappedValues = new();
+        foreach (MessageCommandParameterData data in tree.Data.Parameters)
         {
-            async Task PreparedFunction()
+            if (options.TryGetValue(data.Name, out Range? value))
             {
-                await ExecuteCommandAsync(tree.Data, message, client, scope, testArgs.ToArray());
-            }
-
-            MessageMiddlewareHandler middlewareHandler = new(_configuration.Middlewares, PreparedFunction);
-            string name = args[0..end].ToString();
-            Task.Run(async () => await middlewareHandler.StartGoingThroughMiddlewaresAsync(new MessageContext
-            {
-                Message = message,
-                Data = new MessageCommandData(name, tree.Data.Method) // I gotta change this to something better later...
-            }, scope));
-        }
-    }
-
-    internal static async Task ExecuteCommandAsync(MessageCommandMethodData data, Entities.DiscordMessage message,
-        DiscordClient client, IServiceScope scope, string[]? args)
-    {
-        Console.WriteLine(args?.Length ?? null);
-        Dictionary<string, object> options = new();
-        List<string> arguments = new();
-
-        if (args is not null)
-        {
-            bool parsingOptions = false;
-            Tuple<string, object?>? tuple = null;
-            foreach (string arg in args)
-            {
-                if (arg.StartsWith("--"))
+                if (data.Type == MessageCommandParameterDataType.Bool && value is not null)
                 {
-                    parsingOptions = true;
-                    if (tuple is null)
-                    {
-                        tuple = new Tuple<string, object?>(arg.Remove(0, 2), null);
-                    }
-                    else
-                    {
-                        options.Add(tuple.Item1, tuple.Item2 ?? true);
-                        tuple = new Tuple<string, object?>(arg.Remove(0, 2), null);
-                    }
+                    // Error handling needs to be implemented.
                 }
-                else if (arg.StartsWith('-'))
+                else if (data.Type != MessageCommandParameterDataType.Bool && value is null)
                 {
-                    parsingOptions = true;
-                    if (tuple is not null)
+                }
+                else if (data.Type == MessageCommandParameterDataType.User
+                         || data.Type == MessageCommandParameterDataType.Channel
+                         || data.Type == MessageCommandParameterDataType.Member)
+                {
+                    ReadOnlySpan<char> span = args[value!.Value.Start..value.Value.End];
+                    if (!span.StartsWith("<@") || !span.StartsWith("<#"))
                     {
-                        options.Add(tuple.Item1, tuple.Item2 ?? true);
+                        // Error handling;
+                        continue;
+                    }
 
-                        tuple = new Tuple<string, object?>(arg.Remove(0, 1), null);
-                    }
-                    else
-                    {
-                        tuple = new Tuple<string, object?>(arg.Remove(0, 1), null);
-                    }
+                    ReadOnlySpan<char> formattedSpan = span is [_, _, '!', ..] ? span[2..^1] : span[1..^1];
+                    mappedValues.Add(data.Name, formattedSpan.ToString());
+                }
+                else if (data.Type == MessageCommandParameterDataType.Role)
+                {
+                    ReadOnlySpan<char> span = args[value!.Value.Start..value.Value.End];
+                    ReadOnlySpan<char> formattedSpan = span[2..^1];
+                    mappedValues.Add(data.Name, formattedSpan.ToString());
+                }
+                else if (data.Type != MessageCommandParameterDataType.Bool)
+                {
+                    ReadOnlySpan<char> span = args[value!.Value.Start..value.Value.End];
+                    mappedValues.Add(data.Name, span.ToString());
                 }
                 else
                 {
-                    if (!parsingOptions)
+                    mappedValues.Add(data.Name, "true");
+                }
+            }
+            else
+            {
+                if (data.IsPositionalArgument)
+                {
+                    Range range = arguments[positionalArgumentPosition];
+                    positionalArgumentPosition++;
+                    ReadOnlySpan<char> span = args[range.Start..range.End];
+
+                    if (data.Type == MessageCommandParameterDataType.User
+                        || data.Type == MessageCommandParameterDataType.Channel
+                        || data.Type == MessageCommandParameterDataType.Member)
                     {
-                        arguments.Add(arg);
+                        if (!span.StartsWith("<@") || !span.StartsWith("<#"))
+                        {
+                            // Error handling;
+                            continue;
+                        }
+
+                        ReadOnlySpan<char> formattedSpan = span is [_, _, '!', ..] ? span[2..^1] : span[1..^1];
+                        mappedValues.Add(data.Name, formattedSpan.ToString());
                     }
-                    else if (tuple is null)
+                    else if (data.Type == MessageCommandParameterDataType.Role)
                     {
-                        throw new NotImplementedException();
+                        ReadOnlySpan<char> formattedSpan = span[2..^1];
+                        mappedValues.Add(data.Name, formattedSpan.ToString());
+                    }
+                    else if (data.Type != MessageCommandParameterDataType.Bool)
+                    {
+                        mappedValues.Add(data.Name, span.ToString());
                     }
                     else
                     {
-                        tuple = tuple.Item2 is null ? new Tuple<string, object?>(tuple.Item1, arg) : throw new NotImplementedException();
+                        mappedValues.Add(data.Name, "true");
                     }
                 }
-                Console.WriteLine(arg);
-            }
 
-            if (tuple is not null)
-            {
-                options.Add(tuple.Item1, tuple.Item2 ?? true);
+                if (data.Type != MessageCommandParameterDataType.Bool)
+                {
+                    // Error handling.
+                }
+                else
+                {
+                    mappedValues.Add(data.Name, "false");
+                }
             }
         }
+        
+        Console.WriteLine($"Took {Stopwatch.GetElapsedTime(startTime).TotalNanoseconds}ns");
 
-        MessageCommandHandler handler = new();
-        await handler.BuildModuleAndExecuteCommandAsync(data, scope, message, client, options, arguments);
+        IServiceScope scope = _services.CreateScope(); // This will need to be disposed later somehow.
+
+        string name = args[0..end].ToString();
+        MessageCommandHandler handler = new(message, tree.Data, scope, client, mappedValues, _configuration, name);
+        Task.Run(handler.BuildModuleAndExecuteCommandAsync);
     }
 }

@@ -6,17 +6,13 @@ namespace DSharpPlus.CH.Message.Internals;
 internal class MessageMiddlewareHandler
 {
     private readonly List<Type> _middlewares;
-    private readonly Func<Task> _executeCommand;
 
-    internal MessageMiddlewareHandler(List<Type> middlewares, Func<Task> executeCommand)
-    {
-        _middlewares = middlewares;
-        _executeCommand = executeCommand;
-    }
+    internal MessageMiddlewareHandler(List<Type> middlewares)
+        => _middlewares = middlewares;
 
-    internal async Task StartGoingThroughMiddlewaresAsync(MessageContext context, IServiceScope scope)
+    internal async Task<bool> StartGoingThroughMiddlewaresAsync(MessageContext context, IServiceScope scope)
     {
-         IMessageMiddleware[] middlewareQueue = new IMessageMiddleware[_middlewares.Count];
+        IMessageMiddleware[] middlewareQueue = new IMessageMiddleware[_middlewares.Count];
 
         for (int i = 0; i < _middlewares.Count; i++)
         {
@@ -51,10 +47,6 @@ internal class MessageMiddlewareHandler
             }
         }
 
-        if (executeCommand)
-        {
-            await _executeCommand();
-        }
+        return executeCommand;
     }
 }
-

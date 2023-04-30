@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using DSharpPlus.CH.Message;
 using DSharpPlus.CH.Message.Permission;
+using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.Test;
 
@@ -22,12 +23,16 @@ public class CHCommandModuleTest : MessageCommandModule
     }
 
     [MessageCommand("arg-opt")]
-    public IMessageCommandModuleResult TestArgOpt(string argument, [MessageOption("option", "o")] string? option) => Reply(option != null ? $"Argument was {argument} and option was {option}" : $"Argument was {argument} and option wasn't provided.");
+    public IMessageCommandModuleResult TestArgOpt(string argument, [MessageOption("option", "o")] string? option)
+        => Reply(
+            option != null
+                ? $"Argument was {argument} and option was {option}"
+                : $"Argument was {argument} and option wasn't provided.");
 
     [MessageCommand("permissions")]
     [MessagePermission(Permissions.Administrator)]
     public IMessageCommandModuleResult TestPermissions() => Reply("You are a admin.");
 
     [MessageCommand("di")]
-    public IMessageCommandModuleResult TestDI() => Reply($"DI gave me value `{_str}`.");
+    public IMessageCommandModuleResult TestDi() => Reply($"DI gave me value `{_str}`.");
 }

@@ -15,7 +15,6 @@ internal class CommandController
     {
         Configuration = configuration;
 
-
         if (Configuration.Services is null)
         {
             ServiceCollection services = new();
