@@ -3883,12 +3883,5 @@ namespace DSharpPlus.Net
 
             await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.DELETE, route, headers);
         }
-
-        internal async Task DeleteAllGuildAutoModerationRulesAsync(ulong guild_id, string reason)
-        {
-            var rules = await this.GetGuildAutoModerationRulesAsync(guild_id);
-
-            _ = rules.Select(async x => await x.DeleteAsync(reason));
-        }
     }
 }
