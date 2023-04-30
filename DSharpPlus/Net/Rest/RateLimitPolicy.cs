@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
 using Polly;
 
@@ -15,9 +16,10 @@ internal class RateLimitPolicy : AsyncPolicy<HttpResponseMessage>
 {
     private readonly RateLimitBucket globalBucket;
     private readonly MemoryCache cache;
+    private readonly ILogger logger;
     private static readonly TimeSpan second = TimeSpan.FromSeconds(1);
 
-    public RateLimitPolicy()
+    public RateLimitPolicy(ILogger logger)
     {
         this.globalBucket = new(50, 50, DateTime.UtcNow.AddSeconds(1));
 
@@ -29,6 +31,8 @@ internal class RateLimitPolicy : AsyncPolicy<HttpResponseMessage>
             {
             }
         );
+
+        this.logger = logger;
     }
 
     protected override async Task<HttpResponseMessage> ImplementationAsync
@@ -71,6 +75,13 @@ internal class RateLimitPolicy : AsyncPolicy<HttpResponseMessage>
                 synthesizedResponse.Headers.RetryAfter = new RetryConditionHeaderValue(this.globalBucket.Reset - instant);
                 synthesizedResponse.Headers.Add("DSharpPlus-Internal-Response", "global");
 
+                this.logger.LogWarning
+                (
+                    LoggerEvents.RatelimitPreemptive, 
+                    "Pre-emptive ratelimit triggered - waiting until {reset:yyyy-MM-dd HH:mm:ss zzz}.", 
+                    this.globalBucket.Reset
+                );
+
                 return synthesizedResponse;
             }
         }
@@ -85,6 +96,13 @@ internal class RateLimitPolicy : AsyncPolicy<HttpResponseMessage>
 
                 synthesizedResponse.Headers.RetryAfter = new RetryConditionHeaderValue(bucket.Value.Reset - instant);
                 synthesizedResponse.Headers.Add("DSharpPlus-Internal-Response", "bucket");
+
+                this.logger.LogWarning
+                (
+                    LoggerEvents.RatelimitPreemptive,
+                    "Pre-emptive ratelimit triggered - waiting until {reset:yyyy-MM-dd HH:mm:ss zzz}.",
+                    bucket.Value.Reset
+                );
 
                 return synthesizedResponse;
             }

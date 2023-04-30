@@ -33,10 +33,7 @@ namespace DSharpPlus.Net;
 /// </summary>
 internal readonly record struct RestRequest : IRestRequest
 {
-    /// <summary>
-    /// The URL this request is made to. This is distinct from the <seealso cref="Route"/> in that the route
-    /// cannot contain query parameters or secondary IDs necessary for the request.
-    /// </summary>
+    /// <inheritdoc/>
     public Uri Url { get; init; }
 
     /// <summary>
@@ -44,10 +41,11 @@ internal readonly record struct RestRequest : IRestRequest
     /// </summary>
     public HttpMethod Method { get; init; }
 
-    /// <summary>
-    /// The ratelimiting route this request is made to.
-    /// </summary>
+    /// <inheritdoc/>
     public string Route { get; init; }
+
+    /// <inheritdoc/>
+    public bool IsExemptFromGlobalLimit { get; init; }
 
     /// <summary>
     /// The headers for this request.
