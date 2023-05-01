@@ -3004,7 +3004,6 @@ namespace DSharpPlus.Entities
         public Task<IReadOnlyList<DiscordGuildApplicationCommandPermissions>> BatchEditApplicationCommandPermissionsAsync(IEnumerable<DiscordGuildApplicationCommandPermissions> permissions)
             => this.Discord.ApiClient.BatchEditApplicationCommandPermissionsAsync(this.Discord.CurrentApplication.Id, this.Id, permissions);
 
-
         /// <summary>
         /// Creates an auto-moderation rule in the guild.
         /// </summary>
@@ -3014,20 +3013,20 @@ namespace DSharpPlus.Entities
         /// <param name="triggerMetadata">Metadata used to determine whether a rule should be triggered. This argument can be skipped depending eventType value.</param>
         /// <param name="actions">Actions that will execute after the trigger of the rule.</param>
         /// <param name="enabled">whether the rule is enabled or not</param>
-        /// <param name="exempt_roles">Roles that will not trigger the rule.</param>
-        /// <param name="exempt_channels">Channels which will not trigger the rule.</param>
+        /// <param name="exemptRoles">Roles that will not trigger the rule.</param>
+        /// <param name="exemptChannels">Channels which will not trigger the rule.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The created rule.</returns>
-        public Task<DiscordAutoModerationRule> CreateAutoModerationRuleAsync(string name, RuleEventType eventType, RuleTriggerType triggerType, RuleTriggerMetadata triggerMetadata, IEnumerable<DiscordAutoModerationAction> actions, Optional<bool> enabled = default, Optional<IEnumerable<ulong>> exempt_roles = default, Optional<IEnumerable<ulong>> exempt_channels = default, string reason = null)
-            => this.Discord.ApiClient.CreateGuildAutoModerationRuleAsync(this.Id, name, eventType, triggerType, triggerMetadata, actions, enabled, exempt_roles, exempt_channels, reason);
+        public Task<DiscordAutoModerationRule> CreateAutoModerationRuleAsync(string name, RuleEventType eventType, RuleTriggerType triggerType, DiscordRuleTriggerMetadata triggerMetadata, IEnumerable<DiscordAutoModerationAction> actions, Optional<bool> enabled = default, Optional<IEnumerable<ulong>> exemptRoles = default, Optional<IEnumerable<ulong>> exemptChannels = default, string reason = null)
+            => this.Discord.ApiClient.CreateGuildAutoModerationRuleAsync(this.Id, name, eventType, triggerType, triggerMetadata, actions, enabled, exemptRoles, exemptChannels, reason);
 
         /// <summary>
         /// Gets an auto-moderation rule by an id.
         /// </summary>
-        /// <param name="rule_id">The rule id.</param>
+        /// <param name="ruleId">The rule id.</param>
         /// <returns>The found rule.</returns>
-        public Task<DiscordAutoModerationRule> GetAutoModerationRuleAsync(ulong rule_id)
-            => this.Discord.ApiClient.GetGuildAutoModerationRuleAsync(this.Id, rule_id);
+        public Task<DiscordAutoModerationRule> GetAutoModerationRuleAsync(ulong ruleId)
+            => this.Discord.ApiClient.GetGuildAutoModerationRuleAsync(this.Id, ruleId);
 
         /// <summary>
         /// Gets all auto-moderation rules in the guild.
@@ -3039,28 +3038,27 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Modify an auto-moderation rule in the guild.
         /// </summary>
-        /// <param name="rule_id">The id of the rule that will be edited.</param>
-        /// <param name="name">The new rule name.</param>
-        /// <param name="event_type">The rule event type.</param>
-        /// <param name="trigger_metadata"></param>
-        /// <param name="actions">Actions that will execute after the trigger of the rule.</param>
-        /// <param name="enabled">whether the rule is enabled or not</param>
-        /// <param name="exempt_roles">Roles that will not trigger the rule.</param>
-        /// <param name="exempt_channels">Channels which will not trigger the rule.</param>
-        /// <param name="reason">Reason for audit logs.</param>
+        /// <param name="ruleId">The id of the rule that will be edited.</param>
+        /// <param name="action">Action to perform on this rule.</param>
         /// <returns>The modified rule.</returns>
         /// <remarks>All arguments are optionals.</remarks>
-        public Task<DiscordAutoModerationRule> ModifyAutoModerationRuleAsync(ulong rule_id, Optional<string> name = default, Optional<RuleEventType> event_type = default, Optional<RuleTriggerMetadata> trigger_metadata = default, Optional<IEnumerable<DiscordAutoModerationAction>> actions = default, Optional<bool> enabled = default, Optional<IEnumerable<ulong>> exempt_roles = default, Optional<IEnumerable<ulong>> exempt_channels = default, string reason = null)
-            => this.Discord.ApiClient.ModifyGuildAutoModerationRuleAsync(this.Id, rule_id, name, event_type, trigger_metadata, actions, enabled, exempt_roles, exempt_channels, reason);
+        public async Task<DiscordAutoModerationRule> ModifyAutoModerationRuleAsync(ulong ruleId, Action<AutoModerationRuleEditModel> action)
+        {
+            var model = new AutoModerationRuleEditModel();
+
+            action(model);
+
+            return await this.Discord.ApiClient.ModifyGuildAutoModerationRuleAsync(this.Id, ruleId, model.Name, model.EventType, model.TriggerMetadata, model.Actions, model.Enable, model.ExemptRoles, model.ExemptChannels, model.AuditLogReason);
+        }
 
         /// <summary>
         /// Deletes a auto-moderation rule by an id.
         /// </summary>
-        /// <param name="rule_id">The rule id.</param>
+        /// <param name="ruleId">The rule id.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns></returns>
-        public Task DeleteAutoModerationRuleAsync(ulong rule_id, string reason = null)
-            => this.Discord.ApiClient.DeleteGuildAutoModerationRuleAsync(this.Id, rule_id, reason);
+        public Task DeleteAutoModerationRuleAsync(ulong ruleId, string reason = null)
+            => this.Discord.ApiClient.DeleteGuildAutoModerationRuleAsync(this.Id, ruleId, reason);
 
         #endregion
 
