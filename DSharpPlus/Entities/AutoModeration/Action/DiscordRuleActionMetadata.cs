@@ -11,6 +11,7 @@ public class DiscordRuleActionMetadata
     public ulong ChannelId { get; internal set; }
 
     /// <summary>
+    /// Gets the timeout duration in seconds.
     /// </summary>
     [JsonProperty("duration_seconds")]
     public uint TimeoutDuration { get; internal set; }
