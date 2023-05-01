@@ -3775,7 +3775,7 @@ namespace DSharpPlus.Net
             RuleEventType event_type,
             RuleTriggerType trigger_type,
             DiscordRuleTriggerMetadata trigger_metadata,
-            IEnumerable<DiscordAutoModerationAction> actions,
+            IReadOnlyList<DiscordAutoModerationAction> actions,
             Optional<bool> enabled = default,
             Optional<IReadOnlyList<DiscordRole>> exempt_roles = default,
             Optional<IReadOnlyList<DiscordChannel>> exempt_channels = default,
