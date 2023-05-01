@@ -108,14 +108,12 @@ internal class MessageCommandFactory
                     }
                     else if (argSpan.StartsWith("\"") && !doingQuoteString)
                     {
-                        Console.WriteLine("Start parsing \"");
                         quoteStart = argRange.Start.Value + 1;
                         doingQuoteString = true;
                         continue;
                     }
                     else if (doingQuoteString && argSpan.EndsWith("\""))
                     {
-                        Console.WriteLine("Stopped parsing \"");
                         arguments.Add(new Range(quoteStart, argRange.End.Value - 1));
                         doingQuoteString = false;
                         continue;
@@ -129,11 +127,33 @@ internal class MessageCommandFactory
                     continue;
                 }
 
-                options.Add(args[lastOption!.Value.Start..lastOption.Value!.End].ToString(), argRange);
+                if (argSpan.StartsWith("\"") && argSpan.EndsWith("\""))
+                {
+                    options.Add(args[lastOption!.Value.Start..lastOption.Value!.End].ToString(),
+                        new Range(argRange.Start.Value + 1, argRange.End.Value - 1));
+                }
+                else if (argSpan.StartsWith("\"") && !doingQuoteString)
+                {
+                    quoteStart = argRange.Start.Value + 1;
+                    doingQuoteString = true;
+                }
+                else if (doingQuoteString && argSpan.EndsWith("\""))
+                {
+                    options.Add(args[lastOption!.Value.Start..lastOption.Value!.End].ToString(),
+                        new Range(quoteStart, argRange.End.Value - 1));
+                    doingQuoteString = false;
+                }
+                else if (doingQuoteString)
+                {
+                }
+                else
+                {
+                    options.Add(args[lastOption!.Value.Start..lastOption.Value!.End].ToString(), argRange);
+                }
             }
         }
 
-        Console.WriteLine(args[arguments[0].Start..arguments[0].End].ToString());
+        Console.WriteLine(options.ContainsKey("s"));
         int positionalArgumentPosition = 0;
         Dictionary<string, string?> mappedValues = new();
         foreach (MessageCommandParameterData data in tree.Data.Parameters)
@@ -142,7 +162,6 @@ internal class MessageCommandFactory
                                                                      options.TryGetValue(data.ShorthandOptionName,
                                                                          out value)))
             {
-                Console.WriteLine(data.Name);
                 if (data.Type == MessageCommandParameterDataType.Bool && value is not null)
                 {
                     string strValue = args[value.Value.Start..value.Value.End].ToString();
@@ -190,8 +209,15 @@ internal class MessageCommandFactory
                 }
                 else if (data.Type != MessageCommandParameterDataType.Bool)
                 {
-                    ReadOnlySpan<char> span = args[value!.Value.Start..value.Value.End];
-                    mappedValues.Add(data.Name, span.ToString());
+                    if (value is null)
+                    {
+                        mappedValues.Add(data.Name, null);
+                    }
+                    else
+                    {
+                        ReadOnlySpan<char> span = args[value.Value.Start..value.Value.End];
+                        mappedValues.Add(data.Name, span.ToString());
+                    }
                 }
                 else
                 {
@@ -241,7 +267,6 @@ internal class MessageCommandFactory
                     }
                     else
                     {
-                        Console.WriteLine(data.Name);
                         ReadOnlySpan<char> span = args[value.Value.Start..value.Value.End];
                         mappedValues.Add(data.Name, span.ToString());
                     }

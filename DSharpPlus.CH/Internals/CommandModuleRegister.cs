@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Reflection;
 using DSharpPlus.CH.Message.Internals;
 using DSharpPlus.CH.Message;
@@ -8,6 +7,7 @@ namespace DSharpPlus.CH.Internals;
 
 internal class CommandModuleRegister
 {
+
     internal static void RegisterMessageCommands(MessageCommandFactory factory, Assembly assembly)
     {
         IEnumerable<Type> classes = assembly.GetTypes()
@@ -16,6 +16,8 @@ internal class CommandModuleRegister
                         t.GetCustomAttribute<MessageModuleAttribute>() is not null &&
                         t.IsPublic &&
                         t.IsSubclassOf(typeof(MessageCommandModule)));
+
+        NullabilityInfoContext nullabilityContext = new();
 
         foreach (Type? @class in classes)
         {
@@ -57,12 +59,11 @@ internal class CommandModuleRegister
                         parameterData.ShorthandOptionName = paramAttribute.ShorthandOption;
                     }
 
-                    Type paramType = parameter.ParameterType;
-                    parameterData.CanBeNull = paramType.IsGenericType
-                        ? paramType.GetGenericTypeDefinition() == typeof(Nullable<>)
-                        : !paramType.IsValueType;
+                    parameterData.CanBeNull =
+                        nullabilityContext.Create(parameter).WriteState is NullabilityState.Nullable;
                     Type parameterType =
                         Nullable.GetUnderlyingType(parameter.ParameterType) ?? parameter.ParameterType;
+                    parameterData.HasDefaultValue = parameter.HasDefaultValue;
 
                     // I don't know how I would make this into a switch case. 
                     if (parameterType == typeof(string))

@@ -90,75 +90,89 @@ internal class MessageCommandHandler
 
     internal async Task BuildModuleAndExecuteCommandAsync()
     {
-        MessageCommandModuleData moduleData = _data.Module;
-        ConstructorInfo[] constructors = moduleData.Type.GetConstructors();
-        if (constructors.Length != 0)
+        try
         {
-            ConstructorInfo constructor = constructors[0];
-            ParameterInfo[] constructorParameters = constructor.GetParameters();
-            object?[] constructorParams = new object[constructorParameters.Length];
-            for (int i = 0; i < constructorParameters.Length; i++)
+            MessageCommandModuleData moduleData = _data.Module;
+            ConstructorInfo[] constructors = moduleData.Type.GetConstructors();
+            if (constructors.Length != 0)
             {
-                Type type = constructorParameters[i].ParameterType;
-                constructorParams[i] = _scope.ServiceProvider.GetService(type);
+                ConstructorInfo constructor = constructors[0];
+                ParameterInfo[] constructorParameters = constructor.GetParameters();
+                object?[] constructorParams = new object[constructorParameters.Length];
+                for (int i = 0; i < constructorParameters.Length; i++)
+                {
+                    Type type = constructorParameters[i].ParameterType;
+                    constructorParams[i] = _scope.ServiceProvider.GetService(type);
+                }
+
+                _module = (Activator.CreateInstance(moduleData.Type, constructorParams) as MessageCommandModule)!;
+            }
+            else
+            {
+                _module = (Activator.CreateInstance(moduleData.Type, null) as MessageCommandModule)!;
             }
 
-            _module = (Activator.CreateInstance(moduleData.Type, constructorParams) as MessageCommandModule)!;
-        }
-        else
-        {
-            _module = (Activator.CreateInstance(moduleData.Type, null) as MessageCommandModule)!;
-        }
+            _module.Message = _message;
+            _module._handler = this;
+            _module.Client = _client;
 
-        _module.Message = _message;
-        _module._handler = this;
-        _module.Client = _client;
-
-        object?[]? parameters = null;
-        if (_data.Parameters.Count != 0)
-        {
-            MessageConvertValues conversion = new(_values, _data, _message, _client);
-            try
+            object?[]? parameters = null;
+            if (_data.Parameters.Count != 0)
             {
-                parameters = await conversion.StartConversionAsync();
+                MessageConvertValues conversion = new(_values, _data, _message, _client);
+                try
+                {
+                    parameters = await conversion.StartConversionAsync();
+                }
+                catch (Exceptions.ConversionFailedException e)
+                {
+                    await _scope.ServiceProvider.GetRequiredService<IFailedConvertion>().HandleErrorAsync(
+                        new InvalidMessageConvertionError
+                        {
+                            Name = e.Name,
+                            IsPositionalArgument = e.IsPositionalArgument,
+                            Value = e.Value,
+                            Type = e.Type,
+                        }
+                        , _message);
+                }
             }
-            catch (Exceptions.ConversionFailedException e)
+
+            if (_configuration.Middlewares.Count != 0)
             {
-                await _scope.ServiceProvider.GetRequiredService<IFailedConvertion>().HandleErrorAsync(
-                    new InvalidMessageConvertionError
-                    {
-                        Name = e.Name, IsPositionalArgument = e.IsPositionalArgument, Value = e.Value, Type = e.Type,
-                    }
-                    , _message);
+                MessageMiddlewareHandler middlewareHandler = new(_configuration.Middlewares);
+                bool shouldContinue =
+                    await middlewareHandler.StartGoingThroughMiddlewaresAsync(
+                        new MessageContext { Message = _message, Data = new(_name, _data.Method) }, _scope);
+                if (!shouldContinue)
+                {
+                    return;
+                }
             }
-        }
 
-        if (_configuration.Middlewares.Count != 0)
-        {
-            MessageMiddlewareHandler middlewareHandler = new(_configuration.Middlewares);
-            bool shouldContinue =
-                await middlewareHandler.StartGoingThroughMiddlewaresAsync(
-                    new MessageContext { Message = _message, Data = new(_name, _data.Method) }, _scope);
-            if (!shouldContinue)
+
+            if (_data.IsAsync)
             {
-                return;
+                Task<IMessageCommandModuleResult> task =
+                    (Task<IMessageCommandModuleResult>)_data.Method.Invoke(_module,
+                        BindingFlags.OptionalParamBinding, null,
+                        parameters, null)!;
+                IMessageCommandModuleResult result = await task;
+                await TurnResultIntoActionAsync(result);
             }
+            else
+            {
+                IMessageCommandModuleResult result =
+                    (IMessageCommandModuleResult)_data.Method.Invoke(_module, parameters)!;
+                await TurnResultIntoActionAsync(result);
+            }
+
+            _scope.Dispose();
         }
-
-
-        if (_data.IsAsync)
+        catch (Exception e)
         {
-            Task<IMessageCommandModuleResult> task =
-                (Task<IMessageCommandModuleResult>)_data.Method.Invoke(_module, parameters)!;
-            IMessageCommandModuleResult result = await task;
-            await TurnResultIntoActionAsync(result);
+            _client.Logger.LogError(
+                $"Exception was thrown while trying to execute command {_data.Method.Name}. Was thrown from {e.ToString()}");
         }
-        else
-        {
-            IMessageCommandModuleResult result = (IMessageCommandModuleResult)_data.Method.Invoke(_module, parameters)!;
-            await TurnResultIntoActionAsync(result);
-        }
-
-        _scope.Dispose();
     }
 }

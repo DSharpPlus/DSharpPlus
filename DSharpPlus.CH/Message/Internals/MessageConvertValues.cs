@@ -16,30 +16,31 @@ internal class MessageConvertValues
 
     public async ValueTask<object?[]> StartConversionAsync()
     {
-        object?[] convertedValues = new object[_data.Parameters.Count];
+        List<object?> convertedValues = new();
 
-        for (int i = 0; i < _data.Parameters.Count; i++)
+        foreach (MessageCommandParameterData paramData in _data.Parameters)
         {
-            MessageCommandParameterData paramData = _data.Parameters[i];
-
             if (_values.TryGetValue(paramData.Name, out string? value))
             {
-                Console.WriteLine(paramData.CanBeNull);
                 if (value is null && paramData.CanBeNull)
                 {
-                    convertedValues[i] = null;
+                    convertedValues.Add(null);
                 }
-                else
+                else if (value is null && paramData.HasDefaultValue)
+                {
+                    convertedValues.Add(Type.Missing);
+                }
+                else if (value is not null)
                 {
                     object convertedValue = await ConvertValueAsync(value, paramData);
-                    convertedValues[i] = convertedValue;
+                    convertedValues.Add(convertedValue);
                 }
             }
             else
             {
                 if (paramData.CanBeNull)
                 {
-                    convertedValues[i] = null;
+                    convertedValues.Add(null);
                 }
                 else
                 {
@@ -48,7 +49,7 @@ internal class MessageConvertValues
             }
         }
 
-        return convertedValues;
+        return convertedValues.ToArray();
     }
 
     public async ValueTask<object> ConvertValueAsync(string value, MessageCommandParameterData data)
