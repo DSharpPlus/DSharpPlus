@@ -3767,17 +3767,18 @@ namespace DSharpPlus.Net
 
             return new DiscordForumPostStarter(chn, msg);
         }
+
         internal async Task<DiscordAutoModerationRule> CreateGuildAutoModerationRuleAsync
         (
             ulong guild_id,
             string name,
             RuleEventType event_type,
             RuleTriggerType trigger_type,
-            RuleTriggerMetadata trigger_metadata,
+            DiscordRuleTriggerMetadata trigger_metadata,
             IEnumerable<DiscordAutoModerationAction> actions,
             Optional<bool> enabled = default,
-            Optional<IEnumerable<ulong>> exempt_roles = default,
-            Optional<IEnumerable<ulong>> exempt_channels = default,
+            Optional<IReadOnlyList<DiscordRole>> exempt_roles = default,
+            Optional<IReadOnlyList<DiscordChannel>> exempt_channels = default,
             string reason = null
         )
         {
@@ -3799,13 +3800,14 @@ namespace DSharpPlus.Net
                 trigger_metadata,
                 actions,
                 enabled,
-                exempt_roles,
-                exempt_channels
+                exempt_roles = exempt_roles.Value.Select(x => x.Id).ToArray(),
+                exempt_channels = exempt_channels.Value.Select(x => x.Id).ToArray()
             });
 
             var req = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.POST, route, headers, payload);
+            var rule = JsonConvert.DeserializeObject<DiscordAutoModerationRule>(req.Response);
 
-            return JsonConvert.DeserializeObject<DiscordAutoModerationRule>(req.Response);
+            return rule;
         }
 
         internal async Task<DiscordAutoModerationRule> GetGuildAutoModerationRuleAsync(ulong guild_id, ulong rule_id)
@@ -3838,15 +3840,16 @@ namespace DSharpPlus.Net
             ulong rule_id,
             Optional<string> name,
             Optional<RuleEventType> event_type,
-            Optional<RuleTriggerMetadata> trigger_metadata,
+            Optional<DiscordRuleTriggerMetadata> trigger_metadata,
             Optional<IEnumerable<DiscordAutoModerationAction>> actions,
             Optional<bool> enabled,
-            Optional<IEnumerable<ulong>> exempt_roles,
-            Optional<IEnumerable<ulong>> exempt_channels,
+            Optional<IEnumerable<DiscordRole>> exempt_roles,
+            Optional<IEnumerable<DiscordChannel>> exempt_channels,
             string reason = null
         )
         {
             string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.AUTO_MODERATION}{Endpoints.RULES}/:rule_id";
+
             var bucket = this._rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id, rule_id }, out var path);
             var url = Utilities.GetApiUriFor(path);
 
@@ -3861,13 +3864,14 @@ namespace DSharpPlus.Net
                 trigger_metadata,
                 actions,
                 enabled,
-                exempt_roles = exempt_roles.HasValue ? exempt_roles.Value.ToArray() : Array.Empty<ulong>(),
-                exempt_channels = exempt_channels.HasValue ? exempt_channels.Value.ToArray() : Array.Empty<ulong>()
+                exempt_roles = exempt_roles.Value.Select(x => x.Id).ToArray(),
+                exempt_channels = exempt_channels.Value.Select(x => x.Id).ToArray()
             });
 
             var req = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.PATCH, route, headers, payload);
+            var rule = JsonConvert.DeserializeObject<DiscordAutoModerationRule>(req.Response);
 
-            return JsonConvert.DeserializeObject<DiscordAutoModerationRule>(req.Response);
+            return rule;
         }
 
         internal async Task DeleteGuildAutoModerationRuleAsync(ulong guild_id, ulong rule_id, string reason)
