@@ -3841,10 +3841,10 @@ namespace DSharpPlus.Net
             Optional<string> name,
             Optional<RuleEventType> event_type,
             Optional<DiscordRuleTriggerMetadata> trigger_metadata,
-            Optional<IEnumerable<DiscordAutoModerationAction>> actions,
+            Optional<IReadOnlyList<DiscordAutoModerationAction>> actions,
             Optional<bool> enabled,
-            Optional<IEnumerable<DiscordRole>> exempt_roles,
-            Optional<IEnumerable<DiscordChannel>> exempt_channels,
+            Optional<IReadOnlyList<DiscordRole>> exempt_roles,
+            Optional<IReadOnlyList<DiscordChannel>> exempt_channels,
             string reason = null
         )
         {
