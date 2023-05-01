@@ -28,9 +28,7 @@ internal class MessageCommandFactory
 
         foreach (Range argRange in argsRange)
         {
-
             ReadOnlySpan<char> arg = args[argRange.Start..argRange.End];
-
             if (tree is null)
             {
                 if (_commands.Branches!.TryGetValue(arg.ToString(), out MessageCommandTree? res))
@@ -152,6 +150,7 @@ internal class MessageCommandFactory
                         mappedValues.Add(data.Name, formattedSpan.ToString());
                         continue;
                     }
+
                     mappedValues.Add(data.Name, span.ToString()); // MIGHT be a ID.
                 }
                 else if (data.Type == MessageCommandParameterDataType.Role)
@@ -207,7 +206,8 @@ internal class MessageCommandFactory
                 }
                 else if (data.Type != MessageCommandParameterDataType.Bool)
                 {
-                    // Error handling.
+                    ReadOnlySpan<char> span = args[value!.Value.Start..value.Value.End];
+                    mappedValues.Add(data.Name, span.ToString());
                 }
                 else
                 {

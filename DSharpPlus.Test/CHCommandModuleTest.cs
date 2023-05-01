@@ -22,7 +22,7 @@ public class CHCommandModuleTest : MessageCommandModule
         return Empty();
     }
 
-    [MessageCommand("arg-opt")]
+    [MessageCommand("arg opt")]
     public IMessageCommandModuleResult TestArgOpt(string argument,
         [MessageOption("user", "u")] Entities.DiscordUser? user)
         => Reply(

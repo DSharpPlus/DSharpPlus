@@ -21,13 +21,13 @@ internal class CommandModuleRegister
             MessageCommandModuleData data = new(@class);
             MessageCommandModuleData module = new(@class);
 
-            MethodInfo[]? methods = @class.GetMethods();
-            if (methods is null)
+            MethodInfo[] methods = @class.GetMethods();
+            if (methods.Length == 0)
             {
                 continue; // Not worth saving this class if it is has no methods.
             }
 
-            foreach (MethodInfo? method in methods)
+            foreach (MethodInfo method in methods)
             {
                 MessageCommandAttribute? attribute = method.GetCustomAttribute<MessageCommandAttribute>();
                 if (attribute is null || !method.IsPublic)
@@ -35,7 +35,9 @@ internal class CommandModuleRegister
                     continue;
                 }
 
-                string[] moduleName = @class.GetCustomAttribute<MessageModuleAttribute>()?.Name?.Split(' ') ?? Array.Empty<string>();
+                string[] moduleName = @class.GetCustomAttribute<MessageModuleAttribute>()?.Name?.Split(' ') ??
+                                      Array.Empty<string>();
+                string[] methodName = attribute.Name.Split(' ');
 
                 List<MessageCommandParameterData> parameters = new();
                 foreach (ParameterInfo? parameter in method.GetParameters())
@@ -54,7 +56,7 @@ internal class CommandModuleRegister
                         parameterData.ShorthandOptionName = paramAttribute.ShorthandOption;
                     }
 
-                     
+
                     parameterData.CanBeNull = Nullable.GetUnderlyingType(parameter.ParameterType) is not null;
 
                     Type parameterType =
@@ -104,10 +106,7 @@ internal class CommandModuleRegister
                 bool isAsync = method.ReturnType.GetMethod(nameof(Task.GetAwaiter)) is not null;
                 MessageCommandMethodData methodData = new()
                 {
-                    Module = module,
-                    Method = method,
-                    IsAsync = isAsync,
-                    Parameters = parameters
+                    Module = module, Method = method, IsAsync = isAsync, Parameters = parameters
                 };
                 if (moduleName.Length != 0)
                 {
@@ -121,7 +120,21 @@ internal class CommandModuleRegister
                             factory.AddBranch(name, tree);
                         }
                     }
-                    tree?.Branches?.Add(attribute.Name, new(methodData));
+
+                    for (int i = 0; i < methodName.Length; i++)
+                    {
+                        string name = methodName[i];
+                        if (i == methodName.Length - 1)
+                        {
+                            tree?.Branches?.Add(name, new(methodData));
+                        }
+                        else
+                        {
+                            MessageCommandTree tempTree = new();
+                            tree?.Branches?.Add(name, tempTree);
+                            tree = tempTree;
+                        }
+                    }
                 }
                 else
                 {
