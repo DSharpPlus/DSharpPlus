@@ -13,12 +13,12 @@ internal class MessageCommandHandler
     private MessageCommandMethodData _data;
     private IServiceScope _scope;
     private DiscordClient _client;
-    private Dictionary<string, string> _values;
+    private Dictionary<string, string?> _values;
     private CHConfiguration _configuration;
     private string _name;
 
     public MessageCommandHandler(DiscordMessage message, MessageCommandMethodData data, IServiceScope scope,
-        DiscordClient client, Dictionary<string, string> values, CHConfiguration configuration, string name)
+        DiscordClient client, Dictionary<string, string?> values, CHConfiguration configuration, string name)
     {
         _message = message;
         _data = data;

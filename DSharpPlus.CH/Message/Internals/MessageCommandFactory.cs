@@ -1,6 +1,6 @@
 using System.Diagnostics;
+using System.Text;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.CH.Message.Internals;
 
@@ -64,6 +64,8 @@ internal class MessageCommandFactory
 
         string name = args[_configuration.Prefix!.Length..end].ToString();
 
+        int quoteStart = 0;
+        bool doingQuoteString = false;
         Dictionary<string, Range?> options = new();
         List<Range> arguments = new();
         bool parsingArguments = true;
@@ -99,6 +101,30 @@ internal class MessageCommandFactory
                 }
                 else if (parsingArguments)
                 {
+                    if (argSpan.StartsWith("\"") && argSpan.EndsWith("\""))
+                    {
+                        arguments.Add(new Range(argRange.Start.Value + 1, argRange.End.Value - 1));
+                        continue;
+                    }
+                    else if (argSpan.StartsWith("\"") && !doingQuoteString)
+                    {
+                        Console.WriteLine("Start parsing \"");
+                        quoteStart = argRange.Start.Value + 1;
+                        doingQuoteString = true;
+                        continue;
+                    }
+                    else if (doingQuoteString && argSpan.EndsWith("\""))
+                    {
+                        Console.WriteLine("Stopped parsing \"");
+                        arguments.Add(new Range(quoteStart, argRange.End.Value - 1));
+                        doingQuoteString = false;
+                        continue;
+                    }
+                    else if (doingQuoteString)
+                    {
+                        continue;
+                    }
+
                     arguments.Add(argRange);
                     continue;
                 }
@@ -107,14 +133,16 @@ internal class MessageCommandFactory
             }
         }
 
+        Console.WriteLine(args[arguments[0].Start..arguments[0].End].ToString());
         int positionalArgumentPosition = 0;
-        Dictionary<string, string> mappedValues = new();
+        Dictionary<string, string?> mappedValues = new();
         foreach (MessageCommandParameterData data in tree.Data.Parameters)
         {
             if (options.TryGetValue(data.Name, out Range? value) || (data.ShorthandOptionName is not null &&
                                                                      options.TryGetValue(data.ShorthandOptionName,
                                                                          out value)))
             {
+                Console.WriteLine(data.Name);
                 if (data.Type == MessageCommandParameterDataType.Bool && value is not null)
                 {
                     string strValue = args[value.Value.Start..value.Value.End].ToString();
@@ -138,6 +166,7 @@ internal class MessageCommandFactory
                             Value = "",
                             Type = InvalidMessageConvertionType.NoValueProvided,
                         }, message));
+                    return;
                 }
                 else if (data.Type == MessageCommandParameterDataType.User
                          || data.Type == MessageCommandParameterDataType.Channel
@@ -206,8 +235,16 @@ internal class MessageCommandFactory
                 }
                 else if (data.Type != MessageCommandParameterDataType.Bool)
                 {
-                    ReadOnlySpan<char> span = args[value!.Value.Start..value.Value.End];
-                    mappedValues.Add(data.Name, span.ToString());
+                    if (value is null)
+                    {
+                        mappedValues.Add(data.Name, null);
+                    }
+                    else
+                    {
+                        Console.WriteLine(data.Name);
+                        ReadOnlySpan<char> span = args[value.Value.Start..value.Value.End];
+                        mappedValues.Add(data.Name, span.ToString());
+                    }
                 }
                 else
                 {

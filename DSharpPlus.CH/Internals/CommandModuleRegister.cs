@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Reflection;
 using DSharpPlus.CH.Message.Internals;
 using DSharpPlus.CH.Message;
@@ -40,7 +41,7 @@ internal class CommandModuleRegister
                 string[] methodName = attribute.Name.Split(' ');
 
                 List<MessageCommandParameterData> parameters = new();
-                foreach (ParameterInfo? parameter in method.GetParameters())
+                foreach (ParameterInfo parameter in method.GetParameters())
                 {
                     MessageOptionAttribute? paramAttribute = parameter.GetCustomAttribute<MessageOptionAttribute>();
                     MessageCommandParameterData parameterData = new();
@@ -56,9 +57,10 @@ internal class CommandModuleRegister
                         parameterData.ShorthandOptionName = paramAttribute.ShorthandOption;
                     }
 
-
-                    parameterData.CanBeNull = Nullable.GetUnderlyingType(parameter.ParameterType) is not null;
-
+                    Type paramType = parameter.ParameterType;
+                    parameterData.CanBeNull = paramType.IsGenericType
+                        ? paramType.GetGenericTypeDefinition() == typeof(Nullable<>)
+                        : !paramType.IsValueType;
                     Type parameterType =
                         Nullable.GetUnderlyingType(parameter.ParameterType) ?? parameter.ParameterType;
 

@@ -5,12 +5,12 @@ namespace DSharpPlus.CH.Message.Internals;
 
 internal class MessageConvertValues
 {
-    private Dictionary<string, string> _values;
+    private Dictionary<string, string?> _values;
     private MessageCommandMethodData _data;
     private DiscordMessage _message;
     private DiscordClient _client;
 
-    public MessageConvertValues(Dictionary<string, string> values, MessageCommandMethodData data,
+    public MessageConvertValues(Dictionary<string, string?> values, MessageCommandMethodData data,
         DiscordMessage message, DiscordClient client)
         => (_values, _data, _message, _client) = (values, data, message, client);
 
@@ -24,8 +24,16 @@ internal class MessageConvertValues
 
             if (_values.TryGetValue(paramData.Name, out string? value))
             {
-                object convertedValue = await ConvertValueAsync(value, paramData);
-                convertedValues[i] = convertedValue;
+                Console.WriteLine(paramData.CanBeNull);
+                if (value is null && paramData.CanBeNull)
+                {
+                    convertedValues[i] = null;
+                }
+                else
+                {
+                    object convertedValue = await ConvertValueAsync(value, paramData);
+                    convertedValues[i] = convertedValue;
+                }
             }
             else
             {
