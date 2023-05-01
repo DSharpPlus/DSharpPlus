@@ -9,6 +9,9 @@
 - [X] Making tests in DSharpPlus.Test
 - [X] Implement test for everything to make sure it works.
 - [X] Spaces
+- [ ] Allow arguments to consume the entirety of a text. Like t!text hello there would return "hello there" to the argument with this marked attribute.
+- [ ] Allow quotes in text so above is not needed.
+- [ ] Overloading.
 
 ## Optimisation
 - [ ] Better parsing
