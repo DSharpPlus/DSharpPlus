@@ -4,8 +4,14 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
 
+/// <summary>
+/// Represents a Discord auto moderation action.
+/// </summary>
 public class DiscordAutoModerationAction
 {
+    /// <summary>
+    /// Gets the rule action type.
+    /// </summary>
     [JsonProperty("type")]
     public RuleActionType Type { get; internal set; }
 
