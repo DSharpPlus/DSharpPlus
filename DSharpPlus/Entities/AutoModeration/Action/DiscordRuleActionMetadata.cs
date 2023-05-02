@@ -2,6 +2,9 @@ using Newtonsoft.Json;
 
 namespace DSharpPlus.Entities;
 
+/// <summary>
+/// Represents a Discord rule action metadata.
+/// </summary>
 public class DiscordRuleActionMetadata
 {
     /// <summary>
