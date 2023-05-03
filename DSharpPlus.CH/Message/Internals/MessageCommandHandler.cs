@@ -153,21 +153,35 @@ internal class MessageCommandHandler
                 }
             }
 
-
-            if (_data.IsAsync)
+            if (_data.ReturnsNothing)
             {
-                Task<IMessageCommandModuleResult> task =
-                    (Task<IMessageCommandModuleResult>)_data.Method.Invoke(_module,
-                        BindingFlags.OptionalParamBinding, null,
-                        parameters, null)!;
-                IMessageCommandModuleResult result = await task;
-                await TurnResultIntoActionAsync(result);
+                if (_data.IsAsync)
+                {
+                    await (Task)_data.Method.Invoke(_module, BindingFlags.OptionalParamBinding,
+                        null, parameters, null)!;
+                }
+                else
+                {
+                    _data.Method.Invoke(_module, BindingFlags.OptionalParamBinding, null, parameters, null);
+                }
             }
             else
             {
-                IMessageCommandModuleResult result =
-                    (IMessageCommandModuleResult)_data.Method.Invoke(_module, parameters)!;
-                await TurnResultIntoActionAsync(result);
+                if (_data.IsAsync)
+                {
+                    Task<IMessageCommandModuleResult> task =
+                        (Task<IMessageCommandModuleResult>)_data.Method.Invoke(_module,
+                            BindingFlags.OptionalParamBinding, null,
+                            parameters, null)!;
+                    IMessageCommandModuleResult result = await task;
+                    await TurnResultIntoActionAsync(result);
+                }
+                else
+                {
+                    IMessageCommandModuleResult result =
+                        (IMessageCommandModuleResult)_data.Method.Invoke(_module, parameters)!;
+                    await TurnResultIntoActionAsync(result);
+                }
             }
 
             _scope.Dispose();

@@ -39,20 +39,27 @@ public class CHCommandModuleTest : MessageCommandModule
     [MessageCommand("di")]
     public IMessageCommandModuleResult TestDi() => Reply($"DI gave me value `{_str}`.");
 
-    [MessageCommand("emote")]
-    public async Task<IMessageCommandModuleResult> TestEmoteAsync()
+    [MessageCommand("no value")]
+    public async Task TestNoValueAsync()
     {
-        await PostAsync(Reply("React to this message for a reply."));
+        await PostAsync(Reply("This returns nothing."));
+        return;
+    }
 
-        EventArgs.MessageReactionAddEventArgs? reaction = await WaitForReactionAsync(TimeSpan.FromSeconds(5),
+    [MessageCommand("emojis")]
+    public async Task<IMessageCommandModuleResult> TestEmojisAsync()
+    {
+        await PostAsync(Reply("React with a emoji, author can only reply"));
+        EventArgs.MessageReactionAddEventArgs? args = await WaitForReactionAsync(TimeSpan.FromSeconds(10), 
             (e) => e.User.Id == Message.Author.Id);
-        if (reaction is null)
+
+        if (args is not null)
         {
-            return FollowUp("No reactions happened.");
+            return FollowUp($"Reacted with emoji {args.Emoji.Name}");
         }
         else
         {
-            return FollowUp($"You reacted with emoji {reaction.Emoji.Name}");
+            return FollowUp($"Duration ran out.");
         }
     }
 }

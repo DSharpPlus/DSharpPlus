@@ -283,6 +283,6 @@ internal class MessageCommandFactory
         IServiceScope scope = _services.CreateScope(); // This will need to be disposed later somehow.
 
         MessageCommandHandler handler = new(message, tree.Data, scope, client, mappedValues, _configuration, name);
-        Task.Run(handler.BuildModuleAndExecuteCommandAsync);
+        _ = handler.BuildModuleAndExecuteCommandAsync();
     }
 }

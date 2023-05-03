@@ -16,7 +16,7 @@ public abstract class MessageCommandModule
 
     protected IMessageCommandModuleResult Reply(MessageCommandModuleResult result, bool mention = false)
     {
-        result.Type = mention ? MessageCommandModuleResultType.Reply : MessageCommandModuleResultType.NoMentionReply;
+        result.Type = mention ? MessageCommandModuleResultType.NoMentionReply : MessageCommandModuleResultType.Reply;
         return result;
     }
 

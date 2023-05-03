@@ -7,7 +7,6 @@ namespace DSharpPlus.CH.Internals;
 
 internal class CommandModuleRegister
 {
-
     internal static void RegisterMessageCommands(MessageCommandFactory factory, Assembly assembly)
     {
         IEnumerable<Type> classes = assembly.GetTypes()
@@ -107,9 +106,14 @@ internal class CommandModuleRegister
                 }
 
                 bool isAsync = method.ReturnType.GetMethod(nameof(Task.GetAwaiter)) is not null;
+                bool returnsNothing = method.ReturnType == typeof(Task) || method.ReturnType == typeof(void);
                 MessageCommandMethodData methodData = new()
                 {
-                    Module = module, Method = method, IsAsync = isAsync, Parameters = parameters
+                    Module = module,
+                    Method = method,
+                    IsAsync = isAsync,
+                    Parameters = parameters,
+                    ReturnsNothing = returnsNothing
                 };
                 if (moduleName.Length != 0)
                 {
