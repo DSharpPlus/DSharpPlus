@@ -5,8 +5,9 @@ using System.Collections.Generic;
 using DSharpPlus.Entities;
 using DSharpPlus.Enums;
 
-using Newtonsoft.Json;
-
+/// <summary>
+/// Provides a way
+/// </summary>
 public class AutoModerationRuleEditModel : BaseEditModel
 {
     /// <summary>
