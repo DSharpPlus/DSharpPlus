@@ -3012,7 +3012,7 @@ namespace DSharpPlus.Entities
         /// <param name="triggerType">The type of content which can trigger the rule.</param>
         /// <param name="triggerMetadata">Metadata used to determine whether a rule should be triggered. This argument can be skipped depending eventType value.</param>
         /// <param name="actions">Actions that will execute after the trigger of the rule.</param>
-        /// <param name="enabled">whether the rule is enabled or not</param>
+        /// <param name="enabled">Whether the rule is enabled or not.</param>
         /// <param name="exemptRoles">Roles that will not trigger the rule.</param>
         /// <param name="exemptChannels">Channels which will not trigger the rule.</param>
         /// <param name="reason">Reason for audit logs.</param>
@@ -3031,7 +3031,7 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Gets all auto-moderation rules in the guild.
         /// </summary>
-        /// <returns>A collection of rules.</returns>
+        /// <returns>All rules available in the guild.</returns>
         public Task<IReadOnlyList<DiscordAutoModerationRule>> GetAutoModerationRulesAsync()
             => this.Discord.ApiClient.GetGuildAutoModerationRulesAsync(this.Id);
 
