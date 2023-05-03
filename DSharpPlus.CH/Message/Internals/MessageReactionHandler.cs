@@ -7,10 +7,14 @@ namespace DSharpPlus.CH.Message.Internals;
 
 internal static class MessageReactionHandler
 {
-    private static Dictionary<ulong, TaskCompletionSource<MessageReactionAddEventArgs>> _tasks = new();
+    private static
+        Dictionary<ulong, (TaskCompletionSource<MessageReactionAddEventArgs>,
+            Func<MessageReactionAddEventArgs, bool>?)> _tasks = new();
+
     private static Mutex _mutex = new();
 
-    internal static void AddTask(ulong message, TaskCompletionSource<MessageReactionAddEventArgs> task)
+    internal static void AddTask(ulong message,
+        (TaskCompletionSource<MessageReactionAddEventArgs>, Func<MessageReactionAddEventArgs, bool>?) task)
     {
         lock (_mutex)
         {
@@ -22,9 +26,20 @@ internal static class MessageReactionHandler
     {
         lock (_mutex)
         {
-            if (_tasks.TryGetValue(reactionEvent.Message.Id, out TaskCompletionSource<MessageReactionAddEventArgs>? reaction))
+            if (_tasks.TryGetValue(reactionEvent.Message.Id,
+                    out (TaskCompletionSource<MessageReactionAddEventArgs>,
+                    System.Func<MessageReactionAddEventArgs, bool>?) tuple))
             {
-                reaction.TrySetResult(reactionEvent);
+                if (tuple.Item2 is not null && tuple.Item2(reactionEvent))
+                {
+                    tuple.Item1.TrySetResult(reactionEvent);
+                    _tasks.Remove(reactionEvent.Message.Id);
+                }
+                else
+                {
+                    tuple.Item1.TrySetResult(reactionEvent);
+                    _tasks.Remove(reactionEvent.Message.Id);
+                }
             }
             else
             {

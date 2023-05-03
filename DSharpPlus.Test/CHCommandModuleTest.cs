@@ -44,7 +44,8 @@ public class CHCommandModuleTest : MessageCommandModule
     {
         await PostAsync(Reply("React to this message for a reply."));
 
-        EventArgs.MessageReactionAddEventArgs? reaction = await WaitForReactionAsync(TimeSpan.FromSeconds(5));
+        EventArgs.MessageReactionAddEventArgs? reaction = await WaitForReactionAsync(TimeSpan.FromSeconds(5),
+            (e) => e.User.Id == Message.Author.Id);
         if (reaction is null)
         {
             return FollowUp("No reactions happened.");

@@ -42,13 +42,14 @@ public abstract class MessageCommandModule
     }
 
     protected async Task<EventArgs.MessageReactionAddEventArgs?> WaitForReactionAsync(TimeSpan delay,
+        Func<EventArgs.MessageReactionAddEventArgs, bool>? condition = null,
         DiscordMessage? message = null)
     {
         CancellationTokenSource source = new();
         TaskCompletionSource<EventArgs.MessageReactionAddEventArgs> reaction = new();
         source.Token.Register(() => reaction.TrySetCanceled());
 
-        MessageReactionHandler.AddTask(message is null ? NewestMessage!.Id : message.Id, reaction);
+        MessageReactionHandler.AddTask(message is null ? NewestMessage!.Id : message.Id, (reaction, condition));
 
         source.CancelAfter(delay);
         try
