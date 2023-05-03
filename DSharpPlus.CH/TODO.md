@@ -10,7 +10,7 @@
 - [X] Implement test for everything to make sure it works.
 - [X] Spaces
 - [ ] Allow arguments to consume the entirety of a text. Like t!text hello there would return "hello there" to the argument with this marked attribute.
-- [ ] Allow quotes in text so above is not needed.
+- [X] Allow quotes in text so above is not needed (all the time, above might be useful in some scenarios.).
 - [ ] Overloading.
 
 ## Optimisation
