@@ -1,16 +1,18 @@
+using System.Runtime.InteropServices.JavaScript;
 using DSharpPlus.CH.Message.Internals;
+using DSharpPlus.Entities;
 
 namespace DSharpPlus.CH.Message;
 
 public abstract class MessageCommandModule
 {
-    public Entities.DiscordMessage Message { get; set; } = null!;
-    public DiscordClient Client { get; set; } = null!;
-
     internal MessageCommandHandler _handler = null!; // Will be set by the factory.
 
-    protected async Task PostAsync(IMessageCommandModuleResult result) =>
-        await _handler.TurnResultIntoActionAsync(result);
+    public DiscordMessage Message { get; internal set; } = null!;
+    public DiscordMessage? NewestMessage { get; internal set; } = null;
+    public DiscordClient Client { get; internal set; } = null!;
+
+    protected Task PostAsync(IMessageCommandModuleResult result) => _handler.TurnResultIntoActionAsync(result);
 
     protected IMessageCommandModuleResult Reply(MessageCommandModuleResult result, bool mention = false)
     {
@@ -37,5 +39,25 @@ public abstract class MessageCommandModule
     {
         result.Type = MessageCommandModuleResultType.Send;
         return result;
+    }
+
+    protected async Task<EventArgs.MessageReactionAddEventArgs?> WaitForReactionAsync(TimeSpan delay,
+        DiscordMessage? message = null)
+    {
+        CancellationTokenSource source = new();
+        TaskCompletionSource<EventArgs.MessageReactionAddEventArgs> reaction = new();
+        source.Token.Register(() => reaction.TrySetCanceled());
+
+        MessageReactionHandler.AddTask(message is null ? NewestMessage!.Id : message.Id, reaction);
+
+        source.CancelAfter(delay);
+        try
+        {
+            return await reaction.Task;
+        }
+        catch (TaskCanceledException)
+        {
+            return null;
+        }
     }
 }

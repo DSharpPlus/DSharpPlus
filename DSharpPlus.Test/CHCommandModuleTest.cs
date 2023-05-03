@@ -1,7 +1,7 @@
+using System;
 using System.Threading.Tasks;
 using DSharpPlus.CH.Message;
 using DSharpPlus.CH.Message.Permission;
-using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.Test;
 
@@ -38,4 +38,20 @@ public class CHCommandModuleTest : MessageCommandModule
 
     [MessageCommand("di")]
     public IMessageCommandModuleResult TestDi() => Reply($"DI gave me value `{_str}`.");
+
+    [MessageCommand("emote")]
+    public async Task<IMessageCommandModuleResult> TestEmoteAsync()
+    {
+        await PostAsync(Reply("React to this message for a reply."));
+
+        EventArgs.MessageReactionAddEventArgs? reaction = await WaitForReactionAsync(TimeSpan.FromSeconds(5));
+        if (reaction is null)
+        {
+            return FollowUp("No reactions happened.");
+        }
+        else
+        {
+            return FollowUp($"You reacted with emoji {reaction.Emoji.Name}");
+        }
+    }
 }

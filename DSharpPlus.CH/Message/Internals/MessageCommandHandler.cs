@@ -54,17 +54,20 @@ internal class MessageCommandHandler
                 msgBuilder.WithReply(_module.Message.Id, false);
 
                 _newMessage = await _module.Message.Channel.SendMessageAsync(msgBuilder);
+                _module.NewestMessage = _newMessage;
                 break;
             case MessageCommandModuleResultType.NoMentionReply:
                 SetContentAndEmbeds(result, msgBuilder);
                 msgBuilder.WithReply(_module.Message.Id, true);
 
                 _newMessage = await _module.Message.Channel.SendMessageAsync(msgBuilder);
+                _module.NewestMessage = _newMessage;
                 break;
             case MessageCommandModuleResultType.Send:
                 SetContentAndEmbeds(result, msgBuilder);
 
                 _newMessage = await _module.Message.Channel.SendMessageAsync(msgBuilder);
+                _module.NewestMessage = _newMessage;
                 break;
             case MessageCommandModuleResultType.FollowUp:
                 SetContentAndEmbeds(result, msgBuilder);

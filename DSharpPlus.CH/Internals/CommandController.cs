@@ -45,6 +45,7 @@ internal class CommandController
 
         CommandModuleRegister.RegisterMessageCommands(MessageCommandFactory, Configuration.Assembly);
         client.MessageCreated += HandleMessageCreationAsync;
+        client.MessageReactionAdded += Message.Internals.MessageReactionHandler.MessageReactionEventAsync;
     }
 
     public Task HandleMessageCreationAsync(DiscordClient client, MessageCreateEventArgs msg)
