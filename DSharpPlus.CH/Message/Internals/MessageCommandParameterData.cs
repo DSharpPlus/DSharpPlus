@@ -9,4 +9,5 @@ internal class MessageCommandParameterData
     public bool CanBeNull { get; set; } = false;
     public bool IsPositionalArgument { get; set; } = true;
     public bool HasDefaultValue { get; set; } = false;
+    public bool WillConsumeRestOfArguments { get; set; } = false;
 }

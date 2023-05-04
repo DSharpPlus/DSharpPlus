@@ -228,6 +228,24 @@ internal class MessageCommandFactory
             {
                 if (data.IsPositionalArgument)
                 {
+                    if (data.WillConsumeRestOfArguments)
+                    {
+                        StringBuilder stringBuilder = new();
+                        for (;
+                             positionalArgumentPosition < arguments.Count;
+                             positionalArgumentPosition++)
+                        {
+                            Range range2 = arguments[positionalArgumentPosition];
+                            stringBuilder.Append(args[range2.Start..range2.End]);
+                            stringBuilder.Append(' ');
+                        }
+
+                        stringBuilder.Remove(stringBuilder.Length - 1, 1);
+                        
+                        mappedValues.Add(data.Name, stringBuilder.ToString());
+                        continue;
+                    }
+
                     Range range = arguments[positionalArgumentPosition];
                     positionalArgumentPosition++;
                     ReadOnlySpan<char> span = args[range.Start..range.End];

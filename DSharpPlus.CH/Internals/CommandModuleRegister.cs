@@ -42,14 +42,33 @@ internal class CommandModuleRegister
                 string[] methodName = attribute.Name.Split(' ');
 
                 List<MessageCommandParameterData> parameters = new();
+                bool cantConsumeMoreArguments = false;
                 foreach (ParameterInfo parameter in method.GetParameters())
                 {
                     MessageOptionAttribute? paramAttribute = parameter.GetCustomAttribute<MessageOptionAttribute>();
                     MessageCommandParameterData parameterData = new();
+                    
                     if (paramAttribute is null)
                     {
+                        if (cantConsumeMoreArguments)
+                        {
+                            throw new Exception($"You cannot have more arguments for method {method.Name}.");
+                        }
+
                         parameterData.IsPositionalArgument = true;
                         parameterData.Name = parameter.Name ?? string.Empty;
+
+                        if (
+                            parameter.GetCustomAttribute<RemainingArgumentsAttribute>() is not null)
+                        {
+                            if (parameter.ParameterType != typeof(string))
+                            {
+                                throw new Exception("You need to use string if you are using RemainingTextAttribute.");
+                            }
+
+                            parameterData.WillConsumeRestOfArguments = true;
+                            cantConsumeMoreArguments = true;
+                        }
                     }
                     else
                     {
@@ -57,6 +76,7 @@ internal class CommandModuleRegister
                         parameterData.Name = paramAttribute.Option;
                         parameterData.ShorthandOptionName = paramAttribute.ShorthandOption;
                     }
+
 
                     parameterData.CanBeNull =
                         nullabilityContext.Create(parameter).WriteState is NullabilityState.Nullable;

@@ -50,7 +50,7 @@ public class CHCommandModuleTest : MessageCommandModule
     public async Task<IMessageCommandResult> TestEmojisAsync()
     {
         await PostAsync(Reply("React with a emoji, author can only reply"));
-        EventArgs.MessageReactionAddEventArgs? args = await WaitForReactionAsync(TimeSpan.FromSeconds(10), 
+        EventArgs.MessageReactionAddEventArgs? args = await WaitForReactionAsync(TimeSpan.FromSeconds(10),
             (e) => e.User.Id == Message.Author.Id);
 
         if (args is not null)
@@ -62,4 +62,11 @@ public class CHCommandModuleTest : MessageCommandModule
             return FollowUp($"Duration ran out.");
         }
     }
+
+    [MessageCommand("remaining arguments")]
+    public IMessageCommandResult TestRemainingArguments([RemainingArguments] string arguments,
+        [MessageOption("str", "s")] string? str)
+        => Reply(str is null
+            ? $"Remaining arguments is `{arguments}`. Str is null"
+            : $"Remaining arguments is `{arguments}`. Str is `{str}`.");
 }
