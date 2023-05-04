@@ -6,5 +6,6 @@ CH is not a good name. Here is all the current name suggestions.
 - Aurora
 - Commando
 - CNext+
+- UnifiedCommands
 
 Please add any other name if you have a suggestion.
