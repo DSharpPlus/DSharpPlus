@@ -1,6 +1,6 @@
 namespace DSharpPlus.CH.Message;
 
-public enum MessageCommandModuleResultType
+public enum MessageCommandResultType
 {
     Empty,
     Reply,

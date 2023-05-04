@@ -3,20 +3,20 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.CH.Message.Internals;
 
-internal class MessageMiddlewareHandler
+internal class MessageConditionHandler
 {
-    private readonly List<Type> _middlewares;
+    private readonly List<Type> _conditions;
 
-    internal MessageMiddlewareHandler(List<Type> middlewares)
-        => _middlewares = middlewares;
+    internal MessageConditionHandler(List<Type> conditions)
+        => _conditions = conditions;
 
-    internal async Task<bool> StartGoingThroughMiddlewaresAsync(MessageContext context, IServiceScope scope)
+    internal async Task<bool> StartGoingThroughConditionsAsync(MessageContext context, IServiceScope scope)
     {
-        IMessageMiddleware[] middlewareQueue = new IMessageMiddleware[_middlewares.Count];
+        IMessageCondition[] conditionQueue = new IMessageCondition[_conditions.Count];
 
-        for (int i = 0; i < _middlewares.Count; i++)
+        for (int i = 0; i < _conditions.Count; i++)
         {
-            Type type = _middlewares[i];
+            Type type = _conditions[i];
 
             object?[]? constructorParameters = null;
             if (type.GetConstructors().Length != 0)
@@ -34,14 +34,14 @@ internal class MessageMiddlewareHandler
                 }
             }
 
-            IMessageMiddleware middleware = (IMessageMiddleware)Activator.CreateInstance(type, constructorParameters)!;
-            middlewareQueue[i] = middleware;
+            IMessageCondition condition = (IMessageCondition)Activator.CreateInstance(type, constructorParameters)!;
+            conditionQueue[i] = condition;
         }
 
         bool executeCommand = true;
-        foreach (IMessageMiddleware middleware in middlewareQueue)
+        foreach (IMessageCondition condition in conditionQueue)
         {
-            if (await middleware.InvokeAsync(context))
+            if (await condition.InvokeAsync(context))
             {
                 executeCommand = false;
             }

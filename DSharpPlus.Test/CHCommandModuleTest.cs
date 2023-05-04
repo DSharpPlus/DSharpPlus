@@ -13,17 +13,17 @@ public class CHCommandModuleTest : MessageCommandModule
     public CHCommandModuleTest(string str) => _str = str;
 
     [MessageCommand("sync")]
-    public IMessageCommandModuleResult TestSync() => Reply("Sync works.");
+    public IMessageCommandResult TestSync() => Reply("Sync works.");
 
     [MessageCommand("async")]
-    public async Task<IMessageCommandModuleResult> TestAsync()
+    public async Task<IMessageCommandResult> TestAsync()
     {
         await PostAsync(Reply("Async works"));
         return Empty();
     }
 
     [MessageCommand("arg opt")]
-    public IMessageCommandModuleResult TestArgOpt(string argument,
+    public IMessageCommandResult TestArgOpt(string argument,
         [MessageOption("user", "u")] Entities.DiscordUser? user, [MessageOption("string", "s")] string str = "hello")
     {
         return Reply(
@@ -34,10 +34,10 @@ public class CHCommandModuleTest : MessageCommandModule
 
     [MessageCommand("permissions")]
     [MessagePermission(Permissions.Administrator)]
-    public IMessageCommandModuleResult TestPermissions() => Reply("You are a admin.");
+    public IMessageCommandResult TestPermissions() => Reply("You are a admin.");
 
     [MessageCommand("di")]
-    public IMessageCommandModuleResult TestDi() => Reply($"DI gave me value `{_str}`.");
+    public IMessageCommandResult TestDi() => Reply($"DI gave me value `{_str}`.");
 
     [MessageCommand("no value")]
     public async Task TestNoValueAsync()
@@ -47,7 +47,7 @@ public class CHCommandModuleTest : MessageCommandModule
     }
 
     [MessageCommand("emojis")]
-    public async Task<IMessageCommandModuleResult> TestEmojisAsync()
+    public async Task<IMessageCommandResult> TestEmojisAsync()
     {
         await PostAsync(Reply("React with a emoji, author can only reply"));
         EventArgs.MessageReactionAddEventArgs? args = await WaitForReactionAsync(TimeSpan.FromSeconds(10), 

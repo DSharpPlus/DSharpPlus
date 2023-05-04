@@ -2,7 +2,7 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.CH.Message.Permission;
 
-public class PermissionMiddleware : IMessageMiddleware
+public class PermissionCondition : IMessageCondition
 {
     public async Task<bool> InvokeAsync(MessageContext context)
     {

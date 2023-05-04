@@ -29,10 +29,10 @@ internal class MessageCommandHandler
         _name = name;
     }
 
-    internal async Task TurnResultIntoActionAsync(IMessageCommandModuleResult result)
+    internal async Task TurnResultIntoActionAsync(IMessageCommandResult result)
     {
         // [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        void SetContentAndEmbeds(IMessageCommandModuleResult result, DiscordMessageBuilder messageBuilder)
+        void SetContentAndEmbeds(IMessageCommandResult result, DiscordMessageBuilder messageBuilder)
         {
             if (result.Content is not null)
             {
@@ -48,28 +48,28 @@ internal class MessageCommandHandler
         DiscordMessageBuilder msgBuilder = new();
         switch (result.Type)
         {
-            case MessageCommandModuleResultType.Empty: return;
-            case MessageCommandModuleResultType.Reply:
+            case MessageCommandResultType.Empty: return;
+            case MessageCommandResultType.Reply:
                 SetContentAndEmbeds(result, msgBuilder);
                 msgBuilder.WithReply(_module.Message.Id, false);
 
                 _newMessage = await _module.Message.Channel.SendMessageAsync(msgBuilder);
                 _module.NewestMessage = _newMessage;
                 break;
-            case MessageCommandModuleResultType.NoMentionReply:
+            case MessageCommandResultType.NoMentionReply:
                 SetContentAndEmbeds(result, msgBuilder);
                 msgBuilder.WithReply(_module.Message.Id, true);
 
                 _newMessage = await _module.Message.Channel.SendMessageAsync(msgBuilder);
                 _module.NewestMessage = _newMessage;
                 break;
-            case MessageCommandModuleResultType.Send:
+            case MessageCommandResultType.Send:
                 SetContentAndEmbeds(result, msgBuilder);
 
                 _newMessage = await _module.Message.Channel.SendMessageAsync(msgBuilder);
                 _module.NewestMessage = _newMessage;
                 break;
-            case MessageCommandModuleResultType.FollowUp:
+            case MessageCommandResultType.FollowUp:
                 SetContentAndEmbeds(result, msgBuilder);
                 if (_newMessage is not null)
                 {
@@ -78,7 +78,7 @@ internal class MessageCommandHandler
 
                 await _module.Message.Channel.SendMessageAsync(msgBuilder);
                 break;
-            case MessageCommandModuleResultType.Edit:
+            case MessageCommandResultType.Edit:
                 SetContentAndEmbeds(result, msgBuilder);
                 if (_newMessage is not null)
                 {
@@ -141,11 +141,11 @@ internal class MessageCommandHandler
                 }
             }
 
-            if (_configuration.Middlewares.Count != 0)
+            if (_configuration.Conditions.Count != 0)
             {
-                MessageMiddlewareHandler middlewareHandler = new(_configuration.Middlewares);
+                MessageConditionHandler conditionHandler = new(_configuration.Conditions);
                 bool shouldContinue =
-                    await middlewareHandler.StartGoingThroughMiddlewaresAsync(
+                    await conditionHandler.StartGoingThroughConditionsAsync(
                         new MessageContext { Message = _message, Data = new(_name, _data.Method) }, _scope);
                 if (!shouldContinue)
                 {
@@ -169,17 +169,17 @@ internal class MessageCommandHandler
             {
                 if (_data.IsAsync)
                 {
-                    Task<IMessageCommandModuleResult> task =
-                        (Task<IMessageCommandModuleResult>)_data.Method.Invoke(_module,
+                    Task<IMessageCommandResult> task =
+                        (Task<IMessageCommandResult>)_data.Method.Invoke(_module,
                             BindingFlags.OptionalParamBinding, null,
                             parameters, null)!;
-                    IMessageCommandModuleResult result = await task;
+                    IMessageCommandResult result = await task;
                     await TurnResultIntoActionAsync(result);
                 }
                 else
                 {
-                    IMessageCommandModuleResult result =
-                        (IMessageCommandModuleResult)_data.Method.Invoke(_module, parameters)!;
+                    IMessageCommandResult result =
+                        (IMessageCommandResult)_data.Method.Invoke(_module, parameters)!;
                     await TurnResultIntoActionAsync(result);
                 }
             }

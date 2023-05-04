@@ -12,32 +12,32 @@ public abstract class MessageCommandModule
     public DiscordMessage? NewestMessage { get; internal set; } = null;
     public DiscordClient Client { get; internal set; } = null!;
 
-    protected Task PostAsync(IMessageCommandModuleResult result) => _handler.TurnResultIntoActionAsync(result);
+    protected Task PostAsync(IMessageCommandResult result) => _handler.TurnResultIntoActionAsync(result);
 
-    protected IMessageCommandModuleResult Reply(MessageCommandModuleResult result, bool mention = false)
+    protected IMessageCommandResult Reply(MessageCommandResult result, bool mention = false)
     {
-        result.Type = mention ? MessageCommandModuleResultType.NoMentionReply : MessageCommandModuleResultType.Reply;
+        result.Type = mention ? MessageCommandResultType.NoMentionReply : MessageCommandResultType.Reply;
         return result;
     }
 
-    protected IMessageCommandModuleResult FollowUp(MessageCommandModuleResult result)
+    protected IMessageCommandResult FollowUp(MessageCommandResult result)
     {
-        result.Type = MessageCommandModuleResultType.FollowUp;
+        result.Type = MessageCommandResultType.FollowUp;
         return result;
     }
 
-    protected IMessageCommandModuleResult Edit(MessageCommandModuleResult result)
+    protected IMessageCommandResult Edit(MessageCommandResult result)
     {
-        result.Type = MessageCommandModuleResultType.Edit;
+        result.Type = MessageCommandResultType.Edit;
         return result;
     }
 
-    protected IMessageCommandModuleResult Empty() =>
-        new MessageCommandModuleResult { Type = MessageCommandModuleResultType.Empty };
+    protected IMessageCommandResult Empty() =>
+        new MessageCommandResult { Type = MessageCommandResultType.Empty };
 
-    protected IMessageCommandModuleResult Send(MessageCommandModuleResult result)
+    protected IMessageCommandResult Send(MessageCommandResult result)
     {
-        result.Type = MessageCommandModuleResultType.Send;
+        result.Type = MessageCommandResultType.Send;
         return result;
     }
 

@@ -8,12 +8,12 @@ public class CHConfiguration
 {
     public required Assembly Assembly { get; set; }
     public ServiceCollection? Services { get; set; }
-    internal List<Type> Middlewares { get; set; } = new();
+    internal List<Type> Conditions { get; set; } = new();
     public string? Prefix { get; set; }
 
-    public CHConfiguration AddMessageMiddleware<T>() where T : Message.IMessageMiddleware
+    public CHConfiguration AddMessageCondition<T>() where T : Message.IMessageCondition
     {
-        Middlewares.Add(typeof(T));
+        Conditions.Add(typeof(T));
         return this;
     }
 }
