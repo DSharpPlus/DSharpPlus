@@ -141,9 +141,10 @@ internal class MessageCommandHandler
                 }
             }
 
-            if (_configuration.Conditions.Count != 0)
+            if (_configuration.ConditionBuilders.Count != 0)
             {
-                MessageConditionHandler conditionHandler = new(_configuration.Conditions);
+                MessageConditionHandler conditionHandler =
+                    new(_configuration.ConditionBuilders);
                 bool shouldContinue =
                     await conditionHandler.StartGoingThroughConditionsAsync(
                         new MessageContext { Message = _message, Data = new(_name, _data.Method) }, _scope);

@@ -41,7 +41,7 @@ using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.EventArgs;
 using DSharpPlus.VoiceNext;
 using DSharpPlus.CH;
-using DSharpPlus.CH.Message.Permission;
+using DSharpPlus.CH.Message.Conditions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 

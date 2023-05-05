@@ -18,3 +18,6 @@
 - [ ] Better parameter binding
 - [ ] Make a better tree for command storing
 - [ ] Better lookup for said tree. Preferably parent-child type of tree.
+
+## Decisions
+- Should we continue using DSharpPlus.Interactivity or should it be reimplemented into CommandModule?
