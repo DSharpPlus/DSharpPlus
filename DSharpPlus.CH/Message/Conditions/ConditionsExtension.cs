@@ -1,6 +1,6 @@
-namespace DSharpPlus.CH.Message.Permission;
+namespace DSharpPlus.CH.Message.Conditions;
 
-public static class PermissionMiddlewareExtension
+public static class ConditionsExtension
 {
     public static CHConfiguration UsePermission(this CHConfiguration configuration)
     {

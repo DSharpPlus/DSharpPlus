@@ -1,6 +1,6 @@
 using DSharpPlus.Entities;
 
-namespace DSharpPlus.CH.Message.Permission;
+namespace DSharpPlus.CH.Message.Conditions;
 
 public class PermissionCondition : IMessageCondition
 {

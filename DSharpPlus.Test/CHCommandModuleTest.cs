@@ -1,7 +1,9 @@
 using System;
+using System.Linq.Expressions;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus.CH.Message;
-using DSharpPlus.CH.Message.Permission;
+using DSharpPlus.CH.Message.Conditions;
 
 namespace DSharpPlus.Test;
 
@@ -25,12 +27,11 @@ public class CHCommandModuleTest : MessageCommandModule
     [MessageCommand("arg opt")]
     public IMessageCommandResult TestArgOpt(string argument,
         [MessageOption("user", "u")] Entities.DiscordUser? user, [MessageOption("string", "s")] string str = "hello")
-    {
-        return Reply(
+        => Reply(
             user is not null
                 ? $"Argument was `{argument}`, user {user.Username}, and string was `{str}`."
                 : $"Argument was `{argument}`, user wasn't provided, and string was `{str}`.");
-    }
+
 
     [MessageCommand("permissions")]
     [MessagePermission(Permissions.Administrator)]
