@@ -4,6 +4,8 @@ namespace DSharpPlus.CH.Message.Conditions;
 
 public class PermissionCondition : IMessageCondition
 {
+    public static PermissionConditionConfiguration Configuration = null!;
+    
     public async Task<bool> InvokeAsync(MessageContext context)
     {
         MessagePermissionAttribute? metadata = context.Data.GetMetadata<MessagePermissionAttribute>();
@@ -14,10 +16,6 @@ public class PermissionCondition : IMessageCondition
 
         if (context.Message.Channel.GuildId is null)
         {
-            DiscordMessageBuilder msgBuilder = new();
-            msgBuilder.WithReply(context.Message.Id);
-            msgBuilder.WithContent("This command can only be used in a guild.");
-            await context.Message.Channel.SendMessageAsync(msgBuilder);
             return false;
         }
 
@@ -29,10 +27,13 @@ public class PermissionCondition : IMessageCondition
         }
         else
         {
-            DiscordMessageBuilder msgBuilder = new();
-            msgBuilder.WithContent("You do not have enough permissions to use this command.");
-            msgBuilder.WithReply(context.Message.Id);
-            await context.Message.Channel.SendMessageAsync(msgBuilder);
+            if (Configuration.MessageFunc is not null && Configuration.SendAMessage)
+            {
+                await context.Message.Channel.SendMessageAsync(Configuration.MessageFunc(context));
+            }
+            else if (!Configuration.SendAMessage)
+            {
+            }
             return false;
         }
     }

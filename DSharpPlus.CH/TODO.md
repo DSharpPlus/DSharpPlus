@@ -3,7 +3,7 @@
 ## Featurs
 - [X] Implement the basic command handling
 - [X] Implementing command parsing and converting.
-- [X] Implementing middleware (Can be improved)
+- [X] Implementing middleware ~~(Can be improved)~~ (Is improved and called conditions)
 - [X] Implement a default error handler for parsing/converting and allow the developer to change that.
 - [X] Making tests in DSharpPlus.Test
 - [X] Implement test for everything to make sure it works.

@@ -1,5 +1,5 @@
-using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using DSharpPlus.CH.Message.Conditions;
 
 namespace DSharpPlus.CH.Message.Internals;
 
@@ -16,7 +16,18 @@ internal class MessageConditionHandler
         {
             Func<IServiceProvider, IMessageCondition> func = _conditionConstructor[i];
             IMessageCondition condition = func(scope.ServiceProvider);
-            if (!await condition.InvokeAsync(context))
+            Task<bool> task = condition.InvokeAsync(context);
+            bool result;
+            if (task.IsCompletedSuccessfully)
+            {
+                result = task.Result;
+            }
+            else
+            {
+                result = await task;
+            }
+
+            if (!result)
             {
                 return false;
             }

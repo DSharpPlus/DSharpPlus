@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
-using DSharpPlus.CH.Message;
+using DSharpPlus.CH.Message.Conditions;
 
 namespace DSharpPlus.CH;
 
@@ -12,7 +12,7 @@ public class CHConfiguration
     internal List<Func<IServiceProvider, IMessageCondition>> ConditionBuilders { get; set; } = new();
     public string? Prefix { get; set; }
 
-    public CHConfiguration AddMessageCondition<T>() where T : IMessageCondition
+    public CHConfiguration UseMessageCondition<T>() where T : IMessageCondition
     {
         Type type = typeof(T);
         List<Expression> expressions = new();

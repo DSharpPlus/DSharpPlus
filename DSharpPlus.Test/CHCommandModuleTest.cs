@@ -1,6 +1,4 @@
 using System;
-using System.Linq.Expressions;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using DSharpPlus.CH.Message;
 using DSharpPlus.CH.Message.Conditions;
@@ -41,7 +39,7 @@ public class CHCommandModuleTest : MessageCommandModule
     public IMessageCommandResult TestDi() => Reply($"DI gave me value `{_str}`.");
 
     [MessageCommand("no value")]
-    public async Task TestNoValueAsync()
+    public async ValueTask TestNoValueAsync()
     {
         await PostAsync(Reply("This returns nothing."));
         return;
@@ -70,4 +68,8 @@ public class CHCommandModuleTest : MessageCommandModule
         => Reply(str is null
             ? $"Remaining arguments is `{arguments}`. Str is null"
             : $"Remaining arguments is `{arguments}`. Str is `{str}`.");
+
+    [MessageCommand("cooldowns"), Cooldown(10)]
+    public IMessageCommandResult TestCooldowns()
+        => Reply("No cooldowns.");
 }

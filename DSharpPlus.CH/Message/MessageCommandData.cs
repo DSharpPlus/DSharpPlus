@@ -6,7 +6,7 @@ public class MessageCommandData
 {
     private MethodInfo _method;
 
-    public string Name { get; set; }
+    public string Name { get; private set; }
     // public x Options { get; set; }
     // public x Arguments { get; set; } 
     // Implement above later.

@@ -179,6 +179,7 @@ internal sealed class TestBot
             Services = chServices
         };
         chConfiguration.UsePermission();
+        chConfiguration.UseCooldown();
         this.Discord.UseCH(chConfiguration);
 
         //this.Discord.MessageCreated += async e =>

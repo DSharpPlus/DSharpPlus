@@ -47,7 +47,7 @@ internal class CommandModuleRegister
                 {
                     MessageOptionAttribute? paramAttribute = parameter.GetCustomAttribute<MessageOptionAttribute>();
                     MessageCommandParameterData parameterData = new();
-                    
+
                     if (paramAttribute is null)
                     {
                         if (cantConsumeMoreArguments)
@@ -126,7 +126,9 @@ internal class CommandModuleRegister
                 }
 
                 bool isAsync = method.ReturnType.GetMethod(nameof(Task.GetAwaiter)) is not null;
-                bool returnsNothing = method.ReturnType == typeof(Task) || method.ReturnType == typeof(void);
+                bool returnsNothing = method.ReturnType == typeof(void)
+                                      || (method.ReturnType.GetMethod(nameof(Task.GetAwaiter)) is not null &&
+                                          method.ReturnType.GenericTypeArguments.Length == 0);
                 MessageCommandMethodData methodData = new()
                 {
                     Module = module,

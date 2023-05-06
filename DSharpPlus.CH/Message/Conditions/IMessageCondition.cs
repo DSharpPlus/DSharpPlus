@@ -1,4 +1,4 @@
-namespace DSharpPlus.CH.Message;
+namespace DSharpPlus.CH.Message.Conditions;
 
 public interface IMessageCondition
 {
