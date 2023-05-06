@@ -1,7 +1,9 @@
 using System.Reflection;
 using DSharpPlus.CH.Message.Internals;
 using DSharpPlus.CH.Message;
+using DSharpPlus.CH.Exceptions;
 using DSharpPlus.Entities;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.CH.Internals;
 
@@ -20,8 +22,8 @@ internal class CommandModuleRegister
 
         foreach (Type? @class in classes)
         {
-            MessageCommandModuleData data = new(@class);
-            MessageCommandModuleData module = new(@class);
+            MessageCommandModuleData module = new();
+            module.Factory = ActivatorUtilities.CreateFactory(@class, Array.Empty<Type>());
 
             MethodInfo[] methods = @class.GetMethods();
             if (methods.Length == 0)
@@ -52,7 +54,8 @@ internal class CommandModuleRegister
                     {
                         if (cantConsumeMoreArguments)
                         {
-                            throw new Exception($"You cannot have more arguments for method {method.Name}.");
+                            throw new InvalidMessageModuleStructure(
+                                $"You cannot have more arguments for method {method.Name}.");
                         }
 
                         parameterData.IsPositionalArgument = true;
@@ -63,7 +66,8 @@ internal class CommandModuleRegister
                         {
                             if (parameter.ParameterType != typeof(string))
                             {
-                                throw new Exception("You need to use string if you are using RemainingTextAttribute.");
+                                throw new InvalidMessageModuleStructure(
+                                    "You need to use string if you are using RemainingTextAttribute.");
                             }
 
                             parameterData.WillConsumeRestOfArguments = true;
@@ -119,7 +123,8 @@ internal class CommandModuleRegister
                     }
                     else
                     {
-                        throw new NotImplementedException();
+                        throw new InvalidMessageModuleStructure(
+                            $"You cannot use type {parameterType.Name} as a parameter.");
                     }
 
                     parameters.Add(parameterData);

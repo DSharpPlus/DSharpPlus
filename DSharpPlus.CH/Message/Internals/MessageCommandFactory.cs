@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.CH.Message.Internals;
 
@@ -153,7 +154,6 @@ internal class MessageCommandFactory
             }
         }
 
-        Console.WriteLine(options.ContainsKey("s"));
         int positionalArgumentPosition = 0;
         Dictionary<string, string?> mappedValues = new();
         foreach (MessageCommandParameterData data in tree.Data.Parameters)
@@ -241,7 +241,7 @@ internal class MessageCommandFactory
                         }
 
                         stringBuilder.Remove(stringBuilder.Length - 1, 1);
-                        
+
                         mappedValues.Add(data.Name, stringBuilder.ToString());
                         continue;
                     }
@@ -296,7 +296,7 @@ internal class MessageCommandFactory
             }
         }
 
-        Console.WriteLine($"Took {Stopwatch.GetElapsedTime(startTime).TotalNanoseconds}ns");
+        client.Logger.LogDebug("Took {NsExecution}ns", Stopwatch.GetElapsedTime(startTime).TotalNanoseconds);
 
         IServiceScope scope = _services.CreateScope(); // This will need to be disposed later somehow.
 

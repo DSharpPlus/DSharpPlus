@@ -32,16 +32,16 @@ internal class MessageCommandHandler
     internal async Task TurnResultIntoActionAsync(IMessageCommandResult result)
     {
         // [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        void SetContentAndEmbeds(IMessageCommandResult result, DiscordMessageBuilder messageBuilder)
+        void SetContentAndEmbeds(IMessageCommandResult messageResult, DiscordMessageBuilder messageBuilder)
         {
-            if (result.Content is not null)
+            if (messageResult.Content is not null)
             {
-                messageBuilder.WithContent(result.Content);
+                messageBuilder.WithContent(messageResult.Content);
             }
 
-            if (result.Embeds is not null)
+            if (messageResult.Embeds is not null)
             {
-                messageBuilder.AddEmbeds(result.Embeds);
+                messageBuilder.AddEmbeds(messageResult.Embeds);
             }
         }
 
@@ -51,7 +51,7 @@ internal class MessageCommandHandler
             case MessageCommandResultType.Empty: return;
             case MessageCommandResultType.Reply:
                 SetContentAndEmbeds(result, msgBuilder);
-                msgBuilder.WithReply(_module.Message.Id, false);
+                msgBuilder.WithReply(_module.Message.Id);
 
                 _newMessage = await _module.Message.Channel.SendMessageAsync(msgBuilder);
                 _module.NewestMessage = _newMessage;
@@ -95,26 +95,12 @@ internal class MessageCommandHandler
     {
         try
         {
+            System.Diagnostics.Stopwatch sw = new();
+            sw.Start();
+            
             MessageCommandModuleData moduleData = _data.Module;
-            ConstructorInfo[] constructors = moduleData.Type.GetConstructors();
-            if (constructors.Length != 0)
-            {
-                ConstructorInfo constructor = constructors[0];
-                ParameterInfo[] constructorParameters = constructor.GetParameters();
-                object?[] constructorParams = new object[constructorParameters.Length];
-                for (int i = 0; i < constructorParameters.Length; i++)
-                {
-                    Type type = constructorParameters[i].ParameterType;
-                    constructorParams[i] = _scope.ServiceProvider.GetService(type);
-                }
 
-                _module = (Activator.CreateInstance(moduleData.Type, constructorParams) as MessageCommandModule)!;
-            }
-            else
-            {
-                _module = (Activator.CreateInstance(moduleData.Type, null) as MessageCommandModule)!;
-            }
-
+            _module = (MessageCommandModule)moduleData.Factory.Invoke(_scope.ServiceProvider, null);
             _module.Message = _message;
             _module._handler = this;
             _module.Client = _client;
@@ -153,7 +139,9 @@ internal class MessageCommandHandler
                     return;
                 }
             }
-
+            sw.Stop();
+            _client.Logger.LogDebug("Took {NsExecution}ns to process everything", sw.Elapsed.TotalNanoseconds);
+            
             if (_data.ReturnsNothing)
             {
                 if (_data.IsAsync)
@@ -190,7 +178,8 @@ internal class MessageCommandHandler
         catch (Exception e)
         {
             _client.Logger.LogError(
-                $"Exception was thrown while trying to execute command {_data.Method.Name}. Was thrown from {e.ToString()}");
+                "Exception was thrown while trying to execute command {MethodName}. Was thrown from {Exception}",
+                _data.Method.Name, e.ToString());
         }
     }
 }
