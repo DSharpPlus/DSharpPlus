@@ -5,9 +5,6 @@ using System.Collections.Generic;
 using DSharpPlus.Entities;
 using DSharpPlus.Enums;
 
-/// <summary>
-/// Provides a way
-/// </summary>
 public class AutoModerationRuleEditModel : BaseEditModel
 {
     /// <summary>
