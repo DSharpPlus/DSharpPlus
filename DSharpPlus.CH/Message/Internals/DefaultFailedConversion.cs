@@ -5,7 +5,7 @@ namespace DSharpPlus.CH.Message.Internals;
 /// <summary>
 /// The default class for error handling. 
 /// </summary>
-internal class DefaultFailedConversion : IFailedConvertion
+internal class DefaultFailedConversion : IFailedConversion
 {
     public async Task HandleErrorAsync(InvalidMessageConvertionError error, DiscordMessage message)
     {

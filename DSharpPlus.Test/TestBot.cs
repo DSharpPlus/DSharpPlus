@@ -170,17 +170,13 @@ internal sealed class TestBot
             this.SlashCommandService.RegisterCommands(typeof(TestBot).GetTypeInfo().Assembly, this.Config.SlashCommandGuild);
         }
 
-        var chServices = new ServiceCollection();
-        chServices.AddScoped<string>(s => "This is a value.");
-        var chConfiguration = new CHConfiguration
-        {
-            Assembly = Assembly.GetExecutingAssembly(),
-            Prefix = this.Config.CommandPrefixes[0], // Only supports one for now.
-            Services = chServices
-        };
-        chConfiguration.UsePermission();
-        chConfiguration.UseCooldown();
-        this.Discord.UseCH(chConfiguration);
+        CHBuilder builder = new();
+        builder.AddAssembly(Assembly.GetExecutingAssembly());
+        builder.AddPrefix(this.Config.CommandPrefixes);
+        builder.Services.AddScoped<string>(s => "Hello, world!"); 
+        
+        CommandController controller = this.Discord.UseCH(builder);
+        controller.UseStandardConditions();
 
         //this.Discord.MessageCreated += async e =>
         //{

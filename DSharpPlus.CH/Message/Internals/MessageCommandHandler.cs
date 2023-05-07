@@ -1,4 +1,5 @@
 using System.Reflection;
+using DSharpPlus.CH.Message.Conditions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using DSharpPlus.Entities;
@@ -14,19 +15,20 @@ internal class MessageCommandHandler
     private IServiceScope _scope;
     private DiscordClient _client;
     private Dictionary<string, string?> _values;
-    private CHConfiguration _configuration;
     private string _name;
+    private readonly IReadOnlyList<Func<IServiceProvider, IMessageCondition>> _conditionBuilders;
 
     public MessageCommandHandler(DiscordMessage message, MessageCommandMethodData data, IServiceScope scope,
-        DiscordClient client, Dictionary<string, string?> values, CHConfiguration configuration, string name)
+        DiscordClient client, Dictionary<string, string?> values, string name,
+        IReadOnlyList<Func<IServiceProvider, IMessageCondition>> conditionBuilders)
     {
         _message = message;
         _data = data;
         _scope = scope;
         _client = client;
         _values = values;
-        _configuration = configuration;
         _name = name;
+        _conditionBuilders = conditionBuilders;
     }
 
     internal async Task TurnResultIntoActionAsync(IMessageCommandResult result)
@@ -97,7 +99,7 @@ internal class MessageCommandHandler
         {
             System.Diagnostics.Stopwatch sw = new();
             sw.Start();
-            
+
             MessageCommandModuleData moduleData = _data.Module;
 
             _module = (MessageCommandModule)moduleData.Factory.Invoke(_scope.ServiceProvider, null);
@@ -115,7 +117,7 @@ internal class MessageCommandHandler
                 }
                 catch (Exceptions.ConversionFailedException e)
                 {
-                    await _scope.ServiceProvider.GetRequiredService<IFailedConvertion>().HandleErrorAsync(
+                    await _scope.ServiceProvider.GetRequiredService<IFailedConversion>().HandleErrorAsync(
                         new InvalidMessageConvertionError
                         {
                             Name = e.Name,
@@ -124,13 +126,14 @@ internal class MessageCommandHandler
                             Type = e.Type,
                         }
                         , _message);
+                    return;
                 }
             }
 
-            if (_configuration.ConditionBuilders.Count != 0)
+            if (_conditionBuilders.Count != 0)
             {
                 MessageConditionHandler conditionHandler =
-                    new(_configuration.ConditionBuilders);
+                    new(_conditionBuilders);
                 bool shouldContinue =
                     await conditionHandler.StartGoingThroughConditionsAsync(
                         new MessageContext { Message = _message, Data = new(_name, _data.Method) }, _scope);
@@ -139,9 +142,10 @@ internal class MessageCommandHandler
                     return;
                 }
             }
+
             sw.Stop();
             _client.Logger.LogDebug("Took {NsExecution}ns to process everything", sw.Elapsed.TotalNanoseconds);
-            
+
             if (_data.ReturnsNothing)
             {
                 if (_data.IsAsync)

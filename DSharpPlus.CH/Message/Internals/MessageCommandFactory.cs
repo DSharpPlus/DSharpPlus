@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text;
+using DSharpPlus.CH.Message.Conditions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -8,14 +9,20 @@ namespace DSharpPlus.CH.Message.Internals;
 internal class MessageCommandFactory
 {
     private readonly MessageCommandTree _commands = new();
-    internal ServiceProvider _services = null!;
-    internal CHConfiguration _configuration = null!;
+    private List<Func<IServiceProvider, IMessageCondition>> _messageConditionBuilders = new();
+    private IServiceProvider _services;
 
     internal void AddCommand(string name, MessageCommandMethodData data) => _commands.Branches!.Add(name, new(data));
     internal void AddBranch(string name, MessageCommandTree branch) => _commands.Branches!.Add(name, branch);
 
     internal MessageCommandTree? GetBranch(string name) =>
         _commands.Branches!.TryGetValue(name, out MessageCommandTree? result) ? result : null;
+
+    public MessageCommandFactory(IServiceProvider services)
+        => _services = services;
+
+    internal void AddMessageConditionBuilder(Func<IServiceProvider, IMessageCondition> func)
+        => _messageConditionBuilders.Add(func);
 
     internal void ConstructAndExecuteCommand(Entities.DiscordMessage message,
         DiscordClient client, ref ReadOnlySpan<char> args, List<Range> argsRange)
@@ -29,6 +36,7 @@ internal class MessageCommandFactory
 
         foreach (Range argRange in argsRange)
         {
+                argRange.Start, argRange.End);
             ReadOnlySpan<char> arg = args[argRange.Start..argRange.End];
             if (tree is null)
             {
@@ -63,7 +71,7 @@ internal class MessageCommandFactory
             return;
         }
 
-        string name = args[_configuration.Prefix!.Length..end].ToString();
+        string name = args[..end].ToString();
 
         int quoteStart = 0;
         bool doingQuoteString = false;
@@ -165,7 +173,7 @@ internal class MessageCommandFactory
                 if (data.Type == MessageCommandParameterDataType.Bool && value is not null)
                 {
                     string strValue = args[value.Value.Start..value.Value.End].ToString();
-                    Task.Run(async () => await _services.GetRequiredService<IFailedConvertion>().HandleErrorAsync(
+                    Task.Run(async () => await _services.GetRequiredService<IFailedConversion>().HandleErrorAsync(
                         new InvalidMessageConvertionError
                         {
                             Name = name,
@@ -300,7 +308,8 @@ internal class MessageCommandFactory
 
         IServiceScope scope = _services.CreateScope(); // This will need to be disposed later somehow.
 
-        MessageCommandHandler handler = new(message, tree.Data, scope, client, mappedValues, _configuration, name);
+        MessageCommandHandler handler = new(message, tree.Data, scope, client, mappedValues, name,
+            _messageConditionBuilders);
         _ = handler.BuildModuleAndExecuteCommandAsync();
     }
 }

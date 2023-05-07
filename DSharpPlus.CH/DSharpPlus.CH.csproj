@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <ProjectReference Include="..\DSharpPlus\DSharpPlus.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
   </ItemGroup>
   <ItemGroup>

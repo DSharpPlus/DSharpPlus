@@ -1,8 +1,10 @@
+using DSharpPlus.CH.Internals;
+
 namespace DSharpPlus.CH.Message.Conditions;
 
 public static class ConditionsExtension
 {
-    public static CHConfiguration UsePermission(this CHConfiguration configuration,
+    public static CommandController UsePermission(this CommandController configuration,
         PermissionConditionConfiguration? permissionConfiguration = null)
     {
         PermissionCondition.Configuration = permissionConfiguration ?? new()
@@ -19,19 +21,19 @@ public static class ConditionsExtension
         return configuration;
     }
 
-    public static CHConfiguration UseCooldown(this CHConfiguration configuration)
+    public static CommandController UseCooldown(this CommandController configuration)
     {
         configuration.UseMessageCondition<CooldownCondition>();
         return configuration;
     }
 
-    public static CHConfiguration UseRequireGuild(this CHConfiguration configuration)
+    public static CommandController UseRequireGuild(this CommandController configuration)
     {
         configuration.UseMessageCondition<RequireGuildCondition>();
         return configuration;
     }
 
-    public static CHConfiguration UseStandardConditions(this CHConfiguration configuration)
+    public static CommandController UseStandardConditions(this CommandController configuration)
     {
         configuration.UseRequireGuild();
         configuration.UsePermission();
