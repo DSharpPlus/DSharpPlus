@@ -41,6 +41,7 @@ public abstract class MessageCommandModule
         return result;
     }
 
+    [Obsolete("Use DSharpPlus.Interactivity")]
     protected async Task<EventArgs.MessageReactionAddEventArgs?> WaitForReactionAsync(TimeSpan delay,
         Func<EventArgs.MessageReactionAddEventArgs, bool>? condition = null,
         DiscordMessage? message = null)

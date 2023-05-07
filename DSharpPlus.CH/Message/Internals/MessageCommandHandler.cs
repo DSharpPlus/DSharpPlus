@@ -3,6 +3,7 @@ using DSharpPlus.CH.Message.Conditions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using DSharpPlus.Entities;
+using Stopwatch = System.Diagnostics.Stopwatch;
 
 namespace DSharpPlus.CH.Message.Internals;
 
@@ -97,8 +98,7 @@ internal class MessageCommandHandler
     {
         try
         {
-            System.Diagnostics.Stopwatch sw = new();
-            sw.Start();
+            long startTime = Stopwatch.GetTimestamp();
 
             MessageCommandModuleData moduleData = _data.Module;
 
@@ -117,7 +117,7 @@ internal class MessageCommandHandler
                 }
                 catch (Exceptions.ConversionFailedException e)
                 {
-                    await _scope.ServiceProvider.GetRequiredService<IFailedConversion>().HandleErrorAsync(
+                    await _scope.ServiceProvider.GetRequiredService<IFailedErrors>().HandleConversionAsync(
                         new InvalidMessageConvertionError
                         {
                             Name = e.Name,
@@ -143,44 +143,60 @@ internal class MessageCommandHandler
                 }
             }
 
-            sw.Stop();
-            _client.Logger.LogDebug("Took {NsExecution}ns to process everything", sw.Elapsed.TotalNanoseconds);
+            TimeSpan elapsedTime = Stopwatch.GetElapsedTime(startTime);
+            _client.Logger.LogDebug("Took {NsExecution}ns to process everything", elapsedTime.TotalNanoseconds);
 
-            if (_data.ReturnsNothing)
+            try
             {
-                if (_data.IsAsync)
+                if (_data.ReturnsNothing)
                 {
-                    await (Task)_data.Method.Invoke(_module, BindingFlags.OptionalParamBinding,
-                        null, parameters, null)!;
+                    if (_data.IsAsync)
+                    {
+                        await (Task)_data.Method.Invoke(_module, BindingFlags.OptionalParamBinding,
+                            null, parameters, null)!;
+                    }
+                    else
+                    {
+                        _data.Method.Invoke(_module, BindingFlags.OptionalParamBinding, null, parameters, null);
+                    }
                 }
                 else
                 {
-                    _data.Method.Invoke(_module, BindingFlags.OptionalParamBinding, null, parameters, null);
+                    if (_data.IsAsync)
+                    {
+                        Task<IMessageCommandResult> task =
+                            (Task<IMessageCommandResult>)_data.Method.Invoke(_module,
+                                BindingFlags.OptionalParamBinding, null,
+                                parameters, null)!;
+                        IMessageCommandResult result = await task;
+                        await TurnResultIntoActionAsync(result);
+                    }
+                    else
+                    {
+                        IMessageCommandResult result =
+                            (IMessageCommandResult)_data.Method.Invoke(_module, parameters)!;
+                        await TurnResultIntoActionAsync(result);
+                    }
                 }
             }
-            else
+            catch (TargetInvocationException e)
             {
-                if (_data.IsAsync)
-                {
-                    Task<IMessageCommandResult> task =
-                        (Task<IMessageCommandResult>)_data.Method.Invoke(_module,
-                            BindingFlags.OptionalParamBinding, null,
-                            parameters, null)!;
-                    IMessageCommandResult result = await task;
-                    await TurnResultIntoActionAsync(result);
-                }
-                else
-                {
-                    IMessageCommandResult result =
-                        (IMessageCommandResult)_data.Method.Invoke(_module, parameters)!;
-                    await TurnResultIntoActionAsync(result);
-                }
+                System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(e.InnerException ?? e).Throw();
+                throw e.InnerException;
+            }
+            catch (AggregateException e)
+            {
+                System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(e.InnerException ?? e).Throw();
+                throw e.InnerException;
             }
 
             _scope.Dispose();
         }
         catch (Exception e)
         {
+            await _scope.ServiceProvider.GetRequiredService<IFailedErrors>()
+                .HandleUnhandledExceptionAsync(e, _message);
+
             _client.Logger.LogError(
                 "Exception was thrown while trying to execute command {MethodName}. Was thrown from {Exception}",
                 _data.Method.Name, e.ToString());

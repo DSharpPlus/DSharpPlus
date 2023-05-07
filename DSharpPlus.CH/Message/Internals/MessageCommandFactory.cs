@@ -36,7 +36,6 @@ internal class MessageCommandFactory
 
         foreach (Range argRange in argsRange)
         {
-                argRange.Start, argRange.End);
             ReadOnlySpan<char> arg = args[argRange.Start..argRange.End];
             if (tree is null)
             {
@@ -54,7 +53,7 @@ internal class MessageCommandFactory
                 continue;
             }
 
-            if (tree?.Branches is not null && tree.Branches.TryGetValue(arg.ToString(), out MessageCommandTree? res2))
+            if (tree.Branches is not null && tree.Branches.TryGetValue(arg.ToString(), out MessageCommandTree? res2))
             {
                 tree = res2;
                 end = argRange.End;
@@ -138,7 +137,7 @@ internal class MessageCommandFactory
 
                 if (argSpan.StartsWith("\"") && argSpan.EndsWith("\""))
                 {
-                    options.Add(args[lastOption!.Value.Start..lastOption.Value!.End].ToString(),
+                    options.Add(args[lastOption!.Value.Start..lastOption.Value.End].ToString(),
                         new Range(argRange.Start.Value + 1, argRange.End.Value - 1));
                 }
                 else if (argSpan.StartsWith("\"") && !doingQuoteString)
@@ -148,7 +147,7 @@ internal class MessageCommandFactory
                 }
                 else if (doingQuoteString && argSpan.EndsWith("\""))
                 {
-                    options.Add(args[lastOption!.Value.Start..lastOption.Value!.End].ToString(),
+                    options.Add(args[lastOption!.Value.Start..lastOption.Value.End].ToString(),
                         new Range(quoteStart, argRange.End.Value - 1));
                     doingQuoteString = false;
                 }
@@ -157,7 +156,7 @@ internal class MessageCommandFactory
                 }
                 else
                 {
-                    options.Add(args[lastOption!.Value.Start..lastOption.Value!.End].ToString(), argRange);
+                    options.Add(args[lastOption!.Value.Start..lastOption.Value.End].ToString(), argRange);
                 }
             }
         }
@@ -173,7 +172,7 @@ internal class MessageCommandFactory
                 if (data.Type == MessageCommandParameterDataType.Bool && value is not null)
                 {
                     string strValue = args[value.Value.Start..value.Value.End].ToString();
-                    Task.Run(async () => await _services.GetRequiredService<IFailedConversion>().HandleErrorAsync(
+                    Task.Run(async () => await _services.GetRequiredService<IFailedErrors>().HandleConversionAsync(
                         new InvalidMessageConvertionError
                         {
                             Name = name,
@@ -185,7 +184,7 @@ internal class MessageCommandFactory
                 }
                 else if (data.Type != MessageCommandParameterDataType.Bool && value is null)
                 {
-                    Task.Run(async () => await new DefaultFailedConversion().HandleErrorAsync(
+                    Task.Run(async () => await new DefaultFailedErrors().HandleConversionAsync(
                         new InvalidMessageConvertionError
                         {
                             Name = name,

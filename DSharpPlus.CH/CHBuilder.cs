@@ -47,9 +47,9 @@ public class CHBuilder
 
         IConfiguration configuration = Configuration.Build();
         Services.AddSingleton(configuration);
-        if (!Services.Any(s => s.ServiceType == typeof(IFailedConversion)))
+        if (!Services.Any(s => s.ServiceType == typeof(IFailedErrors)))
         {
-            Services.AddSingleton<IFailedConversion>(new DefaultFailedConversion());
+            Services.AddSingleton<IFailedErrors>(new DefaultFailedErrors());
         }
         
         IServiceProvider provider = Services.BuildServiceProvider();
