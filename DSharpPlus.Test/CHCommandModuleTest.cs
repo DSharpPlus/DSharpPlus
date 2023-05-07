@@ -69,7 +69,11 @@ public class CHCommandModuleTest : MessageCommandModule
             ? $"Remaining arguments is `{arguments}`. Str is null"
             : $"Remaining arguments is `{arguments}`. Str is `{str}`.");
 
-    [MessageCommand("cooldowns"), Cooldown(10)]
+    [MessageCommand("cooldown"), Cooldown(10)]
     public IMessageCommandResult TestCooldowns()
-        => Reply("No cooldowns.");
+        => Reply("No cooldown.");
+
+    [MessageCommand("failing")]
+    public IMessageCommandResult TestFailing()
+        => throw new Exception("Fuck you");
 }

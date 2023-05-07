@@ -1,3 +1,5 @@
+using DSharpPlus.Entities;
+
 namespace DSharpPlus.CH.Message;
 
 /// <summary>
@@ -8,7 +10,9 @@ public class MessageContext
     /// <summary>
     /// The Discord message.
     /// </summary>
-    public required Entities.DiscordMessage Message { get; set; }
+    public required DiscordMessage Message { get; set; }
+    
+    public required DiscordClient Client { get; set; }
 
     /// <summary>
     /// Data related to the command module.

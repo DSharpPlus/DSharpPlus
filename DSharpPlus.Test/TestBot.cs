@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 //#pragma warning disable CS0618
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -113,11 +114,7 @@ internal sealed class TestBot
         this.Discord.ThreadMembersUpdated += this.Discord_ThreadMembersUpdated;
 
         // voice config and the voice service itself
-        VoiceNextConfiguration vcfg = new()
-        {
-            AudioFormat = AudioFormat.Default,
-            EnableIncoming = true
-        };
+        VoiceNextConfiguration vcfg = new() { AudioFormat = AudioFormat.Default, EnableIncoming = true };
 
         // build a dependency collection for commandsnext
         ServiceCollection depco = new();
@@ -150,11 +147,20 @@ internal sealed class TestBot
             ResponseMessage = "Sorry, but this wasn't a valid option, or does not belong to you!",
             PaginationButtons = new PaginationButtons()
             {
-                Stop = new DiscordButtonComponent(ButtonStyle.Danger, "stop", null, false, new DiscordComponentEmoji(862259725785497620)),
-                Left = new DiscordButtonComponent(ButtonStyle.Secondary, "left", null, false, new DiscordComponentEmoji(862259522478800916)),
-                Right = new DiscordButtonComponent(ButtonStyle.Secondary, "right", null, false, new DiscordComponentEmoji(862259691212242974)),
-                SkipLeft = new DiscordButtonComponent(ButtonStyle.Primary, "skipl", null, false, new DiscordComponentEmoji(862259605464023060)),
-                SkipRight = new DiscordButtonComponent(ButtonStyle.Primary, "skipr", null, false, new DiscordComponentEmoji(862259654403031050))
+                Stop =
+                    new DiscordButtonComponent(ButtonStyle.Danger, "stop", null, false,
+                        new DiscordComponentEmoji(862259725785497620)),
+                Left =
+                    new DiscordButtonComponent(ButtonStyle.Secondary, "left", null, false,
+                        new DiscordComponentEmoji(862259522478800916)),
+                Right =
+                    new DiscordButtonComponent(ButtonStyle.Secondary, "right", null, false,
+                        new DiscordComponentEmoji(862259691212242974)),
+                SkipLeft =
+                    new DiscordButtonComponent(ButtonStyle.Primary, "skipl", null, false,
+                        new DiscordComponentEmoji(862259605464023060)),
+                SkipRight = new DiscordButtonComponent(ButtonStyle.Primary, "skipr", null, false,
+                    new DiscordComponentEmoji(862259654403031050))
             }
         };
 
@@ -167,14 +173,16 @@ internal sealed class TestBot
 
         if (this.Config.SlashCommandGuild != 0)
         {
-            this.SlashCommandService.RegisterCommands(typeof(TestBot).GetTypeInfo().Assembly, this.Config.SlashCommandGuild);
+            this.SlashCommandService.RegisterCommands(typeof(TestBot).GetTypeInfo().Assembly,
+                this.Config.SlashCommandGuild);
         }
 
         CHBuilder builder = new();
         builder.AddAssembly(Assembly.GetExecutingAssembly());
         builder.AddPrefix(this.Config.CommandPrefixes);
-        builder.Services.AddScoped<string>(s => "Hello, world!"); 
-        
+        builder.Services.AddScoped<string>(s => "Hello, world!");
+        builder.Services.AddSingleton<DSharpPlus.CH.Message.IErrorHandler, CHErrorHandler>();
+
         CommandController controller = this.Discord.UseCH(builder);
         controller.UseStandardConditions();
 
@@ -193,7 +201,8 @@ internal sealed class TestBot
         bool testWaitForModal = true;
         if (!testWaitForModal)
         {
-            await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder().WithContent("Thank you!"));
+            await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage,
+                new DiscordInteractionResponseBuilder().WithContent("Thank you!"));
         }
 
         this.Discord.Logger.LogInformation("Got callback from user {User}, {Modal}", e.Interaction.User, e.Values);
@@ -203,13 +212,17 @@ internal sealed class TestBot
     {
         if (e.Id == "modal")
         {
-            await e.Interaction.CreateResponseAsync(InteractionResponseType.Modal, new DiscordInteractionResponseBuilder()
-                .WithTitle("Test!")
-                .WithCustomId("owo")
-                .AddComponents(new TextInputComponent("Short, optional", "short_opt", "Placeholder!"))
-                .AddComponents(new TextInputComponent("Long, optional", "long_opt", "Placeholder 2!", style: TextInputStyle.Paragraph))
-                .AddComponents(new TextInputComponent("Short, required", "short_req", "Placeholder 3!", style: TextInputStyle.Short, min_length: 10, max_length: 20))
-                .AddComponents(new TextInputComponent("Long, required", "long_req", "Placeholder 4!", "Lorem Ipsum", true, TextInputStyle.Paragraph, 100, 300))
+            await e.Interaction.CreateResponseAsync(InteractionResponseType.Modal,
+                new DiscordInteractionResponseBuilder()
+                    .WithTitle("Test!")
+                    .WithCustomId("owo")
+                    .AddComponents(new TextInputComponent("Short, optional", "short_opt", "Placeholder!"))
+                    .AddComponents(new TextInputComponent("Long, optional", "long_opt", "Placeholder 2!",
+                        style: TextInputStyle.Paragraph))
+                    .AddComponents(new TextInputComponent("Short, required", "short_req", "Placeholder 3!",
+                        style: TextInputStyle.Short, min_length: 10, max_length: 20))
+                    .AddComponents(new TextInputComponent("Long, required", "long_req", "Placeholder 4!", "Lorem Ipsum",
+                        true, TextInputStyle.Paragraph, 100, 300))
             );
         }
     }
@@ -221,7 +234,8 @@ internal sealed class TestBot
             return;
         }
 
-        this.Discord.Logger.LogInformation("AutoComplete: Focused: {Focused}, Data: {Data}", e.Interaction.Data.Options.First().Focused, e.Interaction.Data.Options.First().Value);
+        this.Discord.Logger.LogInformation("AutoComplete: Focused: {Focused}, Data: {Data}",
+            e.Interaction.Data.Options.First().Focused, e.Interaction.Data.Options.First().Value);
 
         DiscordInteractionDataOption option = e.Interaction.Data.Options.First();
 
@@ -238,7 +252,8 @@ internal sealed class TestBot
 
     private Task Discord_StickersUpdated(DiscordClient sender, GuildStickersUpdateEventArgs e)
     {
-        this.Discord.Logger.LogInformation("{GuildId}'s stickers updated: {StickerBeforeCount} -> {StickerAfterCount}", e.Guild.Id, e.StickersBefore.Count, e.StickersAfter.Count);
+        this.Discord.Logger.LogInformation("{GuildId}'s stickers updated: {StickerBeforeCount} -> {StickerAfterCount}",
+            e.Guild.Id, e.StickersBefore.Count, e.StickersAfter.Count);
         return Task.CompletedTask;
     }
 
@@ -279,7 +294,10 @@ internal sealed class TestBot
 
     private Task Discord_VoiceStateUpdated(DiscordClient client, VoiceStateUpdateEventArgs e)
     {
-        client.Logger.LogDebug(TestBotEventId, "Voice state changed for '{User}' (mute: {MutedBefore} -> {MutedAfter}; deaf: {DeafBefore} -> {DeafAfter})", e.User, e.Before?.IsServerMuted, e.After.IsServerMuted, e.Before?.IsServerDeafened, e.After.IsServerDeafened);
+        client.Logger.LogDebug(TestBotEventId,
+            "Voice state changed for '{User}' (mute: {MutedBefore} -> {MutedAfter}; deaf: {DeafBefore} -> {DeafAfter})",
+            e.User, e.Before?.IsServerMuted, e.After.IsServerMuted, e.Before?.IsServerDeafened,
+            e.After.IsServerDeafened);
         return Task.CompletedTask;
     }
 
@@ -296,7 +314,9 @@ internal sealed class TestBot
             return;
         }
 
-        e.Context.Client.Logger.LogError(TestBotEventId, e.Exception, "Exception occurred during {User}'s invocation of '{Command}'", e.Context.User.Username, e.Context.Command.QualifiedName);
+        e.Context.Client.Logger.LogError(TestBotEventId, e.Exception,
+            "Exception occurred during {User}'s invocation of '{Command}'", e.Context.User.Username,
+            e.Context.Command.QualifiedName);
 
         List<Exception> exs = new();
         if (e.Exception is AggregateException ae)
@@ -330,35 +350,38 @@ internal sealed class TestBot
 
     private Task CommandsNextService_CommandExecuted(CommandsNextExtension cnext, CommandExecutionEventArgs e)
     {
-        e.Context.Client.Logger.LogInformation(TestBotEventId, "User {User} executed '{Command}' in {Channel}", e.Context.User.Username, e.Command.QualifiedName, e.Context.Channel.Name);
+        e.Context.Client.Logger.LogInformation(TestBotEventId, "User {User} executed '{Command}' in {Channel}",
+            e.Context.User.Username, e.Command.QualifiedName, e.Context.Channel.Name);
         return Task.CompletedTask;
     }
 
     private async Task SlashCommandService_CommandErrored(SlashCommandsExtension sc, SlashCommandErrorEventArgs e)
     {
-        e.Context.Client.Logger.LogError(TestBotEventId, e.Exception, "Exception occurred during {User}'s invocation of '{Command}'", e.Context.User.Username, e.Context.CommandName);
+        e.Context.Client.Logger.LogError(TestBotEventId, e.Exception,
+            "Exception occurred during {User}'s invocation of '{Command}'", e.Context.User.Username,
+            e.Context.CommandName);
 
         DiscordEmoji emoji = DiscordEmoji.FromName(e.Context.Client, ":no_entry:");
 
         // let's wrap the response into an embed
         DiscordEmbedBuilder embed = new()
         {
-            Title = "Error",
-            Description = $"{emoji} Error!",
-            Color = new DiscordColor(0xFF0000) // red
+            Title = "Error", Description = $"{emoji} Error!", Color = new DiscordColor(0xFF0000) // red
         };
         await e.Context.CreateResponseAsync(embed);
     }
 
     private Task SlashCommandService_CommandReceived(SlashCommandsExtension sc, SlashCommandInvokedEventArgs e)
     {
-        e.Context.Client.Logger.LogInformation(TestBotEventId, "User {User} tries to execute '{Command}' in {Channel}", e.Context.User.Username, e.Context.CommandName, e.Context.Channel.Name);
+        e.Context.Client.Logger.LogInformation(TestBotEventId, "User {User} tries to execute '{Command}' in {Channel}",
+            e.Context.User.Username, e.Context.CommandName, e.Context.Channel.Name);
         return Task.CompletedTask;
     }
 
     private Task SlashCommandService_CommandExecuted(SlashCommandsExtension sc, SlashCommandExecutedEventArgs e)
     {
-        e.Context.Client.Logger.LogInformation(TestBotEventId, "User {User} executed '{Command}' in {Channel}", e.Context.User.Username, e.Context.CommandName, e.Context.Channel.Name);
+        e.Context.Client.Logger.LogInformation(TestBotEventId, "User {User} executed '{Command}' in {Channel}",
+            e.Context.User.Username, e.Context.CommandName, e.Context.Channel.Name);
         return Task.CompletedTask;
     }
 
@@ -377,12 +400,14 @@ internal sealed class TestBot
 
                 if (bfr is null)
                 {
-                    client.Logger.LogDebug(TestBotEventId, "Guild update: property {Property} in before was null", prop.Name);
+                    client.Logger.LogDebug(TestBotEventId, "Guild update: property {Property} in before was null",
+                        prop.Name);
                 }
 
                 if (aft is null)
                 {
-                    client.Logger.LogDebug(TestBotEventId, "Guild update: property {Property} in after was null", prop.Name);
+                    client.Logger.LogDebug(TestBotEventId, "Guild update: property {Property} in after was null",
+                        prop.Name);
                 }
 
                 if (bfr is null || aft is null)
@@ -412,7 +437,9 @@ internal sealed class TestBot
 
     private async Task Discord_ChannelDeleted(DiscordClient client, ChannelDeleteEventArgs e)
     {
-        IEnumerable<DiscordAuditLogChannelEntry> logs = (await e.Guild.GetAuditLogsAsync(5, null, AuditLogActionType.ChannelDelete)).Cast<DiscordAuditLogChannelEntry>();
+        IEnumerable<DiscordAuditLogChannelEntry> logs =
+            (await e.Guild.GetAuditLogsAsync(5, null, AuditLogActionType.ChannelDelete))
+            .Cast<DiscordAuditLogChannelEntry>();
         foreach (DiscordAuditLogChannelEntry entry in logs)
         {
             Console.WriteLine("TargetId: " + entry.Target.Id);
@@ -421,19 +448,22 @@ internal sealed class TestBot
 
     private Task Discord_ThreadCreated(DiscordClient client, ThreadCreateEventArgs e)
     {
-        client.Logger.LogDebug(eventId: TestBotEventId, "Thread created in {GuildName}. Thread Name: {ThreadName}", e.Guild.Name, e.Thread.Name);
+        client.Logger.LogDebug(eventId: TestBotEventId, "Thread created in {GuildName}. Thread Name: {ThreadName}",
+            e.Guild.Name, e.Thread.Name);
         return Task.CompletedTask;
     }
 
     private Task Discord_ThreadUpdated(DiscordClient client, ThreadUpdateEventArgs e)
     {
-        client.Logger.LogDebug(eventId: TestBotEventId, "Thread updated in {GuildName}. New Thread Name: {ThreadName}", e.Guild.Name, e.ThreadAfter.Name);
+        client.Logger.LogDebug(eventId: TestBotEventId, "Thread updated in {GuildName}. New Thread Name: {ThreadName}",
+            e.Guild.Name, e.ThreadAfter.Name);
         return Task.CompletedTask;
     }
 
     private Task Discord_ThreadDeleted(DiscordClient client, ThreadDeleteEventArgs e)
     {
-        client.Logger.LogDebug(eventId: TestBotEventId, "Thread deleted in {GuildName}. Thread Name: {ThreadName}", e.Guild.Name, e.Thread.Name ?? "Unknown");
+        client.Logger.LogDebug(eventId: TestBotEventId, "Thread deleted in {GuildName}. Thread Name: {ThreadName}",
+            e.Guild.Name, e.Thread.Name ?? "Unknown");
         return Task.CompletedTask;
     }
 
@@ -446,7 +476,8 @@ internal sealed class TestBot
     private Task Discord_ThreadMemberUpdated(DiscordClient client, ThreadMemberUpdateEventArgs e)
     {
         client.Logger.LogDebug(eventId: TestBotEventId, $"Thread member updated.");
-        Console.WriteLine($"Discord_ThreadMemberUpdated fired for thread {e.ThreadMember.ThreadId}. User ID {e.ThreadMember.Id}.");
+        Console.WriteLine(
+            $"Discord_ThreadMemberUpdated fired for thread {e.ThreadMember.ThreadId}. User ID {e.ThreadMember.Id}.");
         return Task.CompletedTask;
     }
 

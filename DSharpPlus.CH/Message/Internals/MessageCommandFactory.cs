@@ -172,7 +172,7 @@ internal class MessageCommandFactory
                 if (data.Type == MessageCommandParameterDataType.Bool && value is not null)
                 {
                     string strValue = args[value.Value.Start..value.Value.End].ToString();
-                    Task.Run(async () => await _services.GetRequiredService<IFailedErrors>().HandleConversionAsync(
+                    Task.Run(async () => await _services.GetRequiredService<IErrorHandler>().HandleConversionAsync(
                         new InvalidMessageConvertionError
                         {
                             Name = name,
@@ -184,7 +184,7 @@ internal class MessageCommandFactory
                 }
                 else if (data.Type != MessageCommandParameterDataType.Bool && value is null)
                 {
-                    Task.Run(async () => await new DefaultFailedErrors().HandleConversionAsync(
+                    Task.Run(async () => await new DefaultErrorHandler().HandleConversionAsync(
                         new InvalidMessageConvertionError
                         {
                             Name = name,

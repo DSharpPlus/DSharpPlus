@@ -117,7 +117,7 @@ internal class MessageCommandHandler
                 }
                 catch (Exceptions.ConversionFailedException e)
                 {
-                    await _scope.ServiceProvider.GetRequiredService<IFailedErrors>().HandleConversionAsync(
+                    await _scope.ServiceProvider.GetRequiredService<IErrorHandler>().HandleConversionAsync(
                         new InvalidMessageConvertionError
                         {
                             Name = e.Name,
@@ -136,7 +136,8 @@ internal class MessageCommandHandler
                     new(_conditionBuilders);
                 bool shouldContinue =
                     await conditionHandler.StartGoingThroughConditionsAsync(
-                        new MessageContext { Message = _message, Data = new(_name, _data.Method) }, _scope);
+                        new MessageContext { Message = _message, Data = new(_name, _data.Method), Client = _client },
+                        _scope);
                 if (!shouldContinue)
                 {
                     return;
@@ -194,7 +195,7 @@ internal class MessageCommandHandler
         }
         catch (Exception e)
         {
-            await _scope.ServiceProvider.GetRequiredService<IFailedErrors>()
+            await _scope.ServiceProvider.GetRequiredService<IErrorHandler>()
                 .HandleUnhandledExceptionAsync(e, _message);
 
             _client.Logger.LogError(

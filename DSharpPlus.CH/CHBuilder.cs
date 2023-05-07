@@ -1,9 +1,9 @@
 using System.Reflection;
-using DSharpPlus.CH.Internals;
 using DSharpPlus.CH.Message;
 using DSharpPlus.CH.Message.Internals;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.CH;
 
@@ -47,9 +47,10 @@ public class CHBuilder
 
         IConfiguration configuration = Configuration.Build();
         Services.AddSingleton(configuration);
-        if (!Services.Any(s => s.ServiceType == typeof(IFailedErrors)))
+        if (!Services.Any(s => s.ServiceType == typeof(IErrorHandler)))
         {
-            Services.AddSingleton<IFailedErrors>(new DefaultFailedErrors());
+            client.Logger.LogInformation("Didn't find a error handler.");
+            Services.AddSingleton<IErrorHandler>(new DefaultErrorHandler());
         }
         
         IServiceProvider provider = Services.BuildServiceProvider();
