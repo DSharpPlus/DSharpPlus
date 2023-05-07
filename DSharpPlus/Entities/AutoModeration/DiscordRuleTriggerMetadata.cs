@@ -75,6 +75,12 @@ public sealed class DiscordRuleTriggerMetadataBuilder
     /// </summary>
     public int? MentionTotalLimit { get; set; }
 
+    /// <summary>
+    /// Sets keywords that will be searched in messages content.
+    /// </summary>
+    /// <param name="keywordFilter">The keywords that will be searched.</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
     public DiscordRuleTriggerMetadataBuilder AddKeywordFilter(IReadOnlyList<string> keywordFilter)
     {
         if (keywordFilter.Count > 1000)
@@ -87,6 +93,12 @@ public sealed class DiscordRuleTriggerMetadataBuilder
         return this;
     }
 
+    /// <summary>
+    /// Sets the regex patterns.
+    /// </summary>
+    /// <param name="regexPatterns"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
     public DiscordRuleTriggerMetadataBuilder AddRegexPatterns(IReadOnlyList<string> regexPatterns)
     {
         if (regexPatterns.Count > 10)
@@ -99,6 +111,12 @@ public sealed class DiscordRuleTriggerMetadataBuilder
         return this;
     }
 
+    /// <summary>
+    /// Sets the rule keyword preset types.
+    /// </summary>
+    /// <param name="keywordPresetTypes">The rule keyword preset types to set.</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
     public DiscordRuleTriggerMetadataBuilder AddKeywordPresetTypes(IReadOnlyList<RuleKeywordPresetType> keywordPresetTypes)
     {
         if (keywordPresetTypes is null)
@@ -111,6 +129,12 @@ public sealed class DiscordRuleTriggerMetadataBuilder
         return this;
     }
 
+    /// <summary>
+    /// Sets an allowed keyword list.
+    /// </summary>
+    /// <param name="allowList">The keyword list to set.</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
     public DiscordRuleTriggerMetadataBuilder AddAllowedKeywordList(IReadOnlyList<string> allowList)
     {
         if (allowList.Count > 100)
@@ -123,6 +147,12 @@ public sealed class DiscordRuleTriggerMetadataBuilder
         return this;
     }
 
+    /// <summary>
+    /// Sets the total mention limit.
+    /// </summary>
+    /// <param name="mentionTotalLimit">The total mention limit number.</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
     public DiscordRuleTriggerMetadataBuilder WithMentionTotalLimit(int? mentionTotalLimit)
     {
         if (mentionTotalLimit > 50)
@@ -135,6 +165,10 @@ public sealed class DiscordRuleTriggerMetadataBuilder
         return this;
     }
 
+    /// <summary>
+    /// Constructs a new trigger rule metadata.
+    /// </summary>
+    /// <returns></returns>
     public DiscordRuleTriggerMetadata Build()
     {
         var metadata = new DiscordRuleTriggerMetadata
