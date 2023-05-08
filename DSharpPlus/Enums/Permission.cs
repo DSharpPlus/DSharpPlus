@@ -353,7 +353,25 @@ namespace DSharpPlus
         /// Allows for moderating (Timeout) members in a guild.
         /// </summary>
         [PermissionString("Moderate Members")]
-        ModerateMembers = 0x0000010000000000
+        ModerateMembers = 0x0000010000000000,
+
+        /// <summary>
+        /// Allows to view the creator monetization analytics in the guild configuration.
+        /// </summary>
+        [PermissionString("View Creator monetization analytics")]
+        ViewCreatorMonetizationAnalytics = 0x0000020000000000,
+
+        /// <summary>
+        /// Allows to use guild soundboards in voice channels.
+        /// </summary>
+        [PermissionString("Use guild soundboards")]
+        UseSoundboard = 0x0000040000000000,
+
+        /// <summary>
+        /// Allows to send voice messages.
+        /// </summary>
+        [PermissionString("Send voice messages")]
+        SendVoiceMessages = 0x0000400000000000
     }
 
     /// <summary>
