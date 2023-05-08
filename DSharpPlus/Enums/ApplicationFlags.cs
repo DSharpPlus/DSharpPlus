@@ -30,6 +30,11 @@ namespace DSharpPlus
     public enum ApplicationFlags
     {
         /// <summary>
+        /// Indicates if an application uses the Auto Moderation API.
+        /// </summary>
+        ApplicationAutoModerationRuleCreateBadge = 1 << 6,
+
+        /// <summary>
         /// Indicates that the application is approved for the <see cref="DiscordIntents.GuildPresences"/> intent.
         /// </summary>
         GatewayPresence = 1 << 12,
