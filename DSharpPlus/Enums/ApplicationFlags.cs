@@ -67,6 +67,11 @@ namespace DSharpPlus
         /// <summary>
         /// The application can track message content (limited).
         /// </summary>
-        GatewayMessageContentLimited = 1 << 19
+        GatewayMessageContentLimited = 1 << 19,
+
+        /// <summary>
+        /// Indicates if an application has registered global application commands.
+        /// </summary>
+        ApplicationCommandBadge = 1 << 23,
     }
 }
