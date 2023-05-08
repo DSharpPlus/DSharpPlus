@@ -21,3 +21,4 @@
 
 ## Decisions
 - Should we continue using DSharpPlus.Interactivity or should it be reimplemented into CommandModule?
+- Should we call classes as `xCommand` (for example `MessageCommand`) or should we call it `x` (for example `Message`) 
