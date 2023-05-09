@@ -53,27 +53,27 @@ public sealed class DiscordRuleTriggerMetadataBuilder
     /// <summary>
     /// Sets substrings which will be searched in the content.
     /// </summary>
-    public IReadOnlyList<string>? KeywordFilter { get; set; }
+    public IReadOnlyList<string>? KeywordFilter { get; private set; }
 
     /// <summary>
     /// Sets regex patterns which will be matched against the content.
     /// </summary>
-    public IReadOnlyList<string>? RegexPatterns { get; set; }
+    public IReadOnlyList<string>? RegexPatterns { get; private set; }
 
     /// <summary>
     /// Sets the internally pre-defined wordsets which will be searched in the content.
     /// </summary>
-    public IReadOnlyList<RuleKeywordPresetType>? KeywordPresetTypes { get; set; }
+    public IReadOnlyList<RuleKeywordPresetType>? KeywordPresetTypes { get; private set; }
 
     /// <summary>
     /// Sets the substrings which should not trigger the rule.
     /// </summary>
-    public IReadOnlyList<string>? AllowedKeywords { get; set; }
+    public IReadOnlyList<string>? AllowedKeywords { get; private set; }
 
     /// <summary>
     /// Sets the total number of mentions (users and roles) allowed per message.
     /// </summary>
-    public int? MentionTotalLimit { get; set; }
+    public int? MentionTotalLimit { get; private set; }
 
     /// <summary>
     /// Sets keywords that will be searched in messages content.
