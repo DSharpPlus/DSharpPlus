@@ -20,9 +20,40 @@ public class DiscordAutoModerationAction
     /// </summary>
     [JsonProperty("metadata", NullValueHandling = NullValueHandling.Ignore)]
     public DiscordRuleActionMetadata? Metadata { get; internal set; }
+}
 
-    public DiscordAutoModerationAction()
+/// <summary>
+/// Constructs auto-moderation actions.
+/// </summary>
+public class DiscordAutoModerationActionBuilder
+{
+    /// <summary>
+    /// Sets the rule action type.
+    /// </summary>
+    public RuleActionType Type { get; internal set; }
+
+    /// <summary>
+    /// Sets additional metadata needed during execution for this specific action type.
+    /// </summary>
+    public DiscordRuleActionMetadata? Metadata { get; internal set; }
+
+    public DiscordAutoModerationActionBuilder WithRuleActionType(RuleActionType type)
     {
+        this.Type = type;
 
+        return this;
     }
+
+    public DiscordAutoModerationActionBuilder WithActionMetadata(DiscordRuleActionMetadata metadata)
+    {
+        this.Metadata = metadata;
+
+        return this;
+    }
+
+    public DiscordAutoModerationAction Build() => new DiscordAutoModerationAction
+    {
+        Type = this.Type,
+        Metadata = this.Metadata
+    };
 }
