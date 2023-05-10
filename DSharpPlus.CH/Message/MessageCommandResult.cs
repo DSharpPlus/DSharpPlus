@@ -11,7 +11,14 @@ public class MessageCommandResult : IMessageCommandResult
     public static implicit operator MessageCommandResult(DiscordEmbed embed)
     {
         MessageCommandResult msgCmdResult = new();
-        msgCmdResult.Embeds ??= new List<DiscordEmbed> { embed };
+        if (msgCmdResult.Embeds is null)
+        {
+            msgCmdResult.Embeds ??= new List<DiscordEmbed> { embed };
+        }
+        else
+        {
+            msgCmdResult.Embeds.Add(embed);
+        }
 
         return msgCmdResult;
     }

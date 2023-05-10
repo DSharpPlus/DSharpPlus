@@ -34,46 +34,41 @@ internal class MessageCommandHandler
 
     internal async Task TurnResultIntoActionAsync(IMessageCommandResult result)
     {
-        // [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        void SetContentAndEmbeds(IMessageCommandResult messageResult, DiscordMessageBuilder messageBuilder)
+        DiscordMessageBuilder msgBuilder = new();
+        if (result.Type != MessageCommandResultType.Empty)
         {
-            if (messageResult.Content is not null)
+            if (result.Content is not null)
             {
-                messageBuilder.WithContent(messageResult.Content);
+                msgBuilder.WithContent(result.Content);
             }
 
-            if (messageResult.Embeds is not null)
+            if (result.Embeds is not null)
             {
-                messageBuilder.AddEmbeds(messageResult.Embeds);
+                msgBuilder.AddEmbeds(result.Embeds);
             }
         }
-
-        DiscordMessageBuilder msgBuilder = new();
+        
         switch (result.Type)
         {
             case MessageCommandResultType.Empty: return;
             case MessageCommandResultType.Reply:
-                SetContentAndEmbeds(result, msgBuilder);
                 msgBuilder.WithReply(_module.Message.Id);
 
                 _newMessage = await _module.Message.Channel.SendMessageAsync(msgBuilder);
                 _module.NewestMessage = _newMessage;
                 break;
             case MessageCommandResultType.NoMentionReply:
-                SetContentAndEmbeds(result, msgBuilder);
                 msgBuilder.WithReply(_module.Message.Id, true);
 
                 _newMessage = await _module.Message.Channel.SendMessageAsync(msgBuilder);
                 _module.NewestMessage = _newMessage;
                 break;
             case MessageCommandResultType.Send:
-                SetContentAndEmbeds(result, msgBuilder);
 
                 _newMessage = await _module.Message.Channel.SendMessageAsync(msgBuilder);
                 _module.NewestMessage = _newMessage;
                 break;
             case MessageCommandResultType.FollowUp:
-                SetContentAndEmbeds(result, msgBuilder);
                 if (_newMessage is not null)
                 {
                     msgBuilder.WithReply(_newMessage.Id);
@@ -82,7 +77,6 @@ internal class MessageCommandHandler
                 await _module.Message.Channel.SendMessageAsync(msgBuilder);
                 break;
             case MessageCommandResultType.Edit:
-                SetContentAndEmbeds(result, msgBuilder);
                 if (_newMessage is not null)
                 {
                     await _newMessage.ModifyAsync(msgBuilder);
