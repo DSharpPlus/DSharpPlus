@@ -619,6 +619,13 @@ namespace DSharpPlus.SlashCommands
                         if (!methods.Any() && !groups.Any() && !subgroups.Any())
                             throw new InvalidOperationException("A slash command was executed, but no command was registered for it.");
 
+                        var ctxAccessor = context.Services.GetService<IInteractionContextAccessor>();
+                        if (ctxAccessor is not null)
+                        {
+                            ctxAccessor.InteractionContext = context;
+                        }
+
+
                         //Just read the code you'll get it
                         if (methods.Any())
                         {
