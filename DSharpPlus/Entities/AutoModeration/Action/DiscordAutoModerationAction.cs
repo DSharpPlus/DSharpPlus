@@ -37,6 +37,11 @@ public class DiscordAutoModerationActionBuilder
     /// </summary>
     public DiscordRuleActionMetadata? Metadata { get; internal set; }
 
+    /// <summary>
+    /// Sets the rule action type.
+    /// </summary>
+    /// <param name="type">The rule action type.</param>
+    /// <returns>This builder.</returns>
     public DiscordAutoModerationActionBuilder WithRuleActionType(RuleActionType type)
     {
         this.Type = type;
@@ -44,6 +49,11 @@ public class DiscordAutoModerationActionBuilder
         return this;
     }
 
+    /// <summary>
+    /// Sets the action metadata.
+    /// </summary>
+    /// <param name="metadata">The action metadata.</param>
+    /// <returns>This builder.</returns>
     public DiscordAutoModerationActionBuilder WithActionMetadata(DiscordRuleActionMetadata metadata)
     {
         this.Metadata = metadata;
@@ -51,6 +61,10 @@ public class DiscordAutoModerationActionBuilder
         return this;
     }
 
+    /// <summary>
+    /// Constructs a new trigger rule action.
+    /// </summary>
+    /// <returns>The builded rule.</returns>
     public DiscordAutoModerationAction Build() => new DiscordAutoModerationAction
     {
         Type = this.Type,
