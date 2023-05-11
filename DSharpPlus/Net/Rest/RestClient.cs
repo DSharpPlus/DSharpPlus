@@ -42,9 +42,13 @@ namespace DSharpPlus.Net;
 /// <summary>
 /// Represents a client used to make REST requests.
 /// </summary>
-internal sealed class RestClient : IDisposable
+internal sealed partial class RestClient : IDisposable
 {
-    private static Regex RouteArgumentRegex { get; } = new Regex(@":([a-z_]+)");
+
+    [GeneratedRegex(":([a-z_]+)")]
+    private static partial Regex GenerateRouteArgumentRegex();
+
+    private static Regex RouteArgumentRegex { get; } = GenerateRouteArgumentRegex();
     private HttpClient HttpClient { get; }
     private BaseDiscordClient? Discord { get; }
     private ILogger Logger { get; }
