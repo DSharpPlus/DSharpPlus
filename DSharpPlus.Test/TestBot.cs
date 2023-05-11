@@ -40,9 +40,10 @@ using DSharpPlus.Interactivity.EventHandling;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.EventArgs;
+using DSharpPlus.UnifiedCommands;
+using DSharpPlus.UnifiedCommands.Message;
+using DSharpPlus.UnifiedCommands.Message.Conditions;
 using DSharpPlus.VoiceNext;
-using DSharpPlus.CH;
-using DSharpPlus.CH.Message.Conditions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -177,11 +178,11 @@ internal sealed class TestBot
                 this.Config.SlashCommandGuild);
         } */
 
-        CHBuilder builder = new();
+        UnifiedCommandsBuilder builder = new();
         builder.AddAssembly(Assembly.GetExecutingAssembly());
         builder.AddPrefix(this.Config.CommandPrefixes);
         builder.Services.AddScoped<string>(s => "Hello, world!");
-        builder.Services.AddSingleton<DSharpPlus.CH.Message.IErrorHandler, CHErrorHandler>();
+        builder.Services.AddSingleton<IErrorHandler, UnifiedCommandsErrorHandler>();
 
         CommandController controller = this.Discord.UseCH(builder);
         controller.UseStandardConditions();

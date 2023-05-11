@@ -33,7 +33,7 @@
     <ProjectReference Include="..\DSharpPlus.CommandsNext\DSharpPlus.CommandsNext.csproj" />
     <ProjectReference Include="..\DSharpPlus.Interactivity\DSharpPlus.Interactivity.csproj" />
     <ProjectReference Include="..\DSharpPlus.VoiceNext\DSharpPlus.VoiceNext.csproj" />
-    <ProjectReference Include="..\DSharpPlus.CH\DSharpPlus.CH.csproj" />
+    <ProjectReference Include="..\DSharpPlus.UnifiedCommands\DSharpPlus.UnifiedCommands.csproj" />
   </ItemGroup>
 
   <ItemGroup>
