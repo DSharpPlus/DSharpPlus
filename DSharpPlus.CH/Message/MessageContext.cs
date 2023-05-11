@@ -17,5 +17,5 @@ public class MessageContext
     /// <summary>
     /// Data related to the command module.
     /// </summary>
-    public required MessageCommandData Data { get; set; }
+    public required MessageData Data { get; set; }
 }

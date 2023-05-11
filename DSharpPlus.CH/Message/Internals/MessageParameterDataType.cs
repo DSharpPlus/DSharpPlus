@@ -1,6 +1,6 @@
 namespace DSharpPlus.CH.Message;
 
-internal enum MessageCommandParameterDataType
+internal enum MessageParameterDataType
 {
     String,
     Int,

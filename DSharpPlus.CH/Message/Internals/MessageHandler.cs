@@ -7,19 +7,19 @@ using Stopwatch = System.Diagnostics.Stopwatch;
 
 namespace DSharpPlus.CH.Message.Internals;
 
-internal class MessageCommandHandler
+internal class MessageHandler
 {
-    private MessageCommandModule _module = null!; // Will be set by the factory.
+    private MessageModule _module = null!; // Will be set by the factory.
     private DiscordMessage? _newMessage;
     private DiscordMessage _message;
-    private MessageCommandMethodData _data;
+    private MessageMethodData _data;
     private IServiceScope _scope;
     private DiscordClient _client;
     private Dictionary<string, string?> _values;
     private string _name;
     private readonly IReadOnlyList<Func<IServiceProvider, IMessageCondition>> _conditionBuilders;
 
-    public MessageCommandHandler(DiscordMessage message, MessageCommandMethodData data, IServiceScope scope,
+    public MessageHandler(DiscordMessage message, MessageMethodData data, IServiceScope scope,
         DiscordClient client, Dictionary<string, string?> values, string name,
         IReadOnlyList<Func<IServiceProvider, IMessageCondition>> conditionBuilders)
     {
@@ -32,10 +32,10 @@ internal class MessageCommandHandler
         _conditionBuilders = conditionBuilders;
     }
 
-    internal async Task TurnResultIntoActionAsync(IMessageCommandResult result)
+    internal async Task TurnResultIntoActionAsync(IMessageResult result)
     {
         DiscordMessageBuilder msgBuilder = new();
-        if (result.Type != MessageCommandResultType.Empty)
+        if (result.Type != MessageResultType.Empty)
         {
             if (result.Content is not null)
             {
@@ -50,25 +50,25 @@ internal class MessageCommandHandler
         
         switch (result.Type)
         {
-            case MessageCommandResultType.Empty: return;
-            case MessageCommandResultType.Reply:
+            case MessageResultType.Empty: return;
+            case MessageResultType.Reply:
                 msgBuilder.WithReply(_module.Message.Id);
 
                 _newMessage = await _module.Message.Channel.SendMessageAsync(msgBuilder);
                 _module.NewestMessage = _newMessage;
                 break;
-            case MessageCommandResultType.NoMentionReply:
+            case MessageResultType.NoMentionReply:
                 msgBuilder.WithReply(_module.Message.Id, true);
 
                 _newMessage = await _module.Message.Channel.SendMessageAsync(msgBuilder);
                 _module.NewestMessage = _newMessage;
                 break;
-            case MessageCommandResultType.Send:
+            case MessageResultType.Send:
 
                 _newMessage = await _module.Message.Channel.SendMessageAsync(msgBuilder);
                 _module.NewestMessage = _newMessage;
                 break;
-            case MessageCommandResultType.FollowUp:
+            case MessageResultType.FollowUp:
                 if (_newMessage is not null)
                 {
                     msgBuilder.WithReply(_newMessage.Id);
@@ -76,7 +76,7 @@ internal class MessageCommandHandler
 
                 await _module.Message.Channel.SendMessageAsync(msgBuilder);
                 break;
-            case MessageCommandResultType.Edit:
+            case MessageResultType.Edit:
                 if (_newMessage is not null)
                 {
                     await _newMessage.ModifyAsync(msgBuilder);
@@ -94,9 +94,9 @@ internal class MessageCommandHandler
         {
             long startTime = Stopwatch.GetTimestamp();
 
-            MessageCommandModuleData moduleData = _data.Module;
+            MessageModuleData moduleData = _data.Module;
 
-            _module = (MessageCommandModule)moduleData.Factory.Invoke(_scope.ServiceProvider, null);
+            _module = (MessageModule)moduleData.Factory.Invoke(_scope.ServiceProvider, null);
             _module.Message = _message;
             _module._handler = this;
             _module.Client = _client;
@@ -112,7 +112,7 @@ internal class MessageCommandHandler
                 catch (Exceptions.ConversionFailedException e)
                 {
                     await _scope.ServiceProvider.GetRequiredService<IErrorHandler>().HandleConversionAsync(
-                        new InvalidMessageConvertionError
+                        new InvalidMessageConversionError
                         {
                             Name = e.Name,
                             IsPositionalArgument = e.IsPositionalArgument,
@@ -159,17 +159,17 @@ internal class MessageCommandHandler
                 {
                     if (_data.IsAsync)
                     {
-                        Task<IMessageCommandResult> task =
-                            (Task<IMessageCommandResult>)_data.Method.Invoke(_module,
+                        Task<IMessageResult> task =
+                            (Task<IMessageResult>)_data.Method.Invoke(_module,
                                 BindingFlags.OptionalParamBinding, null,
                                 parameters, null)!;
-                        IMessageCommandResult result = await task;
+                        IMessageResult result = await task;
                         await TurnResultIntoActionAsync(result);
                     }
                     else
                     {
-                        IMessageCommandResult result =
-                            (IMessageCommandResult)_data.Method.Invoke(_module, parameters)!;
+                        IMessageResult result =
+                            (IMessageResult)_data.Method.Invoke(_module, parameters)!;
                         await TurnResultIntoActionAsync(result);
                     }
                 }

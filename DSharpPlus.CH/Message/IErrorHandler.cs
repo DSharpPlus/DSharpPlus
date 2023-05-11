@@ -13,7 +13,7 @@ public interface IErrorHandler
     /// <param name="error">Object containing error information.</param>
     /// <param name="message">The discord message object</param>
     /// <returns></returns>
-    public Task HandleConversionAsync(InvalidMessageConvertionError error, DiscordMessage message);
+    public Task HandleConversionAsync(InvalidMessageConversionError error, DiscordMessage message);
 
     /// <summary>
     /// Method for unhandled exception. Gets executed if a exception happens during invocation of command method.

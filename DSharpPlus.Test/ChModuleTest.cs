@@ -6,24 +6,24 @@ using DSharpPlus.CH.Message.Conditions;
 namespace DSharpPlus.Test;
 
 [MessageModule("test")]
-public class CHCommandModuleTest : MessageCommandModule
+public class ChModuleTest : MessageModule
 {
     private readonly string _str;
 
-    public CHCommandModuleTest(string str) => _str = str;
+    public ChModuleTest(string str) => _str = str;
 
-    [MessageCommand("sync")]
-    public IMessageCommandResult TestSync() => Reply("Sync works.");
+    [Message("sync")]
+    public IMessageResult TestSync() => Reply("Sync works.");
 
-    [MessageCommand("async")]
-    public async Task<IMessageCommandResult> TestAsync()
+    [Message("async")]
+    public async Task<IMessageResult> TestAsync()
     {
         await PostAsync(Reply("Async works"));
         return Empty();
     }
 
-    [MessageCommand("arg opt")]
-    public IMessageCommandResult TestArgOpt(string argument,
+    [Message("arg opt")]
+    public IMessageResult TestArgOpt(string argument,
         [MessageOption("user", "u")] Entities.DiscordUser? user, [MessageOption("string", "s")] string str = "hello")
         => Reply(
             user is not null
@@ -31,22 +31,22 @@ public class CHCommandModuleTest : MessageCommandModule
                 : $"Argument was `{argument}`, user wasn't provided, and string was `{str}`.");
 
 
-    [MessageCommand("permissions")]
+    [Message("permissions")]
     [MessagePermission(Permissions.Administrator)]
-    public IMessageCommandResult TestPermissions() => Reply("You are a admin.");
+    public IMessageResult TestPermissions() => Reply("You are a admin.");
 
-    [MessageCommand("di")]
-    public IMessageCommandResult TestDi() => Reply($"DI gave me value `{_str}`.");
+    [Message("di")]
+    public IMessageResult TestDi() => Reply($"DI gave me value `{_str}`.");
 
-    [MessageCommand("no value")]
+    [Message("no value")]
     public async ValueTask TestNoValueAsync()
     {
         await PostAsync(Reply("This returns nothing."));
         return;
     }
 
-    [MessageCommand("emojis")]
-    public async Task<IMessageCommandResult> TestEmojisAsync()
+    [Message("emojis")]
+    public async Task<IMessageResult> TestEmojisAsync()
     {
         await PostAsync(Reply("React with a emoji, author can only reply"));
         EventArgs.MessageReactionAddEventArgs? args = await WaitForReactionAsync(TimeSpan.FromSeconds(10),
@@ -62,18 +62,18 @@ public class CHCommandModuleTest : MessageCommandModule
         }
     }
 
-    [MessageCommand("remaining arguments")]
-    public IMessageCommandResult TestRemainingArguments([RemainingArguments] string arguments,
+    [Message("remaining arguments")]
+    public IMessageResult TestRemainingArguments([RemainingArguments] string arguments,
         [MessageOption("str", "s")] string? str)
         => Reply(str is null
             ? $"Remaining arguments is `{arguments}`. Str is null"
             : $"Remaining arguments is `{arguments}`. Str is `{str}`.");
 
-    [MessageCommand("cooldown"), Cooldown(10)]
-    public IMessageCommandResult TestCooldowns()
+    [Message("cooldown"), Cooldown(10)]
+    public IMessageResult TestCooldowns()
         => Reply("No cooldown.");
 
-    [MessageCommand("failing")]
-    public IMessageCommandResult TestFailing()
+    [Message("failing")]
+    public IMessageResult TestFailing()
         => throw new Exception("Fuck you");
 }

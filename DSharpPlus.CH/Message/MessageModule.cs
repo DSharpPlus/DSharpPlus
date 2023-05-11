@@ -4,40 +4,40 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.CH.Message;
 
-public abstract class MessageCommandModule
+public abstract class MessageModule
 {
-    internal MessageCommandHandler _handler = null!; // Will be set by the factory.
+    internal MessageHandler _handler = null!; // Will be set by the factory.
 
     public DiscordMessage Message { get; internal set; } = null!;
     public DiscordMessage? NewestMessage { get; internal set; } = null;
     public DiscordClient Client { get; internal set; } = null!;
 
-    protected Task PostAsync(IMessageCommandResult result) => _handler.TurnResultIntoActionAsync(result);
+    protected Task PostAsync(IMessageResult result) => _handler.TurnResultIntoActionAsync(result);
 
-    protected IMessageCommandResult Reply(MessageCommandResult result, bool mention = false)
+    protected IMessageResult Reply(MessageResult result, bool mention = false)
     {
-        result.Type = mention ? MessageCommandResultType.NoMentionReply : MessageCommandResultType.Reply;
+        result.Type = mention ? MessageResultType.NoMentionReply : MessageResultType.Reply;
         return result;
     }
 
-    protected IMessageCommandResult FollowUp(MessageCommandResult result)
+    protected IMessageResult FollowUp(MessageResult result)
     {
-        result.Type = MessageCommandResultType.FollowUp;
+        result.Type = MessageResultType.FollowUp;
         return result;
     }
 
-    protected IMessageCommandResult Edit(MessageCommandResult result)
+    protected IMessageResult Edit(MessageResult result)
     {
-        result.Type = MessageCommandResultType.Edit;
+        result.Type = MessageResultType.Edit;
         return result;
     }
 
-    protected IMessageCommandResult Empty() =>
-        new MessageCommandResult { Type = MessageCommandResultType.Empty };
+    protected IMessageResult Empty() =>
+        new MessageResult { Type = MessageResultType.Empty };
 
-    protected IMessageCommandResult Send(MessageCommandResult result)
+    protected IMessageResult Send(MessageResult result)
     {
-        result.Type = MessageCommandResultType.Send;
+        result.Type = MessageResultType.Send;
         return result;
     }
 

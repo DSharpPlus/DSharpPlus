@@ -2,15 +2,15 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.CH.Message;
 
-public class MessageCommandResult : IMessageCommandResult
+public class MessageResult : IMessageResult
 {
-    public MessageCommandResultType Type { get; set; }
+    public MessageResultType Type { get; set; }
     public string? Content { get; set; }
     public List<DiscordEmbed>? Embeds { get; set; }
 
-    public static implicit operator MessageCommandResult(DiscordEmbed embed)
+    public static implicit operator MessageResult(DiscordEmbed embed)
     {
-        MessageCommandResult msgCmdResult = new();
+        MessageResult msgCmdResult = new();
         if (msgCmdResult.Embeds is null)
         {
             msgCmdResult.Embeds ??= new List<DiscordEmbed> { embed };
@@ -23,18 +23,18 @@ public class MessageCommandResult : IMessageCommandResult
         return msgCmdResult;
     }
 
-    public static implicit operator MessageCommandResult(DiscordEmbedBuilder builder)
+    public static implicit operator MessageResult(DiscordEmbedBuilder builder)
     {
         DiscordEmbed embed = builder.Build();
-        MessageCommandResult msgCmdResult = new();
+        MessageResult msgCmdResult = new();
         msgCmdResult.Embeds ??= new List<DiscordEmbed> { embed };
 
         return msgCmdResult;
     }
 
-    public static implicit operator MessageCommandResult(string str)
+    public static implicit operator MessageResult(string str)
     {
-        MessageCommandResult msgCmdResult = new() { Content = str };
+        MessageResult msgCmdResult = new() { Content = str };
         return msgCmdResult;
     }
 }

@@ -1,6 +1,6 @@
 namespace DSharpPlus.CH.Message;
 
-public class InvalidMessageConvertionError
+public class InvalidMessageConversionError
 {
     public required string Name { get; set; }
     public required string Value { get; set; }

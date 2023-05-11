@@ -14,7 +14,7 @@ public class CommandController
 {
     private string[] _prefixes;
     
-    internal MessageCommandFactory _messageCommandFactory { get; private set; }
+    internal MessageFactory MessageFactory { get; private set; }
     internal ApplicationFactory _applicationFactory { get; private set; }
     
     public IServiceProvider Services { get; private set; }
@@ -25,10 +25,10 @@ public class CommandController
         _prefixes = prefixes;
         Services = services;
 
-        _messageCommandFactory = new MessageCommandFactory(Services);
+        MessageFactory = new MessageFactory(Services);
         _applicationFactory = new ApplicationFactory(Services);
         
-        CommandModuleRegister.RegisterMessageCommands(_messageCommandFactory, assembly);
+        CommandModuleRegister.RegisterMessageCommands(MessageFactory, assembly);
         CommandModuleRegister.RegisterApplicationCommands(_applicationFactory, assembly, client);
         
         client.MessageCreated += HandleMessageCreationAsync;
@@ -66,7 +66,7 @@ public class CommandController
         Func<IServiceProvider, IMessageCondition> func =
             Expression.Lambda<Func<IServiceProvider, IMessageCondition>>(Expression.Block(expressions), false,
                 serviceProviderParam).Compile();
-        _messageCommandFactory.AddMessageConditionBuilder(func);
+        MessageFactory.AddMessageConditionBuilder(func);
         return this;
     }
 
@@ -116,7 +116,7 @@ public class CommandController
 
         ranges.Add(new Range(last, content.Length));
 
-        _messageCommandFactory.ConstructAndExecuteCommand(msg.Message, client,
+        MessageFactory.ConstructAndExecuteCommand(msg.Message, client,
             ref content, ranges);
         return Task.CompletedTask;
     }

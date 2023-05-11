@@ -6,19 +6,19 @@ using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.CH.Message.Internals;
 
-internal class MessageCommandFactory
+internal class MessageFactory
 {
-    private readonly MessageCommandTree _commands = new();
+    private readonly MessageTree _commands = new();
     private List<Func<IServiceProvider, IMessageCondition>> _messageConditionBuilders = new();
     private IServiceProvider _services;
 
-    internal void AddCommand(string name, MessageCommandMethodData data) => _commands.Branches!.Add(name, new(data));
-    internal void AddBranch(string name, MessageCommandTree branch) => _commands.Branches!.Add(name, branch);
+    internal void AddCommand(string name, MessageMethodData data) => _commands.Branches!.Add(name, new(data));
+    internal void AddBranch(string name, MessageTree branch) => _commands.Branches!.Add(name, branch);
 
-    internal MessageCommandTree? GetBranch(string name) =>
-        _commands.Branches!.TryGetValue(name, out MessageCommandTree? result) ? result : null;
+    internal MessageTree? GetBranch(string name) =>
+        _commands.Branches!.TryGetValue(name, out MessageTree? result) ? result : null;
 
-    public MessageCommandFactory(IServiceProvider services)
+    public MessageFactory(IServiceProvider services)
         => _services = services;
 
     internal void AddMessageConditionBuilder(Func<IServiceProvider, IMessageCondition> func)
@@ -32,14 +32,14 @@ internal class MessageCommandFactory
         Index end = 0;
         int it = 0;
 
-        MessageCommandTree? tree = null;
+        MessageTree? tree = null;
 
         foreach (Range argRange in argsRange)
         {
             ReadOnlySpan<char> arg = args[argRange.Start..argRange.End];
             if (tree is null)
             {
-                if (_commands.Branches!.TryGetValue(arg.ToString(), out MessageCommandTree? res))
+                if (_commands.Branches!.TryGetValue(arg.ToString(), out MessageTree? res))
                 {
                     tree = res;
                     end = argRange.End;
@@ -53,7 +53,7 @@ internal class MessageCommandFactory
                 continue;
             }
 
-            if (tree.Branches is not null && tree.Branches.TryGetValue(arg.ToString(), out MessageCommandTree? res2))
+            if (tree.Branches is not null && tree.Branches.TryGetValue(arg.ToString(), out MessageTree? res2))
             {
                 tree = res2;
                 end = argRange.End;
@@ -163,17 +163,17 @@ internal class MessageCommandFactory
 
         int positionalArgumentPosition = 0;
         Dictionary<string, string?> mappedValues = new();
-        foreach (MessageCommandParameterData data in tree.Data.Parameters)
+        foreach (MessageParameterData data in tree.Data.Parameters)
         {
             if (options.TryGetValue(data.Name, out Range? value) || (data.ShorthandOptionName is not null &&
                                                                      options.TryGetValue(data.ShorthandOptionName,
                                                                          out value)))
             {
-                if (data.Type == MessageCommandParameterDataType.Bool && value is not null)
+                if (data.Type == MessageParameterDataType.Bool && value is not null)
                 {
                     string strValue = args[value.Value.Start..value.Value.End].ToString();
                     Task.Run(async () => await _services.GetRequiredService<IErrorHandler>().HandleConversionAsync(
-                        new InvalidMessageConvertionError
+                        new InvalidMessageConversionError
                         {
                             Name = name,
                             IsPositionalArgument = data.IsPositionalArgument,
@@ -182,10 +182,10 @@ internal class MessageCommandFactory
                         }, message));
                     return;
                 }
-                else if (data.Type != MessageCommandParameterDataType.Bool && value is null)
+                else if (data.Type != MessageParameterDataType.Bool && value is null)
                 {
                     Task.Run(async () => await new DefaultErrorHandler().HandleConversionAsync(
-                        new InvalidMessageConvertionError
+                        new InvalidMessageConversionError
                         {
                             Name = name,
                             IsPositionalArgument = data.IsPositionalArgument,
@@ -194,9 +194,9 @@ internal class MessageCommandFactory
                         }, message));
                     return;
                 }
-                else if (data.Type == MessageCommandParameterDataType.User
-                         || data.Type == MessageCommandParameterDataType.Channel
-                         || data.Type == MessageCommandParameterDataType.Member)
+                else if (data.Type == MessageParameterDataType.User
+                         || data.Type == MessageParameterDataType.Channel
+                         || data.Type == MessageParameterDataType.Member)
                 {
                     ReadOnlySpan<char> span = args[value!.Value.Start..value.Value.End];
                     if (span.StartsWith("<@") || span.StartsWith("<#"))
@@ -208,13 +208,13 @@ internal class MessageCommandFactory
 
                     mappedValues.Add(data.Name, span.ToString()); // MIGHT be a ID.
                 }
-                else if (data.Type == MessageCommandParameterDataType.Role)
+                else if (data.Type == MessageParameterDataType.Role)
                 {
                     ReadOnlySpan<char> span = args[value!.Value.Start..value.Value.End];
                     ReadOnlySpan<char> formattedSpan = span[2..^1];
                     mappedValues.Add(data.Name, formattedSpan.ToString());
                 }
-                else if (data.Type != MessageCommandParameterDataType.Bool)
+                else if (data.Type != MessageParameterDataType.Bool)
                 {
                     if (value is null)
                     {
@@ -257,9 +257,9 @@ internal class MessageCommandFactory
                     positionalArgumentPosition++;
                     ReadOnlySpan<char> span = args[range.Start..range.End];
 
-                    if (data.Type == MessageCommandParameterDataType.User
-                        || data.Type == MessageCommandParameterDataType.Channel
-                        || data.Type == MessageCommandParameterDataType.Member)
+                    if (data.Type == MessageParameterDataType.User
+                        || data.Type == MessageParameterDataType.Channel
+                        || data.Type == MessageParameterDataType.Member)
                     {
                         if (!span.StartsWith("<@") || !span.StartsWith("<#"))
                         {
@@ -270,12 +270,12 @@ internal class MessageCommandFactory
                         ReadOnlySpan<char> formattedSpan = span is [_, _, '!', ..] ? span[2..^1] : span[1..^1];
                         mappedValues.Add(data.Name, formattedSpan.ToString());
                     }
-                    else if (data.Type == MessageCommandParameterDataType.Role)
+                    else if (data.Type == MessageParameterDataType.Role)
                     {
                         ReadOnlySpan<char> formattedSpan = span[2..^1];
                         mappedValues.Add(data.Name, formattedSpan.ToString());
                     }
-                    else if (data.Type != MessageCommandParameterDataType.Bool)
+                    else if (data.Type != MessageParameterDataType.Bool)
                     {
                         mappedValues.Add(data.Name, span.ToString());
                     }
@@ -284,7 +284,7 @@ internal class MessageCommandFactory
                         mappedValues.Add(data.Name, "true");
                     }
                 }
-                else if (data.Type != MessageCommandParameterDataType.Bool)
+                else if (data.Type != MessageParameterDataType.Bool)
                 {
                     if (value is null)
                     {
@@ -307,7 +307,7 @@ internal class MessageCommandFactory
 
         IServiceScope scope = _services.CreateScope(); // This will need to be disposed later somehow.
 
-        MessageCommandHandler handler = new(message, tree.Data, scope, client, mappedValues, name,
+        MessageHandler handler = new(message, tree.Data, scope, client, mappedValues, name,
             _messageConditionBuilders);
         _ = handler.BuildModuleAndExecuteCommandAsync();
     }

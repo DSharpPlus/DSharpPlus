@@ -6,11 +6,11 @@ namespace DSharpPlus.CH.Message.Internals;
 internal class MessageConvertValues
 {
     private Dictionary<string, string?> _values;
-    private MessageCommandMethodData _data;
+    private MessageMethodData _data;
     private DiscordMessage _message;
     private DiscordClient _client;
 
-    public MessageConvertValues(Dictionary<string, string?> values, MessageCommandMethodData data,
+    public MessageConvertValues(Dictionary<string, string?> values, MessageMethodData data,
         DiscordMessage message, DiscordClient client)
         => (_values, _data, _message, _client) = (values, data, message, client);
 
@@ -18,7 +18,7 @@ internal class MessageConvertValues
     {
         List<object?> convertedValues = new();
 
-        foreach (MessageCommandParameterData paramData in _data.Parameters)
+        foreach (MessageParameterData paramData in _data.Parameters)
         {
             if (_values.TryGetValue(paramData.Name, out string? value))
             {
@@ -52,15 +52,15 @@ internal class MessageConvertValues
         return convertedValues.ToArray();
     }
 
-    public async ValueTask<object> ConvertValueAsync(string value, MessageCommandParameterData data)
+    public async ValueTask<object> ConvertValueAsync(string value, MessageParameterData data)
     {
         object obj;
         switch (data.Type)
         {
-            case MessageCommandParameterDataType.Bool:
+            case MessageParameterDataType.Bool:
                 obj = bool.Parse(value);
                 break;
-            case MessageCommandParameterDataType.Channel:
+            case MessageParameterDataType.Channel:
                 if (_message.Channel.GuildId is null)
                 {
                     throw new Exceptions.ConversionFailedException(value, InvalidMessageConvertionType.IsInDMs,
@@ -78,7 +78,7 @@ internal class MessageConvertValues
                 }
 
                 break;
-            case MessageCommandParameterDataType.Role:
+            case MessageParameterDataType.Role:
                 if (_message.Channel.GuildId is null)
                 {
                     throw new Exceptions.ConversionFailedException(value, InvalidMessageConvertionType.IsInDMs,
@@ -96,7 +96,7 @@ internal class MessageConvertValues
                 }
 
                 break;
-            case MessageCommandParameterDataType.User:
+            case MessageParameterDataType.User:
                 if (ulong.TryParse(value, out ulong userResult))
                 {
                     obj = await _client.GetUserAsync(userResult);
@@ -108,7 +108,7 @@ internal class MessageConvertValues
                 }
 
                 break;
-            case MessageCommandParameterDataType.Int:
+            case MessageParameterDataType.Int:
                 if (int.TryParse(value, out int intResult))
                 {
                     obj = intResult;
@@ -120,7 +120,7 @@ internal class MessageConvertValues
                 }
 
                 break;
-            case MessageCommandParameterDataType.Double:
+            case MessageParameterDataType.Double:
                 if (double.TryParse(value, out double doubleResult))
                 {
                     obj = doubleResult;
@@ -132,7 +132,7 @@ internal class MessageConvertValues
                 }
 
                 break;
-            case MessageCommandParameterDataType.String:
+            case MessageParameterDataType.String:
                 obj = value;
                 break;
             default:

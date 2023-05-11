@@ -16,7 +16,7 @@ public class CHErrorHandler : IErrorHandler
         await message.Channel.SendMessageAsync(builder);
     }
 
-    public async Task HandleConversionAsync(InvalidMessageConvertionError error, DiscordMessage message)
+    public async Task HandleConversionAsync(InvalidMessageConversionError error, DiscordMessage message)
     {
         DiscordMessageBuilder builder = new();
         builder.WithContent($"Value `{error.Value}` is invalid.");

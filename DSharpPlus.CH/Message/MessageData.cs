@@ -2,7 +2,7 @@ using System.Reflection;
 
 namespace DSharpPlus.CH.Message;
 
-public class MessageCommandData
+public class MessageData
 {
     private MethodInfo _method;
 
@@ -11,7 +11,7 @@ public class MessageCommandData
     // public x Arguments { get; set; } 
     // Implement above later.
 
-    internal MessageCommandData(string name, MethodInfo method)
+    internal MessageData(string name, MethodInfo method)
     {
         _method = method;
         Name = name;

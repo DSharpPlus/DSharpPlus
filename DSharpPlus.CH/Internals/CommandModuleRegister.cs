@@ -12,20 +12,20 @@ namespace DSharpPlus.CH.Internals;
 
 internal static class CommandModuleRegister
 {
-    internal static void RegisterMessageCommands(MessageCommandFactory factory, Assembly assembly)
+    internal static void RegisterMessageCommands(MessageFactory factory, Assembly assembly)
     {
         IEnumerable<Type> classes = assembly.GetTypes()
             .Where(t => t.IsClass &&
                         !t.IsAbstract &&
                         t.GetCustomAttribute<MessageModuleAttribute>() is not null &&
                         t.IsPublic &&
-                        t.IsSubclassOf(typeof(MessageCommandModule)));
+                        t.IsSubclassOf(typeof(MessageModule)));
 
         NullabilityInfoContext nullabilityContext = new();
 
         foreach (Type? @class in classes)
         {
-            MessageCommandModuleData module = new();
+            MessageModuleData module = new();
             module.Factory = ActivatorUtilities.CreateFactory(@class, Array.Empty<Type>());
 
             MethodInfo[] methods = @class.GetMethods();
@@ -36,7 +36,7 @@ internal static class CommandModuleRegister
 
             foreach (MethodInfo method in methods)
             {
-                MessageCommandAttribute? attribute = method.GetCustomAttribute<MessageCommandAttribute>();
+                MessageAttribute? attribute = method.GetCustomAttribute<MessageAttribute>();
                 if (attribute is null || !method.IsPublic)
                 {
                     continue;
@@ -46,12 +46,12 @@ internal static class CommandModuleRegister
                                       Array.Empty<string>();
                 string[] methodName = attribute.Name.Split(' ');
 
-                List<MessageCommandParameterData> parameters = new();
+                List<MessageParameterData> parameters = new();
                 bool cantConsumeMoreArguments = false;
                 foreach (ParameterInfo parameter in method.GetParameters())
                 {
                     MessageOptionAttribute? paramAttribute = parameter.GetCustomAttribute<MessageOptionAttribute>();
-                    MessageCommandParameterData parameterData = new();
+                    MessageParameterData parameterData = new();
 
                     if (paramAttribute is null)
                     {
@@ -94,35 +94,35 @@ internal static class CommandModuleRegister
                     // I don't know how I would make this into a switch case. 
                     if (parameterType == typeof(string))
                     {
-                        parameterData.Type = MessageCommandParameterDataType.String;
+                        parameterData.Type = MessageParameterDataType.String;
                     }
                     else if (parameterType == typeof(int))
                     {
-                        parameterData.Type = MessageCommandParameterDataType.Int;
+                        parameterData.Type = MessageParameterDataType.Int;
                     }
                     else if (parameterType == typeof(DiscordUser))
                     {
-                        parameterData.Type = MessageCommandParameterDataType.User;
+                        parameterData.Type = MessageParameterDataType.User;
                     }
                     else if (parameterType == typeof(DiscordRole))
                     {
-                        parameterData.Type = MessageCommandParameterDataType.Role;
+                        parameterData.Type = MessageParameterDataType.Role;
                     }
                     else if (parameterType == typeof(bool))
                     {
-                        parameterData.Type = MessageCommandParameterDataType.Bool;
+                        parameterData.Type = MessageParameterDataType.Bool;
                     }
                     else if (parameterType == typeof(DiscordMember))
                     {
-                        parameterData.Type = MessageCommandParameterDataType.Member;
+                        parameterData.Type = MessageParameterDataType.Member;
                     }
                     else if (parameterType == typeof(DiscordChannel))
                     {
-                        parameterData.Type = MessageCommandParameterDataType.Channel;
+                        parameterData.Type = MessageParameterDataType.Channel;
                     }
                     else if (parameterType == typeof(double))
                     {
-                        parameterData.Type = MessageCommandParameterDataType.Double;
+                        parameterData.Type = MessageParameterDataType.Double;
                     }
                     else
                     {
@@ -137,7 +137,7 @@ internal static class CommandModuleRegister
                 bool returnsNothing = method.ReturnType == typeof(void)
                                       || (method.ReturnType.GetMethod(nameof(Task.GetAwaiter)) is not null &&
                                           method.ReturnType.GenericTypeArguments.Length == 0);
-                MessageCommandMethodData methodData = new()
+                MessageMethodData methodData = new()
                 {
                     Module = module,
                     Method = method,
@@ -147,7 +147,7 @@ internal static class CommandModuleRegister
                 };
                 if (moduleName.Length != 0)
                 {
-                    MessageCommandTree? tree = null;
+                    MessageTree? tree = null;
                     foreach (string name in moduleName)
                     {
                         tree = factory.GetBranch(name);
@@ -167,7 +167,7 @@ internal static class CommandModuleRegister
                         }
                         else
                         {
-                            MessageCommandTree tempTree = new();
+                            MessageTree tempTree = new();
                             tree?.Branches?.Add(name, tempTree);
                             tree = tempTree;
                         }
