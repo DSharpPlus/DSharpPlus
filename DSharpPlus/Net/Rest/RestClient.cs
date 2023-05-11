@@ -152,7 +152,7 @@ internal sealed class RestClient : IDisposable
             _ = response.StatusCode switch
             {
                 HttpStatusCode.BadRequest or HttpStatusCode.MethodNotAllowed =>
-                    throw new BadRequestException(request, response),
+                    throw new BadRequestException(req, response, await response.Content.ReadAsStringAsync()),
 
                 HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden =>
                     throw new UnauthorizedException(request, response),

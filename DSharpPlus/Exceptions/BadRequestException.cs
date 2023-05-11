@@ -21,46 +21,64 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using DSharpPlus.Net;
-using Newtonsoft.Json.Linq;
+using System.Net.Http;
+using System.Text.Json;
 
-namespace DSharpPlus.Exceptions
+namespace DSharpPlus.Exceptions;
+
+/// <summary>
+/// Represents an exception thrown when a malformed request is sent.
+/// </summary>
+public class BadRequestException : DiscordException
 {
+
     /// <summary>
-    /// Represents an exception thrown when a malformed request is sent.
+    /// Gets the error code for this exception.
     /// </summary>
-    public class BadRequestException : DiscordException
+    public int Code { get; internal set; }
+
+    /// <summary>
+    /// Gets the form error responses in JSON format.
+    /// </summary>
+    public string? Errors { get; internal set; }
+
+    internal BadRequestException(HttpRequestMessage request, HttpResponseMessage response, string content) 
+        : base("Bad request: " + response.StatusCode)
     {
+        this.Request = request;
+        this.Response = response;
 
-        /// <summary>
-        /// Gets the error code for this exception.
-        /// </summary>
-        public int Code { get; internal set; }
-
-        /// <summary>
-        /// Gets the form error responses in JSON format.
-        /// </summary>
-        public string Errors { get; internal set; }
-
-        internal BadRequestException(BaseRestRequest request, RestResponse response) : base("Bad request: " + response.ResponseCode)
+        try
         {
-            this.WebRequest = request;
-            this.WebResponse = response;
+            JsonElement responseModel = JsonDocument.Parse(content).RootElement;
 
-            try
+            if
+            (
+                responseModel.TryGetProperty("code", out JsonElement code) 
+                && code.ValueKind == JsonValueKind.Number
+            )
             {
-                var j = JObject.Parse(response.Response);
-
-                if (j["code"] != null)
-                    this.Code = (int)j["code"];
-
-                if (j["message"] != null)
-                    this.JsonMessage = j["message"].ToString();
-
-                if (j["errors"] != null)
-                    this.Errors = j["errors"].ToString();
+                this.Code = code.GetInt32();
             }
-            catch { }
+
+            if
+            (
+                responseModel.TryGetProperty("message", out JsonElement message)
+                && message.ValueKind == JsonValueKind.String
+            )
+            {
+                this.JsonMessage = message.GetString();
+            }
+
+            if
+            (
+                responseModel.TryGetProperty("errors", out JsonElement errors)
+                && message.ValueKind == JsonValueKind.String
+            )
+            {
+                this.Errors = errors.GetString();
+            }
         }
+        catch { }
     }
 }
