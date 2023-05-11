@@ -3,11 +3,13 @@ using System.Runtime.CompilerServices;
 using DSharpPlus.CH.Application.Conditions;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.CH.Application.Internals;
 
 internal class ApplicationHandler
 {
+    private DiscordClient _client;
     private ApplicationModule _module = null!;
     private DiscordInteraction _interaction;
     private ApplicationMethodData _data;
@@ -17,70 +19,114 @@ internal class ApplicationHandler
 
     internal ApplicationHandler(ApplicationMethodData data, DiscordInteraction interaction,
         IReadOnlyList<Func<IServiceProvider, IApplicationCondition>> conditionBuilders, object?[]? args,
-        IServiceScope scope)
+        IServiceScope scope, DiscordClient client)
     {
         _data = data;
         _interaction = interaction;
         _conditionBuilders = conditionBuilders;
         _args = args;
         _scope = scope;
+        _client = client;
     }
 
     internal async Task TurnResultIntoActionAsync(IApplicationResult result)
     {
-        DiscordInteractionResponseBuilder builder = new();
-
-        void SetDefaultContent(DiscordInteractionResponseBuilder responseBuilder)
-        {
-            if (result.Content is not null)
-            {
-                responseBuilder.WithContent(result.Content);
-            }
-
-            if (result.Embeds is not null)
-            {
-                responseBuilder.AddEmbeds(result.Embeds);
-            }
-        }
-
+        _client.Logger.LogInformation("Reached here");
         switch (result.Type)
         {
             case ApplicationResultType.Reply:
-                SetDefaultContent(builder);
+                DiscordInteractionResponseBuilder builder = new();
+                if (result.Content is not null)
+                {
+                    builder.WithContent(result.Content);
+                }
+
+                if (result.Embeds is not null)
+                {
+                    builder.AddEmbeds(result.Embeds);
+                }
                 await _module.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                     builder);
+                break;
+            case ApplicationResultType.FollowUp:
+                DiscordFollowupMessageBuilder followUpBuilder = new();
+                if (result.Content is not null)
+                {
+                    followUpBuilder.WithContent(result.Content);
+                }
+
+                if (result.Embeds is not null)
+                {
+                    followUpBuilder.AddEmbeds(result.Embeds);
+                }
+                await _module.Interaction.CreateFollowupMessageAsync(followUpBuilder);
                 break;
         }
     }
 
     internal async Task BuildModuleAndExecuteCommandAsync()
     {
-        _module = (ApplicationModule)_data.Module.Factory.Invoke(_scope.ServiceProvider, null);
-
-        if (_data.ReturnsNothing)
+        try
         {
-            if (_data.IsAsync)
+            _module = (ApplicationModule)_data.Module.Factory.Invoke(_scope.ServiceProvider, null);
+            _module.Interaction = _interaction;
+            _module.Client = _client;
+            _module._handler = this;
+
+            try
             {
-                Task<IApplicationResult> task = (Task<IApplicationResult>)_data.Method.Invoke(_module, _args)!;
-                await TurnResultIntoActionAsync(await task);
+                if (!_data.ReturnsNothing)
+                {
+                    if (_data.IsAsync)
+                    {
+                        Task<IApplicationResult> task =
+                            (Task<IApplicationResult>)_data.Method.Invoke(_module, BindingFlags.OptionalParamBinding,
+                                null,
+                                _args, null)!;
+                        await TurnResultIntoActionAsync(await task);
+                    }
+                    else
+                    {
+                        _client.Logger.LogInformation("Executing command");
+                        IApplicationResult result = (IApplicationResult)_data.Method.Invoke(_module,
+                            BindingFlags.OptionalParamBinding, null, _args, null)!;
+                        await TurnResultIntoActionAsync(result);
+                    }
+                }
+                else
+                {
+                    if (_data.IsAsync)
+                    {
+                        Task task =
+                            (Task)_data.Method.Invoke(_module, BindingFlags.OptionalParamBinding, null, _args, null)!;
+                        await task;
+                    }
+                    else
+                    {
+                        _data.Method.Invoke(_module, BindingFlags.OptionalParamBinding, null, _args, null);
+                    }
+                }
             }
-            else
+            catch (TargetInvocationException e)
             {
-                IApplicationResult result = (IApplicationResult)_data.Method.Invoke(_module, _args)!;
-                await TurnResultIntoActionAsync(result);
+                System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(e.InnerException ?? e).Throw();
+                throw e.InnerException;
+            }
+            catch (AggregateException e)
+            {
+                System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(e.InnerException ?? e).Throw();
+                throw e.InnerException;
             }
         }
-        else
+        catch (Exception e)
         {
-            if (_data.IsAsync)
-            {
-                Task task = (Task)_data.Method.Invoke(_module, _args)!;
-                await task;
-            }
-            else
-            {
-                _data.Method.Invoke(_module, _args);
-            }
+            _client.Logger.LogError(
+                "Exception was thrown while trying to execute command {MethodName}. Was thrown from {Exception}",
+                _data.Method.Name, e.ToString());
+        }
+        finally
+        {
+            _scope.Dispose();
         }
     }
 }

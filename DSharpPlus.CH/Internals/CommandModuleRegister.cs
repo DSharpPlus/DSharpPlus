@@ -6,6 +6,7 @@ using DSharpPlus.CH.Message;
 using DSharpPlus.CH.Exceptions;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.CH.Internals;
 
@@ -180,7 +181,8 @@ internal static class CommandModuleRegister
         }
     }
 
-    internal static void RegisterApplicationCommands(ApplicationFactory factory, Assembly assembly)
+    internal static void RegisterApplicationCommands(ApplicationFactory factory, Assembly assembly,
+        DiscordClient client)
     {
         IEnumerable<Type> classes = assembly.GetTypes()
             .Where(t => t.IsPublic &&
@@ -191,6 +193,7 @@ internal static class CommandModuleRegister
 
         NullabilityInfoContext nullabilityContext = new();
 
+        List<DiscordApplicationCommand> commands = new();
         foreach (Type @class in classes)
         {
             ObjectFactory objectFactory = ActivatorUtilities.CreateFactory(@class, Array.Empty<Type>());
@@ -198,16 +201,21 @@ internal static class CommandModuleRegister
 
             foreach (MethodInfo method in @class.GetMethods())
             {
+                DiscordApplicationCommandBuilder commandBuilder = new();
+                commandBuilder.WithType(ApplicationCommandType.SlashCommand);
+
                 ApplicationNameAttribute? attribute = method.GetCustomAttribute<ApplicationNameAttribute>();
                 if (attribute is null)
                 {
                     continue;
                 }
 
+                commandBuilder.WithName(attribute.Name).WithDescription(attribute.Description);
+
                 List<ApplicationMethodParameterData> parameters = new();
                 foreach (ParameterInfo parameter in method.GetParameters())
                 {
-                    ApplicationNameAttribute? name = parameter.GetCustomAttribute<ApplicationNameAttribute>();
+                    ApplicationOptionAttribute? name = parameter.GetCustomAttribute<ApplicationOptionAttribute>();
                     if (name is null)
                     {
                         throw new Exception("Parameter needs to have `ApplicationNameAttribute` marked.");
@@ -259,6 +267,8 @@ internal static class CommandModuleRegister
                     }
 
                     parameters.Add(data);
+                    commandBuilder.AddOption(new DiscordApplicationCommandOption(name.Name, name.Description, data.Type,
+                        !data.IsNullable));
                 }
 
                 bool isAsync = method.ReturnType.GetMethod(nameof(Task.GetAwaiter)) is not null;
@@ -276,7 +286,24 @@ internal static class CommandModuleRegister
                         Module = moduleData
                     };
                 factory._methods.Add(attribute.Name, methodData);
+                commands.Add(commandBuilder.Build());
             }
         }
+
+        Func<Task> func = async () =>
+        {
+            try
+            {
+                await Task.Delay(TimeSpan.FromSeconds(3));
+                await client.BulkOverwriteGlobalApplicationCommandsAsync(commands);
+                client.Logger.LogInformation("Registered commands");
+            }
+            catch (Exception e)
+            {
+                client.Logger.LogError("A error appeared when trying to register commands, {Error}",
+                    e.ToString());
+            }
+        };
+        _ = func();
     }
 }

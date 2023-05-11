@@ -184,8 +184,6 @@ internal class MessageCommandHandler
                 System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(e.InnerException ?? e).Throw();
                 throw e.InnerException;
             }
-
-            _scope.Dispose();
         }
         catch (Exception e)
         {
@@ -195,6 +193,10 @@ internal class MessageCommandHandler
             _client.Logger.LogError(
                 "Exception was thrown while trying to execute command {MethodName}. Was thrown from {Exception}",
                 _data.Method.Name, e.ToString());
+        }
+        finally
+        {
+            _scope.Dispose();
         }
     }
 }

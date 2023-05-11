@@ -13,9 +13,15 @@ public abstract class ApplicationModule
     protected Task PostAsync(IApplicationResult result)
         => _handler.TurnResultIntoActionAsync(result);
 
-    protected IApplicationResult Reply(IApplicationResult result)
+    protected IApplicationResult Reply(ApplicationResult result)
     {
         result.Type = ApplicationResultType.Reply;
+        return result;
+    }
+
+    protected IApplicationResult FollowUp(ApplicationResult result)
+    {
+        result.Type = ApplicationResultType.FollowUp;
         return result;
     }
 

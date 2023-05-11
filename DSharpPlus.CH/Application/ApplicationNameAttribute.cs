@@ -1,11 +1,15 @@
 namespace DSharpPlus.CH.Application;
 
-[AttributeUsage(AttributeTargets.Parameter)]
+[AttributeUsage(AttributeTargets.Method)]
 public class ApplicationNameAttribute : Attribute
 {
     public string Name { get; }
+    public string Description { get; }
     // public Type Type { get; }
-    
-    public ApplicationNameAttribute(string name)
-        => Name = name;
+
+    public ApplicationNameAttribute(string name, string description)
+    {
+        Name = name;
+        Description = description;
+    }
 }

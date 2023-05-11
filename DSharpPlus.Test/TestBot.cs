@@ -166,16 +166,16 @@ internal sealed class TestBot
 
         this.Discord.UseInteractivity(icfg);
 
-        this.SlashCommandService = this.Discord.UseSlashCommands();
+        /* this.SlashCommandService = this.Discord.UseSlashCommands();
         this.SlashCommandService.SlashCommandErrored += this.SlashCommandService_CommandErrored;
         this.SlashCommandService.SlashCommandInvoked += this.SlashCommandService_CommandReceived;
-        this.SlashCommandService.SlashCommandExecuted += this.SlashCommandService_CommandExecuted;
+        this.SlashCommandService.SlashCommandExecuted += this.SlashCommandService_CommandExecuted; */
 
-        if (this.Config.SlashCommandGuild != 0)
+        /* if (this.Config.SlashCommandGuild != 0)
         {
             this.SlashCommandService.RegisterCommands(typeof(TestBot).GetTypeInfo().Assembly,
                 this.Config.SlashCommandGuild);
-        }
+        } */
 
         CHBuilder builder = new();
         builder.AddAssembly(Assembly.GetExecutingAssembly());

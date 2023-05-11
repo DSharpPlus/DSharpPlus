@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Linq.Expressions;
+using DSharpPlus.CH.Application.Internals;
 using DSharpPlus.CH.Message.Conditions;
 using DSharpPlus.EventArgs;
 using DSharpPlus.CH.Internals;
@@ -14,6 +15,7 @@ public class CommandController
     private string[] _prefixes;
     
     internal MessageCommandFactory _messageCommandFactory { get; private set; }
+    internal ApplicationFactory _applicationFactory { get; private set; }
     
     public IServiceProvider Services { get; private set; }
 
@@ -24,9 +26,13 @@ public class CommandController
         Services = services;
 
         _messageCommandFactory = new MessageCommandFactory(Services);
-
+        _applicationFactory = new ApplicationFactory(Services);
+        
         CommandModuleRegister.RegisterMessageCommands(_messageCommandFactory, assembly);
+        CommandModuleRegister.RegisterApplicationCommands(_applicationFactory, assembly, client);
+        
         client.MessageCreated += HandleMessageCreationAsync;
+        client.InteractionCreated += HandleInteractionCreateAsync;
         client.MessageReactionAdded += Message.Internals.MessageReactionHandler.MessageReactionEventAsync;
     }
 
@@ -112,6 +118,12 @@ public class CommandController
 
         _messageCommandFactory.ConstructAndExecuteCommand(msg.Message, client,
             ref content, ranges);
+        return Task.CompletedTask;
+    }
+
+    internal Task HandleInteractionCreateAsync(DiscordClient client, InteractionCreateEventArgs e)
+    {
+        _applicationFactory.ExecuteCommand(e.Interaction, client);
         return Task.CompletedTask;
     }
 }
