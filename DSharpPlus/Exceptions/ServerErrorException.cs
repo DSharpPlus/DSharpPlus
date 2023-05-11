@@ -21,30 +21,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
-using DSharpPlus.Net;
-using Newtonsoft.Json.Linq;
+using System.Net.Http;
+using System.Text.Json;
 
-namespace DSharpPlus.Exceptions
+namespace DSharpPlus.Exceptions;
+
+/// <summary>
+/// Represents an exception thrown when Discord returns an Internal Server Error.
+/// </summary>
+public class ServerErrorException : DiscordException
 {
-    /// <summary>
-    /// Represents an exception thrown when Discord returns an Internal Server Error.
-    /// </summary>
-    public class ServerErrorException : DiscordException
+    internal ServerErrorException(HttpRequestMessage request, HttpResponseMessage response, string content) 
+        : base("Internal Server Error: " + response.StatusCode)
     {
-        internal ServerErrorException(BaseRestRequest request, RestResponse response) : base("Internal Server Error: " + response.ResponseCode)
+        this.Request = request;
+        this.Response = response;
+
+        try
         {
-            this.WebRequest = request;
-            this.WebResponse = response;
+            JsonElement responseModel = JsonDocument.Parse(content).RootElement;
 
-            try
+            if
+            (
+                responseModel.TryGetProperty("message", out JsonElement message)
+                && message.ValueKind == JsonValueKind.String
+            )
             {
-                var j = JObject.Parse(response.Response);
-
-                if (j["message"] != null)
-                    this.JsonMessage = j["message"].ToString();
+                this.JsonMessage = message.GetString();
             }
-            catch (Exception) { }
         }
+        catch { }
     }
 }

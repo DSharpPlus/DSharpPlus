@@ -162,19 +162,22 @@ internal sealed partial class RestClient : IDisposable
                     throw new UnauthorizedException(req, response, await response.Content.ReadAsStringAsync()),
 
                 HttpStatusCode.NotFound =>
-                    throw new NotFoundException(request, response),
+                    throw new NotFoundException(req, response, await response.Content.ReadAsStringAsync()),
 
                 HttpStatusCode.RequestEntityTooLarge =>
-                    throw new RequestSizeException(request, response),
+                    throw new RequestSizeException(req, response, await response.Content.ReadAsStringAsync()),
 
                 HttpStatusCode.TooManyRequests =>
-                   throw new RateLimitException(request, response),
+                   throw new RateLimitException(req, response, await response.Content.ReadAsStringAsync()),
 
                 HttpStatusCode.InternalServerError
                     or HttpStatusCode.BadGateway
                     or HttpStatusCode.ServiceUnavailable
                     or HttpStatusCode.GatewayTimeout =>
-                    throw new ServerErrorException(request, response)
+                    throw new ServerErrorException(req, response, await response.Content.ReadAsStringAsync()),
+
+                // we need to keep the c# compiler happy, and not all branches can/should throw here.
+                _ => 0
             };
 
             return new RestResponse()
@@ -215,7 +218,6 @@ internal sealed partial class RestClient : IDisposable
         catch { }
     }
 }
-
 
 //       More useless comments, sorry..
 //  Was listening to this, felt like sharing.
