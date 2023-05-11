@@ -1,4 +1,6 @@
 using System.Reflection;
+using DSharpPlus.CH.Application;
+using DSharpPlus.CH.Application.Internals;
 using DSharpPlus.CH.Message.Internals;
 using DSharpPlus.CH.Message;
 using DSharpPlus.CH.Exceptions;
@@ -7,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.CH.Internals;
 
-internal class CommandModuleRegister
+internal static class CommandModuleRegister
 {
     internal static void RegisterMessageCommands(MessageCommandFactory factory, Assembly assembly)
     {
@@ -174,6 +176,106 @@ internal class CommandModuleRegister
                 {
                     factory.AddCommand(attribute.Name, methodData);
                 }
+            }
+        }
+    }
+
+    internal static void RegisterApplicationCommands(ApplicationFactory factory, Assembly assembly)
+    {
+        IEnumerable<Type> classes = assembly.GetTypes()
+            .Where(t => t.IsPublic &&
+                        t.IsClass &&
+                        !t.IsAbstract &&
+                        t.IsSubclassOf(typeof(ApplicationModule)) &&
+                        t.GetCustomAttribute<ApplicationModuleAttribute>() is not null);
+
+        NullabilityInfoContext nullabilityContext = new();
+
+        foreach (Type @class in classes)
+        {
+            ObjectFactory objectFactory = ActivatorUtilities.CreateFactory(@class, Array.Empty<Type>());
+            ApplicationModuleData moduleData = new(objectFactory);
+
+            foreach (MethodInfo method in @class.GetMethods())
+            {
+                ApplicationNameAttribute? attribute = method.GetCustomAttribute<ApplicationNameAttribute>();
+                if (attribute is null)
+                {
+                    continue;
+                }
+
+                List<ApplicationMethodParameterData> parameters = new();
+                foreach (ParameterInfo parameter in method.GetParameters())
+                {
+                    ApplicationNameAttribute? name = parameter.GetCustomAttribute<ApplicationNameAttribute>();
+                    if (name is null)
+                    {
+                        throw new Exception("Parameter needs to have `ApplicationNameAttribute` marked.");
+                    }
+
+                    ApplicationMethodParameterData data = new(name.Name);
+                    data.IsNullable = nullabilityContext.Create(parameter).WriteState is NullabilityState.Nullable;
+
+                    if (parameter.ParameterType == typeof(string))
+                    {
+                        data.Type = ApplicationCommandOptionType.String;
+                    }
+                    else if (parameter.ParameterType == typeof(long))
+                    {
+                        data.Type = ApplicationCommandOptionType.Integer;
+                    }
+                    else if (parameter.ParameterType == typeof(double))
+                    {
+                        data.Type = ApplicationCommandOptionType.Number;
+                    }
+                    else if (parameter.ParameterType == typeof(bool))
+                    {
+                        data.Type = ApplicationCommandOptionType.Boolean;
+                    }
+                    else if (parameter.ParameterType == typeof(DiscordUser))
+                    {
+                        data.Type = ApplicationCommandOptionType.User;
+                    }
+                    else if (parameter.ParameterType == typeof(DiscordChannel))
+                    {
+                        data.Type = ApplicationCommandOptionType.Channel;
+                    }
+                    else if (parameter.ParameterType == typeof(DiscordRole))
+                    {
+                        data.Type = ApplicationCommandOptionType.Role;
+                    }
+                    else if (parameter.ParameterType.IsSubclassOf(typeof(IMention)) ||
+                             parameter.ParameterType == typeof(IMention))
+                    {
+                        data.Type = ApplicationCommandOptionType.Mentionable;
+                    }
+                    else if (parameter.ParameterType == typeof(DiscordAttachment))
+                    {
+                        data.Type = ApplicationCommandOptionType.Attachment;
+                    }
+                    else
+                    {
+                        throw new Exception("Not a valid parameter type.");
+                    }
+
+                    parameters.Add(data);
+                }
+
+                bool isAsync = method.ReturnType.GetMethod(nameof(Task.GetAwaiter)) is not null;
+                bool returnsNothing = method.ReturnType == typeof(void) ||
+                                      (method.ReturnType.GetMethod(nameof(Task.GetAwaiter)) is not null &&
+                                       method.ReturnType.GenericTypeArguments.Length == 0);
+
+                ApplicationMethodData methodData =
+                    new()
+                    {
+                        IsAsync = isAsync,
+                        ReturnsNothing = returnsNothing,
+                        Method = method,
+                        Parameters = parameters,
+                        Module = moduleData
+                    };
+                factory._methods.Add(attribute.Name, methodData);
             }
         }
     }
