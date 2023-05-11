@@ -21,30 +21,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
-using DSharpPlus.Net;
-using Newtonsoft.Json.Linq;
+using System.Net.Http;
+using System.Text.Json;
 
-namespace DSharpPlus.Exceptions
+namespace DSharpPlus.Exceptions;
+
+/// <summary>
+/// Represents an exception thrown when requester doesn't have necessary permissions to complete the request.
+/// </summary>
+public class UnauthorizedException : DiscordException
 {
-    /// <summary>
-    /// Represents an exception thrown when requester doesn't have necessary permissions to complete the request.
-    /// </summary>
-    public class UnauthorizedException : DiscordException
+    internal UnauthorizedException(HttpRequestMessage request, HttpResponseMessage response, string content) 
+        : base("Unauthorized: " + response.StatusCode)
     {
-        internal UnauthorizedException(BaseRestRequest request, RestResponse response) : base("Unauthorized: " + response.ResponseCode)
+        this.Request = request;
+        this.Response = response;
+
+        try
         {
-            this.WebRequest = request;
-            this.WebResponse = response;
+            JsonElement responseModel = JsonDocument.Parse(content).RootElement;
 
-            try
+            if
+            (
+                responseModel.TryGetProperty("message", out JsonElement message)
+                && message.ValueKind == JsonValueKind.String
+            )
             {
-                var j = JObject.Parse(response.Response);
-
-                if (j["message"] != null)
-                    this.JsonMessage = j["message"].ToString();
+                this.JsonMessage = message.GetString();
             }
-            catch (Exception) { }
         }
+        catch { }
     }
 }

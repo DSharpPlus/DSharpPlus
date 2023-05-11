@@ -155,7 +155,7 @@ internal sealed class RestClient : IDisposable
                     throw new BadRequestException(req, response, await response.Content.ReadAsStringAsync()),
 
                 HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden =>
-                    throw new UnauthorizedException(request, response),
+                    throw new UnauthorizedException(req, response, await response.Content.ReadAsStringAsync()),
 
                 HttpStatusCode.NotFound =>
                     throw new NotFoundException(request, response),
