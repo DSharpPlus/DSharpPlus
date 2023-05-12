@@ -3017,7 +3017,18 @@ namespace DSharpPlus.Entities
         /// <param name="exemptChannels">Channels which will not trigger the rule.</param>
         /// <param name="reason">Reason for audit logs.</param>
         /// <returns>The created rule.</returns>
-        public Task<DiscordAutoModerationRule> CreateAutoModerationRuleAsync(string name, RuleEventType eventType, RuleTriggerType triggerType, DiscordRuleTriggerMetadata triggerMetadata, IReadOnlyList<DiscordAutoModerationAction> actions, Optional<bool> enabled = default, Optional<IReadOnlyList<DiscordRole>> exemptRoles = default, Optional<IReadOnlyList<DiscordChannel>> exemptChannels = default, string reason = null)
+        public Task<DiscordAutoModerationRule> CreateAutoModerationRuleAsync
+        (
+            string name, 
+            RuleEventType eventType,
+            RuleTriggerType triggerType, 
+            DiscordRuleTriggerMetadata triggerMetadata, 
+            IReadOnlyList<DiscordAutoModerationAction> actions, 
+            Optional<bool> enabled = default, 
+            Optional<IReadOnlyList<DiscordRole>> exemptRoles = default, 
+            Optional<IReadOnlyList<DiscordChannel>> exemptChannels = default, 
+            string reason = null
+        )
             => this.Discord.ApiClient.CreateGuildAutoModerationRuleAsync(this.Id, name, eventType, triggerType, triggerMetadata, actions, enabled, exemptRoles, exemptChannels, reason);
 
         /// <summary>
