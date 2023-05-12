@@ -3019,17 +3019,31 @@ namespace DSharpPlus.Entities
         /// <returns>The created rule.</returns>
         public Task<DiscordAutoModerationRule> CreateAutoModerationRuleAsync
         (
-            string name, 
+            string name,
             RuleEventType eventType,
-            RuleTriggerType triggerType, 
-            DiscordRuleTriggerMetadata triggerMetadata, 
-            IReadOnlyList<DiscordAutoModerationAction> actions, 
-            Optional<bool> enabled = default, 
-            Optional<IReadOnlyList<DiscordRole>> exemptRoles = default, 
-            Optional<IReadOnlyList<DiscordChannel>> exemptChannels = default, 
+            RuleTriggerType triggerType,
+            DiscordRuleTriggerMetadata triggerMetadata,
+            IReadOnlyList<DiscordAutoModerationAction> actions,
+            Optional<bool> enabled = default,
+            Optional<IReadOnlyList<DiscordRole>> exemptRoles = default,
+            Optional<IReadOnlyList<DiscordChannel>> exemptChannels = default,
             string reason = null
         )
-            => this.Discord.ApiClient.CreateGuildAutoModerationRuleAsync(this.Id, name, eventType, triggerType, triggerMetadata, actions, enabled, exemptRoles, exemptChannels, reason);
+        {
+            return this.Discord.ApiClient.CreateGuildAutoModerationRuleAsync
+            (
+                this.Id,
+                name,
+                eventType,
+                triggerType,
+                triggerMetadata,
+                actions,
+                enabled,
+                exemptRoles,
+                exemptChannels,
+                reason
+            );
+        }
 
         /// <summary>
         /// Gets an auto-moderation rule by an id.
@@ -3059,7 +3073,19 @@ namespace DSharpPlus.Entities
 
             action(model);
 
-            return await this.Discord.ApiClient.ModifyGuildAutoModerationRuleAsync(this.Id, ruleId, model.Name, model.EventType, model.TriggerMetadata, model.Actions, model.Enable, model.ExemptRoles, model.ExemptChannels, model.AuditLogReason);
+            return await this.Discord.ApiClient.ModifyGuildAutoModerationRuleAsync
+            (
+                this.Id, 
+                ruleId, 
+                model.Name, 
+                model.EventType, 
+                model.TriggerMetadata, 
+                model.Actions, 
+                model.Enable, 
+                model.ExemptRoles, 
+                model.ExemptChannels, 
+                model.AuditLogReason
+            );
         }
 
         /// <summary>
