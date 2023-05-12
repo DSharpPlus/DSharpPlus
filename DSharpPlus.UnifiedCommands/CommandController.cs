@@ -3,6 +3,7 @@ using System.Reflection;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
+using DSharpPlus.UnifiedCommands.Application.Conditions;
 using DSharpPlus.UnifiedCommands.Application.Internals;
 using DSharpPlus.UnifiedCommands.Internals;
 using DSharpPlus.UnifiedCommands.Message.Conditions;
@@ -18,8 +19,8 @@ public class CommandController
     private ulong[]? _guildIds;
 
     internal MessageFactory MessageFactory { get; private set; }
-    internal ApplicationFactory _applicationFactory { get; private set; }
-    
+    internal ApplicationFactory ApplicationFactory { get; private set; }
+
     public IServiceProvider Services { get; private set; }
 
     public CommandController(DiscordClient client, IServiceProvider services,
@@ -27,14 +28,15 @@ public class CommandController
     {
         _prefixes = prefixes;
         Services = services;
+        _guildIds = guildIds;
 
         MessageFactory = new MessageFactory(Services);
-        _applicationFactory = new ApplicationFactory(Services);
-        
+        ApplicationFactory = new ApplicationFactory(Services);
+
         CommandModuleRegister.RegisterMessageCommands(MessageFactory, assembly);
         if (registerSlashCommands)
         {
-            _commands = CommandModuleRegister.RegisterApplicationCommands(_applicationFactory, assembly, client);
+            _commands = CommandModuleRegister.RegisterApplicationCommands(ApplicationFactory, assembly, client);
         }
 
         client.MessageCreated += HandleMessageCreationAsync;
@@ -77,6 +79,40 @@ public class CommandController
         return this;
     }
 
+    public CommandController UseApplicationCondition<T>() where T : IApplicationCondition
+    {
+        Type type = typeof(T);
+        List<Expression> expressions = new();
+        
+        ParameterExpression serviceProviderParam = Expression.Parameter(typeof(IServiceProvider), "serviceProvider");
+        expressions.Add(serviceProviderParam);
+        ConstructorInfo info = type.GetConstructors()[0];
+        if (info.GetParameters().Length == 0)
+        {
+            expressions.Add(Expression.New(info));
+        }
+        else
+        {
+            MethodInfo method = typeof(IServiceProvider).GetMethod(nameof(IServiceProvider.GetService),
+                BindingFlags.Instance | BindingFlags.Public)!;
+
+            List<Expression> parameters = new();
+            foreach (ParameterInfo parameter in method.GetParameters())
+            {
+                parameters.Add(Expression.Call(method, Expression.Constant(typeof(Type),
+                    parameter.ParameterType)));
+            }
+
+            expressions.Add(Expression.New(info, parameters));
+        }
+
+        Func<IServiceProvider, IApplicationCondition> func =
+            Expression.Lambda<Func<IServiceProvider, IApplicationCondition>>(Expression.Block(expressions), false,
+                serviceProviderParam).Compile();
+        ApplicationFactory.AddCondition(func);
+        return this;
+    }
+
     internal Task HandleMessageCreationAsync(DiscordClient client, MessageCreateEventArgs msg)
     {
         if (_prefixes.Length == 0)
@@ -109,7 +145,7 @@ public class CommandController
         {
             return Task.CompletedTask;
         }
-        
+
         List<Range> ranges = new();
         Index last = prefix.Length;
         for (int i = last.Value; i < content.Length; i++)
@@ -130,7 +166,7 @@ public class CommandController
 
     internal Task HandleInteractionCreateAsync(DiscordClient client, InteractionCreateEventArgs e)
     {
-        _applicationFactory.ExecuteCommand(e.Interaction, client);
+        ApplicationFactory.ExecuteCommand(e.Interaction, client);
         return Task.CompletedTask;
     }
 

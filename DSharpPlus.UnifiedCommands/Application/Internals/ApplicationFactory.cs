@@ -7,19 +7,26 @@ namespace DSharpPlus.UnifiedCommands.Application.Internals;
 internal class ApplicationFactory
 {
     private IServiceProvider _service;
+    private List<Func<IServiceProvider, IApplicationCondition>> _conditionBuilders = new();
 
     internal Dictionary<string, ApplicationMethodData> _methods = new(); // TODO: Change this into a tree.
 
     public ApplicationFactory(IServiceProvider service)
         => _service = service;
 
+    internal void AddCondition(Func<IServiceProvider, IApplicationCondition> func)
+        => _conditionBuilders.Add(func);
+    
     internal void ExecuteCommand(DiscordInteraction interaction, DiscordClient client)
     {
+        object?[]? objects;
+        ApplicationHandler handler;
+        
         if (_methods.TryGetValue(interaction.Data.Name, out ApplicationMethodData? data))
         {
-            object?[]? objects = MapParameters(data, interaction.Data.Options, interaction.Data.Resolved);
-            ApplicationHandler handler = new(data, interaction,
-                new List<Func<IServiceProvider, IApplicationCondition>>(), objects, _service.CreateScope(), client);
+            objects = MapParameters(data, interaction.Data.Options, interaction.Data.Resolved);
+            handler = new(data, interaction,
+                _conditionBuilders, objects, _service.CreateScope(), client);
 
             _ = handler.BuildModuleAndExecuteCommandAsync();
         }
@@ -28,7 +35,8 @@ internal class ApplicationFactory
             DiscordInteractionDataOption? subCommandOption = null;
             foreach (DiscordInteractionDataOption option in interaction.Data.Options)
             {
-                if (option.Type == ApplicationCommandOptionType.SubCommand)
+                if (option.Type == ApplicationCommandOptionType.SubCommand ||
+                    option.Type == ApplicationCommandOptionType.SubCommandGroup)
                 {
                     subCommandOption = option;
                     break;
@@ -37,15 +45,48 @@ internal class ApplicationFactory
 
             if (subCommandOption is not null)
             {
-                string name = $"{interaction.Data.Name} {(string)subCommandOption.Name}";
-                if (_methods.TryGetValue(name, out ApplicationMethodData? methodData))
+                if (subCommandOption.Type == ApplicationCommandOptionType.SubCommandGroup)
                 {
-                    object?[]? objects = MapParameters(methodData, subCommandOption.Options, interaction.Data.Resolved);
-                    ApplicationHandler handler = new(methodData, interaction,
-                        new List<Func<IServiceProvider, IApplicationCondition>>(), objects, _service.CreateScope(),
-                        client);
+                    DiscordInteractionDataOption? subCommandOption2 = null;
+                    foreach (DiscordInteractionDataOption option in subCommandOption.Options)
+                    {
+                        if (option.Type == ApplicationCommandOptionType.SubCommand)
+                        {
+                            subCommandOption2 = option;
+                            break;
+                        }
+                    }
 
-                    _ = handler.BuildModuleAndExecuteCommandAsync();
+                    if (subCommandOption2 is not null)
+                    {
+                        string name =
+                            $"{interaction.Data.Name} {(string)subCommandOption.Name} {subCommandOption2.Name}";
+                        if (_methods.TryGetValue(name, out ApplicationMethodData? subMethodData))
+                        {
+                            objects = MapParameters(subMethodData, subCommandOption.Options,
+                                interaction.Data.Resolved);
+                            handler = new(subMethodData, interaction,
+                                _conditionBuilders, objects,
+                                _service.CreateScope(),
+                                client);
+
+                            _ = handler.BuildModuleAndExecuteCommandAsync();
+                        }
+                    }
+                }
+                else
+                {
+                    string name = $"{interaction.Data.Name} {(string)subCommandOption.Name}";
+                    if (_methods.TryGetValue(name, out ApplicationMethodData? methodData))
+                    {
+                        objects = MapParameters(methodData, subCommandOption.Options,
+                            interaction.Data.Resolved);
+                        handler = new(methodData, interaction,
+                            _conditionBuilders, objects, _service.CreateScope(),
+                            client);
+
+                        _ = handler.BuildModuleAndExecuteCommandAsync();
+                    }
                 }
             }
         }

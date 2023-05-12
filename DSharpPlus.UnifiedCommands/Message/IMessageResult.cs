@@ -1,3 +1,5 @@
+using DSharpPlus.Entities;
+
 namespace DSharpPlus.UnifiedCommands.Message;
 
 /// <summary>
@@ -7,5 +9,5 @@ public interface IMessageResult
 {
     public MessageResultType Type { get; set; }
     public string? Content { get; set; }
-    public List<Entities.DiscordEmbed>? Embeds { get; set; }
+    public List<DiscordEmbed>? Embeds { get; set; }
 }

@@ -30,7 +30,6 @@ internal class ApplicationHandler
 
     internal async Task TurnResultIntoActionAsync(IApplicationResult result)
     {
-        _client.Logger.LogInformation("Reached here");
         switch (result.Type)
         {
             case ApplicationResultType.Reply:
@@ -44,6 +43,7 @@ internal class ApplicationHandler
                 {
                     builder.AddEmbeds(result.Embeds);
                 }
+
                 await _module.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                     builder);
                 break;
@@ -58,6 +58,7 @@ internal class ApplicationHandler
                 {
                     followUpBuilder.AddEmbeds(result.Embeds);
                 }
+
                 await _module.Interaction.CreateFollowupMessageAsync(followUpBuilder);
                 break;
         }
@@ -71,6 +72,18 @@ internal class ApplicationHandler
             _module.Interaction = _interaction;
             _module.Client = _client;
             _module._handler = this;
+
+            foreach (Func<IServiceProvider, IApplicationCondition> conditionBuilder in _conditionBuilders)
+            {
+                IApplicationCondition condition = conditionBuilder(_scope.ServiceProvider);
+                Task<bool> task = condition.InvokeAsync(_interaction, _client);
+                bool shouldContinue = await task;
+
+                if (!shouldContinue)
+                {
+                    return;
+                }
+            }
 
             try
             {
@@ -86,7 +99,6 @@ internal class ApplicationHandler
                     }
                     else
                     {
-                        _client.Logger.LogInformation("Executing command");
                         IApplicationResult result = (IApplicationResult)_data.Method.Invoke(_module,
                             BindingFlags.OptionalParamBinding, null, _args, null)!;
                         await TurnResultIntoActionAsync(result);

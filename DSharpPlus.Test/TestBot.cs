@@ -183,9 +183,11 @@ internal sealed class TestBot
         builder.AddPrefix(this.Config.CommandPrefixes);
         builder.Services.AddScoped<string>(s => "Hello, world!");
         builder.Services.AddSingleton<IErrorHandler, UnifiedCommandsErrorHandler>();
+        builder.AddGuilds(this.Config.SlashCommandGuild);
 
         CommandController controller = this.Discord.UseUnifiedCommands(builder);
         controller.UseStandardConditions();
+        controller.UseApplicationCondition<UnifiedCommandsApplicationConditionsTest>();
 
         //this.Discord.MessageCreated += async e =>
         //{

@@ -90,6 +90,7 @@ public class UnifiedCommandsBuilder
         {
             throw new Exception("Please add a assembly before building.");
         }
+        client.Logger.LogTrace("Guild id count is {GuildIdCount}", _guildIds.Length);
 
         IConfiguration configuration = Configuration.Build();
         Services.AddSingleton(configuration);
