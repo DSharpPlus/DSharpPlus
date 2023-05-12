@@ -181,7 +181,8 @@ internal static class CommandModuleRegister
         }
     }
 
-    internal static List<DiscordApplicationCommand> RegisterApplicationCommands(ApplicationFactory factory, Assembly assembly,
+    internal static List<DiscordApplicationCommand> RegisterApplicationCommands(ApplicationFactory factory,
+        Assembly assembly,
         DiscordClient client)
     {
         IEnumerable<Type> classes = assembly.GetTypes()
@@ -199,18 +200,52 @@ internal static class CommandModuleRegister
             ObjectFactory objectFactory = ActivatorUtilities.CreateFactory(@class, Array.Empty<Type>());
             ApplicationModuleData moduleData = new(objectFactory);
 
+            bool registerAsSubcommands = false;
+            ApplicationModuleAttribute? moduleAttribute = @class.GetCustomAttribute<ApplicationModuleAttribute>();
+            if (moduleAttribute?.Name is not null)
+            {
+                registerAsSubcommands = true;
+            }
+
+            DiscordApplicationCommandBuilder? commandBuilder = null;
+            if (registerAsSubcommands)
+            {
+                commandBuilder = new();
+                commandBuilder.WithName(moduleAttribute!.Name!).WithDescription(moduleAttribute.Description!)
+                    .WithType(ApplicationCommandType.SlashCommand);
+            }
+
             foreach (MethodInfo method in @class.GetMethods())
             {
-                DiscordApplicationCommandBuilder commandBuilder = new();
-                commandBuilder.WithType(ApplicationCommandType.SlashCommand);
-
                 ApplicationNameAttribute? attribute = method.GetCustomAttribute<ApplicationNameAttribute>();
                 if (attribute is null)
                 {
                     continue;
                 }
 
-                commandBuilder.WithName(attribute.Name).WithDescription(attribute.Description);
+                string applicationName;
+                if (registerAsSubcommands)
+                {
+                    applicationName = $"{moduleAttribute!.Name} {attribute.Name}";
+                }
+                else
+                {
+                    applicationName = attribute.Name;
+                }
+
+                DiscordApplicationCommandOptionBuilder? option = null;
+                if (!registerAsSubcommands)
+                {
+                    commandBuilder = new();
+                    commandBuilder.WithType(ApplicationCommandType.SlashCommand).WithName(attribute.Name)
+                        .WithDescription(attribute.Description);
+                }
+                else
+                {
+                    option = new();
+                    option.WithName(attribute.Name).WithDescription(attribute.Description)
+                        .WithType(ApplicationCommandOptionType.SubCommand);
+                }
 
                 List<ApplicationMethodParameterData> parameters = new();
                 foreach (ParameterInfo parameter in method.GetParameters())
@@ -267,8 +302,23 @@ internal static class CommandModuleRegister
                     }
 
                     parameters.Add(data);
-                    commandBuilder.AddOption(new DiscordApplicationCommandOption(name.Name, name.Description, data.Type,
-                        !data.IsNullable));
+                    if (registerAsSubcommands)
+                    {
+                        option!.AddOption(new DiscordApplicationCommandOption(name.Name, name.Description,
+                            data.Type,
+                            !data.IsNullable));
+                    }
+                    else
+                    {
+                        commandBuilder!.AddOption(new DiscordApplicationCommandOption(name.Name, name.Description,
+                            data.Type,
+                            !data.IsNullable));
+                    }
+                }
+
+                if (registerAsSubcommands)
+                {
+                    commandBuilder!.AddOption(option!.Build());
                 }
 
                 bool isAsync = method.ReturnType.GetMethod(nameof(Task.GetAwaiter)) is not null;
@@ -285,10 +335,20 @@ internal static class CommandModuleRegister
                         Parameters = parameters,
                         Module = moduleData
                     };
-                factory._methods.Add(attribute.Name, methodData);
-                commands.Add(commandBuilder.Build());
+                factory._methods.Add(applicationName, methodData);
+
+                if (!registerAsSubcommands)
+                {
+                    commands.Add(commandBuilder!.Build());
+                }
+            }
+
+            if (registerAsSubcommands)
+            {
+                commands.Add(commandBuilder!.Build());
             }
         }
+
         return commands;
     }
 }

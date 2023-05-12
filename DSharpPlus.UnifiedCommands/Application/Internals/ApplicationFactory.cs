@@ -23,6 +23,32 @@ internal class ApplicationFactory
 
             _ = handler.BuildModuleAndExecuteCommandAsync();
         }
+        else
+        {
+            DiscordInteractionDataOption? subCommandOption = null;
+            foreach (DiscordInteractionDataOption option in interaction.Data.Options)
+            {
+                if (option.Type == ApplicationCommandOptionType.SubCommand)
+                {
+                    subCommandOption = option;
+                    break;
+                }
+            }
+
+            if (subCommandOption is not null)
+            {
+                string name = $"{interaction.Data.Name} {(string)subCommandOption.Name}";
+                if (_methods.TryGetValue(name, out ApplicationMethodData? methodData))
+                {
+                    object?[]? objects = MapParameters(methodData, subCommandOption.Options, interaction.Data.Resolved);
+                    ApplicationHandler handler = new(methodData, interaction,
+                        new List<Func<IServiceProvider, IApplicationCondition>>(), objects, _service.CreateScope(),
+                        client);
+
+                    _ = handler.BuildModuleAndExecuteCommandAsync();
+                }
+            }
+        }
     }
 
     private object?[]? MapParameters(ApplicationMethodData data, IEnumerable<DiscordInteractionDataOption> options,

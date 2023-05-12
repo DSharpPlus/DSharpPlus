@@ -2,6 +2,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
+using DSharpPlus.Exceptions;
 using DSharpPlus.UnifiedCommands.Application.Internals;
 using DSharpPlus.UnifiedCommands.Internals;
 using DSharpPlus.UnifiedCommands.Message.Conditions;
@@ -135,19 +136,26 @@ public class CommandController
 
     internal async Task HandleReadyAsync(DiscordClient client, ReadyEventArgs e)
     {
-        if (_guildIds is null)
+        try
         {
-            await client.BulkOverwriteGlobalApplicationCommandsAsync(_commands);
-                    client.Logger.LogInformation("Registered commands");
-        }
-        else
-        {
-            foreach (ulong guildId in _guildIds)
+            if (_guildIds is null)
             {
-                await client.BulkOverwriteGuildApplicationCommandsAsync(guildId, _commands);
-                client.Logger.LogTrace("Registered commands in guild {GuildId}", guildId);
-                await Task.Delay(TimeSpan.FromSeconds(2));
+                await client.BulkOverwriteGlobalApplicationCommandsAsync(_commands);
+                client.Logger.LogInformation("Registered commands");
             }
+            else
+            {
+                foreach (ulong guildId in _guildIds)
+                {
+                    await client.BulkOverwriteGuildApplicationCommandsAsync(guildId, _commands);
+                    client.Logger.LogTrace("Registered commands in guild {GuildId}", guildId);
+                    await Task.Delay(TimeSpan.FromSeconds(2));
+                }
+            }
+        }
+        catch (BadRequestException exception)
+        {
+            client.Logger.LogError("Error message: {Error}", exception.Errors);
         }
     }
 }

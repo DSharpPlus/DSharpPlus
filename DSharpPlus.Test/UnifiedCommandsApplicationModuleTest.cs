@@ -5,7 +5,7 @@ using DSharpPlus.UnifiedCommands.Application.Internals;
 
 namespace DSharpPlus.Test;
 
-[ApplicationModule]
+[ApplicationModule("app", "Random application commands.")]
 public class UnifiedCommandsApplicationModuleTest : ApplicationModule
 {
     [ApplicationName("reply-test", "This is a reply test")]

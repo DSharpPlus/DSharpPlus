@@ -8,4 +8,7 @@
   <ItemGroup>
     <ProjectReference Include="../../DSharpPlus/DSharpPlus.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Remove="..\logo\dsharpplus.png" />
+  </ItemGroup>
 </Project>

@@ -4,7 +4,15 @@ namespace DSharpPlus.UnifiedCommands.Application;
 public class ApplicationModuleAttribute : Attribute
 {
     public string? Name { get; }
+    public string? Description { get; }
 
-    public ApplicationModuleAttribute(string? name = null)
-        => Name = name;
+    public ApplicationModuleAttribute()
+    {
+    }
+
+    public ApplicationModuleAttribute(string name, string description)
+    {
+        Name = name;
+        Description = description;
+    }
 }
