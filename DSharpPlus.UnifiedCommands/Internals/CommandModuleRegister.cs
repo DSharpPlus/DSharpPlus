@@ -181,7 +181,7 @@ internal static class CommandModuleRegister
         }
     }
 
-    internal static void RegisterApplicationCommands(ApplicationFactory factory, Assembly assembly,
+    internal static List<DiscordApplicationCommand> RegisterApplicationCommands(ApplicationFactory factory, Assembly assembly,
         DiscordClient client)
     {
         IEnumerable<Type> classes = assembly.GetTypes()
@@ -289,21 +289,6 @@ internal static class CommandModuleRegister
                 commands.Add(commandBuilder.Build());
             }
         }
-
-        Func<Task> func = async () =>
-        {
-            try
-            {
-                await Task.Delay(TimeSpan.FromSeconds(3));
-                await client.BulkOverwriteGlobalApplicationCommandsAsync(commands);
-                client.Logger.LogInformation("Registered commands");
-            }
-            catch (Exception e)
-            {
-                client.Logger.LogError("A error appeared when trying to register commands, {Error}",
-                    e.ToString());
-            }
-        };
-        _ = func();
+        return commands;
     }
 }

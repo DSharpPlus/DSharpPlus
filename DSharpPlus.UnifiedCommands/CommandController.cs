@@ -1,24 +1,28 @@
 using System.Linq.Expressions;
 using System.Reflection;
+using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using DSharpPlus.UnifiedCommands.Application.Internals;
 using DSharpPlus.UnifiedCommands.Internals;
 using DSharpPlus.UnifiedCommands.Message.Conditions;
 using DSharpPlus.UnifiedCommands.Message.Internals;
+using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.UnifiedCommands;
 
 public class CommandController
 {
     private string[] _prefixes;
-    
+    private List<DiscordApplicationCommand> _commands = new();
+    private ulong[]? _guildIds;
+
     internal MessageFactory MessageFactory { get; private set; }
     internal ApplicationFactory _applicationFactory { get; private set; }
     
     public IServiceProvider Services { get; private set; }
 
     public CommandController(DiscordClient client, IServiceProvider services,
-        Assembly assembly, string[] prefixes)
+        Assembly assembly, string[] prefixes, ulong[]? guildIds, bool registerSlashCommands)
     {
         _prefixes = prefixes;
         Services = services;
@@ -27,11 +31,15 @@ public class CommandController
         _applicationFactory = new ApplicationFactory(Services);
         
         CommandModuleRegister.RegisterMessageCommands(MessageFactory, assembly);
-        CommandModuleRegister.RegisterApplicationCommands(_applicationFactory, assembly, client);
-        
+        if (registerSlashCommands)
+        {
+            _commands = CommandModuleRegister.RegisterApplicationCommands(_applicationFactory, assembly, client);
+        }
+
         client.MessageCreated += HandleMessageCreationAsync;
         client.InteractionCreated += HandleInteractionCreateAsync;
-        client.MessageReactionAdded += Message.Internals.MessageReactionHandler.MessageReactionEventAsync;
+        client.MessageReactionAdded += MessageReactionHandler.MessageReactionEventAsync;
+        client.Ready += HandleReadyAsync;
     }
 
     public CommandController UseMessageCondition<T>() where T : IMessageCondition
@@ -123,5 +131,23 @@ public class CommandController
     {
         _applicationFactory.ExecuteCommand(e.Interaction, client);
         return Task.CompletedTask;
+    }
+
+    internal async Task HandleReadyAsync(DiscordClient client, ReadyEventArgs e)
+    {
+        if (_guildIds is null)
+        {
+            await client.BulkOverwriteGlobalApplicationCommandsAsync(_commands);
+                    client.Logger.LogInformation("Registered commands");
+        }
+        else
+        {
+            foreach (ulong guildId in _guildIds)
+            {
+                await client.BulkOverwriteGuildApplicationCommandsAsync(guildId, _commands);
+                client.Logger.LogTrace("Registered commands in guild {GuildId}", guildId);
+                await Task.Delay(TimeSpan.FromSeconds(2));
+            }
+        }
     }
 }
