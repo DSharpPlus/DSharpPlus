@@ -184,7 +184,7 @@ internal sealed class TestBot
         builder.Services.AddScoped<string>(s => "Hello, world!");
         builder.Services.AddSingleton<IErrorHandler, UnifiedCommandsErrorHandler>();
 
-        CommandController controller = this.Discord.UseCH(builder);
+        CommandController controller = this.Discord.UseUnifiedCommands(builder);
         controller.UseStandardConditions();
 
         //this.Discord.MessageCreated += async e =>

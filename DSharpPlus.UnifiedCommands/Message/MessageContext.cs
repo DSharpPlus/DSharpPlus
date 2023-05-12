@@ -12,6 +12,9 @@ public class MessageContext
     /// </summary>
     public required DiscordMessage Message { get; set; }
     
+    /// <summary>
+    /// The DiscordClient.
+    /// </summary>
     public required DiscordClient Client { get; set; }
 
     /// <summary>
