@@ -29,11 +29,14 @@ public class DiscordAutoModerationRule : SnowflakeObject
     [JsonProperty("name")]
     public string Name { get; internal set; }
 
+    [JsonProperty("creator_id")]
+    internal ulong CreatorId { get; set; }
+
     /// <summary>
     /// Gets the id of the user that created the rule.
     /// </summary>
-    [JsonProperty("creator_id")]
-    public ulong CreatorId { get; internal set; }
+    [JsonIgnore]
+    public DiscordUser Creator => this.Discord.TryGetCachedUserInternal(this.CreatorId, out DiscordUser creator) ? creator : null;
 
     /// <summary>
     /// Gets the rule event type.
@@ -101,6 +104,18 @@ public class DiscordAutoModerationRule : SnowflakeObject
 
         action(model);
 
-        return await this.Discord.ApiClient.ModifyGuildAutoModerationRuleAsync(this.GuildId, this.Id, model.Name, model.EventType, model.TriggerMetadata, model.Actions, model.Enable, model.ExemptRoles, model.ExemptChannels, model.AuditLogReason);
+        return await this.Discord.ApiClient.ModifyGuildAutoModerationRuleAsync
+        (
+            this.GuildId, 
+            this.Id, 
+            model.Name, 
+            model.EventType, 
+            model.TriggerMetadata, 
+            model.Actions, 
+            model.Enable, 
+            model.ExemptRoles, 
+            model.ExemptChannels, 
+            model.AuditLogReason
+        );
     }
 }
