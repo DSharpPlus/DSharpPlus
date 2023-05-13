@@ -27,7 +27,7 @@ public class DiscordAutoModerationRule : SnowflakeObject
     public string Name { get; internal set; }
 
     /// <summary>
-    /// Gets the id of the user that made the rule.
+    /// Gets the id of the user that created the rule.
     /// </summary>
     [JsonProperty("creator_id")]
     public ulong CreatorId { get; internal set; }
