@@ -1,8 +1,8 @@
+namespace DSharpPlus.Entities;
+
 using DSharpPlus.Enums;
 
 using Newtonsoft.Json;
-
-namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents a Discord auto moderation action.
@@ -64,7 +64,7 @@ public class DiscordAutoModerationActionBuilder
     /// <summary>
     /// Constructs a new trigger rule action.
     /// </summary>
-    /// <returns>The builded rule.</returns>
+    /// <returns>The built rule.</returns>
     public DiscordAutoModerationAction Build() => new DiscordAutoModerationAction
     {
         Type = this.Type,
