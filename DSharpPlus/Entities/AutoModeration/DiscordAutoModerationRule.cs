@@ -14,11 +14,14 @@ namespace DSharpPlus.Entities;
 /// </summary>
 public class DiscordAutoModerationRule : SnowflakeObject
 {
-    /// <summary>
-    /// Gets the id of the guild which the rule is in.
-    /// </summary>
     [JsonProperty("guild_id")]
-    public ulong GuildId { get; internal set; }
+    internal ulong GuildId { get; set; }
+
+    /// <summary>
+    /// Gets the guild which the rule is in.
+    /// </summary>
+    [JsonIgnore]
+    public DiscordGuild? Guild => this.Discord.Guilds.TryGetValue(this.GuildId, out var guild) ? guild : null;
 
     /// <summary>
     /// Gets the rule name.
