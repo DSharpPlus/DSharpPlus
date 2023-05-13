@@ -179,12 +179,12 @@ namespace DSharpPlus
         ScheduledGuildEvents = 1 << 16,
 
         /// <summary>
-        /// Whetever to include creation, modification or deletion of a Auto-Moderation rule.
+        /// Whetever to include creation, modification or deletion of an auto-Moderation rule.
         /// </summary>
         AutoModerationEvents = 1 << 20,
 
         /// <summary>
-        /// Whetever to include when a Auto-Moderation rule was fired.
+        /// Whetever to include when an auto-moderation rule was fired.
         /// </summary>
         AutoModerationExecution = 1 << 21,
 
