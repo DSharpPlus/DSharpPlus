@@ -919,6 +919,10 @@ namespace DSharpPlus
         #endregion
 
         #region AutoModeration
+
+        /// <summary>
+        /// Fired when a new auto-moderation rule is created.
+        /// </summary>
         public event AsyncEventHandler<DiscordClient, AutoModerationRuleCreateEventArgs> AutoModerationRuleCreated
         {
             add => this._autoModerationRuleCreated.Register(value);
@@ -926,6 +930,9 @@ namespace DSharpPlus
         }
         private AsyncEvent<DiscordClient, AutoModerationRuleCreateEventArgs> _autoModerationRuleCreated;
 
+        /// <summary>
+        /// Fired when an auto-moderation rule is updated.
+        /// </summary>
         public event AsyncEventHandler<DiscordClient, AutoModerationRuleUpdateEventArgs> AutoModerationRuleUpdated
         {
             add => this._autoModerationRuleUpdated.Register(value);
@@ -933,6 +940,9 @@ namespace DSharpPlus
         }
         private AsyncEvent<DiscordClient, AutoModerationRuleUpdateEventArgs> _autoModerationRuleUpdated;
 
+        /// <summary>
+        /// Fired when an auto-moderation rule is deleted.
+        /// </summary>
         public event AsyncEventHandler<DiscordClient, AutoModerationRuleDeleteEventArgs> AutoModerationRuleDeleted
         {
             add => this._autoModerationRuleDeleted.Register(value);
@@ -940,6 +950,9 @@ namespace DSharpPlus
         }
         private AsyncEvent<DiscordClient, AutoModerationRuleDeleteEventArgs> _autoModerationRuleDeleted;
 
+        /// <summary>
+        /// Fired when an auto-moderation is executed.
+        /// </summary>
         public event AsyncEventHandler<DiscordClient, AutoModerationRuleExecuteEventArgs> AutoModerationRuleExecuted
         {
             add => this._autoModerationRuleExecuted.Register(value);
