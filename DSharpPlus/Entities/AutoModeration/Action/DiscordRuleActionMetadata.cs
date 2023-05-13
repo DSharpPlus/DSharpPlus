@@ -1,8 +1,8 @@
+namespace DSharpPlus.Entities;
+
 using System;
 
 using Newtonsoft.Json;
-
-namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents a Discord rule action metadata.
@@ -18,8 +18,7 @@ public class DiscordRuleActionMetadata
     /// <summary>
     /// Gets the timeout duration in seconds.
     /// </summary>
-    [JsonProperty("duration_seconds")]
-    public uint TimeoutDuration { get; internal set; }
+    public TimeSpan TimeoutSeconds => TimeSpan.FromSeconds(this.DurationSeconds);
 
     /// Gets the timeout duration in seconds.
     /// <summary>
@@ -27,6 +26,9 @@ public class DiscordRuleActionMetadata
     /// </summary>
     [JsonProperty("custom_message", NullValueHandling = NullValueHandling.Ignore)]
     public string? CustomMessage { get; internal set; }
+
+    [JsonProperty("duration_seconds")]
+    internal uint DurationSeconds { get; set; }
 }
 
 
@@ -43,7 +45,7 @@ public class DiscordRuleActionMetadataBuilder
     /// <summary>
     /// Sets the timeout duration in seconds.
     /// </summary>
-    public uint TimeoutDuration { get; internal set; }
+    public uint DurationSeconds { get; internal set; }
 
     /// Sets the timeout duration in seconds.
     /// <summary>
@@ -70,7 +72,7 @@ public class DiscordRuleActionMetadataBuilder
     /// <returns>This builder.</returns>
     public DiscordRuleActionMetadataBuilder WithTimeoutDuration(uint timeoutDurationInSeconds)
     {
-        this.TimeoutDuration = timeoutDurationInSeconds;
+        this.DurationSeconds = timeoutDurationInSeconds;
 
         return this;
     }
@@ -100,7 +102,7 @@ public class DiscordRuleActionMetadataBuilder
     public DiscordRuleActionMetadata Build() => new DiscordRuleActionMetadata
     {
         ChannelId = this.ChannelId,
-        TimeoutDuration = this.TimeoutDuration,
+        DurationSeconds = this.DurationSeconds,
         CustomMessage = this.CustomMessage,
     };
 }
