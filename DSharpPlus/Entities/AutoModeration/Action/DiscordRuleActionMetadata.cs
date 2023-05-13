@@ -23,7 +23,7 @@ public class DiscordRuleActionMetadata
 
     /// Gets the timeout duration in seconds.
     /// <summary>
-    /// Gets the message that will be shown on the user screen whenever the message is blocked.
+    /// Gets the message that will be shown on the user screen whenever their message is blocked.
     /// </summary>
     [JsonProperty("custom_message", NullValueHandling = NullValueHandling.Ignore)]
     public string? CustomMessage { get; internal set; }
