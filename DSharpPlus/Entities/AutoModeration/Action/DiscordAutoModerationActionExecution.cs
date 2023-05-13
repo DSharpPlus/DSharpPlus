@@ -1,8 +1,8 @@
+namespace DSharpPlus.Entities;
+
 using DSharpPlus.Enums;
 
 using Newtonsoft.Json;
-
-namespace DSharpPlus.Entities;
 
 /// <summary>
 /// Represents a Discord rule executed action.
