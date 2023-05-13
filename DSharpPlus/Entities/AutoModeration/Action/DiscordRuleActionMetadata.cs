@@ -48,7 +48,6 @@ public class DiscordRuleActionMetadataBuilder
     /// </summary>
     public uint DurationSeconds { get; internal set; }
 
-    /// Sets the timeout duration in seconds.
     /// <summary>
     /// Gets the message that will be shown on the user screen whenever the message is blocked.
     /// </summary>
@@ -99,7 +98,7 @@ public class DiscordRuleActionMetadataBuilder
     /// <summary>
     /// Build the rule action.
     /// </summary>
-    /// <returns>The builded rule action.</returns>
+    /// <returns>The built rule action.</returns>
     public DiscordRuleActionMetadata Build() => new DiscordRuleActionMetadata
     {
         ChannelId = this.ChannelId,
