@@ -33,7 +33,7 @@ public class DiscordAutoModerationRule : SnowflakeObject
     internal ulong CreatorId { get; set; }
 
     /// <summary>
-    /// Gets the id of the user that created the rule.
+    /// Gets the user that created the rule.
     /// </summary>
     [JsonIgnore]
     public DiscordUser Creator => this.Discord.TryGetCachedUserInternal(this.CreatorId, out DiscordUser creator) ? creator : null;
