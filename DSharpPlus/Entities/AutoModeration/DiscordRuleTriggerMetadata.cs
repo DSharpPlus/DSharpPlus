@@ -79,7 +79,7 @@ public sealed class DiscordRuleTriggerMetadataBuilder
     /// Sets keywords that will be searched in messages content.
     /// </summary>
     /// <param name="keywordFilter">The keywords that will be searched.</param>
-    /// <returns></returns>
+    /// <returns>This builder.</returns>
     /// <exception cref="ArgumentException"></exception>
     public DiscordRuleTriggerMetadataBuilder AddKeywordFilter(IReadOnlyList<string> keywordFilter)
     {
@@ -97,7 +97,7 @@ public sealed class DiscordRuleTriggerMetadataBuilder
     /// Sets the regex patterns.
     /// </summary>
     /// <param name="regexPatterns"></param>
-    /// <returns></returns>
+    /// <returns>This builder.</returns>
     /// <exception cref="ArgumentException"></exception>
     public DiscordRuleTriggerMetadataBuilder AddRegexPatterns(IReadOnlyList<string> regexPatterns)
     {
@@ -115,7 +115,7 @@ public sealed class DiscordRuleTriggerMetadataBuilder
     /// Sets the rule keyword preset types.
     /// </summary>
     /// <param name="keywordPresetTypes">The rule keyword preset types to set.</param>
-    /// <returns></returns>
+    /// <returns>This builder.</returns>
     /// <exception cref="ArgumentNullException"></exception>
     public DiscordRuleTriggerMetadataBuilder AddKeywordPresetTypes(IReadOnlyList<RuleKeywordPresetType> keywordPresetTypes)
     {
@@ -133,7 +133,7 @@ public sealed class DiscordRuleTriggerMetadataBuilder
     /// Sets an allowed keyword list.
     /// </summary>
     /// <param name="allowList">The keyword list to set.</param>
-    /// <returns></returns>
+    /// <returns>This builder.</returns>
     /// <exception cref="ArgumentException"></exception>
     public DiscordRuleTriggerMetadataBuilder AddAllowedKeywordList(IReadOnlyList<string> allowList)
     {
@@ -151,7 +151,7 @@ public sealed class DiscordRuleTriggerMetadataBuilder
     /// Sets the total mention limit.
     /// </summary>
     /// <param name="mentionTotalLimit">The total mention limit number.</param>
-    /// <returns></returns>
+    /// <returns>This builder.</returns>
     /// <exception cref="ArgumentException"></exception>
     public DiscordRuleTriggerMetadataBuilder WithMentionTotalLimit(int? mentionTotalLimit)
     {
@@ -168,7 +168,7 @@ public sealed class DiscordRuleTriggerMetadataBuilder
     /// <summary>
     /// Constructs a new trigger rule metadata.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>The build trigger metadata.</returns>
     public DiscordRuleTriggerMetadata Build()
     {
         var metadata = new DiscordRuleTriggerMetadata
