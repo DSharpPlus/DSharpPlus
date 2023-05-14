@@ -3067,13 +3067,13 @@ namespace DSharpPlus.Entities
         /// <param name="action">Action to perform on this rule.</param>
         /// <returns>The modified rule.</returns>
         /// <remarks>All arguments are optionals.</remarks>
-        public async Task<DiscordAutoModerationRule> ModifyAutoModerationRuleAsync(ulong ruleId, Action<AutoModerationRuleEditModel> action)
+        public Task<DiscordAutoModerationRule> ModifyAutoModerationRuleAsync(ulong ruleId, Action<AutoModerationRuleEditModel> action)
         {
             var model = new AutoModerationRuleEditModel();
 
             action(model);
 
-            return await this.Discord.ApiClient.ModifyGuildAutoModerationRuleAsync
+            return this.Discord.ApiClient.ModifyGuildAutoModerationRuleAsync
             (
                 this.Id, 
                 ruleId, 
