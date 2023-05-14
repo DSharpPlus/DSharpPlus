@@ -134,8 +134,8 @@ namespace DSharpPlus
         ContextMenuCommand = 23,
 
         /// <summary>
-        /// Message indicating an AutoMod alert.
+        /// Message indicating an auto-moderation alert.
         /// </summary>
-        AutoModAlert = 24,
+        AutoModerationAlert = 24,
     }
 }

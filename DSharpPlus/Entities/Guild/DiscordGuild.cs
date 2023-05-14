@@ -30,6 +30,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Channels;
 using System.Threading.Tasks;
+using DSharpPlus.Enums;
 using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
 using DSharpPlus.Net;
@@ -3002,6 +3003,100 @@ namespace DSharpPlus.Entities
         /// <returns>A list of edited permissions.</returns>
         public Task<IReadOnlyList<DiscordGuildApplicationCommandPermissions>> BatchEditApplicationCommandPermissionsAsync(IEnumerable<DiscordGuildApplicationCommandPermissions> permissions)
             => this.Discord.ApiClient.BatchEditApplicationCommandPermissionsAsync(this.Discord.CurrentApplication.Id, this.Id, permissions);
+
+        /// <summary>
+        /// Creates an auto-moderation rule in the guild.
+        /// </summary>
+        /// <param name="name">The rule name.</param>
+        /// <param name="eventType">The event in which the rule should be triggered.</param>
+        /// <param name="triggerType">The type of content which can trigger the rule.</param>
+        /// <param name="triggerMetadata">Metadata used to determine whether a rule should be triggered. This argument can be skipped depending eventType value.</param>
+        /// <param name="actions">Actions that will execute after the trigger of the rule.</param>
+        /// <param name="enabled">Whether the rule is enabled or not.</param>
+        /// <param name="exemptRoles">Roles that will not trigger the rule.</param>
+        /// <param name="exemptChannels">Channels which will not trigger the rule.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns>The created rule.</returns>
+        public Task<DiscordAutoModerationRule> CreateAutoModerationRuleAsync
+        (
+            string name,
+            RuleEventType eventType,
+            RuleTriggerType triggerType,
+            DiscordRuleTriggerMetadata triggerMetadata,
+            IReadOnlyList<DiscordAutoModerationAction> actions,
+            Optional<bool> enabled = default,
+            Optional<IReadOnlyList<DiscordRole>> exemptRoles = default,
+            Optional<IReadOnlyList<DiscordChannel>> exemptChannels = default,
+            string reason = null
+        )
+        {
+            return this.Discord.ApiClient.CreateGuildAutoModerationRuleAsync
+            (
+                this.Id,
+                name,
+                eventType,
+                triggerType,
+                triggerMetadata,
+                actions,
+                enabled,
+                exemptRoles,
+                exemptChannels,
+                reason
+            );
+        }
+
+        /// <summary>
+        /// Gets an auto-moderation rule by an id.
+        /// </summary>
+        /// <param name="ruleId">The rule id.</param>
+        /// <returns>The found rule.</returns>
+        public Task<DiscordAutoModerationRule> GetAutoModerationRuleAsync(ulong ruleId)
+            => this.Discord.ApiClient.GetGuildAutoModerationRuleAsync(this.Id, ruleId);
+
+        /// <summary>
+        /// Gets all auto-moderation rules in the guild.
+        /// </summary>
+        /// <returns>All rules available in the guild.</returns>
+        public Task<IReadOnlyList<DiscordAutoModerationRule>> GetAutoModerationRulesAsync()
+            => this.Discord.ApiClient.GetGuildAutoModerationRulesAsync(this.Id);
+
+        /// <summary>
+        /// Modify an auto-moderation rule in the guild.
+        /// </summary>
+        /// <param name="ruleId">The id of the rule that will be edited.</param>
+        /// <param name="action">Action to perform on this rule.</param>
+        /// <returns>The modified rule.</returns>
+        /// <remarks>All arguments are optionals.</remarks>
+        public Task<DiscordAutoModerationRule> ModifyAutoModerationRuleAsync(ulong ruleId, Action<AutoModerationRuleEditModel> action)
+        {
+            var model = new AutoModerationRuleEditModel();
+
+            action(model);
+
+            return this.Discord.ApiClient.ModifyGuildAutoModerationRuleAsync
+            (
+                this.Id, 
+                ruleId, 
+                model.Name, 
+                model.EventType, 
+                model.TriggerMetadata, 
+                model.Actions, 
+                model.Enable, 
+                model.ExemptRoles, 
+                model.ExemptChannels, 
+                model.AuditLogReason
+            );
+        }
+
+        /// <summary>
+        /// Deletes a auto-moderation rule by an id.
+        /// </summary>
+        /// <param name="ruleId">The rule id.</param>
+        /// <param name="reason">Reason for audit logs.</param>
+        /// <returns></returns>
+        public Task DeleteAutoModerationRuleAsync(ulong ruleId, string reason = null)
+            => this.Discord.ApiClient.DeleteGuildAutoModerationRuleAsync(this.Id, ruleId, reason);
+
         #endregion
 
         /// <summary>
