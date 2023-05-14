@@ -42,10 +42,7 @@ public sealed class DiscordRuleTriggerMetadata
     [JsonProperty("mention_total_limit", NullValueHandling = NullValueHandling.Ignore)]
     public int? MentionTotalLimit { get; internal set; }
 
-    internal DiscordRuleTriggerMetadata()
-    {
-
-    }
+    internal DiscordRuleTriggerMetadata() { }
 }
 
 public sealed class DiscordRuleTriggerMetadataBuilder
