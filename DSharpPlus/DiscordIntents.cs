@@ -166,7 +166,6 @@ namespace DSharpPlus
 
         /// <summary>
         /// Whether to include message content. This is a privileged event.
-        ///
         /// <para>Message content includes text, attachments, embeds, components, and reply content.</para>
         /// <para>This intent is required for CommandsNext to function correctly.</para>
         /// </summary>
@@ -174,7 +173,6 @@ namespace DSharpPlus
 
         /// <summary>
         /// Whether to include scheduled event messages.
-        /// // TODO: reference events
         /// </summary>
         ScheduledGuildEvents = 1 << 16,
 
