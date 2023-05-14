@@ -3768,6 +3768,20 @@ namespace DSharpPlus.Net
             return new DiscordForumPostStarter(chn, msg);
         }
 
+        /// <summary>
+        /// Internal method to create an auto-moderation rule in a guild.
+        /// </summary>
+        /// <param name="guild_id">The id of the guild where the rule will be created.</param>
+        /// <param name="name">The rule name.</param>
+        /// <param name="event_type">The Discord event that will trigger the rule.</param>
+        /// <param name="trigger_type">The rule trigger.</param>
+        /// <param name="trigger_metadata">The trigger metadata.</param>
+        /// <param name="actions">The actions that will run when a rule is triggered.</param>
+        /// <param name="enabled">Whenever the rule is enabled or not.</param>
+        /// <param name="exempt_roles">The exempted roles that will not trigger the rule.</param>
+        /// <param name="exempt_channels">The exempted channels that will not trigger the rule.</param>
+        /// <param name="reason">The reason for audits logs.</param>
+        /// <returns>The created rule.</returns>
         internal async Task<DiscordAutoModerationRule> CreateGuildAutoModerationRuleAsync
         (
             ulong guild_id,
@@ -3810,6 +3824,12 @@ namespace DSharpPlus.Net
             return rule;
         }
 
+        /// <summary>
+        /// Internal method to get an auto-moderation rule in a guild.
+        /// </summary>
+        /// <param name="guild_id">The guild id where the rule is in.</param>
+        /// <param name="rule_id">The rule id.</param>
+        /// <returns>The rule found.</returns>
         internal async Task<DiscordAutoModerationRule> GetGuildAutoModerationRuleAsync(ulong guild_id, ulong rule_id)
         {
             string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.AUTO_MODERATION}{Endpoints.RULES}/:rule_id";
@@ -3822,6 +3842,11 @@ namespace DSharpPlus.Net
             return rule;
         }
 
+        /// <summary>
+        /// Internal method to get all auto-moderation rules in a guild.
+        /// </summary>
+        /// <param name="guild_id">The guild id where rules are in.</param>
+        /// <returns>The rules found.</returns>
         internal async Task<IReadOnlyList<DiscordAutoModerationRule>> GetGuildAutoModerationRulesAsync(ulong guild_id)
         {
             string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.AUTO_MODERATION}{Endpoints.RULES}";
@@ -3834,6 +3859,19 @@ namespace DSharpPlus.Net
             return rules;
         }
 
+        /// <summary>
+        /// Internal method to modify an auto-moderation rule in a guild.
+        /// </summary>
+        /// <param name="guild_id">The id of the guild where the rule will be modified.</param>
+        /// <param name="name">The rule name.</param>
+        /// <param name="event_type">The Discord event that will trigger the rule.</param>
+        /// <param name="trigger_metadata">The trigger metadata.</param>
+        /// <param name="actions">The actions that will run when a rule is triggered.</param>
+        /// <param name="enabled">Whenever the rule is enabled or not.</param>
+        /// <param name="exempt_roles">The exempted roles that will not trigger the rule.</param>
+        /// <param name="exempt_channels">The exempted channels that will not trigger the rule.</param>
+        /// <param name="reason">The reason for audits logs.</param>
+        /// <returns>The modified rule.</returns>
         internal async Task<DiscordAutoModerationRule> ModifyGuildAutoModerationRuleAsync
         (
             ulong guild_id,
@@ -3874,6 +3912,12 @@ namespace DSharpPlus.Net
             return rule;
         }
 
+        /// <summary>
+        /// Internal method to delete an auto-moderation rule in a guild.
+        /// </summary>
+        /// <param name="guild_id">The id of the guild where the rule is in.</param>
+        /// <param name="rule_id">The rule id that will be deleted.</param>
+        /// <param name="reason">The reason for audits logs.</param>
         internal async Task DeleteGuildAutoModerationRuleAsync(ulong guild_id, ulong rule_id, string reason)
         {
             string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.AUTO_MODERATION}{Endpoints.RULES}/:rule_id";
