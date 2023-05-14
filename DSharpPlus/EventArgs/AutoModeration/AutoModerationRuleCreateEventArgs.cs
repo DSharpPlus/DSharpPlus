@@ -12,10 +12,7 @@ public class AutoModerationRuleCreateEventArgs : DiscordEventArgs
     /// </summary>
     public DiscordAutoModerationRule? Rule { get; internal set; }
 
-    internal AutoModerationRuleCreateEventArgs() : base()
-    {
-
-    }
+    internal AutoModerationRuleCreateEventArgs() : base() { }
 
     internal AutoModerationRuleCreateEventArgs(DiscordAutoModerationRule rule) : base()
     {
