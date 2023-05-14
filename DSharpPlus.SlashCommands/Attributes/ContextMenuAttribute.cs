@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace DSharpPlus.SlashCommands
 {
@@ -24,12 +24,18 @@ namespace DSharpPlus.SlashCommands
         public bool DefaultPermission { get; internal set; }
 
         /// <summary>
+        /// Gets whether this command is age restricted.
+        /// </summary>
+        public bool NSFW { get; }
+
+        /// <summary>
         /// Marks this method as a context menu.
         /// </summary>
         /// <param name="type">The type of the context menu.</param>
         /// <param name="name">The name of the context menu.</param>
         /// <param name="defaultPermission">Sets whether the command should be enabled by default.</param>
-        public ContextMenuAttribute(ApplicationCommandType type, string name, bool defaultPermission = true)
+        /// <param name="nsfw">Sets whether the command is age restricted.</param>
+        public ContextMenuAttribute(ApplicationCommandType type, string name, bool defaultPermission = true, bool nsfw = false)
         {
             if (type == ApplicationCommandType.SlashCommand)
                 throw new ArgumentException("Context menus cannot be of type SlashCommand.");
@@ -37,6 +43,7 @@ namespace DSharpPlus.SlashCommands
             this.Type = type;
             this.Name = name;
             this.DefaultPermission = defaultPermission;
+            this.NSFW = nsfw;
         }
     }
 }
