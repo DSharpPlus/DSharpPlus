@@ -120,6 +120,7 @@ namespace DSharpPlus.Entities
         /// <param name="description_localizations">Localization dictionary for <paramref name="description"/> field. Values follow the same restrictions as <paramref name="description"/>.</param>
         /// <param name="allowDMUsage">Whether this command can be invoked in DMs.</param>
         /// <param name="defaultMemberPermissions">What permissions this command requires to be invoked.</param>
+        /// <param name="nsfw">Whether the command is age restricted.</param>
         public DiscordApplicationCommand(string name, string description, IEnumerable<DiscordApplicationCommandOption> options = null, bool? defaultPermission = null, ApplicationCommandType type = ApplicationCommandType.SlashCommand, IReadOnlyDictionary<string, string> name_localizations = null, IReadOnlyDictionary<string, string> description_localizations = null, bool? allowDMUsage = null, Permissions? defaultMemberPermissions = null, bool? nsfw = null)
         {
             if (type is ApplicationCommandType.SlashCommand)
