@@ -3918,7 +3918,7 @@ namespace DSharpPlus.Net
         /// <param name="guild_id">The id of the guild where the rule is in.</param>
         /// <param name="rule_id">The rule id that will be deleted.</param>
         /// <param name="reason">The reason for audits logs.</param>
-        internal async Task DeleteGuildAutoModerationRuleAsync(ulong guild_id, ulong rule_id, string reason)
+        internal Task DeleteGuildAutoModerationRuleAsync(ulong guild_id, ulong rule_id, string reason)
         {
             string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.AUTO_MODERATION}{Endpoints.RULES}/:rule_id";
 
@@ -3929,7 +3929,7 @@ namespace DSharpPlus.Net
             if (!string.IsNullOrWhiteSpace(reason))
                 headers[REASON_HEADER_NAME] = reason;
 
-            await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.DELETE, route, headers);
+            return this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.DELETE, route, headers);
         }
     }
 }
