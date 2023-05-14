@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace DSharpPlus.SlashCommands
 {
@@ -24,16 +24,23 @@ namespace DSharpPlus.SlashCommands
         public bool DefaultPermission { get; }
 
         /// <summary>
+        /// Gets whether this command is age restricted.
+        /// </summary>
+        public bool NSFW { get; }
+
+        /// <summary>
         /// Marks this class as a slash command group.
         /// </summary>
         /// <param name="name">Sets the name of this command group.</param>
         /// <param name="description">Sets the description of this command group.</param>
         /// <param name="defaultPermission">Sets whether this command group is enabled on default.</param>
-        public SlashCommandGroupAttribute(string name, string description, bool defaultPermission = true)
+        /// <param name="nsfw">Sets whether the command group is age restricted.</param>
+        public SlashCommandGroupAttribute(string name, string description, bool defaultPermission = true, bool nsfw = false)
         {
             this.Name = name.ToLower();
             this.Description = description;
             this.DefaultPermission = defaultPermission;
+            this.NSFW = nsfw;
         }
     }
 }
