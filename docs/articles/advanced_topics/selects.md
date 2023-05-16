@@ -150,7 +150,7 @@ Dropdowns are like buttons; when a user interacts with them, you need to respond
 @DSharpPlus.DiscordClient.ComponentInteractionCreated is fired from the client, just like buttons.
 
 This applies to interactivity, too! Simply swap
-@DSharpPlus.Interactivity.Extensions.MessageExtensions.WaitForButtonAsync*for
+@DSharpPlus.Interactivity.Extensions.MessageExtensions.WaitForButtonAsync* for
 @DSharpPlus.Interactivity.Extensions.MessageExtensions.WaitForSelectAsync*, and pass a dropdown. How to go about
 component-based interactivity is described [in the buttons article][4].
 
