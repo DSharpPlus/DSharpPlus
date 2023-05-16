@@ -6,7 +6,7 @@ namespace DSharpPlus.UnifiedCommands.Message;
 [AttributeUsage(AttributeTargets.Class)]
 public class MessageModuleAttribute : Attribute
 {
-    public string? Name { get; set; } = null;
+    public string? Name { get; init; }
 
     /// <summary>
     /// Constructor used for non group modules.

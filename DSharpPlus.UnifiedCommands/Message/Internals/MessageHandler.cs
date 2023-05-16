@@ -11,12 +11,12 @@ internal class MessageHandler
 {
     private MessageModule _module = null!; // Will be set by the factory.
     private DiscordMessage? _newMessage;
-    private DiscordMessage _message;
-    private MessageMethodData _data;
-    private IServiceScope _scope;
-    private DiscordClient _client;
-    private Dictionary<string, string?> _values;
-    private string _name;
+    private readonly DiscordMessage _message;
+    private readonly MessageMethodData _data;
+    private readonly IServiceScope _scope;
+    private readonly DiscordClient _client;
+    private readonly Dictionary<string, string?> _values;
+    private readonly string _name;
     private readonly IReadOnlyList<Func<IServiceProvider, IMessageCondition>> _conditionBuilders;
 
     public MessageHandler(DiscordMessage message, MessageMethodData data, IServiceScope scope,
@@ -34,52 +34,38 @@ internal class MessageHandler
 
     internal async Task TurnResultIntoActionAsync(IMessageResult result)
     {
-        DiscordMessageBuilder msgBuilder = new();
-        if (result.Type != MessageResultType.Empty)
-        {
-            if (result.Content is not null)
-            {
-                msgBuilder.WithContent(result.Content);
-            }
-
-            if (result.Embeds is not null)
-            {
-                msgBuilder.AddEmbeds(result.Embeds);
-            }
-        }
-        
         switch (result.Type)
         {
             case MessageResultType.Empty: return;
             case MessageResultType.Reply:
-                msgBuilder.WithReply(_module.Message.Id);
+                result.Builder.WithReply(_module.Message.Id);
 
-                _newMessage = await _module.Message.Channel.SendMessageAsync(msgBuilder);
+                _newMessage = await _module.Message.Channel.SendMessageAsync(result.Builder);
                 _module.NewestMessage = _newMessage;
                 break;
             case MessageResultType.NoMentionReply:
-                msgBuilder.WithReply(_module.Message.Id, true);
+                result.Builder.WithReply(_module.Message.Id, true);
 
-                _newMessage = await _module.Message.Channel.SendMessageAsync(msgBuilder);
+                _newMessage = await _module.Message.Channel.SendMessageAsync(result.Builder);
                 _module.NewestMessage = _newMessage;
                 break;
             case MessageResultType.Send:
 
-                _newMessage = await _module.Message.Channel.SendMessageAsync(msgBuilder);
+                _newMessage = await _module.Message.Channel.SendMessageAsync(result.Builder);
                 _module.NewestMessage = _newMessage;
                 break;
             case MessageResultType.FollowUp:
                 if (_newMessage is not null)
                 {
-                    msgBuilder.WithReply(_newMessage.Id);
+                    result.Builder.WithReply(_newMessage.Id);
                 }
 
-                await _module.Message.Channel.SendMessageAsync(msgBuilder);
+                await _module.Message.Channel.SendMessageAsync(result.Builder);
                 break;
             case MessageResultType.Edit:
                 if (_newMessage is not null)
                 {
-                    await _newMessage.ModifyAsync(msgBuilder);
+                    await _newMessage.ModifyAsync(result.Builder);
                 }
 
                 break;

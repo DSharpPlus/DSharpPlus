@@ -8,13 +8,13 @@ namespace DSharpPlus.UnifiedCommands.Application.Internals;
 
 internal class ApplicationHandler
 {
-    private DiscordClient _client;
+    private readonly DiscordClient _client;
     private ApplicationModule _module = null!;
-    private DiscordInteraction _interaction;
-    private ApplicationMethodData _data;
+    private readonly DiscordInteraction _interaction;
+    private readonly ApplicationMethodData _data;
     private readonly IReadOnlyList<Func<IServiceProvider, IApplicationCondition>> _conditionBuilders;
-    private object?[]? _args;
-    private IServiceScope _scope;
+    private readonly object?[]? _args;
+    private readonly IServiceScope _scope;
 
     internal ApplicationHandler(ApplicationMethodData data, DiscordInteraction interaction,
         IReadOnlyList<Func<IServiceProvider, IApplicationCondition>> conditionBuilders, object?[]? args,
@@ -28,7 +28,7 @@ internal class ApplicationHandler
         _client = client;
     }
 
-    internal async Task TurnResultIntoActionAsync(IApplicationResult result)
+    internal Task TurnResultIntoActionAsync(IApplicationResult result)
     {
         switch (result.Type)
         {
@@ -44,7 +44,7 @@ internal class ApplicationHandler
                     builder.AddEmbeds(result.Embeds);
                 }
 
-                await _module.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                return _module.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                     builder);
                 break;
             case ApplicationResultType.FollowUp:
@@ -59,9 +59,11 @@ internal class ApplicationHandler
                     followUpBuilder.AddEmbeds(result.Embeds);
                 }
 
-                await _module.Interaction.CreateFollowupMessageAsync(followUpBuilder);
+                return _module.Interaction.CreateFollowupMessageAsync(followUpBuilder);
                 break;
         }
+
+        return Task.FromException(new Exception()); // This is here as a place holder until all ApplicationResultType's is implemented into the swtich case
     }
 
     internal async Task BuildModuleAndExecuteCommandAsync()
@@ -120,6 +122,8 @@ internal class ApplicationHandler
             }
             catch (TargetInvocationException e)
             {
+                // ExceptionDispatchInfo can be used to rethrow a error and perceive all the info in it.
+                // This is done here to rethrow the inner error and show where it is so people who don't read in depth their stacktrace doesn't blame us.
                 System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(e.InnerException ?? e).Throw();
                 throw e.InnerException;
             }
@@ -132,8 +136,9 @@ internal class ApplicationHandler
         catch (Exception e)
         {
             _client.Logger.LogError(
-                "Exception was thrown while trying to execute command {MethodName}. Was thrown from {Exception}",
-                _data.Method.Name, e.ToString());
+                e,
+                "Exception was thrown while trying to execute command {MethodName}. Was thrown from ",
+                _data.Method.Name);
         }
         finally
         {

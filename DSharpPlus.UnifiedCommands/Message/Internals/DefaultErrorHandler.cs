@@ -7,11 +7,11 @@ namespace DSharpPlus.UnifiedCommands.Message.Internals;
 /// </summary>
 internal class DefaultErrorHandler : IErrorHandler
 {
-    public async Task HandleConversionAsync(InvalidMessageConversionError error, DiscordMessage message)
+    public Task HandleConversionAsync(InvalidMessageConversionError error, DiscordMessage message)
     {
         DiscordMessageBuilder msgBuilder = new();
         msgBuilder.WithReply(message.Id);
-        string argumentName = error.Name.Count() == 0 ? string.Empty : $" `{error.Name}`";
+        string argumentName = error.Name.Any() ? string.Empty : $" `{error.Name}`";
 
         msgBuilder.WithAllowedMentions(Mentions.None);
 
@@ -19,16 +19,9 @@ internal class DefaultErrorHandler : IErrorHandler
         switch (error.Type)
         {
             case InvalidMessageConversionType.NotAValidNumber:
-                if (error.IsPositionalArgument)
-                {
-                    msgBuilder.WithContent(
-                        $"You cannot convert value `{error.Value}` to a number for argument{argumentName}");
-                }
-                else
-                {
-                    msgBuilder.WithContent(
-                        $"You cannot convert value `{error.Value}` to a number for option `{error.Name}`");
-                }
+                msgBuilder.WithContent(error.IsPositionalArgument
+                    ? $"You cannot convert value `{error.Value}` to a number for argument{argumentName}"
+                    : $"You cannot convert value `{error.Value}` to a number for option `{error.Name}`");
 
                 break;
             case InvalidMessageConversionType.NotAValidInteger:
@@ -94,7 +87,7 @@ internal class DefaultErrorHandler : IErrorHandler
                 break;
         }
 
-        await message.Channel.SendMessageAsync(msgBuilder);
+        return message.Channel.SendMessageAsync(msgBuilder);
     }
 
     public Task HandleUnhandledExceptionAsync(Exception e, DiscordMessage message)

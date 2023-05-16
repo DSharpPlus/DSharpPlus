@@ -7,5 +7,5 @@ internal class ApplicationMethodParameterData
     public bool IsNullable { get; set; } = false;
 
     public ApplicationMethodParameterData(string name)
-    => Name = name;
+        => Name = name;
 }

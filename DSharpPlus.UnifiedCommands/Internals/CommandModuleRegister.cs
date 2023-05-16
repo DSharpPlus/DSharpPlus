@@ -6,7 +6,6 @@ using DSharpPlus.UnifiedCommands.Exceptions;
 using DSharpPlus.UnifiedCommands.Message;
 using DSharpPlus.UnifiedCommands.Message.Internals;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.UnifiedCommands.Internals;
 
@@ -25,8 +24,10 @@ internal static class CommandModuleRegister
 
         foreach (Type? @class in classes)
         {
-            MessageModuleData module = new();
-            module.Factory = ActivatorUtilities.CreateFactory(@class, Array.Empty<Type>());
+            MessageModuleData module = new()
+            {
+                Factory = ActivatorUtilities.CreateFactory(@class, Array.Empty<Type>())
+            };
 
             MethodInfo[] methods = @class.GetMethods();
             if (methods.Length == 0)
@@ -120,14 +121,12 @@ internal static class CommandModuleRegister
                     {
                         parameterData.Type = MessageParameterDataType.Channel;
                     }
-                    else if (parameterType == typeof(double))
-                    {
-                        parameterData.Type = MessageParameterDataType.Double;
-                    }
                     else
                     {
-                        throw new InvalidMessageModuleStructure(
-                            $"You cannot use type {parameterType.Name} as a parameter.");
+                        parameterData.Type = parameterType == typeof(double)
+                            ? MessageParameterDataType.Double
+                            : throw new InvalidMessageModuleStructure(
+                                                    $"You cannot use type {parameterType.Name} as a parameter.");
                     }
 
                     parameters.Add(parameterData);
@@ -223,16 +222,7 @@ internal static class CommandModuleRegister
                     continue;
                 }
 
-                string applicationName;
-                if (registerAsSubcommands)
-                {
-                    applicationName = $"{moduleAttribute!.Name} {attribute.Name}";
-                }
-                else
-                {
-                    applicationName = attribute.Name;
-                }
-
+                string applicationName = registerAsSubcommands ? $"{moduleAttribute!.Name} {attribute.Name}" : attribute.Name;
                 DiscordApplicationCommandOptionBuilder? option = null;
                 if (!registerAsSubcommands)
                 {
@@ -256,8 +246,10 @@ internal static class CommandModuleRegister
                         throw new Exception("Parameter needs to have `ApplicationNameAttribute` marked.");
                     }
 
-                    ApplicationMethodParameterData data = new(name.Name);
-                    data.IsNullable = nullabilityContext.Create(parameter).WriteState is NullabilityState.Nullable;
+                    ApplicationMethodParameterData data = new(name.Name)
+                    {
+                        IsNullable = nullabilityContext.Create(parameter).WriteState is NullabilityState.Nullable
+                    };
 
                     if (parameter.ParameterType == typeof(string))
                     {
@@ -292,13 +284,11 @@ internal static class CommandModuleRegister
                     {
                         data.Type = ApplicationCommandOptionType.Mentionable;
                     }
-                    else if (parameter.ParameterType == typeof(DiscordAttachment))
-                    {
-                        data.Type = ApplicationCommandOptionType.Attachment;
-                    }
                     else
                     {
-                        throw new Exception("Not a valid parameter type.");
+                        data.Type = parameter.ParameterType == typeof(DiscordAttachment)
+                            ? ApplicationCommandOptionType.Attachment
+                            : throw new Exception("Not a valid parameter type.");
                     }
 
                     parameters.Add(data);

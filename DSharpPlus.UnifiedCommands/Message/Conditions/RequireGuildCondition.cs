@@ -3,14 +3,5 @@ namespace DSharpPlus.UnifiedCommands.Message.Conditions;
 public class RequireGuildCondition : IMessageCondition
 {
     public Task<bool> InvokeAsync(MessageContext context)
-    {
-        if (context.Message.Channel.GuildId is null)
-        {
-            return Task.FromResult(false);
-        }
-        else
-        {
-            return Task.FromResult(true);
-        }
-    }
+        => Task.FromResult(context.Message.Channel.GuildId is not null);
 }

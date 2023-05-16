@@ -179,7 +179,7 @@ internal sealed class TestBot
         } */
 
         UnifiedCommandsBuilder builder = new();
-        builder.AddAssembly(Assembly.GetExecutingAssembly());
+        builder.WithAssembly(Assembly.GetExecutingAssembly());
         builder.AddPrefix(this.Config.CommandPrefixes);
         builder.Services.AddScoped<string>(s => "Hello, world!");
         builder.Services.AddSingleton<IErrorHandler, UnifiedCommandsErrorHandler>();

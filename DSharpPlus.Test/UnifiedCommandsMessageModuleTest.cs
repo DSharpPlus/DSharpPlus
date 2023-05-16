@@ -45,23 +45,6 @@ public class UnifiedCommandsMessageModuleTest : MessageModule
         return;
     }
 
-    [Message("emojis")]
-    public async Task<IMessageResult> TestEmojisAsync()
-    {
-        await PostAsync(Reply("React with a emoji, author can only reply"));
-        EventArgs.MessageReactionAddEventArgs? args = await WaitForReactionAsync(TimeSpan.FromSeconds(10),
-            (e) => e.User.Id == Message.Author.Id);
-
-        if (args is not null)
-        {
-            return FollowUp($"Reacted with emoji {args.Emoji.Name}");
-        }
-        else
-        {
-            return FollowUp($"Duration ran out.");
-        }
-    }
-
     [Message("remaining arguments")]
     public IMessageResult TestRemainingArguments([RemainingArguments] string arguments,
         [MessageOption("str", "s")] string? str)

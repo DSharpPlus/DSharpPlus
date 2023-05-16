@@ -5,6 +5,7 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Exceptions;
 using DSharpPlus.UnifiedCommands.Application.Conditions;
 using DSharpPlus.UnifiedCommands.Application.Internals;
+using DSharpPlus.UnifiedCommands.Exceptions;
 using DSharpPlus.UnifiedCommands.Internals;
 using DSharpPlus.UnifiedCommands.Message.Conditions;
 using DSharpPlus.UnifiedCommands.Message.Internals;
@@ -14,9 +15,9 @@ namespace DSharpPlus.UnifiedCommands;
 
 public class CommandController
 {
-    private string[] _prefixes;
-    private List<DiscordApplicationCommand> _commands = new();
-    private ulong[]? _guildIds;
+    private readonly string[] _prefixes;
+    private readonly List<DiscordApplicationCommand> _commands = new();
+    private readonly ulong[]? _guildIds;
 
     internal MessageFactory MessageFactory { get; private set; }
     internal ApplicationFactory ApplicationFactory { get; private set; }
@@ -47,21 +48,35 @@ public class CommandController
 
     public CommandController UseMessageCondition<T>() where T : IMessageCondition
     {
+        // This code builds a lambda that returns a IServiceProvider class. ObjectFactory can be used instead of course.
+        // But this is here more for 3ns micro performance. Can always be changed into a ObjectFactory if it is more convenient.
         Type type = typeof(T);
         List<Expression> expressions = new();
 
+        // Adds a parameter for the service provider.
         ParameterExpression serviceProviderParam = Expression.Parameter(typeof(IServiceProvider), "serviceProvider");
         expressions.Add(serviceProviderParam);
+
+        // Gets the first constructor. There will always be one constructor.
         ConstructorInfo info = type.GetConstructors()[0];
+
+        if (!info.IsPublic)
+        {
+            throw new InvalidConditionException("The first constructor in the condition needs to be public.");
+        }
+
         if (info.GetParameters().Length == 0)
         {
+            // Creates the object and returns it.
             expressions.Add(Expression.New(info));
         }
         else
         {
+            // Gets the method for getting a service.
             MethodInfo method = typeof(IServiceProvider).GetMethod(nameof(IServiceProvider.GetService),
                 BindingFlags.Instance | BindingFlags.Public)!;
 
+            // Adds all the call expression used for parameters when calling the constructor.
             List<Expression> parameters = new();
             foreach (ParameterInfo parameter in method.GetParameters())
             {
@@ -69,9 +84,11 @@ public class CommandController
                     parameter.ParameterType)));
             }
 
+            // Calls the constructor with the named parameters and returns it.
             expressions.Add(Expression.New(info, parameters));
         }
 
+        // Builds the expression into IR that then can be executed as a lambda. And then adds that to the message condition builder.
         Func<IServiceProvider, IMessageCondition> func =
             Expression.Lambda<Func<IServiceProvider, IMessageCondition>>(Expression.Block(expressions), false,
                 serviceProviderParam).Compile();
@@ -81,9 +98,10 @@ public class CommandController
 
     public CommandController UseApplicationCondition<T>() where T : IApplicationCondition
     {
+        // Read above for an explanation for what this method does.
         Type type = typeof(T);
         List<Expression> expressions = new();
-        
+
         ParameterExpression serviceProviderParam = Expression.Parameter(typeof(IServiceProvider), "serviceProvider");
         expressions.Add(serviceProviderParam);
         ConstructorInfo info = type.GetConstructors()[0];
@@ -185,13 +203,12 @@ public class CommandController
                 {
                     await client.BulkOverwriteGuildApplicationCommandsAsync(guildId, _commands);
                     client.Logger.LogTrace("Registered commands in guild {GuildId}", guildId);
-                    await Task.Delay(TimeSpan.FromSeconds(2));
                 }
             }
         }
         catch (BadRequestException exception)
         {
-            client.Logger.LogError("Error message: {Error}", exception.Errors);
+            client.Logger.LogError(exception.Errors, "Error message: ");
         }
     }
 }

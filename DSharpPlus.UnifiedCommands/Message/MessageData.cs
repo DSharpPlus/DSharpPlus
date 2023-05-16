@@ -7,7 +7,7 @@ namespace DSharpPlus.UnifiedCommands.Message;
 /// </summary>
 public class MessageData
 {
-    private MethodInfo _method;
+    private readonly MethodInfo _method;
 
     /// <summary>
     /// The name of the method/command.

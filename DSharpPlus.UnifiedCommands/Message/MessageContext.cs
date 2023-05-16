@@ -11,7 +11,7 @@ public class MessageContext
     /// The Discord message.
     /// </summary>
     public required DiscordMessage Message { get; set; }
-    
+
     /// <summary>
     /// The DiscordClient.
     /// </summary>

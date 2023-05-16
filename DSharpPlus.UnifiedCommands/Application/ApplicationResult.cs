@@ -26,8 +26,10 @@ public class ApplicationResult : IApplicationResult
 
     public static implicit operator ApplicationResult(string content)
     {
-        ApplicationResult result = new();
-        result.Content = content;
+        ApplicationResult result = new()
+        {
+            Content = content
+        };
 
         return result;
     }

@@ -11,14 +11,8 @@ public class MessageResult : IMessageResult
     /// The type of action that should be processed.
     /// </summary>
     public MessageResultType Type { get; set; }
-    /// <summary>
-    /// The possible content for a message.
-    /// </summary>
-    public string? Content { get; set; }
-    /// <summary>
-    /// The possible embeds for a message
-    /// </summary>
-    public List<DiscordEmbed>? Embeds { get; set; }
+
+    public DiscordMessageBuilder Builder { get; set; } = new();
 
     /// <summary>
     /// Implicit conversion for embeds.
@@ -28,14 +22,7 @@ public class MessageResult : IMessageResult
     public static implicit operator MessageResult(DiscordEmbed embed)
     {
         MessageResult msgCmdResult = new();
-        if (msgCmdResult.Embeds is null)
-        {
-            msgCmdResult.Embeds ??= new List<DiscordEmbed> { embed };
-        }
-        else
-        {
-            msgCmdResult.Embeds.Add(embed);
-        }
+        msgCmdResult.Builder.AddEmbed(embed);
 
         return msgCmdResult;
     }
@@ -49,7 +36,7 @@ public class MessageResult : IMessageResult
     {
         DiscordEmbed embed = builder.Build();
         MessageResult msgCmdResult = new();
-        msgCmdResult.Embeds ??= new List<DiscordEmbed> { embed };
+        msgCmdResult.Builder.AddEmbed(builder);
 
         return msgCmdResult;
     }
@@ -61,7 +48,8 @@ public class MessageResult : IMessageResult
     /// <returns></returns>
     public static implicit operator MessageResult(string str)
     {
-        MessageResult msgCmdResult = new() { Content = str };
+        MessageResult msgCmdResult = new();
+        msgCmdResult.Builder.WithContent(str);
         return msgCmdResult;
     }
 }

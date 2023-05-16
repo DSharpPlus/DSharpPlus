@@ -11,7 +11,7 @@ public class UnifiedCommandsBuilder
 {
     private Assembly? _assembly = null;
     private bool _isAlreadyBuilt = false;
-    private List<string> _prefixes = new();
+    private readonly List<string> _prefixes = new();
     private ulong[]? _guildIds = null;
     private bool _allowSlashCommands = true;
 
@@ -30,7 +30,7 @@ public class UnifiedCommandsBuilder
     /// </summary>
     /// <param name="assembly">The assembly.</param>
     /// <returns>Returns the builder.</returns>
-    public UnifiedCommandsBuilder AddAssembly(Assembly assembly)
+    public UnifiedCommandsBuilder WithAssembly(Assembly assembly)
     {
         _assembly = assembly;
         return this;
@@ -77,20 +77,12 @@ public class UnifiedCommandsBuilder
     /// <exception cref="Exception"></exception>
     internal CommandController Build(DiscordClient client)
     {
-        if (!_isAlreadyBuilt)
-        {
-            _isAlreadyBuilt = true;
-        }
-        else
-        {
-            throw new Exception("The builder has already built an object.");
-        }
+        _isAlreadyBuilt = !_isAlreadyBuilt ? true : throw new Exception("The builder has already built an object.");
 
         if (_assembly is null)
         {
             throw new Exception("Please add a assembly before building.");
         }
-        client.Logger.LogTrace("Guild id count is {GuildIdCount}", _guildIds.Length);
 
         IConfiguration configuration = Configuration.Build();
         Services.AddSingleton(configuration);

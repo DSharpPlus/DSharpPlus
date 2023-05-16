@@ -5,7 +5,7 @@ namespace DSharpPlus.UnifiedCommands.Message.Conditions;
 public class PermissionCondition : IMessageCondition
 {
     public static PermissionConditionConfiguration Configuration = null!;
-    
+
     public async Task<bool> InvokeAsync(MessageContext context)
     {
         MessagePermissionAttribute? metadata = context.Data.GetMetadata<MessagePermissionAttribute>();
@@ -21,7 +21,7 @@ public class PermissionCondition : IMessageCondition
 
         DiscordMember member = await context.Message.Channel.Guild.GetMemberAsync(context.Message.Author.Id);
 
-        if ((member.Permissions & metadata.Permissions) != 0 || (member.Permissions & Permissions.Administrator) != 0)
+        if (member.Permissions.HasPermission(metadata.Permissions))
         {
             return true;
         }

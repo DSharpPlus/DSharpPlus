@@ -6,11 +6,10 @@ namespace DSharpPlus.UnifiedCommands.Message.Internals;
 
 internal static class MessageReactionHandler
 {
-    private static
-        ConcurrentDictionary<ulong, (TaskCompletionSource<MessageReactionAddEventArgs>,
+    private static readonly ConcurrentDictionary<ulong, (TaskCompletionSource<MessageReactionAddEventArgs>,
             Func<MessageReactionAddEventArgs, bool>?)> _tasks = new();
 
-    private static Mutex _mutex = new();
+    private static readonly Mutex _mutex = new();
 
     internal static void AddTask(ulong message,
         (TaskCompletionSource<MessageReactionAddEventArgs>, Func<MessageReactionAddEventArgs, bool>?) task)

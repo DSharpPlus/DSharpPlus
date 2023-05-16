@@ -1,4 +1,4 @@
-﻿namespace DSharpPlus.UnifiedCommands;
+namespace DSharpPlus.UnifiedCommands;
 
 public static class DiscordClientExtensionMethods
 {

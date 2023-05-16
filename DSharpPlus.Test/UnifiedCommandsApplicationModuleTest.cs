@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.UnifiedCommands.Application;
-using DSharpPlus.UnifiedCommands.Application.Internals;
 
 namespace DSharpPlus.Test;
 

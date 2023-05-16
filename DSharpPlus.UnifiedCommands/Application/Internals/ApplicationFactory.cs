@@ -6,8 +6,8 @@ namespace DSharpPlus.UnifiedCommands.Application.Internals;
 
 internal class ApplicationFactory
 {
-    private IServiceProvider _service;
-    private List<Func<IServiceProvider, IApplicationCondition>> _conditionBuilders = new();
+    private readonly IServiceProvider _service;
+    private readonly List<Func<IServiceProvider, IApplicationCondition>> _conditionBuilders = new();
 
     internal Dictionary<string, ApplicationMethodData> _methods = new(); // TODO: Change this into a tree.
 
@@ -16,12 +16,12 @@ internal class ApplicationFactory
 
     internal void AddCondition(Func<IServiceProvider, IApplicationCondition> func)
         => _conditionBuilders.Add(func);
-    
+
     internal void ExecuteCommand(DiscordInteraction interaction, DiscordClient client)
     {
         object?[]? objects;
         ApplicationHandler handler;
-        
+
         if (_methods.TryGetValue(interaction.Data.Name, out ApplicationMethodData? data))
         {
             objects = MapParameters(data, interaction.Data.Options, interaction.Data.Resolved);
@@ -128,13 +128,9 @@ internal class ApplicationFactory
                         break;
                 }
             }
-            else if (parameterData.IsNullable)
-            {
-                objects[i] = null;
-            }
             else
             {
-                throw new Exception("This is non existent for some reason.");
+                objects[i] = parameterData.IsNullable ? null : throw new Exception("This is non existent for some reason.");
             }
         }
 

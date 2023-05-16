@@ -8,6 +8,5 @@ namespace DSharpPlus.UnifiedCommands.Message;
 public interface IMessageResult
 {
     public MessageResultType Type { get; set; }
-    public string? Content { get; set; }
-    public List<DiscordEmbed>? Embeds { get; set; }
+    public DiscordMessageBuilder Builder { get; set; }
 }

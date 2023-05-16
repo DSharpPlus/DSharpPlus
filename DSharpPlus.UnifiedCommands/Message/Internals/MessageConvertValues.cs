@@ -4,10 +4,10 @@ namespace DSharpPlus.UnifiedCommands.Message.Internals;
 
 internal class MessageConvertValues
 {
-    private Dictionary<string, string?> _values;
-    private MessageMethodData _data;
-    private DiscordMessage _message;
-    private DiscordClient _client;
+    private readonly Dictionary<string, string?> _values;
+    private readonly MessageMethodData _data;
+    private readonly DiscordMessage _message;
+    private readonly DiscordClient _client;
 
     public MessageConvertValues(Dictionary<string, string?> values, MessageMethodData data,
         DiscordMessage message, DiscordClient client)
@@ -66,15 +66,10 @@ internal class MessageConvertValues
                         data.IsPositionalArgument, data.Name);
                 }
 
-                if (ulong.TryParse(value, out ulong channelResult))
-                {
-                    obj = _message.Channel.Guild.GetChannel(channelResult);
-                }
-                else
-                {
-                    throw new Exceptions.ConversionFailedException(value,
+                obj = ulong.TryParse(value, out ulong channelResult)
+                    ? (object)_message.Channel.Guild.GetChannel(channelResult)
+                    : throw new Exceptions.ConversionFailedException(value,
                         InvalidMessageConversionType.NotAValidChannel, data.IsPositionalArgument, data.Name);
-                }
 
                 break;
             case MessageParameterDataType.Role:
@@ -84,51 +79,31 @@ internal class MessageConvertValues
                         data.IsPositionalArgument, data.Name);
                 }
 
-                if (ulong.TryParse(value, out ulong roleResult))
-                {
-                    obj = _message.Channel.Guild.GetRole(roleResult);
-                }
-                else
-                {
-                    throw new Exceptions.ConversionFailedException(value, InvalidMessageConversionType.NotAValidRole,
+                obj = ulong.TryParse(value, out ulong roleResult)
+                    ? (object)_message.Channel.Guild.GetRole(roleResult)
+                    : throw new Exceptions.ConversionFailedException(value, InvalidMessageConversionType.NotAValidRole,
                         data.IsPositionalArgument, data.Name);
-                }
 
                 break;
             case MessageParameterDataType.User:
-                if (ulong.TryParse(value, out ulong userResult))
-                {
-                    obj = await _client.GetUserAsync(userResult);
-                }
-                else
-                {
-                    throw new Exceptions.ConversionFailedException(value, InvalidMessageConversionType.NotAValidUser,
+                obj = ulong.TryParse(value, out ulong userResult)
+                    ? (object)await _client.GetUserAsync(userResult)
+                    : throw new Exceptions.ConversionFailedException(value, InvalidMessageConversionType.NotAValidUser,
                         data.IsPositionalArgument, data.Name);
-                }
 
                 break;
             case MessageParameterDataType.Int:
-                if (int.TryParse(value, out int intResult))
-                {
-                    obj = intResult;
-                }
-                else
-                {
-                    throw new Exceptions.ConversionFailedException(value,
+                obj = int.TryParse(value, out int intResult)
+                    ? (object)intResult
+                    : throw new Exceptions.ConversionFailedException(value,
                         InvalidMessageConversionType.NotAValidInteger, data.IsPositionalArgument, data.Name);
-                }
 
                 break;
             case MessageParameterDataType.Double:
-                if (double.TryParse(value, out double doubleResult))
-                {
-                    obj = doubleResult;
-                }
-                else
-                {
-                    throw new Exceptions.ConversionFailedException(value,
+                obj = double.TryParse(value, out double doubleResult)
+                    ? (object)doubleResult
+                    : throw new Exceptions.ConversionFailedException(value,
                         InvalidMessageConversionType.NotAValidNumber, data.IsPositionalArgument, data.Name);
-                }
 
                 break;
             case MessageParameterDataType.String:

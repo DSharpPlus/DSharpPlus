@@ -9,8 +9,8 @@ namespace DSharpPlus.UnifiedCommands.Message.Internals;
 internal class MessageFactory
 {
     private readonly MessageTree _commands = new();
-    private List<Func<IServiceProvider, IMessageCondition>> _messageConditionBuilders = new();
-    private IServiceProvider _services;
+    private readonly List<Func<IServiceProvider, IMessageCondition>> _messageConditionBuilders = new();
+    private readonly IServiceProvider _services;
 
     internal void AddCommand(string name, MessageMethodData data) => _commands.Branches!.Add(name, new(data));
     internal void AddBranch(string name, MessageTree branch) => _commands.Branches!.Add(name, branch);

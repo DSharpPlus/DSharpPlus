@@ -4,8 +4,9 @@ namespace DSharpPlus.UnifiedCommands.Message.Conditions;
 
 public class CooldownCondition : IMessageCondition
 {
-    public static ConcurrentDictionary<string, DateTime> Cooldown { get; set; } =
+    public static ConcurrentDictionary<string, DateTimeOffset> Cooldown { get; set; } =
         new(); // VERY INEFFICIENT. CHANGE ASAP
+    // This will hold expired times forever.
 
     public Task<bool> InvokeAsync(MessageContext context)
     {
@@ -16,17 +17,17 @@ public class CooldownCondition : IMessageCondition
         }
 
         string key = $"{context.Data.Name}/{context.Message.Channel.Id}/{context.Message.Author.Id}";
-        if (Cooldown.TryGetValue(key, out DateTime date))
+        if (Cooldown.TryGetValue(key, out DateTimeOffset date))
         {
             if (date > DateTime.Now)
             {
                 return Task.FromResult(false);
             }
 
-            Cooldown.TryRemove(new KeyValuePair<string, DateTime>(key, date));
+            Cooldown.TryRemove(new KeyValuePair<string, DateTimeOffset>(key, date));
         }
 
-        Cooldown.TryAdd(key, DateTime.Now.Add(attribute.Cooldown));
+        Cooldown.TryAdd(key, DateTimeOffset.Now.Add(attribute.Cooldown));
         return Task.FromResult(true);
     }
 }

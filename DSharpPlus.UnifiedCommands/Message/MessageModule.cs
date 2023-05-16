@@ -9,7 +9,7 @@ namespace DSharpPlus.UnifiedCommands.Message;
 public abstract class MessageModule
 {
     public static readonly IMessageResult EmptyResult = new MessageResult { Type = MessageResultType.Empty };
-    
+
     internal MessageHandler _handler = null!; // Will be set by the factory.
 
     public DiscordMessage Message { get; internal set; } = null!;
@@ -75,34 +75,5 @@ public abstract class MessageModule
     {
         result.Type = MessageResultType.Send;
         return result;
-    }
-
-    /// <summary>
-    /// Do not use this. I have been too lazy to remove it.
-    /// </summary>
-    /// <param name="delay"></param>
-    /// <param name="condition"></param>
-    /// <param name="message"></param>
-    /// <returns></returns>
-    [Obsolete("Use DSharpPlus.Interactivity")]
-    protected async Task<EventArgs.MessageReactionAddEventArgs?> WaitForReactionAsync(TimeSpan delay,
-        Func<EventArgs.MessageReactionAddEventArgs, bool>? condition = null,
-        DiscordMessage? message = null)
-    {
-        CancellationTokenSource source = new();
-        TaskCompletionSource<EventArgs.MessageReactionAddEventArgs> reaction = new();
-        source.Token.Register(() => reaction.TrySetCanceled());
-
-        MessageReactionHandler.AddTask(message is null ? NewestMessage!.Id : message.Id, (reaction, condition));
-
-        source.CancelAfter(delay);
-        try
-        {
-            return await reaction.Task;
-        }
-        catch (TaskCanceledException)
-        {
-            return null;
-        }
     }
 }
