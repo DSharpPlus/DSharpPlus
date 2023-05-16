@@ -28,7 +28,12 @@ namespace DSharpPlus
     /// Represents flags for a discord application.
     /// </summary>
     public enum ApplicationFlags
-    {
+    {   
+        /// <summary>
+        /// Indicates if an application uses the Auto Moderation API.
+        /// </summary>
+        ApplicationAutoModerationRuleCreateBadge = 1 << 6,
+
         /// <summary>
         /// Indicates that the application is approved for the <see cref="DiscordIntents.GuildPresences"/> intent.
         /// </summary>
@@ -67,6 +72,11 @@ namespace DSharpPlus
         /// <summary>
         /// The application can track message content (limited).
         /// </summary>
-        GatewayMessageContentLimited = 1 << 19
+        GatewayMessageContentLimited = 1 << 19,
+
+        /// <summary>
+        /// Indicates if an application has registered global application commands.
+        /// </summary>
+        ApplicationCommandBadge = 1 << 23,
     }
 }

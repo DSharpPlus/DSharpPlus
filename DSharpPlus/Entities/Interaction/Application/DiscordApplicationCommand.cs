@@ -83,6 +83,11 @@ namespace DSharpPlus.Entities
         [JsonProperty("default_member_permissions")]
         public Permissions? DefaultMemberPermissions { get; internal set; }
 
+        /// <summary>
+        /// Whether this command is age-restricted.
+        /// </summary>
+        [JsonProperty("nsfw")]
+        public bool? NSFW { get; internal set; }
 
         /// <summary>
         /// Gets the auto-incrementing version number for this command.
@@ -115,7 +120,8 @@ namespace DSharpPlus.Entities
         /// <param name="description_localizations">Localization dictionary for <paramref name="description"/> field. Values follow the same restrictions as <paramref name="description"/>.</param>
         /// <param name="allowDMUsage">Whether this command can be invoked in DMs.</param>
         /// <param name="defaultMemberPermissions">What permissions this command requires to be invoked.</param>
-        public DiscordApplicationCommand(string name, string description, IEnumerable<DiscordApplicationCommandOption> options = null, bool? defaultPermission = null, ApplicationCommandType type = ApplicationCommandType.SlashCommand, IReadOnlyDictionary<string, string> name_localizations = null, IReadOnlyDictionary<string, string> description_localizations = null, bool? allowDMUsage = null, Permissions? defaultMemberPermissions = null)
+        /// <param name="nsfw">Whether the command is age restricted.</param>
+        public DiscordApplicationCommand(string name, string description, IEnumerable<DiscordApplicationCommandOption> options = null, bool? defaultPermission = null, ApplicationCommandType type = ApplicationCommandType.SlashCommand, IReadOnlyDictionary<string, string> name_localizations = null, IReadOnlyDictionary<string, string> description_localizations = null, bool? allowDMUsage = null, Permissions? defaultMemberPermissions = null, bool? nsfw = null)
         {
             if (type is ApplicationCommandType.SlashCommand)
             {
@@ -146,6 +152,7 @@ namespace DSharpPlus.Entities
             this.DescriptionLocalizations = description_localizations;
             this.AllowDMUsage = allowDMUsage;
             this.DefaultMemberPermissions = defaultMemberPermissions;
+            this.NSFW = nsfw;
         }
 
         /// <summary>

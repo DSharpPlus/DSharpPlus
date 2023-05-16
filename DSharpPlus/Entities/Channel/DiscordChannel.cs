@@ -116,6 +116,7 @@ namespace DSharpPlus.Entities
 
         [JsonProperty("permission_overwrites", NullValueHandling = NullValueHandling.Ignore)]
         internal List<DiscordOverwrite> _permissionOverwrites = new();
+
         [JsonIgnore]
         private readonly Lazy<IReadOnlyList<DiscordOverwrite>> _permissionOverwritesLazy;
 

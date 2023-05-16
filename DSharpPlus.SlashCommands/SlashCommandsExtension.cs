@@ -190,7 +190,7 @@ namespace DSharpPlus.SlashCommands
                             AddContextMenus(contextMethods);
 
                             //Initializes the command
-                            var payload = new DiscordApplicationCommand(groupAttribute.Name, groupAttribute.Description, defaultPermission: groupAttribute.DefaultPermission, allowDMUsage: allowDMs, defaultMemberPermissions: v2Permissions);
+                            var payload = new DiscordApplicationCommand(groupAttribute.Name, groupAttribute.Description, defaultPermission: groupAttribute.DefaultPermission, allowDMUsage: allowDMs, defaultMemberPermissions: v2Permissions, nsfw: groupAttribute.NSFW);
 
                             var commandmethods = new List<KeyValuePair<string, MethodInfo>>();
                             //Handles commands in the group
@@ -215,7 +215,7 @@ namespace DSharpPlus.SlashCommands
 
                                 //Creates the subcommand and adds it to the main command
                                 var subpayload = new DiscordApplicationCommandOption(commandAttribute.Name, commandAttribute.Description, ApplicationCommandOptionType.SubCommand, null, null, options, name_localizations: nameLocalizations, description_localizations: descriptionLocalizations);
-                                payload = new DiscordApplicationCommand(payload.Name, payload.Description, payload.Options?.Append(subpayload) ?? new[] { subpayload }, payload.DefaultPermission, allowDMUsage: allowDMs, defaultMemberPermissions: v2Permissions);
+                                payload = new DiscordApplicationCommand(payload.Name, payload.Description, payload.Options?.Append(subpayload) ?? new[] { subpayload }, payload.DefaultPermission, allowDMUsage: allowDMs, defaultMemberPermissions: v2Permissions, nsfw: payload.NSFW);
 
                                 //Adds it to the method lists
                                 commandmethods.Add(new(commandAttribute.Name, submethod));
@@ -263,7 +263,7 @@ namespace DSharpPlus.SlashCommands
                                 //Adds the group to the command and method lists
                                 var subpayload = new DiscordApplicationCommandOption(subGroupAttribute.Name, subGroupAttribute.Description, ApplicationCommandOptionType.SubCommandGroup, null, null, options);
                                 command.SubCommands.Add(new() { Name = subGroupAttribute.Name, Methods = currentMethods });
-                                payload = new DiscordApplicationCommand(payload.Name, payload.Description, payload.Options?.Append(subpayload) ?? new[] { subpayload }, payload.DefaultPermission, allowDMUsage: allowDMs, defaultMemberPermissions: v2Permissions);
+                                payload = new DiscordApplicationCommand(payload.Name, payload.Description, payload.Options?.Append(subpayload) ?? new[] { subpayload }, payload.DefaultPermission, allowDMUsage: allowDMs, defaultMemberPermissions: v2Permissions, nsfw: payload.NSFW);
 
                                 //Accounts for lifespans for the sub group
                                 if (subclass.GetCustomAttribute<SlashModuleLifespanAttribute>() is not null and { Lifespan: SlashModuleLifespan.Singleton })
@@ -308,7 +308,7 @@ namespace DSharpPlus.SlashCommands
                                 var allowDMs = (method.GetCustomAttribute<GuildOnlyAttribute>() ?? method.DeclaringType.GetCustomAttribute<GuildOnlyAttribute>()) is null;
                                 var v2Permissions = (method.GetCustomAttribute<SlashCommandPermissionsAttribute>() ?? method.DeclaringType.GetCustomAttribute<SlashCommandPermissionsAttribute>())?.Permissions;
 
-                                var payload = new DiscordApplicationCommand(commandattribute.Name, commandattribute.Description, options, commandattribute.DefaultPermission, name_localizations: nameLocalizations, description_localizations: descriptionLocalizations, allowDMUsage: allowDMs, defaultMemberPermissions: v2Permissions);
+                                var payload = new DiscordApplicationCommand(commandattribute.Name, commandattribute.Description, options, commandattribute.DefaultPermission, name_localizations: nameLocalizations, description_localizations: descriptionLocalizations, allowDMUsage: allowDMs, defaultMemberPermissions: v2Permissions, nsfw:commandattribute.NSFW);
                                 updateList.Add(payload);
                             }
 
@@ -330,7 +330,7 @@ namespace DSharpPlus.SlashCommands
                                 var contextAttribute = contextMethod.GetCustomAttribute<ContextMenuAttribute>();
                                 var allowDMUsage = (contextMethod.GetCustomAttribute<GuildOnlyAttribute>() ?? contextMethod.DeclaringType.GetCustomAttribute<GuildOnlyAttribute>()) is null;
                                 var permissions = (contextMethod.GetCustomAttribute<SlashCommandPermissionsAttribute>() ?? contextMethod.DeclaringType.GetCustomAttribute<SlashCommandPermissionsAttribute>())?.Permissions;
-                                var command = new DiscordApplicationCommand(contextAttribute.Name, null, type: contextAttribute.Type, defaultPermission: contextAttribute.DefaultPermission, allowDMUsage: allowDMUsage, defaultMemberPermissions: permissions);
+                                var command = new DiscordApplicationCommand(contextAttribute.Name, null, type: contextAttribute.Type, defaultPermission: contextAttribute.DefaultPermission, allowDMUsage: allowDMUsage, defaultMemberPermissions: permissions, nsfw: contextAttribute.NSFW);
 
                                 var parameters = contextMethod.GetParameters();
                                 if (parameters?.Length is null or 0 || !ReferenceEquals(parameters.FirstOrDefault()?.ParameterType, typeof(ContextMenuContext)))

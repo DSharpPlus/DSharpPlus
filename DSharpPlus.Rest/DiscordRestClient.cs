@@ -1830,7 +1830,7 @@ namespace DSharpPlus
             var mdl = new ApplicationCommandEditModel();
             action(mdl);
             var applicationId = this.CurrentApplication?.Id ?? (await this.GetCurrentApplicationAsync()).Id;
-            return await this.ApiClient.EditGlobalApplicationCommandAsync(applicationId, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission, default, default, mdl.AllowDMUsage, mdl.DefaultMemberPermissions);
+            return await this.ApiClient.EditGlobalApplicationCommandAsync(applicationId, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission, mdl.NSFW, default, default, mdl.AllowDMUsage, mdl.DefaultMemberPermissions);
         }
 
         /// <summary>
@@ -1887,7 +1887,7 @@ namespace DSharpPlus
             var mdl = new ApplicationCommandEditModel();
             action(mdl);
             var applicationId = this.CurrentApplication?.Id ?? (await this.GetCurrentApplicationAsync()).Id;
-            return await this.ApiClient.EditGuildApplicationCommandAsync(applicationId, guildId, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission, default, default, mdl.AllowDMUsage, mdl.DefaultMemberPermissions);
+            return await this.ApiClient.EditGuildApplicationCommandAsync(applicationId, guildId, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission, mdl.NSFW, default, default, mdl.AllowDMUsage, mdl.DefaultMemberPermissions);
         }
 
         /// <summary>

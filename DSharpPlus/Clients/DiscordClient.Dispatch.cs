@@ -545,7 +545,25 @@ namespace DSharpPlus
                         this.Logger.LogWarning(LoggerEvents.WebSocketReceive, "Unknown event: {EventName}\npayload: {@Payload}", payload.EventName, payload.Data);
                     break;
 
-                    #endregion
+                #endregion
+
+                #region AutoModeration
+                case "auto_moderation_rule_create":
+                    await this.OnAutoModerationRuleCreateAsync(dat.ToDiscordObject<DiscordAutoModerationRule>());
+                    break;
+
+                case "auto_moderation_rule_update":
+                    await this.OnAutoModerationRuleUpdatedAsync(dat.ToDiscordObject<DiscordAutoModerationRule>());
+                    break;
+
+                case "auto_moderation_rule_delete":
+                    await this.OnAutoModerationRuleDeletedAsync(dat.ToDiscordObject<DiscordAutoModerationRule>());
+                    break;
+
+                case "auto_moderation_action_execution":
+                    await this.OnAutoModerationRuleExecutedAsync(dat.ToDiscordObject<DiscordAutoModerationActionExecution>());
+                    break;
+                #endregion
             }
         }
 
@@ -2651,6 +2669,28 @@ namespace DSharpPlus
             await this._unknownEvent.InvokeAsync(this, ea);
         }
 
+        #endregion
+
+        #region AutoModeration
+        internal async Task OnAutoModerationRuleCreateAsync(DiscordAutoModerationRule ruleCreated)
+        {
+            await this._autoModerationRuleCreated.InvokeAsync(this, new AutoModerationRuleCreateEventArgs { Rule = ruleCreated });
+        }
+
+        internal async Task OnAutoModerationRuleUpdatedAsync(DiscordAutoModerationRule ruleUpdated)
+        {
+            await this._autoModerationRuleUpdated.InvokeAsync(this, new AutoModerationRuleUpdateEventArgs { Rule = ruleUpdated });
+        }
+
+        internal async Task OnAutoModerationRuleDeletedAsync(DiscordAutoModerationRule ruleDeleted)
+        {
+            await this._autoModerationRuleDeleted.InvokeAsync(this, new AutoModerationRuleDeleteEventArgs { Rule = ruleDeleted });
+        }
+
+        internal async Task OnAutoModerationRuleExecutedAsync(DiscordAutoModerationActionExecution ruleExecuted)
+        {
+            await this._autoModerationRuleExecuted.InvokeAsync(this, new AutoModerationRuleExecuteEventArgs { Rule = ruleExecuted });
+        }
         #endregion
 
         #endregion
