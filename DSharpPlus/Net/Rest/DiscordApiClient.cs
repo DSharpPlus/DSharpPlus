@@ -30,11 +30,14 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+
 using DSharpPlus.Entities;
 using DSharpPlus.Enums;
 using DSharpPlus.Net.Abstractions;
 using DSharpPlus.Net.Serialization;
+
 using Microsoft.Extensions.Logging;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -44,7 +47,7 @@ public sealed class DiscordApiClient
 {
     private const string REASON_HEADER_NAME = "X-Audit-Log-Reason";
 
-    internal BaseDiscordClient _discord { get; }
+    internal BaseDiscordClient? _discord { get; }
     internal RestClient _rest { get; }
 
     internal DiscordApiClient(BaseDiscordClient client)
@@ -54,122 +57,100 @@ public sealed class DiscordApiClient
     }
 
     internal DiscordApiClient(IWebProxy proxy, TimeSpan timeout, bool useRelativeRateLimit, ILogger logger) // This is for meta-clients, such as the webhook client
-    {
-        this._rest = new RestClient(proxy, timeout, useRelativeRateLimit, logger);
-    }
-
-    private static string BuildQueryString(IDictionary<string, string> values, bool post = false)
-    {
-        if (values == null || values.Count == 0)
-            return string.Empty;
-
-        var vals_collection = values.Select(xkvp =>
-            $"{WebUtility.UrlEncode(xkvp.Key)}={WebUtility.UrlEncode(xkvp.Value)}");
-        var vals = string.Join("&", vals_collection);
-
-        return !post ? $"?{vals}" : vals;
-    }
+        => this._rest = new(proxy, timeout, logger);
 
     private DiscordMessage PrepareMessage(JToken msg_raw)
     {
-        var author = msg_raw["author"].ToDiscordObject<TransportUser>();
-        var ret = msg_raw.ToDiscordObject<DiscordMessage>();
-        ret.Discord = this._discord;
+        TransportUser author = msg_raw["author"]!.ToDiscordObject<TransportUser>();
+        DiscordMessage message = msg_raw.ToDiscordObject<DiscordMessage>();
 
-        this.PopulateMessage(author, ret);
+        message.Discord = this._discord!;
 
-        var referencedMsg = msg_raw["referenced_message"];
-        if (ret.MessageType == MessageType.Reply && !string.IsNullOrWhiteSpace(referencedMsg?.ToString()))
+        this.PopulateMessage(author, message);
+
+        JToken? referencedMsg = msg_raw["referenced_message"];
+
+        if (message.MessageType == MessageType.Reply && !string.IsNullOrWhiteSpace(referencedMsg?.ToString()))
         {
-            author = referencedMsg["author"].ToDiscordObject<TransportUser>();
-            ret.ReferencedMessage.Discord = this._discord;
-            this.PopulateMessage(author, ret.ReferencedMessage);
+            TransportUser referencedAuthor = referencedMsg["author"]!.ToDiscordObject<TransportUser>();
+            message.ReferencedMessage.Discord = this._discord!;
+            this.PopulateMessage(referencedAuthor, message.ReferencedMessage);
         }
 
-        if (ret.Channel != null)
-            return ret;
+        if (message.Channel is not null)
+        {
+            return message;
+        }
 
-        var channel = !ret._guildId.HasValue
+        message.Channel = !message._guildId.HasValue
             ? new DiscordDmChannel
             {
-                Id = ret.ChannelId,
-                Discord = this._discord,
+                Id = message.ChannelId,
+                Discord = this._discord!,
                 Type = ChannelType.Private
             }
             : new DiscordChannel
             {
-                Id = ret.ChannelId,
-                GuildId = ret._guildId,
-                Discord = this._discord
+                Id = message.ChannelId,
+                GuildId = message._guildId,
+                Discord = this._discord!
             };
-        ret.Channel = channel;
 
-        return ret;
+        return message;
     }
 
     private void PopulateMessage(TransportUser author, DiscordMessage ret)
     {
-        var guild = ret.Channel?.Guild;
+        DiscordGuild? guild = ret.Channel?.Guild;
 
         //If this is a webhook, it shouldn't be in the user cache.
         if (author.IsBot && int.Parse(author.Discriminator) == 0)
         {
-            ret.Author = new DiscordUser(author) { Discord = this._discord };
+            ret.Author = new(author) 
+            { 
+                Discord = this._discord!
+            };
         }
         else
         {
-            if (!this._discord.UserCache.TryGetValue(author.Id, out var usr))
+            // get and cache the user
+            if (!this._discord!.UserCache.TryGetValue(author.Id, out DiscordUser? user))
             {
-                this._discord.UserCache[author.Id] = usr = new DiscordUser(author) { Discord = this._discord };
+                user = new DiscordUser(author) 
+                { 
+                    Discord = this._discord 
+                };
             }
 
-            if (guild != null)
+            this._discord.UserCache[author.Id] = user;
+
+            // get the member object if applicable, if not set the message author to an user
+            if (guild is not null)
             {
-                if (!guild.Members.TryGetValue(author.Id, out var mbr))
-                    mbr = new DiscordMember(usr) { Discord = this._discord, _guild_id = guild.Id };
-                ret.Author = mbr;
+                if (!guild.Members.TryGetValue(author.Id, out DiscordMember? member))
+                {
+                    member = new(user) 
+                    { 
+                        Discord = this._discord, 
+                        _guild_id = guild.Id 
+                    };
+                }
+
+                ret.Author = member;
             }
             else
             {
-                ret.Author = usr;
+                ret.Author = user!;
             }
         }
 
         ret.PopulateMentions();
 
-        if (ret._reactions == null)
-            ret._reactions = new List<DiscordReaction>();
-        foreach (var xr in ret._reactions)
-            xr.Emoji.Discord = this._discord;
-    }
-
-    private Task<RestResponse> DoRequestAsync(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, string route, IReadOnlyDictionary<string, string> headers = null, string payload = null, double? ratelimitWaitOverride = null)
-    {
-        var req = new RestRequest(client, bucket, url, method, route, headers, payload, ratelimitWaitOverride);
-
-        if (this._discord != null)
-            this._rest.ExecuteRequestAsync(req).LogTaskFault(this._discord.Logger, LogLevel.Error, LoggerEvents.RestError, "Error while executing request");
-        else
-            _ = this._rest.ExecuteRequestAsync(req);
-
-        return req.WaitForCompletionAsync();
-    }
-
-    private Task<RestResponse> DoMultipartAsync(BaseDiscordClient client, RateLimitBucket bucket, Uri url, RestRequestMethod method, string route, IReadOnlyDictionary<string, string> headers = null, IReadOnlyDictionary<string, string> values = null,
-        IReadOnlyCollection<DiscordMessageFile> files = null, double? ratelimitWaitOverride = null, bool removeFileCount = false)
-    {
-        var req = new MultipartWebRequest(client, bucket, url, method, route, headers, values, files, ratelimitWaitOverride)
+        ret._reactions ??= new List<DiscordReaction>();
+        foreach (DiscordReaction reaction in ret._reactions)
         {
-            _removeFileCount = removeFileCount
-        };
-
-
-        if (this._discord != null)
-            this._rest.ExecuteRequestAsync(req).LogTaskFault(this._discord.Logger, LogLevel.Error, LoggerEvents.RestError, "Error while executing request");
-        else
-            _ = this._rest.ExecuteRequestAsync(req);
-
-        return req.WaitForCompletionAsync();
+            reaction.Emoji.Discord = this._discord!;
+        }
     }
 
     #region Guild
