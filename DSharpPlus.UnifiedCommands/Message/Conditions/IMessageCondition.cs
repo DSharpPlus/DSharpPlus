@@ -5,5 +5,5 @@ namespace DSharpPlus.UnifiedCommands.Message.Conditions;
 /// </summary>
 public interface IMessageCondition
 {
-    public Task<bool> InvokeAsync(MessageContext context);
+    public ValueTask<bool> InvokeAsync(MessageContext context);
 }

@@ -10,27 +10,19 @@ public class ApplicationResult : IApplicationResult
 
     public static implicit operator ApplicationResult(DiscordEmbed embed)
     {
-        ApplicationResult result = new();
-        result.Embeds ??= new List<DiscordEmbed> { embed };
-
+        ApplicationResult result = new() { Embeds = new() { embed } };
         return result;
     }
 
     public static implicit operator ApplicationResult(DiscordEmbedBuilder builder)
     {
-        ApplicationResult result = new();
-        result.Embeds ??= new List<DiscordEmbed> { builder.Build() };
-
+        ApplicationResult result = new() { Embeds = new() { builder.Build() } };
         return result;
     }
 
     public static implicit operator ApplicationResult(string content)
     {
-        ApplicationResult result = new()
-        {
-            Content = content
-        };
-
+        ApplicationResult result = new() { Content = content };
         return result;
     }
 }

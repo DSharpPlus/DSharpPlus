@@ -3,7 +3,10 @@ using DSharpPlus.Entities;
 using DSharpPlus.UnifiedCommands.Message.Conditions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Runtime.ExceptionServices;
+#if DEBUG
 using Stopwatch = System.Diagnostics.Stopwatch;
+#endif
 
 namespace DSharpPlus.UnifiedCommands.Message.Internals;
 
@@ -74,11 +77,13 @@ internal class MessageHandler
         }
     }
 
-    internal async Task BuildModuleAndExecuteCommandAsync()
+    internal async ValueTask BuildModuleAndExecuteCommandAsync()
     {
         try
         {
+#if DEBUG
             long startTime = Stopwatch.GetTimestamp();
+#endif
 
             MessageModuleData moduleData = _data.Module;
 
@@ -115,7 +120,7 @@ internal class MessageHandler
                 MessageConditionHandler conditionHandler =
                     new(_conditionBuilders);
                 bool shouldContinue =
-                    await conditionHandler.StartGoingThroughConditionsAsync(
+                    await conditionHandler.IterateConditionsAsync(
                         new MessageContext { Message = _message, Data = new(_name, _data.Method), Client = _client },
                         _scope);
                 if (!shouldContinue)
@@ -124,8 +129,10 @@ internal class MessageHandler
                 }
             }
 
+#if DEBUG
             TimeSpan elapsedTime = Stopwatch.GetElapsedTime(startTime);
             _client.Logger.LogDebug("Took {NsExecution}ns to process everything", elapsedTime.TotalNanoseconds);
+#endif
 
             try
             {
@@ -133,6 +140,7 @@ internal class MessageHandler
                 {
                     if (_data.IsAsync)
                     {
+                        // TODO: Add support for ValueTask invoking
                         await (Task)_data.Method.Invoke(_module, BindingFlags.OptionalParamBinding,
                             null, parameters, null)!;
                     }
@@ -162,12 +170,14 @@ internal class MessageHandler
             }
             catch (TargetInvocationException e)
             {
-                System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(e.InnerException ?? e).Throw();
+                // ExceptionDispatchInfo can be used to rethrow a error and perceive all the info in it.
+                // This is done here to rethrow the inner error and show where it is so people who don't read in depth their stacktrace doesn't blame us.
+                ExceptionDispatchInfo.Capture(e.InnerException ?? e).Throw();
                 throw e.InnerException;
             }
             catch (AggregateException e)
             {
-                System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(e.InnerException ?? e).Throw();
+                ExceptionDispatchInfo.Capture(e.InnerException ?? e).Throw();
                 throw e.InnerException;
             }
         }
@@ -176,9 +186,9 @@ internal class MessageHandler
             await _scope.ServiceProvider.GetRequiredService<IErrorHandler>()
                 .HandleUnhandledExceptionAsync(e, _message);
 
-            _client.Logger.LogError(
-                "Exception was thrown while trying to execute command {MethodName}. Was thrown from {Exception}",
-                _data.Method.Name, e.ToString());
+            _client.Logger.LogError(e,
+                "Exception was thrown while trying to execute command {MethodName}. Was thrown from:",
+                _data.Method.Name);
         }
         finally
         {

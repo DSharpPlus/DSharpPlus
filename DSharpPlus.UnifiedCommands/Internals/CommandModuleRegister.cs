@@ -11,9 +11,9 @@ namespace DSharpPlus.UnifiedCommands.Internals;
 
 internal static class CommandModuleRegister
 {
-    internal static void RegisterMessageCommands(MessageFactory factory, Assembly assembly)
+    internal static void RegisterMessageCommands(MessageFactory factory, IReadOnlyCollection<Assembly> assemblies)
     {
-        IEnumerable<Type> classes = assembly.GetTypes()
+        IEnumerable<Type> classes = assemblies.SelectMany(a => a.GetTypes())
             .Where(t => t.IsClass &&
                         !t.IsAbstract &&
                         t.GetCustomAttribute<MessageModuleAttribute>() is not null &&
@@ -71,7 +71,7 @@ internal static class CommandModuleRegister
                             if (parameter.ParameterType != typeof(string))
                             {
                                 throw new InvalidMessageModuleStructure(
-                                    "You need to use string if you are using RemainingTextAttribute.");
+                                    "You need to use string if you are using RemainingArgumentsAttribute.");
                             }
 
                             parameterData.WillConsumeRestOfArguments = true;
@@ -126,7 +126,7 @@ internal static class CommandModuleRegister
                         parameterData.Type = parameterType == typeof(double)
                             ? MessageParameterDataType.Double
                             : throw new InvalidMessageModuleStructure(
-                                                    $"You cannot use type {parameterType.Name} as a parameter.");
+                                $"You cannot use type {parameterType.Name} as a parameter.");
                     }
 
                     parameters.Add(parameterData);
@@ -181,10 +181,10 @@ internal static class CommandModuleRegister
     }
 
     internal static List<DiscordApplicationCommand> RegisterApplicationCommands(ApplicationFactory factory,
-        Assembly assembly,
+        IReadOnlyCollection<Assembly> assemblies,
         DiscordClient client)
     {
-        IEnumerable<Type> classes = assembly.GetTypes()
+        IEnumerable<Type> classes = assemblies.SelectMany(a => a.GetTypes())
             .Where(t => t.IsPublic &&
                         t.IsClass &&
                         !t.IsAbstract &&
@@ -222,7 +222,8 @@ internal static class CommandModuleRegister
                     continue;
                 }
 
-                string applicationName = registerAsSubcommands ? $"{moduleAttribute!.Name} {attribute.Name}" : attribute.Name;
+                string applicationName =
+                    registerAsSubcommands ? $"{moduleAttribute!.Name} {attribute.Name}" : attribute.Name;
                 DiscordApplicationCommandOptionBuilder? option = null;
                 if (!registerAsSubcommands)
                 {

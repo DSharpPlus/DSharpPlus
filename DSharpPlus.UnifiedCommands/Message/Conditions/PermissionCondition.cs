@@ -6,7 +6,7 @@ public class PermissionCondition : IMessageCondition
 {
     public static PermissionConditionConfiguration Configuration = null!;
 
-    public async Task<bool> InvokeAsync(MessageContext context)
+    public async ValueTask<bool> InvokeAsync(MessageContext context)
     {
         MessagePermissionAttribute? metadata = context.Data.GetMetadata<MessagePermissionAttribute>();
         if (metadata is null)

@@ -1,6 +1,6 @@
 # TODO
 
-## Featurs
+## Features (Message)
 - [X] Implement the basic command handling
 - [X] Implementing command parsing and converting.
 - [X] Implementing middleware ~~(Can be improved)~~ (Is improved and called conditions)
@@ -11,6 +11,13 @@
 - [X] Allow arguments to consume the entirety of a text. Like t!text hello there would return "hello there" to the argument with this marked attribute.
 - [X] Allow quotes in text so above is not needed (all the time, above might be useful in some scenarios.).
 - [ ] Overloading.
+
+## Features (Application)
+- [ ] Complete all actions
+- [ ] Finish DiscordModal
+
+## Features (Global)
+- [ ] Interface modules so modules can be made for both slash and message.
 
 ## Optimisation
 - [ ] Better parsing

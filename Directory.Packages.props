@@ -1,7 +1,6 @@
 <Project>
   <ItemGroup>
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.6.0-1.final" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
     <PackageVersion Include="Microsoft.Extensions.DependencyModel" Version="7.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />

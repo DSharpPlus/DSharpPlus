@@ -1,5 +1,6 @@
 namespace DSharpPlus.UnifiedCommands.Message;
 
+// TODO: Allow user errors. In general.
 /// <summary>
 /// Enum representing the possibilities for conversion failure.
 /// </summary>

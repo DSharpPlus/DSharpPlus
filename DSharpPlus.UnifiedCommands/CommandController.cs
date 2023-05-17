@@ -18,6 +18,7 @@ public class CommandController
     private readonly string[] _prefixes;
     private readonly List<DiscordApplicationCommand> _commands = new();
     private readonly ulong[]? _guildIds;
+    private List<Type> _applicationConditionTypes = new();
 
     internal MessageFactory MessageFactory { get; private set; }
     internal ApplicationFactory ApplicationFactory { get; private set; }
@@ -25,7 +26,7 @@ public class CommandController
     public IServiceProvider Services { get; private set; }
 
     public CommandController(DiscordClient client, IServiceProvider services,
-        Assembly assembly, string[] prefixes, ulong[]? guildIds, bool registerSlashCommands)
+        IReadOnlyCollection<Assembly> assemblies, string[] prefixes, ulong[]? guildIds, bool registerSlashCommands)
     {
         _prefixes = prefixes;
         Services = services;
@@ -34,10 +35,10 @@ public class CommandController
         MessageFactory = new MessageFactory(Services);
         ApplicationFactory = new ApplicationFactory(Services);
 
-        CommandModuleRegister.RegisterMessageCommands(MessageFactory, assembly);
+        CommandModuleRegister.RegisterMessageCommands(MessageFactory, assemblies);
         if (registerSlashCommands)
         {
-            _commands = CommandModuleRegister.RegisterApplicationCommands(ApplicationFactory, assembly, client);
+            _commands = CommandModuleRegister.RegisterApplicationCommands(ApplicationFactory, assemblies, client);
         }
 
         client.MessageCreated += HandleMessageCreationAsync;
@@ -150,11 +151,11 @@ public class CommandController
         }
 
         string? prefix = null;
-        foreach (string maybeCorrectPrefix in _prefixes)
+        foreach (string prefixCandidate in _prefixes)
         {
-            if (content.StartsWith(maybeCorrectPrefix))
+            if (content.StartsWith(prefixCandidate))
             {
-                prefix = maybeCorrectPrefix;
+                prefix = prefixCandidate;
                 break;
             }
         }
@@ -164,6 +165,7 @@ public class CommandController
             return Task.CompletedTask;
         }
 
+        // TODO: Use new .NET 8 type when updating to .NET 8
         List<Range> ranges = new();
         Index last = prefix.Length;
         for (int i = last.Value; i < content.Length; i++)
@@ -194,8 +196,9 @@ public class CommandController
         {
             if (_guildIds is null)
             {
+                await client.ApplicationCommands
                 await client.BulkOverwriteGlobalApplicationCommandsAsync(_commands);
-                client.Logger.LogInformation("Registered commands");
+                client.Logger.LogTrace("Registered commands");
             }
             else
             {
@@ -208,7 +211,7 @@ public class CommandController
         }
         catch (BadRequestException exception)
         {
-            client.Logger.LogError(exception.Errors, "Error message: ");
+            client.Logger.LogError(exception, "Error message: ");
         }
     }
 }

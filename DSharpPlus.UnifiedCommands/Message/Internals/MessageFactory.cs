@@ -1,4 +1,6 @@
+#if DEBUG
 using System.Diagnostics;
+#endif
 using System.Text;
 using DSharpPlus.UnifiedCommands.Message.Conditions;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,13 +29,16 @@ internal class MessageFactory
     internal void ConstructAndExecuteCommand(Entities.DiscordMessage message,
         DiscordClient client, ref ReadOnlySpan<char> args, List<Range> argsRange)
     {
+        #if DEBUG
         long startTime = Stopwatch.GetTimestamp();
+        #endif
 
         Index end = 0;
         int it = 0;
 
         MessageTree? tree = null;
 
+        // TODO: Remake the parsing logic.
         foreach (Range argRange in argsRange)
         {
             ReadOnlySpan<char> arg = args[argRange.Start..argRange.End];
@@ -303,8 +308,10 @@ internal class MessageFactory
             }
         }
 
+        #if DEBUG
         client.Logger.LogDebug("Took {NsExecution}ns", Stopwatch.GetElapsedTime(startTime).TotalNanoseconds);
-
+        #endif
+        
         IServiceScope scope = _services.CreateScope(); // This will need to be disposed later somehow.
 
         MessageHandler handler = new(message, tree.Data, scope, client, mappedValues, name,

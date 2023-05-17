@@ -10,7 +10,7 @@ internal class MessageConditionHandler
     internal MessageConditionHandler(IReadOnlyList<Func<IServiceProvider, IMessageCondition>> conditionBuilders)
         => _conditionBuilders = conditionBuilders;
 
-    internal async Task<bool> StartGoingThroughConditionsAsync(MessageContext context, IServiceScope scope)
+    internal async Task<bool> IterateConditionsAsync(MessageContext context, IServiceScope scope)
     {
         for (int i = 0; i < _conditionBuilders.Count; i++)
         {

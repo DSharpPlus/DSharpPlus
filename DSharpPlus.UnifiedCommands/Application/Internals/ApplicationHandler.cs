@@ -3,6 +3,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.UnifiedCommands.Application.Conditions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Runtime.ExceptionServices;
 
 namespace DSharpPlus.UnifiedCommands.Application.Internals;
 
@@ -63,10 +64,12 @@ internal class ApplicationHandler
                 break;
         }
 
-        return Task.FromException(new Exception()); // This is here as a place holder until all ApplicationResultType's is implemented into the swtich case
+        return
+            Task.FromException(
+                new Exception()); // This is here as a place holder until all ApplicationResultType's is implemented into the swtich case
     }
 
-    internal async Task BuildModuleAndExecuteCommandAsync()
+    internal async ValueTask BuildModuleAndExecuteCommandAsync()
     {
         try
         {
@@ -78,7 +81,7 @@ internal class ApplicationHandler
             foreach (Func<IServiceProvider, IApplicationCondition> conditionBuilder in _conditionBuilders)
             {
                 IApplicationCondition condition = conditionBuilder(_scope.ServiceProvider);
-                Task<bool> task = condition.InvokeAsync(_interaction, _client);
+                ValueTask<bool> task = condition.InvokeAsync(_interaction, _client);
                 bool shouldContinue = await task;
 
                 if (!shouldContinue)
@@ -110,6 +113,7 @@ internal class ApplicationHandler
                 {
                     if (_data.IsAsync)
                     {
+                        // TODO: Support ValueTask invoking.
                         Task task =
                             (Task)_data.Method.Invoke(_module, BindingFlags.OptionalParamBinding, null, _args, null)!;
                         await task;
@@ -124,12 +128,12 @@ internal class ApplicationHandler
             {
                 // ExceptionDispatchInfo can be used to rethrow a error and perceive all the info in it.
                 // This is done here to rethrow the inner error and show where it is so people who don't read in depth their stacktrace doesn't blame us.
-                System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(e.InnerException ?? e).Throw();
+                ExceptionDispatchInfo.Capture(e.InnerException ?? e).Throw();
                 throw e.InnerException;
             }
             catch (AggregateException e)
             {
-                System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(e.InnerException ?? e).Throw();
+                ExceptionDispatchInfo.Capture(e.InnerException ?? e).Throw();
                 throw e.InnerException;
             }
         }
@@ -137,7 +141,7 @@ internal class ApplicationHandler
         {
             _client.Logger.LogError(
                 e,
-                "Exception was thrown while trying to execute command {MethodName}. Was thrown from ",
+                "Exception was thrown while trying to execute command {MethodName}. Was thrown from:",
                 _data.Method.Name);
         }
         finally

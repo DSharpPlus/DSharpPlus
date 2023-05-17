@@ -1,15 +1,15 @@
 using System.Reflection;
 using DSharpPlus.UnifiedCommands.Message;
 using DSharpPlus.UnifiedCommands.Message.Internals;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.UnifiedCommands;
 
+// TODO: Add support to manually add modules.
 public class UnifiedCommandsBuilder
 {
-    private Assembly? _assembly = null;
+    private List<Assembly> _assemblies = new();
     private bool _isAlreadyBuilt = false;
     private readonly List<string> _prefixes = new();
     private ulong[]? _guildIds = null;
@@ -19,20 +19,15 @@ public class UnifiedCommandsBuilder
     /// The service collection used for building the service provider.
     /// </summary>
     public IServiceCollection Services { get; internal set; } = new ServiceCollection();
-    /// <summary>
-    /// Configuration builder. It gets automatically added into dependency injection.
-    /// </summary>
-    public IConfigurationBuilder Configuration { get; internal set; } = new ConfigurationBuilder();
-
 
     /// <summary>
     /// Add the assembly used for reflection.
     /// </summary>
     /// <param name="assembly">The assembly.</param>
     /// <returns>Returns the builder.</returns>
-    public UnifiedCommandsBuilder WithAssembly(Assembly assembly)
+    public UnifiedCommandsBuilder AddAssembly(Assembly assembly)
     {
-        _assembly = assembly;
+        _assemblies.Add(assembly);
         return this;
     }
 
@@ -79,13 +74,6 @@ public class UnifiedCommandsBuilder
     {
         _isAlreadyBuilt = !_isAlreadyBuilt ? true : throw new Exception("The builder has already built an object.");
 
-        if (_assembly is null)
-        {
-            throw new Exception("Please add a assembly before building.");
-        }
-
-        IConfiguration configuration = Configuration.Build();
-        Services.AddSingleton(configuration);
         if (!Services.Any(s => s.ServiceType == typeof(IErrorHandler)))
         {
             client.Logger.LogTrace("Didn't find a error handler, using the default error handler");
@@ -94,7 +82,7 @@ public class UnifiedCommandsBuilder
 
         IServiceProvider provider = Services.BuildServiceProvider();
 
-        CommandController controller = new(client, provider, _assembly,
+        CommandController controller = new(client, provider, _assemblies,
             _prefixes.ToArray(), _guildIds, _allowSlashCommands);
 
         return controller;

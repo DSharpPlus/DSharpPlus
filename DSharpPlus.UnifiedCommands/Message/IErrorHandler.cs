@@ -2,6 +2,7 @@ using DSharpPlus.Entities;
 
 namespace DSharpPlus.UnifiedCommands.Message;
 
+// TODO: Port support to application commands. And allow custom errors somehow.
 /// <summary>
 /// A interface used in dependency injection to set the default error handler.
 /// </summary>
