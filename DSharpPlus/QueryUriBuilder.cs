@@ -25,45 +25,47 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace DSharpPlus
+namespace DSharpPlus;
+
+internal class QueryUriBuilder
 {
-    internal class QueryUriBuilder
+    public string SourceUri { get; }
+
+    public IReadOnlyList<KeyValuePair<string, string>> QueryParameters => this._queryParams;
+    private readonly List<KeyValuePair<string, string>> _queryParams = new();
+
+    public QueryUriBuilder(string uri)
     {
-        public Uri SourceUri { get; }
+        ArgumentNullException.ThrowIfNull(uri, nameof(uri));
 
-        public IReadOnlyList<KeyValuePair<string, string>> QueryParameters => this._queryParams;
-        private readonly List<KeyValuePair<string, string>> _queryParams = new();
+        this.SourceUri = uri;
+    }
 
-        public QueryUriBuilder(string uri)
+    public QueryUriBuilder AddParameter(string key, string? value)
+    {
+        if (value is null)
         {
-            if (uri == null)
-                throw new ArgumentNullException(nameof(uri));
-
-            this.SourceUri = new Uri(uri);
-        }
-
-        public QueryUriBuilder(Uri uri)
-        {
-            if (uri == null)
-                throw new ArgumentNullException(nameof(uri));
-
-            this.SourceUri = uri;
-        }
-
-        public QueryUriBuilder AddParameter(string key, string value)
-        {
-            this._queryParams.Add(new KeyValuePair<string, string>(key, value));
             return this;
         }
 
-        public Uri Build()
-        {
-            return new UriBuilder(this.SourceUri)
-            {
-                Query = string.Join("&", this._queryParams.Select(e => Uri.EscapeDataString(e.Key) + '=' + Uri.EscapeDataString(e.Value)))
-            }.Uri;
-        }
-
-        public override string ToString() => this.Build().ToString();
+        this._queryParams.Add(new KeyValuePair<string, string>(key, value));
+        return this;
     }
+
+    public Uri Build()
+    {
+        return new UriBuilder(this.SourceUri)
+        {
+            Query = string.Join
+            (
+                "&", 
+                this._queryParams.Select
+                (
+                    e => Uri.EscapeDataString(e.Key) + '=' + Uri.EscapeDataString(e.Value)
+                )
+            )
+        }.Uri;
+    }
+
+    public override string ToString() => this.Build().ToString();
 }
