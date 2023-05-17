@@ -39,10 +39,10 @@ dotnet_diagnostic.IDE0005.severity = error
 dotnet_diagnostic.IDE0073.severity = error
 
 # this. preferences
-dotnet_style_qualification_for_field = false:error
-dotnet_style_qualification_for_property = false:error
-dotnet_style_qualification_for_method = false:error
-dotnet_style_qualification_for_event = false:error
+dotnet_style_qualification_for_field = true:silent
+dotnet_style_qualification_for_property = true:silent
+dotnet_style_qualification_for_method = true:silent
+dotnet_style_qualification_for_event = true:silent
 
 # Language keywords vs BCL types preferences
 dotnet_style_predefined_type_for_locals_parameters_members = true:error
@@ -120,13 +120,13 @@ csharp_style_var_when_type_is_apparent = false:error
 csharp_style_var_elsewhere = false:error
 
 # Expression-bodied members
-csharp_style_expression_bodied_methods = true:error
-csharp_style_expression_bodied_constructors = true:error
-csharp_style_expression_bodied_operators = true:error
-csharp_style_expression_bodied_properties = true:error
-csharp_style_expression_bodied_indexers = true:error
-csharp_style_expression_bodied_accessors = true:error
-csharp_style_expression_bodied_lambdas = true:warning
+csharp_style_expression_bodied_methods = when_on_single_line:error
+csharp_style_expression_bodied_constructors = when_on_single_line:error
+csharp_style_expression_bodied_operators = when_on_single_line:error
+csharp_style_expression_bodied_properties = when_on_single_line:error
+csharp_style_expression_bodied_indexers = when_on_single_line:error
+csharp_style_expression_bodied_accessors = when_on_single_line:error
+csharp_style_expression_bodied_lambdas = when_on_single_line:warning
 
 # Pattern matching preferences
 csharp_style_pattern_matching_over_is_with_cast_check = true:error
