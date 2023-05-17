@@ -16,7 +16,7 @@ internal class MessageConditionHandler
         {
             Func<IServiceProvider, IMessageCondition> func = _conditionBuilders[i];
             IMessageCondition condition = func(scope.ServiceProvider);
-            Task<bool> task = condition.InvokeAsync(context);
+            ValueTask<bool> task = condition.InvokeAsync(context);
             bool result = task.IsCompletedSuccessfully ? task.Result : await task;
             if (!result)
             {

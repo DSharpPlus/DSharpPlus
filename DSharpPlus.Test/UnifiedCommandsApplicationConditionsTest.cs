@@ -7,9 +7,9 @@ namespace DSharpPlus.Test;
 
 public class UnifiedCommandsApplicationConditionsTest : IApplicationCondition
 {
-    public Task<bool> InvokeAsync(DiscordInteraction _, DiscordClient client)
+    public ValueTask<bool> InvokeAsync(DiscordInteraction _, DiscordClient client)
     {
         client.Logger.LogInformation("This got passed through this pass");
-        return Task.FromResult(true);
+        return ValueTask.FromResult(true);
     }
 }
