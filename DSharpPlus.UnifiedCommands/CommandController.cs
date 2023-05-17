@@ -196,7 +196,6 @@ public class CommandController
         {
             if (_guildIds is null)
             {
-                await client.ApplicationCommands
                 await client.BulkOverwriteGlobalApplicationCommandsAsync(_commands);
                 client.Logger.LogTrace("Registered commands");
             }
