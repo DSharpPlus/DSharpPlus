@@ -21,8 +21,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System.Runtime.InteropServices;
-
 namespace DSharpPlus.Net
 {
     internal static class Endpoints
@@ -91,6 +89,8 @@ namespace DSharpPlus.Net
         public const string VOICE_STATES = "/voice-states";
         public const string STICKERS = "/stickers";
         public const string STICKERPACKS = "/sticker-packs";
-        public const string STAGE_INSTANCES = "/stage-instances";
+        public const string STAGE_INSTANCES = "/stage-instances"; 
+        public const string AUTO_MODERATION = "/auto-moderation";
+        public const string RULES = "/rules";
     }
 }

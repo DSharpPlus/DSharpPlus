@@ -56,6 +56,8 @@ namespace DSharpPlus.Net.Abstractions
         [JsonProperty("default_member_permissions", NullValueHandling = NullValueHandling.Ignore)]
         public Permissions? DefaultMemberPermissions { get; set; }
 
+        [JsonProperty("nsfw", NullValueHandling = NullValueHandling.Ignore)]
+        public bool? NSFW { get; set; }
     }
 
     internal class RestApplicationCommandEditPayload
@@ -83,6 +85,9 @@ namespace DSharpPlus.Net.Abstractions
 
         [JsonProperty("default_member_permissions", NullValueHandling = NullValueHandling.Ignore)]
         public Optional<Permissions?> DefaultMemberPermissions { get; set; }
+
+        [JsonProperty("nsfw", NullValueHandling = NullValueHandling.Ignore)]
+        public Optional<bool?> NSFW { get; set; }
     }
 
     internal class RestInteractionResponsePayload

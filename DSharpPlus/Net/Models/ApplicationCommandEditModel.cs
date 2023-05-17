@@ -80,5 +80,10 @@ namespace DSharpPlus.Net.Models
         /// Sets the requisite permissions for the command.
         /// </summary>
         public Optional<Permissions?> DefaultMemberPermissions { internal get; set; }
+
+        /// <summary>
+        /// Sets whether this command is age restricted.
+        /// </summary>
+        public Optional<bool?> NSFW { internal get; set; }
     }
 }
