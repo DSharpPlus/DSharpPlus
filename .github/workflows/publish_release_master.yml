@@ -13,7 +13,7 @@ jobs:
   publish_release:
     name: Publish Release
     runs-on: "ubuntu-latest"
-    if: "!contains(format('{0} {1}', github.event.head_commit.message, github.event.pull_request.title), '[ci-skip]') && contains(github.event.release.target_commitish, 'master') && contains(github.event.release.target_commitish, 'release/**')"
+    if: "!contains(format('{0} {1}', github.event.head_commit.message, github.event.pull_request.title), '[ci-skip]'))"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
