@@ -30,6 +30,7 @@ using System.Threading.Tasks;
 
 namespace DSharpPlus.AsyncEvents
 {
+
     /// <summary>
     /// Provides an implementation of an asynchronous event. Registered handlers are executed asynchronously,
     /// in parallel, and potential exceptions are caught and sent to the specified exception handler.
@@ -57,7 +58,9 @@ namespace DSharpPlus.AsyncEvents
         public void Register(AsyncEventHandler<TSender, TArgs> handler)
         {
             if (handler is null)
+            {
                 throw new ArgumentNullException(nameof(handler));
+            }
 
             this._lock.Wait();
             try
@@ -77,8 +80,9 @@ namespace DSharpPlus.AsyncEvents
         public void Unregister(AsyncEventHandler<TSender, TArgs> handler)
         {
             if (handler is null)
+            {
                 throw new ArgumentNullException(nameof(handler));
-
+            }
 
             this._lock.Wait();
             try
@@ -105,30 +109,25 @@ namespace DSharpPlus.AsyncEvents
         public async Task InvokeAsync(TSender sender, TArgs args)
         {
             if (this._handlers.Count == 0)
+            {
                 return;
+            }
 
             await this._lock.WaitAsync();
             List<AsyncEventHandler<TSender, TArgs>> copiedHandlers = new(this._handlers);
             this._lock.Release();
 
-            try
+            _ = Task.WhenAll(copiedHandlers.Select(async (handler) =>
             {
-                await Task.WhenAll(copiedHandlers.Select(async (handler) =>
+                try
                 {
-                    try
-                    {
-                        await handler(sender, args);
-                    }
-                    catch (Exception ex)
-                    {
-                        this._exceptionHandler?.Invoke(this, ex, handler, sender, args);
-                    }
-                }));
-            }
-            finally
-            {
-                this._lock.Release();
-            }
+                    await handler(sender, args);
+                }
+                catch (Exception ex)
+                {
+                    this._exceptionHandler?.Invoke(this, ex, handler, sender, args);
+                }
+            }));
 
             return;
         }
