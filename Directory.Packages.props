@@ -1,0 +1,5 @@
+<Project>
+  <ItemGroup>
+    <!-- PackageVersion Include="Name" Version="0.0.0" -->
+  </ItemGroup>
+</Project>
