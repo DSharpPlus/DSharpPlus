@@ -1,8 +1,34 @@
 <Project>
+  <!-- this allows us to depend on explicit package versions or version ranges while also using local project references -->
+  <!-- justification being versioning different packages differently depending on what changes are made, in line with our versioning rules -->
+  <Target Name="UseExplicitPackageVersions" BeforeTargets="GenerateNuspec">
+    <ItemGroup>
+      <_ProjectReferenceWithExplicitPackageVersion Include="@(ProjectReference->'%(FullPath)')" Condition="'%(ProjectReference.PackageVersion)' != ''" />
+      <_ProjectReferenceWithExactPackageVersion    Include="@(ProjectReference->'%(FullPath)')" Condition="'%(ProjectReference.ExactVersion)' == 'true'" />
+      <_ProjectReferenceWithReassignedVersion      Include="@(_ProjectReferencesWithVersions)"  Condition="'%(Identity)' != '' And '@(_ProjectReferencesWithVersions)' == '@(_ProjectReferenceWithExplicitPackageVersion)'" ProjectVersion="@(_ProjectReferenceWithExplicitPackageVersion->'%(PackageVersion)')" />
+      <_ProjectReferenceWithReassignedVersion      Include="@(_ProjectReferencesWithVersions)"  Condition="'%(Identity)' != '' And '@(_ProjectReferencesWithVersions)' == '@(_ProjectReferenceWithExactPackageVersion)'"    ProjectVersion="@(_ProjectReferencesWithVersions->'%(ProjectVersion)')" />
+      <_ProjectReferencesWithVersions              Include="@(_ProjectReferenceWithReassignedVersion)" Remove="@(_ProjectReferenceWithReassignedVersion)" />
+    </ItemGroup>
+  </Target>
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <LangVersion>11</LangVersion>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <!-- build and versioning setup -->
+    <ManagePackageVersionsCentrally>True</ManagePackageVersionsCentrally>
+    <UseArtifactsOutput>true</UseArtifactsOutput>
+  </PropertyGroup>
+  <!-- sourceLink -->
+  <PropertyGroup Condition="$(Configuration) == 'Debug'">
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+  <!-- nuget -->
+  <PropertyGroup>
     <Authors>Naamloos, afroraydude, DrCreo, Death, TiaqoY0, Axiom, Emzi0767, IDoEverything, Velvet, OoLunar, akiraveliara, DSharpPlus contributors</Authors>
     <Company>DSharpPlus Contributors</Company>
     <PackageProjectUrl>https://github.com/DSharpPlus/DSharpPlus</PackageProjectUrl>
@@ -11,18 +37,5 @@
     <PackageLicenseExpression>MPL</PackageLicenseExpression>
     <PackageIcon>dsharpplus.png</PackageIcon>
     <PackageIconUrl>https://raw.githubusercontent.com/DSharpPlus/DSharpPlus/master/logo/dsharpplus.png</PackageIconUrl>
-    <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <NoWarn>CS1591</NoWarn>
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-
-    <!-- build and versioning setup -->
-    <ManagePackageVersionsCentrally>True</ManagePackageVersionsCentrally>
-    <UseArtifactsOutput>true</UseArtifactsOutput>
-
-    <!-- SourceLink -->
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 </Project>
