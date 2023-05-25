@@ -7,15 +7,12 @@ namespace DSharpPlus.UnifiedCommands.Application.Internals;
 internal class ApplicationFactory
 {
     private readonly IServiceProvider _service;
-    private readonly List<Func<IServiceProvider, IApplicationCondition>> _conditionBuilders = new();
 
     internal Dictionary<string, ApplicationMethodData> _methods = new(); // TODO: Change this into a tree.
+    internal IReadOnlyList<Type> _conditions = null!;
 
     public ApplicationFactory(IServiceProvider service)
         => _service = service;
-
-    internal void AddCondition(Func<IServiceProvider, IApplicationCondition> func)
-        => _conditionBuilders.Add(func);
 
     internal void ExecuteCommand(DiscordInteraction interaction, DiscordClient client)
     {
@@ -25,8 +22,7 @@ internal class ApplicationFactory
         if (_methods.TryGetValue(interaction.Data.Name, out ApplicationMethodData? data))
         {
             objects = MapParameters(data, interaction.Data.Options, interaction.Data.Resolved);
-            handler = new(data, interaction,
-                _conditionBuilders, objects, _service.CreateScope(), client);
+            handler = new(data, interaction, objects, _service.CreateScope(), client, _conditions);
 
             _ = handler.BuildModuleAndExecuteCommandAsync();
         }
@@ -65,10 +61,8 @@ internal class ApplicationFactory
                         {
                             objects = MapParameters(subMethodData, subCommandOption.Options,
                                 interaction.Data.Resolved);
-                            handler = new(subMethodData, interaction,
-                                _conditionBuilders, objects,
-                                _service.CreateScope(),
-                                client);
+                            handler = new(subMethodData, interaction, objects, _service.CreateScope(), client,
+                                _conditions);
 
                             _ = handler.BuildModuleAndExecuteCommandAsync();
                         }
@@ -81,9 +75,8 @@ internal class ApplicationFactory
                     {
                         objects = MapParameters(methodData, subCommandOption.Options,
                             interaction.Data.Resolved);
-                        handler = new(methodData, interaction,
-                            _conditionBuilders, objects, _service.CreateScope(),
-                            client);
+                        handler = new(methodData, interaction, objects, _service.CreateScope(), client,
+                            _conditions);
 
                         _ = handler.BuildModuleAndExecuteCommandAsync();
                     }
@@ -130,7 +123,9 @@ internal class ApplicationFactory
             }
             else
             {
-                objects[i] = parameterData.IsNullable ? null : throw new Exception("This is non existent for some reason.");
+                objects[i] = parameterData.IsNullable
+                    ? null
+                    : throw new Exception("This is non existent for some reason.");
             }
         }
 

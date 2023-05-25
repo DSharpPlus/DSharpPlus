@@ -1,4 +1,5 @@
 using System.Reflection;
+using DSharpPlus.UnifiedCommands.Application.Conditions;
 using DSharpPlus.UnifiedCommands.Message;
 using DSharpPlus.UnifiedCommands.Message.Internals;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,6 +15,7 @@ public class UnifiedCommandsBuilder
     private readonly List<string> _prefixes = new();
     private ulong[]? _guildIds = null;
     private bool _allowSlashCommands = true;
+    private List<Type> _interactionConditions = new();
 
     /// <summary>
     /// The service collection used for building the service provider.
@@ -64,6 +66,51 @@ public class UnifiedCommandsBuilder
         return this;
     }
 
+    public UnifiedCommandsBuilder AddInteractionCondition<T>(ServiceLifetime lifetime) where T : IApplicationCondition
+    {
+        Type type = typeof(T);
+
+        switch (lifetime)
+        {
+            case ServiceLifetime.Scoped:
+                Services.AddScoped(type);
+                break;
+            case ServiceLifetime.Singleton:
+                Services.AddSingleton(type);
+                break;
+            case ServiceLifetime.Transient:
+                Services.AddTransient(type);
+                break;
+        }
+
+        _interactionConditions.Add(type);
+        return this;
+    }
+
+    public UnifiedCommandsBuilder AddInteractionCondition(Type type, ServiceLifetime lifetime)
+    {
+        if (!type.IsSubclassOf(typeof(IApplicationCondition)))
+        {
+            throw new Exception("You cannot use that as a type"); // TODO: Make this into it's own exception.
+        }
+
+        switch (lifetime)
+        {
+            case ServiceLifetime.Scoped:
+                Services.AddScoped(type);
+                break;
+            case ServiceLifetime.Singleton:
+                Services.AddSingleton(type);
+                break;
+            case ServiceLifetime.Transient:
+                Services.AddTransient(type);
+                break;
+        }
+
+        _interactionConditions.Add(type);
+        return this;
+    }
+
     /// <summary>
     /// Internal usage for building for the <see cref="CommandController">CommandController</see>
     /// </summary>
@@ -84,6 +131,7 @@ public class UnifiedCommandsBuilder
 
         CommandController controller = new(client, provider, _assemblies,
             _prefixes.ToArray(), _guildIds, _allowSlashCommands);
+        controller.ApplicationFactory._conditions = _interactionConditions;
 
         return controller;
     }

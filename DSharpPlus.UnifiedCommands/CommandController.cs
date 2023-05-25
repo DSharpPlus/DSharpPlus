@@ -18,7 +18,6 @@ public class CommandController
     private readonly string[] _prefixes;
     private readonly List<DiscordApplicationCommand> _commands = new();
     private readonly ulong[]? _guildIds;
-    private List<Type> _applicationConditionTypes = new();
 
     internal MessageFactory MessageFactory { get; private set; }
     internal ApplicationFactory ApplicationFactory { get; private set; }
@@ -31,7 +30,7 @@ public class CommandController
         _prefixes = prefixes;
         Services = services;
         _guildIds = guildIds;
-
+        
         MessageFactory = new MessageFactory(Services);
         ApplicationFactory = new ApplicationFactory(Services);
 
@@ -94,41 +93,6 @@ public class CommandController
             Expression.Lambda<Func<IServiceProvider, IMessageCondition>>(Expression.Block(expressions), false,
                 serviceProviderParam).Compile();
         MessageFactory.AddMessageConditionBuilder(func);
-        return this;
-    }
-
-    public CommandController UseApplicationCondition<T>() where T : IApplicationCondition
-    {
-        // Read above for an explanation for what this method does.
-        Type type = typeof(T);
-        List<Expression> expressions = new();
-
-        ParameterExpression serviceProviderParam = Expression.Parameter(typeof(IServiceProvider), "serviceProvider");
-        expressions.Add(serviceProviderParam);
-        ConstructorInfo info = type.GetConstructors()[0];
-        if (info.GetParameters().Length == 0)
-        {
-            expressions.Add(Expression.New(info));
-        }
-        else
-        {
-            MethodInfo method = typeof(IServiceProvider).GetMethod(nameof(IServiceProvider.GetService),
-                BindingFlags.Instance | BindingFlags.Public)!;
-
-            List<Expression> parameters = new();
-            foreach (ParameterInfo parameter in method.GetParameters())
-            {
-                parameters.Add(Expression.Call(method, Expression.Constant(typeof(Type),
-                    parameter.ParameterType)));
-            }
-
-            expressions.Add(Expression.New(info, parameters));
-        }
-
-        Func<IServiceProvider, IApplicationCondition> func =
-            Expression.Lambda<Func<IServiceProvider, IApplicationCondition>>(Expression.Block(expressions), false,
-                serviceProviderParam).Compile();
-        ApplicationFactory.AddCondition(func);
         return this;
     }
 

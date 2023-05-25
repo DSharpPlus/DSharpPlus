@@ -13,20 +13,19 @@ internal class ApplicationHandler
     private ApplicationModule _module = null!;
     private readonly DiscordInteraction _interaction;
     private readonly ApplicationMethodData _data;
-    private readonly IReadOnlyList<Func<IServiceProvider, IApplicationCondition>> _conditionBuilders;
     private readonly object?[]? _args;
     private readonly IServiceScope _scope;
+    private readonly IReadOnlyList<Type> _conditions;
 
-    internal ApplicationHandler(ApplicationMethodData data, DiscordInteraction interaction,
-        IReadOnlyList<Func<IServiceProvider, IApplicationCondition>> conditionBuilders, object?[]? args,
-        IServiceScope scope, DiscordClient client)
+    internal ApplicationHandler(ApplicationMethodData data, DiscordInteraction interaction, object?[]? args,
+        IServiceScope scope, DiscordClient client, IReadOnlyList<Type> conditions)
     {
         _data = data;
         _interaction = interaction;
-        _conditionBuilders = conditionBuilders;
         _args = args;
         _scope = scope;
         _client = client;
+        _conditions = conditions;
     }
 
     internal Task TurnResultIntoActionAsync(IApplicationResult result)
@@ -78,16 +77,11 @@ internal class ApplicationHandler
             _module.Client = _client;
             _module._handler = this;
 
-            foreach (Func<IServiceProvider, IApplicationCondition> conditionBuilder in _conditionBuilders)
+            foreach (Type type in _conditions)
             {
-                IApplicationCondition condition = conditionBuilder(_scope.ServiceProvider);
-                ValueTask<bool> task = condition.InvokeAsync(_interaction, _client);
-                bool shouldContinue = await task;
-
-                if (!shouldContinue)
-                {
-                    return;
-                }
+                object obj = _scope.ServiceProvider.GetRequiredService(type);
+                ValueTask<bool> task = ((IApplicationCondition)obj).InvokeAsync(_interaction, _client);
+                await task;
             }
 
             try
