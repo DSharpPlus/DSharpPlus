@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Remora.Rest.Core" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\DSharpPlus.Shared\DSharpPlus.Shared.csproj" PackageVersion="$(_DSharpPlusReleaseVersion)" />
   </ItemGroup>
 

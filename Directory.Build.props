@@ -7,6 +7,7 @@
     <LangVersion>11</LangVersion>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
 
     <!-- build and versioning setup -->
     <ManagePackageVersionsCentrally>True</ManagePackageVersionsCentrally>

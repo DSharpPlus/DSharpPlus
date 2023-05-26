@@ -1,5 +1,5 @@
 <Project>
   <ItemGroup>
-    <!-- PackageVersion Include="Name" Version="0.0.0" -->
+    <PackageVersion Include="Remora.Rest.Core" Version="2.2.0" />
   </ItemGroup>
 </Project>

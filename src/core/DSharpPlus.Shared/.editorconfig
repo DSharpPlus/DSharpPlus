@@ -1,0 +1,2 @@
+# don't force namespaces matching folder paths
+dotnet_style_namespace_match_folder = false

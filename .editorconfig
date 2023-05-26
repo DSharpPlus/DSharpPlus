@@ -41,7 +41,7 @@ dotnet_sort_system_directives_first = true:error
 dotnet_separate_import_directive_groups = true:error
 csharp_qualified_using_at_nested_scope = true:error
 # usings before namespace
-dotnet_diagnostic.IDE0064.severity = none
+csharp_using_directive_placement = outside_namespace:error
 # Using directive is unnecessary.
 dotnet_diagnostic.IDE0005.severity = error
 
@@ -115,7 +115,7 @@ dotnet_naming_symbols.async_methods.required_modifiers = async
 
 # Force namespaces to match their folder names
 # We'll override this later in folders where we don't want this
-dotnet_diagnostic.IDE0130.severity = none
+dotnet_style_namespace_match_folder = true:error
 
 ###############################
 # C# Coding Conventions       #
