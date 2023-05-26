@@ -1,25 +1,39 @@
 <Project>
+
   <!-- this allows us to depend on explicit package versions or version ranges while also using local project references -->
   <!-- justification being versioning different packages differently depending on what changes are made, in line with our versioning rules -->
   <Target Name="UseExplicitPackageVersions" BeforeTargets="GenerateNuspec">
     <ItemGroup>
-      <_ProjectReferenceWithExplicitPackageVersion
-        Condition="'%(ProjectReference.PackageVersion)' != ''"
-        Include="@(ProjectReference->'%(FullPath)')" />
-      <_ProjectReferenceWithExactPackageVersion
-        Condition="'%(ProjectReference.ExactVersion)' == 'true'"
-        Include="@(ProjectReference->'%(FullPath)')" />
-      <_ProjectReferenceWithReassignedVersion
-        Condition="'%(Identity)' != '' And '@(_ProjectReferencesWithVersions)' == '@(_ProjectReferenceWithExplicitPackageVersion)'"
+      <_ProjectReferenceWithExplicitPackageVersion 
+        Include="@(ProjectReference->'%(FullPath)')"
+        Condition="'%(ProjectReference.PackageVersion)' != ''" />
+
+      <_ProjectReferenceWithExactPackageVersion 
+        Include="@(ProjectReference->'%(FullPath)')"
+        Condition="'%(ProjectReference.ExactVersion)' == 'true'" />
+
+      <_ProjectReferenceWithReassignedVersion 
         Include="@(_ProjectReferencesWithVersions)"
-        ProjectVersion="@(_ProjectReferenceWithExplicitPackageVersion->'%(PackageVersion)')" />
-      <_ProjectReferenceWithReassignedVersion
-        Condition="'%(Identity)' != '' And '@(_ProjectReferencesWithVersions)' == '@(_ProjectReferenceWithExactPackageVersion)'"
+        Condition="'%(Identity)' != '' And '@(_ProjectReferencesWithVersions)' == '@(_ProjectReferenceWithExplicitPackageVersion)'">
+
+        <ProjectVersion>@(_ProjectReferenceWithExplicitPackageVersion->'%(PackageVersion)')</ProjectVersion>
+      </_ProjectReferenceWithReassignedVersion>
+
+      <_ProjectReferenceWithReassignedVersion 
         Include="@(_ProjectReferencesWithVersions)"
-        ProjectVersion="@(_ProjectReferencesWithVersions->'%(ProjectVersion)')" />
-      <_ProjectReferencesWithVersions
-        Include="@(_ProjectReferenceWithReassignedVersion)"
-        Remove="@(_ProjectReferenceWithReassignedVersion)" />
+        Condition="'%(Identity)' != '' And '@(_ProjectReferencesWithVersions)' == '@(_ProjectReferenceWithExactPackageVersion)'">
+
+        <ProjectVersion>[@(_ProjectReferencesWithVersions->'%(ProjectVersion)')]</ProjectVersion>
+      </_ProjectReferenceWithReassignedVersion>
+
+      <_ProjectReferencesWithVersions Remove="@(_ProjectReferenceWithReassignedVersion)" />
+      <_ProjectReferencesWithVersions Include="@(_ProjectReferenceWithReassignedVersion)" />
     </ItemGroup>
   </Target>
+
+  <!-- post-process versions that declare themselves to be public-facing -->
+  <PropertyGroup Condition="$(IsPublicFacing) != ''">
+    <VersionPrefix>$(_DSharpPlusReleaseVersion)</VersionPrefix>
+  </PropertyGroup>
+  
 </Project>

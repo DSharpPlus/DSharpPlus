@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <VersionPrefix>0.1.0</VersionPrefix>
+    <Description>$(Description) This package specifies a contract for the serialization models to implement. This definition is library-agnostic.</Description>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DSharpPlus.Shared\DSharpPlus.Shared.csproj" PackageVersion="$(_DSharpPlusReleaseVersion)" />
+  </ItemGroup>
+
+</Project>

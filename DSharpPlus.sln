@@ -5,6 +5,10 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Core.Models", "src\core\DSharpPlus.Core.Models\DSharpPlus.Core.Models.csproj", "{FBCCE5A7-0E07-4FCF-B9BB-B913F5A17FB2}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Shared", "src\core\DSharpPlus.Shared\DSharpPlus.Shared.csproj", "{964AD252-F077-4AB5-8D92-6C594D08F078}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Core.Abstractions.Models", "src\core\DSharpPlus.Core.Abstractions.Models\DSharpPlus.Core.Abstractions.Models.csproj", "{E14B0AE9-FE71-4DE4-BEB1-4A8E139DB84C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,8 +19,19 @@ Global
 		{FBCCE5A7-0E07-4FCF-B9BB-B913F5A17FB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FBCCE5A7-0E07-4FCF-B9BB-B913F5A17FB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FBCCE5A7-0E07-4FCF-B9BB-B913F5A17FB2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{964AD252-F077-4AB5-8D92-6C594D08F078}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{964AD252-F077-4AB5-8D92-6C594D08F078}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{964AD252-F077-4AB5-8D92-6C594D08F078}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{964AD252-F077-4AB5-8D92-6C594D08F078}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E14B0AE9-FE71-4DE4-BEB1-4A8E139DB84C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E14B0AE9-FE71-4DE4-BEB1-4A8E139DB84C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E14B0AE9-FE71-4DE4-BEB1-4A8E139DB84C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E14B0AE9-FE71-4DE4-BEB1-4A8E139DB84C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {55CDA684-8900-479B-9DAE-BA3BE09B337B}
 	EndGlobalSection
 EndGlobal

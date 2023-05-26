@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPublicFacing>true</IsPublicFacing>
+    <Description>$(Description) This package contains shared types between public-facing and internal implementation packages.</Description>
+    <OutputType>Library</OutputType>
+    
+    <RootNamespace>DSharpPlus</RootNamespace>
+  </PropertyGroup>
+
+</Project>
