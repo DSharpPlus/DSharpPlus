@@ -198,7 +198,7 @@ variety of overloads for this:
    will search various services for the specified query:
    - @DSharpPlus.Lavalink.LavalinkSearchType.Youtube will search YouTube
    - @DSharpPlus.Lavalink.LavalinkSearchType.SoundCloud will search SoundCloud
-2. @DSharpPlus.Lavalink.LavalinkGuildConnection.GetTracksAsync(Uri) will use the direct url to obtain the track. This is
+2. @DSharpPlus.Lavalink.LavalinkGuildConnection.GetTracksAsync(System.Uri) will use the direct url to obtain the track. This is
    mainly used for the other media sources.
 
 For this guide we will be searching YouTube. Let's pass in our search string and store the result in a variable:

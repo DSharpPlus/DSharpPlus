@@ -171,7 +171,7 @@ discord.MessageCreated += async (s, e) =>
 
 Then, add an `if` statement into the body of your event lambda that will check if
 @DSharpPlus.Entities.DiscordMessage.Content starts with your desired trigger word and respond with a message using
-@DSharpPlus.Entities.DiscordMessage.RespondAsync*if it does. For this example, we'll have the bot to respond with
+@DSharpPlus.Entities.DiscordMessage.RespondAsync* if it does. For this example, we'll have the bot to respond with
 *pong!*for each message that starts with*ping*.
 
 ```cs
