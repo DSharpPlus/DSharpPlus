@@ -109,7 +109,7 @@ public async Task DelayTestCommand(InteractionContext ctx)
 }
 ```
 
-You can also override `BeforeExecutionAsync` and `AfterExecutionAsync` to run code before and after all the commands in a module. This does not apply to groups, you have the override them individually for the group's class.
+You can also override `BeforeExecutionAsync` and `AfterExecutionAsync` to run code before and after all the commands in a module. This does not apply to groups, you have to override them individually for the group's class.
 `BeforeExecutionAsync` can also be used to prevent the command from running.
 
 ### Arguments
