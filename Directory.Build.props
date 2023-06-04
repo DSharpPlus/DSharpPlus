@@ -35,4 +35,12 @@
     <PackageIconUrl>https://raw.githubusercontent.com/DSharpPlus/DSharpPlus/master/logo/dsharpplus.png</PackageIconUrl>
   </PropertyGroup>
 
+  <!-- version numbers to ensure we always reference the correct version -->
+  <PropertyGroup>
+    <!-- this is inserted as the version prefix for all libraries declaring themselves as public-facing -->
+    <_DSharpPlusReleaseVersion>6.0.0</_DSharpPlusReleaseVersion>
+
+    <_DSharpPlusCoreAbstractionsModelsVersion>0.1.0</_DSharpPlusCoreAbstractionsModelsVersion>
+  </PropertyGroup>
+
 </Project>
