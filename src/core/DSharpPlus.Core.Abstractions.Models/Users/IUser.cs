@@ -2,8 +2,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-using DSharpPlus.Entities;
-
 using Remora.Rest.Core;
 
 namespace DSharpPlus.Core.Abstractions.Models;
@@ -11,80 +9,31 @@ namespace DSharpPlus.Core.Abstractions.Models;
 /// <summary>
 /// Represents an user object.
 /// </summary>
-public interface IUser
+public interface IUser : IPartialUser
 {
-    /// <summary>
-    /// The snowflake identifier of this user.
-    /// </summary>
-    public Snowflake Id { get; }
+    /// <inheritdoc cref="IPartialUser.Id"/>
+    public new Snowflake Id { get; }
 
-    /// <summary>
-    /// The username of this user, unique across the platform.
-    /// </summary>
-    public string Username { get; }
+    /// <inheritdoc cref="IPartialUser.Username"/>
+    public new string Username { get; }
 
-    /// <summary>
-    /// The global display name of this user.
-    /// </summary>
-    public string? GlobalName { get; }
+    /// <inheritdoc cref="IPartialUser.GlobalName"/>
+    public new string? GlobalName { get; }
 
-    /// <summary>
-    /// The user's avatar hash.
-    /// </summary>
-    public string? Avatar { get; }
+    /// <inheritdoc cref="IPartialUser.Avatar"/>
+    public new string? Avatar { get; }
 
-    /// <summary>
-    /// Indicates whether this user is a bot user.
-    /// </summary>
-    public Optional<bool> Bot { get; }
+    // explicit routes for partial user access
 
-    /// <summary>
-    /// Indicates whether this user is part of Discords urgent message system.
-    /// </summary>
-    public Optional<bool> System { get; }
+    /// <inheritdoc/>
+    Optional<Snowflake> IPartialUser.Id => this.Id;
 
-    /// <summary>
-    /// Indicates whether this user has multi-factor authentication enabled on their account.
-    /// </summary>
-    public Optional<bool> MfaEnabled { get; }
+    /// <inheritdoc/>
+    Optional<string> IPartialUser.Username => this.Username;
 
-    /// <summary>
-    /// The user's banner hash.
-    /// </summary>
-    public Optional<string?> Banner { get; }
+    /// <inheritdoc/>
+    Optional<string?> IPartialUser.GlobalName => this.GlobalName;
 
-    /// <summary>
-    /// The user's banner color code.
-    /// </summary>
-    public Optional<int?> AccentColor { get; }
-
-    /// <summary>
-    /// The user's chosen language option.
-    /// </summary>
-    public Optional<string> Locale { get; }
-
-    /// <summary>
-    /// Indicates whether the email address linked to this user account has been verified.
-    /// </summary>
-    public Optional<bool> Verified { get; }
-
-    /// <summary>
-    /// The user's email address.
-    /// </summary>
-    public Optional<string?> Email { get; }
-
-    /// <summary>
-    /// The flags on this user's account.
-    /// </summary>
-    public Optional<DiscordUserFlags> Flags { get; }
-
-    /// <summary>
-    /// The level of nitro subscription on this user's account.
-    /// </summary>
-    public Optional<DiscordPremiumType> PremiumType { get; }
-
-    /// <summary>
-    /// The publicly visible flags on this user's account.
-    /// </summary>
-    public Optional<DiscordUserFlags> PublicFlags { get; }
+    /// <inheritdoc/>
+    Optional<string?> IPartialUser.Avatar => this.Avatar;
 }

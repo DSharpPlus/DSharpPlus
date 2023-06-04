@@ -1,10 +1,12 @@
-﻿// This Source Code form is subject to the terms of the Mozilla Public
+// This Source Code form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 using System.Collections.Generic;
 
 using DSharpPlus.Entities;
+
+using OneOf;
 
 using Remora.Rest.Core;
 
@@ -69,16 +71,14 @@ public interface IApplicationCommandOption
     /// <summary>
     /// If this option is of <seealso cref="DiscordApplicationCommandOptionType.Integer"/> or
     /// <seealso cref="DiscordApplicationCommandOptionType.Number"/>, the minimum value permitted.
-    /// This is represented as a double here to avoid boxing when representing as object.
     /// </summary>
-    public Optional<double> MinValue { get; }
+    public Optional<OneOf<int, double>> MinValue { get; }
 
     /// <summary>
     /// If this option is of <seealso cref="DiscordApplicationCommandOptionType.Integer"/> or
     /// <seealso cref="DiscordApplicationCommandOptionType.Number"/>, the maximum value permitted.
-    /// This is represented as a double here to avoid boxing when representing as object.
     /// </summary>
-    public Optional<double> MaxValue { get; }
+    public Optional<OneOf<int, double>> MaxValue { get; }
 
     /// <summary>
     /// If this option is of <seealso cref="DiscordApplicationCommandOptionType.String"/>, the minimum

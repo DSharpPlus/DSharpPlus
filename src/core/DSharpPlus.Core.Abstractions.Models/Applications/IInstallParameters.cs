@@ -9,17 +9,17 @@ using DSharpPlus.Entities;
 namespace DSharpPlus.Core.Abstractions.Models;
 
 /// <summary>
-/// Represents a container component for other components.
+/// Stores metadata about the installation process for an application.
 /// </summary>
-public interface IActionRowComponent
+public interface IInstallParameters
 {
     /// <summary>
-    /// <seealso cref="DiscordMessageComponentType.ActionRow"/>
+    /// The OAuth2 scopes to add the application to the server with.
     /// </summary>
-    public DiscordMessageComponentType Type { get; }
+    public IReadOnlyList<string> Scopes { get; }
 
     /// <summary>
-    /// The child components of this action row: up to five buttons, or one non-button component.
+    /// The permissions to request for the bot role.
     /// </summary>
-    public IReadOnlyList<IInteractiveComponent> Components { get; }
+    public DiscordPermissions Permissions { get; }
 }

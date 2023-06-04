@@ -1,8 +1,10 @@
-﻿// This Source Code form is subject to the terms of the Mozilla Public
+// This Source Code form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 using System.Collections.Generic;
+
+using OneOf;
 
 using Remora.Rest.Core;
 
@@ -26,5 +28,5 @@ public interface IApplicationCommandOptionChoice
     /// <summary>
     /// The value of this choice, up to 100 characters if this is a string.
     /// </summary>
-    public object Value { get; }
+    public OneOf<string, int, double> Value { get; }
 }

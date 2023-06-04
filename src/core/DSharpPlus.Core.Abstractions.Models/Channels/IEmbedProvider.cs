@@ -2,17 +2,22 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-using DSharpPlus.Entities;
+using Remora.Rest.Core;
 
 namespace DSharpPlus.Core.Abstractions.Models;
 
 /// <summary>
-/// Represents a message component that users can interact with.
+/// Represents an embed provider.
 /// </summary>
-public interface IInteractiveComponent
+public interface IEmbedProvider
 {
     /// <summary>
-    /// The type of this component.
+    /// The name of this provider.
     /// </summary>
-    public DiscordMessageComponentType Type { get; }
+    public Optional<string> Name { get; }
+
+    /// <summary>
+    /// The URL of this provider.
+    /// </summary>
+    public Optional<string> Url { get; }
 }

@@ -4,15 +4,22 @@
 
 using DSharpPlus.Entities;
 
+using Remora.Rest.Core;
+
 namespace DSharpPlus.Core.Abstractions.Models;
 
 /// <summary>
-/// Represents a message component that users can interact with.
+/// Represents activity data encoded in a message.
 /// </summary>
-public interface IInteractiveComponent
+public interface IMessageActivity
 {
     /// <summary>
-    /// The type of this component.
+    /// The type of this activity.
     /// </summary>
-    public DiscordMessageComponentType Type { get; }
+    public DiscordMessageActivityType Type { get; }
+
+    /// <summary>
+    /// The party ID from a rich presence event.
+    /// </summary>
+    public Optional<string> PartyId { get; }
 }

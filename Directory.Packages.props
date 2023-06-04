@@ -1,5 +1,6 @@
 <Project>
   <ItemGroup>
+    <PackageVersion Include="OneOf" Version="3.0.243" />
     <PackageVersion Include="Remora.Rest.Core" Version="2.2.0" />
   </ItemGroup>
 </Project>

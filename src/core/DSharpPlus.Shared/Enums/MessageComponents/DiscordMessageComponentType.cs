@@ -7,7 +7,7 @@ namespace DSharpPlus.Entities;
 /// <summary>
 /// Enumerates the different types of message components.
 /// </summary>
-public enum DiscordComponentType
+public enum DiscordMessageComponentType
 {
     /// <summary>
     /// A container for other components: up to five button or one non-button component.

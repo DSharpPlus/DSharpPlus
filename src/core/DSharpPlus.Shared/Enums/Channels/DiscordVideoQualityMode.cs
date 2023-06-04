@@ -2,17 +2,20 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-using DSharpPlus.Entities;
-
-namespace DSharpPlus.Core.Abstractions.Models;
+namespace DSharpPlus.Entities;
 
 /// <summary>
-/// Represents a message component that users can interact with.
+/// Lists different video quality modes
 /// </summary>
-public interface IInteractiveComponent
+public enum DiscordVideoQualityMode
 {
     /// <summary>
-    /// The type of this component.
+    /// Discord chooses the quality for optimal performance.
     /// </summary>
-    public DiscordMessageComponentType Type { get; }
+    Auto = 1,
+
+    /// <summary>
+    /// 720p
+    /// </summary>
+    Full
 }

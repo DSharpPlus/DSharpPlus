@@ -2,17 +2,11 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-using DSharpPlus.Entities;
-
 namespace DSharpPlus.Core.Abstractions.Models;
 
 /// <summary>
-/// Represents a message component that users can interact with.
+/// Represents metadata attached to an interaction.
 /// </summary>
-public interface IInteractiveComponent
-{
-    /// <summary>
-    /// The type of this component.
-    /// </summary>
-    public DiscordMessageComponentType Type { get; }
-}
+// This interface, by itself, does nothing. Type has to be resolved based on IInteraction.Type
+// and casted appropriately to one of the derived interface types.
+public interface IInteractionData;
