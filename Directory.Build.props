@@ -12,8 +12,6 @@
     <!-- build and versioning setup -->
     <ManagePackageVersionsCentrally>True</ManagePackageVersionsCentrally>
     <UseArtifactsOutput>true</UseArtifactsOutput>
-    <!-- this is inserted as the version prefix for all libraries declaring themselves as public-facing -->
-    <_DSharpPlusReleaseVersion>6.0.0</_DSharpPlusReleaseVersion>
 
     <!-- sourcelink -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
