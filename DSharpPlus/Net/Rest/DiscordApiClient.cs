@@ -112,7 +112,7 @@ namespace DSharpPlus.Net
             var guild = ret.Channel?.Guild;
 
             //If this is a webhook, it shouldn't be in the user cache.
-            if (author.IsBot && int.Parse(author.Discriminator) == 0)
+            if (author.IsBot && author.Discriminator == "0000")
             {
                 ret.Author = new DiscordUser(author) { Discord = this._discord };
             }
