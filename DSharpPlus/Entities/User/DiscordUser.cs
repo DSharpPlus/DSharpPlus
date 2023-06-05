@@ -42,7 +42,7 @@ namespace DSharpPlus.Entities
             this.Id = transport.Id;
             this.Username = transport.Username;
             this.Discriminator = transport.Discriminator;
-            this.
+            this.GlobalName = transport.GlobalDisplayName;
             this.AvatarHash = transport.AvatarHash;
             this._bannerColor = transport.BannerColor;
             this.BannerHash = transport.BannerHash;
