@@ -208,7 +208,7 @@ namespace DSharpPlus.Lavalink
             this._connectedNodes?.Clear();
 
             // unhook events
-            _nodeDisconnected?.UnregisterAll();
+            this._nodeDisconnected?.UnregisterAll();
 
             // Satisfy rule CA1816. Can be removed if this class is sealed.
             GC.SuppressFinalize(this);

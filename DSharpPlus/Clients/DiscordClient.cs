@@ -1046,7 +1046,7 @@ namespace DSharpPlus
             this._disposed = true;
 
             this.DisconnectAsync().GetAwaiter().GetResult();
-            this.ApiClient._rest.Dispose();
+            this.ApiClient?._rest?.Dispose();
             this.CurrentUser = null!;
 
             var extensions = this._extensions; // prevent _extensions being modified during dispose
