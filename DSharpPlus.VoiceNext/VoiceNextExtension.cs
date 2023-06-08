@@ -229,18 +229,20 @@ namespace DSharpPlus.VoiceNext
 
         public override void Dispose()
         {
-            foreach(var conn in this.ActiveConnections)
+            foreach (var conn in this.ActiveConnections)
             {
-                conn.Value.Dispose();
+                conn.Value?.Dispose();
             }
-            this.Client.VoiceStateUpdated -= this.Client_VoiceStateUpdate;
-            this.Client.VoiceServerUpdated -= this.Client_VoiceServerUpdate;
-            // Lo and behold, the audacious man who dared lay his hand upon VoiceNext hath once more trespassed upon its profane ground!
-        }
 
-        ~VoiceNextExtension()
-        {
-            this.Dispose();
+            if (this.Client != null)
+            {
+                this.Client.VoiceStateUpdated -= this.Client_VoiceStateUpdate;
+                this.Client.VoiceServerUpdated -= this.Client_VoiceServerUpdate;
+            }
+            // Lo and behold, the audacious man who dared lay his hand upon VoiceNext hath once more trespassed upon its profane ground!
+
+            // Satisfy rule CA1816. Can be removed if this class is sealed.
+            GC.SuppressFinalize(this);
         }
     }
 }

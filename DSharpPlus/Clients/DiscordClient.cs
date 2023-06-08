@@ -1033,13 +1033,8 @@ namespace DSharpPlus
 
         #region Disposal
 
-        ~DiscordClient()
-        {
-            this.Dispose();
-        }
-
-
         private bool _disposed;
+
         /// <summary>
         /// Disposes your DiscordClient.
         /// </summary>
@@ -1049,17 +1044,19 @@ namespace DSharpPlus
                 return;
 
             this._disposed = true;
-            GC.SuppressFinalize(this);
 
             this.DisconnectAsync().GetAwaiter().GetResult();
             this.ApiClient._rest.Dispose();
-            this.CurrentUser = null;
+            this.CurrentUser = null!;
 
             var extensions = this._extensions; // prevent _extensions being modified during dispose
-            this._extensions = null;
+            this._extensions = null!;
+
             foreach (var extension in extensions)
+            {
                 if (extension is IDisposable disposable)
                     disposable.Dispose();
+            }
 
             try
             {
@@ -1068,9 +1065,9 @@ namespace DSharpPlus
             }
             catch { }
 
-            this._guilds = null;
-            this._heartbeatTask = null;
-            this._privateChannels = null;
+            this._guilds = null!;
+            this._heartbeatTask = null!;
+            this._privateChannels = null!;
         }
 
         #endregion
