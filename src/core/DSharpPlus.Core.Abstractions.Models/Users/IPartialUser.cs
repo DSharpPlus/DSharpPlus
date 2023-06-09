@@ -23,6 +23,11 @@ public interface IPartialUser
     public Optional<string> Username { get; }
 
     /// <summary>
+    /// The four-digit discriminator of this user if it is a bot; "0" if this is an user account. 
+    /// </summary>
+    public Optional<string> Discriminator { get; }
+
+    /// <summary>
     /// The global display name of this user.
     /// </summary>
     public Optional<string?> GlobalName { get; }

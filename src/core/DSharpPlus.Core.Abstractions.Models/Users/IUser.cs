@@ -17,6 +17,9 @@ public interface IUser : IPartialUser
     /// <inheritdoc cref="IPartialUser.Username"/>
     public new string Username { get; }
 
+    /// <inheritdoc cref="IPartialUser.Discriminator"/>
+    public new string Discriminator { get; }
+
     /// <inheritdoc cref="IPartialUser.GlobalName"/>
     public new string? GlobalName { get; }
 
@@ -30,6 +33,9 @@ public interface IUser : IPartialUser
 
     /// <inheritdoc/>
     Optional<string> IPartialUser.Username => this.Username;
+
+    /// <inheritdoc/>
+    Optional<string> IPartialUser.Discriminator => this.Discriminator;
 
     /// <inheritdoc/>
     Optional<string?> IPartialUser.GlobalName => this.GlobalName;
