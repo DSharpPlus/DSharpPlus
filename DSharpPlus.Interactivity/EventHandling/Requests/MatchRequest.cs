@@ -54,19 +54,17 @@ namespace DSharpPlus.Interactivity.EventHandling
             this._timeout = timeout;
         }
 
-        ~MatchRequest()
-        {
-            this.Dispose();
-        }
-
         /// <summary>
         /// Disposes this MatchRequest.
         /// </summary>
         public void Dispose()
         {
-            this._ct.Dispose();
-            this._tcs = null;
-            this._predicate = null;
+            this._ct?.Dispose();
+            this._tcs = null!;
+            this._predicate = null!;
+
+            // Satisfy rule CA1816. Can be removed if this class is sealed.
+            GC.SuppressFinalize(this);
         }
     }
 }
