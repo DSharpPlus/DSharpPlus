@@ -677,9 +677,6 @@ namespace DSharpPlus.Net
             this.Logger.LogDebug(LoggerEvents.RestCleaner, "Bucket cleaner task stopped.");
         }
 
-        ~RestClient()
-            => this.Dispose();
-
         public void Dispose()
         {
             if (this._disposed)
@@ -687,7 +684,7 @@ namespace DSharpPlus.Net
 
             this._disposed = true;
 
-            this.GlobalRateLimitEvent.Reset();
+            this.GlobalRateLimitEvent?.Reset();
 
             if (this._bucketCleanerTokenSource?.IsCancellationRequested == false)
             {
@@ -703,9 +700,9 @@ namespace DSharpPlus.Net
             }
             catch { }
 
-            this.RoutesToHashes.Clear();
-            this.HashesToBuckets.Clear();
-            this.RequestQueue.Clear();
+            this.RoutesToHashes?.Clear();
+            this.HashesToBuckets?.Clear();
+            this.RequestQueue?.Clear();
         }
     }
 }

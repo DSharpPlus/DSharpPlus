@@ -257,11 +257,6 @@ namespace DSharpPlus.VoiceNext
             this.VoiceWs.ExceptionThrown += this.VoiceWs_SocketException;
         }
 
-        ~VoiceNextConnection()
-        {
-            this.Dispose();
-        }
-
         /// <summary>
         /// Connects to the specified voice channel.
         /// </summary>
@@ -724,15 +719,15 @@ namespace DSharpPlus.VoiceNext
 
             this.IsDisposed = true;
             this.IsInitialized = false;
-            this.TokenSource.Cancel();
-            this.SenderTokenSource.Cancel();
+            this.TokenSource?.Cancel();
+            this.SenderTokenSource?.Cancel();
             this.ReceiverTokenSource?.Cancel();
-            this.KeepaliveTokenSource.Cancel();
+            this.KeepaliveTokenSource?.Cancel();
 
-            this.TokenSource.Dispose();
-            this.SenderTokenSource.Dispose();
+            this.TokenSource?.Dispose();
+            this.SenderTokenSource?.Dispose();
             this.ReceiverTokenSource?.Dispose();
-            this.KeepaliveTokenSource.Dispose();
+            this.KeepaliveTokenSource?.Dispose();
 
             try
             {
@@ -742,11 +737,11 @@ namespace DSharpPlus.VoiceNext
             catch { }
 
             this.Opus?.Dispose();
-            this.Opus = null;
+            this.Opus = null!;
             this.Sodium?.Dispose();
-            this.Sodium = null;
+            this.Sodium = null!;
             this.Rtp?.Dispose();
-            this.Rtp = null;
+            this.Rtp = null!;
 
             this.VoiceDisconnected?.Invoke(this.Guild);
         }

@@ -2293,7 +2293,7 @@ namespace DSharpPlus
                 return;
             this._disposed = true;
             this._guilds = null;
-            this.ApiClient._rest.Dispose();
+            this.ApiClient?._rest?.Dispose();
         }
     }
 }

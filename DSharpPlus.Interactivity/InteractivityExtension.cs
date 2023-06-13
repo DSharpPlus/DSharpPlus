@@ -1060,21 +1060,19 @@ namespace DSharpPlus.Interactivity
 
         public override void Dispose()
         {
-            this.ComponentEventWaiter.Dispose();
-            this.ModalEventWaiter.Dispose();
-            this.ReactionCollector.Dispose();
-            this.ComponentInteractionWaiter.Dispose();
-            this.MessageCreatedWaiter.Dispose();
-            this.MessageReactionAddWaiter.Dispose();
-            this.Paginator.Dispose();
-            this.Poller.Dispose();
-            this.TypingStartWaiter.Dispose();
-            this._compPaginator.Dispose();
-        }
+            this.ComponentEventWaiter?.Dispose();
+            this.ModalEventWaiter?.Dispose();
+            this.ReactionCollector?.Dispose();
+            this.ComponentInteractionWaiter?.Dispose();
+            this.MessageCreatedWaiter?.Dispose();
+            this.MessageReactionAddWaiter?.Dispose();
+            this.Paginator?.Dispose();
+            this.Poller?.Dispose();
+            this.TypingStartWaiter?.Dispose();
+            this._compPaginator?.Dispose();
 
-        ~InteractivityExtension()
-        {
-            this.Dispose();
+            // Satisfy rule CA1816. Can be removed if this class is sealed.
+            GC.SuppressFinalize(this);
         }
     }
 }

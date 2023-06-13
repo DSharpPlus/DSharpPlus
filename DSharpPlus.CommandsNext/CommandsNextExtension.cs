@@ -166,11 +166,11 @@ namespace DSharpPlus.CommandsNext
         /// Disposes of this the resources used by CNext.
         /// </summary>
         public override void Dispose()
-            => this.Config.CommandExecutor.Dispose();
-
-        ~CommandsNextExtension()
         {
-            this.Dispose();
+            this.Config.CommandExecutor.Dispose();
+
+            // Satisfy rule CA1816. Can be removed if this class is sealed.
+            GC.SuppressFinalize(this);
         }
 
         #region DiscordClient Registration

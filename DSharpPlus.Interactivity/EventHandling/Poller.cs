@@ -128,22 +128,26 @@ namespace DSharpPlus.Interactivity.EventHandling
             return Task.CompletedTask;
         }
 
-        ~Poller()
-        {
-            this.Dispose();
-        }
-
         /// <summary>
         /// Disposes this EventWaiter
         /// </summary>
         public void Dispose()
         {
-            this._client.MessageReactionAdded -= this.HandleReactionAdd;
-            this._client.MessageReactionRemoved -= this.HandleReactionRemove;
-            this._client.MessageReactionsCleared -= this.HandleReactionClear;
-            this._client = null;
-            this._requests.Clear();
-            this._requests = null;
+            // Why doesn't this class implement IDisposable?
+
+            if (this._client != null)
+            {
+                this._client.MessageReactionAdded -= this.HandleReactionAdd;
+                this._client.MessageReactionRemoved -= this.HandleReactionRemove;
+                this._client.MessageReactionsCleared -= this.HandleReactionClear;
+                this._client = null!;
+            }
+
+            if (this._requests != null)
+            {
+                this._requests.Clear();
+                this._requests = null!;
+            }
         }
     }
 }

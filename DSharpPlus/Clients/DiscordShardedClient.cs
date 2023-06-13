@@ -402,12 +402,12 @@ namespace DSharpPlus
             if (!this._isStarted)
                 throw new InvalidOperationException("This client has not been started.");
 
+            this._isStarted = false;
+
             if (enableLogger)
                 this.Logger.LogInformation(LoggerEvents.ShardShutdown, "Disposing {ShardCount} shards.", this._shards.Count);
 
-            this._isStarted = false;
             this._voiceRegionsLazy = null;
-
             this.GatewayInfo = null;
             this.CurrentUser = null;
             this.CurrentApplication = null;
@@ -671,7 +671,10 @@ namespace DSharpPlus
         #region Destructor
 
         ~DiscordShardedClient()
-            => this.InternalStopAsync(false).GetAwaiter().GetResult();
+        {
+            if (this._isStarted)
+                this.InternalStopAsync(false).GetAwaiter().GetResult();
+        }
 
         #endregion
     }

@@ -168,31 +168,34 @@ namespace DSharpPlus.Interactivity.EventHandling
             return Task.CompletedTask;
         }
 
-        ~ReactionCollector()
-        {
-            this.Dispose();
-        }
-
         /// <summary>
         /// Disposes this EventWaiter
         /// </summary>
         public void Dispose()
         {
-            this._client = null;
+            this._client = null!;
 
-            this._reactionAddEvent.Unregister(this._reactionAddHandler);
-            this._reactionRemoveEvent.Unregister(this._reactionRemoveHandler);
-            this._reactionClearEvent.Unregister(this._reactionClearHandler);
+            if (this._reactionAddHandler != null)
+                this._reactionAddEvent?.Unregister(this._reactionAddHandler);
 
-            this._reactionAddEvent = null;
-            this._reactionAddHandler = null;
-            this._reactionRemoveEvent = null;
-            this._reactionRemoveHandler = null;
-            this._reactionClearEvent = null;
-            this._reactionClearHandler = null;
+            if (this._reactionRemoveHandler != null)
+                this._reactionRemoveEvent?.Unregister(this._reactionRemoveHandler);
 
-            this._requests.Clear();
-            this._requests = null;
+            if (this._reactionClearHandler != null)
+                this._reactionClearEvent?.Unregister(this._reactionClearHandler);
+
+            this._reactionAddEvent = null!;
+            this._reactionAddHandler = null!;
+            this._reactionRemoveEvent = null!;
+            this._reactionRemoveHandler = null!;
+            this._reactionClearEvent = null!;
+            this._reactionClearHandler = null!;
+
+            this._requests?.Clear();
+            this._requests = null!;
+
+            // Satisfy rule CA1816. Can be removed if this class is sealed.
+            GC.SuppressFinalize(this);
         }
     }
 
@@ -214,19 +217,16 @@ namespace DSharpPlus.Interactivity.EventHandling
             this._ct.Token.Register(() => this._tcs.TrySetResult(null));
         }
 
-        ~ReactionCollectRequest()
-        {
-            this.Dispose();
-        }
-
         public void Dispose()
         {
-            GC.SuppressFinalize(this);
             this._ct.Dispose();
             this._tcs = null;
             this._message = null;
             this._collected?.Clear();
             this._collected = null;
+
+            // Satisfy rule CA1816. Can be removed if this class is sealed.
+            GC.SuppressFinalize(this);
         }
     }
 

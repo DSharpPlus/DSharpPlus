@@ -199,22 +199,19 @@ namespace DSharpPlus.Lavalink
 
         public override void Dispose()
         {
-            foreach(var node in this._connectedNodes)
+            foreach (var node in this._connectedNodes)
             {
                 // undoubtedly there will be some GitHub comments about this. Help.
                 node.Value.StopAsync().GetAwaiter().GetResult();
             }
-            this._connectedNodes.Clear();
+
+            this._connectedNodes?.Clear();
 
             // unhook events
-            _nodeDisconnected.UnregisterAll();
+            this._nodeDisconnected?.UnregisterAll();
 
-            // Hi GC! <3 😘 clean me up uwu
-        }
-
-        ~LavalinkExtension()
-        {
-            this.Dispose();
+            // Satisfy rule CA1816. Can be removed if this class is sealed.
+            GC.SuppressFinalize(this);
         }
     }
 }

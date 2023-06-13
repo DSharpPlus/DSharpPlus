@@ -133,31 +133,33 @@ namespace DSharpPlus.Interactivity.EventHandling
             return Task.CompletedTask;
         }
 
-        ~EventWaiter()
-        {
-            this.Dispose();
-        }
-
         /// <summary>
         /// Disposes this EventWaiter
         /// </summary>
         public void Dispose()
         {
+            if (this._disposed)
+                return;
+
             this._disposed = true;
-            if (this._event != null)
+
+            if (this._event != null && this._handler != null)
                 this._event.Unregister(this._handler);
 
-            this._event = null;
-            this._handler = null;
-            this._client = null;
+            this._event = null!;
+            this._handler = null!;
+            this._client = null!;
 
             if (this._matchrequests != null)
                 this._matchrequests.Clear();
             if (this._collectrequests != null)
                 this._collectrequests.Clear();
 
-            this._matchrequests = null;
-            this._collectrequests = null;
+            this._matchrequests = null!;
+            this._collectrequests = null!;
+
+            // Satisfy rule CA1816. Can be removed if this class is sealed.
+            GC.SuppressFinalize(this);
         }
     }
 }

@@ -1238,23 +1238,24 @@ namespace DSharpPlus.SlashCommands
 
         public override void Dispose()
         {
-            this._slashError.UnregisterAll();
-            this._slashInvoked.UnregisterAll();
-            this._slashExecuted.UnregisterAll();
-            this._contextMenuErrored.UnregisterAll();
-            this._contextMenuExecuted.UnregisterAll();
-            this._contextMenuInvoked.UnregisterAll();
-            this._autocompleteErrored.UnregisterAll();
-            this._autocompleteExecuted.UnregisterAll();
+            this._slashError?.UnregisterAll();
+            this._slashInvoked?.UnregisterAll();
+            this._slashExecuted?.UnregisterAll();
+            this._contextMenuErrored?.UnregisterAll();
+            this._contextMenuExecuted?.UnregisterAll();
+            this._contextMenuInvoked?.UnregisterAll();
+            this._autocompleteErrored?.UnregisterAll();
+            this._autocompleteExecuted?.UnregisterAll();
 
-            this.Client.Ready -= this.Update;
-            this.Client.InteractionCreated -= this.InteractionHandler;
-            this.Client.ContextMenuInteractionCreated -= this.ContextMenuHandler;
-        }
+            if (this.Client != null)
+            {
+                this.Client.Ready -= this.Update;
+                this.Client.InteractionCreated -= this.InteractionHandler;
+                this.Client.ContextMenuInteractionCreated -= this.ContextMenuHandler;
+            }
 
-        ~SlashCommandsExtension()
-        {
-            this.Dispose();
+            // Satisfy rule CA1816. Can be removed if this class is sealed.
+            GC.SuppressFinalize(this);
         }
     }
 
