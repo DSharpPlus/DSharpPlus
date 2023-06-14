@@ -46,7 +46,6 @@ internal class ApplicationHandler
 
                 return _module.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                     builder);
-                break;
             case ApplicationResultType.FollowUp:
                 DiscordFollowupMessageBuilder followUpBuilder = new();
                 if (result.Content is not null)
@@ -60,7 +59,12 @@ internal class ApplicationHandler
                 }
 
                 return _module.Interaction.CreateFollowupMessageAsync(followUpBuilder);
-                break;
+            case ApplicationResultType.Defer:
+                return _module.Interaction.DeferAsync();
+            case ApplicationResultType.Edit:
+                throw new NotImplementedException();
+            case ApplicationResultType.Modal:
+                throw new NotImplementedException();
         }
 
         return

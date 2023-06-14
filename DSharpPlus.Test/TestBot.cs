@@ -183,6 +183,7 @@ internal sealed class TestBot
         builder.AddPrefix(this.Config.CommandPrefixes);
         builder.Services.AddScoped<string>(s => "Hello, world!");
         builder.Services.AddSingleton<IErrorHandler, UnifiedCommandsErrorHandler>();
+        builder.Services.AddScoped<IMessageConverter<string?>, UnifiedCommands.Message.Converters.StringConverter>();
         builder.AddGuilds(this.Config.SlashCommandGuild);
         builder.AddInteractionCondition<UnifiedCommandsApplicationConditionsTest>(ServiceLifetime.Scoped);
 

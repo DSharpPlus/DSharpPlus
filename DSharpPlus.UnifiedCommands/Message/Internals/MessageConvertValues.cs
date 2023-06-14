@@ -1,118 +1,54 @@
+using System.Collections.Concurrent;
 using DSharpPlus.Entities;
+using Remora.Results;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.UnifiedCommands.Message.Internals;
 
+using ConverterLambda = Func<IServiceProvider, DiscordClient, DiscordMessage, ArraySegment<char>?, ValueTask<IResult>>;
+using ConversionLambda = Func<IResult, object?>;
+
 internal class MessageConvertValues
 {
-    private readonly Dictionary<string, string?> _values;
+    private static readonly ConcurrentDictionary<Type, Type> CachedConverterTypes = new();
+
+    private readonly IReadOnlyList<(Type, ArraySegment<char>)> _values;
     private readonly MessageMethodData _data;
     private readonly DiscordMessage _message;
     private readonly DiscordClient _client;
+    private readonly IServiceScope _scope;
 
-    public MessageConvertValues(Dictionary<string, string?> values, MessageMethodData data,
-        DiscordMessage message, DiscordClient client)
-        => (_values, _data, _message, _client) = (values, data, message, client);
+    public MessageConvertValues(IReadOnlyList<(Type, ArraySegment<char>)> values, MessageMethodData data,
+        DiscordMessage message, DiscordClient client, IServiceScope scope)
+    {
+        this._values = values;
+        this._data = data;
+        this._message = message;
+        this._client = client;
+        this._scope = scope;
+    }
 
     public async ValueTask<object?[]> StartConversionAsync()
     {
-        List<object?> convertedValues = new();
+        List<object?> objects = new(_values.Count);
 
-        foreach (MessageParameterData paramData in _data.Parameters)
+        foreach ((Type type, ArraySegment<char> segment) in _values)
         {
-            if (_values.TryGetValue(paramData.Name, out string? value))
+            (ConverterLambda converter, ConversionLambda conversion) =
+                CommandController.ConverterList.GetValueOrDefault(type)!;
+
+            ValueTask<IResult> taskResult = converter(_scope.ServiceProvider, _client, _message, segment);
+            IResult result = await taskResult;
+            if (result.IsSuccess)
             {
-                if (value is null && paramData.CanBeNull)
-                {
-                    convertedValues.Add(null);
-                }
-                else if (value is null && paramData.HasDefaultValue)
-                {
-                    convertedValues.Add(Type.Missing);
-                }
-                else if (value is not null)
-                {
-                    object convertedValue = await ConvertValueAsync(value, paramData);
-                    convertedValues.Add(convertedValue);
-                }
+                objects.Add(conversion(result));
             }
             else
             {
-                if (paramData.CanBeNull)
-                {
-                    convertedValues.Add(null);
-                }
-                else
-                {
-                    // This shouldn't happen.
-                }
+                // TODO: error handling
             }
         }
 
-        return convertedValues.ToArray();
-    }
-
-    public async ValueTask<object> ConvertValueAsync(string value, MessageParameterData data)
-    {
-        object obj;
-        switch (data.Type)
-        {
-            case MessageParameterDataType.Bool:
-                obj = bool.Parse(value);
-                break;
-            case MessageParameterDataType.Channel:
-                if (_message.Channel.GuildId is null)
-                {
-                    throw new Exceptions.ConversionFailedException(value, InvalidMessageConversionType.IsInDMs,
-                        data.IsPositionalArgument, data.Name);
-                }
-
-                obj = ulong.TryParse(value, out ulong channelResult)
-                    ? (object)_message.Channel.Guild.GetChannel(channelResult)
-                    : throw new Exceptions.ConversionFailedException(value,
-                        InvalidMessageConversionType.NotAValidChannel, data.IsPositionalArgument, data.Name);
-
-                break;
-            case MessageParameterDataType.Role:
-                if (_message.Channel.GuildId is null)
-                {
-                    throw new Exceptions.ConversionFailedException(value, InvalidMessageConversionType.IsInDMs,
-                        data.IsPositionalArgument, data.Name);
-                }
-
-                obj = ulong.TryParse(value, out ulong roleResult)
-                    ? (object)_message.Channel.Guild.GetRole(roleResult)
-                    : throw new Exceptions.ConversionFailedException(value, InvalidMessageConversionType.NotAValidRole,
-                        data.IsPositionalArgument, data.Name);
-
-                break;
-            case MessageParameterDataType.User:
-                obj = ulong.TryParse(value, out ulong userResult)
-                    ? (object)await _client.GetUserAsync(userResult)
-                    : throw new Exceptions.ConversionFailedException(value, InvalidMessageConversionType.NotAValidUser,
-                        data.IsPositionalArgument, data.Name);
-
-                break;
-            case MessageParameterDataType.Int:
-                obj = int.TryParse(value, out int intResult)
-                    ? (object)intResult
-                    : throw new Exceptions.ConversionFailedException(value,
-                        InvalidMessageConversionType.NotAValidInteger, data.IsPositionalArgument, data.Name);
-
-                break;
-            case MessageParameterDataType.Double:
-                obj = double.TryParse(value, out double doubleResult)
-                    ? (object)doubleResult
-                    : throw new Exceptions.ConversionFailedException(value,
-                        InvalidMessageConversionType.NotAValidNumber, data.IsPositionalArgument, data.Name);
-
-                break;
-            case MessageParameterDataType.String:
-                obj = value;
-                break;
-            default:
-                throw new NotImplementedException();
-        }
-
-        return obj;
+        return objects.ToArray();
     }
 }

@@ -18,12 +18,12 @@ internal class MessageHandler
     private readonly MessageMethodData _data;
     private readonly IServiceScope _scope;
     private readonly DiscordClient _client;
-    private readonly Dictionary<string, string?> _values;
+    private readonly IReadOnlyList<(Type, ArraySegment<char>)> _values;
     private readonly string _name;
     private readonly IReadOnlyList<Func<IServiceProvider, IMessageCondition>> _conditionBuilders;
 
     public MessageHandler(DiscordMessage message, MessageMethodData data, IServiceScope scope,
-        DiscordClient client, Dictionary<string, string?> values, string name,
+        DiscordClient client, IReadOnlyList<(Type, ArraySegment<char>)> values, string name,
         IReadOnlyList<Func<IServiceProvider, IMessageCondition>> conditionBuilders)
     {
         _message = message;
@@ -95,7 +95,7 @@ internal class MessageHandler
             object?[]? parameters = null;
             if (_data.Parameters.Count != 0)
             {
-                MessageConvertValues conversion = new(_values, _data, _message, _client);
+                MessageConvertValues conversion = new(_values, _data, _message, _client, _scope);
                 try
                 {
                     parameters = await conversion.StartConversionAsync();

@@ -2,7 +2,8 @@ namespace DSharpPlus.UnifiedCommands.Message.Internals;
 
 internal class MessageParameterData
 {
-    public MessageParameterDataType Type { get; set; } = MessageParameterDataType.String;
+    public Type Type { get; set; } = null!;
+    public Type ConverterType { get; set; } = null!;
     public object Value { get; set; } = string.Empty;
     public string? ShorthandOptionName { get; set; }
     public string Name { get; set; } = string.Empty;

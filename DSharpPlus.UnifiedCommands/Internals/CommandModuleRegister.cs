@@ -93,7 +93,10 @@ internal static class CommandModuleRegister
                     parameterData.HasDefaultValue = parameter.HasDefaultValue;
 
                     // I don't know how I would make this into a switch case. 
-                    if (parameterType == typeof(string))
+                    parameterData.Type = parameterType;
+                    parameterData.ConverterType = typeof(IMessageConverter<>).MakeGenericType(parameterType);
+
+                    /* if (parameterType == typeof(string))
                     {
                         parameterData.Type = MessageParameterDataType.String;
                     }
@@ -127,7 +130,7 @@ internal static class CommandModuleRegister
                             ? MessageParameterDataType.Double
                             : throw new InvalidMessageModuleStructure(
                                 $"You cannot use type {parameterType.Name} as a parameter.");
-                    }
+                    } */
 
                     parameters.Add(parameterData);
                 }
@@ -144,38 +147,12 @@ internal static class CommandModuleRegister
                     Parameters = parameters,
                     ReturnsNothing = returnsNothing
                 };
-                if (moduleName.Length != 0)
-                {
-                    MessageTree? tree = null;
-                    foreach (string name in moduleName)
-                    {
-                        tree = factory.GetBranch(name);
-                        if (tree is null)
-                        {
-                            tree = new();
-                            factory.AddBranch(name, tree);
-                        }
-                    }
 
-                    for (int i = 0; i < methodName.Length; i++)
-                    {
-                        string name = methodName[i];
-                        if (i == methodName.Length - 1)
-                        {
-                            tree?.Branches?.Add(name, new(methodData));
-                        }
-                        else
-                        {
-                            MessageTree tempTree = new();
-                            tree?.Branches?.Add(name, tempTree);
-                            tree = tempTree;
-                        }
-                    }
-                }
-                else
-                {
-                    factory.AddCommand(attribute.Name, methodData);
-                }
+
+                List<string> partsOfFullName = new(moduleName);
+                partsOfFullName.AddRange(methodName);
+                string fullName = string.Join(' ', partsOfFullName);
+                factory.GetTree().AddValueAt(methodData, fullName);
             }
         }
     }
@@ -241,12 +218,7 @@ internal static class CommandModuleRegister
                 List<ApplicationMethodParameterData> parameters = new();
                 foreach (ParameterInfo parameter in method.GetParameters())
                 {
-                    ApplicationOptionAttribute? name = parameter.GetCustomAttribute<ApplicationOptionAttribute>();
-                    if (name is null)
-                    {
-                        throw new Exception("Parameter needs to have `ApplicationNameAttribute` marked.");
-                    }
-
+                    ApplicationOptionAttribute? name = parameter.GetCustomAttribute<ApplicationOptionAttribute>() ?? throw new Exception("Parameter needs to have `ApplicationNameAttribute` marked.");
                     ApplicationMethodParameterData data = new(name.Name)
                     {
                         IsNullable = nullabilityContext.Create(parameter).WriteState is NullabilityState.Nullable

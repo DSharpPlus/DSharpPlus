@@ -1,9 +1,14 @@
+using DSharpPlus.Entities;
+using Remora.Results;
+
 namespace DSharpPlus.UnifiedCommands.Message;
 
 public interface IMessageConverter<T>
 {
-    public T ConvertValue(DiscordClient client, string? message);
+    public IResult ConvertValue(DiscordClient client, DiscordMessage message,
+        ArraySegment<char>? segment);
 
-    public ValueTask<T> ConvertValueAsync(DiscordClient client, string? message)
-        => ValueTask.FromResult(ConvertValue(client, message));
+    public ValueTask<IResult> ConvertValueAsync(DiscordClient client, DiscordMessage message,
+        ArraySegment<char>? segment)
+        => ValueTask.FromResult(ConvertValue(client, message, segment));
 }

@@ -2,13 +2,15 @@ using System;
 using System.Threading.Tasks;
 using DSharpPlus.UnifiedCommands.Message;
 using DSharpPlus.UnifiedCommands.Message.Conditions;
+using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.Test;
 
 [MessageModule("test")]
 public class UnifiedCommandsMessageModuleTest : MessageModule
 {
-    private readonly string _str;
+    // This is commented out until I have implemented default converters for all other types
+    /* private readonly string _str;
 
     public UnifiedCommandsMessageModuleTest(string str) => _str = str;
 
@@ -58,5 +60,13 @@ public class UnifiedCommandsMessageModuleTest : MessageModule
 
     [Message("failing")]
     public IMessageResult TestFailing()
-        => throw new Exception("Fuck you");
+        => throw new Exception("Fuck you"); */
+
+    [Message("simple-str")]
+    public IMessageResult TestSimpleStr([MessageOption("str")] string str)
+    {
+        IMessageResult result = Reply(str);
+        Client.Logger.LogInformation("Got str \"{String}\"", result.Builder.Content);
+        return result;
+    }
 }

@@ -1,8 +1,8 @@
 #if DEBUG
 using System.Diagnostics;
 #endif
-using System.Text;
 using DSharpPlus.UnifiedCommands.Message.Conditions;
+using DSharpPlus.UnifiedCommands.Internals.Trees;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -10,15 +10,11 @@ namespace DSharpPlus.UnifiedCommands.Message.Internals;
 
 internal class MessageFactory
 {
-    private readonly MessageTree _commands = new();
+    private readonly TreeParent<MessageMethodData> _commands = new(string.Empty);
     private readonly List<Func<IServiceProvider, IMessageCondition>> _messageConditionBuilders = new();
     private readonly IServiceProvider _services;
 
-    internal void AddCommand(string name, MessageMethodData data) => _commands.Branches!.Add(name, new(data));
-    internal void AddBranch(string name, MessageTree branch) => _commands.Branches!.Add(name, branch);
-
-    internal MessageTree? GetBranch(string name) =>
-        _commands.Branches!.TryGetValue(name, out MessageTree? result) ? result : null;
+    internal ITreeParent<MessageMethodData> GetTree() => _commands;
 
     public MessageFactory(IServiceProvider services)
         => _services = services;
@@ -27,50 +23,30 @@ internal class MessageFactory
         => _messageConditionBuilders.Add(func);
 
     internal void ConstructAndExecuteCommand(Entities.DiscordMessage message,
-        DiscordClient client, ref ReadOnlySpan<char> args, List<Range> argsRange)
+        DiscordClient client, ReadOnlySpan<char> args, List<Range> argsRange)
     {
-        #if DEBUG
+#if DEBUG
         long startTime = Stopwatch.GetTimestamp();
-        #endif
+#endif
 
         Index end = 0;
         int it = 0;
 
-        MessageTree? tree = null;
+        client.Logger.LogTrace("Found {Amount} of nodes at the first level.", _commands.List.Count);
 
-        // TODO: Remake the parsing logic.
-        foreach (Range argRange in argsRange)
+        ITreeChild<MessageMethodData> treeChild;
+        try
         {
-            ReadOnlySpan<char> arg = args[argRange.Start..argRange.End];
-            if (tree is null)
-            {
-                if (_commands.Branches!.TryGetValue(arg.ToString(), out MessageTree? res))
-                {
-                    tree = res;
-                    end = argRange.End;
-                    it++;
-                }
-                else
-                {
-                    break;
-                }
-
-                continue;
-            }
-
-            if (tree.Branches is not null && tree.Branches.TryGetValue(arg.ToString(), out MessageTree? res2))
-            {
-                tree = res2;
-                end = argRange.End;
-                it++;
-            }
-            else
-            {
-                break;
-            }
+            (ITreeChild<MessageMethodData>, int) result = _commands.Traverse(args[argsRange[0].Start..]);
+            treeChild = result.Item1;
+            it = result.Item2;
+        }
+        catch (KeyNotFoundException)
+        {
+            return;
         }
 
-        if (tree is null || tree.Data is null)
+        if (treeChild.Value is null)
         {
             return;
         }
@@ -166,155 +142,84 @@ internal class MessageFactory
             }
         }
 
-        int positionalArgumentPosition = 0;
-        Dictionary<string, string?> mappedValues = new();
-        foreach (MessageParameterData data in tree.Data.Parameters)
-        {
-            if (options.TryGetValue(data.Name, out Range? value) || (data.ShorthandOptionName is not null &&
-                                                                     options.TryGetValue(data.ShorthandOptionName,
-                                                                         out value)))
-            {
-                if (data.Type == MessageParameterDataType.Bool && value is not null)
-                {
-                    string strValue = args[value.Value.Start..value.Value.End].ToString();
-                    Task.Run(async () => await _services.GetRequiredService<IErrorHandler>().HandleConversionAsync(
-                        new InvalidMessageConversionError
-                        {
-                            Name = name,
-                            IsPositionalArgument = data.IsPositionalArgument,
-                            Value = strValue,
-                            Type = InvalidMessageConversionType.BoolShouldNotHaveValue,
-                        }, message));
-                    return;
-                }
-                else if (data.Type != MessageParameterDataType.Bool && value is null)
-                {
-                    Task.Run(async () => await new DefaultErrorHandler().HandleConversionAsync(
-                        new InvalidMessageConversionError
-                        {
-                            Name = name,
-                            IsPositionalArgument = data.IsPositionalArgument,
-                            Value = "",
-                            Type = InvalidMessageConversionType.NoValueProvided,
-                        }, message));
-                    return;
-                }
-                else if (data.Type == MessageParameterDataType.User
-                         || data.Type == MessageParameterDataType.Channel
-                         || data.Type == MessageParameterDataType.Member)
-                {
-                    ReadOnlySpan<char> span = args[value!.Value.Start..value.Value.End];
-                    if (span.StartsWith("<@") || span.StartsWith("<#"))
-                    {
-                        ReadOnlySpan<char> formattedSpan = span is [_, _, '!', ..] ? span[3..^1] : span[2..^1];
-                        mappedValues.Add(data.Name, formattedSpan.ToString());
-                        continue;
-                    }
+        ArraySegment<char> segment = args.ToArray();
 
-                    mappedValues.Add(data.Name, span.ToString()); // MIGHT be a ID.
-                }
-                else if (data.Type == MessageParameterDataType.Role)
+        // Loc = location
+        int positionalArgumentLoc = 0;
+        List<(Type, ArraySegment<char>)> mappedValues = new(arguments.Count + options.Count);
+        IServiceScope scope = _services.CreateScope(); // This will need to be disposed later somehow.
+
+        client.Logger.LogDebug("Parameters count is {Count}", treeChild.Value.Parameters.Count);
+        client.Logger.LogDebug("Found {OptionsCount} options and {ArgumentCount} arguments", options.Count, arguments.Count);
+        if (options.Count != 0)
+        {
+            client.Logger.LogDebug("First option has key {Key}", options.First().Key);
+        }
+        foreach (MessageParameterData data in treeChild.Value.Parameters)
+        {
+            client.Logger.LogDebug("Name is {Name}", data.Name);
+            if (data.IsPositionalArgument)
+            {
+                if (positionalArgumentLoc > arguments.Count)
                 {
-                    ReadOnlySpan<char> span = args[value!.Value.Start..value.Value.End];
-                    ReadOnlySpan<char> formattedSpan = span[2..^1];
-                    mappedValues.Add(data.Name, formattedSpan.ToString());
+                    // Throw this to the error handler
+                    return;
                 }
-                else if (data.Type != MessageParameterDataType.Bool)
+
+                Range range = arguments[positionalArgumentLoc];
+                ArraySegment<char> argument = segment[range];
+                mappedValues.Add((data.ConverterType, argument));
+                positionalArgumentLoc++;
+            }
+            else if (options.TryGetValue(data.Name, out Range? optionRange))
+            {
+                ArraySegment<char> option;
+                if (optionRange is Range r)
                 {
-                    if (value is null)
-                    {
-                        mappedValues.Add(data.Name, null);
-                    }
-                    else
-                    {
-                        ReadOnlySpan<char> span = args[value.Value.Start..value.Value.End];
-                        mappedValues.Add(data.Name, span.ToString());
-                    }
+                    option = segment[r];
                 }
                 else
                 {
-                    mappedValues.Add(data.Name, "true");
+                    if (data.ShorthandOptionName is not null
+                        && options.TryGetValue(data.ShorthandOptionName, out Range? shorthandOptionRange))
+                    {
+                        if (shorthandOptionRange is Range ra)
+                        {
+                            option = segment[ra];
+                        }
+                        else if (data.CanBeNull)
+                        {
+                            option = ArraySegment<char>.Empty;
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    }
+                    else if (data.CanBeNull)
+                    {
+                        option = ArraySegment<char>.Empty;
+                    }
+                    else
+                    {
+                        // Return to error handler.
+                        return;
+                    }
                 }
+                mappedValues.Add((data.ConverterType, option));
             }
             else
             {
-                if (data.IsPositionalArgument)
-                {
-                    if (data.WillConsumeRestOfArguments)
-                    {
-                        StringBuilder stringBuilder = new();
-                        for (;
-                             positionalArgumentPosition < arguments.Count;
-                             positionalArgumentPosition++)
-                        {
-                            Range range2 = arguments[positionalArgumentPosition];
-                            stringBuilder.Append(args[range2.Start..range2.End]);
-                            stringBuilder.Append(' ');
-                        }
-
-                        stringBuilder.Remove(stringBuilder.Length - 1, 1);
-
-                        mappedValues.Add(data.Name, stringBuilder.ToString());
-                        continue;
-                    }
-
-                    Range range = arguments[positionalArgumentPosition];
-                    positionalArgumentPosition++;
-                    ReadOnlySpan<char> span = args[range.Start..range.End];
-
-                    if (data.Type == MessageParameterDataType.User
-                        || data.Type == MessageParameterDataType.Channel
-                        || data.Type == MessageParameterDataType.Member)
-                    {
-                        if (!span.StartsWith("<@") || !span.StartsWith("<#"))
-                        {
-                            mappedValues.Add(data.Name, span.ToString()); // MIGHT be a ID.
-                            continue;
-                        }
-
-                        ReadOnlySpan<char> formattedSpan = span is [_, _, '!', ..] ? span[2..^1] : span[1..^1];
-                        mappedValues.Add(data.Name, formattedSpan.ToString());
-                    }
-                    else if (data.Type == MessageParameterDataType.Role)
-                    {
-                        ReadOnlySpan<char> formattedSpan = span[2..^1];
-                        mappedValues.Add(data.Name, formattedSpan.ToString());
-                    }
-                    else if (data.Type != MessageParameterDataType.Bool)
-                    {
-                        mappedValues.Add(data.Name, span.ToString());
-                    }
-                    else
-                    {
-                        mappedValues.Add(data.Name, "true");
-                    }
-                }
-                else if (data.Type != MessageParameterDataType.Bool)
-                {
-                    if (value is null)
-                    {
-                        mappedValues.Add(data.Name, null);
-                    }
-                    else
-                    {
-                        ReadOnlySpan<char> span = args[value.Value.Start..value.Value.End];
-                        mappedValues.Add(data.Name, span.ToString());
-                    }
-                }
-                else
-                {
-                    mappedValues.Add(data.Name, "false");
-                }
+                throw new Exception("Couldn't find anything for param.");
             }
         }
+        client.Logger.LogDebug("Mapped values count is {Count}", mappedValues.Count);
 
-        #if DEBUG
+#if DEBUG
         client.Logger.LogDebug("Took {NsExecution}ns", Stopwatch.GetElapsedTime(startTime).TotalNanoseconds);
-        #endif
-        
-        IServiceScope scope = _services.CreateScope(); // This will need to be disposed later somehow.
+#endif
 
-        MessageHandler handler = new(message, tree.Data, scope, client, mappedValues, name,
+        MessageHandler handler = new(message, treeChild.Value, scope, client, mappedValues, name,
             _messageConditionBuilders);
         _ = handler.BuildModuleAndExecuteCommandAsync();
     }
