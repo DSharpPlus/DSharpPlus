@@ -272,8 +272,8 @@ namespace DSharpPlus
 
         ~DiscordWebhookClient()
         {
-            this._hooks.Clear();
-            this._hooks = null;
+            this._hooks?.Clear();
+            this._hooks = null!;
             this._apiclient._rest.Dispose();
         }
     }

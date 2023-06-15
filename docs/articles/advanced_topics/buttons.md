@@ -184,7 +184,7 @@ This will update the message, and remove all the buttons. Nice.
 
 # Interactivity
 
-Along with the typical @DSharpPlus.Interactivity.InteractivityExtension.WaitForMessageAsync*and
+Along with the typical @DSharpPlus.Interactivity.InteractivityExtension.WaitForMessageAsync* and
 @DSharpPlus.Interactivity.InteractivityExtension.WaitForReactionAsync* methods provided by interactivity, there are also
 button implementations as well.
 
