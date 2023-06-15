@@ -7,6 +7,7 @@ using System.Runtime.ExceptionServices;
 #if DEBUG
 using Stopwatch = System.Diagnostics.Stopwatch;
 #endif
+using Remora.Results;
 
 namespace DSharpPlus.UnifiedCommands.Message.Internals;
 
@@ -96,21 +97,16 @@ internal class MessageHandler
             if (_data.Parameters.Count != 0)
             {
                 MessageConvertValues conversion = new(_values, _data, _message, _client, _scope);
-                try
+
+                Result<object?[]> parametersResult = await conversion.StartConversionAsync();
+                if (parametersResult.IsSuccess)
                 {
-                    parameters = await conversion.StartConversionAsync();
+                    parameters = parametersResult.Entity;
                 }
-                catch (Exceptions.ConversionFailedException e)
+                else
                 {
-                    await _scope.ServiceProvider.GetRequiredService<IErrorHandler>().HandleConversionAsync(
-                        new InvalidMessageConversionError
-                        {
-                            Name = e.Name,
-                            IsPositionalArgument = e.IsPositionalArgument,
-                            Value = e.Value,
-                            Type = e.Type,
-                        }
-                        , _message);
+                    IErrorHandler errorHandler = _scope.ServiceProvider.GetRequiredService<IErrorHandler>();
+                    await errorHandler.HandleMessageErrorAsync(parametersResult.Error, _message, _client);
                     return;
                 }
             }
@@ -184,7 +180,7 @@ internal class MessageHandler
         catch (Exception e)
         {
             await _scope.ServiceProvider.GetRequiredService<IErrorHandler>()
-                .HandleUnhandledExceptionAsync(e, _message);
+                .HandleMessageErrorAsync(new ExceptionError(e), _message, _client);
 
             _client.Logger.LogError(e,
                 "Exception was thrown while trying to execute command {MethodName}. Was thrown from:",

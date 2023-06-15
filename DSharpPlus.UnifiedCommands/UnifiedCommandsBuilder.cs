@@ -1,7 +1,5 @@
 using System.Reflection;
 using DSharpPlus.UnifiedCommands.Application.Conditions;
-using DSharpPlus.UnifiedCommands.Message;
-using DSharpPlus.UnifiedCommands.Message.Internals;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -10,12 +8,12 @@ namespace DSharpPlus.UnifiedCommands;
 // TODO: Add support to manually add modules.
 public class UnifiedCommandsBuilder
 {
-    private List<Assembly> _assemblies = new();
+    private readonly List<Assembly> _assemblies = new();
     private bool _isAlreadyBuilt = false;
     private readonly List<string> _prefixes = new();
     private ulong[]? _guildIds = null;
     private bool _allowSlashCommands = true;
-    private List<Type> _interactionConditions = new();
+    private readonly List<Type> _interactionConditions = new();
 
     /// <summary>
     /// The service collection used for building the service provider.
@@ -124,7 +122,7 @@ public class UnifiedCommandsBuilder
         if (!Services.Any(s => s.ServiceType == typeof(IErrorHandler)))
         {
             client.Logger.LogTrace("Didn't find a error handler, using the default error handler");
-            Services.AddSingleton<IErrorHandler>(new DefaultErrorHandler());
+            Services.AddSingleton<IErrorHandler, Internals.DefaultErrorHandler>();
         }
 
         IServiceProvider provider = Services.BuildServiceProvider();

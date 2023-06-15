@@ -1,4 +1,5 @@
 using DSharpPlus.Entities;
+using DSharpPlus.UnifiedCommands.Message.Errors;
 using Remora.Results;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -25,31 +26,41 @@ internal class MessageConvertValues
         this._scope = scope;
     }
 
-    public async ValueTask<object?[]> StartConversionAsync()
+    public async ValueTask<Result<object?[]>> StartConversionAsync()
     {
         List<object?> objects = new(_values.Count);
 
-        foreach ((Type type, ArraySegment<char>? segment) in _values)
+        for (int i = 0; i < _values.Count; i++)
         {
-            if (segment is ArraySegment<char> s)
-            {
-                (ConverterLambda converter, ConversionLambda conversion) =
-                    CommandController.ConverterList.GetValueOrDefault(type)!;
+            (Type type, ArraySegment<char>? segment) = _values[i];
+            MessageParameterData param = _data.Parameters[i];
 
-                ValueTask<IResult> taskResult = converter(_scope.ServiceProvider, _client, _message, s);
-                IResult result = await taskResult;
-                if (result.IsSuccess)
+            try
+            {
+                if (segment is ArraySegment<char> s)
                 {
-                    objects.Add(conversion(result));
+                    (ConverterLambda converter, ConversionLambda conversion) =
+                        CommandController.ConverterList.GetValueOrDefault(type)!;
+
+                    ValueTask<IResult> taskResult = converter(_scope.ServiceProvider, _client, _message, s);
+                    IResult result = await taskResult;
+                    if (result.IsSuccess)
+                    {
+                        objects.Add(conversion(result));
+                    }
+                    else
+                    {
+                        return Result<object?[]>.FromError(new FailedConversionError("Failed to convert value", param.Name, new(s), result.Error));
+                    }
                 }
                 else
                 {
-                    // TODO: error handling
+                    objects.Add(null);
                 }
             }
-            else
+            catch (Exception e)
             {
-                objects.Add(null);
+                return Result<object?[]>.FromError(new ExceptionError(e));
             }
         }
 

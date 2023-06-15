@@ -30,10 +30,10 @@ public sealed class CommandController
     private readonly ulong[]? _guildIds;
 
     internal static readonly Dictionary<Type, (ConverterLambda, ConversionLambda)> ConverterList = new();
-    internal MessageFactory MessageFactory { get; private set; }
-    internal ApplicationFactory ApplicationFactory { get; private set; }
+    internal MessageFactory MessageFactory { get; init; }
+    internal ApplicationFactory ApplicationFactory { get; init; }
 
-    public IServiceProvider Services { get; private set; }
+    public IServiceProvider Services { get; init; }
 
     public CommandController(DiscordClient client, IServiceProvider services,
         IReadOnlyCollection<Assembly> assemblies, string[] prefixes, ulong[]? guildIds, bool registerSlashCommands)
@@ -114,6 +114,7 @@ public sealed class CommandController
                         // Converts value into the result type
                         UnaryExpression convertExpression = Expression.Convert(resultParam, resultType);
                         MemberExpression memberExpression = Expression.Property(convertExpression, resultType.GetProperty("Entity")!);
+
                         // This is suppose to be a nullable object (object?) but typeof(object?) is invalid code
                         UnaryExpression convertResultExpression = Expression.Convert(memberExpression, typeof(object));
                         expressions.Add(convertExpression);

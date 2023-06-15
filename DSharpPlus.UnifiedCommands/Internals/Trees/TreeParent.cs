@@ -106,9 +106,16 @@ internal class TreeParent<T> : TreeChild<T>, ITreeParent<T>
             }
 
             depth += 1;
-            return space == -1 || item is not ITreeParent<T>
+            try
+            {
+                return space == -1 || item is not ITreeParent<T>
                 ? (item, depth)
                 : item.Traverse(span, depth);
+            }
+            catch (KeyNotFoundException)
+            {
+                return (item, depth);
+            }
         }
 
         throw new KeyNotFoundException("Couldn't find the item.");

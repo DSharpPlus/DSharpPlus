@@ -43,6 +43,7 @@ internal class MessageFactory
         }
         catch (KeyNotFoundException)
         {
+            client.Logger.LogTrace("Hello there!");
             return;
         }
 
@@ -232,40 +233,30 @@ label:;
             }
             else if (options.TryGetValue(data.Name, out Range? optionRange))
             {
-                ArraySegment<char>? option;
                 if (optionRange is Range r)
                 {
-                    option = segment[r];
+                    ArraySegment<char> option = segment[r];
+                    mappedValues.Add((data.ConverterType, option));
                 }
                 else
                 {
-                    if (data.ShorthandOptionName is not null
-                        && options.TryGetValue(data.ShorthandOptionName, out Range? shorthandOptionRange))
-                    {
-                        if (shorthandOptionRange is Range ra)
-                        {
-                            option = segment[ra];
-                        }
-                        else if (data.CanBeNull)
-                        {
-                            option = null;
-                        }
-                        else
-                        {
-                            return;
-                        }
-                    }
-                    else if (data.CanBeNull)
-                    {
-                        option = null;
-                    }
-                    else
-                    {
-                        // Return to error handler.
-                        return;
-                    }
+                    // Error handling
                 }
-                mappedValues.Add((data.ConverterType, option));
+            }
+            else if (data.ShorthandOptionName is not null
+                && options.TryGetValue(
+                    data.ShorthandOptionName, out Range? shorthandOptionRange
+                ))
+            {
+                if (shorthandOptionRange is Range r)
+                {
+                    ArraySegment<char> option = segment[r];
+                    mappedValues.Add((data.ConverterType, option));
+                }
+                else
+                {
+                    // Error handling 
+                }
             }
             else
             {
