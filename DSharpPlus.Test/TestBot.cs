@@ -43,6 +43,7 @@ using DSharpPlus.SlashCommands.EventArgs;
 using DSharpPlus.UnifiedCommands;
 using DSharpPlus.UnifiedCommands.Message;
 using DSharpPlus.UnifiedCommands.Message.Conditions;
+using DSharpPlus.UnifiedCommands.Message.Converters;
 using DSharpPlus.VoiceNext;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -183,7 +184,9 @@ internal sealed class TestBot
         builder.AddPrefix(this.Config.CommandPrefixes);
         builder.Services.AddScoped<string>(s => "Hello, world!");
         builder.Services.AddSingleton<IErrorHandler, UnifiedCommandsErrorHandler>();
-        builder.Services.AddScoped<IMessageConverter<string?>, UnifiedCommands.Message.Converters.StringConverter>();
+        builder.Services.AddSingleton<IMessageConverter<string?>, StringConverter>();
+        builder.Services.AddSingleton<IMessageConverter<int>, IntConverter>();
+        builder.Services.AddSingleton<IMessageConverter<DiscordUser?>, DiscordUserConverter>();
         builder.AddGuilds(this.Config.SlashCommandGuild);
         builder.AddInteractionCondition<UnifiedCommandsApplicationConditionsTest>(ServiceLifetime.Scoped);
 

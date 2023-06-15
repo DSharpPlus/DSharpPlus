@@ -10,7 +10,7 @@ namespace DSharpPlus.UnifiedCommands.Message.Internals;
 
 internal class MessageFactory
 {
-    private readonly TreeParent<MessageMethodData> _commands = new(string.Empty);
+    private readonly TreeParent<MessageMethodData> _commands = new();
     private readonly List<Func<IServiceProvider, IMessageCondition>> _messageConditionBuilders = new();
     private readonly IServiceProvider _services;
 
@@ -46,9 +46,28 @@ internal class MessageFactory
             return;
         }
 
+        List<ITreeChild<MessageMethodData>> overloads = new();
         if (treeChild.Value is null)
         {
-            return;
+            client.Logger.LogTrace("Key is {Key}", treeChild.Key);
+            if (treeChild is ITreeParent<MessageMethodData> parent && parent.List.Count != 0)
+            {
+                foreach (ITreeChild<MessageMethodData> child in parent.List)
+                {
+                    if (child.Key is null && child.Value is not null)
+                    {
+                        overloads.Add(child);
+                    }
+                }
+                if (overloads.Count == 0)
+                {
+                    return;
+                }
+            }
+            else
+            {
+                return;
+            }
         }
 
         string name = args[..end].ToString();
@@ -146,18 +165,58 @@ internal class MessageFactory
 
         // Loc = location
         int positionalArgumentLoc = 0;
-        List<(Type, ArraySegment<char>)> mappedValues = new(arguments.Count + options.Count);
+        List<(Type, ArraySegment<char>?)> mappedValues = new(arguments.Count + options.Count);
         IServiceScope scope = _services.CreateScope(); // This will need to be disposed later somehow.
 
-        client.Logger.LogDebug("Parameters count is {Count}", treeChild.Value.Parameters.Count);
-        client.Logger.LogDebug("Found {OptionsCount} options and {ArgumentCount} arguments", options.Count, arguments.Count);
-        if (options.Count != 0)
+        MessageMethodData? methodData = null;
+        if (overloads.Count == 0)
         {
-            client.Logger.LogDebug("First option has key {Key}", options.First().Key);
+            methodData = treeChild.Value!;
         }
-        foreach (MessageParameterData data in treeChild.Value.Parameters)
+        else
         {
-            client.Logger.LogDebug("Name is {Name}", data.Name);
+            foreach (ITreeChild<MessageMethodData> child in overloads)
+            {
+                if (child.Value is null)
+                {
+                    continue;
+                }
+
+                int positionalArgumentCount = 0;
+                foreach (MessageParameterData param in child.Value.Parameters)
+                {
+                    if (param.IsPositionalArgument)
+                    {
+                        positionalArgumentCount++;
+                        continue;
+                    }
+
+                    if (!options.ContainsKey(param.Name))
+                    {
+                        if (param.CanBeNull)
+                        {
+                            continue;
+                        }
+                        goto label;
+                    }
+                }
+                if (positionalArgumentCount != arguments.Count)
+                {
+                    continue;
+                }
+                methodData = child.Value;
+label:;
+            }
+
+            if (methodData is null)
+            {
+                return;
+            }
+        }
+
+        // Value should never be null here (hopefully)
+        foreach (MessageParameterData data in methodData.Parameters)
+        {
             if (data.IsPositionalArgument)
             {
                 if (positionalArgumentLoc > arguments.Count)
@@ -173,7 +232,7 @@ internal class MessageFactory
             }
             else if (options.TryGetValue(data.Name, out Range? optionRange))
             {
-                ArraySegment<char> option;
+                ArraySegment<char>? option;
                 if (optionRange is Range r)
                 {
                     option = segment[r];
@@ -189,7 +248,7 @@ internal class MessageFactory
                         }
                         else if (data.CanBeNull)
                         {
-                            option = ArraySegment<char>.Empty;
+                            option = null;
                         }
                         else
                         {
@@ -198,7 +257,7 @@ internal class MessageFactory
                     }
                     else if (data.CanBeNull)
                     {
-                        option = ArraySegment<char>.Empty;
+                        option = null;
                     }
                     else
                     {
@@ -210,17 +269,24 @@ internal class MessageFactory
             }
             else
             {
-                throw new Exception("Couldn't find anything for param.");
+                if (!data.CanBeNull)
+                {
+                    throw new Exception($"Couldn't find anything for param {data.Name}.");
+                }
+                else
+                {
+                    mappedValues.Add((data.ConverterType, null));
+                }
             }
         }
-        client.Logger.LogDebug("Mapped values count is {Count}", mappedValues.Count);
+        client.Logger.LogDebug("Mapped values has a total amount of {Count}", mappedValues.Count);
 
-#if DEBUG
+#if DEBUG // Cry about it, Idk how else to disble this when releasing in Release
         client.Logger.LogDebug("Took {NsExecution}ns", Stopwatch.GetElapsedTime(startTime).TotalNanoseconds);
 #endif
 
-        MessageHandler handler = new(message, treeChild.Value, scope, client, mappedValues, name,
-            _messageConditionBuilders);
-        _ = handler.BuildModuleAndExecuteCommandAsync();
+        MessageHandler handler = new(message, methodData, scope, client, mappedValues, name,
+       _messageConditionBuilders);
+        _ = handler.BuildModuleAndExecuteCommandAsync(); // Ignore error, this should be a fire and forget
     }
 }

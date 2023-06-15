@@ -18,12 +18,12 @@ internal class MessageHandler
     private readonly MessageMethodData _data;
     private readonly IServiceScope _scope;
     private readonly DiscordClient _client;
-    private readonly IReadOnlyList<(Type, ArraySegment<char>)> _values;
+    private readonly IReadOnlyList<(Type, ArraySegment<char>?)> _values;
     private readonly string _name;
     private readonly IReadOnlyList<Func<IServiceProvider, IMessageCondition>> _conditionBuilders;
 
     public MessageHandler(DiscordMessage message, MessageMethodData data, IServiceScope scope,
-        DiscordClient client, IReadOnlyList<(Type, ArraySegment<char>)> values, string name,
+        DiscordClient client, IReadOnlyList<(Type, ArraySegment<char>?)> values, string name,
         IReadOnlyList<Func<IServiceProvider, IMessageCondition>> conditionBuilders)
     {
         _message = message;

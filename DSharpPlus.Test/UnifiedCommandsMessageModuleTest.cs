@@ -2,7 +2,6 @@ using System;
 using System.Threading.Tasks;
 using DSharpPlus.UnifiedCommands.Message;
 using DSharpPlus.UnifiedCommands.Message.Conditions;
-using Microsoft.Extensions.Logging;
 
 namespace DSharpPlus.Test;
 
@@ -10,7 +9,7 @@ namespace DSharpPlus.Test;
 public class UnifiedCommandsMessageModuleTest : MessageModule
 {
     // This is commented out until I have implemented default converters for all other types
-    /* private readonly string _str;
+    private readonly string _str;
 
     public UnifiedCommandsMessageModuleTest(string str) => _str = str;
 
@@ -47,6 +46,7 @@ public class UnifiedCommandsMessageModuleTest : MessageModule
         return;
     }
 
+    // TODO: Implement this when new custom converters exist
     [Message("remaining arguments")]
     public IMessageResult TestRemainingArguments([RemainingArguments] string arguments,
         [MessageOption("str", "s")] string? str)
@@ -60,13 +60,23 @@ public class UnifiedCommandsMessageModuleTest : MessageModule
 
     [Message("failing")]
     public IMessageResult TestFailing()
-        => throw new Exception("Fuck you"); */
+        => throw new Exception("Fuck you");
 
-    [Message("simple-str")]
-    public IMessageResult TestSimpleStr([MessageOption("str")] string str)
+    [Message("overload")]
+    public IMessageResult TestOverload([MessageOption("str")] string str)
     {
         IMessageResult result = Reply(str);
-        Client.Logger.LogInformation("Got str \"{String}\"", result.Builder.Content);
         return result;
     }
+
+    [Message("overload")]
+    public IMessageResult TestOverload([MessageOption("int")] int num)
+    {
+        IMessageResult result = Reply(num.ToString());
+        return result;
+    }
+
+    [Message("overload nested")]
+    public IMessageResult TestOverloadNested()
+        => Reply("Nested \"overload\"");
 }

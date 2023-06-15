@@ -2,13 +2,12 @@ namespace DSharpPlus.UnifiedCommands.Internals.Trees;
 
 internal interface ITreeChild<T>
 {
-    internal ITreeChild<T> TraverseOnce(ReadOnlySpan<char> span, IReadOnlyList<(int, int)> positions, ref int location);
-    internal (ITreeChild<T>, int) Traverse(ReadOnlySpan<char> span);
+    internal (ITreeChild<T>, int) Traverse(ReadOnlySpan<char> span, int depth = 0);
 
     internal void AddValueAt(T value, ReadOnlySpan<char> span);
 
 
-    public string Key { get; set; }
+    public string? Key { get; set; }
 
     /// <summary>
     /// The value of the tree parent

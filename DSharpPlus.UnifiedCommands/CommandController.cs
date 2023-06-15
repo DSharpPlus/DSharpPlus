@@ -16,7 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DSharpPlus.UnifiedCommands;
 
-using ConverterLambda = Func<IServiceProvider, DiscordClient, DiscordMessage, ArraySegment<char>?, ValueTask<IResult>>;
+using ConverterLambda = Func<IServiceProvider, DiscordClient, DiscordMessage, ArraySegment<char>, ValueTask<IResult>>;
 using ConversionLambda = Func<IResult, object?>;
 
 public sealed class CommandController
@@ -85,7 +85,7 @@ public sealed class CommandController
                         ParameterExpression serviceProvider = Expression.Parameter(typeof(IServiceProvider));
                         ParameterExpression client = Expression.Parameter(typeof(DiscordClient));
                         ParameterExpression message = Expression.Parameter(typeof(DiscordMessage));
-                        ParameterExpression segment = Expression.Parameter(typeof(ArraySegment<char>?));
+                        ParameterExpression segment = Expression.Parameter(typeof(ArraySegment<char>));
 
                         // Makes a call to the service provider to get the converter type
                         MethodCallExpression serviceMethodCall = Expression.Call(serviceProvider, _getServiceInfo, new[] { converterType });
