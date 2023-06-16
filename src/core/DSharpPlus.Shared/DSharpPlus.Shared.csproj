@@ -1,6 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <!-- Since we'd like to use some of these types in source-gen, multi-target to netstandard2.0 -->
+    <TargetFrameworks>netstandard2.0;$(TargetFramework)</TargetFrameworks>
+
     <IsPublicFacing>true</IsPublicFacing>
     <Description>$(Description) This package contains shared types between public-facing and internal implementation packages.</Description>
     <OutputType>Library</OutputType>

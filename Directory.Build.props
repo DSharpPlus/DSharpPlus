@@ -12,6 +12,7 @@
     <!-- build and versioning setup -->
     <ManagePackageVersionsCentrally>True</ManagePackageVersionsCentrally>
     <UseArtifactsOutput>true</UseArtifactsOutput>
+    <NuGetAudit>true</NuGetAudit>
 
     <!-- sourcelink -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -38,6 +39,7 @@
     <!-- this is inserted as the version prefix for all libraries declaring themselves as public-facing -->
     <_DSharpPlusReleaseVersion>6.0.0</_DSharpPlusReleaseVersion>
 
+    <!-- DSharpPlus.Core.Abstractions.Models -->
     <_DSharpPlusCoreAbstractionsModelsVersion>0.1.0</_DSharpPlusCoreAbstractionsModelsVersion>
   </PropertyGroup>
 
