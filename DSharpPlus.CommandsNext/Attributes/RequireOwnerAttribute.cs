@@ -24,21 +24,21 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using DSharpPlus.Entities;
 
-namespace DSharpPlus.CommandsNext.Attributes
+namespace DSharpPlus.CommandsNext.Attributes;
+
+/// <summary>
+/// Defines that usage of this command is restricted to the owner of the bot.
+/// </summary>
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+public sealed class RequireOwnerAttribute : CheckBaseAttribute
 {
-    /// <summary>
-    /// Defines that usage of this command is restricted to the owner of the bot.
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-    public sealed class RequireOwnerAttribute : CheckBaseAttribute
+    public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
     {
-        public override Task<bool> ExecuteCheckAsync(CommandContext ctx, bool help)
-        {
-            var app = ctx.Client.CurrentApplication;
-            var me = ctx.Client.CurrentUser;
+        DiscordApplication? app = ctx.Client.CurrentApplication;
+        DiscordUser? me = ctx.Client.CurrentUser;
 
-            return app != null ? Task.FromResult(app.Owners.Any(x => x.Id == ctx.User.Id)) : Task.FromResult(ctx.User.Id == me.Id);
-        }
+        return app != null ? Task.FromResult(app.Owners.Any(x => x.Id == ctx.User.Id)) : Task.FromResult(ctx.User.Id == me.Id);
     }
 }
