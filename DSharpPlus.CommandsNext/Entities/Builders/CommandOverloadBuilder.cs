@@ -41,12 +41,12 @@ public sealed class CommandOverloadBuilder
     /// <summary>
     /// Gets a value that uniquely identifies an overload.
     /// </summary>
-    internal string _argumentSet { get; }
+    internal string ArgumentSet { get; }
 
     /// <summary>
     /// Gets the collection of arguments this overload takes.
     /// </summary>
-    public IReadOnlyList<CommandArgument> Arguments { get; } = Array.Empty<CommandArgument>();
+    public IReadOnlyList<CommandArgument> Arguments { get; }
 
     /// <summary>
     /// Gets this overload's priority when picking a suitable one for execution.
@@ -58,7 +58,7 @@ public sealed class CommandOverloadBuilder
     /// </summary>
     public Delegate Callable { get; set; }
 
-    private object? _invocationTarget { get; }
+    private object? InvocationTarget { get; }
 
     /// <summary>
     /// Creates a new command overload builder from specified method.
@@ -74,15 +74,15 @@ public sealed class CommandOverloadBuilder
 
     private CommandOverloadBuilder(MethodInfo method, object? target)
     {
-        if (!method.IsCommandCandidate(out ParameterInfo[]? prms))
+        if (!method.IsCommandCandidate(out ParameterInfo[]? infos))
         {
             throw new ArgumentException("Specified method is not suitable for a command.", nameof(method));
         }
 
-        this._invocationTarget = target;
+        this.InvocationTarget = target;
 
         // create the argument array
-        ParameterExpression[]? ea = new ParameterExpression[prms.Length + 1];
+        ParameterExpression[]? ea = new ParameterExpression[infos.Length + 1];
         ParameterExpression? iep = Expression.Parameter(target?.GetType() ?? method.DeclaringType, "instance");
         ea[0] = iep;
         ea[1] = Expression.Parameter(typeof(CommandContext), "ctx");
@@ -94,11 +94,11 @@ public sealed class CommandOverloadBuilder
         }
 
         int i = 2;
-        List<CommandArgument>? args = new(prms.Length - 1);
-        StringBuilder? setb = new();
-        foreach (ParameterInfo? arg in prms.Skip(1))
+        List<CommandArgument>? args = new(infos.Length - 1);
+        StringBuilder? builder = new();
+        foreach (ParameterInfo? arg in infos.Skip(1))
         {
-            setb.Append(arg.ParameterType).Append(";");
+            builder.Append(arg.ParameterType).Append(";");
             CommandArgument? ca = new()
             {
                 Name = arg.Name,
@@ -154,7 +154,7 @@ public sealed class CommandOverloadBuilder
         MethodCallExpression? ec = Expression.Call(iep, method, ea.Skip(1));
         LambdaExpression? el = Expression.Lambda(ec, ea);
 
-        this._argumentSet = setb.ToString();
+        this.ArgumentSet = builder.ToString();
         this.Arguments = new ReadOnlyCollection<CommandArgument>(args);
         this.Callable = el.Compile();
     }
@@ -176,8 +176,8 @@ public sealed class CommandOverloadBuilder
         {
             Arguments = this.Arguments,
             Priority = this.Priority,
-            _callable = this.Callable,
-            _invocationTarget = this._invocationTarget
+            Callable = this.Callable,
+            InvocationTarget = this.InvocationTarget
         };
 
         return ovl;

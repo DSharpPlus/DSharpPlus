@@ -58,40 +58,40 @@ public class DefaultHelpFormatter : BaseHelpFormatter
 
         this.EmbedBuilder.WithDescription($"{Formatter.InlineCode(command.Name)}: {command.Description ?? "No description provided."}");
 
-        if (command is CommandGroup cgroup && cgroup.IsExecutableWithoutSubcommands)
+        if (command is CommandGroup group && group.IsExecutableWithoutSubcommands)
         {
             this.EmbedBuilder.WithDescription($"{this.EmbedBuilder.Description}\n\nThis group can be executed as a standalone command.");
         }
 
         if (command.Aliases.Count > 0)
         {
-            this.EmbedBuilder.AddField("Aliases", string.Join(", ", command.Aliases.Select(Formatter.InlineCode)), false);
+            this.EmbedBuilder.AddField("Aliases", string.Join(", ", command.Aliases.Select(Formatter.InlineCode)));
         }
 
         if (command.Overloads.Count > 0)
         {
-            StringBuilder? sb = new();
+            StringBuilder? builder = new();
 
             foreach (CommandOverload? ovl in command.Overloads.OrderByDescending(x => x.Priority))
             {
-                sb.Append('`').Append(command.QualifiedName);
+                builder.Append('`').Append(command.QualifiedName);
 
                 foreach (CommandArgument? arg in ovl.Arguments)
                 {
-                    sb.Append(arg.IsOptional || arg.IsCatchAll ? " [" : " <").Append(arg.Name).Append(arg.IsCatchAll ? "..." : "").Append(arg.IsOptional || arg.IsCatchAll ? ']' : '>');
+                    builder.Append(arg.IsOptional || arg.IsCatchAll ? " [" : " <").Append(arg.Name).Append(arg.IsCatchAll ? "..." : "").Append(arg.IsOptional || arg.IsCatchAll ? ']' : '>');
                 }
 
-                sb.Append("`\n");
+                builder.Append("`\n");
 
                 foreach (CommandArgument? arg in ovl.Arguments)
                 {
-                    sb.Append('`').Append(arg.Name).Append(" (").Append(this.CommandsNext.GetUserFriendlyTypeName(arg.Type)).Append(")`: ").Append(arg.Description ?? "No description provided.").Append('\n');
+                    builder.Append('`').Append(arg.Name).Append(" (").Append(this.CommandsNext.GetUserFriendlyTypeName(arg.Type)).Append(")`: ").Append(arg.Description ?? "No description provided.").Append('\n');
                 }
 
-                sb.Append('\n');
+                builder.Append('\n');
             }
 
-            this.EmbedBuilder.AddField("Arguments", sb.ToString().Trim(), false);
+            this.EmbedBuilder.AddField("Arguments", builder.ToString().Trim());
         }
 
         return this;
@@ -110,14 +110,14 @@ public class DefaultHelpFormatter : BaseHelpFormatter
         // no known categories, proceed without categorization
         if (categories.Count() == 1 && categories.Single().Key == null)
         {
-            this.EmbedBuilder.AddField(this.Command is not null ? "Subcommands" : "Commands", string.Join(", ", subcommands.Select(x => Formatter.InlineCode(x.Name))), false);
+            this.EmbedBuilder.AddField(this.Command is not null ? "Subcommands" : "Commands", string.Join(", ", subcommands.Select(x => Formatter.InlineCode(x.Name))));
 
             return this;
         }
 
         foreach (IGrouping<string, Command>? category in categories)
         {
-            this.EmbedBuilder.AddField(category.Key ?? "Uncategorized commands", string.Join(", ", category.Select(xm => Formatter.InlineCode(xm.Name))), false);
+            this.EmbedBuilder.AddField(category.Key ?? "Uncategorized commands", string.Join(", ", category.Select(xm => Formatter.InlineCode(xm.Name))));
         }
 
         return this;

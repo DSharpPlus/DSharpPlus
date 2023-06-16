@@ -75,13 +75,13 @@ public static class CommandsNextUtilities
             return -1;
         }
 
-        int cni = content.IndexOf('>');
-        if (cni == -1 || content.Length <= cni + 2)
+        int mentionEnd = content.IndexOf('>');
+        if (mentionEnd == -1 || content.Length <= mentionEnd + 2)
         {
             return -1;
         }
 
-        string? cnp = content[..(cni + 2)];
+        string? cnp = content[..(mentionEnd + 2)];
         Match? m = UserRegex.Match(cnp);
         if (!m.Success)
         {
@@ -198,22 +198,22 @@ public static class CommandsNextUtilities
             return s;
         }
 
-        int li = indices.Last();
-        int ll = 1;
+        int last = indices.Last();
+        int length = 1;
         for (int x = indices.Count - 2; x >= 0; x--)
         {
-            if (li - indices[x] == ll)
+            if (last - indices[x] == length)
             {
-                ll++;
+                length++;
                 continue;
             }
 
-            s = s.Remove(li - ll + 1, ll);
-            li = indices[x];
-            ll = 1;
+            s = s.Remove(last - length + 1, length);
+            last = indices[x];
+            length = 1;
         }
 
-        return s.Remove(li - ll + 1, ll);
+        return s.Remove(last - length + 1, length);
     }
 
     internal static async Task<ArgumentBindingResult> BindArgumentsAsync(CommandContext ctx, bool ignoreSurplus)
@@ -334,9 +334,9 @@ public static class CommandsNextUtilities
         }
 
         // check if derives from the required base class
-        Type? tmodule = typeof(BaseCommandModule);
-        TypeInfo? timodule = tmodule.GetTypeInfo();
-        if (!timodule.IsAssignableFrom(ti))
+        Type? module = typeof(BaseCommandModule);
+        TypeInfo? moduleInfo = module.GetTypeInfo();
+        if (!moduleInfo.IsAssignableFrom(ti))
         {
             return false;
         }
@@ -354,8 +354,8 @@ public static class CommandsNextUtilities
         }
 
         // check if delegate type
-        TypeInfo? tdelegate = typeof(Delegate).GetTypeInfo();
-        if (tdelegate.IsAssignableFrom(ti))
+        TypeInfo? delegateInfo = typeof(Delegate).GetTypeInfo();
+        if (delegateInfo.IsAssignableFrom(ti))
         {
             return false;
         }
@@ -382,20 +382,16 @@ public static class CommandsNextUtilities
 
         // check if appropriate return and arguments
         parameters = method.GetParameters();
-        if (!parameters.Any() || parameters.First().ParameterType != typeof(CommandContext) || method.ReturnType != typeof(Task))
-        {
-            return false;
-        }
+        return parameters.Any() && parameters.First().ParameterType == typeof(CommandContext) && method.ReturnType == typeof(Task);
 
         // qualifies
-        return true;
     }
 
-    internal static object CreateInstance(this Type t, IServiceProvider services)
+    internal static object CreateInstance(this Type type, IServiceProvider services)
     {
-        TypeInfo? ti = t.GetTypeInfo();
-        ConstructorInfo[]? constructors = ti.DeclaredConstructors
-            .Where(xci => xci.IsPublic)
+        TypeInfo? typeInfo = type.GetTypeInfo();
+        ConstructorInfo[]? constructors = typeInfo.DeclaredConstructors
+            .Where(constructInfo => constructInfo.IsPublic)
             .ToArray();
 
         if (constructors.Length != 1)
@@ -421,10 +417,10 @@ public static class CommandsNextUtilities
             }
         }
 
-        object? moduleInstance = Activator.CreateInstance(t, args);
+        object? moduleInstance = Activator.CreateInstance(type, args);
 
         // inject into properties
-        IEnumerable<PropertyInfo>? props = t.GetRuntimeProperties().Where(xp => xp.CanWrite && xp.SetMethod != null && !xp.SetMethod.IsStatic && xp.SetMethod.IsPublic);
+        IEnumerable<PropertyInfo>? props = type.GetRuntimeProperties().Where(propertyInfo => propertyInfo.CanWrite && propertyInfo.SetMethod != null && !propertyInfo.SetMethod.IsStatic && propertyInfo.SetMethod.IsPublic);
         foreach (PropertyInfo? prop in props)
         {
             if (prop.GetCustomAttribute<DontInjectAttribute>() != null)
@@ -442,7 +438,7 @@ public static class CommandsNextUtilities
         }
 
         // inject into fields
-        IEnumerable<FieldInfo>? fields = t.GetRuntimeFields().Where(xf => !xf.IsInitOnly && !xf.IsStatic && xf.IsPublic);
+        IEnumerable<FieldInfo>? fields = type.GetRuntimeFields().Where(fieldInfo => !fieldInfo.IsInitOnly && !fieldInfo.IsStatic && fieldInfo.IsPublic);
         foreach (FieldInfo? field in fields)
         {
             if (field.GetCustomAttribute<DontInjectAttribute>() != null)

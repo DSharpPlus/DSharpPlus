@@ -62,7 +62,7 @@ public class DiscordUserConverter : IArgumentConverter<DiscordUser>
         string? dv = di != -1 ? value[(di + 1)..] : null;
 
         IEnumerable<DiscordMember>? us = ctx.Client.Guilds.Values
-            .SelectMany(xkvp => xkvp.Members.Values).Where(xm =>
+            .SelectMany(guild => guild.Members.Values).Where(xm =>
                 xm.Username.Equals(un, cs ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase) &&
                 ((dv != null && xm.Discriminator == dv) || dv == null));
 

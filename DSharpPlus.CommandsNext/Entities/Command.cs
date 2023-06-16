@@ -100,13 +100,13 @@ public class Command
     /// <returns>Command's execution results.</returns>
     public virtual async Task<CommandResult> ExecuteAsync(CommandContext ctx)
     {
-        CommandResult res = default;
+        CommandResult result = default;
         try
         {
             bool executed = false;
-            foreach (CommandOverload? ovl in this.Overloads.OrderByDescending(x => x.Priority))
+            foreach (CommandOverload? overload in this.Overloads.OrderByDescending(x => x.Priority))
             {
-                ctx.Overload = ovl;
+                ctx.Overload = overload;
                 ArgumentBindingResult args = await CommandsNextUtilities.BindArgumentsAsync(ctx, ctx.Config.IgnoreExtraArguments);
 
                 if (!args.IsSuccessful)
@@ -116,17 +116,17 @@ public class Command
 
                 ctx.RawArguments = args.Raw;
 
-                object? mdl = ovl._invocationTarget ?? this.Module?.GetInstance(ctx.Services);
+                object? mdl = overload.InvocationTarget ?? this.Module?.GetInstance(ctx.Services);
                 if (mdl is BaseCommandModule bcmBefore)
                 {
                     await bcmBefore.BeforeExecutionAsync(ctx);
                 }
 
                 args.Converted[0] = mdl;
-                Task? ret = (Task)ovl._callable.DynamicInvoke(args.Converted);
+                Task? ret = (Task)overload.Callable.DynamicInvoke(args.Converted);
                 await ret;
                 executed = true;
-                res = new CommandResult
+                result = new CommandResult
                 {
                     IsSuccessful = true,
                     Context = ctx
@@ -146,7 +146,7 @@ public class Command
         }
         catch (Exception ex)
         {
-            res = new CommandResult
+            result = new CommandResult
             {
                 IsSuccessful = false,
                 Exception = ex,
@@ -154,7 +154,7 @@ public class Command
             };
         }
 
-        return res;
+        return result;
     }
 
     /// <summary>
@@ -165,19 +165,19 @@ public class Command
     /// <returns>Pre-execution checks that fail for given context.</returns>
     public async Task<IEnumerable<CheckBaseAttribute>> RunChecksAsync(CommandContext ctx, bool help)
     {
-        List<CheckBaseAttribute>? fchecks = new();
+        List<CheckBaseAttribute>? checks = new();
         if (this.ExecutionChecks.Any())
         {
             foreach (CheckBaseAttribute? ec in this.ExecutionChecks)
             {
                 if (!await ec.ExecuteCheckAsync(ctx, help))
                 {
-                    fchecks.Add(ec);
+                    checks.Add(ec);
                 }
             }
         }
 
-        return fchecks;
+        return checks;
     }
 
     /// <summary>

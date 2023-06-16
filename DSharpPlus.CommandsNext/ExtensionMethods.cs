@@ -77,7 +77,7 @@ public static class ExtensionMethods
         Dictionary<int, CommandsNextExtension> modules = new();
         await client.InitializeShardsAsync();
 
-        foreach (DiscordClient shard in client.ShardClients.Select(xkvp => xkvp.Value))
+        foreach (DiscordClient shard in client.ShardClients.Select(kvp => kvp.Value))
         {
             CommandsNextExtension? cnext = shard.GetExtension<CommandsNextExtension>() ?? shard.UseCommandsNext(cfg);
 
@@ -106,7 +106,7 @@ public static class ExtensionMethods
         await client.InitializeShardsAsync();
         Dictionary<int, CommandsNextExtension> extensions = new();
 
-        foreach (DiscordClient shard in client.ShardClients.Select(xkvp => xkvp.Value))
+        foreach (DiscordClient shard in client.ShardClients.Select(kvp => kvp.Value))
         {
             extensions.Add(shard.ShardId, shard.GetExtension<CommandsNextExtension>());
         }

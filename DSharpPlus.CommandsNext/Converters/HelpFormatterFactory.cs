@@ -30,8 +30,6 @@ internal class HelpFormatterFactory
 {
     private ObjectFactory Factory { get; set; } = null!;
 
-    public HelpFormatterFactory() { }
-
     public void SetFormatterType<T>() where T : BaseHelpFormatter => this.Factory = ActivatorUtilities.CreateFactory(typeof(T), new[] { typeof(CommandContext) });
 
     public BaseHelpFormatter Create(CommandContext ctx)

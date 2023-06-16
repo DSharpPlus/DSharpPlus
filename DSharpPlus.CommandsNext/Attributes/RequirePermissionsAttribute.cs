@@ -66,28 +66,28 @@ public sealed class RequirePermissionsAttribute : CheckBaseAttribute
         {
             return false;
         }
-        Permissions pusr = ctx.Channel.PermissionsFor(usr);
+        Permissions permissionsUser = ctx.Channel.PermissionsFor(usr);
 
         DiscordMember? bot = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
         if (bot == null)
         {
             return false;
         }
-        Permissions pbot = ctx.Channel.PermissionsFor(bot);
+        Permissions permissionsBot = ctx.Channel.PermissionsFor(bot);
 
-        bool usrok = ctx.Guild.OwnerId == usr.Id;
-        bool botok = ctx.Guild.OwnerId == bot.Id;
+        bool userOwner = ctx.Guild.OwnerId == usr.Id;
+        bool botOwner = ctx.Guild.OwnerId == bot.Id;
 
-        if (!usrok)
+        if (!userOwner)
         {
-            usrok = (pusr & Permissions.Administrator) != 0 || (pusr & this.Permissions) == this.Permissions;
+            userOwner = (permissionsUser & Permissions.Administrator) != 0 || (permissionsUser & this.Permissions) == this.Permissions;
         }
 
-        if (!botok)
+        if (!botOwner)
         {
-            botok = (pbot & Permissions.Administrator) != 0 || (pbot & this.Permissions) == this.Permissions;
+            botOwner = (permissionsBot & Permissions.Administrator) != 0 || (permissionsBot & this.Permissions) == this.Permissions;
         }
 
-        return usrok && botok;
+        return userOwner && botOwner;
     }
 }

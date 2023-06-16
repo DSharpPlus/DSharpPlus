@@ -86,12 +86,12 @@ public class SingletonCommandModule : ICommandModule
     /// <summary>
     /// Creates a new singleton module, and instantiates it.
     /// </summary>
-    /// <param name="t">Type of the module to create.</param>
+    /// <param name="type">Type of the module to create.</param>
     /// <param name="services">Services to instantiate the module with.</param>
-    internal SingletonCommandModule(Type t, IServiceProvider services)
+    internal SingletonCommandModule(Type type, IServiceProvider services)
     {
-        this.ModuleType = t;
-        this.Instance = (BaseCommandModule)t.CreateInstance(services);
+        this.ModuleType = type;
+        this.Instance = (BaseCommandModule)type.CreateInstance(services);
     }
 
     /// <summary>

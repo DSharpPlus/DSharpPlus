@@ -151,7 +151,7 @@ public sealed class CooldownAttribute : CheckBaseAttribute
 /// <summary>
 /// Defines how are command cooldowns applied.
 /// </summary>
-public enum CooldownBucketType : int
+public enum CooldownBucketType
 {
     /// <summary>
     /// Denotes that the command will have its cooldown applied per-user.
@@ -263,7 +263,7 @@ public sealed class CommandCooldownBucket : IEquatable<CommandCooldownBucket>
     /// <summary>
     /// Decrements the remaining use counter.
     /// </summary>
-    /// <returns>Whether decrement succeded or not.</returns>
+    /// <returns>Whether decrement succeeded or not.</returns>
     internal async Task<bool> DecrementUseAsync()
     {
         await this._usageSemaphore.WaitAsync();

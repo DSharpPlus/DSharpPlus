@@ -47,7 +47,7 @@ public class ModuleLifespanAttribute : Attribute
 /// <summary>
 /// Defines lifespan of a command module.
 /// </summary>
-public enum ModuleLifespan : int
+public enum ModuleLifespan
 {
     /// <summary>
     /// Defines that this module will be instantiated once.

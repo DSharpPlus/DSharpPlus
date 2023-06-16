@@ -37,7 +37,7 @@ public sealed class CommandGroupBuilder : CommandBuilder
     /// Gets the list of child commands registered for this group.
     /// </summary>
     public IReadOnlyList<CommandBuilder> Children { get; }
-    private List<CommandBuilder> _childrenList { get; }
+    private List<CommandBuilder> ChildrenList { get; }
 
     /// <summary>
     /// Creates a new module-less command group builder.
@@ -50,8 +50,8 @@ public sealed class CommandGroupBuilder : CommandBuilder
     /// <param name="module">Module on which this group is to be defined.</param>
     public CommandGroupBuilder(ICommandModule? module) : base(module)
     {
-        this._childrenList = new List<CommandBuilder>();
-        this.Children = new ReadOnlyCollection<CommandBuilder>(this._childrenList);
+        this.ChildrenList = new List<CommandBuilder>();
+        this.Children = new ReadOnlyCollection<CommandBuilder>(this.ChildrenList);
     }
 
     /// <summary>
@@ -61,7 +61,7 @@ public sealed class CommandGroupBuilder : CommandBuilder
     /// <returns>This builder.</returns>
     public CommandGroupBuilder WithChild(CommandBuilder child)
     {
-        this._childrenList.Add(child);
+        this.ChildrenList.Add(child);
         return this;
     }
 

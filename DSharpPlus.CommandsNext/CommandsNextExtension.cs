@@ -129,33 +129,33 @@ public class CommandsNextExtension : BaseExtension
             [typeof(DiscordColor)] = "color"
         };
 
-        Type? ncvt = typeof(NullableConverter<>);
-        Type? nt = typeof(Nullable<>);
-        Type[]? cvts = this.ArgumentConverters.Keys.ToArray();
-        foreach (Type? xt in cvts)
+        Type? converter = typeof(NullableConverter<>);
+        Type? nullable = typeof(Nullable<>);
+        Type[]? keysArray = this.ArgumentConverters.Keys.ToArray();
+        foreach (Type? type in keysArray)
         {
-            TypeInfo? xti = xt.GetTypeInfo();
-            if (!xti.IsValueType)
+            TypeInfo? typeInfo = type.GetTypeInfo();
+            if (!typeInfo.IsValueType)
             {
                 continue;
             }
 
-            Type? xcvt = ncvt.MakeGenericType(xt);
-            Type? xnt = nt.MakeGenericType(xt);
+            Type? genericConverter = converter.MakeGenericType(type);
+            Type? genericNullable = nullable.MakeGenericType(type);
 
-            if (this.ArgumentConverters.ContainsKey(xcvt) || Activator.CreateInstance(xcvt) is not IArgumentConverter xcv)
+            if (this.ArgumentConverters.ContainsKey(genericConverter) || Activator.CreateInstance(genericConverter) is not IArgumentConverter xcv)
             {
                 continue;
             }
 
-            this.ArgumentConverters[xnt] = xcv;
-            this.UserFriendlyTypeNames[xnt] = this.UserFriendlyTypeNames[xt];
+            this.ArgumentConverters[genericNullable] = xcv;
+            this.UserFriendlyTypeNames[genericNullable] = this.UserFriendlyTypeNames[type];
         }
 
-        Type? t = typeof(CommandsNextExtension);
-        IEnumerable<MethodInfo>? ms = t.GetTypeInfo().DeclaredMethods;
-        MethodInfo? m = ms.FirstOrDefault(xm => xm.Name == nameof(ConvertArgument) && xm.ContainsGenericParameters && !xm.IsStatic && xm.IsPublic);
-        this.ConvertGeneric = m;
+        Type? extensionType = typeof(CommandsNextExtension);
+        IEnumerable<MethodInfo>? methods = extensionType.GetTypeInfo().DeclaredMethods;
+        MethodInfo? methodInfo = methods.FirstOrDefault(xm => xm.Name == nameof(ConvertArgument) && xm.ContainsGenericParameters && !xm.IsStatic && xm.IsPublic);
+        this.ConvertGeneric = methodInfo;
     }
 
     /// <summary>
@@ -225,9 +225,9 @@ public class CommandsNextExtension : BaseExtension
             }
         }
 
-        if (this.Config.CommandExecutor is ParallelQueuedCommandExecutor pqce)
+        if (this.Config.CommandExecutor is ParallelQueuedCommandExecutor executor)
         {
-            this.Client.Logger.LogDebug(CommandsNextEvents.Misc, "Using parallel executor with degree {0}", pqce.Parallelism);
+            this.Client.Logger.LogDebug(CommandsNextEvents.Misc, "Using parallel executor with degree {0}", executor.Parallelism);
         }
     }
     #endregion
@@ -245,35 +245,35 @@ public class CommandsNextExtension : BaseExtension
             return;
         }
 
-        int mpos = -1;
+        int prefixLength = -1;
         if (this.Config.EnableMentionPrefix)
         {
-            mpos = e.Message.GetMentionPrefixLength(this.Client.CurrentUser);
+            prefixLength = e.Message.GetMentionPrefixLength(this.Client.CurrentUser);
         }
 
         if (this.Config.StringPrefixes.Any())
         {
-            foreach (string? pfix in this.Config.StringPrefixes)
+            foreach (string? prefix in this.Config.StringPrefixes)
             {
-                if (mpos == -1 && !string.IsNullOrWhiteSpace(pfix))
+                if (prefixLength == -1 && !string.IsNullOrWhiteSpace(prefix))
                 {
-                    mpos = e.Message.GetStringPrefixLength(pfix, this.Config.CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
+                    prefixLength = e.Message.GetStringPrefixLength(prefix, this.Config.CaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
                 }
             }
         }
 
-        if (mpos == -1 && this.Config.PrefixResolver != null)
+        if (prefixLength == -1 && this.Config.PrefixResolver != null)
         {
-            mpos = await this.Config.PrefixResolver(e.Message);
+            prefixLength = await this.Config.PrefixResolver(e.Message);
         }
 
-        if (mpos == -1)
+        if (prefixLength == -1)
         {
             return;
         }
 
-        string? pfx = e.Message.Content[..mpos];
-        string? cnt = e.Message.Content[mpos..];
+        string? pfx = e.Message.Content[..prefixLength];
+        string? cnt = e.Message.Content[prefixLength..];
 
         int __ = 0;
         string? fname = cnt.ExtractNextArgument(ref __, this.Config.QuotationMarks);
@@ -579,9 +579,9 @@ public class CommandsNextExtension : BaseExtension
                     break;
 
                 case AliasesAttribute a:
-                    foreach (string? xalias in a.Aliases)
+                    foreach (string? alias in a.Aliases)
                     {
-                        groupBuilder.WithAlias(this.Config.CaseSensitive ? xalias : xalias.ToLowerInvariant());
+                        groupBuilder.WithAlias(this.Config.CaseSensitive ? alias : alias.ToLowerInvariant());
                     }
                     break;
 
@@ -625,13 +625,13 @@ public class CommandsNextExtension : BaseExtension
                 continue;
             }
 
-            IEnumerable<Attribute>? attrs = m.GetCustomAttributes();
-            if (attrs.FirstOrDefault(xa => xa is CommandAttribute) is not CommandAttribute cattr)
+            IEnumerable<Attribute>? attributes = m.GetCustomAttributes();
+            if (attributes.FirstOrDefault(xa => xa is CommandAttribute) is not CommandAttribute commandAttribute)
             {
                 continue;
             }
 
-            string? commandName = cattr.Name;
+            string? commandName = commandAttribute.Name;
             if (commandName is null)
             {
                 commandName = m.Name;
@@ -679,14 +679,14 @@ public class CommandsNextExtension : BaseExtension
 
             commandBuilder.WithCategory(this.ExtractCategoryAttribute(m));
 
-            foreach (Attribute? xa in attrs)
+            foreach (Attribute? xa in attributes)
             {
                 switch (xa)
                 {
                     case AliasesAttribute a:
-                        foreach (string? xalias in a.Aliases)
+                        foreach (string? alias in a.Aliases)
                         {
-                            commandBuilder.WithAlias(this.Config.CaseSensitive ? xalias : xalias.ToLowerInvariant());
+                            commandBuilder.WithAlias(this.Config.CaseSensitive ? alias : alias.ToLowerInvariant());
                         }
                         break;
 
@@ -734,9 +734,9 @@ public class CommandsNextExtension : BaseExtension
 
             if (isModule && tempCommands is not null && groupBuilder is not null)
             {
-                foreach (CommandBuilder? xtcmd in tempCommands)
+                foreach (CommandBuilder? tempCommand in tempCommands)
                 {
-                    groupBuilder.WithChild(xtcmd);
+                    groupBuilder.WithChild(tempCommand);
                 }
             }
             else if (tempCommands != null)

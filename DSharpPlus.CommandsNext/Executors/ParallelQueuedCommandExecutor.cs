@@ -61,7 +61,7 @@ public sealed class ParallelQueuedCommandExecutor : ICommandExecutor
     {
         this.Parallelism = parallelism;
 
-        this._cts = new();
+        this._cts = new CancellationTokenSource();
         this._ct = this._cts.Token;
         this._queue = Channel.CreateUnbounded<CommandContext>();
         this._queueReader = this._queue.Reader;

@@ -54,8 +54,8 @@ public class CommandGroup : Command
     /// <returns>Command's execution results.</returns>
     public override async Task<CommandResult> ExecuteAsync(CommandContext ctx)
     {
-        int findpos = 0;
-        string? cn = ctx.RawArgumentString.ExtractNextArgument(ref findpos, ctx.Config.QuotationMarks);
+        int startPos = 0;
+        string? cn = ctx.RawArgumentString.ExtractNextArgument(ref startPos, ctx.Config.QuotationMarks);
 
         if (cn != null)
         {
@@ -65,29 +65,30 @@ public class CommandGroup : Command
 
             Command? cmd = this.Children.FirstOrDefault(xc => xc.Name.Equals(cn, comparison) || xc.Aliases.Contains(cn, comparer));
 
+           
             if (cmd is not null)
             {
                 // pass the execution on
-                CommandContext? xctx = new()
+                CommandContext? context = new()
                 {
                     Client = ctx.Client,
                     Message = ctx.Message,
                     Command = cmd,
                     Config = ctx.Config,
-                    RawArgumentString = ctx.RawArgumentString[findpos..],
+                    RawArgumentString = ctx.RawArgumentString[startPos..],
                     Prefix = ctx.Prefix,
                     CommandsNext = ctx.CommandsNext,
                     Services = ctx.Services
                 };
 
-                IEnumerable<CheckBaseAttribute>? fchecks = await cmd.RunChecksAsync(xctx, false);
-                return !fchecks.Any()
-                    ? await cmd.ExecuteAsync(xctx)
+                IEnumerable<CheckBaseAttribute>? checks = await cmd.RunChecksAsync(context, false);
+                return !checks.Any()
+                    ? await cmd.ExecuteAsync(context)
                     : new CommandResult
                     {
                         IsSuccessful = false,
-                        Exception = new ChecksFailedException(cmd, xctx, fchecks),
-                        Context = xctx
+                        Exception = new ChecksFailedException(cmd, context, checks),
+                        Context = context
                     };
             }
         }

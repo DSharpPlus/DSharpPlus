@@ -41,7 +41,7 @@ public sealed class CommandArgument
     /// <summary>
     /// Gets or sets whether this argument is an array argument.
     /// </summary>
-    internal bool _isArray { get; set; } = false;
+    internal bool _isArray { get; set; }
 
     /// <summary>
     /// Gets whether this argument is optional.
