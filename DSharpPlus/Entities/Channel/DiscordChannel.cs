@@ -416,7 +416,7 @@ namespace DSharpPlus.Entities
                 && this.Discord.Configuration.MessageCacheSize > 0
                 && this.Discord is DiscordClient dc
                 && dc.MessageCache != null
-                && dc.MessageCache.TryGet(xm => xm.Id == id && xm.ChannelId == this.Id, out var msg)
+                && dc.MessageCache.TryGet(id, out var msg)
                 ? msg
                 : await this.Discord.ApiClient.GetMessageAsync(this.Id, id);
         }
