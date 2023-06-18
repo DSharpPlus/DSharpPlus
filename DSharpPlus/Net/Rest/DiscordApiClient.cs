@@ -149,9 +149,7 @@ public sealed class DiscordApiClient
         ret._reactions ??= new List<DiscordReaction>();
         foreach (DiscordReaction reaction in ret._reactions)
         {
-<<<<<<< HEAD
             reaction.Emoji.Discord = this._discord!;
-=======
             var headers = new Dictionary<string, string>();
             if (!string.IsNullOrWhiteSpace(reason))
                 headers[REASON_HEADER_NAME] = reason;
