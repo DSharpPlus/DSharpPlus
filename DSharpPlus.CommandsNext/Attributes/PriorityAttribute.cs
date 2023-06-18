@@ -28,7 +28,7 @@ namespace DSharpPlus.CommandsNext.Attributes;
 /// <summary>
 /// Defines this command overload's priority. This determines the order in which overloads will be attempted to be called. Commands will be attempted in order of priority, in descending order.
 /// </summary>
-[AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+[AttributeUsage(AttributeTargets.Method, Inherited = false)]
 public sealed class PriorityAttribute : Attribute
 {
     /// <summary>

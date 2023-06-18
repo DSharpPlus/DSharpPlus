@@ -31,7 +31,7 @@ namespace DSharpPlus.CommandsNext.Attributes;
 /// <summary>
 /// Adds aliases to this command or group.
 /// </summary>
-[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false)]
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
 public sealed class AliasesAttribute : Attribute
 {
     /// <summary>

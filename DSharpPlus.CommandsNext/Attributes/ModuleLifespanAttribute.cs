@@ -28,7 +28,7 @@ namespace DSharpPlus.CommandsNext.Attributes;
 /// <summary>
 /// Defines a lifespan for this command module.
 /// </summary>
-[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+[AttributeUsage(AttributeTargets.Class, Inherited = false)]
 public class ModuleLifespanAttribute : Attribute
 {
     /// <summary>

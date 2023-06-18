@@ -30,7 +30,7 @@ namespace DSharpPlus.CommandsNext.Attributes;
 /// <summary>
 /// Defines that usage of this command is restricted to members with specified permissions. This check also verifies that the bot has the same permissions.
 /// </summary>
-[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, Inherited = false)]
 public sealed class RequirePermissionsAttribute : CheckBaseAttribute
 {
     /// <summary>

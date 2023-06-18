@@ -73,7 +73,7 @@ public sealed class CooldownAttribute : CheckBaseAttribute
     /// </summary>
     /// <param name="ctx">Command context to get cooldown bucket for.</param>
     /// <returns>Requested cooldown bucket, or null if one wasn't present.</returns>
-    public CommandCooldownBucket GetBucket(CommandContext ctx)
+    public CommandCooldownBucket? GetBucket(CommandContext ctx)
     {
         string? bid = this.GetBucketId(ctx, out _, out _, out _);
         _buckets.TryGetValue(bid, out CommandCooldownBucket? bucket);
@@ -88,7 +88,7 @@ public sealed class CooldownAttribute : CheckBaseAttribute
     public TimeSpan GetRemainingCooldown(CommandContext ctx)
     {
         CommandCooldownBucket? bucket = this.GetBucket(ctx);
-        return (bucket is null || bucket.RemainingUses > 0) ? TimeSpan.Zero : bucket.ResetsAt - DateTimeOffset.UtcNow;
+        return bucket is null || bucket.RemainingUses > 0 ? TimeSpan.Zero : bucket.ResetsAt - DateTimeOffset.UtcNow;
     }
 
     /// <summary>

@@ -125,7 +125,7 @@ public sealed class CommandOverloadBuilder
                     case ParamArrayAttribute:
                         ca.IsCatchAll = true;
                         ca.Type = arg.ParameterType.GetElementType();
-                        ca._isArray = true;
+                        ca.IsArray = true;
                         isParams = true;
                         break;
 

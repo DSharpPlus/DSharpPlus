@@ -204,21 +204,21 @@ public class CommandsNextExtension : BaseExtension
 
         if (this.Config.EnableDefaultHelp)
         {
-            this.RegisterCommands(typeof(DefaultHelpModule), null, Enumerable.Empty<CheckBaseAttribute>(), out List<CommandBuilder>? tcmds);
+            this.RegisterCommands(typeof(DefaultHelpModule), null, Enumerable.Empty<CheckBaseAttribute>(), out List<CommandBuilder>? cmdBuilders);
 
             if (this.Config.DefaultHelpChecks.Any())
             {
                 CheckBaseAttribute[]? checks = this.Config.DefaultHelpChecks.ToArray();
 
-                for (int i = 0; i < tcmds.Count; i++)
+                for (int i = 0; i < cmdBuilders.Count; i++)
                 {
-                    tcmds[i].WithExecutionChecks(checks);
+                    cmdBuilders[i].WithExecutionChecks(checks);
                 }
             }
 
-            if (tcmds != null)
+            if (cmdBuilders != null)
             {
-                foreach (CommandBuilder? xc in tcmds)
+                foreach (CommandBuilder? xc in cmdBuilders)
                 {
                     this.AddToCommandDictionary(xc.Build(null));
                 }
@@ -1073,7 +1073,7 @@ public class CommandsNextExtension : BaseExtension
         MethodInfo? m = this.ConvertGeneric.MakeGenericMethod(type);
         try
         {
-            return await ((Task<object>)m.Invoke(this, new object?[] { value, ctx }));
+            return await (Task<object>)m.Invoke(this, new object?[] { value, ctx });
         }
         catch (Exception ex) when (ex is TargetInvocationException or InvalidCastException)
         {

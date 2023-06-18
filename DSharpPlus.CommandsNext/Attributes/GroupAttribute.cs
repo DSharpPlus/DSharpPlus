@@ -29,7 +29,7 @@ namespace DSharpPlus.CommandsNext.Attributes;
 /// <summary>
 /// Marks this class as a command group.
 /// </summary>
-[AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+[AttributeUsage(AttributeTargets.Class)]
 public sealed class GroupAttribute : Attribute
 {
     /// <summary>

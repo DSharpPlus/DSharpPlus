@@ -104,7 +104,7 @@ public static class CommandsNextUtilities
         bool inTripleBacktick = false;
         bool inQuote = false;
         bool inEscape = false;
-        List<int>? removeIndices = new(str.Length - startPos);
+        List<int> removeIndices = new(str.Length - startPos);
 
         int i = startPos;
         for (; i < str.Length; i++)
@@ -232,7 +232,7 @@ public static class CommandsNextUtilities
             string? argValue = string.Empty;
             if (arg.IsCatchAll)
             {
-                if (arg._isArray)
+                if (arg.IsArray)
                 {
                     while (true)
                     {
@@ -286,7 +286,7 @@ public static class CommandsNextUtilities
         for (int i = 0; i < overload.Arguments.Count; i++)
         {
             CommandArgument? arg = overload.Arguments[i];
-            if (arg.IsCatchAll && arg._isArray)
+            if (arg.IsCatchAll && arg.IsArray)
             {
                 Array? array = Array.CreateInstance(arg.Type, rawArgumentList.Count - i);
                 int start = i;
@@ -383,8 +383,7 @@ public static class CommandsNextUtilities
         // check if appropriate return and arguments
         parameters = method.GetParameters();
         return parameters.Any() && parameters.First().ParameterType == typeof(CommandContext) && method.ReturnType == typeof(Task);
-
-        // qualifies
+        
     }
 
     internal static object CreateInstance(this Type type, IServiceProvider services)
@@ -455,6 +454,6 @@ public static class CommandsNextUtilities
             field.SetValue(moduleInstance, service);
         }
 
-        return moduleInstance;
+        return moduleInstance ?? throw new InvalidOperationException();
     }
 }

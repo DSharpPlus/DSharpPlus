@@ -25,7 +25,7 @@ using System;
 
 namespace DSharpPlus.CommandsNext.Attributes;
 
-[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
 public sealed class CategoryAttribute : Attribute
 {
     public string? Name { get; }

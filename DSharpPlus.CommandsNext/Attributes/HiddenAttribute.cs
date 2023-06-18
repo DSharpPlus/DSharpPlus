@@ -28,6 +28,6 @@ namespace DSharpPlus.CommandsNext.Attributes;
 /// <summary>
 /// Marks this command or group as hidden.
 /// </summary>
-[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false)]
+[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
 public sealed class HiddenAttribute : Attribute
 { }

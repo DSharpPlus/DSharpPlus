@@ -29,7 +29,7 @@ namespace DSharpPlus.CommandsNext.Attributes;
 /// <summary>
 /// Represents a base for all command pre-execution check attributes.
 /// </summary>
-[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
 public abstract class CheckBaseAttribute : Attribute
 {
     /// <summary>
