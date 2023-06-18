@@ -111,6 +111,7 @@ namespace DSharpPlus
         /// <summary>
         /// <para>Sets the size of the global message cache.</para>
         /// <para>Setting this to 0 will disable message caching entirely. Defaults to 1024.</para>
+        /// <para>This is only applied if the default message cache implementation is used.</para>
         /// </summary>
         public int MessageCacheSize { internal get; set; } = 1024;
 
@@ -194,6 +195,13 @@ namespace DSharpPlus
         public bool LogUnknownEvents { internal get; set; } = true;
 
         /// <summary>
+        /// <para>Sets the message cache implementation to use.</para>
+        /// <para>To create your own implementation, implement the <see cref="IMessageCacheProvider"/> instance.</para>
+        /// <para>Defaults to built-in implementation.</para>
+        /// </summary>
+        public IMessageCacheProvider? MessageCacheProvider { internal get; set; } = null;
+
+        /// <summary>
         /// Creates a new configuration with default values.
         /// </summary>
         public DiscordConfiguration()
@@ -224,6 +232,7 @@ namespace DSharpPlus
             this.Intents = other.Intents;
             this.LoggerFactory = other.LoggerFactory;
             this.LogUnknownEvents = other.LogUnknownEvents;
+            this.MessageCacheProvider = other.MessageCacheProvider;
         }
     }
 }
