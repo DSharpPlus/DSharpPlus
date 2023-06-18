@@ -46,8 +46,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{1092E215
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Tools.AutoUpdateChannelDescription", "tools\AutoUpdateChannelDescription\DSharpPlus.Tools.AutoUpdateChannelDescription.csproj", "{DE29AE1F-012F-45C1-96D9-AADC037CCA51}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Core", "src\core\DSharpPlus.Core\DSharpPlus.Core.csproj", "{ECAD9735-8772-422E-8812-8AB5C554CD7C}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
