@@ -50,7 +50,7 @@ namespace DSharpPlus
         #region Internal Fields/Properties
 
         internal bool _isShard = false;
-        internal IMessageCacheProvider MessageCache { get; }
+        internal IMessageCacheProvider? MessageCache { get; }
 
         private List<BaseExtension> _extensions = new();
         private StatusUpdate _status = null;
@@ -136,13 +136,11 @@ namespace DSharpPlus
         public DiscordClient(DiscordConfiguration config)
             : base(config)
         {
-            var intents = this.Configuration.Intents;
-            bool isEnableCache = (intents.HasIntent(DiscordIntents.GuildMessages) || intents.HasIntent(DiscordIntents.DirectMessages))
-                && ((this.Configuration.MessageCacheProvider == null && this.Configuration.MessageCacheSize > 0) || this.Configuration.MessageCacheProvider != null);
-
-            if (isEnableCache)
+            DiscordIntents intents = this.Configuration.Intents;
+            if (intents.HasIntent(DiscordIntents.GuildMessages) || intents.HasIntent(DiscordIntents.DirectMessages))
             {
-                this.MessageCache = this.Configuration.MessageCacheProvider ?? new MessageCache(this.Configuration.MessageCacheSize);
+                this.MessageCache = this.Configuration.MessageCacheProvider 
+                    ?? (this.Configuration.MessageCacheSize > 0 ? new MessageCache(this.Configuration.MessageCacheSize) : null);
             }
 
             this.InternalSetup();
