@@ -155,7 +155,7 @@ public sealed class DiscordApiClient
         foreach (DiscordReaction reaction in ret._reactions)
         {
             reaction.Emoji.Discord = this._discord!;
-            Dictionary<string, string> headers = new Dictionary<string, string>();
+            Dictionary<string, string> headers = new();
             if (!string.IsNullOrWhiteSpace(reason))
             {
                 headers[REASON_HEADER_NAME] = reason;
@@ -170,7 +170,7 @@ public sealed class DiscordApiClient
 
         internal Task DeleteWebhookAsync(ulong webhook_id, string webhook_token, string reason)
         {
-            Dictionary<string, string> headers = new Dictionary<string, string>();
+            Dictionary<string, string> headers = new();
             if (!string.IsNullOrWhiteSpace(reason))
             {
                 headers[REASON_HEADER_NAME] = reason;
@@ -198,8 +198,8 @@ public sealed class DiscordApiClient
                 }
             }
 
-            Dictionary<string, string> values = new Dictionary<string, string>();
-            RestWebhookExecutePayload pld = new RestWebhookExecutePayload
+            Dictionary<string, string> values = new();
+            RestWebhookExecutePayload pld = new()
             {
                 Content = builder.Content,
                 Username = builder.Username.HasValue ? builder.Username.Value : null,
@@ -214,7 +214,7 @@ public sealed class DiscordApiClient
                 pld.Mentions = new DiscordMentions(builder.Mentions, builder.Mentions.Any());
             }
 
-            if (!string.IsNullOrEmpty(builder.Content) || builder.Embeds?.Count() > 0 || builder.IsTTS == true || builder.Mentions != null)
+            if (!string.IsNullOrEmpty(builder.Content) || builder.Embeds?.Count > 0 || builder.IsTTS == true || builder.Mentions != null)
             {
                 values["payload_json"] = DiscordJson.SerializeObject(pld);
             }
@@ -268,7 +268,7 @@ public sealed class DiscordApiClient
 
             DiscordMentions? mentions = builder.Mentions != null ? new DiscordMentions(builder.Mentions, builder.Mentions.Any()) : null;
 
-            RestWebhookMessageEditPayload pld = new RestWebhookMessageEditPayload
+            RestWebhookMessageEditPayload pld = new()
             {
                 Content = builder.Content,
                 Embeds = builder.Embeds,
@@ -280,7 +280,7 @@ public sealed class DiscordApiClient
             string route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token{Endpoints.MESSAGES}/:message_id";
             var bucket = this._rest.GetBucket(RestRequestMethod.PATCH, route, new { webhook_id, webhook_token, message_id }, out var path);
 
-            Dictionary<string, string> values = new Dictionary<string, string>
+            Dictionary<string, string> values = new()
             {
                 ["payload_json"] = DiscordJson.SerializeObject(pld)
             };
@@ -339,7 +339,7 @@ public sealed class DiscordApiClient
 
         internal Task DeleteUserReactionAsync(ulong channel_id, ulong message_id, ulong user_id, string emoji, string reason)
         {
-            Dictionary<string, string> headers = new Dictionary<string, string>();
+            Dictionary<string, string> headers = new();
             if (!string.IsNullOrWhiteSpace(reason))
             {
                 headers[REASON_HEADER_NAME] = reason;
@@ -354,7 +354,7 @@ public sealed class DiscordApiClient
 
         internal async Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(ulong channel_id, ulong message_id, string emoji, ulong? after_id = null, int limit = 25)
         {
-            Dictionary<string, string> urlparams = new Dictionary<string, string>();
+            Dictionary<string, string> urlparams = new();
             if (after_id.HasValue)
             {
                 urlparams["after"] = after_id.Value.ToString(CultureInfo.InvariantCulture);
@@ -369,10 +369,10 @@ public sealed class DiscordApiClient
             var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.GET, route);
 
             IEnumerable<TransportUser> reacters_raw = JsonConvert.DeserializeObject<IEnumerable<TransportUser>>(res.Response);
-            List<DiscordUser> reacters = new List<DiscordUser>();
+            List<DiscordUser> reacters = new();
             foreach (TransportUser xr in reacters_raw)
             {
-                DiscordUser usr = new DiscordUser(xr) { Discord = this._discord };
+                DiscordUser usr = new(xr) { Discord = this._discord };
                 usr = this._discord.UpdateUserCache(usr);
 
                 reacters.Add(usr);
@@ -383,7 +383,7 @@ public sealed class DiscordApiClient
 
         internal Task DeleteAllReactionsAsync(ulong channel_id, ulong message_id, string reason)
         {
-            Dictionary<string, string> headers = new Dictionary<string, string>();
+            Dictionary<string, string> headers = new();
             if (!string.IsNullOrWhiteSpace(reason))
             {
                 headers[REASON_HEADER_NAME] = reason;
@@ -418,8 +418,8 @@ public sealed class DiscordApiClient
             IEnumerable<JObject> emojisRaw = JsonConvert.DeserializeObject<IEnumerable<JObject>>(res.Response);
 
             this._discord.Guilds.TryGetValue(guild_id, out DiscordGuild? gld);
-            Dictionary<ulong, DiscordUser> users = new Dictionary<ulong, DiscordUser>();
-            List<DiscordGuildEmoji> emojis = new List<DiscordGuildEmoji>();
+            Dictionary<ulong, DiscordUser> users = new();
+            List<DiscordGuildEmoji> emojis = new();
             foreach (JObject rawEmoji in emojisRaw)
             {
                 DiscordGuildEmoji xge = rawEmoji.ToDiscordObject<DiscordGuildEmoji>();
@@ -468,14 +468,14 @@ public sealed class DiscordApiClient
 
         internal async Task<DiscordGuildEmoji> CreateGuildEmojiAsync(ulong guild_id, string name, string imageb64, IEnumerable<ulong> roles, string reason)
         {
-            RestGuildEmojiCreatePayload pld = new RestGuildEmojiCreatePayload
+            RestGuildEmojiCreatePayload pld = new()
             {
                 Name = name,
                 ImageB64 = imageb64,
                 Roles = roles?.ToArray()
             };
 
-            Dictionary<string, string> headers = new Dictionary<string, string>();
+            Dictionary<string, string> headers = new();
             if (!string.IsNullOrWhiteSpace(reason))
             {
                 headers[REASON_HEADER_NAME] = reason;
@@ -503,13 +503,13 @@ public sealed class DiscordApiClient
 
         internal async Task<DiscordGuildEmoji> ModifyGuildEmojiAsync(ulong guild_id, ulong emoji_id, string name, IEnumerable<ulong> roles, string reason)
         {
-            RestGuildEmojiModifyPayload pld = new RestGuildEmojiModifyPayload
+            RestGuildEmojiModifyPayload pld = new()
             {
                 Name = name,
                 Roles = roles?.ToArray()
             };
 
-            Dictionary<string, string> headers = new Dictionary<string, string>();
+            Dictionary<string, string> headers = new();
             if (!string.IsNullOrWhiteSpace(reason))
             {
                 headers[REASON_HEADER_NAME] = reason;
@@ -538,7 +538,7 @@ public sealed class DiscordApiClient
 
         internal Task DeleteGuildEmojiAsync(ulong guild_id, ulong emoji_id, string reason)
         {
-            Dictionary<string, string> headers = new Dictionary<string, string>();
+            Dictionary<string, string> headers = new();
             if (!string.IsNullOrWhiteSpace(reason))
             {
                 headers[REASON_HEADER_NAME] = reason;
@@ -572,7 +572,7 @@ public sealed class DiscordApiClient
 
         internal async Task<IReadOnlyList<DiscordApplicationCommand>> BulkOverwriteGlobalApplicationCommandsAsync(ulong application_id, IEnumerable<DiscordApplicationCommand> commands)
         {
-            List<RestApplicationCommandCreatePayload> pld = new List<RestApplicationCommandCreatePayload>();
+            List<RestApplicationCommandCreatePayload> pld = new();
             foreach (DiscordApplicationCommand command in commands)
             {
                 pld.Add(new RestApplicationCommandCreatePayload
@@ -607,7 +607,7 @@ public sealed class DiscordApiClient
 
         internal async Task<DiscordApplicationCommand> CreateGlobalApplicationCommandAsync(ulong application_id, DiscordApplicationCommand command)
         {
-            RestApplicationCommandCreatePayload pld = new RestApplicationCommandCreatePayload
+            RestApplicationCommandCreatePayload pld = new()
             {
                 Type = command.Type,
                 Name = command.Name,
@@ -649,7 +649,7 @@ public sealed class DiscordApiClient
 
         internal async Task<DiscordApplicationCommand> EditGlobalApplicationCommandAsync(ulong application_id, ulong command_id, Optional<string> name, Optional<string> description, Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options, Optional<bool?> defaultPermission, Optional<bool?> nsfw, IReadOnlyDictionary<string, string> name_localizations = null, IReadOnlyDictionary<string, string> description_localizations = null, Optional<bool> allowDMUsage = default, Optional<Permissions?> defaultMemberPermissions = default)
         {
-            RestApplicationCommandEditPayload pld = new RestApplicationCommandEditPayload
+            RestApplicationCommandEditPayload pld = new()
             {
                 Name = name,
                 Description = description,
@@ -702,7 +702,7 @@ public sealed class DiscordApiClient
 
         internal async Task<IReadOnlyList<DiscordApplicationCommand>> BulkOverwriteGuildApplicationCommandsAsync(ulong application_id, ulong guild_id, IEnumerable<DiscordApplicationCommand> commands)
         {
-            List<RestApplicationCommandCreatePayload> pld = new List<RestApplicationCommandCreatePayload>();
+            List<RestApplicationCommandCreatePayload> pld = new();
             foreach (DiscordApplicationCommand command in commands)
             {
                 pld.Add(new RestApplicationCommandCreatePayload
@@ -737,7 +737,7 @@ public sealed class DiscordApiClient
 
         internal async Task<DiscordApplicationCommand> CreateGuildApplicationCommandAsync(ulong application_id, ulong guild_id, DiscordApplicationCommand command)
         {
-            RestApplicationCommandCreatePayload pld = new RestApplicationCommandCreatePayload
+            RestApplicationCommandCreatePayload pld = new()
             {
                 Type = command.Type,
                 Name = command.Name,
@@ -779,7 +779,7 @@ public sealed class DiscordApiClient
 
         internal async Task<DiscordApplicationCommand> EditGuildApplicationCommandAsync(ulong application_id, ulong guild_id, ulong command_id, Optional<string> name, Optional<string> description, Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options, Optional<bool?> defaultPermission, Optional<bool?> nsfw, IReadOnlyDictionary<string, string> name_localizations = null, IReadOnlyDictionary<string, string> description_localizations = null, Optional<bool> allowDMUsage = default, Optional<Permissions?> defaultMemberPermissions = default)
         {
-            RestApplicationCommandEditPayload pld = new RestApplicationCommandEditPayload
+            RestApplicationCommandEditPayload pld = new()
             {
                 Name = name,
                 Description = description,
@@ -826,7 +826,7 @@ public sealed class DiscordApiClient
                 }
             }
 
-            RestInteractionResponsePayload pld = new RestInteractionResponsePayload
+            RestInteractionResponsePayload pld = new()
             {
                 Type = type,
                 Data = builder != null ? new DiscordInteractionApplicationCommandCallbackData
@@ -843,11 +843,11 @@ public sealed class DiscordApiClient
                 } : null
             };
 
-            Dictionary<string, string> values = new Dictionary<string, string>();
+            Dictionary<string, string> values = new();
 
             if (builder != null)
             {
-                if (!string.IsNullOrEmpty(builder.Content) || builder.Embeds?.Count() > 0 || builder.IsTTS == true || builder.Mentions != null)
+                if (!string.IsNullOrEmpty(builder.Content) || builder.Embeds?.Count > 0 || builder.IsTTS == true || builder.Mentions != null)
                 {
                     values["payload_json"] = DiscordJson.SerializeObject(pld);
                 }
@@ -910,8 +910,8 @@ public sealed class DiscordApiClient
                 }
             }
 
-            Dictionary<string, string> values = new Dictionary<string, string>();
-            RestFollowupMessageCreatePayload pld = new RestFollowupMessageCreatePayload
+            Dictionary<string, string> values = new();
+            RestFollowupMessageCreatePayload pld = new()
             {
                 Content = builder.Content,
                 IsTTS = builder.IsTTS,
@@ -925,7 +925,7 @@ public sealed class DiscordApiClient
                 pld.Mentions = new DiscordMentions(builder.Mentions, builder.Mentions.Any());
             }
 
-            if (!string.IsNullOrEmpty(builder.Content) || builder.Embeds?.Count() > 0 || builder.IsTTS == true || builder.Mentions != null)
+            if (!string.IsNullOrEmpty(builder.Content) || builder.Embeds?.Count > 0 || builder.IsTTS == true || builder.Mentions != null)
             {
                 values["payload_json"] = DiscordJson.SerializeObject(pld);
             }
@@ -993,7 +993,7 @@ public sealed class DiscordApiClient
 
         internal async Task<DiscordGuildApplicationCommandPermissions> EditApplicationCommandPermissionsAsync(ulong application_id, ulong guild_id, ulong command_id, IEnumerable<DiscordApplicationCommandPermission> permissions)
         {
-            RestEditApplicationCommandPermissionsPayload pld = new RestEditApplicationCommandPermissionsPayload
+            RestEditApplicationCommandPermissionsPayload pld = new()
             {
                 Permissions = permissions
             };
@@ -1103,7 +1103,7 @@ public sealed class DiscordApiClient
 
             Uri url = Utilities.GetApiUriFor(path);
 
-            RestForumPostCreatePayload pld = new RestForumPostCreatePayload
+            RestForumPostCreatePayload pld = new()
             {
                 Name = name,
                 ArchiveAfter = autoArchiveDuration,
@@ -1130,7 +1130,7 @@ public sealed class DiscordApiClient
             }
             else
             {
-                Dictionary<string, string> values = new Dictionary<string, string>
+                Dictionary<string, string> values = new()
                 {
                     ["payload_json"] = DiscordJson.SerializeObject(pld)
                 };
@@ -1329,7 +1329,7 @@ public sealed class DiscordApiClient
     {
         string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.MEMBERS}{Endpoints.SEARCH}";
         var bucket = this._rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
-        Dictionary<string, string> querydict = new Dictionary<string, string>
+        Dictionary<string, string> querydict = new()
         {
             ["query"] = name,
             ["limit"] = limit.ToString()
@@ -1339,10 +1339,10 @@ public sealed class DiscordApiClient
         var json = JArray.Parse(res.Response);
         IReadOnlyList<TransportMember> tms = json.ToDiscordObject<IReadOnlyList<TransportMember>>();
 
-        List<DiscordMember> mbrs = new List<DiscordMember>();
+        List<DiscordMember> mbrs = new();
         foreach (TransportMember xtm in tms)
         {
-            DiscordUser usr = new DiscordUser(xtm.User) { Discord = this._discord };
+            DiscordUser usr = new(xtm.User) { Discord = this._discord };
 
             this._discord.UpdateUserCache(usr);
 
@@ -1377,7 +1377,7 @@ public sealed class DiscordApiClient
         DefaultMessageNotifications? default_message_notifications,
         SystemChannelFlags? system_channel_flags)
     {
-        RestGuildCreatePayload pld = new RestGuildCreatePayload
+        RestGuildCreatePayload pld = new()
         {
             Name = name,
             RegionId = region_id,
@@ -1407,7 +1407,7 @@ public sealed class DiscordApiClient
 
     internal async Task<DiscordGuild> CreateGuildFromTemplateAsync(string template_code, string name, Optional<string> iconb64)
     {
-        RestGuildCreateFromTemplatePayload pld = new RestGuildCreateFromTemplatePayload
+        RestGuildCreateFromTemplatePayload pld = new()
         {
             Name = name,
             IconBase64 = iconb64
@@ -1450,7 +1450,7 @@ public sealed class DiscordApiClient
         Optional<ulong?> publicUpdatesChannelId, Optional<ulong?> rulesChannelId, Optional<SystemChannelFlags> systemChannelFlags,
         string reason)
     {
-        RestGuildModifyPayload pld = new RestGuildModifyPayload
+        RestGuildModifyPayload pld = new()
         {
             Name = name,
             RegionId = region,
@@ -1507,7 +1507,7 @@ public sealed class DiscordApiClient
         string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.BANS}";
         var bucket = this._rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
 
-        Dictionary<string, string> queryParams = new Dictionary<string, string>();
+        Dictionary<string, string> queryParams = new();
         if (limit != null)
         {
             queryParams["limit"] = limit.ToString();
@@ -1537,7 +1537,7 @@ public sealed class DiscordApiClient
             xb.User = usr;
             return xb;
         });
-        ReadOnlyCollection<DiscordBan> bans = new ReadOnlyCollection<DiscordBan>(new List<DiscordBan>(bans_raw));
+        ReadOnlyCollection<DiscordBan> bans = new(new List<DiscordBan>(bans_raw));
 
         return bans;
     }
@@ -1549,7 +1549,7 @@ public sealed class DiscordApiClient
             throw new ArgumentException("Delete message days must be a number between 0 and 7.", nameof(delete_message_days));
         }
 
-        Dictionary<string, string> urlparams = new Dictionary<string, string>
+        Dictionary<string, string> urlparams = new()
         {
             ["delete_message_days"] = delete_message_days.ToString(CultureInfo.InvariantCulture)
         };
@@ -1593,7 +1593,7 @@ public sealed class DiscordApiClient
 
     internal async Task<DiscordMember> AddGuildMemberAsync(ulong guild_id, ulong user_id, string access_token, string nick, IEnumerable<DiscordRole> roles, bool muted, bool deafened)
     {
-        RestGuildMemberAddPayload pld = new RestGuildMemberAddPayload
+        RestGuildMemberAddPayload pld = new()
         {
             AccessToken = access_token,
             Nickname = nick ?? "",
@@ -1615,7 +1615,7 @@ public sealed class DiscordApiClient
 
     internal async Task<IReadOnlyList<TransportMember>> ListGuildMembersAsync(ulong guild_id, int? limit, ulong? after)
     {
-        Dictionary<string, string> urlparams = new Dictionary<string, string>();
+        Dictionary<string, string> urlparams = new();
         if (limit != null && limit > 0)
         {
             urlparams["limit"] = limit.Value.ToString(CultureInfo.InvariantCulture);
@@ -1722,7 +1722,7 @@ public sealed class DiscordApiClient
 
     internal async Task<AuditLog> GetAuditLogsAsync(ulong guild_id, int limit, ulong? after, ulong? before, ulong? responsible, int? action_type)
     {
-        Dictionary<string, string> urlparams = new Dictionary<string, string>
+        Dictionary<string, string> urlparams = new()
         {
             ["limit"] = limit.ToString(CultureInfo.InvariantCulture)
         };
@@ -1818,7 +1818,7 @@ public sealed class DiscordApiClient
 
     internal async Task<DiscordWidgetSettings> ModifyGuildWidgetSettingsAsync(ulong guild_id, bool? isEnabled, ulong? channelId, string reason)
     {
-        RestGuildWidgetSettingsPayload pld = new RestGuildWidgetSettingsPayload
+        RestGuildWidgetSettingsPayload pld = new()
         {
             Enabled = isEnabled,
             ChannelId = channelId
@@ -1857,7 +1857,7 @@ public sealed class DiscordApiClient
 
     internal async Task<DiscordGuildTemplate> CreateGuildTemplateAsync(ulong guild_id, string name, string description)
     {
-        RestGuildTemplateCreateOrModifyPayload pld = new RestGuildTemplateCreateOrModifyPayload
+        RestGuildTemplateCreateOrModifyPayload pld = new()
         {
             Name = name,
             Description = description
@@ -1889,7 +1889,7 @@ public sealed class DiscordApiClient
 
     internal async Task<DiscordGuildTemplate> ModifyGuildTemplateAsync(ulong guild_id, string template_code, string name, string description)
     {
-        RestGuildTemplateCreateOrModifyPayload pld = new RestGuildTemplateCreateOrModifyPayload
+        RestGuildTemplateCreateOrModifyPayload pld = new()
         {
             Name = name,
             Description = description
@@ -1934,7 +1934,7 @@ public sealed class DiscordApiClient
 
     internal async Task<DiscordGuildMembershipScreening> ModifyGuildMembershipScreeningFormAsync(ulong guild_id, Optional<bool> enabled, Optional<DiscordGuildMembershipScreeningField[]> fields, Optional<string> description)
     {
-        RestGuildMembershipScreeningFormModifyPayload pld = new RestGuildMembershipScreeningFormModifyPayload
+        RestGuildMembershipScreeningFormModifyPayload pld = new()
         {
             Enabled = enabled,
             Description = description,
@@ -1966,7 +1966,7 @@ public sealed class DiscordApiClient
 
     internal async Task<DiscordGuildWelcomeScreen> ModifyGuildWelcomeScreenAsync(ulong guild_id, Optional<bool> enabled, Optional<IEnumerable<DiscordGuildWelcomeScreenChannel>> welcomeChannels, Optional<string> description, string reason)
     {
-        RestGuildWelcomeScreenModifyPayload pld = new RestGuildWelcomeScreenModifyPayload
+        RestGuildWelcomeScreenModifyPayload pld = new()
         {
             Enabled = enabled,
             WelcomeChannels = welcomeChannels,
@@ -1991,7 +1991,7 @@ public sealed class DiscordApiClient
 
     internal async Task UpdateCurrentUserVoiceStateAsync(ulong guild_id, ulong channelId, bool? suppress, DateTimeOffset? requestToSpeakTimestamp)
     {
-        RestGuildUpdateCurrentUserVoiceStatePayload pld = new RestGuildUpdateCurrentUserVoiceStatePayload
+        RestGuildUpdateCurrentUserVoiceStatePayload pld = new()
         {
             ChannelId = channelId,
             Suppress = suppress,
@@ -2007,7 +2007,7 @@ public sealed class DiscordApiClient
 
     internal async Task UpdateUserVoiceStateAsync(ulong guild_id, ulong user_id, ulong channelId, bool? suppress)
     {
-        RestGuildUpdateUserVoiceStatePayload pld = new RestGuildUpdateUserVoiceStatePayload
+        RestGuildUpdateUserVoiceStatePayload pld = new()
         {
             ChannelId = channelId,
             Suppress = suppress
@@ -2036,7 +2036,7 @@ public sealed class DiscordApiClient
         if (json["user"] is JObject jusr) // Null = Missing stickers perm //
         {
             TransportUser tsr = jusr.ToDiscordObject<TransportUser>();
-            DiscordUser usr = new DiscordUser(tsr) { Discord = this._discord };
+            DiscordUser usr = new(tsr) { Discord = this._discord };
             ret.User = usr;
         }
 
@@ -2057,7 +2057,7 @@ public sealed class DiscordApiClient
         if (json["user"] is JObject jusr) // Null = Missing stickers perm //
         {
             TransportUser tsr = jusr.ToDiscordObject<TransportUser>();
-            DiscordUser usr = new DiscordUser(tsr) { Discord = this._discord };
+            DiscordUser usr = new(tsr) { Discord = this._discord };
             ret.User = usr;
         }
 
@@ -2098,7 +2098,7 @@ public sealed class DiscordApiClient
             if (json[i]["user"] is JObject jusr) // Null = Missing stickers perm //
             {
                 TransportUser tsr = jusr.ToDiscordObject<TransportUser>();
-                DiscordUser usr = new DiscordUser(tsr) { Discord = this._discord };
+                DiscordUser usr = new(tsr) { Discord = this._discord };
                 stkr.User = usr; // The sticker would've already populated, but this is just to ensure everything is up to date //
             }
         }
@@ -2123,7 +2123,7 @@ public sealed class DiscordApiClient
             headers[REASON_HEADER_NAME] = reason;
         }
 
-        Dictionary<string, string> values = new Dictionary<string, string>
+        Dictionary<string, string> values = new()
         {
             ["name"] = name,
             ["description"] = description,
@@ -2137,7 +2137,7 @@ public sealed class DiscordApiClient
         if (json["user"] is JObject jusr) // Null = Missing stickers perm //
         {
             TransportUser tsr = jusr.ToDiscordObject<TransportUser>();
-            DiscordUser usr = new DiscordUser(tsr) { Discord = this._discord };
+            DiscordUser usr = new(tsr) { Discord = this._discord };
             ret.User = usr;
         }
 
@@ -2148,7 +2148,7 @@ public sealed class DiscordApiClient
 
     internal async Task<DiscordMessageSticker> ModifyStickerAsync(ulong guild_id, ulong sticker_id, Optional<string> name, Optional<string> description, Optional<string> tags, string reason)
     {
-        Dictionary<string, string> headers = new Dictionary<string, string>();
+        Dictionary<string, string> headers = new();
         if (!string.IsNullOrWhiteSpace(reason))
         {
             headers[REASON_HEADER_NAME] = reason;
@@ -2158,7 +2158,7 @@ public sealed class DiscordApiClient
         var bucket = this._rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id, sticker_id }, out var path);
         Uri url = Utilities.GetApiUriFor(path);
 
-        RestStickerModifyPayload pld = new RestStickerModifyPayload()
+        RestStickerModifyPayload pld = new()
         {
             Name = name,
             Description = description,
@@ -2174,7 +2174,7 @@ public sealed class DiscordApiClient
 
     internal async Task DeleteStickerAsync(ulong guild_id, ulong sticker_id, string reason)
     {
-        Dictionary<string, string> headers = new Dictionary<string, string>();
+        Dictionary<string, string> headers = new();
         if (!string.IsNullOrWhiteSpace(reason))
         {
             headers[REASON_HEADER_NAME] = reason;
@@ -2212,7 +2212,7 @@ public sealed class DiscordApiClient
 
     )
     {
-        List<DiscordRestOverwrite> restoverwrites = new List<DiscordRestOverwrite>();
+        List<DiscordRestOverwrite> restoverwrites = new();
         if (overwrites != null)
         {
             foreach (DiscordOverwriteBuilder ow in overwrites)
@@ -2221,7 +2221,7 @@ public sealed class DiscordApiClient
             }
         }
 
-        RestChannelCreatePayload pld = new RestChannelCreatePayload
+        RestChannelCreatePayload pld = new()
         {
             Name = name,
             Type = type,
@@ -2298,7 +2298,7 @@ public sealed class DiscordApiClient
             }
         }
 
-        RestChannelModifyPayload pld = new RestChannelModifyPayload
+        RestChannelModifyPayload pld = new()
         {
             Name = name,
             Position = position,
@@ -2365,7 +2365,7 @@ public sealed class DiscordApiClient
             }
         }
 
-        RestThreadChannelModifyPayload pld = new RestThreadChannelModifyPayload
+        RestThreadChannelModifyPayload pld = new()
         {
             Name = name,
             Position = position,
@@ -2403,7 +2403,7 @@ public sealed class DiscordApiClient
         string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.EVENTS}";
         var bucket = this._rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
 
-        Dictionary<string, string> query = new Dictionary<string, string>() { { "with_user_count", with_user_counts.ToString() } };
+        Dictionary<string, string> query = new() { { "with_user_count", with_user_counts.ToString() } };
 
         Uri url = Utilities.GetApiUriFor(path, BuildQueryString(query));
 
@@ -2438,7 +2438,7 @@ public sealed class DiscordApiClient
 
         Uri url = Utilities.GetApiUriFor(path);
 
-        RestScheduledGuildEventCreatePayload pld = new RestScheduledGuildEventCreatePayload
+        RestScheduledGuildEventCreatePayload pld = new()
         {
             Name = name,
             Description = description,
@@ -2480,7 +2480,7 @@ public sealed class DiscordApiClient
         string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.EVENTS}/:guild_scheduled_event_id{Endpoints.USERS}";
         var bucket = this._rest.GetBucket(RestRequestMethod.GET, route, new { guild_id, guild_scheduled_event_id }, out var path);
 
-        Dictionary<string, string> query = new Dictionary<string, string>() { { "with_members", with_members.ToString() } };
+        Dictionary<string, string> query = new() { { "with_members", with_members.ToString() } };
 
         if (limit > 0)
         {
@@ -2547,7 +2547,7 @@ public sealed class DiscordApiClient
         }
 
         Uri url = Utilities.GetApiUriFor(path);
-        RestScheduledGuildEventModifyPayload pld = new RestScheduledGuildEventModifyPayload
+        RestScheduledGuildEventModifyPayload pld = new()
         {
             Name = name,
             Description = description,
@@ -2658,7 +2658,7 @@ public sealed class DiscordApiClient
             }
         }
 
-        RestChannelMessageCreatePayload pld = new RestChannelMessageCreatePayload
+        RestChannelMessageCreatePayload pld = new()
         {
             HasContent = content != null,
             Content = content,
@@ -2704,7 +2704,7 @@ public sealed class DiscordApiClient
             }
         }
 
-        RestChannelMessageCreatePayload pld = new RestChannelMessageCreatePayload
+        RestChannelMessageCreatePayload pld = new()
         {
             HasContent = builder.Content != null,
             Content = builder.Content,
@@ -2735,7 +2735,7 @@ public sealed class DiscordApiClient
         }
         else
         {
-            Dictionary<string, string> values = new Dictionary<string, string>
+            Dictionary<string, string> values = new()
             {
                 ["payload_json"] = DiscordJson.SerializeObject(pld)
             };
@@ -2781,7 +2781,7 @@ public sealed class DiscordApiClient
 
     internal async Task<IReadOnlyList<DiscordMessage>> GetChannelMessagesAsync(ulong channel_id, int limit, ulong? before, ulong? after, ulong? around)
     {
-        Dictionary<string, string> urlparams = new Dictionary<string, string>();
+        Dictionary<string, string> urlparams = new();
         if (around != null)
         {
             urlparams["around"] = around?.ToString(CultureInfo.InvariantCulture);
@@ -2809,7 +2809,7 @@ public sealed class DiscordApiClient
         var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.GET, route);
 
         var msgs_raw = JArray.Parse(res.Response);
-        List<DiscordMessage> msgs = new List<DiscordMessage>();
+        List<DiscordMessage> msgs = new();
         foreach (var xj in msgs_raw)
         {
             msgs.Add(this.PrepareMessage(xj));
@@ -2844,7 +2844,7 @@ public sealed class DiscordApiClient
             }
         }
 
-        RestChannelMessageEditPayload pld = new RestChannelMessageEditPayload
+        RestChannelMessageEditPayload pld = new()
         {
             HasContent = content.HasValue,
             Content = content.HasValue ? (string)content : null,
@@ -2856,7 +2856,7 @@ public sealed class DiscordApiClient
             Mentions = mentions.HasValue ? new DiscordMentions(mentions.Value ?? Mentions.None, false, mentions.Value?.OfType<RepliedUserMention>().Any() ?? false) : null
         };
 
-        Dictionary<string, string> values = new Dictionary<string, string>
+        Dictionary<string, string> values = new()
         {
             ["payload_json"] = DiscordJson.SerializeObject(pld)
         };
@@ -2894,7 +2894,7 @@ public sealed class DiscordApiClient
 
     internal Task DeleteMessagesAsync(ulong channel_id, IEnumerable<ulong> message_ids, string reason)
     {
-        RestChannelMessageBulkDeletePayload pld = new RestChannelMessageBulkDeletePayload
+        RestChannelMessageBulkDeletePayload pld = new()
         {
             Messages = message_ids
         };
@@ -2927,7 +2927,7 @@ public sealed class DiscordApiClient
 
     internal async Task<DiscordInvite> CreateChannelInviteAsync(ulong channel_id, int max_age, int max_uses, bool temporary, bool unique, string reason, InviteTargetType? targetType, ulong? targetUserId, ulong? targetApplicationId)
     {
-        RestChannelInviteCreatePayload pld = new RestChannelInviteCreatePayload
+        RestChannelInviteCreatePayload pld = new()
         {
             MaxAge = max_age,
             MaxUses = max_uses,
@@ -2973,7 +2973,7 @@ public sealed class DiscordApiClient
 
     internal Task EditChannelPermissionsAsync(ulong channel_id, ulong overwrite_id, Permissions allow, Permissions deny, string type, string reason)
     {
-        RestChannelPermissionEditPayload pld = new RestChannelPermissionEditPayload
+        RestChannelPermissionEditPayload pld = new()
         {
             Type = type,
             Allow = allow & PermissionMethods.FULL_PERMS,
@@ -3011,7 +3011,7 @@ public sealed class DiscordApiClient
         var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.GET, route);
 
         var msgs_raw = JArray.Parse(res.Response);
-        List<DiscordMessage> msgs = new List<DiscordMessage>();
+        List<DiscordMessage> msgs = new();
         foreach (var xj in msgs_raw)
         {
             msgs.Add(this.PrepareMessage(xj));
@@ -3040,7 +3040,7 @@ public sealed class DiscordApiClient
 
     internal Task AddGroupDmRecipientAsync(ulong channel_id, ulong user_id, string access_token, string nickname)
     {
-        RestChannelGroupDmRecipientAddPayload pld = new RestChannelGroupDmRecipientAddPayload
+        RestChannelGroupDmRecipientAddPayload pld = new()
         {
             AccessToken = access_token,
             Nickname = nickname
@@ -3064,7 +3064,7 @@ public sealed class DiscordApiClient
 
     internal async Task<DiscordDmChannel> CreateGroupDmAsync(IEnumerable<string> access_tokens, IDictionary<ulong, string> nicks)
     {
-        RestUserGroupDmCreatePayload pld = new RestUserGroupDmCreatePayload
+        RestUserGroupDmCreatePayload pld = new()
         {
             AccessTokens = access_tokens,
             Nicknames = nicks
@@ -3084,7 +3084,7 @@ public sealed class DiscordApiClient
 
     internal async Task<DiscordDmChannel> CreateDmAsync(ulong recipient_id)
     {
-        RestUserDmCreatePayload pld = new RestUserDmCreatePayload
+        RestUserDmCreatePayload pld = new()
         {
             Recipient = recipient_id
         };
@@ -3108,7 +3108,7 @@ public sealed class DiscordApiClient
 
     internal async Task<DiscordFollowedChannel> FollowChannelAsync(ulong channel_id, ulong webhook_channel_id)
     {
-        FollowedChannelAddPayload pld = new FollowedChannelAddPayload
+        FollowedChannelAddPayload pld = new()
         {
             WebhookChannelId = webhook_channel_id
         };
@@ -3140,7 +3140,7 @@ public sealed class DiscordApiClient
             headers[REASON_HEADER_NAME] = reason;
         }
 
-        RestCreateStageInstancePayload pld = new RestCreateStageInstancePayload
+        RestCreateStageInstancePayload pld = new()
         {
             ChannelId = channelId,
             Topic = topic,
@@ -3181,7 +3181,7 @@ public sealed class DiscordApiClient
             headers[REASON_HEADER_NAME] = reason;
         }
 
-        RestModifyStageInstancePayload pld = new RestModifyStageInstancePayload
+        RestModifyStageInstancePayload pld = new()
         {
             Topic = topic,
             PrivacyLevel = privacyLevel
@@ -3203,7 +3203,7 @@ public sealed class DiscordApiClient
     {
         Dictionary<string, string> headers = Utilities.GetBaseHeaders();
 
-        RestBecomeStageSpeakerInstancePayload pld = new RestBecomeStageSpeakerInstancePayload
+        RestBecomeStageSpeakerInstancePayload pld = new()
         {
             Suppress = suppress,
             ChannelId = id,
@@ -3246,7 +3246,7 @@ public sealed class DiscordApiClient
             headers[REASON_HEADER_NAME] = reason;
         }
 
-        RestThreadCreatePayload payload = new RestThreadCreatePayload
+        RestThreadCreatePayload payload = new()
         {
             Name = name,
             ArchiveAfter = archiveAfter
@@ -3272,7 +3272,7 @@ public sealed class DiscordApiClient
             headers[REASON_HEADER_NAME] = reason;
         }
 
-        RestThreadCreatePayload payload = new RestThreadCreatePayload
+        RestThreadCreatePayload payload = new()
         {
             Name = name,
             ArchiveAfter = archiveAfter,
@@ -3382,7 +3382,7 @@ public sealed class DiscordApiClient
 
     internal async Task<ThreadQueryResult> ListPublicArchivedThreadsAsync(ulong guild_id, ulong channel_id, string before, int limit)
     {
-        Dictionary<string, string> queryParams = new Dictionary<string, string>();
+        Dictionary<string, string> queryParams = new();
         if (before != null)
         {
             queryParams["before"] = before?.ToString(CultureInfo.InvariantCulture);
@@ -3422,7 +3422,7 @@ public sealed class DiscordApiClient
 
     internal async Task<ThreadQueryResult> ListPrivateArchivedThreadsAsync(ulong guild_id, ulong channel_id, string before, int limit)
     {
-        Dictionary<string, string> queryParams = new Dictionary<string, string>();
+        Dictionary<string, string> queryParams = new();
         if (before != null)
         {
             queryParams["before"] = before?.ToString(CultureInfo.InvariantCulture);
@@ -3462,7 +3462,7 @@ public sealed class DiscordApiClient
 
     internal async Task<ThreadQueryResult> ListJoinedPrivateArchivedThreadsAsync(ulong guild_id, ulong channel_id, ulong? before, int limit)
     {
-        Dictionary<string, string> queryParams = new Dictionary<string, string>();
+        Dictionary<string, string> queryParams = new();
         if (before != null)
         {
             queryParams["before"] = before?.ToString(CultureInfo.InvariantCulture);
@@ -3518,7 +3518,7 @@ public sealed class DiscordApiClient
         var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.GET, route);
 
         TransportUser user_raw = JsonConvert.DeserializeObject<TransportUser>(res.Response);
-        DiscordUser duser = new DiscordUser(user_raw) { Discord = this._discord };
+        DiscordUser duser = new(user_raw) { Discord = this._discord };
 
         return duser;
     }
@@ -3533,7 +3533,7 @@ public sealed class DiscordApiClient
 
         TransportMember tm = JsonConvert.DeserializeObject<TransportMember>(res.Response);
 
-        DiscordUser usr = new DiscordUser(tm.User) { Discord = this._discord };
+        DiscordUser usr = new(tm.User) { Discord = this._discord };
         usr = this._discord.UpdateUserCache(usr);
 
         return new DiscordMember(tm)
@@ -3545,7 +3545,7 @@ public sealed class DiscordApiClient
 
     internal Task RemoveGuildMemberAsync(ulong guild_id, ulong user_id, string reason)
     {
-        Dictionary<string, string> urlparams = new Dictionary<string, string>();
+        Dictionary<string, string> urlparams = new();
         if (reason != null)
         {
             urlparams["reason"] = reason;
@@ -3560,7 +3560,7 @@ public sealed class DiscordApiClient
 
     internal async Task<TransportUser> ModifyCurrentUserAsync(string username, Optional<string> base64_avatar)
     {
-        RestUserUpdateCurrentPayload pld = new RestUserUpdateCurrentPayload
+        RestUserUpdateCurrentPayload pld = new()
         {
             Username = username,
             AvatarBase64 = base64_avatar.HasValue ? base64_avatar.Value : null,
@@ -3621,7 +3621,7 @@ public sealed class DiscordApiClient
             headers[REASON_HEADER_NAME] = reason;
         }
 
-        RestGuildMemberModifyPayload pld = new RestGuildMemberModifyPayload
+        RestGuildMemberModifyPayload pld = new()
         {
             Nickname = nick,
             RoleIds = role_ids,
@@ -3646,7 +3646,7 @@ public sealed class DiscordApiClient
             headers[REASON_HEADER_NAME] = reason;
         }
 
-        RestGuildMemberModifyPayload pld = new RestGuildMemberModifyPayload
+        RestGuildMemberModifyPayload pld = new()
         {
             Nickname = nick
         };
@@ -3675,7 +3675,7 @@ public sealed class DiscordApiClient
 
     internal async Task<DiscordGuild> GetGuildAsync(ulong guildId, bool? with_counts)
     {
-        Dictionary<string, string> urlparams = new Dictionary<string, string>();
+        Dictionary<string, string> urlparams = new();
         if (with_counts.HasValue)
         {
             urlparams["with_counts"] = with_counts?.ToString();
@@ -3713,11 +3713,11 @@ public sealed class DiscordApiClient
 
         if (icon != null)
         {
-            using ImageTool it = new ImageTool(icon);
+            using ImageTool it = new(icon);
             image = it.GetBase64();
         }
 
-        RestGuildRolePayload pld = new RestGuildRolePayload
+        RestGuildRolePayload pld = new()
         {
             Name = name,
             Permissions = permissions & PermissionMethods.FULL_PERMS,
@@ -3768,11 +3768,11 @@ public sealed class DiscordApiClient
 
         if (icon != null)
         {
-            using ImageTool it = new ImageTool(icon);
+            using ImageTool it = new(icon);
             image = it.GetBase64();
         }
 
-        RestGuildRolePayload pld = new RestGuildRolePayload
+        RestGuildRolePayload pld = new()
         {
             Name = name,
             Permissions = permissions & PermissionMethods.FULL_PERMS,
@@ -3812,17 +3812,17 @@ public sealed class DiscordApiClient
             throw new ArgumentException("Prune inactivity days must be a number between 0 and 30.", nameof(days));
         }
 
-        Dictionary<string, string> urlparams = new Dictionary<string, string>
+        Dictionary<string, string> urlparams = new()
         {
             ["days"] = days.ToString(CultureInfo.InvariantCulture)
         };
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
 
         if (include_roles != null)
         {
             ulong[] roleArray = include_roles.ToArray();
-            int roleArrayCount = roleArray.Count();
+            int roleArrayCount = roleArray.Length;
 
             for (int i = 0; i < roleArrayCount; i++)
             {
@@ -3847,18 +3847,18 @@ public sealed class DiscordApiClient
             throw new ArgumentException("Prune inactivity days must be a number between 0 and 30.", nameof(days));
         }
 
-        Dictionary<string, string> urlparams = new Dictionary<string, string>
+        Dictionary<string, string> urlparams = new()
         {
             ["days"] = days.ToString(CultureInfo.InvariantCulture),
             ["compute_prune_count"] = compute_prune_count.ToString()
         };
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
 
         if (include_roles != null)
         {
             ulong[] roleArray = include_roles.ToArray();
-            int roleArrayCount = roleArray.Count();
+            int roleArrayCount = roleArray.Length;
 
             for (int i = 0; i < roleArrayCount; i++)
             {
@@ -3927,7 +3927,7 @@ public sealed class DiscordApiClient
 
     internal async Task<DiscordIntegration> CreateGuildIntegrationAsync(ulong guild_id, string type, ulong id)
     {
-        RestGuildIntegrationAttachPayload pld = new RestGuildIntegrationAttachPayload
+        RestGuildIntegrationAttachPayload pld = new()
         {
             Type = type,
             Id = id
@@ -3947,7 +3947,7 @@ public sealed class DiscordApiClient
 
     internal async Task<DiscordIntegration> ModifyGuildIntegrationAsync(ulong guild_id, ulong integration_id, int expire_behaviour, int expire_grace_period, bool enable_emoticons)
     {
-        RestGuildIntegrationModifyPayload pld = new RestGuildIntegrationModifyPayload
+        RestGuildIntegrationModifyPayload pld = new()
         {
             ExpireBehavior = expire_behaviour,
             ExpireGracePeriod = expire_grace_period,
@@ -4020,7 +4020,7 @@ public sealed class DiscordApiClient
     #region Invite
     internal async Task<DiscordInvite> GetInviteAsync(string invite_code, bool? with_counts, bool? with_expiration)
     {
-        Dictionary<string, string> urlparams = new Dictionary<string, string>();
+        Dictionary<string, string> urlparams = new();
         if (with_counts.HasValue)
         {
             urlparams["with_counts"] = with_counts?.ToString();
@@ -4111,14 +4111,14 @@ public sealed class DiscordApiClient
     #region Webhooks
     internal async Task<DiscordWebhook> CreateWebhookAsync(ulong channel_id, string name, Optional<string> base64_avatar, string reason)
     {
-        RestWebhookPayload pld = new RestWebhookPayload
+        RestWebhookPayload pld = new()
         {
             Name = name,
             AvatarBase64 = base64_avatar.HasValue ? base64_avatar.Value : null,
             AvatarSet = base64_avatar.HasValue
         };
 
-        Dictionary<string, string> headers = new Dictionary<string, string>();
+        Dictionary<string, string> headers = new();
         if (!string.IsNullOrWhiteSpace(reason))
         {
             headers[REASON_HEADER_NAME] = reason;
@@ -4211,7 +4211,7 @@ public sealed class DiscordApiClient
 
     internal async Task<DiscordWebhook> ModifyWebhookAsync(ulong webhook_id, ulong channelId, string name, Optional<string> base64_avatar, string reason)
     {
-        RestWebhookPayload pld = new RestWebhookPayload
+        RestWebhookPayload pld = new()
         {
             Name = name,
             AvatarBase64 = base64_avatar.HasValue ? base64_avatar.Value : null,
@@ -4219,7 +4219,7 @@ public sealed class DiscordApiClient
             ChannelId = channelId
         };
 
-        Dictionary<string, string> headers = new Dictionary<string, string>();
+        Dictionary<string, string> headers = new();
         if (!string.IsNullOrWhiteSpace(reason))
         {
             headers[REASON_HEADER_NAME] = reason;
@@ -4240,13 +4240,13 @@ public sealed class DiscordApiClient
 
     internal async Task<DiscordWebhook> ModifyWebhookAsync(ulong webhook_id, string name, string base64_avatar, string webhook_token, string reason)
     {
-        RestWebhookPayload pld = new RestWebhookPayload
+        RestWebhookPayload pld = new()
         {
             Name = name,
             AvatarBase64 = base64_avatar
         };
 
-        Dictionary<string, string> headers = new Dictionary<string, string>();
+        Dictionary<string, string> headers = new();
         if (!string.IsNullOrWhiteSpace(reason))
         {
             headers[REASON_HEADER_NAME] = reason;
@@ -4267,7 +4267,7 @@ public sealed class DiscordApiClient
 
     internal Task DeleteWebhookAsync(ulong webhook_id, string reason)
     {
-        Dictionary<string, string> headers = new Dictionary<string, string>();
+        Dictionary<string, string> headers = new();
         if (!string.IsNullOrWhiteSpace(reason))
         {
             headers[REASON_HEADER_NAME] = reason;
@@ -4282,7 +4282,7 @@ public sealed class DiscordApiClient
 
     internal Task DeleteWebhookAsync(ulong webhook_id, string webhook_token, string reason)
     {
-        Dictionary<string, string> headers = new Dictionary<string, string>();
+        Dictionary<string, string> headers = new();
         if (!string.IsNullOrWhiteSpace(reason))
         {
             headers[REASON_HEADER_NAME] = reason;
@@ -4310,8 +4310,8 @@ public sealed class DiscordApiClient
             }
         }
 
-        Dictionary<string, string> values = new Dictionary<string, string>();
-        RestWebhookExecutePayload pld = new RestWebhookExecutePayload
+        Dictionary<string, string> values = new();
+        RestWebhookExecutePayload pld = new()
         {
             Content = builder.Content,
             Username = builder.Username.HasValue ? builder.Username.Value : null,
@@ -4326,7 +4326,7 @@ public sealed class DiscordApiClient
             pld.Mentions = new DiscordMentions(builder.Mentions, builder.Mentions.Any());
         }
 
-        if (!string.IsNullOrEmpty(builder.Content) || builder.Embeds?.Count() > 0 || builder.IsTTS == true || builder.Mentions != null)
+        if (!string.IsNullOrEmpty(builder.Content) || builder.Embeds?.Count > 0 || builder.IsTTS == true || builder.Mentions != null)
         {
             values["payload_json"] = DiscordJson.SerializeObject(pld);
         }
@@ -4380,7 +4380,7 @@ public sealed class DiscordApiClient
 
         DiscordMentions? mentions = builder.Mentions != null ? new DiscordMentions(builder.Mentions, builder.Mentions.Any()) : null;
 
-        RestWebhookMessageEditPayload pld = new RestWebhookMessageEditPayload
+        RestWebhookMessageEditPayload pld = new()
         {
             Content = builder.Content,
             Embeds = builder.Embeds,
@@ -4392,7 +4392,7 @@ public sealed class DiscordApiClient
         string route = $"{Endpoints.WEBHOOKS}/:webhook_id/:webhook_token{Endpoints.MESSAGES}/:message_id";
         var bucket = this._rest.GetBucket(RestRequestMethod.PATCH, route, new { webhook_id, webhook_token, message_id }, out var path);
 
-        Dictionary<string, string> values = new Dictionary<string, string>
+        Dictionary<string, string> values = new()
         {
             ["payload_json"] = DiscordJson.SerializeObject(pld)
         };
@@ -4447,7 +4447,7 @@ public sealed class DiscordApiClient
 
     internal Task DeleteUserReactionAsync(ulong channel_id, ulong message_id, ulong user_id, string emoji, string reason)
     {
-        Dictionary<string, string> headers = new Dictionary<string, string>();
+        Dictionary<string, string> headers = new();
         if (!string.IsNullOrWhiteSpace(reason))
         {
             headers[REASON_HEADER_NAME] = reason;
@@ -4462,7 +4462,7 @@ public sealed class DiscordApiClient
 
     internal async Task<IReadOnlyList<DiscordUser>> GetReactionsAsync(ulong channel_id, ulong message_id, string emoji, ulong? after_id = null, int limit = 25)
     {
-        Dictionary<string, string> urlparams = new Dictionary<string, string>();
+        Dictionary<string, string> urlparams = new();
         if (after_id.HasValue)
         {
             urlparams["after"] = after_id.Value.ToString(CultureInfo.InvariantCulture);
@@ -4477,10 +4477,10 @@ public sealed class DiscordApiClient
         var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.GET, route);
 
         IEnumerable<TransportUser> reacters_raw = JsonConvert.DeserializeObject<IEnumerable<TransportUser>>(res.Response);
-        List<DiscordUser> reacters = new List<DiscordUser>();
+        List<DiscordUser> reacters = new();
         foreach (TransportUser xr in reacters_raw)
         {
-            DiscordUser usr = new DiscordUser(xr) { Discord = this._discord };
+            DiscordUser usr = new(xr) { Discord = this._discord };
             usr = this._discord.UpdateUserCache(usr);
 
             reacters.Add(usr);
@@ -4491,7 +4491,7 @@ public sealed class DiscordApiClient
 
     internal Task DeleteAllReactionsAsync(ulong channel_id, ulong message_id, string reason)
     {
-        Dictionary<string, string> headers = new Dictionary<string, string>();
+        Dictionary<string, string> headers = new();
         if (!string.IsNullOrWhiteSpace(reason))
         {
             headers[REASON_HEADER_NAME] = reason;
@@ -4526,8 +4526,8 @@ public sealed class DiscordApiClient
         IEnumerable<JObject> emojisRaw = JsonConvert.DeserializeObject<IEnumerable<JObject>>(res.Response);
 
         this._discord.Guilds.TryGetValue(guild_id, out DiscordGuild? gld);
-        Dictionary<ulong, DiscordUser> users = new Dictionary<ulong, DiscordUser>();
-        List<DiscordGuildEmoji> emojis = new List<DiscordGuildEmoji>();
+        Dictionary<ulong, DiscordUser> users = new();
+        List<DiscordGuildEmoji> emojis = new();
         foreach (JObject rawEmoji in emojisRaw)
         {
             DiscordGuildEmoji xge = rawEmoji.ToDiscordObject<DiscordGuildEmoji>();
@@ -4576,14 +4576,14 @@ public sealed class DiscordApiClient
 
     internal async Task<DiscordGuildEmoji> CreateGuildEmojiAsync(ulong guild_id, string name, string imageb64, IEnumerable<ulong> roles, string reason)
     {
-        RestGuildEmojiCreatePayload pld = new RestGuildEmojiCreatePayload
+        RestGuildEmojiCreatePayload pld = new()
         {
             Name = name,
             ImageB64 = imageb64,
             Roles = roles?.ToArray()
         };
 
-        Dictionary<string, string> headers = new Dictionary<string, string>();
+        Dictionary<string, string> headers = new();
         if (!string.IsNullOrWhiteSpace(reason))
         {
             headers[REASON_HEADER_NAME] = reason;
@@ -4611,13 +4611,13 @@ public sealed class DiscordApiClient
 
     internal async Task<DiscordGuildEmoji> ModifyGuildEmojiAsync(ulong guild_id, ulong emoji_id, string name, IEnumerable<ulong> roles, string reason)
     {
-        RestGuildEmojiModifyPayload pld = new RestGuildEmojiModifyPayload
+        RestGuildEmojiModifyPayload pld = new()
         {
             Name = name,
             Roles = roles?.ToArray()
         };
 
-        Dictionary<string, string> headers = new Dictionary<string, string>();
+        Dictionary<string, string> headers = new();
         if (!string.IsNullOrWhiteSpace(reason))
         {
             headers[REASON_HEADER_NAME] = reason;
@@ -4646,7 +4646,7 @@ public sealed class DiscordApiClient
 
     internal Task DeleteGuildEmojiAsync(ulong guild_id, ulong emoji_id, string reason)
     {
-        Dictionary<string, string> headers = new Dictionary<string, string>();
+        Dictionary<string, string> headers = new();
         if (!string.IsNullOrWhiteSpace(reason))
         {
             headers[REASON_HEADER_NAME] = reason;
@@ -4680,7 +4680,7 @@ public sealed class DiscordApiClient
 
     internal async Task<IReadOnlyList<DiscordApplicationCommand>> BulkOverwriteGlobalApplicationCommandsAsync(ulong application_id, IEnumerable<DiscordApplicationCommand> commands)
     {
-        List<RestApplicationCommandCreatePayload> pld = new List<RestApplicationCommandCreatePayload>();
+        List<RestApplicationCommandCreatePayload> pld = new();
         foreach (DiscordApplicationCommand command in commands)
         {
             pld.Add(new RestApplicationCommandCreatePayload
@@ -4715,7 +4715,7 @@ public sealed class DiscordApiClient
 
     internal async Task<DiscordApplicationCommand> CreateGlobalApplicationCommandAsync(ulong application_id, DiscordApplicationCommand command)
     {
-        RestApplicationCommandCreatePayload pld = new RestApplicationCommandCreatePayload
+        RestApplicationCommandCreatePayload pld = new()
         {
             Type = command.Type,
             Name = command.Name,
@@ -4757,7 +4757,7 @@ public sealed class DiscordApiClient
 
     internal async Task<DiscordApplicationCommand> EditGlobalApplicationCommandAsync(ulong application_id, ulong command_id, Optional<string> name, Optional<string> description, Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options, Optional<bool?> defaultPermission, Optional<bool?> nsfw, IReadOnlyDictionary<string, string> name_localizations = null, IReadOnlyDictionary<string, string> description_localizations = null, Optional<bool> allowDMUsage = default, Optional<Permissions?> defaultMemberPermissions = default)
     {
-        RestApplicationCommandEditPayload pld = new RestApplicationCommandEditPayload
+        RestApplicationCommandEditPayload pld = new()
         {
             Name = name,
             Description = description,
@@ -4810,7 +4810,7 @@ public sealed class DiscordApiClient
 
     internal async Task<IReadOnlyList<DiscordApplicationCommand>> BulkOverwriteGuildApplicationCommandsAsync(ulong application_id, ulong guild_id, IEnumerable<DiscordApplicationCommand> commands)
     {
-        List<RestApplicationCommandCreatePayload> pld = new List<RestApplicationCommandCreatePayload>();
+        List<RestApplicationCommandCreatePayload> pld = new();
         foreach (DiscordApplicationCommand command in commands)
         {
             pld.Add(new RestApplicationCommandCreatePayload
@@ -4845,7 +4845,7 @@ public sealed class DiscordApiClient
 
     internal async Task<DiscordApplicationCommand> CreateGuildApplicationCommandAsync(ulong application_id, ulong guild_id, DiscordApplicationCommand command)
     {
-        RestApplicationCommandCreatePayload pld = new RestApplicationCommandCreatePayload
+        RestApplicationCommandCreatePayload pld = new()
         {
             Type = command.Type,
             Name = command.Name,
@@ -4887,7 +4887,7 @@ public sealed class DiscordApiClient
 
     internal async Task<DiscordApplicationCommand> EditGuildApplicationCommandAsync(ulong application_id, ulong guild_id, ulong command_id, Optional<string> name, Optional<string> description, Optional<IReadOnlyCollection<DiscordApplicationCommandOption>> options, Optional<bool?> defaultPermission, Optional<bool?> nsfw, IReadOnlyDictionary<string, string> name_localizations = null, IReadOnlyDictionary<string, string> description_localizations = null, Optional<bool> allowDMUsage = default, Optional<Permissions?> defaultMemberPermissions = default)
     {
-        RestApplicationCommandEditPayload pld = new RestApplicationCommandEditPayload
+        RestApplicationCommandEditPayload pld = new()
         {
             Name = name,
             Description = description,
@@ -4934,7 +4934,7 @@ public sealed class DiscordApiClient
             }
         }
 
-        RestInteractionResponsePayload pld = new RestInteractionResponsePayload
+        RestInteractionResponsePayload pld = new()
         {
             Type = type,
             Data = builder != null ? new DiscordInteractionApplicationCommandCallbackData
@@ -4951,11 +4951,11 @@ public sealed class DiscordApiClient
             } : null
         };
 
-        Dictionary<string, string> values = new Dictionary<string, string>();
+        Dictionary<string, string> values = new();
 
         if (builder != null)
         {
-            if (!string.IsNullOrEmpty(builder.Content) || builder.Embeds?.Count() > 0 || builder.IsTTS == true || builder.Mentions != null)
+            if (!string.IsNullOrEmpty(builder.Content) || builder.Embeds?.Count > 0 || builder.IsTTS == true || builder.Mentions != null)
             {
                 values["payload_json"] = DiscordJson.SerializeObject(pld);
             }
@@ -5014,8 +5014,8 @@ public sealed class DiscordApiClient
             }
         }
 
-        Dictionary<string, string> values = new Dictionary<string, string>();
-        RestFollowupMessageCreatePayload pld = new RestFollowupMessageCreatePayload
+        Dictionary<string, string> values = new();
+        RestFollowupMessageCreatePayload pld = new()
         {
             Content = builder.Content,
             IsTTS = builder.IsTTS,
@@ -5029,7 +5029,7 @@ public sealed class DiscordApiClient
             pld.Mentions = new DiscordMentions(builder.Mentions, builder.Mentions.Any());
         }
 
-        if (!string.IsNullOrEmpty(builder.Content) || builder.Embeds?.Count() > 0 || builder.IsTTS == true || builder.Mentions != null)
+        if (!string.IsNullOrEmpty(builder.Content) || builder.Embeds?.Count > 0 || builder.IsTTS == true || builder.Mentions != null)
         {
             values["payload_json"] = DiscordJson.SerializeObject(pld);
         }
@@ -5091,7 +5091,7 @@ public sealed class DiscordApiClient
 
     internal async Task<DiscordGuildApplicationCommandPermissions> EditApplicationCommandPermissionsAsync(ulong application_id, ulong guild_id, ulong command_id, IEnumerable<DiscordApplicationCommandPermission> permissions)
     {
-        RestEditApplicationCommandPermissionsPayload pld = new RestEditApplicationCommandPermissionsPayload
+        RestEditApplicationCommandPermissionsPayload pld = new()
         {
             Permissions = permissions
         };
@@ -5197,7 +5197,7 @@ public sealed class DiscordApiClient
 
         Uri url = Utilities.GetApiUriFor(path);
 
-        RestForumPostCreatePayload pld = new RestForumPostCreatePayload
+        RestForumPostCreatePayload pld = new()
         {
             Name = name,
             ArchiveAfter = autoArchiveDuration,
@@ -5224,7 +5224,7 @@ public sealed class DiscordApiClient
         }
         else
         {
-            Dictionary<string, string> values = new Dictionary<string, string>
+            Dictionary<string, string> values = new()
             {
                 ["payload_json"] = DiscordJson.SerializeObject(pld)
             };
