@@ -111,7 +111,7 @@ internal sealed partial class RestClient : IDisposable
         this.RateLimitPolicy = Policy.WrapAsync(retry, new RateLimitPolicy(logger));
     }
 
-    internal async ValueTask<RestResponse?> ExecuteRequestAsync<TRequest>
+    internal async ValueTask<RestResponse> ExecuteRequestAsync<TRequest>
     (
         TRequest request
     )
@@ -151,30 +151,30 @@ internal sealed partial class RestClient : IDisposable
 
             string content = await response.Content.ReadAsStringAsync();
 
-            this.Logger.LogTrace(LoggerEvents.RestRx, content);
+            this.Logger.LogTrace(LoggerEvents.RestRx, "{content}", content);
 
             _ = response.StatusCode switch
             {
                 HttpStatusCode.BadRequest or HttpStatusCode.MethodNotAllowed =>
-                    throw new BadRequestException(req, response, await response.Content.ReadAsStringAsync()),
+                    throw new BadRequestException(req, response, content),
 
                 HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden =>
-                    throw new UnauthorizedException(req, response, await response.Content.ReadAsStringAsync()),
+                    throw new UnauthorizedException(req, response, content),
 
                 HttpStatusCode.NotFound =>
-                    throw new NotFoundException(req, response, await response.Content.ReadAsStringAsync()),
+                    throw new NotFoundException(req, response, content),
 
                 HttpStatusCode.RequestEntityTooLarge =>
-                    throw new RequestSizeException(req, response, await response.Content.ReadAsStringAsync()),
+                    throw new RequestSizeException(req, response, content),
 
                 HttpStatusCode.TooManyRequests =>
-                   throw new RateLimitException(req, response, await response.Content.ReadAsStringAsync()),
+                   throw new RateLimitException(req, response, content),
 
                 HttpStatusCode.InternalServerError
                     or HttpStatusCode.BadGateway
                     or HttpStatusCode.ServiceUnavailable
                     or HttpStatusCode.GatewayTimeout =>
-                    throw new ServerErrorException(req, response, await response.Content.ReadAsStringAsync()),
+                    throw new ServerErrorException(req, response, content),
 
                 // we need to keep the c# compiler happy, and not all branches can/should throw here.
                 _ => 0

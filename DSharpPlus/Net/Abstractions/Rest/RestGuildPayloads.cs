@@ -330,13 +330,15 @@ namespace DSharpPlus.Net.Abstractions
         public ulong? ChannelId { get; set; }
     }
 
+    // TODO: this is wrong. i've annotated them for now, but we'll need to use optionals here
+    // since optional/nullable mean two different things in the context of modifying.
     internal class RestGuildTemplateCreateOrModifyPayload
     {
         [JsonProperty("name", NullValueHandling = NullValueHandling.Include)]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         [JsonProperty("description", NullValueHandling = NullValueHandling.Include)]
-        public string Description { get; set; }
+        public string? Description { get; set; }
     }
 
     internal class RestGuildMembershipScreeningFormModifyPayload
