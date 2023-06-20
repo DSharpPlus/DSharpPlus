@@ -67,9 +67,9 @@ namespace DSharpPlus.Entities
         // https://discord.com/branding
 
         /// <summary>
-        /// Discord Blurple, or #7289DA.
+        /// Discord Blurple, or #5865F2.
         /// </summary>
-        public static DiscordColor Blurple { get; } = new DiscordColor(0x7289DA);
+        public static DiscordColor Blurple { get; } = new DiscordColor(0x5865F2);
 
         /// <summary>
         /// Discord Grayple, or #99AAB5.
