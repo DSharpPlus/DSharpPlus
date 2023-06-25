@@ -54,7 +54,7 @@ jobs:
           dotnet nuget push "build/*" -k ${{ secrets.NUGET_ORG_API_KEY }} -s https://api.nuget.org/v3/index.json
 
           # Update channel topic
-          dotnet run --project ./tools/AutoUpdateChannelDescription -p:VersionSuffix='nightly' -p:BuildNumber=$(printf \"%0*d\n\" 5 $(( 1195 + ${{ github.run_number }} )))
+          dotnet run --project ./tools/AutoUpdateChannelDescription -p:VersionSuffix='nightly' -p:BuildNumber=$(printf \"%0*d\" 5 $(( 1195 + ${{ github.run_number }} )))
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
           DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
