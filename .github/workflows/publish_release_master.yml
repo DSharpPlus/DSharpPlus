@@ -45,7 +45,7 @@ jobs:
       - name: Update Discord Channel Topic
         run: |
           echo LATEST_STABLE_VERSION=$(git describe --tags $(git rev-list --tags --max-count=1)) >> $GITHUB_ENV
-          dotnet run --project ./tools/AutoUpdateChannelDescription -p:Nightly=$(printf \"%0*d\n\" 5 $(( 1195 + ${{ github.run_number }} ))
+          dotnet run --project ./tools/AutoUpdateChannelDescription -p:Nightly=$(printf \"%0*d\" 5 $(( 1195 + ${{ github.run_number }} ))
         continue-on-error: true
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}

@@ -41,7 +41,7 @@ jobs:
             -o build \
             --include-source \
             -p:VersionSuffix='nightly' \
-            -p:BuildNumber=$(printf \"%0*d\n\" 5 $(( 1195 + ${{ github.run_number }} )))
+            -p:BuildNumber=$(printf \"%0*d\" 5 $(( 1195 + ${{ github.run_number }} )))
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
