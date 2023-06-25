@@ -35,12 +35,12 @@ jobs:
       - name: Package
         run: |
           mkdir build
+          # If the package version does not comply with SemVer, it will be set as a pre-release version automatically.
+          # We add 1195 since it's the last build number AppVeyor used.
           dotnet pack \
             -o build \
             --include-source \
-            # If the package version does not comply with SemVer, it will be set as a pre-release version automatically.
             -p:VersionSuffix='nightly' \
-            # We add 1195 since it's the last build number AppVeyor used.
             -p:BuildNumber=$(printf \"%0*d\n\" 5 $(( 1195 + ${{ github.run_number }} )))"
       - name: Upload artifact
         uses: actions/upload-artifact@v3
