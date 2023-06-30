@@ -23,7 +23,9 @@
 
   <!-- nuget -->
   <PropertyGroup>
-    <Authors>Naamloos, afroraydude, DrCreo, Death, TiaqoY0, Axiom, Emzi0767, IDoEverything, Velvet, OoLunar, akiraveliara, DSharpPlus contributors</Authors>
+    <Authors>
+      Naamloos, afroraydude, DrCreo, Death, TiaqoY0, Axiom, Emzi0767, IDoEverything, Velvet, OoLunar, akiraveliara, DSharpPlus contributors
+    </Authors>
     <Description>A C# API for Discord based off DiscordSharp.</Description>
     <Company>DSharpPlus Contributors</Company>
     <PackageProjectUrl>https://github.com/DSharpPlus/DSharpPlus</PackageProjectUrl>

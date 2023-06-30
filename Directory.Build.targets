@@ -31,6 +31,26 @@
     </ItemGroup>
   </Target>
 
+  <!-- remove the JSImport source generator for blazor, it's a huge performance drain in VS -->
+  <!-- this code was written by danike on discord -->
+  <ItemGroup>
+    <RemoveAnalyzer Include="Microsoft.Interop.JavaScript.JSImportGenerator" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <CoreCompileDependsOn>$(CoreCompileDependsOn);_DisableAnalyzers</CoreCompileDependsOn>
+  </PropertyGroup>
+  
+  <Target Name="_DisableAnalyzers" DependsOnTargets="ResolveTargetingPackAssets" Inputs="@(RemoveAnalyzer)" Outputs="|%(Identity)|">
+    <PropertyGroup>
+      <_RemoveAnalyzer>%(RemoveAnalyzer.Identity)</_RemoveAnalyzer>
+    </PropertyGroup>
+    <ItemGroup>
+      <Analyzer Remove="$(_RemoveAnalyzer)"/>
+      <Analyzer Remove="@(Analyzer)" Condition="'%(Analyzer.Filename)' == '$(_RemoveAnalyzer)'"/>
+    </ItemGroup>
+  </Target>
+
   <!-- post-process versions that declare themselves to be public-facing -->
   <PropertyGroup Condition="$(IsPublicFacing) != ''">
     <VersionPrefix>$(_DSharpPlusReleaseVersion)</VersionPrefix>
