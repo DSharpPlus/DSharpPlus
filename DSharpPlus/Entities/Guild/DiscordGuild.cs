@@ -2298,7 +2298,7 @@ namespace DSharpPlus.Entities
                         {
                             entrymsg.Target = this.Discord is DiscordClient dc
                                 && dc.MessageCache != null
-                                && dc.MessageCache.TryGet(xm => xm.Id == xac.TargetId.Value && xm.ChannelId == entrymsg.Channel.Id, out var msg)
+                                && dc.MessageCache.TryGet(xac.TargetId.Value, out var msg)
                                 ? msg
                                 : new DiscordMessage { Discord = this.Discord, Id = xac.TargetId.Value };
                         }
@@ -2320,7 +2320,7 @@ namespace DSharpPlus.Entities
                         if (xac.Options != null)
                         {
                             DiscordMessage message = default;
-                            dc.MessageCache?.TryGet(x => x.Id == xac.Options.MessageId && x.ChannelId == xac.Options.ChannelId, out message);
+                            dc.MessageCache?.TryGet(xac.Options.MessageId, out message);
 
                             entrypin.Channel = this.GetChannel(xac.Options.ChannelId) ?? new DiscordChannel { Id = xac.Options.ChannelId, Discord = this.Discord, GuildId = this.Id };
                             entrypin.Message = message ?? new DiscordMessage { Id = xac.Options.MessageId, Discord = this.Discord };

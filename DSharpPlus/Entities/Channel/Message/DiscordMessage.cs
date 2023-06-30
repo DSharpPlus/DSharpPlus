@@ -347,7 +347,7 @@ namespace DSharpPlus.Entities
 
             else reference.Channel = channel;
 
-            if (client.MessageCache != null && client.MessageCache.TryGet(m => m.Id == messageId.Value && m.ChannelId == channelId, out var msg))
+            if (client.MessageCache != null && client.MessageCache.TryGet(messageId.Value, out var msg))
                 reference.Message = msg;
 
             else
