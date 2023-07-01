@@ -11,60 +11,55 @@ namespace DSharpPlus.Core.Abstractions.Models;
 /// <summary>
 /// Represents a role within a guild.
 /// </summary>
-public interface IRole
+public interface IRole : IPartialRole
 {
-    /// <summary>
-    /// The snowflake identifier of this role.
-    /// </summary>
-    public Snowflake Id { get; }
+    /// <inheritdoc cref="IPartialRole.Id"/>
+    public new Snowflake Id { get; }
 
-    /// <summary>
-    /// The name of this role.
-    /// </summary>
-    public string Name { get; }
+    /// <inheritdoc cref="IPartialRole.Name"/>
+    public new string Name { get; }
 
-    /// <summary>
-    /// The RGB color code of this role, #000000 represents a transparent role.
-    /// </summary>
-    public int Color { get; }
+    /// <inheritdoc cref="IPartialRole.Color"/>
+    public new int Color { get; }
 
-    /// <summary>
-    /// Indicates whether users with this role are hoisted in the member list.
-    /// </summary>
-    public bool Hoist { get; }
+    /// <inheritdoc cref="IPartialRole.Hoist"/>
+    public new bool Hoist { get; }
 
-    /// <summary>
-    /// This role's role icon hash, if applicable.
-    /// </summary>
-    public Optional<string?> Hash { get; }
+    /// <inheritdoc cref="IPartialRole.Position"/>
+    public new int Position { get; }
 
-    /// <summary>
-    /// The unicode emoji serving as this role's role icon, if applicable.
-    /// </summary>
-    public Optional<string?> UnicodeEmoji { get; }
+    /// <inheritdoc cref="IPartialRole.Permissions"/>
+    public new DiscordPermissions Permissions { get; }
 
-    /// <summary>
-    /// The position of this role in the role list.
-    /// </summary>
-    public int Position { get; }
+    /// <inheritdoc cref="IPartialRole.Managed"/>
+    public new bool Managed { get; }
 
-    /// <summary>
-    /// The permissions associated with this role.
-    /// </summary>
-    public DiscordPermissions Permissions { get; }
+    /// <inheritdoc cref="IPartialRole.Mentionable"/>
+    public new bool Mentionable { get; }
 
-    /// <summary>
-    /// Indicates whether this role is managed by an integration.
-    /// </summary>
-    public bool Managed { get; }
+    // partial access routes
 
-    /// <summary>
-    /// Indicates whether this role can be mentioned by users without the permission.
-    /// </summary>
-    public bool Mentionable { get; }
+    /// <inheritdoc/>
+    Optional<Snowflake> IPartialRole.Id => this.Id;
 
-    /// <summary>
-    /// Additional tags added to this role.
-    /// </summary>
-    public Optional<IRoleTags> Tags { get; }
+    /// <inheritdoc/>
+    Optional<string> IPartialRole.Name => this.Name;
+
+    /// <inheritdoc/>
+    Optional<int> IPartialRole.Color => this.Color;
+
+    /// <inheritdoc/>
+    Optional<bool> IPartialRole.Hoist => this.Hoist;
+
+    /// <inheritdoc/>
+    Optional<int> IPartialRole.Position => this.Position;
+
+    /// <inheritdoc/>
+    Optional<DiscordPermissions> IPartialRole.Permissions => this.Permissions;
+
+    /// <inheritdoc/>
+    Optional<bool> IPartialRole.Managed => this.Managed;
+
+    /// <inheritdoc/>
+    Optional<bool> IPartialRole.Mentionable => this.Mentionable;
 }
