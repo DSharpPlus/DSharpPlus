@@ -11,64 +11,43 @@ namespace DSharpPlus.Core.Abstractions.Models;
 /// <summary>
 /// Represents a discord sticker that can be sent in messages.
 /// </summary>
-public interface ISticker
+public interface ISticker : IPartialSticker
 {
-    /// <summary>
-    /// The snowflake identifier of this sticker.
-    /// </summary>
-    public Snowflake Id { get; }
+    /// <inheritdoc cref="IPartialSticker.Id"/>
+    public new Snowflake Id { get; }
 
-    /// <summary>
-    /// For standard stickers, the snowflake identifier of the pack the sticker is from.
-    /// </summary>
-    public Optional<Snowflake> PackId { get; }
+    /// <inheritdoc cref="IPartialSticker.Name"/>
+    public new string Name { get; }
 
-    /// <summary>
-    /// The name of this sticker.
-    /// </summary>
-    public string Name { get; }
+    /// <inheritdoc cref="IPartialSticker.Description"/>
+    public new string? Description { get; }
 
-    /// <summary>
-    /// The description of this sticker.
-    /// </summary>
-    public string? Description { get; }
+    /// <inheritdoc cref="IPartialSticker.Tags"/>
+    public new string Tags { get; }
 
-    /// <summary>
-    /// Autocomplete/suggestion tags for this sticker, up to 200 characters.
-    /// </summary>
-    /// <remarks>
-    /// For standard stickers, this is a comma separated list of keywords. When creating or modifying a guild
-    /// sticker, the client will always use a name generated from an emoji here.
-    /// </remarks>
-    public string Tags { get; }
+    /// <inheritdoc cref="IPartialSticker.Type"/>
+    public new DiscordStickerType Type { get; }
 
-    /// <summary>
-    /// The type of this sticker.
-    /// </summary>
-    public DiscordStickerType Type { get; }
+    /// <inheritdoc cref="IPartialSticker.FormatType"/>
+    public new DiscordStickerFormatType FormatType { get; }
 
-    /// <summary>
-    /// The type of this sticker file format.
-    /// </summary>
-    public DiscordStickerFormatType FormatType { get; }
+    // partial access routes
 
-    /// <summary>
-    /// Indicates whether this sticker can be used.
-    /// </summary>
-    public Optional<bool> Available { get; }
+    /// <inheritdoc/>
+    Optional<Snowflake> IPartialSticker.Id => this.Id;
 
-    /// <summary>
-    /// The snowflake identifier of the guild that owns this object.
-    /// </summary>
-    public Optional<Snowflake> GuildId { get; }
+    /// <inheritdoc/>
+    Optional<string> IPartialSticker.Name => this.Name;
 
-    /// <summary>
-    /// The user that uploaded this sticker.
-    /// </summary>
-    public Optional<IUser> User { get; }
+    /// <inheritdoc/>
+    Optional<string?> IPartialSticker.Description => this.Description;
 
-    /// <summary>
-    /// If this is a standard sticker, the sort order within its pack.
-    /// </summary>
-    public Optional<int> SortValue { get; }
+    /// <inheritdoc/>
+    Optional<string> IPartialSticker.Tags => this.Tags;
+
+    /// <inheritdoc/>
+    Optional<DiscordStickerType> IPartialSticker.Type => this.Type;
+
+    /// <inheritdoc/>
+    Optional<DiscordStickerFormatType> IPartialSticker.FormatType => this.FormatType;
 }
