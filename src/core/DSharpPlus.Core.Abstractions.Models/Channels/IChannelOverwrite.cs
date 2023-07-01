@@ -11,25 +11,31 @@ namespace DSharpPlus.Core.Abstractions.Models;
 /// <summary>
 /// Represents a permission overwrite on a channel.
 /// </summary>
-public interface IChannelOverwrite
+public interface IChannelOverwrite : IPartialChannelOverwrite
 {
-    /// <summary>
-    /// The snowflake identifier of the role or user this overwrite targtes.
-    /// </summary>
-    public Snowflake Id { get; }
+    /// <inheritdoc cref="IPartialChannelOverwrite.Id"/>
+    public new Snowflake Id { get; }
 
-    /// <summary>
-    /// Specifies what kind of entity this overwrite targets.
-    /// </summary>
-    public DiscordChannelOverwriteType Type { get; }
+    /// <inheritdoc cref="IPartialChannelOverwrite.Type"/>
+    public new DiscordChannelOverwriteType Type { get; }
 
-    /// <summary>
-    /// The permissions explicitly granted by this overwrite.
-    /// </summary>
-    public DiscordPermissions Allow { get; }
+    /// <inheritdoc cref="IPartialChannelOverwrite.Allow"/>
+    public new DiscordPermissions Allow { get; }
 
-    /// <summary>
-    /// The permissions explicitly denied by this overwrite.
-    /// </summary>
-    public DiscordPermissions Deny { get; }
+    /// <inheritdoc cref="IPartialChannelOverwrite.Deny"/>
+    public new DiscordPermissions Deny { get; }
+
+    // partial access routes
+
+    /// <inheritdoc/>
+    Optional<Snowflake> IPartialChannelOverwrite.Id => this.Id;
+
+    /// <inheritdoc/>
+    Optional<DiscordChannelOverwriteType> IPartialChannelOverwrite.Type => this.Type;
+
+    /// <inheritdoc/>
+    Optional<DiscordPermissions> IPartialChannelOverwrite.Allow => this.Allow;
+
+    /// <inheritdoc/>
+    Optional<DiscordPermissions> IPartialChannelOverwrite.Deny => this.Deny;
 }
