@@ -6,22 +6,12 @@
     <OutputType>Library</OutputType>
     
     <RootNamespace>DSharpPlus</RootNamespace>
-  </PropertyGroup>
-  
-  <!-- compiler impl details:tm: -->
-  <!-- dotnet pack is emitted as MSBuild -restore -target:pack -property:_IsPacking=true [...] -->
-  <!-- we intercept this implementation detail to only add the additional TFM when not packing, since we dont want net standard builds in -->
-  <!-- our packages - they are reserved for source generation scenarios. -->
-  <PropertyGroup Condition="'$(_IsPacking)' == ''">
-
-    <!-- Since we'd like to use some of these types in source-gen, multi-target to netstandard2.0 -->
     <TargetFrameworks>netstandard2.0;$(TargetFramework)</TargetFrameworks>
   </PropertyGroup>
 
-  <!-- don't build everything for sgen, and don't package sgen -->
+  <!-- don't build everything for sgen, only files we manually want to be built -->
   <PropertyGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETStandard'">
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETStandard'">
