@@ -11,65 +11,43 @@ namespace DSharpPlus.Core.Abstractions.Models;
 /// <summary>
 /// Represents a discord webhook.
 /// </summary>
-public interface IWebhook
+public interface IWebhook : IPartialWebhook
 {
-    /// <summary>
-    /// The snowflake identifier of this webhook.
-    /// </summary>
-    public Snowflake Id { get; }
+    /// <inheritdoc cref="IPartialWebhook.Id"/>
+    public new Snowflake Id { get; }
 
-    /// <summary>
-    /// The type of this webhook.
-    /// </summary>
-    public DiscordWebhookType Type { get; }
+    /// <inheritdoc cref="IPartialWebhook.Type"/>
+    public new DiscordWebhookType Type { get; }
 
-    /// <summary>
-    /// The snowflake identifier of the guild this webhook is for, if any.
-    /// </summary>
-    public Optional<Snowflake?> GuildId { get; }
+    /// <inheritdoc cref="IPartialWebhook.ChannelId"/>
+    public new Snowflake? ChannelId { get; }
 
-    /// <summary>
-    /// The snowflake identifier of the channel this webhook is for, if any.
-    /// </summary>
-    public Snowflake? ChannelId { get; }
+    /// <inheritdoc cref="IPartialWebhook.Name"/>
+    public new string? Name { get; }
 
-    /// <summary>
-    /// The user who created this webhook.
-    /// </summary>
-    public Optional<IUser> User { get; }
+    /// <inheritdoc cref="IPartialWebhook.Avatar"/>
+    public new string? Avatar { get; }
 
-    /// <summary>
-    /// The default name of this webhook.
-    /// </summary>
-    public string? Name { get; }
+    /// <inheritdoc cref="IPartialWebhook.ApplicationId"/>
+    public new Snowflake? ApplicationId { get; }
 
-    /// <summary>
-    /// The default avatar hash of this webhook.
-    /// </summary>
-    public string? Avatar { get; }
+    // partial access routes
 
-    /// <summary>
-    /// The secure token of this webhook.
-    /// </summary>
-    public Optional<string> Token { get; }
+    /// <inheritdoc/>
+    Optional<Snowflake> IPartialWebhook.Id => this.Id;
 
-    /// <summary>
-    /// The snowflake identifier of the bot/oauth2 application which created this webhook.
-    /// </summary>
-    public Snowflake? ApplicationId { get; }
+    /// <inheritdoc/>
+    Optional<DiscordWebhookType> IPartialWebhook.Type => this.Type;
 
-    /// <summary>
-    /// The guild containing the channel that this webhook is following.
-    /// </summary>
-    public Optional<IPartialGuild> SourceGuild { get; }
+    /// <inheritdoc/>
+    Optional<Snowflake?> IPartialWebhook.ChannelId => this.ChannelId;
 
-    /// <summary>
-    /// The channel that this webhook is following.
-    /// </summary>
-    public Optional<IPartialChannel> SourceChannel { get; }
+    /// <inheritdoc/>
+    Optional<string?> IPartialWebhook.Name => this.Name;
 
-    /// <summary>
-    /// The url used to execute this webhook.
-    /// </summary>
-    public Optional<string> Url { get; }
+    /// <inheritdoc/>
+    Optional<string?> IPartialWebhook.Avatar => this.Avatar;
+
+    /// <inheritdoc/>
+    Optional<Snowflake?> IPartialWebhook.ApplicationId => this.ApplicationId;
 }
