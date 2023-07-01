@@ -41,10 +41,10 @@ public abstract class DiscordException : Exception
     /// <summary>
     /// Gets the JSON message received.
     /// </summary>
-    public virtual string? JsonMessage { get; internal set; } = null!;
+    public virtual string? JsonMessage { get; internal set; }
 
     /// <inheritdoc />
-    public override string Message => $"{base.Message}. Json Message: {JsonMessage ?? "No Json Message Provided."}";
+    public override string Message => $"{base.Message}. Json Message: {JsonMessage ?? "Discord did not provide an error message."}";
 
     public DiscordException() : base() { }
     public DiscordException(string message) : base(message) { }
