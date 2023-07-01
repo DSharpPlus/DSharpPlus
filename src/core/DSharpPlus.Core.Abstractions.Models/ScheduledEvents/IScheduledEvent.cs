@@ -13,78 +13,55 @@ namespace DSharpPlus.Core.Abstractions.Models;
 /// <summary>
 /// Represents a guild scheduled event.
 /// </summary>
-
-// we deliberately ignore some fields listed in the documentation, because the documentation is outdated.
-// it still documents data for external events (status: 2023-07-01) despite having been removed a long
-// time ago...
-// the following changes are thereby made from the documentation:
-// - remove entity_metadata
-// - remove scheduled_end_time
-// - change channel_id to non-nullable
-public interface IScheduledEvent
+public interface IScheduledEvent : IPartialScheduledEvent
 {
-    /// <summary>
-    /// The snowflake identifier of the scheduled event.
-    /// </summary>
-    public Snowflake Id { get; }
+    /// <inheritdoc cref="IPartialScheduledEvent.Id"/>
+    public new Snowflake Id { get; }
 
-    /// <summary>
-    /// The snowflake identifier of the guild this event belongs to.
-    /// </summary>
-    public Snowflake GuildId { get; }
+    /// <inheritdoc cref="IPartialScheduledEvent.GuildId"/>
+    public new Snowflake GuildId { get; }
 
-    /// <summary>
-    /// The snowflake identifier of the channel in which this event will be hosted.
-    /// </summary>
-    public Snowflake ChannelId { get; }
+    /// <inheritdoc cref="IPartialScheduledEvent.ChannelId"/>
+    public new Snowflake ChannelId { get; }
 
-    /// <summary>
-    /// The snowflake identifier of the user that created this event.
-    /// </summary>
-    public Optional<Snowflake> CreatorId { get; }
+    /// <inheritdoc cref="IPartialScheduledEvent.Name"/>
+    public new string Name { get; }
 
-    /// <summary>
-    /// The name of this event, 1 to 100 characters.
-    /// </summary>
-    public string Name { get; }
+    /// <inheritdoc cref="IPartialScheduledEvent.ScheduledStartTime"/>
+    public new DateTimeOffset ScheduledStartTime { get; }
 
-    /// <summary>
-    /// The description of this event, 1 to 1000 characters.
-    /// </summary>
-    public Optional<string?> Description { get; }
+    /// <inheritdoc cref="IPartialScheduledEvent.PrivacyLevel"/>
+    public new DiscordScheduledEventPrivacyLevel PrivacyLevel { get; }
 
-    /// <summary>
-    /// The time at which this scheduled event will start.
-    /// </summary>
-    public DateTimeOffset ScheduledStartTime { get; }
+    /// <inheritdoc cref="IPartialScheduledEvent.Status"/>
+    public new DiscordScheduledEventStatus Status { get; }
 
-    /// <summary>
-    /// The privacy level of this event.
-    /// </summary>
-    public DiscordScheduledEventPrivacyLevel PrivacyLevel { get; }
+    /// <inheritdoc cref="IPartialScheduledEvent.EntityType"/>
+    public new DiscordScheduledEventType EntityType { get; }
 
-    /// <summary>
-    /// The status of this scheduled event.
-    /// </summary>
-    public DiscordScheduledEventStatus Status { get; }
+    // partial access routes
 
-    /// <summary>
-    /// The type of this scheduled event.
-    /// </summary>
-    public DiscordScheduledEventType EntityType { get; }
+    /// <inheritdoc/>
+    Optional<Snowflake> IPartialScheduledEvent.Id => this.Id;
 
-    /// <summary>
-    /// The user that created this event.
-    /// </summary>
-    public Optional<IUser> Creator { get; }
+    /// <inheritdoc/>
+    Optional<Snowflake> IPartialScheduledEvent.GuildId => this.GuildId;
 
-    /// <summary>
-    /// The number of users subscribed to this event.
-    /// </summary>
-    public Optional<int> UserCount { get; }
+    /// <inheritdoc/>
+    Optional<Snowflake> IPartialScheduledEvent.ChannelId => this.ChannelId;
 
-    /// <summary>
-    /// The cover image hash of this event.
-    /// </summary>
-    public Optional<string?> Image { get; }
+    /// <inheritdoc/>
+    Optional<string> IPartialScheduledEvent.Name => this.Name;
+
+    /// <inheritdoc/>
+    Optional<DateTimeOffset> IPartialScheduledEvent.ScheduledStartTime => this.ScheduledStartTime;
+
+    /// <inheritdoc/>
+    Optional<DiscordScheduledEventPrivacyLevel> IPartialScheduledEvent.PrivacyLevel => this.PrivacyLevel;
+
+    /// <inheritdoc/>
+    Optional<DiscordScheduledEventStatus> IPartialScheduledEvent.Status => this.Status;
+
+    /// <inheritdoc/>
+    Optional<DiscordScheduledEventType> IPartialScheduledEvent.EntityType => this.EntityType;
 }
