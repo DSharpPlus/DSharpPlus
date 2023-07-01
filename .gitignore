@@ -478,3 +478,7 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# DSharpPlus changes
+docs/_site
+DSharpPlus.Test/config.json
