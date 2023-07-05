@@ -1,0 +1,45 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Core.Abstractions.Models", "DSharpPlus.Core.Abstractions.Models\DSharpPlus.Core.Abstractions.Models.csproj", "{AF8283F9-AC6C-46AB-A4FC-D331C64BFFC9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Core.Models", "DSharpPlus.Core.Models\DSharpPlus.Core.Models.csproj", "{9699C432-CC00-48D3-8534-D949C77C6B87}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Shared", "DSharpPlus.Shared\DSharpPlus.Shared.csproj", "{E9B2D26F-5E11-4198-8E00-A7780572C480}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{FB4D812B-0FD8-4335-BF0A-CFBA8C856E04}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tools.Generators.GenerateConcreteObjects", "..\..\tools\generators\Tools.Generators.GenerateConcreteObjects\Tools.Generators.GenerateConcreteObjects.csproj", "{F214E901-6928-4488-9F65-E684AD12F0CE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AF8283F9-AC6C-46AB-A4FC-D331C64BFFC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF8283F9-AC6C-46AB-A4FC-D331C64BFFC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF8283F9-AC6C-46AB-A4FC-D331C64BFFC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF8283F9-AC6C-46AB-A4FC-D331C64BFFC9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9699C432-CC00-48D3-8534-D949C77C6B87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9699C432-CC00-48D3-8534-D949C77C6B87}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9699C432-CC00-48D3-8534-D949C77C6B87}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9699C432-CC00-48D3-8534-D949C77C6B87}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9B2D26F-5E11-4198-8E00-A7780572C480}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9B2D26F-5E11-4198-8E00-A7780572C480}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9B2D26F-5E11-4198-8E00-A7780572C480}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9B2D26F-5E11-4198-8E00-A7780572C480}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F214E901-6928-4488-9F65-E684AD12F0CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F214E901-6928-4488-9F65-E684AD12F0CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F214E901-6928-4488-9F65-E684AD12F0CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F214E901-6928-4488-9F65-E684AD12F0CE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F214E901-6928-4488-9F65-E684AD12F0CE} = {FB4D812B-0FD8-4335-BF0A-CFBA8C856E04}
+	EndGlobalSection
+EndGlobal

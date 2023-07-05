@@ -406,5 +406,6 @@ DSharpPlus.Test/config.json
 # Docfx
 docs/_site
 
-# .NET 8 UseArtifactsOutput
-.artifacts/
+# tool test environment
+.testenv
+.testenvhost
