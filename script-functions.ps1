@@ -293,8 +293,8 @@ function Test-Tool {
 
         Test project names are assumed to be `ToolName.Tests`, for a given tool `ToolName`.
 
-        Because of powershell limitations, all tests must contain a class `Test.Entrypoint` with the
-        following static parameterless methods:
+        Because of powershell limitations, all tests must contain a class `ToolName.Tests.Main` with 
+        the following static parameterless methods:
         - bool Prepare
         - bool Execute
 
@@ -357,7 +357,9 @@ function Test-Tool {
     }
 
     process {
-        if (!([Test.Entrypoint]::Prepare())) {
+        [bool]$Success = Invoke-Expression "[$CSProjectName.Tests.Main]::Prepare()"
+
+        if (!($Success)) {
             Write-Verbose "Preparation failed, the test $CSProjectName.Tests will not be executed."
 
             return $false
@@ -372,7 +374,9 @@ function Test-Tool {
             Copy-Item -Path "$PSScriptRoot/tools/bin/$OutputName" -Destination "$PSScriptRoot/tools/.testenv/$OutputName"
         }
 
-        if (!([Test.Entrypoint]::Execute())) {
+        [bool]$Success = Invoke-Expression "[$CSProjectName.Tests.Main]::Execute()"
+
+        if (!($Success)) {
             Write-Verbose "The test $CSProjectName failed."
 
             return $false

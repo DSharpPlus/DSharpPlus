@@ -123,6 +123,7 @@ else {
 
 if ($Action -eq "publish") {
     foreach($Target in $SubsetsToExecute) {
+        Write-Host "Publishing library subset '$Target'"
         Publish-Subset $Target
     }
 
