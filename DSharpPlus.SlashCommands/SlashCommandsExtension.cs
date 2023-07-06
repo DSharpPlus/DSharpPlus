@@ -73,7 +73,7 @@ namespace DSharpPlus.SlashCommands
             this._autocompleteErrored = new AsyncEvent<SlashCommandsExtension, AutocompleteErrorEventArgs>("AUTOCOMPLETE_ERRORED", this.Client.EventErrorHandler);
             this._autocompleteExecuted = new AsyncEvent<SlashCommandsExtension, AutocompleteExecutedEventArgs>("AUTOCOMPLETE_EXECUTED", this.Client.EventErrorHandler);
 
-            this.Client.Ready += this.Update;
+            this.Client.SessionCreated += this.Update;
             this.Client.InteractionCreated += this.InteractionHandler;
             this.Client.ContextMenuInteractionCreated += this.ContextMenuHandler;
         }
@@ -119,7 +119,7 @@ namespace DSharpPlus.SlashCommands
         }
 
         //To be run on ready
-        internal Task Update(DiscordClient client, ReadyEventArgs e) => this.Update();
+        internal Task Update(DiscordClient client, SessionReadyEventArgs e) => this.Update();
 
         //Actual method for registering, used for RegisterCommands and on Ready
         internal Task Update()
@@ -1249,7 +1249,7 @@ namespace DSharpPlus.SlashCommands
 
             if (this.Client != null)
             {
-                this.Client.Ready -= this.Update;
+                this.Client.SessionCreated -= this.Update;
                 this.Client.InteractionCreated -= this.InteractionHandler;
                 this.Client.ContextMenuInteractionCreated -= this.ContextMenuHandler;
             }
