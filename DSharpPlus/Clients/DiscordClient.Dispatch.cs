@@ -681,13 +681,13 @@ namespace DSharpPlus
                 this._guilds[guild.Id] = guild;
             }
 
-            await this._ready.InvokeAsync(this, new ReadyEventArgs());
+            await this._ready.InvokeAsync(this, new SessionReadyEventArgs());
         }
 
         internal Task OnResumedAsync()
         {
             this.Logger.LogInformation(LoggerEvents.SessionUpdate, "Session resumed");
-            return this._resumed.InvokeAsync(this, new ReadyEventArgs());
+            return this._resumed.InvokeAsync(this, new SessionReadyEventArgs());
         }
 
         #endregion

@@ -24,10 +24,10 @@
 namespace DSharpPlus.EventArgs
 {
     /// <summary>
-    /// Represents arguments for <see cref="DiscordClient.Ready"/> event.
+    /// Represents arguments for <see cref="DiscordClient.SessionCreated"/> event.
     /// </summary>
-    public sealed class ReadyEventArgs : DiscordEventArgs
+    public sealed class SessionReadyEventArgs : DiscordEventArgs
     {
-        internal ReadyEventArgs() : base() { }
+        internal SessionReadyEventArgs() : base() { }
     }
 }
