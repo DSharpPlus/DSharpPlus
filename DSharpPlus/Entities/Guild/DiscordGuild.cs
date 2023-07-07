@@ -241,7 +241,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     public ulong? ApplicationId { get; internal set; }
 
     /// <summary>
-    /// Sceduled events for this guild.
+    /// Scheduled events for this guild.
     /// </summary>
     public IReadOnlyDictionary<ulong, DiscordScheduledGuildEvent> ScheduledEvents
         => new ReadOnlyConcurrentDictionary<ulong, DiscordScheduledGuildEvent>(this._scheduledEvents);
@@ -567,7 +567,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="type">The type of the event. <see paramref="channelId"/> must be supplied if not an external event.</param>
     /// <param name="privacyLevel">The privacy level of thi</param>
     /// <param name="start">When this event starts. Must be in the future, and before the end date.</param>
-    /// <param name="end">When this event ends. If supplied, must be in the future and after the end date. This is requred for <see cref="ScheduledGuildEventType.External"/>.</param>
+    /// <param name="end">When this event ends. If supplied, must be in the future and after the end date. This is required for <see cref="ScheduledGuildEventType.External"/>.</param>
     /// <param name="location">Where this event takes place, up to 100 characters. Only applicable if the type is <see cref="ScheduledGuildEventType.External"/></param>
     /// <param name="reason">Reason for audit log.</param>
     /// <returns>The created event.</returns>
@@ -646,7 +646,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="ArgumentException"></exception>
     public async Task ModifyEventAsync(DiscordScheduledGuildEvent guildEvent, Action<ScheduledGuildEventEditModel> mdl, string reason = null)
     {
-        ScheduledGuildEventEditModel model = new ScheduledGuildEventEditModel();
+        ScheduledGuildEventEditModel model = new();
         mdl(model);
 
         if (model.Type.HasValue && model.Type.Value is not ScheduledGuildEventType.External)
@@ -769,7 +769,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         ulong? last = null;
         bool isAfter = after != null;
 
-        List<DiscordUser> users = new List<DiscordUser>();
+        List<DiscordUser> users = new();
 
         int lastCount;
         do
@@ -844,7 +844,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordGuild> ModifyAsync(Action<GuildEditModel> action)
     {
-        GuildEditModel mdl = new GuildEditModel();
+        GuildEditModel mdl = new();
         action(mdl);
 
         if (mdl.AfkChannel.HasValue && mdl.AfkChannel.Value.Type != ChannelType.Voice)
@@ -856,7 +856,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
         if (mdl.Icon.HasValue && mdl.Icon.Value != null)
         {
-            using (ImageTool imgtool = new ImageTool(mdl.Icon.Value))
+            using (ImageTool imgtool = new(mdl.Icon.Value))
             {
                 iconb64 = imgtool.GetBase64();
             }
@@ -870,7 +870,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
         if (mdl.Splash.HasValue && mdl.Splash.Value != null)
         {
-            using (ImageTool imgtool = new ImageTool(mdl.Splash.Value))
+            using (ImageTool imgtool = new(mdl.Splash.Value))
             {
                 splashb64 = imgtool.GetBase64();
             }
@@ -890,7 +890,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             }
             else
             {
-                using (ImageTool imgtool = new ImageTool(mdl.Banner.Value))
+                using (ImageTool imgtool = new(mdl.Banner.Value))
                 {
                     bannerb64 = imgtool.GetBase64();
                 }
@@ -1175,7 +1175,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             includedRoles = includedRoles.Where(r => r != null);
             int roleCount = includedRoles.Count();
             DiscordRole[] roleArr = includedRoles.ToArray();
-            List<ulong> rawRoleIds = new List<ulong>();
+            List<ulong> rawRoleIds = new();
 
             for (int i = 0; i < roleCount; i++)
             {
@@ -1210,7 +1210,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             includedRoles = includedRoles.Where(r => r != null);
             int roleCount = includedRoles.Count();
             DiscordRole[] roleArr = includedRoles.ToArray();
-            List<ulong> rawRoleIds = new List<ulong>();
+            List<ulong> rawRoleIds = new();
 
             for (int i = 0; i < roleCount; i++)
             {
@@ -1422,7 +1422,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<IReadOnlyCollection<DiscordMember>> GetAllMembersAsync()
     {
-        HashSet<DiscordMember> recmbr = new HashSet<DiscordMember>();
+        HashSet<DiscordMember> members = new();
 
         int recd = 1000;
         ulong last = 0ul;
@@ -1431,20 +1431,20 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             IReadOnlyList<TransportMember> tms = await this.Discord.ApiClient.ListGuildMembersAsync(this.Id, 1000, last == 0 ? null : (ulong?)last);
             recd = tms.Count;
 
-            foreach (TransportMember xtm in tms)
+            foreach (TransportMember transportMember in tms)
             {
-                DiscordUser usr = new DiscordUser(xtm.User) { Discord = this.Discord };
+                DiscordUser user = new(transportMember.User) { Discord = this.Discord };
 
-                usr = this.Discord.UpdateUserCache(usr);
+                user = this.Discord.UpdateUserCache(user);
 
-                recmbr.Add(new DiscordMember(xtm) { Discord = this.Discord, _guild_id = this.Id });
+                members.Add(new DiscordMember(transportMember) { Discord = this.Discord, _guild_id = this.Id });
             }
 
-            TransportMember? tm = tms.LastOrDefault();
-            last = tm?.User.Id ?? 0;
+            TransportMember? lastMember = tms.LastOrDefault();
+            last = lastMember?.User.Id ?? 0;
         }
 
-        return new ReadOnlySet<DiscordMember>(recmbr);
+        return new ReadOnlySet<DiscordMember>(members);
     }
 
     /// <summary>
@@ -1474,7 +1474,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             query = null;
         }
 
-        GatewayRequestGuildMembers grgm = new GatewayRequestGuildMembers(this)
+        GatewayRequestGuildMembers gatewayRequestGuildMembers = new(this)
         {
             Query = query,
             Limit = limit >= 0 ? limit : 0,
@@ -1483,10 +1483,10 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             Nonce = nonce
         };
 
-        GatewayPayload payload = new GatewayPayload
+        GatewayPayload payload = new()
         {
             OpCode = GatewayOpCode.RequestGuildMembers,
-            Data = grgm
+            Data = gatewayRequestGuildMembers
         };
 
         string payloadStr = JsonConvert.SerializeObject(payload, Formatting.None);
@@ -1638,7 +1638,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         Dictionary<ulong, DiscordMember>? members = discordMembers.ToDictionary(xm => xm.Id, xm => xm);
 
         IOrderedEnumerable<AuditLogAction>? auditLogActions = auditLogs.SelectMany(xa => xa.Entries).OrderByDescending(xa => xa.Id);
-        List<DiscordAuditLogEntry>? entries = new List<DiscordAuditLogEntry>();
+        List<DiscordAuditLogEntry>? entries = new();
         foreach (AuditLogAction? auditLogAction in auditLogActions)
         {
             DiscordAuditLogEntry entry = null;
@@ -2078,7 +2078,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 case AuditLogActionType.InviteUpdate:
                     entry = new DiscordAuditLogInviteEntry();
 
-                    DiscordInvite invite = new DiscordInvite
+                    DiscordInvite invite = new()
                     {
                         Discord = this.Discord,
                         Guild = new DiscordInviteGuild
@@ -2734,7 +2734,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         }
 
         string image64 = null;
-        using (ImageTool imgtool = new ImageTool(image))
+        using (ImageTool imgtool = new(image))
         {
             image64 = imgtool.GetBase64();
         }
@@ -2903,9 +2903,9 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public Task<DiscordGuildMembershipScreening> ModifyMembershipScreeningFormAsync(Action<MembershipScreeningEditModel> action)
     {
-        MembershipScreeningEditModel mdl = new MembershipScreeningEditModel();
-        action(mdl);
-        return this.Discord.ApiClient.ModifyGuildMembershipScreeningFormAsync(this.Id, mdl.Enabled, mdl.Fields, mdl.Description);
+        MembershipScreeningEditModel editModel = new();
+        action(editModel);
+        return this.Discord.ApiClient.ModifyGuildMembershipScreeningFormAsync(this.Id, editModel.Enabled, editModel.Fields, editModel.Description);
     }
 
     /// <summary>
@@ -2964,9 +2964,9 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="reason">Reason for audit log.</param>
     public Task<DiscordMessageSticker> ModifyStickerAsync(ulong stickerId, Action<StickerEditModel> action, string reason = null)
     {
-        StickerEditModel mdl = new StickerEditModel();
-        action(mdl);
-        return this.Discord.ApiClient.ModifyStickerAsync(this.Id, stickerId, mdl.Name, mdl.Description, mdl.Tags, reason ?? mdl.AuditLogReason);
+        StickerEditModel editModel = new();
+        action(editModel);
+        return this.Discord.ApiClient.ModifyStickerAsync(this.Id, stickerId, editModel.Name, editModel.Description, editModel.Tags, reason ?? editModel.AuditLogReason);
     }
 
     /// <summary>
@@ -2977,9 +2977,9 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <param name="reason">Reason for audit log.</param>
     public Task<DiscordMessageSticker> ModifyStickerAsync(DiscordMessageSticker sticker, Action<StickerEditModel> action, string reason = null)
     {
-        StickerEditModel mdl = new StickerEditModel();
-        action(mdl);
-        return this.Discord.ApiClient.ModifyStickerAsync(this.Id, sticker.Id, mdl.Name, mdl.Description, mdl.Tags, reason ?? mdl.AuditLogReason);
+        StickerEditModel editModel = new();
+        action(editModel);
+        return this.Discord.ApiClient.ModifyStickerAsync(this.Id, sticker.Id, editModel.Name, editModel.Description, editModel.Tags, reason ?? editModel.AuditLogReason);
     }
 
     /// <summary>
@@ -3029,9 +3029,9 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <returns>The edit command.</returns>
     public async Task<DiscordApplicationCommand> EditApplicationCommandAsync(ulong commandId, Action<ApplicationCommandEditModel> action)
     {
-        ApplicationCommandEditModel mdl = new ApplicationCommandEditModel();
-        action(mdl);
-        return await this.Discord.ApiClient.EditGuildApplicationCommandAsync(this.Discord.CurrentApplication.Id, this.Id, commandId, mdl.Name, mdl.Description, mdl.Options, mdl.DefaultPermission, mdl.NSFW, default, default, mdl.AllowDMUsage, mdl.DefaultMemberPermissions);
+        ApplicationCommandEditModel editModel = new();
+        action(editModel);
+        return await this.Discord.ApiClient.EditGuildApplicationCommandAsync(this.Discord.CurrentApplication.Id, this.Id, commandId, editModel.Name, editModel.Description, editModel.Options, editModel.DefaultPermission, editModel.NSFW, default, default, editModel.AllowDMUsage, editModel.DefaultMemberPermissions);
     }
 
     /// <summary>
@@ -3078,9 +3078,9 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
     public async Task<DiscordGuildWelcomeScreen> ModifyWelcomeScreenAsync(Action<WelcomeScreenEditModel> action, string reason = null)
     {
-        WelcomeScreenEditModel mdl = new WelcomeScreenEditModel();
-        action(mdl);
-        return await this.Discord.ApiClient.ModifyGuildWelcomeScreenAsync(this.Id, mdl.Enabled, mdl.WelcomeChannels, mdl.Description, reason);
+        WelcomeScreenEditModel editModel = new();
+        action(editModel);
+        return await this.Discord.ApiClient.ModifyGuildWelcomeScreenAsync(this.Id, editModel.Enabled, editModel.WelcomeChannels, editModel.Description, reason);
     }
 
     /// <summary>
@@ -3178,7 +3178,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// <remarks>All arguments are optionals.</remarks>
     public Task<DiscordAutoModerationRule> ModifyAutoModerationRuleAsync(ulong ruleId, Action<AutoModerationRuleEditModel> action)
     {
-        AutoModerationRuleEditModel model = new AutoModerationRuleEditModel();
+        AutoModerationRuleEditModel model = new();
 
         action(model);
 
