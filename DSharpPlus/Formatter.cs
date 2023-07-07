@@ -24,6 +24,7 @@
 using System;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using DSharpPlus.Entities;
 
@@ -220,5 +221,29 @@ namespace DSharpPlus
         /// <returns></returns>
         public static string AttachedImageUrl(string filename)
             => $"attachment://{filename}";
+
+        /// <summary>
+        /// Creates a big header.
+        /// </summary>
+        /// <param name="value">Text to display as a big header.</param>
+        /// <returns>Formatted header.</returns>
+        public static string ToBigHeader(string value)
+            => $"# {value}";
+
+        /// <summary>
+        /// Creates a medium header.
+        /// </summary>
+        /// <param name="value">Text to display as a medium header.</param>
+        /// <returns>Formatted header.</returns>
+        public static string ToMediumHeader(string value)
+            => $"## {value}";
+
+        /// <summary>
+        /// Creates a small header.
+        /// </summary>
+        /// <param name="value">Text to display as a small header.</param>
+        /// <returns>Formatted header.</returns>
+        public static string ToSmallHeader(string value)
+            => $"### {value}";
     }
 }
