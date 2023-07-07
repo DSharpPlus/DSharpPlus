@@ -78,7 +78,6 @@ namespace DSharpPlus.Entities
         /// <remarks>
         /// As of May 15th, 2023, Discord has begun phasing out discriminators in favor of handles (@username); this property will return "0" for migrated accounts.
         /// </remarks>
-        [Obsolete("Discriminators are being phased out in favor of handles. This property will be removed in a future version.")]
         [JsonProperty("discriminator", NullValueHandling = NullValueHandling.Ignore)]
         public virtual string Discriminator { get; internal set; }
 
