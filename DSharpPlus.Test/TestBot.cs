@@ -59,19 +59,242 @@ namespace DSharpPlus.Test
             // global bot config
             this.Config = cfg;
 
-            // discord instance config and the instance itself
-            var dcfg = new DiscordConfiguration
+        this.Discord.UseVoiceNext();
+
+        // events
+        this.Discord.SessionCreated += this.Discord_SessionCreated;
+        this.Discord.GuildStickersUpdated += this.Discord_StickersUpdated;
+        this.Discord.GuildAvailable += this.Discord_GuildAvailable;
+        //Discord.PresenceUpdated += this.Discord_PresenceUpdated;
+        //Discord.ClientErrored += this.Discord_ClientErrored;
+        this.Discord.SocketErrored += this.Discord_SocketError;
+        this.Discord.GuildCreated += this.Discord_GuildCreated;
+        this.Discord.VoiceStateUpdated += this.Discord_VoiceStateUpdated;
+        this.Discord.GuildDownloadCompleted += this.Discord_GuildDownloadCompleted;
+        this.Discord.GuildUpdated += this.Discord_GuildUpdated;
+        this.Discord.ChannelDeleted += this.Discord_ChannelDeleted;
+
+        this.Discord.InteractionCreated += this.Discord_InteractionCreated;
+        this.Discord.ComponentInteractionCreated += this.Discord_ModalCheck;
+        this.Discord.ModalSubmitted += this.Discord_ModalSubmitted;
+        //this.Discord.ComponentInteractionCreated += this.RoleMenu;
+        //this.Discord.ComponentInteractionCreated += this.DiscordComponentInteractionCreated;
+        //this.Discord.InteractionCreated += this.SendButton;
+        // For event timeout testing
+        //Discord.GuildDownloadCompleted += async (s, e) =>
+        //{
+        //    await Task.Delay(TimeSpan.FromSeconds(2));
+        //    throw new Exception("Flippin' tables");
+        //};
+
+        this.Discord.ThreadCreated += this.Discord_ThreadCreated;
+        this.Discord.ThreadUpdated += this.Discord_ThreadUpdated;
+        this.Discord.ThreadDeleted += this.Discord_ThreadDeleted;
+        this.Discord.ThreadListSynced += this.Discord_ThreadListSynced;
+        this.Discord.ThreadMemberUpdated += this.Discord_ThreadMemberUpdated;
+        this.Discord.ThreadMembersUpdated += this.Discord_ThreadMembersUpdated;
+
+        // voice config and the voice service itself
+        VoiceNextConfiguration vcfg = new()
+        {
+            AudioFormat = AudioFormat.Default,
+            EnableIncoming = true
+        };
+
+        // build a dependency collection for commandsnext
+        ServiceCollection depco = new();
+
+        // commandsnext config and the commandsnext service itself
+        CommandsNextConfiguration cncfg = new()
+        {
+            StringPrefixes = this.Config.CommandPrefixes,
+            EnableDms = true,
+            EnableMentionPrefix = true,
+            CaseSensitive = false,
+            Services = depco.BuildServiceProvider(true),
+            IgnoreExtraArguments = false,
+            UseDefaultCommandHandler = true,
+            DefaultParserCulture = CultureInfo.InvariantCulture,
+            //CommandExecutor = new ParallelQueuedCommandExecutor(2),
+        };
+        this.CommandsNextService = this.Discord.UseCommandsNext(cncfg);
+        this.CommandsNextService.CommandErrored += this.CommandsNextService_CommandErrored;
+        this.CommandsNextService.CommandExecuted += this.CommandsNextService_CommandExecuted;
+        this.CommandsNextService.RegisterCommands(typeof(TestBot).GetTypeInfo().Assembly);
+        this.CommandsNextService.SetHelpFormatter<TestBotHelpFormatter>();
+
+        // interactivity service
+        InteractivityConfiguration icfg = new()
+        {
+            Timeout = TimeSpan.FromSeconds(10),
+            ResponseBehavior = InteractionResponseBehavior.Respond,
+            PaginationBehaviour = PaginationBehaviour.Ignore,
+            ResponseMessage = "Sorry, but this wasn't a valid option, or does not belong to you!",
+            PaginationButtons = new PaginationButtons()
             {
-                AutoReconnect = true,
-                LargeThreshold = 250,
-                MinimumLogLevel = LogLevel.Trace,
-                Token = this.Config.Token,
-                TokenType = TokenType.Bot,
-                ShardId = shardid,
-                ShardCount = this.Config.ShardCount,
-                MessageCacheSize = 2048,
-                LogTimestampFormat = "dd-MM-yyyy HH:mm:ss zzz",
-                Intents = DiscordIntents.All & ~DiscordIntents.GuildPresences // if 4013 is received, change to DiscordIntents.AllUnprivileged
+                Stop = new DiscordButtonComponent(ButtonStyle.Danger, "stop", null, false, new DiscordComponentEmoji(862259725785497620)),
+                Left = new DiscordButtonComponent(ButtonStyle.Secondary, "left", null, false, new DiscordComponentEmoji(862259522478800916)),
+                Right = new DiscordButtonComponent(ButtonStyle.Secondary, "right", null, false, new DiscordComponentEmoji(862259691212242974)),
+                SkipLeft = new DiscordButtonComponent(ButtonStyle.Primary, "skipl", null, false, new DiscordComponentEmoji(862259605464023060)),
+                SkipRight = new DiscordButtonComponent(ButtonStyle.Primary, "skipr", null, false, new DiscordComponentEmoji(862259654403031050))
+            }
+        };
+
+        this.Discord.UseInteractivity(icfg);
+
+        this.SlashCommandService = this.Discord.UseSlashCommands();
+        this.SlashCommandService.SlashCommandErrored += this.SlashCommandService_CommandErrored;
+        this.SlashCommandService.SlashCommandInvoked += this.SlashCommandService_CommandReceived;
+        this.SlashCommandService.SlashCommandExecuted += this.SlashCommandService_CommandExecuted;
+
+        if (this.Config.SlashCommandGuild != 0)
+        {
+            this.SlashCommandService.RegisterCommands(typeof(TestBot).GetTypeInfo().Assembly, this.Config.SlashCommandGuild);
+        }
+
+        //this.Discord.MessageCreated += async e =>
+        //{
+        //    if (e.Message.Author.IsBot)
+        //        return;
+
+        //    _ = Task.Run(async () => await e.Message.RespondAsync(e.Message.Content));
+        //};
+    }
+
+
+    private async Task Discord_ModalSubmitted(DiscordClient sender, ModalSubmitEventArgs e)
+    {
+        bool testWaitForModal = true;
+        if (!testWaitForModal)
+        {
+            await e.Interaction.CreateResponseAsync(InteractionResponseType.UpdateMessage, new DiscordInteractionResponseBuilder().WithContent("Thank you!"));
+        }
+
+        this.Discord.Logger.LogInformation("Got callback from user {User}, {Modal}", e.Interaction.User, e.Values);
+    }
+
+    private async Task Discord_ModalCheck(DiscordClient sender, ComponentInteractionCreateEventArgs e)
+    {
+        if (e.Id == "modal")
+        {
+            await e.Interaction.CreateResponseAsync(InteractionResponseType.Modal, new DiscordInteractionResponseBuilder()
+                .WithTitle("Test!")
+                .WithCustomId("owo")
+                .AddComponents(new TextInputComponent("Short, optional", "short_opt", "Placeholder!"))
+                .AddComponents(new TextInputComponent("Long, optional", "long_opt", "Placeholder 2!", style: TextInputStyle.Paragraph))
+                .AddComponents(new TextInputComponent("Short, required", "short_req", "Placeholder 3!", style: TextInputStyle.Short, min_length: 10, max_length: 20))
+                .AddComponents(new TextInputComponent("Long, required", "long_req", "Placeholder 4!", "Lorem Ipsum", true, TextInputStyle.Paragraph, 100, 300))
+            );
+        }
+    }
+
+    private async Task Discord_InteractionCreated(DiscordClient sender, InteractionCreateEventArgs e)
+    {
+        if (e.Interaction.Type != InteractionType.AutoComplete)
+        {
+            return;
+        }
+
+        this.Discord.Logger.LogInformation("AutoComplete: Focused: {Focused}, Data: {Data}", e.Interaction.Data.Options.First().Focused, e.Interaction.Data.Options.First().Value);
+
+        DiscordInteractionDataOption option = e.Interaction.Data.Options.First();
+
+        if (string.IsNullOrEmpty(option.Value as string))
+        {
+            return;
+        }
+
+        DiscordInteractionResponseBuilder builder = new DiscordInteractionResponseBuilder()
+            .AddAutoCompleteChoice(new DiscordAutoCompleteChoice(option.Value as string, "pog ig"));
+
+        await e.Interaction.CreateResponseAsync(InteractionResponseType.AutoCompleteResult, builder);
+    }
+
+    private Task Discord_StickersUpdated(DiscordClient sender, GuildStickersUpdateEventArgs e)
+    {
+        this.Discord.Logger.LogInformation("{GuildId}'s stickers updated: {StickerBeforeCount} -> {StickerAfterCount}", e.Guild.Id, e.StickersBefore.Count, e.StickersAfter.Count);
+        return Task.CompletedTask;
+    }
+
+    public async Task RunAsync()
+    {
+        DiscordActivity act = new("the screams of your ancestors", ActivityType.ListeningTo);
+        await this.Discord.ConnectAsync(act, UserStatus.DoNotDisturb);
+    }
+
+    public async Task StopAsync() => await this.Discord.DisconnectAsync();
+
+    private Task Discord_SessionCreated(DiscordClient client, SessionReadyEventArgs e) => Task.CompletedTask;
+
+    private Task Discord_GuildAvailable(DiscordClient client, GuildCreateEventArgs e)
+    {
+        client.Logger.LogInformation(TestBotEventId, "Guild available: '{Guild}'", e.Guild.Name);
+        return Task.CompletedTask;
+    }
+
+    private Task Discord_GuildCreated(DiscordClient client, GuildCreateEventArgs e)
+    {
+        client.Logger.LogInformation(TestBotEventId, "Guild created: '{Guild}'", e.Guild.Name);
+        return Task.CompletedTask;
+    }
+
+    //private Task Discord_ClientErrored(DiscordClient client, ClientErrorEventArgs e)
+    //{
+    //    e.Client.Logger.LogError(TestBotEventId, e.Exception, "Client threw an exception");
+    //    return Task.CompletedTask;
+    //}
+
+    private Task Discord_SocketError(DiscordClient client, SocketErrorEventArgs e)
+    {
+        Exception? ex = e.Exception is AggregateException ae ? ae.InnerException : e.Exception;
+        client.Logger.LogError(TestBotEventId, ex, "WebSocket threw an exception");
+        return Task.CompletedTask;
+    }
+
+    private Task Discord_VoiceStateUpdated(DiscordClient client, VoiceStateUpdateEventArgs e)
+    {
+        client.Logger.LogDebug(TestBotEventId, "Voice state changed for '{User}' (mute: {MutedBefore} -> {MutedAfter}; deaf: {DeafBefore} -> {DeafAfter})", e.User, e.Before?.IsServerMuted, e.After.IsServerMuted, e.Before?.IsServerDeafened, e.After.IsServerDeafened);
+        return Task.CompletedTask;
+    }
+
+    private Task Discord_GuildDownloadCompleted(DiscordClient client, GuildDownloadCompletedEventArgs e)
+    {
+        client.Logger.LogDebug(TestBotEventId, "Guild download completed");
+        return Task.CompletedTask;
+    }
+
+    private async Task CommandsNextService_CommandErrored(CommandsNextExtension cnext, CommandErrorEventArgs e)
+    {
+        if (e.Exception is CommandNotFoundException && (e.Command == null || e.Command.QualifiedName != "help"))
+        {
+            return;
+        }
+
+        e.Context.Client.Logger.LogError(TestBotEventId, e.Exception, "Exception occurred during {User}'s invocation of '{Command}'", e.Context.User.Username, e.Context.Command.QualifiedName);
+
+        List<Exception> exs = new();
+        if (e.Exception is AggregateException ae)
+        {
+            exs.AddRange(ae.InnerExceptions);
+        }
+        else
+        {
+            exs.Add(e.Exception);
+        }
+
+        foreach (Exception ex in exs)
+        {
+            if (ex is CommandNotFoundException && (e.Command == null || e.Command.QualifiedName != "help"))
+            {
+                return;
+            }
+
+            DiscordEmbedBuilder embed = new()
+            {
+                Color = new DiscordColor("#FF0000"),
+                Title = "An exception occurred when executing a command",
+                Description = $"`{e.Exception.GetType()}` occurred when executing `{e.Command.QualifiedName}`.",
+                Timestamp = DateTime.UtcNow
             };
             this.Discord = new DiscordClient(dcfg);
 

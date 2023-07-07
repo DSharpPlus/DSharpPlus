@@ -155,8 +155,8 @@ namespace DSharpPlus
             this._socketErrored = new AsyncEvent<DiscordClient, SocketErrorEventArgs>("SOCKET_ERRORED", this.Goof);
             this._socketOpened = new AsyncEvent<DiscordClient, SocketEventArgs>("SOCKET_OPENED", this.EventErrorHandler);
             this._socketClosed = new AsyncEvent<DiscordClient, SocketCloseEventArgs>("SOCKET_CLOSED", this.EventErrorHandler);
-            this._ready = new AsyncEvent<DiscordClient, ReadyEventArgs>("READY", this.EventErrorHandler);
-            this._resumed = new AsyncEvent<DiscordClient, ReadyEventArgs>("RESUMED", this.EventErrorHandler);
+            this._ready = new AsyncEvent<DiscordClient, SessionReadyEventArgs>("READY", this.EventErrorHandler);
+            this._resumed = new AsyncEvent<DiscordClient, SessionReadyEventArgs>("RESUMED", this.EventErrorHandler);
             this._channelCreated = new AsyncEvent<DiscordClient, ChannelCreateEventArgs>("CHANNEL_CREATED", this.EventErrorHandler);
             this._channelUpdated = new AsyncEvent<DiscordClient, ChannelUpdateEventArgs>("CHANNEL_UPDATED", this.EventErrorHandler);
             this._channelDeleted = new AsyncEvent<DiscordClient, ChannelDeleteEventArgs>("CHANNEL_DELETED", this.EventErrorHandler);
