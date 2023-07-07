@@ -1497,7 +1497,7 @@ namespace DSharpPlus.Entities
                 .GroupBy(xu => xu.Id)
                 .Select(xgu => xgu.First())
                 .ToList();
-d
+            
             foreach (AuditLogUser auditLogUser in auditLogUsers)
             {
                 if (this.Discord.UserCache.ContainsKey(auditLogUser.Id))
