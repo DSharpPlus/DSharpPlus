@@ -818,7 +818,7 @@ namespace DSharpPlus.Entities
         WebhookCreate = 50,
 
         /// <summary>
-        /// Indicates that the webook was updated.
+        /// Indicates that the webhook was updated.
         /// </summary>
         WebhookUpdate = 51,
 
@@ -919,6 +919,42 @@ namespace DSharpPlus.Entities
         /// <summary>
         /// Indicates that a thread was deleted.
         /// </summary>
-        ThreadDelete = 112
+        ThreadDelete = 112,
+        
+        /// <summary>
+        /// Permissions were updated for a command
+        /// </summary>
+        ApplicationCommandPermissionUpdate = 121,
+        
+        /// <summary>
+        /// Auto Moderation rule was created
+        /// </summary>
+        AutoModerationRuleCreate = 140,
+        
+        /// <summary>
+        /// Auto Moderation rule was updated
+        /// </summary>
+        AutoModerationRuleUpdate = 141,
+        
+        /// <summary>
+        /// Auto Moderation rule was deleted
+        /// </summary>
+        AutoModerationRuleDelete = 142,
+        
+        /// <summary>
+        /// Message was blocked by Auto Moderation
+        /// </summary>
+        AutoModerationBlockMessage = 143,
+        
+        /// <summary>
+        /// Message was flagged by Auto Moderation
+        /// </summary>
+        AutoModerationFlagToChannel = 144,
+        
+        /// <summary>
+        /// Member was timed out by Auto Moderation
+        /// </summary>
+        AutoModerationUserCommunicationDisabled = 145
+        
     }
 }
