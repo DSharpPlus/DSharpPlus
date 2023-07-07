@@ -87,6 +87,11 @@ namespace DSharpPlus
         BugHunterLevelTwo = 1 << 14,
 
         /// <summary>
+        /// Whether the user is an official system user.
+        /// </summary>
+        System = 1 << 12,
+
+        /// <summary>
         /// The user is a verified bot.
         /// </summary>
         VerifiedBot = 1 << 16,
