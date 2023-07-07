@@ -21,24 +21,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
-using DSharpPlus.Net;
-using Newtonsoft.Json.Linq;
+using DSharpPlus.Entities;
+using Microsoft.Extensions.Caching.Memory;
 
-namespace DSharpPlus.Exceptions;
-
-/// <summary>
-/// Represents an exception thrown when requester doesn't have necessary permissions to complete the request.
-/// </summary>
-public class UnauthorizedException : DiscordException
+namespace DSharpPlus;
+internal class MessageCache : IMessageCacheProvider
 {
-    internal UnauthorizedException(BaseRestRequest request, RestResponse response) : base("Unauthorized: " + response.ResponseCode)
+    private readonly MemoryCache _cache;
+    private readonly MemoryCacheEntryOptions _entryOptions;
+
+    internal MessageCache(int capacity)
     {
-        this.WebRequest = request;
-        this.WebResponse = response;
-        if (JObject.Parse(response.Response).TryGetValue("message", StringComparison.Ordinal, out JToken? message))
+        _cache = new MemoryCache(new MemoryCacheOptions()
         {
-            this.JsonMessage = message.ToString();
-        }
+            SizeLimit = capacity,
+        });
+
+        _entryOptions = new MemoryCacheEntryOptions()
+        {
+            Size = 1,
+        };
     }
+    
+    /// <inheritdoc/>
+    public void Add(DiscordMessage message) => _cache.Set(message.Id, message, _entryOptions);
+
+    /// <inheritdoc/>
+    public void Remove(ulong messageId) => _cache.Remove(messageId);
+
+    /// <inheritdoc/>
+    public bool TryGet(ulong messageId, out DiscordMessage? message) => _cache.TryGetValue(messageId, out message);
 }

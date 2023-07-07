@@ -66,22 +66,22 @@ namespace DSharpPlus
         /// <summary>
         /// Fired when the client enters ready state.
         /// </summary>
-        public event AsyncEventHandler<DiscordClient, ReadyEventArgs> Ready
+        public event AsyncEventHandler<DiscordClient, SessionReadyEventArgs> SessionCreated
         {
             add => this._ready.Register(value);
             remove => this._ready.Unregister(value);
         }
-        private AsyncEvent<DiscordClient, ReadyEventArgs> _ready;
+        private AsyncEvent<DiscordClient, SessionReadyEventArgs> _ready;
 
         /// <summary>
         /// Fired whenever a session is resumed.
         /// </summary>
-        public event AsyncEventHandler<DiscordClient, ReadyEventArgs> Resumed
+        public event AsyncEventHandler<DiscordClient, SessionReadyEventArgs> SessionResumed
         {
             add => this._resumed.Register(value);
             remove => this._resumed.Unregister(value);
         }
-        private AsyncEvent<DiscordClient, ReadyEventArgs> _resumed;
+        private AsyncEvent<DiscordClient, SessionReadyEventArgs> _resumed;
 
         /// <summary>
         /// Fired on received heartbeat ACK.
@@ -851,10 +851,10 @@ namespace DSharpPlus
         private Task Client_SocketClosed(DiscordClient client, SocketCloseEventArgs e)
             => this._socketClosed.InvokeAsync(client, e);
 
-        private Task Client_Ready(DiscordClient client, ReadyEventArgs e)
+        private Task Client_Ready(DiscordClient client, SessionReadyEventArgs e)
             => this._ready.InvokeAsync(client, e);
 
-        private Task Client_Resumed(DiscordClient client, ReadyEventArgs e)
+        private Task Client_Resumed(DiscordClient client, SessionReadyEventArgs e)
             => this._resumed.InvokeAsync(client, e);
 
         private Task Client_ChannelCreated(DiscordClient client, ChannelCreateEventArgs e)

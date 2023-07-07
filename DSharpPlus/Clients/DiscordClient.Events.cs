@@ -76,22 +76,22 @@ namespace DSharpPlus
         /// <i><see cref="Guilds"/> will not be populated when this event is fired.</i><br/>
         /// See also: <see cref="GuildAvailable"/>, <see cref="GuildDownloadCompleted"/>
         /// </remarks>
-        public event AsyncEventHandler<DiscordClient, ReadyEventArgs> Ready
+        public event AsyncEventHandler<DiscordClient, SessionReadyEventArgs> SessionCreated
         {
             add => this._ready.Register(value);
             remove => this._ready.Unregister(value);
         }
-        private AsyncEvent<DiscordClient, ReadyEventArgs> _ready;
+        private AsyncEvent<DiscordClient, SessionReadyEventArgs> _ready;
 
         /// <summary>
         /// Fired whenever a session is resumed.
         /// </summary>
-        public event AsyncEventHandler<DiscordClient, ReadyEventArgs> Resumed
+        public event AsyncEventHandler<DiscordClient, SessionReadyEventArgs> SessionResumed
         {
             add => this._resumed.Register(value);
             remove => this._resumed.Unregister(value);
         }
-        private AsyncEvent<DiscordClient, ReadyEventArgs> _resumed;
+        private AsyncEvent<DiscordClient, SessionReadyEventArgs> _resumed;
 
         /// <summary>
         /// Fired on received heartbeat ACK.

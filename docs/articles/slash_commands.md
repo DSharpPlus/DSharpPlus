@@ -74,14 +74,14 @@ public class SlashCommands : ApplicationCommandModule
 }
 ```
 
-To make a response, you must run `CreateResponseAsync` on your `InteractionContext`. `CreateResponseAsync` takes two arguments. The first is a [`InteractionResponseType`](https://dsharpplus.github.io/api/DSharpPlus.InteractionResponseType.html):
+To make a response, you must run `CreateResponseAsync` on your `InteractionContext`. `CreateResponseAsync` takes two arguments. The first is a [`InteractionResponseType`](https://dsharpplus.github.io/DSharpPlus/api/DSharpPlus.InteractionResponseType.html):
 
 * `DeferredChannelMessageWithSource` - Acknowledges the interaction, doesn't require any content.
 * `ChannelMessageWithSource` - Sends a message to the channel, requires you to specify some data to send.
 
 An interaction expires in 3 seconds unless you make a response. If the code you execute before making a response has the potential to take more than 3 seconds, you should first create a `DeferredChannelMessageWithSource` response, and then edit it after your code executes.
 
-The second argument is a type of [`DiscordInteractionResponseBuilder`](https://dsharpplus.github.io/api/DSharpPlus.Entities.DiscordInteractionResponseBuilder.html). It functions similarly to the DiscordMessageBuilder, except you cannot send files, and you can have multiple embeds.
+The second argument is a type of [`DiscordInteractionResponseBuilder`](https://dsharpplus.github.io/DSharpPlus/api/DSharpPlus.Entities.DiscordInteractionResponseBuilder.-ctor.html). It functions similarly to the DiscordMessageBuilder, except you cannot send files, and you can have multiple embeds.
 
 If you want to send a file, you'll have to edit the response.
 
@@ -109,7 +109,7 @@ public async Task DelayTestCommand(InteractionContext ctx)
 }
 ```
 
-You can also override `BeforeExecutionAsync` and `AfterExecutionAsync` to run code before and after all the commands in a module. This does not apply to groups, you have the override them individually for the group's class.
+You can also override `BeforeExecutionAsync` and `AfterExecutionAsync` to run code before and after all the commands in a module. This does not apply to groups, you have to override them individually for the group's class.
 `BeforeExecutionAsync` can also be used to prevent the command from running.
 
 ### Arguments

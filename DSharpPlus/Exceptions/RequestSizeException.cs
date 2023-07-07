@@ -25,26 +25,20 @@ using System;
 using DSharpPlus.Net;
 using Newtonsoft.Json.Linq;
 
-namespace DSharpPlus.Exceptions
+namespace DSharpPlus.Exceptions;
+
+/// <summary>
+/// Represents an exception thrown when the request sent to Discord is too large.
+/// </summary>
+public class RequestSizeException : DiscordException
 {
-    /// <summary>
-    /// Represents an exception thrown when the request sent to Discord is too large.
-    /// </summary>
-    public class RequestSizeException : DiscordException
+    internal RequestSizeException(BaseRestRequest request, RestResponse response) : base($"Request entity too large: {response.ResponseCode}. Make sure the data sent is within Discord's upload limit")
     {
-        internal RequestSizeException(BaseRestRequest request, RestResponse response) : base($"Request entity too large: {response.ResponseCode}. Make sure the data sent is within Discord's upload limit.")
+        this.WebRequest = request;
+        this.WebResponse = response;
+        if (JObject.Parse(response.Response).TryGetValue("message", StringComparison.Ordinal, out JToken? message))
         {
-            this.WebRequest = request;
-            this.WebResponse = response;
-
-            try
-            {
-                var j = JObject.Parse(response.Response);
-
-                if (j["message"] != null)
-                    this.JsonMessage = j["message"].ToString();
-            }
-            catch (Exception) { }
+            this.JsonMessage = message.ToString();
         }
     }
 }

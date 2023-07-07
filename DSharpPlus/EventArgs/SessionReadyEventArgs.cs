@@ -21,24 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System;
-using DSharpPlus.Net;
-using Newtonsoft.Json.Linq;
-
-namespace DSharpPlus.Exceptions;
-
-/// <summary>
-/// Represents an exception thrown when requester doesn't have necessary permissions to complete the request.
-/// </summary>
-public class UnauthorizedException : DiscordException
+namespace DSharpPlus.EventArgs
 {
-    internal UnauthorizedException(BaseRestRequest request, RestResponse response) : base("Unauthorized: " + response.ResponseCode)
+    /// <summary>
+    /// Represents arguments for <see cref="DiscordClient.SessionCreated"/> event.
+    /// </summary>
+    public sealed class SessionReadyEventArgs : DiscordEventArgs
     {
-        this.WebRequest = request;
-        this.WebResponse = response;
-        if (JObject.Parse(response.Response).TryGetValue("message", StringComparison.Ordinal, out JToken? message))
-        {
-            this.JsonMessage = message.ToString();
-        }
+        internal SessionReadyEventArgs() : base() { }
     }
 }

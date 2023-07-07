@@ -195,18 +195,15 @@ namespace DSharpPlus.Interactivity.EventHandling
             return this._tcs;
         }
 
-        ~PaginationRequest()
-        {
-            this.Dispose();
-        }
-
         /// <summary>
         /// Disposes this PaginationRequest.
         /// </summary>
         public void Dispose()
         {
-            this._ct.Dispose();
-            this._tcs = null;
+            // Why doesn't this class implement IDisposable?
+
+            this._ct?.Dispose();
+            this._tcs = null!;
         }
     }
 }

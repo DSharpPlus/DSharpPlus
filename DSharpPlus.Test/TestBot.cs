@@ -78,7 +78,7 @@ internal sealed class TestBot
         this.Discord.UseVoiceNext();
 
         // events
-        this.Discord.Ready += this.Discord_Ready;
+        this.Discord.SessionCreated += this.Discord_SessionCreated;
         this.Discord.GuildStickersUpdated += this.Discord_StickersUpdated;
         this.Discord.GuildAvailable += this.Discord_GuildAvailable;
         //Discord.PresenceUpdated += this.Discord_PresenceUpdated;
@@ -240,7 +240,7 @@ internal sealed class TestBot
 
     public async Task StopAsync() => await this.Discord.DisconnectAsync();
 
-    private Task Discord_Ready(DiscordClient client, ReadyEventArgs e) => Task.CompletedTask;
+    private Task Discord_SessionCreated(DiscordClient client, SessionReadyEventArgs e) => Task.CompletedTask;
 
     private Task Discord_GuildAvailable(DiscordClient client, GuildCreateEventArgs e)
     {
