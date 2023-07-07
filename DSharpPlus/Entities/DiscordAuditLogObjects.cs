@@ -876,6 +876,22 @@ namespace DSharpPlus.Entities
         /// Indicates that an integration was deleted.
         /// </summary>
         IntegrationDelete = 82,
+        
+        /// <summary>
+        /// Stage instance was created (stage channel becomes live)
+        /// </summary>
+        StageInstanceCreate = 83,
+        
+        /// <summary>
+        /// Stage instance details were updated
+        /// </summary>
+        StageInstanceUpdate = 84,
+            
+        /// <summary>
+        /// Stage instance was deleted (stage channel no longer live)
+        /// </summary>
+        StageInstanceDelete = 85,
+        
         /// <summary>
         /// Indicates that an sticker was created.
         /// </summary>
