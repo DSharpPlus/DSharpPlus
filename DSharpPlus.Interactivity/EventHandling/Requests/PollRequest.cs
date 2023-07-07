@@ -99,18 +99,15 @@ namespace DSharpPlus.Interactivity.EventHandling
             }
         }
 
-        ~PollRequest()
-        {
-            this.Dispose();
-        }
-
         /// <summary>
         /// Disposes this PollRequest.
         /// </summary>
         public void Dispose()
         {
-            this._ct.Dispose();
-            this._tcs = null;
+            // Why doesn't this class implement IDisposable?
+
+            this._ct?.Dispose();
+            this._tcs = null!;
         }
     }
 

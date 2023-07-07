@@ -50,7 +50,7 @@ namespace DSharpPlus
         #region Internal Fields/Properties
 
         internal bool _isShard = false;
-        internal RingBuffer<DiscordMessage> MessageCache { get; }
+        internal IMessageCacheProvider? MessageCache { get; }
 
         private List<BaseExtension> _extensions = new();
         private StatusUpdate _status = null;
@@ -136,12 +136,11 @@ namespace DSharpPlus
         public DiscordClient(DiscordConfiguration config)
             : base(config)
         {
-            if (this.Configuration.MessageCacheSize > 0)
+            DiscordIntents intents = this.Configuration.Intents;
+            if (intents.HasIntent(DiscordIntents.GuildMessages) || intents.HasIntent(DiscordIntents.DirectMessages))
             {
-                var intents = this.Configuration.Intents;
-                this.MessageCache = intents.HasIntent(DiscordIntents.GuildMessages) || intents.HasIntent(DiscordIntents.DirectMessages)
-                        ? new RingBuffer<DiscordMessage>(this.Configuration.MessageCacheSize)
-                        : null;
+                this.MessageCache = this.Configuration.MessageCacheProvider 
+                    ?? (this.Configuration.MessageCacheSize > 0 ? new MessageCache(this.Configuration.MessageCacheSize) : null);
             }
 
             this.InternalSetup();
@@ -1033,13 +1032,8 @@ namespace DSharpPlus
 
         #region Disposal
 
-        ~DiscordClient()
-        {
-            this.Dispose();
-        }
-
-
         private bool _disposed;
+
         /// <summary>
         /// Disposes your DiscordClient.
         /// </summary>
@@ -1049,17 +1043,19 @@ namespace DSharpPlus
                 return;
 
             this._disposed = true;
-            GC.SuppressFinalize(this);
 
             this.DisconnectAsync().GetAwaiter().GetResult();
-            this.ApiClient._rest.Dispose();
-            this.CurrentUser = null;
+            this.ApiClient?._rest?.Dispose();
+            this.CurrentUser = null!;
 
             var extensions = this._extensions; // prevent _extensions being modified during dispose
-            this._extensions = null;
+            this._extensions = null!;
+
             foreach (var extension in extensions)
+            {
                 if (extension is IDisposable disposable)
                     disposable.Dispose();
+            }
 
             try
             {
@@ -1068,9 +1064,9 @@ namespace DSharpPlus
             }
             catch { }
 
-            this._guilds = null;
-            this._heartbeatTask = null;
-            this._privateChannels = null;
+            this._guilds = null!;
+            this._heartbeatTask = null!;
+            this._privateChannels = null!;
         }
 
         #endregion

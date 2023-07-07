@@ -57,24 +57,19 @@ namespace DSharpPlus.Interactivity.EventHandling
             this._collected = new ConcurrentHashSet<T>();
         }
 
-        ~CollectRequest()
-        {
-            this.Dispose();
-        }
-
         /// <summary>
         /// Disposes this CollectRequest.
         /// </summary>
         public void Dispose()
         {
             this._ct.Dispose();
-            this._tcs = null;
-            this._predicate = null;
+            this._tcs = null!;
+            this._predicate = null!;
 
             if (this._collected != null)
             {
                 this._collected.Clear();
-                this._collected = null;
+                this._collected = null!;
             }
         }
     }
