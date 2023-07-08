@@ -125,7 +125,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonIgnore]
         public string DefaultAvatarUrl
-            => $"https://cdn.discordapp.com/embed/avatars/{((this.DiscriminatorInt is 0 ? this.Id >> 22 : (ulong)this.DiscriminatorInt) % 6).ToString(CultureInfo.InvariantCulture)}.png?size=1024";
+            => $"https://cdn.discordapp.com/embed/avatars/{(this.DiscriminatorInt is 0 ? (this.Id >> 22) % 6 : (ulong)this.DiscriminatorInt % 5).ToString(CultureInfo.InvariantCulture)}.png?size=1024";
 
         /// <summary>
         /// Gets whether the user is a bot.
