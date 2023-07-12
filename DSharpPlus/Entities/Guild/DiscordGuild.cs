@@ -1568,73 +1568,63 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 auditLogs.Add(guildAuditLog);
             }
         }
-
-        //Get unique users and update the user cache 
-        List<AuditLogUser> auditLogUsers = auditLogs.SelectMany(xa => xa.Users)
-            .GroupBy(xu => xu.Id)
-            .Select(xgu => xgu.First())
-            .ToList();
+        
+        //Get all User
+        DiscordUser[] users = auditLogs
+            .SelectMany(x => x.Users)
+            .DistinctBy(x => x.Id)
+            .ToArray();
             
-        foreach (AuditLogUser auditLogUser in auditLogUsers)
+        //Update cache
+        foreach (DiscordUser discordUser in users)
         {
-            if (this.Discord.UserCache.ContainsKey(auditLogUser.Id))
+            discordUser.Discord = this.Discord;
+            if (this.Discord.UserCache.ContainsKey(discordUser.Id))
             {
                 continue;
             }
-
-            TransportUser transportUser = new()
-            {
-                Id = auditLogUser.Id,
-                Username = auditLogUser.Username,
-                Discriminator = auditLogUser.Discriminator,
-                AvatarHash = auditLogUser.AvatarHash
-            };
-            DiscordUser user = new(transportUser) { Discord = this.Discord };
-            this.Discord.UpdateUserCache(user);
+            
+            this.Discord.UpdateUserCache(discordUser);
         }
             
         //get unique webhooks, scheduledEvents, threads and fetch those
-        AuditLogWebhook[] uniqueWebhooks = auditLogs.SelectMany(xa => xa.Webhooks)
-            .GroupBy(xh => xh.Id)
-            .Select(xgh => xgh.First())
+        DiscordWebhook[] uniqueWebhooks = auditLogs
+            .SelectMany(x => x.Webhooks)
+            .DistinctBy(x => x.Id)
             .ToArray();
 
-        DiscordScheduledGuildEvent[] uniqueScheduledEvents = auditLogs.SelectMany(xr => xr.Events)
-            .GroupBy(xa => xa.Id)
-            .Select(xu => xu.First())
+        DiscordScheduledGuildEvent[] uniqueScheduledEvents = auditLogs
+            .SelectMany(x => x.Events)
+            .DistinctBy(x => x.Id)
             .ToArray();
 
-        DiscordThreadChannel[] uniqueThreads = auditLogs.SelectMany(xr => xr.Threads)
-            .GroupBy(xa => xa.Id)
-            .Select(xu => xu.First())
+        DiscordThreadChannel[] uniqueThreads = auditLogs
+            .SelectMany(x => x.Threads)
+            .DistinctBy(x => x.Id)
             .ToArray();
 
-        Dictionary<ulong, DiscordWebhook> discordWebhooks = new();
-        if (uniqueWebhooks.Any())
-        {
-            IReadOnlyList<DiscordWebhook>? whr = await this.GetWebhooksAsync();
-            Dictionary<ulong, DiscordWebhook>? whs = whr.ToDictionary(xh => xh.Id, xh => xh);
 
-            IEnumerable<DiscordWebhook>? amh = uniqueWebhooks.Select(xah => whs.TryGetValue(xah.Id, out DiscordWebhook? webhook) ? webhook : new DiscordWebhook { Discord = this.Discord, Name = xah.Name, Id = xah.Id, AvatarHash = xah.AvatarHash, ChannelId = xah.ChannelId, GuildId = xah.GuildId, Token = xah.Token });
-            discordWebhooks = amh.ToDictionary(xh => xh.Id, xh => xh);
-        }
+        Dictionary<ulong, DiscordWebhook> webhooks = uniqueWebhooks.ToDictionary(x => x.Id);
+        
 
         Dictionary<ulong, DiscordScheduledGuildEvent> events =  new();
-        if (uniqueScheduledEvents.Any())
+        foreach (DiscordScheduledGuildEvent discordEvent in uniqueScheduledEvents)
         {
-            ConcurrentDictionary<ulong, DiscordScheduledGuildEvent>? evb = this._scheduledEvents;
-            IEnumerable<DiscordScheduledGuildEvent>? evf = uniqueScheduledEvents.Select(xa => evb.TryGetValue(xa.Id, out DiscordScheduledGuildEvent? Event) ? Event : new DiscordScheduledGuildEvent { Discord = this.Discord, Name = xa.Name, Id = xa.Id, ChannelId = xa.ChannelId, GuildId = xa.GuildId, Creator = xa.Creator, Description = xa.Description, EndTime = xa.EndTime, Metadata = xa.Metadata, PrivacyLevel = xa.PrivacyLevel, StartTime = xa.StartTime, Status = xa.Status, Type = xa.Type, UserCount = xa.UserCount});
-            events = evf.ToDictionary(xb => xb.Id, xb => xb);
+            this._scheduledEvents[discordEvent.Id] = discordEvent;
         }
+        events = this._scheduledEvents.ToDictionary(x => x.Key, y => y.Value);
 
         Dictionary<ulong, DiscordThreadChannel> threads = new();
         if (uniqueThreads.Any())
         {
-            IEnumerable<DiscordThreadChannel>? thb = uniqueThreads.Select(xr => xr ?? new DiscordThreadChannel{ Discord = this.Discord, Id = xr.Id, Name = xr.Name, GuildId = xr.GuildId});
-            threads = thb.ToDictionary(xa => xa.Id, xa => xa);
+            threads = uniqueThreads.ToDictionary(xa => xa.Id, xa => xa);
         }
 
-        IEnumerable<DiscordMember>? discordMembers = auditLogUsers.Select(xau => this._members != null && this._members.TryGetValue(xau.Id, out DiscordMember? member) ? member : new DiscordMember { Discord = this.Discord, Id = xau.Id, _guild_id = this.Id });
+        IEnumerable<DiscordMember>? discordMembers = users
+            .Select(xau => this._members != null && this._members.TryGetValue(xau.Id, out DiscordMember? member)
+                ? member
+                : new DiscordMember {Discord = this.Discord, Id = xau.Id, _guild_id = this.Id});
+        
         Dictionary<ulong, DiscordMember>? members = discordMembers.ToDictionary(xm => xm.Id, xm => xm);
 
         IOrderedEnumerable<AuditLogAction>? auditLogActions = auditLogs.SelectMany(xa => xa.Entries).OrderByDescending(xa => xa.Id);
@@ -2192,7 +2182,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 case AuditLogActionType.WebhookUpdate:
                     entry = new DiscordAuditLogWebhookEntry
                     {
-                        Target = discordWebhooks.TryGetValue(auditLogAction.TargetId.Value, out DiscordWebhook? webhook) ? webhook : new DiscordWebhook { Id = auditLogAction.TargetId.Value, Discord = this.Discord }
+                        Target = webhooks.TryGetValue(auditLogAction.TargetId.Value, out DiscordWebhook? webhook) ? webhook : new DiscordWebhook { Id = auditLogAction.TargetId.Value, Discord = this.Discord }
                     };
 
                     DiscordAuditLogWebhookEntry? webhookEntry = entry as DiscordAuditLogWebhookEntry;

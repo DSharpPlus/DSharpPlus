@@ -667,6 +667,13 @@ public sealed class DiscordAuditLogThreadEventEntry : DiscordAuditLogEntry
 
 }
 
+public sealed class DiscordAuditLogAutoModerationEntry : DiscordAuditLogEntry
+{
+    public DiscordAutoModerationRule ResponsibleRule { get; internal set; }
+    public DiscordChannel Channel { get; internal set; }
+    
+}
+
 
 /// <summary>
 /// Indicates audit log action category.
