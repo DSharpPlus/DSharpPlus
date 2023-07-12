@@ -1587,7 +1587,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             this.Discord.UpdateUserCache(discordUser);
         }
             
-        //get unique webhooks, scheduledEvents, threads and fetch those
+        //get unique webhooks, scheduledEvents, threads
         DiscordWebhook[] uniqueWebhooks = auditLogs
             .SelectMany(x => x.Webhooks)
             .DistinctBy(x => x.Id)
@@ -1607,6 +1607,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         Dictionary<ulong, DiscordWebhook> webhooks = uniqueWebhooks.ToDictionary(x => x.Id);
         
 
+        //update event cache and create a dictionary for it 
         Dictionary<ulong, DiscordScheduledGuildEvent> events =  new();
         foreach (DiscordScheduledGuildEvent discordEvent in uniqueScheduledEvents)
         {
@@ -1639,213 +1640,13 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             switch (auditLogAction.ActionType)
             {
                 case AuditLogActionType.GuildUpdate:
-                    entry = new DiscordAuditLogGuildEntry
-                    {
-                        Target = this
-                    };
-
-                    DiscordAuditLogGuildEntry guildEntry = entry as DiscordAuditLogGuildEntry;
-                    foreach (AuditLogActionChange? auditLogActionChange in auditLogAction.Changes)
-                    {
-                        switch (auditLogActionChange.Key.ToLowerInvariant())
-                        {
-                            case "name":
-                                guildEntry.NameChange = new PropertyChange<string>
-                                {
-                                    Before = auditLogActionChange.OldValueString,
-                                    After = auditLogActionChange.NewValueString
-                                };
-                                break;
-
-                            case "owner_id":
-                                guildEntry.OwnerChange = new PropertyChange<DiscordMember>
-                                {
-                                    Before = this._members != null && this._members.TryGetValue(auditLogActionChange.OldValueUlong, out DiscordMember? oldMember) ? oldMember : await this.GetMemberAsync(auditLogActionChange.OldValueUlong),
-                                    After = this._members != null && this._members.TryGetValue(auditLogActionChange.NewValueUlong, out DiscordMember? newMember) ? newMember : await this.GetMemberAsync(auditLogActionChange.NewValueUlong)
-                                };
-                                break;
-
-                            case "icon_hash":
-                                guildEntry.IconChange = new PropertyChange<string>
-                                {
-                                    Before = auditLogActionChange.OldValueString != null ? $"https://cdn.discordapp.com/icons/{this.Id}/{auditLogActionChange.OldValueString}.webp" : null,
-                                    After = auditLogActionChange.OldValueString != null ? $"https://cdn.discordapp.com/icons/{this.Id}/{auditLogActionChange.NewValueString}.webp" : null
-                                };
-                                break;
-
-                            case "verification_level":
-                                guildEntry.VerificationLevelChange = new PropertyChange<VerificationLevel>
-                                {
-                                    Before = (VerificationLevel)(long)auditLogActionChange.OldValue,
-                                    After = (VerificationLevel)(long)auditLogActionChange.NewValue
-                                };
-                                break;
-
-                            case "afk_channel_id":
-                                ulong.TryParse(auditLogActionChange.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t1);
-                                ulong.TryParse(auditLogActionChange.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t2);
-
-                                guildEntry.AfkChannelChange = new PropertyChange<DiscordChannel>
-                                {
-                                    Before = this.GetChannel(t1) ?? new DiscordChannel { Id = t1, Discord = this.Discord, GuildId = this.Id },
-                                    After = this.GetChannel(t2) ?? new DiscordChannel { Id = t1, Discord = this.Discord, GuildId = this.Id }
-                                };
-                                break;
-
-                            case "widget_channel_id":
-                                ulong.TryParse(auditLogActionChange.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t1);
-                                ulong.TryParse(auditLogActionChange.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t2);
-
-                                guildEntry.EmbedChannelChange = new PropertyChange<DiscordChannel>
-                                {
-                                    Before = this.GetChannel(t1) ?? new DiscordChannel { Id = t1, Discord = this.Discord, GuildId = this.Id },
-                                    After = this.GetChannel(t2) ?? new DiscordChannel { Id = t1, Discord = this.Discord, GuildId = this.Id }
-                                };
-                                break;
-
-                            case "splash_hash":
-                                guildEntry.SplashChange = new PropertyChange<string>
-                                {
-                                    Before = auditLogActionChange.OldValueString != null ? $"https://cdn.discordapp.com/splashes/{this.Id}/{auditLogActionChange.OldValueString}.webp?size=2048" : null,
-                                    After = auditLogActionChange.NewValueString != null ? $"https://cdn.discordapp.com/splashes/{this.Id}/{auditLogActionChange.NewValueString}.webp?size=2048" : null
-                                };
-                                break;
-
-                            case "default_message_notifications":
-                                guildEntry.NotificationSettingsChange = new PropertyChange<DefaultMessageNotifications>
-                                {
-                                    Before = (DefaultMessageNotifications)(long)auditLogActionChange.OldValue,
-                                    After = (DefaultMessageNotifications)(long)auditLogActionChange.NewValue
-                                };
-                                break;
-
-                            case "system_channel_id":
-                                ulong.TryParse(auditLogActionChange.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t1);
-                                ulong.TryParse(auditLogActionChange.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t2);
-
-                                guildEntry.SystemChannelChange = new PropertyChange<DiscordChannel>
-                                {
-                                    Before = this.GetChannel(t1) ?? new DiscordChannel { Id = t1, Discord = this.Discord, GuildId = this.Id },
-                                    After = this.GetChannel(t2) ?? new DiscordChannel { Id = t1, Discord = this.Discord, GuildId = this.Id }
-                                };
-                                break;
-
-                            case "explicit_content_filter":
-                                guildEntry.ExplicitContentFilterChange = new PropertyChange<ExplicitContentFilter>
-                                {
-                                    Before = (ExplicitContentFilter)(long)auditLogActionChange.OldValue,
-                                    After = (ExplicitContentFilter)(long)auditLogActionChange.NewValue
-                                };
-                                break;
-
-                            case "mfa_level":
-                                guildEntry.MfaLevelChange = new PropertyChange<MfaLevel>
-                                {
-                                    Before = (MfaLevel)(long)auditLogActionChange.OldValue,
-                                    After = (MfaLevel)(long)auditLogActionChange.NewValue
-                                };
-                                break;
-
-                            case "region":
-                                guildEntry.RegionChange = new PropertyChange<string>
-                                {
-                                    Before = auditLogActionChange.OldValueString,
-                                    After = auditLogActionChange.NewValueString
-                                };
-                                break;
-
-                            default:
-                                this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in guild update: {Key} - this should be reported to library developers", auditLogActionChange.Key);
-                                break;
-                        }
-                    }
+                    entry = await AuditLogParser.ParseGuildUpdateAsync(this, auditLogAction);
                     break;
-
+                
                 case AuditLogActionType.ChannelCreate:
                 case AuditLogActionType.ChannelDelete:
                 case AuditLogActionType.ChannelUpdate:
-                    entry = new DiscordAuditLogChannelEntry
-                    {
-                        Target = this.GetChannel(auditLogAction.TargetId.Value) ?? new DiscordChannel { Id = auditLogAction.TargetId.Value, Discord = this.Discord, GuildId = this.Id }
-                    };
-
-                    DiscordAuditLogChannelEntry? channelEntry = entry as DiscordAuditLogChannelEntry;
-                    foreach (AuditLogActionChange? xc in auditLogAction.Changes)
-                    {
-                        switch (xc.Key.ToLowerInvariant())
-                        {
-                            case "name":
-                                channelEntry.NameChange = new PropertyChange<string>
-                                {
-                                    Before = xc.OldValue != null ? xc.OldValueString : null,
-                                    After = xc.NewValue != null ? xc.NewValueString : null
-                                };
-                                break;
-
-                            case "type":
-                                p1 = ulong.TryParse(xc.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t1);
-                                p2 = ulong.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t2);
-
-                                channelEntry.TypeChange = new PropertyChange<ChannelType?>
-                                {
-                                    Before = p1 ? (ChannelType?)t1 : null,
-                                    After = p2 ? (ChannelType?)t2 : null
-                                };
-                                break;
-
-                            case "permission_overwrites":
-                                IEnumerable<DiscordOverwrite>? olds = xc.OldValues?.OfType<JObject>()
-                                    ?.Select(xjo => xjo.ToDiscordObject<DiscordOverwrite>())
-                                    ?.Select(xo => { xo.Discord = this.Discord; return xo; });
-
-                                IEnumerable<DiscordOverwrite>? news = xc.NewValues?.OfType<JObject>()
-                                    ?.Select(xjo => xjo.ToDiscordObject<DiscordOverwrite>())
-                                    ?.Select(xo => { xo.Discord = this.Discord; return xo; });
-
-                                channelEntry.OverwriteChange = new PropertyChange<IReadOnlyList<DiscordOverwrite>>
-                                {
-                                    Before = olds != null ? new ReadOnlyCollection<DiscordOverwrite>(new List<DiscordOverwrite>(olds)) : null,
-                                    After = news != null ? new ReadOnlyCollection<DiscordOverwrite>(new List<DiscordOverwrite>(news)) : null
-                                };
-                                break;
-
-                            case "topic":
-                                channelEntry.TopicChange = new PropertyChange<string>
-                                {
-                                    Before = xc.OldValueString,
-                                    After = xc.NewValueString
-                                };
-                                break;
-
-                            case "nsfw":
-                                channelEntry.NsfwChange = new PropertyChange<bool?>
-                                {
-                                    Before = (bool?)xc.OldValue,
-                                    After = (bool?)xc.NewValue
-                                };
-                                break;
-
-                            case "bitrate":
-                                channelEntry.BitrateChange = new PropertyChange<int?>
-                                {
-                                    Before = (int?)(long?)xc.OldValue,
-                                    After = (int?)(long?)xc.NewValue
-                                };
-                                break;
-
-                            case "rate_limit_per_user":
-                                channelEntry.PerUserRateLimitChange = new PropertyChange<int?>
-                                {
-                                    Before = (int?)(long?)xc.OldValue,
-                                    After = (int?)(long?)xc.NewValue
-                                };
-                                break;
-
-                            default:
-                                this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in channel update: {Key} - this should be reported to library developers", xc.Key);
-                                break;
-                        }
-                    }
+                    entry = await AuditLogParser.ParseChannelEntryAsync(this, auditLogAction);
                     break;
 
                 case AuditLogActionType.OverwriteCreate:
