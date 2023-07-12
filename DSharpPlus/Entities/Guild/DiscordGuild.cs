@@ -1652,63 +1652,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 case AuditLogActionType.OverwriteCreate:
                 case AuditLogActionType.OverwriteDelete:
                 case AuditLogActionType.OverwriteUpdate:
-                    entry = new DiscordAuditLogOverwriteEntry
-                    {
-                        Target = this.GetChannel(auditLogAction.TargetId.Value)?.PermissionOverwrites.FirstOrDefault(xo => xo.Id == auditLogAction.Options.Id),
-                        Channel = this.GetChannel(auditLogAction.TargetId.Value)
-                    };
-
-                    DiscordAuditLogOverwriteEntry? overwriteEntry = entry as DiscordAuditLogOverwriteEntry;
-                    foreach (AuditLogActionChange? xc in auditLogAction.Changes)
-                    {
-                        switch (xc.Key.ToLowerInvariant())
-                        {
-                            case "deny":
-                                p1 = ulong.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t1);
-                                p2 = ulong.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t2);
-
-                                overwriteEntry.DenyChange = new PropertyChange<Permissions?>
-                                {
-                                    Before = p1 ? (Permissions?)t1 : null,
-                                    After = p2 ? (Permissions?)t2 : null
-                                };
-                                break;
-
-                            case "allow":
-                                p1 = ulong.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t1);
-                                p2 = ulong.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t2);
-
-                                overwriteEntry.AllowChange = new PropertyChange<Permissions?>
-                                {
-                                    Before = p1 ? (Permissions?)t1 : null,
-                                    After = p2 ? (Permissions?)t2 : null
-                                };
-                                break;
-
-                            case "type":
-                                overwriteEntry.TypeChange = new PropertyChange<string>
-                                {
-                                    Before = xc.OldValueString,
-                                    After = xc.NewValueString
-                                };
-                                break;
-
-                            case "id":
-                                p1 = ulong.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t1);
-                                p2 = ulong.TryParse(xc.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t2);
-
-                                overwriteEntry.TargetIdChange = new PropertyChange<ulong?>
-                                {
-                                    Before = p1 ? (ulong?)t1 : null,
-                                    After = p2 ? (ulong?)t2 : null
-                                };
-                                break;
-
-                            default:
-                                this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in overwrite update: {Key} - this should be reported to library developers", xc.Key);
-                                break;
-                        }
-                    }
+                    
                     break;
 
                 case AuditLogActionType.Kick:

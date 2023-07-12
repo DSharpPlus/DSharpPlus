@@ -147,7 +147,8 @@ internal static class AuditLogParser
             Target = guild.GetChannel(auditLogAction.TargetId.Value) ?? new DiscordChannel { Id = auditLogAction.TargetId.Value, Discord = guild.Discord, GuildId = guild.Id }
         };
 
-        ulong before, after;
+        ulong ulongBefore, ulongAfter;
+        bool boolBefore, boolAfter;
         DiscordAuditLogChannelEntry? channelEntry = entry as DiscordAuditLogChannelEntry;
         foreach (AuditLogActionChange? xc in auditLogAction.Changes)
         {
@@ -162,13 +163,13 @@ internal static class AuditLogParser
                     break;
 
                 case "type":
-                    p1 = ulong.TryParse(xc.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out before);
-                    p2 = ulong.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out after);
+                    boolBefore = ulong.TryParse(xc.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out ulongBefore);
+                    boolAfter = ulong.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out ulongAfter);
 
                     channelEntry.TypeChange = new PropertyChange<ChannelType?>
                     {
-                        Before = p1 ? (ChannelType?)before : null,
-                        After = p2 ? (ChannelType?)after : null
+                        Before = boolBefore ? (ChannelType?)ulongBefore : null,
+                        After = boolAfter ? (ChannelType?)ulongAfter : null
                     };
                     break;
 
@@ -222,6 +223,71 @@ internal static class AuditLogParser
 
                 default:
                     guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in channel update: {Key} - guild should be reported to library developers", xc.Key);
+                    break;
+            }
+        }
+
+        return entry;
+    }
+
+    internal static async Task<DiscordAuditLogEntry> ParseOverwriteEntryAsync(DiscordGuild guild, AuditLogAction auditLogAction)
+    {
+        DiscordAuditLogEntry entry = new DiscordAuditLogOverwriteEntry
+        {
+            Target = guild.GetChannel(auditLogAction.TargetId.Value)?.PermissionOverwrites.FirstOrDefault(xo => xo.Id == auditLogAction.Options.Id),
+            Channel = guild.GetChannel(auditLogAction.TargetId.Value)
+        };
+
+        ulong ulongBefore, ulongAfter;
+        bool boolBefore, boolAfter;
+        DiscordAuditLogOverwriteEntry? overwriteEntry = entry as DiscordAuditLogOverwriteEntry;
+        foreach (AuditLogActionChange? xc in auditLogAction.Changes)
+        {
+            switch (xc.Key.ToLowerInvariant())
+            {
+                case "deny":
+                    boolBefore = ulong.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out ulongBefore);
+                    boolAfter = ulong.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out ulongAfter);
+
+                    overwriteEntry.DenyChange = new()
+                    {
+                        Before = boolBefore ? (Permissions?)ulongBefore : null,
+                        After = boolAfter ? (Permissions?)ulongAfter : null
+                    };
+                    break;
+
+                case "allow":
+                    boolBefore = ulong.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out ulongBefore);
+                    boolAfter = ulong.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out ulongAfter);
+
+                    overwriteEntry.AllowChange = new PropertyChange<Permissions?>
+                    {
+                        Before = boolBefore ? (Permissions?)ulongBefore : null,
+                        After = boolAfter ? (Permissions?)ulongAfter : null
+                    };
+                    break;
+
+                case "type":
+                    overwriteEntry.TypeChange = new PropertyChange<string>
+                    {
+                        Before = xc.OldValueString,
+                        After = xc.NewValueString
+                    };
+                    break;
+
+                case "id":
+                    boolBefore = ulong.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out ulongBefore);
+                    boolAfter = ulong.TryParse(xc.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out ulongAfter);
+
+                    overwriteEntry.TargetIdChange = new PropertyChange<ulong?>
+                    {
+                        Before = boolBefore ? (ulong?)ulongBefore : null,
+                        After = boolAfter ? (ulong?)ulongAfter : null
+                    };
+                    break;
+
+                default:
+                    guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in overwrite update: {Key} - guild should be reported to library developers", xc.Key);
                     break;
             }
         }
