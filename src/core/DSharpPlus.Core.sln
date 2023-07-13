@@ -9,10 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Core.Models", "D
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Shared", "DSharpPlus.Shared\DSharpPlus.Shared.csproj", "{E9B2D26F-5E11-4198-8E00-A7780572C480}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{FB4D812B-0FD8-4335-BF0A-CFBA8C856E04}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tools.Generators.GenerateConcreteObjects", "..\..\tools\generators\Tools.Generators.GenerateConcreteObjects\Tools.Generators.GenerateConcreteObjects.csproj", "{F214E901-6928-4488-9F65-E684AD12F0CE}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,15 +27,8 @@ Global
 		{E9B2D26F-5E11-4198-8E00-A7780572C480}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E9B2D26F-5E11-4198-8E00-A7780572C480}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E9B2D26F-5E11-4198-8E00-A7780572C480}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F214E901-6928-4488-9F65-E684AD12F0CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F214E901-6928-4488-9F65-E684AD12F0CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F214E901-6928-4488-9F65-E684AD12F0CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F214E901-6928-4488-9F65-E684AD12F0CE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{F214E901-6928-4488-9F65-E684AD12F0CE} = {FB4D812B-0FD8-4335-BF0A-CFBA8C856E04}
 	EndGlobalSection
 EndGlobal
