@@ -4,7 +4,9 @@
 
 using System;
 using System.Diagnostics;
+#if !NETSTANDARD
 using System.Diagnostics.CodeAnalysis;
+#endif
 
 namespace DSharpPlus.Collections;
 
@@ -13,21 +15,27 @@ namespace DSharpPlus.Collections;
 /// </summary>
 internal static class ThrowHelper
 {
-    [DoesNotReturn]
     [DebuggerHidden]
+#if !NETSTANDARD
+    [DoesNotReturn]
     [StackTraceHidden]
+#endif
     internal static void ThrowConcurrentOperationsNotSupported() 
         => throw new InvalidOperationException("Concurrent modifications to this collection type are not supported.");
 
-    [DoesNotReturn]
     [DebuggerHidden]
+#if !NETSTANDARD
+    [DoesNotReturn]
     [StackTraceHidden]
+#endif
     internal static void ThrowCapacityIntMaxValueExceeded()
         => throw new InvalidOperationException($"This type's maximum capacity of {int.MaxValue} was exceeded.");
 
-    [DoesNotReturn]
     [DebuggerHidden]
+#if !NETSTANDARD
+    [DoesNotReturn]
     [StackTraceHidden]
+#endif
     internal static void ThrowValueNotFound()
         => throw new ArgumentException("There was no value corresponding to the given key.");
 }

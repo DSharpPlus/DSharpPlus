@@ -28,7 +28,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+#if !NETSTANDARD
 using System.Diagnostics.CodeAnalysis;
+#endif
 using System.Runtime.CompilerServices;
 
 namespace DSharpPlus.Collections;
@@ -203,7 +205,9 @@ public sealed class DictionarySlim<TKey, TValue> : IReadOnlyCollection<KeyValueP
     (
         TKey key,
 
+#if !NETSTANDARD
         [MaybeNullWhen(false)]
+#endif
         out TValue value
     )
     {
@@ -240,7 +244,7 @@ public sealed class DictionarySlim<TKey, TValue> : IReadOnlyCollection<KeyValueP
             collisions++;
         }
 
-        value = default;
+        value = default!;
         return false;
     }
 
@@ -251,10 +255,10 @@ public sealed class DictionarySlim<TKey, TValue> : IReadOnlyCollection<KeyValueP
 #if !NETSTANDARD
             ArgumentNullException.ThrowIfNull(key);
 #else
-        if (key is null)
-        {
-            throw new ArgumentNullException("The supplied key was null.");
-        }
+            if (key is null)
+            {
+                throw new ArgumentNullException("The supplied key was null.");
+            }
 #endif
 
             DictionaryEntry[] entries = this.entries;
@@ -283,7 +287,13 @@ public sealed class DictionarySlim<TKey, TValue> : IReadOnlyCollection<KeyValueP
             ThrowHelper.ThrowValueNotFound();
 
             // this is unreachable, but roslyn disagrees; so we need to have a dummy return
-            return ref Unsafe.NullRef<TValue>();
+            // thanks to netstandard being netstandard, this can't become Unsafe.NullRef<TValue>();
+            unsafe
+            {
+#pragma warning disable CS8500
+                return ref *(TValue*)null;
+#pragma warning restore CS8500
+            }
         }
     }
 
