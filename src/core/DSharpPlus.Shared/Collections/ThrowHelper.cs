@@ -24,4 +24,10 @@ internal static class ThrowHelper
     [StackTraceHidden]
     internal static void ThrowCapacityIntMaxValueExceeded()
         => throw new InvalidOperationException($"This type's maximum capacity of {int.MaxValue} was exceeded.");
+
+    [DoesNotReturn]
+    [DebuggerHidden]
+    [StackTraceHidden]
+    internal static void ThrowValueNotFound()
+        => throw new ArgumentException("There was no value corresponding to the given key.");
 }

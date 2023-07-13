@@ -244,6 +244,49 @@ public sealed class DictionarySlim<TKey, TValue> : IReadOnlyCollection<KeyValueP
         return false;
     }
 
+    public ref TValue this[TKey key]
+    {
+        get
+        {
+#if !NETSTANDARD
+            ArgumentNullException.ThrowIfNull(key);
+#else
+        if (key is null)
+        {
+            throw new ArgumentNullException("The supplied key was null.");
+        }
+#endif
+
+            DictionaryEntry[] entries = this.entries;
+            int collisions = 0;
+
+            for
+            (
+                int i = buckets[key.GetHashCode() & (buckets.Length - 1)] - 1;
+                (uint)i < (uint)entries.Length;
+                i = entries[i].next
+            )
+            {
+                if (key.Equals(entries[i].key))
+                {
+                    return ref entries[i].value;
+                }
+
+                if (collisions == entries.Length)
+                {
+                    ThrowHelper.ThrowConcurrentOperationsNotSupported();
+                }
+
+                collisions++;
+            }
+
+            ThrowHelper.ThrowValueNotFound();
+
+            // this is unreachable, but roslyn disagrees; so we need to have a dummy return
+            return ref Unsafe.NullRef<TValue>();
+        }
+    }
+
     /// <summary>
     /// Removes the entry with the specified key, if one was present.
     /// </summary>
