@@ -89,7 +89,7 @@ namespace DSharpPlus.Entities
         /// A partial channel object for the channel this channel follower webhook is following.
         /// </summary>
         [JsonProperty("source_channel", NullValueHandling = NullValueHandling.Ignore)]
-        public DiscordPartialGuild SourceChannel { get; internal set; }
+        public DiscordPartialChannel SourceChannel { get; internal set; }
 
         /// <summary>
         /// Gets the webhook's url. Only returned when using the webhook.incoming OAuth2 scope.
