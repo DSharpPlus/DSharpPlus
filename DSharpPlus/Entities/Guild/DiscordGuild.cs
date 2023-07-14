@@ -1646,19 +1646,24 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 case AuditLogActionType.ChannelCreate:
                 case AuditLogActionType.ChannelDelete:
                 case AuditLogActionType.ChannelUpdate:
-                    entry = await AuditLogParser.ParseChannelEntryAsync(this, auditLogAction);
+                    entry = AuditLogParser.ParseChannelEntry(this, auditLogAction);
                     break;
 
                 case AuditLogActionType.OverwriteCreate:
                 case AuditLogActionType.OverwriteDelete:
                 case AuditLogActionType.OverwriteUpdate:
-                    
+                    entry = AuditLogParser.ParseOverwriteEntry(this, auditLogAction);
                     break;
 
                 case AuditLogActionType.Kick:
                     entry = new DiscordAuditLogKickEntry
                     {
-                        Target = members.TryGetValue(auditLogAction.TargetId.Value, out DiscordMember? kickMember) ? kickMember : new DiscordMember { Id = auditLogAction.TargetId.Value, Discord = this.Discord, _guild_id = this.Id }
+                        Target = members.TryGetValue(auditLogAction.TargetId.Value, out DiscordMember? kickMember)
+                            ? kickMember
+                            : new DiscordMember
+                            {
+                                Id = auditLogAction.TargetId.Value, Discord = this.Discord, _guild_id = this.Id
+                            }
                     };
                     break;
 
@@ -1674,252 +1679,30 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 case AuditLogActionType.Unban:
                     entry = new DiscordAuditLogBanEntry
                     {
-                        Target = members.TryGetValue(auditLogAction.TargetId.Value, out DiscordMember? unbanMember) ? unbanMember : new DiscordMember { Id = auditLogAction.TargetId.Value, Discord = this.Discord, _guild_id = this.Id }
+                        Target = members.TryGetValue(auditLogAction.TargetId.Value, out DiscordMember? unbanMember)
+                            ? unbanMember
+                            : new DiscordMember
+                            {
+                                Id = auditLogAction.TargetId.Value, Discord = this.Discord, _guild_id = this.Id
+                            }
                     };
                     break;
 
                 case AuditLogActionType.MemberUpdate:
                 case AuditLogActionType.MemberRoleUpdate:
-                    entry = new DiscordAuditLogMemberUpdateEntry
-                    {
-                        Target = members.TryGetValue(auditLogAction.TargetId.Value, out DiscordMember? roleUpdMember) ? roleUpdMember : new DiscordMember { Id = auditLogAction.TargetId.Value, Discord = this.Discord, _guild_id = this.Id }
-                    };
-
-                    DiscordAuditLogMemberUpdateEntry? memberUpdateEntry = entry as DiscordAuditLogMemberUpdateEntry;
-                    foreach (AuditLogActionChange? xc in auditLogAction.Changes)
-                    {
-                        switch (xc.Key.ToLowerInvariant())
-                        {
-                            case "nick":
-                                memberUpdateEntry.NicknameChange = new PropertyChange<string>
-                                {
-                                    Before = xc.OldValueString,
-                                    After = xc.NewValueString
-                                };
-                                break;
-
-                            case "deaf":
-                                memberUpdateEntry.DeafenChange = new PropertyChange<bool?>
-                                {
-                                    Before = (bool?)xc.OldValue,
-                                    After = (bool?)xc.NewValue
-                                };
-                                break;
-
-                            case "mute":
-                                memberUpdateEntry.MuteChange = new PropertyChange<bool?>
-                                {
-                                    Before = (bool?)xc.OldValue,
-                                    After = (bool?)xc.NewValue
-                                };
-                                break;
-
-                            case "communication_disabled_until":
-                                memberUpdateEntry.TimeoutChange = new PropertyChange<DateTime?>
-                                {
-                                    Before = xc.OldValue != null ? (DateTime)xc.OldValue : null,
-                                    After = xc.NewValue != null ? (DateTime)xc.NewValue : null
-                                };
-                                break;
-
-                            case "$add":
-                                memberUpdateEntry.AddedRoles = new ReadOnlyCollection<DiscordRole>(xc.NewValues.Select(xo => (ulong)xo["id"]).Select(this.GetRole).ToList());
-                                break;
-
-                            case "$remove":
-                                memberUpdateEntry.RemovedRoles = new ReadOnlyCollection<DiscordRole>(xc.NewValues.Select(xo => (ulong)xo["id"]).Select(this.GetRole).ToList());
-                                break;
-
-                            default:
-                                this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in member update: {Key} - this should be reported to library developers", xc.Key);
-                                break;
-                        }
-                    }
+                    entry = AuditLogParser.ParseMemberUpdateEntry(this, auditLogAction);
                     break;
 
                 case AuditLogActionType.RoleCreate:
                 case AuditLogActionType.RoleDelete:
                 case AuditLogActionType.RoleUpdate:
-                    entry = new DiscordAuditLogRoleUpdateEntry
-                    {
-                        Target = this.GetRole(auditLogAction.TargetId.Value) ?? new DiscordRole { Id = auditLogAction.TargetId.Value, Discord = this.Discord }
-                    };
-
-                    DiscordAuditLogRoleUpdateEntry? roleUpdateEntry = entry as DiscordAuditLogRoleUpdateEntry;
-                    foreach (AuditLogActionChange? xc in auditLogAction.Changes)
-                    {
-                        switch (xc.Key.ToLowerInvariant())
-                        {
-                            case "name":
-                                roleUpdateEntry.NameChange = new PropertyChange<string>
-                                {
-                                    Before = xc.OldValueString,
-                                    After = xc.NewValueString
-                                };
-                                break;
-
-                            case "color":
-                                p1 = int.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t3);
-                                p2 = int.TryParse(xc.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t4);
-
-                                roleUpdateEntry.ColorChange = new PropertyChange<int?>
-                                {
-                                    Before = p1 ? (int?)t3 : null,
-                                    After = p2 ? (int?)t4 : null
-                                };
-                                break;
-
-                            case "permissions":
-                                roleUpdateEntry.PermissionChange = new PropertyChange<Permissions?>
-                                {
-                                    Before = xc.OldValue != null ? (Permissions?)long.Parse((string)xc.OldValue) : null,
-                                    After = xc.NewValue != null ? (Permissions?)long.Parse((string)xc.NewValue) : null
-                                };
-                                break;
-
-                            case "position":
-                                roleUpdateEntry.PositionChange = new PropertyChange<int?>
-                                {
-                                    Before = xc.OldValue != null ? (int?)(long)xc.OldValue : null,
-                                    After = xc.NewValue != null ? (int?)(long)xc.NewValue : null,
-                                };
-                                break;
-
-                            case "mentionable":
-                                roleUpdateEntry.MentionableChange = new PropertyChange<bool?>
-                                {
-                                    Before = xc.OldValue != null ? (bool?)xc.OldValue : null,
-                                    After = xc.NewValue != null ? (bool?)xc.NewValue : null
-                                };
-                                break;
-
-                            case "hoist":
-                                roleUpdateEntry.HoistChange = new PropertyChange<bool?>
-                                {
-                                    Before = (bool?)xc.OldValue,
-                                    After = (bool?)xc.NewValue
-                                };
-                                break;
-
-                            default:
-                                this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in role update: {Key} - this should be reported to library developers", xc.Key);
-                                break;
-                        }
-                    }
+                    entry = AuditLogParser.ParseRoleUpdateEntry(this, auditLogAction);
                     break;
 
                 case AuditLogActionType.InviteCreate:
                 case AuditLogActionType.InviteDelete:
                 case AuditLogActionType.InviteUpdate:
-                    entry = new DiscordAuditLogInviteEntry();
-
-                    DiscordInvite invite = new()
-                    {
-                        Discord = this.Discord,
-                        Guild = new DiscordInviteGuild
-                        {
-                            Discord = this.Discord,
-                            Id = this.Id,
-                            Name = this.Name,
-                            SplashHash = this.SplashHash
-                        }
-                    };
-
-                    DiscordAuditLogInviteEntry? inviteEntry = entry as DiscordAuditLogInviteEntry;
-                    foreach (AuditLogActionChange? xc in auditLogAction.Changes)
-                    {
-                        switch (xc.Key.ToLowerInvariant())
-                        {
-                            case "max_age":
-                                p1 = int.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t3);
-                                p2 = int.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t4);
-
-                                inviteEntry.MaxAgeChange = new PropertyChange<int?>
-                                {
-                                    Before = p1 ? (int?)t3 : null,
-                                    After = p2 ? (int?)t4 : null
-                                };
-                                break;
-
-                            case "code":
-                                invite.Code = xc.OldValueString ?? xc.NewValueString;
-
-                                inviteEntry.CodeChange = new PropertyChange<string>
-                                {
-                                    Before = xc.OldValueString,
-                                    After = xc.NewValueString
-                                };
-                                break;
-
-                            case "temporary":
-                                inviteEntry.TemporaryChange = new PropertyChange<bool?>
-                                {
-                                    Before = xc.OldValue != null ? (bool?)xc.OldValue : null,
-                                    After = xc.NewValue != null ? (bool?)xc.NewValue : null
-                                };
-                                break;
-
-                            case "inviter_id":
-                                p1 = ulong.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t1);
-                                p2 = ulong.TryParse(xc.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t2);
-
-                                inviteEntry.InviterChange = new PropertyChange<DiscordMember>
-                                {
-                                    Before = members.TryGetValue(t1, out DiscordMember? propBeforeMember) ? propBeforeMember : new DiscordMember { Id = t1, Discord = this.Discord, _guild_id = this.Id },
-                                    After = members.TryGetValue(t2, out DiscordMember? propAfterMember) ? propAfterMember : new DiscordMember { Id = t1, Discord = this.Discord, _guild_id = this.Id },
-                                };
-                                break;
-
-                            case "channel_id":
-                                p1 = ulong.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t1);
-                                p2 = ulong.TryParse(xc.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t2);
-
-                                inviteEntry.ChannelChange = new PropertyChange<DiscordChannel>
-                                {
-                                    Before = p1 ? this.GetChannel(t1) ?? new DiscordChannel { Id = t1, Discord = this.Discord, GuildId = this.Id } : null,
-                                    After = p2 ? this.GetChannel(t2) ?? new DiscordChannel { Id = t1, Discord = this.Discord, GuildId = this.Id } : null
-                                };
-
-                                DiscordChannel? ch = inviteEntry.ChannelChange.Before ?? inviteEntry.ChannelChange.After;
-                                ChannelType? cht = ch?.Type;
-                                invite.Channel = new DiscordInviteChannel
-                                {
-                                    Discord = this.Discord,
-                                    Id = p1 ? t1 : t2,
-                                    Name = ch?.Name,
-                                    Type = cht != null ? cht.Value : ChannelType.Unknown
-                                };
-                                break;
-
-                            case "uses":
-                                p1 = int.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t3);
-                                p2 = int.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t4);
-
-                                inviteEntry.UsesChange = new PropertyChange<int?>
-                                {
-                                    Before = p1 ? (int?)t3 : null,
-                                    After = p2 ? (int?)t4 : null
-                                };
-                                break;
-
-                            case "max_uses":
-                                p1 = int.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t3);
-                                p2 = int.TryParse(xc.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t4);
-
-                                inviteEntry.MaxUsesChange = new PropertyChange<int?>
-                                {
-                                    Before = p1 ? (int?)t3 : null,
-                                    After = p2 ? (int?)t4 : null
-                                };
-                                break;
-
-                            default:
-                                this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in invite update: {Key} - this should be reported to library developers", xc.Key);
-                                break;
-                        }
-                    }
-
-                    inviteEntry.Target = invite;
+                    entry = AuditLogParser.ParseInviteUpdateEntry(this, auditLogAction);
                     break;
 
                 case AuditLogActionType.WebhookCreate:
@@ -2407,9 +2190,20 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
             entry.ActionCategory = auditLogAction.ActionType switch
             {
-                AuditLogActionType.ChannelCreate or AuditLogActionType.EmojiCreate or AuditLogActionType.InviteCreate or AuditLogActionType.OverwriteCreate or AuditLogActionType.RoleCreate or AuditLogActionType.WebhookCreate or AuditLogActionType.IntegrationCreate or AuditLogActionType.StickerCreate => AuditLogActionCategory.Create,
-                AuditLogActionType.ChannelDelete or AuditLogActionType.EmojiDelete or AuditLogActionType.InviteDelete or AuditLogActionType.MessageDelete or AuditLogActionType.MessageBulkDelete or AuditLogActionType.OverwriteDelete or AuditLogActionType.RoleDelete or AuditLogActionType.WebhookDelete or AuditLogActionType.IntegrationDelete or AuditLogActionType.StickerDelete => AuditLogActionCategory.Delete,
-                AuditLogActionType.ChannelUpdate or AuditLogActionType.EmojiUpdate or AuditLogActionType.InviteUpdate or AuditLogActionType.MemberRoleUpdate or AuditLogActionType.MemberUpdate or AuditLogActionType.OverwriteUpdate or AuditLogActionType.RoleUpdate or AuditLogActionType.WebhookUpdate or AuditLogActionType.IntegrationUpdate or AuditLogActionType.StickerUpdate => AuditLogActionCategory.Update,
+                AuditLogActionType.ChannelCreate or AuditLogActionType.EmojiCreate or AuditLogActionType.InviteCreate
+                    or AuditLogActionType.OverwriteCreate or AuditLogActionType.RoleCreate
+                    or AuditLogActionType.WebhookCreate or AuditLogActionType.IntegrationCreate
+                    or AuditLogActionType.StickerCreate => AuditLogActionCategory.Create,
+                AuditLogActionType.ChannelDelete or AuditLogActionType.EmojiDelete or AuditLogActionType.InviteDelete
+                    or AuditLogActionType.MessageDelete or AuditLogActionType.MessageBulkDelete
+                    or AuditLogActionType.OverwriteDelete or AuditLogActionType.RoleDelete
+                    or AuditLogActionType.WebhookDelete or AuditLogActionType.IntegrationDelete
+                    or AuditLogActionType.StickerDelete => AuditLogActionCategory.Delete,
+                AuditLogActionType.ChannelUpdate or AuditLogActionType.EmojiUpdate or AuditLogActionType.InviteUpdate
+                    or AuditLogActionType.MemberRoleUpdate or AuditLogActionType.MemberUpdate
+                    or AuditLogActionType.OverwriteUpdate or AuditLogActionType.RoleUpdate
+                    or AuditLogActionType.WebhookUpdate or AuditLogActionType.IntegrationUpdate
+                    or AuditLogActionType.StickerUpdate => AuditLogActionCategory.Update,
                 _ => AuditLogActionCategory.Other,
             };
             entry.Discord = this.Discord;
