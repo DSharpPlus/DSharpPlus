@@ -94,11 +94,25 @@ internal static class AuditLogParser
         Dictionary<ulong, DiscordScheduledGuildEvent> events = null
     )
     {
-        //initialize parameters if null
-        members ??= new Dictionary<ulong, DiscordMember>();
-        threads ??= new Dictionary<ulong, DiscordThreadChannel>();
+        //initialize members if null
+        if (members is null)
+        {
+            members = guild._members?.ToDictionary(xm => xm.Key, xm => xm.Value);
+        }
+        
+        //initialize threads if null
+        if (threads is null)
+        {
+            threads = guild._threads?.ToDictionary(xt => xt.Key, xt => xt.Value);
+        }
+        
+        //initialize scheduled events if null
+        if (events is null)
+        {
+            events = guild._scheduledEvents?.ToDictionary(xe => xe.Key, xe => xe.Value);
+        }
+        
         webhooks ??= new Dictionary<ulong, DiscordWebhook>();
-        events ??= new Dictionary<ulong, DiscordScheduledGuildEvent>();
 
         DiscordAuditLogEntry entry = null;
         ulong ulongBefore, ulongAfter;
