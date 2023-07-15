@@ -357,6 +357,51 @@ internal static class AuditLogParser
                 entry = ParseThreadUpdateEntry(guild, auditLogAction, threads);
                 break;
 
+            case AuditLogActionType.ApplicationCommandPermissionUpdate:
+                entry = new DiscordAuditLogApplicationCommandPermissionEntry() { };
+                DiscordAuditLogApplicationCommandPermissionEntry permissionEntry =
+                    entry as DiscordAuditLogApplicationCommandPermissionEntry;
+
+                if (auditLogAction.Options.ApplicationId == auditLogAction.TargetId)
+                {
+                    permissionEntry.ApplicationId = (ulong) auditLogAction.TargetId;
+                    permissionEntry.ApplicationCommandId = null;
+                }
+                else
+                {
+                    permissionEntry.ApplicationId = auditLogAction.Options.ApplicationId;
+                    permissionEntry.ApplicationCommandId = auditLogAction.TargetId;
+                }
+                
+                foreach (AuditLogActionChange change in auditLogAction.Changes)
+                {
+                    switch (change.Key)
+                    {
+                        case "permission":
+                            DiscordApplicationCommandPermission? oldValue = ((JObject?)change
+                                    .OldValue)?
+                                    .ToDiscordObject<DiscordApplicationCommandPermission>();
+                            
+                            DiscordApplicationCommandPermission? newValue = ((JObject)change
+                                    .NewValue)?
+                                    .ToDiscordObject<DiscordApplicationCommandPermission>();
+                            
+                            permissionEntry.Permissions = new PropertyChange<DiscordApplicationCommandPermission>
+                            {
+                                Before = oldValue != null ? oldValue : null,
+                                After = newValue != null ? newValue : null
+                            };
+                            break;
+                            
+                            default:
+                                guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
+                                    "Unknown key in ApplicationCommandPermissionUpdate: {Key} - this should be reported to library developers",
+                                    change.Key);
+                            break;
+                    }
+                }
+                break;
+            
             default:
                 guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
                     "Unknown audit log action type: {0} - this should be reported to library developers",
