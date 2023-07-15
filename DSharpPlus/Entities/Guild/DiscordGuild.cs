@@ -1539,12 +1539,17 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     /// Gets audit log entries for this guild.
     /// </summary>
     /// <param name="limit">Maximum number of entries to fetch.</param>
-    /// <param name="by_member">Filter by member responsible.</param>
-    /// <param name="action_type">Filter by action type.</param>
+    /// <param name="byMember">Filter by member responsible.</param>
+    /// <param name="actionType">Filter by action type.</param>
     /// <returns>A collection of requested audit log entries.</returns>
     /// <exception cref="UnauthorizedException">Thrown when the client does not have the <see cref="Permissions.ViewAuditLog"/> permission.</exception>
     /// <exception cref="ServerErrorException">Thrown when Discord is unable to process the request.</exception>
-    public async Task<IReadOnlyList<DiscordAuditLogEntry>> GetAuditLogsAsync(int? limit = null, DiscordMember by_member = null, AuditLogActionType? action_type = null)
+    public async Task<IReadOnlyList<DiscordAuditLogEntry>> GetAuditLogsAsync
+    (
+        int? limit = null,
+        DiscordMember byMember = null, 
+        AuditLogActionType? actionType = null
+    )
     {
         //Get all entries from api
         List<AuditLog> auditLogs = new();
@@ -1559,7 +1564,8 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 break;
             }
 
-            AuditLog guildAuditLog = await this.Discord.ApiClient.GetAuditLogsAsync(this.Id, remainingEntries, null, last == 0 ? null : (ulong?)last, by_member?.Id, (int?)action_type);
+            AuditLog guildAuditLog = await this.Discord.ApiClient.GetAuditLogsAsync(this.Id, remainingEntries, null,
+                last == 0 ? null : (ulong?)last, byMember?.Id, (int?)actionType);
             ac = guildAuditLog.Entries.Count();
             logsCollected += ac;
             if (ac > 0)
@@ -1568,25 +1574,25 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 auditLogs.Add(guildAuditLog);
             }
         }
-        
+
         //Get all User
         DiscordUser[] users = auditLogs
             .SelectMany(x => x.Users)
             .DistinctBy(x => x.Id)
             .ToArray();
-            
+
         //Update cache
         foreach (DiscordUser discordUser in users)
         {
             discordUser.Discord = this.Discord;
-            if (this.Discord.UserCache.ContainsKey(discordUser.Id))
+            if (this.Discord.UserCache.ContainsKey(discordUser.Id)) 
             {
                 continue;
             }
-            
+
             this.Discord.UpdateUserCache(discordUser);
         }
-            
+
         //get unique webhooks, scheduledEvents, threads
         DiscordWebhook[] uniqueWebhooks = auditLogs
             .SelectMany(x => x.Webhooks)
@@ -1602,13 +1608,11 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             .SelectMany(x => x.Threads)
             .DistinctBy(x => x.Id)
             .ToArray();
-
-
+        
         Dictionary<ulong, DiscordWebhook> webhooks = uniqueWebhooks.ToDictionary(x => x.Id);
         
-
         //update event cache and create a dictionary for it 
-        Dictionary<ulong, DiscordScheduledGuildEvent> events =  new();
+        Dictionary<ulong, DiscordScheduledGuildEvent> events = new();
         foreach (DiscordScheduledGuildEvent discordEvent in uniqueScheduledEvents)
         {
             this._scheduledEvents[discordEvent.Id] = discordEvent;
@@ -1625,24 +1629,25 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
             .Select(xau => this._members != null && this._members.TryGetValue(xau.Id, out DiscordMember? member)
                 ? member
                 : new DiscordMember {Discord = this.Discord, Id = xau.Id, _guild_id = this.Id});
-        
+
         Dictionary<ulong, DiscordMember>? members = discordMembers.ToDictionary(xm => xm.Id, xm => xm);
 
-        IOrderedEnumerable<AuditLogAction>? auditLogActions = auditLogs.SelectMany(xa => xa.Entries).OrderByDescending(xa => xa.Id);
+        IOrderedEnumerable<AuditLogAction>? auditLogActions =
+            auditLogs.SelectMany(auditLog => auditLog.Entries).OrderByDescending(xa => xa.Id);
         List<DiscordAuditLogEntry>? entries = new();
         foreach (AuditLogAction? auditLogAction in auditLogActions)
         {
             DiscordAuditLogEntry entry = null;
-            ulong t1, t2;
-            int t3, t4;
-            long t5, t6;
-            bool p1, p2;
+            ulong ulongBefore, ulongAfter;
+            int intBefore, intAfter;
+            long longBefore, longAfter;
+            bool boolBefore, boolAfter;
             switch (auditLogAction.ActionType)
             {
                 case AuditLogActionType.GuildUpdate:
                     entry = await AuditLogParser.ParseGuildUpdateAsync(this, auditLogAction);
                     break;
-                
+
                 case AuditLogActionType.ChannelCreate:
                 case AuditLogActionType.ChannelDelete:
                 case AuditLogActionType.ChannelUpdate:
@@ -1670,8 +1675,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 case AuditLogActionType.Prune:
                     entry = new DiscordAuditLogPruneEntry
                     {
-                        Days = auditLogAction.Options.DeleteMemberDays,
-                        Toll = auditLogAction.Options.MembersRemoved
+                        Days = auditLogAction.Options.DeleteMemberDays, Toll = auditLogAction.Options.MembersRemoved
                     };
                     break;
 
@@ -1708,68 +1712,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 case AuditLogActionType.WebhookCreate:
                 case AuditLogActionType.WebhookDelete:
                 case AuditLogActionType.WebhookUpdate:
-                    entry = new DiscordAuditLogWebhookEntry
-                    {
-                        Target = webhooks.TryGetValue(auditLogAction.TargetId.Value, out DiscordWebhook? webhook) ? webhook : new DiscordWebhook { Id = auditLogAction.TargetId.Value, Discord = this.Discord }
-                    };
-
-                    DiscordAuditLogWebhookEntry? webhookEntry = entry as DiscordAuditLogWebhookEntry;
-                    foreach (AuditLogActionChange actionChange in auditLogAction.Changes)
-                    {
-                        switch (actionChange.Key.ToLowerInvariant())
-                        {
-                            case "name":
-                                webhookEntry.NameChange = new PropertyChange<string>
-                                {
-                                    Before = actionChange.OldValueString,
-                                    After = actionChange.NewValueString
-                                };
-                                break;
-
-                            case "channel_id":
-                                p1 = ulong.TryParse(actionChange.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t1);
-                                p2 = ulong.TryParse(actionChange.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t2);
-
-                                webhookEntry.ChannelChange = new PropertyChange<DiscordChannel>
-                                {
-                                    Before = p1 ? this.GetChannel(t1) ?? new DiscordChannel { Id = t1, Discord = this.Discord, GuildId = this.Id } : null,
-                                    After = p2 ? this.GetChannel(t2) ?? new DiscordChannel { Id = t1, Discord = this.Discord, GuildId = this.Id } : null
-                                };
-                                break;
-
-                            case "type": // ???
-                                p1 = int.TryParse(actionChange.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t3);
-                                p2 = int.TryParse(actionChange.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t4);
-
-                                webhookEntry.TypeChange = new PropertyChange<int?>
-                                {
-                                    Before = p1 ? (int?)t3 : null,
-                                    After = p2 ? (int?)t4 : null
-                                };
-                                break;
-
-                            case "avatar_hash":
-                                webhookEntry.AvatarHashChange = new PropertyChange<string>
-                                {
-                                    Before = actionChange.OldValueString,
-                                    After = actionChange.NewValueString
-                                };
-                                break;
-
-                            case "application_id": //Why the fuck does discord send this as a string if it's supposed to be a snowflake
-                                webhookEntry.ApplicationIdChange = new PropertyChange<ulong?>
-                                {
-                                    Before = actionChange.OldValue != null ? Convert.ToUInt64(actionChange.OldValueString) : null,
-                                    After = actionChange.NewValue != null ? Convert.ToUInt64(actionChange.NewValueString) : null
-                                };
-                                break;
-
-
-                            default:
-                                this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in webhook update: {Key} - this should be reported to library developers", actionChange.Key);
-                                break;
-                        }
-                    }
+                    entry = AuditLogParser.ParseWebhookUpdateEntry(this, auditLogAction, webhooks);
                     break;
 
                 case AuditLogActionType.EmojiCreate:
@@ -1777,7 +1720,9 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 case AuditLogActionType.EmojiUpdate:
                     entry = new DiscordAuditLogEmojiEntry
                     {
-                        Target = this._emojis.TryGetValue(auditLogAction.TargetId.Value, out DiscordEmoji? target) ? target : new DiscordEmoji { Id = auditLogAction.TargetId.Value, Discord = this.Discord }
+                        Target = this._emojis.TryGetValue(auditLogAction.TargetId.Value, out DiscordEmoji? target)
+                            ? target
+                            : new DiscordEmoji {Id = auditLogAction.TargetId.Value, Discord = this.Discord}
                     };
 
                     DiscordAuditLogEmojiEntry? emojiEntry = entry as DiscordAuditLogEmojiEntry;
@@ -1788,104 +1733,24 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                             case "name":
                                 emojiEntry.NameChange = new PropertyChange<string>
                                 {
-                                    Before = actionChange.OldValueString,
-                                    After = actionChange.NewValueString
+                                    Before = actionChange.OldValueString, After = actionChange.NewValueString
                                 };
                                 break;
 
                             default:
-                                this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in emote update: {Key} - this should be reported to library developers", actionChange.Key);
+                                this.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
+                                    "Unknown key in emote update: {Key} - this should be reported to library developers",
+                                    actionChange.Key);
                                 break;
                         }
                     }
+
                     break;
 
                 case AuditLogActionType.StickerCreate:
                 case AuditLogActionType.StickerDelete:
                 case AuditLogActionType.StickerUpdate:
-                    entry = new DiscordAuditLogStickerEntry
-                    {
-                        Target = this._stickers.TryGetValue(auditLogAction.TargetId.Value, out DiscordMessageSticker? sticker) ? sticker : new DiscordMessageSticker { Id = auditLogAction.TargetId.Value, Discord = this.Discord }
-                    };
-
-                    DiscordAuditLogStickerEntry? stickerEntry = entry as DiscordAuditLogStickerEntry;
-                    foreach (AuditLogActionChange actionChange in auditLogAction.Changes)
-                    {
-                        switch (actionChange.Key.ToLowerInvariant())
-                        {
-                            case "name":
-                                stickerEntry.NameChange = new PropertyChange<string>
-                                {
-                                    Before = actionChange.OldValueString,
-                                    After = actionChange.NewValueString
-                                };
-                                break;
-                            case "description":
-                                stickerEntry.DescriptionChange = new PropertyChange<string>
-                                {
-                                    Before = actionChange.OldValueString,
-                                    After = actionChange.NewValueString
-                                };
-                                break;
-                            case "tags":
-                                stickerEntry.TagsChange = new PropertyChange<string>
-                                {
-                                    Before = actionChange.OldValueString,
-                                    After = actionChange.NewValueString
-                                };
-                                break;
-                            case "guild_id":
-                                stickerEntry.GuildIdChange = new PropertyChange<ulong?>
-                                {
-                                    Before = ulong.TryParse(actionChange.OldValueString, out ulong ogid) ? ogid : null,
-                                    After = ulong.TryParse(actionChange.NewValueString, out ulong ngid) ? ngid : null
-                                };
-                                break;
-                            case "available":
-                                stickerEntry.AvailabilityChange = new PropertyChange<bool?>
-                                {
-                                    Before = (bool?)actionChange.OldValue,
-                                    After = (bool?)actionChange.NewValue,
-                                };
-                                break;
-                            case "asset":
-                                stickerEntry.AssetChange = new PropertyChange<string>
-                                {
-                                    Before = actionChange.OldValueString,
-                                    After = actionChange.NewValueString
-                                };
-                                break;
-                            case "id":
-                                stickerEntry.IdChange = new PropertyChange<ulong?>
-                                {
-                                    Before = ulong.TryParse(actionChange.OldValueString, out ulong oid) ? oid : null,
-                                    After = ulong.TryParse(actionChange.NewValueString, out ulong nid) ? nid : null
-                                };
-                                break;
-                            case "type":
-                                p1 = long.TryParse(actionChange.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t5);
-                                p2 = long.TryParse(actionChange.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t6);
-                                stickerEntry.TypeChange = new PropertyChange<StickerType?>
-                                {
-                                    Before = p1 ? (StickerType?)t5 : null,
-                                    After = p2 ? (StickerType?)t6 : null
-                                };
-                                break;
-                            case "format_type":
-                                p1 = long.TryParse(actionChange.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t5);
-                                p2 = long.TryParse(actionChange.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t6);
-                                stickerEntry.FormatChange = new PropertyChange<StickerFormat?>
-                                {
-                                    Before = p1 ? (StickerFormat?)t5 : null,
-                                    After = p2 ? (StickerFormat?)t6 : null
-                                };
-                                break;
-
-                            default:
-                                this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in sticker update: {Key} - this should be reported to library developers", actionChange.Key);
-                                break;
-                        }
-                    }
+                    entry = AuditLogParser.ParseStickerUpdateEntry(this, auditLogAction);
                     break;
 
                 case AuditLogActionType.MessageDelete:
@@ -1897,7 +1762,10 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
 
                     if (auditLogAction.Options != null)
                     {
-                        messageEntry.Channel = this.GetChannel(auditLogAction.Options.ChannelId) ?? new DiscordChannel { Id = auditLogAction.Options.ChannelId, Discord = this.Discord, GuildId = this.Id };
+                        messageEntry.Channel = this.GetChannel(auditLogAction.Options.ChannelId) ?? new DiscordChannel
+                        {
+                            Id = auditLogAction.Options.ChannelId, Discord = this.Discord, GuildId = this.Id
+                        };
                         messageEntry.MessageCount = auditLogAction.Options.Count;
                     }
 
@@ -1905,10 +1773,12 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                     {
                         messageEntry.Target = this.Discord is DiscordClient dc
                                               && dc.MessageCache != null
-                                              && dc.MessageCache.TryGet(auditLogAction.TargetId.Value, out DiscordMessage? msg)
+                                              && dc.MessageCache.TryGet(auditLogAction.TargetId.Value,
+                                                  out DiscordMessage? msg)
                             ? msg
-                            : new DiscordMessage { Discord = this.Discord, Id = auditLogAction.TargetId.Value };
+                            : new DiscordMessage {Discord = this.Discord, Id = auditLogAction.TargetId.Value};
                     }
+
                     break;
                 }
 
@@ -1929,14 +1799,23 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                         DiscordMessage message = default;
                         dc.MessageCache?.TryGet(auditLogAction.Options.MessageId, out message);
 
-                        messagePinEntry.Channel = this.GetChannel(auditLogAction.Options.ChannelId) ?? new DiscordChannel { Id = auditLogAction.Options.ChannelId, Discord = this.Discord, GuildId = this.Id };
-                        messagePinEntry.Message = message ?? new DiscordMessage { Id = auditLogAction.Options.MessageId, Discord = this.Discord };
+                        messagePinEntry.Channel = this.GetChannel(auditLogAction.Options.ChannelId) ??
+                                                  new DiscordChannel
+                                                  {
+                                                      Id = auditLogAction.Options.ChannelId,
+                                                      Discord = this.Discord,
+                                                      GuildId = this.Id
+                                                  };
+                        messagePinEntry.Message = message ?? new DiscordMessage
+                        {
+                            Id = auditLogAction.Options.MessageId, Discord = this.Discord
+                        };
                     }
 
                     if (auditLogAction.TargetId.HasValue)
                     {
                         dc.UserCache.TryGetValue(auditLogAction.TargetId.Value, out DiscordUser? user);
-                        messagePinEntry.Target = user ?? new DiscordUser { Id = user.Id, Discord = this.Discord };
+                        messagePinEntry.Target = user ?? new DiscordUser {Id = user.Id, Discord = this.Discord};
                     }
 
                     break;
@@ -1952,7 +1831,12 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                     }
 
                     dc.UserCache.TryGetValue(auditLogAction.TargetId.Value, out DiscordUser? bot);
-                    (entry as DiscordAuditLogBotAddEntry).TargetBot = bot ?? new DiscordUser { Id = auditLogAction.TargetId.Value, Discord = this.Discord };
+                    (entry as DiscordAuditLogBotAddEntry).TargetBot = bot ??
+                                                                      new DiscordUser
+                                                                      {
+                                                                          Id = auditLogAction.TargetId.Value,
+                                                                          Discord = this.Discord
+                                                                      };
 
                     break;
                 }
@@ -1968,14 +1852,14 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                     DiscordAuditLogMemberMoveEntry? memberMoveEntry = entry as DiscordAuditLogMemberMoveEntry;
 
                     memberMoveEntry.UserCount = auditLogAction.Options.Count;
-                    memberMoveEntry.Channel = this.GetChannel(auditLogAction.Options.ChannelId) ?? new DiscordChannel { Id = auditLogAction.Options.ChannelId, Discord = this.Discord, GuildId = this.Id };
+                    memberMoveEntry.Channel = this.GetChannel(auditLogAction.Options.ChannelId) ?? new DiscordChannel
+                    {
+                        Id = auditLogAction.Options.ChannelId, Discord = this.Discord, GuildId = this.Id
+                    };
                     break;
 
                 case AuditLogActionType.MemberDisconnect:
-                    entry = new DiscordAuditLogMemberDisconnectEntry
-                    {
-                        UserCount = auditLogAction.Options?.Count ?? 0
-                    };
+                    entry = new DiscordAuditLogMemberDisconnectEntry {UserCount = auditLogAction.Options?.Count ?? 0};
                     break;
 
                 case AuditLogActionType.IntegrationCreate:
@@ -1991,30 +1875,30 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                             case "enable_emoticons":
                                 integrationEntry.EnableEmoticons = new PropertyChange<bool?>
                                 {
-                                    Before = (bool?)change.OldValue,
-                                    After = (bool?)change.NewValue
+                                    Before = (bool?)change.OldValue, After = (bool?)change.NewValue
                                 };
                                 break;
                             case "expire_behavior":
                                 integrationEntry.ExpireBehavior = new PropertyChange<int?>
                                 {
-                                    Before = (int?)change.OldValue,
-                                    After = (int?)change.NewValue
+                                    Before = (int?)change.OldValue, After = (int?)change.NewValue
                                 };
                                 break;
                             case "expire_grace_period":
                                 integrationEntry.ExpireBehavior = new PropertyChange<int?>
                                 {
-                                    Before = (int?)change.OldValue,
-                                    After = (int?)change.NewValue
+                                    Before = (int?)change.OldValue, After = (int?)change.NewValue
                                 };
                                 break;
 
                             default:
-                                this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in integration update: {Key} - this should be reported to library developers", change.Key);
+                                this.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
+                                    "Unknown key in integration update: {Key} - this should be reported to library developers",
+                                    change.Key);
                                 break;
                         }
                     }
+
                     break;
 
                 case AuditLogActionType.GuildScheduledEventCreate:
@@ -2022,10 +1906,17 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 case AuditLogActionType.GuildScheduledEventUpdate:
                     entry = new DiscordAuditLogGuildScheduledEventEntry()
                     {
-                        Target = events.TryGetValue(auditLogAction.TargetId.Value, out DiscordScheduledGuildEvent? ta) ? ta : new DiscordScheduledGuildEvent() { Id = auditLogAction.TargetId.Value, Discord = this.Discord },
+                        Target =
+                            events.TryGetValue(auditLogAction.TargetId.Value, out DiscordScheduledGuildEvent? ta)
+                                ? ta
+                                : new DiscordScheduledGuildEvent()
+                                {
+                                    Id = auditLogAction.TargetId.Value, Discord = this.Discord
+                                },
                     };
 
-                    DiscordAuditLogGuildScheduledEventEntry? eventEntry = entry as DiscordAuditLogGuildScheduledEventEntry;
+                    DiscordAuditLogGuildScheduledEventEntry? eventEntry =
+                        entry as DiscordAuditLogGuildScheduledEventEntry;
                     foreach (AuditLogActionChange change in auditLogAction.Changes)
                     {
                         switch (change.Key.ToLowerInvariant())
@@ -2038,12 +1929,21 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                                 };
                                 break;
                             case "channel_id":
-                                ulong.TryParse(change.NewValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t1);
-                                ulong.TryParse(change.OldValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out t2);
+                                ulong.TryParse(change.NewValue as string, NumberStyles.Integer,
+                                    CultureInfo.InvariantCulture, out ulongBefore);
+                                ulong.TryParse(change.OldValue as string, NumberStyles.Integer,
+                                    CultureInfo.InvariantCulture, out ulongAfter);
                                 eventEntry.Channel = new PropertyChange<DiscordChannel?>
                                 {
-                                    Before = this.GetChannel(t2) ?? new DiscordChannel { Id = t2, Discord = this.Discord, GuildId = this.Id },
-                                    After = this.GetChannel(t1) ?? new DiscordChannel { Id = t1, Discord = this.Discord, GuildId = this.Id }
+                                    Before =
+                                        this.GetChannel(ulongAfter) ?? new DiscordChannel
+                                        {
+                                            Id = ulongAfter, Discord = this.Discord, GuildId = this.Id
+                                        },
+                                    After = this.GetChannel(ulongBefore) ?? new DiscordChannel
+                                    {
+                                        Id = ulongBefore, Discord = this.Discord, GuildId = this.Id
+                                    }
                                 };
                                 break;
 
@@ -2058,48 +1958,62 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                             case "entity_type":
                                 eventEntry.Type = new PropertyChange<ScheduledGuildEventType?>
                                 {
-                                    Before = change.OldValue != null ? (ScheduledGuildEventType)(long)change.OldValue : null,
-                                    After = change.NewValue != null ? (ScheduledGuildEventType)(long)change.NewValue : null
+                                    Before = change.OldValue != null
+                                        ? (ScheduledGuildEventType)(long)change.OldValue
+                                        : null,
+                                    After = change.NewValue != null
+                                        ? (ScheduledGuildEventType)(long)change.NewValue
+                                        : null
                                 };
                                 break;
 
                             case "image_hash":
                                 eventEntry.ImageHash = new PropertyChange<string?>
                                 {
-                                    Before = (string?)change.OldValue,
-                                    After = (string?)change.NewValue
+                                    Before = (string?)change.OldValue, After = (string?)change.NewValue
                                 };
                                 break;
 
                             case "location":
                                 eventEntry.Location = new PropertyChange<string?>
                                 {
-                                    Before = (string?)change.OldValue,
-                                    After = (string?)change.NewValue
+                                    Before = (string?)change.OldValue, After = (string?)change.NewValue
                                 };
                                 break;
 
                             case "privacy_level":
                                 eventEntry.PrivacyLevel = new PropertyChange<ScheduledGuildEventPrivacyLevel?>
                                 {
-                                    Before = change.OldValue != null ? (ScheduledGuildEventPrivacyLevel)(long)change.OldValue : null,
-                                    After = change.NewValue != null ? (ScheduledGuildEventPrivacyLevel)(long)change.NewValue : null
+                                    Before =
+                                        change.OldValue != null
+                                            ? (ScheduledGuildEventPrivacyLevel)(long)change.OldValue
+                                            : null,
+                                    After = change.NewValue != null
+                                        ? (ScheduledGuildEventPrivacyLevel)(long)change.NewValue
+                                        : null
                                 };
                                 break;
 
                             case "status":
                                 eventEntry.Status = new PropertyChange<ScheduledGuildEventStatus?>
                                 {
-                                    Before = change.OldValue != null ? (ScheduledGuildEventStatus)(long)change.OldValue : null,
-                                    After = change.NewValue != null ? (ScheduledGuildEventStatus)(long)change.NewValue : null
+                                    Before = change.OldValue != null
+                                        ? (ScheduledGuildEventStatus)(long)change.OldValue
+                                        : null,
+                                    After = change.NewValue != null
+                                        ? (ScheduledGuildEventStatus)(long)change.NewValue
+                                        : null
                                 };
                                 break;
 
                             default:
-                                this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in scheduled event update: {Key} - this should be reported to library developers", change.Key);
+                                this.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
+                                    "Unknown key in scheduled event update: {Key} - this should be reported to library developers",
+                                    change.Key);
                                 break;
                         }
                     }
+
                     break;
 
                 case AuditLogActionType.ThreadCreate:
@@ -2107,7 +2021,14 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 case AuditLogActionType.ThreadUpdate:
                     entry = new DiscordAuditLogThreadEventEntry()
                     {
-                        Target = this.Threads.TryGetValue(auditLogAction.TargetId.Value, out DiscordThreadChannel? channel) ? channel : new DiscordThreadChannel() { Id = auditLogAction.TargetId.Value, Discord = this.Discord },
+                        Target =
+                            this.Threads.TryGetValue(auditLogAction.TargetId.Value,
+                                out DiscordThreadChannel? channel)
+                                ? channel
+                                : new DiscordThreadChannel()
+                                {
+                                    Id = auditLogAction.TargetId.Value, Discord = this.Discord
+                                },
                     };
 
                     DiscordAuditLogThreadEventEntry? threadEventEntry = entry as DiscordAuditLogThreadEventEntry;
@@ -2172,14 +2093,19 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                                 break;
 
                             default:
-                                this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown key in thread update: {Key} - this should be reported to library developers", change.Key);
+                                this.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
+                                    "Unknown key in thread update: {Key} - this should be reported to library developers",
+                                    change.Key);
                                 break;
                         }
                     }
+
                     break;
 
                 default:
-                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog, "Unknown audit log action type: {0} - this should be reported to library developers", (int)auditLogAction.ActionType);
+                    this.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
+                        "Unknown audit log action type: {0} - this should be reported to library developers",
+                        (int)auditLogAction.ActionType);
                     break;
             }
 
