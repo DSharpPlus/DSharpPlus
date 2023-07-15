@@ -376,8 +376,23 @@ internal static class AuditLogParser
         entry.ActionType = auditLogAction.ActionType;
         entry.Id = auditLogAction.Id;
         entry.Reason = auditLogAction.Reason;
-        entry.UserResponsible = members[auditLogAction.UserId];
         entry.Discord = guild.Discord;
+
+        DiscordMember member;
+        DiscordUser discordUser;
+        if (members.TryGetValue(auditLogAction.UserId, out member))
+        {
+            entry.UserResponsible =  member;
+        }
+        else if ( guild.Discord.UserCache.TryGetValue(auditLogAction.UserId, out discordUser) )
+        {
+            entry.UserResponsible = discordUser;
+        }
+        else
+        {
+            entry.UserResponsible = new DiscordUser {Id = auditLogAction.UserId, Discord = guild.Discord};
+        }
+
         return entry;
     }
 
