@@ -22,9 +22,7 @@
 // SOFTWARE.
 
 using System;
-using System.Runtime.Serialization;
 using DSharpPlus.Entities;
-
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -44,7 +42,7 @@ public class DiscordForumChannelJsonConverter : JsonConverter
 
         if (!hasType)
         {
-            throw new SerializationException("Channel object lacks type - this should be reported to library developers");
+            throw new JsonException("Channel object lacks type - this should be reported to library developers");
         }
         
         DiscordChannel channel;
