@@ -375,30 +375,19 @@ internal static class AuditLogParser
                 
                 foreach (AuditLogActionChange change in auditLogAction.Changes)
                 {
-                    switch (change.Key)
+                    DiscordApplicationCommandPermission? oldValue = ((JObject?)change
+                            .OldValue)?
+                        .ToDiscordObject<DiscordApplicationCommandPermission>();
+
+                    DiscordApplicationCommandPermission? newValue = ((JObject)change
+                            .NewValue)?
+                        .ToDiscordObject<DiscordApplicationCommandPermission>();
+                    
+                    permissionEntry.PermissionChanges.Append(new PropertyChange<DiscordApplicationCommandPermission>
                     {
-                        case "permission":
-                            DiscordApplicationCommandPermission? oldValue = ((JObject?)change
-                                    .OldValue)?
-                                    .ToDiscordObject<DiscordApplicationCommandPermission>();
-                            
-                            DiscordApplicationCommandPermission? newValue = ((JObject)change
-                                    .NewValue)?
-                                    .ToDiscordObject<DiscordApplicationCommandPermission>();
-                            
-                            permissionEntry.Permissions = new PropertyChange<DiscordApplicationCommandPermission>
-                            {
-                                Before = oldValue != null ? oldValue : null,
-                                After = newValue != null ? newValue : null
-                            };
-                            break;
-                            
-                            default:
-                                guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
-                                    "Unknown key in ApplicationCommandPermissionUpdate: {Key} - this should be reported to library developers",
-                                    change.Key);
-                            break;
-                    }
+                        Before = oldValue != null ? oldValue : null,
+                        After = newValue != null ? newValue : null
+                    });
                 }
                 break;
             

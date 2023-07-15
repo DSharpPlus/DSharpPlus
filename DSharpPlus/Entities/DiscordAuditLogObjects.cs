@@ -671,7 +671,7 @@ public sealed class DiscordAuditLogApplicationCommandPermissionEntry : DiscordAu
 {
     public ulong? ApplicationCommandId { get; internal set; }
     public ulong ApplicationId { get; internal set; }
-    public PropertyChange<DiscordApplicationCommandPermission> Permissions { get; internal set; }
+    public IEnumerable<PropertyChange<DiscordApplicationCommandPermission>> PermissionChanges { get; internal set; }
 }
 
 public sealed class DiscordAuditLogAutoModerationExecutedEntry : DiscordAuditLogEntry
