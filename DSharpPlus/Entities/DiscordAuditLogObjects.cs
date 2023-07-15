@@ -23,6 +23,7 @@
 
 using System;
 using System.Collections.Generic;
+using DSharpPlus.Enums;
 
 namespace DSharpPlus.Entities;
 
@@ -664,16 +665,37 @@ public sealed class DiscordAuditLogThreadEventEntry : DiscordAuditLogEntry
     public PropertyChange<int?> PerUserRateLimit { get; internal set; }
 
     internal DiscordAuditLogThreadEventEntry() { }
+}
 
+public sealed class DiscordAuditLogApplicationCommandPermissionEntry : DiscordAuditLogEntry
+{
+    public ulong? ApplicationCommandId { get; internal set; }
+    public ulong ApplicationId { get; internal set; }
+    public PropertyChange<DiscordApplicationCommandPermission> Permissions { get; internal set; }
+}
+
+public sealed class DiscordAuditLogAutoModerationExecutedEntry : DiscordAuditLogEntry
+{
+    public string ResponsibleRule { get; internal set; }
+    public RuleTriggerType RuleTriggerType { get; internal set; }
+    public DiscordChannel Channel { get; internal set; }
 }
 
 public sealed class DiscordAuditLogAutoModerationEntry : DiscordAuditLogEntry
 {
-    public DiscordAutoModerationRule ResponsibleRule { get; internal set; }
-    public DiscordChannel Channel { get; internal set; }
-    
+    public DiscordApplicationCommandPermission Permission { get; internal set; }
+    public DiscordAutoModerationRule Rule { get; internal set; }
+    public PropertyChange<ulong?> GuildId { get; internal set; }
+    public PropertyChange<string?> Name { get; internal set; }
+    public PropertyChange<ulong?> CreatorId { get; internal set; }
+    public PropertyChange<RuleEventType?> EventType { get; internal set; }
+    public PropertyChange<RuleTriggerType?> TriggerType { get; internal set; }
+    public PropertyChange<DiscordRuleActionMetadata?> Metadata { get; internal set; }
+    public PropertyChange<IReadOnlyList<DiscordAutoModerationAction>?> Actions { get; internal set; }
+    public PropertyChange<bool?> IsEnabled  { get; internal set; }
+    public PropertyChange<IReadOnlyList<ulong>?> ExemptRoles { get; internal set; }
+    public PropertyChange<IReadOnlyList<ulong>?> ExemptChannels { get; internal set; }
 }
-
 
 /// <summary>
 /// Indicates audit log action category.
@@ -883,22 +905,22 @@ public enum AuditLogActionType : int
     /// Indicates that an integration was deleted.
     /// </summary>
     IntegrationDelete = 82,
-        
+
     /// <summary>
     /// Stage instance was created (stage channel becomes live)
     /// </summary>
     StageInstanceCreate = 83,
-        
+
     /// <summary>
     /// Stage instance details were updated
     /// </summary>
     StageInstanceUpdate = 84,
-            
+
     /// <summary>
     /// Stage instance was deleted (stage channel no longer live)
     /// </summary>
     StageInstanceDelete = 85,
-        
+
     /// <summary>
     /// Indicates that an sticker was created.
     /// </summary>
@@ -943,40 +965,39 @@ public enum AuditLogActionType : int
     /// Indicates that a thread was deleted.
     /// </summary>
     ThreadDelete = 112,
-        
+
     /// <summary>
     /// Permissions were updated for a command
     /// </summary>
     ApplicationCommandPermissionUpdate = 121,
-        
+
     /// <summary>
     /// Auto Moderation rule was created
     /// </summary>
     AutoModerationRuleCreate = 140,
-        
+
     /// <summary>
     /// Auto Moderation rule was updated
     /// </summary>
     AutoModerationRuleUpdate = 141,
-        
+
     /// <summary>
     /// Auto Moderation rule was deleted
     /// </summary>
     AutoModerationRuleDelete = 142,
-        
+
     /// <summary>
     /// Message was blocked by Auto Moderation
     /// </summary>
     AutoModerationBlockMessage = 143,
-        
+
     /// <summary>
     /// Message was flagged by Auto Moderation
     /// </summary>
     AutoModerationFlagToChannel = 144,
-        
+
     /// <summary>
     /// Member was timed out by Auto Moderation
     /// </summary>
     AutoModerationUserCommunicationDisabled = 145
-        
 }

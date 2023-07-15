@@ -1580,7 +1580,7 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
         {
             IEnumerable<DiscordAuditLogEntry> logEntries =
                 await AuditLogParser.ParseAuditLogToEntriesAsync(this.Discord, this, log);
-            entries.Concat(logEntries);
+            entries = entries.Concat(logEntries);
         }
 
         return entries.ToList().AsReadOnly();
