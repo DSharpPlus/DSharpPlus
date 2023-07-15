@@ -199,6 +199,14 @@ namespace DSharpPlus
 
                     await this.OnGuildIntegrationsUpdateEventAsync(this._guilds[gid]);
                     break;
+                
+                case "guild_audit_log_entry_create":
+                    gid = (ulong)dat["guild_id"];
+                    DiscordGuild guild = _guilds[gid];
+                    AuditLogAction auditLogAction = dat.ToDiscordObject<AuditLogAction>();
+                    DiscordAuditLogEntry entry = await AuditLogParser.ParseAuditLogEntryAsync(guild, auditLogAction);
+                    await this.OnGuildAuditLogEntryCreateEventAsync(guild, entry);
+                    break;
 
                 #endregion
 
@@ -566,7 +574,6 @@ namespace DSharpPlus
                 #endregion
             }
         }
-
 
         #endregion
 
@@ -1213,6 +1220,16 @@ namespace DSharpPlus
                 Guild = guild
             };
             await this._guildIntegrationsUpdated.InvokeAsync(this, ea);
+        }
+        
+        private async Task OnGuildAuditLogEntryCreateEventAsync(DiscordGuild guild, DiscordAuditLogEntry toDiscordObject)
+        {
+            GuildAuditLogCreatedEventArgs ea = new()
+            {
+                Guild = guild,
+                AuditLogEntry = toDiscordObject
+            };
+            await _guildAuditLogCreated.InvokeAsync(this, ea);
         }
 
         #endregion

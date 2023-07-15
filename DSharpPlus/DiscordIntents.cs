@@ -83,7 +83,7 @@ namespace DSharpPlus
         /// Whether to include guild ban events.
         /// <para>These include <see cref="DiscordClient.GuildBanAdded"/>, and <see cref="DiscordClient.GuildBanRemoved"/>.</para>
         /// </summary>
-        GuildBans = 1 << 2,
+        GuildModeration = 1 << 2,
 
         /// <summary>
         /// Whether to include guild emoji events.
@@ -190,7 +190,7 @@ namespace DSharpPlus
         /// Includes all unprivileged intents.
         /// <para>These are all intents excluding <see cref="DiscordIntents.GuildMembers"/> and <see cref="DiscordIntents.GuildPresences"/>.</para>
         /// </summary>
-        AllUnprivileged = Guilds | GuildBans | GuildEmojis | GuildIntegrations | GuildWebhooks | GuildInvites | GuildVoiceStates | GuildMessages |
+        AllUnprivileged = Guilds | GuildModeration | GuildEmojis | GuildIntegrations | GuildWebhooks | GuildInvites | GuildVoiceStates | GuildMessages |
             GuildMessageReactions | GuildMessageTyping | DirectMessages | DirectMessageReactions | DirectMessageTyping | ScheduledGuildEvents | 
             AutoModerationEvents | AutoModerationExecution,
 
