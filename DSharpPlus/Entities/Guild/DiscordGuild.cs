@@ -1573,6 +1573,19 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
                 last = guildAuditLog.Entries.Last().Id;
                 auditLogs.Add(guildAuditLog);
             }
+
+            if (limit.HasValue)
+            {
+                int remaining = limit.Value - logsCollected;
+                if (remaining < 1)
+                {
+                    break;
+                }
+            }
+            else if (ac < 100)
+            {
+                break;
+            }
         }
 
         IEnumerable<DiscordAuditLogEntry> entries = new List<DiscordAuditLogEntry>();
