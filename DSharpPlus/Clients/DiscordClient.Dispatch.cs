@@ -2691,16 +2691,19 @@ namespace DSharpPlus
         #region AutoModeration
         internal async Task OnAutoModerationRuleCreateAsync(DiscordAutoModerationRule ruleCreated)
         {
+            ruleCreated.Discord = this;
             await this._autoModerationRuleCreated.InvokeAsync(this, new AutoModerationRuleCreateEventArgs { Rule = ruleCreated });
         }
 
         internal async Task OnAutoModerationRuleUpdatedAsync(DiscordAutoModerationRule ruleUpdated)
         {
+            ruleUpdated.Discord = this;
             await this._autoModerationRuleUpdated.InvokeAsync(this, new AutoModerationRuleUpdateEventArgs { Rule = ruleUpdated });
         }
 
         internal async Task OnAutoModerationRuleDeletedAsync(DiscordAutoModerationRule ruleDeleted)
         {
+            ruleDeleted.Discord = this;
             await this._autoModerationRuleDeleted.InvokeAsync(this, new AutoModerationRuleDeleteEventArgs { Rule = ruleDeleted });
         }
 
