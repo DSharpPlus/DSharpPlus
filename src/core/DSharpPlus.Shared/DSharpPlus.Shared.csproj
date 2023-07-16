@@ -5,6 +5,7 @@
     <Description>$(Description) This package contains shared types between public-facing and internal implementation packages.</Description>
     <OutputType>Library</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <IsAotCompatible>true</IsAotCompatible>
     
     <RootNamespace>DSharpPlus</RootNamespace>
   </PropertyGroup>
