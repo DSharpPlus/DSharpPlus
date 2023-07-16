@@ -10,7 +10,7 @@
     <RootNamespace>DSharpPlus</RootNamespace>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(DesignTimeBuild)' == '' OR '$(BuildingProject)' == 'true'">
+  <PropertyGroup Condition="'$(_IsPacking)' == 'true' OR '$(BuildingProject)' == 'true'">
     <TargetFrameworks>netstandard2.0;$(TargetFramework)</TargetFrameworks>
     
     <!-- set TargetFramework to empty to avoid msbuild trying to build only net8.0 and failing to pack -->
