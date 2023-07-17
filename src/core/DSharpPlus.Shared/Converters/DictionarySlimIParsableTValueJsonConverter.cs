@@ -2,12 +2,9 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-#if !NETSTANDARD
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -15,10 +12,15 @@ using DSharpPlus.Collections;
 
 namespace DSharpPlus.Converters;
 
+/// <summary>
+/// Provides JSON conversion logic for <see cref="DictionarySlim{TKey, TValue}"/> with <see cref="IParsable{TSelf}"/>
+/// keys. It is assumed that there is a correct roundtrip between <see cref="object.ToString"/> and
+/// <see cref="IParsable{TSelf}.TryParse(string?, IFormatProvider?, out TSelf)"/>.
+/// </summary>
 [RequiresUnreferencedCode("JSON serialization and deserialization might require types that cannot be statically analyzed.")]
 [RequiresDynamicCode("JSON serialization and deserialization might need runtime code generation. Use the source generator instead.")]
-public class DictionarySlimJsonConverter<TKey, TValue> : JsonConverter<DictionarySlim<TKey, TValue>>
-    where TKey : IEquatable<TKey>
+public class DictionarySlimIParsableTValueJsonConverter<TKey, TValue> : JsonConverter<DictionarySlim<TKey, TValue>>
+    where TKey : IEquatable<TKey>, IParsable<TKey>
 {
     /// <inheritdoc/>
     public override DictionarySlim<TKey, TValue>? Read
@@ -44,41 +46,14 @@ public class DictionarySlimJsonConverter<TKey, TValue> : JsonConverter<Dictionar
 
             string propertyNameRaw = reader.GetString()!;
 
-            TKey propertyName;
-
-            // TKey is a string, return a string
-            if (typeof(TKey) == typeof(string))
+            if(!TKey.TryParse(propertyNameRaw, null, out TKey? propertyName))
             {
-                propertyName = (TKey)(object)propertyNameRaw;
-            }
-            else if (typeof(TKey).IsAssignableTo(typeof(IParsable<>)))
-            {
-                // TODO: cache these
-                object parsed = typeof(TKey).GetMethod
-                (
-                    "Parse",
-                    BindingFlags.Public | BindingFlags.Static
-                )!
-                .Invoke
-                (
-                    null,
-                    new object?[]
-                    {
-                        propertyNameRaw,
-                        null
-                    }
-                )!;
-
-                propertyName = (TKey)parsed;
-            }
-            else
-            {
-                propertyName = JsonSerializer.Deserialize<TKey>(propertyNameRaw)!;
+                throw new ArgumentException($"The key {propertyNameRaw} could not be parsed as {typeof(TKey)}.");
             }
 
             reader.Read();
 
-            ref TValue propertyValue = ref result.GetOrAddValueRef(propertyName);
+            ref TValue propertyValue = ref result.GetOrAddValueRef(propertyName!);
 
             propertyValue = JsonSerializer.Deserialize<TValue>(ref reader, options)!;
         }
@@ -105,5 +80,3 @@ public class DictionarySlimJsonConverter<TKey, TValue> : JsonConverter<Dictionar
         writer.WriteEndObject();
     }
 }
-
-#endif

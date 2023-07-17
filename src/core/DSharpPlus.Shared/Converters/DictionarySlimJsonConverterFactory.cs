@@ -9,7 +9,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Text.Json.Serialization.Metadata;
 
 using DSharpPlus.Collections;
 
@@ -52,22 +51,56 @@ public class DictionarySlimJsonConverterFactory : JsonConverterFactory
     {
         Type[] generics = typeToConvert.GetGenericArguments();
 
-        if(generics.All(type => type == typeof(string)))
+        // we can add more specialized converters here for more AOT-designed, specialized converters here,
+        // though only if they add new key types or specialize TValue to a meaningful degree. specializing
+        // on TKey where TKey : IParsable<TKey> makes little sense, for the CLR implementation.
+        if (generics[0] == typeof(string) && generics[1] == typeof(string))
         {
             return new DictionarySlimStringStringJsonConverter();
         }
+        else if (generics[0] == typeof(string))
+        {
+            Type converter = typeof(DictionarySlimStringTValueJsonConverter<>)
+                .MakeGenericType(generics[1]);
 
-        Type converter = typeof(DictionarySlimJsonConverter<,>)
-            .MakeGenericType(generics);
+            return (JsonConverter?)Activator.CreateInstance(converter);
+        }
+        else if 
+        (
+            generics[0].GetInterfaces()
+            .Any
+            (
+                candidate => candidate.IsGenericType 
+                    && candidate.GetGenericTypeDefinition() == typeof(IParsable<>)
+            )
+        )
+        {
+            Type converter = typeof(DictionarySlimIParsableTValueJsonConverter<,>)
+                .MakeGenericType(generics);
 
-        return (JsonConverter?)Activator.CreateInstance(converter);
+            return (JsonConverter?)Activator.CreateInstance(converter);
+        }
+        else
+        {
+            Type converter = typeof(DictionarySlimGenericJsonConverter<,>)
+                .MakeGenericType(generics);
+
+            return (JsonConverter?)Activator.CreateInstance(converter);
+        }
     }
 
     private static bool VerifyKeyTypeValidity
     (
         Type type
     )
-        => JsonSerializerOptions.Default.GetTypeInfo(type).Kind == JsonTypeInfoKind.None;
+    { 
+        return type == typeof(string) || type.GetInterfaces()
+        .Any
+        (
+            candidate => candidate.IsGenericType
+                && candidate.GetGenericTypeDefinition() == typeof(IParsable<>)
+        );
+    }
 }
 
 #endif
