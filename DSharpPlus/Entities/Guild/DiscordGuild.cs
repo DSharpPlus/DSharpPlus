@@ -195,13 +195,13 @@ namespace DSharpPlus.Entities
         public SystemChannelFlags SystemChannelFlags { get; internal set; }
 
         [JsonProperty("safety_alerts_channel_id")]
-        internal ulong SafetyAlertsChannelId { get; set; }
+        internal ulong? SafetyAlertsChannelId { get; set; }
 
         /// <summary>
         /// Gets the guild's safety alerts channel.
         /// </summary>
         [JsonIgnore]
-        public DiscordChannel SafetyAlertsChannel => this.GetChannel(SafetyAlertsChannelId);
+        public DiscordChannel? SafetyAlertsChannel => this.SafetyAlertsChannelId is not null ? this.GetChannel(this.SafetyAlertsChannelId.Value) : null;
 
         /// <summary>
         /// Gets whether this guild's widget is enabled.
