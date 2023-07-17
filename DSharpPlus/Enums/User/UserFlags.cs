@@ -82,14 +82,14 @@ namespace DSharpPlus
         TeamUser = 1 << 10,
 
         /// <summary>
-        /// Whether the user is an official system user.
-        /// </summary>
-        System = 1 << 12,
-
-        /// <summary>
         /// The user reached the second bug hunter tier.
         /// </summary>
         BugHunterLevelTwo = 1 << 14,
+
+        /// <summary>
+        /// Whether the user is an official system user.
+        /// </summary>
+        System = 1 << 12,
 
         /// <summary>
         /// The user is a verified bot.
@@ -110,5 +110,10 @@ namespace DSharpPlus
         /// The bot receives interactions via HTTP.
         /// </summary>
         HttpInteractionsBot = 1 << 19,
+
+        /// <summary>
+        /// The user is an active bot developer.
+        /// </summary>
+        ActiveDeveloper = 1 << 22
     }
 }
