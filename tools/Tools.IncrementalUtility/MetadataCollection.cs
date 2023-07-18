@@ -95,7 +95,12 @@ public sealed class MetadataCollection
 
         IEnumerable<string> modified = files.Where
         (
-            name => oldHashes[name] != this.hashes[name]
+            name =>
+            {
+                return oldHashes.TryGetValue(name, out string? oldHash)
+                    && this.hashes.TryGetValue(name, out string? newHash) 
+                    && oldHash != newHash;
+            }
         );
 
         return new Changes
