@@ -1767,7 +1767,7 @@ namespace DSharpPlus.Net
             var url = Utilities.GetApiUriFor(path);
             var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.POST, route, payload: DiscordJson.SerializeObject(pld));
 
-            var ret = JsonConvert.DeserializeObject<DiscordDmChannel>(res.Response);
+            var ret = DiscordJson.ToDiscordObject<DiscordDmChannel>(res.Response);
             ret.Discord = this._discord;
 
             return ret;
