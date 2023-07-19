@@ -193,20 +193,20 @@ public class DiscordGuild : SnowflakeObject, IEquatable<DiscordGuild>
     [JsonProperty("system_channel_flags")]
     public SystemChannelFlags SystemChannelFlags { get; internal set; }
 
-        [JsonProperty("safety_alerts_channel_id")]
-        internal ulong? SafetyAlertsChannelId { get; set; }
+    [JsonProperty("safety_alerts_channel_id")]
+    internal ulong? SafetyAlertsChannelId { get; set; }
 
-        /// <summary>
-        /// Gets the guild's safety alerts channel.
-        /// </summary>
-        [JsonIgnore]
-        public DiscordChannel? SafetyAlertsChannel => this.SafetyAlertsChannelId is not null ? this.GetChannel(this.SafetyAlertsChannelId.Value) : null;
+    /// <summary>
+    /// Gets the guild's safety alerts channel.
+    /// </summary>
+    [JsonIgnore]
+    public DiscordChannel? SafetyAlertsChannel => this.SafetyAlertsChannelId is not null ? this.GetChannel(this.SafetyAlertsChannelId.Value) : null;
 
-        /// <summary>
-        /// Gets whether this guild's widget is enabled.
-        /// </summary>
-        [JsonProperty("widget_enabled", NullValueHandling = NullValueHandling.Ignore)]
-        public bool? WidgetEnabled { get; internal set; }
+    /// <summary>
+    /// Gets whether this guild's widget is enabled.
+    /// </summary>
+    [JsonProperty("widget_enabled", NullValueHandling = NullValueHandling.Ignore)]
+    public bool? WidgetEnabled { get; internal set; }
 
     [JsonProperty("widget_channel_id", NullValueHandling = NullValueHandling.Ignore)]
     internal ulong? _widgetChannelId { get; set; }
