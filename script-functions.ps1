@@ -485,6 +485,9 @@ function Test-ToolBuilt {
     )
 
     process {
+        if ($IsWindows) {
+            return Test-Path -Path "$PSScriptRoot/tools/bin/$Name.exe"
+        }
         return Test-Path -Path "$PSScriptRoot/tools/bin/$Name"
     }
 }
