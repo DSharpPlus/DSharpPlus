@@ -39,6 +39,15 @@ namespace DSharpPlus.Entities
             this.ResetPositionTo = resetPositionTo;
         }
 
+        public DiscordMessageFile(string fileName, Stream stream, bool resetPosition = false)
+        {
+            this.FileName = fileName;
+            this.Stream = stream;
+            this.FileType = null;
+            this.ContentType = null;
+            this.ResetPositionTo = resetPosition ? 0 : null;
+        }
+
         /// <summary>
         /// Gets the FileName of the File.
         /// </summary>
