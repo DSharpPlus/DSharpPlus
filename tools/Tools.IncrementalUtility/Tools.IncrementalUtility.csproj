@@ -1,16 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   
   <PropertyGroup>
+    <Version>0.1.0</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   
   <ItemGroup>
     <PackageReference Include="System.IO.Hashing" />
-    <PackageReference Include="System.IO.Pipelines" />
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\..\src\core\DSharpPlus.Shared\DSharpPlus.Shared.csproj" />
+    <ProjectReference Include="..\..\lib\bundles\src\Bundles\Bundles.csproj" />
   </ItemGroup>
   
 </Project>

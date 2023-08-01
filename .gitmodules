@@ -1,0 +1,3 @@
+[submodule "bundles"]
+	path = lib/bundles
+	url = https://github.com/dsharpplus/bundles.git

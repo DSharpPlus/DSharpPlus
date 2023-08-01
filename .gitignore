@@ -409,3 +409,4 @@ docs/_site
 # tool test environment
 .testenv
 .testenvhost
+/.vscode/settings.json

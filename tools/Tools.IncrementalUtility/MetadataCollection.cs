@@ -10,8 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 
-using DSharpPlus.Collections;
-using DSharpPlus.Converters;
+using Bundles;
 
 namespace Tools.IncrementalUtility;
 
@@ -27,10 +26,6 @@ public sealed class MetadataCollection
     : IReadOnlyDictionary<string, string>
 {
     private readonly DictionarySlim<string, string> hashes = new();
-
-    private static readonly JsonSerializerOptions options = new();
-
-    static MetadataCollection() => options.Converters.Add(new DictionarySlimStringStringJsonConverter());
 
     /// <summary>
     /// Calculates the current hashes of files, updates the cache and 
@@ -67,15 +62,11 @@ public sealed class MetadataCollection
         // load the saved hashes
         StreamReader reader = new($"./artifacts/hashes/{name}.json");
 
-#pragma warning disable IL3050 // we know these are fine, all involved types are statically linked to in this file.
-#pragma warning disable IL2026
-        DictionarySlim<string, string> oldHashes = JsonSerializer.Deserialize<DictionarySlim<string, string>>
+        DictionarySlim<string, string> oldHashes = JsonSerializer.Deserialize<Hashes>
         (
             reader.ReadToEnd(),
-            options
-        )!;
-#pragma warning restore IL2026
-#pragma warning restore IL3050
+            SerializationContext.Default.Hashes
+        )!.Values;
 
         reader.Close();
 
@@ -132,11 +123,14 @@ public sealed class MetadataCollection
 
         writer.Write
         (
-#pragma warning disable IL3050 // we know these are fine, all involved types are statically linked to in this file.
-#pragma warning disable IL2026
-            JsonSerializer.Serialize(this.hashes, options)
-#pragma warning restore IL2026
-#pragma warning restore IL3050
+            JsonSerializer.Serialize
+            (
+                new Hashes 
+                { 
+                    Values = this.hashes
+                }, 
+                SerializationContext.Default.Hashes
+            )
         );
     }
 
