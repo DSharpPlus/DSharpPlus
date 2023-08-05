@@ -59,4 +59,7 @@ public sealed record PartialUser : IPartialUser
 
     /// <inheritdoc/>
     public Optional<DiscordUserFlags> PublicFlags { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<string?> AvatarDecoration { get; init; }
 }

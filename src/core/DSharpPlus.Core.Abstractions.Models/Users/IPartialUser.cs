@@ -91,4 +91,9 @@ public interface IPartialUser
     /// The publicly visible flags on this user's account.
     /// </summary>
     public Optional<DiscordUserFlags> PublicFlags { get; }
+
+    /// <summary>
+    /// The user's avatar decoration hash.
+    /// </summary>
+    public Optional<string?> AvatarDecoration { get; }
 }
