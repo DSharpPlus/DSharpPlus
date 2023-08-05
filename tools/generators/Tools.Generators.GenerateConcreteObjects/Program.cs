@@ -149,9 +149,12 @@ public static class Program
         );
 
         List<string> emittedFiles = new();
+        List<string> editedFiles = added.Concat(modified).ToList();
 
-        foreach (string path in added.Concat(modified))
+        for(int i = 0; i < editedFiles.Count; i++)
         {
+            string path = editedFiles[i];
+
             CompilationUnitSyntax root = SyntaxFactory.ParseCompilationUnit
             (
                 File.ReadAllText(path)
@@ -241,6 +244,16 @@ namespace DSharpPlus.Core.Models;
             if (marker)
             {
                 continue;
+            }
+
+            // make sure partial-inheriting interfaces get updated too
+            if (interfaceSyntax.Identifier.ToString().StartsWith("IPartial"))
+            {
+                string fullCandidate = path.Replace("IPartial", "I");
+                if (!editedFiles.Contains(fullCandidate))
+                {
+                    editedFiles.Add(fullCandidate);
+                }
             }
 
             writer.AppendLine

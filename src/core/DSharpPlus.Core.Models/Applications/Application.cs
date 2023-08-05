@@ -51,6 +51,9 @@ public sealed record Application : IApplication
     public Optional<Snowflake> GuildId { get; init; }
 
     /// <inheritdoc/>
+    public Optional<IPartialGuild> Guild { get; init; }
+
+    /// <inheritdoc/>
     public Optional<Snowflake> PrimarySkuId { get; init; }
 
     /// <inheritdoc/>
@@ -61,6 +64,9 @@ public sealed record Application : IApplication
 
     /// <inheritdoc/>
     public Optional<DiscordApplicationFlags> Flags { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<int> ApproximateGuildCount { get; init; }
 
     /// <inheritdoc/>
     public Optional<IReadOnlyList<string>> Tags { get; init; }

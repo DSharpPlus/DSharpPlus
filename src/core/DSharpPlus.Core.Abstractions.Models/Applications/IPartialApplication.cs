@@ -76,10 +76,14 @@ public interface IPartialApplication
     public Optional<ITeam?> Team { get; }
 
     /// <summary>
-    /// If this application is a game sold on discord, this is the snowflake identifier of the guild
-    /// to which it has been linked.
+    /// The snowflake identifier of the guild associated with this app, for instance, its support server.
     /// </summary>
     public Optional<Snowflake> GuildId { get; }
+
+    /// <summary>
+    /// A partial object of the associated guild.
+    /// </summary>
+    public Optional<IPartialGuild> Guild { get; }
 
     /// <summary>
     /// If this application is a game sold on discord, this is the snowflake identifier of the
@@ -101,6 +105,11 @@ public interface IPartialApplication
     /// The public flags for this application.
     /// </summary>
     public Optional<DiscordApplicationFlags> Flags { get; }
+
+    /// <summary>
+    /// An approximate count of this application's guild membership.
+    /// </summary>
+    public Optional<int> ApproximateGuildCount { get; }
 
     /// <summary>
     /// Up to five tags describing content and functionality of the application.
