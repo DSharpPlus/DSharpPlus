@@ -67,5 +67,10 @@ public enum DiscordChannelType
     /// <summary>
     /// A channel that can only contain public threads.
     /// </summary>
-    GuildForum
+    GuildForum,
+
+    /// <summary>
+    /// A channel that can only contain threads, similar to <seealso cref="GuildForum"/>.
+    /// </summary>
+    GuildMedia
 }

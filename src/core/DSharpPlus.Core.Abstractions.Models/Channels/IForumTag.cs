@@ -7,7 +7,7 @@ using Remora.Rest.Core;
 namespace DSharpPlus.Core.Abstractions.Models;
 
 /// <summary>
-/// Represents a single forum tag, applicable to forum posts.
+/// Represents a single forum tag, applicable to forum or media channel posts.
 /// </summary>
 public interface IForumTag
 {

@@ -47,8 +47,9 @@ public interface IPartialChannel
     public Optional<string?> Name { get; }
 
     /// <summary>
-    /// The channel topic/description. For <seealso cref="DiscordChannelType.GuildForum"/> up to 4096
-    /// characters are allowed, for all other types up to 1024 characters.
+    /// The channel topic/description. For <seealso cref="DiscordChannelType.GuildForum"/> and
+    /// <seealso cref="DiscordChannelType.GuildMedia"/>, up to 4096 characters are allowed, for all other 
+    /// types up to 1024 characters.
     /// </summary>
     public Optional<string?> Topic { get; }
 
@@ -58,7 +59,7 @@ public interface IPartialChannel
     public Optional<bool> Nsfw { get; }
 
     /// <summary>
-    /// The snowflake identifier of the last message sent in this channel. This is a thread for forum
+    /// The snowflake identifier of the last message sent in this channel. This is a thread for forum and media
     /// channels, and may not point to an existing or valid message or thread.
     /// </summary>
     public Optional<Snowflake?> LastMessageId { get; }
@@ -168,17 +169,17 @@ public interface IPartialChannel
     public Optional<int> TotalMessageSent { get; }
 
     /// <summary>
-    /// The set of tags that can be used in this forum channel.
+    /// The set of tags that can be used in this forum or media channel.
     /// </summary>
     public Optional<IReadOnlyList<IForumTag>> AvailableTags { get; }
 
     /// <summary>
-    /// The snowflake identifiers of the set of tags that have been applied to this forum thread channel.
+    /// The snowflake identifiers of the set of tags that have been applied to this forum or media thread channel.
     /// </summary>
     public Optional<IReadOnlyList<Snowflake>> AppliedTags { get; }
 
     /// <summary>
-    /// The default emoji to show in the add reaction button on a thread in this forum channel.
+    /// The default emoji to show in the add reaction button on a thread in this forum or media channel.
     /// </summary>
     public Optional<IDefaultReaction?> DefaultReactionEmoji { get; }
 
@@ -189,7 +190,7 @@ public interface IPartialChannel
     public Optional<int> DefaultThreadRateLimitPerUser { get; }
 
     /// <summary>
-    /// The default sort order for posts in this forum channel.
+    /// The default sort order for posts in this forum or media channel.
     /// </summary>
     public Optional<DiscordForumSortOrder?> DefaultSortOrder { get; }
 

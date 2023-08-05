@@ -23,5 +23,11 @@ public enum DiscordChannelFlags
     /// Indicates whether this is a forum channel which requires tags to be specified when creating
     /// a thread inside.
     /// </summary>
-    RequireTag = 1 << 4
+    RequireTag = 1 << 4,
+
+    /// <summary>
+    /// Indicates to the client to hide the embedded media download options. This is available only for
+    /// media channels.
+    /// </summary>
+    HideMediaDownloadOptions = 1 << 15
 }
