@@ -45,6 +45,10 @@ csharp_using_directive_placement = outside_namespace:error
 # Using directive is unnecessary.
 dotnet_diagnostic.IDE0005.severity = error
 
+# don't do double newlines or pointless newlines
+dotnet_diagnostic.IDE2000.severity = error
+dotnet_diagnostic.IDE2002.severity = error
+
 # Yell at people when they don't include the file header template
 dotnet_diagnostic.IDE0073.severity = error
 
