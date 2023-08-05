@@ -45,4 +45,7 @@ public sealed record PartialRole : IPartialRole
 
     /// <inheritdoc/>
     public Optional<IRoleTags> Tags { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<DiscordRoleFlags> Flags { get; init; }
 }

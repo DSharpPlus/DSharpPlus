@@ -67,4 +67,9 @@ public interface IPartialRole
     /// Additional tags added to this role.
     /// </summary>
     public Optional<IRoleTags> Tags { get; }
+
+    /// <summary>
+    /// Flags for this role, combined as a bitfield.
+    /// </summary>
+    public Optional<DiscordRoleFlags> Flags { get; }
 }

@@ -45,4 +45,7 @@ public sealed record Role : IRole
 
     /// <inheritdoc/>
     public Optional<IRoleTags> Tags { get; init; }
+
+    /// <inheritdoc/>
+    public required DiscordRoleFlags Flags { get; init; }
 }

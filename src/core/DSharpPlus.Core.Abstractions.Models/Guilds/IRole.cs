@@ -37,6 +37,9 @@ public interface IRole : IPartialRole
     /// <inheritdoc cref="IPartialRole.Mentionable"/>
     public new bool Mentionable { get; }
 
+    /// <inheritdoc cref="IPartialRole.Flags"/>
+    public new DiscordRoleFlags Flags { get; }
+
     // partial access routes
 
     /// <inheritdoc/>
@@ -62,4 +65,7 @@ public interface IRole : IPartialRole
 
     /// <inheritdoc/>
     Optional<bool> IPartialRole.Mentionable => this.Mentionable;
+
+    /// <inheritdoc/>
+    Optional<DiscordRoleFlags> IPartialRole.Flags => this.Flags;
 }
