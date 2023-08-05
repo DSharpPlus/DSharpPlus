@@ -6,4 +6,8 @@
     <OutputType>Library</OutputType>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\DSharpPlus.Core.Abstractions.Models\DSharpPlus.Core.Abstractions.Models.csproj" />
+  </ItemGroup>
+
 </Project>
