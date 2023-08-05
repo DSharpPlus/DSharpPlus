@@ -4,6 +4,8 @@
 
 using System.Collections.Generic;
 
+using DSharpPlus.Entities;
+
 using Remora.Rest.Core;
 
 using DSharpPlus.Core.Abstractions.Models;
@@ -24,4 +26,7 @@ public sealed record Onboarding : IOnboarding
 
     /// <inheritdoc/>
     public required bool Enabled { get; init; }
+
+    /// <inheritdoc/>
+    public required DiscordGuildOnboardingPromptType Mode { get; init; }
 }

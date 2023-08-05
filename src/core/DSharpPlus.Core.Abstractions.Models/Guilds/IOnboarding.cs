@@ -4,6 +4,8 @@
 
 using System.Collections.Generic;
 
+using DSharpPlus.Entities;
+
 using Remora.Rest.Core;
 
 namespace DSharpPlus.Core.Abstractions.Models;
@@ -32,4 +34,9 @@ public interface IOnboarding
     /// Indicates whether onboarding is enabled in the guild.
     /// </summary>
     public bool Enabled { get; }
+
+    /// <summary>
+    /// The current onboarding mode.
+    /// </summary>
+    public DiscordGuildOnboardingPromptType Mode { get; }
 }
