@@ -4,8 +4,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace Tools.Generators.GenerateConcreteObjects;
 
@@ -13,12 +13,12 @@ public static class Emitter
 {
     public static void Emit
     (
-        StreamWriter writer,
+        StringBuilder writer,
         IReadOnlyList<(string, string)> properties,
         IReadOnlyList<string>? overwrites = null
     )
     {
-        foreach((string, string) property in properties)
+        foreach ((string, string) property in properties)
         {
             bool required = false;
 
@@ -35,7 +35,7 @@ public static class Emitter
                 required = true;
             }
 
-            writer.Write
+            writer.Append
             (
 $$"""
     /// <inheritdoc/>

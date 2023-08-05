@@ -4,9 +4,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -160,16 +160,7 @@ public static class Program
             int index = path.LastIndexOf("/");
             string outPath = path.Remove(index + 1, 1).Replace(input, output);
 
-            // ensure the directory at least exists
-            FileInfo outInfo = new(outPath);
-            if (!Directory.Exists(outInfo.DirectoryName!))
-            {
-                Directory.CreateDirectory(outInfo.DirectoryName!);
-            }
-
-            StreamWriter writer = File.Exists(outPath)
-                ? new(outPath)
-                : new(File.Create(outPath));
+            StringBuilder writer = new();
 
             AnsiConsole.MarkupLine
             (
@@ -190,10 +181,10 @@ public static class Program
 
             foreach (UsingDirectiveSyntax @using in root.Usings)
             {
-                writer.Write(@using.ToFullString());
+                writer.Append(@using.ToFullString());
             }
 
-            writer.Write
+            writer.Append
             (
 """
 
@@ -205,14 +196,12 @@ namespace DSharpPlus.Core.Models;
 """
             );
 
-            if 
+            if
             (
                 root.Members.First() is not FileScopedNamespaceDeclarationSyntax fileScopedNamespace ||
                 fileScopedNamespace.Members.First() is not InterfaceDeclarationSyntax interfaceSyntax
             )
             {
-                writer.Close();
-                File.Delete(outPath);
                 AnsiConsole.MarkupLine
                 (
                     $"""
@@ -251,12 +240,10 @@ namespace DSharpPlus.Core.Models;
 
             if (marker)
             {
-                writer.Close();
-                File.Delete(outPath);
                 continue;
             }
 
-            writer.WriteLine
+            writer.AppendLine
             (
 $$"""
 /// <inheritdoc cref="{{name.Text}}" />
@@ -340,8 +327,6 @@ public sealed record {{name.Text[1..]}} : {{name.Text}}
                         partialFileScopedNamespace.Members.First() is not InterfaceDeclarationSyntax partialInterfaceSyntax
                     )
                     {
-                        writer.Close();
-                        File.Delete(outPath);
                         AnsiConsole.MarkupLine
                         (
                             $"""
@@ -377,18 +362,27 @@ public sealed record {{name.Text[1..]}} : {{name.Text}}
                 );
             }
 
-            writer.Write("}");
-            writer.Flush();
-            writer.Dispose();
+            writer.Append('}');
+
+            // ensure the directory at least exists
+            FileInfo outInfo = new(outPath);
+            if (!Directory.Exists(outInfo.DirectoryName!))
+            {
+                Directory.CreateDirectory(outInfo.DirectoryName!);
+            }
+
+            string code = writer.ToString();
+
+            // remove the last newline before the final }
+            // the windows conditional is because of CRLF taking up two characters, vs LF taking up one
+            code = Environment.NewLine == "\r\n" 
+                ? code.Remove(code.Length - 3, 2) 
+                : code.Remove(code.Length - 2, 1);
+
+            File.WriteAllText(outPath, code);
 
             emittedFiles.Add(outPath);
         }
-
-        Process.Start("dotnet", $"format --no-restore --severity info --include {
-            string.Join(' ', emittedFiles.Select
-            (
-                path => $".{path[Environment.CurrentDirectory.Length..]}"
-            ))}");
 
         return 0;
     }
