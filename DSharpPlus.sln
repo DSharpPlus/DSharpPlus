@@ -28,7 +28,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.Shared.Tests", "
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Generators", "Generators", "{5FBB4590-56B0-453B-A87B-08A17C599B5C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSharpPlus.SourceGenerators.Common", "gen\common\DSharpPlus.SourceGenerators.Common.csproj", "{98D2C52C-E3BA-4564-919C-750775B7BA9C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DSharpPlus.SourceGenerators.Common", "gen\common\DSharpPlus.SourceGenerators.Common.csproj", "{98D2C52C-E3BA-4564-919C-750775B7BA9C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
