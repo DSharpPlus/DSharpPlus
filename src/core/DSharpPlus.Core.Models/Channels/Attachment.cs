@@ -46,4 +46,7 @@ public sealed record Attachment : IAttachment
 
     /// <inheritdoc/>
     public Optional<ReadOnlyMemory<byte>> Waveform { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<DiscordAttachmentFlags> Flags { get; init; }
 }

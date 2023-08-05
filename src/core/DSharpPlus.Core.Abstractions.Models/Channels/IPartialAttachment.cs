@@ -4,6 +4,8 @@
 
 using System;
 
+using DSharpPlus.Entities;
+
 using Remora.Rest.Core;
 
 namespace DSharpPlus.Core.Abstractions.Models;
@@ -72,4 +74,9 @@ public interface IPartialAttachment
     /// base64-encoded byte array representing a sampled waveform for this voice message.
     /// </summary>
     public Optional<ReadOnlyMemory<byte>> Waveform { get; }
+
+    /// <summary>
+    /// Additional flags for this attachment.
+    /// </summary>
+    public Optional<DiscordAttachmentFlags> Flags { get; }
 }

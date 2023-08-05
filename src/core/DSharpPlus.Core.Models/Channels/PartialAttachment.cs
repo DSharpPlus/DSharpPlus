@@ -4,6 +4,8 @@
 
 using System;
 
+using DSharpPlus.Entities;
+
 using Remora.Rest.Core;
 
 using DSharpPlus.Core.Abstractions.Models;
@@ -48,4 +50,7 @@ public sealed record PartialAttachment : IPartialAttachment
 
     /// <inheritdoc/>
     public Optional<ReadOnlyMemory<byte>> Waveform { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<DiscordAttachmentFlags> Flags { get; init; }
 }
