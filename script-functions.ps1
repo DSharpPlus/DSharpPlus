@@ -446,7 +446,7 @@ function Build-Tool {
             }
         }
         
-        if($IsWindows) {
+        if ($IsWindows) {
             Copy-Item -Path "$PSScriptRoot/tools/artifacts/publish/$CSProjectName/release/$CSProjectName.exe" `
                 -Destination "$PSScriptRoot/tools/bin/$OutputName.exe"
         }
@@ -459,6 +459,10 @@ function Build-Tool {
     end {
         Write-Debug "The tool $OutputName was successfully built from $CSProjectName."
         Write-Verbose "Successfully built tool $OutputName."
+
+        if (Test-Path "$PSScriptRoot/artifacts/hashes/$OutputName.json") {
+            Remove-Item -Path "$PSScriptRoot/artifacts/hashes/$OutputName.json"
+        }
     }
 }
 
