@@ -164,6 +164,7 @@ public static class Program
             string outPath = path.Remove(index + 1, 1).Replace(input, output);
 
             StringBuilder writer = new();
+            StringBuilder usings = new();
 
             AnsiConsole.MarkupLine
             (
@@ -172,7 +173,7 @@ public static class Program
                 """
             );
 
-            /*writer.WriteLine
+            usings.AppendLine
             (
 """
 // This Source Code form is subject to the terms of the Mozilla Public
@@ -180,11 +181,11 @@ public static class Program
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 """
-            );*/
+            );
 
             foreach (UsingDirectiveSyntax @using in root.Usings)
             {
-                writer.Append(@using.ToFullString());
+                usings.Append(@using.ToFullString());
             }
 
             writer.Append
@@ -350,6 +351,23 @@ public sealed record {{name.Text[1..]}} : {{name.Text}}
                         continue;
                     }
 
+                    usings.Clear();
+
+                    usings.AppendLine
+                    (
+"""
+// This Source Code form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+"""
+                    );
+
+                    foreach (UsingDirectiveSyntax @using in partialRoot.Usings)
+                    {
+                        usings.Append(@using.ToFullString());
+                    }
+
                     Emitter.Emit
                     (
                         writer,
@@ -384,7 +402,7 @@ public sealed record {{name.Text[1..]}} : {{name.Text}}
                 Directory.CreateDirectory(outInfo.DirectoryName!);
             }
 
-            string code = writer.ToString();
+            string code = usings.Append(writer).ToString();
 
             // remove the last newline before the final }
             // the windows conditional is because of CRLF taking up two characters, vs LF taking up one
