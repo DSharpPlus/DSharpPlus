@@ -14,6 +14,11 @@ namespace DSharpPlus.Core.Abstractions.Models;
 public interface IButtonComponent : IInteractiveComponent
 {
     /// <summary>
+    /// The type of this component.
+    /// </summary>
+    public DiscordMessageComponentType Type { get; }
+
+    /// <summary>
     /// The visual style of this button.
     /// </summary>
     public DiscordButtonStyle Style { get; }

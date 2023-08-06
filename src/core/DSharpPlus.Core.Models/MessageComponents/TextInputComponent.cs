@@ -14,6 +14,9 @@ namespace DSharpPlus.Core.Models;
 public sealed record TextInputComponent : ITextInputComponent
 {
     /// <inheritdoc/>
+    public required DiscordMessageComponentType Type { get; init; }
+
+    /// <inheritdoc/>
     public required string CustomId { get; init; }
 
     /// <inheritdoc/>

@@ -16,6 +16,9 @@ namespace DSharpPlus.Core.Models;
 public sealed record ChannelSelectComponent : IChannelSelectComponent
 {
     /// <inheritdoc/>
+    public required DiscordMessageComponentType Type { get; init; }
+
+    /// <inheritdoc/>
     public required string CustomId { get; init; }
 
     /// <inheritdoc/>

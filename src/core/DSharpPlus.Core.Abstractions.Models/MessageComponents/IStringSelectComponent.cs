@@ -4,6 +4,8 @@
 
 using System.Collections.Generic;
 
+using DSharpPlus.Entities;
+
 using Remora.Rest.Core;
 
 namespace DSharpPlus.Core.Abstractions.Models;
@@ -13,6 +15,11 @@ namespace DSharpPlus.Core.Abstractions.Models;
 /// </summary>
 public interface IStringSelectComponent : IInteractiveComponent
 {
+    /// <summary>
+    /// The type of this component.
+    /// </summary>
+    public DiscordMessageComponentType Type { get; }
+
     /// <summary>
     /// The developer-defined ID for this select menu, up to 100 characters.
     /// </summary>

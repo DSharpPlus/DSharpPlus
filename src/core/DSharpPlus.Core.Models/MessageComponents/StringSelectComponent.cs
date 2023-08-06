@@ -4,6 +4,8 @@
 
 using System.Collections.Generic;
 
+using DSharpPlus.Entities;
+
 using Remora.Rest.Core;
 
 using DSharpPlus.Core.Abstractions.Models;
@@ -13,6 +15,9 @@ namespace DSharpPlus.Core.Models;
 /// <inheritdoc cref="IStringSelectComponent" />
 public sealed record StringSelectComponent : IStringSelectComponent
 {
+    /// <inheritdoc/>
+    public required DiscordMessageComponentType Type { get; init; }
+
     /// <inheritdoc/>
     public required string CustomId { get; init; }
 

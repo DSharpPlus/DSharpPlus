@@ -14,6 +14,11 @@ namespace DSharpPlus.Core.Abstractions.Models;
 public interface ITextInputComponent : IInteractiveComponent
 {
     /// <summary>
+    /// The type of this component.
+    /// </summary>
+    public DiscordMessageComponentType Type { get; }
+
+    /// <summary>
     /// The identifier of this input field, up to 100 characters.
     /// </summary>
     public string CustomId { get; }

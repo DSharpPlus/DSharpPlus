@@ -14,6 +14,9 @@ namespace DSharpPlus.Core.Models;
 public sealed record ButtonComponent : IButtonComponent
 {
     /// <inheritdoc/>
+    public required DiscordMessageComponentType Type { get; init; }
+
+    /// <inheritdoc/>
     public required DiscordButtonStyle Style { get; init; }
 
     /// <inheritdoc/>
