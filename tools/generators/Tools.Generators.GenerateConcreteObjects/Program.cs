@@ -173,7 +173,7 @@ public static class Program
                 """
             );
 
-            usings.AppendLine
+            /*usings.AppendLine
             (
 """
 // This Source Code form is subject to the terms of the Mozilla Public
@@ -181,7 +181,7 @@ public static class Program
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 """
-            );
+            );*/
 
             foreach (UsingDirectiveSyntax @using in root.Usings)
             {
@@ -353,7 +353,7 @@ public sealed record {{name.Text[1..]}} : {{name.Text}}
 
                     usings.Clear();
 
-                    usings.AppendLine
+                    /*usings.AppendLine
                     (
 """
 // This Source Code form is subject to the terms of the Mozilla Public
@@ -361,7 +361,7 @@ public sealed record {{name.Text[1..]}} : {{name.Text}}
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 """
-                    );
+                    );*/
 
                     foreach (UsingDirectiveSyntax @using in partialRoot.Usings)
                     {
