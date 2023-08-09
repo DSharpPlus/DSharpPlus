@@ -12,7 +12,7 @@ namespace DSharpPlus.Core.Abstractions.Models;
 /// Represents metadata for auto moderation actions of type 
 /// <seealso cref="DiscordAutoModerationActionType.SendAlertMessage"/>.
 /// </summary>
-public interface ISendAlertMessageActionMetadata
+public interface ISendAlertMessageActionMetadata : IAutoModerationActionMetadata
 {
     /// <summary>
     /// The snowflake identifier of the channel to which content should be logged.
