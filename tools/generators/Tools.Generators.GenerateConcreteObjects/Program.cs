@@ -82,7 +82,7 @@ public static class Program
             AnsiConsole.MarkupLine
             (
                 """
-                [darkseagreen1_1]There were no changes to the interface definitions, exiting generator.[/]
+                [darkseagreen1_1]There were no changes to the interface definitions, exiting generate-concrete-objects.[/]
                 """
             );
 
@@ -235,16 +235,11 @@ namespace DSharpPlus.Core.Models;
                     AnsiConsole.MarkupLine
                     (
                         $"""
-                            Marker interface detected, abandoning generation.
+                            Marker interface detected, generating empty implementation.
                         """
                     );
                     marker = true;
                 }
-            }
-
-            if (marker)
-            {
-                continue;
             }
 
             // make sure partial-inheriting interfaces get updated too
@@ -255,6 +250,41 @@ namespace DSharpPlus.Core.Models;
                 {
                     editedFiles.Add(fullCandidate);
                 }
+            }
+
+            FileInfo outInfo = new(outPath);
+
+            if (marker)
+            {
+                writer.Clear();
+
+                writer.AppendLine
+                (
+$$"""
+// This Source Code form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+using DSharpPlus.Core.Abstractions.Models;
+
+namespace DSharpPlus.Core.Models;
+
+/// <summary>
+/// Placeholder implementation for serialization purposes. Please report spotting this to library developers.
+/// </summary>
+internal sealed record {{name.Text[1..]}} : {{name.Text}};
+"""
+                );
+                if (!Directory.Exists(outInfo.DirectoryName!))
+                {
+                    Directory.CreateDirectory(outInfo.DirectoryName!);
+                }
+
+                File.WriteAllText(outPath, writer.ToString());
+
+                emittedFiles.Add(outPath);
+
+                continue;
             }
 
             writer.AppendLine
@@ -396,7 +426,6 @@ public sealed record {{name.Text[1..]}} : {{name.Text}}
             writer.Append('}');
 
             // ensure the directory at least exists
-            FileInfo outInfo = new(outPath);
             if (!Directory.Exists(outInfo.DirectoryName!))
             {
                 Directory.CreateDirectory(outInfo.DirectoryName!);
