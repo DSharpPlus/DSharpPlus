@@ -677,24 +677,24 @@ public sealed class DiscordAuditLogApplicationCommandPermissionEntry : DiscordAu
 public sealed class DiscordAuditLogAutoModerationExecutedEntry : DiscordAuditLogEntry
 {
     public string ResponsibleRule { get; internal set; }
+    public DiscordUser TargetUser { get; internal set; }
     public RuleTriggerType RuleTriggerType { get; internal set; }
     public DiscordChannel Channel { get; internal set; }
 }
 
-public sealed class DiscordAuditLogAutoModerationEntry : DiscordAuditLogEntry
+public sealed class DiscordAuditLogAutoModerationRuleEntry : DiscordAuditLogEntry
 {
-    public DiscordApplicationCommandPermission Permission { get; internal set; }
-    public DiscordAutoModerationRule Rule { get; internal set; }
+    public PropertyChange<ulong?> RuleId { get; internal set; }
     public PropertyChange<ulong?> GuildId { get; internal set; }
     public PropertyChange<string?> Name { get; internal set; }
     public PropertyChange<ulong?> CreatorId { get; internal set; }
     public PropertyChange<RuleEventType?> EventType { get; internal set; }
     public PropertyChange<RuleTriggerType?> TriggerType { get; internal set; }
-    public PropertyChange<DiscordRuleActionMetadata?> Metadata { get; internal set; }
+    public PropertyChange<DiscordRuleTriggerMetadata?> TriggerMetadata { get; internal set; }
     public PropertyChange<IReadOnlyList<DiscordAutoModerationAction>?> Actions { get; internal set; }
-    public PropertyChange<bool?> IsEnabled  { get; internal set; }
-    public PropertyChange<IReadOnlyList<ulong>?> ExemptRoles { get; internal set; }
-    public PropertyChange<IReadOnlyList<ulong>?> ExemptChannels { get; internal set; }
+    public PropertyChange<bool?> Enabled  { get; internal set; }
+    public PropertyChange<IReadOnlyList<DiscordMember>?> ExemptRoles { get; internal set; }
+    public PropertyChange<IReadOnlyList<DiscordChannel>?> ExemptChannels { get; internal set; }
 }
 
 /// <summary>
