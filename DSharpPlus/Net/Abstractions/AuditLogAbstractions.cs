@@ -88,34 +88,34 @@ internal sealed class AuditLogActionOptions
 {
     [JsonProperty("application_id")]
     public ulong ApplicationId { get; set; }
-    
+
     [JsonProperty("auto_moderation_rule_name")]
     public string AutoModerationRuleName { get; set; }
-    
+
     [JsonProperty("auto_moderation_rule_trigger_type")]
     public string AutoModerationRuleTriggerType { get; set; }
-    
+
     [JsonProperty("channel_id")]
     public ulong ChannelId { get; set; }
-    
+
     [JsonProperty("count")]
     public int Count { get; set; }
-    
+
     [JsonProperty("delete_member_days")]
     public int DeleteMemberDays { get; set; }
-    
+
     [JsonProperty("id")]
     public ulong Id { get; set; }
-    
+
     [JsonProperty("members_removed")]
     public int MembersRemoved { get; set; }
-    
+
     [JsonProperty("message_id")]
     public ulong MessageId { get; set; }
-    
+
     [JsonProperty("role_name")]
     public string RoleName { get; set; }
-    
+
     [JsonProperty("type")]
     public object Type { get; set; }
 }
@@ -151,19 +151,19 @@ internal sealed class AuditLog
 
     [JsonProperty("audit_log_entries")]
     public IEnumerable<AuditLogAction> Entries { get; set; }
-        
+
     [JsonProperty("auto_moderation_rules")]
     private IEnumerable<DiscordAutoModerationRule> AutoModerationRules { get; set; }
-        
+
     [JsonProperty("guild_scheduled_events")]
     public IEnumerable<DiscordScheduledGuildEvent> Events { get; set; }
-        
+
     [JsonProperty("integrations")]
     public IEnumerable<DiscordIntegration> Integrations { get; set; }
-        
+
     [JsonProperty("threads")]
     public IEnumerable<DiscordThreadChannel> Threads { get; set; }
-        
+
     [JsonProperty("users")]
     public IEnumerable<DiscordUser> Users { get; set; }
 

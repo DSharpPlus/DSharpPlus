@@ -97,19 +97,19 @@ internal static class AuditLogParser
         {
             members = guild._members;
         }
-        
+
         //initialize threads if null
         if (threads is null)
         {
             threads = guild._threads;
         }
-        
+
         //initialize scheduled events if null
         if (events is null)
         {
             events = guild._scheduledEvents;
         }
-        
+
         webhooks ??= new Dictionary<ulong, DiscordWebhook>();
 
         DiscordAuditLogEntry? entry = null;
@@ -358,7 +358,7 @@ internal static class AuditLogParser
 
                 if (auditLogAction.Options.ApplicationId == auditLogAction.TargetId)
                 {
-                    permissionEntry.ApplicationId = (ulong) auditLogAction.TargetId;
+                    permissionEntry.ApplicationId = (ulong)auditLogAction.TargetId;
                     permissionEntry.ApplicationCommandId = null;
                 }
                 else
@@ -366,7 +366,7 @@ internal static class AuditLogParser
                     permissionEntry.ApplicationId = auditLogAction.Options.ApplicationId;
                     permissionEntry.ApplicationCommandId = auditLogAction.TargetId;
                 }
-                
+
                 foreach (AuditLogActionChange change in auditLogAction.Changes)
                 {
                     DiscordApplicationCommandPermission? oldValue = ((JObject?)change
@@ -376,41 +376,40 @@ internal static class AuditLogParser
                     DiscordApplicationCommandPermission? newValue = ((JObject)change
                             .NewValue)?
                         .ToDiscordObject<DiscordApplicationCommandPermission>();
-                    
+
                     permissionEntry.PermissionChanges.Append(new PropertyChange<DiscordApplicationCommandPermission>
                     {
-                        Before = oldValue != null ? oldValue : null,
-                        After = newValue != null ? newValue : null
+                        Before = oldValue != null ? oldValue : null, After = newValue != null ? newValue : null
                     });
                 }
+
                 break;
-            
+
             case AuditLogActionType.AutoModerationBlockMessage:
             case AuditLogActionType.AutoModerationFlagToChannel:
             case AuditLogActionType.AutoModerationUserCommunicationDisabled:
                 entry = new DiscordAuditLogAutoModerationExecutedEntry();
-                
+
                 DiscordAuditLogAutoModerationExecutedEntry autoModerationEntry =
                     entry as DiscordAuditLogAutoModerationExecutedEntry;
-                
-                autoModerationEntry.TargetUser = members.TryGetValue(auditLogAction.TargetId.Value, out DiscordMember? targetMember)
-                    ? targetMember
-                    : new DiscordUser
-                    {
-                        Id = auditLogAction.TargetId.Value, Discord = guild.Discord
-                    };
+
+                autoModerationEntry.TargetUser =
+                    members.TryGetValue(auditLogAction.TargetId.Value, out DiscordMember? targetMember)
+                        ? targetMember
+                        : new DiscordUser {Id = auditLogAction.TargetId.Value, Discord = guild.Discord};
 
                 autoModerationEntry.ResponsibleRule = auditLogAction.Options.RoleName;
                 autoModerationEntry.Channel = guild.GetChannel(auditLogAction.Options.ChannelId);
-                autoModerationEntry.RuleTriggerType = (RuleTriggerType) int.Parse(auditLogAction.Options.AutoModerationRuleTriggerType);
-                   break;
-            
+                autoModerationEntry.RuleTriggerType =
+                    (RuleTriggerType)int.Parse(auditLogAction.Options.AutoModerationRuleTriggerType);
+                break;
+
             case AuditLogActionType.AutoModerationRuleCreate:
             case AuditLogActionType.AutoModerationRuleUpdate:
             case AuditLogActionType.AutoModerationRuleDelete:
                 entry = ParseAutoModerationRuleUpdateEntry(guild, auditLogAction);
                 break;
-            
+
             default:
                 guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
                     "Unknown audit log action type: {0} - this should be reported to library developers",
@@ -430,14 +429,14 @@ internal static class AuditLogParser
                 or AuditLogActionType.WebhookCreate or AuditLogActionType.IntegrationCreate
                 or AuditLogActionType.StickerCreate
                 or AuditLogActionType.AutoModerationRuleCreate => AuditLogActionCategory.Create,
-            
+
             AuditLogActionType.ChannelDelete or AuditLogActionType.EmojiDelete or AuditLogActionType.InviteDelete
                 or AuditLogActionType.MessageDelete or AuditLogActionType.MessageBulkDelete
                 or AuditLogActionType.OverwriteDelete or AuditLogActionType.RoleDelete
                 or AuditLogActionType.WebhookDelete or AuditLogActionType.IntegrationDelete
                 or AuditLogActionType.StickerDelete
                 or AuditLogActionType.AutoModerationRuleDelete => AuditLogActionCategory.Delete,
-            
+
             AuditLogActionType.ChannelUpdate or AuditLogActionType.EmojiUpdate or AuditLogActionType.InviteUpdate
                 or AuditLogActionType.MemberRoleUpdate or AuditLogActionType.MemberUpdate
                 or AuditLogActionType.OverwriteUpdate or AuditLogActionType.RoleUpdate
@@ -455,9 +454,9 @@ internal static class AuditLogParser
         DiscordUser discordUser;
         if (members.TryGetValue(auditLogAction.UserId, out member))
         {
-            entry.UserResponsible =  member;
+            entry.UserResponsible = member;
         }
-        else if ( guild.Discord.UserCache.TryGetValue(auditLogAction.UserId, out discordUser) )
+        else if (guild.Discord.UserCache.TryGetValue(auditLogAction.UserId, out discordUser))
         {
             entry.UserResponsible = discordUser;
         }
@@ -469,7 +468,8 @@ internal static class AuditLogParser
         return entry;
     }
 
-    private static DiscordAuditLogEntry ParseAutoModerationRuleUpdateEntry(DiscordGuild guild, AuditLogAction auditLogAction)
+    private static DiscordAuditLogEntry ParseAutoModerationRuleUpdateEntry(DiscordGuild guild,
+        AuditLogAction auditLogAction)
     {
         DiscordAuditLogAutoModerationRuleEntry ruleEntry = new();
 
@@ -484,7 +484,7 @@ internal static class AuditLogParser
                         After = change.NewValue != null ? change.NewValueUlong : null
                     };
                     break;
-                
+
                 case "guild_id":
                     ruleEntry.GuildId = new PropertyChange<ulong?>
                     {
@@ -492,7 +492,7 @@ internal static class AuditLogParser
                         After = change.NewValue != null ? change.NewValueUlong : null
                     };
                     break;
-                
+
                 case "name":
                     ruleEntry.Name = new PropertyChange<string?>
                     {
@@ -500,7 +500,7 @@ internal static class AuditLogParser
                         After = change.NewValue != null ? change.NewValueString : null
                     };
                     break;
-                
+
                 case "creator_id":
                     ruleEntry.CreatorId = new PropertyChange<ulong?>
                     {
@@ -508,39 +508,49 @@ internal static class AuditLogParser
                         After = change.NewValue != null ? change.NewValueUlong : null
                     };
                     break;
-                
+
                 case "event_type":
                     ruleEntry.EventType = new PropertyChange<RuleEventType?>
                     {
-                        Before = change.OldValue != null ? (RuleEventType) int.Parse(change.OldValueString) : null,
-                        After = change.NewValue != null ? (RuleEventType) int.Parse(change.NewValueString) : null
+                        Before = change.OldValue != null ? (RuleEventType)int.Parse(change.OldValueString) : null,
+                        After = change.NewValue != null ? (RuleEventType)int.Parse(change.NewValueString) : null
                     };
                     break;
-                
+
                 case "trigger_type":
                     ruleEntry.TriggerType = new PropertyChange<RuleTriggerType?>
                     {
-                        Before = change.OldValue != null ? (RuleTriggerType) int.Parse(change.OldValueString) : null,
-                        After = change.NewValue != null ? (RuleTriggerType) int.Parse(change.NewValueString) : null
+                        Before = change.OldValue != null ? (RuleTriggerType)int.Parse(change.OldValueString) : null,
+                        After = change.NewValue != null ? (RuleTriggerType)int.Parse(change.NewValueString) : null
                     };
                     break;
-                
+
                 case "trigger_metadata":
                     ruleEntry.TriggerMetadata = new PropertyChange<DiscordRuleTriggerMetadata?>
                     {
-                        Before = change.OldValue != null ? ((JObject) change.OldValue).ToDiscordObject<DiscordRuleTriggerMetadata>() : null,
-                        After = change.NewValue != null ? ((JObject) change.NewValue).ToDiscordObject<DiscordRuleTriggerMetadata>() : null
+                        Before =
+                            change.OldValue != null
+                                ? ((JObject)change.OldValue).ToDiscordObject<DiscordRuleTriggerMetadata>()
+                                : null,
+                        After = change.NewValue != null
+                            ? ((JObject)change.NewValue).ToDiscordObject<DiscordRuleTriggerMetadata>()
+                            : null
                     };
                     break;
-                
+
                 case "actions":
                     ruleEntry.Actions = new PropertyChange<IEnumerable<DiscordAutoModerationAction>>
                     {
-                        Before = change.OldValue != null ? change.OldValues.Select(x => x.ToDiscordObject<DiscordAutoModerationAction>()) : null,
-                        After = change.NewValue != null ? change.NewValues.Select(x => x.ToDiscordObject<DiscordAutoModerationAction>()) : null
+                        Before =
+                            change.OldValue != null
+                                ? change.OldValues.Select(x => x.ToDiscordObject<DiscordAutoModerationAction>())
+                                : null,
+                        After = change.NewValue != null
+                            ? change.NewValues.Select(x => x.ToDiscordObject<DiscordAutoModerationAction>())
+                            : null
                     };
                     break;
-                
+
                 case "enabled":
                     ruleEntry.Enabled = new PropertyChange<bool?>
                     {
@@ -548,23 +558,33 @@ internal static class AuditLogParser
                         After = change.NewValue != null ? bool.Parse(change.NewValueString) : null
                     };
                     break;
-                
+
                 case "exempt_roles":
                     ruleEntry.ExemptRoles = new PropertyChange<IEnumerable<DiscordRole>>
                     {
-                        Before = change.OldValue != null ? change.OldValues.Select(xo => (ulong)xo["id"]).Select(guild.GetRole) : null,
-                        After = change.NewValue != null ? change.NewValues.Select(xo => (ulong)xo["id"]).Select(guild.GetRole) : null
+                        Before =
+                            change.OldValue != null
+                                ? change.OldValues.Select(xo => (ulong)xo["id"]).Select(guild.GetRole)
+                                : null,
+                        After = change.NewValue != null
+                            ? change.NewValues.Select(xo => (ulong)xo["id"]).Select(guild.GetRole)
+                            : null
                     };
                     break;
-                
+
                 case "exempt_channels":
                     ruleEntry.ExemptChannels = new PropertyChange<IEnumerable<DiscordChannel>>
                     {
-                        Before = change.OldValue != null ? change.OldValues.Select(xo => (ulong)xo["id"]).Select(guild.GetChannel) : null,
-                        After = change.NewValue != null ? change.NewValues.Select(xo => (ulong)xo["id"]).Select(guild.GetChannel) : null
+                        Before =
+                            change.OldValue != null
+                                ? change.OldValues.Select(xo => (ulong)xo["id"]).Select(guild.GetChannel)
+                                : null,
+                        After = change.NewValue != null
+                            ? change.NewValues.Select(xo => (ulong)xo["id"]).Select(guild.GetChannel)
+                            : null
                     };
                     break;
-                
+
                 default:
                     guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
                         "Unknown key in AutoModRule update: {Key} - this should be reported to library developers",
@@ -738,10 +758,10 @@ internal static class AuditLogParser
                     {
                         Before =
                             change.OldValue != null
-                                ? (ScheduledGuildEventPrivacyLevel) change.OldValueLong
+                                ? (ScheduledGuildEventPrivacyLevel)change.OldValueLong
                                 : null,
                         After = change.NewValue != null
-                            ? (ScheduledGuildEventPrivacyLevel) change.NewValueLong
+                            ? (ScheduledGuildEventPrivacyLevel)change.NewValueLong
                             : null
                     };
                     break;
@@ -750,10 +770,10 @@ internal static class AuditLogParser
                     eventEntry.Status = new PropertyChange<ScheduledGuildEventStatus?>
                     {
                         Before = change.OldValue != null
-                            ? (ScheduledGuildEventStatus) change.OldValueLong
+                            ? (ScheduledGuildEventStatus)change.OldValueLong
                             : null,
                         After = change.NewValue != null
-                            ? (ScheduledGuildEventStatus) change.NewValueLong
+                            ? (ScheduledGuildEventStatus)change.NewValueLong
                             : null
                     };
                     break;
@@ -903,15 +923,15 @@ internal static class AuditLogParser
                 case "explicit_content_filter":
                     guildEntry.ExplicitContentFilterChange = new PropertyChange<ExplicitContentFilter>
                     {
-                        Before = (ExplicitContentFilter) change.OldValueLong,
-                        After = (ExplicitContentFilter) change.NewValueLong
+                        Before = (ExplicitContentFilter)change.OldValueLong,
+                        After = (ExplicitContentFilter)change.NewValueLong
                     };
                     break;
 
                 case "mfa_level":
                     guildEntry.MfaLevelChange = new PropertyChange<MfaLevel>
                     {
-                        Before = (MfaLevel) change.OldValueLong, After = (MfaLevel) change.NewValueLong
+                        Before = (MfaLevel)change.OldValueLong, After = (MfaLevel)change.NewValueLong
                     };
                     break;
 

@@ -669,31 +669,101 @@ public sealed class DiscordAuditLogThreadEventEntry : DiscordAuditLogEntry
 
 public sealed class DiscordAuditLogApplicationCommandPermissionEntry : DiscordAuditLogEntry
 {
+    /// <summary>
+    /// Id of the application command that was changed
+    /// </summary>
     public ulong? ApplicationCommandId { get; internal set; }
+    
+    /// <summary>
+    /// Id of the application that owns the command
+    /// </summary>
     public ulong ApplicationId { get; internal set; }
+    
+    /// <summary>
+    /// Permissions changed
+    /// </summary>
     public IEnumerable<PropertyChange<DiscordApplicationCommandPermission>> PermissionChanges { get; internal set; }
 }
 
 public sealed class DiscordAuditLogAutoModerationExecutedEntry : DiscordAuditLogEntry
 {
+    /// <summary>
+    /// Name of the rule that was executed
+    /// </summary>
     public string ResponsibleRule { get; internal set; }
+    
+    /// <summary>
+    /// User that was affected by the rule
+    /// </summary>
     public DiscordUser TargetUser { get; internal set; }
+    
+    /// <summary>
+    /// Type of the trigger that was executed
+    /// </summary>
     public RuleTriggerType RuleTriggerType { get; internal set; }
+    
+    /// <summary>
+    /// Channel where the rule was executed
+    /// </summary>
     public DiscordChannel Channel { get; internal set; }
 }
 
 public sealed class DiscordAuditLogAutoModerationRuleEntry : DiscordAuditLogEntry
 {
+    
+    /// <summary>
+    /// Id of the rule
+    /// </summary>
     public PropertyChange<ulong?> RuleId { get; internal set; }
+    
+    /// <summary>
+    /// Id of the guild where the rule was changed
+    /// </summary>
     public PropertyChange<ulong?> GuildId { get; internal set; }
+    
+    /// <summary>
+    /// Name of the rule
+    /// </summary>
     public PropertyChange<string?> Name { get; internal set; }
+    
+    /// <summary>
+    /// Id of the user that created the rule
+    /// </summary>
     public PropertyChange<ulong?> CreatorId { get; internal set; }
+    
+    /// <summary>
+    /// Indicates in what event context a rule should be checked.
+    /// </summary>
     public PropertyChange<RuleEventType?> EventType { get; internal set; }
+    
+    /// <summary>
+    /// Characterizes the type of content which can trigger the rule.
+    /// </summary>
     public PropertyChange<RuleTriggerType?> TriggerType { get; internal set; }
+    
+    /// <summary>
+    /// Additional data used to determine whether a rule should be triggered. 
+    /// </summary>
     public PropertyChange<DiscordRuleTriggerMetadata?> TriggerMetadata { get; internal set; }
+    
+    /// <summary>
+    /// Actions which will execute when the rule is triggered.
+    /// </summary>
     public PropertyChange<IEnumerable<DiscordAutoModerationAction>?> Actions { get; internal set; }
-    public PropertyChange<bool?> Enabled  { get; internal set; }
+    
+    /// <summary>
+    /// Whether the rule is enabled or not.
+    /// </summary>
+    public PropertyChange<bool?> Enabled { get; internal set; }
+    
+    /// <summary>
+    /// Roles that should not be affected by the rule
+    /// </summary>
     public PropertyChange<IEnumerable<DiscordRole>?> ExemptRoles { get; internal set; }
+    
+    /// <summary>
+    /// Channels that should not be affected by the rule
+    /// </summary>
     public PropertyChange<IEnumerable<DiscordChannel>?> ExemptChannels { get; internal set; }
 }
 
@@ -724,7 +794,7 @@ public enum AuditLogActionCategory
 }
 
 // below is taken from
-// https://github.com/Rapptz/discord.py/blob/rewrite/discord/enums.py#L125
+// https://discord.com/developers/docs/resources/audit-log#audit-log-entry-object-audit-log-events
 
 /// <summary>
 /// Represents type of the action that was taken in given audit log event.
