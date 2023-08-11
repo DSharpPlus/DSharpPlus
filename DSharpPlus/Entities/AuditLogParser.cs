@@ -40,22 +40,29 @@ internal static class AuditLogParser
         IEnumerable<DiscordWebhook> uniqueWebhooks = auditLog.Webhooks;
         IEnumerable<DiscordScheduledGuildEvent> uniqueScheduledEvents = auditLog.Events;
         IEnumerable<DiscordThreadChannel> uniqueThreads = auditLog.Threads;
-        Dictionary<ulong, DiscordWebhook> webhooks = uniqueWebhooks.ToDictionary(x => x.Id);
+        IDictionary<ulong, DiscordWebhook> webhooks = uniqueWebhooks.ToDictionary(x => x.Id);
 
-        //update event cache and create a dictionary for it 
-        Dictionary<ulong, DiscordScheduledGuildEvent> events = new();
+        //update event cache and create a dictionary for it
         foreach (DiscordScheduledGuildEvent discordEvent in uniqueScheduledEvents)
         {
+            if (guild._scheduledEvents.ContainsKey(discordEvent.Id))
+            {
+                continue;
+            }
             guild._scheduledEvents[discordEvent.Id] = discordEvent;
         }
-
-        events = guild._scheduledEvents.ToDictionary(x => x.Key, y => y.Value);
-
-        Dictionary<ulong, DiscordThreadChannel> threads = new();
-        if (uniqueThreads.Any())
+        IDictionary<ulong, DiscordScheduledGuildEvent> events = guild._scheduledEvents;
+        
+        foreach (DiscordThreadChannel thread in uniqueThreads)
         {
-            threads = uniqueThreads.ToDictionary(xa => xa.Id, xa => xa);
+            if (guild._threads.ContainsKey(thread.Id))
+            {
+                continue;
+            }
+            guild._threads[thread.Id] = thread;
         }
+        IDictionary<ulong, DiscordThreadChannel> threads = guild._threads;
+
 
         IEnumerable<DiscordMember>? discordMembers = users
             .Select(xau => guild._members != null && guild._members.TryGetValue(xau.Id, out DiscordMember? member)
