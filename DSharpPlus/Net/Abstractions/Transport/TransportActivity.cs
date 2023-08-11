@@ -141,6 +141,7 @@ namespace DSharpPlus.Net.Abstractions
                 return;
 
             this.Name = game.Name;
+            this.State = game.CustomStatus?.Name!;
             this.ActivityType = game.ActivityType;
             this.StreamUrl = game.StreamUrl;
         }
