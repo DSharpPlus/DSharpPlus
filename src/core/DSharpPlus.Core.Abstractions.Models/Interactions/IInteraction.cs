@@ -4,6 +4,8 @@
 
 using DSharpPlus.Entities;
 
+using OneOf;
+
 using Remora.Rest.Core;
 
 namespace DSharpPlus.Core.Abstractions.Models;
@@ -36,7 +38,7 @@ public interface IInteraction
     /// <summary>
     /// The data payload, depending on the <seealso cref="Type"/>.
     /// </summary>
-    public Optional<IInteractionData> Data { get; }
+    public Optional<OneOf<IApplicationCommandInteractionData, IMessageComponentInteractionData, IModalInteractionData>> Data { get; }
 
     /// <summary>
     /// The snowflake identifier of the guild this interaction was sent from, if applicable.

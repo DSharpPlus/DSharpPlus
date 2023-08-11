@@ -28,4 +28,7 @@ public sealed record ApplicationCommandInteractionDataOption : IApplicationComma
 
     /// <inheritdoc/>
     public Optional<IReadOnlyList<IApplicationCommandInteractionDataOption>> Options { get; init; }
+
+    /// <inheritdoc/>
+    public Optional<bool> Focused { get; init; }
 }

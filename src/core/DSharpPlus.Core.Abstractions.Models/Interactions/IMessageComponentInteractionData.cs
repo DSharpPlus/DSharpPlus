@@ -13,7 +13,7 @@ namespace DSharpPlus.Core.Abstractions.Models;
 /// <summary>
 /// Represents metadata for a message component interaction.
 /// </summary>
-public interface IMessageComponentInteractionData : IInteractionData
+public interface IMessageComponentInteractionData
 {
     /// <summary>
     /// The developer-defined ID of the component.

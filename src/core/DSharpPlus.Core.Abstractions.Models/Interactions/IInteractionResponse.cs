@@ -4,6 +4,8 @@
 
 using DSharpPlus.Entities;
 
+using OneOf;
+
 using Remora.Rest.Core;
 
 namespace DSharpPlus.Core.Abstractions.Models;
@@ -21,5 +23,5 @@ public interface IInteractionResponse
     /// <summary>
     /// An additional response message for this interaction.
     /// </summary>
-    public Optional<IInteractionCallbackData> Data { get; }
+    public Optional<OneOf<IAutocompleteCallbackData, IMessageCallbackData, IModalCallbackData>> Data { get; }
 }

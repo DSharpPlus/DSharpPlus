@@ -13,7 +13,7 @@ namespace DSharpPlus.Core.Abstractions.Models;
 /// <summary>
 /// Contains the interaction metadata for application commands.
 /// </summary>
-public interface IApplicationCommandInteractionData : IInteractionData
+public interface IApplicationCommandInteractionData
 {
     /// <summary>
     /// The snowflake identifier of the invoked command.

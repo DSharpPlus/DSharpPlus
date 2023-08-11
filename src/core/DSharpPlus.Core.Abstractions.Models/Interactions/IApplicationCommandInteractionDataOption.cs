@@ -37,4 +37,9 @@ public interface IApplicationCommandInteractionDataOption
     /// its subcommands.
     /// </summary>
     public Optional<IReadOnlyList<IApplicationCommandInteractionDataOption>> Options { get; }
+
+    /// <summary>
+    /// Indicates whether this option is currently focused for autocomplete.
+    /// </summary>
+    public Optional<bool> Focused { get; }
 }

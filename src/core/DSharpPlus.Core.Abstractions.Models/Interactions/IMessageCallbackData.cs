@@ -13,7 +13,7 @@ namespace DSharpPlus.Core.Abstractions.Models;
 /// <summary>
 /// Represents a response payload for creating or updating a message.
 /// </summary>
-public interface IMessageCallbackData : IInteractionCallbackData
+public interface IMessageCallbackData
 {
     /// <summary>
     /// Indicates whether the response is a TTS message.

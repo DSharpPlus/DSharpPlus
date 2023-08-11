@@ -4,6 +4,8 @@
 
 using DSharpPlus.Entities;
 
+using OneOf;
+
 using Remora.Rest.Core;
 
 using DSharpPlus.Core.Abstractions.Models;
@@ -23,7 +25,7 @@ public sealed record Interaction : IInteraction
     public required DiscordInteractionType Type { get; init; }
 
     /// <inheritdoc/>
-    public Optional<IInteractionData> Data { get; init; }
+    public Optional<OneOf<IApplicationCommandInteractionData, IMessageComponentInteractionData, IModalInteractionData>> Data { get; init; }
 
     /// <inheritdoc/>
     public Optional<Snowflake> GuildId { get; init; }

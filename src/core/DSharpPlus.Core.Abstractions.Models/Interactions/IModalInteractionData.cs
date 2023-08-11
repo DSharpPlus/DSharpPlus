@@ -9,7 +9,7 @@ namespace DSharpPlus.Core.Abstractions.Models;
 /// <summary>
 /// Contains metadata for a modal submission interaction.
 /// </summary>
-public interface IModalInteractionData : IInteractionData
+public interface IModalInteractionData
 {
     /// <summary>
     /// The developer-defined ID of this modal.

@@ -4,6 +4,8 @@
 
 using DSharpPlus.Entities;
 
+using OneOf;
+
 using Remora.Rest.Core;
 
 using DSharpPlus.Core.Abstractions.Models;
@@ -17,5 +19,5 @@ public sealed record InteractionResponse : IInteractionResponse
     public required DiscordInteractionCallbackType Type { get; init; }
 
     /// <inheritdoc/>
-    public Optional<IInteractionCallbackData> Data { get; init; }
+    public Optional<OneOf<IAutocompleteCallbackData, IMessageCallbackData, IModalCallbackData>> Data { get; init; }
 }
