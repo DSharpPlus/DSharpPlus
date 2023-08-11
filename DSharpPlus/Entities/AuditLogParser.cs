@@ -22,9 +22,9 @@ internal static class AuditLogParser
     )
     {
         //Get all User
-        DiscordUser[] users = auditLog.Users.ToArray();
+        IEnumerable<DiscordUser> users = auditLog.Users;
 
-        //Update cache
+        //Update cache if user is not known
         foreach (DiscordUser discordUser in users)
         {
             discordUser.Discord = client;
@@ -37,12 +37,9 @@ internal static class AuditLogParser
         }
 
         //get unique webhooks, scheduledEvents, threads
-        DiscordWebhook[] uniqueWebhooks = auditLog.Webhooks.ToArray();
-
-        DiscordScheduledGuildEvent[] uniqueScheduledEvents = auditLog.Events.ToArray();
-
-        DiscordThreadChannel[] uniqueThreads = auditLog.Threads.ToArray();
-
+        IEnumerable<DiscordWebhook> uniqueWebhooks = auditLog.Webhooks;
+        IEnumerable<DiscordScheduledGuildEvent> uniqueScheduledEvents = auditLog.Events;
+        IEnumerable<DiscordThreadChannel> uniqueThreads = auditLog.Threads;
         Dictionary<ulong, DiscordWebhook> webhooks = uniqueWebhooks.ToDictionary(x => x.Id);
 
         //update event cache and create a dictionary for it 
@@ -115,11 +112,7 @@ internal static class AuditLogParser
         
         webhooks ??= new Dictionary<ulong, DiscordWebhook>();
 
-        DiscordAuditLogEntry entry = null;
-        ulong ulongBefore, ulongAfter;
-        int intBefore, intAfter;
-        long longBefore, longAfter;
-        bool boolBefore, boolAfter;
+        DiscordAuditLogEntry? entry = null;
         switch (auditLogAction.ActionType)
         {
             case AuditLogActionType.GuildUpdate:
@@ -435,17 +428,22 @@ internal static class AuditLogParser
             AuditLogActionType.ChannelCreate or AuditLogActionType.EmojiCreate or AuditLogActionType.InviteCreate
                 or AuditLogActionType.OverwriteCreate or AuditLogActionType.RoleCreate
                 or AuditLogActionType.WebhookCreate or AuditLogActionType.IntegrationCreate
-                or AuditLogActionType.StickerCreate => AuditLogActionCategory.Create,
+                or AuditLogActionType.StickerCreate
+                or AuditLogActionType.AutoModerationRuleCreate => AuditLogActionCategory.Create,
+            
             AuditLogActionType.ChannelDelete or AuditLogActionType.EmojiDelete or AuditLogActionType.InviteDelete
                 or AuditLogActionType.MessageDelete or AuditLogActionType.MessageBulkDelete
                 or AuditLogActionType.OverwriteDelete or AuditLogActionType.RoleDelete
                 or AuditLogActionType.WebhookDelete or AuditLogActionType.IntegrationDelete
-                or AuditLogActionType.StickerDelete => AuditLogActionCategory.Delete,
+                or AuditLogActionType.StickerDelete
+                or AuditLogActionType.AutoModerationRuleDelete => AuditLogActionCategory.Delete,
+            
             AuditLogActionType.ChannelUpdate or AuditLogActionType.EmojiUpdate or AuditLogActionType.InviteUpdate
                 or AuditLogActionType.MemberRoleUpdate or AuditLogActionType.MemberUpdate
                 or AuditLogActionType.OverwriteUpdate or AuditLogActionType.RoleUpdate
                 or AuditLogActionType.WebhookUpdate or AuditLogActionType.IntegrationUpdate
-                or AuditLogActionType.StickerUpdate => AuditLogActionCategory.Update,
+                or AuditLogActionType.StickerUpdate
+                or AuditLogActionType.AutoModerationRuleUpdate => AuditLogActionCategory.Update,
             _ => AuditLogActionCategory.Other,
         };
         entry.ActionType = auditLogAction.ActionType;
@@ -536,10 +534,10 @@ internal static class AuditLogParser
                     break;
                 
                 case "actions":
-                    ruleEntry.Actions = new PropertyChange<IReadOnlyList<DiscordAutoModerationAction>>
+                    ruleEntry.Actions = new PropertyChange<IEnumerable<DiscordAutoModerationAction>>
                     {
-                        Before = change.OldValue != null ? ((JObject) change.OldValues).ToDiscordObject<List<DiscordAutoModerationAction>>() : null,
-                        After = change.NewValue != null ? ((JObject) change.NewValues).ToDiscordObject<List<DiscordAutoModerationAction>>() : null
+                        Before = change.OldValue != null ? change.OldValues.Select(x => x.ToDiscordObject<DiscordAutoModerationAction>()) : null,
+                        After = change.NewValue != null ? change.NewValues.Select(x => x.ToDiscordObject<DiscordAutoModerationAction>()) : null
                     };
                     break;
                 
@@ -552,19 +550,25 @@ internal static class AuditLogParser
                     break;
                 
                 case "exempt_roles":
-                    ruleEntry.ExemptRoles = new PropertyChange<IReadOnlyList<ulong>>
+                    ruleEntry.ExemptRoles = new PropertyChange<IEnumerable<DiscordRole>>
                     {
-                        Before = change.OldValue != null ? ((JArray) change.OldValues).ToObject<ulong[]>() : null,
-                        After = change.NewValue != null ? ((JArray) change.NewValues).ToObject<ulong[]>() : null
+                        Before = change.OldValue != null ? change.OldValues.Select(xo => (ulong)xo["id"]).Select(guild.GetRole) : null,
+                        After = change.NewValue != null ? change.NewValues.Select(xo => (ulong)xo["id"]).Select(guild.GetRole) : null
                     };
                     break;
                 
                 case "exempt_channels":
-                    ruleEntry.ExemptChannels = new PropertyChange<IReadOnlyList<ulong>>
+                    ruleEntry.ExemptChannels = new PropertyChange<IEnumerable<DiscordChannel>>
                     {
-                        Before = change.OldValue != null ? ((JArray) change.OldValues).ToObject<ulong[]>() : null,
-                        After = change.NewValue != null ? ((JArray) change.NewValues).ToObject<ulong[]>() : null
+                        Before = change.OldValue != null ? change.OldValues.Select(xo => (ulong)xo["id"]).Select(guild.GetChannel) : null,
+                        After = change.NewValue != null ? change.NewValues.Select(xo => (ulong)xo["id"]).Select(guild.GetChannel) : null
                     };
+                    break;
+                
+                default:
+                    guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
+                        "Unknown key in AutoModRule update: {Key} - this should be reported to library developers",
+                        change.Key);
                     break;
             }
         }

@@ -691,10 +691,10 @@ public sealed class DiscordAuditLogAutoModerationRuleEntry : DiscordAuditLogEntr
     public PropertyChange<RuleEventType?> EventType { get; internal set; }
     public PropertyChange<RuleTriggerType?> TriggerType { get; internal set; }
     public PropertyChange<DiscordRuleTriggerMetadata?> TriggerMetadata { get; internal set; }
-    public PropertyChange<IReadOnlyList<DiscordAutoModerationAction>?> Actions { get; internal set; }
+    public PropertyChange<IEnumerable<DiscordAutoModerationAction>?> Actions { get; internal set; }
     public PropertyChange<bool?> Enabled  { get; internal set; }
-    public PropertyChange<IReadOnlyList<DiscordMember>?> ExemptRoles { get; internal set; }
-    public PropertyChange<IReadOnlyList<DiscordChannel>?> ExemptChannels { get; internal set; }
+    public PropertyChange<IEnumerable<DiscordRole>?> ExemptRoles { get; internal set; }
+    public PropertyChange<IEnumerable<DiscordChannel>?> ExemptChannels { get; internal set; }
 }
 
 /// <summary>
