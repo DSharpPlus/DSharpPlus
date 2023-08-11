@@ -1222,12 +1222,12 @@ namespace DSharpPlus
             await this._guildIntegrationsUpdated.InvokeAsync(this, ea);
         }
         
-        private async Task OnGuildAuditLogEntryCreateEventAsync(DiscordGuild guild, DiscordAuditLogEntry toDiscordObject)
+        private async Task OnGuildAuditLogEntryCreateEventAsync(DiscordGuild guild, DiscordAuditLogEntry auditLogEntry)
         {
             GuildAuditLogCreatedEventArgs ea = new()
             {
                 Guild = guild,
-                AuditLogEntry = toDiscordObject
+                AuditLogEntry = auditLogEntry
             };
             await _guildAuditLogCreated.InvokeAsync(this, ea);
         }
