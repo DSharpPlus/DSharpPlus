@@ -57,17 +57,17 @@ public abstract class DiscordAuditLogEntry : SnowflakeObject
 /// Represents a description of how a property changed.
 /// </summary>
 /// <typeparam name="T">Type of the changed property.</typeparam>
-public struct PropertyChange<T>
+public readonly record struct PropertyChange<T>
 {
     /// <summary>
     /// The property's value before it was changed.
     /// </summary>
-    public T Before { get; internal set; }
+    public T Before { get; internal init; }
 
     /// <summary>
     /// The property's value after it was changed.
     /// </summary>
-    public T After { get; internal set; }
+    public T After { get; internal init; }
 }
 
 public sealed class DiscordAuditLogGuildEntry : DiscordAuditLogEntry
