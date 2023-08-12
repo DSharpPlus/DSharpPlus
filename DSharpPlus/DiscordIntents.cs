@@ -83,7 +83,7 @@ namespace DSharpPlus
         /// Whether to include guild ban events.
         /// <para>These include <see cref="DiscordClient.GuildBanAdded"/>, and <see cref="DiscordClient.GuildBanRemoved"/>.</para>
         /// </summary>
-        GuildModeration = 1 << 2,
+        GuildBans = 1 << 2,
 
         /// <summary>
         /// Whether to include guild emoji events.
