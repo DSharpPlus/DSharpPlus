@@ -177,12 +177,12 @@ public enum DiscordIntents
     ScheduledGuildEvents = 1 << 16,
 
     /// <summary>
-    /// Whetever to include creation, modification or deletion of an auto-Moderation rule.
+    /// Whether to include creation, modification or deletion of an auto-Moderation rule.
     /// </summary>
     AutoModerationEvents = 1 << 20,
 
     /// <summary>
-    /// Whetever to include when an auto-moderation rule was fired.
+    /// Whether to include when an auto-moderation rule was fired.
     /// </summary>
     AutoModerationExecution = 1 << 21,
 
