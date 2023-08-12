@@ -42,15 +42,19 @@ namespace DSharpPlus.Entities
         public string EmojiName { get; internal set; }
         
         /// <summary>
-        /// Creates a DefaultReaction object from an emoji.
+        /// Constructs a new DefaultReaction from an emoji.
         /// </summary>
         /// <param name="emoji">The <see cref="DiscordEmoji"/>.</param>
-        /// <returns>Create <see cref="DefaultReaction"/> object.</returns>
-        public static DefaultReaction FromEmoji(DiscordEmoji emoji)
+        public DefaultReaction(DiscordEmoji emoji)
         {
-            return emoji.Id == 0
-                ? new DefaultReaction { EmojiName = emoji.Name }
-                : new DefaultReaction { EmojiId = emoji.Id };
+            if (emoji.Id == 0)
+            {
+                EmojiName = emoji.Name;
+            }
+            else
+            {
+                EmojiId = emoji.Id;
+            }
         }
     }
 }
