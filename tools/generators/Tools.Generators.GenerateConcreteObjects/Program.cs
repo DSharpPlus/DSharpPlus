@@ -32,14 +32,21 @@ public static class Program
             AnsiConsole.MarkupLine
             (
                 """
-                DSharpPlus Concrete API Object Generator, v0.1.0
+                [plum1]DSharpPlus Concrete API Object Generator, v0.1.0[/]
 
-                  [plum1]Usage: generate-concrete-objects path/to/abstractions/root output/path[/]
+                  Usage: generate-concrete-objects path/to/abstractions/root output/path
                 """
             );
 
             return 0;
         }
+
+        AnsiConsole.MarkupLine
+        (
+            """
+            [plum1]DSharpPlus Concrete API Object Generator, v0.1.0[/]
+            """
+        );
 
         string input, output;
 
@@ -94,26 +101,32 @@ public static class Program
             (
                 $"""
                 {changes.Added.Count()} added, {changes.Modified.Count()} modified, {changes.Removed.Count()} removed.
-                Generating concrete objects...
                 """
             );
         }
 
-        AnsiConsole.MarkupLine
-        (
-            """
-            Deleting counterparts to removed files...
-            """
-        );
+        if (changes.Removed.Any())
+        {
+            AnsiConsole.MarkupLine
+            (
+                """
+                Deleting counterparts to removed files...
+                """
+            );
+        }
 
         foreach (string path in changes.Removed)
         {
-            string deletePath = string.Concat(output, path.AsSpan(input.Length));
+            FileInfo file = new(path);
+            string fullPath = file.FullName.Replace('\\', '/');
+
+            int index = fullPath.LastIndexOf("/");
+            string deletePath = fullPath.Remove(index + 1, 1).Replace(input, output);
 
             AnsiConsole.MarkupLine
             (
                 $"""
-                  Deleting '{deletePath.Replace('\\', '/')}'
+                  Deleting '{deletePath}'
                 """
             );
 
@@ -123,12 +136,15 @@ public static class Program
             }
         }
 
-        AnsiConsole.MarkupLine
-        (
-            """
-            Generating objects for modified/new definitions...
-            """
-        );
+        if (changes.Added.Any() || changes.Modified.Any())
+        {
+            AnsiConsole.MarkupLine
+            (
+                """
+                Generating objects for modified/new definitions...
+                """
+            );
+        }
 
         IEnumerable<string> added = changes.Added.Select
         (

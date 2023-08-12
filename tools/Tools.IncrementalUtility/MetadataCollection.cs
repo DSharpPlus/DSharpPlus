@@ -79,9 +79,13 @@ public sealed class MetadataCollection
             name => !oldHashes.ContainsKey(name)
         );
 
-        IEnumerable<string> removed = files.Where
+        IEnumerable<string> removed = oldHashes.Where
         (
-            name => oldHashes.ContainsKey(name) && !this.hashes.ContainsKey(name)
+            candidate => !this.hashes.ContainsKey(candidate.Key)
+        )
+        .Select
+        (
+            kvp => kvp.Key
         );
 
         IEnumerable<string> modified = files.Where
