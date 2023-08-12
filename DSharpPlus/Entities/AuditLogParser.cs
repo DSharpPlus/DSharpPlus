@@ -234,9 +234,12 @@ internal static class AuditLogParser
                             break;
 
                         default:
-                            guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
-                                "Unknown key in emote update: {Key} - this should be reported to library developers",
-                                actionChange.Key);
+                            if (guild.Discord.Configuration.LogUnknownAuditlogs)
+                            {
+                                guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
+                                    "Unknown key in emote update: {Key} - this should be reported to library developers",
+                                    actionChange.Key);
+                            }
                             break;
                     }
                 }
@@ -436,9 +439,12 @@ internal static class AuditLogParser
                 break;
 
             default:
-                guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
-                    "Unknown audit log action type: {0} - this should be reported to library developers",
-                    (int)auditLogAction.ActionType);
+                if (guild.Discord.Configuration.LogUnknownAuditlogs)
+                {
+                    guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
+                        "Unknown audit log action type: {0} - this should be reported to library developers",
+                        (int)auditLogAction.ActionType);
+                }
                 break;
         }
 
@@ -616,9 +622,12 @@ internal static class AuditLogParser
                     break;
 
                 default:
-                    guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
-                        "Unknown key in AutoModRule update: {Key} - this should be reported to library developers",
-                        change.Key);
+                    if (guild.Discord.Configuration.LogUnknownAuditlogs)
+                    {
+                        guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
+                            "Unknown key in AutoModRule update: {Key} - this should be reported to library developers",
+                            change.Key);
+                    }
                     break;
             }
         }
@@ -706,9 +715,12 @@ internal static class AuditLogParser
                     break;
 
                 default:
-                    guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
-                        "Unknown key in thread update: {Key} - this should be reported to library developers",
-                        change.Key);
+                    if (guild.Discord.Configuration.LogUnknownAuditlogs)
+                    {
+                        guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
+                            "Unknown key in thread update: {Key} - this should be reported to library developers",
+                            change.Key);
+                    }
                     break;
             }
         }
@@ -820,9 +832,12 @@ internal static class AuditLogParser
                     break;
 
                 default:
-                    guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
-                        "Unknown key in scheduled event update: {Key} - this should be reported to library developers",
-                        change.Key);
+                    if (guild.Discord.Configuration.LogUnknownAuditlogs)
+                    {
+                        guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
+                            "Unknown key in scheduled event update: {Key} - this should be reported to library developers",
+                            change.Key);
+                    }
                     break;
             }
         }
@@ -989,9 +1004,12 @@ internal static class AuditLogParser
                     break;
 
                 default:
-                    guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
-                        "Unknown key in guild update: {Key} - this should be reported to library developers",
-                        change.Key);
+                    if (guild.Discord.Configuration.LogUnknownAuditlogs)
+                    {
+                        guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
+                            "Unknown key in guild update: {Key} - this should be reported to library developers",
+                            change.Key);
+                    }
                     break;
             }
         }
@@ -1099,9 +1117,12 @@ internal static class AuditLogParser
                     break;
 
                 default:
-                    guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
-                        "Unknown key in channel update: {Key} - this should be reported to library developers",
-                        change.Key);
+                    if (guild.Discord.Configuration.LogUnknownAuditlogs)
+                    {
+                        guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
+                            "Unknown key in channel update: {Key} - this should be reported to library developers",
+                            change.Key);
+                    }
                     break;
             }
         }
@@ -1180,9 +1201,12 @@ internal static class AuditLogParser
                     break;
 
                 default:
-                    guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
-                        "Unknown key in overwrite update: {Key} - this should be reported to library developers",
-                        xc.Key);
+                    if (guild.Discord.Configuration.LogUnknownAuditlogs)
+                    {
+                        guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
+                            "Unknown key in overwrite update: {Key} - this should be reported to library developers",
+                            xc.Key);
+                    }
                     break;
             }
         }
@@ -1252,8 +1276,12 @@ internal static class AuditLogParser
                     break;
 
                 default:
-                    guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
-                        "Unknown key in member update: {Key} - this should be reported to library developers", xc.Key);
+                    if (guild.Discord.Configuration.LogUnknownAuditlogs)
+                    {
+                        guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
+                            "Unknown key in member update: {Key} - this should be reported to library developers",
+                            xc.Key);
+                    }
                     break;
             }
         }
@@ -1335,9 +1363,12 @@ internal static class AuditLogParser
                     break;
 
                 default:
-                    guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
-                        "Unknown key in role update: {Key} - this should be reported to library developers",
-                        change.Key);
+                    if (guild.Discord.Configuration.LogUnknownAuditlogs)
+                    {
+                        guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
+                            "Unknown key in role update: {Key} - this should be reported to library developers",
+                            change.Key);
+                    }
                     break;
             }
         }
@@ -1481,9 +1512,12 @@ internal static class AuditLogParser
                     break;
 
                 default:
-                    guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
-                        "Unknown key in invite update: {Key} - this should be reported to library developers",
-                        change.Key);
+                    if (guild.Discord.Configuration.LogUnknownAuditlogs)
+                    {
+                        guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
+                            "Unknown key in invite update: {Key} - this should be reported to library developers",
+                            change.Key);
+                    }
                     break;
             }
         }
@@ -1580,9 +1614,12 @@ internal static class AuditLogParser
 
 
                 default:
-                    guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
-                        "Unknown key in webhook update: {Key} - this should be reported to library developers",
-                        actionChange.Key);
+                    if (guild.Discord.Configuration.LogUnknownAuditlogs)
+                    {
+                        guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
+                            "Unknown key in webhook update: {Key} - this should be reported to library developers",
+                            actionChange.Key);
+                    }
                     break;
             }
         }
@@ -1683,9 +1720,12 @@ internal static class AuditLogParser
                     break;
 
                 default:
-                    guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
-                        "Unknown key in sticker update: {Key} - this should be reported to library developers",
-                        actionChange.Key);
+                    if (guild.Discord.Configuration.LogUnknownAuditlogs)
+                    {
+                        guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
+                            "Unknown key in sticker update: {Key} - this should be reported to library developers",
+                            actionChange.Key);
+                    }
                     break;
             }
         }
@@ -1727,9 +1767,12 @@ internal static class AuditLogParser
                     break;
 
                 default:
-                    guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
-                        "Unknown key in integration update: {Key} - this should be reported to library developers",
-                        change.Key);
+                    if (guild.Discord.Configuration.LogUnknownAuditlogs)
+                    {
+                        guild.Discord.Logger.LogWarning(LoggerEvents.AuditLog,
+                            "Unknown key in integration update: {Key} - this should be reported to library developers",
+                            change.Key);
+                    }
                     break;
             }
         }
