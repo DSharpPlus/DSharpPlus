@@ -40,5 +40,21 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("emoji_name")]
         public string EmojiName { get; internal set; }
+        
+        /// <summary>
+        /// Constructs a new DefaultReaction from an emoji.
+        /// </summary>
+        /// <param name="emoji">The <see cref="DiscordEmoji"/>.</param>
+        public DefaultReaction(DiscordEmoji emoji)
+        {
+            if (emoji.Id == 0)
+            {
+                EmojiName = emoji.Name;
+            }
+            else
+            {
+                EmojiId = emoji.Id;
+            }
+        }
     }
 }
