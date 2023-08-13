@@ -463,22 +463,7 @@ namespace DSharpPlus
                     cid = (ulong)dat["channel_id"];
                     await this.OnInteractionCreateAsync((ulong?)dat["guild_id"], cid, usr, mbr, dat.ToDiscordObject<DiscordInteraction>());
                     break;
-
-                case "application_command_create":
-                    await this.OnApplicationCommandCreateAsync(dat.ToDiscordObject<DiscordApplicationCommand>(), (ulong?)dat["guild_id"]);
-                    break;
-
-                case "application_command_update":
-                    await this.OnApplicationCommandUpdateAsync(dat.ToDiscordObject<DiscordApplicationCommand>(), (ulong?)dat["guild_id"]);
-                    break;
-
-                case "application_command_permissions_update":
-                    await this.OnApplicationCommandPermissionsUpdateAsync(dat);
-                    break;
-
-                case "application_command_delete":
-                    await this.OnApplicationCommandDeleteAsync(dat.ToDiscordObject<DiscordApplicationCommand>(), (ulong?)dat["guild_id"]);
-                    break;
+                
 
                 case "integration_create":
                     await this.OnIntegrationCreateAsync(dat.ToDiscordObject<DiscordIntegration>(), (ulong)dat["guild_id"]);
@@ -2257,89 +2242,8 @@ namespace DSharpPlus
         }
 
         #endregion
+        
 
-        #region Commands
-
-        internal async Task OnApplicationCommandCreateAsync(DiscordApplicationCommand cmd, ulong? guild_id)
-        {
-            cmd.Discord = this;
-
-            var guild = this.InternalGetCachedGuild(guild_id);
-
-            if (guild == null && guild_id.HasValue)
-            {
-                guild = new DiscordGuild
-                {
-                    Id = guild_id.Value,
-                    Discord = this
-                };
-            }
-
-            var ea = new ApplicationCommandEventArgs
-            {
-                Guild = guild,
-                Command = cmd
-            };
-
-            await this._applicationCommandCreated.InvokeAsync(this, ea);
-        }
-
-        internal async Task OnApplicationCommandUpdateAsync(DiscordApplicationCommand cmd, ulong? guild_id)
-        {
-            cmd.Discord = this;
-
-            var guild = this.InternalGetCachedGuild(guild_id);
-
-            if (guild == null && guild_id.HasValue)
-            {
-                guild = new DiscordGuild
-                {
-                    Id = guild_id.Value,
-                    Discord = this
-                };
-            }
-
-            var ea = new ApplicationCommandEventArgs
-            {
-                Guild = guild,
-                Command = cmd
-            };
-
-            await this._applicationCommandUpdated.InvokeAsync(this, ea);
-        }
-
-        internal async Task OnApplicationCommandPermissionsUpdateAsync(JObject obj)
-        {
-            var ev = obj.ToObject<ApplicationCommandPermissionsUpdatedEventArgs>();
-
-            await this._applicationCommandPermissionsUpdated.InvokeAsync(this, ev);
-        }
-
-        internal async Task OnApplicationCommandDeleteAsync(DiscordApplicationCommand cmd, ulong? guild_id)
-        {
-            cmd.Discord = this;
-
-            var guild = this.InternalGetCachedGuild(guild_id);
-
-            if (guild == null && guild_id.HasValue)
-            {
-                guild = new DiscordGuild
-                {
-                    Id = guild_id.Value,
-                    Discord = this
-                };
-            }
-
-            var ea = new ApplicationCommandEventArgs
-            {
-                Guild = guild,
-                Command = cmd
-            };
-
-            await this._applicationCommandDeleted.InvokeAsync(this, ea);
-        }
-
-        #endregion
 
         #region Integration
 
