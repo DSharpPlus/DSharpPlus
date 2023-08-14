@@ -418,6 +418,8 @@ internal static class AuditLogParser
                     permissionEntry.ApplicationCommandId = auditLogAction.TargetId;
                 }
 
+                permissionEntry.PermissionChanges = new List<PropertyChange<DiscordApplicationCommandPermission>>();
+                
                 foreach (AuditLogActionChange change in auditLogAction.Changes)
                 {
                     DiscordApplicationCommandPermission? oldValue = ((JObject?)change
