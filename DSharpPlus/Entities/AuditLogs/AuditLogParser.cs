@@ -1185,7 +1185,7 @@ internal static class AuditLogParser
                     boolAfter = ulong.TryParse(xc.OldValue as string, NumberStyles.Integer,
                         CultureInfo.InvariantCulture, out ulongAfter);
 
-                    entry.DenyChange = new()
+                    entry.DeniedPermissions = new()
                     {
                         Before = boolBefore ? (Permissions?)ulongBefore : null,
                         After = boolAfter ? (Permissions?)ulongAfter : null
@@ -1198,17 +1198,17 @@ internal static class AuditLogParser
                     boolAfter = ulong.TryParse(xc.OldValue as string, NumberStyles.Integer,
                         CultureInfo.InvariantCulture, out ulongAfter);
 
-                    entry.AllowChange = new PropertyChange<Permissions?>
+                    entry.AllowedPermissions = new PropertyChange<Permissions?>
                     {
-                        Before = boolBefore ? (Permissions?)ulongBefore : null,
-                        After = boolAfter ? (Permissions?)ulongAfter : null
+                        Before = boolBefore ? (Permissions?) ulongBefore : null,
+                        After = boolAfter ? (Permissions?) ulongAfter : null
                     };
                     break;
 
                 case "type":
-                    entry.TypeChange = new PropertyChange<string>
+                    entry.Type = new PropertyChange<OverwriteType>
                     {
-                        Before = xc.OldValueString, After = xc.NewValueString
+                        Before = (OverwriteType) xc.OldValueLong, After = (OverwriteType) xc.NewValueLong
                     };
                     break;
 

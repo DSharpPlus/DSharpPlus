@@ -38,17 +38,17 @@ public sealed class DiscordAuditLogOverwriteEntry : DiscordAuditLogEntry
     /// <summary>
     /// Gets the description of overwrite's allow value change.
     /// </summary>
-    public PropertyChange<Permissions?> AllowChange { get; internal set; }
+    public PropertyChange<Permissions?> AllowedPermissions { get; internal set; }
 
     /// <summary>
     /// Gets the description of overwrite's deny value change.
     /// </summary>
-    public PropertyChange<Permissions?> DenyChange { get; internal set; }
+    public PropertyChange<Permissions?> DeniedPermissions { get; internal set; }
 
     /// <summary>
     /// Gets the description of overwrite's type change.
     /// </summary>
-    public PropertyChange<string> TypeChange { get; internal set; }
+    public PropertyChange<OverwriteType> Type { get; internal set; }
 
     /// <summary>
     /// Gets the description of overwrite's target id change.
