@@ -1018,7 +1018,19 @@ namespace DSharpPlus.SlashCommands
                         if (DiscordEmoji.TryFromUnicode(this.Client, value, out var emoji) || DiscordEmoji.TryFromName(this.Client, value, out emoji))
                             args.Add(emoji);
                         else
-                            throw new ArgumentException("Error parsing emoji parameter.");
+                        {
+                            //try regex <:EmojiName:EmojiId>
+                            const string regex = @"<:[^:]+:(\d+)>";
+                            var match = Regex.Match(value, regex);
+                            if (match.Success && ulong.TryParse(match.Groups[1].Value, out var emojiId) && DiscordEmoji.TryFromGuildEmote(this.Client, emojiId, out emoji))
+                            {
+                                args.Add(emoji);
+                            }
+                            else
+                            {
+                                throw new ArgumentException("Error parsing emoji parameter.");
+                            }
+                        }
                     }
                     else if (parameter.ParameterType == typeof(DiscordAttachment))
                     {
