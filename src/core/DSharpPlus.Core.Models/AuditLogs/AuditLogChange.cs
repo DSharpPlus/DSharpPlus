@@ -4,6 +4,8 @@
 
 using System.Text.Json;
 
+using Remora.Rest.Core;
+
 using DSharpPlus.Core.Abstractions.Models;
 
 namespace DSharpPlus.Core.Models;
@@ -12,10 +14,10 @@ namespace DSharpPlus.Core.Models;
 public sealed record AuditLogChange : IAuditLogChange
 {
     /// <inheritdoc/>
-    public required JsonElement NewValue { get; init; }
+    public Optional<JsonElement> NewValue { get; init; }
 
     /// <inheritdoc/>
-    public required JsonElement OldValue { get; init; }
+    public Optional<JsonElement> OldValue { get; init; }
 
     /// <inheritdoc/>
     public required string Key { get; init; }

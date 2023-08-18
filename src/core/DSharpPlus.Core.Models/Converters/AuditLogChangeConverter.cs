@@ -8,6 +8,8 @@ using System.Text.Json.Serialization;
 
 using DSharpPlus.Core.Abstractions.Models;
 
+using Remora.Rest.Core;
+
 namespace DSharpPlus.Core.Models.Converters;
 
 /// <summary>
@@ -32,14 +34,20 @@ public class AuditLogChangeConverter : JsonConverter<IAuditLogChange>
         (
             !JsonDocument.TryParseValue(ref reader, out JsonDocument? document)
             || document.RootElement.TryGetProperty("key", out JsonElement propertyKey)
-            || document.RootElement.TryGetProperty("new_value", out JsonElement newProperty)
-            || document.RootElement.TryGetProperty("old_value", out JsonElement oldProperty)
         )
         {
             throw new JsonException("The provided JSON object was malformed.");
         }
 
         string key = propertyKey.GetString()!;
+
+        Optional<JsonElement> newProperty = document.RootElement.TryGetProperty("new_value", out JsonElement value)
+            ? value
+            : new Optional<JsonElement>();
+
+        Optional<JsonElement> oldProperty = document.RootElement.TryGetProperty("old_value", out JsonElement oldValue)
+            ? oldValue
+            : new Optional<JsonElement>();
 
         return new AuditLogChange
         {
@@ -62,11 +70,17 @@ public class AuditLogChangeConverter : JsonConverter<IAuditLogChange>
         writer.WritePropertyName("key");
         writer.WriteStringValue(value.Key);
 
-        writer.WritePropertyName("new_value");
-        value.NewValue.WriteTo(writer);
+        if (value.NewValue.IsDefined(out JsonElement newValue))
+        {
+            writer.WritePropertyName("new_value");
+            newValue.WriteTo(writer);
+        }
 
-        writer.WritePropertyName("old_value");
-        value.OldValue.WriteTo(writer);
+        if (value.OldValue.IsDefined(out JsonElement oldValue))
+        {
+            writer.WritePropertyName("old_value");
+            oldValue.WriteTo(writer);
+        }
 
         writer.WriteEndObject();
     }
