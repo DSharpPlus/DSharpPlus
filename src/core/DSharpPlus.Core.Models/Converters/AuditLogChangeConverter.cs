@@ -70,13 +70,13 @@ public class AuditLogChangeConverter : JsonConverter<IAuditLogChange>
         writer.WritePropertyName("key");
         writer.WriteStringValue(value.Key);
 
-        if (value.NewValue.IsDefined(out JsonElement newValue))
+        if (value.NewValue.TryGet(out JsonElement newValue))
         {
             writer.WritePropertyName("new_value");
             newValue.WriteTo(writer);
         }
 
-        if (value.OldValue.IsDefined(out JsonElement oldValue))
+        if (value.OldValue.TryGet(out JsonElement oldValue))
         {
             writer.WritePropertyName("old_value");
             oldValue.WriteTo(writer);
