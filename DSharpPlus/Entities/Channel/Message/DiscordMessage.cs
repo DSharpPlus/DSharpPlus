@@ -388,14 +388,12 @@ namespace DSharpPlus.Entities
             this._mentionedRoles ??= new List<DiscordRole>();
             this._mentionedChannels ??= new List<DiscordChannel>();
 
-            var mentionedUsers = new HashSet<DiscordUser>(new DiscordUserComparer());
             foreach (var usr in this._mentionedUsers)
             {
                 usr.Discord = this.Discord;
                 this.Discord.UpdateUserCache(usr);
-
-                mentionedUsers.Add(usr);
             }
+
             if (guild != null && !string.IsNullOrWhiteSpace(this.Content))
             {
                 this._mentionedChannels = this._mentionedChannels.Union(Utilities.GetChannelMentions(this).Select(xid => guild.GetChannel(xid))).ToList();
@@ -405,7 +403,6 @@ namespace DSharpPlus.Entities
                 //mentionedUsers.UnionWith(Utilities.GetUserMentions(this).Select(this.Discord.GetCachedOrEmptyUserInternal));
                 //this._mentionedRoles = this._mentionedRoles.Union(Utilities.GetRoleMentions(this).Select(xid => guild.GetRole(xid))).ToList();
             }
-            this._mentionedUsers = mentionedUsers.ToList();
         }
 
         /// <summary>
