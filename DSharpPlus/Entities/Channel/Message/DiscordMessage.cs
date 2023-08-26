@@ -389,53 +389,21 @@ namespace DSharpPlus.Entities
             this._mentionedChannels ??= new List<DiscordChannel>();
 
             var mentionedUsers = new HashSet<DiscordUser>(new DiscordUserComparer());
-            if (guild != null)
+            foreach (var usr in this._mentionedUsers)
             {
-                foreach (var usr in this._mentionedUsers)
-                {
-                    var member = usr as DiscordMember;
-                    if (member != null)
-                    {
-                        this.Discord.UpdateUserCache(new DiscordUser()
-                        {
-                            Id = member.Id,
-                            Username = member.Username,
-                            Discriminator = member.Discriminator,
-                            AvatarHash = member.AvatarHash,
-                            _bannerColor = member._bannerColor,
-                            BannerHash = member.BannerHash,
-                            IsBot = member.IsBot,
-                            MfaEnabled = member.MfaEnabled,
-                            Verified = member.Verified,
-                            Email = member.Email,
-                            PremiumType = member.PremiumType,
-                            Locale = member.Locale,
-                            Flags = member.Flags,
-                            OAuthFlags = member.OAuthFlags,
-                            Discord = this.Discord
-                        });
-                    }
-                    else
-                    {
-                        usr.Discord = this.Discord;
-                        this.Discord.UpdateUserCache(usr);
-                    }
+                usr.Discord = this.Discord;
+                this.Discord.UpdateUserCache(usr);
 
-                    mentionedUsers.Add(member ?? (guild._members.TryGetValue(usr.Id, out var cachedMember) ? cachedMember : usr));
-                }
+                mentionedUsers.Add(usr);
             }
-            if (!string.IsNullOrWhiteSpace(this.Content))
+            if (guild != null && !string.IsNullOrWhiteSpace(this.Content))
             {
+                this._mentionedChannels = this._mentionedChannels.Union(Utilities.GetChannelMentions(this).Select(xid => guild.GetChannel(xid))).ToList();
+                this._mentionedRoles = this._mentionedRoles.Union(this._mentionedRoleIds.Select(xid => guild.GetRole(xid))).ToList();
+
                 //uncomment if this breaks
                 //mentionedUsers.UnionWith(Utilities.GetUserMentions(this).Select(this.Discord.GetCachedOrEmptyUserInternal));
-
-                if (guild != null)
-                {
-                    //uncomment if this breaks
-                    //this._mentionedRoles = this._mentionedRoles.Union(Utilities.GetRoleMentions(this).Select(xid => guild.GetRole(xid))).ToList();
-                    this._mentionedRoles = this._mentionedRoles.Union(this._mentionedRoleIds.Select(xid => guild.GetRole(xid))).ToList();
-                    this._mentionedChannels = this._mentionedChannels.Union(Utilities.GetChannelMentions(this).Select(xid => guild.GetChannel(xid))).ToList();
-                }
+                //this._mentionedRoles = this._mentionedRoles.Union(Utilities.GetRoleMentions(this).Select(xid => guild.GetRole(xid))).ToList();
             }
             this._mentionedUsers = mentionedUsers.ToList();
         }
