@@ -168,7 +168,7 @@ public sealed class DiscordRuleTriggerMetadataBuilder
     /// <returns>The build trigger metadata.</returns>
     public DiscordRuleTriggerMetadata Build()
     {
-        var metadata = new DiscordRuleTriggerMetadata
+        DiscordRuleTriggerMetadata metadata = new()
         {
             AllowedKeywords = this.AllowedKeywords ?? Array.Empty<string>(),
             KeywordFilter = this.KeywordFilter,

@@ -21,7 +21,7 @@ public class DiscordAutoModerationRule : SnowflakeObject
     /// Gets the guild which the rule is in.
     /// </summary>
     [JsonIgnore]
-    public DiscordGuild? Guild => this.Discord.Guilds.TryGetValue(this.GuildId, out var guild) ? guild : null;
+    public DiscordGuild? Guild => this.Discord.Guilds.TryGetValue(this.GuildId, out DiscordGuild? guild) ? guild : null;
 
     /// <summary>
     /// Gets the rule name.
@@ -100,7 +100,7 @@ public class DiscordAutoModerationRule : SnowflakeObject
     /// <returns>The modified rule.</returns>
     public async Task<DiscordAutoModerationRule> ModifyAsync(Action<AutoModerationRuleEditModel> action)
     {
-        var model = new AutoModerationRuleEditModel();
+        AutoModerationRuleEditModel model = new();
 
         action(model);
 
