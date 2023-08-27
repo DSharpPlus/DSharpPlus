@@ -1,6 +1,6 @@
 namespace DSharpPlus.Entities;
 
-using Enums;
+using DSharpPlus.Enums;
 
 using Newtonsoft.Json;
 
