@@ -39,4 +39,14 @@ public sealed class DiscordAuditLogIntegrationEntry : DiscordAuditLogEntry
     /// Gets the description of expire behavior change.
     /// </summary>
     public PropertyChange<int?> ExpireBehavior { get; internal set; }
+    
+    /// <summary>
+    /// Gets the type of the integration.
+    /// </summary>
+    public PropertyChange<string> Type { get; internal set; }
+    
+    /// <summary>
+    /// Gets the name of the integration.
+    /// </summary>
+    public PropertyChange<string> Name { get; internal set; }
 }

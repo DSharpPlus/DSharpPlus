@@ -64,6 +64,11 @@ public sealed class DiscordAuditLogThreadEventEntry : DiscordAuditLogEntry
     /// Gets a change in the thread's slowmode setting
     /// </summary>
     public PropertyChange<int?> PerUserRateLimit { get; internal set; }
+    
+    /// <summary>
+    /// Gets a change in channel flags
+    /// </summary>
+    public PropertyChange<ChannelFlags?> Flags { get; internal set; }
 
     internal DiscordAuditLogThreadEventEntry() { }
 }
