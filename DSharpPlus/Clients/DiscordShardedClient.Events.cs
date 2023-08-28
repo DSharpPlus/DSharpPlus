@@ -632,43 +632,7 @@ namespace DSharpPlus
         private AsyncEvent<DiscordClient, ThreadMembersUpdateEventArgs> _threadMembersUpdated;
 
         #endregion
-
-        #region Application
-
-        /// <summary>
-        /// Fired when a new application command is registered.
-        /// </summary>
-        [Obsolete("This event has been removed by discord and does not fire anymore.", false)]
-        public event AsyncEventHandler<DiscordClient, ApplicationCommandEventArgs> ApplicationCommandCreated
-        {
-            add => this._applicationCommandCreated.Register(value);
-            remove => this._applicationCommandCreated.Unregister(value);
-        }
-        private AsyncEvent<DiscordClient, ApplicationCommandEventArgs> _applicationCommandCreated;
-
-        /// <summary>
-        /// Fired when an application command is updated.
-        /// </summary>
-        [Obsolete("This event has been removed by discord and does not fire anymore.", false)]
-        public event AsyncEventHandler<DiscordClient, ApplicationCommandEventArgs> ApplicationCommandUpdated
-        {
-            add => this._applicationCommandUpdated.Register(value);
-            remove => this._applicationCommandUpdated.Unregister(value);
-        }
-        private AsyncEvent<DiscordClient, ApplicationCommandEventArgs> _applicationCommandUpdated;
-
-        /// <summary>
-        /// Fired when an application command is deleted.
-        /// </summary>
-        [Obsolete("This event has been removed by discord and does not fire anymore.", false)]
-        public event AsyncEventHandler<DiscordClient, ApplicationCommandEventArgs> ApplicationCommandDeleted
-        {
-            add => this._applicationCommandDeleted.Register(value);
-            remove => this._applicationCommandDeleted.Unregister(value);
-        }
-        private AsyncEvent<DiscordClient, ApplicationCommandEventArgs> _applicationCommandDeleted;
-
-        #endregion
+        
 
         #region Integration
 
@@ -701,6 +665,14 @@ namespace DSharpPlus
             remove => this._integrationDeleted.Unregister(value);
         }
         private AsyncEvent<DiscordClient, IntegrationDeleteEventArgs> _integrationDeleted;
+        
+        public event AsyncEventHandler<DiscordClient, ApplicationCommandPermissionsUpdatedEventArgs> ApplicationCommandPermissionsUpdated
+        {
+            add => this._applicationCommandPermissionsUpdated.Register(value);
+            remove => this._applicationCommandPermissionsUpdated.Unregister(value);
+        }
+
+        private AsyncEvent<DiscordClient, ApplicationCommandPermissionsUpdatedEventArgs> _applicationCommandPermissionsUpdated;
 
         #endregion
 
