@@ -271,6 +271,16 @@ namespace DSharpPlus
         }
         private AsyncEvent<DiscordClient, GuildIntegrationsUpdateEventArgs> _guildIntegrationsUpdated;
 
+        /// <summary>
+        /// Fired when a audit log entry is created.
+        /// </summary>
+        public event AsyncEventHandler<DiscordClient, GuildAuditLogCreatedEventArgs> GuildAuditLogCreated
+        {
+            add => this._guildAuditLogCreated.Register(value);
+            remove => this._guildAuditLogCreated.Unregister(value);
+        }
+        private AsyncEvent<DiscordClient, GuildAuditLogCreatedEventArgs> _guildAuditLogCreated;        
+        
         #endregion
 
         #region Scheduled Guild Events
