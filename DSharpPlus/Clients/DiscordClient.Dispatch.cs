@@ -477,6 +477,9 @@ namespace DSharpPlus
                     await this.OnIntegrationDeleteAsync((ulong)dat["id"], (ulong)dat["guild_id"], (ulong?)dat["application_id"]);
                     break;
 
+                case "application_command_permissions_update":
+                    await this.OnApplicationCommandPermissionsUpdateAsync(dat);
+                    break;
                 #endregion
 
                 #region Stage Instance
@@ -2312,6 +2315,17 @@ namespace DSharpPlus
             };
 
             await this._integrationDeleted.InvokeAsync(this, ea);
+        }
+
+        #endregion
+
+        #region Commands
+
+        internal async Task OnApplicationCommandPermissionsUpdateAsync(JObject obj)
+        {
+            ApplicationCommandPermissionsUpdatedEventArgs? ev = obj.ToObject<ApplicationCommandPermissionsUpdatedEventArgs>();
+
+            await this._applicationCommandPermissionsUpdated.InvokeAsync(this, ev);
         }
 
         #endregion

@@ -665,6 +665,14 @@ namespace DSharpPlus
             remove => this._integrationDeleted.Unregister(value);
         }
         private AsyncEvent<DiscordClient, IntegrationDeleteEventArgs> _integrationDeleted;
+        
+        public event AsyncEventHandler<DiscordClient, ApplicationCommandPermissionsUpdatedEventArgs> ApplicationCommandPermissionsUpdated
+        {
+            add => this._applicationCommandPermissionsUpdated.Register(value);
+            remove => this._applicationCommandPermissionsUpdated.Unregister(value);
+        }
+
+        private AsyncEvent<DiscordClient, ApplicationCommandPermissionsUpdatedEventArgs> _applicationCommandPermissionsUpdated;
 
         #endregion
 
