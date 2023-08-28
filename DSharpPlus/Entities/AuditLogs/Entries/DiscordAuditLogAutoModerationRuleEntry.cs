@@ -83,4 +83,24 @@ public sealed class DiscordAuditLogAutoModerationRuleEntry : DiscordAuditLogEntr
     /// Channels that should not be affected by the rule
     /// </summary>
     public PropertyChange<IEnumerable<DiscordChannel>?> ExemptChannels { get; internal set; }
+    
+    /// <summary>
+    /// List of trigger keywords that were added to the rule
+    /// </summary>
+    public IEnumerable<string>? AddedKeywords { get; internal set; }
+    
+    /// <summary>
+    /// List of trigger keywords that were removed from the rule
+    /// </summary>
+    public IEnumerable<string>? RemovedKeywords { get; internal set; }
+    
+    /// <summary>
+    /// List of trigger regex patterns that were added to the rule
+    /// </summary>
+    public IEnumerable<string>? AddedRegexPatterns { get; internal set; }
+    
+    /// <summary>
+    /// List of trigger regex patterns that were removed from the rule
+    /// </summary>
+    public IEnumerable<string>? RemovedRegexPatterns { get; internal set; }
 }

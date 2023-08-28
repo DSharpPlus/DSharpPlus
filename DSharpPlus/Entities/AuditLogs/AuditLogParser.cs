@@ -645,6 +645,22 @@ internal static class AuditLogParser
                             : null
                     };
                     break;
+                
+                case "$add_keyword_filter":
+                    ruleEntry.AddedKeywords = change.NewValues.Select(x => x.ToObject<string>()).ToList();
+                    break;
+                
+                case "$remove_keyword_filter":
+                    ruleEntry.RemovedKeywords = change.NewValues.Select(x => x.ToObject<string>()).ToList();
+                    break;
+                
+                case "$add_regex_patterns":
+                    ruleEntry.AddedRegexPatterns = change.NewValues.Select(x => x.ToObject<string>()).ToList();
+                    break;
+                
+                case "$remove_regex_patterns":
+                    ruleEntry.RemovedRegexPatterns = change.NewValues.Select(x => x.ToObject<string>()).ToList();
+                    break;
 
                 default:
                     if (guild.Discord.Configuration.LogUnknownAuditlogs)
