@@ -255,7 +255,7 @@ namespace DSharpPlus
 
         /// <summary>
         /// Fired when a guilds emojis get updated
-        /// For this Event you need the <see cref="DiscordIntents.GuildEmojis"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// For this Event you need the <see cref="DiscordIntents.GuildEmojisAndStickers"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
         /// </summary>
         public event AsyncEventHandler<DiscordClient, GuildEmojisUpdateEventArgs> GuildEmojisUpdated
         {
@@ -345,7 +345,7 @@ namespace DSharpPlus
 
         /// <summary>
         /// Fired when a guild ban gets added
-        /// For this Event you need the <see cref="DiscordIntents.GuildBans"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// For this Event you need the <see cref="DiscordIntents.GuildModeration"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
         /// </summary>
         public event AsyncEventHandler<DiscordClient, GuildBanAddEventArgs> GuildBanAdded
         {
@@ -356,7 +356,7 @@ namespace DSharpPlus
 
         /// <summary>
         /// Fired when a guild ban gets removed
-        /// For this Event you need the <see cref="DiscordIntents.GuildBans"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
+        /// For this Event you need the <see cref="DiscordIntents.GuildModeration"/> intent specified in <seealso cref="DiscordConfiguration.Intents"/>
         /// </summary>
         public event AsyncEventHandler<DiscordClient, GuildBanRemoveEventArgs> GuildBanRemoved
         {
