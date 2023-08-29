@@ -1124,168 +1124,233 @@ public sealed class DiscordApiClient
 
     #region Stickers
 
-    internal async Task<DiscordMessageSticker> GetGuildStickerAsync(ulong guild_id, ulong sticker_id)
+    internal async ValueTask<DiscordMessageSticker> GetGuildStickerAsync
+    (
+        ulong guildId, 
+        ulong stickerId
+    )
     {
-        string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.STICKERS}/:sticker_id";
-        var bucket = this._rest.GetBucket(RestRequestMethod.GET, route, new { guild_id, sticker_id }, out var path);
-        Uri url = Utilities.GetApiUriFor(path);
+        RestRequest request = new()
+        {
+            Route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.STICKERS}/:sticker_id",
+            Url = new($"{Endpoints.GUILDS}/{guildId}/{Endpoints.STICKERS}/{stickerId}"),
+            Method = HttpMethod.Get
+        };
 
-        var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.GET, route);
-        var json = JObject.Parse(res.Response);
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
+        JObject json = JObject.Parse(res.Response!);
+
         DiscordMessageSticker ret = json.ToDiscordObject<DiscordMessageSticker>();
 
         if (json["user"] is JObject jusr) // Null = Missing stickers perm //
         {
             TransportUser tsr = jusr.ToDiscordObject<TransportUser>();
-            DiscordUser usr = new(tsr) { Discord = this._discord };
+            DiscordUser usr = new(tsr) { Discord = this._discord! };
             ret.User = usr;
         }
 
-        ret.Discord = this._discord;
+        ret.Discord = this._discord!;
         return ret;
     }
 
-    internal async Task<DiscordMessageSticker> GetStickerAsync(ulong sticker_id)
+    internal async ValueTask<DiscordMessageSticker> GetStickerAsync
+    (
+        ulong stickerId
+    )
     {
-        string route = $"{Endpoints.STICKERS}/:sticker_id";
-        var bucket = this._rest.GetBucket(RestRequestMethod.GET, route, new { sticker_id }, out var path);
-        Uri url = Utilities.GetApiUriFor(path);
+        RestRequest request = new()
+        {
+            Route = $"{Endpoints.STICKERS}/:sticker_id",
+            Url = new($"{Endpoints.STICKERS}/{stickerId}"),
+            Method = HttpMethod.Get
+        };
 
-        var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.GET, route);
-        var json = JObject.Parse(res.Response);
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
+        JObject json = JObject.Parse(res.Response!);
+
         DiscordMessageSticker ret = json.ToDiscordObject<DiscordMessageSticker>();
 
         if (json["user"] is JObject jusr) // Null = Missing stickers perm //
         {
             TransportUser tsr = jusr.ToDiscordObject<TransportUser>();
-            DiscordUser usr = new(tsr) { Discord = this._discord };
+            DiscordUser usr = new(tsr) { Discord = this._discord! };
             ret.User = usr;
         }
 
-        ret.Discord = this._discord;
+        ret.Discord = this._discord!;
         return ret;
     }
 
-    internal async Task<IReadOnlyList<DiscordMessageStickerPack>> GetStickerPacksAsync()
+    internal async ValueTask<IReadOnlyList<DiscordMessageStickerPack>> GetStickerPacksAsync()
     {
-        string route = $"{Endpoints.STICKERPACKS}";
-        var bucket = this._rest.GetBucket(RestRequestMethod.GET, route, new { }, out var path);
+        RestRequest request = new()
+        {
+            Route = $"{Endpoints.STICKERPACKS}",
+            Url = new($"{Endpoints.STICKERPACKS}"),
+            Method = HttpMethod.Get
+        };
 
-        Uri url = Utilities.GetApiUriFor(path);
-        var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.GET, route);
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
 
-        JArray json = JObject.Parse(res.Response)["sticker_packs"] as JArray;
+        JArray json = (JArray)JObject.Parse(res.Response!)["sticker_packs"]!;
         DiscordMessageStickerPack[] ret = json.ToDiscordObject<DiscordMessageStickerPack[]>();
 
         return ret;
     }
 
-    internal async Task<IReadOnlyList<DiscordMessageSticker>> GetGuildStickersAsync(ulong guild_id)
+    internal async ValueTask<IReadOnlyList<DiscordMessageSticker>> GetGuildStickersAsync
+    (
+        ulong guildId
+    )
     {
-        string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.STICKERS}";
-        var bucket = this._rest.GetBucket(RestRequestMethod.GET, route, new { guild_id }, out var path);
-        Uri url = Utilities.GetApiUriFor(path);
+        RestRequest request = new()
+        {
+            Route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.STICKERS}",
+            Url = new($"{Endpoints.GUILDS}/{guildId}/{Endpoints.STICKERS}"),
+            Method = HttpMethod.Get
+        };
 
-        var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.GET, route);
-        var json = JArray.Parse(res.Response);
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
+        JArray json = JArray.Parse(res.Response!);
+
         DiscordMessageSticker[] ret = json.ToDiscordObject<DiscordMessageSticker[]>();
 
 
         for (int i = 0; i < ret.Length; i++)
         {
-            DiscordMessageSticker stkr = ret[i];
-            stkr.Discord = this._discord;
+            DiscordMessageSticker sticker = ret[i];
+            sticker.Discord = this._discord!;
 
             if (json[i]["user"] is JObject jusr) // Null = Missing stickers perm //
             {
-                TransportUser tsr = jusr.ToDiscordObject<TransportUser>();
-                DiscordUser usr = new(tsr) { Discord = this._discord };
-                stkr.User = usr; // The sticker would've already populated, but this is just to ensure everything is up to date //
+                TransportUser transportUser = jusr.ToDiscordObject<TransportUser>();
+                DiscordUser user = new(transportUser) 
+                { 
+                    Discord = this._discord! 
+                };
+
+                // The sticker would've already populated, but this is just to ensure everything is up to date
+                sticker.User = user;
             }
         }
 
         return ret;
     }
 
-    internal async Task<DiscordMessageSticker> CreateGuildStickerAsync(ulong guild_id, string name, string description, string tags, DiscordMessageFile file, string reason)
+    internal async ValueTask<DiscordMessageSticker> CreateGuildStickerAsync
+    (
+        ulong guildId, 
+        string name, 
+        string description, 
+        string tags, 
+        DiscordMessageFile file, 
+        string? reason = null
+    )
     {
-        Dictionary<string, string> headers = Utilities.GetBaseHeaders();
-        if (!string.IsNullOrWhiteSpace(reason))
+        MultipartRestRequest request = new()
         {
-            headers[REASON_HEADER_NAME] = reason;
-        }
-
-        string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.STICKERS}";
-        var bucket = this._rest.GetBucket(RestRequestMethod.POST, route, new { guild_id }, out var path);
-        Uri url = Utilities.GetApiUriFor(path);
-
-        if (!string.IsNullOrEmpty(reason))
-        {
-            headers[REASON_HEADER_NAME] = reason;
-        }
-
-        Dictionary<string, string> values = new()
-        {
-            ["name"] = name,
-            ["description"] = description,
-            ["tags"] = tags,
+            Route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.STICKERS}",
+            Url = new($"{Endpoints.GUILDS}/{guildId}/{Endpoints.STICKERS}"),
+            Method = HttpMethod.Post,
+            Headers = reason is null
+                ? null
+                : new Dictionary<string, string>()
+                {
+                    [REASON_HEADER_NAME] = reason
+                },
+            Files = new DiscordMessageFile[]
+            {
+                file
+            },
+            Values = new Dictionary<string, string>()
+            {
+                ["name"] = name,
+                ["description"] = description,
+                ["tags"] = tags,
+            }
         };
 
-        var res = await this.DoMultipartAsync(this._discord, bucket, url, RestRequestMethod.POST, route, headers, values, new[] { file }, removeFileCount: true);
-        var json = JObject.Parse(res.Response);
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
+        JObject json = JObject.Parse(res.Response!);
+
         DiscordMessageSticker ret = json.ToDiscordObject<DiscordMessageSticker>();
 
-        if (json["user"] is JObject jusr) // Null = Missing stickers perm //
+        if (json["user"] is JObject rawUser) // Null = Missing stickers perm //
         {
-            TransportUser tsr = jusr.ToDiscordObject<TransportUser>();
-            DiscordUser usr = new(tsr) { Discord = this._discord };
-            ret.User = usr;
+            TransportUser transportUser = rawUser.ToDiscordObject<TransportUser>();
+
+            DiscordUser user = new(transportUser) 
+            { 
+                Discord = this._discord! 
+            };
+
+            ret.User = user;
         }
 
-        ret.Discord = this._discord;
+        ret.Discord = this._discord!;
 
         return ret;
     }
 
-    internal async Task<DiscordMessageSticker> ModifyStickerAsync(ulong guild_id, ulong sticker_id, Optional<string> name, Optional<string> description, Optional<string> tags, string reason)
+    internal async ValueTask<DiscordMessageSticker> ModifyStickerAsync
+    (
+        ulong guildId, 
+        ulong stickerId, 
+        Optional<string> name = default, 
+        Optional<string> description = default, 
+        Optional<string> tags = default, 
+        string? reason = null
+    )
     {
-        Dictionary<string, string> headers = new();
-        if (!string.IsNullOrWhiteSpace(reason))
-        {
-            headers[REASON_HEADER_NAME] = reason;
-        }
-
-        string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.STICKERS}/:sticker_id";
-        var bucket = this._rest.GetBucket(RestRequestMethod.PATCH, route, new { guild_id, sticker_id }, out var path);
-        Uri url = Utilities.GetApiUriFor(path);
-
-        RestStickerModifyPayload pld = new()
+        RestStickerModifyPayload payload = new()
         {
             Name = name,
             Description = description,
             Tags = tags
         };
 
-        var res = await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.PATCH, route, headers: headers, payload: DiscordJson.SerializeObject(pld));
-        DiscordMessageSticker ret = JObject.Parse(res.Response).ToDiscordObject<DiscordMessageSticker>();
-        ret.Discord = this._discord;
+        RestRequest request = new()
+        {
+            Route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.STICKERS}/:sticker_id",
+            Url = new($"{Endpoints.GUILDS}/{guildId}/{Endpoints.STICKERS}/{stickerId}"),
+            Method = HttpMethod.Patch,
+            Payload = DiscordJson.SerializeObject(payload),
+            Headers = reason is null
+                ? null
+                : new Dictionary<string, string>
+                {
+                    [REASON_HEADER_NAME] = reason
+                }
+        };
+
+        RestResponse res = await this._rest.ExecuteRequestAsync(request);
+        DiscordMessageSticker ret = JObject.Parse(res.Response!).ToDiscordObject<DiscordMessageSticker>();
+        ret.Discord = this._discord!;
 
         return ret;
     }
 
-    internal async Task DeleteStickerAsync(ulong guild_id, ulong sticker_id, string reason)
+    internal async ValueTask DeleteStickerAsync
+    (
+        ulong guildId, 
+        ulong stickerId, 
+        string? reason = null
+    )
     {
-        Dictionary<string, string> headers = new();
-        if (!string.IsNullOrWhiteSpace(reason))
+        RestRequest request = new()
         {
-            headers[REASON_HEADER_NAME] = reason;
-        }
+            Route = $"{Endpoints.GUILDS}/{guildId}/{Endpoints.STICKERS}/:sticker_id",
+            Url = new($"{Endpoints.GUILDS}/{guildId}/{Endpoints.STICKERS}/{stickerId}"),
+            Method = HttpMethod.Delete,
+            Headers = reason is null
+                ? null
+                : new Dictionary<string, string>()
+                {
+                    [REASON_HEADER_NAME] = reason
+                }
+        };
 
-        string route = $"{Endpoints.GUILDS}/:guild_id{Endpoints.STICKERS}/:sticker_id";
-        var bucket = this._rest.GetBucket(RestRequestMethod.DELETE, route, new { guild_id, sticker_id }, out var path);
-        Uri url = Utilities.GetApiUriFor(path);
-
-        await this.DoRequestAsync(this._discord, bucket, url, RestRequestMethod.DELETE, route, headers: headers);
+        await this._rest.ExecuteRequestAsync(request);
     }
 
     #endregion
