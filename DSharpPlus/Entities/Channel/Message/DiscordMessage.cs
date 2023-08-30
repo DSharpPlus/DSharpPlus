@@ -388,18 +388,18 @@ namespace DSharpPlus.Entities
             this._mentionedRoles ??= new List<DiscordRole>();
             this._mentionedChannels ??= new List<DiscordChannel>();
 
-            // Create a Hashset that will replace '_mentionedUsers'.
+            // Create a Hashset that will replace 'this._mentionedUsers'.
             var mentionedUsers = new HashSet<DiscordUser>(new DiscordUserComparer());
 
             foreach (var usr in this._mentionedUsers)
             {
-                // Assign Discord instance and update user cache.
+                // Assign the Discord instance and update the user cache.
                 usr.Discord = this.Discord;
                 this.Discord.UpdateUserCache(usr);
 
                 if (guild != null && usr is not DiscordMember && guild._members.TryGetValue(usr.Id, out var cachedMember))
                 {
-                    // If message is from guild, but a discord member isn't passed, try to get member out of guild members cache.
+                    // If the message is from a guild, but a discord member isn't provided, try to get the discord member out of guild members cache.
                     mentionedUsers.Add(cachedMember);
                 }
                 else
@@ -409,7 +409,7 @@ namespace DSharpPlus.Entities
                 }
             }
 
-            // Replace '_mentionedUsers'.
+            // Replace 'this._mentionedUsers'.
             this._mentionedUsers = mentionedUsers.ToList();
 
             if (guild != null && !string.IsNullOrWhiteSpace(this.Content))
