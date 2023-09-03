@@ -1154,29 +1154,29 @@ internal static class AuditLogParser
                 case "bitrate":
                     entry.BitrateChange = new PropertyChange<int?>
                     {
-                        Before = (int?)change.OldValueLong, After = (int?)change.NewValueLong
+                        Before = (int?)change.OldValue, After = (int?)change.NewValue
                     };
                     break;
 
                 case "rate_limit_per_user":
                     entry.PerUserRateLimitChange = new PropertyChange<int?>
                     {
-                        Before = (int?)change.OldValueLong, After = (int?)change.NewValueLong
+                        Before = (int?) change.OldValue, After = (int?) change.NewValue
                     };
                     break;
                 
                 case "user_limit":
                     entry.UserLimit = new PropertyChange<int?>
                     {
-                        Before = (int?)change.OldValueLong, After = (int?)change.NewValueLong
+                        Before = (int?)change.OldValueLong, After = (int?) change.NewValue
                     };
                     break;
                 
                 case "flags":
                     entry.Flags = new PropertyChange<ChannelFlags?>
                     {
-                        Before = change.OldValue != null ? (ChannelFlags) change.OldValueLong : null,
-                        After = change.NewValue != null ? (ChannelFlags) change.NewValueLong : null
+                        Before = change.OldValue != null ? (ChannelFlags) change.OldValue : null,
+                        After = change.NewValue != null ? (ChannelFlags) change.NewValue : null
                     };
                     break;
 
