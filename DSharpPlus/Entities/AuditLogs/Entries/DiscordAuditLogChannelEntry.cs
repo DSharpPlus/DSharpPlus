@@ -66,6 +66,10 @@ public sealed class DiscordAuditLogChannelEntry : DiscordAuditLogEntry
     /// Gets the description of channel's slow mode timeout change.
     /// </summary>
     public PropertyChange<int?> PerUserRateLimitChange { get; internal set; }
+    
+    public PropertyChange<int?> UserLimit { get; internal set; }
+    
+    public PropertyChange<ChannelFlags?> Flags { get; internal set; }
 
     internal DiscordAuditLogChannelEntry() { }
 }
