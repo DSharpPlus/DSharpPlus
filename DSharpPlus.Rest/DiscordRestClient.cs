@@ -1229,17 +1229,7 @@ namespace DSharpPlus
                     mdl.VoiceChannel.IfPresent(e => e?.Id), mdl.CommunicationDisabledUntil, mdl.AuditLogReason);
             }
         }
-
-        /// <summary>
-        /// Changes current user's nickname
-        /// </summary>
-        /// <param name="guild_id">Guild ID</param>
-        /// <param name="nick">Nickname</param>
-        /// <param name="reason">Reason why you set it to this</param>
-        /// <returns></returns>
-        [Obsolete("This method is depreciated and will be removed in a future version. Please use ModifyCurrentMemberAsync instead.", false)]
-        public Task ModifyCurrentMemberNicknameAsync(ulong guild_id, string nick, string reason)
-            => this.ApiClient.ModifyCurrentMemberAsync(guild_id, nick, reason);
+        
 
         /// <summary>
         /// Changes the current user in a guild.

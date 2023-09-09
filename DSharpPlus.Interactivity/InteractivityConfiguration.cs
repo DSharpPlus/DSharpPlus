@@ -56,7 +56,7 @@ public sealed class InteractivityConfiguration
     /// <summary>
     /// How to handle buttons after pagination ends.
     /// </summary>
-    public ButtonPaginationBehavior ButtonBehavior { internal get; set; } = new();
+    public ButtonPaginationBehavior ButtonBehavior { internal get; set; }
 
     /// <summary>
     /// How to handle pagination. Defaults to WrapAround.
@@ -102,6 +102,8 @@ public sealed class InteractivityConfiguration
         this.Timeout = other.Timeout;
 
         if (this.ResponseBehavior is InteractionResponseBehavior.Respond && string.IsNullOrWhiteSpace(this.ResponseMessage))
+        {
             throw new ArgumentException($"{nameof(this.ResponseMessage)} cannot be null, empty, or whitespace when {nameof(this.ResponseBehavior)} is set to respond.");
+        }
     }
 }
