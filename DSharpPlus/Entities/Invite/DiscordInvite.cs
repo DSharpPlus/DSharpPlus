@@ -64,14 +64,7 @@ namespace DSharpPlus.Entities
         /// </summary>
         [JsonProperty("target_application", NullValueHandling = NullValueHandling.Ignore)]
         public DiscordApplication TargetApplication { get; internal set; }
-
-        /// <summary>
-        /// Gets the type of user who the invite is for.
-        /// </summary>
-        [Obsolete("This property is depreciated and will be removed in a future version. Please use TargetType instead.", false)]
-        [JsonProperty("target_user_type", NullValueHandling = NullValueHandling.Ignore)]
-        public TargetUserType? TargetUserType { get; internal set; }
-
+        
         /// <summary>
         /// Gets the target application for this invite.
         /// </summary>
