@@ -65,6 +65,11 @@ public static class DiscordIntentExtensions
 public enum DiscordIntents
 {
     /// <summary>
+    /// By default, no Discord Intents are requested from the Discord gateway.
+    /// </summary>
+    None = 0,
+
+    /// <summary>
     /// Whether to include general guild events.
     /// <para>These include <see cref="DiscordClient.GuildCreated"/>, <see cref="DiscordClient.GuildDeleted"/>, <see cref="DiscordClient.GuildAvailable"/>, <see cref="DiscordClient.GuildDownloadCompleted"/>,</para>
     /// <para><see cref="DiscordClient.GuildRoleCreated"/>, <see cref="DiscordClient.GuildRoleUpdated"/>, <see cref="DiscordClient.GuildRoleDeleted"/>,</para>
